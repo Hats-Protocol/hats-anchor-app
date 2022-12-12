@@ -1,3 +1,4 @@
+import { useForm } from 'react-hook-form';
 import { SquaresPlusIcon, UserCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -5,6 +6,7 @@ const navigation = [
     { name: 'Add authorities', href: '#', icon: SquaresPlusIcon, current: false },
     { name: 'Mint your hat', href: '#', icon: UserGroupIcon, current: false },
 ]
+
 // const [state, setstate] = useState({
 //     admin_id: "", 
 
@@ -15,10 +17,21 @@ function classNames(...classes) {
 }
 
 export default function CreateHat() {    
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const onSubmit = data => console.log(data);
+  console.log(errors);
+
     // DONE connect tailwindui - can use react hook form
     // connect ether.js
     // connect repo up to github, can use vercel to deploy via github oauth, will auto update on pushed changes to main
-    // TODO focus on gather inputs (populate form, verify that the values are being stored correctly), submitting the form, calling the smart contract
+    // DONE - 1 focus on gather inputs (populate form, verify that the values are being stored correctly)
+    // (double check image input)
+    // TODO 2 submitting the form
+    // TODO 3 calling the smart contract (have read functionalty done in the mvp on vercel, repgrind...)
     
     async function handleFormSubmission() {
         // this function gets called when the form onSubmit button gets hit
@@ -58,13 +71,13 @@ export default function CreateHat() {
           </aside>
     
         <div className="space-y-6 sm:px-6 lg:col-span-9 lg:px-0">
-          <form action="#" method="POST">
+          <form action="#" method="POST" onSubmit={handleSubmit(onSubmit)}>
               <div className="shadow sm:overflow-hidden sm:rounded-md">
                 <div className="space-y-6 bg-white py-6 px-4 sm:p-6">
                   <div>
                     <h3 className="text-lg font-medium leading-6 text-gray-900">Select Difficulty Level</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                      How many settings would you like to customize in your new Hat?
+                      How much would you like to customize this new hat?
                     </p>
                   </div>
     
@@ -74,34 +87,40 @@ export default function CreateHat() {
                     <div className="mt-4 space-y-4">
                       <div className="flex items-center">
                         <input
-                          id="push-everything"
-                          name="push-notifications"
+                          id="difficulty-1"
+                          name="difficulty"
                           type="radio"
                           className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          {...register('difficulty')}
+                          value="1"
                         />
-                        <label htmlFor="push-everything" className="ml-3">
+                        <label htmlFor="difficulty-1" className="ml-3">
                           <span className="block text-sm font-medium text-gray-700">Normal</span>
                         </label>
                       </div>
                       <div className="flex items-center">
                         <input
-                          id="push-email"
-                          name="push-notifications"
+                          id="difficulty-2"
+                          name="difficulty"
                           type="radio"
                           className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          {...register('difficulty')}
+                          value="2"
                         />
-                        <label htmlFor="push-email" className="ml-3">
+                        <label htmlFor="difficulty-2" className="ml-3">
                           <span className="block text-sm font-medium text-gray-700">Hard</span>
                         </label>
                       </div>
                       <div className="flex items-center">
                         <input
-                          id="push-nothing"
-                          name="push-notifications"
+                          id="difficulty-3"
+                          name="difficulty"
                           type="radio"
                           className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          {...register('difficulty')}
+                          value="3"
                         />
-                        <label htmlFor="push-nothing" className="ml-3">
+                        <label htmlFor="difficulty-3" className="ml-3">
                           <span className="block text-sm font-medium text-gray-700">Nightmare!</span>
                         </label>
                       </div>
@@ -119,7 +138,7 @@ export default function CreateHat() {
               </div>
             </form>
 
-            <form action="#" method="POST">
+            <form action="#" method="POST" onSubmit={handleSubmit(onSubmit)}>
               <div className="shadow sm:overflow-hidden sm:rounded-md">
                 <div className="space-y-6 bg-white py-6 px-4 sm:p-6">
                   <div>
@@ -131,35 +150,38 @@ export default function CreateHat() {
     
                   <div className="grid grid-cols-3 gap-6">
                     <div className="col-span-3 sm:col-span-2">
-                      <label htmlFor="company-website" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="hat-name" className="block text-sm font-medium text-gray-700">
                         Hat Name
                       </label>
                       <div className="mt-1 flex rounded-md shadow-sm">
                         <span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
                           hatsprotocol.xyz/
                         </span>
-                        <input
+                        <input                          
                           type="text"
-                          name="username"
-                          id="username"
-                          autoComplete="username"
+                          name="hat-name"
+                          id="hat-name"
+                          autoComplete="hat-name"
                           className="block w-full min-w-0 flex-grow rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          defaultValue="Workstream Leader"
+                          {...register('hatName')}
                         />
                       </div>
                     </div>
     
                     <div className="col-span-3">
-                      <label htmlFor="about" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="details" className="block text-sm font-medium text-gray-700">
                         Details
                       </label>
                       <div className="mt-1">
                         <textarea
-                          id="about"
-                          name="about"
+                          id="details"
+                          name="details"
                           rows={3}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                           placeholder="This Hat is for the coordinator of the DAO's marketing workstream"
                           defaultValue={''}
+                          {...register('details')}
                         />
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
@@ -187,11 +209,17 @@ export default function CreateHat() {
                           </svg>
                           <div className="flex text-sm text-gray-600">
                             <label
-                              htmlFor="file-upload"
+                              htmlFor="hat-image"
                               className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
                             >
                               <span>Upload a file</span>
-                              <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                              <input 
+                                id="hat-image" 
+                                name="hat-image" 
+                                type="file" 
+                                className="sr-only" 
+                                {...register('hatImage')}
+                              />
                             </label>
                             <p className="pl-1">or drag and drop</p>
                           </div>
@@ -215,7 +243,7 @@ export default function CreateHat() {
               </div>
             </form>
     
-            <form action="#" method="POST">
+            <form action="#" method="POST" onSubmit={handleSubmit(onSubmit)}>
               <div className="shadow sm:overflow-hidden sm:rounded-md">
                 <div className="space-y-6 bg-white py-6 px-4 sm:p-6">
                   <div>
@@ -234,6 +262,7 @@ export default function CreateHat() {
                         id="admin-id"
                         autoComplete="admin-id"
                         className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        {...register('adminId')}
                       />
                     </div>
 
@@ -246,6 +275,8 @@ export default function CreateHat() {
                                     name="mutability"
                                     type="radio"
                                     className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    {...register('mutable')}
+                                    value="True"
                                 />
                                 <label htmlFor="mutable" className="ml-3">
                                     <span className="block text-sm font-medium text-gray-700">True</span>
@@ -257,6 +288,8 @@ export default function CreateHat() {
                                     name="mutability"
                                     type="radio"
                                     className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    {...register('mutable')}
+                                    value="False"
                                 />
                                 <label htmlFor="immutable" className="ml-3">
                                     <span className="block text-sm font-medium text-gray-700">False</span>
@@ -275,6 +308,7 @@ export default function CreateHat() {
                         id="max-supply"
                         autoComplete="max-supply"
                         className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        {...register('maxSupply')}
                       />
                     </div>
                     
@@ -291,7 +325,7 @@ export default function CreateHat() {
               </div>
             </form>
 
-            <form action="#" method="POST">
+            <form action="#" method="POST" onSubmit={handleSubmit(onSubmit)}>
               <div className="shadow sm:overflow-hidden sm:rounded-md">
                 <div className="space-y-6 bg-white py-6 px-4 sm:p-6">
                   <div>
@@ -310,6 +344,7 @@ export default function CreateHat() {
                         id="eligibility"
                         autoComplete="eligibility"
                         className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        {...register('eligibility')}
                       />
                     </div>
 
@@ -323,6 +358,7 @@ export default function CreateHat() {
                         id="toggle"
                         autoComplete="toggle"
                         className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                        {...register('toggle')}
                       />
                     </div>
                     
