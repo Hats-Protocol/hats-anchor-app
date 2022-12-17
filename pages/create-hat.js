@@ -30,6 +30,7 @@ export default function CreateHat() {
     // connect repo up to github, can use vercel to deploy via github oauth, will auto update on pushed changes to main
     // DONE - 1 focus on gather inputs (populate form, verify that the values are being stored correctly)
     // (double check image input)
+    // TODO add form validation
     // TODO 2 submitting the form
     // TODO 3 calling the smart contract (have read functionalty done in the mvp on vercel, repgrind...)
     
