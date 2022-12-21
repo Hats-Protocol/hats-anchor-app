@@ -1,4 +1,16 @@
 import { PaperClipIcon } from '@heroicons/react/20/solid'
+import { ethers, BigNumber } from 'ethers'
+import abi from '../lib/hats.abi.json'
+
+const HATS_POLYGON_ADDRESS = 0x95647f88dcbc12986046fc4f49064edd11a25d38;
+const node = "https://polygon-mainnet.infura.io/v3/f7b3bd0fdb174f0fac4aded22da36341";
+const provider = new ethers.providers.WebSocketProvider(node);
+
+const contract = new ethers.Contract(
+  HATS_POLYGON_ADDRESS,
+  abi,
+  provider
+)
 
 export default function Example() {
   return (
