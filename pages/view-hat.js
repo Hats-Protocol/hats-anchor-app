@@ -15,17 +15,20 @@ const contract = new ethers.Contract(
   provider
 )
 
+// TODO
+// - fix too many requests error
+// - implement figma designs
+// - should have the hatID in the URL and automatically load the page
+// - switch contract over to Polygon (including ABI); add Image
+
 function Home() {
   const [hatId, setHatId] = useState("")
-  const [hatIds, setHatIds] = useState([]);
-  // const [contractVar, setContractVar] = useState("")
   const [contractVars, setContractVars] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false)
 
-  async function getContractUris(hatId) {
+  async function getContractUri(hatId) {
     const internalContractVars = await contract.uri(hatId)
     setContractVars(internalContractVars)
-    
     setFormSubmitted(true)
   }
 
@@ -48,16 +51,14 @@ function Home() {
         </div>
         <div className="mt-4 flex justify-center">
           <button
-            // onClick={() => getContractUri(hatId)}
-            onClick={() => getContractUris(hatId)}
+            onClick={() => getContractUri(hatId)}
             type="button"
             className="w-40 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
-            Get Hats
-                      </button>
+            View Hat
+          </button>
         </div>
       </div>
-      <p>Hats Protocol 4 lyfe</p>
       {
         formSubmitted &&
         URIComponent(contractVars)
@@ -68,23 +69,13 @@ function Home() {
 
 export default Home
 
-// personal top hat BREAKS!
-// 53919893334301279589334030174039261347274288845081144962207220498432
-// mastermind hat id 
-// 54025205625969836776031948201722931779593183940481694073461531475968
-
-// alpha hat
-// 27065258958819196981364933114703301105956039517941121592357921226752
-// downstream hat
-// 27065670334958527282875471856998940443582285201907529987323758379008
-
 function URIComponent(c) {
   var legibleUri = parseUri(decodeUri(c))
   var properties = legibleUri.properties
   return <section>
     <div className="overflow-hidden bg-white shadow sm:rounded-lg">
       <div className="px-4 py-2 sm:px-6">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Hat Details</h3>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">Hats Protocol 4 lyfe</h3>
       </div>
       <div className="border-t border-gray-200 px-4 py-2 sm:p-0">
         <dl className="sm:divide-y sm:divide-gray-200">
@@ -148,6 +139,5 @@ function parseUri(uri) {
 
 function decodeUri(uri) {
   const decoded = Buffer.from(uri.substring(29), 'base64').toString('utf8')
-  console.log(decoded)
   return decoded
 }
