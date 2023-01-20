@@ -1,6 +1,6 @@
 import { PaperClipIcon } from '@heroicons/react/20/solid'
-import { ethers, BigNumber } from 'ethers'
-import { FC, useState } from 'react'
+import { ethers } from 'ethers'
+import { useState, useEffect } from 'react'
 import abi from '../lib/hats.abi.json'
 
 const HATS_POLYGON_ADDRESS = '0xB7019C3670F5d4dD99166727a7D29F8A16F4F20A'
@@ -16,7 +16,7 @@ const contract = new ethers.Contract(
 )
 
 // TODO
-// - fix too many requests error
+// - [seems fixed...] fix too many requests error
 // - implement figma designs
 // - should have the hatID in the URL and automatically load the page
 // - switch contract over to Polygon (including ABI); add Image
