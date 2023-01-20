@@ -15,10 +15,6 @@ const contract = new ethers.Contract(
   provider
 )
 
-function timeout(delay) {
-  return new Promise( res => setTimeout(res, delay) );
-}
-
 function Home() {
   const [hatId, setHatId] = useState("")
   const [hatIds, setHatIds] = useState([]);
@@ -26,155 +22,9 @@ function Home() {
   const [contractVars, setContractVars] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false)
 
-  // async function getContractUri(hatId: string) {
-  //   const contractVar = await contract.uri(hatId)
-  //   setContractVar(contractVar)
-  //   setFormSubmitted(true)
-  // }
-
-  function buildNextId (hatId, n, level) {
-    const hatIdAsBigNum = BigNumber.from(hatId)
-
-    /*
-      have the hatId 26959946667150639794667015087019630673637144422540572481103610249216
-      pretty version 0x0000000100000000000000000000000000000000000000000000000000000000
-      what we want:  0x0000000101000000000000000000000000000000000000000000000000000000
-      what's incremented: the byte at the level
-      this is equal to 2 ^ (8 * (28 - 1 - level)
-      -1 is because we are building Ids for level 1, given a level 0 hat, etc
-      ie 2^224 = hatId above
-      and 2^224 + 2^216 = desired return of
-        27065258958819196981364933114703301105956039517941121592357921226752
-
-      so, increment = input n * (2 ^ (8 * (28 - level))
-    */
-    const increment = BigNumber.from(2).pow(8 * (28 - 1 - level)).mul(n)
-
-    const nextId = hatIdAsBigNum.add(increment).toString()
-    console.log("nextId")
-    console.log(nextId)
-    return nextId
-  }
-
-  // async function getAllHatsUnderHat(hatId: string, n: number, level: number) {
-  //   const currentNumHats = hatIds.length
-  //   const internalHatIds: Array<string> = hatIds
-  //   const hatsUnderHats = []
-  //   var currentHatId = ""
-  //   var hat = []
-
-  //   console.log("internalHatIds at start of getAllHatsUnderHat")
-  //   console.log(internalHatIds)
-
-  //   // buildNextId for each of the hats at this level
-  //   for (let i = 1; i <= n; i++) {
-  //     currentHatId = buildNextId(hatId, i, level)
-  //     internalHatIds[currentNumHats - 1 + i] = currentHatId
-
-  //     // repeat check on each of the hats to see if they have hats under them 
-  //     hat = await contract.viewHat(currentHatId)
-  //     hatsUnderHats[i - 1] = hat['lastHatId']
-  //   }
-  //   console.log("internalHatIds after update in getAllHatsUnderHat")
-  //   console.log(internalHatIds)
-  //   console.log("hatsUnderHats after update in getAllHatsUnderHat")
-  //   console.log(hatsUnderHats)
-  //   setHatIds(internalHatIds)
-
-  //   // call getAllHatsUnderHat on each of the hats that have hats underneath
-  //   for (let i = 1; i <= n; i++) {
-  //     if (hatsUnderHats[i - 1] > 0) {
-  //       getAllHatsUnderHat(hatIds[currentNumHats - 1 + i], hatsUnderHats[i - 1], level + 1)
-  //     }
-  //   }
-  // }
-
-  // I think you can't setHatIds in the loop. so try passing instead
-  async function getAllHatsUnderHat(hatId, n, level, ids) {
-    const currentNumHats = ids.length
-    const internalHatIds = ids
-    const hatsUnderHats = []
-    var currentHatId = ""
-    var hat = []
-
-    console.log("internalHatIds at start of getAllHatsUnderHat")
-    console.log(internalHatIds)
-
-    // buildNextId for each of the hats at this level
-    for (let i = 1; i <= n; i++) {
-      currentHatId = buildNextId(hatId, i, level)
-      internalHatIds[currentNumHats - 1 + i] = currentHatId
-
-      // repeat check on each of the hats to see if they have hats under them
-      await timeout(500);
-      hat = await contract.viewHat(currentHatId)
-      hatsUnderHats[i - 1] = hat['lastHatId']
-    }
-    console.log("internalHatIds after update in getAllHatsUnderHat")
-    console.log(internalHatIds)
-    console.log("hatsUnderHats after update in getAllHatsUnderHat")
-    console.log(hatsUnderHats)
-
-    // call getAllHatsUnderHat on each of the hats that have hats underneath
-    for (let i = 1; i <= n; i++) {
-      if (hatsUnderHats[i - 1] > 0) {
-        getAllHatsUnderHat(hatIds[currentNumHats - 1 + i], hatsUnderHats[i - 1], level + 1, internalHatIds)
-      }
-    }
-
-    return internalHatIds
-  }
-
-  async function calculateContractVars() {
-    console.log("hatIds in calculateContractVars")
-    console.log(hatIds)
-    // for each id in the new mapping, store the contractVar -> await contract.uri(hatId)
-    // this is from single contractVar verison: const contractVar = await contract.uri(hatId)
-    const internalContractVars = await Promise.all(
-      hatIds.map((id) => contract.uri(id))
-    )
-    console.log("internalContractVars in calculateContractVars")
-    console.log(internalContractVars)
-    setContractVars(internalContractVars)
-  }
-
   async function getContractUris(hatId) {
-    const internalHatIds = hatIds
-    
-    // get hat level
-    await timeout(500);
-    const hatLevel = await contract.getHatLevel(hatId)
-
-    internalHatIds[hatLevel] = hatId
-
-    if (hatLevel == 0) {
-      //const numHats = await JSON.parse(JSON.stringify(contract.viewHat(hatId))).lastHatId
-      await timeout(500);
-      const hat = await contract.viewHat(hatId)
-      //const hatObject = JSON.parse(hat)
-      const numHats = hat['lastHatId']
-      console.log("hat")
-      console.log(hat)
-      console.log("numHats")
-      console.log(numHats)
-      if (numHats > 0) {
-        const calculatedHatIds = await getAllHatsUnderHat(hatId, numHats, 0, internalHatIds)
-        setHatIds(calculatedHatIds)
-      }
-    } else {
-      // create a mapping of all hat ids by iterating up to admin -> while id != admin id
-      // easy way: get HatLevel, getAdmin at Level for each with decrementing hatlevel var
-      // hard way: calculate IDs from hatID ie 0x000000010101 -> ...010100 and ...010000
-      for (let i = hatLevel - 1; i >= 0; i--) {
-        await timeout(500);
-        internalHatIds[i] = await contract.getAdminAtLevel(hatId, i)
-      }
-      setHatIds(internalHatIds)
-    }
-    console.log("hatIds after if in getContractUris")
-    console.log(hatIds)
-
-    calculateContractVars()
+    const internalContractVars = await contract.uri(hatId)
+    setContractVars(internalContractVars)
     
     setFormSubmitted(true)
   }
@@ -210,7 +60,7 @@ function Home() {
       <p>Hats Protocol 4 lyfe</p>
       {
         formSubmitted &&
-        multiURIComponent(contractVars)
+        URIComponent(contractVars)
       }
     </div>
   )
@@ -227,30 +77,6 @@ export default Home
 // 27065258958819196981364933114703301105956039517941121592357921226752
 // downstream hat
 // 27065670334958527282875471856998940443582285201907529987323758379008
-
-
-function multiURIComponent(cs) {
-  return cs.map(c => URIComponent(c))
-}
-
-// function URIComponent(c) {
-//   var legibleUri = parseUri(decodeUri(c))
-//   var properties = legibleUri.properties
-//   return <section>
-//       <p>Name: {legibleUri['name & description']}</p>
-//       <p>Domain: {legibleUri['domain']}</p>
-//       <p>Hat ID: {legibleUri['id']}</p>
-//       <p>Pretty Hat ID: {legibleUri['pretty id']}</p>
-//       <p>Status: {legibleUri['status']}</p>
-//       <p>Properties:</p>
-//       <p>Current Supply: {properties['current supply']}</p>
-//       <p>Supply Cap: {properties['supply cap']}</p>
-//       <p>Admin Hat ID: {properties['admin (id)']}</p>
-//       <p>Admin Pretty Hat ID: {properties['admin (pretty id)']}</p>
-//       <p>Oracle Address: {properties['oracle address']}</p>
-//       <p>Conditions Address: {properties['conditions address']}</p>
-//     </section>
-// }
 
 function URIComponent(c) {
   var legibleUri = parseUri(decodeUri(c))
