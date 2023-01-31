@@ -20,6 +20,7 @@ const contract = new ethers.Contract(
 // - implement figma designs
 // - should have the hatID in the URL and automatically load the page
 // - switch contract over to Polygon (including ABI); add Image
+// - read from subgraph? (will make tree query easier for example)
 
 function Home() {
   const [hatId, setHatId] = useState("")
