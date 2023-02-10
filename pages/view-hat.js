@@ -16,7 +16,7 @@ const contract = new ethers.Contract(
 )
 
 // TODO
-// - [seems fixed...] fix too many requests error
+// - fix too many requests error
 // - implement figma designs
 // - should have the hatID in the URL and automatically load the page
 // - switch contract over to Polygon (including ABI); add Image

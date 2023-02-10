@@ -7,11 +7,6 @@ const navigation = [
     { name: 'Mint your hat', href: '#', icon: UserGroupIcon, current: false },
 ]
 
-// const [state, setstate] = useState({
-//     admin_id: "", 
-
-// })
-
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
@@ -25,14 +20,13 @@ export default function CreateHat() {
   const onSubmit = data => console.log(data);
   console.log(errors);
 
-    // DONE connect tailwindui - can use react hook form
-    // connect ether.js
-    // connect repo up to github, can use vercel to deploy via github oauth, will auto update on pushed changes to main
-    // DONE - 1 focus on gather inputs (populate form, verify that the values are being stored correctly)
-    // (double check image input)
-    // TODO add form validation
-    // TODO 2 submitting the form
-    // TODO 3 calling the smart contract (have read functionalty done in the mvp on vercel, repgrind...)
+    // TODO
+    // - connect ether.js
+    // - connect repo up to github, can use vercel to deploy via github oauth, will auto update on pushed changes to main
+    // - (double check image input)
+    // - add form validation
+    // - handle form submission
+    // - handle calling the smart contract
     
     async function handleFormSubmission() {
         // this function gets called when the form onSubmit button gets hit
