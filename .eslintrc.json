@@ -1,0 +1,28 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["prettier"],
+  "extends": ["airbnb", "next/core-web-vitals", "plugin:prettier/recommended"],
+  "rules": {
+    "no-unused-vars": "warn",
+    // react
+    "react/jsx-filename-extension": [
+      2,
+      { "extensions": [".js", ".jsx"] }
+    ],
+    "react/function-component-definition": [
+      2,
+      { "namedComponents": ["arrow-function", "function-declaration"] }
+    ],
+    "react/require-default-props": "off",
+    // import
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never"
+      }
+    ],
+    "prettier/prettier": "error"
+  }
+}
