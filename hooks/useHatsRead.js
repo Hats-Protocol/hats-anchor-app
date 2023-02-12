@@ -1,5 +1,5 @@
 const useHatsRead = () => {
-  console.log('useHatsRead')
-}
+  console.log('useHatsRead');
+};
 
-export default useHatsRead
+export default useHatsRead;
