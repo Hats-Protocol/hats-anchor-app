@@ -1,17 +1,13 @@
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
+import { Icon, Link } from '@chakra-ui/react';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import { explorerUrl } from '../lib/general';
 
-const networkToURL = {
-  goerli: "https://goerli.etherscan.io/tx/",
+const TransactionLink = ({ chainId, tx }) => {
+  return (
+    <Link isExternal href={`${explorerUrl(chainId)}/tx/${tx}`}>
+      <Icon as={FaExternalLinkAlt} />
+    </Link>
+  );
 };
 
-export function TransactionLink({ network, tx }) {
-  return (
-    <a
-      target="_blank"
-      rel="noopener noreferrer"
-      href={`https://goerli.etherscan.io/tx/${tx}`}
-    >
-      <ArrowTopRightOnSquareIcon className=" h-4 w-4 text-blue-500" />
-    </a>
-  );
-}
+export default TransactionLink;

@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from 'graphql-request';
 
 export const GET_TREE = gql`
   query getTree($id: ID!) {

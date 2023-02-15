@@ -1,16 +1,8 @@
-const networkToURL = {
-  goerli: "https://goerli.etherscan.io/tx/",
-};
+import { Link } from '@chakra-ui/react';
+import { explorerUrl } from '../lib/general';
 
-export function AddressLink({ network, address }) {
-  return (
-    <a
-      target="_blank"
-      rel="noopener noreferrer"
-      href={`https://goerli.etherscan.io/address/${address}`}
-      className=" text-blue-500"
-    >
-      {address}
-    </a>
-  );
-}
+const AddressLink = ({ chainId, address }) => (
+  <Link href={`${explorerUrl(chainId)}/address/${address}`}>{address}</Link>
+);
+
+export default AddressLink;
