@@ -24,10 +24,7 @@ const client = new ApolloClient({
 
 const { chains, provider } = configureChains(
   [goerli],
-  [
-    alchemyProvider({ apiKey: "-IkTtrUkCqsPF6vDnJL9fmQk8c2nlWRf" }),
-    publicProvider(),
-  ]
+  [alchemyProvider({ apiKey: process.env.ALCHEMY_KEY }), publicProvider()]
 );
 const { connectors } = getDefaultWallets({
   appName: "Hats Anchor App",
