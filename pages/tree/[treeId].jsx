@@ -12,14 +12,17 @@ import {
   HStack,
   Flex,
   Spinner,
+  Icon,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import TreeGraph from 'react-d3-tree';
 import { formatDistanceToNow } from 'date-fns';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
-import TransactionLink from '../../components/TransactionLink';
+import Link from '../../components/ChakraNextLink';
 import Hat from '../../components/Hat';
 import { toTreeStructure, prettyIdToId } from '../../lib/hats';
+import { explorerUrl } from '../../lib/general';
 import useTreeDetails from '../../hooks/useTreeDetails';
 import useHatDetails from '../../hooks/useHatDetails';
 import { chainsMap } from '../../lib/web3';
@@ -38,26 +41,21 @@ const TreeDetails = () => {
     isLoading: treeLoading,
     error: treeError,
   } = useTreeDetails({ treeId, chainId: defaultChainId });
-  const {
-    data: hatData,
-    isLoading: hatLoading,
-    error: hatError,
-  } = useHatDetails({ hatId: currentHat });
-  console.log(hatData);
+  const { data: hatData } = useHatDetails({ hatId: currentHat });
 
   useEffect(() => {
     if (_.get(treeData, 'tree.id') && !currentHat) {
-      console.log(_.get(treeData, 'tree.id'));
-      console.log(_.get(treeData, 'tree.hats[0].id'));
       setCurrentHat(_.get(treeData, 'tree.hats[0].id'));
     }
   }, [treeData, currentHat]);
 
   if (treeLoading)
     return (
-      <Flex>
-        <Spinner size='xl' />
-      </Flex>
+      <Layout>
+        <Flex justify='center' mt='200px'>
+          <Spinner size='xl' />
+        </Flex>
+      </Layout>
     );
   if (treeError) return <p>Error : {treeError.message}</p>;
 
@@ -69,7 +67,7 @@ const TreeDetails = () => {
         {/* info table */}
         <Card>
           <CardHeader>
-            <Heading size='lg'>Tree Info</Heading>
+            <Heading size='md'>Tree Info</Heading>
           </CardHeader>
           <CardBody>
             <Stack spacing={4}>
@@ -87,7 +85,7 @@ const TreeDetails = () => {
         {/* recent events table */}
         <Card>
           <CardHeader>
-            <Heading size='lg'>Recent Events</Heading>
+            <Heading size='md'>Recent Events</Heading>
           </CardHeader>
           <CardBody>
             {treeData.tree.events.map((event, i) => (
@@ -134,13 +132,24 @@ const TreeDetails = () => {
 };
 
 const EventRow = ({ id, timestamp, transactionId, chainId, last }) => (
-  <Flex justify='space-between' borderBottom={!last ? '1px solid' : 'none'}>
-    <Text>{formatDistanceToNow(new Date(Number(timestamp) * 1000))}</Text>
-    <Text>{id.split('-')[0]}</Text>
-    <Text>
-      <TransactionLink tx={transactionId} chainId={chainId} />
-    </Text>
-  </Flex>
+  <Link isExternal href={`${explorerUrl(chainId)}/tx/${transactionId}`}>
+    <Flex
+      justify='space-between'
+      align='center'
+      borderBottom={!last ? '1px solid' : 'none'}
+      p={1}
+    >
+      <HStack spacing={2}>
+        <Text>{`${formatDistanceToNow(
+          new Date(Number(timestamp) * 1000),
+        )} ago`}</Text>
+        <Text>-</Text>
+        <Text>{id.split('-')[0]}</Text>
+      </HStack>
+
+      <Icon as={FaExternalLinkAlt} />
+    </Flex>
+  </Link>
 );
 
 // export const getStaticPaths = async () => {

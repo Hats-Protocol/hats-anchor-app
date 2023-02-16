@@ -1,101 +1,99 @@
 /* eslint-disable no-plusplus */
-import { useState } from 'react';
-import { Icon, IconButton, Button } from '@chakra-ui/react';
+import _ from 'lodash';
+import { useMemo, useState } from 'react';
+import {
+  Icon,
+  IconButton,
+  Button,
+  HStack,
+  Flex,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
-import AddressLink from '../AddressLink';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+// import AddressLink from '../AddressLink';
+import Link from '../ChakraNextLink';
+import { formatAddress, explorerUrl } from '../../lib/general';
 
-function HatWearers({ hatData, chainId }) {
-  const [currentPage, setCurrentPage] = useState(1);
-  if (hatData.hat.wearers.length === 0) {
-    return null;
-  }
+const WEARERS_PER_PAGE = 5;
 
-  const WEARERS_PER_PAGE = 5;
-  const pageNumbers = [];
-  for (
-    let i = 1;
-    i <= Math.ceil(hatData.hat.wearers.length / WEARERS_PER_PAGE);
-    i++
-  ) {
-    pageNumbers.push(i);
-  }
+function HatWearers({ wearers, chainId }) {
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const decrementCurrentPage = () => {
-    if (currentPage === 1) {
-      return;
+  const wearerPages = useMemo(() => {
+    const w = [];
+    let tempArray = [];
+    for (let i = 0; i < wearers.length; i++) {
+      if (tempArray.length === WEARERS_PER_PAGE) {
+        w.push(tempArray);
+        tempArray = [];
+      }
+      tempArray.push(wearers[i].id);
+    }
+    if (tempArray.length > 0) {
+      w.push(tempArray);
     }
 
-    setCurrentPage((curr) => curr - 1);
+    return {
+      pages: w,
+      count: _.size(w),
+      pageNumbers: Array.from({ length: _.size(w) }, (__, i) => i + 1),
+    };
+  }, [wearers]);
+
+  const decrementCurrentPage = () => {
+    if (currentPage !== 1) setCurrentPage((curr) => curr - 1);
   };
 
   const incrementCurrentPage = () => {
-    if (currentPage === pageNumbers.length) {
-      return;
-    }
-
-    setCurrentPage((curr) => curr + 1);
+    if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
-  // Get current wearers
-  const indexOfLastWearer = currentPage * WEARERS_PER_PAGE;
-  const indexOfFirstWearer = indexOfLastWearer - WEARERS_PER_PAGE;
-  const currentWearers = hatData.hat.wearers.slice(
-    indexOfFirstWearer,
-    indexOfLastWearer,
-  );
-  const CurrentWearersAddresses = currentWearers.map((wearer) => {
-    return wearer.id;
-  });
-
   return (
-    <div className='flex flex-col h-full justify-between'>
-      <div className=''>
-        {CurrentWearersAddresses.map((wearer) => {
+    <Stack align='center' spacing={4}>
+      <Stack w='100%'>
+        {wearerPages.pages?.[currentPage]?.map((wearer) => (
+          <Link href={`${explorerUrl(chainId)}/address/${wearer}`} key={wearer}>
+            <Flex
+              borderBottom='1px solid'
+              key={wearer}
+              align='center'
+              justify='space-between'
+              p={1}
+            >
+              <Text>{formatAddress(wearer)}</Text>
+
+              <Icon as={FaExternalLinkAlt} />
+            </Flex>
+          </Link>
+        ))}
+      </Stack>
+
+      <HStack spacing={3}>
+        <IconButton
+          icon={<Icon as={BsChevronLeft} />}
+          onClick={decrementCurrentPage}
+          isDisabled={currentPage === 0}
+        />
+        {wearerPages?.pageNumbers?.map((number) => {
           return (
-            <div className='flex mx-2 border-b' key={wearer}>
-              <div className=' flex-none w-36 my-2'>
-                <AddressLink address={wearer} chainId={chainId} />
-              </div>
-            </div>
+            <Button
+              onClick={() => setCurrentPage(number)}
+              key={number}
+              isDisabled={currentPage + 1 === number}
+            >
+              {number}
+            </Button>
           );
         })}
-      </div>
-
-      <nav className='bottom-2'>
-        <ul className='flex'>
-          <li className=' ml-2 mb-2 w-6'>
-            <IconButton
-              icon={<Icon as={BsChevronLeft} />}
-              onClick={decrementCurrentPage}
-              className=' text-gray-500 rounded-sm w-full'
-            />
-          </li>
-          {pageNumbers.map((number) => {
-            if (currentPage === number) {
-              return (
-                <li key={number} className=' ml-2 mb-2 w-6'>
-                  <Button onClick={() => setCurrentPage(number)}>
-                    {number}
-                  </Button>
-                </li>
-              );
-            }
-            return (
-              <li key={number} className=' ml-2 mb-2 w-6'>
-                <Button onClick={() => setCurrentPage(number)}>{number}</Button>
-              </li>
-            );
-          })}
-          <li className=' ml-2 mb-2 w-6'>
-            <IconButton
-              icon={<Icon as={BsChevronRight} />}
-              onClick={incrementCurrentPage}
-              className=' text-gray-500 rounded-sm w-full'
-            />
-          </li>
-        </ul>
-      </nav>
-    </div>
+        <IconButton
+          icon={<Icon as={BsChevronRight} />}
+          onClick={incrementCurrentPage}
+          isDisabled={currentPage === wearerPages.count - 1}
+        />
+      </HStack>
+    </Stack>
   );
 }
 

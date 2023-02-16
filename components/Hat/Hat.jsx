@@ -9,6 +9,7 @@ import {
   Flex,
   Text,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 
 import HatWearers from './HatWearers';
@@ -17,10 +18,12 @@ import AddressLink from '../AddressLink';
 const Hat = ({ hatData, chainId }) => {
   if (!hatData?.hat) return null;
 
+  const wearers = _.get(hatData, 'hat.wearers');
+
   const hatDetails = [
     {
       label: 'Id',
-      value: hatData.hat.id,
+      value: hatData.hat.prettyId, // TODO tooltip for long ID so it doesn't overflow table
     },
     {
       label: 'Status',
@@ -89,7 +92,11 @@ const Hat = ({ hatData, chainId }) => {
             ))}
           </TabPanel>
           <TabPanel>
-            <HatWearers hatData={hatData} chainId={chainId} />
+            {_.isEmpty(wearers) ? (
+              <Text>No wearers</Text>
+            ) : (
+              <HatWearers wearers={wearers} chainId={chainId} />
+            )}
           </TabPanel>
         </TabPanels>
       </Tabs>

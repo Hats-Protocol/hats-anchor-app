@@ -9,25 +9,22 @@ const hatsAddresses = {
   137: '0x95647f88dcbc12986046fc4f49064edd11a25d38',
 };
 
-export default function Home() {
-  return (
-    <Layout>
-      <Heading>Welcome to hats</Heading>
+const Home = () => (
+  <Layout>
+    <Heading>Welcome to hats</Heading>
 
-      <Stack>
-        {_.map(_.keys(hatsAddresses), (chainId) => {
-          console.log(chainId);
-          return (
-            <ChakraLink
-              as={Link}
-              href={`/hats/${hatsAddresses[chainId]}`}
-              key={hatsAddresses[chainId]}
-            >
-              {hatsAddresses[chainId]}
-            </ChakraLink>
-          );
-        })}
-      </Stack>
-    </Layout>
-  );
-}
+    <Stack>
+      {_.map(_.keys(hatsAddresses), (chainId) => (
+        <ChakraLink
+          as={Link}
+          href={`/hats/${hatsAddresses[chainId]}`}
+          key={hatsAddresses[chainId]}
+        >
+          {hatsAddresses[chainId]}
+        </ChakraLink>
+      ))}
+    </Stack>
+  </Layout>
+);
+
+export default Home;

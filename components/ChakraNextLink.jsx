@@ -1,17 +1,17 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import Link from 'next/link';
 
-const ChakraNextLink = ({ href, children, decoration = false }, ref) => (
+const ChakraNextLink = ({ children, decoration = false, ...props }) => (
   <ChakraLink
     as={Link}
-    href={href}
-    ref={ref}
     textDecoration={decoration ? 'underline' : 'none'}
     _hover={{
       textDecoration: decoration ? 'underline' : 'none',
       color: '#23232380',
     }}
+    {...props}
   >
     {children}
   </ChakraLink>
