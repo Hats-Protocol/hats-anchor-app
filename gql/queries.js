@@ -21,6 +21,14 @@ export const GET_TREE = gql`
   }
 `;
 
+export const GET_ALL_TREES = gql`
+  query getAllTrees {
+    trees {
+      id
+    }
+  }
+`;
+
 export const GET_HAT = gql`
   query getHat($id: ID!) {
     hat(id: $id) {

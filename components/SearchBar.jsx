@@ -16,7 +16,7 @@ const networkOptions = [
 
 const SearchBar = () => {
   const [value, setValue] = useState('');
-  const [chainId, setChainId] = useState(5); // TODO set default
+  const [chainId] = useState(5); // TODO set default
 
   const router = useRouter();
 
@@ -29,6 +29,7 @@ const SearchBar = () => {
   }
 
   const handleNetworkChange = (e) => {
+    // eslint-disable-next-line no-console
     console.log(e);
     // setChainId(e)
   };

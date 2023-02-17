@@ -1,6 +1,4 @@
-/* eslint-disable no-use-before-define */
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import {
   Card,
   CardBody,
@@ -12,43 +10,39 @@ import {
   HStack,
   Flex,
   Spinner,
-  Icon,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import TreeGraph from 'react-d3-tree';
-import { formatDistanceToNow } from 'date-fns';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import dynamic from 'next/dynamic';
 
-import Link from '../../components/ChakraNextLink';
+import EventRow from '../../components/EventRow';
 import Hat from '../../components/Hat';
 import { toTreeStructure, prettyIdToId } from '../../lib/hats';
-import { explorerUrl } from '../../lib/general';
 import useTreeDetails from '../../hooks/useTreeDetails';
 import useHatDetails from '../../hooks/useHatDetails';
 import { chainsMap } from '../../lib/web3';
 import Layout from '../../components/Layout';
+import { fetchAllTreeIds, fetchTreeDetails } from '../../gql/helpers';
 
-// TODO don't hardcode chainId
-const defaultChainId = 5;
+const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
-const TreeDetails = () => {
-  const chain = chainsMap(defaultChainId);
-  const router = useRouter();
-  const { treeId } = router.query;
+const TreeDetails = ({ treeId, chainId, initialData }) => {
+  const chain = chainsMap(chainId);
   const [currentHat, setCurrentHat] = useState(null);
   const {
     data: treeData,
     isLoading: treeLoading,
     error: treeError,
-  } = useTreeDetails({ treeId, chainId: defaultChainId });
+  } = useTreeDetails({ treeId, chainId, initialData });
   const { data: hatData } = useHatDetails({ hatId: currentHat });
 
   useEffect(() => {
     if (_.get(treeData, 'tree.id') && !currentHat) {
+      // Set the default hat to the top hat
       setCurrentHat(_.get(treeData, 'tree.hats[0].id'));
     }
   }, [treeData, currentHat]);
 
+  // TODO handle error and loading in layout
   if (treeLoading)
     return (
       <Layout>
@@ -60,6 +54,7 @@ const TreeDetails = () => {
   if (treeError) return <p>Error : {treeError.message}</p>;
 
   const tree = toTreeStructure(treeData);
+  const events = _.get(treeData, 'tree.events');
 
   return (
     <Layout>
@@ -83,46 +78,52 @@ const TreeDetails = () => {
           </CardBody>
         </Card>
         {/* recent events table */}
-        <Card>
-          <CardHeader>
-            <Heading size='md'>Recent Events</Heading>
-          </CardHeader>
-          <CardBody>
-            {treeData.tree.events.map((event, i) => (
-              <EventRow
-                id={event.id.split('-')[0]}
-                transactionId={event.transactionID}
-                timestamp={event.timestamp}
-                chainId={defaultChainId}
-                last={i === treeData.tree.events.length - 1}
-                key={event.transactionID}
-              />
-            ))}
-          </CardBody>
-        </Card>
+        {events && (
+          <Card>
+            <CardHeader>
+              <Heading size='md'>Recent Events</Heading>
+            </CardHeader>
+            <CardBody>
+              {_.map(events, (event, i) => (
+                <EventRow
+                  id={event.id.split('-')[0]}
+                  transactionId={event.transactionID}
+                  timestamp={event.timestamp}
+                  chainId={chainId}
+                  last={i === treeData.tree.events.length - 1}
+                  key={event.transactionID}
+                />
+              ))}
+            </CardBody>
+          </Card>
+        )}
+
         {/* tree explorer */}
-        <Card gridAutoRows='auto'>
-          <CardBody minH='400px'>
-            <TreeGraph
-              data={tree}
-              orientation='vertical'
-              collapsible={false}
-              rootNodeClassName='node__root'
-              branchNodeClassName='node__branch'
-              leafNodeClassName='node__leaf'
-              nodeSize={{ x: 200, y: 200 }}
-              translate={{ x: 200, y: 200 }}
-              onNodeClick={(node, event) =>
-                setCurrentHat(prettyIdToId(node.data.name))
-              }
-            />
-          </CardBody>
-        </Card>
+        {!_.isEmpty(tree) && (
+          <Card gridAutoRows='auto'>
+            <CardBody minH='400px'>
+              <TreeGraph
+                data={tree}
+                orientation='vertical'
+                collapsible={false}
+                rootNodeClassName='node__root'
+                branchNodeClassName='node__branch'
+                leafNodeClassName='node__leaf'
+                nodeSize={{ x: 200, y: 200 }}
+                translate={{ x: 200, y: 200 }}
+                onNodeClick={(node) =>
+                  setCurrentHat(prettyIdToId(node.data.name))
+                }
+              />
+            </CardBody>
+          </Card>
+        )}
+
         {/* hat data */}
         <Card gridAutoRows='auto'>
           <CardBody>
             {_.get(hatData, 'hat') && (
-              <Hat hatData={hatData} chainId={defaultChainId} />
+              <Hat hatData={hatData} chainId={chainId} />
             )}
           </CardBody>
         </Card>
@@ -131,38 +132,35 @@ const TreeDetails = () => {
   );
 };
 
-const EventRow = ({ id, timestamp, transactionId, chainId, last }) => (
-  <Link isExternal href={`${explorerUrl(chainId)}/tx/${transactionId}`}>
-    <Flex
-      justify='space-between'
-      align='center'
-      borderBottom={!last ? '1px solid' : 'none'}
-      p={1}
-    >
-      <HStack spacing={2}>
-        <Text>{`${formatDistanceToNow(
-          new Date(Number(timestamp) * 1000),
-        )} ago`}</Text>
-        <Text>-</Text>
-        <Text>{id.split('-')[0]}</Text>
-      </HStack>
+// TODO don't hardcode chainId
+const defaultChainId = 5;
 
-      <Icon as={FaExternalLinkAlt} />
-    </Flex>
-  </Link>
-);
+export const getStaticPaths = async () => {
+  // TODO handle multiple chains
+  const result = await fetchAllTreeIds(defaultChainId);
 
-// export const getStaticPaths = async () => {
-//   return {
-//     paths: [],
-//     fallback: true,
-//   };
-// };
+  const paths = _.map(_.get(result, 'trees'), (tree) => ({
+    params: { treeId: tree.id, chainId: defaultChainId },
+  }));
 
-// export const getStaticProps = async () => {
-//   return {
-//     props: {},
-//   };
-// };
+  return {
+    paths,
+    fallback: true,
+  };
+};
+
+export const getStaticProps = async (props) => {
+  const { treeId, chainId } = props.params;
+  // TODO do we need to pass `chainId` in the params? yes cause conflicts will exist on treeId
+  const result = await fetchTreeDetails(treeId, chainId || defaultChainId);
+
+  return {
+    props: {
+      treeId,
+      chainId: chainId || defaultChainId,
+      initialData: _.get(result, 'tree', null),
+    },
+  };
+};
 
 export default TreeDetails;
