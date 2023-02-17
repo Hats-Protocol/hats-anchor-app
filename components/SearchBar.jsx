@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import { FaSearch } from 'react-icons/fa';
 import { IconButton, Icon, Select, HStack, Input } from '@chakra-ui/react';
 
+// TODO archive if not used after v1
+
 const networkOptions = [
   {
     value: 5,

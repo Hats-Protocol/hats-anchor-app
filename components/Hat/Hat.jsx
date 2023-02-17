@@ -14,59 +14,65 @@ import { formatDistanceToNow } from 'date-fns';
 
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
+import DataTable from '../DataTable';
+
+const accountabilitiesTable = [
+  { label: 'Admin ID', value: '1234' },
+  { label: 'Pretty Admin ID', value: '5' },
+  { label: 'Eligibility', value: '0x1234' },
+  { label: 'Toggle', value: '0x1234' },
+];
 
 const Hat = ({ hatData, chainId }) => {
-  if (!hatData?.hat) return null;
+  if (!hatData) return null;
 
-  const wearers = _.get(hatData, 'hat.wearers');
+  const wearers = _.get(hatData, 'wearers');
 
   const hatDetails = [
     {
       label: 'Id',
-      value: hatData.hat.prettyId, // TODO tooltip for long ID so it doesn't overflow table
+      value: hatData.prettyId, // TODO tooltip for long ID so it doesn't overflow table
     },
     {
       label: 'Status',
-      value: hatData.hat.status ? 'Active' : 'Not Active',
+      value: hatData.status ? 'Active' : 'Not Active',
     },
     {
       label: 'Details',
-      value: hatData.hat.details,
+      value: hatData.details,
     },
     {
       label: 'Image URI',
-      value: hatData.hat.imageUri,
+      value: hatData.imageUri,
     },
     {
       label: 'Max Supply',
-      value: hatData.hat.maxSupply,
+      value: hatData.maxSupply,
     },
     {
       label: 'Current Supply',
-      value: hatData.hat.currentSupply,
+      value: hatData.currentSupply,
     },
     {
       label: 'Eligibility',
-      value: (
-        <AddressLink address={hatData.hat.eligibility} chainId={chainId} />
-      ),
+      value: <AddressLink address={hatData.eligibility} chainId={chainId} />,
     },
     {
       label: 'Toggle',
-      value: <AddressLink address={hatData.hat.toggle} chainId={chainId} />,
+      value: <AddressLink address={hatData.toggle} chainId={chainId} />,
     },
     {
       label: 'Mutable',
-      value: hatData.hat.mutable ? 'True' : 'False',
+      value: hatData.mutable ? 'True' : 'False',
     },
     {
       label: 'Level',
-      value: hatData.hat.levelAtLocalTree,
+      value: hatData.levelAtLocalTree,
     },
     {
       label: 'Created At',
       value: `${formatDistanceToNow(
-        new Date(Number(hatData.hat.createdAt) * 1000),
+        new Date(Number(hatData.createdAt) * 1000),
       )} ago`,
     },
   ];
@@ -76,10 +82,14 @@ const Hat = ({ hatData, chainId }) => {
       <Heading as='h1'>Hat</Heading>
       <Tabs>
         <TabList>
-          <Tab>Basic Info</Tab>
+          <Tab>Details</Tab>
+          {/* <Tab>Authorities</Tab> */}
+          <Tab>Accountabilities</Tab>
           <Tab>Wearers</Tab>
+          <Tab>Admin</Tab>
         </TabList>
         <TabPanels>
+          {/* Details, where is this coming back from? IPFS hash? */}
           <TabPanel>
             {hatDetails.map((detail) => (
               <Flex
@@ -91,6 +101,12 @@ const Hat = ({ hatData, chainId }) => {
               </Flex>
             ))}
           </TabPanel>
+          {/* TODO Authorities will be designated in details for now, hard-ish to track */}
+          {/* <TabPanel /> */}
+          {/* TODO Accountabilities are found .... */}
+          <TabPanel>
+            <DataTable data={accountabilitiesTable} />
+          </TabPanel>
           <TabPanel>
             {_.isEmpty(wearers) ? (
               <Text>No wearers</Text>
@@ -98,6 +114,7 @@ const Hat = ({ hatData, chainId }) => {
               <HatWearers wearers={wearers} chainId={chainId} />
             )}
           </TabPanel>
+          <TabPanel />
         </TabPanels>
       </Tabs>
     </Stack>

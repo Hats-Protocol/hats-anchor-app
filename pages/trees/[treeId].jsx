@@ -36,11 +36,12 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
   const { data: hatData } = useHatDetails({ hatId: currentHat });
 
   useEffect(() => {
-    if (_.get(treeData, 'tree.id') && !currentHat) {
+    if (_.get(treeData, 'id') && !currentHat) {
       // Set the default hat to the top hat
-      setCurrentHat(_.get(treeData, 'tree.hats[0].id'));
+      setCurrentHat(_.get(treeData, 'hats[0].id'));
     }
   }, [treeData, currentHat]);
+  console.log(hatData);
 
   // TODO handle error and loading in layout
   if (treeLoading)
@@ -54,7 +55,7 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
   if (treeError) return <p>Error : {treeError.message}</p>;
 
   const tree = toTreeStructure(treeData);
-  const events = _.get(treeData, 'tree.events');
+  const events = _.get(treeData, 'events');
 
   return (
     <Layout>
@@ -90,7 +91,7 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
                   transactionId={event.transactionID}
                   timestamp={event.timestamp}
                   chainId={chainId}
-                  last={i === treeData.tree.events.length - 1}
+                  last={i === treeData.events.length - 1}
                   key={event.transactionID}
                 />
               ))}
@@ -122,9 +123,7 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
         {/* hat data */}
         <Card gridAutoRows='auto'>
           <CardBody>
-            {_.get(hatData, 'hat') && (
-              <Hat hatData={hatData} chainId={chainId} />
-            )}
+            {hatData && <Hat hatData={hatData} chainId={chainId} />}
           </CardBody>
         </Card>
       </Grid>
@@ -139,7 +138,7 @@ export const getStaticPaths = async () => {
   // TODO handle multiple chains
   const result = await fetchAllTreeIds(defaultChainId);
 
-  const paths = _.map(_.get(result, 'trees'), (tree) => ({
+  const paths = _.map(result, (tree) => ({
     params: { treeId: tree.id, chainId: defaultChainId },
   }));
 
@@ -152,13 +151,13 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (props) => {
   const { treeId, chainId } = props.params;
   // TODO do we need to pass `chainId` in the params? yes cause conflicts will exist on treeId
-  const result = await fetchTreeDetails(treeId, chainId || defaultChainId);
+  const initialData = await fetchTreeDetails(treeId, chainId || defaultChainId);
 
   return {
     props: {
       treeId,
       chainId: chainId || defaultChainId,
-      initialData: _.get(result, 'tree', null),
+      initialData,
     },
   };
 };

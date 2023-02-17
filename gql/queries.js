@@ -50,3 +50,14 @@ export const GET_HAT = gql`
     }
   }
 `;
+
+export const SEARCH_QUERY = gql`
+  query search($search: String!) {
+    trees(where: { id: $search }) {
+      id
+    }
+    hats(where: { id: $search }) {
+      id
+    }
+  }
+`;

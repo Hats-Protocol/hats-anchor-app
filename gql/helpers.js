@@ -1,9 +1,22 @@
 /* eslint-disable import/prefer-default-export */
+import _ from 'lodash';
 import client from './client';
-import { GET_TREE, GET_ALL_TREES } from './queries';
+import { GET_TREE, GET_ALL_TREES, GET_HAT } from './queries';
 
-export const fetchTreeDetails = async (treeId, chainId) =>
-  client(chainId).request(GET_TREE, { id: treeId });
+export const fetchTreeDetails = async (treeId, chainId) => {
+  const result = await client(chainId).request(GET_TREE, { id: treeId });
 
-export const fetchAllTreeIds = async (chainId) =>
-  client(chainId).request(GET_ALL_TREES);
+  return _.get(result, 'tree', null);
+};
+
+export const fetchAllTreeIds = async (chainId) => {
+  const result = await client(chainId).request(GET_ALL_TREES);
+
+  return _.get(result, 'trees', null);
+};
+
+export const fetchHatDetails = async (hatId) => {
+  const result = await client().request(GET_HAT, { id: hatId });
+
+  return _.get(result, 'hat', null);
+};
