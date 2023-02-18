@@ -13,10 +13,7 @@ import ConnectWallet from './ConnectWallet';
 import CONFIG from '../constants';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const navigation = [
-  { name: 'Create Tree', href: '/create/tree' },
-  { name: 'Example', href: '/example' },
-];
+const navigation = [{ name: 'Create Tree', href: '/create/tree' }];
 
 // TODO add drawer
 
@@ -24,7 +21,18 @@ const Navbar = () => {
   const { setCommandPallet: setOpen } = useOverlay();
 
   return (
-    <Flex w='100%' justify='space-between' align='center' px={8}>
+    <Flex
+      w='100%'
+      justify='space-between'
+      align='center'
+      px={8}
+      bg='white'
+      borderBottom='1px solid'
+      borderColor='gray.400'
+      boxShadow='md'
+      position='fixed'
+      zIndex={10}
+    >
       <HStack spacing={6}>
         <ChakraLink as={Link} href='/'>
           <Image src={CONFIG.logoUrl} alt={CONFIG.appName} height='75px' />

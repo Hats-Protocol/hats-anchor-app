@@ -8,6 +8,9 @@ import {
   TabPanel,
   Flex,
   Text,
+  HStack,
+  Image,
+  Badge,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
@@ -15,13 +18,7 @@ import { formatDistanceToNow } from 'date-fns';
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
 import DataTable from '../DataTable';
-
-const accountabilitiesTable = [
-  { label: 'Admin ID', value: '1234' },
-  { label: 'Pretty Admin ID', value: '5' },
-  { label: 'Eligibility', value: '0x1234' },
-  { label: 'Toggle', value: '0x1234' },
-];
+import { ZERO_ADDRESS } from '../../constants';
 
 const Hat = ({ hatData, chainId }) => {
   if (!hatData) return null;
@@ -29,22 +26,6 @@ const Hat = ({ hatData, chainId }) => {
   const wearers = _.get(hatData, 'wearers');
 
   const hatDetails = [
-    {
-      label: 'Id',
-      value: hatData.prettyId, // TODO tooltip for long ID so it doesn't overflow table
-    },
-    {
-      label: 'Status',
-      value: hatData.status ? 'Active' : 'Not Active',
-    },
-    {
-      label: 'Details',
-      value: hatData.details,
-    },
-    {
-      label: 'Image URI',
-      value: hatData.imageUri,
-    },
     {
       label: 'Max Supply',
       value: hatData.maxSupply,
@@ -54,20 +35,8 @@ const Hat = ({ hatData, chainId }) => {
       value: hatData.currentSupply,
     },
     {
-      label: 'Eligibility',
-      value: <AddressLink address={hatData.eligibility} chainId={chainId} />,
-    },
-    {
-      label: 'Toggle',
-      value: <AddressLink address={hatData.toggle} chainId={chainId} />,
-    },
-    {
-      label: 'Mutable',
-      value: hatData.mutable ? 'True' : 'False',
-    },
-    {
       label: 'Level',
-      value: hatData.levelAtLocalTree,
+      value: hatData.levelAtLocalTree || '0',
     },
     {
       label: 'Created At',
@@ -77,9 +46,51 @@ const Hat = ({ hatData, chainId }) => {
     },
   ];
 
+  const accountabilitiesTable = [
+    { label: 'Admin ID', value: '1234' },
+    { label: 'Pretty Admin ID', value: '5' },
+    {
+      label: 'Eligibility',
+      value:
+        hatData.eligibility !== ZERO_ADDRESS ? (
+          <AddressLink address={hatData.eligibility} chainId={chainId} />
+        ) : (
+          'None Set'
+        ),
+    },
+    {
+      label: 'Toggle',
+      value:
+        hatData.toggle !== ZERO_ADDRESS ? (
+          <AddressLink address={hatData.toggle} chainId={chainId} />
+        ) : (
+          'None Set'
+        ),
+    },
+  ];
+
   return (
     <Stack>
-      <Heading as='h1'>Hat</Heading>
+      <Flex justify='space-between'>
+        <HStack spacing={4}>
+          <Image
+            src='/icon.jpeg'
+            alt='Hat icon'
+            maxW='75px'
+            border='1px solid'
+            borderColor='gray.200'
+          />
+          <Stack spacing={1}>
+            <Heading size='md'>Top Hat</Heading>
+            <Text fontSize='sm'>Hat ID {_.get(hatData, 'prettyId')}</Text>
+          </Stack>
+        </HStack>
+        <HStack>
+          <Badge>{hatData.status ? 'Active' : 'Inactive'}</Badge>
+          <Badge>{hatData.mutable ? 'Mutable' : 'Immutable'}</Badge>
+        </HStack>
+      </Flex>
+
       <Tabs>
         <TabList>
           <Tab>Details</Tab>
@@ -91,15 +102,7 @@ const Hat = ({ hatData, chainId }) => {
         <TabPanels>
           {/* Details, where is this coming back from? IPFS hash? */}
           <TabPanel>
-            {hatDetails.map((detail) => (
-              <Flex
-                key={`${detail.label}-${detail.value}`}
-                justify='space-between'
-              >
-                <Text>{detail.label}</Text>
-                <Text>{detail.value}</Text>
-              </Flex>
-            ))}
+            <DataTable data={hatDetails} />
           </TabPanel>
           {/* TODO Authorities will be designated in details for now, hard-ish to track */}
           {/* <TabPanel /> */}

@@ -57,6 +57,7 @@ function HatWearers({ wearers, chainId }) {
           <Link href={`${explorerUrl(chainId)}/address/${wearer}`} key={wearer}>
             <Flex
               borderBottom='1px solid'
+              borderColor='gray.400'
               key={wearer}
               align='center'
               justify='space-between'

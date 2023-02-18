@@ -10,17 +10,18 @@ const EventRow = ({ id, timestamp, transactionId, chainId, last }) => (
       justify='space-between'
       align='center'
       borderBottom={!last ? '1px solid' : 'none'}
+      borderColor='gray.200'
       p={1}
     >
-      <HStack spacing={2}>
-        <Text>{`${formatDistanceToNow(
+      <HStack spacing={10}>
+        <Text w='50%'>{`${formatDistanceToNow(
           new Date(Number(timestamp) * 1000),
         )} ago`}</Text>
-        <Text>-</Text>
-        <Text>{id.split('-')[0]}</Text>
+        <HStack spacing={3}>
+          <Text>{id.split('-')[0]}</Text>
+          <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+        </HStack>
       </HStack>
-
-      <Icon as={FaExternalLinkAlt} />
     </Flex>
   </Link>
 );
