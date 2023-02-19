@@ -1,6 +1,12 @@
 import _ from 'lodash';
 import client from './client';
-import { GET_TREE, GET_ALL_TREE_IDS, GET_ALL_TREES, GET_HAT } from './queries';
+import {
+  GET_TREE,
+  GET_ALL_TREE_IDS,
+  GET_ALL_TREES,
+  GET_HAT,
+  GET_WEARER_DETAILS,
+} from './queries';
 
 export const fetchTreeDetails = async (treeId, chainId) => {
   const result = await client(chainId).request(GET_TREE, { id: treeId });
@@ -20,8 +26,16 @@ export const fetchAllTrees = async (chainId) => {
   return _.get(result, 'trees', null);
 };
 
-export const fetchHatDetails = async (hatId) => {
-  const result = await client().request(GET_HAT, { id: hatId });
+export const fetchHatDetails = async (hatId, chainId) => {
+  const result = await client(chainId).request(GET_HAT, { id: hatId });
 
   return _.get(result, 'hat', null);
+};
+
+export const fetchWearerDetails = async (address, chainId) => {
+  const result = await client(chainId).request(GET_WEARER_DETAILS, {
+    id: _.toLower(address),
+  });
+
+  return _.get(result, 'wearer', null);
 };

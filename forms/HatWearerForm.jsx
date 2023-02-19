@@ -1,11 +1,10 @@
-import { Link as ChakraLink, Stack, Button } from '@chakra-ui/react';
+import React from 'react';
+import { Link as ChakraLink, Stack, Button, Flex } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 
-// TODO handle eligibility vs toggle
-
-const HatModulesForm = () => {
+const HatWearerForm = () => {
   const localForm = useForm();
   const { handleSubmit } = localForm;
 
@@ -23,17 +22,18 @@ const HatModulesForm = () => {
         >
           View docs for more information about eligibility and toggle {'->'}
         </ChakraLink>
-
         <Input
           localForm={localForm}
-          name='eligibility'
-          label='Eligibility Address'
+          name='newWearer'
+          label='New Wearer Address'
         />
 
-        <Button type='submit'>Save</Button>
+        <Flex justify='flex-end'>
+          <Button type='submit'>Save</Button>
+        </Flex>
       </Stack>
     </form>
   );
 };
 
-export default HatModulesForm;
+export default HatWearerForm;

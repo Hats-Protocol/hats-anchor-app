@@ -15,7 +15,6 @@ import { fetchAllTrees } from '../gql/helpers';
 
 const Home = ({ chainId, initialData }) => {
   const { data: trees } = useTreeList({ chainId, initialData });
-  console.log(trees);
 
   return (
     <Layout>

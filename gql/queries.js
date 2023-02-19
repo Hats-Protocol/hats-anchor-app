@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 
+// TODO handle inline sort for events
 export const TREE_DETAILS_FRAGMENT = gql`
   fragment TreeDetails on Tree {
     id
@@ -46,7 +47,7 @@ export const GET_ALL_TREES = gql`
 `;
 
 export const HAT_DETAILS_FRAGMENT = gql`
-  fragment HatDetails on Hat {
+  fragment HatDetailsUnit on Hat {
     id
     prettyId
     status
@@ -59,8 +60,14 @@ export const HAT_DETAILS_FRAGMENT = gql`
     imageUri
     levelAtLocalTree
     currentSupply
+  }
+  fragment HatDetails on Hat {
+    ...HatDetailsUnit
     wearers {
       id
+    }
+    admin {
+      ...HatDetailsUnit
     }
   }
 `;
@@ -81,6 +88,18 @@ export const SEARCH_QUERY = gql`
     }
     hats(where: { id: $search }) {
       id
+    }
+  }
+`;
+
+export const GET_WEARER_DETAILS = gql`
+  query getCurrentHatsForWearer($id: ID!) {
+    wearer(id: $id) {
+      currentHats {
+        id
+        prettyId
+        levelAtLocalTree
+      }
     }
   }
 `;

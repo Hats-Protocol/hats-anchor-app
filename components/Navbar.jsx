@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Flex,
   Image,
@@ -9,16 +9,27 @@ import {
 } from '@chakra-ui/react';
 import { FaSearch } from 'react-icons/fa';
 import Link from 'next/link';
+import { useAccount } from 'wagmi';
+
 import ConnectWallet from './ConnectWallet';
 import CONFIG from '../constants';
 import { useOverlay } from '../contexts/OverlayContext';
-
-const navigation = [{ name: 'Create Tree', href: '/create/tree' }];
+import { clearNonObjects } from '../lib/general';
 
 // TODO add drawer
 
 const Navbar = () => {
   const { setCommandPallet: setOpen } = useOverlay();
+  const { address } = useAccount();
+
+  const navLinks = useMemo(() => {
+    const links = [
+      { name: 'Create Tree', href: '/trees/create' },
+      address && { name: 'User Hats', href: `/wearers/${address}` },
+    ];
+
+    return clearNonObjects(links);
+  }, [address]);
 
   return (
     <Flex
@@ -38,7 +49,7 @@ const Navbar = () => {
           <Image src={CONFIG.logoUrl} alt={CONFIG.appName} height='75px' />
         </ChakraLink>
         <HStack spacing={3}>
-          {navigation.map((item) => (
+          {navLinks.map((item) => (
             <ChakraLink as={Link} href={item.href} key={item.name}>
               {item.name}
             </ChakraLink>

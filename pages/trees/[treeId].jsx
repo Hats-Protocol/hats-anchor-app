@@ -9,6 +9,7 @@ import {
   Flex,
   Spinner,
   Image,
+  Button,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -23,6 +24,9 @@ import Layout from '../../components/Layout';
 import { fetchAllTreeIds, fetchTreeDetails } from '../../gql/helpers';
 import DataTable from '../../components/DataTable';
 import { formatAddress } from '../../lib/general';
+import { useOverlay } from '../../contexts/OverlayContext';
+import Modal from '../../components/Modal';
+import HatCreateForm from '../../forms/CreateHatForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -30,6 +34,8 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
   const chain = chainsMap(chainId);
   const [currentHatId, setCurrentHatId] = useState(null);
   const [topHatId, setTopHatId] = useState(null);
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const {
     data: treeData,
@@ -45,7 +51,7 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
       setCurrentHatId(_.get(treeData, 'hats[0].id'));
     }
   }, [treeData, currentHatId]);
-  console.log(hatData);
+  console.log(topHat);
 
   // TODO handle error and loading in layout
   if (treeLoading)
@@ -71,76 +77,91 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
   ];
 
   return (
-    <Layout>
-      <Grid gridTemplateColumns='repeat(2, 1fr)' gap={8}>
-        {/* info table */}
-        <Card>
-          <CardBody>
-            <HStack align='flex-start' spacing={4}>
-              <Image
-                src='/icon.jpeg'
-                alt='Top Hat image'
-                maxW='200px'
-                border='1px solid'
-                borderColor='gray.200'
-              />
-              <Stack spacing={4} w='60%'>
-                <Heading size='md'>Tree Details</Heading>
-                <DataTable data={treeInfoTable} labelWidth='50%' />
-              </Stack>
-            </HStack>
-          </CardBody>
-        </Card>
-        {/* recent events table */}
-        {events && (
-          <Card zIndex={1}>
+    <>
+      <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
+        <HatCreateForm />
+      </Modal>
+
+      <Layout>
+        {/* temp buttons */}
+        <Flex mb={6}>
+          <Button
+            variant='outline'
+            onClick={() => setModals({ createHat: true })}
+          >
+            Create Hat
+          </Button>
+        </Flex>
+        <Grid gridTemplateColumns='repeat(2, 1fr)' gap={8}>
+          {/* info table */}
+          <Card>
             <CardBody>
-              <Stack>
-                <Heading size='md'>Recent Events</Heading>
-                {_.map(_.slice(events, 0, 5), (event, i) => (
-                  <EventRow
-                    id={event.id.split('-')[0]}
-                    transactionId={event.transactionID}
-                    timestamp={event.timestamp}
-                    chainId={chainId}
-                    last={i === treeData.events.length - 1}
-                    key={event.transactionID}
-                  />
-                ))}
-              </Stack>
+              <HStack align='flex-start' spacing={4}>
+                <Image
+                  src='/icon.jpeg'
+                  alt='Top Hat image'
+                  maxW='200px'
+                  border='1px solid'
+                  borderColor='gray.200'
+                />
+                <Stack spacing={4} w='60%'>
+                  <Heading size='md'>Tree Details</Heading>
+                  <DataTable data={treeInfoTable} labelWidth='50%' />
+                </Stack>
+              </HStack>
             </CardBody>
           </Card>
-        )}
+          {/* recent events table */}
+          {events && (
+            <Card zIndex={1}>
+              <CardBody>
+                <Stack>
+                  <Heading size='md'>Recent Events</Heading>
+                  {_.map(_.slice(events, 0, 5), (event, i) => (
+                    <EventRow
+                      id={event.id.split('-')[0]}
+                      transactionId={event.transactionID}
+                      timestamp={event.timestamp}
+                      chainId={chainId}
+                      last={i === treeData.events.length - 1}
+                      key={event.transactionID}
+                    />
+                  ))}
+                </Stack>
+              </CardBody>
+            </Card>
+          )}
 
-        {/* tree explorer */}
-        {!_.isEmpty(tree) && (
+          {/* tree explorer */}
+          {!_.isEmpty(tree) && (
+            <Card gridAutoRows='auto'>
+              <CardBody minH='400px'>
+                <TreeGraph
+                  data={tree}
+                  orientation='vertical'
+                  collapsible={false}
+                  rootNodeClassName='node__root'
+                  branchNodeClassName='node__branch'
+                  leafNodeClassName='node__leaf'
+                  nodeSize={{ x: 200, y: 200 }}
+                  translate={{ x: 200, y: 200 }}
+                  onNodeClick={(node) =>
+                    setCurrentHatId(prettyIdToId(node.data.name))
+                  }
+                />
+              </CardBody>
+            </Card>
+          )}
+
+          {/* hat data */}
           <Card gridAutoRows='auto'>
-            <CardBody minH='400px'>
-              <TreeGraph
-                data={tree}
-                orientation='vertical'
-                collapsible={false}
-                rootNodeClassName='node__root'
-                branchNodeClassName='node__branch'
-                leafNodeClassName='node__leaf'
-                nodeSize={{ x: 200, y: 200 }}
-                translate={{ x: 200, y: 200 }}
-                onNodeClick={(node) =>
-                  setCurrentHatId(prettyIdToId(node.data.name))
-                }
-              />
+            <CardBody>
+              {hatData && <Hat hatData={hatData} chainId={chainId} />}
             </CardBody>
           </Card>
-        )}
-
-        {/* hat data */}
-        <Card gridAutoRows='auto'>
-          <CardBody>
-            {hatData && <Hat hatData={hatData} chainId={chainId} />}
-          </CardBody>
-        </Card>
-      </Grid>
-    </Layout>
+        </Grid>
+      </Layout>
+    </>
   );
 };
 
@@ -163,7 +184,6 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps = async (props) => {
   const { treeId, chainId } = props.params;
-  // TODO do we need to pass `chainId` in the params? yes cause conflicts will exist on treeId
   const initialData = await fetchTreeDetails(treeId, chainId || defaultChainId);
 
   return {

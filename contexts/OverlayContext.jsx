@@ -1,9 +1,10 @@
 import React, { createContext, useState, useContext, useMemo } from 'react';
 
 const defaults = {
-  createTreeForm: false,
-  wearerForm: false,
-  createHatForm: false,
+  createTree: false,
+  newWearer: false,
+  editModule: false,
+  createHat: false,
 };
 
 export const OverlayContext = createContext({});
