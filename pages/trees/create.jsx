@@ -8,8 +8,7 @@ import {
 } from 'wagmi';
 import abi from '../../contracts/Hats.json';
 
-console.log(JSON.stringify(abi));
-
+// TODO migrate to form
 export default function CreateTree() {
   const [values, setValues] = useState({
     address: '',
@@ -28,14 +27,14 @@ export default function CreateTree() {
 
   const { data, write } = useContractWrite(config);
 
-  const { isLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     write?.();
-    console.log(values);
+    // console.log(values);
   };
 
   const onChange = (e) => {

@@ -5,7 +5,8 @@ import UriComponent from '../../components/UriComponent';
 import Layout from '../../components/Layout';
 import abi from '../../contracts/Hats.json';
 
-// TODO
+//! TO BE ARCHIVED
+// TODO migrating this to nested tree view for now
 // - should have the hatID in the URL and automatically load the page
 // - switch contract over to Polygon (including ABI); add Image
 // - read from subgraph? (will make tree query easier for example)

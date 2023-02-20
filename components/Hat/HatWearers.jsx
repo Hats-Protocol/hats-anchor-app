@@ -11,15 +11,21 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
-import { FaExternalLinkAlt } from 'react-icons/fa';
-// import AddressLink from '../AddressLink';
+
 import Link from '../ChakraNextLink';
-import { formatAddress, explorerUrl } from '../../lib/general';
+import { formatAddress } from '../../lib/general';
+import HatWearerForm from '../../forms/HatWearerForm';
+import Modal from '../Modal';
+import { useOverlay } from '../../contexts/OverlayContext';
 
 const WEARERS_PER_PAGE = 5;
+// TODO handle chainId ?
 
-function HatWearers({ wearers, chainId }) {
+function HatWearers({ hatData, chainId }) {
   const [currentPage, setCurrentPage] = useState(0);
+  const wearers = _.get(hatData, 'wearers', []);
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
 
   const wearerPages = useMemo(() => {
     const w = [];
@@ -50,50 +56,87 @@ function HatWearers({ wearers, chainId }) {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
+  // TODO check if connected for new wearer button
+
   return (
-    <Stack align='center' spacing={4}>
-      <Stack w='100%'>
-        {wearerPages.pages?.[currentPage]?.map((wearer) => (
-          <Link href={`${explorerUrl(chainId)}/address/${wearer}`} key={wearer}>
-            <Flex
-              borderBottom='1px solid'
-              key={wearer}
-              align='center'
-              justify='space-between'
-              p={1}
-            >
-              <Text>{formatAddress(wearer)}</Text>
+    <>
+      <Modal name='newWearer' title='New Wearer' localOverlay={localOverlay}>
+        <HatWearerForm hatId={_.get(hatData, 'id')} />
+      </Modal>
 
-              <Icon as={FaExternalLinkAlt} />
-            </Flex>
-          </Link>
-        ))}
-      </Stack>
+      <Stack align='center' spacing={4}>
+        <Flex justify='space-between' w='100%'>
+          <HStack spacing={1}>
+            {_.get(hatData, 'currentSupply') &&
+              _.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
+              _.get(hatData, 'currentSupply') !== '0' && (
+                <Text>{_.get(hatData, 'currentSupply')} /</Text>
+              )}
+            <Text>{_.get(hatData, 'maxSupply')} Total</Text>
+          </HStack>
 
-      <HStack spacing={3}>
-        <IconButton
-          icon={<Icon as={BsChevronLeft} />}
-          onClick={decrementCurrentPage}
-          isDisabled={currentPage === 0}
-        />
-        {wearerPages?.pageNumbers?.map((number) => {
-          return (
+          {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') && (
             <Button
-              onClick={() => setCurrentPage(number)}
-              key={number}
-              isDisabled={currentPage + 1 === number}
+              onClick={() => setModals({ newWearer: true })}
+              variant='outline'
             >
-              {number}
+              New Wearer
             </Button>
-          );
-        })}
-        <IconButton
-          icon={<Icon as={BsChevronRight} />}
-          onClick={incrementCurrentPage}
-          isDisabled={currentPage === wearerPages.count - 1}
-        />
-      </HStack>
-    </Stack>
+          )}
+        </Flex>
+
+        <Stack w='100%'>
+          {_.isEmpty(wearers) ? (
+            <Flex justify='center' my={6}>
+              <Text>No wearers yet</Text>
+            </Flex>
+          ) : (
+            wearerPages.pages?.[currentPage]?.map((wearer) => (
+              <Link href={`/wearers/${wearer}`} key={wearer}>
+                <Flex
+                  borderBottom='1px solid'
+                  borderColor='gray.400'
+                  key={wearer}
+                  align='center'
+                  justify='space-between'
+                  p={1}
+                >
+                  <Text>{formatAddress(wearer)}</Text>
+
+                  <Icon as={BsChevronRight} />
+                </Flex>
+              </Link>
+            ))
+          )}
+        </Stack>
+
+        <HStack spacing={3}>
+          <IconButton
+            icon={<Icon as={BsChevronLeft} />}
+            onClick={decrementCurrentPage}
+            isDisabled={currentPage === 0}
+          />
+          {wearerPages?.pageNumbers?.map((number) => {
+            return (
+              <Button
+                onClick={() => setCurrentPage(number)}
+                key={number}
+                isDisabled={currentPage + 1 === number}
+              >
+                {number}
+              </Button>
+            );
+          })}
+          <IconButton
+            icon={<Icon as={BsChevronRight} />}
+            onClick={incrementCurrentPage}
+            isDisabled={
+              currentPage === wearerPages.count - 1 || _.isEmpty(wearers)
+            }
+          />
+        </HStack>
+      </Stack>
+    </>
   );
 }
 

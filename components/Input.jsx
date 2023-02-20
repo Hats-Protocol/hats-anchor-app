@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { ChakraInput, FormControl, FormLabel } from '@chakra-ui/react';
+import { Input as ChakraInput, FormControl, FormLabel } from '@chakra-ui/react';
 
 /**
  * Primary Input component for React Hook Form
@@ -12,14 +12,14 @@ import { ChakraInput, FormControl, FormLabel } from '@chakra-ui/react';
  * @returns Input component
  *
  */
-const Input = ({ label, name, type, localForm, ...props }) => {
+const Input = ({ label, name, type = 'text', localForm, ...props }) => {
   if (!localForm) return null;
   const { register } = localForm;
 
   return (
-    <FormControl>
+    <FormControl {...props}>
       {label && <FormLabel>{label}</FormLabel>}
-      <ChakraInput type={type} {...props} {...register(name)} />
+      <ChakraInput type={type} {...register(name)} {...props} />
     </FormControl>
   );
 };

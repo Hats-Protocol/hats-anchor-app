@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import client from '../gql/client';
-import { GET_HAT } from '../gql/queries';
+import { fetchHatDetails } from '../gql/helpers';
+import { hatIdToHex } from '../lib/hats';
 
 const useHatDetails = ({ hatId }) => {
-  const fetchTreeDetails = async () => client().request(GET_HAT, { id: hatId });
+  const hexId = hatIdToHex(hatId);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['hatDetails', hatId],
-    queryFn: fetchTreeDetails,
+    queryKey: ['hatDetails', hexId],
+    queryFn: () => fetchHatDetails(hexId),
     enabled: !!hatId,
   });
 

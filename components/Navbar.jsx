@@ -1,36 +1,71 @@
-import React from 'react';
-import { Flex, Image, HStack, Link as ChakraLink } from '@chakra-ui/react';
+import React, { useMemo } from 'react';
+import {
+  Flex,
+  Image,
+  HStack,
+  Link as ChakraLink,
+  Icon,
+  IconButton,
+} from '@chakra-ui/react';
+import { FaSearch } from 'react-icons/fa';
 import Link from 'next/link';
+import { useAccount } from 'wagmi';
+
 import ConnectWallet from './ConnectWallet';
 import CONFIG from '../constants';
-import SearchBar from './SearchBar';
-
-const navigation = [
-  { name: 'Create Tree', href: '/create/tree' },
-  { name: 'Example', href: '/example' },
-];
+import { useOverlay } from '../contexts/OverlayContext';
+import { clearNonObjects } from '../lib/general';
 
 // TODO add drawer
 
-const Navbar = () => (
-  <Flex w='100%' justify='space-between' align='center' px={8}>
-    <HStack spacing={6}>
-      <ChakraLink as={Link} href='/'>
-        <Image src={CONFIG.logoUrl} alt={CONFIG.appName} height='75px' />
-      </ChakraLink>
-      <HStack spacing={3}>
-        {navigation.map((item) => (
-          <ChakraLink as={Link} href={item.href} key={item.name}>
-            {item.name}
-          </ChakraLink>
-        ))}
+const Navbar = () => {
+  const { setCommandPallet: setOpen } = useOverlay();
+  const { address } = useAccount();
+
+  const navLinks = useMemo(() => {
+    const links = [
+      { name: 'Create Tree', href: '/trees/create' },
+      address && { name: 'User Hats', href: `/wearers/${address}` },
+    ];
+
+    return clearNonObjects(links);
+  }, [address]);
+
+  return (
+    <Flex
+      w='100%'
+      justify='space-between'
+      align='center'
+      px={8}
+      bg='white'
+      borderBottom='1px solid'
+      borderColor='gray.400'
+      boxShadow='md'
+      position='fixed'
+      zIndex={10}
+    >
+      <HStack spacing={6}>
+        <ChakraLink as={Link} href='/'>
+          <Image src={CONFIG.logoUrl} alt={CONFIG.appName} height='75px' />
+        </ChakraLink>
+        <HStack spacing={3}>
+          {navLinks.map((item) => (
+            <ChakraLink as={Link} href={item.href} key={item.name}>
+              {item.name}
+            </ChakraLink>
+          ))}
+        </HStack>
       </HStack>
-    </HStack>
 
-    <SearchBar />
-
-    <ConnectWallet />
-  </Flex>
-);
+      <HStack stack={6}>
+        <IconButton
+          icon={<Icon as={FaSearch} />}
+          onClick={() => setOpen(true)}
+        />
+        <ConnectWallet />
+      </HStack>
+    </Flex>
+  );
+};
 
 export default Navbar;
