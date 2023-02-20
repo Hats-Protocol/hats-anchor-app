@@ -2,7 +2,7 @@
 import React from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import {
-  ChakraTextarea,
+  Textarea as ChakraTextarea,
   FormControl,
   FormLabel,
   Stack,
@@ -34,7 +34,7 @@ const Textarea = ({
 
   return (
     <FormControl>
-      <Stack spacing={4}>
+      <Stack spacing={2}>
         <HStack align='center'>
           {label && <FormLabel m='0'>{label}</FormLabel>}
           {tooltip && (

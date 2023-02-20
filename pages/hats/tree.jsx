@@ -1,4 +1,3 @@
-// import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { ethers, BigNumber } from 'ethers';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -18,6 +17,7 @@ import { tempHeadings, tempData } from '../../constants/temp';
 
 import abi from '../../contracts/Hats.json';
 
+// ! TO BE ARCHIVED
 const HATS_POLYGON_ADDRESS = '0xB7019C3670F5d4dD99166727a7D29F8A16F4F20A';
 // '0x95647f88dcbc12986046fc4f49064edd11a25d38' (polygon, current is goerli)
 // const node = "https://polygon-mainnet.infura.io/v3/f7b3bd0fdb174f0fac4aded22da36341";

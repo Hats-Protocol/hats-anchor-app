@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import theme from '../theme';
 import { wagmiClient, chains } from '../lib/web3';
+import { OverlayContextProvider } from '../contexts/OverlayContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,7 +22,9 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains}>
           <QueryClientProvider client={queryClient}>
-            <Component {...pageProps} />
+            <OverlayContextProvider>
+              <Component {...pageProps} />
+            </OverlayContextProvider>
           </QueryClientProvider>
         </RainbowKitProvider>
       </WagmiConfig>

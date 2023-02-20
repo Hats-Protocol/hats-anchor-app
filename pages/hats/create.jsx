@@ -10,6 +10,7 @@ import RadioBox from '../../components/RadioBox';
 //   { name: 'Mint your hat', href: '#', icon: UserGroupIcon },
 // ];
 
+// TODO migrate to form modal
 const difficulties = {
   1: 'Normal',
   2: 'Hard',

@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import { FaSearch } from 'react-icons/fa';
 import { IconButton, Icon, Select, HStack, Input } from '@chakra-ui/react';
 
+// TODO archive if not used after v1
+
 const networkOptions = [
   {
     value: 5,
@@ -16,7 +18,7 @@ const networkOptions = [
 
 const SearchBar = () => {
   const [value, setValue] = useState('');
-  const [chainId, setChainId] = useState(5); // TODO set default
+  const [chainId] = useState(5); // TODO set default
 
   const router = useRouter();
 
@@ -29,6 +31,7 @@ const SearchBar = () => {
   }
 
   const handleNetworkChange = (e) => {
+    // eslint-disable-next-line no-console
     console.log(e);
     // setChainId(e)
   };

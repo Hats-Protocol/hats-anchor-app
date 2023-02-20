@@ -1,15 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import client from '../gql/client';
-import { GET_TREE } from '../gql/queries';
+import { fetchTreeDetails } from '../gql/helpers';
 
-const useTreeDetails = ({ treeId, chainId }) => {
-  const fetchTreeDetails = async () =>
-    client(chainId).request(GET_TREE, { id: treeId });
-
+const useTreeDetails = ({ treeId, chainId, initialData }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeDetails', treeId],
-    queryFn: fetchTreeDetails,
+    queryFn: () => fetchTreeDetails(treeId, chainId),
     enabled: !!treeId,
+    initialData,
   });
 
   return { data, isLoading, error };

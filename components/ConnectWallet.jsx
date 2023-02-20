@@ -1,5 +1,5 @@
-import React from 'react'
-import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit'
+import React from 'react';
+import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import {
   Button,
   Flex,
@@ -12,19 +12,19 @@ import {
   Heading,
   Box,
   useMediaQuery,
-} from '@chakra-ui/react'
-import { FaChevronDown } from 'react-icons/fa'
-import Image from 'next/image'
-import { useAccount, useEnsName, useDisconnect, useEnsAvatar } from 'wagmi'
+} from '@chakra-ui/react';
+import { FaChevronDown } from 'react-icons/fa';
+import Image from 'next/image';
+import { useAccount, useEnsName, useDisconnect, useEnsAvatar } from 'wagmi';
 
 const ConnectWallet = () => {
-  const { address } = useAccount()
-  const { disconnect } = useDisconnect()
-  const { data: ensName } = useEnsName({ address })
-  const { data: ensAvatar } = useEnsAvatar({ address })
+  const { address } = useAccount();
+  const { disconnect } = useDisconnect();
+  const { data: ensName } = useEnsName({ address });
+  const { data: ensAvatar } = useEnsAvatar({ address });
 
-  const blockie = null // TODO implement blockie or other solution
-  const [upTo780] = useMediaQuery('(max-width: 780px)')
+  const blockie = null; // TODO implement blockie or other solution
+  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   return (
     <RainbowConnectButton.Custom>
@@ -37,44 +37,44 @@ const ConnectWallet = () => {
         mounted,
         authenticationStatus,
       }) => {
-        const ready = mounted && authenticationStatus !== 'loading'
+        const ready = mounted && authenticationStatus !== 'loading';
         const connected =
           ready &&
           account &&
           chain &&
-          (!authenticationStatus || authenticationStatus === 'authenticated')
+          (!authenticationStatus || authenticationStatus === 'authenticated');
 
         return !ready ? (
           <Box
-            display="none"
+            display='none'
             opacity={0}
-            pointerEvents="none"
-            userSelect="none"
+            pointerEvents='none'
+            userSelect='none'
           />
         ) : (
           (() => {
             if (!connected) {
               return (
-                <Button onClick={openConnectModal} variant="outline">
+                <Button onClick={openConnectModal} variant='outline'>
                   Connect Wallet
                 </Button>
-              )
+              );
             }
 
             if (chain.unsupported) {
               return (
-                <Button onClick={openChainModal} type="button">
+                <Button onClick={openChainModal} type='button'>
                   Wrong network
                 </Button>
-              )
+              );
             }
 
             return (
               <Flex gap={2}>
                 <Button
                   onClick={openChainModal}
-                  display="flex"
-                  alignItems="center"
+                  display='flex'
+                  alignItems='center'
                 >
                   {chain.hasIcon && chain.iconUrl && (
                     <Image
@@ -86,29 +86,29 @@ const ConnectWallet = () => {
                   )}
                 </Button>
 
-                <Menu placement="bottom-end">
+                <Menu placement='bottom-end'>
                   <MenuButton
                     as={Button}
                     rightIcon={<Icon as={FaChevronDown} />}
                   >
-                    <HStack spacing={2} align="center">
+                    <HStack spacing={2} align='center'>
                       {(ensAvatar || blockie) && !upTo780 && (
                         <Box
-                          height="25px"
-                          width="25px"
-                          borderRadius="50%"
-                          overflow="hidden"
+                          height='25px'
+                          width='25px'
+                          borderRadius='50%'
+                          overflow='hidden'
                         >
                           <Image
                             src={ensAvatar || blockie}
-                            alt="User Avatar"
-                            height="25px"
-                            width="25px"
+                            alt='User Avatar'
+                            height='25px'
+                            width='25px'
                           />
                         </Box>
                       )}
 
-                      <Heading size="sm">
+                      <Heading size='sm'>
                         {ensName || account.displayName}
                       </Heading>
                     </HStack>
@@ -119,12 +119,12 @@ const ConnectWallet = () => {
                   </MenuList>
                 </Menu>
               </Flex>
-            )
+            );
           })()
-        )
+        );
       }}
     </RainbowConnectButton.Custom>
-  )
-}
+  );
+};
 
-export default ConnectWallet
+export default ConnectWallet;

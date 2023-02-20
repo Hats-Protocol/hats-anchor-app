@@ -1,30 +1,59 @@
 import _ from 'lodash';
-import { Heading, Link as ChakraLink, Stack } from '@chakra-ui/react';
+import {
+  CardBody,
+  Heading,
+  Link as ChakraLink,
+  SimpleGrid,
+  Card,
+  Flex,
+  Text,
+} from '@chakra-ui/react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
+import useTreeList from '../hooks/useTreeList';
+import { fetchAllTrees } from '../gql/helpers';
 
-const hatsAddresses = {
-  // 1: '0x95647f88dcbc12986046fc4f49064edd11a25d38',
-  5: '0xB7019C3670F5d4dD99166727a7D29F8A16F4F20A',
-  137: '0x95647f88dcbc12986046fc4f49064edd11a25d38',
+const Home = ({ chainId, initialData }) => {
+  const { data: trees } = useTreeList({ chainId, initialData });
+
+  return (
+    <Layout>
+      <Flex justify='center' my={6}>
+        <Heading>Welcome to Hats</Heading>
+      </Flex>
+
+      <SimpleGrid columns={6} gap={4}>
+        {_.map(trees, (tree) => (
+          <ChakraLink
+            as={Link}
+            href={`/trees/${_.get(tree, 'id')}`}
+            key={_.get(tree, 'id')}
+          >
+            <Card>
+              <CardBody>
+                <Flex h='100px' w='100%' justify='center' align='center'>
+                  <Text>{_.get(tree, 'id')}</Text>
+                </Flex>
+              </CardBody>
+            </Card>
+          </ChakraLink>
+        ))}
+      </SimpleGrid>
+    </Layout>
+  );
 };
 
-const Home = () => (
-  <Layout>
-    <Heading>Welcome to hats</Heading>
+// TODO handle multiple chains
+const defaultChainId = 5;
+export const getStaticProps = async () => {
+  const initialData = await fetchAllTrees(defaultChainId);
 
-    <Stack>
-      {_.map(_.keys(hatsAddresses), (chainId) => (
-        <ChakraLink
-          as={Link}
-          href={`/hats/${hatsAddresses[chainId]}`}
-          key={hatsAddresses[chainId]}
-        >
-          {hatsAddresses[chainId]}
-        </ChakraLink>
-      ))}
-    </Stack>
-  </Layout>
-);
+  return {
+    props: {
+      initialData,
+      chainId: defaultChainId,
+    },
+  };
+};
 
 export default Home;

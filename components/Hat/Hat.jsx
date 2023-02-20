@@ -1,5 +1,4 @@
 import {
-  Heading,
   Stack,
   Tabs,
   TabList,
@@ -8,99 +7,173 @@ import {
   TabPanel,
   Flex,
   Text,
+  HStack,
+  Image,
+  Badge,
+  Icon,
+  IconButton,
 } from '@chakra-ui/react';
+import { useState } from 'react';
+import { BigNumber } from 'ethers';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
+import { FaPencilAlt } from 'react-icons/fa';
 
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
+import DataTable from '../DataTable';
+import { ZERO_ADDRESS, MODULE_TYPES } from '../../constants';
+import Modal from '../Modal';
+import HatModulesForm from '../../forms/HatModulesForm';
+import { useOverlay } from '../../contexts/OverlayContext';
+import EventsTable from '../EventsTable';
+import { decimalId } from '../../lib/hats';
 
-const Hat = ({ hatData, chainId }) => {
-  if (!hatData?.hat) return null;
+const AddressRow = ({ address, chainId, type, setType, localOverlay }) => {
+  const { setModals } = localOverlay;
 
-  const wearers = _.get(hatData, 'hat.wearers');
+  const openModal = () => {
+    setType(type);
+    setModals({ editModule: true });
+  };
 
-  const hatDetails = [
+  return (
+    <HStack spacing={4}>
+      {address !== ZERO_ADDRESS ? (
+        <AddressLink address={address} chainId={chainId} />
+      ) : (
+        <Text>None Set</Text>
+      )}
+      <IconButton
+        icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+        minW='auto'
+        w={8}
+        h={8}
+        variant='outline'
+        onClick={openModal}
+      />
+    </HStack>
+  );
+};
+// TODO this should probably be more components
+
+const Hat = ({ hatData, chainId, treeId }) => {
+  const localOverlay = useOverlay();
+  const [type, setType] = useState(MODULE_TYPES.eligibility);
+  if (!hatData) return null;
+
+  const accountabilitiesTable = [
     {
-      label: 'Id',
-      value: hatData.hat.prettyId, // TODO tooltip for long ID so it doesn't overflow table
+      label: 'Admin ID',
+      value: `${decimalId(_.get(hatData, 'admin.id', '0')).slice(0, 10)}...`,
     },
-    {
-      label: 'Status',
-      value: hatData.hat.status ? 'Active' : 'Not Active',
-    },
-    {
-      label: 'Details',
-      value: hatData.hat.details,
-    },
-    {
-      label: 'Image URI',
-      value: hatData.hat.imageUri,
-    },
-    {
-      label: 'Max Supply',
-      value: hatData.hat.maxSupply,
-    },
-    {
-      label: 'Current Supply',
-      value: hatData.hat.currentSupply,
-    },
+    { label: 'Pretty Admin ID', value: _.get(hatData, 'admin.prettyId') },
     {
       label: 'Eligibility',
       value: (
-        <AddressLink address={hatData.hat.eligibility} chainId={chainId} />
+        <AddressRow
+          address={hatData.eligibility}
+          chainId={chainId}
+          type={MODULE_TYPES.eligibility}
+          setType={setType}
+          localOverlay={localOverlay}
+        />
       ),
     },
     {
       label: 'Toggle',
-      value: <AddressLink address={hatData.hat.toggle} chainId={chainId} />,
-    },
-    {
-      label: 'Mutable',
-      value: hatData.hat.mutable ? 'True' : 'False',
-    },
-    {
-      label: 'Level',
-      value: hatData.hat.levelAtLocalTree,
-    },
-    {
-      label: 'Created At',
-      value: `${formatDistanceToNow(
-        new Date(Number(hatData.hat.createdAt) * 1000),
-      )} ago`,
+      value: (
+        <AddressRow
+          address={hatData.toggle}
+          chainId={chainId}
+          type={MODULE_TYPES.toggle}
+          setType={setType}
+          localOverlay={localOverlay}
+        />
+      ),
     },
   ];
 
   return (
-    <Stack>
-      <Heading as='h1'>Hat</Heading>
-      <Tabs>
-        <TabList>
-          <Tab>Basic Info</Tab>
-          <Tab>Wearers</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            {hatDetails.map((detail) => (
-              <Flex
-                key={`${detail.label}-${detail.value}`}
-                justify='space-between'
-              >
-                <Text>{detail.label}</Text>
-                <Text>{detail.value}</Text>
-              </Flex>
-            ))}
-          </TabPanel>
-          <TabPanel>
-            {_.isEmpty(wearers) ? (
-              <Text>No wearers</Text>
+    <>
+      <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
+        <HatModulesForm type={type} />
+      </Modal>
+
+      <Stack>
+        <Flex justify='space-between'>
+          <HStack spacing={4}>
+            <Image
+              src='/icon.jpeg'
+              alt='Hat icon'
+              maxW='75px'
+              border='1px solid'
+              borderColor='gray.200'
+            />
+            <Stack spacing={1}>
+              {/* TODO add name if found in details object */}
+              <HStack>
+                <Text fontSize='sm' fontWeight={700}>
+                  Hat ID
+                </Text>
+                <Text fontSize='sm'>{_.get(hatData, 'prettyId')}</Text>
+              </HStack>
+              <Text
+                fontSize='xs'
+                color='gray.500'
+              >{`Created ${formatDistanceToNow(
+                new Date(Number(hatData.createdAt) * 1000),
+              )} ago`}</Text>
+            </Stack>
+          </HStack>
+          <Stack textAlign='center' spacing={1}>
+            <Badge colorScheme={hatData.status ? 'green' : 'blue'}>
+              {hatData.status ? 'Active' : 'Inactive'}
+            </Badge>
+            <Badge colorScheme={hatData.mutable ? 'green' : 'blue'}>
+              {hatData.mutable ? 'Mutable' : 'Immutable'}
+            </Badge>
+            {hatData?.levelAtLocalTree === 0 ? (
+              <Badge colorScheme='purple'>Top Hat</Badge>
             ) : (
-              <HatWearers wearers={wearers} chainId={chainId} />
+              <Badge colorScheme='purple'>
+                Level {hatData?.levelAtLocalTree}
+              </Badge>
             )}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </Stack>
+          </Stack>
+        </Flex>
+
+        <Tabs>
+          <TabList>
+            <Tab>Details</Tab>
+            {/* <Tab>Authorities</Tab> */}
+            <Tab>Accountabilities</Tab>
+            <Tab>Wearers</Tab>
+            <Tab>Events</Tab>
+          </TabList>
+          <TabPanels>
+            {/* Details, where is this coming back from? IPFS hash? */}
+            <TabPanel>{hatData?.details}</TabPanel>
+            {/* TODO Authorities will be designated in details for now, hard-ish to track */}
+            {/* <TabPanel /> */}
+            {/* TODO Accountabilities are found .... */}
+            <TabPanel>
+              <DataTable data={accountabilitiesTable} />
+            </TabPanel>
+            <TabPanel>
+              <HatWearers hatData={hatData} chainId={chainId} />
+            </TabPanel>
+            <TabPanel>
+              <EventsTable
+                treeId={treeId}
+                events={hatData?.events}
+                chainId={chainId}
+              />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Stack>
+    </>
   );
 };
 
