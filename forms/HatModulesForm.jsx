@@ -16,13 +16,13 @@ const HatModulesForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <ChakraLink
+        {/* <ChakraLink
           as={Link}
           href='https://github.com/Hats-Protocol/hats-protocol#eligibility'
           isExternal
         >
           View docs for more information about eligibility and toggle {'->'}
-        </ChakraLink>
+        </ChakraLink> */}
 
         <Input
           localForm={localForm}

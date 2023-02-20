@@ -33,6 +33,9 @@ export const GET_ALL_TREE_IDS = gql`
   query getAllTrees {
     trees {
       id
+      hats {
+        id
+      }
     }
   }
 `;
@@ -60,6 +63,11 @@ export const HAT_DETAILS_FRAGMENT = gql`
     imageUri
     levelAtLocalTree
     currentSupply
+    events(orderBy: timestamp, orderDirection: desc) {
+      timestamp
+      id
+      transactionID
+    }
   }
   fragment HatDetails on Hat {
     ...HatDetailsUnit

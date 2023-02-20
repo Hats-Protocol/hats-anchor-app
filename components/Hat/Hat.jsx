@@ -13,6 +13,7 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt } from 'react-icons/fa';
@@ -25,69 +26,76 @@ import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
 
+const MODULE_TYPES = {
+  eligibility: 'ELIGIBILITY',
+  toggle: 'TOGGLE',
+};
+
+const AddressRow = ({ address, chainId, type, setType, localOverlay }) => {
+  const { setModals } = localOverlay;
+
+  const openModal = () => {
+    setType(type);
+    setModals({ editModule: true });
+  };
+
+  return (
+    <HStack spacing={4}>
+      {address !== ZERO_ADDRESS ? (
+        <AddressLink address={address} chainId={chainId} />
+      ) : (
+        <Text>None Set</Text>
+      )}
+      <IconButton
+        icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+        minW='auto'
+        w={8}
+        h={8}
+        variant='outline'
+      />
+    </HStack>
+  );
+};
 // TODO this should probably be more components
 
-const Hat = ({ hatData, chainId }) => {
+const Hat = ({ hatData, hatEvents, chainId }) => {
   const localOverlay = useOverlay();
+  const [type, setType] = useState(MODULE_TYPES.eligibility);
   if (!hatData) return null;
-
-  const hatDetails = [
-    {
-      label: 'Level',
-      value: String(hatData.levelAtLocalTree) || '0',
-    },
-    {
-      label: 'Created At',
-      value: `${formatDistanceToNow(
-        new Date(Number(hatData.createdAt) * 1000),
-      )} ago`,
-    },
-  ];
+  console.log(hatData);
 
   const accountabilitiesTable = [
     { label: 'Admin ID', value: '1234' },
     { label: 'Pretty Admin ID', value: '5' },
     {
       label: 'Eligibility',
-      value:
-        hatData.eligibility !== ZERO_ADDRESS ? (
-          <HStack spacing={4}>
-            <AddressLink address={hatData.eligibility} chainId={chainId} />
-            <IconButton icon={<Icon as={FaPencilAlt} />} variant='outline' />
-          </HStack>
-        ) : (
-          <HStack spacing={4}>
-            <Text>None Set</Text>
-            <IconButton icon={<Icon as={FaPencilAlt} />} variant='outline' />
-          </HStack>
-        ),
+      value: (
+        <AddressRow
+          address={hatData.eligibility}
+          chainId={chainId}
+          type={MODULE_TYPES.eligibility}
+          setType={setType}
+          localOverlay={localOverlay}
+        />
+      ),
     },
     {
       label: 'Toggle',
-      value:
-        hatData.toggle !== ZERO_ADDRESS ? (
-          <HStack spacing={4}>
-            <AddressLink address={hatData.toggle} chainId={chainId} />
-            <IconButton icon={<Icon as={FaPencilAlt} />} variant='outline' />
-          </HStack>
-        ) : (
-          <HStack spacing={4}>
-            <Text>None Set</Text>
-            <IconButton
-              icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-              minW='auto'
-              w={8}
-              h={8}
-              variant='outline'
-            />
-          </HStack>
-        ),
+      value: (
+        <AddressRow
+          address={hatData.toggle}
+          chainId={chainId}
+          type={MODULE_TYPES.eligibility}
+          setType={setType}
+          localOverlay={localOverlay}
+        />
+      ),
     },
   ];
 
   return (
     <>
-      <Modal localOverlay={localOverlay}>
+      <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
         <HatModulesForm />
       </Modal>
 
@@ -135,7 +143,7 @@ const Hat = ({ hatData, chainId }) => {
             {/* <Tab>Authorities</Tab> */}
             <Tab>Accountabilities</Tab>
             <Tab>Wearers</Tab>
-            <Tab>Admin</Tab>
+            <Tab>Events</Tab>
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -149,7 +157,9 @@ const Hat = ({ hatData, chainId }) => {
             <TabPanel>
               <HatWearers hatData={hatData} chainId={chainId} />
             </TabPanel>
-            <TabPanel />
+            <TabPanel>
+              <Text>Events</Text>
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Stack>

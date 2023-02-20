@@ -19,7 +19,7 @@ const Input = ({ label, name, type = 'text', localForm, ...props }) => {
   return (
     <FormControl {...props}>
       {label && <FormLabel>{label}</FormLabel>}
-      <ChakraInput type={type} {...register(name)} />
+      <ChakraInput type={type} {...register(name)} {...props} />
     </FormControl>
   );
 };

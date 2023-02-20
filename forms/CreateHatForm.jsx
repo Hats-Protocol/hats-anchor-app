@@ -8,23 +8,27 @@ import useDebounce from '../hooks/useDebounce';
 
 // TODO more chains
 const defaultChainId = 5;
+const defaultDebounce = 1500;
 
 const CreateHatForm = () => {
   const localForm = useForm({ mode: 'onChange' });
   const { handleSubmit, watch } = localForm;
-  // const [hatDetails, setHatDetails] = useState();
-  const admin = useDebounce(watch('admin'), 1500);
-  // const name = useDebounce(watch('name'), 1500);
-  const details = useDebounce(watch('details', ''), 1500);
-  const maxSupply = useDebounce(watch('maxSupply', 1), 1500);
-  const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS), 1500);
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS), 1500);
-  const mutable = useDebounce(watch('mutable', true), 1500);
-  const imageUrl = useDebounce(watch('imageUrl', ''), 1500);
+
+  const admin = useDebounce(watch('admin'), defaultDebounce);
+  // const name = useDebounce(watch('name'), defaultDebounce);
+  const details = useDebounce(watch('details', ''), defaultDebounce);
+  const maxSupply = useDebounce(watch('maxSupply', 1), defaultDebounce);
+  const eligibility = useDebounce(
+    watch('eligibility', ZERO_ADDRESS),
+    defaultDebounce,
+  );
+  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS), defaultDebounce);
+  const mutable = useDebounce(watch('mutable', true), defaultDebounce);
+  const imageUrl = useDebounce(watch('imageUrl', ''), defaultDebounce);
 
   // console.log(adminId);
-  const { write } = useHatCreate({
-    hatsAddress: hatsAddresses[defaultChainId],
+  const { writeAsync } = useHatCreate({
+    hatsAddress: hatsAddresses(defaultChainId),
     admin,
     details,
     maxSupply,

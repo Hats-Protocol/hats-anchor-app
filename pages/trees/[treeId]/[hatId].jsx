@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import {
   Card,
   CardBody,
@@ -12,45 +12,41 @@ import {
   Button,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { BigNumber } from 'ethers';
 import dynamic from 'next/dynamic';
 
-import EventRow from '../../components/EventRow';
-import Hat from '../../components/Hat';
-import { toTreeStructure, prettyIdToId } from '../../lib/hats';
-import useTreeDetails from '../../hooks/useTreeDetails';
-import useHatDetails from '../../hooks/useHatDetails';
-import { chainsMap } from '../../lib/web3';
-import Layout from '../../components/Layout';
-import { fetchAllTreeIds, fetchTreeDetails } from '../../gql/helpers';
-import DataTable from '../../components/DataTable';
-import { formatAddress } from '../../lib/general';
-import { useOverlay } from '../../contexts/OverlayContext';
-import Modal from '../../components/Modal';
-import HatCreateForm from '../../forms/CreateHatForm';
+import EventRow from '../../../components/EventRow';
+import Hat from '../../../components/Hat';
+import { toTreeStructure, prettyIdToId } from '../../../lib/hats';
+import useTreeDetails from '../../../hooks/useTreeDetails';
+import useHatDetails from '../../../hooks/useHatDetails';
+import { chainsMap } from '../../../lib/web3';
+import Layout from '../../../components/Layout';
+import { fetchAllTreeIds, fetchTreeDetails } from '../../../gql/helpers';
+import DataTable from '../../../components/DataTable';
+import { formatAddress } from '../../../lib/general';
+import { useOverlay } from '../../../contexts/OverlayContext';
+import Modal from '../../../components/Modal';
+import HatCreateForm from '../../../forms/CreateHatForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
-const TreeDetails = ({ treeId, chainId, initialData }) => {
+const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const chain = chainsMap(chainId);
-  const [currentHatId, setCurrentHatId] = useState(null);
-  const [topHatId, setTopHatId] = useState(null);
+  const router = useRouter();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { data: topHat } = useHatDetails({ hatId: topHatId });
+
   const {
     data: treeData,
     isLoading: treeLoading,
     error: treeError,
   } = useTreeDetails({ treeId, chainId, initialData });
-  const { data: hatData } = useHatDetails({ hatId: currentHatId });
 
-  useEffect(() => {
-    if (_.get(treeData, 'id') && !currentHatId) {
-      // Set the default hat to the top hat
-      setTopHatId(_.get(treeData, 'hats[0].id'));
-      setCurrentHatId(_.get(treeData, 'hats[0].id'));
-    }
-  }, [treeData, currentHatId]);
+  const topHatId = _.get(treeData, 'hats[0].id');
+  const { data: topHat } = useHatDetails({ hatId: topHatId });
+  const { data: hatData } = useHatDetails({ hatId });
+
   console.log(topHat);
 
   // TODO handle error and loading in layout
@@ -75,6 +71,7 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
     },
     { label: 'Network', value: chain?.name },
   ];
+  console.log(treeData?.events);
 
   return (
     <>
@@ -146,7 +143,11 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
                   nodeSize={{ x: 200, y: 200 }}
                   translate={{ x: 200, y: 200 }}
                   onNodeClick={(node) =>
-                    setCurrentHatId(prettyIdToId(node.data.name))
+                    router.push(
+                      `/trees/${treeId}/${BigNumber.from(
+                        prettyIdToId(node.data.name),
+                      ).toString()}`,
+                    )
                   }
                 />
               </CardBody>
@@ -173,7 +174,11 @@ export const getStaticPaths = async () => {
   const result = await fetchAllTreeIds(defaultChainId);
 
   const paths = _.map(result, (tree) => ({
-    params: { treeId: tree.id, chainId: defaultChainId },
+    params: {
+      treeId: tree.id,
+      hatId: BigNumber.from(_.get(tree, 'hats[0].id')).toString(),
+      chainId: defaultChainId,
+    },
   }));
 
   return {
@@ -183,12 +188,13 @@ export const getStaticPaths = async () => {
 };
 
 export const getStaticProps = async (props) => {
-  const { treeId, chainId } = props.params;
+  const { treeId, hatId, chainId } = props.params;
   const initialData = await fetchTreeDetails(treeId, chainId || defaultChainId);
 
   return {
     props: {
       treeId,
+      hatId,
       chainId: chainId || defaultChainId,
       initialData,
     },

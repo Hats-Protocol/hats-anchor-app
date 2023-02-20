@@ -1,14 +1,15 @@
 import {
-  useAccount,
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { ZERO_ADDRESS } from '../constants';
+import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 
 // TODO rm
-const fallbackAddress = '0x96bD657Fcc04c71B47f896a829E5728415cbcAa1';
+const defaultChainId = 5;
+const fallbackAddress = hatsAddresses(defaultChainId);
+
 const useHatCreate = ({
   hatsAddress,
   chainId,
@@ -20,15 +21,15 @@ const useHatCreate = ({
   mutable,
   imageUrl,
 }) => {
-  // const { address } = useAccount();
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
+    chainId: chainId || defaultChainId,
     abi: JSON.stringify(abi),
     functionName: 'createHat',
     args: [
-      admin || ZERO_ADDRESS,
+      admin || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
-      maxSupply || 1,
+      maxSupply || '1',
       eligibility || ZERO_ADDRESS,
       toggle || ZERO_ADDRESS,
       mutable || true,
@@ -37,13 +38,13 @@ const useHatCreate = ({
     enabled: !!hatsAddress,
   });
 
-  const { data, write } = useContractWrite(config);
+  const { data, writeAsync } = useContractWrite(config);
 
-  const { isLoading } = useWaitForTransaction({
+  useWaitForTransaction({
     hash: data?.hash,
   });
 
-  return { write, isLoading };
+  return { writeAsync };
 };
 
 export default useHatCreate;

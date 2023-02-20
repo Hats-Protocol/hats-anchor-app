@@ -56,10 +56,12 @@ function HatWearers({ hatData, chainId }) {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
+  // TODO check if connected for new wearer button
+
   return (
     <>
       <Modal name='newWearer' title='New Wearer' localOverlay={localOverlay}>
-        <HatWearerForm />
+        <HatWearerForm hatId={_.get(hatData, 'id')} />
       </Modal>
 
       <Stack align='center' spacing={4}>
@@ -74,7 +76,10 @@ function HatWearers({ hatData, chainId }) {
           </HStack>
 
           {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') && (
-            <Button onClick={() => setModals({ newWearer: true })}>
+            <Button
+              onClick={() => setModals({ newWearer: true })}
+              variant='outline'
+            >
               New Wearer
             </Button>
           )}
