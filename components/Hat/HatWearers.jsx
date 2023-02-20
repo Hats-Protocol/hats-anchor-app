@@ -19,13 +19,13 @@ import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
 
 const WEARERS_PER_PAGE = 5;
+// TODO handle chainId ?
 
 function HatWearers({ hatData, chainId }) {
   const [currentPage, setCurrentPage] = useState(0);
   const wearers = _.get(hatData, 'wearers', []);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  console.log(wearers);
 
   const wearerPages = useMemo(() => {
     const w = [];

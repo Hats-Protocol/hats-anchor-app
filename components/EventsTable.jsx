@@ -1,0 +1,57 @@
+import React from 'react';
+import _ from 'lodash';
+import {
+  HStack,
+  Icon,
+  Link,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Tr,
+} from '@chakra-ui/react';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import { formatDistanceToNow } from 'date-fns';
+import { explorerUrl } from '../lib/general';
+import { decimalId } from '../lib/hats';
+
+const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
+  <Table>
+    <Tbody>
+      {events.map((event) => (
+        <Tr key={`${event?.transactionId}-${event?.id}`}>
+          <Td p={2}>
+            <Text>{`${formatDistanceToNow(
+              new Date(Number(event?.timestamp) * 1000),
+            )} ago`}</Text>
+          </Td>
+          <Td p={2}>
+            <Link
+              isExternal
+              href={`${explorerUrl(chainId)}/tx/${event?.transactionId}`}
+              display='block'
+            >
+              <HStack spacing={3}>
+                <Text>{event?.id?.split('-')[0]}</Text>
+                <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+              </HStack>
+            </Link>
+          </Td>
+          {includeHatId && (
+            <Td p={2}>
+              <Link
+                href={`/trees/${treeId}/${decimalId(_.get(event, 'hat.id'))}`}
+              >
+                <Text color='gray.500' fontSize='sm'>
+                  {_.get(event, 'hat.prettyId')}
+                </Text>
+              </Link>
+            </Td>
+          )}
+        </Tr>
+      ))}
+    </Tbody>
+  </Table>
+);
+
+export default EventsTable;

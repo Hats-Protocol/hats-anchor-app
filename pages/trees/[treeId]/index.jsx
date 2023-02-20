@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 
 import useTreeDetails from '../../../hooks/useTreeDetails';
 import { fetchAllTreeIds, fetchTreeDetails } from '../../../gql/helpers';
+import { decimalId } from '../../../lib/hats';
 
 const TreeDetails = ({ treeId, chainId, initialData }) => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
 
   useEffect(() => {
     if (treeId && topHatId) {
-      router.push(`/trees/${treeId}/${BigNumber.from(topHatId).toString()}`);
+      router.push(`/trees/${treeId}/${decimalId(topHatId)}`);
     }
   }, [router, treeId, topHatId]);
 

@@ -3,22 +3,28 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { hatsAddresses } from '../constants';
+import { hatsAddresses, MODULE_TYPES } from '../constants';
 import abi from '../contracts/Hats.json';
-
-// const functionNames = ['changeHatToggle', 'changeHatEligibility'];
 
 // TODO rm
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
-const useHatCreate = ({ hatsAddress, chainId, hatId, newAddress }) => {
-  // const { address } = useAccount();
+const useModuleUpdate = ({
+  hatsAddress,
+  chainId,
+  hatId,
+  moduleType,
+  newAddress,
+}) => {
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
     chainId: chainId || defaultChainId,
     abi: JSON.stringify(abi),
-    functionName: 'changeHatToggle',
+    functionName:
+      moduleType === MODULE_TYPES.eligibility
+        ? 'changeHatEligibility'
+        : 'changeHatToggle',
     args: [hatId, newAddress],
     enabled: !!hatsAddress,
   });
@@ -32,4 +38,4 @@ const useHatCreate = ({ hatsAddress, chainId, hatId, newAddress }) => {
   return { write, isLoading };
 };
 
-export default useHatCreate;
+export default useModuleUpdate;

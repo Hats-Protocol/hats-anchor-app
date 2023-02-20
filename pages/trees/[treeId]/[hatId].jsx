@@ -15,9 +15,14 @@ import _ from 'lodash';
 import { BigNumber } from 'ethers';
 import dynamic from 'next/dynamic';
 
-import EventRow from '../../../components/EventRow';
+import EventsTable from '../../../components/EventsTable';
 import Hat from '../../../components/Hat';
-import { toTreeStructure, prettyIdToId } from '../../../lib/hats';
+import {
+  toTreeStructure,
+  prettyIdToId,
+  hatIdToHex,
+  decimalId,
+} from '../../../lib/hats';
 import useTreeDetails from '../../../hooks/useTreeDetails';
 import useHatDetails from '../../../hooks/useHatDetails';
 import { chainsMap } from '../../../lib/web3';
@@ -47,8 +52,6 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
 
-  console.log(topHat);
-
   // TODO handle error and loading in layout
   if (treeLoading)
     return (
@@ -66,12 +69,15 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const treeInfoTable = [
     { label: 'Tree ID', value: treeId },
     {
+      label: 'Top Hat ID',
+      value: `${decimalId(_.get(topHat, 'id', '0')).slice(0, 10)}...`,
+    },
+    {
       label: 'Top Hat Wearer',
       value: formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id')),
     },
     { label: 'Network', value: chain?.name },
   ];
-  console.log(treeData?.events);
 
   return (
     <>
@@ -113,17 +119,13 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
             <Card zIndex={1}>
               <CardBody>
                 <Stack>
-                  <Heading size='md'>Recent Events</Heading>
-                  {_.map(_.slice(events, 0, 5), (event, i) => (
-                    <EventRow
-                      id={event.id.split('-')[0]}
-                      transactionId={event.transactionID}
-                      timestamp={event.timestamp}
-                      chainId={chainId}
-                      last={i === treeData.events.length - 1}
-                      key={event.transactionID}
-                    />
-                  ))}
+                  <Heading size='md'>Recent Tree Events</Heading>
+                  <EventsTable
+                    events={_.slice(events, 0, 5)}
+                    chainId={chainId}
+                    treeId={treeId}
+                    includeHatId
+                  />
                 </Stack>
               </CardBody>
             </Card>
@@ -144,9 +146,9 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   translate={{ x: 200, y: 200 }}
                   onNodeClick={(node) =>
                     router.push(
-                      `/trees/${treeId}/${BigNumber.from(
+                      `/trees/${treeId}/${decimalId(
                         prettyIdToId(node.data.name),
-                      ).toString()}`,
+                      )}`,
                     )
                   }
                 />
@@ -176,7 +178,7 @@ export const getStaticPaths = async () => {
   const paths = _.map(result, (tree) => ({
     params: {
       treeId: tree.id,
-      hatId: BigNumber.from(_.get(tree, 'hats[0].id')).toString(),
+      hatId: hatIdToHex(_.get(tree, 'hats[0].id')),
       chainId: defaultChainId,
     },
   }));

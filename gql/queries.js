@@ -1,5 +1,13 @@
 import { gql } from 'graphql-request';
 
+const EVENT_DETAILS_FRAGMENT = gql`
+  fragment EventDetails on HatsEvent {
+    id
+    timestamp
+    transactionID
+  }
+`;
+
 // TODO handle inline sort for events
 export const TREE_DETAILS_FRAGMENT = gql`
   fragment TreeDetails on Tree {
@@ -13,11 +21,14 @@ export const TREE_DETAILS_FRAGMENT = gql`
       }
     }
     events(orderBy: timestamp, orderDirection: desc) {
-      id
-      timestamp
-      transactionID
+      ...EventDetails
+      hat {
+        id
+        prettyId
+      }
     }
   }
+  ${EVENT_DETAILS_FRAGMENT}
 `;
 
 export const GET_TREE = gql`
@@ -64,9 +75,7 @@ export const HAT_DETAILS_FRAGMENT = gql`
     levelAtLocalTree
     currentSupply
     events(orderBy: timestamp, orderDirection: desc) {
-      timestamp
-      id
-      transactionID
+      ...EventDetails
     }
   }
   fragment HatDetails on Hat {
@@ -78,6 +87,7 @@ export const HAT_DETAILS_FRAGMENT = gql`
       ...HatDetailsUnit
     }
   }
+  ${EVENT_DETAILS_FRAGMENT}
 `;
 
 export const GET_HAT = gql`

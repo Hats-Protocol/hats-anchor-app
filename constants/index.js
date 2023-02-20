@@ -10,6 +10,11 @@ export const hatsAddresses = (chainId) => {
   return obj[chainId] || obj[5];
 };
 
+export const MODULE_TYPES = {
+  eligibility: 'ELIGIBILITY',
+  toggle: 'TOGGLE',
+};
+
 const CONFIG = {
   appName: 'Hats Protocol',
   shortName: 'Hats',

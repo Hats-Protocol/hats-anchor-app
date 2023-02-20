@@ -3,15 +3,14 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { BigNumber } from 'ethers';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
+import { decimalId } from '../lib/hats';
 
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
 const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
-  const decimalId = BigNumber.from(hatId).toString();
   // TODO check wearer is valid address
 
   const { config } = usePrepareContractWrite({
@@ -19,8 +18,9 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     chainId: chainId || defaultChainId,
     abi: JSON.stringify(abi),
     functionName: 'mintHat',
-    args: [decimalId, newWearer || ZERO_ADDRESS],
-    enabled: Boolean(hatsAddress) && Boolean(decimalId) && Boolean(newWearer),
+    args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
+    enabled:
+      Boolean(hatsAddress) && Boolean(decimalId(hatId)) && Boolean(newWearer),
   });
 
   const { data, writeAsync } = useContractWrite({

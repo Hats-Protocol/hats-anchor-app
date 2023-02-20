@@ -1,13 +1,17 @@
-import { Link as ChakraLink, Stack, Button } from '@chakra-ui/react';
+import _ from 'lodash';
+import { Link as ChakraLink, Stack, Button, Flex } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
+import useModuleUpdate from '../hooks/useModuleUpdate';
 
 // TODO handle eligibility vs toggle
 
-const HatModulesForm = () => {
+const HatModulesForm = ({ type = 'ELIGIBILITY' }) => {
   const localForm = useForm();
   const { handleSubmit } = localForm;
+
+  // const { writeAsync } = useModuleUpdate({ hatsAddress, hatId, newWearer });
 
   const onSubmit = (data) => {
     console.log(data);
@@ -26,11 +30,14 @@ const HatModulesForm = () => {
 
         <Input
           localForm={localForm}
-          name='eligibility'
-          label='Eligibility Address'
+          name={_.toLower(type)}
+          label={`${_.capitalize(type)} Address`}
+          placeholder='0x...'
         />
 
-        <Button type='submit'>Save</Button>
+        <Flex justify='flex-end'>
+          <Button type='submit'>Save</Button>
+        </Flex>
       </Stack>
     </form>
   );

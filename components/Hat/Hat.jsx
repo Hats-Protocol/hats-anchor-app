@@ -14,6 +14,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import { BigNumber } from 'ethers';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt } from 'react-icons/fa';
@@ -21,15 +22,12 @@ import { FaPencilAlt } from 'react-icons/fa';
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
 import DataTable from '../DataTable';
-import { ZERO_ADDRESS } from '../../constants';
+import { ZERO_ADDRESS, MODULE_TYPES } from '../../constants';
 import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
-
-const MODULE_TYPES = {
-  eligibility: 'ELIGIBILITY',
-  toggle: 'TOGGLE',
-};
+import EventsTable from '../EventsTable';
+import { decimalId } from '../../lib/hats';
 
 const AddressRow = ({ address, chainId, type, setType, localOverlay }) => {
   const { setModals } = localOverlay;
@@ -52,21 +50,24 @@ const AddressRow = ({ address, chainId, type, setType, localOverlay }) => {
         w={8}
         h={8}
         variant='outline'
+        onClick={openModal}
       />
     </HStack>
   );
 };
 // TODO this should probably be more components
 
-const Hat = ({ hatData, hatEvents, chainId }) => {
+const Hat = ({ hatData, chainId, treeId }) => {
   const localOverlay = useOverlay();
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   if (!hatData) return null;
-  console.log(hatData);
 
   const accountabilitiesTable = [
-    { label: 'Admin ID', value: '1234' },
-    { label: 'Pretty Admin ID', value: '5' },
+    {
+      label: 'Admin ID',
+      value: `${decimalId(_.get(hatData, 'admin.id', '0')).slice(0, 10)}...`,
+    },
+    { label: 'Pretty Admin ID', value: _.get(hatData, 'admin.prettyId') },
     {
       label: 'Eligibility',
       value: (
@@ -85,7 +86,7 @@ const Hat = ({ hatData, hatEvents, chainId }) => {
         <AddressRow
           address={hatData.toggle}
           chainId={chainId}
-          type={MODULE_TYPES.eligibility}
+          type={MODULE_TYPES.toggle}
           setType={setType}
           localOverlay={localOverlay}
         />
@@ -96,7 +97,7 @@ const Hat = ({ hatData, hatEvents, chainId }) => {
   return (
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
-        <HatModulesForm />
+        <HatModulesForm type={type} />
       </Modal>
 
       <Stack>
@@ -111,7 +112,12 @@ const Hat = ({ hatData, hatEvents, chainId }) => {
             />
             <Stack spacing={1}>
               {/* TODO add name if found in details object */}
-              <Text fontSize='sm'>Hat ID {_.get(hatData, 'prettyId')}</Text>
+              <HStack>
+                <Text fontSize='sm' fontWeight={700}>
+                  Hat ID
+                </Text>
+                <Text fontSize='sm'>{_.get(hatData, 'prettyId')}</Text>
+              </HStack>
               <Text
                 fontSize='xs'
                 color='gray.500'
@@ -158,7 +164,11 @@ const Hat = ({ hatData, hatEvents, chainId }) => {
               <HatWearers hatData={hatData} chainId={chainId} />
             </TabPanel>
             <TabPanel>
-              <Text>Events</Text>
+              <EventsTable
+                treeId={treeId}
+                events={hatData?.events}
+                chainId={chainId}
+              />
             </TabPanel>
           </TabPanels>
         </Tabs>
