@@ -1,16 +1,8 @@
-import {
-  Card,
-  CardBody,
-  Stack,
-  Heading,
-  Text,
-  Flex,
-  Button,
-} from '@chakra-ui/react';
+import { Stack, Heading, Text, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 
-const HatInfoForm = () => {
+const HatDetailsForm = () => {
   const localForm = useForm();
   const { handleSubmit } = localForm;
 
@@ -42,4 +34,4 @@ const HatInfoForm = () => {
   );
 };
 
-export default HatInfoForm;
+export default HatDetailsForm;

@@ -32,7 +32,7 @@ const useHatCreate = ({
       maxSupply || '1',
       eligibility || ZERO_ADDRESS,
       toggle || ZERO_ADDRESS,
-      mutable || true,
+      mutable === 'true',
       imageUrl || '',
     ],
     enabled: !!hatsAddress,

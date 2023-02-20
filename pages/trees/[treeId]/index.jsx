@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import _ from 'lodash';
-import { BigNumber } from 'ethers';
 
 import useTreeDetails from '../../../hooks/useTreeDetails';
 import { fetchAllTreeIds, fetchTreeDetails } from '../../../gql/helpers';

@@ -7,16 +7,23 @@ import { HStack, Text, Stack } from '@chakra-ui/react';
  * @param {string} labelWidth width of label column, defaults to 25%
  * @returns horizontal "Table" component
  */
-const DataTable = ({ data, labelWidth = '25%' }) => {
+const DataTable = ({
+  data,
+  labelWidth = '25%',
+  justify = 'flex-start',
+  minH = 6,
+}) => {
   return (
     <Stack>
       {data.map((row) => (
         <HStack
           key={row.label}
+          justify={justify}
           spacing={3}
           borderBottom='1px solid'
           borderColor='gray.200'
           py={1}
+          minH={minH}
         >
           <Text w={labelWidth} fontWeight={800} fontSize='sm'>
             {row.label}

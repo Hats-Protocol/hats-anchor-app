@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link as ChakraLink, Stack, Button, Flex } from '@chakra-ui/react';
 import Link from 'next/link';
+import { isAddress } from '@ethersproject/address';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatMint from '../hooks/useHatMint';
@@ -12,7 +13,7 @@ const hatsAddress = hatsAddresses(defaultChainId);
 const defaultDebounce = 1500;
 
 const HatWearerForm = ({ hatId }) => {
-  const localForm = useForm();
+  const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
   const newWearer = useDebounce(watch('newWearer', null), defaultDebounce);
@@ -31,6 +32,10 @@ const HatWearerForm = ({ hatId }) => {
           localForm={localForm}
           name='newWearer'
           label='New Wearer Address'
+          options={{
+            validate: (value) =>
+              isAddress(value) ? true : 'Must be a valid address',
+          }}
           placeholder='0x...'
         />
 

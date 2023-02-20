@@ -7,19 +7,27 @@ import { Input as ChakraInput, FormControl, FormLabel } from '@chakra-ui/react';
  *
  * @param label - Label for the input
  * @param name - Name of the input
- * @param type - Type of the input
+ * @param type - Type of the input, defaults to text
+ * @param options - Options for the input (e.g. required)
  * @param localForm - React Hook Form object
  * @returns Input component
  *
  */
-const Input = ({ label, name, type = 'text', localForm, ...props }) => {
+const Input = ({
+  label,
+  name,
+  type = 'text',
+  options,
+  localForm,
+  ...props
+}) => {
   if (!localForm) return null;
   const { register } = localForm;
 
   return (
     <FormControl {...props}>
       {label && <FormLabel>{label}</FormLabel>}
-      <ChakraInput type={type} {...register(name)} {...props} />
+      <ChakraInput type={type} {...register(name, options)} {...props} />
     </FormControl>
   );
 };

@@ -19,7 +19,7 @@ const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
   <Table>
     <Tbody>
       {events.map((event) => (
-        <Tr key={`${event?.transactionId}-${event?.id}`}>
+        <Tr key={`${event?.transactionID}-${event?.id}`}>
           <Td p={2}>
             <Text>{`${formatDistanceToNow(
               new Date(Number(event?.timestamp) * 1000),
@@ -28,7 +28,7 @@ const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
           <Td p={2}>
             <Link
               isExternal
-              href={`${explorerUrl(chainId)}/tx/${event?.transactionId}`}
+              href={`${explorerUrl(chainId)}/tx/${event?.transactionID}`}
               display='block'
             >
               <HStack spacing={3}>
