@@ -25,8 +25,10 @@ import { toTreeStructure, prettyIdToId } from '../../lib/hats';
 import { explorerUrl } from '../../lib/general';
 import useTreeDetails from '../../hooks/useTreeDetails';
 import useHatDetails from '../../hooks/useHatDetails';
+import useImageURIs from '../../hooks/useImageURIs';
 import { chainsMap } from '../../lib/web3';
 import Layout from '../../components/Layout';
+import { TreeNode } from '../../components/TreeNode';
 
 // TODO don't hardcode chainId
 const defaultChainId = 5;
@@ -43,13 +45,17 @@ const TreeDetails = () => {
   } = useTreeDetails({ treeId, chainId: defaultChainId });
   const { data: hatData } = useHatDetails({ hatId: currentHat });
 
+  const { data: imagesData, loading: imagesLoading } = useImageURIs(
+    treeData?.tree.hats,
+  );
+
   useEffect(() => {
-    if (_.get(treeData, 'tree.id') && !currentHat) {
+    if (_.get(treeData, 'tree.id')) {
       setCurrentHat(_.get(treeData, 'tree.hats[0].id'));
     }
-  }, [treeData, currentHat]);
+  }, [treeData]);
 
-  if (treeLoading)
+  if (treeLoading || imagesLoading)
     return (
       <Layout>
         <Flex justify='center' mt='200px'>
@@ -59,7 +65,7 @@ const TreeDetails = () => {
     );
   if (treeError) return <p>Error : {treeError.message}</p>;
 
-  const tree = toTreeStructure(treeData);
+  const tree = toTreeStructure(treeData, imagesData);
 
   return (
     <Layout>
@@ -95,7 +101,7 @@ const TreeDetails = () => {
                 timestamp={event.timestamp}
                 chainId={defaultChainId}
                 last={i === treeData.tree.events.length - 1}
-                key={event.transactionID}
+                key={i}
               />
             ))}
           </CardBody>
@@ -107,11 +113,11 @@ const TreeDetails = () => {
               data={tree}
               orientation='vertical'
               collapsible={false}
-              rootNodeClassName='node__root'
-              branchNodeClassName='node__branch'
-              leafNodeClassName='node__leaf'
               nodeSize={{ x: 200, y: 200 }}
               translate={{ x: 200, y: 200 }}
+              renderCustomNodeElement={(rd3tProps) =>
+                TreeNode(rd3tProps, setCurrentHat)
+              }
               onNodeClick={(node, event) =>
                 setCurrentHat(prettyIdToId(node.data.name))
               }
