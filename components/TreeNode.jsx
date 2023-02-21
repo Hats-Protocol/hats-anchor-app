@@ -1,7 +1,7 @@
 import { prettyIdToId, prettyIdToIp } from '../lib/hats';
 import styles from './TreeNode.module.css';
 
-export function TreeNode(rd3tProps, setCurrentHat) {
+export function TreeNode(rd3tProps, handleNodeClick) {
   return (
     <g>
       <defs>
@@ -30,7 +30,7 @@ export function TreeNode(rd3tProps, setCurrentHat) {
           strokeWidth: '2px',
           strokeOpacity: '50%',
         }}
-        onClick={() => setCurrentHat(prettyIdToId(rd3tProps.nodeDatum.name))}
+        onClick={() => handleNodeClick(rd3tProps.nodeDatum.name)}
       ></circle>
       <foreignObject width={125} height={200} x={35} y={-25}>
         <div
