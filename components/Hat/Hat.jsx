@@ -12,6 +12,8 @@ import {
   Badge,
   Icon,
   IconButton,
+  Button,
+  Divider,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -179,6 +181,7 @@ const Hat = ({ hatData, chainId, treeId }) => {
             <Tab>Accountabilities</Tab>
             <Tab>Wearers</Tab>
             <Tab>Events</Tab>
+            <Tab>Admin</Tab>
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -193,6 +196,7 @@ const Hat = ({ hatData, chainId, treeId }) => {
                     variant='outline'
                   />
                 </Flex>
+                <Divider borderColor='gray.400' w='90%' />
                 <Text>{hatData?.details}</Text>
               </Stack>
             </TabPanel>
@@ -215,6 +219,12 @@ const Hat = ({ hatData, chainId, treeId }) => {
                 events={hatData?.events}
                 chainId={chainId}
               />
+            </TabPanel>
+            <TabPanel>
+              <Stack>
+                <Button variant='outline'>Adjust Max Supply</Button>
+                <Button variant='outline'>Make Immutable</Button>
+              </Stack>
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -2,6 +2,8 @@ import { Stack, Heading, Text, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 
+const detailFunctions = ['changeHatDetails', 'changeHatImageUri'];
+
 const HatDetailsForm = () => {
   const localForm = useForm();
   const { handleSubmit } = localForm;

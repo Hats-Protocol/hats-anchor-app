@@ -22,7 +22,10 @@ import { useOverlay } from '../../contexts/OverlayContext';
 const WEARERS_PER_PAGE = 5;
 // TODO handle chainId ?
 
-function HatWearers({ hatData, chainId }) {
+function HatWearers({
+  hatData,
+  // chainId
+}) {
   const [currentPage, setCurrentPage] = useState(0);
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
@@ -57,8 +60,6 @@ function HatWearers({ hatData, chainId }) {
   const incrementCurrentPage = () => {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
-
-  // TODO check if connected for new wearer button
 
   return (
     <>

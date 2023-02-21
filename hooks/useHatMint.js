@@ -4,6 +4,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
+import { isAddress } from '@ethersproject/address';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
@@ -14,7 +15,6 @@ const fallbackAddress = hatsAddresses(defaultChainId);
 const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   // TODO check wearer is valid address
 
-  // const { write } = useMutation(['key'], (args) => test(args))
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
     chainId: chainId || defaultChainId,
@@ -22,7 +22,10 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     functionName: 'mintHat',
     args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
     enabled:
-      Boolean(hatsAddress) && Boolean(decimalId(hatId)) && Boolean(newWearer),
+      Boolean(hatsAddress) &&
+      Boolean(decimalId(hatId)) &&
+      Boolean(newWearer) &&
+      isAddress(newWearer),
   });
 
   const { data, writeAsync } = useContractWrite({
