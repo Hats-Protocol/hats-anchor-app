@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import {
   Flex,
-  Image,
+  Heading,
   HStack,
   Link as ChakraLink,
   Icon,
@@ -43,10 +43,11 @@ const Navbar = () => {
       boxShadow='md'
       position='fixed'
       zIndex={10}
+      minH='75px'
     >
       <HStack spacing={6}>
         <ChakraLink as={Link} href='/'>
-          <Image src={CONFIG.logoUrl} alt={CONFIG.appName} height='75px' />
+          <Heading>{CONFIG.emojis}</Heading>
         </ChakraLink>
         <HStack spacing={3}>
           {navLinks.map((item) => (

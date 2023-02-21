@@ -1,8 +1,10 @@
+import { useMutation } from '@tanstack/react-query';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
+import { isAddress } from '@ethersproject/address';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
@@ -20,7 +22,10 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     functionName: 'mintHat',
     args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
     enabled:
-      Boolean(hatsAddress) && Boolean(decimalId(hatId)) && Boolean(newWearer),
+      Boolean(hatsAddress) &&
+      Boolean(decimalId(hatId)) &&
+      Boolean(newWearer) &&
+      isAddress(newWearer),
   });
 
   const { data, writeAsync } = useContractWrite({

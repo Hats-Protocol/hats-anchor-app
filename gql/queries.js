@@ -121,3 +121,11 @@ export const GET_WEARER_DETAILS = gql`
     }
   }
 `;
+
+export const GET_ALL_WEARERS = gql`
+  query getAllWearers {
+    wearers {
+      id
+    }
+  }
+`;

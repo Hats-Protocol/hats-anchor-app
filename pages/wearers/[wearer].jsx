@@ -11,7 +11,7 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import { fetchWearerDetails } from '../../gql/helpers';
+import { fetchWearerDetails, fetchAllWearers } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import Layout from '../../components/Layout';
 import { formatAddress } from '../../lib/general';
@@ -38,11 +38,15 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         <SimpleGrid columns={6} gap={4}>
           {_.map(_.get(wearer, 'currentHats'), (hat) => {
             if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-              return <CoreHat hat={hat} />;
+              return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
             }
 
             return (
-              <ChakraLink as={Link} href={`/trees/${_.get(hat, 'prettyId')}`}>
+              <ChakraLink
+                as={Link}
+                href={`/trees/${_.get(hat, 'prettyId')}`}
+                key={_.get(hat, 'id')}
+              >
                 <CoreHat hat={hat} />
               </ChakraLink>
             );
@@ -55,15 +59,24 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
 
 const defaultChainId = 5;
 export const getStaticPaths = async () => {
+  const result = await fetchAllWearers(defaultChainId);
+
+  const paths = _.map(result, (wearer) => ({
+    params: { wearer: wearer.id },
+  }));
+
   return {
-    paths: [],
+    paths,
     fallback: true,
   };
 };
 
 export const getStaticProps = async (props) => {
   const { wearer } = props.params;
-  const initialData = await fetchWearerDetails(wearer, defaultChainId);
+  const initialData = await fetchWearerDetails(
+    _.toLower(wearer),
+    defaultChainId,
+  );
 
   return {
     props: {

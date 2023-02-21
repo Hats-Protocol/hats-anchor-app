@@ -16,6 +16,7 @@ export const MODULE_TYPES = {
 };
 
 const CONFIG = {
+  emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
   shortName: 'Hats',
   url: 'http://localhost:3000',

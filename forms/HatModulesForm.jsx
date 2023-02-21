@@ -4,14 +4,25 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useModuleUpdate from '../hooks/useModuleUpdate';
+import useDebounce from '../hooks/useDebounce';
+import { hatsAddresses } from '../constants';
 
 // TODO handle eligibility vs toggle
+const defaultDebounce = 1500;
+const defaultChainId = 5;
+const defaultHatsAddress = hatsAddresses(defaultChainId);
 
-const HatModulesForm = ({ type = 'ELIGIBILITY' }) => {
+const HatModulesForm = ({ hatId, type = 'ELIGIBILITY' }) => {
   const localForm = useForm();
-  const { handleSubmit } = localForm;
+  const { handleSubmit, watch } = localForm;
 
-  // const { writeAsync } = useModuleUpdate({ hatsAddress, hatId, newWearer });
+  const newAddress = useDebounce(watch('newAddress', null), defaultDebounce);
+
+  const { writeAsync } = useModuleUpdate({
+    hatsAddress: defaultHatsAddress,
+    hatId,
+    newAddress,
+  });
 
   const onSubmit = (data) => {
     console.log(data);
@@ -30,13 +41,13 @@ const HatModulesForm = ({ type = 'ELIGIBILITY' }) => {
 
         <Input
           localForm={localForm}
-          name={_.toLower(type)}
+          name='newAddress'
           label={`${_.capitalize(type)} Address`}
           placeholder='0x...'
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit'>Save</Button>
+          <Button type='submit'>Update</Button>
         </Flex>
       </Stack>
     </form>

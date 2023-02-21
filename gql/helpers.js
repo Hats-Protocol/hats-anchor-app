@@ -6,6 +6,7 @@ import {
   GET_ALL_TREES,
   GET_HAT,
   GET_WEARER_DETAILS,
+  GET_ALL_WEARERS,
 } from './queries';
 
 export const fetchTreeDetails = async (treeId, chainId) => {
@@ -38,4 +39,10 @@ export const fetchWearerDetails = async (address, chainId) => {
   });
 
   return _.get(result, 'wearer', null);
+};
+
+export const fetchAllWearers = async (chainId) => {
+  const result = await client(chainId).request(GET_ALL_WEARERS);
+
+  return _.get(result, 'wearers', null);
 };

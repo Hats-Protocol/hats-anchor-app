@@ -8,7 +8,7 @@ import {
 } from 'wagmi';
 import abi from '../../contracts/Hats.json';
 
-// TODO migrate to form
+// TODO migrate to form/modal
 export default function CreateTree() {
   const [values, setValues] = useState({
     address: '',

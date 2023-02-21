@@ -10,9 +10,10 @@ import {
   Spinner,
   Image,
   Button,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
+import Link from 'next/link';
 import _ from 'lodash';
-import { BigNumber } from 'ethers';
 import dynamic from 'next/dynamic';
 
 import EventsTable from '../../../components/EventsTable';
@@ -33,6 +34,7 @@ import { formatAddress } from '../../../lib/general';
 import { useOverlay } from '../../../contexts/OverlayContext';
 import Modal from '../../../components/Modal';
 import HatCreateForm from '../../../forms/CreateHatForm';
+import CopyToClipboard from '../../../components/CopyToClipboard';
 import useImageURIs from '../../../hooks/useImageURIs';
 import { TreeNode } from '../../../components/TreeNode';
 
@@ -73,14 +75,31 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const events = _.get(treeData, 'events');
 
   const treeInfoTable = [
-    { label: 'Tree ID', value: treeId },
+    {
+      label: 'Tree ID',
+      value: <CopyToClipboard description='Tree ID'>{treeId}</CopyToClipboard>,
+    },
     {
       label: 'Top Hat ID',
-      value: `${decimalId(_.get(topHat, 'id', '0')).slice(0, 10)}...`,
+      value: (
+        <CopyToClipboard
+          copyValue={decimalId(_.get(topHat, 'id', '0'))}
+        >{`${decimalId(_.get(topHat, 'id', '0')).slice(
+          0,
+          10,
+        )}...`}</CopyToClipboard>
+      ),
     },
     {
       label: 'Top Hat Wearer',
-      value: formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id')),
+      value: (
+        <ChakraLink
+          as={Link}
+          href={`/wearers/${_.get(_.first(_.get(topHat, 'wearers')), 'id')}`}
+        >
+          {formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id'))}
+        </ChakraLink>
+      ),
     },
     { label: 'Network', value: chain?.name },
   ];
@@ -119,7 +138,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                 />
                 <Stack spacing={4} w='60%'>
                   <Heading size='md'>Tree Details</Heading>
-                  <DataTable data={treeInfoTable} labelWidth='50%' />
+                  <DataTable data={treeInfoTable} labelWidth='45%' />
                 </Stack>
               </HStack>
             </CardBody>

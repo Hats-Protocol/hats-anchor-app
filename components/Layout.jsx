@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
     <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
       <Navbar />
       <CommandPalette />
-      <Box w='80%' my={20} mt={40}>
+      <Box w='90%' my={20} mt={40}>
         {children}
       </Box>
     </Flex>

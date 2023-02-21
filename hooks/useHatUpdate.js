@@ -9,8 +9,13 @@ import abi from '../contracts/Hats.json';
 // TODO rm
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
+const updateFunctions = [
+  'changeHatDetails',
+  'changeHatImageUri',
+  'changeHatMaxSupply',
+];
 
-const useHatCreate = ({
+const useHatUpdate = ({
   hatsAddress,
   chainId,
   admin,
@@ -47,4 +52,4 @@ const useHatCreate = ({
   return { writeAsync };
 };
 
-export default useHatCreate;
+export default useHatUpdate;

@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useAccount } from 'wagmi';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
 
 import Link from '../ChakraNextLink';
@@ -20,10 +21,15 @@ import { useOverlay } from '../../contexts/OverlayContext';
 
 const WEARERS_PER_PAGE = 5;
 // TODO handle chainId ?
+// TODO clean up pagination
 
-function HatWearers({ hatData, chainId }) {
+function HatWearers({
+  hatData,
+  // chainId
+}) {
   const [currentPage, setCurrentPage] = useState(0);
   const wearers = _.get(hatData, 'wearers', []);
+  const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
@@ -56,8 +62,6 @@ function HatWearers({ hatData, chainId }) {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
-  // TODO check if connected for new wearer button
-
   return (
     <>
       <Modal name='newWearer' title='New Wearer' localOverlay={localOverlay}>
@@ -75,14 +79,15 @@ function HatWearers({ hatData, chainId }) {
             <Text>{_.get(hatData, 'maxSupply')} Total</Text>
           </HStack>
 
-          {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') && (
-            <Button
-              onClick={() => setModals({ newWearer: true })}
-              variant='outline'
-            >
-              New Wearer
-            </Button>
-          )}
+          {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
+            address && (
+              <Button
+                onClick={() => setModals({ newWearer: true })}
+                variant='outline'
+              >
+                New Wearer
+              </Button>
+            )}
         </Flex>
 
         <Stack w='100%'>

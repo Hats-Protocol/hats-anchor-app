@@ -12,12 +12,14 @@ import {
   Badge,
   Icon,
   IconButton,
+  Button,
+  Divider,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { BigNumber } from 'ethers';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt } from 'react-icons/fa';
+import { useAccount } from 'wagmi';
 
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
@@ -28,8 +30,18 @@ import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
 import EventsTable from '../EventsTable';
 import { decimalId } from '../../lib/hats';
+import CopyToClipboard from '../CopyToClipboard';
+import { clearNonObjects } from '../../lib/general';
 
-const AddressRow = ({ address, chainId, type, setType, localOverlay }) => {
+const AddressRow = ({
+  address,
+  mutable,
+  chainId,
+  type,
+  setType,
+  localOverlay,
+}) => {
+  const { address: userAddress } = useAccount();
   const { setModals } = localOverlay;
 
   const openModal = () => {
@@ -38,20 +50,22 @@ const AddressRow = ({ address, chainId, type, setType, localOverlay }) => {
   };
 
   return (
-    <HStack spacing={4}>
+    <HStack spacing={2}>
       {address !== ZERO_ADDRESS ? (
         <AddressLink address={address} chainId={chainId} />
       ) : (
         <Text>None Set</Text>
       )}
-      <IconButton
-        icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-        minW='auto'
-        w={8}
-        h={8}
-        variant='outline'
-        onClick={openModal}
-      />
+      {userAddress && mutable && (
+        <IconButton
+          icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+          minW='auto'
+          w={8}
+          h={8}
+          variant='ghost'
+          onClick={openModal}
+        />
+      )}
     </HStack>
   );
 };
@@ -63,11 +77,24 @@ const Hat = ({ hatData, chainId, treeId }) => {
   if (!hatData) return null;
 
   const accountabilitiesTable = [
-    {
+    _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
       label: 'Admin ID',
-      value: `${decimalId(_.get(hatData, 'admin.id', '0')).slice(0, 10)}...`,
+      value: (
+        <CopyToClipboard
+          copyValue={decimalId(_.get(hatData, 'admin.id', '0'))}
+          description='Admin ID'
+        >{`${decimalId(_.get(hatData, 'admin.id', '0')).slice(
+          0,
+          10,
+        )}...`}</CopyToClipboard>
+      ),
     },
-    { label: 'Pretty Admin ID', value: _.get(hatData, 'admin.prettyId') },
+    _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
+      label: 'Pretty Admin ID',
+      value: (
+        <CopyToClipboard>{_.get(hatData, 'admin.prettyId')}</CopyToClipboard>
+      ),
+    },
     {
       label: 'Eligibility',
       value: (
@@ -75,6 +102,7 @@ const Hat = ({ hatData, chainId, treeId }) => {
           address={hatData.eligibility}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
+          mutable={_.get(hatData, 'mutable')}
           setType={setType}
           localOverlay={localOverlay}
         />
@@ -87,6 +115,7 @@ const Hat = ({ hatData, chainId, treeId }) => {
           address={hatData.toggle}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
+          mutable={_.get(hatData, 'mutable')}
           setType={setType}
           localOverlay={localOverlay}
         />
@@ -116,7 +145,9 @@ const Hat = ({ hatData, chainId, treeId }) => {
                 <Text fontSize='sm' fontWeight={700}>
                   Hat ID
                 </Text>
-                <Text fontSize='sm'>{_.get(hatData, 'prettyId')}</Text>
+                <CopyToClipboard description='Hat ID'>
+                  {_.get(hatData, 'prettyId')}
+                </CopyToClipboard>
               </HStack>
               <Text
                 fontSize='xs'
@@ -150,15 +181,34 @@ const Hat = ({ hatData, chainId, treeId }) => {
             <Tab>Accountabilities</Tab>
             <Tab>Wearers</Tab>
             <Tab>Events</Tab>
+            <Tab>Admin</Tab>
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
-            <TabPanel>{hatData?.details}</TabPanel>
+            <TabPanel>
+              <Stack>
+                <Flex justify='flex-end'>
+                  <IconButton
+                    icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+                    minW='auto'
+                    w={8}
+                    h={8}
+                    variant='outline'
+                  />
+                </Flex>
+                <Divider borderColor='gray.400' w='90%' />
+                <Text>{hatData?.details}</Text>
+              </Stack>
+            </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
             {/* <TabPanel /> */}
             {/* TODO Accountabilities are found .... */}
             <TabPanel>
-              <DataTable data={accountabilitiesTable} />
+              <DataTable
+                data={clearNonObjects(accountabilitiesTable)}
+                justify='space-between'
+                minH={10}
+              />
             </TabPanel>
             <TabPanel>
               <HatWearers hatData={hatData} chainId={chainId} />
@@ -169,6 +219,12 @@ const Hat = ({ hatData, chainId, treeId }) => {
                 events={hatData?.events}
                 chainId={chainId}
               />
+            </TabPanel>
+            <TabPanel>
+              <Stack>
+                <Button variant='outline'>Adjust Max Supply</Button>
+                <Button variant='outline'>Make Immutable</Button>
+              </Stack>
             </TabPanel>
           </TabPanels>
         </Tabs>
