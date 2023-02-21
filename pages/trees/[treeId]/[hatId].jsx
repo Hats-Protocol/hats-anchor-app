@@ -33,6 +33,8 @@ import { formatAddress } from '../../../lib/general';
 import { useOverlay } from '../../../contexts/OverlayContext';
 import Modal from '../../../components/Modal';
 import HatCreateForm from '../../../forms/CreateHatForm';
+import useImageURIs from '../../../hooks/useImageURIs';
+import { TreeNode } from '../../../components/TreeNode';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -48,12 +50,16 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     error: treeError,
   } = useTreeDetails({ treeId, chainId, initialData });
 
+  const { data: imagesData, loading: imagesLoading } = useImageURIs(
+    treeData?.hats,
+  );
+
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
 
   // TODO handle error and loading in layout
-  if (treeLoading)
+  if (treeLoading || imagesLoading)
     return (
       <Layout>
         <Flex justify='center' mt='200px'>
@@ -63,7 +69,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     );
   if (treeError) return <p>Error : {treeError.message}</p>;
 
-  const tree = toTreeStructure(treeData);
+  const tree = toTreeStructure(treeData, imagesData);
   const events = _.get(treeData, 'events');
 
   const treeInfoTable = [
@@ -78,6 +84,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     },
     { label: 'Network', value: chain?.name },
   ];
+
+  const handleNodeClick = (nodePrettyId) => {
+    router.push(`/trees/${treeId}/${decimalId(prettyIdToId(nodePrettyId))}`);
+  };
 
   return (
     <>
@@ -139,17 +149,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   data={tree}
                   orientation='vertical'
                   collapsible={false}
-                  rootNodeClassName='node__root'
-                  branchNodeClassName='node__branch'
-                  leafNodeClassName='node__leaf'
                   nodeSize={{ x: 200, y: 200 }}
                   translate={{ x: 200, y: 200 }}
-                  onNodeClick={(node) =>
-                    router.push(
-                      `/trees/${treeId}/${decimalId(
-                        prettyIdToId(node.data.name),
-                      )}`,
-                    )
+                  renderCustomNodeElement={(rd3tProps) =>
+                    TreeNode(rd3tProps, handleNodeClick)
                   }
                 />
               </CardBody>
