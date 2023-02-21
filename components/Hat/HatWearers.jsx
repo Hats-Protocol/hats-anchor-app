@@ -21,6 +21,7 @@ import { useOverlay } from '../../contexts/OverlayContext';
 
 const WEARERS_PER_PAGE = 5;
 // TODO handle chainId ?
+// TODO clean up pagination
 
 function HatWearers({
   hatData,
