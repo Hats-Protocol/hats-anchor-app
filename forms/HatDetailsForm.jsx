@@ -1,6 +1,7 @@
 import { Stack, Heading, Text, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
+import Textarea from '../components/Textarea';
 
 const detailFunctions = ['changeHatDetails', 'changeHatImageUri'];
 
@@ -14,19 +15,14 @@ const HatDetailsForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={2}>
-        <Heading as='h3'>Hat Information</Heading>
-        <Text>Some note.</Text>
-      </Stack>
-
       <Stack spacing={4}>
-        <Input localForm={localForm} name='adminId' label='Admin ID' />
+        <Textarea localForm={localForm} name='details' label='Details' />
         {/* <RadioBox name='mutable' values={[true, false]} /> */}
-        <Input
+        {/* <Input
           localForm={localForm}
           name='maxSupply'
           label='Maximum Number of Wearers'
-        />
+        /> */}
       </Stack>
 
       <Flex>

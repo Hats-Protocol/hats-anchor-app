@@ -1,4 +1,4 @@
-import { Stack, Text, Flex, Button } from '@chakra-ui/react';
+import { Stack, Text, Flex, Button, Radio } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
@@ -6,13 +6,17 @@ import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
+import RadioBox from '../components/RadioBox';
 
 // TODO more chains
 const defaultChainId = 5;
 const defaultDebounce = 1500;
 
 const CreateHatForm = () => {
-  const localForm = useForm({ mode: 'onChange' });
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: { mutable: 'Mutable' },
+  });
   const { handleSubmit, watch } = localForm;
 
   const admin = useDebounce(watch('admin'), defaultDebounce);
@@ -55,8 +59,6 @@ const CreateHatForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Text>Some note.</Text>
-
         <Input
           localForm={localForm}
           name='admin'
@@ -88,13 +90,21 @@ const CreateHatForm = () => {
           placeholder='0x'
           localForm={localForm}
         />
-        <Input
+        <RadioBox
+          name='mutable'
+          label='Mutable?'
+          options={['Mutable', 'Immutable']}
+          localForm={localForm}
+          isRequired
+        />
+
+        {/* <Input
           name='mutable'
           label='Mutable'
           defaultValue='true'
           placeholder='true'
           localForm={localForm}
-        />
+        /> */}
         <Input
           localForm={localForm}
           name='image'

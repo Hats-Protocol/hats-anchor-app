@@ -13,7 +13,7 @@ import {
   Icon,
   IconButton,
   Button,
-  Divider,
+  Box,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -29,9 +29,10 @@ import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
 import EventsTable from '../EventsTable';
-import { decimalId } from '../../lib/hats';
+import { decimalId, prettyIdToIp } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
+import HatDetailsForm from '../../forms/HatDetailsForm';
 
 const AddressRow = ({
   address,
@@ -76,6 +77,10 @@ const Hat = ({ hatData, chainId, treeId }) => {
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   if (!hatData) return null;
 
+  const handleOpenDetailsModal = () => {
+    localOverlay.setModals({ hatDetails: true });
+  };
+
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
       label: 'Admin ID',
@@ -83,18 +88,17 @@ const Hat = ({ hatData, chainId, treeId }) => {
         <CopyToClipboard
           copyValue={decimalId(_.get(hatData, 'admin.id', '0'))}
           description='Admin ID'
-        >{`${decimalId(_.get(hatData, 'admin.id', '0')).slice(
-          0,
-          10,
-        )}...`}</CopyToClipboard>
+        >{`${prettyIdToIp(
+          _.get(hatData, 'admin.prettyId', '0'),
+        )}`}</CopyToClipboard>
       ),
     },
-    _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
-      label: 'Pretty Admin ID',
-      value: (
-        <CopyToClipboard>{_.get(hatData, 'admin.prettyId')}</CopyToClipboard>
-      ),
-    },
+    // _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
+    //   label: 'Pretty Admin ID',
+    //   value: (
+    //     <CopyToClipboard>{_.get(hatData, 'admin.prettyId')}</CopyToClipboard>
+    //   ),
+    // },
     {
       label: 'Eligibility',
       value: (
@@ -128,6 +132,14 @@ const Hat = ({ hatData, chainId, treeId }) => {
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
         <HatModulesForm type={type} />
       </Modal>
+      <Modal
+        name='hatDetails'
+        title='Hat Details'
+        localOverlay={localOverlay}
+        size='xl'
+      >
+        <HatDetailsForm hatData={hatData} chainId={chainId} />
+      </Modal>
 
       <Stack>
         <Flex justify='space-between'>
@@ -145,8 +157,11 @@ const Hat = ({ hatData, chainId, treeId }) => {
                 <Text fontSize='sm' fontWeight={700}>
                   Hat ID
                 </Text>
-                <CopyToClipboard description='Hat ID'>
-                  {_.get(hatData, 'prettyId')}
+                <CopyToClipboard
+                  copyValue={decimalId(_.get(hatData, 'id'))}
+                  description='Hat ID'
+                >
+                  {prettyIdToIp(_.get(hatData, 'prettyId'))}
                 </CopyToClipboard>
               </HStack>
               <Text
@@ -186,19 +201,18 @@ const Hat = ({ hatData, chainId, treeId }) => {
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
             <TabPanel>
-              <Stack>
-                <Flex justify='flex-end'>
-                  <IconButton
-                    icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-                    minW='auto'
-                    w={8}
-                    h={8}
-                    variant='outline'
-                  />
-                </Flex>
-                <Divider borderColor='gray.400' w='90%' />
+              <Box>
+                <IconButton
+                  icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+                  minW='auto'
+                  w={8}
+                  h={8}
+                  variant='outline'
+                  float='right'
+                  onClick={handleOpenDetailsModal}
+                />
                 <Text>{hatData?.details}</Text>
-              </Stack>
+              </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
             {/* <TabPanel /> */}

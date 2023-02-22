@@ -16,27 +16,29 @@ import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
-import EventsTable from '../../../components/EventsTable';
-import Hat from '../../../components/Hat';
+import EventsTable from '../../../../components/EventsTable';
+import Hat from '../../../../components/Hat';
 import {
   toTreeStructure,
   prettyIdToId,
-  hatIdToHex,
+  decimalToTreeId,
   decimalId,
-} from '../../../lib/hats';
-import useTreeDetails from '../../../hooks/useTreeDetails';
-import useHatDetails from '../../../hooks/useHatDetails';
-import { chainsMap } from '../../../lib/web3';
-import Layout from '../../../components/Layout';
-import { fetchAllTreeIds, fetchTreeDetails } from '../../../gql/helpers';
-import DataTable from '../../../components/DataTable';
-import { formatAddress } from '../../../lib/general';
-import { useOverlay } from '../../../contexts/OverlayContext';
-import Modal from '../../../components/Modal';
-import HatCreateForm from '../../../forms/CreateHatForm';
-import CopyToClipboard from '../../../components/CopyToClipboard';
-import useImageURIs from '../../../hooks/useImageURIs';
-import TreeNode from '../../../components/TreeNode';
+  urlIdToPrettyId,
+  isAdmin,
+} from '../../../../lib/hats';
+import useTreeDetails from '../../../../hooks/useTreeDetails';
+import useHatDetails from '../../../../hooks/useHatDetails';
+import { chainsMap } from '../../../../lib/web3';
+import Layout from '../../../../components/Layout';
+import { fetchAllTreeIds, fetchTreeDetails } from '../../../../gql/helpers';
+import DataTable from '../../../../components/DataTable';
+import { formatAddress } from '../../../../lib/general';
+import { useOverlay } from '../../../../contexts/OverlayContext';
+import Modal from '../../../../components/Modal';
+import HatCreateForm from '../../../../forms/CreateHatForm';
+import CopyToClipboard from '../../../../components/CopyToClipboard';
+import useImageURIs from '../../../../hooks/useImageURIs';
+import TreeNode from '../../../../components/TreeNode';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -59,6 +61,12 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
+  const test = isAdmin('0x00000015.0002.0004', [
+    '0x00000015',
+    '0x00000015.0001',
+    '0x00000017',
+  ]);
+  console.log(test);
 
   // TODO handle error and loading in layout
   if (treeLoading || imagesLoading)
@@ -77,19 +85,23 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const treeInfoTable = [
     {
       label: 'Tree ID',
-      value: <CopyToClipboard description='Tree ID'>{treeId}</CopyToClipboard>,
-    },
-    {
-      label: 'Top Hat ID',
       value: (
-        <CopyToClipboard
-          copyValue={decimalId(_.get(topHat, 'id', '0'))}
-        >{`${decimalId(_.get(topHat, 'id', '0')).slice(
-          0,
-          10,
-        )}...`}</CopyToClipboard>
+        <CopyToClipboard description='Tree ID'>
+          {decimalId(treeId)}
+        </CopyToClipboard>
       ),
     },
+    // {
+    //   label: 'Top Hat ID',
+    //   value: (
+    //     <CopyToClipboard
+    //       copyValue={decimalId(_.get(topHat, 'id', '0'))}
+    //     >{`${decimalId(_.get(topHat, 'prettyId', '0')).slice(
+    //       0,
+    //       10,
+    //     )}...`}</CopyToClipboard>
+    //   ),
+    // },
     {
       label: 'Top Hat Wearer',
       value: (
@@ -197,28 +209,44 @@ export const getStaticPaths = async () => {
   // TODO handle multiple chains
   const result = await fetchAllTreeIds(defaultChainId);
 
-  const paths = _.map(result, (tree) => ({
-    params: {
-      treeId: tree.id,
-      hatId: hatIdToHex(_.get(tree, 'hats[0].id')),
-      chainId: defaultChainId,
-    },
-  }));
+  // convert from hex to numerical
+  const paths = _.map(result, (tree) => {
+    const treeId = decimalId(tree.id);
+
+    const hatsMap = _.map(tree.hats, (hat) => {
+      const hatId = _.get(hat, 'prettyId');
+
+      return {
+        params: {
+          treeId: String(treeId),
+          hatId: String(hatId),
+          chainId: String(defaultChainId),
+        },
+      };
+    });
+
+    return hatsMap;
+  });
 
   return {
-    paths,
+    paths: _.flatten(paths),
     fallback: true,
   };
 };
 
 export const getStaticProps = async (props) => {
   const { treeId, hatId, chainId } = props.params;
-  const initialData = await fetchTreeDetails(treeId, chainId || defaultChainId);
+  const treeHex = decimalToTreeId(treeId);
+  const hatIdHex = prettyIdToId(urlIdToPrettyId(hatId));
+  const initialData = await fetchTreeDetails(
+    treeHex,
+    chainId || defaultChainId,
+  );
 
   return {
     props: {
-      treeId,
-      hatId,
+      treeId: treeHex,
+      hatId: hatIdHex,
       chainId: chainId || defaultChainId,
       initialData,
     },
