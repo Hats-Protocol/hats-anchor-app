@@ -1,7 +1,7 @@
 import { prettyIdToId, prettyIdToIp } from '../lib/hats';
 import styles from './TreeNode.module.css';
 
-export function TreeNode(rd3tProps, handleNodeClick) {
+export default function TreeNode(rd3tProps, handleNodeClick) {
   return (
     <g>
       <defs>
@@ -19,7 +19,7 @@ export function TreeNode(rd3tProps, handleNodeClick) {
             width='512'
             height='512'
             xlinkHref={rd3tProps.nodeDatum.attributes.imageURI}
-          ></image>
+          />
         </pattern>
       </defs>
       <circle
@@ -31,7 +31,7 @@ export function TreeNode(rd3tProps, handleNodeClick) {
           strokeOpacity: '50%',
         }}
         onClick={() => handleNodeClick(rd3tProps.nodeDatum.name)}
-      ></circle>
+      />
       <foreignObject width={125} height={200} x={35} y={-25}>
         <div
           style={{
@@ -40,7 +40,11 @@ export function TreeNode(rd3tProps, handleNodeClick) {
           }}
         >
           <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
-          <button className={styles.button1} onClick={() => alert('add child')}>
+          <button
+            className={styles.button1}
+            type='button'
+            onClick={() => alert('add child')}
+          >
             Add Child
           </button>
         </div>

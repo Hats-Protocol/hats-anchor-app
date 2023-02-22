@@ -36,7 +36,7 @@ import Modal from '../../../components/Modal';
 import HatCreateForm from '../../../forms/CreateHatForm';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 import useImageURIs from '../../../hooks/useImageURIs';
-import { TreeNode } from '../../../components/TreeNode';
+import TreeNode from '../../../components/TreeNode';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
