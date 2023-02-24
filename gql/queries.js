@@ -46,6 +46,7 @@ export const GET_ALL_TREE_IDS = gql`
       id
       hats {
         id
+        prettyId
       }
     }
   }

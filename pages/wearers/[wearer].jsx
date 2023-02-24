@@ -15,11 +15,12 @@ import { fetchWearerDetails, fetchAllWearers } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import Layout from '../../components/Layout';
 import { formatAddress } from '../../lib/general';
+import { prettyIdToIp, prettyIdToUrlId, decimalId } from '../../lib/hats';
 
 const CoreHat = ({ hat }) => (
   <Card key={_.get(hat, 'id')}>
     <CardBody as={Flex} h='75px'>
-      <Text key={_.get(hat, 'id')}>{_.get(hat, 'prettyId')}</Text>
+      <Text key={_.get(hat, 'id')}>{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>
     </CardBody>
   </Card>
 );
@@ -44,7 +45,9 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
             return (
               <ChakraLink
                 as={Link}
-                href={`/trees/${_.get(hat, 'prettyId')}`}
+                href={`/trees/5/${decimalId(
+                  _.get(hat, 'prettyId'),
+                )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
                 key={_.get(hat, 'id')}
               >
                 <CoreHat hat={hat} />

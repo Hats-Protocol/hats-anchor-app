@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -13,8 +12,6 @@ const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
 const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
-  // TODO check wearer is valid address
-
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
     chainId: chainId || defaultChainId,

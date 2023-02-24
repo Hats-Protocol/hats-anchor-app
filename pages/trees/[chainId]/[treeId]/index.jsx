@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import _ from 'lodash';
 
-import useTreeDetails from '../../../hooks/useTreeDetails';
-import { fetchAllTreeIds, fetchTreeDetails } from '../../../gql/helpers';
-import { decimalId } from '../../../lib/hats';
+import useTreeDetails from '../../../../hooks/useTreeDetails';
+import { fetchAllTreeIds, fetchTreeDetails } from '../../../../gql/helpers';
+import { decimalId } from '../../../../lib/hats';
 
 const TreeDetails = ({ treeId, chainId, initialData }) => {
   const router = useRouter();
@@ -29,7 +29,7 @@ export const getStaticPaths = async () => {
   const result = await fetchAllTreeIds(defaultChainId);
 
   const paths = _.map(result, (tree) => ({
-    params: { treeId: tree.id, chainId: defaultChainId },
+    params: { treeId: tree.id, chainId: String(defaultChainId) },
   }));
 
   return {
