@@ -7,41 +7,31 @@ import _ from 'lodash';
 import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
+import { decimalId } from '../lib/hats';
 import useToast from './useToast';
 
 // TODO rm
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  admin,
-  details,
-  maxSupply,
-  eligibility,
-  toggle,
-  mutable,
-  imageUrl,
-}) => {
+const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    chainId: _.toNumber(chainId) || defaultChainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
+    functionName: 'changeHatMaxSupply',
     args: [
-      admin || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || ZERO_ADDRESS,
-      toggle || ZERO_ADDRESS,
-      mutable === 'true',
-      imageUrl || '',
+      decimalId(hatId) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
+      amount || 1,
     ],
-    enabled: !!hatsAddress,
+    enabled: !!hatsAddress && !!hatId && !!amount,
+  });
+
+  const { writeAsync } = useContractWrite({
+    ...config,
     onSuccess: (data) => {
       setHash(_.get(data, 'hash'));
       toast.info({
@@ -56,23 +46,19 @@ const useHatCreate = ({
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
-          // description: 'Please accept the transaction in your wallet',
         });
       }
     },
   });
 
-  const { writeAsync } = useContractWrite(config);
-
   const { isLoading } = useWaitForTransaction({
     hash,
     onSuccess: () => {
       toast.success({
-        title: 'Hat created!',
-        description: `Successfully created hat`,
+        title: 'Max Supply updated!',
+        description: `Successfully updated the max supply of hat #${hatId}`,
       });
     },
   });
@@ -80,4 +66,4 @@ const useHatCreate = ({
   return { writeAsync, isLoading };
 };
 
-export default useHatCreate;
+export default useHatSupplyUpdate;

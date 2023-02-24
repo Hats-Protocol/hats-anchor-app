@@ -7,41 +7,33 @@ import _ from 'lodash';
 import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
+import { decimalId } from '../lib/hats';
 import useToast from './useToast';
 
 // TODO rm
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  admin,
-  details,
-  maxSupply,
-  eligibility,
-  toggle,
-  mutable,
-  imageUrl,
-}) => {
+const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    chainId: Number(chainId) || defaultChainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
+    functionName: 'makeHatImmutable',
     args: [
-      admin || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || ZERO_ADDRESS,
-      toggle || ZERO_ADDRESS,
-      mutable === 'true',
-      imageUrl || '',
+      decimalId(_.get(hatData, 'id')), // not a valid fallback? enabled handles, mostly for type
     ],
-    enabled: !!hatsAddress,
+    enabled:
+      !!hatsAddress &&
+      !!decimalId(_.get(hatData, 'id')) &&
+      _.gt(_.get(hatData, 'levelAtLocalTree'), 0),
+  });
+
+  const { writeAsync } = useContractWrite({
+    ...config,
     onSuccess: (data) => {
       setHash(_.get(data, 'hash'));
       toast.info({
@@ -56,7 +48,6 @@ const useHatCreate = ({
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
           // description: 'Please accept the transaction in your wallet',
@@ -65,19 +56,20 @@ const useHatCreate = ({
     },
   });
 
-  const { writeAsync } = useContractWrite(config);
-
-  const { isLoading } = useWaitForTransaction({
+  useWaitForTransaction({
     hash,
     onSuccess: () => {
       toast.success({
-        title: 'Hat created!',
-        description: `Successfully created hat`,
+        title: 'Hat Updated!',
+        description: `Successfully made hat #${_.get(
+          hatData,
+          'prettyId',
+        )} immutable`,
       });
     },
   });
 
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
-export default useHatCreate;
+export default useHatMakeImmutable;

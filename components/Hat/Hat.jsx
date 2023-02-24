@@ -24,19 +24,33 @@ import { useAccount } from 'wagmi';
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
 import DataTable from '../DataTable';
-import { ZERO_ADDRESS, MODULE_TYPES } from '../../constants';
+import { ZERO_ADDRESS, MODULE_TYPES, hatsAddresses } from '../../constants';
 import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
 import EventsTable from '../EventsTable';
-import { decimalId, prettyIdToIp } from '../../lib/hats';
+import {
+  decimalId,
+  prettyIdToIp,
+  topHatOrMutable,
+  isAdmin,
+  mutableNotTopHat,
+} from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
 import HatDetailsForm from '../../forms/HatDetailsForm';
+import useWearerDetails from '../../hooks/useWearerDetails';
+import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
+import HatImageForm from '../../forms/HatImageForm';
+import HatSupplyForm from '../../forms/HatSupplyForm';
+
+const defaultChainId = 5;
+const hatsAddress = hatsAddresses(defaultChainId);
 
 const AddressRow = ({
   address,
   mutable,
+  admin,
   chainId,
   type,
   setType,
@@ -57,7 +71,7 @@ const AddressRow = ({
       ) : (
         <Text>None Set</Text>
       )}
-      {userAddress && mutable && (
+      {userAddress && mutable && admin && (
         <IconButton
           icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
           minW='auto'
@@ -70,15 +84,37 @@ const AddressRow = ({
     </HStack>
   );
 };
+
 // TODO this should probably be more components
 
 const Hat = ({ hatData, chainId, treeId }) => {
   const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
+  const { address } = useAccount();
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const { writeAsync } = useHatMakeImmutable({ hatsAddress, chainId, hatData });
+  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
+  const [imageHover, setImageHover] = useState(false);
   if (!hatData) return null;
 
   const handleOpenDetailsModal = () => {
-    localOverlay.setModals({ hatDetails: true });
+    setModals({ hatDetails: true });
+  };
+
+  const handleOpenImageModal = () => {
+    setModals({ hatImage: true });
+  };
+
+  const handleOpenSupplyModal = () => {
+    setModals({ hatSupply: true });
+  };
+
+  const handleMakeImmutable = () => {
+    writeAsync?.();
   };
 
   const accountabilitiesTable = [
@@ -106,7 +142,8 @@ const Hat = ({ hatData, chainId, treeId }) => {
           address={hatData.eligibility}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
-          mutable={_.get(hatData, 'mutable')}
+          mutable={mutableNotTopHat(hatData)}
+          admin={isAdmin(_.get(hatData, 'prettyId'), currentWearerHats)}
           setType={setType}
           localOverlay={localOverlay}
         />
@@ -119,38 +156,62 @@ const Hat = ({ hatData, chainId, treeId }) => {
           address={hatData.toggle}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
-          mutable={_.get(hatData, 'mutable')}
+          mutable={mutableNotTopHat(hatData)}
+          admin={isAdmin(_.get(hatData, 'prettyId'), currentWearerHats)}
           setType={setType}
           localOverlay={localOverlay}
         />
       ),
     },
   ];
+  const canEditImage =
+    address &&
+    topHatOrMutable(hatData) &&
+    isAdmin(_.get(hatData, 'id'), currentWearerHats);
 
   return (
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
-        <HatModulesForm type={type} />
+        <HatModulesForm type={type} hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal
-        name='hatDetails'
-        title='Hat Details'
-        localOverlay={localOverlay}
-        size='xl'
-      >
+      <Modal name='hatDetails' title='Hat Details' localOverlay={localOverlay}>
         <HatDetailsForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal name='hatImage' title='Hat Image' localOverlay={localOverlay}>
+        <HatImageForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal name='hatSupply' title='Hat Supply' localOverlay={localOverlay}>
+        <HatSupplyForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
         <Flex justify='space-between'>
           <HStack spacing={4}>
-            <Image
-              src='/icon.jpeg'
-              alt='Hat icon'
-              maxW='75px'
+            <Box
+              transform={imageHover && canEditImage && 'scale(1.05)'}
+              cursor={imageHover && canEditImage && 'pointer'}
+              onMouseEnter={() => canEditImage && setImageHover(true)}
+              onMouseLeave={() => setImageHover(false)}
+              position='relative'
               border='1px solid'
               borderColor='gray.200'
-            />
+              maxW='75px'
+              onClick={handleOpenImageModal}
+            >
+              {imageHover && (
+                <Icon
+                  as={FaPencilAlt}
+                  position='absolute'
+                  color='whiteAlpha.700'
+                  w='40px'
+                  h='40px'
+                  top='22%'
+                  left='22%'
+                />
+              )}
+              <Image src='/icon.jpeg' alt='Hat icon' />
+            </Box>
+
             <Stack spacing={1}>
               {/* TODO add name if found in details object */}
               <HStack>
@@ -172,19 +233,22 @@ const Hat = ({ hatData, chainId, treeId }) => {
               )} ago`}</Text>
             </Stack>
           </HStack>
-          <Stack textAlign='center' spacing={1}>
+          <Stack textAlign='center' spacing={1} justify='center'>
             <Badge colorScheme={hatData.status ? 'green' : 'blue'}>
               {hatData.status ? 'Active' : 'Inactive'}
             </Badge>
-            <Badge colorScheme={hatData.mutable ? 'green' : 'blue'}>
-              {hatData.mutable ? 'Mutable' : 'Immutable'}
-            </Badge>
+
             {hatData?.levelAtLocalTree === 0 ? (
               <Badge colorScheme='purple'>Top Hat</Badge>
             ) : (
-              <Badge colorScheme='purple'>
-                Level {hatData?.levelAtLocalTree}
-              </Badge>
+              <>
+                <Badge colorScheme={hatData.mutable ? 'green' : 'blue'}>
+                  {hatData.mutable ? 'Mutable' : 'Immutable'}
+                </Badge>
+                <Badge colorScheme='purple'>
+                  Level {hatData?.levelAtLocalTree}
+                </Badge>
+              </>
             )}
           </Stack>
         </Flex>
@@ -196,21 +260,28 @@ const Hat = ({ hatData, chainId, treeId }) => {
             <Tab>Accountabilities</Tab>
             <Tab>Wearers</Tab>
             <Tab>Events</Tab>
-            <Tab>Admin</Tab>
+            {address &&
+              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
+              mutableNotTopHat(hatData) && <Tab>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
             <TabPanel>
               <Box>
-                <IconButton
-                  icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-                  minW='auto'
-                  w={8}
-                  h={8}
-                  variant='outline'
-                  float='right'
-                  onClick={handleOpenDetailsModal}
-                />
+                {address &&
+                  topHatOrMutable(hatData) &&
+                  isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) && (
+                    <IconButton
+                      icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+                      minW='auto'
+                      w={8}
+                      h={8}
+                      variant='outline'
+                      float='right'
+                      onClick={handleOpenDetailsModal}
+                    />
+                  )}
+
                 <Text>{hatData?.details}</Text>
               </Box>
             </TabPanel>
@@ -234,12 +305,18 @@ const Hat = ({ hatData, chainId, treeId }) => {
                 chainId={chainId}
               />
             </TabPanel>
-            <TabPanel>
-              <Stack>
-                <Button variant='outline'>Adjust Max Supply</Button>
-                <Button variant='outline'>Make Immutable</Button>
-              </Stack>
-            </TabPanel>
+            {mutableNotTopHat(hatData) && (
+              <TabPanel>
+                <HStack>
+                  <Button variant='outline' onClick={handleOpenSupplyModal}>
+                    Adjust Max Supply
+                  </Button>
+                  <Button variant='outline' onClick={handleMakeImmutable}>
+                    Make Immutable
+                  </Button>
+                </HStack>
+              </TabPanel>
+            )}
           </TabPanels>
         </Tabs>
       </Stack>

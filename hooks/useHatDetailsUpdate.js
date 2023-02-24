@@ -8,40 +8,30 @@ import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
+import { decimalId } from '../lib/hats';
 
 // TODO rm
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  admin,
-  details,
-  maxSupply,
-  eligibility,
-  toggle,
-  mutable,
-  imageUrl,
-}) => {
+const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    chainId: Number(chainId) || defaultChainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
+    functionName: 'changeHatDetails',
     args: [
-      admin || ZERO_ADDRESS, // not a valid fallback? throw instead?
+      decimalId(hatId) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
       details || '',
-      maxSupply || '1',
-      eligibility || ZERO_ADDRESS,
-      toggle || ZERO_ADDRESS,
-      mutable === 'true',
-      imageUrl || '',
     ],
-    enabled: !!hatsAddress,
+    enabled: !!hatsAddress && !!hatId && !!details,
+  });
+
+  const { writeAsync } = useContractWrite({
+    ...config,
     onSuccess: (data) => {
       setHash(_.get(data, 'hash'));
       toast.info({
@@ -56,7 +46,6 @@ const useHatCreate = ({
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
           // description: 'Please accept the transaction in your wallet',
@@ -65,14 +54,12 @@ const useHatCreate = ({
     },
   });
 
-  const { writeAsync } = useContractWrite(config);
-
   const { isLoading } = useWaitForTransaction({
     hash,
     onSuccess: () => {
       toast.success({
-        title: 'Hat created!',
-        description: `Successfully created hat`,
+        title: 'Details updated!',
+        description: `Successfully updated the details for hat #${hatId}`,
       });
     },
   });
@@ -80,4 +67,4 @@ const useHatCreate = ({
   return { writeAsync, isLoading };
 };
 
-export default useHatCreate;
+export default useHatDetailsUpdate;

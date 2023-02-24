@@ -1,10 +1,45 @@
-import React from 'react';
-import { Flex } from '@chakra-ui/react';
+import _ from 'lodash';
+import { Stack, Flex, Button } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+import Input from '../components/Input';
+import useHatSupplyUpdate from '../hooks/useHatSupplyUpdate';
+import { hatsAddresses } from '../constants';
+import useDebounce from '../hooks/useDebounce';
 
-const supplyFunction = ['changeHatMaxSupply'];
+const defaultDebounce = 1500;
+const defaultChainId = 5;
+const defaultHatsAddress = hatsAddresses(defaultChainId);
 
-const HatSupplyForm = () => {
-  return <Flex>HatSupplyForm</Flex>;
+const HatSupplyForm = ({ hatData, chainId }) => {
+  const localForm = useForm({ mode: 'onBlur' });
+  const { handleSubmit, watch } = localForm;
+
+  const amount = useDebounce(watch('amount'), defaultDebounce);
+
+  const { writeAsync } = useHatSupplyUpdate({
+    hatsAddress: defaultHatsAddress,
+    chainId,
+    hatId: _.get(hatData, 'id'),
+    amount,
+  });
+
+  const onSubmit = () => {
+    writeAsync?.();
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Stack spacing={4}>
+        <Input localForm={localForm} name='amount' label='Amount' />
+
+        <Flex>
+          <Button type='submit' isDisabled={!writeAsync}>
+            Save
+          </Button>
+        </Flex>
+      </Stack>
+    </form>
+  );
 };
 
 export default HatSupplyForm;
