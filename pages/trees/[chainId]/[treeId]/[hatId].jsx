@@ -40,6 +40,8 @@ import HatCreateForm from '../../../../forms/CreateHatForm';
 import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
+import { useAccount } from 'wagmi';
+import useWearerDetails from '../../../../hooks/useWearerDetails';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -49,6 +51,18 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
+  const { address, isConnected } = useAccount();
+  const { data: wearerData } = useWearerDetails({
+    wearerAddress: address,
+    chainId: chainId,
+  });
+  let wearerHats = [];
+  if (wearerData !== undefined) {
+    wearerHats = _.get(wearerData, 'currentHats').map((hat) => {
+      return hat.prettyId;
+    });
+  }
+
   const {
     data: treeData,
     isLoading: treeLoading,
@@ -57,11 +71,13 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
     treeData?.hats,
+    chainId,
   );
 
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
+
   // const test = isAdmin('0x00000015.0002.0004', [
   //   '0x00000015',
   //   '0x00000015.0001',
@@ -118,13 +134,22 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   ];
 
   const handleNodeClick = (nodePrettyId) => {
-    router.push(`/trees/${treeId}/${decimalId(prettyIdToId(nodePrettyId))}`);
+    router.push(
+      `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
+    );
+  };
+
+  const handleAddChildClick = (nodePrettyId) => {
+    router.push(
+      `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
+    );
+    setModals({ createHat: true });
   };
 
   return (
     <>
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm />
+        <HatCreateForm defaultAdmin={prettyIdToId(hatId)} />
       </Modal>
 
       <Layout>
@@ -184,7 +209,13 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   nodeSize={{ x: 200, y: 200 }}
                   translate={{ x: 200, y: 200 }}
                   renderCustomNodeElement={(rd3tProps) =>
-                    TreeNode(rd3tProps, handleNodeClick)
+                    TreeNode(
+                      rd3tProps,
+                      handleNodeClick,
+                      handleAddChildClick,
+                      hatId,
+                      wearerHats,
+                    )
                   }
                 />
               </CardBody>

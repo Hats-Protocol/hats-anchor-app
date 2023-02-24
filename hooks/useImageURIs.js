@@ -1,8 +1,10 @@
 import { multicall } from '@wagmi/core';
 import abi from '../contracts/Hats.json';
 import { useEffect, useState } from 'react';
+import { hatsAddresses } from '../constants';
+import { chainsMap } from '../lib/web3';
 
-const useImageURIs = (hats) => {
+const useImageURIs = (hats, chainId) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -11,7 +13,7 @@ const useImageURIs = (hats) => {
       try {
         const calls = hats.map((hat) => {
           return {
-            address: '0x96bD657Fcc04c71B47f896a829E5728415cbcAa1', //TODO remove hardcoded goerli hats address
+            address: hatsAddresses(chainsMap(chainId)), //TODO remove hardcoded goerli hats address
             abi: abi,
             functionName: 'getImageURIForHat',
             args: [hat.id],
@@ -22,7 +24,11 @@ const useImageURIs = (hats) => {
         const result = await multicall({ contracts: calls });
         let hatIdToImage = {};
         hats.map((hat, i) => {
-          hatIdToImage[hat.id] = result[i];
+          if (result[i].startsWith('ipfs://')) {
+            hatIdToImage[hat.id] = `https://ipfs.io/ipfs/${result[i].slice(7)}`;
+          } else {
+            hatIdToImage[hat.id] = result[i];
+          }
         });
         setData(hatIdToImage);
       } catch (error) {
