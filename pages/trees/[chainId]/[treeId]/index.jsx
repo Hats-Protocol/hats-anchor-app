@@ -29,7 +29,7 @@ export const getStaticPaths = async () => {
   const result = await fetchAllTreeIds(defaultChainId);
 
   const paths = _.map(result, (tree) => ({
-    params: { treeId: tree.id, chainId: defaultChainId },
+    params: { treeId: tree.id, chainId: String(defaultChainId) },
   }));
 
   return {

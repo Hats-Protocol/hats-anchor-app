@@ -25,6 +25,7 @@ import {
   decimalId,
   urlIdToPrettyId,
   isAdmin,
+  prettyIdToUrlId,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -61,12 +62,12 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
-  const test = isAdmin('0x00000015.0002.0004', [
-    '0x00000015',
-    '0x00000015.0001',
-    '0x00000017',
-  ]);
-  console.log(test);
+  // const test = isAdmin('0x00000015.0002.0004', [
+  //   '0x00000015',
+  //   '0x00000015.0001',
+  //   '0x00000017',
+  // ]);
+  // console.log(test);
 
   // TODO handle error and loading in layout
   if (treeLoading || imagesLoading)
@@ -214,7 +215,7 @@ export const getStaticPaths = async () => {
     const treeId = decimalId(tree.id);
 
     const hatsMap = _.map(tree.hats, (hat) => {
-      const hatId = _.get(hat, 'prettyId');
+      const hatId = prettyIdToUrlId(_.get(hat, 'prettyId'));
 
       return {
         params: {
