@@ -1,9 +1,7 @@
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../lib/hats';
 import styles from './TreeNode.module.css';
 import { Button, Modal } from '@chakra-ui/react';
-import HatCreateForm from '../forms/CreateHatForm';
 import { useOverlay } from '../contexts/OverlayContext';
-import Link from 'next/link';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
 
@@ -61,13 +59,17 @@ function Node({
             y='0%'
             width='512'
             height='512'
-            xlinkHref={rd3tProps.nodeDatum.attributes.imageURI}
+            href={rd3tProps.nodeDatum.attributes.imageURI}
           />
         </pattern>
       </defs>
       <circle
         r={isHatActive || isHover ? 30 : 25}
-        fill={`url(#${rd3tProps.nodeDatum.name})`}
+        fill={
+          rd3tProps.nodeDatum.attributes.imageURI !== undefined
+            ? `url(#${rd3tProps.nodeDatum.name})`
+            : 'grey'
+        }
         style={{
           stroke: isHatActive ? '#437bc9' : '#6d858f',
           strokeWidth: isHatActive ? '4px' : '2px',
