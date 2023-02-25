@@ -14,14 +14,17 @@ const useImageURIs = (hats, chainId) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const calls = hats.map((hat) => {
-    return {
-      address: hatsAddresses(chainsMap(chainId)),
-      abi: abi,
-      functionName: 'getImageURIForHat',
-      args: [hat.id],
-    };
-  });
+  let calls = [];
+  if (hats !== undefined) {
+    calls = hats.map((hat) => {
+      return {
+        address: hatsAddresses(chainsMap(chainId)),
+        abi: abi,
+        functionName: 'getImageURIForHat',
+        args: [hat.id],
+      };
+    });
+  }
 
   const { data: imagesData, isLoading: imagesLoading } = useContractReads({
     contracts: calls,
