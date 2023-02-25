@@ -1,4 +1,4 @@
-import { multicall } from '@wagmi/core';
+import { useContractReads } from 'wagmi';
 import abi from '../contracts/Hats.json';
 import { useEffect, useState } from 'react';
 import { hatsAddresses } from '../constants';
@@ -14,30 +14,35 @@ const useImageURIs = (hats, chainId) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
 
+  const calls = hats.map((hat) => {
+    return {
+      address: hatsAddresses(chainsMap(chainId)),
+      abi: abi,
+      functionName: 'getImageURIForHat',
+      args: [hat.id],
+    };
+  });
+
+  const { data: imagesData, isLoading: imagesLoading } = useContractReads({
+    contracts: calls,
+  });
+
   useEffect(() => {
-    const getImageURIs = async () => {
+    const validateImages = async () => {
       try {
-        const calls = hats.map((hat) => {
-          return {
-            address: hatsAddresses(chainsMap(chainId)),
-            abi: abi,
-            functionName: 'getImageURIForHat',
-            args: [hat.id],
-          };
-        });
-
         setLoading(true);
-        const result = await multicall({ contracts: calls });
-
         let hatIdToImage = {};
         for (let i = 0; i < hats.length; i++) {
           let hat = hats[i];
-          if (result[i].startsWith('ipfs://')) {
-            hatIdToImage[hat.id] = `https://ipfs.io/ipfs/${result[i].slice(7)}`;
+          if (imagesData[i].startsWith('ipfs://')) {
+            //converting the current base image uri from the contract to resolvable format
+            hatIdToImage[hat.id] = `https://ipfs.io/ipfs/${imagesData[i].slice(
+              7,
+            )}`;
           } else {
-            let isValidImage = await isImageUrl(result[i]);
+            let isValidImage = await isImageUrl(imagesData[i]);
             if (isValidImage) {
-              hatIdToImage[hat.id] = result[i];
+              hatIdToImage[hat.id] = imagesData[i];
             } else {
               hatIdToImage[hat.id] = undefined;
             }
@@ -53,10 +58,10 @@ const useImageURIs = (hats, chainId) => {
       }
     };
 
-    if (hats !== undefined) {
-      getImageURIs();
+    if (imagesData !== undefined && !imagesLoading) {
+      validateImages();
     }
-  }, [hats]);
+  }, [imagesData]);
 
   return { data, loading };
 };
