@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useAccount } from 'wagmi';
 import {
   Card,
   CardBody,
@@ -24,7 +25,6 @@ import {
   decimalToTreeId,
   decimalId,
   urlIdToPrettyId,
-  isAdmin,
   prettyIdToUrlId,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
@@ -40,7 +40,6 @@ import HatCreateForm from '../../../../forms/CreateHatForm';
 import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
-import { useAccount } from 'wagmi';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
@@ -51,10 +50,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
-    chainId: chainId,
+    chainId,
   });
   let wearerHats = [];
   if (wearerData !== undefined) {

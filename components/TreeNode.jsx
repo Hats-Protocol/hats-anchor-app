@@ -1,27 +1,9 @@
-import { prettyIdToId, prettyIdToIp, isAdmin } from '../lib/hats';
-import styles from './TreeNode.module.css';
 import { Button, Modal } from '@chakra-ui/react';
-import { useOverlay } from '../contexts/OverlayContext';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
-
-export default function TreeNode(
-  rd3tProps,
-  handleNodeClick,
-  handleAddChildClick,
-  activeHatId,
-  wearerHats,
-) {
-  return (
-    <Node
-      rd3tProps={rd3tProps}
-      handleNodeClick={handleNodeClick}
-      handleAddChildClick={handleAddChildClick}
-      activeHatId={activeHatId}
-      wearerHats={wearerHats}
-    ></Node>
-  );
-}
+import { prettyIdToId, prettyIdToIp, isAdmin } from '../lib/hats';
+import styles from './TreeNode.module.css';
+import { useOverlay } from '../contexts/OverlayContext';
 
 function Node({
   rd3tProps,
@@ -34,11 +16,11 @@ function Node({
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
-  let isHatActive = BigNumber.from(activeHatId).eq(
+  const isHatActive = BigNumber.from(activeHatId).eq(
     BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
   );
 
-  let isUserAdminOfHat = isAdmin(
+  const isUserAdminOfHat = isAdmin(
     prettyIdToId(rd3tProps.nodeDatum.name),
     wearerHats,
   );
@@ -99,5 +81,23 @@ function Node({
         </div>
       </foreignObject>
     </g>
+  );
+}
+
+export default function TreeNode(
+  rd3tProps,
+  handleNodeClick,
+  handleAddChildClick,
+  activeHatId,
+  wearerHats,
+) {
+  return (
+    <Node
+      rd3tProps={rd3tProps}
+      handleNodeClick={handleNodeClick}
+      handleAddChildClick={handleAddChildClick}
+      activeHatId={activeHatId}
+      wearerHats={wearerHats}
+    />
   );
 }
