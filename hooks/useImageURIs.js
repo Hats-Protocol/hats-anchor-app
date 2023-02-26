@@ -1,29 +1,57 @@
-import { multicall } from '@wagmi/core';
+import { useContractReads } from 'wagmi';
 import abi from '../contracts/Hats.json';
 import { useEffect, useState } from 'react';
+import { hatsAddresses } from '../constants';
+import { chainsMap } from '../lib/web3';
+import { isImageUrl } from '../lib/general';
 
-const useImageURIs = (hats) => {
+/**
+ * returns an object, mapping from hat id to image url.
+ * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
+ * for every url, checks if valid. If not, sets the image url to undefined.
+ */
+const useImageURIs = (hats, chainId) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const getImageURIs = async () => {
-      try {
-        const calls = hats.map((hat) => {
-          return {
-            address: '0x96bD657Fcc04c71B47f896a829E5728415cbcAa1', //TODO remove hardcoded goerli hats address
-            abi: abi,
-            functionName: 'getImageURIForHat',
-            args: [hat.id],
-          };
-        });
+  let calls = [];
+  if (hats !== undefined) {
+    calls = hats.map((hat) => {
+      return {
+        address: hatsAddresses(chainsMap(chainId)),
+        abi: abi,
+        functionName: 'getImageURIForHat',
+        args: [hat.id],
+      };
+    });
+  }
 
+  const { data: imagesData, isLoading: imagesLoading } = useContractReads({
+    contracts: calls,
+  });
+
+  useEffect(() => {
+    const validateImages = async () => {
+      try {
         setLoading(true);
-        const result = await multicall({ contracts: calls });
         let hatIdToImage = {};
-        hats.map((hat, i) => {
-          hatIdToImage[hat.id] = result[i];
-        });
+        for (let i = 0; i < hats.length; i++) {
+          let hat = hats[i];
+          if (imagesData[i].startsWith('ipfs://')) {
+            //converting the current base image uri from the contract to resolvable format
+            hatIdToImage[hat.id] = `https://ipfs.io/ipfs/${imagesData[i].slice(
+              7,
+            )}`;
+          } else {
+            let isValidImage = await isImageUrl(imagesData[i]);
+            if (isValidImage) {
+              hatIdToImage[hat.id] = imagesData[i];
+            } else {
+              hatIdToImage[hat.id] = undefined;
+            }
+          }
+        }
+
         setData(hatIdToImage);
       } catch (error) {
         setLoading(false);
@@ -33,10 +61,10 @@ const useImageURIs = (hats) => {
       }
     };
 
-    if (hats !== undefined) {
-      getImageURIs();
+    if (imagesData !== undefined && !imagesLoading) {
+      validateImages();
     }
-  }, [hats]);
+  }, [imagesData]);
 
   return { data, loading };
 };

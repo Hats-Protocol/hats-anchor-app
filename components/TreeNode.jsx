@@ -1,7 +1,27 @@
-import { prettyIdToId, prettyIdToIp } from '../lib/hats';
+import { Button, Modal } from '@chakra-ui/react';
+import { BigNumber } from 'ethers';
+import { useState } from 'react';
+import { prettyIdToId, prettyIdToIp, isAdmin } from '../lib/hats';
 import styles from './TreeNode.module.css';
 
-export default function TreeNode(rd3tProps, handleNodeClick) {
+function Node({
+  rd3tProps,
+  handleNodeClick,
+  handleAddChildClick,
+  activeHatId,
+  wearerHats,
+}) {
+  const [isHover, setIsHover] = useState(false);
+
+  const isHatActive = BigNumber.from(activeHatId).eq(
+    BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
+  );
+
+  const isUserAdminOfHat = isAdmin(
+    prettyIdToId(rd3tProps.nodeDatum.name),
+    wearerHats,
+  );
+
   return (
     <g>
       <defs>
@@ -18,19 +38,25 @@ export default function TreeNode(rd3tProps, handleNodeClick) {
             y='0%'
             width='512'
             height='512'
-            xlinkHref={rd3tProps.nodeDatum.attributes.imageURI}
+            href={rd3tProps.nodeDatum.attributes.imageURI}
           />
         </pattern>
       </defs>
       <circle
-        r={25}
-        fill={`url(#${rd3tProps.nodeDatum.name})`}
+        r={isHatActive || isHover ? 30 : 25}
+        fill={
+          rd3tProps.nodeDatum.attributes.imageURI !== undefined
+            ? `url(#${rd3tProps.nodeDatum.name})`
+            : 'grey'
+        }
         style={{
-          stroke: 'rgb(0,0,200)',
-          strokeWidth: '2px',
+          stroke: isHatActive ? '#437bc9' : '#6d858f',
+          strokeWidth: isHatActive ? '4px' : '2px',
           strokeOpacity: '50%',
         }}
         onClick={() => handleNodeClick(rd3tProps.nodeDatum.name)}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
       />
       <foreignObject width={125} height={200} x={35} y={-25}>
         <div
@@ -40,15 +66,35 @@ export default function TreeNode(rd3tProps, handleNodeClick) {
           }}
         >
           <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
-          <button
-            className={styles.button1}
-            type='button'
-            onClick={() => alert('add child')}
-          >
-            Add Child
-          </button>
+          {isUserAdminOfHat && (
+            <Button
+              className={styles.button1}
+              type='button'
+              onClick={() => handleAddChildClick(rd3tProps.nodeDatum.name)}
+            >
+              Add Child
+            </Button>
+          )}
         </div>
       </foreignObject>
     </g>
+  );
+}
+
+export default function TreeNode(
+  rd3tProps,
+  handleNodeClick,
+  handleAddChildClick,
+  activeHatId,
+  wearerHats,
+) {
+  return (
+    <Node
+      rd3tProps={rd3tProps}
+      handleNodeClick={handleNodeClick}
+      handleAddChildClick={handleAddChildClick}
+      activeHatId={activeHatId}
+      wearerHats={wearerHats}
+    />
   );
 }

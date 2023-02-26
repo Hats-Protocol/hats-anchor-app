@@ -12,7 +12,7 @@ import RadioBox from '../components/RadioBox';
 const defaultChainId = 5;
 const defaultDebounce = 1500;
 
-const CreateHatForm = () => {
+const CreateHatForm = ({ defaultAdmin }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { mutable: 'Mutable' },
@@ -64,6 +64,7 @@ const CreateHatForm = () => {
           name='admin'
           label='Admin ID'
           placeholder='5346721554326...'
+          defaultValue={defaultAdmin}
         />
         <Textarea
           localForm={localForm}

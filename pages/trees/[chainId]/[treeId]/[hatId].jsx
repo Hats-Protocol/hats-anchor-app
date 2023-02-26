@@ -1,4 +1,6 @@
 import { useRouter } from 'next/router';
+import { useAccount } from 'wagmi';
+import { useState } from 'react';
 import {
   Card,
   CardBody,
@@ -24,7 +26,6 @@ import {
   decimalToTreeId,
   decimalId,
   urlIdToPrettyId,
-  isAdmin,
   prettyIdToUrlId,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
@@ -40,6 +41,7 @@ import HatCreateForm from '../../../../forms/CreateHatForm';
 import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
+import useWearerDetails from '../../../../hooks/useWearerDetails';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -49,6 +51,18 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
+  const { address } = useAccount();
+  const { data: wearerData } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  let wearerHats = [];
+  if (wearerData !== undefined) {
+    wearerHats = _.get(wearerData, 'currentHats').map((hat) => {
+      return hat.prettyId;
+    });
+  }
+
   const {
     data: treeData,
     isLoading: treeLoading,
@@ -57,11 +71,15 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
     treeData?.hats,
+    chainId,
   );
 
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
+
+  const [defaultHatAdmin, setDefaultHatAdmin] = useState();
+
   // const test = isAdmin('0x00000015.0002.0004', [
   //   '0x00000015',
   //   '0x00000015.0001',
@@ -118,13 +136,20 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   ];
 
   const handleNodeClick = (nodePrettyId) => {
-    router.push(`/trees/${treeId}/${decimalId(prettyIdToId(nodePrettyId))}`);
+    router.push(
+      `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
+    );
+  };
+
+  const handleAddChildClick = (nodePrettyId) => {
+    setDefaultHatAdmin(prettyIdToId(nodePrettyId));
+    setModals({ createHat: true });
   };
 
   return (
     <>
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm />
+        <HatCreateForm defaultAdmin={defaultHatAdmin} />
       </Modal>
 
       <Layout>
@@ -184,7 +209,13 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   nodeSize={{ x: 200, y: 200 }}
                   translate={{ x: 200, y: 200 }}
                   renderCustomNodeElement={(rd3tProps) =>
-                    TreeNode(rd3tProps, handleNodeClick)
+                    TreeNode(
+                      rd3tProps,
+                      handleNodeClick,
+                      handleAddChildClick,
+                      hatId,
+                      wearerHats,
+                    )
                   }
                 />
               </CardBody>
