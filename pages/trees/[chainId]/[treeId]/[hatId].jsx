@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
+import { useState } from 'react';
 import {
   Card,
   CardBody,
@@ -41,7 +42,6 @@ import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
-import { useState } from 'react';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
