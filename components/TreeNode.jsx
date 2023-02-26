@@ -3,7 +3,6 @@ import { BigNumber } from 'ethers';
 import { useState } from 'react';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../lib/hats';
 import styles from './TreeNode.module.css';
-import { useOverlay } from '../contexts/OverlayContext';
 
 function Node({
   rd3tProps,
@@ -13,8 +12,6 @@ function Node({
   wearerHats,
 }) {
   const [isHover, setIsHover] = useState(false);
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
 
   const isHatActive = BigNumber.from(activeHatId).eq(
     BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
