@@ -40,7 +40,9 @@ const HatWearerForm = ({ hatId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit'>Mint</Button>
+          <Button type='submit' isDisabled={!writeAsync}>
+            Mint
+          </Button>
         </Flex>
       </Stack>
     </form>

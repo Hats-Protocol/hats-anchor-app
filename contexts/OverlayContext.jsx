@@ -5,6 +5,9 @@ const defaults = {
   newWearer: false,
   editModule: false,
   createHat: false,
+  hatDetails: false,
+  hatImage: false,
+  hatSupply: false,
 };
 
 export const OverlayContext = createContext({});

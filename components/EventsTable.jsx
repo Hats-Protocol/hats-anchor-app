@@ -13,7 +13,7 @@ import {
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { explorerUrl } from '../lib/general';
-import { decimalId, prettyIdToIp } from '../lib/hats';
+import { decimalId, prettyIdToIp, prettyIdToUrlId } from '../lib/hats';
 
 const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
   <Table>
@@ -40,7 +40,9 @@ const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
           {includeHatId && (
             <Td p={2}>
               <Link
-                href={`/trees/${treeId}/${decimalId(_.get(event, 'hat.id'))}`}
+                href={`/trees/${decimalId(treeId)}/${prettyIdToUrlId(
+                  _.get(event, 'hat.prettyId'),
+                )}`}
               >
                 <Text color='gray.500' fontSize='sm'>
                   #{prettyIdToIp(_.get(event, 'hat.prettyId'))}

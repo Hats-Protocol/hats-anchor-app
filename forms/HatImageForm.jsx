@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Textarea from '../components/Textarea';
-import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
+import Input from '../components/Input';
+import useHatImageUpdate from '../hooks/useHatImageUpdate';
 import { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
@@ -10,17 +10,17 @@ const defaultDebounce = 1500;
 const defaultChainId = 5;
 const defaultHatsAddress = hatsAddresses(defaultChainId);
 
-const HatDetailsForm = ({ hatData, chainId }) => {
-  const localForm = useForm();
+const HatImageForm = ({ hatData, chainId }) => {
+  const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
-  const details = useDebounce(watch('details'), defaultDebounce);
+  const image = useDebounce(watch('image'), defaultDebounce);
 
-  const { writeAsync } = useHatDetailsUpdate({
+  const { writeAsync } = useHatImageUpdate({
     hatsAddress: defaultHatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
-    details,
+    image,
   });
 
   const onSubmit = () => {
@@ -30,7 +30,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Textarea localForm={localForm} name='details' label='Details' />
+        <Input localForm={localForm} name='image' label='Image' />
 
         <Flex>
           <Button type='submit' isDisabled={!writeAsync}>
@@ -42,4 +42,4 @@ const HatDetailsForm = ({ hatData, chainId }) => {
   );
 };
 
-export default HatDetailsForm;
+export default HatImageForm;

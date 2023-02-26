@@ -51,7 +51,7 @@ const useCustomToast = () => {
         ...props,
         status: 'success',
         closeToast,
-        isClosable: props.isClosable ?? true,
+        isClosable: props.isClosable ?? false,
         toast,
       });
     },
@@ -60,7 +60,7 @@ const useCustomToast = () => {
         ...props,
         status: 'error',
         closeToast,
-        isClosable: props.isClosable ?? true,
+        isClosable: props.isClosable ?? false,
         toast,
       });
     },
@@ -69,7 +69,7 @@ const useCustomToast = () => {
         ...props,
         status: 'warning',
         closeToast,
-        isClosable: props.isClosable ?? true,
+        isClosable: props.isClosable ?? false,
         toast,
       });
     },
@@ -78,7 +78,7 @@ const useCustomToast = () => {
         ...props,
         status: 'loading',
         closeToast,
-        isClosable: props.isClosable ?? true,
+        isClosable: props.isClosable ?? false,
         toast,
       });
     },
@@ -87,7 +87,7 @@ const useCustomToast = () => {
         ...props,
         status: 'info',
         closeToast,
-        isClosable: props.isClosable ?? true,
+        isClosable: props.isClosable ?? false,
         toast,
       });
     },

@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
@@ -13,35 +13,24 @@ import useToast from './useToast';
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  admin,
-  details,
-  maxSupply,
-  eligibility,
-  toggle,
-  mutable,
-  imageUrl,
-}) => {
-  const toast = useToast();
+const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const [hash, setHash] = useState();
+  const toast = useToast();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    chainId: _.toNumber(chainId) || defaultChainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
+    functionName: 'changeHatImageURI',
     args: [
-      admin || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || ZERO_ADDRESS,
-      toggle || ZERO_ADDRESS,
-      mutable === 'true',
-      imageUrl || '',
+      hatId || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
+      image || '',
     ],
-    enabled: !!hatsAddress,
+    enabled: !!hatsAddress && !!hatId && image,
+  });
+
+  const { writeAsync } = useContractWrite({
+    ...config,
     onSuccess: (data) => {
       setHash(_.get(data, 'hash'));
       toast.info({
@@ -65,14 +54,12 @@ const useHatCreate = ({
     },
   });
 
-  const { writeAsync } = useContractWrite(config);
-
   const { isLoading } = useWaitForTransaction({
     hash,
     onSuccess: () => {
       toast.success({
-        title: 'Hat created!',
-        description: `Successfully created hat`,
+        title: 'Image updated!',
+        description: `Successfully updated the image for hat #${hatId}`,
       });
     },
   });
@@ -80,4 +67,4 @@ const useHatCreate = ({
   return { writeAsync, isLoading };
 };
 
-export default useHatCreate;
+export default useHatImageUpdate;
