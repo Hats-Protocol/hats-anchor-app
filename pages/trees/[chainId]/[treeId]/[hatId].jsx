@@ -41,6 +41,7 @@ import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
+import { useState } from 'react';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -76,6 +77,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId });
   const { data: hatData } = useHatDetails({ hatId });
+
+  const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
   // const test = isAdmin('0x00000015.0002.0004', [
   //   '0x00000015',
@@ -139,16 +142,14 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   };
 
   const handleAddChildClick = (nodePrettyId) => {
-    router.push(
-      `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
-    );
+    setDefaultHatAdmin(prettyIdToId(nodePrettyId));
     setModals({ createHat: true });
   };
 
   return (
     <>
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm defaultAdmin={prettyIdToId(hatId)} />
+        <HatCreateForm defaultAdmin={defaultHatAdmin} />
       </Modal>
 
       <Layout>
