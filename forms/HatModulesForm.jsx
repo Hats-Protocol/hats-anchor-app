@@ -1,31 +1,36 @@
 import _ from 'lodash';
-import { Link as ChakraLink, Stack, Button, Flex } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Stack, Button, Flex } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useModuleUpdate from '../hooks/useModuleUpdate';
 import useDebounce from '../hooks/useDebounce';
-import { hatsAddresses } from '../constants';
+import { hatsAddresses, MODULE_TYPES } from '../constants';
 
-// TODO handle eligibility vs toggle
 const defaultDebounce = 1500;
 const defaultChainId = 5;
 const defaultHatsAddress = hatsAddresses(defaultChainId);
 
-const HatModulesForm = ({ hatId, type = 'ELIGIBILITY' }) => {
+const HatModulesForm = ({
+  hatData,
+  chainId,
+  type = MODULE_TYPES.eligibility,
+}) => {
   const localForm = useForm();
   const { handleSubmit, watch } = localForm;
 
   const newAddress = useDebounce(watch('newAddress', null), defaultDebounce);
 
+  // TODO hook up
   const { writeAsync } = useModuleUpdate({
     hatsAddress: defaultHatsAddress,
-    hatId,
+    chainId,
+    hatId: hatData.id,
+    moduleType: type,
     newAddress,
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = () => {
+    writeAsync?.();
   };
 
   return (
@@ -47,7 +52,9 @@ const HatModulesForm = ({ hatId, type = 'ELIGIBILITY' }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit'>Update</Button>
+          <Button type='submit' isDisabled={!writeAsync}>
+            Update
+          </Button>
         </Flex>
       </Stack>
     </form>
