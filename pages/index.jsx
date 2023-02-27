@@ -26,7 +26,7 @@ const Home = ({ chainId, initialData }) => {
         <Heading>Welcome to Hats</Heading>
       </Flex>
 
-      <SimpleGrid columns={6} gap={6}>
+      <SimpleGrid columns={[1, 2, 3, 4, 4, 6]} gap={6}>
         {_.map(trees, (tree) => (
           <ChakraLink
             as={Link}

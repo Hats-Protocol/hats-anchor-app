@@ -68,7 +68,7 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         <Heading size='lg'>{formatAddress(wearerAddress)}'s Hats</Heading>
         <Stack justify='left' border='1px solid' borderColor='gray.200' padding={6}>
           <Heading size='md'>Hats Worn</Heading>
-          <SimpleGrid columns={5} gap={4}>
+          <SimpleGrid columns={[1, 2, 3, 4, 4, 5]} gap={4}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
                 return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
@@ -90,7 +90,7 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         </Stack>
         <Stack justify='left' border='1px solid' borderColor='gray.200' padding={6}>
           <Heading size='md'>Admin Authorities</Heading>
-          <SimpleGrid columns={5} gap={4}>
+          <SimpleGrid columns={[1, 2, 3, 4, 4, 5]} gap={4}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
                 return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
@@ -112,7 +112,7 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         </Stack>
         <Stack justify='left' border='1px solid' borderColor='gray.200' padding={6}>
           <Heading size='md'>Eligibility / Toggle Authorities</Heading>
-          <SimpleGrid columns={5} gap={4}>
+          <SimpleGrid columns={[1, 2, 3, 4, 4, 5]} gap={4}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
                 return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
