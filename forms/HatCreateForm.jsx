@@ -1,7 +1,6 @@
 import { Stack, Flex, Button } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { BigNumber } from 'ethers';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
@@ -14,7 +13,7 @@ import { prettyIdToIp } from '../lib/hats';
 const defaultChainId = 5;
 const defaultDebounce = 1500;
 
-const CreateHatForm = ({ defaultAdmin }) => {
+const HatCreateForm = ({ defaultAdmin }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { mutable: 'Mutable' },
@@ -43,20 +42,18 @@ const CreateHatForm = ({ defaultAdmin }) => {
     imageUrl,
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    console.log(writeAsync);
+  const onSubmit = () => {
     writeAsync?.();
   };
 
-  const dropZoneContent = {
-    title: 'Upload an image',
-    details: `What image do you want to represent this role? This will be the
-      image that appears alongside the hat token in the Hats dapp,
-      other apps integrating with Hats Protocol, and anywhere the hat
-      NFTs are viewable.`,
-    fileTypes: 'PNG, JPG, GIF up to 2MB',
-  };
+  // const dropZoneContent = {
+  //   title: 'Upload an image',
+  //   details: `What image do you want to represent this role? This will be the
+  //     image that appears alongside the hat token in the Hats dapp,
+  //     other apps integrating with Hats Protocol, and anywhere the hat
+  //     NFTs are viewable.`,
+  //   fileTypes: 'PNG, JPG, GIF up to 2MB',
+  // };
 
   const decimalAdmin = prettyIdToIp(defaultAdmin);
 
@@ -128,4 +125,4 @@ const CreateHatForm = ({ defaultAdmin }) => {
   );
 };
 
-export default CreateHatForm;
+export default HatCreateForm;

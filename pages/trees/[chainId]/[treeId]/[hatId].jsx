@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { NextSeo } from 'next-seo';
 
 import EventsTable from '../../../../components/EventsTable';
 import Hat from '../../../../components/Hat';
@@ -129,6 +130,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   return (
     <>
+      <NextSeo title='Hat Detail' />
+
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} />
       </Modal>
@@ -252,7 +255,9 @@ export const getStaticProps = async (props) => {
       treeId: treeHex,
       hatId: hatIdHex,
       chainId: chainId || defaultChainId,
-      initialData,
+      initialTree: initialData,
+      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
+      topHat: _.get(initialData, 'hats[0]'),
     },
   };
 };
