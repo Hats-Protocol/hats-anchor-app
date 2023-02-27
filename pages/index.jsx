@@ -26,7 +26,11 @@ const Home = ({ chainId, initialData }) => {
         <Heading>Welcome to Hats</Heading>
       </Flex>
 
-      <SimpleGrid justify='center' templateColumns='repeat(auto-fit, 250px)' gap={5}>
+      <SimpleGrid
+        justify='center'
+        templateColumns='repeat(auto-fit, 250px)'
+        gap={5}
+      >
         {_.map(trees, (tree) => (
           <ChakraLink
             as={Link}
@@ -37,7 +41,13 @@ const Home = ({ chainId, initialData }) => {
           >
             <Card>
               <CardBody>
-                <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
+                <HStack
+                  h='100px'
+                  w='100%'
+                  justify='left'
+                  align='center'
+                  spacing='16px'
+                >
                   <Image
                     src='/icon.jpeg'
                     alt='Top Hat image'
@@ -46,7 +56,7 @@ const Home = ({ chainId, initialData }) => {
                     borderColor='gray.200'
                   />
                   <Stack>
-                    <Text as='b'>Tree Name</Text> 
+                    <Text as='b'>Tree Name</Text>
                     <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
                   </Stack>
                 </HStack>

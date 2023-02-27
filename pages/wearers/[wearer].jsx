@@ -35,7 +35,9 @@ const CoreHat = ({ hat }) => (
           />
           <Stack>
             <Text as='b'>Hat Name</Text>
-            <Text key={_.get(hat, 'id')} fontSize='sm'>Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}</Text>
+            <Text key={_.get(hat, 'id')} fontSize='sm'>
+              Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}
+            </Text>
             <Text fontSize='sm'>Tree: Hats Protocol DAO</Text>
           </Stack>
         </HStack>
@@ -65,8 +67,14 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
   return (
     <Layout>
       <Stack align='center' spacing={6}>
-        <Heading size='lg'>{formatAddress(wearerAddress)}'s Hats</Heading>
-        <Stack width='100%' justify='left' border='1px solid' borderColor='gray.200' padding={6}>
+        <Heading size='lg'>{formatAddress(wearerAddress)} Hats</Heading>
+        <Stack
+          width='100%'
+          justify='left'
+          border='1px solid'
+          borderColor='gray.200'
+          padding={6}
+        >
           <Heading size='md'>Hats Worn</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
@@ -88,7 +96,13 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
             })}
           </SimpleGrid>
         </Stack>
-        <Stack width='100%' justify='left' border='1px solid' borderColor='gray.200' padding={6}>
+        <Stack
+          width='100%'
+          justify='left'
+          border='1px solid'
+          borderColor='gray.200'
+          padding={6}
+        >
           <Heading size='md'>Admin Authorities</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
@@ -110,7 +124,13 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
             })}
           </SimpleGrid>
         </Stack>
-        <Stack width='100%' justify='left' border='1px solid' borderColor='gray.200' padding={6}>
+        <Stack
+          width='100%'
+          justify='left'
+          border='1px solid'
+          borderColor='gray.200'
+          padding={6}
+        >
           <Heading size='md'>Eligibility / Toggle Authorities</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
