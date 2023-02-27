@@ -5,7 +5,7 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useState } from 'react';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';

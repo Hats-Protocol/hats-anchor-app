@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link as ChakraLink, Stack, Button, Flex } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Stack, Button, Flex } from '@chakra-ui/react';
 import { isAddress } from '@ethersproject/address';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';

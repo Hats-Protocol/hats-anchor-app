@@ -1,12 +1,14 @@
-import { Stack, Text, Flex, Button, Radio } from '@chakra-ui/react';
+import { Stack, Flex, Button } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { BigNumber } from 'ethers';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
+import { prettyIdToIp } from '../lib/hats';
 
 // TODO more chains
 const defaultChainId = 5;
@@ -56,6 +58,8 @@ const CreateHatForm = ({ defaultAdmin }) => {
     fileTypes: 'PNG, JPG, GIF up to 2MB',
   };
 
+  const decimalAdmin = prettyIdToIp(defaultAdmin);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
@@ -64,7 +68,8 @@ const CreateHatForm = ({ defaultAdmin }) => {
           name='admin'
           label='Admin ID'
           placeholder='5346721554326...'
-          defaultValue={defaultAdmin}
+          defaultValue={decimalAdmin}
+          isDisabled
         />
         <Textarea
           localForm={localForm}

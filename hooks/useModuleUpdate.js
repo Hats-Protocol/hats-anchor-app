@@ -24,32 +24,13 @@ const useModuleUpdate = ({
 }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
-  console.log(
-    !!hatsAddress &&
-      !!moduleType &&
-      !!hatId &&
-      !!newAddress &&
-      utils.isAddress(newAddress),
-  );
-  console.log(
-    hatsAddress,
-    chainId,
-    hatId,
-    moduleType,
-    newAddress,
-    utils.isAddress(newAddress),
-  );
 
   const functionName =
     moduleType === MODULE_TYPES.eligibility
       ? 'changeHatEligibility'
       : 'changeHatToggle';
 
-  const {
-    config,
-    error: prepareError,
-    status,
-  } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
     chainId: _.toNumber(chainId) || defaultChainId,
     abi: JSON.stringify(abi),
@@ -62,7 +43,6 @@ const useModuleUpdate = ({
       !!newAddress &&
       utils.isAddress(newAddress),
   });
-  console.log(prepareError, status);
 
   const { writeAsync } = useContractWrite({
     ...config,
