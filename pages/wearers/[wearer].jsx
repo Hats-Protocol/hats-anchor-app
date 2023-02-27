@@ -29,7 +29,7 @@ const CoreHat = ({ hat }) => (
           <Image
             src='/icon.jpeg'
             alt='Top Hat image'
-            maxW='30%'
+            maxW='84px'
             border='1px solid'
             borderColor='gray.200'
           />
@@ -66,9 +66,9 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
     <Layout>
       <Stack align='center' spacing={6}>
         <Heading size='lg'>{formatAddress(wearerAddress)}'s Hats</Heading>
-        <Stack justify='left' border='1px solid' borderColor='gray.200' padding={6}>
+        <Stack width='100%' justify='left' border='1px solid' borderColor='gray.200' padding={6}>
           <Heading size='md'>Hats Worn</Heading>
-          <SimpleGrid columns={[1, 2, 3, 4, 4, 5]} gap={4}>
+          <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
                 return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
@@ -88,9 +88,9 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
             })}
           </SimpleGrid>
         </Stack>
-        <Stack justify='left' border='1px solid' borderColor='gray.200' padding={6}>
+        <Stack width='100%' justify='left' border='1px solid' borderColor='gray.200' padding={6}>
           <Heading size='md'>Admin Authorities</Heading>
-          <SimpleGrid columns={[1, 2, 3, 4, 4, 5]} gap={4}>
+          <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
                 return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
@@ -110,9 +110,9 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
             })}
           </SimpleGrid>
         </Stack>
-        <Stack justify='left' border='1px solid' borderColor='gray.200' padding={6}>
+        <Stack width='100%' justify='left' border='1px solid' borderColor='gray.200' padding={6}>
           <Heading size='md'>Eligibility / Toggle Authorities</Heading>
-          <SimpleGrid columns={[1, 2, 3, 4, 4, 5]} gap={4}>
+          <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(_.get(wearer, 'currentHats'), (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
                 return <CoreHat hat={hat} key={_.get(hat, 'id')} />;

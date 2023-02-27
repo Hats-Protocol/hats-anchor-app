@@ -26,7 +26,7 @@ const Home = ({ chainId, initialData }) => {
         <Heading>Welcome to Hats</Heading>
       </Flex>
 
-      <SimpleGrid columns={[1, 2, 3, 4, 4, 6]} gap={6}>
+      <SimpleGrid justify='center' templateColumns='repeat(auto-fit, 250px)' gap={5}>
         {_.map(trees, (tree) => (
           <ChakraLink
             as={Link}
@@ -41,7 +41,7 @@ const Home = ({ chainId, initialData }) => {
                   <Image
                     src='/icon.jpeg'
                     alt='Top Hat image'
-                    maxW='40%'
+                    maxW='84px'
                     border='1px solid'
                     borderColor='gray.200'
                   />
