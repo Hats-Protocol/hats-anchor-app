@@ -37,7 +37,7 @@ const Home = ({ chainId, initialData }) => {
           >
             <Card>
               <CardBody>
-                <HStack h='100px' w='100%' justify='left  ' align='center' spacing='16px'>
+                <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
                   <Image
                     src='/icon.jpeg'
                     alt='Top Hat image'
