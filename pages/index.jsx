@@ -7,6 +7,9 @@ import {
   Card,
   Flex,
   Text,
+  Image,
+  Stack,
+  HStack,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
@@ -19,11 +22,11 @@ const Home = ({ chainId, initialData }) => {
 
   return (
     <Layout>
-      <Flex justify='center' my={6}>
+      <Flex justify='center' mb={10}>
         <Heading>Welcome to Hats</Heading>
       </Flex>
 
-      <SimpleGrid columns={6} gap={4}>
+      <SimpleGrid columns={6} gap={6}>
         {_.map(trees, (tree) => (
           <ChakraLink
             as={Link}
@@ -34,9 +37,19 @@ const Home = ({ chainId, initialData }) => {
           >
             <Card>
               <CardBody>
-                <Flex h='100px' w='100%' justify='center' align='center'>
-                  <Text>{decimalId(_.get(tree, 'id'))}</Text>
-                </Flex>
+                <HStack h='100px' w='100%' justify='left  ' align='center' spacing='16px'>
+                  <Image
+                    src='/icon.jpeg'
+                    alt='Top Hat image'
+                    maxW='40%'
+                    border='1px solid'
+                    borderColor='gray.200'
+                  />
+                  <Stack>
+                    <Text as='b'>Tree Name</Text> 
+                    <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
+                  </Stack>
+                </HStack>
               </CardBody>
             </Card>
           </ChakraLink>
