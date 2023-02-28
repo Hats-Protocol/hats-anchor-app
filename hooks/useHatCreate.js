@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
+import { prettyIdToId } from '../lib/hats';
 
 // TODO rm
 const defaultChainId = 5;
@@ -33,12 +34,12 @@ const useHatCreate = ({
     abi: JSON.stringify(abi),
     functionName: 'createHat',
     args: [
-      admin || ZERO_ADDRESS, // not a valid fallback? throw instead?
+      prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
       eligibility || ZERO_ADDRESS,
       toggle || ZERO_ADDRESS,
-      mutable === 'true',
+      mutable === 'Mutable',
       imageUrl || '',
     ],
     enabled: !!hatsAddress,
