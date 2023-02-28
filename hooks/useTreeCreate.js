@@ -5,43 +5,31 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useState } from 'react';
-import { utils } from 'ethers';
-import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
+import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { decimalId } from '../lib/hats';
 
 // TODO rm
 const defaultChainId = 5;
 const fallbackAddress = hatsAddresses(defaultChainId);
 
-const useModuleUpdate = ({
+const useTreeCreate = ({
   hatsAddress,
   chainId,
-  hatId,
-  moduleType,
-  newAddress,
+  details,
+  receiver,
+  imageUrl,
 }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
 
-  const functionName =
-    moduleType === MODULE_TYPES.eligibility
-      ? 'changeHatEligibility'
-      : 'changeHatToggle';
-
   const { config } = usePrepareContractWrite({
     address: hatsAddress || fallbackAddress,
-    chainId: _.toNumber(chainId) || defaultChainId,
+    chainId: chainId || defaultChainId,
     abi: JSON.stringify(abi),
-    functionName,
-    args: [decimalId(hatId), newAddress || ZERO_ADDRESS],
-    enabled:
-      !!hatsAddress &&
-      !!moduleType &&
-      !!hatId &&
-      !!newAddress &&
-      utils.isAddress(newAddress),
+    functionName: 'mintTopHat',
+    args: [receiver || ZERO_ADDRESS, details || '', imageUrl || ''],
+    enabled: !!hatsAddress,
   });
 
   const { writeAsync } = useContractWrite({
@@ -71,10 +59,11 @@ const useModuleUpdate = ({
 
   const { isLoading } = useWaitForTransaction({
     hash,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data);
       toast.success({
-        title: `${moduleType} module updated!`,
-        description: `Successfully updated the ${moduleType} module of hat #${hatId}`,
+        title: 'Tree created!',
+        description: `Successfully created tree`,
       });
     },
   });
@@ -82,4 +71,4 @@ const useModuleUpdate = ({
   return { writeAsync, isLoading };
 };
 
-export default useModuleUpdate;
+export default useTreeCreate;

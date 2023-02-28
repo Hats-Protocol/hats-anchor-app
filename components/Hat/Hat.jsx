@@ -287,7 +287,6 @@ const Hat = ({ hatData, chainId, treeId }) => {
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
             {/* <TabPanel /> */}
-            {/* TODO Accountabilities are found .... */}
             <TabPanel>
               <DataTable
                 data={clearNonObjects(accountabilitiesTable)}

@@ -11,7 +11,7 @@ const defaultChainId = 5;
 const defaultHatsAddress = hatsAddresses(defaultChainId);
 
 const HatImageForm = ({ hatData, chainId }) => {
-  const localForm = useForm({ mode: 'onBlur' });
+  const localForm = useForm({ mode: 'onChange' });
   const { handleSubmit, watch } = localForm;
 
   const image = useDebounce(watch('image'), defaultDebounce);

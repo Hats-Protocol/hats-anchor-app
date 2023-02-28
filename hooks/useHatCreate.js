@@ -42,6 +42,10 @@ const useHatCreate = ({
       imageUrl || '',
     ],
     enabled: !!hatsAddress,
+  });
+
+  const { writeAsync } = useContractWrite({
+    ...config,
     onSuccess: (data) => {
       setHash(_.get(data, 'hash'));
       toast.info({
@@ -64,8 +68,6 @@ const useHatCreate = ({
       }
     },
   });
-
-  const { writeAsync } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash,

@@ -15,16 +15,22 @@ import ConnectWallet from './ConnectWallet';
 import CONFIG from '../constants';
 import { useOverlay } from '../contexts/OverlayContext';
 import { clearNonObjects } from '../lib/general';
+import Modal from './Modal';
+import TreeCreateForm from '../forms/TreeCreateForm';
 
 // TODO add drawer
 
 const Navbar = () => {
-  const { setCommandPallet: setOpen } = useOverlay();
+  const localOverlay = useOverlay();
+  const { setCommandPallet: setOpen } = localOverlay;
   const { address } = useAccount();
 
   const navLinks = useMemo(() => {
     const links = [
-      { name: 'Create Tree', href: '/trees/create' },
+      address && {
+        name: 'Create Tree',
+        onClick: () => localOverlay.setModals({ createTree: true }),
+      },
       address && { name: 'User Hats', href: `/wearers/${address}` },
     ];
 
@@ -32,41 +38,52 @@ const Navbar = () => {
   }, [address]);
 
   return (
-    <Flex
-      w='100%'
-      justify='space-between'
-      align='center'
-      px={8}
-      bg='white'
-      borderBottom='1px solid'
-      borderColor='gray.400'
-      boxShadow='md'
-      position='fixed'
-      zIndex={10}
-      minH='75px'
-    >
-      <HStack spacing={6}>
-        <ChakraLink as={Link} href='/'>
-          <Image src='/icon.jpeg' h='70px' alt='Hats Logo' />
-          {/* <Heading>{CONFIG.emojis}</Heading> */}
-        </ChakraLink>
-        <HStack spacing={3}>
-          {navLinks.map((item) => (
-            <ChakraLink as={Link} href={item.href} key={item.name}>
-              {item.name}
-            </ChakraLink>
-          ))}
-        </HStack>
-      </HStack>
+    <>
+      <Modal name='createTree' title='Create Tree' localOverlay={localOverlay}>
+        <TreeCreateForm />
+      </Modal>
 
-      <HStack stack={6}>
-        <IconButton
-          icon={<Icon as={FaSearch} />}
-          onClick={() => setOpen(true)}
-        />
-        <ConnectWallet />
-      </HStack>
-    </Flex>
+      <Flex
+        w='100%'
+        justify='space-between'
+        align='center'
+        px={8}
+        bg='white'
+        borderBottom='1px solid'
+        borderColor='gray.400'
+        boxShadow='md'
+        position='fixed'
+        zIndex={10}
+        minH='75px'
+      >
+        <HStack spacing={6}>
+          <ChakraLink as={Link} href='/'>
+            <Image src='/icon.jpeg' h='70px' alt='Hats Logo' />
+            {/* <Heading>{CONFIG.emojis}</Heading> */}
+          </ChakraLink>
+          <HStack spacing={3}>
+            {navLinks.map((item) => (
+              <ChakraLink
+                as={Link}
+                href={item.href || ''}
+                onClick={item.onClick}
+                key={item.name}
+              >
+                {item.name}
+              </ChakraLink>
+            ))}
+          </HStack>
+        </HStack>
+
+        <HStack stack={6}>
+          <IconButton
+            icon={<Icon as={FaSearch} />}
+            onClick={() => setOpen(true)}
+          />
+          <ConnectWallet />
+        </HStack>
+      </Flex>
+    </>
   );
 };
 

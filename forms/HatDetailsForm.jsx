@@ -6,6 +6,7 @@ import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
 import { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
+// TODO rm defaultChainId and defaultHatsAddress
 const defaultDebounce = 1500;
 const defaultChainId = 5;
 const defaultHatsAddress = hatsAddresses(defaultChainId);

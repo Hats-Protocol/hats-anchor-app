@@ -11,12 +11,12 @@ import {
   Flex,
   Spinner,
   Image,
-  Button,
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { NextSeo } from 'next-seo';
 
 import EventsTable from '../../../../components/EventsTable';
 import Hat from '../../../../components/Hat';
@@ -37,7 +37,7 @@ import DataTable from '../../../../components/DataTable';
 import { formatAddress } from '../../../../lib/general';
 import { useOverlay } from '../../../../contexts/OverlayContext';
 import Modal from '../../../../components/Modal';
-import HatCreateForm from '../../../../forms/CreateHatForm';
+import HatCreateForm from '../../../../forms/HatCreateForm';
 import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
@@ -80,13 +80,6 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
-  // const test = isAdmin('0x00000015.0002.0004', [
-  //   '0x00000015',
-  //   '0x00000015.0001',
-  //   '0x00000017',
-  // ]);
-  // console.log(test);
-
   // TODO handle error and loading in layout
   if (treeLoading || imagesLoading)
     return (
@@ -110,17 +103,6 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
         </CopyToClipboard>
       ),
     },
-    // {
-    //   label: 'Top Hat ID',
-    //   value: (
-    //     <CopyToClipboard
-    //       copyValue={decimalId(_.get(topHat, 'id', '0'))}
-    //     >{`${decimalId(_.get(topHat, 'prettyId', '0')).slice(
-    //       0,
-    //       10,
-    //     )}...`}</CopyToClipboard>
-    //   ),
-    // },
     {
       label: 'Top Hat Wearer',
       value: (
@@ -142,26 +124,19 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   };
 
   const handleAddChildClick = (nodePrettyId) => {
-    setDefaultHatAdmin(prettyIdToId(nodePrettyId));
+    setDefaultHatAdmin(nodePrettyId);
     setModals({ createHat: true });
   };
 
   return (
     <>
+      <NextSeo title='Hat Detail' />
+
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} />
       </Modal>
 
       <Layout>
-        {/* temp buttons */}
-        <Flex mb={6}>
-          <Button
-            variant='outline'
-            onClick={() => setModals({ createHat: true })}
-          >
-            Create Hat
-          </Button>
-        </Flex>
         <Grid gridTemplateColumns='repeat(2, 1fr)' gap={8}>
           {/* info table */}
           <Card>
@@ -280,7 +255,9 @@ export const getStaticProps = async (props) => {
       treeId: treeHex,
       hatId: hatIdHex,
       chainId: chainId || defaultChainId,
-      initialData,
+      initialTree: initialData,
+      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
+      topHat: _.get(initialData, 'hats[0]'),
     },
   };
 };
