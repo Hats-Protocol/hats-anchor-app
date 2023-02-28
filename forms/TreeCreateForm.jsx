@@ -1,4 +1,13 @@
-import { Stack, Flex, Button } from '@chakra-ui/react';
+import { useState } from 'react';
+import {
+  Stack,
+  Flex,
+  Button,
+  Switch,
+  FormControl,
+  FormLabel,
+  HStack,
+} from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
@@ -13,10 +22,10 @@ const defaultDebounce = 1500;
 const TreeCreateForm = () => {
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: { mutable: 'Mutable' },
   });
   const { handleSubmit, watch } = localForm;
 
+  const [overrideReceiver, setOverrideReceiver] = useState(false);
   const details = useDebounce(watch('details', ''), defaultDebounce);
   const imageUrl = useDebounce(watch('imageUrl', ''), defaultDebounce);
   const receiver = useDebounce(watch('receiver'), defaultDebounce);
@@ -26,8 +35,8 @@ const TreeCreateForm = () => {
     details,
     imageUrl,
     receiver,
+    overrideReceiver,
   });
-  console.log(writeAsync);
 
   const onSubmit = () => {
     writeAsync?.();
@@ -49,12 +58,26 @@ const TreeCreateForm = () => {
           label='Image'
           placeholder='ipfs://test.jpg'
         />
-        <Input
-          name='receiver'
-          label='Receiver'
-          placeholder='0xabcd...'
-          localForm={localForm}
-        />
+
+        <FormControl>
+          <HStack>
+            <Switch
+              id='overrideReceiver'
+              isChecked={!overrideReceiver}
+              onChange={() => setOverrideReceiver(!overrideReceiver)}
+            />
+            <FormLabel htmlFor='overrideReceiver'>Mint to Me</FormLabel>
+          </HStack>
+        </FormControl>
+
+        {overrideReceiver && (
+          <Input
+            name='receiver'
+            label='Receiver'
+            placeholder='0xabcd...'
+            localForm={localForm}
+          />
+        )}
 
         <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>

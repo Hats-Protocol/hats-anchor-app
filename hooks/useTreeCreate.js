@@ -2,10 +2,11 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
+  useAccount,
 } from 'wagmi';
 import _ from 'lodash';
 import { useState } from 'react';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 
@@ -18,8 +19,10 @@ const useTreeCreate = ({
   chainId,
   details,
   receiver,
+  overrideReceiver,
   imageUrl,
 }) => {
+  const { address } = useAccount();
   const toast = useToast();
   const [hash, setHash] = useState();
 
@@ -28,7 +31,11 @@ const useTreeCreate = ({
     chainId: chainId || defaultChainId,
     abi: JSON.stringify(abi),
     functionName: 'mintTopHat',
-    args: [receiver || ZERO_ADDRESS, details || '', imageUrl || ''],
+    args: [
+      overrideReceiver ? receiver : address,
+      details || '',
+      imageUrl || '',
+    ],
     enabled: !!hatsAddress,
   });
 
@@ -60,6 +67,7 @@ const useTreeCreate = ({
   const { isLoading } = useWaitForTransaction({
     hash,
     onSuccess: (data) => {
+      // eslint-disable-next-line no-console
       console.log(data);
       toast.success({
         title: 'Tree created!',
