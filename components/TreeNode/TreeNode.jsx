@@ -1,7 +1,7 @@
-import { Button, Modal } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
-import { prettyIdToId, prettyIdToIp, isAdmin } from '../lib/hats';
+import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
 import styles from './TreeNode.module.css';
 
 function Node({

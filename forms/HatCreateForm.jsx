@@ -1,4 +1,13 @@
-import { Stack, Flex, Button } from '@chakra-ui/react';
+import {
+  Stack,
+  Flex,
+  Button,
+  FormControl,
+  Switch,
+  FormLabel,
+  HStack,
+} from '@chakra-ui/react';
+import { useState } from 'react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
@@ -19,8 +28,9 @@ const HatCreateForm = ({ defaultAdmin }) => {
     defaultValues: { mutable: 'Mutable' },
   });
   const { handleSubmit, watch } = localForm;
+  const [inputEligibility, setInputEligibility] = useState(false);
+  const [inputToggle, setInputToggle] = useState(false);
 
-  const admin = useDebounce(watch('admin'), defaultDebounce);
   const details = useDebounce(watch('details', ''), defaultDebounce);
   const maxSupply = useDebounce(watch('maxSupply', 1), defaultDebounce);
   const eligibility = useDebounce(
@@ -33,7 +43,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
 
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(defaultChainId),
-    admin,
+    admin: defaultAdmin,
     details,
     maxSupply: _.toNumber(maxSupply),
     eligibility,
@@ -64,7 +74,6 @@ const HatCreateForm = ({ defaultAdmin }) => {
           localForm={localForm}
           name='admin'
           label='Admin ID'
-          placeholder='5346721554326...'
           defaultValue={decimalAdmin}
           isDisabled
         />
@@ -81,18 +90,6 @@ const HatCreateForm = ({ defaultAdmin }) => {
           placeholder='69'
           localForm={localForm}
         />
-        <Input
-          name='eligibility'
-          label='Eligibility'
-          placeholder='0x'
-          localForm={localForm}
-        />
-        <Input
-          name='toggle'
-          label='Toggle'
-          placeholder='0x'
-          localForm={localForm}
-        />
         <RadioBox
           name='mutable'
           label='Mutable?'
@@ -100,20 +97,46 @@ const HatCreateForm = ({ defaultAdmin }) => {
           localForm={localForm}
           isRequired
         />
-
-        {/* <Input
-          name='mutable'
-          label='Mutable'
-          defaultValue='true'
-          placeholder='true'
-          localForm={localForm}
-        /> */}
         <Input
           localForm={localForm}
           name='image'
           label='Image'
           placeholder='ipfs://test.jpg'
         />
+        <FormControl>
+          <HStack>
+            <Switch
+              isChecked={inputEligibility}
+              onChange={() => setInputEligibility(!inputEligibility)}
+            />
+            <FormLabel>Set Eligibility</FormLabel>
+          </HStack>
+        </FormControl>
+        {inputEligibility && (
+          <Input
+            name='eligibility'
+            label='Eligibility'
+            placeholder='0x'
+            localForm={localForm}
+          />
+        )}
+        <FormControl>
+          <HStack>
+            <Switch
+              isChecked={inputToggle}
+              onChange={() => setInputToggle(!inputToggle)}
+            />
+            <FormLabel>Set Toggle</FormLabel>
+          </HStack>
+        </FormControl>
+        {inputToggle && (
+          <Input
+            name='toggle'
+            label='Toggle'
+            placeholder='0x'
+            localForm={localForm}
+          />
+        )}
 
         <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>
