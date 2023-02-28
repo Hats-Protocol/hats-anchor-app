@@ -30,6 +30,7 @@ const Home = ({ chainId, initialData }) => {
         justify='center'
         templateColumns='repeat(auto-fit, 250px)'
         gap={5}
+        justifyContent='center'
       >
         {_.map(trees, (tree) => (
           <ChakraLink
