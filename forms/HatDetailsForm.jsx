@@ -1,24 +1,20 @@
 import _ from 'lodash';
 import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+
 import Textarea from '../components/Textarea';
 import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG, { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
-
-// TODO rm defaultChainId and defaultHatsAddress
-const defaultDebounce = 1500;
-const defaultChainId = 5;
-const defaultHatsAddress = hatsAddresses(defaultChainId);
 
 const HatDetailsForm = ({ hatData, chainId }) => {
   const localForm = useForm();
   const { handleSubmit, watch } = localForm;
 
-  const details = useDebounce(watch('details'), defaultDebounce);
+  const details = useDebounce(watch('details'), CONFIG.debounce);
 
   const { writeAsync } = useHatDetailsUpdate({
-    hatsAddress: defaultHatsAddress,
+    hatsAddress: hatsAddresses(chainId),
     chainId,
     hatId: _.get(hatData, 'id'),
     details,

@@ -10,17 +10,13 @@ import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { decimalId } from '../lib/hats';
 
-// TODO rm
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
-
 const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: Number(chainId) || defaultChainId,
+    address: hatsAddress || hatsAddresses(chainId),
+    chainId: Number(chainId),
     abi: JSON.stringify(abi),
     functionName: 'changeHatDetails',
     args: [

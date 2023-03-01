@@ -58,7 +58,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   });
   let wearerHats = [];
   if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, 'currentHats').map((hat) => {
+    wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
       return hat.prettyId;
     });
   }
@@ -75,8 +75,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   );
 
   const topHatId = _.get(treeData, 'hats[0].id');
-  const { data: topHat } = useHatDetails({ hatId: topHatId });
-  const { data: hatData } = useHatDetails({ hatId });
+  const { data: topHat } = useHatDetails({ hatId: topHatId, chainId });
+  const { data: hatData } = useHatDetails({ hatId, chainId });
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
@@ -215,52 +215,17 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   );
 };
 
-// TODO don't hardcode chainId
-const defaultChainId = 5;
-
-export const getStaticPaths = async () => {
-  // TODO handle multiple chains
-  const result = await fetchAllTreeIds(defaultChainId);
-
-  // convert from hex to numerical
-  const paths = _.map(result, (tree) => {
-    const treeId = decimalId(tree.id);
-
-    const hatsMap = _.map(tree.hats, (hat) => {
-      const hatId = prettyIdToUrlId(_.get(hat, 'prettyId'));
-
-      return {
-        params: {
-          treeId: String(treeId),
-          hatId: String(hatId),
-          chainId: String(defaultChainId),
-        },
-      };
-    });
-
-    return hatsMap;
-  });
-
-  return {
-    paths: _.flatten(paths),
-    fallback: true,
-  };
-};
-
-export const getStaticProps = async (props) => {
-  const { treeId, hatId, chainId } = props.params;
+export const getServerSideProps = async (context) => {
+  const { treeId, hatId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
   const hatIdHex = prettyIdToId(urlIdToPrettyId(hatId));
-  const initialData = await fetchTreeDetails(
-    treeHex,
-    chainId || defaultChainId,
-  );
+  const initialData = await fetchTreeDetails(treeHex, chainId);
 
   return {
     props: {
       treeId: treeHex,
       hatId: hatIdHex,
-      chainId: chainId || defaultChainId,
+      chainId,
       initialTree: initialData,
       initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
       topHat: _.get(initialData, 'hats[0]'),

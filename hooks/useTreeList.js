@@ -3,7 +3,7 @@ import { fetchAllTrees } from '../gql/helpers';
 
 const useTreeList = ({ chainId, initialData }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['treeList'],
+    queryKey: ['treeList', chainId],
     queryFn: () => fetchAllTrees(chainId),
     enabled: !!chainId,
     initialData,

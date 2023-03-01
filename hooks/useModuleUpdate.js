@@ -11,10 +11,6 @@ import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { decimalId } from '../lib/hats';
 
-// TODO rm
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
-
 const useModuleUpdate = ({
   hatsAddress,
   chainId,
@@ -31,8 +27,8 @@ const useModuleUpdate = ({
       : 'changeHatToggle';
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: _.toNumber(chainId) || defaultChainId,
+    address: hatsAddress || hatsAddresses(chainId),
+    chainId: _.toNumber(chainId),
     abi: JSON.stringify(abi),
     functionName,
     args: [decimalId(hatId), newAddress || ZERO_ADDRESS],

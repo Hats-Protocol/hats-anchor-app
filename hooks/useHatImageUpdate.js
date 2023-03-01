@@ -9,17 +9,13 @@ import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 
-// TODO rm
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
-
 const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const [hash, setHash] = useState();
   const toast = useToast();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: _.toNumber(chainId) || defaultChainId,
+    address: hatsAddress || hatsAddresses(chainId),
+    chainId: _.toNumber(chainId),
     abi: JSON.stringify(abi),
     functionName: 'changeHatImageURI',
     args: [

@@ -10,24 +10,55 @@ import {
   Image,
   Stack,
   HStack,
+  Badge,
+  Box,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import useTreeList from '../hooks/useTreeList';
 import useImageURIs from '../hooks/useImageURIs';
 import { fetchAllTrees } from '../gql/helpers';
+// import { mapWithChainId } from '../lib/general';
 import { decimalId } from '../lib/hats';
+import { chainsMap, chainsColors } from '../lib/web3';
 
-const Home = ({ chainId, initialData }) => {
-  const { data: trees } = useTreeList({ chainId, initialData });
-  const topHats = trees.map((tree) => {
+const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
+  const { data: goerliTrees } = useTreeList({
+    chainId: 5,
+    initialData: initialGoerliData,
+  });
+  const { data: gnosisTrees } = useTreeList({
+    chainId: 100,
+    initialData: initialGnosisData,
+  });
+  const { data: polygonTrees } = useTreeList({
+    chainId: 137,
+    initialData: initialPolygonData,
+  });
+  const allTrees = _.concat(polygonTrees, gnosisTrees, goerliTrees);
+
+  // get top hats of every chain
+  const goerliTopHats = goerliTrees.map((tree) => {
+    return _.get(tree, 'hats[0].id');
+  });
+  const gnosisTopHats = gnosisTrees.map((tree) => {
+    return _.get(tree, 'hats[0].id');
+  });
+  const polygonTopHats = polygonTrees.map((tree) => {
     return _.get(tree, 'hats[0].id');
   });
 
-  const { data: imagesData, loading: imagesLoading } = useImageURIs(
-    topHats,
-    chainId,
+  //get images per hat for every chain
+  const { data: goerliImagesData, loading: goerliImagesLoading } = useImageURIs(
+    goerliTopHats,
+    5,
   );
+  const { data: gnosisImagesData, loading: gnosisImagesLoading } = useImageURIs(
+    gnosisTopHats,
+    100,
+  );
+  const { data: polygonImagesData, loading: polygonImagesLoading } =
+    useImageURIs(polygonTopHats, 137);
 
   return (
     <Layout>
@@ -41,53 +72,77 @@ const Home = ({ chainId, initialData }) => {
         gap={5}
         justifyContent='center'
       >
-        {_.map(trees, (tree, i) => (
-          <ChakraLink
-            as={Link}
-            href={`/trees/${chainId}/${decimalId(
-              _.get(tree, 'id'),
-            )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
-            key={_.get(tree, 'id')}
-          >
-            <Card>
-              <CardBody>
-                <HStack
-                  h='100px'
-                  w='100%'
-                  justify='left'
-                  align='center'
-                  spacing='16px'
-                >
-                  <Image
-                    src={imagesData[topHats[i]] || '/icon.jpeg'}
-                    alt='Top Hat image'
-                    maxW='84px'
-                    border='1px solid'
-                    borderColor='gray.200'
-                  />
-                  <Stack>
-                    <Text as='b'>Tree Name</Text>
-                    <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
-                  </Stack>
-                </HStack>
-              </CardBody>
-            </Card>
-          </ChakraLink>
-        ))}
+        {_.map(allTrees, (tree) => {
+          const topHat = _.get(tree, 'hats[0]');
+          const currentChainId = _.get(tree, 'chainId');
+          const chainColorScheme = chainsColors(currentChainId);
+
+          let image;
+          switch (currentChainId) {
+            case 5:
+              image = goerliImagesData[topHat.id];
+            case 100:
+              image = gnosisImagesData[topHat.id];
+            case 137:
+              image = polygonImagesData[topHat.id];
+          }
+
+          return (
+            <ChakraLink
+              as={Link}
+              href={`/trees/${_.get(tree, 'chainId')}/${decimalId(
+                _.get(tree, 'id'),
+              )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
+              key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
+            >
+              <Card>
+                <CardBody>
+                  <HStack
+                    h='100px'
+                    w='100%'
+                    justify='left'
+                    align='center'
+                    spacing='16px'
+                  >
+                    <Image
+                      src={image || '/icon.jpeg'}
+                      alt='Top Hat image'
+                      maxW='84px'
+                      border='1px solid'
+                      borderColor='gray.200'
+                    />
+                    <Stack spacing={1}>
+                      <Text fontWeight={700} noOfLines={2}>
+                        {_.get(topHat, 'details')}
+                      </Text>
+                      <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
+                      <Box>
+                        <Badge colorScheme={chainColorScheme}>
+                          {chainsMap(_.get(tree, 'chainId'))?.name}
+                        </Badge>
+                      </Box>
+                    </Stack>
+                  </HStack>
+                </CardBody>
+              </Card>
+            </ChakraLink>
+          );
+        })}
       </SimpleGrid>
     </Layout>
   );
 };
 
-// TODO handle multiple chains
-const defaultChainId = 5;
-export const getStaticProps = async () => {
-  const initialData = await fetchAllTrees(defaultChainId);
+export const getServerSideProps = async () => {
+  const goerliTrees = await fetchAllTrees(5);
+  const gnosisTrees = await fetchAllTrees(100);
+  const polygonTrees = await fetchAllTrees(137);
 
   return {
     props: {
-      initialData,
-      chainId: defaultChainId,
+      initialGoerliData: goerliTrees || null,
+      initialGnosisData: gnosisTrees || null,
+      initialPolygonData: polygonTrees || null,
     },
   };
 };
