@@ -8,6 +8,7 @@ import {
   GET_WEARER_DETAILS,
   GET_ALL_WEARERS,
 } from './queries';
+import { mapWithChainId } from '../lib/general';
 
 export const fetchTreeDetails = async (treeId, chainId) => {
   const result = await client(chainId).request(GET_TREE, { id: treeId });
@@ -24,7 +25,7 @@ export const fetchAllTreeIds = async (chainId) => {
 export const fetchAllTrees = async (chainId) => {
   const result = await client(chainId).request(GET_ALL_TREES);
 
-  return _.get(result, 'trees', null);
+  return mapWithChainId(_.get(result, 'trees', null), chainId);
 };
 
 export const fetchHatDetails = async (hatId, chainId) => {

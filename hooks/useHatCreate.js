@@ -10,10 +10,6 @@ import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
 
-// TODO rm
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
-
 const useHatCreate = ({
   hatsAddress,
   chainId,
@@ -29,8 +25,8 @@ const useHatCreate = ({
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    address: hatsAddress || hatsAddresses(chainId),
+    chainId,
     abi: JSON.stringify(abi),
     functionName: 'createHat',
     args: [

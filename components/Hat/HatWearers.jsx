@@ -20,13 +20,9 @@ import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
 
 const WEARERS_PER_PAGE = 5;
-// TODO handle chainId ?
 // TODO clean up pagination
 
-function HatWearers({
-  hatData,
-  // chainId
-}) {
+function HatWearers({ hatData, chainId }) {
   const [currentPage, setCurrentPage] = useState(0);
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
@@ -65,7 +61,7 @@ function HatWearers({
   return (
     <>
       <Modal name='newWearer' title='New Wearer' localOverlay={localOverlay}>
-        <HatWearerForm hatId={_.get(hatData, 'id')} />
+        <HatWearerForm hatId={_.get(hatData, 'id')} chainId={chainId} />
       </Modal>
 
       <Stack align='center' spacing={4}>

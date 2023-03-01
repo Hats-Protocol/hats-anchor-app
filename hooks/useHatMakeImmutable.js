@@ -10,17 +10,13 @@ import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
 
-// TODO rm
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
-
 const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const toast = useToast();
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: Number(chainId) || defaultChainId,
+    address: hatsAddress || hatsAddresses(chainId),
+    chainId: Number(chainId),
     abi: JSON.stringify(abi),
     functionName: 'makeHatImmutable',
     args: [

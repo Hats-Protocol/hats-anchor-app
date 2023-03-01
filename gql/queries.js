@@ -36,6 +36,8 @@ export const TREE_DETAILS_FRAGMENT = gql`
     id
     hats {
       id
+      details
+      imageUri
       prettyId
       admin {
         id
