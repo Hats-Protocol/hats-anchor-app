@@ -21,7 +21,7 @@ const useImageURIs = (hats, chainId) => {
         address: hatsAddresses(chainsMap(chainId)),
         abi: abi,
         functionName: 'getImageURIForHat',
-        args: [hat.id],
+        args: [hat],
       };
     });
   }
@@ -39,15 +39,15 @@ const useImageURIs = (hats, chainId) => {
           let hat = hats[i];
           if (imagesData[i].startsWith('ipfs://')) {
             //converting the current base image uri from the contract to resolvable format
-            hatIdToImage[hat.id] = `https://ipfs.io/ipfs/${imagesData[i].slice(
+            hatIdToImage[hat] = `https://ipfs.io/ipfs/${imagesData[i].slice(
               7,
             )}`;
           } else {
             let isValidImage = await isImageUrl(imagesData[i]);
             if (isValidImage) {
-              hatIdToImage[hat.id] = imagesData[i];
+              hatIdToImage[hat] = imagesData[i];
             } else {
-              hatIdToImage[hat.id] = undefined;
+              hatIdToImage[hat] = undefined;
             }
           }
         }
@@ -61,7 +61,13 @@ const useImageURIs = (hats, chainId) => {
       }
     };
 
-    if (imagesData !== undefined && !imagesLoading) {
+    if (
+      imagesData !== undefined &&
+      imagesData !== null &&
+      hats !== undefined &&
+      hats !== null &&
+      !imagesLoading
+    ) {
       validateImages();
     }
   }, [imagesData]);

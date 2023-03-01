@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import useTreeList from '../hooks/useTreeList';
+import useImageURIs from '../hooks/useImageURIs';
 import { fetchAllTrees } from '../gql/helpers';
 // import { mapWithChainId } from '../lib/general';
 import { decimalId } from '../lib/hats';
@@ -36,6 +37,35 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
   });
   const allTrees = _.concat(polygonTrees, gnosisTrees, goerliTrees);
 
+  // get top hats of every chain
+  const goerliTopHats = goerliTrees.map((tree) => {
+    return _.get(tree, 'hats[0].id');
+  });
+  const gnosisTopHats = gnosisTrees.map((tree) => {
+    return _.get(tree, 'hats[0].id');
+  });
+  const polygonTopHats = polygonTrees.map((tree) => {
+    return _.get(tree, 'hats[0].id');
+  });
+
+  // get images per hat for every chain
+  const { data: goerliImagesData, loading: goerliImagesLoading } = useImageURIs(
+    goerliTopHats,
+    5,
+  );
+  const { data: gnosisImagesData, loading: gnosisImagesLoading } = useImageURIs(
+    gnosisTopHats,
+    100,
+  );
+  const { data: polygonImagesData, loading: polygonImagesLoading } =
+    useImageURIs(polygonTopHats, 137);
+
+  const imagesPerChain = {
+    5: goerliImagesData,
+    100: gnosisImagesData,
+    137: polygonImagesData,
+  };
+
   return (
     <Layout>
       <Flex justify='center' mb={10}>
@@ -50,7 +80,8 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
       >
         {_.map(allTrees, (tree) => {
           const topHat = _.get(tree, 'hats[0]');
-          const chainColorScheme = chainsColors(_.get(tree, 'chainId'));
+          const currentChainId = _.get(tree, 'chainId');
+          const chainColorScheme = chainsColors(currentChainId);
 
           return (
             <ChakraLink
@@ -70,7 +101,9 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
                     spacing='16px'
                   >
                     <Image
-                      src='/icon.jpeg'
+                      src={
+                        imagesPerChain[tree.chainId][topHat.id] || '/icon.jpeg'
+                      }
                       alt='Top Hat image'
                       maxW='84px'
                       border='1px solid'

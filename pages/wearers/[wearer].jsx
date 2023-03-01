@@ -17,18 +17,19 @@ import {
 import Link from 'next/link';
 import { fetchAllWearerDetails } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
+import useImageURIs from '../../hooks/useImageURIs';
 import Layout from '../../components/Layout';
 import { formatAddress } from '../../lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '../../lib/hats';
 import { chainsColors, chainsMap } from '../../lib/web3';
 
-const CoreHat = ({ hat }) => (
+const CoreHat = ({ hat, image }) => (
   <Card key={_.get(hat, 'id')}>
     <CardBody as={Flex} h='75px'>
       <Stack>
         <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
           <Image
-            src='/icon.jpeg'
+            src={image || '/icon.jpeg'}
             alt='Top Hat image'
             maxW='84px'
             border='1px solid'
@@ -89,11 +90,32 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
     wearerAddress,
     initialData,
   });
-  const currentHats = _.concat(
-    _.get(wearer, 'goerli.currentHats', []),
-    _.get(wearer, 'gnosis.currentHats', []),
-    _.get(wearer, 'polygon.currentHats', []),
+
+  const goerliHats = _.get(wearer, 'goerli.currentHats', []);
+  const gnosisHats = _.get(wearer, 'gnosis.currentHats', []);
+  const polygonHats = _.get(wearer, 'polygon.currentHats', []);
+
+  const currentHats = _.concat(goerliHats, gnosisHats, polygonHats);
+
+  const { data: goerliImagesData, loading: goerliImagesLoading } = useImageURIs(
+    goerliHats.map((hat) => hat.id),
+    5,
   );
+  const { data: gnosisImagesData, loading: gnosisImagesLoading } = useImageURIs(
+    gnosisHats.map((hat) => hat.id),
+    100,
+  );
+  const { data: polygonImagesData, loading: polygonImagesLoading } =
+    useImageURIs(
+      polygonHats.map((hat) => hat.id),
+      137,
+    );
+
+  const imagesPerChain = {
+    5: goerliImagesData,
+    100: gnosisImagesData,
+    137: polygonImagesData,
+  };
 
   return (
     <Layout>
@@ -115,9 +137,12 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
                   _.get(hat, 'prettyId'),
                   true,
                 )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-                key={_.get(hat, 'id')}
+                key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
               >
-                <CoreHat hat={hat} />
+                <CoreHat
+                  hat={hat}
+                  image={imagesPerChain[hat.chainId][hat.id]}
+                />
               </ChakraLink>
             ))}
           </SimpleGrid>
@@ -131,9 +156,15 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
         >
           <Heading size='md'>Admin Authorities</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(_.get(wearer, 'currentHats'), (hat) => {
+            {_.map(wearerHats, (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
+                return (
+                  <CoreHat
+                    hat={hat}
+                    image={imagesData[hat.id]}
+                    key={_.get(hat, 'id')}
+                  />
+                );
               }
 
               return (
@@ -144,7 +175,7 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
                   )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
                   key={_.get(hat, 'id')}
                 >
-                  <CoreHat hat={hat} />
+                  <CoreHat hat={hat} image={imagesData[hat.id]} />
                 </ChakraLink>
               );
             })}
@@ -159,9 +190,15 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
         >
           <Heading size='md'>Eligibility / Toggle Authorities</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(_.get(wearer, 'currentHats'), (hat) => {
+            {_.map(wearerHats, (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
+                return (
+                  <CoreHat
+                    hat={hat}
+                    image={imagesData[hat.id]}
+                    key={_.get(hat, 'id')}
+                  />
+                );
               }
 
               return (
@@ -172,7 +209,7 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
                   )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
                   key={_.get(hat, 'id')}
                 >
-                  <CoreHat hat={hat} />
+                  <CoreHat hat={hat} image={imagesData[hat.id]} />
                 </ChakraLink>
               );
             })}
