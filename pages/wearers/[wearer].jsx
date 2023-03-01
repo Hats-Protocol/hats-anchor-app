@@ -28,7 +28,7 @@ const CoreHat = ({ hat, image }) => (
       <Stack>
         <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
           <Image
-            src={image ? image : '/icon.jpeg'}
+            src={image || '/icon.jpeg'}
             alt='Top Hat image'
             maxW='84px'
             border='1px solid'

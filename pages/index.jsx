@@ -59,11 +59,7 @@ const Home = ({ chainId, initialData }) => {
                   spacing='16px'
                 >
                   <Image
-                    src={
-                      imagesData[topHats[i]]
-                        ? imagesData[topHats[i]]
-                        : '/icon.jpeg'
-                    }
+                    src={imagesData[topHats[i]] || '/icon.jpeg'}
                     alt='Top Hat image'
                     maxW='84px'
                     border='1px solid'
