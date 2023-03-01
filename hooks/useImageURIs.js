@@ -65,6 +65,7 @@ const useImageURIs = (hats, chainId) => {
       imagesData !== undefined &&
       imagesData !== null &&
       hats !== undefined &&
+      hats !== null &&
       !imagesLoading
     ) {
       validateImages();

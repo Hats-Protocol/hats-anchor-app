@@ -60,6 +60,12 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
   const { data: polygonImagesData, loading: polygonImagesLoading } =
     useImageURIs(polygonTopHats, 137);
 
+  const imagesPerChain = {
+    5: goerliImagesData,
+    100: gnosisImagesData,
+    137: polygonImagesData,
+  };
+
   return (
     <Layout>
       <Flex justify='center' mb={10}>
@@ -76,16 +82,6 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
           const topHat = _.get(tree, 'hats[0]');
           const currentChainId = _.get(tree, 'chainId');
           const chainColorScheme = chainsColors(currentChainId);
-
-          let image;
-          switch (currentChainId) {
-            case 5:
-              image = goerliImagesData[topHat.id];
-            case 100:
-              image = gnosisImagesData[topHat.id];
-            case 137:
-              image = polygonImagesData[topHat.id];
-          }
 
           return (
             <ChakraLink
@@ -105,7 +101,9 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
                     spacing='16px'
                   >
                     <Image
-                      src={image || '/icon.jpeg'}
+                      src={
+                        imagesPerChain[tree.chainId][topHat.id] || '/icon.jpeg'
+                      }
                       alt='Top Hat image'
                       maxW='84px'
                       border='1px solid'

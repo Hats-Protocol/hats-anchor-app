@@ -111,17 +111,10 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
       137,
     );
 
-  const getImage = (hatId, chainId) => {
-    let image;
-    switch (chainId) {
-      case 5:
-        image = goerliImagesData[hatId];
-      case 100:
-        image = gnosisImagesData[hatId];
-      case 137:
-        image = polygonImagesData[hatId];
-    }
-    return Image;
+  const imagesPerChain = {
+    5: goerliImagesData,
+    100: gnosisImagesData,
+    137: polygonImagesData,
   };
 
   return (
@@ -144,11 +137,11 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
                   _.get(hat, 'prettyId'),
                   true,
                 )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-                key={_.get(hat, 'id')}
+                key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
               >
                 <CoreHat
                   hat={hat}
-                  image={getImage(_.get(hat, 'id'), _.get(hat, 'chainId'))}
+                  image={imagesPerChain[hat.chainId][hat.id]}
                 />
               </ChakraLink>
             ))}
