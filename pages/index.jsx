@@ -48,7 +48,7 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
     return _.get(tree, 'hats[0].id');
   });
 
-  //get images per hat for every chain
+  // get images per hat for every chain
   const { data: goerliImagesData, loading: goerliImagesLoading } = useImageURIs(
     goerliTopHats,
     5,
