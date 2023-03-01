@@ -58,7 +58,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   });
   let wearerHats = [];
   if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, 'currentHats').map((hat) => {
+    wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
       return hat.prettyId;
     });
   }
@@ -75,8 +75,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   );
 
   const topHatId = _.get(treeData, 'hats[0].id');
-  const { data: topHat } = useHatDetails({ hatId: topHatId });
-  const { data: hatData } = useHatDetails({ hatId });
+  const { data: topHat } = useHatDetails({ hatId: topHatId, chainId });
+  const { data: hatData } = useHatDetails({ hatId, chainId });
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
