@@ -14,11 +14,20 @@ import {
 import Link from 'next/link';
 import Layout from '../components/Layout';
 import useTreeList from '../hooks/useTreeList';
+import useImageURIs from '../hooks/useImageURIs';
 import { fetchAllTrees } from '../gql/helpers';
 import { decimalId } from '../lib/hats';
 
 const Home = ({ chainId, initialData }) => {
   const { data: trees } = useTreeList({ chainId, initialData });
+  const topHats = trees.map((tree) => {
+    return _.get(tree, 'hats[0].id');
+  });
+
+  const { data: imagesData, loading: imagesLoading } = useImageURIs(
+    topHats,
+    chainId,
+  );
 
   return (
     <Layout>
@@ -32,7 +41,7 @@ const Home = ({ chainId, initialData }) => {
         gap={5}
         justifyContent='center'
       >
-        {_.map(trees, (tree) => (
+        {_.map(trees, (tree, i) => (
           <ChakraLink
             as={Link}
             href={`/trees/${chainId}/${decimalId(
@@ -50,7 +59,11 @@ const Home = ({ chainId, initialData }) => {
                   spacing='16px'
                 >
                   <Image
-                    src='/icon.jpeg'
+                    src={
+                      imagesData[topHats[i]]
+                        ? imagesData[topHats[i]]
+                        : '/icon.jpeg'
+                    }
                     alt='Top Hat image'
                     maxW='84px'
                     border='1px solid'

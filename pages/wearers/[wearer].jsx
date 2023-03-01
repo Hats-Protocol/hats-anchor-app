@@ -17,17 +17,18 @@ import {
 import Link from 'next/link';
 import { fetchWearerDetails, fetchAllWearers } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
+import useImageURIs from '../../hooks/useImageURIs';
 import Layout from '../../components/Layout';
 import { formatAddress } from '../../lib/general';
 import { prettyIdToIp, prettyIdToUrlId, decimalId } from '../../lib/hats';
 
-const CoreHat = ({ hat }) => (
+const CoreHat = ({ hat, image }) => (
   <Card key={_.get(hat, 'id')}>
     <CardBody as={Flex} h='75px'>
       <Stack>
         <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
           <Image
-            src='/icon.jpeg'
+            src={image ? image : '/icon.jpeg'}
             alt='Top Hat image'
             maxW='84px'
             border='1px solid'
@@ -64,6 +65,12 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
     initialData,
   });
 
+  const wearerHats = _.get(wearer, 'currentHats');
+  const { data: imagesData, loading: imagesLoading } = useImageURIs(
+    wearerHats.map((hat) => hat.id),
+    chainId,
+  );
+
   return (
     <Layout>
       <Stack align='center' spacing={6}>
@@ -77,9 +84,15 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         >
           <Heading size='md'>Hats Worn</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(_.get(wearer, 'currentHats'), (hat) => {
+            {_.map(wearerHats, (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
+                return (
+                  <CoreHat
+                    hat={hat}
+                    image={imagesData[hat.id]}
+                    key={_.get(hat, 'id')}
+                  />
+                );
               }
 
               return (
@@ -90,7 +103,7 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
                   )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
                   key={_.get(hat, 'id')}
                 >
-                  <CoreHat hat={hat} />
+                  <CoreHat hat={hat} image={imagesData[hat.id]} />
                 </ChakraLink>
               );
             })}
@@ -105,9 +118,15 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         >
           <Heading size='md'>Admin Authorities</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(_.get(wearer, 'currentHats'), (hat) => {
+            {_.map(wearerHats, (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
+                return (
+                  <CoreHat
+                    hat={hat}
+                    image={imagesData[hat.id]}
+                    key={_.get(hat, 'id')}
+                  />
+                );
               }
 
               return (
@@ -118,7 +137,7 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
                   )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
                   key={_.get(hat, 'id')}
                 >
-                  <CoreHat hat={hat} />
+                  <CoreHat hat={hat} image={imagesData[hat.id]} />
                 </ChakraLink>
               );
             })}
@@ -133,9 +152,15 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         >
           <Heading size='md'>Eligibility / Toggle Authorities</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(_.get(wearer, 'currentHats'), (hat) => {
+            {_.map(wearerHats, (hat) => {
               if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
+                return (
+                  <CoreHat
+                    hat={hat}
+                    image={imagesData[hat.id]}
+                    key={_.get(hat, 'id')}
+                  />
+                );
               }
 
               return (
@@ -146,7 +171,7 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
                   )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
                   key={_.get(hat, 'id')}
                 >
-                  <CoreHat hat={hat} />
+                  <CoreHat hat={hat} image={imagesData[hat.id]} />
                 </ChakraLink>
               );
             })}

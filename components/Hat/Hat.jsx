@@ -87,7 +87,7 @@ const AddressRow = ({
 
 // TODO this should probably be more components
 
-const Hat = ({ hatData, chainId, treeId }) => {
+const Hat = ({ hatData, chainId, treeId, hatImage }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -209,7 +209,7 @@ const Hat = ({ hatData, chainId, treeId }) => {
                   left='22%'
                 />
               )}
-              <Image src='/icon.jpeg' alt='Hat icon' />
+              <Image src={hatImage} alt='Hat icon' />
             </Box>
 
             <Stack spacing={1}>

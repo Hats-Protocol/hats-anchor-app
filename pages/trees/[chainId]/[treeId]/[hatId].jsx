@@ -70,7 +70,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   } = useTreeDetails({ treeId, chainId, initialData });
 
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
-    treeData?.hats,
+    treeData?.hats.map((hat) => hat.id),
     chainId,
   );
 
@@ -143,7 +143,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Image
-                  src='/icon.jpeg'
+                  src={imagesData[topHatId]}
                   alt='Top Hat image'
                   maxW='200px'
                   border='1px solid'
@@ -200,7 +200,13 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
           {/* hat data */}
           <Card gridAutoRows='auto'>
             <CardBody>
-              {hatData && <Hat hatData={hatData} chainId={chainId} />}
+              {hatData && (
+                <Hat
+                  hatData={hatData}
+                  chainId={chainId}
+                  hatImage={imagesData[hatId]}
+                />
+              )}
             </CardBody>
           </Card>
         </Grid>
