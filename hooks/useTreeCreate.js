@@ -10,10 +10,6 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 
-// TODO rm
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
-
 const useTreeCreate = ({
   hatsAddress,
   chainId,
@@ -27,8 +23,8 @@ const useTreeCreate = ({
   const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    address: hatsAddress || hatsAddresses(chainId),
+    chainId,
     abi: JSON.stringify(abi),
     functionName: 'mintTopHat',
     args: [

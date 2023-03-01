@@ -15,11 +15,12 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import { fetchWearerDetails, fetchAllWearers } from '../../gql/helpers';
+import { fetchAllWearerDetails } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import Layout from '../../components/Layout';
 import { formatAddress } from '../../lib/general';
-import { prettyIdToIp, prettyIdToUrlId, decimalId } from '../../lib/hats';
+import { prettyIdToIp, prettyIdToUrlId } from '../../lib/hats';
+import { chainsColors, chainsMap } from '../../lib/web3';
 
 const CoreHat = ({ hat }) => (
   <Card key={_.get(hat, 'id')}>
@@ -34,22 +35,48 @@ const CoreHat = ({ hat }) => (
             borderColor='gray.200'
           />
           <Stack>
-            <Text as='b'>Hat Name</Text>
-            <Text key={_.get(hat, 'id')} fontSize='sm'>
+            <Text as='b'>{_.get(hat, 'details')}</Text>
+            <Text fontSize='sm'>
               Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}
             </Text>
             <Text fontSize='sm'>Tree: Hats Protocol DAO</Text>
           </Stack>
         </HStack>
         <HStack>
-          <Tag size='md' colorScheme='gray' borderRadius='full'>
-            <TagLabel>Level 1</TagLabel>
-          </Tag>
-          <Tag size='md' colorScheme='gray' borderRadius='full'>
-            <TagLabel>Active</TagLabel>
-          </Tag>
-          <Tag size='md' colorScheme='gray' borderRadius='full'>
-            <TagLabel>Mutable</TagLabel>
+          {_.eq(_.get(hat, 'levelAtLocalTree'), 0) ? (
+            <Tag size='md' colorScheme='purple' borderRadius='full'>
+              <TagLabel>Top Hat</TagLabel>
+            </Tag>
+          ) : (
+            <Tag size='md' colorScheme='blue' borderRadius='full'>
+              <TagLabel>Level {_.get(hat, 'levelAtLocalTree')}</TagLabel>
+            </Tag>
+          )}
+
+          {_.get(hat, 'status') ? (
+            <Tag size='md' colorScheme='green' borderRadius='full'>
+              <TagLabel>Active</TagLabel>
+            </Tag>
+          ) : (
+            <Tag size='md' colorScheme='gray' borderRadius='full'>
+              <TagLabel>Inactive</TagLabel>
+            </Tag>
+          )}
+
+          {_.get(hat, 'isMutable') ? (
+            <Tag size='md' colorScheme='blue' borderRadius='full'>
+              <TagLabel>Mutable</TagLabel>
+            </Tag>
+          ) : (
+            <Tag size='md' colorScheme='gray' borderRadius='full'>
+              <TagLabel>Immutable</TagLabel>
+            </Tag>
+          )}
+          <Tag
+            colorScheme={chainsColors(_.get(hat, 'chainId'))}
+            borderRadius='full'
+          >
+            <TagLabel>{chainsMap(_.get(hat, 'chainId'))?.name}</TagLabel>
           </Tag>
         </HStack>
       </Stack>
@@ -57,12 +84,16 @@ const CoreHat = ({ hat }) => (
   </Card>
 );
 
-const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
+const WearerDetail = ({ wearerAddress, initialData }) => {
   const { data: wearer } = useWearerDetails({
     wearerAddress,
-    chainId,
     initialData,
   });
+  const currentHats = _.concat(
+    _.get(wearer, 'goerli.currentHats', []),
+    _.get(wearer, 'gnosis.currentHats', []),
+    _.get(wearer, 'polygon.currentHats', []),
+  );
 
   return (
     <Layout>
@@ -77,26 +108,21 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
         >
           <Heading size='md'>Hats Worn</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(_.get(wearer, 'currentHats'), (hat) => {
-              if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return <CoreHat hat={hat} key={_.get(hat, 'id')} />;
-              }
-
-              return (
-                <ChakraLink
-                  as={Link}
-                  href={`/trees/5/${decimalId(
-                    _.get(hat, 'prettyId'),
-                  )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-                  key={_.get(hat, 'id')}
-                >
-                  <CoreHat hat={hat} />
-                </ChakraLink>
-              );
-            })}
+            {_.map(currentHats, (hat) => (
+              <ChakraLink
+                as={Link}
+                href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
+                  _.get(hat, 'prettyId'),
+                  true,
+                )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
+                key={_.get(hat, 'id')}
+              >
+                <CoreHat hat={hat} />
+              </ChakraLink>
+            ))}
           </SimpleGrid>
         </Stack>
-        <Stack
+        {/* <Stack
           width='100%'
           justify='left'
           border='1px solid'
@@ -151,37 +177,19 @@ const WearerDetail = ({ wearerAddress, chainId, initialData }) => {
               );
             })}
           </SimpleGrid>
-        </Stack>
+        </Stack> */}
       </Stack>
     </Layout>
   );
 };
 
-const defaultChainId = 5;
-export const getStaticPaths = async () => {
-  const result = await fetchAllWearers(defaultChainId);
-
-  const paths = _.map(result, (wearer) => ({
-    params: { wearer: wearer.id },
-  }));
-
-  return {
-    paths,
-    fallback: true,
-  };
-};
-
-export const getStaticProps = async (props) => {
-  const { wearer } = props.params;
-  const initialData = await fetchWearerDetails(
-    _.toLower(wearer),
-    defaultChainId,
-  );
+export const getServerSideProps = async (context) => {
+  const { wearer } = context.params;
+  const initialData = await fetchAllWearerDetails(_.toLower(wearer));
 
   return {
     props: {
       wearerAddress: wearer,
-      chainId: defaultChainId,
       initialData,
     },
   };

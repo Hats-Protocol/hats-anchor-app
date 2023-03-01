@@ -5,20 +5,20 @@ import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
-import { hatsAddresses } from '../constants';
+import CONFIG, { hatsAddresses } from '../constants';
 
-const defaultChainId = 5;
-const hatsAddress = hatsAddresses(defaultChainId);
-const defaultDebounce = 1500;
-
-const HatWearerForm = ({ hatId }) => {
+const HatWearerForm = ({ hatId, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
-  const newWearer = useDebounce(watch('newWearer', null), defaultDebounce);
+  const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
   // TODO handle ens name
 
-  const { writeAsync } = useHatMint({ hatsAddress, hatId, newWearer });
+  const { writeAsync } = useHatMint({
+    hatsAddress: hatsAddresses(chainId),
+    hatId,
+    newWearer,
+  });
 
   const onSubmit = async () => {
     await writeAsync?.();

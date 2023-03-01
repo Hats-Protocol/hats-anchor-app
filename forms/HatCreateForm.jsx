@@ -9,18 +9,16 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
+import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
+
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
-
-// TODO more chains
-const defaultChainId = 5;
-const defaultDebounce = 1500;
 
 const HatCreateForm = ({ defaultAdmin }) => {
   const localForm = useForm({
@@ -30,19 +28,20 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const { handleSubmit, watch } = localForm;
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
+  const { chainId } = useChainId;
 
-  const details = useDebounce(watch('details', ''), defaultDebounce);
-  const maxSupply = useDebounce(watch('maxSupply', 1), defaultDebounce);
+  const details = useDebounce(watch('details', ''), CONFIG.debounce);
+  const maxSupply = useDebounce(watch('maxSupply', 1), CONFIG.debounce);
   const eligibility = useDebounce(
     watch('eligibility', ZERO_ADDRESS),
-    defaultDebounce,
+    CONFIG.debounce,
   );
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS), defaultDebounce);
-  const mutable = useDebounce(watch('mutable', true), defaultDebounce);
-  const imageUrl = useDebounce(watch('imageUrl', ''), defaultDebounce);
+  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS), CONFIG.debounce);
+  const mutable = useDebounce(watch('mutable', true), CONFIG.debounce);
+  const imageUrl = useDebounce(watch('imageUrl', ''), CONFIG.debounce);
 
   const { writeAsync } = useHatCreate({
-    hatsAddress: hatsAddresses(defaultChainId),
+    hatsAddress: hatsAddresses(chainId),
     admin: defaultAdmin,
     details,
     maxSupply: _.toNumber(maxSupply),

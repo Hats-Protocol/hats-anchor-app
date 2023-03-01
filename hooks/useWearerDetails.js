@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchWearerDetails } from '../gql/helpers';
+import { fetchAllWearerDetails } from '../gql/helpers';
 
-const useWearerDetails = ({ wearerAddress, chainId, initialData }) => {
+const useWearerDetails = ({ wearerAddress, initialData }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['wearerDetails', wearerAddress],
-    queryFn: () => fetchWearerDetails(wearerAddress, chainId),
-    enabled: !!wearerAddress && !!chainId,
+    queryFn: () => fetchAllWearerDetails(wearerAddress),
+    enabled: !!wearerAddress,
     initialData,
   });
 

@@ -9,8 +9,8 @@ const EVENT_DETAILS_FRAGMENT = gql`
 `;
 
 // TODO handle inline sort for events
-export const TREE_DETAILS_FRAGMENT = gql`
-  fragment TreeDetails on Tree {
+export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
+  fragment TreeDetailsWithEvents on Tree {
     id
     hats {
       id
@@ -31,13 +31,29 @@ export const TREE_DETAILS_FRAGMENT = gql`
   ${EVENT_DETAILS_FRAGMENT}
 `;
 
+export const TREE_DETAILS_FRAGMENT = gql`
+  fragment TreeDetails on Tree {
+    id
+    hats {
+      id
+      details
+      imageUri
+      prettyId
+      admin {
+        id
+        prettyId
+      }
+    }
+  }
+`;
+
 export const GET_TREE = gql`
   query getTree($id: ID!) {
     tree(id: $id) {
-      ...TreeDetails
+      ...TreeDetailsWithEvents
     }
   }
-  ${TREE_DETAILS_FRAGMENT}
+  ${TREE_DETAILS_FRAGMENT_WITH_EVENTS}
 `;
 
 export const GET_ALL_TREE_IDS = gql`
@@ -117,6 +133,10 @@ export const GET_WEARER_DETAILS = gql`
       currentHats {
         id
         prettyId
+        details
+        imageUri
+        mutable
+        status
         levelAtLocalTree
       }
     }

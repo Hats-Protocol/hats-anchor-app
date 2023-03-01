@@ -9,29 +9,28 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { useChainId } from 'wagmi';
+
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useTreeCreate from '../hooks/useTreeCreate';
-import { hatsAddresses } from '../constants';
+import CONFIG, { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
-
-// TODO more chains
-const defaultChainId = 5;
-const defaultDebounce = 1500;
 
 const TreeCreateForm = () => {
   const localForm = useForm({
     mode: 'onChange',
   });
   const { handleSubmit, watch } = localForm;
+  const { chainId } = useChainId();
 
   const [overrideReceiver, setOverrideReceiver] = useState(false);
-  const details = useDebounce(watch('details', ''), defaultDebounce);
-  const imageUrl = useDebounce(watch('imageUrl', ''), defaultDebounce);
-  const receiver = useDebounce(watch('receiver'), defaultDebounce);
+  const details = useDebounce(watch('details', ''), CONFIG.debounce);
+  const imageUrl = useDebounce(watch('imageUrl', ''), CONFIG.debounce);
+  const receiver = useDebounce(watch('receiver'), CONFIG.debounce);
 
   const { writeAsync } = useTreeCreate({
-    hatsAddress: hatsAddresses(defaultChainId),
+    hatsAddress: hatsAddresses(chainId),
     details,
     imageUrl,
     receiver,
