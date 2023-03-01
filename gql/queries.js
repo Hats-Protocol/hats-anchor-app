@@ -133,6 +133,10 @@ export const GET_WEARER_DETAILS = gql`
       currentHats {
         id
         prettyId
+        details
+        imageUri
+        mutable
+        status
         levelAtLocalTree
       }
     }
