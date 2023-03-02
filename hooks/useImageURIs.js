@@ -64,6 +64,7 @@ const useImageURIs = (hats, chainId) => {
     if (
       imagesData !== undefined &&
       imagesData !== null &&
+      imagesData[0] !== null && // useContractReads returns with [null] at the beginning and then updates, TODO check if there's better fix
       hats !== undefined &&
       hats !== null &&
       !imagesLoading
