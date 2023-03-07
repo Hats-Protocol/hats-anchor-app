@@ -70,7 +70,7 @@ const useImageURIs = (hats, chainId) => {
     ) {
       validateImages();
     }
-  }, [imagesData]);
+  }, [imagesData, imagesLoading]);
 
   return { data, loading };
 };
