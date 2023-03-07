@@ -56,11 +56,14 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     wearerAddress: address,
     chainId,
   });
+
   let wearerHats = [];
   if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
-      return hat.prettyId;
-    });
+    wearerHats = _.get(wearerData, [chain.network, 'currentHats'])?.map(
+      (hat) => {
+        return hat.prettyId;
+      },
+    );
   }
 
   const {
@@ -143,7 +146,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Image
-                  src={imagesData[topHatId]}
+                  src={imagesData[topHatId] ?? '/icon.jpeg'}
                   alt='Top Hat image'
                   maxW='200px'
                   border='1px solid'
