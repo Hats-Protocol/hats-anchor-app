@@ -17,10 +17,7 @@ function Node({
     BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
   );
 
-  const isUserAdminOfHat = isAdmin(
-    prettyIdToId(rd3tProps.nodeDatum.name),
-    wearerHats,
-  );
+  const isUserAdminOfHat = isAdmin(rd3tProps.nodeDatum.name, wearerHats);
 
   return (
     <g>

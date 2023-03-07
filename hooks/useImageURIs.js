@@ -54,7 +54,6 @@ const useImageURIs = (hats, chainId) => {
 
         setData(hatIdToImage);
       } catch (error) {
-        setLoading(false);
         console.log(error);
       } finally {
         setLoading(false);
@@ -71,7 +70,7 @@ const useImageURIs = (hats, chainId) => {
     ) {
       validateImages();
     }
-  }, [imagesData]);
+  }, [imagesData, imagesLoading]);
 
   return { data, loading };
 };

@@ -209,7 +209,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                   left='22%'
                 />
               )}
-              <Image src={hatImage} alt='Hat icon' />
+              <Image src={hatImage ?? '/icon.jpeg'} alt='Hat icon' />
             </Box>
 
             <Stack spacing={1}>
