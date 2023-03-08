@@ -15,10 +15,12 @@ const useImageURIs = (hats, chainId) => {
   const [loading, setLoading] = useState(false);
 
   let calls = [];
+  let chain = chainsMap(chainId);
   if (hats !== undefined) {
     calls = hats.map((hat) => {
       return {
-        address: hatsAddresses(chainsMap(chainId)),
+        address: hatsAddresses(chain),
+        chainId: chain.id,
         abi: abi,
         functionName: 'getImageURIForHat',
         args: [hat],

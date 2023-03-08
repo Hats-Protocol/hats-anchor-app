@@ -59,11 +59,12 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   let wearerHats = [];
   if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, [chain.network, 'currentHats'])?.map(
-      (hat) => {
-        return hat.prettyId;
-      },
-    );
+    wearerHats = _.get(wearerData, [
+      chain.name.toLowerCase(),
+      'currentHats',
+    ])?.map((hat) => {
+      return hat.prettyId;
+    });
   }
 
   const {
