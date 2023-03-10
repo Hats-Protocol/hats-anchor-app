@@ -8,7 +8,7 @@ import CONFIG, { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
 const HatDetailsForm = ({ hatData, chainId }) => {
-  const localForm = useForm();
+  const localForm = useForm({ mode: 'onChange' });
   const { handleSubmit, watch } = localForm;
 
   const details = useDebounce(watch('details'), CONFIG.debounce);
