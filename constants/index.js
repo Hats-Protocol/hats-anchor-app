@@ -25,7 +25,7 @@ const CONFIG = {
   logoUrl:
     'https://ipfs.io/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg',
   chains: [5, 100, 137],
-  debounce: 1500,
+  debounce: 750,
 };
 
 export default CONFIG;

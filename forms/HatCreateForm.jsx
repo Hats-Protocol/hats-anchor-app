@@ -42,11 +42,12 @@ const HatCreateForm = ({ defaultAdmin }) => {
 
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
+    chainId,
     admin: defaultAdmin,
     details,
     maxSupply: _.toNumber(maxSupply),
-    eligibility,
-    toggle,
+    eligibility: inputEligibility ? eligibility : ZERO_ADDRESS,
+    toggle: inputToggle ? toggle : ZERO_ADDRESS,
     mutable,
     imageUrl,
   });
