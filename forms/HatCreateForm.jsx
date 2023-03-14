@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
-import CONFIG, { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
@@ -30,15 +30,12 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const [inputToggle, setInputToggle] = useState(false);
   const { chainId } = useChainId;
 
-  const details = useDebounce(watch('details', ''), CONFIG.debounce);
-  const maxSupply = useDebounce(watch('maxSupply', 1), CONFIG.debounce);
-  const eligibility = useDebounce(
-    watch('eligibility', ZERO_ADDRESS),
-    CONFIG.debounce,
-  );
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS), CONFIG.debounce);
-  const mutable = useDebounce(watch('mutable', true), CONFIG.debounce);
-  const imageUrl = useDebounce(watch('imageUrl', ''), CONFIG.debounce);
+  const details = useDebounce(watch('details', ''));
+  const maxSupply = useDebounce(watch('maxSupply', 1));
+  const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
+  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
+  const mutable = useDebounce(watch('mutable', true));
+  const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),

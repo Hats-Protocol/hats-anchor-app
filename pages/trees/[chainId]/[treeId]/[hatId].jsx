@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
+import { switchNetwork } from '@wagmi/core';
 import { useState } from 'react';
 import {
   Card,
@@ -12,6 +13,7 @@ import {
   Spinner,
   Image,
   Link as ChakraLink,
+  Button,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import _ from 'lodash';
@@ -52,6 +54,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { setModals } = localOverlay;
 
   const { address } = useAccount();
+  const userChain = useChainId();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -59,10 +62,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   let wearerHats = [];
   if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, [
-      chain.name.toLowerCase(),
-      'currentHats',
-    ])?.map((hat) => {
+    wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
       return hat.prettyId;
     });
   }
@@ -83,6 +83,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { data: hatData } = useHatDetails({ hatId, chainId });
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
+  console.log(userChain, chain?.id === userChain);
 
   // TODO handle error and loading in layout
   if (treeLoading || imagesLoading)
@@ -118,7 +119,25 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
         </ChakraLink>
       ),
     },
-    { label: 'Network', value: chain?.name },
+    {
+      label: 'Network',
+      value:
+        !userChain || chain?.id === userChain ? (
+          chain?.name
+        ) : (
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() =>
+              switchNetwork({
+                chainId: chain?.id,
+              })
+            }
+          >
+            Switch to {chain?.name}
+          </Button>
+        ),
+    },
   ];
 
   const handleNodeClick = (nodePrettyId) => {
@@ -197,6 +216,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                       handleAddChildClick,
                       hatId,
                       wearerHats,
+                      chainId,
                     )
                   }
                 />
@@ -232,7 +252,7 @@ export const getServerSideProps = async (context) => {
     props: {
       treeId: treeHex,
       hatId: hatIdHex,
-      chainId,
+      chainId: _.toNumber(chainId),
       initialTree: initialData,
       initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
       topHat: _.get(initialData, 'hats[0]'),

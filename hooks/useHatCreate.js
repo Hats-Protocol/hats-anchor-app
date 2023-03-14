@@ -1,14 +1,10 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatCreate = ({
   hatsAddress,
@@ -22,7 +18,7 @@ const useHatCreate = ({
   imageUrl,
 }) => {
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -44,7 +40,13 @@ const useHatCreate = ({
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: data.hash,
+        toastData: {
+          title: 'Hat Created',
+          description: 'Successfully created hat',
+        },
+      });
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -57,7 +59,6 @@ const useHatCreate = ({
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
           // description: 'Please accept the transaction in your wallet',
@@ -66,17 +67,7 @@ const useHatCreate = ({
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: 'Hat created!',
-        description: `Successfully created hat`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useHatCreate;
