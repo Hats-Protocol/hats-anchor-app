@@ -142,7 +142,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           address={hatData.eligibility}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
-          mutable={mutableNotTopHat(hatData)}
+          mutable={topHatOrMutable(hatData)}
           admin={isAdmin(_.get(hatData, 'prettyId'), currentWearerHats)}
           setType={setType}
           localOverlay={localOverlay}
@@ -156,7 +156,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           address={hatData.toggle}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
-          mutable={mutableNotTopHat(hatData)}
+          mutable={topHatOrMutable(hatData)}
           admin={isAdmin(_.get(hatData, 'prettyId'), currentWearerHats)}
           setType={setType}
           localOverlay={localOverlay}
@@ -196,7 +196,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
               border='1px solid'
               borderColor='gray.200'
               maxW='75px'
-              onClick={handleOpenImageModal}
+              onClick={canEditImage ? handleOpenImageModal : undefined}
             >
               {imageHover && (
                 <Icon
@@ -268,19 +268,17 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
             {/* Details, where is this coming back from? IPFS hash? */}
             <TabPanel>
               <Box>
-                {address &&
-                  topHatOrMutable(hatData) &&
-                  isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) && (
-                    <IconButton
-                      icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-                      minW='auto'
-                      w={8}
-                      h={8}
-                      variant='outline'
-                      float='right'
-                      onClick={handleOpenDetailsModal}
-                    />
-                  )}
+                {canEditImage && (
+                  <IconButton
+                    icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+                    minW='auto'
+                    w={8}
+                    h={8}
+                    variant='outline'
+                    float='right'
+                    onClick={canEditImage ? handleOpenDetailsModal : undefined}
+                  />
+                )}
 
                 <Text>{hatData?.details}</Text>
               </Box>

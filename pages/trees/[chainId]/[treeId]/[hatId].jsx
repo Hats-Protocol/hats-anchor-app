@@ -32,7 +32,7 @@ import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
 import { chainsMap } from '../../../../lib/web3';
 import Layout from '../../../../components/Layout';
-import { fetchAllTreeIds, fetchTreeDetails } from '../../../../gql/helpers';
+import { fetchTreeDetails } from '../../../../gql/helpers';
 import DataTable from '../../../../components/DataTable';
 import { formatAddress } from '../../../../lib/general';
 import { useOverlay } from '../../../../contexts/OverlayContext';
@@ -132,9 +132,12 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     setModals({ createHat: true });
   };
 
+  // "Top Hat #21 or Hat #2.3.4"
+  const title = 'Hat Detail';
+
   return (
     <>
-      <NextSeo title='Hat Detail' />
+      <NextSeo title={title} />
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} />
