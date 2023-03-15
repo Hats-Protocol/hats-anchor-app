@@ -1,26 +1,19 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { isAddress } from '@ethersproject/address';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
-
-const defaultChainId = 5;
-const fallbackAddress = hatsAddresses(defaultChainId);
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || fallbackAddress,
-    chainId: chainId || defaultChainId,
+    address: hatsAddresses(chainId),
+    chainId,
     abi: JSON.stringify(abi),
     functionName: 'mintHat',
     args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
@@ -34,7 +27,14 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: `Hat Minted!`,
+          description: `Successfully minted hat`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -47,7 +47,6 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
           // description: 'Please accept the transaction in your wallet',
@@ -56,17 +55,7 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: `Hat Minted!`,
-        description: `Successfully minted hat`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useHatMint;

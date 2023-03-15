@@ -14,7 +14,7 @@ import { useChainId } from 'wagmi';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useTreeCreate from '../hooks/useTreeCreate';
-import CONFIG, { hatsAddresses } from '../constants';
+import { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
 const TreeCreateForm = () => {
@@ -22,12 +22,12 @@ const TreeCreateForm = () => {
     mode: 'onChange',
   });
   const { handleSubmit, watch } = localForm;
-  const { chainId } = useChainId();
+  const chainId = useChainId();
 
   const [overrideReceiver, setOverrideReceiver] = useState(false);
-  const details = useDebounce(watch('details', ''), CONFIG.debounce);
-  const imageUrl = useDebounce(watch('imageUrl', ''), CONFIG.debounce);
-  const receiver = useDebounce(watch('receiver'), CONFIG.debounce);
+  const details = useDebounce(watch('details', ''));
+  const imageUrl = useDebounce(watch('imageUrl', ''));
+  const receiver = useDebounce(watch('receiver'));
 
   const { writeAsync } = useTreeCreate({
     hatsAddress: hatsAddresses(chainId),

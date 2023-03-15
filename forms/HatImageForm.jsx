@@ -6,18 +6,14 @@ import useHatImageUpdate from '../hooks/useHatImageUpdate';
 import { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
-const defaultDebounce = 1500;
-const defaultChainId = 5;
-const defaultHatsAddress = hatsAddresses(defaultChainId);
-
 const HatImageForm = ({ hatData, chainId }) => {
   const localForm = useForm({ mode: 'onChange' });
   const { handleSubmit, watch } = localForm;
 
-  const image = useDebounce(watch('image'), defaultDebounce);
+  const image = useDebounce(watch('image'));
 
   const { writeAsync } = useHatImageUpdate({
-    hatsAddress: defaultHatsAddress,
+    hatsAddress: hatsAddresses(chainId),
     chainId,
     hatId: _.get(hatData, 'id'),
     image,

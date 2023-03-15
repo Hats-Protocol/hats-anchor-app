@@ -1,14 +1,9 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useAccount,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite, useAccount } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useTreeCreate = ({
   hatsAddress,
@@ -20,7 +15,7 @@ const useTreeCreate = ({
 }) => {
   const { address } = useAccount();
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -38,7 +33,14 @@ const useTreeCreate = ({
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: 'Tree created!',
+          description: `Successfully created tree`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -51,7 +53,6 @@ const useTreeCreate = ({
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
           // description: 'Please accept the transaction in your wallet',
@@ -60,19 +61,7 @@ const useTreeCreate = ({
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: (data) => {
-      // eslint-disable-next-line no-console
-      console.log(data);
-      toast.success({
-        title: 'Tree created!',
-        description: `Successfully created tree`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useTreeCreate;

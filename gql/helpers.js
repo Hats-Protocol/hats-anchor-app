@@ -58,8 +58,8 @@ export const fetchAllWearerDetails = async (address) => {
   const polygonWearing = await fetchWearerDetails(address, 137);
 
   return {
-    goerli: goerliWearing,
-    gnosis: gnosisWearing,
-    polygon: polygonWearing,
+    5: goerliWearing,
+    100: gnosisWearing,
+    137: polygonWearing,
   };
 };

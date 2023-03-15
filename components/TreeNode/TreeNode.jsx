@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import { BigNumber } from 'ethers';
 import { useState } from 'react';
+import { useChainId } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
 import styles from './TreeNode.module.css';
 
@@ -10,8 +11,10 @@ function Node({
   handleAddChildClick,
   activeHatId,
   wearerHats,
+  chainId,
 }) {
   const [isHover, setIsHover] = useState(false);
+  const userChain = useChainId();
 
   const isHatActive = BigNumber.from(activeHatId).eq(
     BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
@@ -63,7 +66,7 @@ function Node({
           }}
         >
           <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
-          {isUserAdminOfHat && (
+          {chainId === userChain && isUserAdminOfHat && (
             <Button
               className={styles.button1}
               type='button'
@@ -84,6 +87,7 @@ export default function TreeNode(
   handleAddChildClick,
   activeHatId,
   wearerHats,
+  chainId,
 ) {
   return (
     <Node
@@ -92,6 +96,7 @@ export default function TreeNode(
       handleAddChildClick={handleAddChildClick}
       activeHatId={activeHatId}
       wearerHats={wearerHats}
+      chainId={chainId}
     />
   );
 }

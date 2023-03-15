@@ -40,7 +40,7 @@ const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
           {includeHatId && (
             <Td p={2}>
               <Link
-                href={`/trees/${decimalId(treeId)}/${prettyIdToUrlId(
+                href={`/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
                   _.get(event, 'hat.prettyId'),
                 )}`}
               >

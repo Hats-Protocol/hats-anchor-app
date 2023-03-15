@@ -19,7 +19,7 @@ import { useState } from 'react';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt } from 'react-icons/fa';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
@@ -91,6 +91,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
+  const userChain = useChainId();
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -142,8 +143,11 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           address={hatData.eligibility}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
-          mutable={mutableNotTopHat(hatData)}
-          admin={isAdmin(_.get(hatData, 'prettyId'), currentWearerHats)}
+          mutable={topHatOrMutable(hatData)}
+          admin={
+            isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
+            chainId === userChain
+          }
           setType={setType}
           localOverlay={localOverlay}
         />
@@ -156,8 +160,11 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           address={hatData.toggle}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
-          mutable={mutableNotTopHat(hatData)}
-          admin={isAdmin(_.get(hatData, 'prettyId'), currentWearerHats)}
+          mutable={topHatOrMutable(hatData)}
+          admin={
+            isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
+            chainId === userChain
+          }
           setType={setType}
           localOverlay={localOverlay}
         />
@@ -165,6 +172,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
     },
   ];
   const canEditImage =
+    userChain === chainId &&
     address &&
     topHatOrMutable(hatData) &&
     isAdmin(_.get(hatData, 'id'), currentWearerHats);
@@ -196,7 +204,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
               border='1px solid'
               borderColor='gray.200'
               maxW='75px'
-              onClick={handleOpenImageModal}
+              onClick={canEditImage ? handleOpenImageModal : undefined}
             >
               {imageHover && (
                 <Icon
@@ -261,6 +269,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
             <Tab>Wearers</Tab>
             <Tab>Events</Tab>
             {address &&
+              userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
               mutableNotTopHat(hatData) && <Tab>Admin</Tab>}
           </TabList>
@@ -268,19 +277,17 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
             {/* Details, where is this coming back from? IPFS hash? */}
             <TabPanel>
               <Box>
-                {address &&
-                  topHatOrMutable(hatData) &&
-                  isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) && (
-                    <IconButton
-                      icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-                      minW='auto'
-                      w={8}
-                      h={8}
-                      variant='outline'
-                      float='right'
-                      onClick={handleOpenDetailsModal}
-                    />
-                  )}
+                {canEditImage && (
+                  <IconButton
+                    icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
+                    minW='auto'
+                    w={8}
+                    h={8}
+                    variant='outline'
+                    float='right'
+                    onClick={canEditImage ? handleOpenDetailsModal : undefined}
+                  />
+                )}
 
                 <Text>{hatData?.details}</Text>
               </Box>
@@ -304,18 +311,20 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                 chainId={chainId}
               />
             </TabPanel>
-            {mutableNotTopHat(hatData) && (
-              <TabPanel>
-                <HStack>
-                  <Button variant='outline' onClick={handleOpenSupplyModal}>
-                    Adjust Max Supply
-                  </Button>
-                  <Button variant='outline' onClick={handleMakeImmutable}>
-                    Make Immutable
-                  </Button>
-                </HStack>
-              </TabPanel>
-            )}
+            {userChain === chainId &&
+              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
+              mutableNotTopHat(hatData) && (
+                <TabPanel>
+                  <HStack>
+                    <Button variant='outline' onClick={handleOpenSupplyModal}>
+                      Adjust Max Supply
+                    </Button>
+                    <Button variant='outline' onClick={handleMakeImmutable}>
+                      Make Immutable
+                    </Button>
+                  </HStack>
+                </TabPanel>
+              )}
           </TabPanels>
         </Tabs>
       </Stack>
