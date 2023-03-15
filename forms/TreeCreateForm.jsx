@@ -22,7 +22,7 @@ const TreeCreateForm = () => {
     mode: 'onChange',
   });
   const { handleSubmit, watch } = localForm;
-  const { chainId } = useChainId();
+  const chainId = useChainId();
 
   const [overrideReceiver, setOverrideReceiver] = useState(false);
   const details = useDebounce(watch('details', ''));

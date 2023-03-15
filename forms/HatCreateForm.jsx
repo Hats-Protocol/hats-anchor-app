@@ -28,7 +28,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const { handleSubmit, watch } = localForm;
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
-  const { chainId } = useChainId;
+  const chainId = useChainId;
 
   const details = useDebounce(watch('details', ''));
   const maxSupply = useDebounce(watch('maxSupply', 1));
