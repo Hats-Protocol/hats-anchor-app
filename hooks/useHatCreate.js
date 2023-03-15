@@ -41,12 +41,13 @@ const useHatCreate = ({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
-        hash: data.hash,
+        hash: _.get(data, 'hash'),
         toastData: {
           title: 'Hat Created',
           description: 'Successfully created hat',
         },
       });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',

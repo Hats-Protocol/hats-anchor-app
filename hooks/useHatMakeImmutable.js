@@ -1,18 +1,14 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -31,7 +27,17 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: data.hash,
+        toastData: {
+          title: 'Hat Updated!',
+          description: `Successfully made hat #${_.get(
+            data,
+            'prettyId',
+          )} immutable`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -49,19 +55,6 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
           // description: 'Please accept the transaction in your wallet',
         });
       }
-    },
-  });
-
-  useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: 'Hat Updated!',
-        description: `Successfully made hat #${_.get(
-          hatData,
-          'prettyId',
-        )} immutable`,
-      });
     },
   });
 

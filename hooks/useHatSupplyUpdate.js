@@ -1,18 +1,14 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -29,7 +25,14 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: 'Max Supply updated!',
+          description: `Successfully updated the max supply of hat #${hatId}`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -49,17 +52,7 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: 'Max Supply updated!',
-        description: `Successfully updated the max supply of hat #${hatId}`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useHatSupplyUpdate;

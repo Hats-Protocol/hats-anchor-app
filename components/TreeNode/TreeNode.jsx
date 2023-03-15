@@ -21,7 +21,6 @@ function Node({
   );
 
   const isUserAdminOfHat = isAdmin(rd3tProps.nodeDatum.name, wearerHats);
-  console.log(userChain, chainId);
 
   return (
     <g>

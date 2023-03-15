@@ -1,15 +1,11 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useState } from 'react';
 import { utils } from 'ethers';
 import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { decimalId } from '../lib/hats';
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useModuleUpdate = ({
   hatsAddress,
@@ -19,7 +15,7 @@ const useModuleUpdate = ({
   newAddress,
 }) => {
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const functionName =
     moduleType === MODULE_TYPES.eligibility
@@ -43,7 +39,14 @@ const useModuleUpdate = ({
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: `${moduleType} module updated!`,
+          description: `Successfully updated the ${moduleType} module of hat #${hatId}`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -56,7 +59,6 @@ const useModuleUpdate = ({
           description: 'Please accept the transaction in your wallet',
         });
       } else {
-        // track('ZoraMintError');
         toast.error({
           title: 'Error occurred!',
           // description: 'Please accept the transaction in your wallet',
@@ -65,17 +67,7 @@ const useModuleUpdate = ({
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: `${moduleType} module updated!`,
-        description: `Successfully updated the ${moduleType} module of hat #${hatId}`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useModuleUpdate;

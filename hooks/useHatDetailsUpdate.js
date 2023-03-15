@@ -1,18 +1,13 @@
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
-import _ from 'lodash';
-import { useState } from 'react';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
+import { useOverlay } from '../contexts/OverlayContext';
 import useToast from './useToast';
 import { decimalId } from '../lib/hats';
 
 const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const toast = useToast();
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -29,7 +24,14 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: data.hash,
+        toastData: {
+          title: 'Details updated!',
+          description: `Successfully updated the details for hat #${hatId}`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -50,17 +52,7 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: 'Details updated!',
-        description: `Successfully updated the details for hat #${hatId}`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useHatDetailsUpdate;

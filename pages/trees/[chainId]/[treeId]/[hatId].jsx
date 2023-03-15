@@ -83,7 +83,6 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { data: hatData } = useHatDetails({ hatId, chainId });
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
-  console.log(userChain, chain?.id === userChain);
 
   // TODO handle error and loading in layout
   if (treeLoading || imagesLoading)

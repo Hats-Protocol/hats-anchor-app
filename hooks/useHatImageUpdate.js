@@ -1,16 +1,12 @@
-import { useState } from 'react';
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
+import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
-  const [hash, setHash] = useState();
+  const { handlePendingTx } = useOverlay();
   const toast = useToast();
 
   const { config } = usePrepareContractWrite({
@@ -28,7 +24,14 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setHash(_.get(data, 'hash'));
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: 'Image updated!',
+          description: `Successfully updated the image for hat #${hatId}`,
+        },
+      });
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -50,17 +53,7 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      toast.success({
-        title: 'Image updated!',
-        description: `Successfully updated the image for hat #${hatId}`,
-      });
-    },
-  });
-
-  return { writeAsync, isLoading };
+  return { writeAsync };
 };
 
 export default useHatImageUpdate;
