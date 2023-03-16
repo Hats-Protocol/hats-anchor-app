@@ -44,6 +44,7 @@ import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
+import useContainerDimensions from '../../../../hooks/useContainerDimensions';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -52,6 +53,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const router = useRouter();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+
+  const [dimensions, containerRef] = useContainerDimensions();
 
   const { address } = useAccount();
   const userChain = useChainId();
@@ -201,9 +204,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
           {/* tree explorer */}
           {!_.isEmpty(tree) && (
             <Card gridAutoRows='auto'>
-              <CardBody minH='400px'>
+              <CardBody minH='400px' ref={containerRef}>
                 <TreeGraph
                   data={tree}
+                  dimensions={dimensions}
                   orientation='vertical'
                   collapsible={false}
                   nodeSize={{ x: 200, y: 200 }}
