@@ -1,6 +1,6 @@
 import { Button } from '@chakra-ui/react';
 import { BigNumber } from 'ethers';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
 import styles from './TreeNode.module.css';
@@ -21,6 +21,12 @@ function Node({
   );
 
   const isUserAdminOfHat = isAdmin(rd3tProps.nodeDatum.name, wearerHats);
+
+  useEffect(() => {
+    if (isHatActive) {
+      rd3tProps.onNodeClick();
+    }
+  }, []);
 
   return (
     <g>
@@ -54,7 +60,10 @@ function Node({
           strokeWidth: isHatActive ? '4px' : '2px',
           strokeOpacity: '50%',
         }}
-        onClick={() => handleNodeClick(rd3tProps.nodeDatum.name)}
+        onClick={() => {
+          handleNodeClick(rd3tProps.nodeDatum.name);
+          rd3tProps.onNodeClick();
+        }}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       />
