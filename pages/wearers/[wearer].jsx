@@ -86,14 +86,25 @@ const CoreHat = ({ hat, image }) => (
 );
 
 const WearerDetail = ({ wearerAddress, initialData }) => {
-  const { data: wearer } = useWearerDetails({
+  const { data: goerliWearer } = useWearerDetails({
     wearerAddress,
+    chainId: 5,
+    initialData,
+  });
+  const { data: gnosisWearer } = useWearerDetails({
+    wearerAddress,
+    chainId: 100,
+    initialData,
+  });
+  const { data: polygonWearer } = useWearerDetails({
+    wearerAddress,
+    chainId: 137,
     initialData,
   });
 
-  const goerliHats = _.get(wearer, 'goerli.currentHats', []);
-  const gnosisHats = _.get(wearer, 'gnosis.currentHats', []);
-  const polygonHats = _.get(wearer, 'polygon.currentHats', []);
+  const goerliHats = _.get(goerliWearer, 'currentHats', []);
+  const gnosisHats = _.get(gnosisWearer, 'currentHats', []);
+  const polygonHats = _.get(polygonWearer, 'currentHats', []);
 
   const currentHats = _.concat(goerliHats, gnosisHats, polygonHats);
 
