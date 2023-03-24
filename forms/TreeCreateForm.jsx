@@ -53,7 +53,7 @@ const TreeCreateForm = () => {
         />
         <Input
           localForm={localForm}
-          name='image'
+          name='imageUrl'
           label='Image'
           placeholder='ipfs://test.jpg'
         />
