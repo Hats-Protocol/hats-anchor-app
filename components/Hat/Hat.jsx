@@ -143,7 +143,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           address={hatData.eligibility}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
-          mutable={topHatOrMutable(hatData)}
+          mutable={mutableNotTopHat(hatData)}
           admin={
             isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
             chainId === userChain
@@ -160,7 +160,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           address={hatData.toggle}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
-          mutable={topHatOrMutable(hatData)}
+          mutable={mutableNotTopHat(hatData)}
           admin={
             isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
             chainId === userChain

@@ -22,10 +22,25 @@ import { fetchAllTrees } from '../gql/helpers';
 import { decimalId } from '../lib/hats';
 import { chainsMap, chainsColors } from '../lib/web3';
 
-const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
+const Home = ({
+  initialMainnetData,
+  initialGoerliData,
+  initialOptimismData,
+  initialGnosisData,
+  initialPolygonData,
+  initialArbitrumData,
+}) => {
+  const { data: mainnetTrees } = useTreeList({
+    chainId: 1,
+    initialData: initialMainnetData,
+  });
   const { data: goerliTrees } = useTreeList({
     chainId: 5,
     initialData: initialGoerliData,
+  });
+  const { data: optimismTrees } = useTreeList({
+    chainId: 10,
+    initialData: initialOptimismData,
   });
   const { data: gnosisTrees } = useTreeList({
     chainId: 100,
@@ -35,35 +50,61 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
     chainId: 137,
     initialData: initialPolygonData,
   });
-  const allTrees = _.concat(polygonTrees, gnosisTrees, goerliTrees);
+  const { data: arbitrumTrees } = useTreeList({
+    chainId: 42161,
+    initialData: initialArbitrumData,
+  });
+  // const { data: sepoliaTrees } = useTreeList({
+  //   chainId: 11155111,
+  //   initialData: initialPolygonData,
+  // });
+  const allTrees = _.concat(
+    mainnetTrees,
+    polygonTrees,
+    gnosisTrees,
+    goerliTrees,
+    optimismTrees,
+    arbitrumTrees,
+    // sepoliaTrees,
+  );
 
   // get top hats of every chain
-  const goerliTopHats = goerliTrees.map((tree) => {
-    return _.get(tree, 'hats[0].id');
-  });
-  const gnosisTopHats = gnosisTrees.map((tree) => {
-    return _.get(tree, 'hats[0].id');
-  });
-  const polygonTopHats = polygonTrees.map((tree) => {
-    return _.get(tree, 'hats[0].id');
-  });
+  const mainnetTopHats = _.map(mainnetTrees, 'hats[0].id');
+  const goerliTopHats = _.map(goerliTrees, 'hats[0].id');
+  const optimismTopHats = _.map(optimismTrees, 'hats[0].id');
+  const gnosisTopHats = _.map(gnosisTrees, 'hats[0].id');
+  const polygonTopHats = _.map(polygonTrees, 'hats[0].id');
+  const arbitrumTopHats = _.map(arbitrumTrees, 'hats[0].id');
+  // const sepoliaTopHats = _.map(arbitrumTrees, 'hats[0].id');
 
   // get images per hat for every chain
+  const { data: mainnetImagesData, loading: mainnetImagesLoading } =
+    useImageURIs(mainnetTopHats, 1);
   const { data: goerliImagesData, loading: goerliImagesLoading } = useImageURIs(
     goerliTopHats,
     5,
   );
+  const { data: optimismImagesData, loading: optimismImagesLoading } =
+    useImageURIs(optimismTopHats, 10);
   const { data: gnosisImagesData, loading: gnosisImagesLoading } = useImageURIs(
     gnosisTopHats,
     100,
   );
   const { data: polygonImagesData, loading: polygonImagesLoading } =
     useImageURIs(polygonTopHats, 137);
+  const { data: arbitrumImagesData, loading: arbitrumImagesLoading } =
+    useImageURIs(arbitrumTopHats, 42161);
+  // const { data: sepoliaImagesData, loading: sepoliaImagesLoading } =
+  //   useImageURIs(sepoliaTopHats, 11155111);
 
   const imagesPerChain = {
+    1: mainnetImagesData,
     5: goerliImagesData,
+    10: optimismImagesData,
     100: gnosisImagesData,
     137: polygonImagesData,
+    42161: arbitrumImagesData,
+    // 11155111: sepoliaImagesData,
   };
 
   return (
@@ -132,15 +173,23 @@ const Home = ({ initialGoerliData, initialGnosisData, initialPolygonData }) => {
 };
 
 export const getServerSideProps = async () => {
+  const mainnetTrees = await fetchAllTrees(1);
   const goerliTrees = await fetchAllTrees(5);
+  const optimismTrees = await fetchAllTrees(10);
   const gnosisTrees = await fetchAllTrees(100);
   const polygonTrees = await fetchAllTrees(137);
+  const arbitrumTrees = await fetchAllTrees(42161);
+  // const sepoliaTrees = await fetchAllTrees(11155111);
 
   return {
     props: {
+      initialMainnetData: mainnetTrees || null,
       initialGoerliData: goerliTrees || null,
+      initialOptimismData: optimismTrees || null,
       initialGnosisData: gnosisTrees || null,
       initialPolygonData: polygonTrees || null,
+      initialArbitrumData: arbitrumTrees || null,
+      // initialSepoliaData: sepoliaTrees || null,
     },
   };
 };

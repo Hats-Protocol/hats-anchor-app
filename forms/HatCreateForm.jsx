@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import { hatsAddresses, ONE_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
@@ -43,8 +43,8 @@ const HatCreateForm = ({ defaultAdmin }) => {
     admin: defaultAdmin,
     details,
     maxSupply: _.toNumber(maxSupply),
-    eligibility: inputEligibility ? eligibility : ZERO_ADDRESS,
-    toggle: inputToggle ? toggle : ZERO_ADDRESS,
+    eligibility: inputEligibility ? eligibility : ONE_ADDRESS,
+    toggle: inputToggle ? toggle : ONE_ADDRESS,
     mutable,
     imageUrl,
   });

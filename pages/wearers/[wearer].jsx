@@ -15,7 +15,7 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import { fetchAllWearerDetails } from '../../gql/helpers';
+import { fetchWearerDetails } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useImageURIs from '../../hooks/useImageURIs';
 import Layout from '../../components/Layout';
@@ -86,46 +86,88 @@ const CoreHat = ({ hat, image }) => (
 );
 
 const WearerDetail = ({ wearerAddress, initialData }) => {
+  const { data: mainnetWearer } = useWearerDetails({
+    wearerAddress,
+    chainId: 1,
+    initialData: initialData[1],
+  });
   const { data: goerliWearer } = useWearerDetails({
     wearerAddress,
     chainId: 5,
-    initialData,
+    initialData: initialData[5],
+  });
+  const { data: optimismWearer } = useWearerDetails({
+    wearerAddress,
+    chainId: 10,
+    initialData: initialData[10],
   });
   const { data: gnosisWearer } = useWearerDetails({
     wearerAddress,
     chainId: 100,
-    initialData,
+    initialData: initialData[100],
   });
   const { data: polygonWearer } = useWearerDetails({
     wearerAddress,
     chainId: 137,
-    initialData,
+    initialData: initialData[137],
   });
+  const { data: arbitrumWearer } = useWearerDetails({
+    wearerAddress,
+    chainId: 42161,
+    initialData: initialData[42161],
+  });
+  // const { data: sepoliaWearer } = useWearerDetails({
+  //   wearerAddress,
+  //   chainId: 11155111,
+  //   initialData: initialData[11155111],
+  // });
 
+  const mainnetHats = _.get(mainnetWearer, 'currentHats', []);
   const goerliHats = _.get(goerliWearer, 'currentHats', []);
+  const optimismHats = _.get(optimismWearer, 'currentHats', []);
   const gnosisHats = _.get(gnosisWearer, 'currentHats', []);
   const polygonHats = _.get(polygonWearer, 'currentHats', []);
+  const arbitrumHats = _.get(arbitrumWearer, 'currentHats', []);
+  // const sepoliaHats = _.get(sepoliaWearer, 'currentHats', []);
 
-  const currentHats = _.concat(goerliHats, gnosisHats, polygonHats);
+  const currentHats = _.concat(
+    mainnetHats,
+    arbitrumHats,
+    optimismHats,
+    gnosisHats,
+    polygonHats,
+    goerliHats,
+    // sepoliaHats,
+  );
 
-  const { data: goerliImagesData, loading: goerliImagesLoading } = useImageURIs(
-    goerliHats.map((hat) => hat.id),
-    5,
+  const { data: mainnetImagesData } = useImageURIs(_.map(mainnetHats, 'id'), 1);
+  const { data: goerliImagesData } = useImageURIs(_.map(goerliHats, 'id'), 5);
+  const { data: optimismImagesData } = useImageURIs(
+    _.map(optimismHats, 'id'),
+    10,
   );
-  const { data: gnosisImagesData, loading: gnosisImagesLoading } = useImageURIs(
-    gnosisHats.map((hat) => hat.id),
-    100,
+  const { data: gnosisImagesData } = useImageURIs(_.map(gnosisHats, 'id'), 100);
+  const { data: polygonImagesData } = useImageURIs(
+    _.map(polygonHats, 'id'),
+    137,
   );
-  const { data: polygonImagesData, loading: polygonImagesLoading } =
-    useImageURIs(
-      polygonHats.map((hat) => hat.id),
-      137,
-    );
+  const { data: arbitrumImagesData } = useImageURIs(
+    _.map(arbitrumHats, 'id'),
+    42161,
+  );
+  // const { data: sepoliaImagesData } = useImageURIs(
+  //   _.map(sepoliaHats, 'id'),
+  //   11155111,
+  // );
 
   const imagesPerChain = {
+    1: mainnetImagesData,
     5: goerliImagesData,
+    10: optimismImagesData,
     100: gnosisImagesData,
     137: polygonImagesData,
+    42161: arbitrumImagesData,
+    // 11155111: sepoliaImagesData,
   };
 
   return (
@@ -233,12 +275,29 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
 
 export const getServerSideProps = async (context) => {
   const { wearer } = context.params;
-  const initialData = await fetchAllWearerDetails(_.toLower(wearer));
+  const result = await Promise.all([
+    fetchWearerDetails(_.toLower(wearer), 1),
+    fetchWearerDetails(_.toLower(wearer), 5),
+    fetchWearerDetails(_.toLower(wearer), 10),
+    fetchWearerDetails(_.toLower(wearer), 100),
+    fetchWearerDetails(_.toLower(wearer), 137),
+    fetchWearerDetails(_.toLower(wearer), 42161),
+    // fetchWearerDetails(_.toLower(wearer), 1115111),
+  ]);
+  // const initialData = await fetchAllWearerDetails(_.toLower(wearer));
 
   return {
     props: {
       wearerAddress: wearer,
-      initialData,
+      initialData: {
+        1: result[0] || null,
+        5: result[1] || null,
+        10: result[2] || null,
+        100: result[3] || null,
+        137: result[4] || null,
+        42161: result[5] || null,
+        // 1115111: result[6] || null,
+      },
     },
   };
 };
