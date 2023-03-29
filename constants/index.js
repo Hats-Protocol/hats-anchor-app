@@ -1,4 +1,5 @@
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+export const ONE_ADDRESS = '0x0000000000000000000000000000000000000001';
 
 // TODO create2 we can consolidate to 1 address
 export const hatsAddresses = (chainId) => {
