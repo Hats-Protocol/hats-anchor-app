@@ -182,13 +182,21 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
         <HatModulesForm type={type} hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal name='hatDetails' title='Hat Details' localOverlay={localOverlay}>
+      <Modal
+        name='hatDetails'
+        title='Edit Hat Details'
+        localOverlay={localOverlay}
+      >
         <HatDetailsForm hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal name='hatImage' title='Hat Image' localOverlay={localOverlay}>
+      <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
         <HatImageForm hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal name='hatSupply' title='Hat Supply' localOverlay={localOverlay}>
+      <Modal
+        name='hatSupply'
+        title='Edit Max Supply'
+        localOverlay={localOverlay}
+      >
         <HatSupplyForm hatData={hatData} chainId={chainId} />
       </Modal>
 

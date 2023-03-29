@@ -30,11 +30,11 @@ const HatSupplyForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input localForm={localForm} name='amount' label='Amount' />
+        <Input localForm={localForm} name='amount' label='New Max Supply' placeholder='10' />
 
-        <Flex>
+        <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>
-            Save
+            Update
           </Button>
         </Flex>
       </Stack>

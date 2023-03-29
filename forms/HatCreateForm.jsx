@@ -66,11 +66,11 @@ const HatCreateForm = ({ defaultAdmin }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
+      <Stack spacing={6}>
         <Input
           localForm={localForm}
           name='admin'
-          label='Admin ID'
+          label='Admin of Hat'
           defaultValue={decimalAdmin}
           isDisabled
         />
@@ -78,19 +78,20 @@ const HatCreateForm = ({ defaultAdmin }) => {
           localForm={localForm}
           name='details'
           label='Details'
-          helperText='Brief description for your profile. URLs are hyperlinked.'
-          placeholder='Pass an IPFS hash or URL here to set the details for this hat. Or add a string of markdown directly, but be careful with gas. e.g. "This Hat is for the coordinator of the DAO&apos;s marketing work stream"'
+          placeholder='Marketing Facilitator Hat: responsibilities, authorities, qualifications.'
+          helperText='Name and description of the hat. Pass an IPFS hash or URL here to set additional responsibilities for this hat, or add a string of markdown directly (but be careful with gas!)'
         />
         <Input
           name='maxSupply'
           label='Max Supply'
-          placeholder='69'
+          placeholder='10'
           localForm={localForm}
         />
         <RadioBox
           name='mutable'
-          label='Mutable?'
+          label='Mutablility'
           options={['Mutable', 'Immutable']}
+          helperText='Whether or not this Hat should be able to be modified by its Admin. If unsure, default to mutable. This can be changed from mutable to immutable later (but not the other way).'
           localForm={localForm}
           isRequired
         />
@@ -98,7 +99,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
           localForm={localForm}
           name='imageUrl'
           label='Image'
-          placeholder='ipfs://test.jpg'
+          placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
         />
         <FormControl>
           <HStack>
@@ -106,35 +107,34 @@ const HatCreateForm = ({ defaultAdmin }) => {
               isChecked={inputEligibility}
               onChange={() => setInputEligibility(!inputEligibility)}
             />
-            <FormLabel>Set Eligibility</FormLabel>
+            {!inputEligibility && (<FormLabel>Set Eligibility</FormLabel>)}
+            {inputEligibility && (
+              <Input
+                name='eligibility'
+                label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                placeholder='0x4a750000403C3B91997911FCd989d9B5C25d7876'
+                localForm={localForm}
+              />
+            )}
           </HStack>
         </FormControl>
-        {inputEligibility && (
-          <Input
-            name='eligibility'
-            label='Eligibility'
-            placeholder='0x'
-            localForm={localForm}
-          />
-        )}
         <FormControl>
           <HStack>
             <Switch
               isChecked={inputToggle}
               onChange={() => setInputToggle(!inputToggle)}
             />
-            <FormLabel>Set Toggle</FormLabel>
+            {!inputToggle && (<FormLabel>Set Toggle</FormLabel>)}
+            {inputToggle && (
+              <Input
+                name='toggle'
+                label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+                localForm={localForm}
+              />
+            )}
           </HStack>
         </FormControl>
-        {inputToggle && (
-          <Input
-            name='toggle'
-            label='Toggle'
-            placeholder='0x'
-            localForm={localForm}
-          />
-        )}
-
         <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>
             Create

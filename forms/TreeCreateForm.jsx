@@ -55,7 +55,7 @@ const TreeCreateForm = () => {
           localForm={localForm}
           name='imageUrl'
           label='Image'
-          placeholder='ipfs://test.jpg'
+          placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
         />
 
         <FormControl>
