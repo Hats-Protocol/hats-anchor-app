@@ -1,7 +1,5 @@
 .button1 {
   color: black;
-  width: 100px;
-  border: 1px solid black;
   border-radius: 10px;
   margin-bottom: 4px;
   margin-top: 4px;
@@ -10,7 +8,6 @@
 
 .button1:hover {
   color: black;
-  border: 1px solid black;
   border-radius: 10px;
   margin-bottom: 4px;
   margin-top: 4px;
