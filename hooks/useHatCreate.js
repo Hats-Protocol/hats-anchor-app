@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses, ZERO_ADDRESS, ONE_ADDRESS } from '../constants';
+import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
@@ -19,22 +19,6 @@ const useHatCreate = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  console.table({
-    address: hatsAddress || hatsAddresses(chainId),
-    chainId,
-    abi: JSON.stringify(abi),
-    functionName: 'createHat',
-    enabled: !!hatsAddress,
-  });
-  console.table([
-    prettyIdToId(admin), // not a valid fallback? throw instead?
-    details || '',
-    maxSupply || 1,
-    eligibility || ONE_ADDRESS,
-    toggle || ONE_ADDRESS,
-    mutable === 'Mutable',
-    imageUrl || '',
-  ]);
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -45,8 +29,8 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      eligibility || ONE_ADDRESS,
-      toggle || ONE_ADDRESS,
+      eligibility || FALLBACK_ADDRESS,
+      toggle || FALLBACK_ADDRESS,
       mutable === 'Mutable',
       imageUrl || '',
     ],
