@@ -30,7 +30,7 @@ const HatImageForm = ({ hatData, chainId }) => {
           localForm={localForm}
           name='image'
           label='New Image' 
-          placeholder='https://ipfs.io/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
+          placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
         />
 
         <Flex justify='flex-end'>
