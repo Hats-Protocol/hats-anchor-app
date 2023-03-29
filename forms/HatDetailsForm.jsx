@@ -27,11 +27,17 @@ const HatDetailsForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Textarea localForm={localForm} name='details' label='Details' />
+        <Textarea
+          localForm={localForm}
+          name='details'
+          label='New Details'
+          placeholder='Marketing Facilitator Hat: responsibilities, authorities, qualifications.'
+          helperText='Name and description of the hat. Pass an IPFS hash or URL here to set additional responsibilities for this hat, or add a string of markdown directly (but be careful with gas!)'
+        />
 
-        <Flex>
+        <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>
-            Save
+            Update
           </Button>
         </Flex>
       </Stack>

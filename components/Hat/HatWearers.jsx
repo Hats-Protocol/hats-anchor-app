@@ -60,7 +60,7 @@ function HatWearers({ hatData, chainId }) {
 
   return (
     <>
-      <Modal name='newWearer' title='New Wearer' localOverlay={localOverlay}>
+      <Modal name='newWearer' title='Mint Hat' localOverlay={localOverlay}>
         <HatWearerForm hatId={_.get(hatData, 'id')} chainId={chainId} />
       </Modal>
 
@@ -72,7 +72,7 @@ function HatWearers({ hatData, chainId }) {
               _.get(hatData, 'currentSupply') !== '0' && (
                 <Text>{_.get(hatData, 'currentSupply')} /</Text>
               )}
-            <Text>{_.get(hatData, 'maxSupply')} Total</Text>
+            <Text>Max Supply: {_.get(hatData, 'maxSupply')}</Text>
           </HStack>
 
           {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
@@ -81,7 +81,7 @@ function HatWearers({ hatData, chainId }) {
                 onClick={() => setModals({ newWearer: true })}
                 variant='outline'
               >
-                New Wearer
+                Mint to New Wearer
               </Button>
             )}
         </Flex>
