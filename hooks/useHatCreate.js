@@ -44,17 +44,13 @@ const useHatCreate = ({
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
-      setTimeout(() => {
-        console.log('invalidating query', treeId);
-        queryClient.invalidateQueries({ queryKey: ['treeDetails', treeId] });
-      }, 10000);
-
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Hat Created',
           description: 'Successfully created hat',
         },
+        treeId,
       });
 
       toast.info({
