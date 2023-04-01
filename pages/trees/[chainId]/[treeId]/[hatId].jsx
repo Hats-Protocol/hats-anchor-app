@@ -161,7 +161,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
       <NextSeo title={title} />
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm defaultAdmin={defaultHatAdmin} />
+        <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />
       </Modal>
 
       <Layout>

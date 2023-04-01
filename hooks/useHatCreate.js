@@ -5,10 +5,12 @@ import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 const useHatCreate = ({
   hatsAddress,
   chainId,
+  treeId,
   admin,
   details,
   maxSupply,
@@ -19,6 +21,7 @@ const useHatCreate = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -40,6 +43,11 @@ const useHatCreate = ({
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
+      setTimeout(() => {
+        console.log('invalidating query', treeId);
+        queryClient.invalidateQueries({ queryKey: ['treeDetails', treeId] });
+      }, 10000);
+
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
