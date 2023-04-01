@@ -80,8 +80,10 @@ function Node({
               className={styles.button1}
               type='button'
               onClick={() => handleAddChildClick(rd3tProps.nodeDatum.name)}
+              fontSize='sm'
+              fontWeight='normal'
             >
-              Add Child
+              Add Child Hat
             </Button>
           )}
         </div>

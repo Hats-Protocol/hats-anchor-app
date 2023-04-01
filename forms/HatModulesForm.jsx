@@ -42,8 +42,8 @@ const HatModulesForm = ({
         <Input
           localForm={localForm}
           name='newAddress'
-          label={`${_.capitalize(type)} Address`}
-          placeholder='0x...'
+          label={`New ${_.capitalize(type)} Address — https://docs.hatsprotocol.xyz/#${_.capitalize(type)}`}
+          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
         />
 
         <Flex justify='flex-end'>

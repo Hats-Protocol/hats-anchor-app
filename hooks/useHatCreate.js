@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
@@ -23,7 +23,7 @@ const useHatCreate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
@@ -32,13 +32,14 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      eligibility || ZERO_ADDRESS,
-      toggle || ZERO_ADDRESS,
+      eligibility || FALLBACK_ADDRESS,
+      toggle || FALLBACK_ADDRESS,
       mutable === 'Mutable',
       imageUrl || '',
     ],
-    enabled: !!hatsAddress,
+    enabled: !!hatsAddress && !!admin,
   });
+  console.log(prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,

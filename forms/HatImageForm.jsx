@@ -26,11 +26,16 @@ const HatImageForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input localForm={localForm} name='image' label='Image' />
+        <Input 
+          localForm={localForm}
+          name='image'
+          label='New Image' 
+          placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
+        />
 
-        <Flex>
+        <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>
-            Save
+            Update
           </Button>
         </Flex>
       </Stack>

@@ -12,9 +12,10 @@ import {
   Heading,
   Box,
   useMediaQuery,
+  Image,
 } from '@chakra-ui/react';
 import { FaChevronDown } from 'react-icons/fa';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useAccount, useEnsName, useDisconnect, useEnsAvatar } from 'wagmi';
 
 const ConnectWallet = () => {

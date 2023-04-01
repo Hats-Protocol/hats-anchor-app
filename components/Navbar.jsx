@@ -31,7 +31,7 @@ const Navbar = () => {
         name: 'Create Tree',
         onClick: () => localOverlay.setModals({ createTree: true }),
       },
-      address && { name: 'User Hats', href: `/wearers/${address}` },
+      address && { name: 'My Hats', href: `/wearers/${address}` },
     ];
 
     return clearNonObjects(links);
@@ -61,7 +61,7 @@ const Navbar = () => {
             <Image src='/icon.jpeg' h='70px' alt='Hats Logo' />
             {/* <Heading>{CONFIG.emojis}</Heading> */}
           </ChakraLink>
-          <HStack spacing={3}>
+          <HStack spacing={5}>
             {navLinks.map((item) => (
               <ChakraLink
                 as={Link}
