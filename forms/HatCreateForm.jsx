@@ -20,7 +20,7 @@ import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
 
-const HatCreateForm = ({ defaultAdmin }) => {
+const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { mutable: 'Mutable' },
@@ -40,6 +40,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
+    treeId,
     admin: defaultAdmin,
     details,
     maxSupply: _.toNumber(maxSupply),
