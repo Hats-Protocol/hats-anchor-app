@@ -43,6 +43,7 @@ import useWearerDetails from '../../hooks/useWearerDetails';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatImageForm from '../../forms/HatImageForm';
 import HatSupplyForm from '../../forms/HatSupplyForm';
+import useHatDetailsField from '../../hooks/useHatDetailsField';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -100,6 +101,20 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
+  const {
+    data: hatDetailsFieldData,
+    isLoading: hatDetailsFieldLoading,
+    error: hatDetailsFieldError,
+    isIpfs: idHatDetailsFieldIpfs,
+  } = useHatDetailsField(hatData?.details);
+
+  console.log(
+    'details data:',
+    hatDetailsFieldData,
+    'is ipfs:',
+    idHatDetailsFieldIpfs,
+  );
+
   if (!hatData) return null;
 
   const handleOpenDetailsModal = () => {
@@ -297,7 +312,24 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                   />
                 )}
 
-                <Text>{hatData?.details}</Text>
+                {idHatDetailsFieldIpfs ? (
+                  hatDetailsFieldLoading ? (
+                    'Loading...'
+                  ) : (
+                    <>
+                      <Text fontSize='sm' as='b'>
+                        Name:
+                      </Text>
+                      <Text>{hatDetailsFieldData.name}</Text>
+                      <Text fontSize='sm' as='b'>
+                        Description:
+                      </Text>
+                      <Text>{hatDetailsFieldData.description}</Text>
+                    </>
+                  )
+                ) : (
+                  <Text>{hatData?.details}</Text>
+                )}
               </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}

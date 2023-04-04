@@ -19,6 +19,8 @@ import { hatsAddresses, FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
+import { pinJson, getCID } from '../lib/ipfs';
+import useCid from '../hooks/useCid';
 
 const HatCreateForm = ({ defaultAdmin }) => {
   const localForm = useForm({
@@ -30,18 +32,25 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const [inputToggle, setInputToggle] = useState(false);
   const chainId = useChainId();
 
-  const details = useDebounce(watch('details', ''));
+  const name = useDebounce(watch('name', ''));
+  const description = useDebounce(watch('description', ''));
   const maxSupply = useDebounce(watch('maxSupply', 1));
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const mutable = useDebounce(watch('mutable', true));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid(
+    name,
+    description,
+  );
+  console.log('cid hook:', detailsCID);
+
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
     admin: defaultAdmin,
-    details,
+    details: detailsCID,
     maxSupply: _.toNumber(maxSupply),
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
@@ -49,7 +58,8 @@ const HatCreateForm = ({ defaultAdmin }) => {
     imageUrl,
   });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    await pinJson({ name, description });
     writeAsync?.();
   };
 
@@ -76,10 +86,15 @@ const HatCreateForm = ({ defaultAdmin }) => {
         />
         <Textarea
           localForm={localForm}
-          name='details'
-          label='Details'
-          placeholder='Marketing Facilitator Hat: responsibilities, authorities, qualifications.'
-          helperText='Name and description of the hat. Pass an IPFS hash or URL here to set additional responsibilities for this hat, or add a string of markdown directly (but be careful with gas!)'
+          name='name'
+          label='Name'
+          placeholder='Hat name'
+        />
+        <Textarea
+          localForm={localForm}
+          name='description'
+          label='Description'
+          placeholder='Hat description'
         />
         <Input
           name='maxSupply'
@@ -107,7 +122,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
               isChecked={inputEligibility}
               onChange={() => setInputEligibility(!inputEligibility)}
             />
-            {!inputEligibility && (<FormLabel>Set Eligibility</FormLabel>)}
+            {!inputEligibility && <FormLabel>Set Eligibility</FormLabel>}
             {inputEligibility && (
               <Input
                 name='eligibility'
@@ -124,7 +139,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
               isChecked={inputToggle}
               onChange={() => setInputToggle(!inputToggle)}
             />
-            {!inputToggle && (<FormLabel>Set Toggle</FormLabel>)}
+            {!inputToggle && <FormLabel>Set Toggle</FormLabel>}
             {inputToggle && (
               <Input
                 name='toggle'
@@ -136,7 +151,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
           </HStack>
         </FormControl>
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || detailsCidLoading}>
             Create
           </Button>
         </Flex>
