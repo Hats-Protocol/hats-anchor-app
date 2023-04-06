@@ -40,10 +40,10 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const mutable = useDebounce(watch('mutable', true));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
-  const { cid: detailsCID, loading: detailsCidLoading } = useCid(
-    name,
-    description,
-  );
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+    type: '1.0',
+    data: { name, description },
+  });
   console.log('cid hook:', detailsCID);
 
   const { writeAsync } = useHatCreate({
@@ -59,7 +59,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
   });
 
   const onSubmit = async () => {
-    await pinJson({ name, description });
+    await pinJson({ type: '1.0', data: { name, description } });
     writeAsync?.();
   };
 

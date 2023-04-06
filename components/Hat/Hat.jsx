@@ -105,14 +105,14 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
     error: hatDetailsFieldError,
-    isIpfs: idHatDetailsFieldIpfs,
+    schemaType: schamaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
 
   console.log(
     'details data:',
     hatDetailsFieldData,
-    'is ipfs:',
-    idHatDetailsFieldIpfs,
+    'schemaType:',
+    schamaTypeDetailsField,
   );
 
   if (!hatData) return null;
@@ -312,7 +312,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                   />
                 )}
 
-                {idHatDetailsFieldIpfs ? (
+                {schamaTypeDetailsField == '1.0' ? (
                   hatDetailsFieldLoading ? (
                     'Loading...'
                   ) : (
@@ -320,11 +320,11 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                       <Text fontSize='sm' as='b'>
                         Name:
                       </Text>
-                      <Text>{hatDetailsFieldData.name}</Text>
+                      <Text>{hatDetailsFieldData.data.data.name}</Text>
                       <Text fontSize='sm' as='b'>
                         Description:
                       </Text>
-                      <Text>{hatDetailsFieldData.description}</Text>
+                      <Text>{hatDetailsFieldData.data.data.description}</Text>
                     </>
                   )
                 ) : (
