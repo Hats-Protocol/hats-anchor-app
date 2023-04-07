@@ -141,16 +141,18 @@ const Home = ({
                     align='center'
                     spacing='16px'
                   >
-                    <Image
-                      src={
+                    <Box
+                      bgImage={
                         imagesPerChain[tree.chainId][topHat.id] || '/icon.jpeg'
                       }
+                      bgSize='cover'
                       alt='Top Hat image'
-                      maxW='84px'
+                      w='85px'
+                      h='85px'
                       border='1px solid'
                       borderColor='gray.200'
                     />
-                    <Stack spacing={1}>
+                    <Stack spacing={1} maxW='110px'>
                       <Text fontWeight={700} noOfLines={2}>
                         {_.get(topHat, 'details')}
                       </Text>
