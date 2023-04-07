@@ -132,7 +132,7 @@ const Home = ({
               )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
               key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
             >
-              <Card>
+              <Card overflow='hidden'>
                 <CardBody>
                   <HStack
                     h='100px'

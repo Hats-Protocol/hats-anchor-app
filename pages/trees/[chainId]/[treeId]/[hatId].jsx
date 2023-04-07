@@ -127,7 +127,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     {
       label: 'Network',
       value:
-        !userChain || chain?.id === userChain ? (
+        !address || !userChain || chain?.id === userChain ? (
           chain?.name
         ) : (
           <Button

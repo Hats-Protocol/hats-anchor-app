@@ -18,6 +18,8 @@ import { formatAddress } from '../../lib/general';
 import HatWearerForm from '../../forms/HatWearerForm';
 import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
+import { isAdmin } from '../../lib/hats';
+import useWearerDetails from '../../hooks/useWearerDetails';
 
 const WEARERS_PER_PAGE = 5;
 // TODO clean up pagination
@@ -27,6 +29,10 @@ function HatWearers({ hatData, chainId }) {
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
   const localOverlay = useOverlay();
+  const { data: wearerData } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
   const { setModals } = localOverlay;
 
   const wearerPages = useMemo(() => {
@@ -75,8 +81,12 @@ function HatWearers({ hatData, chainId }) {
             <Text>{_.get(hatData, 'maxSupply')} Max Supply</Text>
           </HStack>
 
-          {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
-            address && (
+          {address &&
+            _.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
+            isAdmin(
+              _.get(hatData, 'prettyId'),
+              _.map(_.get(wearerData, 'currentHats'), 'prettyId'),
+            ) && (
               <Button
                 onClick={() => setModals({ newWearer: true })}
                 variant='outline'
@@ -132,7 +142,8 @@ function HatWearers({ hatData, chainId }) {
             icon={<Icon as={BsChevronRight} />}
             onClick={incrementCurrentPage}
             isDisabled={
-              currentPage === wearerPages.count - 1 || _.isEmpty(wearers)
+              _.eq(currentPage, _.subtract(_.get(wearerPages, 'count'), 1)) ||
+              _.isEmpty(wearers)
             }
           />
         </HStack>
