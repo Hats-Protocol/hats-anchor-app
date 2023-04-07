@@ -9,6 +9,7 @@ import {
   Flex,
   Stack,
   Text,
+  Box,
 } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
@@ -57,17 +58,35 @@ function HatWearers({ hatData, chainId }) {
   }, [wearers]);
 
   const decrementCurrentPage = () => {
-    if (currentPage !== 1) setCurrentPage((curr) => curr - 1);
+    if (currentPage !== 0) setCurrentPage((curr) => curr - 1);
   };
 
   const incrementCurrentPage = () => {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
+  console.log(currentPage);
+
   return (
     <>
       <Modal name='newWearer' title='Mint Hat' localOverlay={localOverlay}>
         <HatWearerForm hatId={_.get(hatData, 'id')} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='renounceConfirm'
+        title='Are you sure?'
+        localOverlay={localOverlay}
+      >
+        <Stack>
+          <Text>
+            You are about to renounce (burn) your Hat with the following Hat ID:
+          </Text>
+          <Text>{_.get(hatData, 'prettyId')}</Text>
+          <Text>Are you sure you want to do this?</Text>
+          <Flex justify='flex-end' w='100%'>
+            <Button>Yes I&apos;m sure - Renounce</Button>
+          </Flex>
+        </Stack>
       </Modal>
 
       <Stack align='center' spacing={4}>
@@ -96,27 +115,40 @@ function HatWearers({ hatData, chainId }) {
             )}
         </Flex>
 
-        <Stack w='100%'>
+        <Stack w='100%' minH='220px'>
           {_.isEmpty(wearers) ? (
             <Flex justify='center' my={6}>
               <Text>No wearers yet</Text>
             </Flex>
           ) : (
             wearerPages.pages?.[currentPage]?.map((wearer) => (
-              <Link href={`/wearers/${wearer}`} key={wearer}>
-                <Flex
-                  borderBottom='1px solid'
-                  borderColor='gray.400'
-                  key={wearer}
-                  align='center'
-                  justify='space-between'
-                  p={1}
-                >
+              <Flex
+                borderBottom='1px solid'
+                borderColor='gray.400'
+                key={wearer}
+                align='center'
+                justify='space-between'
+                p={1}
+              >
+                <Link href={`/wearers/${wearer}`} key={wearer}>
                   <Text>{formatAddress(wearer)}</Text>
+                </Link>
 
-                  <Icon as={BsChevronRight} />
-                </Flex>
-              </Link>
+                <HStack spacing={6}>
+                  {_.eq(_.toLower(address), _.toLower(wearer)) && (
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => setModals({ renounceConfirm: true })}
+                    >
+                      Renounce
+                    </Button>
+                  )}
+                  <Link href={`/wearers/${wearer}`} key={wearer}>
+                    <Icon as={BsChevronRight} />
+                  </Link>
+                </HStack>
+              </Flex>
             ))
           )}
         </Stack>
@@ -130,7 +162,7 @@ function HatWearers({ hatData, chainId }) {
           {wearerPages?.pageNumbers?.map((number) => {
             return (
               <Button
-                onClick={() => setCurrentPage(number)}
+                onClick={() => setCurrentPage(number - 1)}
                 key={number}
                 isDisabled={currentPage + 1 === number}
               >
