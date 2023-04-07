@@ -9,7 +9,6 @@ import {
   Flex,
   Stack,
   Text,
-  Box,
 } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
@@ -19,8 +18,10 @@ import { formatAddress } from '../../lib/general';
 import HatWearerForm from '../../forms/HatWearerForm';
 import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
-import { isAdmin } from '../../lib/hats';
+import { isAdmin, decimalId, isTopHat } from '../../lib/hats';
 import useWearerDetails from '../../hooks/useWearerDetails';
+import useHatBurn from '../../hooks/useHatBurn';
+import { hatsAddresses } from '../../constants';
 
 const WEARERS_PER_PAGE = 5;
 // TODO clean up pagination
@@ -33,6 +34,11 @@ function HatWearers({ hatData, chainId }) {
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
     chainId,
+  });
+  const { writeAsync: renounceHat } = useHatBurn({
+    hatsAddress: hatsAddresses(chainId),
+    chainId,
+    hatId: decimalId(_.get(hatData, 'id')),
   });
   const { setModals } = localOverlay;
 
@@ -65,7 +71,9 @@ function HatWearers({ hatData, chainId }) {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
-  console.log(currentPage);
+  const handleRenounceHat = async () => {
+    await renounceHat();
+  };
 
   return (
     <>
@@ -84,7 +92,17 @@ function HatWearers({ hatData, chainId }) {
           <Text>{_.get(hatData, 'prettyId')}</Text>
           <Text>Are you sure you want to do this?</Text>
           <Flex justify='flex-end' w='100%'>
-            <Button>Yes I&apos;m sure - Renounce</Button>
+            <HStack>
+              <Button
+                onClick={() => setModals({ renounceConfirm: false })}
+                variant='outline'
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleRenounceHat}>
+                Yes I&apos;m sure - Renounce
+              </Button>
+            </HStack>
           </Flex>
         </Stack>
       </Modal>
@@ -135,13 +153,21 @@ function HatWearers({ hatData, chainId }) {
                 </Link>
 
                 <HStack spacing={6}>
-                  {_.eq(_.toLower(address), _.toLower(wearer)) && (
+                  {_.eq(_.toLower(address), _.toLower(wearer)) &&
+                  !isTopHat(hatData) ? (
                     <Button
                       size='sm'
                       variant='outline'
                       onClick={() => setModals({ renounceConfirm: true })}
                     >
                       Renounce
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setModals({ transferHat: true })}
+                      isDisabled
+                    >
+                      Transfer
                     </Button>
                   )}
                   <Link href={`/wearers/${wearer}`} key={wearer}>
