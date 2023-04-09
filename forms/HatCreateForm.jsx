@@ -19,8 +19,9 @@ import { hatsAddresses, FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
-import { pinJson, getCID } from '../lib/ipfs';
+import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
 
 const HatCreateForm = ({ defaultAdmin }) => {
   const localForm = useForm({
@@ -40,11 +41,16 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const mutable = useDebounce(watch('mutable', true));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
+  const {
+    data: imagePinData,
+    isLoading: imagePinLoading,
+    error: imagePinError,
+  } = usePinImageIpfs({ imageFile: imageUrl[0] });
+
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
     data: { name, description },
   });
-  console.log('cid hook:', detailsCID);
 
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
@@ -55,7 +61,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     mutable,
-    imageUrl,
+    imageUrl: imagePinData !== undefined ? 'ipfs://' + imagePinData : undefined,
   });
 
   const onSubmit = async () => {
@@ -112,6 +118,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
         />
         <Input
           localForm={localForm}
+          type='file'
           name='imageUrl'
           label='Image'
           placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'

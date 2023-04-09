@@ -108,13 +108,6 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
     schemaType: schamaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
 
-  console.log(
-    'details data:',
-    hatDetailsFieldData,
-    'schemaType:',
-    schamaTypeDetailsField,
-  );
-
   if (!hatData) return null;
 
   const handleOpenDetailsModal = () => {

@@ -30,7 +30,6 @@ const fetchDetailsIpfs = async (detailsField) => {
   const url = 'https://ipfs.io/ipfs/' + detailsField.slice(7);
 
   const res = await axios.get(url);
-  console.log('ipfs fetch result:', res);
   return res;
 };
 
