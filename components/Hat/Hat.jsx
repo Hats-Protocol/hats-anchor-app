@@ -305,8 +305,8 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                   />
                 )}
 
-                {schamaTypeDetailsField == '1.0' ? (
-                  hatDetailsFieldLoading ? (
+                {schamaTypeDetailsField === '1.0' &&
+                  (hatDetailsFieldLoading ? (
                     'Loading...'
                   ) : (
                     <>
@@ -319,8 +319,8 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                       </Text>
                       <Text>{hatDetailsFieldData.data.data.description}</Text>
                     </>
-                  )
-                ) : (
+                  ))}
+                {schamaTypeDetailsField !== '1.0' && (
                   <Text>{hatData?.details}</Text>
                 )}
               </Box>
