@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { pinImage, unpinImage } from '../lib/ipfs';
 
-const usePinImageIpfs = ({ imageFile }) => {
+const usePinImageIpfs = ({ imageFile, enabled }) => {
   const [currentImageFile, setCurrentImageFile] = useState();
   const [currentImageCid, setCurrentImageCid] = useState();
 
@@ -22,7 +22,7 @@ const usePinImageIpfs = ({ imageFile }) => {
       }
     };
 
-    if (imageFile !== undefined && imageFile != currentImageFile) {
+    if (imageFile !== undefined && imageFile != currentImageFile && enabled) {
       pin(imageFile);
     }
   }, [imageFile]);

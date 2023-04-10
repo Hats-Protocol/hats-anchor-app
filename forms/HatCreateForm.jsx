@@ -34,6 +34,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
   const [customDetails, setCustomDetails] = useState(true);
+  const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
 
   const name = useDebounce(watch('name', ''));
@@ -44,12 +45,13 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const mutable = useDebounce(watch('mutable', true));
   const imageUrl = useDebounce(watch('imageUrl', ''));
+  const imageFile = useDebounce(watch('imageFile', ''));
 
   const {
     data: imagePinData,
     isLoading: imagePinLoading,
     error: imagePinError,
-  } = usePinImageIpfs({ imageFile: imageUrl[0] });
+  } = usePinImageIpfs({ imageFile: imageFile[0], enabled: customImage });
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
@@ -65,7 +67,11 @@ const HatCreateForm = ({ defaultAdmin }) => {
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     mutable,
-    imageUrl: imagePinData !== undefined ? 'ipfs://' + imagePinData : undefined,
+    imageUrl: customImage
+      ? imagePinData !== undefined
+        ? 'ipfs://' + imagePinData
+        : undefined
+      : imageUrl,
   });
 
   const onSubmit = async () => {
@@ -142,13 +148,30 @@ const HatCreateForm = ({ defaultAdmin }) => {
           localForm={localForm}
           isRequired
         />
-        <Input
-          localForm={localForm}
-          type='file'
-          name='imageUrl'
-          label='Image'
-          placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
-        />
+        <FormControl>
+          <Checkbox
+            isChecked={customImage}
+            onChange={() => setCustomImage(!customImage)}
+          >
+            Custom image
+          </Checkbox>
+          {!customImage && (
+            <Textarea
+              localForm={localForm}
+              name='imageUrl'
+              label='Image'
+              placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
+            />
+          )}
+          {customImage && (
+            <Input
+              localForm={localForm}
+              type='file'
+              name='imageFile'
+              label='Image'
+            />
+          )}
+        </FormControl>
         <FormControl>
           <HStack>
             <Switch
