@@ -47,11 +47,17 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const imageUrl = useDebounce(watch('imageUrl', ''));
   const imageFile = useDebounce(watch('imageFile', ''));
 
+  const decimalAdmin = prettyIdToIp(defaultAdmin);
+
   const {
     data: imagePinData,
     isLoading: imagePinLoading,
     error: imagePinError,
-  } = usePinImageIpfs({ imageFile: imageFile[0], enabled: customImage });
+  } = usePinImageIpfs({
+    imageFile: imageFile[0],
+    enabled: customImage,
+    metadata: { name: 'image_' + chainId.toString() + '_' + decimalAdmin },
+  });
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
@@ -77,7 +83,10 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const onSubmit = async () => {
     writeAsync?.();
     if (customDetails) {
-      await pinJson({ type: '1.0', data: { name, description } });
+      await pinJson(
+        { type: '1.0', data: { name, description } },
+        { name: 'details_' + chainId.toString() + '_' + decimalAdmin },
+      );
     }
   };
 
@@ -89,8 +98,6 @@ const HatCreateForm = ({ defaultAdmin }) => {
   //     NFTs are viewable.`,
   //   fileTypes: 'PNG, JPG, GIF up to 2MB',
   // };
-
-  const decimalAdmin = prettyIdToIp(defaultAdmin);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
