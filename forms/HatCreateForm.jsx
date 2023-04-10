@@ -7,6 +7,7 @@ import {
   FormLabel,
   HStack,
   Spinner,
+  Checkbox,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -32,10 +33,12 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const { handleSubmit, watch } = localForm;
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
+  const [customDetails, setCustomDetails] = useState(true);
   const chainId = useChainId();
 
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
+  const details = useDebounce(watch('details', ''));
   const maxSupply = useDebounce(watch('maxSupply', 1));
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
@@ -57,7 +60,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
     hatsAddress: hatsAddresses(chainId),
     chainId,
     admin: defaultAdmin,
-    details: detailsCID,
+    details: customDetails ? detailsCID : details,
     maxSupply: _.toNumber(maxSupply),
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
@@ -67,7 +70,9 @@ const HatCreateForm = ({ defaultAdmin }) => {
 
   const onSubmit = async () => {
     writeAsync?.();
-    await pinJson({ type: '1.0', data: { name, description } });
+    if (customDetails) {
+      await pinJson({ type: '1.0', data: { name, description } });
+    }
   };
 
   // const dropZoneContent = {
@@ -91,18 +96,38 @@ const HatCreateForm = ({ defaultAdmin }) => {
           defaultValue={decimalAdmin}
           isDisabled
         />
-        <Textarea
-          localForm={localForm}
-          name='name'
-          label='Name'
-          placeholder='Hat name'
-        />
-        <Textarea
-          localForm={localForm}
-          name='description'
-          label='Description'
-          placeholder='Hat description'
-        />
+        <FormControl>
+          <Checkbox
+            isChecked={customDetails}
+            onChange={() => setCustomDetails(!customDetails)}
+          >
+            Custom details
+          </Checkbox>
+          {!customDetails && (
+            <Textarea
+              localForm={localForm}
+              name='details'
+              label='Details'
+              placeholder='Hat details'
+            />
+          )}
+          {customDetails && (
+            <Stack spacing={2}>
+              <Textarea
+                localForm={localForm}
+                name='name'
+                label='Name'
+                placeholder='Hat name'
+              />
+              <Textarea
+                localForm={localForm}
+                name='description'
+                label='Description'
+                placeholder='Hat description'
+              />
+            </Stack>
+          )}
+        </FormControl>
         <Input
           name='maxSupply'
           label='Max Supply'
