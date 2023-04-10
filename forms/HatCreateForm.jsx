@@ -6,6 +6,7 @@ import {
   Switch,
   FormLabel,
   HStack,
+  Spinner,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -65,8 +66,8 @@ const HatCreateForm = ({ defaultAdmin }) => {
   });
 
   const onSubmit = async () => {
-    await pinJson({ type: '1.0', data: { name, description } });
     writeAsync?.();
+    await pinJson({ type: '1.0', data: { name, description } });
   };
 
   // const dropZoneContent = {
@@ -158,8 +159,11 @@ const HatCreateForm = ({ defaultAdmin }) => {
           </HStack>
         </FormControl>
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || detailsCidLoading}>
-            Create
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || detailsCidLoading || imagePinLoading}
+          >
+            {imagePinLoading ? <Spinner /> : 'Create'}
           </Button>
         </Flex>
       </Stack>
