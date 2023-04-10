@@ -9,7 +9,7 @@ import {
   Spinner,
   Checkbox,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
@@ -24,6 +24,7 @@ import { prettyIdToIp } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { useDropzone } from 'react-dropzone';
 
 const HatCreateForm = ({ defaultAdmin }) => {
   const localForm = useForm({
@@ -37,6 +38,25 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
 
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({ accept: { 'image/*': [] } });
+  console.log('file:', acceptedFiles[0]);
+  const style = useMemo(
+    () => ({
+      ...baseStyle,
+      ...(isFocused ? focusedStyle : {}),
+      ...(isDragAccept ? acceptStyle : {}),
+      ...(isDragReject ? rejectStyle : {}),
+    }),
+    [isFocused, isDragAccept, isDragReject],
+  );
+
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
   const details = useDebounce(watch('details', ''));
@@ -45,7 +65,6 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const mutable = useDebounce(watch('mutable', true));
   const imageUrl = useDebounce(watch('imageUrl', ''));
-  const imageFile = useDebounce(watch('imageFile', ''));
 
   const decimalAdmin = prettyIdToIp(defaultAdmin);
 
@@ -54,7 +73,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
     isLoading: imagePinLoading,
     error: imagePinError,
   } = usePinImageIpfs({
-    imageFile: imageFile[0],
+    imageFile: acceptedFiles[0],
     enabled: customImage,
     metadata: { name: 'image_' + chainId.toString() + '_' + decimalAdmin },
   });
@@ -156,28 +175,34 @@ const HatCreateForm = ({ defaultAdmin }) => {
           isRequired
         />
         <FormControl>
-          <Checkbox
-            isChecked={customImage}
-            onChange={() => setCustomImage(!customImage)}
-          >
-            Custom image
-          </Checkbox>
-          {!customImage && (
-            <Textarea
-              localForm={localForm}
-              name='imageUrl'
-              label='Image'
-              placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
-            />
-          )}
-          {customImage && (
-            <Input
-              localForm={localForm}
-              type='file'
-              name='imageFile'
-              label='Image'
-            />
-          )}
+          <Stack spacing={0}>
+            <Checkbox
+              isChecked={customImage}
+              onChange={() => setCustomImage(!customImage)}
+            >
+              Custom image
+            </Checkbox>
+            {!customImage && (
+              <Textarea
+                localForm={localForm}
+                name='imageUrl'
+                label='Image'
+                placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
+              />
+            )}
+            {customImage && (
+              <Stack spacing={2}>
+                <FormLabel m='0'>Image</FormLabel>
+                <div className='container'>
+                  <div {...getRootProps({ style })}>
+                    <input {...getInputProps()} />
+                    <p>Drag 'n' drop, or click to select</p>
+                  </div>
+                  <p>{acceptedFiles ? acceptedFiles[0]?.name : ''}</p>
+                </div>
+              </Stack>
+            )}
+          </Stack>
         </FormControl>
         <FormControl>
           <HStack>
@@ -224,6 +249,34 @@ const HatCreateForm = ({ defaultAdmin }) => {
       </Stack>
     </form>
   );
+};
+
+const baseStyle = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '20px',
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: '#eeeeee',
+  borderStyle: 'dashed',
+  backgroundColor: '#fafafa',
+  color: '#bdbdbd',
+  outline: 'none',
+  transition: 'border .24s ease-in-out',
+};
+
+const focusedStyle = {
+  borderColor: '#2196f3',
+};
+
+const acceptStyle = {
+  borderColor: '#00e676',
+};
+
+const rejectStyle = {
+  borderColor: '#ff1744',
 };
 
 export default HatCreateForm;
