@@ -20,7 +20,11 @@ function Node({
     BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
   );
 
-  const isUserAdminOfHat = isAdmin(rd3tProps.nodeDatum.name, wearerHats);
+  const isWearerOrAdminOfHat = isAdmin(
+    rd3tProps.nodeDatum.name,
+    wearerHats,
+    true,
+  );
 
   useEffect(() => {
     if (isHatActive) {
@@ -75,7 +79,7 @@ function Node({
           }}
         >
           <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
-          {chainId === userChain && isUserAdminOfHat && (
+          {chainId === userChain && isWearerOrAdminOfHat && (
             <Button
               className={styles.button1}
               type='button'

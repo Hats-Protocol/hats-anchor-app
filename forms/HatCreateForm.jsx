@@ -26,7 +26,7 @@ import useCid from '../hooks/useCid';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import { useDropzone } from 'react-dropzone';
 
-const HatCreateForm = ({ defaultAdmin }) => {
+const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { mutable: 'Mutable' },
@@ -86,6 +86,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
+    treeId,
     admin: defaultAdmin,
     details: customDetails ? detailsCID : details,
     maxSupply: _.toNumber(maxSupply),

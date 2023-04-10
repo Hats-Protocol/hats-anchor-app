@@ -49,6 +49,7 @@ import useContainerDimensions from '../../../../hooks/useContainerDimensions';
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
 const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
+  const [initialRender, setInitialRender] = useState(true);
   const chain = chainsMap(chainId);
   const router = useRouter();
   const localOverlay = useOverlay();
@@ -88,7 +89,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
   // TODO handle error and loading in layout
-  if (treeLoading || imagesLoading)
+  if (initialRender && (treeLoading || imagesLoading)) {
+    setInitialRender(false);
     return (
       <Layout>
         <Flex justify='center' mt='200px'>
@@ -96,6 +98,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
         </Flex>
       </Layout>
     );
+  }
   if (treeError) return <p>Error : {treeError.message}</p>;
 
   const tree = toTreeStructure(treeData, imagesData);
@@ -145,6 +148,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const handleNodeClick = (nodePrettyId) => {
     router.push(
       `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
+      undefined,
+      { scroll: false },
     );
   };
 
@@ -161,7 +166,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
       <NextSeo title={title} />
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm defaultAdmin={defaultHatAdmin} />
+        <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />
       </Modal>
 
       <Layout>
