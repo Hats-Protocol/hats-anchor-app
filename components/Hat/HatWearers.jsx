@@ -18,6 +18,10 @@ import { formatAddress } from '../../lib/general';
 import HatWearerForm from '../../forms/HatWearerForm';
 import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
+import { isAdmin, decimalId, isTopHat } from '../../lib/hats';
+import useWearerDetails from '../../hooks/useWearerDetails';
+import useHatBurn from '../../hooks/useHatBurn';
+import { hatsAddresses } from '../../constants';
 
 const WEARERS_PER_PAGE = 5;
 // TODO clean up pagination
@@ -27,6 +31,15 @@ function HatWearers({ hatData, chainId }) {
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
   const localOverlay = useOverlay();
+  const { data: wearerData } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const { writeAsync: renounceHat } = useHatBurn({
+    hatsAddress: hatsAddresses(chainId),
+    chainId,
+    hatId: decimalId(_.get(hatData, 'id')),
+  });
   const { setModals } = localOverlay;
 
   const wearerPages = useMemo(() => {
@@ -51,17 +64,47 @@ function HatWearers({ hatData, chainId }) {
   }, [wearers]);
 
   const decrementCurrentPage = () => {
-    if (currentPage !== 1) setCurrentPage((curr) => curr - 1);
+    if (currentPage !== 0) setCurrentPage((curr) => curr - 1);
   };
 
   const incrementCurrentPage = () => {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
+  const handleRenounceHat = async () => {
+    await renounceHat();
+  };
+
   return (
     <>
       <Modal name='newWearer' title='Mint Hat' localOverlay={localOverlay}>
         <HatWearerForm hatId={_.get(hatData, 'id')} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='renounceConfirm'
+        title='Are you sure?'
+        localOverlay={localOverlay}
+      >
+        <Stack>
+          <Text>
+            You are about to renounce (burn) your Hat with the following Hat ID:
+          </Text>
+          <Text>{_.get(hatData, 'prettyId')}</Text>
+          <Text>Are you sure you want to do this?</Text>
+          <Flex justify='flex-end' w='100%'>
+            <HStack>
+              <Button
+                onClick={() => setModals({ renounceConfirm: false })}
+                variant='outline'
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleRenounceHat}>
+                Yes I&apos;m sure - Renounce
+              </Button>
+            </HStack>
+          </Flex>
+        </Stack>
       </Modal>
 
       <Stack align='center' spacing={4}>
@@ -75,8 +118,12 @@ function HatWearers({ hatData, chainId }) {
             <Text>{_.get(hatData, 'maxSupply')} Max Supply</Text>
           </HStack>
 
-          {_.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
-            address && (
+          {address &&
+            _.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
+            isAdmin(
+              _.get(hatData, 'prettyId'),
+              _.map(_.get(wearerData, 'currentHats'), 'prettyId'),
+            ) && (
               <Button
                 onClick={() => setModals({ newWearer: true })}
                 variant='outline'
@@ -86,27 +133,48 @@ function HatWearers({ hatData, chainId }) {
             )}
         </Flex>
 
-        <Stack w='100%'>
+        <Stack w='100%' minH='220px'>
           {_.isEmpty(wearers) ? (
             <Flex justify='center' my={6}>
               <Text>No wearers yet</Text>
             </Flex>
           ) : (
             wearerPages.pages?.[currentPage]?.map((wearer) => (
-              <Link href={`/wearers/${wearer}`} key={wearer}>
-                <Flex
-                  borderBottom='1px solid'
-                  borderColor='gray.400'
-                  key={wearer}
-                  align='center'
-                  justify='space-between'
-                  p={1}
-                >
+              <Flex
+                borderBottom='1px solid'
+                borderColor='gray.400'
+                key={wearer}
+                align='center'
+                justify='space-between'
+                p={1}
+              >
+                <Link href={`/wearers/${wearer}`} key={wearer}>
                   <Text>{formatAddress(wearer)}</Text>
+                </Link>
 
-                  <Icon as={BsChevronRight} />
-                </Flex>
-              </Link>
+                <HStack spacing={6}>
+                  {_.eq(_.toLower(address), _.toLower(wearer)) &&
+                  !isTopHat(hatData) ? (
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => setModals({ renounceConfirm: true })}
+                    >
+                      Renounce
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setModals({ transferHat: true })}
+                      isDisabled
+                    >
+                      Transfer
+                    </Button>
+                  )}
+                  <Link href={`/wearers/${wearer}`} key={wearer}>
+                    <Icon as={BsChevronRight} />
+                  </Link>
+                </HStack>
+              </Flex>
             ))
           )}
         </Stack>
@@ -120,7 +188,7 @@ function HatWearers({ hatData, chainId }) {
           {wearerPages?.pageNumbers?.map((number) => {
             return (
               <Button
-                onClick={() => setCurrentPage(number)}
+                onClick={() => setCurrentPage(number - 1)}
                 key={number}
                 isDisabled={currentPage + 1 === number}
               >
@@ -132,7 +200,8 @@ function HatWearers({ hatData, chainId }) {
             icon={<Icon as={BsChevronRight} />}
             onClick={incrementCurrentPage}
             isDisabled={
-              currentPage === wearerPages.count - 1 || _.isEmpty(wearers)
+              _.eq(currentPage, _.subtract(_.get(wearerPages, 'count'), 1)) ||
+              _.isEmpty(wearers)
             }
           />
         </HStack>

@@ -11,7 +11,7 @@ import {
   HStack,
   Flex,
   Spinner,
-  Image,
+  Box,
   Link as ChakraLink,
   Button,
 } from '@chakra-ui/react';
@@ -108,7 +108,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     {
       label: 'Tree ID',
       value: (
-        <CopyToClipboard description='Tree ID'>
+        <CopyToClipboard
+          description='Tree ID'
+          copyValue={_.get(treeData, 'id')}
+        >
           {decimalId(treeId)}
         </CopyToClipboard>
       ),
@@ -127,7 +130,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     {
       label: 'Network',
       value:
-        !userChain || chain?.id === userChain ? (
+        !address || !userChain || chain?.id === userChain ? (
           chain?.name
         ) : (
           <Button
@@ -175,10 +178,12 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
           <Card>
             <CardBody>
               <HStack align='flex-start' spacing={4}>
-                <Image
-                  src={imagesData[topHatId] ?? '/icon.jpeg'}
+                <Box
+                  bgImage={imagesData[topHatId] ?? '/icon.jpeg'}
+                  bgSize='cover'
                   alt='Top Hat image'
-                  maxW='200px'
+                  w='200px'
+                  h='200px'
                   border='1px solid'
                   borderColor='gray.200'
                 />

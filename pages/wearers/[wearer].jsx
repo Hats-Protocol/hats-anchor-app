@@ -9,12 +9,10 @@ import {
   Card,
   CardBody,
   Flex,
-  Image,
+  Box,
   Tag,
   TagLabel,
-  Link as ChakraLink,
 } from '@chakra-ui/react';
-import Link from 'next/link';
 import { fetchWearerDetails } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useImageURIs from '../../hooks/useImageURIs';
@@ -22,25 +20,31 @@ import Layout from '../../components/Layout';
 import { formatAddress } from '../../lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '../../lib/hats';
 import { chainsColors, chainsMap } from '../../lib/web3';
+import ChakraNextLink from '../../components/ChakraNextLink';
 
 const CoreHat = ({ hat, image }) => (
   <Card key={_.get(hat, 'id')}>
     <CardBody as={Flex} h='75px'>
       <Stack>
         <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
-          <Image
-            src={image || '/icon.jpeg'}
+          <Box
+            bgImage={image || '/icon.jpeg'}
+            bgSize='cover'
+            bgPosition='center'
             alt='Top Hat image'
-            maxW='84px'
+            w='85px'
+            h='85px'
             border='1px solid'
             borderColor='gray.200'
           />
-          <Stack>
-            <Text as='b'>{_.get(hat, 'details')}</Text>
+          <Stack maxW='60%' spacing={1}>
+            <Text as='b' noOfLines={2}>
+              {_.get(hat, 'details')}
+            </Text>
             <Text fontSize='sm'>
               Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}
             </Text>
-            <Text fontSize='sm'>Tree: Hats Protocol DAO</Text>
+            {/* <Text fontSize='sm'>Tree: Hats Protocol DAO</Text> */}
           </Stack>
         </HStack>
         <HStack>
@@ -184,8 +188,7 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
           <Heading size='md'>Hats Worn</Heading>
           <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
             {_.map(currentHats, (hat) => (
-              <ChakraLink
-                as={Link}
+              <ChakraNextLink
                 href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
                   _.get(hat, 'prettyId'),
                   true,
@@ -196,7 +199,7 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
                   hat={hat}
                   image={imagesPerChain[hat.chainId][hat.id]}
                 />
-              </ChakraLink>
+              </ChakraNextLink>
             ))}
           </SimpleGrid>
         </Stack>

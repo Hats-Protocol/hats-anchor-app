@@ -211,8 +211,11 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
               position='relative'
               border='1px solid'
               borderColor='gray.200'
-              maxW='75px'
+              w='75px'
+              h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
+              bgImage={hatImage ?? '/icon.jpeg'}
+              bgSize='cover'
             >
               {imageHover && (
                 <Icon
@@ -225,7 +228,6 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
                   left='22%'
                 />
               )}
-              <Image src={hatImage ?? '/icon.jpeg'} alt='Hat icon' />
             </Box>
 
             <Stack spacing={1}>
