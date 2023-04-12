@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { useMemo } from 'react';
 import { Stack } from '@chakra-ui/react';
 
@@ -52,7 +53,7 @@ const DropZone = ({
       <div className='container'>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          <p>Drag 'n' drop, or click to select</p>
+          <p>Drag n drop, or click to select</p>
         </div>
         <p>{acceptedFiles ? acceptedFiles[0]?.name : ''}</p>
       </div>
