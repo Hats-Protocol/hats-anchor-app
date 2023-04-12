@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
+/**
+ * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
+ * @param {string} detailsField Details field as received from the contract
+ * @returns if data is on ipfs and is compatible with a known schema, then returns the schema type with the data. Otherwise, just the data
+ */
 const useHatDetailsField = (detailsField) => {
+  // currently uses this prefix as an indicator for ipfs data
   const isIpfs = detailsField.startsWith('ipfs://');
 
   const { data, isLoading, error } = useQuery({
@@ -11,7 +17,6 @@ const useHatDetailsField = (detailsField) => {
   });
 
   let schemaType;
-  //console.log('data:', data.headers['content-type']);
   if (!!data && data.headers['content-type'] == 'application/json') {
     let schemaTypeField = data.data.type;
     // schema validation

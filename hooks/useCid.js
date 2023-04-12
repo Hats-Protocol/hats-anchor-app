@@ -4,6 +4,11 @@ import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
 
+/**
+ * Computes the CID of a Json object
+ * @param {*} data JS object representing the Json object
+ * @returns The CID, prefixed with "ipfs://"
+ */
 const useCid = (data) => {
   const [cid, setCid] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,7 +19,6 @@ const useCid = (data) => {
       const bytes = json.encode(data);
       const hash = await sha256.digest(bytes);
       const cid = CID.create(1, raw.code, hash);
-      //console.log('cid local', cid.toString());
       setCid('ipfs://' + cid.toString());
       setLoading(false);
     }

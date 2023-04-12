@@ -16,6 +16,7 @@ const baseStyle = {
   color: '#bdbdbd',
   outline: 'none',
   transition: 'border .24s ease-in-out',
+  cursor: 'pointer',
 };
 
 const focusedStyle = {
@@ -30,6 +31,9 @@ const rejectStyle = {
   borderColor: '#ff1744',
 };
 
+/**
+ * Props are as returned from the useDropzone hook
+ */
 const DropZone = ({
   getRootProps,
   getInputProps,
