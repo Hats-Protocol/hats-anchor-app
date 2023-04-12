@@ -25,6 +25,7 @@ import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import { useDropzone } from 'react-dropzone';
+import DropZone from '../components/DropZone';
 
 const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const localForm = useForm({
@@ -46,16 +47,6 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     isDragAccept,
     isDragReject,
   } = useDropzone({ accept: { 'image/*': [] } });
-  console.log('file:', acceptedFiles[0]);
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isFocused ? focusedStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isFocused, isDragAccept, isDragReject],
-  );
 
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
@@ -146,7 +137,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
           )}
           {customDetails && (
             <Stack spacing={2}>
-              <Textarea
+              <Input
                 localForm={localForm}
                 name='name'
                 label='Name'
@@ -192,16 +183,14 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
               />
             )}
             {customImage && (
-              <Stack spacing={2}>
-                <FormLabel m='0'>Image</FormLabel>
-                <div className='container'>
-                  <div {...getRootProps({ style })}>
-                    <input {...getInputProps()} />
-                    <p>Drag 'n' drop, or click to select</p>
-                  </div>
-                  <p>{acceptedFiles ? acceptedFiles[0]?.name : ''}</p>
-                </div>
-              </Stack>
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                acceptedFiles={acceptedFiles}
+                isFocused={isFocused}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+              />
             )}
           </Stack>
         </FormControl>
@@ -250,34 +239,6 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
       </Stack>
     </form>
   );
-};
-
-const baseStyle = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: '20px',
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: '#eeeeee',
-  borderStyle: 'dashed',
-  backgroundColor: '#fafafa',
-  color: '#bdbdbd',
-  outline: 'none',
-  transition: 'border .24s ease-in-out',
-};
-
-const focusedStyle = {
-  borderColor: '#2196f3',
-};
-
-const acceptStyle = {
-  borderColor: '#00e676',
-};
-
-const rejectStyle = {
-  borderColor: '#ff1744',
 };
 
 export default HatCreateForm;

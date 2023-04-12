@@ -6,13 +6,13 @@ const usePinImageIpfs = ({ imageFile, enabled, metadata }) => {
   const [currentImageFile, setCurrentImageFile] = useState();
   const [currentImageCid, setCurrentImageCid] = useState();
 
-  const mutation = useMutation({
+  const { data, isLoading, error, mutateAsync } = useMutation({
     mutationFn: pinImage,
   });
 
   useEffect(() => {
     const pin = async (imageFile) => {
-      let cid = await mutation.mutateAsync({ file: imageFile, metadata });
+      let cid = await mutateAsync({ file: imageFile, metadata });
       if (cid !== undefined) {
         setCurrentImageFile(imageFile);
         if (currentImageCid !== undefined && cid != currentImageCid) {
@@ -28,9 +28,9 @@ const usePinImageIpfs = ({ imageFile, enabled, metadata }) => {
   }, [imageFile]);
 
   return {
-    data: mutation.data,
-    isLoading: mutation.isLoading,
-    error: mutation.error,
+    data: data,
+    isLoading: isLoading,
+    error: error,
   };
 };
 
