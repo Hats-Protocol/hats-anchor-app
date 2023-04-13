@@ -29,6 +29,7 @@ import {
   decimalId,
   urlIdToPrettyId,
   prettyIdToUrlId,
+  descendantsOf,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -89,6 +90,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     address: _.get(_.first(_.get(topHat, 'wearers')), 'id'),
     chainId: 1,
   });
+  const childrenHats = descendantsOf(
+    _.get(hatData, 'prettyId'),
+    treeData,
+    true,
+  );
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
@@ -251,6 +257,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   hatData={hatData}
                   chainId={chainId}
                   hatImage={imagesData[hatId]}
+                  childrenHats={childrenHats}
                 />
               )}
             </CardBody>

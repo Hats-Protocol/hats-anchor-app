@@ -9,7 +9,6 @@ import { useOverlay } from '../contexts/OverlayContext';
 const useHatStatusCheck = ({ hatsAddress, hatData, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  console.log(decimalId(_.get(hatData, 'id')));
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
@@ -19,7 +18,7 @@ const useHatStatusCheck = ({ hatsAddress, hatData, chainId }) => {
     args: [decimalId(_.get(hatData, 'id'))],
     enabled: Boolean(hatsAddress) && Boolean(decimalId(_.get(hatData, 'id'))),
   });
-  console.log(prepareError);
+  // console.log(prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,
