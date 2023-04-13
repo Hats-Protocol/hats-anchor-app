@@ -9,8 +9,9 @@ import {
   Flex,
   Stack,
   Text,
+  Box,
 } from '@chakra-ui/react';
-import { useAccount } from 'wagmi';
+import { useAccount, useEnsName } from 'wagmi';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
 
 import Link from '../ChakraNextLink';
@@ -25,6 +26,46 @@ import { hatsAddresses } from '../../constants';
 
 const WEARERS_PER_PAGE = 5;
 // TODO clean up pagination
+
+const WearerRow = ({ hatData, user, wearer, setModals }) => {
+  const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
+
+  return (
+    <Flex
+      borderBottom='1px solid'
+      borderColor='gray.400'
+      key={wearer}
+      align='center'
+      justify='space-between'
+      p={1}
+    >
+      <Link href={`/wearers/${wearer}`} key={wearer}>
+        <Text>{ensName || formatAddress(wearer)}</Text>
+      </Link>
+
+      <HStack spacing={6}>
+        {user &&
+          _.eq(_.toLower(user), _.toLower(wearer)) &&
+          (!isTopHat(hatData) ? (
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => setModals({ renounceConfirm: true })}
+            >
+              Renounce
+            </Button>
+          ) : (
+            <Button onClick={() => setModals({ transferHat: true })} isDisabled>
+              Transfer
+            </Button>
+          ))}
+        <Link href={`/wearers/${wearer}`} key={wearer}>
+          <Icon as={BsChevronRight} />
+        </Link>
+      </HStack>
+    </Flex>
+  );
+};
 
 function HatWearers({ hatData, chainId }) {
   const [currentPage, setCurrentPage] = useState(0);
@@ -89,7 +130,11 @@ function HatWearers({ hatData, chainId }) {
           <Text>
             You are about to renounce (burn) your Hat with the following Hat ID:
           </Text>
-          <Text>{_.get(hatData, 'prettyId')}</Text>
+          <Box bg='blackAlpha.200' p={4} borderRadius='md'>
+            <Text fontFamily='monospace' fontSize='md'>
+              {_.get(hatData, 'prettyId')}
+            </Text>
+          </Box>
           <Text>Are you sure you want to do this?</Text>
           <Flex justify='flex-end' w='100%'>
             <HStack>
@@ -140,41 +185,13 @@ function HatWearers({ hatData, chainId }) {
             </Flex>
           ) : (
             wearerPages.pages?.[currentPage]?.map((wearer) => (
-              <Flex
-                borderBottom='1px solid'
-                borderColor='gray.400'
+              <WearerRow
+                hatData={hatData}
+                wearer={wearer}
+                user={address}
+                setModals={setModals}
                 key={wearer}
-                align='center'
-                justify='space-between'
-                p={1}
-              >
-                <Link href={`/wearers/${wearer}`} key={wearer}>
-                  <Text>{formatAddress(wearer)}</Text>
-                </Link>
-
-                <HStack spacing={6}>
-                  {_.eq(_.toLower(address), _.toLower(wearer)) &&
-                  !isTopHat(hatData) ? (
-                    <Button
-                      size='sm'
-                      variant='outline'
-                      onClick={() => setModals({ renounceConfirm: true })}
-                    >
-                      Renounce
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => setModals({ transferHat: true })}
-                      isDisabled
-                    >
-                      Transfer
-                    </Button>
-                  )}
-                  <Link href={`/wearers/${wearer}`} key={wearer}>
-                    <Icon as={BsChevronRight} />
-                  </Link>
-                </HStack>
-              </Flex>
+              />
             ))
           )}
         </Stack>

@@ -13,6 +13,7 @@ import {
   Tag,
   TagLabel,
 } from '@chakra-ui/react';
+import { useEnsName } from 'wagmi';
 import { fetchWearerDetails } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useImageURIs from '../../hooks/useImageURIs';
@@ -174,10 +175,14 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
     // 11155111: sepoliaImagesData,
   };
 
+  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+
   return (
     <Layout>
       <Stack align='center' spacing={6}>
-        <Heading size='lg'>{formatAddress(wearerAddress)} Hats</Heading>
+        <Heading size='lg'>
+          {ensName || formatAddress(wearerAddress)}&apos;s Hats
+        </Heading>
         <Stack
           width='100%'
           justify='left'

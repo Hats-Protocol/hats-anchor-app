@@ -8,17 +8,20 @@ import {
   Flex,
   Text,
   HStack,
-  Image,
   Badge,
   Icon,
   IconButton,
   Button,
   Box,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
-import { FaPencilAlt } from 'react-icons/fa';
+import { FaPencilAlt, FaEllipsisV } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
 import HatWearers from './HatWearers';
@@ -43,6 +46,8 @@ import useWearerDetails from '../../hooks/useWearerDetails';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatImageForm from '../../forms/HatImageForm';
 import HatSupplyForm from '../../forms/HatSupplyForm';
+import HatStatusForm from '../../forms/HatStatusForm';
+import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -59,27 +64,57 @@ const AddressRow = ({
   const { address: userAddress } = useAccount();
   const { setModals } = localOverlay;
 
-  const openModal = () => {
+  const openEditModal = () => {
     setType(type);
     setModals({ editModule: true });
   };
 
+  const openWearerStatusModal = () => {
+    setModals({ hatWearerStatus: true });
+  };
+
+  const openHatStatusModal = () => {
+    setModals({ hatStatus: true });
+  };
+
+  // const isTopHat
+
   return (
-    <HStack spacing={2}>
+    <HStack spacing={3}>
       {address !== ZERO_ADDRESS ? (
         <AddressLink address={address} chainId={chainId} />
       ) : (
         <Text>None Set</Text>
       )}
-      {userAddress && mutable && admin && (
-        <IconButton
-          icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-          minW='auto'
-          w={8}
-          h={8}
-          variant='ghost'
-          onClick={openModal}
-        />
+
+      {userAddress && (
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            icon={<Icon as={FaEllipsisV} h='12px' w='12px' />}
+            minW='auto'
+            w={8}
+            h={8}
+            variant='ghost'
+          />
+          <MenuList>
+            {mutable && admin && (
+              <MenuItem onClick={openEditModal}>
+                Edit {_.capitalize(type)} Module
+              </MenuItem>
+            )}
+            {type === MODULE_TYPES.eligibility && (
+              <MenuItem onClick={openWearerStatusModal}>
+                Change Wearer Status
+              </MenuItem>
+            )}
+            {type === MODULE_TYPES.toggle && (
+              <MenuItem onClick={openHatStatusModal}>
+                Change Hat Status
+              </MenuItem>
+            )}
+          </MenuList>
+        </Menu>
       )}
     </HStack>
   );
@@ -150,6 +185,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           }
           setType={setType}
           localOverlay={localOverlay}
+          user={address}
         />
       ),
     },
@@ -167,6 +203,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           }
           setType={setType}
           localOverlay={localOverlay}
+          user={address}
         />
       ),
     },
@@ -198,6 +235,20 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
         localOverlay={localOverlay}
       >
         <HatSupplyForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='hatWearerStatus'
+        title='Change Wearer Status'
+        localOverlay={localOverlay}
+      >
+        <HatWearerStatusForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='hatStatus'
+        title='Change Hat Status'
+        localOverlay={localOverlay}
+      >
+        <HatStatusForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
