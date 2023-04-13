@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
 
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
@@ -32,7 +33,9 @@ const useHatDetailsField = (detailsField) => {
 };
 
 const fetchDetailsIpfs = async (detailsField) => {
-  const url = 'https://ipfs.io/ipfs/' + detailsField.slice(7);
+  const url = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${detailsField.slice(
+    7,
+  )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
 
   const res = await axios.get(url);
   return res;
