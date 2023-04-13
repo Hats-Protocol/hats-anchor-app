@@ -17,6 +17,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -48,6 +49,7 @@ import HatImageForm from '../../forms/HatImageForm';
 import HatSupplyForm from '../../forms/HatSupplyForm';
 import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
+import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -60,6 +62,7 @@ const AddressRow = ({
   type,
   setType,
   localOverlay,
+  checkHatStatus,
 }) => {
   const { address: userAddress } = useAccount();
   const { setModals } = localOverlay;
@@ -77,7 +80,9 @@ const AddressRow = ({
     setModals({ hatStatus: true });
   };
 
-  // const isTopHat
+  const handleCheckHatStatus = async () => {
+    await checkHatStatus?.();
+  };
 
   return (
     <HStack spacing={3}>
@@ -87,7 +92,7 @@ const AddressRow = ({
         <Text>None Set</Text>
       )}
 
-      {userAddress && (
+      {userAddress && ((mutable && admin) || userAddress === address) && (
         <Menu>
           <MenuButton
             as={IconButton}
@@ -103,15 +108,36 @@ const AddressRow = ({
                 Edit {_.capitalize(type)} Module
               </MenuItem>
             )}
-            {type === MODULE_TYPES.eligibility && (
-              <MenuItem onClick={openWearerStatusModal}>
-                Change Wearer Status
-              </MenuItem>
-            )}
-            {type === MODULE_TYPES.toggle && (
-              <MenuItem onClick={openHatStatusModal}>
-                Change Hat Status
-              </MenuItem>
+            {mutable &&
+              _.eq(type, MODULE_TYPES.eligibility) &&
+              _.eq(_.toLower(userAddress), _.toLower(address)) && (
+                <MenuItem onClick={openWearerStatusModal}>
+                  Change Wearer Status
+                </MenuItem>
+              )}
+            {mutable && _.eq(type, MODULE_TYPES.toggle) && (
+              <>
+                <MenuItem
+                  onClick={handleCheckHatStatus}
+                  isDisabled={!checkHatStatus}
+                >
+                  <Tooltip
+                    label={!checkHatStatus ? 'Toggle is not a contract' : ''}
+                    placement='left'
+                    bg='gray.100'
+                    color='black'
+                    hasArrow
+                  >
+                    Check Hat Status
+                  </Tooltip>
+                </MenuItem>
+
+                {_.eq(_.toLower(userAddress), _.toLower(address)) && (
+                  <MenuItem onClick={openHatStatusModal}>
+                    Change Hat Status
+                  </MenuItem>
+                )}
+              </>
             )}
           </MenuList>
         </Menu>
@@ -131,7 +157,16 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
     wearerAddress: address,
     chainId,
   });
-  const { writeAsync } = useHatMakeImmutable({ hatsAddress, chainId, hatData });
+  const { writeAsync: updateImmutability } = useHatMakeImmutable({
+    hatsAddress,
+    chainId,
+    hatData,
+  });
+  const { writeAsync: checkHatStatus } = useHatStatusCheck({
+    hatsAddress,
+    chainId,
+    hatData,
+  });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
@@ -150,7 +185,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
   };
 
   const handleMakeImmutable = () => {
-    writeAsync?.();
+    updateImmutability?.();
   };
 
   const accountabilitiesTable = [
@@ -204,6 +239,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           setType={setType}
           localOverlay={localOverlay}
           user={address}
+          checkHatStatus={checkHatStatus}
         />
       ),
     },
@@ -324,11 +360,21 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
 
         <Tabs>
           <TabList>
-            <Tab>Details</Tab>
-            {/* <Tab>Authorities</Tab> */}
-            <Tab>Accountabilities</Tab>
-            <Tab>Wearers</Tab>
-            <Tab>Events</Tab>
+            <Tab px={2} fontSize='sm'>
+              Details
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Authorities
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Accountabilities
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Wearers
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Events
+            </Tab>
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
@@ -354,7 +400,13 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
               </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
-            {/* <TabPanel /> */}
+            <TabPanel>
+              {/* <DataTable
+                data={clearNonObjects(authoritiesTable)}
+                justify='space-between'
+                minH={10}
+              /> */}
+            </TabPanel>
             <TabPanel>
               <DataTable
                 data={clearNonObjects(accountabilitiesTable)}

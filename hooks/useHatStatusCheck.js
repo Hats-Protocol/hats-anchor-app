@@ -1,0 +1,58 @@
+import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import _ from 'lodash';
+import { hatsAddresses } from '../constants';
+import abi from '../contracts/Hats.json';
+import { decimalId } from '../lib/hats';
+import useToast from './useToast';
+import { useOverlay } from '../contexts/OverlayContext';
+
+const useHatStatusCheck = ({ hatsAddress, hatData, chainId }) => {
+  const toast = useToast();
+  const { handlePendingTx } = useOverlay();
+  console.log(decimalId(_.get(hatData, 'id')));
+
+  const { config, error: prepareError } = usePrepareContractWrite({
+    address: hatsAddresses(chainId),
+    chainId,
+    abi: JSON.stringify(abi),
+    functionName: 'checkHatStatus',
+    args: [decimalId(_.get(hatData, 'id'))],
+    enabled: Boolean(hatsAddress) && Boolean(decimalId(_.get(hatData, 'id'))),
+  });
+  console.log(prepareError);
+
+  const { writeAsync } = useContractWrite({
+    ...config,
+    onSuccess: (data) => {
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: `Hat Minted!`,
+          description: `Successfully minted hat`,
+        },
+      });
+
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+    },
+    onError: (error) => {
+      if (error.name === 'UserRejectedRequestError') {
+        toast.error({
+          title: 'Signature rejected!',
+          description: 'Please accept the transaction in your wallet',
+        });
+      } else {
+        toast.error({
+          title: 'Error occurred!',
+          // description: 'Please accept the transaction in your wallet',
+        });
+      }
+    },
+  });
+
+  return { writeAsync };
+};
+
+export default useHatStatusCheck;
