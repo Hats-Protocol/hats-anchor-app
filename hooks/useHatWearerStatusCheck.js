@@ -6,7 +6,8 @@ import { decimalId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatStatusCheck = ({ hatData, chainId }) => {
+const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
+  //
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
@@ -14,9 +15,9 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'checkHatStatus',
-    args: [decimalId(_.get(hatData, 'id'))],
-    enabled: Boolean(decimalId(_.get(hatData, 'id'))),
+    functionName: 'checkHatWearerStatus',
+    args: [decimalId(_.get(hatData, 'id')), wearerAddress],
+    enabled: Boolean(decimalId(_.get(hatData, 'id'))) && Boolean(wearerAddress),
   });
 
   const { writeAsync, error: writeError } = useContractWrite({
@@ -53,4 +54,4 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
   return { writeAsync, prepareError, writeError };
 };
 
-export default useHatStatusCheck;
+export default useHatWearerStatusCheck;

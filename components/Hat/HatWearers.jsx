@@ -10,9 +10,15 @@ import {
   Stack,
   Text,
   Box,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useAccount, useEnsName } from 'wagmi';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
+import { FaEllipsisV } from 'react-icons/fa';
 
 import Link from '../ChakraNextLink';
 import { formatAddress } from '../../lib/general';
@@ -23,47 +29,128 @@ import { isAdmin, decimalId, isTopHat } from '../../lib/hats';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useHatBurn from '../../hooks/useHatBurn';
 import { hatsAddresses } from '../../constants';
+import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
+import useHatWearerStatusCheck from '../../hooks/useHatWearerStatusCheck';
 
 const WEARERS_PER_PAGE = 5;
-// TODO clean up pagination
 
-const WearerRow = ({ hatData, user, wearer, setModals }) => {
+const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
+  const localOverlay = useOverlay();
+  const { data: currentUser } = useWearerDetails({
+    wearerAddress: user,
+    chainId: _.get(hatData, 'chainId'),
+  });
   const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
+  console.log('currentUser', currentUser);
+
+  const handleCheckEligibility = async () => {
+    await checkEligibility?.();
+  };
 
   return (
-    <Flex
-      borderBottom='1px solid'
-      borderColor='gray.400'
-      key={wearer}
-      align='center'
-      justify='space-between'
-      p={1}
-    >
-      <Link href={`/wearers/${wearer}`} key={wearer}>
-        <Text>{ensName || formatAddress(wearer)}</Text>
-      </Link>
+    <>
+      <Modal
+        name='hatWearerStatus'
+        title='Change Wearer Status'
+        localOverlay={localOverlay}
+      >
+        <HatWearerStatusForm
+          defaultValues={{
+            wearer,
+            eligibility: 'Ineligible',
+            standing: 'Bad Standing',
+          }}
+          hatData={hatData}
+          chainId={_.get(hatData, 'chainId')}
+        />
+      </Modal>
 
-      <HStack spacing={6}>
-        {user &&
-          _.eq(_.toLower(user), _.toLower(wearer)) &&
-          (!isTopHat(hatData) ? (
-            <Button
-              size='sm'
-              variant='outline'
-              onClick={() => setModals({ renounceConfirm: true })}
-            >
-              Renounce
-            </Button>
-          ) : (
-            <Button onClick={() => setModals({ transferHat: true })} isDisabled>
-              Transfer
-            </Button>
-          ))}
+      <Flex
+        borderBottom='1px solid'
+        borderColor='gray.400'
+        key={wearer}
+        align='center'
+        justify='space-between'
+        p={1}
+      >
         <Link href={`/wearers/${wearer}`} key={wearer}>
-          <Icon as={BsChevronRight} />
+          <Text>{ensName || formatAddress(wearer)}</Text>
         </Link>
-      </HStack>
-    </Flex>
+
+        <HStack spacing={6}>
+          {user ? (
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                icon={<Icon as={FaEllipsisV} h='12px' w='12px' />}
+                minW='auto'
+                w={8}
+                h={8}
+                variant='ghost'
+              />
+              <MenuList>
+                <MenuItem as={Link} href={`/wearers/${wearer}`}>
+                  View Profile
+                </MenuItem>
+                {_.eq(_.toLower(user), _.toLower(wearer)) &&
+                  (!isTopHat(hatData) ? (
+                    <MenuItem
+                      onClick={() => setModals({ renounceConfirm: true })}
+                    >
+                      Renounce
+                    </MenuItem>
+                  ) : (
+                    <MenuItem
+                      onClick={() => setModals({ transferHat: true })}
+                      isDisabled
+                    >
+                      Transfer
+                    </MenuItem>
+                  ))}
+                {/* {isAdmin(
+                _.get(hatData, 'prettyId'),
+                _.map(_.get(currentUser, 'currentHats'), 'prettyId'),
+              ) && (
+                <MenuItem onClick={() => setModals({ removeWearer: true })}>
+                  Remove
+                </MenuItem>
+              )} */}
+                {_.eq(
+                  _.toLower(user),
+                  _.toLower(_.get(hatData, 'eligibility')),
+                ) && (
+                  <MenuItem
+                    onClick={() => setModals({ hatWearerStatus: true })}
+                  >
+                    Revoke
+                  </MenuItem>
+                )}
+                <MenuItem
+                  isDisabled={!checkEligibility}
+                  onClick={handleCheckEligibility}
+                >
+                  <Tooltip
+                    label={
+                      !checkEligibility ? 'Eligibility is not a contract' : ''
+                    }
+                    placement='left'
+                    hasArrow
+                    bg='gray.100'
+                    color='black'
+                  >
+                    Check Eligibility
+                  </Tooltip>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          ) : (
+            <Link href={`/wearers/${wearer}`} key={wearer}>
+              <Icon as={BsChevronRight} />
+            </Link>
+          )}
+        </HStack>
+      </Flex>
+    </>
   );
 };
 
@@ -80,6 +167,11 @@ function HatWearers({ hatData, chainId }) {
     hatsAddress: hatsAddresses(chainId),
     chainId,
     hatId: decimalId(_.get(hatData, 'id')),
+  });
+  const { writeAsync: checkEligibility } = useHatWearerStatusCheck({
+    hatData,
+    wearerAddress: address,
+    chainId,
   });
   const { setModals } = localOverlay;
 
@@ -191,6 +283,7 @@ function HatWearers({ hatData, chainId }) {
                 user={address}
                 setModals={setModals}
                 key={wearer}
+                checkEligibility={checkEligibility}
               />
             ))
           )}

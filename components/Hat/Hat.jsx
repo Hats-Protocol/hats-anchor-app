@@ -173,7 +173,6 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
   if (!hatData) return null;
-  console.log('hatData', hatData);
 
   const handleOpenDetailsModal = () => {
     setModals({ hatDetails: true });
@@ -190,7 +189,6 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const handleMakeImmutable = () => {
     updateImmutability?.();
   };
-  console.log(childrenHats);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,

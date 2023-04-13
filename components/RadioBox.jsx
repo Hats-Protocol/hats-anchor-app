@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-import { UseFormReturn, useController, FieldValues } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useController } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import {
   Box,
@@ -9,7 +9,6 @@ import {
   useRadioGroup,
   HStack,
   VStack,
-  ChakraRadioProps,
   useStyleConfig,
   FormControl,
   FormLabel,
@@ -20,7 +19,6 @@ import {
   Icon,
   Tooltip,
 } from '@chakra-ui/react';
-// import { Tooltip } from '../../atoms';
 
 const RadioCard = ({ children, variant, size, ...props }) => {
   const styles = useStyleConfig('RadioBox', { variant, size });
@@ -48,10 +46,11 @@ const RadioBox = ({
   isRequired,
   size,
   helperText,
+  defaultValue,
   tooltip,
 }) => {
   if (!localForm) return null;
-  const { control } = localForm;
+  const { control, setValue } = localForm;
   const {
     field,
     formState: { errors },
@@ -65,6 +64,12 @@ const RadioBox = ({
     onChange: field.onChange,
     value: field.value,
   });
+
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(name, defaultValue);
+    }
+  }, []);
 
   const Options = () =>
     options.map((v) => {

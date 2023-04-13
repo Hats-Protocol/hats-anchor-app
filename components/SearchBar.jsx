@@ -23,7 +23,7 @@ const SearchBar = () => {
   const router = useRouter();
 
   const navigateToTree = () => {
-    router.push(`/tree/${value}`);
+    router.push(`/tree/${chainId}/${value}`);
   };
 
   function handleValueChange(e) {

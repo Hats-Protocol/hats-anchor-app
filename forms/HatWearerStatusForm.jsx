@@ -8,14 +8,13 @@ import CONFIG, { hatsAddresses } from '../constants';
 import RadioBox from '../components/RadioBox';
 import useHatWearerStatusSet from '../hooks/useHatWearerStatusUpdate';
 
-const HatWearerStatusForm = ({ hatData, chainId }) => {
+const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
   const wearer = useDebounce(watch('wearer', null), CONFIG.debounce);
   const eligibility = useDebounce(watch('eligibility', null), CONFIG.debounce);
   const standing = useDebounce(watch('standing', null), CONFIG.debounce);
-
   // TODO handle ens name
 
   const { writeAsync } = useHatWearerStatusSet({
@@ -47,12 +46,14 @@ const HatWearerStatusForm = ({ hatData, chainId }) => {
               utils.isAddress(value) ? true : 'Must be a valid address',
           }}
           placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+          defaultValue={_.get(defaultValues, 'wearer')}
         />
         <RadioBox
           localForm={localForm}
           name='eligibility'
           label='Eligibility'
           options={['Eligible', 'Ineligible']}
+          defaultValue={_.get(defaultValues, 'eligibility')}
           isRequired
         />
         <RadioBox
@@ -60,6 +61,7 @@ const HatWearerStatusForm = ({ hatData, chainId }) => {
           name='standing'
           label='Standing'
           options={['Good Standing', 'Bad Standing']}
+          defaultValue={_.get(defaultValues, 'standing')}
           isRequired
         />
 

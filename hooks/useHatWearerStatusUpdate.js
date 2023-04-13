@@ -32,9 +32,9 @@ const useHatWearerStatusSet = ({
     ],
     enabled: !!hatsAddress && !!wearer,
   });
-  console.log(prepareError);
+  // console.log(prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -66,7 +66,7 @@ const useHatWearerStatusSet = ({
     },
   });
 
-  return { writeAsync };
+  return { writeAsync, prepareError, writeError };
 };
 
 export default useHatWearerStatusSet;

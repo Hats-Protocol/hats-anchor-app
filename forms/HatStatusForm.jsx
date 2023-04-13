@@ -13,7 +13,6 @@ const HatStatusForm = ({ hatData, chainId }) => {
   const { handleSubmit, watch } = localForm;
 
   const status = useDebounce(watch('status', null), CONFIG.debounce);
-  // TODO handle ens name
 
   const { writeAsync } = useHatStatusUpdate({
     hatsAddress: hatsAddresses(chainId),
