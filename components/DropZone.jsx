@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Stack } from '@chakra-ui/react';
 
 const baseStyle = {
@@ -41,6 +41,7 @@ const DropZone = ({
   isFocused,
   isDragAccept,
   isDragReject,
+  image,
 }) => {
   const style = useMemo(
     () => ({
@@ -52,15 +53,77 @@ const DropZone = ({
     [isFocused, isDragAccept, isDragReject],
   );
 
+  const thumbsContainer = {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 16,
+  };
+
+  const thumb = {
+    display: 'inline-flex',
+    borderRadius: 2,
+    border: '1px solid #eaeaea',
+    marginBottom: 8,
+    marginRight: 8,
+    width: 'auto',
+    height: 100,
+    padding: 4,
+    boxSizing: 'border-box',
+  };
+
+  const thumbInner = {
+    display: 'flex',
+    minWidth: 0,
+    overflow: 'hidden',
+  };
+
+  const img = {
+    display: 'block',
+    width: 'auto',
+    height: '100%',
+  };
+
+  const thumbs =
+    image !== undefined ? (
+      <div style={thumb} key={image.name}>
+        <div style={thumbInner}>
+          <img
+            src={image.preview}
+            style={img}
+            // Revoke data uri after image is loaded
+            onLoad={() => {
+              URL.revokeObjectURL(image.preview);
+            }}
+          />
+        </div>
+      </div>
+    ) : null;
+
+  useEffect(() => {
+    // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+    return () => {
+      if (!!image) {
+        URL.revokeObjectURL(image.preview);
+      }
+    };
+  }, []);
+
   return (
     <Stack spacing={2}>
-      <div className='container'>
+      <div>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
-          <p>Drag n drop, or click to select</p>
+          {image !== undefined ? (
+            <p>
+              Image uploaded! For another image, drag n drop, or click to select
+            </p>
+          ) : (
+            <p>Drag n drop, or click to select</p>
+          )}
         </div>
-        <p>{acceptedFiles ? acceptedFiles[0]?.name : ''}</p>
       </div>
+      <div style={thumbsContainer}>{thumbs}</div>
     </Stack>
   );
 };

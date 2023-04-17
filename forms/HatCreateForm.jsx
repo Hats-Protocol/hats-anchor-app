@@ -7,7 +7,6 @@ import {
   FormLabel,
   HStack,
   Spinner,
-  Checkbox,
 } from '@chakra-ui/react';
 import { useState, useMemo } from 'react';
 import _ from 'lodash';
@@ -39,6 +38,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
 
+  const [image, setImage] = useState();
   const {
     acceptedFiles,
     getRootProps,
@@ -46,7 +46,16 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     isFocused,
     isDragAccept,
     isDragReject,
-  } = useDropzone({ accept: { 'image/*': [] } });
+  } = useDropzone({
+    accept: { 'image/*': [] },
+    onDrop: (acceptedFiles) => {
+      setImage(
+        Object.assign(acceptedFiles[0], {
+          preview: URL.createObjectURL(acceptedFiles[0]),
+        }),
+      );
+    },
+  });
 
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
@@ -121,36 +130,38 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
           isDisabled
         />
         <FormControl>
-          <Checkbox
-            isChecked={customDetails}
-            onChange={() => setCustomDetails(!customDetails)}
-          >
-            Custom details
-          </Checkbox>
-          {!customDetails && (
-            <Textarea
-              localForm={localForm}
-              name='details'
-              label='Details'
-              placeholder='Hat details'
-            />
-          )}
-          {customDetails && (
-            <Stack spacing={2}>
-              <Input
-                localForm={localForm}
-                name='name'
-                label='Name'
-                placeholder='Hat name'
-              />
+          <Stack>
+            <Switch
+              isChecked={customDetails}
+              onChange={() => setCustomDetails(!customDetails)}
+            >
+              Custom details
+            </Switch>
+            {!customDetails && (
               <Textarea
                 localForm={localForm}
-                name='description'
-                label='Description'
-                placeholder='Hat description'
+                name='details'
+                label='Details'
+                placeholder='Hat details'
               />
-            </Stack>
-          )}
+            )}
+            {customDetails && (
+              <Stack spacing={2}>
+                <Input
+                  localForm={localForm}
+                  name='name'
+                  label='Name'
+                  placeholder='Hat name'
+                />
+                <Textarea
+                  localForm={localForm}
+                  name='description'
+                  label='Description'
+                  placeholder='Hat description'
+                />
+              </Stack>
+            )}
+          </Stack>
         </FormControl>
         <Input
           name='maxSupply'
@@ -167,13 +178,13 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
           isRequired
         />
         <FormControl>
-          <Stack spacing={0}>
-            <Checkbox
+          <Stack spacing={2}>
+            <Switch
               isChecked={customImage}
               onChange={() => setCustomImage(!customImage)}
             >
               Custom image
-            </Checkbox>
+            </Switch>
             {!customImage && (
               <Textarea
                 localForm={localForm}
@@ -190,6 +201,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
                 isFocused={isFocused}
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
+                image={image}
               />
             )}
           </Stack>
