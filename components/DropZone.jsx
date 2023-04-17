@@ -103,7 +103,7 @@ const DropZone = ({
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => {
-      if (!!image) {
+      if (image !== undefined) {
         URL.revokeObjectURL(image.preview);
       }
     };
