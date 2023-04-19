@@ -37,7 +37,8 @@ const fetchDetailsIpfs = async (detailsField) => {
     7,
   )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
 
-  const res = await axios.get(url);
+  // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
+  const res = await axios.get(url, { timeout: 5000 });
   return res;
 };
 
