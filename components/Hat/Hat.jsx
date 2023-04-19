@@ -41,6 +41,7 @@ import {
   isAdmin,
   mutableNotTopHat,
   prettyIdToUrlId,
+  getTreeId,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -194,9 +195,9 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
     label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,
     value: (
       <Link
-        href={`/trees/${chainId}/${5}/${prettyIdToUrlId(
-          _.get(hat, 'prettyId'),
-        )}`}
+        href={`/trees/${chainId}/${decimalId(
+          getTreeId(_.get(hat, 'prettyId')),
+        )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
       >
         <HStack>
           <Text>Hats Protocol</Text>
@@ -289,7 +290,15 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
         title='Change Wearer Status'
         localOverlay={localOverlay}
       >
-        <HatWearerStatusForm hatData={hatData} chainId={chainId} />
+        <HatWearerStatusForm
+          hatData={hatData}
+          chainId={chainId}
+          defaultValues={{
+            wearer: '',
+            eligibility: 'Eligible',
+            standing: 'Good Standing',
+          }}
+        />
       </Modal>
       <Modal
         name='hatStatus'
@@ -390,7 +399,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              mutableNotTopHat(hatData) && <Tab>Admin</Tab>}
+              mutableNotTopHat(hatData) && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}

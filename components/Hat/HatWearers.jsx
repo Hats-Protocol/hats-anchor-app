@@ -41,7 +41,6 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
     chainId: _.get(hatData, 'chainId'),
   });
   const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
-  console.log('currentUser', currentUser);
 
   const handleCheckEligibility = async () => {
     await checkEligibility?.();
@@ -50,7 +49,7 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
   return (
     <>
       <Modal
-        name='hatWearerStatus'
+        name='wearerStatus'
         title='Change Wearer Status'
         localOverlay={localOverlay}
       >
@@ -119,9 +118,7 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
                   _.toLower(user),
                   _.toLower(_.get(hatData, 'eligibility')),
                 ) && (
-                  <MenuItem
-                    onClick={() => setModals({ hatWearerStatus: true })}
-                  >
+                  <MenuItem onClick={() => setModals({ wearerStatus: true })}>
                     Revoke
                   </MenuItem>
                 )}

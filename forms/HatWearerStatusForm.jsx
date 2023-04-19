@@ -1,12 +1,13 @@
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
 import { utils } from 'ethers';
-import { Stack, Button, Flex, Text } from '@chakra-ui/react';
+import { Stack, Button, Flex, Text, Heading } from '@chakra-ui/react';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG, { hatsAddresses } from '../constants';
 import RadioBox from '../components/RadioBox';
 import useHatWearerStatusSet from '../hooks/useHatWearerStatusUpdate';
+import { prettyIdToIp } from '../lib/hats';
 
 const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const localForm = useForm({ mode: 'onBlur' });
@@ -29,6 +30,8 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
     await writeAsync?.();
   };
 
+  console.log(defaultValues);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
@@ -37,6 +40,13 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
           will revoke their Hat. Standings are permanently recorded but can be
           changed later. Learn more in the docs.
         </Text>
+
+        <Stack>
+          <Text>Hat ID</Text>
+          <Heading size='md'>
+            {prettyIdToIp(_.get(hatData, 'prettyId'))}
+          </Heading>
+        </Stack>
         <Input
           localForm={localForm}
           name='wearer'

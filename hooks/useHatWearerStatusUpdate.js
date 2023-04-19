@@ -27,8 +27,8 @@ const useHatWearerStatusSet = ({
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
       wearer || '',
-      eligibility === 'Eligible' || true,
-      standing === 'Good Standing' || true,
+      eligibility === 'Eligible',
+      standing === 'Good Standing',
     ],
     enabled: !!hatsAddress && !!wearer,
   });
