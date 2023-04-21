@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { hatsAddresses } from '../constants';
 import { chainsMap } from '../lib/web3';
 import { isImageUrl } from '../lib/general';
+import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
 
 /**
  * returns an object, mapping from hat id to image url.
@@ -41,9 +42,11 @@ const useImageURIs = (hats, chainId) => {
           let hat = hats[i];
           if (imagesData[i].startsWith('ipfs://')) {
             //converting the current base image uri from the contract to resolvable format
-            hatIdToImage[hat] = `https://ipfs.io/ipfs/${imagesData[i].slice(
-              7,
-            )}`;
+            hatIdToImage[
+              hat
+            ] = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${imagesData[
+              i
+            ].slice(7)}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
           } else {
             let isValidImage = await isImageUrl(imagesData[i]);
             if (isValidImage) {

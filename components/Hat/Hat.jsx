@@ -50,6 +50,7 @@ import useWearerDetails from '../../hooks/useWearerDetails';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatImageForm from '../../forms/HatImageForm';
 import HatSupplyForm from '../../forms/HatSupplyForm';
+import useHatDetailsField from '../../hooks/useHatDetailsField';
 import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
@@ -173,6 +174,13 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
+  const {
+    data: hatDetailsFieldData,
+    isLoading: hatDetailsFieldLoading,
+    error: hatDetailsFieldError,
+    schemaType: schemaTypeDetailsField,
+  } = useHatDetailsField(hatData?.details);
+
   if (!hatData) return null;
 
   const handleOpenDetailsModal = () => {
@@ -417,7 +425,24 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
                   />
                 )}
 
-                <Text>{hatData?.details}</Text>
+                {schemaTypeDetailsField === '1.0' &&
+                  (hatDetailsFieldLoading ? (
+                    'Loading...'
+                  ) : (
+                    <>
+                      <Text fontSize='sm' as='b'>
+                        Name:
+                      </Text>
+                      <Text>{hatDetailsFieldData.data.data.name}</Text>
+                      <Text fontSize='sm' as='b'>
+                        Description:
+                      </Text>
+                      <Text>{hatDetailsFieldData.data.data.description}</Text>
+                    </>
+                  ))}
+                {schemaTypeDetailsField !== '1.0' && (
+                  <Text>{hatData?.details}</Text>
+                )}
               </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
