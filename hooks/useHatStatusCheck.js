@@ -1,56 +1,33 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
+import { decimalId } from '../lib/hats';
 import useToast from './useToast';
-import { prettyIdToId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  treeId,
-  admin,
-  details,
-  maxSupply,
-  eligibility,
-  toggle,
-  mutable,
-  imageUrl,
-}) => {
+const useHatStatusCheck = ({ hatData, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
-    args: [
-      prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || FALLBACK_ADDRESS,
-      toggle || FALLBACK_ADDRESS,
-      mutable === 'Mutable',
-      imageUrl || '',
-    ],
-    enabled: !!hatsAddress && !!admin,
+    functionName: 'checkHatStatus',
+    args: [decimalId(_.get(hatData, 'id'))],
+    enabled: Boolean(decimalId(_.get(hatData, 'id'))),
   });
-  console.log(prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Hat Created',
-          description: 'Successfully created hat',
+          title: `Hat Minted!`,
+          description: `Successfully minted hat`,
         },
-        treeId,
       });
 
       toast.info({
@@ -73,7 +50,7 @@ const useHatCreate = ({
     },
   });
 
-  return { writeAsync };
+  return { writeAsync, prepareError, writeError };
 };
 
-export default useHatCreate;
+export default useHatStatusCheck;

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { switchNetwork } from '@wagmi/core';
 import { useState } from 'react';
 import {
@@ -11,7 +11,7 @@ import {
   HStack,
   Flex,
   Spinner,
-  Image,
+  Box,
   Link as ChakraLink,
   Button,
 } from '@chakra-ui/react';
@@ -29,6 +29,7 @@ import {
   decimalId,
   urlIdToPrettyId,
   prettyIdToUrlId,
+  descendantsOf,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -85,6 +86,15 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId, chainId });
   const { data: hatData } = useHatDetails({ hatId, chainId });
+  const { data: topHatEnsName } = useEnsName({
+    address: _.get(_.first(_.get(topHat, 'wearers')), 'id'),
+    chainId: 1,
+  });
+  const childrenHats = descendantsOf(
+    _.get(hatData, 'prettyId'),
+    treeData,
+    true,
+  );
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
@@ -108,7 +118,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     {
       label: 'Tree ID',
       value: (
-        <CopyToClipboard description='Tree ID'>
+        <CopyToClipboard
+          description='Tree ID'
+          copyValue={_.get(treeData, 'id')}
+        >
           {decimalId(treeId)}
         </CopyToClipboard>
       ),
@@ -119,15 +132,17 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
         <ChakraLink
           as={Link}
           href={`/wearers/${_.get(_.first(_.get(topHat, 'wearers')), 'id')}`}
+          noOfLines={1}
         >
-          {formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id'))}
+          {topHatEnsName ||
+            formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id'))}
         </ChakraLink>
       ),
     },
     {
       label: 'Network',
       value:
-        !userChain || chain?.id === userChain ? (
+        !address || !userChain || chain?.id === userChain ? (
           chain?.name
         ) : (
           <Button
@@ -175,16 +190,18 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
           <Card>
             <CardBody>
               <HStack align='flex-start' spacing={4}>
-                <Image
-                  src={imagesData[topHatId] ?? '/icon.jpeg'}
+                <Box
+                  bgImage={imagesData[topHatId] ?? '/icon.jpeg'}
+                  bgSize='cover'
                   alt='Top Hat image'
-                  maxW='200px'
+                  w='200px'
+                  h='200px'
                   border='1px solid'
                   borderColor='gray.200'
                 />
                 <Stack spacing={4} w='60%'>
                   <Heading size='md'>Tree Details</Heading>
-                  <DataTable data={treeInfoTable} labelWidth='45%' />
+                  <DataTable data={treeInfoTable} labelWidth='40%' />
                 </Stack>
               </HStack>
             </CardBody>
@@ -240,6 +257,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   hatData={hatData}
                   chainId={chainId}
                   hatImage={imagesData[hatId]}
+                  childrenHats={childrenHats}
                 />
               )}
             </CardBody>

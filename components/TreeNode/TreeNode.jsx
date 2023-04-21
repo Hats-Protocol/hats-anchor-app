@@ -59,6 +59,7 @@ function Node({
             ? `url(#${rd3tProps.nodeDatum.name})`
             : 'grey'
         }
+        fillRule='evenOdd'
         style={{
           stroke: isHatActive ? '#437bc9' : '#6d858f',
           strokeWidth: isHatActive ? '4px' : '2px',

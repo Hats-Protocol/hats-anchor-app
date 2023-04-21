@@ -1,23 +1,19 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatCreate = ({
+const useHatWearerStatusSet = ({
   hatsAddress,
   chainId,
-  treeId,
-  admin,
-  details,
-  maxSupply,
+  hatId,
+  wearer,
   eligibility,
-  toggle,
-  mutable,
-  imageUrl,
+  standing,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
@@ -27,30 +23,27 @@ const useHatCreate = ({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
+    functionName: 'setHatWearerStatus',
     args: [
-      prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || FALLBACK_ADDRESS,
-      toggle || FALLBACK_ADDRESS,
-      mutable === 'Mutable',
-      imageUrl || '',
+      prettyIdToId(hatId), // not a valid fallback? throw instead?
+      wearer || '',
+      eligibility === 'Eligible',
+      standing === 'Good Standing',
     ],
-    enabled: !!hatsAddress && !!admin,
+    enabled: !!hatsAddress && !!wearer,
   });
-  console.log(prepareError);
+  // console.log(prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Hat Created',
-          description: 'Successfully created hat',
+          title: 'Wearer Status Updated',
+          description: 'Successfully updated hat',
         },
-        treeId,
+        hatId,
       });
 
       toast.info({
@@ -73,7 +66,7 @@ const useHatCreate = ({
     },
   });
 
-  return { writeAsync };
+  return { writeAsync, prepareError, writeError };
 };
 
-export default useHatCreate;
+export default useHatWearerStatusSet;

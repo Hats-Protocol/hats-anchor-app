@@ -31,7 +31,10 @@ export const fetchAllTrees = async (chainId) => {
 export const fetchHatDetails = async (hatId, chainId) => {
   const result = await client(chainId).request(GET_HAT, { id: hatId });
 
-  return _.get(result, 'hat', null);
+  return {
+    ..._.get(result, 'hat', {}),
+    chainId,
+  };
 };
 
 export const fetchWearerDetails = async (address, chainId) => {

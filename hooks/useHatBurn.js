@@ -1,45 +1,22 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { prettyIdToId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  treeId,
-  admin,
-  details,
-  maxSupply,
-  eligibility,
-  toggle,
-  mutable,
-  imageUrl,
-}) => {
+const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
-    args: [
-      prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || FALLBACK_ADDRESS,
-      toggle || FALLBACK_ADDRESS,
-      mutable === 'Mutable',
-      imageUrl || '',
-    ],
-    enabled: !!hatsAddress && !!admin,
+    functionName: 'renounceHat',
+    args: [hatId],
+    enabled: !!hatsAddress && !!hatId,
   });
-  console.log(prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,
@@ -47,10 +24,9 @@ const useHatCreate = ({
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Hat Created',
-          description: 'Successfully created hat',
+          title: 'Hat removed!',
+          description: `Successfully removed hat`,
         },
-        treeId,
       });
 
       toast.info({
@@ -76,4 +52,4 @@ const useHatCreate = ({
   return { writeAsync };
 };
 
-export default useHatCreate;
+export default useHatBurn;
