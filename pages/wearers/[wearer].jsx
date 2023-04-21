@@ -13,6 +13,7 @@ import {
   Tag,
   TagLabel,
 } from '@chakra-ui/react';
+import { useEnsName } from 'wagmi';
 import { fetchWearerDetails } from '../../gql/helpers';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useImageURIs from '../../hooks/useImageURIs';
@@ -22,72 +23,81 @@ import { prettyIdToIp, prettyIdToUrlId } from '../../lib/hats';
 import { chainsColors, chainsMap } from '../../lib/web3';
 import ChakraNextLink from '../../components/ChakraNextLink';
 
-const CoreHat = ({ hat, image }) => (
-  <Card key={_.get(hat, 'id')}>
-    <CardBody as={Flex} h='75px'>
-      <Stack>
-        <HStack h='100px' w='100%' justify='left' align='center' spacing='16px'>
-          <Box
-            bgImage={image || '/icon.jpeg'}
-            bgSize='cover'
-            bgPosition='center'
-            alt='Top Hat image'
-            w='85px'
-            h='85px'
-            border='1px solid'
-            borderColor='gray.200'
-          />
-          <Stack maxW='60%' spacing={1}>
-            <Text as='b' noOfLines={2}>
-              {_.get(hat, 'details')}
-            </Text>
-            <Text fontSize='sm'>
-              Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}
-            </Text>
-            {/* <Text fontSize='sm'>Tree: Hats Protocol DAO</Text> */}
-          </Stack>
-        </HStack>
-        <HStack>
-          {_.eq(_.get(hat, 'levelAtLocalTree'), 0) ? (
-            <Tag size='md' colorScheme='purple' borderRadius='full'>
-              <TagLabel>Top Hat</TagLabel>
-            </Tag>
-          ) : (
-            <Tag size='md' colorScheme='blue' borderRadius='full'>
-              <TagLabel>Level {_.get(hat, 'levelAtLocalTree')}</TagLabel>
-            </Tag>
-          )}
-
-          {_.get(hat, 'status') ? (
-            <Tag size='md' colorScheme='green' borderRadius='full'>
-              <TagLabel>Active</TagLabel>
-            </Tag>
-          ) : (
-            <Tag size='md' colorScheme='gray' borderRadius='full'>
-              <TagLabel>Inactive</TagLabel>
-            </Tag>
-          )}
-
-          {_.get(hat, 'isMutable') ? (
-            <Tag size='md' colorScheme='blue' borderRadius='full'>
-              <TagLabel>Mutable</TagLabel>
-            </Tag>
-          ) : (
-            <Tag size='md' colorScheme='gray' borderRadius='full'>
-              <TagLabel>Immutable</TagLabel>
-            </Tag>
-          )}
-          <Tag
-            colorScheme={chainsColors(_.get(hat, 'chainId'))}
-            borderRadius='full'
+const CoreHat = ({ hat, image }) => {
+  console.log(hat);
+  return (
+    <Card key={_.get(hat, 'id')}>
+      <CardBody as={Flex} h='75px'>
+        <Stack>
+          <HStack
+            h='100px'
+            w='100%'
+            justify='left'
+            align='center'
+            spacing='16px'
           >
-            <TagLabel>{chainsMap(_.get(hat, 'chainId'))?.name}</TagLabel>
-          </Tag>
-        </HStack>
-      </Stack>
-    </CardBody>
-  </Card>
-);
+            <Box
+              bgImage={image || '/icon.jpeg'}
+              bgSize='cover'
+              bgPosition='center'
+              alt='Top Hat image'
+              w='85px'
+              h='85px'
+              border='1px solid'
+              borderColor='gray.200'
+            />
+            <Stack maxW='60%' spacing={1}>
+              <Text as='b' noOfLines={2}>
+                {_.get(hat, 'details')}
+              </Text>
+              <Text fontSize='sm'>
+                Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}
+              </Text>
+              {/* <Text fontSize='sm'>Tree: Hats Protocol DAO</Text> */}
+            </Stack>
+          </HStack>
+          <HStack>
+            {_.eq(_.get(hat, 'levelAtLocalTree'), 0) ? (
+              <Tag size='md' colorScheme='purple' borderRadius='full'>
+                <TagLabel>Top Hat</TagLabel>
+              </Tag>
+            ) : (
+              <Tag size='md' colorScheme='blue' borderRadius='full'>
+                <TagLabel>Level {_.get(hat, 'levelAtLocalTree')}</TagLabel>
+              </Tag>
+            )}
+
+            {_.get(hat, 'status') ? (
+              <Tag size='md' colorScheme='green' borderRadius='full'>
+                <TagLabel>Active</TagLabel>
+              </Tag>
+            ) : (
+              <Tag size='md' colorScheme='gray' borderRadius='full'>
+                <TagLabel>Inactive</TagLabel>
+              </Tag>
+            )}
+
+            {_.get(hat, 'mutable') ? (
+              <Tag size='md' colorScheme='blue' borderRadius='full'>
+                <TagLabel>Mutable</TagLabel>
+              </Tag>
+            ) : (
+              <Tag size='md' colorScheme='gray' borderRadius='full'>
+                <TagLabel>Immutable</TagLabel>
+              </Tag>
+            )}
+            <Tag
+              colorScheme={chainsColors(_.get(hat, 'chainId'))}
+              borderRadius='full'
+            >
+              <TagLabel>{chainsMap(_.get(hat, 'chainId'))?.name}</TagLabel>
+            </Tag>
+          </HStack>
+        </Stack>
+      </CardBody>
+    </Card>
+  );
+};
 
 const WearerDetail = ({ wearerAddress, initialData }) => {
   const { data: mainnetWearer } = useWearerDetails({
@@ -174,10 +184,14 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
     // 11155111: sepoliaImagesData,
   };
 
+  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+
   return (
     <Layout>
       <Stack align='center' spacing={6}>
-        <Heading size='lg'>{formatAddress(wearerAddress)} Hats</Heading>
+        <Heading size='lg'>
+          {ensName || formatAddress(wearerAddress)}&apos;s Hats
+        </Heading>
         <Stack
           width='100%'
           justify='left'

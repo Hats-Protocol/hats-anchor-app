@@ -21,7 +21,6 @@ export const MODULE_TYPES = {
   toggle: 'TOGGLE',
 };
 
-// TODO add mainnet
 const CONFIG = {
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
@@ -29,7 +28,7 @@ const CONFIG = {
   url: 'https://app.hatsprotocol.xyz',
   logoUrl:
     'https://ipfs.io/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg',
-  chains: [5, 100, 137],
+  chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
 };
 

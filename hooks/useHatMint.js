@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { isAddress } from '@ethersproject/address';
+import { utils } from 'ethers';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
@@ -21,7 +21,7 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
       Boolean(newWearer) &&
-      isAddress(newWearer),
+      utils.isAddress(newWearer),
   });
 
   const { writeAsync } = useContractWrite({

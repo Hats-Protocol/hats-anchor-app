@@ -8,19 +8,24 @@ import {
   Flex,
   Text,
   HStack,
-  Image,
   Badge,
   Icon,
   IconButton,
   Button,
   Box,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
-import { FaPencilAlt } from 'react-icons/fa';
+import { FaPencilAlt, FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
+import Link from '../ChakraNextLink';
 import HatWearers from './HatWearers';
 import AddressLink from '../AddressLink';
 import DataTable from '../DataTable';
@@ -35,6 +40,8 @@ import {
   topHatOrMutable,
   isAdmin,
   mutableNotTopHat,
+  prettyIdToUrlId,
+  getTreeId,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -43,6 +50,9 @@ import useWearerDetails from '../../hooks/useWearerDetails';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatImageForm from '../../forms/HatImageForm';
 import HatSupplyForm from '../../forms/HatSupplyForm';
+import HatStatusForm from '../../forms/HatStatusForm';
+import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
+import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -55,31 +65,85 @@ const AddressRow = ({
   type,
   setType,
   localOverlay,
+  checkHatStatus,
 }) => {
   const { address: userAddress } = useAccount();
   const { setModals } = localOverlay;
 
-  const openModal = () => {
+  const openEditModal = () => {
     setType(type);
     setModals({ editModule: true });
   };
 
+  const openWearerStatusModal = () => {
+    setModals({ hatWearerStatus: true });
+  };
+
+  const openHatStatusModal = () => {
+    setModals({ hatStatus: true });
+  };
+
+  const handleCheckHatStatus = async () => {
+    await checkHatStatus?.();
+  };
+
   return (
-    <HStack spacing={2}>
+    <HStack spacing={3}>
       {address !== ZERO_ADDRESS ? (
         <AddressLink address={address} chainId={chainId} />
       ) : (
         <Text>None Set</Text>
       )}
-      {userAddress && mutable && admin && (
-        <IconButton
-          icon={<Icon as={FaPencilAlt} h='12px' w='12px' />}
-          minW='auto'
-          w={8}
-          h={8}
-          variant='ghost'
-          onClick={openModal}
-        />
+
+      {userAddress && ((mutable && admin) || userAddress === address) && (
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            icon={<Icon as={FaEllipsisV} h='12px' w='12px' />}
+            minW='auto'
+            w={8}
+            h={8}
+            variant='ghost'
+          />
+          <MenuList>
+            {mutable && admin && (
+              <MenuItem onClick={openEditModal}>
+                Edit {_.capitalize(type)} Module
+              </MenuItem>
+            )}
+            {mutable &&
+              _.eq(type, MODULE_TYPES.eligibility) &&
+              _.eq(_.toLower(userAddress), _.toLower(address)) && (
+                <MenuItem onClick={openWearerStatusModal}>
+                  Change Wearer Status
+                </MenuItem>
+              )}
+            {mutable && _.eq(type, MODULE_TYPES.toggle) && (
+              <>
+                <MenuItem
+                  onClick={handleCheckHatStatus}
+                  isDisabled={!checkHatStatus}
+                >
+                  <Tooltip
+                    label={!checkHatStatus ? 'Toggle is not a contract' : ''}
+                    placement='left'
+                    bg='gray.100'
+                    color='black'
+                    hasArrow
+                  >
+                    Check Hat Status
+                  </Tooltip>
+                </MenuItem>
+
+                {_.eq(_.toLower(userAddress), _.toLower(address)) && (
+                  <MenuItem onClick={openHatStatusModal}>
+                    Change Hat Status
+                  </MenuItem>
+                )}
+              </>
+            )}
+          </MenuList>
+        </Menu>
       )}
     </HStack>
   );
@@ -87,7 +151,7 @@ const AddressRow = ({
 
 // TODO this should probably be more components
 
-const Hat = ({ hatData, chainId, treeId, hatImage }) => {
+const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -96,7 +160,16 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
     wearerAddress: address,
     chainId,
   });
-  const { writeAsync } = useHatMakeImmutable({ hatsAddress, chainId, hatData });
+  const { writeAsync: updateImmutability } = useHatMakeImmutable({
+    hatsAddress,
+    chainId,
+    hatData,
+  });
+  const { writeAsync: checkHatStatus } = useHatStatusCheck({
+    hatsAddress,
+    chainId,
+    hatData,
+  });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
@@ -115,27 +188,37 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
   };
 
   const handleMakeImmutable = () => {
-    writeAsync?.();
+    updateImmutability?.();
   };
+
+  const authoritiesTable = _.map(childrenHats, (hat) => ({
+    label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,
+    value: (
+      <Link
+        href={`/trees/${chainId}/${decimalId(
+          getTreeId(_.get(hat, 'prettyId')),
+        )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
+      >
+        <HStack>
+          <Text>Hats Protocol</Text>
+          <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+        </HStack>
+      </Link>
+    ),
+  }));
 
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
       label: 'Admin ID',
       value: (
         <CopyToClipboard
-          copyValue={decimalId(_.get(hatData, 'admin.id', '0'))}
+          copyValue={_.get(hatData, 'admin.prettyId', '0')}
           description='Admin ID'
         >{`${prettyIdToIp(
           _.get(hatData, 'admin.prettyId', '0'),
         )}`}</CopyToClipboard>
       ),
     },
-    // _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
-    //   label: 'Pretty Admin ID',
-    //   value: (
-    //     <CopyToClipboard>{_.get(hatData, 'admin.prettyId')}</CopyToClipboard>
-    //   ),
-    // },
     {
       label: 'Eligibility',
       value: (
@@ -150,6 +233,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           }
           setType={setType}
           localOverlay={localOverlay}
+          user={address}
         />
       ),
     },
@@ -167,6 +251,8 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
           }
           setType={setType}
           localOverlay={localOverlay}
+          user={address}
+          checkHatStatus={checkHatStatus}
         />
       ),
     },
@@ -198,6 +284,28 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
         localOverlay={localOverlay}
       >
         <HatSupplyForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='hatWearerStatus'
+        title='Change Wearer Status'
+        localOverlay={localOverlay}
+      >
+        <HatWearerStatusForm
+          hatData={hatData}
+          chainId={chainId}
+          defaultValues={{
+            wearer: '',
+            eligibility: 'Eligible',
+            standing: 'Good Standing',
+          }}
+        />
+      </Modal>
+      <Modal
+        name='hatStatus'
+        title='Change Hat Status'
+        localOverlay={localOverlay}
+      >
+        <HatStatusForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
@@ -273,19 +381,29 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
 
         <Tabs>
           <TabList>
-            <Tab>Details</Tab>
-            {/* <Tab>Authorities</Tab> */}
-            <Tab>Accountabilities</Tab>
-            <Tab>Wearers</Tab>
-            <Tab>Events</Tab>
+            <Tab px={2} fontSize='sm'>
+              Details
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Authorities
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Accountabilities
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Wearers
+            </Tab>
+            <Tab px={2} fontSize='sm'>
+              Events
+            </Tab>
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              mutableNotTopHat(hatData) && <Tab>Admin</Tab>}
+              mutableNotTopHat(hatData) && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
-            <TabPanel>
+            <TabPanel minH='370px'>
               <Box>
                 {canEditImage && (
                   <IconButton
@@ -303,18 +421,25 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
               </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
-            {/* <TabPanel /> */}
-            <TabPanel>
+            <TabPanel minH='370px'>
+              <DataTable
+                data={clearNonObjects(authoritiesTable)}
+                justify='space-between'
+                minH={10}
+                labelWidth='40%'
+              />
+            </TabPanel>
+            <TabPanel minH='370px'>
               <DataTable
                 data={clearNonObjects(accountabilitiesTable)}
                 justify='space-between'
                 minH={10}
               />
             </TabPanel>
-            <TabPanel>
+            <TabPanel minH='370px'>
               <HatWearers hatData={hatData} chainId={chainId} />
             </TabPanel>
-            <TabPanel>
+            <TabPanel minH='370px'>
               <EventsTable
                 treeId={treeId}
                 events={hatData?.events}
@@ -324,7 +449,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage }) => {
             {userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
               mutableNotTopHat(hatData) && (
-                <TabPanel>
+                <TabPanel minH='370px'>
                   <HStack>
                     <Button variant='outline' onClick={handleOpenSupplyModal}>
                       Adjust Max Supply

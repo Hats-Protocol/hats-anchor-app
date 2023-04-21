@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { switchNetwork } from '@wagmi/core';
 import { useState } from 'react';
 import {
@@ -29,6 +29,7 @@ import {
   decimalId,
   urlIdToPrettyId,
   prettyIdToUrlId,
+  descendantsOf,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -85,6 +86,15 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const topHatId = _.get(treeData, 'hats[0].id');
   const { data: topHat } = useHatDetails({ hatId: topHatId, chainId });
   const { data: hatData } = useHatDetails({ hatId, chainId });
+  const { data: topHatEnsName } = useEnsName({
+    address: _.get(_.first(_.get(topHat, 'wearers')), 'id'),
+    chainId: 1,
+  });
+  const childrenHats = descendantsOf(
+    _.get(hatData, 'prettyId'),
+    treeData,
+    true,
+  );
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
@@ -122,8 +132,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
         <ChakraLink
           as={Link}
           href={`/wearers/${_.get(_.first(_.get(topHat, 'wearers')), 'id')}`}
+          noOfLines={1}
         >
-          {formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id'))}
+          {topHatEnsName ||
+            formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id'))}
         </ChakraLink>
       ),
     },
@@ -189,7 +201,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                 />
                 <Stack spacing={4} w='60%'>
                   <Heading size='md'>Tree Details</Heading>
-                  <DataTable data={treeInfoTable} labelWidth='45%' />
+                  <DataTable data={treeInfoTable} labelWidth='40%' />
                 </Stack>
               </HStack>
             </CardBody>
@@ -245,6 +257,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   hatData={hatData}
                   chainId={chainId}
                   hatImage={imagesData[hatId]}
+                  childrenHats={childrenHats}
                 />
               )}
             </CardBody>

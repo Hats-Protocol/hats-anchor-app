@@ -108,7 +108,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
               isChecked={inputEligibility}
               onChange={() => setInputEligibility(!inputEligibility)}
             />
-            {!inputEligibility && (<FormLabel>Set Eligibility</FormLabel>)}
+            {!inputEligibility && <FormLabel>Set Eligibility</FormLabel>}
             {inputEligibility && (
               <Input
                 name='eligibility'
@@ -125,7 +125,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
               isChecked={inputToggle}
               onChange={() => setInputToggle(!inputToggle)}
             />
-            {!inputToggle && (<FormLabel>Set Toggle</FormLabel>)}
+            {!inputToggle && <FormLabel>Set Toggle</FormLabel>}
             {inputToggle && (
               <Input
                 name='toggle'
