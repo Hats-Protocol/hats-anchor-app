@@ -65,9 +65,11 @@ function Node({
           strokeWidth: isHatActive ? '4px' : '2px',
           strokeOpacity: '50%',
         }}
-        onClick={() => {
+        onClick={async () => {
           handleNodeClick(rd3tProps.nodeDatum.name);
-          rd3tProps.onNodeClick();
+          if (!rd3tProps.nodeDatum.attributes.linked) {
+            rd3tProps.onNodeClick();
+          }
         }}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}

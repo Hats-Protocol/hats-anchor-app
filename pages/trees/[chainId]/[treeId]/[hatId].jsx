@@ -30,6 +30,7 @@ import {
   urlIdToPrettyId,
   prettyIdToUrlId,
   descendantsOf,
+  getTreeId,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -43,7 +44,7 @@ import Modal from '../../../../components/Modal';
 import HatCreateForm from '../../../../forms/HatCreateForm';
 import CopyToClipboard from '../../../../components/CopyToClipboard';
 import useImageURIs from '../../../../hooks/useImageURIs';
-import TreeNode from '../../../../components/TreeNode';
+import TreeNode, { styleEdgeFunc } from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
 import useContainerDimensions from '../../../../hooks/useContainerDimensions';
 
@@ -78,8 +79,21 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     error: treeError,
   } = useTreeDetails({ treeId, chainId, initialData });
 
+  const hatsToFetchImage = [];
+  if (treeData) {
+    for (const hat of treeData?.hats) {
+      hatsToFetchImage.push(hat.id);
+      for (const linkedTree of hat.linkedTrees) {
+        hatsToFetchImage.push(prettyIdToId(linkedTree.id));
+      }
+    }
+    if (treeData?.linkedToHat !== null) {
+      hatsToFetchImage.push(treeData?.linkedToHat.id);
+    }
+  }
+
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
-    treeData?.hats.map((hat) => hat.id),
+    hatsToFetchImage,
     chainId,
   );
 
@@ -161,11 +175,24 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   ];
 
   const handleNodeClick = (nodePrettyId) => {
-    router.push(
-      `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
-      undefined,
-      { scroll: false },
-    );
+    const hatTreeId = getTreeId(nodePrettyId);
+    // check if the hat is in the current tree and adjust route accordingly
+    if (hatTreeId != treeId) {
+      router.push(
+        `/trees/${chainId}/${decimalId(hatTreeId)}/${prettyIdToUrlId(
+          nodePrettyId,
+        )}`,
+        undefined,
+      );
+    } else {
+      router.push(
+        `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+          nodePrettyId,
+        )}`,
+        undefined,
+        { scroll: false },
+      );
+    }
   };
 
   const handleAddChildClick = (nodePrettyId) => {
@@ -234,6 +261,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   collapsible={false}
                   nodeSize={{ x: 200, y: 200 }}
                   translate={{ x: 200, y: 200 }}
+                  pathClassFunc={styleEdgeFunc}
                   renderCustomNodeElement={(rd3tProps) =>
                     TreeNode(
                       rd3tProps,
