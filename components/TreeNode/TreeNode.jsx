@@ -15,16 +15,14 @@ function Node({
 }) {
   const [isHover, setIsHover] = useState(false);
   const userChain = useChainId();
+  const { attributes, name } = rd3tProps.nodeDatum;
+  const { treeId } = attributes;
 
   const isHatActive = BigNumber.from(activeHatId).eq(
-    BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
+    BigNumber.from(prettyIdToId(name)),
   );
 
-  const isWearerOrAdminOfHat = isAdmin(
-    rd3tProps.nodeDatum.name,
-    wearerHats,
-    true,
-  );
+  const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
 
   useEffect(() => {
     if (isHatActive) {
@@ -36,7 +34,7 @@ function Node({
     <g>
       <defs>
         <pattern
-          id={rd3tProps.nodeDatum.name}
+          id={name}
           x='0%'
           y='0%'
           height='100%'
@@ -48,17 +46,13 @@ function Node({
             y='0%'
             width='512'
             height='512'
-            href={rd3tProps.nodeDatum.attributes.imageURI}
+            href={attributes.imageURI}
           />
         </pattern>
       </defs>
       <circle
         r={isHatActive || isHover ? 30 : 25}
-        fill={
-          rd3tProps.nodeDatum.attributes.imageURI !== undefined
-            ? `url(#${rd3tProps.nodeDatum.name})`
-            : 'grey'
-        }
+        fill={attributes.imageURI !== undefined ? `url(#${name})` : 'grey'}
         fillRule='evenOdd'
         style={{
           stroke: isHatActive ? '#437bc9' : '#6d858f',
@@ -66,7 +60,7 @@ function Node({
           strokeOpacity: '50%',
         }}
         onClick={() => {
-          handleNodeClick(rd3tProps.nodeDatum.name);
+          handleNodeClick(name, treeId);
           rd3tProps.onNodeClick();
         }}
         onMouseEnter={() => setIsHover(true)}
@@ -79,12 +73,12 @@ function Node({
             flexDirection: 'column',
           }}
         >
-          <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
+          <h4 style={{}}>ID {prettyIdToIp(name)}</h4>
           {chainId === userChain && isWearerOrAdminOfHat && (
             <Button
               className={styles.button1}
               type='button'
-              onClick={() => handleAddChildClick(rd3tProps.nodeDatum.name)}
+              onClick={() => handleAddChildClick(name)}
               fontSize='sm'
               fontWeight='normal'
             >

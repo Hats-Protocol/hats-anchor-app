@@ -30,6 +30,7 @@ import {
   urlIdToPrettyId,
   prettyIdToUrlId,
   descendantsOf,
+  prettyIdToIp,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -161,9 +162,28 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     },
   ];
 
-  const handleNodeClick = (nodePrettyId) => {
+  if (treeData?.linkedToHat) {
+    treeInfoTable.push({
+      label: 'Child of',
+      value: (
+        <ChakraLink
+          as={Link}
+          href={`/trees/${chainId}/${decimalId(
+            treeData.linkedToHat.tree.id,
+          )}/${prettyIdToUrlId(treeData.linkedToHat.prettyId)}`}
+          noOfLines={1}
+        >
+          {prettyIdToIp(treeData.linkedToHat.prettyId)}
+        </ChakraLink>
+      ),
+    });
+  }
+
+  const handleNodeClick = (nodePrettyId, nodeTreeId) => {
     router.push(
-      `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(nodePrettyId)}`,
+      `/trees/${chainId}/${decimalId(nodeTreeId)}/${prettyIdToUrlId(
+        nodePrettyId,
+      )}`,
       undefined,
       { scroll: false },
     );
