@@ -245,6 +245,9 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                       chainId,
                     )
                   }
+                  pathClassFunc={({ target }) =>
+                    target.data.attributes.dottedLine ? 'dotted-link' : ''
+                  }
                 />
               </CardBody>
             </Card>

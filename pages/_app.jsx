@@ -8,6 +8,7 @@ import theme from '../theme';
 import { wagmiClient, chains } from '../lib/web3';
 import { OverlayContextProvider } from '../contexts/OverlayContext';
 import SEO from '../constants/next-seo.config';
+import '../public/style.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {

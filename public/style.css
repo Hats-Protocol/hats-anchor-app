@@ -1,0 +1,5 @@
+.dotted-link {
+  stroke-dasharray: 5, 5; /* change these values to adjust the length and spacing of the dots */
+  stroke-dashoffset: 0; /* this sets the starting point of the dashed line */
+  stroke: black; /* this sets the color of the line */
+}
