@@ -9,7 +9,19 @@ const useTreeDetails = ({ treeId, chainId, initialData }) => {
     initialData,
   });
 
-  return { data, isLoading, error };
+  const { childOfTree, linkedToHat, parentOfTrees } = data || {};
+  const linkedHatIds = [];
+  if (linkedToHat) {
+    linkedHatIds.push(linkedToHat.prettyId);
+  }
+  if (parentOfTrees) {
+    linkedHatIds.push(...parentOfTrees.map((tree) => tree.id));
+  }
+  if (childOfTree) {
+    linkedHatIds.push(childOfTree.id);
+  }
+
+  return { data, linkedHatIds, isLoading, error };
 };
 
 export default useTreeDetails;

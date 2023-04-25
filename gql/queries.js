@@ -27,6 +27,18 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
         prettyId
       }
     }
+    childOfTree {
+      id
+    }
+    parentOfTrees {
+      id
+      linkedToHat {
+        prettyId
+      }
+    }
+    linkedToHat {
+      prettyId
+    }
   }
   ${EVENT_DETAILS_FRAGMENT}
 `;

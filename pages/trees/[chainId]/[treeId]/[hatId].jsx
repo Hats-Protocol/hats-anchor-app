@@ -76,10 +76,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     data: treeData,
     isLoading: treeLoading,
     error: treeError,
+    linkedHatIds,
   } = useTreeDetails({ treeId, chainId, initialData });
 
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
-    treeData?.hats.map((hat) => hat.id),
+    treeData?.hats.map((hat) => hat.id).concat(linkedHatIds),
     chainId,
   );
 
