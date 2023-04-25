@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import { useRouter } from 'next/router';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { switchNetwork } from '@wagmi/core';
@@ -80,8 +81,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   } = useTreeDetails({ treeId, chainId, initialData });
 
   const hatsToFetchImage = [];
-  if (treeData) {
-    for (const hat of treeData?.hats) {
+  if (treeData !== undefined && treeData.hats !== undefined) {
+    for (const hat of treeData.hats) {
       hatsToFetchImage.push(hat.id);
       for (const linkedTree of hat.linkedTrees) {
         hatsToFetchImage.push(prettyIdToId(linkedTree.id));
@@ -177,7 +178,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const handleNodeClick = (nodePrettyId) => {
     const hatTreeId = getTreeId(nodePrettyId);
     // check if the hat is in the current tree and adjust route accordingly
-    if (hatTreeId != treeId) {
+    if (hatTreeId !== treeId) {
       router.push(
         `/trees/${chainId}/${decimalId(hatTreeId)}/${prettyIdToUrlId(
           nodePrettyId,
