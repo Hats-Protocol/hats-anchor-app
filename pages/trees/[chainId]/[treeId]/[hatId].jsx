@@ -60,11 +60,13 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const [dimensions, containerRef] = useContainerDimensions();
 
   const { address } = useAccount();
+  console.log('address', address);
   const userChain = useChainId();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
+  console.log('wearerData', wearerData);
 
   let wearerHats = [];
   if (wearerData !== undefined) {
@@ -72,6 +74,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
       return hat.prettyId;
     });
   }
+  console.log('wearerHats', wearerHats);
 
   const {
     data: treeData,
@@ -194,6 +197,10 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     setModals({ createHat: true });
   };
 
+  const handleRequestLink = (nodePrettyId) => {
+    console.log('nodePrettyId', nodePrettyId);
+  };
+
   // "Top Hat #21 or Hat #2.3.4"
   const title = 'Hat Detail';
 
@@ -260,9 +267,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                       rd3tProps,
                       handleNodeClick,
                       handleAddChildClick,
+                      handleRequestLink,
                       hatId,
                       wearerHats,
                       chainId,
+                      wearerData,
                     )
                   }
                   pathClassFunc={({ target }) =>
