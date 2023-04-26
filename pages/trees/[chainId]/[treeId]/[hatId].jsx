@@ -115,7 +115,6 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   const tree = toTreeStructure(treeData, imagesData);
   const events = _.get(treeData, 'events');
-
   const treeInfoTable = [
     {
       label: 'Tree ID',
@@ -160,24 +159,25 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
           </Button>
         ),
     },
+    ...(treeData?.linkedToHat
+      ? [
+          {
+            label: 'Child of',
+            value: (
+              <ChakraLink
+                as={Link}
+                href={`/trees/${chainId}/${decimalId(
+                  treeData.linkedToHat.tree.id,
+                )}/${prettyIdToUrlId(treeData.linkedToHat.prettyId)}`}
+                noOfLines={1}
+              >
+                {prettyIdToIp(treeData.linkedToHat.prettyId)}
+              </ChakraLink>
+            ),
+          },
+        ]
+      : []),
   ];
-
-  if (treeData?.linkedToHat) {
-    treeInfoTable.push({
-      label: 'Child of',
-      value: (
-        <ChakraLink
-          as={Link}
-          href={`/trees/${chainId}/${decimalId(
-            treeData.linkedToHat.tree.id,
-          )}/${prettyIdToUrlId(treeData.linkedToHat.prettyId)}`}
-          noOfLines={1}
-        >
-          {prettyIdToIp(treeData.linkedToHat.prettyId)}
-        </ChakraLink>
-      ),
-    });
-  }
 
   const handleNodeClick = (nodePrettyId, nodeTreeId) => {
     router.push(

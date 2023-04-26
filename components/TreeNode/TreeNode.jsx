@@ -3,7 +3,6 @@ import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
-import styles from './TreeNode.module.css';
 
 function Node({
   rd3tProps,
@@ -76,7 +75,14 @@ function Node({
           <h4 style={{}}>ID {prettyIdToIp(name)}</h4>
           {chainId === userChain && isWearerOrAdminOfHat && (
             <Button
-              className={styles.button1}
+              color='black'
+              borderRadius='10px'
+              marginBottom='4px'
+              marginTop='4px'
+              backgroundColor='rgb(202, 211, 214)'
+              _hover={{
+                backgroundColor: 'rgb(225, 233, 236)',
+              }}
               type='button'
               onClick={() => handleAddChildClick(name)}
               fontSize='sm'
