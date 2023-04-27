@@ -19,6 +19,7 @@ import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
+import { BigNumber } from 'ethers';
 
 import EventsTable from '../../../../components/EventsTable';
 import Hat from '../../../../components/Hat';
@@ -47,11 +48,13 @@ import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
 import useContainerDimensions from '../../../../hooks/useContainerDimensions';
+import HatRequestToLinkForm from '../../../../forms/HatRequestToLinkForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
 const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const [initialRender, setInitialRender] = useState(true);
+  const [newAdmin, setNewAdmin] = useState('');
   const chain = chainsMap(chainId);
   const router = useRouter();
   const localOverlay = useOverlay();
@@ -60,13 +63,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const [dimensions, containerRef] = useContainerDimensions();
 
   const { address } = useAccount();
-  console.log('address', address);
   const userChain = useChainId();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
-  console.log('wearerData', wearerData);
 
   let wearerHats = [];
   if (wearerData !== undefined) {
@@ -74,7 +75,6 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
       return hat.prettyId;
     });
   }
-  console.log('wearerHats', wearerHats);
 
   const {
     data: treeData,
@@ -198,7 +198,8 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   };
 
   const handleRequestLink = (nodePrettyId) => {
-    console.log('nodePrettyId', nodePrettyId);
+    setNewAdmin(BigNumber.from(prettyIdToId(nodePrettyId)));
+    setModals({ requestToLink: true });
   };
 
   // "Top Hat #21 or Hat #2.3.4"
@@ -210,6 +211,18 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />
+      </Modal>
+
+      <Modal
+        name='requestToLink'
+        title='Request to Link'
+        localOverlay={localOverlay}
+      >
+        <HatRequestToLinkForm
+          newAdmin={newAdmin}
+          wearerHats={wearerHats}
+          chainId={chainId}
+        />
       </Modal>
 
       <Layout>
