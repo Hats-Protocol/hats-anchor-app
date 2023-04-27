@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
-// TODO fix
 import { useEffect, useState } from 'react';
 import CmdkCommandPalette, {
   filterItems,
@@ -14,9 +13,10 @@ import 'react-cmdk/dist/cmdk.css';
 import useSearchResults from '../hooks/useSearchResults';
 import ChakraNextLink from './ChakraNextLink';
 import { useOverlay } from '../contexts/OverlayContext';
+import { prettyIdToIp, decimalIdToId, idToPrettyId } from '../lib/hats';
 
-const CommandPaletteInternalLink = ({ href, children }) => (
-  <ChakraNextLink href={href}>
+const CommandPaletteInternalLink = ({ href, children, closePalette }) => (
+  <ChakraNextLink href={href} onClick={closePalette}>
     <Flex w='100%' justify='space-between' p={2}>
       {children}
     </Flex>
@@ -30,7 +30,7 @@ const CommandPalette = () => {
   const { commandPallet: isOpen, setCommandPallet: setOpen } = useOverlay();
   const [search, setSearch] = useState('');
   const [serverSearch, setServerSearch] = useState(null);
-  const [localResults, setLocalResults] = useState(null);
+  const [localResults, setLocalResults] = useState({ trees: [], hats: [] });
   const { data: searchData } = useSearchResults({
     search: serverSearch,
   });
@@ -66,20 +66,46 @@ const CommandPalette = () => {
 
   useHandleOpenCommandPalette(setOpen);
 
-  const searchResults = filterItems(
-    [
-      {
-        heading: 'Trees',
-        id: 'trees',
-        items: _.get(localResults, 'trees', []),
-      },
-      {
-        heading: 'Hats',
-        id: 'hats',
-        items: _.get(localResults, 'hats', []),
-      },
-    ],
-    search,
+  const searchResults = _.concat(
+    filterItems(
+      [
+        {
+          heading: 'Trees',
+          id: 'trees',
+          items: _.get(localResults, 'trees', []),
+        },
+        {
+          heading: 'Hats',
+          id: 'hats',
+          items: _.get(localResults, 'hats', []),
+        },
+      ],
+      search,
+    ),
+    search.includes('0x')
+      ? filterItems(
+          [
+            {
+              heading: 'Hats',
+              id: 'hats-pretty',
+              items: _.get(localResults, 'hats', []),
+            },
+          ],
+          prettyIdToIp(search),
+        )
+      : [],
+    !search.includes('.')
+      ? filterItems(
+          [
+            {
+              heading: 'Hats',
+              id: 'hats-decimal',
+              items: _.get(localResults, 'hats', []),
+            },
+          ],
+          prettyIdToIp(idToPrettyId(decimalIdToId(search))),
+        )
+      : [],
   );
 
   const filteredItems = filterItems(
@@ -102,6 +128,7 @@ const CommandPalette = () => {
 
   return (
     <CmdkCommandPalette
+      placeholder='Pretty ID (0x0000001), IP ID (1.4.3) or Decimal ID (23124...)'
       onChangeSearch={setSearchTimeout}
       onChangeOpen={handleClose}
       search={search}
@@ -117,7 +144,10 @@ const CommandPalette = () => {
                   key={id}
                   index={getItemIndex(filteredItems, id)}
                   renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink href={href}>
+                    <CommandPaletteInternalLink
+                      href={href}
+                      closePalette={handleClose}
+                    >
                       {children}
                     </CommandPaletteInternalLink>
                   )}
@@ -126,7 +156,7 @@ const CommandPalette = () => {
               ))}
             </CmdkCommandPalette.List>
           ))
-        ) : localResults ? (
+        ) : searchResults ? (
           _.map(searchResults, (group) => (
             <CmdkCommandPalette.List key={group.id} heading={group.heading}>
               {_.map(_.get(group, 'items'), ({ id, ...rest }) => (
@@ -134,7 +164,10 @@ const CommandPalette = () => {
                   key={id}
                   index={getItemIndex(searchResults, id)}
                   renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink href={href}>
+                    <CommandPaletteInternalLink
+                      href={href}
+                      closePalette={handleClose}
+                    >
                       {children}
                     </CommandPaletteInternalLink>
                   )}

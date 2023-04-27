@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import { fetchTreeDetails } from '../../../../gql/helpers';
-import { decimalId } from '../../../../lib/hats';
+import { decimalId, ipToPrettyId } from '../../../../lib/hats';
 
 const TreeDetails = ({ treeId, chainId, initialData }) => {
   const router = useRouter();
@@ -13,17 +13,20 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
   const topHatId = _.get(treeData, 'hats[0].id');
 
   useEffect(() => {
-    if (treeId && topHatId) {
-      router.push(`/trees/${treeId}/${decimalId(topHatId)}`);
+    if (treeId) {
+      router.push(
+        `/trees/${chainId}/${treeId}/${decimalId(topHatId) || treeId}`,
+      );
     }
-  }, [router, treeId, topHatId]);
+  }, [router, chainId, treeId, topHatId]);
 
   return null;
 };
 
 export const getServerSideProps = async (context) => {
   const { treeId, chainId } = context.params;
-  const initialData = await fetchTreeDetails(treeId, chainId);
+  const initialData = await fetchTreeDetails(ipToPrettyId(treeId), chainId);
+  console.log(initialData);
 
   return {
     props: {

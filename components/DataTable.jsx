@@ -17,7 +17,7 @@ const DataTable = ({
     <Stack>
       {data.map((row) => (
         <HStack
-          key={row.label}
+          key={row.key || row.label}
           justify={justify}
           spacing={3}
           borderBottom='1px solid'

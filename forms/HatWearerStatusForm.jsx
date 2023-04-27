@@ -30,8 +30,6 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
     await writeAsync?.();
   };
 
-  console.log(defaultValues);
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>

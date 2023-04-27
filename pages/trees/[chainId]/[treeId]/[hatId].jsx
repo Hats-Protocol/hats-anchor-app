@@ -193,6 +193,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                 <Box
                   bgImage={imagesData[topHatId] ?? '/icon.jpeg'}
                   bgSize='cover'
+                  bgPosition='center'
                   alt='Top Hat image'
                   w='200px'
                   h='200px'

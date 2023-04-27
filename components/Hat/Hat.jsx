@@ -200,7 +200,12 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   };
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
-    label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,
+    key: _.get(hat, 'prettyId'),
+    label: (
+      <Text as='span'>
+        Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
+      </Text>
+    ),
     value: (
       <Link
         href={`/trees/${chainId}/${decimalId(
