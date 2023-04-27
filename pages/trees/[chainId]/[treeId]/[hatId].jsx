@@ -304,6 +304,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   chainId={chainId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
+                  linkRequestFromTree={treeData?.linkRequestFromTree}
                 />
               )}
             </CardBody>

@@ -152,7 +152,14 @@ const AddressRow = ({
 
 // TODO this should probably be more components
 
-const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
+const Hat = ({
+  hatData,
+  chainId,
+  treeId,
+  hatImage,
+  childrenHats,
+  linkRequestFromTree,
+}) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -198,6 +205,13 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const handleMakeImmutable = () => {
     updateImmutability?.();
   };
+
+  const isAdminUser =
+    userChain === chainId &&
+    isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
+  const showSupplyAndImmutableButtons =
+    isAdminUser && mutableNotTopHat(hatData);
+  const showLinkRequestButtons = linkRequestFromTree.length > 0;
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,
@@ -407,7 +421,9 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              mutableNotTopHat(hatData) && <Tab fontSize='sm'>Admin</Tab>}
+              (mutableNotTopHat(hatData) || linkRequestFromTree.length) && (
+                <Tab fontSize='sm'>Admin</Tab>
+              )}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -471,20 +487,33 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
                 chainId={chainId}
               />
             </TabPanel>
-            {userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              mutableNotTopHat(hatData) && (
-                <TabPanel minH='370px'>
-                  <HStack>
-                    <Button variant='outline' onClick={handleOpenSupplyModal}>
-                      Adjust Max Supply
-                    </Button>
-                    <Button variant='outline' onClick={handleMakeImmutable}>
-                      Make Immutable
-                    </Button>
-                  </HStack>
-                </TabPanel>
-              )}
+            {isAdminUser &&
+            (showSupplyAndImmutableButtons || showLinkRequestButtons) ? (
+              <TabPanel minH='370px'>
+                <HStack>
+                  {showSupplyAndImmutableButtons && (
+                    <>
+                      <Button variant='outline' onClick={handleOpenSupplyModal}>
+                        Adjust Max Supply
+                      </Button>
+                      <Button variant='outline' onClick={handleMakeImmutable}>
+                        Make Immutable
+                      </Button>
+                    </>
+                  )}
+                  {showLinkRequestButtons &&
+                    linkRequestFromTree.map((linkRequest) => (
+                      <Button
+                        variant='outline'
+                        // onClick={handleOpenLinkRequestModal}
+                        key={linkRequest.id}
+                      >
+                        Link Request to {linkRequest.id}
+                      </Button>
+                    ))}
+                </HStack>
+              </TabPanel>
+            ) : null}
           </TabPanels>
         </Tabs>
       </Stack>
