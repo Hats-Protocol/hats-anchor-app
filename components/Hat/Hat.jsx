@@ -42,6 +42,7 @@ import {
   mutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
+  isTopHat,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -211,7 +212,8 @@ const Hat = ({
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
   const showSupplyAndImmutableButtons =
     isAdminUser && mutableNotTopHat(hatData);
-  const showLinkRequestButtons = linkRequestFromTree.length > 0;
+  const showLinkRequestButtons =
+    linkRequestFromTree.length > 0 && isTopHat(hatData);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,
