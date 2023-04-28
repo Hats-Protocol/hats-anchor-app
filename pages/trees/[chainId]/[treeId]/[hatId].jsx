@@ -48,7 +48,7 @@ import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
 import useContainerDimensions from '../../../../hooks/useContainerDimensions';
-import LinkRequestForm from '../../../../forms/LinkRequestForm';
+import LinkRequestCreateForm from '../../../../forms/LinkRequestCreateForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -218,7 +218,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
         title='Request to Link'
         localOverlay={localOverlay}
       >
-        <LinkRequestForm
+        <LinkRequestCreateForm
           newAdmin={newAdmin}
           wearerHats={wearerHats}
           chainId={chainId}

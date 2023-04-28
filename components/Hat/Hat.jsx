@@ -24,6 +24,7 @@ import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt, FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
+import { BigNumber } from 'ethers';
 
 import Link from '../ChakraNextLink';
 import HatWearers from './HatWearers';
@@ -43,6 +44,7 @@ import {
   prettyIdToUrlId,
   getTreeId,
   isTopHat,
+  prettyIdToId,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -55,6 +57,7 @@ import useHatDetailsField from '../../hooks/useHatDetailsField';
 import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
+import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -182,6 +185,7 @@ const Hat = ({
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
+  const [newAdmin, setNewAdmin] = useState('');
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
@@ -207,13 +211,19 @@ const Hat = ({
     updateImmutability?.();
   };
 
+  const handleOpenLinkResponseModal = (id) => {
+    setNewAdmin(id);
+    setModals({ linkResponse: true });
+  };
+
   const isAdminUser =
     userChain === chainId &&
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
+
   const showSupplyAndImmutableButtons =
     isAdminUser && mutableNotTopHat(hatData);
-  const showLinkRequestButtons =
-    linkRequestFromTree.length > 0 && isTopHat(hatData);
+
+  const canEditImage = isAdminUser && address && topHatOrMutable(hatData);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     label: <Text>Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>,
@@ -281,11 +291,6 @@ const Hat = ({
       ),
     },
   ];
-  const canEditImage =
-    userChain === chainId &&
-    address &&
-    topHatOrMutable(hatData) &&
-    isAdmin(_.get(hatData, 'id'), currentWearerHats);
 
   return (
     <>
@@ -330,6 +335,17 @@ const Hat = ({
         localOverlay={localOverlay}
       >
         <HatStatusForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='linkResponse'
+        title='Approve Link Request'
+        localOverlay={localOverlay}
+      >
+        <LinkRequestApprove
+          newAdmin={BigNumber.from(prettyIdToId(newAdmin))}
+          hatData={hatData}
+          chainId={chainId}
+        />
       </Modal>
 
       <Stack>
@@ -490,30 +506,43 @@ const Hat = ({
               />
             </TabPanel>
             {isAdminUser &&
-            (showSupplyAndImmutableButtons || showLinkRequestButtons) ? (
+            (showSupplyAndImmutableButtons || linkRequestFromTree?.length) ? (
               <TabPanel minH='370px'>
-                <HStack>
+                <Box justifyContent='space-between' flexWrap='wrap'>
                   {showSupplyAndImmutableButtons && (
                     <>
-                      <Button variant='outline' onClick={handleOpenSupplyModal}>
+                      <Button
+                        variant='outline'
+                        onClick={handleOpenSupplyModal}
+                        mr={3}
+                        mb={3}
+                      >
                         Adjust Max Supply
                       </Button>
-                      <Button variant='outline' onClick={handleMakeImmutable}>
+                      <Button
+                        variant='outline'
+                        onClick={handleMakeImmutable}
+                        mr={3}
+                        mb={3}
+                      >
                         Make Immutable
                       </Button>
                     </>
                   )}
-                  {showLinkRequestButtons &&
-                    linkRequestFromTree.map((linkRequest) => (
-                      <Button
-                        variant='outline'
-                        // onClick={handleOpenLinkRequestModal}
-                        key={linkRequest.id}
-                      >
-                        Link Request to {linkRequest.id}
-                      </Button>
-                    ))}
-                </HStack>
+                  {linkRequestFromTree.map((linkRequest) => (
+                    <Button
+                      variant='outline'
+                      onClick={() =>
+                        handleOpenLinkResponseModal(linkRequest.id)
+                      }
+                      key={linkRequest.id}
+                      mb={3}
+                      mr={3}
+                    >
+                      Link Request to {linkRequest.id}
+                    </Button>
+                  ))}
+                </Box>
               </TabPanel>
             ) : null}
           </TabPanels>
