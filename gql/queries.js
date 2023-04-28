@@ -139,8 +139,9 @@ export const SEARCH_QUERY = gql`
     trees(where: { id: $search }) {
       id
     }
-    hats(where: { id: $search }) {
+    hats(where: { or: [{ id: $search }, { prettyId: $search }] }) {
       id
+      prettyId
     }
   }
 `;
