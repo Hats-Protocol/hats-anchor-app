@@ -439,7 +439,7 @@ const Hat = ({
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (mutableNotTopHat(hatData) || linkRequestFromTree.length) && (
+              (mutableNotTopHat(hatData) || linkRequestFromTree?.length) && (
                 <Tab fontSize='sm'>Admin</Tab>
               )}
           </TabList>
@@ -506,7 +506,8 @@ const Hat = ({
               />
             </TabPanel>
             {isAdminUser &&
-            (showSupplyAndImmutableButtons || linkRequestFromTree?.length) ? (
+            (showSupplyAndImmutableButtons ||
+              linkRequestFromTree?.length > 0) ? (
               <TabPanel minH='370px'>
                 <Box justifyContent='space-between' flexWrap='wrap'>
                   {showSupplyAndImmutableButtons && (
@@ -529,7 +530,7 @@ const Hat = ({
                       </Button>
                     </>
                   )}
-                  {linkRequestFromTree.map((linkRequest) => (
+                  {linkRequestFromTree?.map((linkRequest) => (
                     <Button
                       variant='outline'
                       onClick={() =>

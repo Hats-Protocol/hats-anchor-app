@@ -52,7 +52,7 @@ import LinkRequestCreateForm from '../../../../forms/LinkRequestCreateForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
-const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
+const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   const [initialRender, setInitialRender] = useState(true);
   const [newAdmin, setNewAdmin] = useState('');
   const chain = chainsMap(chainId);
@@ -220,7 +220,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
       >
         <LinkRequestCreateForm
           newAdmin={newAdmin}
-          wearerHats={wearerHats}
+          wearerHats={wearerHats.filter((hat) => hat !== prettyHatId)}
           chainId={chainId}
         />
       </Modal>
@@ -318,13 +318,15 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 export const getServerSideProps = async (context) => {
   const { treeId, hatId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
-  const hatIdHex = prettyIdToId(urlIdToPrettyId(hatId));
+  const prettyHatId = urlIdToPrettyId(hatId);
+  const hatIdHex = prettyIdToId(prettyHatId);
   const initialData = await fetchTreeDetails(treeHex, chainId);
 
   return {
     props: {
       treeId: treeHex,
       hatId: hatIdHex,
+      prettyHatId,
       chainId: _.toNumber(chainId),
       initialTree: initialData,
       initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
