@@ -25,6 +25,7 @@ import DropZone from '../components/DropZone';
 
 const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
   const newAdmin = decimalId(hatData.id);
+
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { topHatDomain, newAdmin, description: '' },
@@ -101,18 +102,18 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
           admin. Optionally update details, image, eligibility, and toggle of
           the Top Hat now that it will be a child hat.
         </Text>
-        <Input
-          label='New Admin'
-          name='newAdmin'
-          isDisabled
-          localForm={localForm}
-        />
-        <Input
-          label='Domain of the Top Hat to be linked'
-          name='topHatDomain'
-          isDisabled
-          localForm={localForm}
-        />
+        <Flex>
+          <Text fontWeight={500} mr={2}>
+            New Admin:
+          </Text>
+          <Text>ID {prettyIdToIp(hatData.prettyId)}</Text>
+        </Flex>
+        <Flex>
+          <Text fontWeight={500} mr={2}>
+            Domain of the Top Hat to be linked:
+          </Text>
+          <Text>ID {prettyIdToIp(topHatDomain)}</Text>
+        </Flex>
         <FormControl>
           <Stack>
             <HStack>

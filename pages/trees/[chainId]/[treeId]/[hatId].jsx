@@ -19,7 +19,6 @@ import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
-import { BigNumber } from 'ethers';
 
 import EventsTable from '../../../../components/EventsTable';
 import Hat from '../../../../components/Hat';
@@ -206,7 +205,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   };
 
   const handleRequestLink = (nodePrettyId) => {
-    setNewAdmin(BigNumber.from(prettyIdToId(nodePrettyId)));
+    setNewAdmin(nodePrettyId);
     setModals({ requestLink: true });
   };
 
