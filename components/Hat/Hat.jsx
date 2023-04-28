@@ -436,7 +436,8 @@ const Hat = ({
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (mutableNotTopHat(hatData) || linkRequestFromTree?.length) && (
+              (mutableNotTopHat(hatData) ||
+                linkRequestFromTree?.length > 0) && (
                 <Tab fontSize='sm'>Admin</Tab>
               )}
           </TabList>
@@ -527,7 +528,7 @@ const Hat = ({
                       </Button>
                     </>
                   )}
-                  {linkRequestFromTree?.map((linkRequest) => (
+                  {linkRequestFromTree.map((linkRequest) => (
                     <Button
                       variant='outline'
                       onClick={() =>
