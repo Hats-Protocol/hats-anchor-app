@@ -517,7 +517,11 @@ const Hat = ({
             (showSupplyAndImmutableButtons ||
               linkRequestFromTree?.length > 0) ? (
               <TabPanel minH='370px'>
-                <HStack justifyContent='space-between' flexWrap='wrap'>
+                <HStack
+                  justifyContent='space-between'
+                  flexWrap='wrap'
+                  spacing={1}
+                >
                   {showSupplyAndImmutableButtons && (
                     <>
                       <Button variant='outline' onClick={handleOpenSupplyModal}>
@@ -528,7 +532,7 @@ const Hat = ({
                       </Button>
                     </>
                   )}
-                  {linkRequestFromTree.map((linkRequest) => (
+                  {linkRequestFromTree?.map((linkRequest) => (
                     <Button
                       variant='outline'
                       onClick={() =>

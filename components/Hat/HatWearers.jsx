@@ -36,21 +36,16 @@ const WEARERS_PER_PAGE = 5;
 
 const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
   const localOverlay = useOverlay();
-  const { data: currentUser } = useWearerDetails({
-    wearerAddress: user,
-    chainId: _.get(hatData, 'chainId'),
-  });
   const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
 
   const handleCheckEligibility = async () => {
     await checkEligibility?.();
   };
-  console.log(wearer);
 
   return (
     <>
       <Modal
-        name='wearerStatus'
+        name={`wearerStatus-${wearer}`}
         title='Change Wearer Status'
         localOverlay={localOverlay}
       >
@@ -119,7 +114,11 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
                   _.toLower(user),
                   _.toLower(_.get(hatData, 'eligibility')),
                 ) && (
-                  <MenuItem onClick={() => setModals({ wearerStatus: true })}>
+                  <MenuItem
+                    onClick={() =>
+                      setModals({ [`wearerStatus-${wearer}`]: true })
+                    }
+                  >
                     Revoke
                   </MenuItem>
                 )}
