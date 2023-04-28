@@ -17,8 +17,6 @@ const useHatCreate = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  console.log('topHatDomain', topHatDomain);
-  console.log('newAdmin', newAdmin);
   const { config } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,

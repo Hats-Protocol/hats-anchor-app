@@ -18,14 +18,14 @@ import Textarea from '../components/Textarea';
 import useLinkRequestApprove from '../hooks/useLinkRequestApprove';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
-import { prettyIdToIp } from '../lib/hats';
+import { prettyIdToIp, decimalId } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import DropZone from '../components/DropZone';
 
-const LinkRequestApprove = ({ newAdmin, chainId, hatData }) => {
-  const topHatDomain = hatData.admin.prettyId;
+const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
+  const { newAdmin } = decimalId(hatData.id);
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { topHatDomain, newAdmin },
@@ -146,15 +146,8 @@ const LinkRequestApprove = ({ newAdmin, chainId, hatData }) => {
               isChecked={newImage}
               onChange={() => setNewImage(!newImage)}
             >
-              New image
+              New Image
             </Switch>
-            {/* {!newImage && ( */}
-            <Textarea
-              localForm={localForm}
-              name='imageUrl'
-              label='Image'
-              placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
-            />
             {newImage && (
               <DropZone
                 getRootProps={getRootProps}

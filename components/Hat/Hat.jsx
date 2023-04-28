@@ -24,7 +24,6 @@ import _ from 'lodash';
 import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt, FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
-import { BigNumber } from 'ethers';
 
 import Link from '../ChakraNextLink';
 import HatWearers from './HatWearers';
@@ -43,8 +42,6 @@ import {
   mutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
-  isTopHat,
-  prettyIdToId,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -185,7 +182,7 @@ const Hat = ({
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
-  const [newAdmin, setNewAdmin] = useState('');
+  const [topHatDomain, setTopHatDomain] = useState('');
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
@@ -211,8 +208,8 @@ const Hat = ({
     updateImmutability?.();
   };
 
-  const handleOpenLinkResponseModal = (id) => {
-    setNewAdmin(id);
+  const handleOpenLinkRequestApproveModal = (id) => {
+    setTopHatDomain(id);
     setModals({ linkResponse: true });
   };
 
@@ -342,7 +339,7 @@ const Hat = ({
         localOverlay={localOverlay}
       >
         <LinkRequestApprove
-          newAdmin={BigNumber.from(prettyIdToId(newAdmin))}
+          topHatDomain={topHatDomain}
           hatData={hatData}
           chainId={chainId}
         />
@@ -534,7 +531,7 @@ const Hat = ({
                     <Button
                       variant='outline'
                       onClick={() =>
-                        handleOpenLinkResponseModal(linkRequest.id)
+                        handleOpenLinkRequestApproveModal(linkRequest.id)
                       }
                       key={linkRequest.id}
                       mb={3}
