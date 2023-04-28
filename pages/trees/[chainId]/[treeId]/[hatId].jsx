@@ -31,6 +31,7 @@ import {
   prettyIdToUrlId,
   descendantsOf,
   prettyIdToIp,
+  isTopHat,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -47,11 +48,13 @@ import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
 import useContainerDimensions from '../../../../hooks/useContainerDimensions';
+import LinkRequestCreateForm from '../../../../forms/LinkRequestCreateForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
-const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
+const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   const [initialRender, setInitialRender] = useState(true);
+  const [newAdmin, setNewAdmin] = useState('');
   const chain = chainsMap(chainId);
   const router = useRouter();
   const localOverlay = useOverlay();
@@ -67,10 +70,17 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   });
 
   let wearerHats = [];
+  let wearerTopHats = [];
+
   if (wearerData !== undefined) {
     wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
       return hat.prettyId;
     });
+    wearerTopHats = _.get(wearerData, 'currentHats')
+      ?.filter((hat) => isTopHat(hat))
+      .map((hat) => {
+        return hat.prettyId;
+      });
   }
 
   const {
@@ -194,6 +204,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     setModals({ createHat: true });
   };
 
+  const handleRequestLink = (nodePrettyId) => {
+    setNewAdmin(nodePrettyId);
+    setModals({ requestLink: true });
+  };
+
   // "Top Hat #21 or Hat #2.3.4"
   const title = 'Hat Detail';
 
@@ -203,6 +218,18 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />
+      </Modal>
+
+      <Modal
+        name='requestLink'
+        title='Request to Link'
+        localOverlay={localOverlay}
+      >
+        <LinkRequestCreateForm
+          newAdmin={newAdmin}
+          wearerHats={wearerTopHats.filter((hat) => hat !== prettyHatId)}
+          chainId={chainId}
+        />
       </Modal>
 
       <Layout>
@@ -261,9 +288,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                       rd3tProps,
                       handleNodeClick,
                       handleAddChildClick,
+                      handleRequestLink,
                       hatId,
                       wearerHats,
                       chainId,
+                      wearerData,
                     )
                   }
                   pathClassFunc={({ target }) =>
@@ -283,6 +312,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
                   chainId={chainId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
+                  linkRequestFromTree={treeData?.linkRequestFromTree}
                 />
               )}
             </CardBody>
@@ -296,13 +326,15 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 export const getServerSideProps = async (context) => {
   const { treeId, hatId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
-  const hatIdHex = prettyIdToId(urlIdToPrettyId(hatId));
+  const prettyHatId = urlIdToPrettyId(hatId);
+  const hatIdHex = prettyIdToId(prettyHatId);
   const initialData = await fetchTreeDetails(treeHex, chainId);
 
   return {
     props: {
       treeId: treeHex,
       hatId: hatIdHex,
+      prettyHatId,
       chainId: _.toNumber(chainId),
       initialTree: initialData,
       initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),

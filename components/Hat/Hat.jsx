@@ -54,6 +54,7 @@ import useHatDetailsField from '../../hooks/useHatDetailsField';
 import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
+import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -152,7 +153,14 @@ const AddressRow = ({
 
 // TODO this should probably be more components
 
-const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
+const Hat = ({
+  hatData,
+  chainId,
+  treeId,
+  hatImage,
+  childrenHats,
+  linkRequestFromTree,
+}) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -174,6 +182,7 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
+  const [topHatDomain, setTopHatDomain] = useState('');
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
@@ -198,6 +207,20 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
   const handleMakeImmutable = () => {
     updateImmutability?.();
   };
+
+  const handleOpenLinkRequestApproveModal = (id) => {
+    setTopHatDomain(id);
+    setModals({ linkResponse: true });
+  };
+
+  const isAdminUser =
+    userChain === chainId &&
+    isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
+
+  const showSupplyAndImmutableButtons =
+    isAdminUser && mutableNotTopHat(hatData);
+
+  const canEditImage = isAdminUser && address && topHatOrMutable(hatData);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     key: _.get(hat, 'prettyId'),
@@ -270,11 +293,6 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
       ),
     },
   ];
-  const canEditImage =
-    userChain === chainId &&
-    address &&
-    topHatOrMutable(hatData) &&
-    isAdmin(_.get(hatData, 'id'), currentWearerHats);
 
   return (
     <>
@@ -319,6 +337,17 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
         localOverlay={localOverlay}
       >
         <HatStatusForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='linkResponse'
+        title='Approve Link Request'
+        localOverlay={localOverlay}
+      >
+        <LinkRequestApprove
+          topHatDomain={topHatDomain}
+          hatData={hatData}
+          chainId={chainId}
+        />
       </Modal>
 
       <Stack>
@@ -412,7 +441,10 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              mutableNotTopHat(hatData) && <Tab fontSize='sm'>Admin</Tab>}
+              (mutableNotTopHat(hatData) ||
+                linkRequestFromTree?.length > 0) && (
+                <Tab fontSize='sm'>Admin</Tab>
+              )}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -476,20 +508,47 @@ const Hat = ({ hatData, chainId, treeId, hatImage, childrenHats }) => {
                 chainId={chainId}
               />
             </TabPanel>
-            {userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              mutableNotTopHat(hatData) && (
-                <TabPanel minH='370px'>
-                  <HStack>
-                    <Button variant='outline' onClick={handleOpenSupplyModal}>
-                      Adjust Max Supply
+            {isAdminUser &&
+            (showSupplyAndImmutableButtons ||
+              linkRequestFromTree?.length > 0) ? (
+              <TabPanel minH='370px'>
+                <Box justifyContent='space-between' flexWrap='wrap'>
+                  {showSupplyAndImmutableButtons && (
+                    <>
+                      <Button
+                        variant='outline'
+                        onClick={handleOpenSupplyModal}
+                        mr={3}
+                        mb={3}
+                      >
+                        Adjust Max Supply
+                      </Button>
+                      <Button
+                        variant='outline'
+                        onClick={handleMakeImmutable}
+                        mr={3}
+                        mb={3}
+                      >
+                        Make Immutable
+                      </Button>
+                    </>
+                  )}
+                  {linkRequestFromTree.map((linkRequest) => (
+                    <Button
+                      variant='outline'
+                      onClick={() =>
+                        handleOpenLinkRequestApproveModal(linkRequest.id)
+                      }
+                      key={linkRequest.id}
+                      mb={3}
+                      mr={3}
+                    >
+                      Link Request to {linkRequest.id}
                     </Button>
-                    <Button variant='outline' onClick={handleMakeImmutable}>
-                      Make Immutable
-                    </Button>
-                  </HStack>
-                </TabPanel>
-              )}
+                  ))}
+                </Box>
+              </TabPanel>
+            ) : null}
           </TabPanels>
         </Tabs>
       </Stack>
