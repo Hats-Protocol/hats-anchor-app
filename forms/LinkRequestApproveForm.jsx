@@ -20,17 +20,14 @@ import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { prettyIdToIp, decimalId } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
-import useCid from '../hooks/useCid';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import DropZone from '../components/DropZone';
 
 const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
-  console.log('hatData.id', hatData.id);
   const newAdmin = decimalId(hatData.id);
-  console.log('newAdmin', newAdmin);
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: { topHatDomain, newAdmin },
+    defaultValues: { topHatDomain, newAdmin, description: '' },
   });
   const { handleSubmit, watch } = localForm;
 
@@ -59,7 +56,6 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
   });
 
   const description = useDebounce(watch('description', ''));
-  const details = useDebounce(watch('details', ''));
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
@@ -72,18 +68,13 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
-    type: '1.0',
-    data: { description },
-  });
-
   const { writeAsync } = useLinkRequestApprove({
     chainId,
     topHatDomain,
     newAdmin,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
-    details: newDetails ? detailsCID : details,
+    description,
     // eslint-disable-next-line no-nested-ternary
     imageUrl: newImage
       ? imagePinData !== undefined
@@ -124,12 +115,13 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
         />
         <FormControl>
           <Stack>
-            <Switch
-              isChecked={newDetails}
-              onChange={() => setNewDetails(!newDetails)}
-            >
-              New details
-            </Switch>
+            <HStack>
+              <Switch
+                isChecked={newDetails}
+                onChange={() => setNewDetails(!newDetails)}
+              />
+              <FormLabel>New Details</FormLabel>
+            </HStack>
             {newDetails && (
               <Stack spacing={2}>
                 <Textarea
@@ -144,12 +136,13 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
         </FormControl>
         <FormControl>
           <Stack spacing={2}>
-            <Switch
-              isChecked={newImage}
-              onChange={() => setNewImage(!newImage)}
-            >
-              New Image
-            </Switch>
+            <HStack>
+              <Switch
+                isChecked={newImage}
+                onChange={() => setNewImage(!newImage)}
+              />
+              <FormLabel>New Image</FormLabel>
+            </HStack>
             {newImage && (
               <DropZone
                 getRootProps={getRootProps}
@@ -201,7 +194,7 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
           <Button
             type='submit'
             // shouldn't be disabled if newAdmin && topHatDomain are set
-            isDisabled={!writeAsync || detailsCidLoading || imagePinLoading}
+            isDisabled={!writeAsync || imagePinLoading}
           >
             {imagePinLoading ? <Spinner /> : 'Create'}
           </Button>

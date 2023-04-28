@@ -25,7 +25,7 @@ const useHatRequestToLink = ({ topHatDomain, newAdmin, chainId }) => {
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Successfully Linked!`,
-          description: `Successfully requested to link ${topHatDomain} to ${newAdmin}`, // fix
+          description: `Successfully requested to link ${topHatDomain} to ${newAdmin}`,
         },
       });
 

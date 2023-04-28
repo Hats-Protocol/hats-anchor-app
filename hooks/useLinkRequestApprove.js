@@ -11,7 +11,7 @@ const useHatCreate = ({
   newAdmin,
   eligibility,
   toggle,
-  details,
+  description,
   imageUrl,
 }) => {
   const toast = useToast();
@@ -22,7 +22,14 @@ const useHatCreate = ({
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'approveLinkTopHatToTree',
-    args: [topHatDomain, newAdmin, eligibility, toggle, details, imageUrl],
+    args: [
+      topHatDomain,
+      newAdmin,
+      eligibility,
+      toggle,
+      description,
+      imageUrl || '',
+    ],
     enabled: !!topHatDomain && !!newAdmin,
   });
 
@@ -32,8 +39,8 @@ const useHatCreate = ({
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Hat Created',
-          description: 'Successfully created hat',
+          title: 'Link request approved',
+          description: `Successfully linked ${topHatDomain} to ${newAdmin}`,
         },
       });
 
