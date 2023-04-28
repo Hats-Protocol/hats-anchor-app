@@ -228,7 +228,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       >
         <LinkRequestCreateForm
           newAdmin={newAdmin}
-          wearerHats={wearerTopHats}
+          wearerHats={wearerTopHats.filter((hat) => hat !== prettyHatId)}
           chainId={chainId}
         />
       </Modal>
