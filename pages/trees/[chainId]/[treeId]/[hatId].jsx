@@ -48,7 +48,7 @@ import useImageURIs from '../../../../hooks/useImageURIs';
 import TreeNode from '../../../../components/TreeNode';
 import useWearerDetails from '../../../../hooks/useWearerDetails';
 import useContainerDimensions from '../../../../hooks/useContainerDimensions';
-import HatRequestToLinkForm from '../../../../forms/HatRequestToLinkForm';
+import LinkRequestForm from '../../../../forms/LinkRequestForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -199,7 +199,7 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
 
   const handleRequestLink = (nodePrettyId) => {
     setNewAdmin(BigNumber.from(prettyIdToId(nodePrettyId)));
-    setModals({ requestToLink: true });
+    setModals({ requestLink: true });
   };
 
   // "Top Hat #21 or Hat #2.3.4"
@@ -214,11 +214,11 @@ const TreeDetails = ({ treeId, chainId, hatId, initialData }) => {
       </Modal>
 
       <Modal
-        name='requestToLink'
+        name='requestLink'
         title='Request to Link'
         localOverlay={localOverlay}
       >
-        <HatRequestToLinkForm
+        <LinkRequestForm
           newAdmin={newAdmin}
           wearerHats={wearerHats}
           chainId={chainId}
