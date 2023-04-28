@@ -1,5 +1,5 @@
-import { IconButton, Flex } from '@chakra-ui/react';
-import { AddIcon, LinkIcon } from '@chakra-ui/icons';
+import { IconButton, Flex, Icon } from '@chakra-ui/react';
+import { FaPlus, FaLink } from 'react-icons/fa';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
@@ -86,7 +86,7 @@ function Node({
                     backgroundColor: 'rgb(225, 233, 236)',
                   }}
                   w='min-content'
-                  icon={<AddIcon />}
+                  icon={<Icon as={FaPlus} />}
                   onClick={() => handleAddChildClick(name)}
                   size='xs'
                   variant='outline'
@@ -100,7 +100,7 @@ function Node({
                     backgroundColor: 'rgb(225, 233, 236)',
                   }}
                   w='min-content'
-                  icon={<LinkIcon />}
+                  icon={<Icon as={FaLink} />}
                   onClick={() => handleRequestLink(name)}
                   size='xs'
                   variant='outline'

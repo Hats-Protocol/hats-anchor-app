@@ -45,6 +45,7 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
   const handleCheckEligibility = async () => {
     await checkEligibility?.();
   };
+  console.log(wearer);
 
   return (
     <>

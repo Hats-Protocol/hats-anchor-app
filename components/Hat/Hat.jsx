@@ -426,9 +426,11 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Details
             </Tab>
-            <Tab px={2} fontSize='sm'>
-              Authorities
-            </Tab>
+            {!_.isEmpty(clearNonObjects(authoritiesTable)) && (
+              <Tab px={2} fontSize='sm'>
+                Authorities
+              </Tab>
+            )}
             <Tab px={2} fontSize='sm'>
               Accountabilities
             </Tab>
@@ -483,14 +485,17 @@ const Hat = ({
               </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
-            <TabPanel minH='370px'>
-              <DataTable
-                data={clearNonObjects(authoritiesTable)}
-                justify='space-between'
-                minH={10}
-                labelWidth='40%'
-              />
-            </TabPanel>
+            {!_.isEmpty(clearNonObjects(authoritiesTable)) && (
+              <TabPanel minH='370px'>
+                <DataTable
+                  data={clearNonObjects(authoritiesTable)}
+                  justify='space-between'
+                  minH={10}
+                  labelWidth='40%'
+                />
+              </TabPanel>
+            )}
+
             <TabPanel minH='370px'>
               <DataTable
                 data={clearNonObjects(accountabilitiesTable)}
@@ -512,23 +517,13 @@ const Hat = ({
             (showSupplyAndImmutableButtons ||
               linkRequestFromTree?.length > 0) ? (
               <TabPanel minH='370px'>
-                <Box justifyContent='space-between' flexWrap='wrap'>
+                <HStack justifyContent='space-between' flexWrap='wrap'>
                   {showSupplyAndImmutableButtons && (
                     <>
-                      <Button
-                        variant='outline'
-                        onClick={handleOpenSupplyModal}
-                        mr={3}
-                        mb={3}
-                      >
+                      <Button variant='outline' onClick={handleOpenSupplyModal}>
                         Adjust Max Supply
                       </Button>
-                      <Button
-                        variant='outline'
-                        onClick={handleMakeImmutable}
-                        mr={3}
-                        mb={3}
-                      >
+                      <Button variant='outline' onClick={handleMakeImmutable}>
                         Make Immutable
                       </Button>
                     </>
@@ -546,7 +541,10 @@ const Hat = ({
                       Link Request to {linkRequest.id}
                     </Button>
                   ))}
-                </Box>
+                  <Button variant='outline' onClick={handleOpenImageModal}>
+                    Unlink Tree
+                  </Button>
+                </HStack>
               </TabPanel>
             ) : null}
           </TabPanels>

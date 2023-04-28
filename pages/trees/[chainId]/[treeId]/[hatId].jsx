@@ -74,7 +74,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
 
   if (wearerData !== undefined) {
     wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
-      return hat.prettyId;
+      return hat?.prettyId;
     });
     wearerTopHats = _.get(wearerData, 'currentHats')
       ?.filter((hat) => isTopHat(hat))
@@ -88,10 +88,10 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
     isLoading: treeLoading,
     error: treeError,
     linkedHatIds,
-  } = useTreeDetails({ treeId, chainId, initialData });
+  } = useTreeDetails({ treeId, chainId, hatId, initialData });
 
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
-    treeData?.hats.map((hat) => hat.id).concat(linkedHatIds),
+    treeData?.hats?.map((hat) => hat.id).concat(linkedHatIds),
     chainId,
   );
 
@@ -210,7 +210,9 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   };
 
   // "Top Hat #21 or Hat #2.3.4"
-  const title = 'Hat Detail';
+  const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
+    _.get(hatData, 'prettyId'),
+  )}`;
 
   return (
     <>

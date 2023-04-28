@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetails } from '../gql/helpers';
 
-const useTreeDetails = ({ treeId, chainId, initialData }) => {
+const useTreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['treeDetails', treeId],
+    queryKey: ['treeDetails', treeId, hatId, chainId],
     queryFn: () => fetchTreeDetails(treeId, chainId),
     enabled: !!treeId,
     initialData,
