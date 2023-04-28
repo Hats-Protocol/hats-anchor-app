@@ -19,12 +19,30 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
         id
         prettyId
       }
+      tree {
+        id
+      }
     }
     events(orderBy: timestamp, orderDirection: desc) {
       ...EventDetails
       hat {
         id
         prettyId
+      }
+    }
+    childOfTree {
+      id
+    }
+    parentOfTrees {
+      id
+      linkedToHat {
+        prettyId
+      }
+    }
+    linkedToHat {
+      prettyId
+      tree {
+        id
       }
     }
   }
