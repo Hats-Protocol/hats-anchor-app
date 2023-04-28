@@ -1,9 +1,44 @@
-import React from 'react';
+/* eslint-disable no-continue */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
+import React, { useEffect, useState } from 'react';
 import { Box, Flex } from '@chakra-ui/react';
+import { useAccount, useConnect, useClient } from 'wagmi';
 import Navbar from './Navbar';
 import CommandPalette from './CommandPalette';
 
 const Layout = ({ children }) => {
+  const [isAutoConnecting, setIsAutoConnecting] = useState(false);
+  const { address } = useAccount();
+  const { connectAsync, connectors } = useConnect();
+  const client = useClient();
+
+  useEffect(() => {
+    if (isAutoConnecting) return;
+    if (address) return;
+
+    setIsAutoConnecting(true);
+
+    const autoConnect = async () => {
+      const lastUsedConnector = client.storage?.getItem('wallet');
+
+      const sorted = lastUsedConnector
+        ? [...connectors].sort((x) => (x.id === lastUsedConnector ? -1 : 1))
+        : connectors;
+
+      for (const connector of sorted) {
+        if (!connector.ready || !connector.isAuthorized) continue;
+        const isAuthorized = await connector.isAuthorized();
+        if (!isAuthorized) continue;
+
+        await connectAsync({ connector });
+        break;
+      }
+    };
+
+    autoConnect();
+  }, []);
+
   return (
     <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
       <Navbar />
