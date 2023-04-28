@@ -32,6 +32,7 @@ import {
   prettyIdToUrlId,
   descendantsOf,
   prettyIdToIp,
+  isTopHat,
 } from '../../../../lib/hats';
 import useTreeDetails from '../../../../hooks/useTreeDetails';
 import useHatDetails from '../../../../hooks/useHatDetails';
@@ -70,10 +71,17 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   });
 
   let wearerHats = [];
+  let wearerTopHats = [];
+
   if (wearerData !== undefined) {
     wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
       return hat.prettyId;
     });
+    wearerTopHats = _.get(wearerData, 'currentHats')
+      ?.filter((hat) => isTopHat(hat))
+      .map((hat) => {
+        return hat.prettyId;
+      });
   }
 
   const {
@@ -220,7 +228,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       >
         <LinkRequestCreateForm
           newAdmin={newAdmin}
-          wearerHats={wearerHats.filter((hat) => hat !== prettyHatId)}
+          wearerHats={wearerTopHats}
           chainId={chainId}
         />
       </Modal>
