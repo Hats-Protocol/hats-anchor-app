@@ -18,6 +18,7 @@ import {
   MenuList,
   MenuItem,
   Tooltip,
+  Image,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -359,23 +360,25 @@ const Hat = ({
               onMouseEnter={() => canEditImage && setImageHover(true)}
               onMouseLeave={() => setImageHover(false)}
               position='relative'
-              border='1px solid'
-              borderColor='gray.200'
-              w='75px'
-              h='75px'
+              maxWidth='75px'
+              maxHeight='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={hatImage ?? '/icon.jpeg'}
-              bgSize='cover'
             >
+              <Image
+                src={hatImage ?? '/icon.jpeg'}
+                maxHeight='75px'
+                maxWidth='75px'
+                fit='fit'
+              ></Image>
               {imageHover && (
                 <Icon
                   as={FaPencilAlt}
                   position='absolute'
                   color='whiteAlpha.700'
-                  w='40px'
-                  h='40px'
-                  top='22%'
-                  left='22%'
+                  w='20px'
+                  h='20px'
+                  top='40%'
+                  left='40%'
                 />
               )}
             </Box>

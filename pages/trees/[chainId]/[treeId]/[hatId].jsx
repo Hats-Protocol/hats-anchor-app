@@ -14,6 +14,7 @@ import {
   Box,
   Link as ChakraLink,
   Button,
+  Image,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import _ from 'lodash';
@@ -239,15 +240,18 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Box
-                  bgImage={imagesData[topHatId] ?? '/icon.jpeg'}
-                  bgSize='cover'
                   bgPosition='center'
                   alt='Top Hat image'
-                  w='200px'
-                  h='200px'
-                  border='1px solid'
-                  borderColor='gray.200'
-                />
+                  maxWidth='200px'
+                  maxHeight='200px'
+                >
+                  <Image
+                    src={imagesData[topHatId] ?? '/icon.jpeg'}
+                    maxHeight='200px'
+                    maxWidth='200px'
+                    fit='fit'
+                  ></Image>
+                </Box>
                 <Stack spacing={4} w='60%'>
                   <Heading size='md'>Tree Details</Heading>
                   <DataTable data={treeInfoTable} labelWidth='40%' />

@@ -141,17 +141,17 @@ const Home = ({
                     align='center'
                     spacing='16px'
                   >
-                    <Box
-                      bgImage={
-                        imagesPerChain[tree.chainId][topHat.id] || '/icon.jpeg'
-                      }
-                      bgSize='cover'
-                      alt='Top Hat image'
-                      w='85px'
-                      h='85px'
-                      border='1px solid'
-                      borderColor='gray.200'
-                    />
+                    <Box bgSize='cover' alt='Top Hat image' w='85px' h='85px'>
+                      <Image
+                        src={
+                          imagesPerChain[tree.chainId][topHat.id] ??
+                          '/icon.jpeg'
+                        }
+                        maxHeight='85px'
+                        maxWidth='85px'
+                        fit='fit'
+                      ></Image>
+                    </Box>
                     <Stack spacing={1} maxW='110px'>
                       <Text fontWeight={700} noOfLines={2}>
                         {_.get(topHat, 'details')}
