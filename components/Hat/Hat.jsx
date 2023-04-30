@@ -369,7 +369,7 @@ const Hat = ({
                 maxHeight='75px'
                 maxWidth='75px'
                 fit='fit'
-              ></Image>
+              />
               {imageHover && (
                 <Icon
                   as={FaPencilAlt}

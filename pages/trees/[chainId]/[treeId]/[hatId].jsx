@@ -250,7 +250,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                     maxHeight='200px'
                     maxWidth='200px'
                     fit='fit'
-                  ></Image>
+                  />
                 </Box>
                 <Stack spacing={4} w='60%'>
                   <Heading size='md'>Tree Details</Heading>

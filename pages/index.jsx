@@ -150,7 +150,7 @@ const Home = ({
                         maxHeight='85px'
                         maxWidth='85px'
                         fit='fit'
-                      ></Image>
+                      />
                     </Box>
                     <Stack spacing={1} maxW='110px'>
                       <Text fontWeight={700} noOfLines={2}>
