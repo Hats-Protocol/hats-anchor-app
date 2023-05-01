@@ -364,7 +364,7 @@ const Hat = ({
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={hatImage ?? '/icon.jpeg'}
+              bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
               bgSize='cover'
             >
               {imageHover && (

@@ -208,6 +208,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
     _.get(hatData, 'prettyId'),
   )}`;
+  console.log(imagesData[topHatId]);
 
   return (
     <>
@@ -236,7 +237,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Box
-                  bgImage={imagesData[topHatId] ?? '/icon.jpeg'}
+                  bgImage={`url('${imagesData[topHatId]}'), url('/icon.jpeg')`}
                   bgSize='cover'
                   bgPosition='center'
                   alt='Top Hat image'
