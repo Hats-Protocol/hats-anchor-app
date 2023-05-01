@@ -5,7 +5,7 @@ import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatCreate = ({
+const useLinkRequestApprove = ({
   chainId,
   topHatDomain,
   newAdmin,
@@ -67,4 +67,4 @@ const useHatCreate = ({
   return { writeAsync };
 };
 
-export default useHatCreate;
+export default useLinkRequestApprove;

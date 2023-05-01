@@ -5,7 +5,7 @@ import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatRequestToLink = ({ topHatDomain, newAdmin, chainId }) => {
+const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
@@ -52,4 +52,4 @@ const useHatRequestToLink = ({ topHatDomain, newAdmin, chainId }) => {
   return { writeAsync };
 };
 
-export default useHatRequestToLink;
+export default useLinkRequestCreate;
