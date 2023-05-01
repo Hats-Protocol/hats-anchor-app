@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetails } from '../gql/helpers';
+import { prettyIdToId } from '../lib/hats';
 
 const useTreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { data, isLoading, error } = useQuery({
@@ -15,9 +16,9 @@ const useTreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     linkedHatIds.push(linkedToHat.prettyId);
   }
   if (parentOfTrees) {
-    linkedHatIds.push(...parentOfTrees.map((tree) => tree.id));
+    linkedHatIds.push(...parentOfTrees.map((tree) => prettyIdToId(tree.id)));
   }
-  if (childOfTree) {
+  if (childOfTree && childOfTree.id !== linkedToHat?.prettyId) {
     linkedHatIds.push(childOfTree.id);
   }
 
