@@ -71,7 +71,10 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
 
   const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
   const wearerTopHats = _.map(
-    _.filter(_.get(wearerData, 'currentHats', []), isTopHat),
+    _.filter(
+      _.get(wearerData, 'currentHats', []),
+      (hat) => isTopHat(hat) && hat?.prettyId !== prettyHatId,
+    ),
     'prettyId',
   );
 
@@ -221,7 +224,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       >
         <LinkRequestCreateForm
           newAdmin={newAdmin}
-          wearerHats={_.filter(wearerTopHats, (hat) => hat !== prettyHatId)}
+          wearerTopHats={wearerTopHats}
           chainId={chainId}
         />
       </Modal>

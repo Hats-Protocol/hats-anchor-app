@@ -9,18 +9,18 @@ import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 import { prettyIdToIp, prettyIdToId } from '../lib/hats';
 
-const LinkRequestCreateForm = ({ newAdmin, wearerHats, chainId }) => {
+const LinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
       newAdmin: BigNumber.from(prettyIdToId(newAdmin)),
-      topHatDomain: wearerHats[0],
+      topHatDomain: wearerTopHats[0],
     },
   });
   const { handleSubmit, watch } = localForm;
 
   const topHatDomain = useDebounce(
-    watch('topHatDomain', wearerHats[0]),
+    watch('topHatDomain', wearerTopHats[0]),
     CONFIG.debounce,
   );
 
@@ -52,7 +52,7 @@ const LinkRequestCreateForm = ({ newAdmin, wearerHats, chainId }) => {
           name='topHatDomain'
           localForm={localForm}
         >
-          {_.map(wearerHats, (hat) => (
+          {_.map(wearerTopHats, (hat) => (
             <option value={hat} key={hat}>
               {prettyIdToIp(hat)}
             </option>
