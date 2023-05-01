@@ -521,6 +521,7 @@ const Hat = ({
                   justifyContent='space-between'
                   flexWrap='wrap'
                   spacing={1}
+                  gap={1}
                 >
                   {showSupplyAndImmutableButtons && (
                     <>
@@ -539,8 +540,6 @@ const Hat = ({
                         handleOpenLinkRequestApproveModal(linkRequest.id)
                       }
                       key={linkRequest.id}
-                      mb={3}
-                      mr={3}
                     >
                       Link Request to {linkRequest.id}
                     </Button>
