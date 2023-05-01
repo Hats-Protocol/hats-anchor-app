@@ -69,29 +69,24 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
     chainId,
   });
 
-  let wearerHats = [];
-  let wearerTopHats = [];
-
-  if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
-      return hat.prettyId;
-    });
-    wearerTopHats = _.get(wearerData, 'currentHats')
-      ?.filter((hat) => isTopHat(hat))
-      .map((hat) => {
-        return hat.prettyId;
-      });
-  }
+  const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
+  const wearerTopHats = _.map(
+    _.filter(
+      _.get(wearerData, 'currentHats', []),
+      (hat) => isTopHat(hat) && hat?.prettyId !== prettyHatId,
+    ),
+    'prettyId',
+  );
 
   const {
     data: treeData,
     isLoading: treeLoading,
     error: treeError,
     linkedHatIds,
-  } = useTreeDetails({ treeId, chainId, initialData });
+  } = useTreeDetails({ treeId, chainId, hatId, initialData });
 
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
-    treeData?.hats.map((hat) => hat.id).concat(linkedHatIds),
+    treeData?.hats?.map((hat) => hat.id).concat(linkedHatIds),
     chainId,
   );
 
@@ -210,7 +205,9 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   };
 
   // "Top Hat #21 or Hat #2.3.4"
-  const title = 'Hat Detail';
+  const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
+    _.get(hatData, 'prettyId'),
+  )}`;
 
   return (
     <>
@@ -227,7 +224,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       >
         <LinkRequestCreateForm
           newAdmin={newAdmin}
-          wearerHats={wearerTopHats.filter((hat) => hat !== prettyHatId)}
+          wearerTopHats={wearerTopHats}
           chainId={chainId}
         />
       </Modal>
@@ -239,7 +236,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Box
-                  bgImage={imagesData[topHatId] ?? '/icon.jpeg'}
+                  bgImage={`url('${imagesData[topHatId]}'), url('/icon.jpeg')`}
                   bgSize='cover'
                   bgPosition='center'
                   alt='Top Hat image'
@@ -332,13 +329,13 @@ export const getServerSideProps = async (context) => {
 
   return {
     props: {
-      treeId: treeHex,
-      hatId: hatIdHex,
-      prettyHatId,
+      treeId: treeHex || null,
+      hatId: hatIdHex || null,
+      prettyHatId: prettyHatId || null,
       chainId: _.toNumber(chainId),
-      initialTree: initialData,
-      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
-      topHat: _.get(initialData, 'hats[0]'),
+      initialTree: initialData || null,
+      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }) || null,
+      topHat: _.get(initialData, 'hats[0]', null),
     },
   };
 };

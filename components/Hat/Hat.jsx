@@ -55,6 +55,7 @@ import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
+import HatUnlinkForm from '../../forms/HatUnlinkForm';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -186,7 +187,7 @@ const Hat = ({
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
-    error: hatDetailsFieldError,
+    // error: hatDetailsFieldError,
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
 
@@ -349,6 +350,13 @@ const Hat = ({
           chainId={chainId}
         />
       </Modal>
+      <Modal
+        name='unlinkTree'
+        title='Unlink Top Hat From Tree'
+        localOverlay={localOverlay}
+      >
+        <HatUnlinkForm hatData={hatData} chainId={chainId} />
+      </Modal>
 
       <Stack>
         <Flex justify='space-between'>
@@ -364,8 +372,9 @@ const Hat = ({
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={hatImage ?? '/icon.jpeg'}
+              bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
               bgSize='cover'
+              bgPosition='center'
             >
               {imageHover && (
                 <Icon
@@ -426,9 +435,11 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Details
             </Tab>
-            <Tab px={2} fontSize='sm'>
-              Authorities
-            </Tab>
+            {!_.isEmpty(clearNonObjects(authoritiesTable)) && (
+              <Tab px={2} fontSize='sm'>
+                Authorities
+              </Tab>
+            )}
             <Tab px={2} fontSize='sm'>
               Accountabilities
             </Tab>
@@ -483,14 +494,17 @@ const Hat = ({
               </Box>
             </TabPanel>
             {/* TODO Authorities will be designated in details for now, hard-ish to track */}
-            <TabPanel minH='370px'>
-              <DataTable
-                data={clearNonObjects(authoritiesTable)}
-                justify='space-between'
-                minH={10}
-                labelWidth='40%'
-              />
-            </TabPanel>
+            {!_.isEmpty(clearNonObjects(authoritiesTable)) && (
+              <TabPanel minH='370px'>
+                <DataTable
+                  data={clearNonObjects(authoritiesTable)}
+                  justify='space-between'
+                  minH={10}
+                  labelWidth='40%'
+                />
+              </TabPanel>
+            )}
+
             <TabPanel minH='370px'>
               <DataTable
                 data={clearNonObjects(accountabilitiesTable)}
@@ -512,41 +526,40 @@ const Hat = ({
             (showSupplyAndImmutableButtons ||
               linkRequestFromTree?.length > 0) ? (
               <TabPanel minH='370px'>
-                <Box justifyContent='space-between' flexWrap='wrap'>
+                <HStack
+                  justifyContent='space-between'
+                  flexWrap='wrap'
+                  spacing={1}
+                  gap={1}
+                >
                   {showSupplyAndImmutableButtons && (
                     <>
-                      <Button
-                        variant='outline'
-                        onClick={handleOpenSupplyModal}
-                        mr={3}
-                        mb={3}
-                      >
+                      <Button variant='outline' onClick={handleOpenSupplyModal}>
                         Adjust Max Supply
                       </Button>
-                      <Button
-                        variant='outline'
-                        onClick={handleMakeImmutable}
-                        mr={3}
-                        mb={3}
-                      >
+                      <Button variant='outline' onClick={handleMakeImmutable}>
                         Make Immutable
                       </Button>
                     </>
                   )}
-                  {linkRequestFromTree.map((linkRequest) => (
+                  {linkRequestFromTree?.map((linkRequest) => (
                     <Button
                       variant='outline'
                       onClick={() =>
                         handleOpenLinkRequestApproveModal(linkRequest.id)
                       }
                       key={linkRequest.id}
-                      mb={3}
-                      mr={3}
                     >
                       Link Request to {linkRequest.id}
                     </Button>
                   ))}
-                </Box>
+                  <Button
+                    variant='outline'
+                    onClick={() => setModals({ unlinkTree: true })}
+                  >
+                    Unlink Tree
+                  </Button>
+                </HStack>
               </TabPanel>
             ) : null}
           </TabPanels>

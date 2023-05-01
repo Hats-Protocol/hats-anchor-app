@@ -1,5 +1,5 @@
-import { IconButton, Flex } from '@chakra-ui/react';
-import { AddIcon, LinkIcon } from '@chakra-ui/icons';
+import { IconButton, Flex, Icon } from '@chakra-ui/react';
+import { FaPlus, FaLink } from 'react-icons/fa';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
@@ -68,48 +68,47 @@ function Node({
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       />
-      {address && (
-        <foreignObject width={125} height={200} x={35} y={-25}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <h4 style={{}}>ID {prettyIdToIp(name)}</h4>
-            <Flex gap={1}>
-              {chainId === userChain && isWearerOrAdminOfHat && (
-                <IconButton
-                  colorScheme='black'
-                  borderRadius={6}
-                  _hover={{
-                    backgroundColor: 'rgb(225, 233, 236)',
-                  }}
-                  w='min-content'
-                  icon={<AddIcon />}
-                  onClick={() => handleAddChildClick(name)}
-                  size='xs'
-                  variant='outline'
-                />
-              )}
-              {wearerHats?.length > 0 && (
-                <IconButton
-                  colorScheme='black'
-                  borderRadius={6}
-                  _hover={{
-                    backgroundColor: 'rgb(225, 233, 236)',
-                  }}
-                  w='min-content'
-                  icon={<LinkIcon />}
-                  onClick={() => handleRequestLink(name)}
-                  size='xs'
-                  variant='outline'
-                />
-              )}
-            </Flex>
-          </div>
-        </foreignObject>
-      )}
+
+      <foreignObject width={125} height={200} x={35} y={-25}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <h4 style={{}}>ID {prettyIdToIp(name)}</h4>
+          <Flex gap={1}>
+            {address && chainId === userChain && isWearerOrAdminOfHat && (
+              <IconButton
+                colorScheme='black'
+                borderRadius={6}
+                _hover={{
+                  backgroundColor: 'rgb(225, 233, 236)',
+                }}
+                w='min-content'
+                icon={<Icon as={FaPlus} />}
+                onClick={() => handleAddChildClick(name)}
+                size='xs'
+                variant='outline'
+              />
+            )}
+            {address && wearerHats?.length > 0 && (
+              <IconButton
+                colorScheme='black'
+                borderRadius={6}
+                _hover={{
+                  backgroundColor: 'rgb(225, 233, 236)',
+                }}
+                w='min-content'
+                icon={<Icon as={FaLink} />}
+                onClick={() => handleRequestLink(name)}
+                size='xs'
+                variant='outline'
+              />
+            )}
+          </Flex>
+        </div>
+      </foreignObject>
     </g>
   );
 }
