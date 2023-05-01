@@ -38,7 +38,6 @@ const useImageURIs = (hats, chainId) => {
       try {
         setLoading(true);
         const hatIdToImage = {};
-        console.log('hats', hats);
         for (let i = 0; i < hats.length; i++) {
           const hat = hats[i];
           if (imagesData[i]?.startsWith('ipfs://')) {
@@ -77,7 +76,6 @@ const useImageURIs = (hats, chainId) => {
       validateImages();
     }
   }, [imagesData, imagesLoading]);
-  console.log('imagesData', imagesData);
 
   return { data, loading };
 };
