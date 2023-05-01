@@ -70,7 +70,6 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
   });
 
   const { writeAsync } = useLinkRequestApprove({
-    chainId,
     topHatDomain,
     newAdmin,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
@@ -82,6 +81,7 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
         ? `ipfs://${imagePinData}`
         : undefined
       : imageUrl,
+    chainId,
   });
 
   const onSubmit = async () => {
