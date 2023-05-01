@@ -69,19 +69,11 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
     chainId,
   });
 
-  let wearerHats = [];
-  let wearerTopHats = [];
-
-  if (wearerData !== undefined) {
-    wearerHats = _.get(wearerData, 'currentHats')?.map((hat) => {
-      return hat?.prettyId;
-    });
-    wearerTopHats = _.get(wearerData, 'currentHats')
-      ?.filter((hat) => isTopHat(hat))
-      .map((hat) => {
-        return hat.prettyId;
-      });
-  }
+  const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
+  const wearerTopHats = _.map(
+    _.filter(_.get(wearerData, 'currentHats', []), isTopHat),
+    'prettyId',
+  );
 
   const {
     data: treeData,
@@ -229,7 +221,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       >
         <LinkRequestCreateForm
           newAdmin={newAdmin}
-          wearerHats={wearerTopHats.filter((hat) => hat !== prettyHatId)}
+          wearerHats={_.filter(wearerTopHats, (hat) => hat !== prettyHatId)}
           chainId={chainId}
         />
       </Modal>
