@@ -2,14 +2,13 @@ import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
-import { decimalId, prettyIdToIp } from '../lib/hats';
+import { prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  console.log(_.get(hatData, 'prettyId'), wearer);
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddresses(chainId),

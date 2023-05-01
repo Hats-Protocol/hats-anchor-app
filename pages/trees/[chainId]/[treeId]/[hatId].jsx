@@ -208,7 +208,6 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
     _.get(hatData, 'prettyId'),
   )}`;
-  console.log(imagesData[topHatId]);
 
   return (
     <>

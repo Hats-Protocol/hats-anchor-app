@@ -187,7 +187,7 @@ const Hat = ({
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
-    error: hatDetailsFieldError,
+    // error: hatDetailsFieldError,
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
 
