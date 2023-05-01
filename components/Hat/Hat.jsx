@@ -37,6 +37,8 @@ import {
   mutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
+  isTopHat,
+  prettyIdToId,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -50,6 +52,8 @@ import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
+import RelinkForm from '../../forms/RelinkForm';
+import useTreeDetails from '../../hooks/useTreeDetails';
 import HatUnlinkForm from '../../forms/HatUnlinkForm';
 
 const defaultChainId = 5;
@@ -61,6 +65,7 @@ const Hat = ({
   hatData,
   chainId,
   treeId,
+  linkedToHat,
   hatImage,
   childrenHats,
   linkRequestFromTree,
@@ -73,6 +78,15 @@ const Hat = ({
     wearerAddress: address,
     chainId,
   });
+
+  const { data: treeData } = useTreeDetails({
+    treeId: linkedToHat?.tree?.id,
+    chainId,
+    hatId: prettyIdToId(linkedToHat?.prettyId),
+  });
+
+  const parentTreeHats = _.map(_.get(treeData, 'hats'), 'prettyId');
+
   const { writeAsync: updateImmutability } = useHatMakeImmutable({
     hatsAddress,
     chainId,
@@ -115,6 +129,10 @@ const Hat = ({
   const handleOpenLinkRequestApproveModal = (id) => {
     setTopHatDomain(id);
     setModals({ linkResponse: true });
+  };
+
+  const handleOpenRelinkModal = () => {
+    setModals({ relink: true });
   };
 
   const isAdminUser =
@@ -249,6 +267,13 @@ const Hat = ({
       >
         <LinkRequestApprove
           topHatDomain={topHatDomain}
+          hatData={hatData}
+          chainId={chainId}
+        />
+      </Modal>
+      <Modal name='relink' title='Relink Top Hat' localOverlay={localOverlay}>
+        <RelinkForm
+          parentTreeHats={parentTreeHats}
           hatData={hatData}
           chainId={chainId}
         />
@@ -461,7 +486,12 @@ const Hat = ({
                     onClick={() => setModals({ unlinkTree: true })}
                   >
                     Unlink Tree
-                  </Button>
+                  </Button>{' '}
+                  {isTopHat(hatData) && linkedToHat && (
+                    <Button variant='outline' onClick={handleOpenRelinkModal}>
+                      Relink Hat
+                    </Button>
+                  )}
                 </HStack>
               </TabPanel>
             ) : null}

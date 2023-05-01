@@ -307,8 +307,10 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                 <Hat
                   hatData={hatData}
                   chainId={chainId}
+                  treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
+                  linkedToHat={treeData?.linkedToHat}
                   linkRequestFromTree={treeData?.linkRequestFromTree}
                 />
               )}
