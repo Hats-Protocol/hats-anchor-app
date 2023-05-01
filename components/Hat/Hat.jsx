@@ -55,6 +55,7 @@ import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
+import HatUnlinkForm from '../../forms/HatUnlinkForm';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -349,6 +350,13 @@ const Hat = ({
           chainId={chainId}
         />
       </Modal>
+      <Modal
+        name='unlinkTree'
+        title='Unlink Top Hat From Tree'
+        localOverlay={localOverlay}
+      >
+        <HatUnlinkForm hatData={hatData} chainId={chainId} />
+      </Modal>
 
       <Stack>
         <Flex justify='space-between'>
@@ -366,6 +374,7 @@ const Hat = ({
               onClick={canEditImage ? handleOpenImageModal : undefined}
               bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
               bgSize='cover'
+              bgPosition='center'
             >
               {imageHover && (
                 <Icon
@@ -544,7 +553,10 @@ const Hat = ({
                       Link Request to {linkRequest.id}
                     </Button>
                   ))}
-                  <Button variant='outline' onClick={handleOpenImageModal}>
+                  <Button
+                    variant='outline'
+                    onClick={() => setModals({ unlinkTree: true })}
+                  >
                     Unlink Tree
                   </Button>
                 </HStack>

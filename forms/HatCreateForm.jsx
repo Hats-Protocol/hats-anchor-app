@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Stack,
   Flex,
@@ -8,10 +9,11 @@ import {
   HStack,
   Spinner,
 } from '@chakra-ui/react';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
 
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
@@ -23,7 +25,6 @@ import { prettyIdToIp } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { useDropzone } from 'react-dropzone';
 import DropZone from '../components/DropZone';
 
 const HatCreateForm = ({ defaultAdmin, treeId }) => {
@@ -48,10 +49,10 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     isDragReject,
   } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop: (acceptedFiles) => {
+    onDrop: (a) => {
       setImage(
-        Object.assign(acceptedFiles[0], {
-          preview: URL.createObjectURL(acceptedFiles[0]),
+        Object.assign(a[0], {
+          preview: URL.createObjectURL(a[0]),
         }),
       );
     },
@@ -71,11 +72,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const {
     data: imagePinData,
     isLoading: imagePinLoading,
-    error: imagePinError,
+    // error: imagePinError,
   } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: customImage,
-    metadata: { name: 'image_' + chainId.toString() + '_' + decimalAdmin },
+    metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
   });
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
@@ -95,7 +96,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     mutable,
     imageUrl: customImage
       ? imagePinData !== undefined
-        ? 'ipfs://' + imagePinData
+        ? `ipfs://${imagePinData}`
         : undefined
       : imageUrl,
   });
@@ -105,7 +106,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     if (customDetails) {
       await pinJson(
         { type: '1.0', data: { name, description } },
-        { name: 'details_' + chainId.toString() + '_' + decimalAdmin },
+        { name: `details_${_.toString(chainId)}_${decimalAdmin}` },
       );
     }
   };

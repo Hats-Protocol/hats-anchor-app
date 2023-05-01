@@ -143,9 +143,12 @@ const Home = ({
                   >
                     <Box
                       bgImage={
-                        imagesPerChain[tree.chainId][topHat.id] || '/icon.jpeg'
+                        imagesPerChain[tree.chainId][topHat.id]
+                          ? `url('${imagesPerChain[tree.chainId][topHat.id]}')`
+                          : `url('/icon.jpeg')`
                       }
                       bgSize='cover'
+                      bgPosition='center'
                       alt='Top Hat image'
                       w='85px'
                       h='85px'

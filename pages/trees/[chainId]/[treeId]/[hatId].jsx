@@ -330,13 +330,13 @@ export const getServerSideProps = async (context) => {
 
   return {
     props: {
-      treeId: treeHex,
-      hatId: hatIdHex,
-      prettyHatId,
+      treeId: treeHex || null,
+      hatId: hatIdHex || null,
+      prettyHatId: prettyHatId || null,
       chainId: _.toNumber(chainId),
-      initialTree: initialData,
-      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }),
-      topHat: _.get(initialData, 'hats[0]'),
+      initialTree: initialData || null,
+      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }) || null,
+      topHat: _.get(initialData, 'hats[0]', null),
     },
   };
 };
