@@ -19,7 +19,6 @@ const AdminActions = ({
   hatsAddress,
   chainId,
   linkedToHat,
-  currentWearerAddress,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -150,7 +149,7 @@ const AdminActions = ({
         <HatTransferForm
           hatData={hatData}
           chainId={chainId}
-          currentWearerAddress={currentWearerAddress}
+          currentWearerAddress={hatData?.wearers?.[0]?.id}
         />
       </Modal>
     </>

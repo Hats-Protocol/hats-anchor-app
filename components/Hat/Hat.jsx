@@ -389,7 +389,6 @@ const Hat = ({
                   hatsAddress={hatsAddress}
                   chainId={chainId}
                   linkedToHat={linkedToHat}
-                  currentWearerAddress={address}
                 />
               </TabPanel>
             ) : null}

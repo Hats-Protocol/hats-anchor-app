@@ -1,5 +1,13 @@
 import React from 'react';
-import { Stack, Button, Flex, Text, Heading } from '@chakra-ui/react';
+import {
+  Stack,
+  Button,
+  Flex,
+  Text,
+  Heading,
+  HStack,
+  Code,
+} from '@chakra-ui/react';
 import { utils } from 'ethers';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
@@ -41,6 +49,10 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
             #{prettyIdToIp(_.get(hatData, 'prettyId'))}
           </Heading>
         </Stack>
+        <HStack>
+          <Text>Address of the current Wearer: </Text>
+          <Code>{currentWearerAddress}</Code>
+        </HStack>
         <Input
           localForm={localForm}
           name='newWearerAddress'
