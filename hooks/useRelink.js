@@ -21,7 +21,7 @@ const useRelink = ({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'approveLinkTopHatToTree',
+    functionName: 'relinkTopHatWithinTree',
     args: [
       topHatDomain,
       newAdmin,
@@ -39,7 +39,7 @@ const useRelink = ({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Link request approved',
-          description: `Successfully linked ${topHatDomain} to ${newAdmin}`,
+          description: `Successfully relinked ${topHatDomain} to ${newAdmin}`,
         },
       });
 

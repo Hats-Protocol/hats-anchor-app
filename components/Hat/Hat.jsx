@@ -85,7 +85,10 @@ const Hat = ({
     hatId: prettyIdToId(linkedToHat?.prettyId),
   });
 
-  const parentTreeHats = _.map(_.get(treeData, 'hats'), 'prettyId');
+  const parentTreeHats = _.filter(
+    _.map(_.get(treeData, 'hats'), 'prettyId'),
+    (hat) => hat !== linkedToHat?.prettyId,
+  );
 
   const { writeAsync: updateImmutability } = useHatMakeImmutable({
     hatsAddress,
