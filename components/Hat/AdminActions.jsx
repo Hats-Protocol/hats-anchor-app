@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useOverlay } from '../../contexts/OverlayContext';
-import { isTopHat, isMutable, prettyIdToId } from '../../lib/hats';
+import { isTopHat, isTopHatOrMutable, prettyIdToId } from '../../lib/hats';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import Modal from '../Modal';
@@ -10,6 +10,7 @@ import HatSupplyForm from '../../forms/HatSupplyForm';
 import HatRelinkForm from '../../forms/HatRelinkForm';
 import HatUnlinkForm from '../../forms/HatUnlinkForm';
 import useTreeDetails from '../../hooks/useTreeDetails';
+import HatTransferForm from '../../forms/HatTransferForm';
 
 const AdminActions = ({
   showSupplyAndImmutableButtons,
@@ -18,6 +19,7 @@ const AdminActions = ({
   hatsAddress,
   chainId,
   linkedToHat,
+  currentWearerAddress,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -85,14 +87,16 @@ const AdminActions = ({
           onClick={() => setModals({ unlinkTree: true })}
         >
           Unlink Tree
-        </Button>{' '}
+        </Button>
         {isTopHat(hatData) && linkedToHat && (
-          <Button variant='outline' onClick={() => setModals({ relink: true })}>
+          <Button
+            variant='outline'
+            onClick={() => setModals({ relinkHat: true })}
+          >
             Relink Hat
           </Button>
         )}
-        {/* if hat is mutable show transfer hat button */}
-        {isMutable(hatData) && (
+        {isTopHatOrMutable(hatData) && hatData?.wearers?.length && (
           <Button
             variant='outline'
             onClick={() => setModals({ transferHat: true })}
@@ -120,7 +124,11 @@ const AdminActions = ({
       >
         <HatSupplyForm hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal name='relink' title='Relink Top Hat' localOverlay={localOverlay}>
+      <Modal
+        name='relinkHat'
+        title='Relink Top Hat'
+        localOverlay={localOverlay}
+      >
         <HatRelinkForm
           parentTreeHats={parentTreeHats}
           hatData={hatData}
@@ -133,6 +141,17 @@ const AdminActions = ({
         localOverlay={localOverlay}
       >
         <HatUnlinkForm hatData={hatData} chainId={chainId} />
+      </Modal>
+      <Modal
+        name='transferHat'
+        title='Transfer Hat to New Address'
+        localOverlay={localOverlay}
+      >
+        <HatTransferForm
+          hatData={hatData}
+          chainId={chainId}
+          currentWearerAddress={currentWearerAddress}
+        />
       </Modal>
     </>
   );

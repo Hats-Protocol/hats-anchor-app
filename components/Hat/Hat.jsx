@@ -31,9 +31,9 @@ import EventsTable from '../EventsTable';
 import {
   decimalId,
   prettyIdToIp,
-  topHatOrMutable,
+  isTopHatOrMutable,
   isAdmin,
-  mutableNotTopHat,
+  isMutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
 } from '../../lib/hats';
@@ -100,9 +100,9 @@ const Hat = ({
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
 
   const showSupplyAndImmutableButtons =
-    isAdminUser && mutableNotTopHat(hatData);
+    isAdminUser && isMutableNotTopHat(hatData);
 
-  const canEditImage = isAdminUser && address && topHatOrMutable(hatData);
+  const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     key: _.get(hat, 'prettyId'),
@@ -144,7 +144,7 @@ const Hat = ({
           address={hatData.eligibility}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
-          mutable={mutableNotTopHat(hatData)}
+          mutable={isMutableNotTopHat(hatData)}
           admin={
             isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
             chainId === userChain
@@ -162,7 +162,7 @@ const Hat = ({
           address={hatData.toggle}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
-          mutable={mutableNotTopHat(hatData)}
+          mutable={isMutableNotTopHat(hatData)}
           admin={
             isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
             chainId === userChain
@@ -308,7 +308,7 @@ const Hat = ({
             {address &&
               userChain === chainId &&
               isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (mutableNotTopHat(hatData) ||
+              (isMutableNotTopHat(hatData) ||
                 linkRequestFromTree?.length > 0) && (
                 <Tab fontSize='sm'>Admin</Tab>
               )}
@@ -389,6 +389,7 @@ const Hat = ({
                   hatsAddress={hatsAddress}
                   chainId={chainId}
                   linkedToHat={linkedToHat}
+                  currentWearerAddress={address}
                 />
               </TabPanel>
             ) : null}
