@@ -199,7 +199,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
             // shouldn't be disabled if newAdmin && topHatDomain are set
             isDisabled={!writeAsync || imagePinLoading}
           >
-            {imagePinLoading ? <Spinner /> : 'Create'}
+            {imagePinLoading ? <Spinner /> : 'Approve'}
           </Button>
         </Flex>
       </Stack>
