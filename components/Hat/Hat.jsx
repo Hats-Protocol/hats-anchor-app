@@ -79,14 +79,14 @@ const Hat = ({
     chainId,
   });
 
-  const { data: treeData } = useTreeDetails({
+  const { data: parentTreeData } = useTreeDetails({
     treeId: linkedToHat?.tree?.id,
     chainId,
     hatId: prettyIdToId(linkedToHat?.prettyId),
   });
 
   const parentTreeHats = _.filter(
-    _.map(_.get(treeData, 'hats'), 'prettyId'),
+    _.map(_.get(parentTreeData, 'hats'), 'prettyId'),
     (hat) => hat !== linkedToHat?.prettyId,
   );
 

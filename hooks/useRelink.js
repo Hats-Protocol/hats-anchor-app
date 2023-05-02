@@ -4,6 +4,7 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
+import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
 const useRelink = ({
   topHatDomain,
@@ -24,7 +25,7 @@ const useRelink = ({
     functionName: 'relinkTopHatWithinTree',
     args: [
       topHatDomain,
-      newAdmin,
+      decimalId(prettyIdToId(newAdmin)),
       eligibility,
       toggle,
       description,
@@ -39,7 +40,9 @@ const useRelink = ({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Link request approved',
-          description: `Successfully relinked ${topHatDomain} to ${newAdmin}`,
+          description: `Successfully relinked ${prettyIdToIp(
+            topHatDomain,
+          )} to ${prettyIdToIp(newAdmin)}`,
         },
       });
 

@@ -22,7 +22,7 @@ import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useRelink from '../hooks/useRelink';
 import useDebounce from '../hooks/useDebounce';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
+import { prettyIdToIp } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
 
 const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
@@ -80,7 +80,7 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
 
   const { writeAsync } = useRelink({
     topHatDomain: hatData.prettyId,
-    newAdmin: decimalId(prettyIdToId(newAdmin)),
+    newAdmin,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     description,
