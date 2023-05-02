@@ -39,6 +39,7 @@ import {
   getTreeId,
   isTopHat,
   prettyIdToId,
+  isMutable,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -493,6 +494,15 @@ const Hat = ({
                   {isTopHat(hatData) && linkedToHat && (
                     <Button variant='outline' onClick={handleOpenRelinkModal}>
                       Relink Hat
+                    </Button>
+                  )}
+                  {/* if hat is mutable show transfer hat button */}
+                  {isMutable(hatData) && (
+                    <Button
+                      variant='outline'
+                      onClick={() => setModals({ transferHat: true })}
+                    >
+                      Transfer Hat
                     </Button>
                   )}
                 </HStack>
