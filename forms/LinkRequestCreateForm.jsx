@@ -1,19 +1,18 @@
 import React from 'react';
 import { Stack, Button, Flex, Text } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { BigNumber } from 'ethers';
 import _ from 'lodash';
 import Select from '../components/Select';
 import useLinkRequestCreate from '../hooks/useLinkRequestCreate';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
-import { prettyIdToIp, prettyIdToId } from '../lib/hats';
+import { prettyIdToIp, prettyIdToId, decimalId } from '../lib/hats';
 
 const LinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
-      newAdmin: BigNumber.from(prettyIdToId(newAdmin)),
+      newAdmin: decimalId(prettyIdToId(newAdmin)),
       topHatDomain: wearerTopHats[0],
     },
   });
@@ -26,7 +25,7 @@ const LinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
 
   const { writeAsync } = useLinkRequestCreate({
     chainId,
-    newAdmin: BigNumber.from(prettyIdToId(newAdmin)),
+    newAdmin,
     topHatDomain,
   });
 

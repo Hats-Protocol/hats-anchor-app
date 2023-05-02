@@ -11,28 +11,35 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-
 import { useDropzone } from 'react-dropzone';
-import Input from '../components/Input';
-import Textarea from '../components/Textarea';
-import useLinkRequestApprove from '../hooks/useLinkRequestApprove';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import { prettyIdToIp, decimalId } from '../lib/hats';
-import { pinJson } from '../lib/ipfs';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import DropZone from '../components/DropZone';
+import _ from 'lodash';
 
-const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
+import Input from '../components/Input';
+import Select from '../components/Select';
+import Textarea from '../components/Textarea';
+import DropZone from '../components/DropZone';
+import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
+import useHatRelinkTree from '../hooks/useHatRelinkTree';
+import useDebounce from '../hooks/useDebounce';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { prettyIdToIp } from '../lib/hats';
+import { pinJson } from '../lib/ipfs';
+
+const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
-      topHatDomain,
-      newAdmin: decimalId(hatData.id),
+      topHatDomain: hatData.prettyId,
+      newAdmin: parentTreeHats[0],
       description: '',
     },
   });
   const { handleSubmit, watch } = localForm;
+
+  const newAdmin = useDebounce(
+    watch('newAdmin', parentTreeHats[0]),
+    CONFIG.debounce,
+  );
 
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
@@ -63,7 +70,7 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
-  const decimalAdmin = prettyIdToIp(topHatDomain);
+  const decimalAdmin = prettyIdToIp(hatData.prettyId);
 
   const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
@@ -71,9 +78,9 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useLinkRequestApprove({
-    topHatDomain,
-    newAdmin: hatData.id,
+  const { writeAsync } = useHatRelinkTree({
+    topHatDomain: hatData.prettyId,
+    newAdmin,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     description,
@@ -106,16 +113,22 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
         </Text>
         <Flex>
           <Text fontWeight={500} mr={2}>
-            New Admin:
+            Hat to be relinked:
           </Text>
-          <Text>ID {prettyIdToIp(hatData.prettyId)}</Text>
+          <Text>ID {prettyIdToIp(hatData?.prettyId)}</Text>
         </Flex>
-        <Flex>
-          <Text fontWeight={500} mr={2}>
-            Domain of the Top Hat to be linked:
-          </Text>
-          <Text>ID {prettyIdToIp(topHatDomain)}</Text>
-        </Flex>
+
+        <Select
+          label='Select new Admin Hat'
+          name='newAdmin'
+          localForm={localForm}
+        >
+          {_.map(parentTreeHats, (hat) => (
+            <option value={hat} key={hat}>
+              {prettyIdToIp(hat)}
+            </option>
+          ))}
+        </Select>
         <FormControl>
           <Stack>
             <HStack>
@@ -199,7 +212,7 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
             // shouldn't be disabled if newAdmin && topHatDomain are set
             isDisabled={!writeAsync || imagePinLoading}
           >
-            {imagePinLoading ? <Spinner /> : 'Create'}
+            {imagePinLoading ? <Spinner /> : 'Relink'}
           </Button>
         </Flex>
       </Stack>
@@ -207,4 +220,4 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
   );
 };
 
-export default LinkRequestApprove;
+export default RelinkForm;

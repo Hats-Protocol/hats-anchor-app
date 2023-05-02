@@ -4,16 +4,16 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
+import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
-const useLinkRequestApprove = ({
-  chainId,
+const useHatRelinkTree = ({
   topHatDomain,
   newAdmin,
   eligibility,
   toggle,
   description,
   imageUrl,
+  chainId,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
@@ -22,10 +22,10 @@ const useLinkRequestApprove = ({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'approveLinkTopHatToTree',
+    functionName: 'relinkTopHatWithinTree',
     args: [
       topHatDomain,
-      decimalId(newAdmin),
+      decimalId(prettyIdToId(newAdmin)),
       eligibility,
       toggle,
       description,
@@ -33,17 +33,16 @@ const useLinkRequestApprove = ({
     ],
     enabled: !!topHatDomain && !!newAdmin,
   });
-
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Link Request Approved!',
-          description: `Successfully linked top hat ${prettyIdToIp(
+          title: 'Top Hat Relinked!',
+          description: `Successfully relinked top hat ${prettyIdToIp(
             topHatDomain,
-          )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
+          )} to ${prettyIdToIp(newAdmin)}`,
         },
       });
 
@@ -70,4 +69,4 @@ const useLinkRequestApprove = ({
   return { writeAsync };
 };
 
-export default useLinkRequestApprove;
+export default useHatRelinkTree;
