@@ -51,7 +51,7 @@ import useHatDetailsField from '../../hooks/useHatDetailsField';
 import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
-import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
+import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import RelinkForm from '../../forms/RelinkForm';
 import useTreeDetails from '../../hooks/useTreeDetails';
 import HatUnlinkForm from '../../forms/HatUnlinkForm';
@@ -268,7 +268,7 @@ const Hat = ({
         title='Approve Link Request'
         localOverlay={localOverlay}
       >
-        <LinkRequestApprove
+        <HatLinkRequestApproveForm
           topHatDomain={topHatDomain}
           hatData={hatData}
           chainId={chainId}

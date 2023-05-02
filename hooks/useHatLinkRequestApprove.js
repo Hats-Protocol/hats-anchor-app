@@ -4,9 +4,17 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
 
-const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
+const useHatLinkRequestApprove = ({
+  chainId,
+  topHatDomain,
+  newAdmin,
+  eligibility,
+  toggle,
+  description,
+  imageUrl,
+}) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
@@ -14,9 +22,16 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'requestLinkTopHatToTree',
-    args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
-    enabled: Boolean(topHatDomain) && Boolean(newAdmin),
+    functionName: 'approveLinkTopHatToTree',
+    args: [
+      topHatDomain,
+      decimalId(newAdmin),
+      eligibility,
+      toggle,
+      description,
+      imageUrl || '',
+    ],
+    enabled: !!topHatDomain && !!newAdmin,
   });
 
   const { writeAsync } = useContractWrite({
@@ -25,10 +40,10 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: `Successfully Requested to Link!`,
-          description: `Successfully requested to link top hat ${prettyIdToIp(
+          title: 'Link Request Approved!',
+          description: `Successfully linked top hat ${prettyIdToIp(
             topHatDomain,
-          )} to ${prettyIdToIp(newAdmin)}`,
+          )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
         },
       });
 
@@ -55,4 +70,4 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   return { writeAsync };
 };
 
-export default useLinkRequestCreate;
+export default useHatLinkRequestApprove;

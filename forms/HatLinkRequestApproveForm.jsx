@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
-import useLinkRequestApprove from '../hooks/useLinkRequestApprove';
+import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { prettyIdToIp, decimalId } from '../lib/hats';
@@ -23,7 +23,7 @@ import { pinJson } from '../lib/ipfs';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import DropZone from '../components/DropZone';
 
-const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
+const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -71,7 +71,7 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useLinkRequestApprove({
+  const { writeAsync } = useHatLinkRequestApprove({
     topHatDomain,
     newAdmin: hatData.id,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
@@ -207,4 +207,4 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
   );
 };
 
-export default LinkRequestApprove;
+export default HatLinkRequestApproveForm;
