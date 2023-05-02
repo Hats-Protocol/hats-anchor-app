@@ -39,7 +39,7 @@ const useHatRelinkTree = ({
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Top Hat Relinked',
+          title: 'Top Hat Relinked!',
           description: `Successfully relinked top hat ${prettyIdToIp(
             topHatDomain,
           )} to ${prettyIdToIp(newAdmin)}`,

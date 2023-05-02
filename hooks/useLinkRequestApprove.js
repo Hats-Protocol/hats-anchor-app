@@ -40,7 +40,7 @@ const useLinkRequestApprove = ({
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Link Request Approved',
+          title: 'Link Request Approved!',
           description: `Successfully linked top hat ${prettyIdToIp(
             topHatDomain,
           )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
