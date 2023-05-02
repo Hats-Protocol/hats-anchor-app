@@ -25,8 +25,8 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: `Successfully requested to link!`,
-          description: `Successfully requested to link ${prettyIdToIp(
+          title: `Successfully Requested to Link!`,
+          description: `Successfully requested to link top hat ${prettyIdToIp(
             topHatDomain,
           )} to ${prettyIdToIp(newAdmin)}`,
         },

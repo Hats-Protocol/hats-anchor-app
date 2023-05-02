@@ -24,11 +24,13 @@ import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import DropZone from '../components/DropZone';
 
 const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
-  const newAdmin = decimalId(hatData.id);
-
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: { topHatDomain, newAdmin, description: '' },
+    defaultValues: {
+      topHatDomain,
+      newAdmin: decimalId(hatData.id),
+      description: '',
+    },
   });
   const { handleSubmit, watch } = localForm;
 
@@ -71,7 +73,7 @@ const LinkRequestApprove = ({ topHatDomain, chainId, hatData }) => {
 
   const { writeAsync } = useLinkRequestApprove({
     topHatDomain,
-    newAdmin,
+    newAdmin: hatData.id,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     description,

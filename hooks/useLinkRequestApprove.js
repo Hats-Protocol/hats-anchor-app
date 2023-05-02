@@ -4,6 +4,7 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
+import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
 
 const useLinkRequestApprove = ({
   chainId,
@@ -24,7 +25,7 @@ const useLinkRequestApprove = ({
     functionName: 'approveLinkTopHatToTree',
     args: [
       topHatDomain,
-      newAdmin,
+      decimalId(newAdmin),
       eligibility,
       toggle,
       description,
@@ -39,8 +40,10 @@ const useLinkRequestApprove = ({
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Link request approved',
-          description: `Successfully linked ${topHatDomain} to ${newAdmin}`,
+          title: 'Link Request Approved',
+          description: `Successfully linked top hat ${prettyIdToIp(
+            topHatDomain,
+          )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
         },
       });
 
