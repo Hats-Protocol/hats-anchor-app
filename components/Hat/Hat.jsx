@@ -52,7 +52,7 @@ import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
-import RelinkForm from '../../forms/RelinkForm';
+import HatRelinkForm from '../../forms/HatRelinkForm';
 import useTreeDetails from '../../hooks/useTreeDetails';
 import HatUnlinkForm from '../../forms/HatUnlinkForm';
 
@@ -275,7 +275,7 @@ const Hat = ({
         />
       </Modal>
       <Modal name='relink' title='Relink Top Hat' localOverlay={localOverlay}>
-        <RelinkForm
+        <HatRelinkForm
           parentTreeHats={parentTreeHats}
           hatData={hatData}
           chainId={chainId}

@@ -25,7 +25,7 @@ import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import { prettyIdToIp } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
 
-const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
+const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -220,4 +220,4 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
   );
 };
 
-export default RelinkForm;
+export default HatRelinkForm;
