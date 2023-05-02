@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useOverlay } from '../../contexts/OverlayContext';
-import { isTopHat, isTopHatOrMutable, prettyIdToId } from '../../lib/hats';
+import {
+  isTopHat,
+  isTopHatOrMutable,
+  prettyIdToId,
+  prettyIdToIp,
+} from '../../lib/hats';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import Modal from '../Modal';
@@ -78,7 +83,7 @@ const AdminActions = ({
             onClick={() => handleOpenLinkRequestApproveModal(linkRequest.id)}
             key={linkRequest.id}
           >
-            Link Request to {linkRequest.id}
+            Link Request to {prettyIdToIp(linkRequest.id)}
           </Button>
         ))}
         <Button
