@@ -4,6 +4,7 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
+import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
 const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const toast = useToast();
@@ -14,7 +15,7 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'requestLinkTopHatToTree',
-    args: [topHatDomain, newAdmin],
+    args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
     enabled: Boolean(topHatDomain) && Boolean(newAdmin),
   });
 
@@ -25,7 +26,9 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Successfully requested to link!`,
-          description: `Successfully requested to link ${topHatDomain} to ${newAdmin}`,
+          description: `Successfully requested to link ${prettyIdToIp(
+            topHatDomain,
+          )} to ${prettyIdToIp(newAdmin)}`,
         },
       });
 
