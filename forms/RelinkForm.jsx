@@ -19,7 +19,7 @@ import Select from '../components/Select';
 import Textarea from '../components/Textarea';
 import DropZone from '../components/DropZone';
 import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
-import useRelink from '../hooks/useRelink';
+import useHatRelinkTree from '../hooks/useHatRelinkTree';
 import useDebounce from '../hooks/useDebounce';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import { prettyIdToIp } from '../lib/hats';
@@ -78,7 +78,7 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useRelink({
+  const { writeAsync } = useHatRelinkTree({
     topHatDomain: hatData.prettyId,
     newAdmin,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,

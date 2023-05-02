@@ -6,7 +6,7 @@ import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
-const useRelink = ({
+const useHatRelinkTree = ({
   topHatDomain,
   newAdmin,
   eligibility,
@@ -39,8 +39,8 @@ const useRelink = ({
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Link request approved',
-          description: `Successfully relinked ${prettyIdToIp(
+          title: 'Top Hat Relinked',
+          description: `Successfully relinked top hat ${prettyIdToIp(
             topHatDomain,
           )} to ${prettyIdToIp(newAdmin)}`,
         },
@@ -69,4 +69,4 @@ const useRelink = ({
   return { writeAsync };
 };
 
-export default useRelink;
+export default useHatRelinkTree;
