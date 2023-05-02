@@ -1,9 +1,10 @@
 import { useContractReads } from 'wagmi';
-import abi from '../contracts/Hats.json';
 import { useEffect, useState } from 'react';
+import abi from '../contracts/Hats.json';
 import { hatsAddresses } from '../constants';
 import { chainsMap } from '../lib/web3';
 import { isImageUrl } from '../lib/general';
+import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
 
 /**
  * returns an object, mapping from hat id to image url.
@@ -15,13 +16,13 @@ const useImageURIs = (hats, chainId) => {
   const [loading, setLoading] = useState(false);
 
   let calls = [];
-  let chain = chainsMap(chainId);
+  const chain = chainsMap(chainId);
   if (hats !== undefined) {
     calls = hats.map((hat) => {
       return {
         address: hatsAddresses(chain),
         chainId: chain.id,
-        abi: abi,
+        abi,
         functionName: 'getImageURIForHat',
         args: [hat],
       };
@@ -36,16 +37,18 @@ const useImageURIs = (hats, chainId) => {
     const validateImages = async () => {
       try {
         setLoading(true);
-        let hatIdToImage = {};
+        const hatIdToImage = {};
         for (let i = 0; i < hats.length; i++) {
-          let hat = hats[i];
-          if (imagesData[i].startsWith('ipfs://')) {
-            //converting the current base image uri from the contract to resolvable format
-            hatIdToImage[hat] = `https://ipfs.io/ipfs/${imagesData[i].slice(
-              7,
-            )}`;
+          const hat = hats[i];
+          if (imagesData[i]?.startsWith('ipfs://')) {
+            // converting the current base image uri from the contract to resolvable format
+            hatIdToImage[
+              hat
+            ] = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${imagesData[
+              i
+            ].slice(7)}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
           } else {
-            let isValidImage = await isImageUrl(imagesData[i]);
+            const isValidImage = await isImageUrl(imagesData[i]);
             if (isValidImage) {
               hatIdToImage[hat] = imagesData[i];
             } else {

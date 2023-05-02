@@ -19,12 +19,33 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
         id
         prettyId
       }
+      tree {
+        id
+      }
     }
     events(orderBy: timestamp, orderDirection: desc) {
       ...EventDetails
       hat {
         id
         prettyId
+      }
+    }
+    linkRequestFromTree {
+      id
+    }
+    childOfTree {
+      id
+    }
+    parentOfTrees {
+      id
+      linkedToHat {
+        prettyId
+      }
+    }
+    linkedToHat {
+      prettyId
+      tree {
+        id
       }
     }
   }
@@ -121,8 +142,9 @@ export const SEARCH_QUERY = gql`
     trees(where: { id: $search }) {
       id
     }
-    hats(where: { id: $search }) {
+    hats(where: { or: [{ id: $search }, { prettyId: $search }] }) {
       id
+      prettyId
     }
   }
 `;

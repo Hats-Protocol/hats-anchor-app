@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack, Button, Flex } from '@chakra-ui/react';
-import { isAddress } from '@ethersproject/address';
+import { utils } from 'ethers';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatMint from '../hooks/useHatMint';
@@ -33,7 +33,7 @@ const HatWearerForm = ({ hatId, chainId }) => {
           label='New Wearer Address'
           options={{
             validate: (value) =>
-              isAddress(value) ? true : 'Must be a valid address',
+              utils.isAddress(value) ? true : 'Must be a valid address',
           }}
           placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
         />

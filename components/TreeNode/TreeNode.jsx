@@ -1,26 +1,30 @@
-import { Button } from '@chakra-ui/react';
+import { IconButton, Flex, Icon } from '@chakra-ui/react';
+import { FaPlus, FaLink } from 'react-icons/fa';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
-import { useChainId } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
-import styles from './TreeNode.module.css';
 
 function Node({
   rd3tProps,
   handleNodeClick,
   handleAddChildClick,
+  handleRequestLink,
   activeHatId,
   wearerHats,
   chainId,
 }) {
   const [isHover, setIsHover] = useState(false);
   const userChain = useChainId();
+  const { address } = useAccount();
+  const { attributes, name } = rd3tProps.nodeDatum;
+  const { treeId } = attributes;
 
   const isHatActive = BigNumber.from(activeHatId).eq(
-    BigNumber.from(prettyIdToId(rd3tProps.nodeDatum.name)),
+    BigNumber.from(prettyIdToId(name)),
   );
 
-  const isUserAdminOfHat = isAdmin(rd3tProps.nodeDatum.name, wearerHats);
+  const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
 
   useEffect(() => {
     if (isHatActive) {
@@ -32,7 +36,7 @@ function Node({
     <g>
       <defs>
         <pattern
-          id={rd3tProps.nodeDatum.name}
+          id={name}
           x='0%'
           y='0%'
           height='100%'
@@ -44,29 +48,27 @@ function Node({
             y='0%'
             width='512'
             height='512'
-            href={rd3tProps.nodeDatum.attributes.imageURI}
+            href={attributes.imageURI}
           />
         </pattern>
       </defs>
       <circle
         r={isHatActive || isHover ? 30 : 25}
-        fill={
-          rd3tProps.nodeDatum.attributes.imageURI !== undefined
-            ? `url(#${rd3tProps.nodeDatum.name})`
-            : 'grey'
-        }
+        fill={attributes.imageURI !== undefined ? `url(#${name})` : 'grey'}
+        fillRule='evenOdd'
         style={{
           stroke: isHatActive ? '#437bc9' : '#6d858f',
           strokeWidth: isHatActive ? '4px' : '2px',
           strokeOpacity: '50%',
         }}
         onClick={() => {
-          handleNodeClick(rd3tProps.nodeDatum.name);
+          handleNodeClick(name, treeId);
           rd3tProps.onNodeClick();
         }}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       />
+
       <foreignObject width={125} height={200} x={35} y={-25}>
         <div
           style={{
@@ -74,18 +76,37 @@ function Node({
             flexDirection: 'column',
           }}
         >
-          <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
-          {chainId === userChain && isUserAdminOfHat && (
-            <Button
-              className={styles.button1}
-              type='button'
-              onClick={() => handleAddChildClick(rd3tProps.nodeDatum.name)}
-              fontSize='sm'
-              fontWeight='normal'
-            >
-              Add Child Hat
-            </Button>
-          )}
+          <h4 style={{}}>ID {prettyIdToIp(name)}</h4>
+          <Flex gap={1}>
+            {address && chainId === userChain && isWearerOrAdminOfHat && (
+              <IconButton
+                colorScheme='black'
+                borderRadius={6}
+                _hover={{
+                  backgroundColor: 'rgb(225, 233, 236)',
+                }}
+                w='min-content'
+                icon={<Icon as={FaPlus} />}
+                onClick={() => handleAddChildClick(name)}
+                size='xs'
+                variant='outline'
+              />
+            )}
+            {address && wearerHats?.length > 0 && (
+              <IconButton
+                colorScheme='black'
+                borderRadius={6}
+                _hover={{
+                  backgroundColor: 'rgb(225, 233, 236)',
+                }}
+                w='min-content'
+                icon={<Icon as={FaLink} />}
+                onClick={() => handleRequestLink(name)}
+                size='xs'
+                variant='outline'
+              />
+            )}
+          </Flex>
         </div>
       </foreignObject>
     </g>
@@ -96,6 +117,7 @@ export default function TreeNode(
   rd3tProps,
   handleNodeClick,
   handleAddChildClick,
+  handleRequestLink,
   activeHatId,
   wearerHats,
   chainId,
@@ -105,6 +127,7 @@ export default function TreeNode(
       rd3tProps={rd3tProps}
       handleNodeClick={handleNodeClick}
       handleAddChildClick={handleAddChildClick}
+      handleRequestLink={handleRequestLink}
       activeHatId={activeHatId}
       wearerHats={wearerHats}
       chainId={chainId}

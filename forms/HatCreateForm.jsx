@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Stack,
   Flex,
@@ -6,11 +7,13 @@ import {
   Switch,
   FormLabel,
   HStack,
+  Spinner,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
 
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
@@ -19,8 +22,12 @@ import { hatsAddresses, FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
+import { pinJson } from '../lib/ipfs';
+import useCid from '../hooks/useCid';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import DropZone from '../components/DropZone';
 
-const HatCreateForm = ({ defaultAdmin }) => {
+const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: { mutable: 'Mutable' },
@@ -28,8 +35,31 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const { handleSubmit, watch } = localForm;
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
+  const [customDetails, setCustomDetails] = useState(true);
+  const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
 
+  const [image, setImage] = useState();
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: { 'image/*': [] },
+    onDrop: (a) => {
+      setImage(
+        Object.assign(a[0], {
+          preview: URL.createObjectURL(a[0]),
+        }),
+      );
+    },
+  });
+
+  const name = useDebounce(watch('name', ''));
+  const description = useDebounce(watch('description', ''));
   const details = useDebounce(watch('details', ''));
   const maxSupply = useDebounce(watch('maxSupply', 1));
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
@@ -37,20 +67,48 @@ const HatCreateForm = ({ defaultAdmin }) => {
   const mutable = useDebounce(watch('mutable', true));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
+  const decimalAdmin = prettyIdToIp(defaultAdmin);
+
+  const {
+    data: imagePinData,
+    isLoading: imagePinLoading,
+    // error: imagePinError,
+  } = usePinImageIpfs({
+    imageFile: acceptedFiles[0],
+    enabled: customImage,
+    metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
+  });
+
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+    type: '1.0',
+    data: { name, description },
+  });
+
   const { writeAsync } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
+    treeId,
     admin: defaultAdmin,
-    details,
+    details: customDetails ? detailsCID : details,
     maxSupply: _.toNumber(maxSupply),
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     mutable,
-    imageUrl,
+    imageUrl: customImage
+      ? imagePinData !== undefined
+        ? `ipfs://${imagePinData}`
+        : undefined
+      : imageUrl,
   });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     writeAsync?.();
+    if (customDetails) {
+      await pinJson(
+        { type: '1.0', data: { name, description } },
+        { name: `details_${_.toString(chainId)}_${decimalAdmin}` },
+      );
+    }
   };
 
   // const dropZoneContent = {
@@ -62,8 +120,6 @@ const HatCreateForm = ({ defaultAdmin }) => {
   //   fileTypes: 'PNG, JPG, GIF up to 2MB',
   // };
 
-  const decimalAdmin = prettyIdToIp(defaultAdmin);
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={6}>
@@ -74,13 +130,40 @@ const HatCreateForm = ({ defaultAdmin }) => {
           defaultValue={decimalAdmin}
           isDisabled
         />
-        <Textarea
-          localForm={localForm}
-          name='details'
-          label='Details'
-          placeholder='Marketing Facilitator Hat: responsibilities, authorities, qualifications.'
-          helperText='Name and description of the hat. Pass an IPFS hash or URL here to set additional responsibilities for this hat, or add a string of markdown directly (but be careful with gas!)'
-        />
+        <FormControl>
+          <Stack>
+            <Switch
+              isChecked={customDetails}
+              onChange={() => setCustomDetails(!customDetails)}
+            >
+              Custom details
+            </Switch>
+            {!customDetails && (
+              <Textarea
+                localForm={localForm}
+                name='details'
+                label='Details'
+                placeholder='Hat details'
+              />
+            )}
+            {customDetails && (
+              <Stack spacing={2}>
+                <Input
+                  localForm={localForm}
+                  name='name'
+                  label='Name'
+                  placeholder='Hat name'
+                />
+                <Textarea
+                  localForm={localForm}
+                  name='description'
+                  label='Description'
+                  placeholder='Hat description'
+                />
+              </Stack>
+            )}
+          </Stack>
+        </FormControl>
         <Input
           name='maxSupply'
           label='Max Supply'
@@ -95,19 +178,42 @@ const HatCreateForm = ({ defaultAdmin }) => {
           localForm={localForm}
           isRequired
         />
-        <Input
-          localForm={localForm}
-          name='imageUrl'
-          label='Image'
-          placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
-        />
+        <FormControl>
+          <Stack spacing={2}>
+            <Switch
+              isChecked={customImage}
+              onChange={() => setCustomImage(!customImage)}
+            >
+              Custom image
+            </Switch>
+            {!customImage && (
+              <Textarea
+                localForm={localForm}
+                name='imageUrl'
+                label='Image'
+                placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
+              />
+            )}
+            {customImage && (
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                acceptedFiles={acceptedFiles}
+                isFocused={isFocused}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+                image={image}
+              />
+            )}
+          </Stack>
+        </FormControl>
         <FormControl>
           <HStack>
             <Switch
               isChecked={inputEligibility}
               onChange={() => setInputEligibility(!inputEligibility)}
             />
-            {!inputEligibility && (<FormLabel>Set Eligibility</FormLabel>)}
+            {!inputEligibility && <FormLabel>Set Eligibility</FormLabel>}
             {inputEligibility && (
               <Input
                 name='eligibility'
@@ -124,7 +230,7 @@ const HatCreateForm = ({ defaultAdmin }) => {
               isChecked={inputToggle}
               onChange={() => setInputToggle(!inputToggle)}
             />
-            {!inputToggle && (<FormLabel>Set Toggle</FormLabel>)}
+            {!inputToggle && <FormLabel>Set Toggle</FormLabel>}
             {inputToggle && (
               <Input
                 name='toggle'
@@ -136,8 +242,11 @@ const HatCreateForm = ({ defaultAdmin }) => {
           </HStack>
         </FormControl>
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
-            Create
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || detailsCidLoading || imagePinLoading}
+          >
+            {imagePinLoading ? <Spinner /> : 'Create'}
           </Button>
         </Flex>
       </Stack>

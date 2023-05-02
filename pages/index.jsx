@@ -132,7 +132,7 @@ const Home = ({
               )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
               key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
             >
-              <Card>
+              <Card overflow='hidden'>
                 <CardBody>
                   <HStack
                     h='100px'
@@ -141,16 +141,21 @@ const Home = ({
                     align='center'
                     spacing='16px'
                   >
-                    <Image
-                      src={
-                        imagesPerChain[tree.chainId][topHat.id] || '/icon.jpeg'
+                    <Box
+                      bgImage={
+                        imagesPerChain[tree.chainId][topHat.id]
+                          ? `url('${imagesPerChain[tree.chainId][topHat.id]}')`
+                          : `url('/icon.jpeg')`
                       }
+                      bgSize='cover'
+                      bgPosition='center'
                       alt='Top Hat image'
-                      maxW='84px'
+                      w='85px'
+                      h='85px'
                       border='1px solid'
                       borderColor='gray.200'
                     />
-                    <Stack spacing={1}>
+                    <Stack spacing={1} maxW='110px'>
                       <Text fontWeight={700} noOfLines={2}>
                         {_.get(topHat, 'details')}
                       </Text>

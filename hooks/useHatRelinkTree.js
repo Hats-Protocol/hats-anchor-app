@@ -1,56 +1,49 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { prettyIdToId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
+import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
-const useHatCreate = ({
-  hatsAddress,
-  chainId,
-  treeId,
-  admin,
-  details,
-  maxSupply,
+const useHatRelinkTree = ({
+  topHatDomain,
+  newAdmin,
   eligibility,
   toggle,
-  mutable,
+  description,
   imageUrl,
+  chainId,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+  const { config } = usePrepareContractWrite({
+    address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'createHat',
+    functionName: 'relinkTopHatWithinTree',
     args: [
-      prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
-      maxSupply || '1',
-      eligibility || FALLBACK_ADDRESS,
-      toggle || FALLBACK_ADDRESS,
-      mutable === 'Mutable',
+      topHatDomain,
+      decimalId(prettyIdToId(newAdmin)),
+      eligibility,
+      toggle,
+      description,
       imageUrl || '',
     ],
-    enabled: !!hatsAddress && !!admin,
+    enabled: !!topHatDomain && !!newAdmin,
   });
-  console.log(prepareError);
-
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Hat Created',
-          description: 'Successfully created hat',
+          title: 'Top Hat Relinked!',
+          description: `Successfully relinked top hat ${prettyIdToIp(
+            topHatDomain,
+          )} to ${prettyIdToIp(newAdmin)}`,
         },
-        treeId,
       });
 
       toast.info({
@@ -76,4 +69,4 @@ const useHatCreate = ({
   return { writeAsync };
 };
 
-export default useHatCreate;
+export default useHatRelinkTree;

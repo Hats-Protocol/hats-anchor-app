@@ -17,7 +17,7 @@ const DataTable = ({
     <Stack>
       {data.map((row) => (
         <HStack
-          key={row.label}
+          key={row.key || row.label}
           justify={justify}
           spacing={3}
           borderBottom='1px solid'
@@ -25,7 +25,7 @@ const DataTable = ({
           py={1}
           minH={minH}
         >
-          <Text w={labelWidth} fontWeight={800} fontSize='sm'>
+          <Text w={labelWidth} fontWeight={700} fontSize='sm'>
             {row.label}
           </Text>
           {typeof row.value === 'string' ? (
