@@ -212,7 +212,7 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
             // shouldn't be disabled if newAdmin && topHatDomain are set
             isDisabled={!writeAsync || imagePinLoading}
           >
-            {imagePinLoading ? <Spinner /> : 'Create'}
+            {imagePinLoading ? <Spinner /> : 'Relink'}
           </Button>
         </Flex>
       </Stack>
