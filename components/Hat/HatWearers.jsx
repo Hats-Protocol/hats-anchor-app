@@ -26,13 +26,8 @@ import HatTransferForm from '../../forms/HatTransferForm';
 import HatWearerForm from '../../forms/HatWearerForm';
 import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
-import {
-  isAdmin,
-  decimalId,
-  isTopHat,
-  isTopHatOrMutable,
-} from '../../lib/hats';
-import useWearerDetails from '../../hooks/useWearerDetails';
+import { decimalId, isTopHat, isTopHatOrMutable } from '../../lib/hats';
+
 import useHatBurn from '../../hooks/useHatBurn';
 import { hatsAddresses } from '../../constants';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
@@ -47,6 +42,7 @@ const WearerRow = ({
   setModals,
   checkEligibility,
   setWearerToTransferFrom,
+  isAdminUser,
 }) => {
   const localOverlay = useOverlay();
   const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
@@ -101,23 +97,24 @@ const WearerRow = ({
                   View Profile
                 </MenuItem>
                 {_.eq(_.toLower(user), _.toLower(wearer)) &&
-                  (!isTopHat(hatData) ? (
+                  !isTopHat(hatData) && (
                     <MenuItem
                       onClick={() => setModals({ renounceConfirm: true })}
                     >
                       Renounce
                     </MenuItem>
-                  ) : (
-                    <MenuItem
-                      onClick={() => {
-                        setWearerToTransferFrom(wearer);
-                        setModals({ transferHat: true });
-                      }}
-                      isDisabled={!isTopHatOrMutable(hatData)}
-                    >
-                      Transfer
-                    </MenuItem>
-                  ))}
+                  )}
+                {isAdminUser && (
+                  <MenuItem
+                    onClick={() => {
+                      setWearerToTransferFrom(wearer);
+                      setModals({ transferHat: true });
+                    }}
+                    isDisabled={!isTopHatOrMutable(hatData)}
+                  >
+                    Transfer
+                  </MenuItem>
+                )}
                 {/* {isAdmin(
                 _.get(hatData, 'prettyId'),
                 _.map(_.get(currentUser, 'currentHats'), 'prettyId'),
@@ -167,16 +164,12 @@ const WearerRow = ({
   );
 };
 
-function HatWearers({ hatData, chainId }) {
+function HatWearers({ hatData, chainId, isAdminUser }) {
   const [currentPage, setCurrentPage] = useState(0);
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { data: wearerData } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: hatsAddresses(chainId),
     chainId,
@@ -271,10 +264,7 @@ function HatWearers({ hatData, chainId }) {
 
           {address &&
             _.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
-            isAdmin(
-              _.get(hatData, 'prettyId'),
-              _.map(_.get(wearerData, 'currentHats'), 'prettyId'),
-            ) && (
+            isAdminUser && (
               <Button
                 onClick={() => setModals({ newWearer: true })}
                 variant='outline'
@@ -299,6 +289,7 @@ function HatWearers({ hatData, chainId }) {
                 key={wearer}
                 checkEligibility={checkEligibility}
                 setWearerToTransferFrom={setWearerToTransferFrom}
+                isAdminUser={isAdminUser}
               />
             ))
           )}

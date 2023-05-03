@@ -369,7 +369,11 @@ const Hat = ({
               />
             </TabPanel>
             <TabPanel minH='370px'>
-              <HatWearers hatData={hatData} chainId={chainId} />
+              <HatWearers
+                hatData={hatData}
+                chainId={chainId}
+                isAdminUser={isAdminUser}
+              />
             </TabPanel>
             <TabPanel minH='370px'>
               <EventsTable
