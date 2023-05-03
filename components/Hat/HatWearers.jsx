@@ -22,10 +22,16 @@ import { FaEllipsisV } from 'react-icons/fa';
 
 import Link from '../ChakraNextLink';
 import { formatAddress } from '../../lib/general';
+import HatTransferForm from '../../forms/HatTransferForm';
 import HatWearerForm from '../../forms/HatWearerForm';
 import Modal from '../Modal';
 import { useOverlay } from '../../contexts/OverlayContext';
-import { isAdmin, decimalId, isTopHat } from '../../lib/hats';
+import {
+  isAdmin,
+  decimalId,
+  isTopHat,
+  isTopHatOrMutable,
+} from '../../lib/hats';
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useHatBurn from '../../hooks/useHatBurn';
 import { hatsAddresses } from '../../constants';
@@ -34,7 +40,14 @@ import useHatWearerStatusCheck from '../../hooks/useHatWearerStatusCheck';
 
 const WEARERS_PER_PAGE = 5;
 
-const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
+const WearerRow = ({
+  hatData,
+  user,
+  wearer,
+  setModals,
+  checkEligibility,
+  setWearerToTransferFrom,
+}) => {
   const localOverlay = useOverlay();
   const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
 
@@ -96,8 +109,11 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
                     </MenuItem>
                   ) : (
                     <MenuItem
-                      onClick={() => setModals({ transferHat: true })}
-                      isDisabled
+                      onClick={() => {
+                        setWearerToTransferFrom(wearer);
+                        setModals({ transferHat: true });
+                      }}
+                      isDisabled={!isTopHatOrMutable(hatData)}
                     >
                       Transfer
                     </MenuItem>
@@ -153,6 +169,7 @@ const WearerRow = ({ hatData, user, wearer, setModals, checkEligibility }) => {
 
 function HatWearers({ hatData, chainId }) {
   const [currentPage, setCurrentPage] = useState(0);
+  const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
   const localOverlay = useOverlay();
@@ -281,6 +298,7 @@ function HatWearers({ hatData, chainId }) {
                 setModals={setModals}
                 key={wearer}
                 checkEligibility={checkEligibility}
+                setWearerToTransferFrom={setWearerToTransferFrom}
               />
             ))
           )}
@@ -313,6 +331,17 @@ function HatWearers({ hatData, chainId }) {
           />
         </HStack>
       </Stack>
+      <Modal
+        name='transferHat'
+        title='Transfer Hat to New Address'
+        localOverlay={localOverlay}
+      >
+        <HatTransferForm
+          hatData={hatData}
+          chainId={chainId}
+          currentWearerAddress={wearerToTransferFrom}
+        />
+      </Modal>
     </>
   );
 }

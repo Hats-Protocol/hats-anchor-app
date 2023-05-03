@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useOverlay } from '../../contexts/OverlayContext';
-import {
-  isTopHat,
-  isTopHatOrMutable,
-  prettyIdToId,
-  prettyIdToIp,
-} from '../../lib/hats';
+import { isTopHat, prettyIdToId, prettyIdToIp } from '../../lib/hats';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import Modal from '../Modal';
@@ -15,7 +10,6 @@ import HatSupplyForm from '../../forms/HatSupplyForm';
 import HatRelinkForm from '../../forms/HatRelinkForm';
 import HatUnlinkForm from '../../forms/HatUnlinkForm';
 import useTreeDetails from '../../hooks/useTreeDetails';
-import HatTransferForm from '../../forms/HatTransferForm';
 
 const AdminActions = ({
   showSupplyAndImmutableButtons,
@@ -100,14 +94,6 @@ const AdminActions = ({
             Relink Hat
           </Button>
         )}
-        {isTopHatOrMutable(hatData) && hatData?.wearers?.length && (
-          <Button
-            variant='outline'
-            onClick={() => setModals({ transferHat: true })}
-          >
-            Transfer Hat
-          </Button>
-        )}
       </HStack>
 
       <Modal
@@ -145,17 +131,6 @@ const AdminActions = ({
         localOverlay={localOverlay}
       >
         <HatUnlinkForm hatData={hatData} chainId={chainId} />
-      </Modal>
-      <Modal
-        name='transferHat'
-        title='Transfer Hat to New Address'
-        localOverlay={localOverlay}
-      >
-        <HatTransferForm
-          hatData={hatData}
-          chainId={chainId}
-          currentWearerAddress={hatData?.wearers?.[0]?.id}
-        />
       </Modal>
     </>
   );
