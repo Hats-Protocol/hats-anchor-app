@@ -39,10 +39,12 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
     parentOfTrees {
       id
       linkedToHat {
+        id
         prettyId
       }
     }
     linkedToHat {
+      id
       prettyId
       tree {
         id

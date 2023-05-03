@@ -10,6 +10,8 @@ import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
  * returns an object, mapping from hat id to image url.
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
  * for every url, checks if valid. If not, sets the image url to undefined.
+ * @param {string[]} hats Array of hat IDs
+ * @param {number} chainId Chain ID
  */
 const useImageURIs = (hats, chainId) => {
   const [data, setData] = useState({});
