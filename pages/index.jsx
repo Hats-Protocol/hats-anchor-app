@@ -7,7 +7,6 @@ import {
   Card,
   Flex,
   Text,
-  Image,
   Stack,
   HStack,
   Badge,
