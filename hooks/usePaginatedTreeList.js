@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPaginatedTrees } from '../gql/helpers';
 
@@ -15,10 +15,18 @@ const usePaginatedTreeList = ({ chainId, initialData, perPage = 20, page }) => {
   });
 
   const [trees, setTrees] = useState(initialData || []);
+  const fetchedTreeIds = useRef([]);
 
   useEffect(() => {
     if (newTrees) {
-      setTrees((prevTrees) => [...prevTrees, ...newTrees]);
+      const newTreesToAdd = newTrees.filter(
+        (tree) => !fetchedTreeIds.current.includes(tree.id),
+      );
+      fetchedTreeIds.current = [
+        ...fetchedTreeIds.current,
+        ...newTreesToAdd.map((tree) => tree.id),
+      ];
+      setTrees((prevTrees) => [...prevTrees, ...newTreesToAdd]);
     }
   }, [newTrees]);
 

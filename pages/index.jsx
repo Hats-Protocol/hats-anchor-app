@@ -38,10 +38,6 @@ const Home = () => {
   const tophats = _.map(displayedTrees, 'hats[0].id');
   const { data: imagesData } = useImageURIs(tophats, 1);
 
-  const handleNextPage = () => {
-    setPage(page + 1);
-  };
-
   return (
     <Layout>
       <Flex justifyContent='flex-end' mb={3}>
@@ -52,7 +48,7 @@ const Home = () => {
       </Flex>
       <InfiniteScroll
         dataLength={displayedTrees.length}
-        next={handleNextPage}
+        next={() => setPage(page + 1)}
         hasMore
       >
         <SimpleGrid
