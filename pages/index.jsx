@@ -1,25 +1,12 @@
 import _ from 'lodash';
-import {
-  CardBody,
-  Link as ChakraLink,
-  SimpleGrid,
-  Card,
-  Flex,
-  Text,
-  Stack,
-  HStack,
-  Badge,
-  Box,
-  Spinner,
-} from '@chakra-ui/react';
-import Link from 'next/link';
+import { SimpleGrid, Flex, Text, Spinner } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
 import Layout from '../components/Layout';
 import useTreeList from '../hooks/useTreeList';
 import useImageURIs from '../hooks/useImageURIs';
-import { decimalId } from '../lib/hats';
 import NetworkFilter from '../components/NetworkFilter';
+import TreeCard from '../components/TreeCard';
 
 const Home = () => {
   const chainId = useChainId();
@@ -61,52 +48,9 @@ const Home = () => {
           gap={5}
           justifyContent='center'
         >
-          {_.map(treeData, (tree) => {
-            const topHat = _.get(tree, 'hats[0]');
-
-            return (
-              <ChakraLink
-                as={Link}
-                href={`/trees/${_.get(tree, 'chainId')}/${decimalId(
-                  _.get(tree, 'id'),
-                )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
-                key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
-              >
-                <Card overflow='hidden'>
-                  <CardBody>
-                    <HStack
-                      h='100px'
-                      w='100%'
-                      justify='left'
-                      align='center'
-                      spacing='16px'
-                    >
-                      <Box
-                        bgImage={
-                          imagesData[topHat.id]
-                            ? `url('${imagesData[topHat.id]}')`
-                            : `url('/icon.jpeg')`
-                        }
-                        bgSize='cover'
-                        bgPosition='center'
-                        alt='Top Hat image'
-                        w='85px'
-                        h='85px'
-                        border='1px solid'
-                        borderColor='gray.200'
-                      />
-                      <Stack spacing={1} maxW='110px'>
-                        <Text fontWeight={700} noOfLines={2}>
-                          {_.get(topHat, 'details')}
-                        </Text>
-                        <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
-                      </Stack>
-                    </HStack>
-                  </CardBody>
-                </Card>
-              </ChakraLink>
-            );
-          })}
+          {_.map(treeData, (tree) => (
+            <TreeCard tree={tree} imagesData={imagesData} />
+          ))}
         </SimpleGrid>
       )}
     </Layout>
