@@ -7,7 +7,7 @@ import Layout from '../components/Layout';
 import useImageURIs from '../hooks/useImageURIs';
 import NetworkFilter from '../components/NetworkFilter';
 import TreeCard from '../components/TreeCard';
-import useFetchMoreTrees from '../hooks/useFetchMoreTrees';
+import usePaginatedTreeList from '../hooks/usePaginatedTreeList';
 
 const Home = () => {
   const chainId = useChainId();
@@ -21,24 +21,25 @@ const Home = () => {
 
   const handleNetworkFilterChange = (networkId) => {
     setSelectedNetwork(networkId);
+    setPage(1);
   };
 
-  const { trees, isLoading, error, hasMore } = useFetchMoreTrees(
-    selectedNetwork,
+  const { trees, isLoading } = usePaginatedTreeList({
+    chainId: selectedNetwork,
+    initialData: [],
+    perPage: 20,
     page,
-  );
+  });
 
   useEffect(() => {
     setDisplayedTrees(trees);
   }, [trees]);
 
   const tophats = _.map(displayedTrees, 'hats[0].id');
-  const { data: imagesData, loading } = useImageURIs(tophats, 1);
+  const { data: imagesData } = useImageURIs(tophats, 1);
 
   const handleNextPage = () => {
-    if (hasMore) {
-      setPage(page + 1);
-    }
+    setPage(page + 1);
   };
 
   return (
@@ -58,7 +59,7 @@ const Home = () => {
         <InfiniteScroll
           dataLength={displayedTrees.length}
           next={handleNextPage}
-          hasMore={hasMore}
+          hasMore
           scrollableTarget='scrollableDiv'
           loader={
             <div className='loader' key={0}>
