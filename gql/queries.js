@@ -100,6 +100,15 @@ export const GET_ALL_TREES = gql`
   ${TREE_DETAILS_FRAGMENT}
 `;
 
+export const GET_PAGINATED_TREES = gql`
+  query getPaginatedTrees($skip: Int!, $first: Int!) {
+    trees(skip: $skip, first: $first) {
+      ...TreeDetails
+    }
+  }
+  ${TREE_DETAILS_FRAGMENT}
+`;
+
 export const HAT_DETAILS_FRAGMENT = gql`
   fragment HatDetailsUnit on Hat {
     id

@@ -2,15 +2,18 @@ import _ from 'lodash';
 import { SimpleGrid, Flex, Text, Spinner } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '../components/Layout';
-import useTreeList from '../hooks/useTreeList';
 import useImageURIs from '../hooks/useImageURIs';
 import NetworkFilter from '../components/NetworkFilter';
 import TreeCard from '../components/TreeCard';
+import useFetchMoreTrees from '../hooks/useFetchMoreTrees';
 
 const Home = () => {
   const chainId = useChainId();
   const [selectedNetwork, setSelectedNetwork] = useState(chainId || 5);
+  const [displayedTrees, setDisplayedTrees] = useState([]);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setSelectedNetwork(chainId);
@@ -20,13 +23,23 @@ const Home = () => {
     setSelectedNetwork(networkId);
   };
 
-  const { data: treeData, isLoading } = useTreeList({
-    chainId: selectedNetwork,
-    initialData: [],
-  });
+  const { trees, isLoading, error, hasMore } = useFetchMoreTrees(
+    selectedNetwork,
+    page,
+  );
 
-  const tophats = _.map(treeData, 'hats[0].id');
+  useEffect(() => {
+    setDisplayedTrees(trees);
+  }, [trees]);
+
+  const tophats = _.map(displayedTrees, 'hats[0].id');
   const { data: imagesData, loading } = useImageURIs(tophats, 1);
+
+  const handleNextPage = () => {
+    if (hasMore) {
+      setPage(page + 1);
+    }
+  };
 
   return (
     <Layout>
@@ -36,22 +49,34 @@ const Home = () => {
           selectedNetwork={selectedNetwork}
         />
       </Flex>
-      {isLoading ? (
+      {isLoading && displayedTrees.length === 0 ? (
         <Flex justifyContent='center' alignItems='center' h='100vh'>
           <Text>Loading...</Text>
           <Spinner />
         </Flex>
       ) : (
-        <SimpleGrid
-          justify='center'
-          templateColumns='repeat(auto-fit, 250px)'
-          gap={5}
-          justifyContent='center'
+        <InfiniteScroll
+          dataLength={displayedTrees.length}
+          next={handleNextPage}
+          hasMore={hasMore}
+          scrollableTarget='scrollableDiv'
+          loader={
+            <div className='loader' key={0}>
+              Loading ...
+            </div>
+          }
         >
-          {_.map(treeData, (tree) => (
-            <TreeCard tree={tree} imagesData={imagesData} />
-          ))}
-        </SimpleGrid>
+          <SimpleGrid
+            justify='center'
+            templateColumns='repeat(auto-fit, 250px)'
+            gap={5}
+            justifyContent='center'
+          >
+            {_.map(displayedTrees, (tree) => (
+              <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+            ))}
+          </SimpleGrid>
+        </InfiniteScroll>
       )}
     </Layout>
   );
