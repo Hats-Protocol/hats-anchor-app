@@ -25,8 +25,8 @@ const Home = () => {
     page,
   });
 
-  // const tophats = _.map(trees, 'hats[0].id');
-  // const { data: imagesData } = useImageURIs(tophats, chainId);
+  const tophats = _.map(trees, 'hats[0].id');
+  const { data: imagesData } = useImageURIs(tophats, selectedNetwork);
 
   return (
     <Layout>
@@ -48,7 +48,7 @@ const Home = () => {
           justifyContent='center'
         >
           {_.map(trees, (tree) => (
-            <TreeCard key={tree.id} tree={tree} imagesData={[]} />
+            <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
           ))}
         </SimpleGrid>
       </InfiniteScroll>
