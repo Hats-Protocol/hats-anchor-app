@@ -15,16 +15,20 @@ const Home = () => {
   const [selectedNetwork, setSelectedNetwork] = useState(chainId || 5);
   const [page, setPage] = useState(1);
   const [allCardsInView, setAllCardsInView] = useState(false);
+  const [isEnd, setIsEnd] = useState(false);
 
   const handleNetworkFilterChange = (networkId) => {
     setSelectedNetwork(networkId);
     setPage(1);
+    setIsEnd(false);
   };
 
   const { trees } = usePaginatedTreeList({
     chainId: selectedNetwork,
     perPage: 20,
     page,
+    isEnd,
+    setIsEnd,
   });
 
   const tophats = _.map(trees, 'hats[0].id');
@@ -70,33 +74,34 @@ const Home = () => {
           selectedNetwork={selectedNetwork}
         />
       </Flex>
-      <div ref={gridRef}>
-        {trees && (
-          <InfiniteScroll
-            dataLength={trees.length}
-            next={() => setPage(page + 1)}
-            hasMore
-            scrollThreshold={1}
-          >
-            <SimpleGrid
-              justify='center'
-              templateColumns='repeat(auto-fit, 250px)'
-              gap={5}
-              justifyContent='center'
+      {trees && (
+        <>
+          <div ref={gridRef}>
+            <InfiniteScroll
+              dataLength={trees.length}
+              next={() => setPage(page + 1)}
+              hasMore
             >
-              {_.map(trees, (tree) => (
-                <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-              ))}
-            </SimpleGrid>
-          </InfiniteScroll>
-        )}
-        {allCardsInView && (
-          <Flex w='full' justifyContent='center' mt={4}>
-            <Button onClick={() => setPage(page + 1)}>Load more</Button>
-          </Flex>
-        )}
-      </div>
-      {trees && trees.length === 0 && (
+              <SimpleGrid
+                justify='center'
+                templateColumns='repeat(auto-fit, 250px)'
+                gap={5}
+                justifyContent='center'
+              >
+                {_.map(trees, (tree) => (
+                  <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+                ))}
+              </SimpleGrid>
+            </InfiniteScroll>
+          </div>
+          {allCardsInView && !isEnd && (
+            <Flex w='full' justifyContent='center' mt={4}>
+              <Button onClick={() => setPage(page + 1)}>Load more</Button>
+            </Flex>
+          )}
+        </>
+      )}
+      {trees?.length === 0 && (
         <Flex justify='center' align='center'>
           <Heading size='md'>No Trees Found</Heading>
         </Flex>
