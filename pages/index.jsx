@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { SimpleGrid, Flex } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { SimpleGrid, Flex, Heading } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useChainId } from 'wagmi';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '../components/Layout';
@@ -36,22 +36,29 @@ const Home = () => {
           selectedNetwork={selectedNetwork}
         />
       </Flex>
-      <InfiniteScroll
-        dataLength={trees.length}
-        next={() => setPage(page + 1)}
-        hasMore
-      >
-        <SimpleGrid
-          justify='center'
-          templateColumns='repeat(auto-fit, 250px)'
-          gap={5}
-          justifyContent='center'
-        >
-          {_.map(trees, (tree) => (
-            <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-          ))}
-        </SimpleGrid>
-      </InfiniteScroll>
+      {trees &&
+        (trees.length > 0 ? (
+          <InfiniteScroll
+            dataLength={trees.length}
+            next={() => setPage(page + 1)}
+            hasMore
+          >
+            <SimpleGrid
+              justify='center'
+              templateColumns='repeat(auto-fit, 250px)'
+              gap={5}
+              justifyContent='center'
+            >
+              {_.map(trees, (tree) => (
+                <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+              ))}
+            </SimpleGrid>
+          </InfiniteScroll>
+        ) : (
+          <Flex justify='center' align='center'>
+            <Heading size='md'>No Trees Found</Heading>
+          </Flex>
+        ))}
     </Layout>
   );
 };

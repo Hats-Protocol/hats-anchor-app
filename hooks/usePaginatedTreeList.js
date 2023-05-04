@@ -19,7 +19,7 @@ const usePaginatedTreeList = ({ chainId, perPage = 20, page }) => {
 
   useEffect(() => {
     if (chainId !== prevChainId) {
-      setTrees([]);
+      setTrees(undefined);
       fetchedTreeIds.current = [];
     }
     setPrevChainId(chainId);
@@ -34,7 +34,7 @@ const usePaginatedTreeList = ({ chainId, perPage = 20, page }) => {
         ...fetchedTreeIds.current,
         ...newTreesToAdd.map((tree) => tree.id),
       ];
-      setTrees((prevTrees) => [...prevTrees, ...newTreesToAdd]);
+      setTrees((prevTrees) => [...(prevTrees || []), ...newTreesToAdd]);
     }
   }, [newTrees]);
 
