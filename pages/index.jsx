@@ -12,12 +12,7 @@ import usePaginatedTreeList from '../hooks/usePaginatedTreeList';
 const Home = () => {
   const chainId = useChainId();
   const [selectedNetwork, setSelectedNetwork] = useState(chainId || 5);
-  const [displayedTrees, setDisplayedTrees] = useState([]);
   const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    setSelectedNetwork(chainId);
-  }, [chainId]);
 
   const handleNetworkFilterChange = (networkId) => {
     setSelectedNetwork(networkId);
@@ -26,17 +21,12 @@ const Home = () => {
 
   const { trees } = usePaginatedTreeList({
     chainId: selectedNetwork,
-    initialData: [],
     perPage: 20,
     page,
   });
 
-  useEffect(() => {
-    setDisplayedTrees(trees);
-  }, [trees]);
-
-  const tophats = _.map(displayedTrees, 'hats[0].id');
-  const { data: imagesData } = useImageURIs(tophats, 1);
+  // const tophats = _.map(trees, 'hats[0].id');
+  // const { data: imagesData } = useImageURIs(tophats, chainId);
 
   return (
     <Layout>
@@ -47,7 +37,7 @@ const Home = () => {
         />
       </Flex>
       <InfiniteScroll
-        dataLength={displayedTrees.length}
+        dataLength={trees.length}
         next={() => setPage(page + 1)}
         hasMore
       >
@@ -57,8 +47,8 @@ const Home = () => {
           gap={5}
           justifyContent='center'
         >
-          {_.map(displayedTrees, (tree) => (
-            <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+          {_.map(trees, (tree) => (
+            <TreeCard key={tree.id} tree={tree} imagesData={[]} />
           ))}
         </SimpleGrid>
       </InfiniteScroll>
