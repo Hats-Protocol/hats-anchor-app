@@ -19,12 +19,11 @@ import Layout from '../components/Layout';
 import useTreeList from '../hooks/useTreeList';
 import useImageURIs from '../hooks/useImageURIs';
 import { decimalId } from '../lib/hats';
-import { chainsMap, chainsColors } from '../lib/web3';
 import NetworkFilter from '../components/NetworkFilter';
 
 const Home = () => {
   const chainId = useChainId();
-  const [selectedNetwork, setSelectedNetwork] = useState(chainId);
+  const [selectedNetwork, setSelectedNetwork] = useState(chainId || 5);
 
   useEffect(() => {
     setSelectedNetwork(chainId);
@@ -64,8 +63,6 @@ const Home = () => {
         >
           {_.map(treeData, (tree) => {
             const topHat = _.get(tree, 'hats[0]');
-            const currentChainId = _.get(tree, 'chainId');
-            const chainColorScheme = chainsColors(currentChainId);
 
             return (
               <ChakraLink
@@ -103,11 +100,6 @@ const Home = () => {
                           {_.get(topHat, 'details')}
                         </Text>
                         <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
-                        <Box>
-                          <Badge colorScheme={chainColorScheme}>
-                            {chainsMap(_.get(tree, 'chainId'))?.name}
-                          </Badge>
-                        </Box>
                       </Stack>
                     </HStack>
                   </CardBody>
