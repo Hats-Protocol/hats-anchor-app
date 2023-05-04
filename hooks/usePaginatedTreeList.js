@@ -15,18 +15,14 @@ const usePaginatedTreeList = ({ chainId, initialData, perPage = 20, page }) => {
   });
 
   const [trees, setTrees] = useState(initialData || []);
-  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     if (newTrees) {
       setTrees((prevTrees) => [...prevTrees, ...newTrees]);
-      if (newTrees.length < perPage) {
-        setHasMore(false);
-      }
     }
-  }, [newTrees, perPage, page]);
+  }, [newTrees]);
 
-  return { trees, isLoading, error, hasMore };
+  return { trees, isLoading, error };
 };
 
 export default usePaginatedTreeList;

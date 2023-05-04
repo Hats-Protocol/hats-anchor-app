@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { SimpleGrid, Flex, Text, Spinner } from '@chakra-ui/react';
+import { SimpleGrid, Flex } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -24,7 +24,7 @@ const Home = () => {
     setPage(1);
   };
 
-  const { trees, isLoading } = usePaginatedTreeList({
+  const { trees } = usePaginatedTreeList({
     chainId: selectedNetwork,
     initialData: [],
     perPage: 20,
@@ -50,35 +50,22 @@ const Home = () => {
           selectedNetwork={selectedNetwork}
         />
       </Flex>
-      {isLoading && displayedTrees.length === 0 ? (
-        <Flex justifyContent='center' alignItems='center' h='100vh'>
-          <Text>Loading...</Text>
-          <Spinner />
-        </Flex>
-      ) : (
-        <InfiniteScroll
-          dataLength={displayedTrees.length}
-          next={handleNextPage}
-          hasMore
-          scrollableTarget='scrollableDiv'
-          loader={
-            <div className='loader' key={0}>
-              Loading ...
-            </div>
-          }
+      <InfiniteScroll
+        dataLength={displayedTrees.length}
+        next={handleNextPage}
+        hasMore
+      >
+        <SimpleGrid
+          justify='center'
+          templateColumns='repeat(auto-fit, 250px)'
+          gap={5}
+          justifyContent='center'
         >
-          <SimpleGrid
-            justify='center'
-            templateColumns='repeat(auto-fit, 250px)'
-            gap={5}
-            justifyContent='center'
-          >
-            {_.map(displayedTrees, (tree) => (
-              <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-            ))}
-          </SimpleGrid>
-        </InfiniteScroll>
-      )}
+          {_.map(displayedTrees, (tree) => (
+            <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+          ))}
+        </SimpleGrid>
+      </InfiniteScroll>
     </Layout>
   );
 };
