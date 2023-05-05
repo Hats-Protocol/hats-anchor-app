@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { SimpleGrid, Flex, Heading, Spinner, Button } from '@chakra-ui/react';
-import { useState } from 'react';
+import { SimpleGrid, Flex, Heading, Spinner } from '@chakra-ui/react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import Layout from '../components/Layout';
@@ -12,18 +12,48 @@ import usePaginatedTreeList from '../hooks/usePaginatedTreeList';
 
 const Home = ({ trees: initialData, defaultNetworkId }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
+  const [gridRef, setGridRef] = useState(null);
 
-  const handleNetworkFilterChange = (networkId) => {
-    setSelectedNetwork(networkId);
-  };
+  const handleNetworkFilterChange = useCallback(
+    (networkId) => {
+      setSelectedNetwork(networkId);
+    },
+    [setSelectedNetwork],
+  );
 
   const { trees, fetchNextPage, isEnd } = usePaginatedTreeList({
     chainId: selectedNetwork,
     initialData,
   });
 
-  const topHatIds = _.map(trees, 'hats[0].id');
+  const topHatIds = useMemo(() => {
+    return _.map(trees, 'hats[0].id');
+  }, [trees]);
+
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
+
+  useEffect(() => {
+    if (!gridRef) return;
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1.0,
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !isEnd) {
+        fetchNextPage();
+      }
+    }, observerOptions);
+
+    observer.observe(gridRef);
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      observer.disconnect();
+    };
+  }, [gridRef, fetchNextPage, isEnd]);
 
   return (
     <Layout>
@@ -34,23 +64,24 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
         />
       </Flex>
       {trees && (
-        <InfiniteScroll dataLength={trees.length} next={fetchNextPage} hasMore>
-          <SimpleGrid
-            justify='center'
-            templateColumns='repeat(auto-fit, 250px)'
-            gap={5}
-            justifyContent='center'
+        <div ref={setGridRef}>
+          <InfiniteScroll
+            dataLength={trees.length}
+            next={fetchNextPage}
+            hasMore={!isEnd}
           >
-            {_.map(trees, (tree) => (
-              <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-            ))}
-          </SimpleGrid>
-        </InfiniteScroll>
-      )}
-      {trees && !isEnd && (
-        <Flex w='full' justifyContent='center' mt={4}>
-          <Button onClick={fetchNextPage}>Load more</Button>
-        </Flex>
+            <SimpleGrid
+              justify='center'
+              templateColumns='repeat(auto-fit, 250px)'
+              gap={5}
+              justifyContent='center'
+            >
+              {_.map(trees, (tree) => (
+                <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+              ))}
+            </SimpleGrid>
+          </InfiniteScroll>
+        </div>
       )}
       {trees?.length === 0 && (
         <Flex justify='center' align='center'>
