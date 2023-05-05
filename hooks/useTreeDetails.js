@@ -10,16 +10,13 @@ const useTreeDetails = ({ treeId, chainId, hatId, initialData }) => {
     initialData,
   });
 
-  const { childOfTree, linkedToHat, parentOfTrees } = data || {};
+  const { linkedToHat, parentOfTrees } = data || {};
   const linkedHatIds = [];
   if (linkedToHat) {
-    linkedHatIds.push(linkedToHat.prettyId);
+    linkedHatIds.push(linkedToHat.id);
   }
   if (parentOfTrees) {
     linkedHatIds.push(...parentOfTrees.map((tree) => prettyIdToId(tree.id)));
-  }
-  if (childOfTree && childOfTree.id !== linkedToHat?.prettyId) {
-    linkedHatIds.push(childOfTree.id);
   }
 
   return { data, linkedHatIds, isLoading, error };
