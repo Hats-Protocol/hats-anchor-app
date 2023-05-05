@@ -1,18 +1,17 @@
 import _ from 'lodash';
 import { SimpleGrid, Flex, Heading, Spinner, Button } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
-import { useChainId } from 'wagmi';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import Layout from '../components/Layout';
 import useImageURIs from '../hooks/useImageURIs';
 import NetworkFilter from '../components/NetworkFilter';
 import TreeCard from '../components/TreeCard';
+import { fetchPaginatedTrees } from '../gql/helpers';
 import usePaginatedTreeList from '../hooks/usePaginatedTreeList';
 
-const Home = () => {
-  const chainId = useChainId();
-  const [selectedNetwork, setSelectedNetwork] = useState(chainId || 5);
+const Home = ({ trees: initialData, defaultNetworkId }) => {
+  const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
   const [page, setPage] = useState(1);
   const [allCardsInView, setAllCardsInView] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
@@ -25,10 +24,10 @@ const Home = () => {
 
   const { trees } = usePaginatedTreeList({
     chainId: selectedNetwork,
-    perPage: 20,
     page,
     isEnd,
     setIsEnd,
+    initialData,
   });
 
   const tophats = _.map(trees, 'hats[0].id');
@@ -116,3 +115,15 @@ const Home = () => {
 };
 
 export default Home;
+
+export const getServerSideProps = async () => {
+  const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
+  const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
+
+  return {
+    props: {
+      defaultNetworkId,
+      trees,
+    },
+  };
+};
