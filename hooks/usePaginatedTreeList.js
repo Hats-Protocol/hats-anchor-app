@@ -1,56 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchPaginatedTrees } from '../gql/helpers';
 
-const usePaginatedTreeList = ({
-  chainId,
-  perPage = 20,
-  page,
-  setIsEnd,
-  isEnd,
-  initialData,
-}) => {
-  const {
-    data: newTrees,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['treeList', chainId, page, perPage],
-    queryFn: () => fetchPaginatedTrees(chainId, page, perPage),
-    enabled: !!chainId,
-    initialData,
-  });
+const usePaginatedTreeList = ({ chainId, perPage = 20, initialData }) => {
+  const { data, fetchNextPage, isLoading, error, isFetchingNextPage } =
+    useInfiniteQuery(
+      ['treeList', chainId],
+      {
+        getNextPageParam: (_, allPages) =>
+          allPages ? allPages.length + 1 : undefined,
+        queryFn: ({ pageParam = 1 }) =>
+          fetchPaginatedTrees(chainId, pageParam, perPage),
+      },
+      initialData,
+    );
 
-  const [trees, setTrees] = useState([]);
-  const [prevChainId, setPrevChainId] = useState(null);
-  const fetchedTreeIds = useRef([]);
+  const trees = data?.pages.flatMap((page) => [...page]) || [];
+  const lastPage = data?.pages[data.pages.length - 1];
+  const isEnd = lastPage && lastPage.length < perPage;
 
-  useEffect(() => {
-    if (chainId !== prevChainId) {
-      setTrees(undefined);
-      fetchedTreeIds.current = [];
-    }
-    setPrevChainId(chainId);
-  }, [chainId, prevChainId]);
-
-  useEffect(() => {
-    if (newTrees) {
-      const newTreesToAdd = newTrees.filter(
-        (tree) => !fetchedTreeIds.current.includes(tree.id),
-      );
-      fetchedTreeIds.current = [
-        ...fetchedTreeIds.current,
-        ...newTreesToAdd.map((tree) => tree.id),
-      ];
-      if (newTreesToAdd.length === 0 || newTreesToAdd.length < perPage) {
-        // can be refactored once we can fetch the data about # of trees
-        setIsEnd(true);
-      }
-      setTrees((prevTrees) => [...(prevTrees || []), ...newTreesToAdd]);
-    }
-  }, [newTrees, perPage, setIsEnd]);
-
-  return { trees, isLoading, error, isEnd };
+  return { trees, isLoading, error, isEnd, fetchNextPage, isFetchingNextPage };
 };
 
 export default usePaginatedTreeList;

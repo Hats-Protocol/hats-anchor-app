@@ -12,25 +12,18 @@ import usePaginatedTreeList from '../hooks/usePaginatedTreeList';
 
 const Home = ({ trees: initialData, defaultNetworkId }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
-  const [page, setPage] = useState(1);
-  const [isEnd, setIsEnd] = useState(false);
 
   const handleNetworkFilterChange = (networkId) => {
     setSelectedNetwork(networkId);
-    setPage(1);
-    setIsEnd(false);
   };
 
-  const { trees } = usePaginatedTreeList({
+  const { trees, fetchNextPage, isEnd } = usePaginatedTreeList({
     chainId: selectedNetwork,
-    page,
-    isEnd,
-    setIsEnd,
     initialData,
   });
 
-  const tophats = _.map(trees, 'hats[0].id');
-  const { data: imagesData } = useImageURIs(tophats, selectedNetwork);
+  const topHatIds = _.map(trees, 'hats[0].id');
+  const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
 
   return (
     <Layout>
@@ -41,11 +34,7 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
         />
       </Flex>
       {trees && (
-        <InfiniteScroll
-          dataLength={trees.length}
-          next={() => setPage(page + 1)}
-          hasMore
-        >
+        <InfiniteScroll dataLength={trees.length} next={fetchNextPage} hasMore>
           <SimpleGrid
             justify='center'
             templateColumns='repeat(auto-fit, 250px)'
@@ -60,7 +49,7 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
       )}
       {trees && !isEnd && (
         <Flex w='full' justifyContent='center' mt={4}>
-          <Button onClick={() => setPage(page + 1)}>Load more</Button>
+          <Button onClick={fetchNextPage}>Load more</Button>
         </Flex>
       )}
       {trees?.length === 0 && (
