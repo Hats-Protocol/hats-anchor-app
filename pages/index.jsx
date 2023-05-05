@@ -32,6 +32,8 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
 
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
 
+  // Intersection observer to detect when the bottom of the grid is in view,
+  // if not at the end, fetches the next page of data
   useEffect(() => {
     if (!gridRef) return;
 
