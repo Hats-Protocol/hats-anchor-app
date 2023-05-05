@@ -70,6 +70,22 @@ export const TREE_DETAILS_FRAGMENT = gql`
   }
 `;
 
+export const TREE_TOP_HAT_DETAILS_FRAGMENT = gql`
+  fragment TreeTopHatDetails on Tree {
+    id
+    hats(first: 1) {
+      id
+      details
+      imageUri
+      prettyId
+      admin {
+        id
+        prettyId
+      }
+    }
+  }
+`;
+
 export const GET_TREE = gql`
   query getTree($id: ID!) {
     tree(id: $id) {
@@ -103,10 +119,10 @@ export const GET_ALL_TREES = gql`
 export const GET_PAGINATED_TREES = gql`
   query getPaginatedTrees($skip: Int!, $first: Int!) {
     trees(skip: $skip, first: $first) {
-      ...TreeDetails
+      ...TreeTopHatDetails
     }
   }
-  ${TREE_DETAILS_FRAGMENT}
+  ${TREE_TOP_HAT_DETAILS_FRAGMENT}
 `;
 
 export const HAT_DETAILS_FRAGMENT = gql`
