@@ -2,48 +2,38 @@ import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
+import { decimalId, prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
 
-const useLinkRequestApprove = ({
+const useHatTransferTree = ({
+  currentWearerAddress,
+  hatData,
+  newWearerAddress,
   chainId,
-  topHatDomain,
-  newAdmin,
-  eligibility,
-  toggle,
-  description,
-  imageUrl,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
-    functionName: 'approveLinkTopHatToTree',
-    args: [
-      topHatDomain,
-      decimalId(newAdmin),
-      eligibility,
-      toggle,
-      description,
-      imageUrl || '',
-    ],
-    enabled: !!topHatDomain && !!newAdmin,
+    functionName: 'transferHat',
+    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
+    enabled: Boolean(newWearerAddress),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: 'Link Request Approved!',
-          description: `Successfully linked top hat ${prettyIdToIp(
-            topHatDomain,
-          )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
+          title: `Top Hat Transferred!`,
+          description: `Successfully transferred top hat #${prettyIdToIp(
+            _.get(hatData, 'prettyId'),
+          )} from ${currentWearerAddress} to ${newWearerAddress}`,
         },
       });
 
@@ -67,7 +57,7 @@ const useLinkRequestApprove = ({
     },
   });
 
-  return { writeAsync };
+  return { writeAsync, prepareError, writeError };
 };
 
-export default useLinkRequestApprove;
+export default useHatTransferTree;

@@ -6,7 +6,7 @@ import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
-const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
+const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
@@ -55,4 +55,4 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   return { writeAsync };
 };
 
-export default useLinkRequestCreate;
+export default useHatLinkRequestCreate;

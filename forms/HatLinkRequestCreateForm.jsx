@@ -3,12 +3,12 @@ import { Stack, Button, Flex, Text } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
 import Select from '../components/Select';
-import useLinkRequestCreate from '../hooks/useLinkRequestCreate';
+import useHatLinkRequestCreate from '../hooks/useHatLinkRequestCreate';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 import { prettyIdToIp, prettyIdToId, decimalId } from '../lib/hats';
 
-const LinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
+const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
@@ -23,7 +23,7 @@ const LinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
     CONFIG.debounce,
   );
 
-  const { writeAsync } = useLinkRequestCreate({
+  const { writeAsync } = useHatLinkRequestCreate({
     chainId,
     newAdmin,
     topHatDomain,
@@ -68,4 +68,4 @@ const LinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
   );
 };
 
-export default LinkRequestCreateForm;
+export default HatLinkRequestCreateForm;
