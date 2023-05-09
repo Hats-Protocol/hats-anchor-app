@@ -1,5 +1,6 @@
 import {
   IconButton,
+  Image,
   Menu,
   MenuButton,
   MenuItem,
@@ -7,10 +8,11 @@ import {
 } from '@chakra-ui/react';
 import { FaFilter } from 'react-icons/fa';
 import _ from 'lodash';
-import { chainsList } from '../lib/web3';
+import { chainsList, networkImages } from '../lib/web3';
 
 const NetworkFilter = ({ onFilterChange, selectedNetwork }) => (
   <Menu>
+    <Image src={networkImages[selectedNetwork]} alt='chain' w={6} h={6} />
     <MenuButton
       as={IconButton}
       icon={<FaFilter />}
@@ -24,7 +26,10 @@ const NetworkFilter = ({ onFilterChange, selectedNetwork }) => (
           onClick={() => onFilterChange(id)}
           isDisabled={selectedNetwork === id}
           color={selectedNetwork === id ? 'blue' : 'black'}
+          opacity='1 !important'
+          my={1}
         >
+          <Image src={networkImages[id]} alt='chain' w={6} h={6} mr={4} />
           {name}
           {selectedNetwork === id ? ' ✓' : ''}
         </MenuItem>
