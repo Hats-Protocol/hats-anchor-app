@@ -321,7 +321,7 @@ const Hat = ({
                 />
               )}
               {isWearer && (
-                <Box
+                <Flex
                   position='absolute'
                   bottom='-10px'
                   left='50%'
@@ -331,7 +331,6 @@ const Hat = ({
                   color='white'
                   fontSize='8px'
                   fontWeight={700}
-                  display='flex'
                   alignItems='center'
                   justifyContent='center'
                   px={3}
@@ -339,7 +338,7 @@ const Hat = ({
                   <Text bg='#2EA043' px={2} lineHeight='14px'>
                     WEARER
                   </Text>
-                </Box>
+                </Flex>
               )}
             </Box>
 
