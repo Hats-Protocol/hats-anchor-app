@@ -6,10 +6,12 @@ import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
@@ -26,8 +28,13 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
 
   const { writeAsync } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Hat Minted!`,
@@ -35,10 +42,9 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
         },
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
