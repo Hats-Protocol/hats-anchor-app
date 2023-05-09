@@ -4,8 +4,9 @@ import { utils } from 'ethers';
 import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { decimalId } from '../lib/hats';
+import { prettyIdToIp, idToPrettyId, decimalId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 const useModuleUpdate = ({
   hatsAddress,
@@ -16,6 +17,7 @@ const useModuleUpdate = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const functionName =
     moduleType === MODULE_TYPES.eligibility
@@ -38,19 +40,25 @@ const useModuleUpdate = ({
 
   const { writeAsync } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
-        hash: _.get(data, 'hash'),
-        toastData: {
-          title: `${moduleType} module updated!`,
-          description: `Successfully updated the ${moduleType} module of hat #${hatId}`,
-        },
-      });
-
+    onSuccess: async (data) => {
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
       });
+
+      await handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: `${moduleType} module updated!`,
+          description: `Successfully updated the ${moduleType} module of hat #${prettyIdToIp(
+            idToPrettyId(hatId),
+          )}`,
+        },
+      });
+
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
