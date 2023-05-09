@@ -101,6 +101,8 @@ const Hat = ({
     hatData,
   });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const isWearer = _.includes(currentWearerHats, _.get(hatData, 'prettyId'));
+  console.log('isWearer', isWearer);
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
   const [topHatDomain, setTopHatDomain] = useState('');
@@ -232,7 +234,7 @@ const Hat = ({
         <HatDetailsForm hatData={hatData} chainId={chainId} />
       </Modal>
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
-        <HatImageForm hatData={hatData} chainId={chainId} />
+        <HatImageForm hatData={hatData} chainId={chainId} isWearer={isWearer} />
       </Modal>
       <Modal
         name='hatSupply'
@@ -298,8 +300,8 @@ const Hat = ({
               onMouseEnter={() => canEditImage && setImageHover(true)}
               onMouseLeave={() => setImageHover(false)}
               position='relative'
-              border='1px solid'
-              borderColor='gray.200'
+              borderWidth={isWearer ? '2px' : '1px'}
+              borderColor={isWearer ? '#2EA043' : '#CBD5E0'}
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
@@ -317,6 +319,28 @@ const Hat = ({
                   top='22%'
                   left='22%'
                 />
+              )}
+              {/* green rectangle containing word 'wearer' at the bottom of the image */}
+              {isWearer && (
+                <Box
+                  position='absolute'
+                  bottom='-10px'
+                  left='50%'
+                  transform='translateX(-50%)'
+                  w='full'
+                  h='14px'
+                  color='white'
+                  fontSize='8px'
+                  fontWeight={700}
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                  px={3}
+                >
+                  <Text bg='#2EA043' px={2} lineHeight='14px'>
+                    WEARER
+                  </Text>
+                </Box>
               )}
             </Box>
 
