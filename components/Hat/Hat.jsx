@@ -102,7 +102,7 @@ const Hat = ({
   });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const isWearer = _.includes(currentWearerHats, _.get(hatData, 'prettyId'));
-  console.log('isWearer', isWearer);
+
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
   const [topHatDomain, setTopHatDomain] = useState('');
@@ -234,7 +234,7 @@ const Hat = ({
         <HatDetailsForm hatData={hatData} chainId={chainId} />
       </Modal>
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
-        <HatImageForm hatData={hatData} chainId={chainId} isWearer={isWearer} />
+        <HatImageForm hatData={hatData} chainId={chainId} />
       </Modal>
       <Modal
         name='hatSupply'
@@ -320,7 +320,6 @@ const Hat = ({
                   left='22%'
                 />
               )}
-              {/* green rectangle containing word 'wearer' at the bottom of the image */}
               {isWearer && (
                 <Box
                   position='absolute'
