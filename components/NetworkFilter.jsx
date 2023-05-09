@@ -16,7 +16,6 @@ const NetworkFilter = ({ onFilterChange, selectedNetwork }) => (
       icon={<FaFilter />}
       aria-label='Filter networks'
       variant='outline'
-      mr={4}
     />
     <MenuList>
       {_.map(chainsList, ({ id, name }) => (

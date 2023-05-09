@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { SimpleGrid, Flex, Heading, Spinner } from '@chakra-ui/react';
+import { SimpleGrid, Flex, Heading, Spinner, Box } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -74,9 +74,9 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
           >
             <SimpleGrid
               justify='center'
-              templateColumns='repeat(auto-fit, 250px)'
               gap={5}
               justifyContent='center'
+              minChildWidth='250px'
             >
               {_.map(trees, (tree) => (
                 <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
