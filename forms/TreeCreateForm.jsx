@@ -31,6 +31,7 @@ const TreeCreateForm = () => {
 
   const { writeAsync } = useTreeCreate({
     hatsAddress: hatsAddresses(chainId),
+    chainId,
     details,
     imageUrl,
     receiver,
