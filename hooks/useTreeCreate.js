@@ -3,6 +3,7 @@ import {
   useContractWrite,
   useAccount,
   useContractEvent,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -39,20 +40,18 @@ const useTreeCreate = ({
     enabled: !!hatsAddress,
   });
 
-  useContractEvent({
-    address: hatsAddress || hatsAddresses(chainId),
-    abi: JSON.stringify(abi),
-    eventName: 'HatCreated',
-    listener(id) {
-      if (!id || !BigNumber.isBigNumber(id)) {
-        return;
-      }
-      const treeId = treeCreateEventIdToTreeId(id);
-      router.push(`/trees/${chainId}/${treeId}/${treeId}`);
-    },
-  });
+  function handleSuccess(transactionData) {
+    const id = transactionData?.logs[0]?.data;
+    const treeId = treeCreateEventIdToTreeId(id);
+    if (!treeId) return;
+    router.push(`/trees/${chainId}/${treeId}/${treeId}`);
+  }
 
-  const { writeAsync } = useContractWrite({
+  function handleError(error) {
+    console.error(error);
+  }
+
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -83,7 +82,13 @@ const useTreeCreate = ({
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+    onSuccess: handleSuccess,
+    onError: handleError,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useTreeCreate;
