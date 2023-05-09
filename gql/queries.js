@@ -23,7 +23,7 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
         id
       }
     }
-    events(orderBy: timestamp, orderDirection: desc) {
+    events(orderBy: timestamp, orderDirection: desc, first: 5) {
       ...EventDetails
       hat {
         id

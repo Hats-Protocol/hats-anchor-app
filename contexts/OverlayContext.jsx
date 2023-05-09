@@ -48,18 +48,10 @@ export const OverlayContextProvider = ({ children }) => {
      *  },
      * });
      * */
-    const handlePendingTx = async ({
-      hash,
-      toastData,
-      treeId,
-      clearModals = true,
-    }) => {
+    const handlePendingTx = async ({ hash, toastData, clearModals = true }) => {
       const data = await waitForTransaction({ hash });
 
       if (data) {
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['treeDetails', treeId] });
-        }, 8000);
         toast.success({
           title: _.get(toastData, 'title', 'Transaction successful'),
           description: _.get(toastData, 'description'),
