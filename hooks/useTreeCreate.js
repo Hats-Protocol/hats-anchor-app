@@ -41,9 +41,10 @@ const useTreeCreate = ({
   });
 
   function handleSuccess(transactionData) {
-    const id = transactionData?.logs[0]?.data;
-    const treeId = treeCreateEventIdToTreeId(id);
+    const data = transactionData?.logs[0]?.data;
+    const treeId = treeCreateEventIdToTreeId(data);
     if (!treeId) return;
+
     router.push(`/trees/${chainId}/${treeId}/${treeId}`);
   }
 
