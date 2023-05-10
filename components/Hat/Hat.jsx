@@ -36,6 +36,7 @@ import {
   isMutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
+  isTopHat,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
