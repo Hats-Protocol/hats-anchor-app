@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React, { createContext, useState, useContext, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { waitForTransaction } from '@wagmi/core';
 import useToast from '../hooks/useToast';
-import { useQueryClient } from '@tanstack/react-query';
 
 const defaults = {
   createTree: false,
@@ -80,6 +80,7 @@ export const OverlayContextProvider = ({ children }) => {
       setCommandPallet,
       handlePendingTx,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modals, commandPallet, toast]);
 
   return (

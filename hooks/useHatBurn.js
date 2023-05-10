@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -10,7 +10,7 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
   const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'renounceHat',

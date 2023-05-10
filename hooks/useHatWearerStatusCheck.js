@@ -1,6 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import { utils } from 'ethers';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
@@ -12,12 +13,15 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
   const { handlePendingTx } = useOverlay();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'checkHatWearerStatus',
     args: [decimalId(_.get(hatData, 'id')), wearerAddress],
-    enabled: Boolean(decimalId(_.get(hatData, 'id'))) && Boolean(wearerAddress),
+    enabled:
+      Boolean(decimalId(_.get(hatData, 'id'))) &&
+      Boolean(wearerAddress) &&
+      utils.isAddress(wearerAddress),
   });
 
   const { writeAsync, error: writeError } = useContractWrite({

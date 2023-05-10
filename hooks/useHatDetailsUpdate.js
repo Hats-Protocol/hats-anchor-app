@@ -1,5 +1,5 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { useOverlay } from '../contexts/OverlayContext';
 import useToast from './useToast';
@@ -10,7 +10,7 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: Number(chainId),
     abi: JSON.stringify(abi),
     functionName: 'changeHatDetails',

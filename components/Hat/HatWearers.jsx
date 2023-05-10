@@ -29,7 +29,7 @@ import { useOverlay } from '../../contexts/OverlayContext';
 import { decimalId, isTopHat, isTopHatOrMutable } from '../../lib/hats';
 
 import useHatBurn from '../../hooks/useHatBurn';
-import { hatsAddresses } from '../../constants';
+import CONFIG from '../../constants';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatWearerStatusCheck from '../../hooks/useHatWearerStatusCheck';
 
@@ -171,7 +171,7 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: decimalId(_.get(hatData, 'id')),
   });

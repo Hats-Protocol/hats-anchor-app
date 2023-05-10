@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import RadioBox from '../components/RadioBox';
 import useHatStatusUpdate from '../hooks/useHatStatusUpdate';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import Link from '../components/ChakraNextLink';
 
 const HatStatusForm = ({ hatData, chainId }) => {
@@ -15,7 +15,8 @@ const HatStatusForm = ({ hatData, chainId }) => {
   const status = useDebounce(watch('status', null), CONFIG.debounce);
 
   const { writeAsync } = useHatStatusUpdate({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
     hatId: _.get(hatData, 'prettyId'),
     status,
   });

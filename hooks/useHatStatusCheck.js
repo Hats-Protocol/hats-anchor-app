@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
@@ -11,7 +11,7 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
   const { handlePendingTx } = useOverlay();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'checkHatStatus',

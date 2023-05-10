@@ -69,6 +69,7 @@ const RadioBox = ({
     if (defaultValue) {
       setValue(name, defaultValue);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const Options = () =>

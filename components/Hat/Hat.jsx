@@ -23,7 +23,7 @@ import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
 import Link from '../ChakraNextLink';
 import DataTable from '../DataTable';
-import { MODULE_TYPES, hatsAddresses } from '../../constants';
+import CONFIG, { MODULE_TYPES } from '../../constants';
 import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
@@ -49,9 +49,6 @@ import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import AdminActions from './AdminActions';
 
-const defaultChainId = 5;
-const hatsAddress = hatsAddresses(defaultChainId);
-
 // TODO this should probably be more components
 
 const Hat = ({
@@ -72,7 +69,7 @@ const Hat = ({
     chainId,
   });
   const { writeAsync: checkHatStatus } = useHatStatusCheck({
-    hatsAddress,
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatData,
   });
@@ -415,7 +412,7 @@ const Hat = ({
                   showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
                   linkRequestFromTree={linkRequestFromTree}
                   hatData={hatData}
-                  hatsAddress={hatsAddress}
+                  hatsAddress={CONFIG.hatsAddress}
                   chainId={chainId}
                   linkedToHat={linkedToHat}
                 />

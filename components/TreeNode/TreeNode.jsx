@@ -39,6 +39,7 @@ function Node({
     if (isCurrentHat) {
       rd3tProps.onNodeClick();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

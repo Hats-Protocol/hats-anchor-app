@@ -24,7 +24,6 @@ import { chainsColors, chainsMap } from '../../lib/web3';
 import ChakraNextLink from '../../components/ChakraNextLink';
 
 const CoreHat = ({ hat, image }) => {
-  console.log(hat);
   return (
     <Card key={_.get(hat, 'id')}>
       <CardBody as={Flex} h='75px'>

@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId } from '../lib/hats';
 import useToast from './useToast';
@@ -11,7 +11,7 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
   const { handlePendingTx } = useOverlay();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
     abi: JSON.stringify(abi),
     functionName: 'changeHatMaxSupply',

@@ -3,7 +3,7 @@
 import { useContractReads } from 'wagmi';
 import { useEffect, useState } from 'react';
 import abi from '../contracts/Hats.json';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import { chainsMap } from '../lib/web3';
 import { isImageUrl } from '../lib/general';
 import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
@@ -24,7 +24,7 @@ const useImageURIs = (hats, chainId) => {
   if (hats !== undefined) {
     calls = hats.map((hat) => {
       return {
-        address: hatsAddresses(chain),
+        address: CONFIG.hatsAddress,
         chainId: chain.id,
         abi,
         functionName: 'getImageURIForHat',
