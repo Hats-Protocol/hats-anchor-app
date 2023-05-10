@@ -18,27 +18,28 @@ const usePinImageIpfs = ({ imageFile, enabled, metadata }) => {
   });
 
   useEffect(() => {
-    const pin = async (imageFile) => {
-      let cid = await mutateAsync({ file: imageFile, metadata });
+    const pin = async (i) => {
+      const cid = await mutateAsync({ file: i, metadata });
       if (cid !== undefined) {
-        setCurrentImageFile(imageFile);
+        setCurrentImageFile(i);
         // unpin prev image in case the image was updated
-        if (currentImageCid !== undefined && cid != currentImageCid) {
+        if (currentImageCid !== undefined && cid !== currentImageCid) {
           unpinImage(currentImageCid);
         }
         setCurrentImageCid(cid);
       }
     };
 
-    if (imageFile !== undefined && imageFile != currentImageFile && enabled) {
+    if (imageFile !== undefined && imageFile !== currentImageFile && enabled) {
       pin(imageFile);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageFile]);
 
   return {
-    data: data,
-    isLoading: isLoading,
-    error: error,
+    data,
+    isLoading,
+    error,
   };
 };
 

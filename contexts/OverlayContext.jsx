@@ -50,12 +50,12 @@ export const OverlayContextProvider = ({ children }) => {
       hash,
       toastData,
       clearModals = true,
-      useToast = true,
+      sendToast = true,
     }) => {
       const data = await waitForTransaction({ hash });
 
       if (data) {
-        if (useToast) {
+        if (sendToast) {
           toast.success({
             title: _.get(toastData, 'title', 'Transaction successful'),
             description: _.get(toastData, 'description'),

@@ -1,12 +1,12 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { utils } from 'ethers';
+import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToIp, idToPrettyId, decimalId, toTreeId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
-import { useQueryClient } from '@tanstack/react-query';
 
 const useModuleUpdate = ({
   hatsAddress,
