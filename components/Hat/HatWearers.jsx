@@ -243,7 +243,10 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
               >
                 Cancel
               </Button>
-              <Button onClick={handleRenounceHat}>
+              <Button
+                onClick={handleRenounceHat}
+                isDisabled={renounceHat === undefined}
+              >
                 Yes I&apos;m sure - Renounce
               </Button>
             </HStack>

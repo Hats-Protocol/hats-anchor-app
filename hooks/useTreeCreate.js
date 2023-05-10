@@ -50,7 +50,7 @@ const useTreeCreate = ({
 
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
-      }, 5000);
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {

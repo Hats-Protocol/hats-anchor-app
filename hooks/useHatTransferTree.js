@@ -5,6 +5,7 @@ import abi from '../contracts/Hats.json';
 import { decimalId, prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 const useHatTransferTree = ({
   currentWearerAddress,
@@ -14,6 +15,7 @@ const useHatTransferTree = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
@@ -26,8 +28,13 @@ const useHatTransferTree = ({
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Top Hat Transferred!`,
@@ -37,10 +44,9 @@ const useHatTransferTree = ({
         },
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatData.id] });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {

@@ -36,8 +36,13 @@ const useHatWearerStatusSet = ({
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Wearer Status Updated',
@@ -46,10 +51,11 @@ const useHatWearerStatusSet = ({
         hatId,
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(hatId)],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
