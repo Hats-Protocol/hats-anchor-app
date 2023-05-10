@@ -36,6 +36,7 @@ import {
   isMutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
+  isTopHat,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -144,6 +145,7 @@ const Hat = ({
       value: (
         <AddressRow
           address={hatData.eligibility}
+          isTopHat={isTopHat(hatData)}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
           mutable={isMutableNotTopHat(hatData)}
@@ -162,6 +164,7 @@ const Hat = ({
       value: (
         <AddressRow
           address={hatData.toggle}
+          isTopHat={isTopHat(hatData)}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
           mutable={isMutableNotTopHat(hatData)}
