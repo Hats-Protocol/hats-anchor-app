@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
 import { useContractReads } from 'wagmi';
 import { useEffect, useState } from 'react';
 import abi from '../contracts/Hats.json';
@@ -61,6 +63,7 @@ const useImageURIs = (hats, chainId) => {
 
         setData(hatIdToImage);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       } finally {
         setLoading(false);
@@ -77,6 +80,7 @@ const useImageURIs = (hats, chainId) => {
     ) {
       validateImages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagesData, imagesLoading]);
 
   return { data, loading };
