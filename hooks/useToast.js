@@ -19,7 +19,7 @@ const ToastBase = ({
     description,
     status,
     id,
-    duration: duration ?? 3000,
+    duration: duration ?? 5000,
     position: 'top-right',
     ...props,
     render: () => (

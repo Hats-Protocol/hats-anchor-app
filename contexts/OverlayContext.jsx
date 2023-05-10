@@ -46,20 +46,30 @@ export const OverlayContextProvider = ({ children }) => {
      *  },
      * });
      * */
-    const handlePendingTx = async ({ hash, toastData, clearModals = true }) => {
+    const handlePendingTx = async ({
+      hash,
+      toastData,
+      clearModals = true,
+      useToast = true,
+    }) => {
       const data = await waitForTransaction({ hash });
 
       if (data) {
-        toast.success({
-          title: _.get(toastData, 'title', 'Transaction successful'),
-          description: _.get(toastData, 'description'),
-        });
+        if (useToast) {
+          toast.success({
+            title: _.get(toastData, 'title', 'Transaction successful'),
+            description: _.get(toastData, 'description'),
+          });
+        }
+
         if (clearModals) {
           setModals(defaults);
         }
       } else {
         // TODO handle error
       }
+
+      return data;
     };
 
     return {
