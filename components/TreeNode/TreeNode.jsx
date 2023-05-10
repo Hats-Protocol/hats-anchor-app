@@ -1,9 +1,11 @@
+import _ from 'lodash';
 import { IconButton, Flex, Icon } from '@chakra-ui/react';
 import { FaPlus, FaLink } from 'react-icons/fa';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
+import useHatDetails from '../../hooks/useHatDetails';
 
 function Node({
   rd3tProps,
@@ -19,15 +21,20 @@ function Node({
   const { address } = useAccount();
   const { attributes, name } = rd3tProps.nodeDatum;
   const { treeId } = attributes;
+  const { data: hatData } = useHatDetails({
+    hatId: prettyIdToId(name),
+    chainId,
+  });
+  console.log(hatData);
 
-  const isHatActive = BigNumber.from(activeHatId).eq(
+  const isCurrentHat = BigNumber.from(activeHatId).eq(
     BigNumber.from(prettyIdToId(name)),
   );
 
   const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
 
   useEffect(() => {
-    if (isHatActive) {
+    if (isCurrentHat) {
       rd3tProps.onNodeClick();
     }
   }, []);
@@ -52,14 +59,16 @@ function Node({
           />
         </pattern>
       </defs>
+
       <circle
-        r={isHatActive || isHover ? 30 : 25}
+        r={isCurrentHat || isHover ? 30 : 25}
         fill={attributes.imageURI !== undefined ? `url(#${name})` : 'grey'}
         fillRule='evenOdd'
         style={{
-          stroke: isHatActive ? '#437bc9' : '#6d858f',
-          strokeWidth: isHatActive ? '4px' : '2px',
+          stroke: isCurrentHat ? '#437bc9' : '#6d858f',
+          strokeWidth: isCurrentHat ? '4px' : '2px',
           strokeOpacity: '50%',
+          opacity: !_.get(hatData, 'status') ? 0.6 : 1,
         }}
         onClick={() => {
           handleNodeClick(name, treeId);
@@ -113,7 +122,7 @@ function Node({
   );
 }
 
-export default function TreeNode(
+export default function TreeNode({
   rd3tProps,
   handleNodeClick,
   handleAddChildClick,
@@ -121,7 +130,7 @@ export default function TreeNode(
   activeHatId,
   wearerHats,
   chainId,
-) {
+}) {
   return (
     <Node
       rd3tProps={rd3tProps}

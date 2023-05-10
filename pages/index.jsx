@@ -99,9 +99,7 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
   );
 };
 
-export default Home;
-
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
   const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
   const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
 
@@ -112,3 +110,5 @@ export const getServerSideProps = async () => {
     },
   };
 };
+
+export default Home;

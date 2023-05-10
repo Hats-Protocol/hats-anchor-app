@@ -6,7 +6,7 @@ const useHatDetails = ({ hatId, chainId }) => {
   const hexId = hatIdToHex(hatId);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['hatDetails', hexId],
+    queryKey: ['hatDetails', hexId, chainId],
     queryFn: () => fetchHatDetails(hexId, chainId),
     enabled: !!hatId,
   });

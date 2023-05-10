@@ -281,16 +281,15 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   nodeSize={{ x: 200, y: 200 }}
                   translate={{ x: 200, y: 200 }}
                   renderCustomNodeElement={(rd3tProps) =>
-                    TreeNode(
+                    TreeNode({
                       rd3tProps,
                       handleNodeClick,
                       handleAddChildClick,
                       handleRequestLink,
-                      hatId,
+                      activeHatId: hatId,
                       wearerHats,
                       chainId,
-                      wearerData,
-                    )
+                    })
                   }
                   pathClassFunc={({ target }) =>
                     target.data.attributes.dottedLine ? 'dotted-link' : ''
@@ -322,7 +321,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   );
 };
 
-export const getServerSideProps = async (context) => {
+export const getStaticProps = async (context) => {
   const { treeId, hatId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
   const prettyHatId = urlIdToPrettyId(hatId);
@@ -339,6 +338,14 @@ export const getServerSideProps = async (context) => {
       initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }) || null,
       topHat: _.get(initialData, 'hats[0]', null),
     },
+    revalidate: 10,
+  };
+};
+
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: true,
   };
 };
 
