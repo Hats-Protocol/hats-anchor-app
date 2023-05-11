@@ -3,7 +3,7 @@ import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { useOverlay } from '../contexts/OverlayContext';
 import useToast from './useToast';
-import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
 import { useQueryClient } from '@tanstack/react-query';
 
 const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
@@ -43,6 +43,9 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
 
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(hatId)],
+        });
       }, 4000);
     },
     onError: (error) => {

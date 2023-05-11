@@ -2,7 +2,7 @@ import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
-import { prettyIdToId } from '../lib/hats';
+import { prettyIdToId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,6 +40,9 @@ const useHatStatusUpdate = ({ hatsAddress, hatId, chainId, status }) => {
       setTimeout(() => {
         queryClient.invalidateQueries({
           queryKey: ['hatDetails', prettyIdToId(hatId)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(prettyIdToId(hatId))],
         });
       }, 4000);
     },

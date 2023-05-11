@@ -4,7 +4,7 @@ import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { decimalIdToId } from '../lib/hats';
+import { decimalIdToId, toTreeId } from '../lib/hats';
 import { useQueryClient } from '@tanstack/react-query';
 
 const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
@@ -40,6 +40,9 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
       setTimeout(() => {
         queryClient.invalidateQueries({
           queryKey: ['hatDetails', decimalIdToId(hatId)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(decimalIdToId(hatId))],
         });
       }, 4000);
     },

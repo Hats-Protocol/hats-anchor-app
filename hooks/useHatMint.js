@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { utils } from 'ethers';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
-import { decimalId } from '../lib/hats';
+import { decimalId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -44,6 +44,9 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
 
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(hatId)],
+        });
       }, 4000);
     },
     onError: (error) => {

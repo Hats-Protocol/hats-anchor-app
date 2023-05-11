@@ -2,7 +2,7 @@ import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
-import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -39,13 +39,18 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
         toastData: {
           title: 'Hat Updated!',
           description: `Successfully made hat #${prettyIdToIp(
-            idToPrettyId(hatData.id),
+            idToPrettyId(_.get(hatData, 'id')),
           )} immutable`,
         },
       });
 
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatData.id] });
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', _.get(hatData, 'id')],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+        });
       }, 4000);
     },
     onError: (error) => {

@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { prettyIdToId } from '../lib/hats';
+import { prettyIdToId, toTreeId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatWearerStatusSet = ({
@@ -54,6 +54,9 @@ const useHatWearerStatusSet = ({
       setTimeout(() => {
         queryClient.invalidateQueries({
           queryKey: ['hatDetails', prettyIdToId(hatId)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(prettyIdToId(hatId))],
         });
       }, 4000);
     },

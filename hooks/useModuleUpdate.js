@@ -4,7 +4,7 @@ import { utils } from 'ethers';
 import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { prettyIdToIp, idToPrettyId, decimalId } from '../lib/hats';
+import { prettyIdToIp, idToPrettyId, decimalId, toTreeId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -58,6 +58,9 @@ const useModuleUpdate = ({
 
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(hatId)],
+        });
       }, 4000);
     },
     onError: (error) => {
