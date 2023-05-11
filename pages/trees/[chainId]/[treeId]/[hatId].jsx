@@ -236,7 +236,11 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Box
-                  bgImage={`url('${imagesData[topHatId]}'), url('/icon.jpeg')`}
+                  bgImage={
+                    imagesData[topHatId]
+                      ? `url('${imagesData[topHatId]}')`
+                      : "url('/icon.jpeg')"
+                  }
                   bgSize='cover'
                   bgPosition='center'
                   alt='Top Hat image'

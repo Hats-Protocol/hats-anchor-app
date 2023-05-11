@@ -178,6 +178,8 @@ const Hat = ({
     },
   ];
 
+  console.log(hatDetailsFieldData, schemaTypeDetailsField);
+
   return (
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
@@ -230,7 +232,7 @@ const Hat = ({
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
+              bgImage={hatImage ? `url('${hatImage}')` : "url('/icon.jpeg')"}
               bgSize='cover'
               bgPosition='center'
             >
@@ -355,16 +357,20 @@ const Hat = ({
                   (hatDetailsFieldLoading ? (
                     'Loading...'
                   ) : (
-                    <>
-                      <Text fontSize='sm' as='b'>
-                        Name:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.name}</Text>
-                      <Text fontSize='sm' as='b'>
-                        Description:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.description}</Text>
-                    </>
+                    <Stack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Name:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'name')}</Text>
+                      </HStack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Description:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
+                      </HStack>
+                    </Stack>
                   ))}
                 {schemaTypeDetailsField !== '1.0' && (
                   <Text>{hatData?.details}</Text>
