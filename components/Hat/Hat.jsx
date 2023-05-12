@@ -92,8 +92,6 @@ const Hat = ({
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
 
-  // https://api.guild.xyz/v1/guild/hats-protocol
-
   const [guildName, setGuildName] = useState('');
 
   const { guildNames, saveGuild, deleteGuild, hatRoles } = useHatGuild({
@@ -101,7 +99,6 @@ const Hat = ({
     treeId,
     hatId: hatData?.id,
   });
-  console.log('hatRoles', hatRoles);
 
   if (!hatData) return null;
 
@@ -122,26 +119,42 @@ const Hat = ({
 
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
-  const authoritiesTable = _.map(childrenHats, (hat) => ({
-    key: _.get(hat, 'prettyId'),
-    label: (
-      <Text as='span'>
-        Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
-      </Text>
-    ),
-    value: (
-      <Link
-        href={`/trees/${chainId}/${decimalId(
-          getTreeId(_.get(hat, 'prettyId')),
-        )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-      >
-        <HStack>
-          <Text>Hats Protocol</Text>
-          <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
-        </HStack>
-      </Link>
-    ),
-  }));
+  const authoritiesTable = [
+    ..._.map(childrenHats, (hat) => ({
+      key: _.get(hat, 'prettyId'),
+      label: (
+        <Text as='span'>
+          Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
+        </Text>
+      ),
+      value: (
+        <Link
+          href={`/trees/${chainId}/${decimalId(
+            getTreeId(_.get(hat, 'prettyId')),
+          )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
+        >
+          <HStack>
+            <Text>Hats Protocol</Text>
+            <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+          </HStack>
+        </Link>
+      ),
+    })),
+    ...(hatRoles && hatRoles.length > 0
+      ? _.map(hatRoles, ({ role, guild }) => ({
+          key: role,
+          label: <Text as='span'>{role}</Text>,
+          value: (
+            <Link href={`https://guild.xyz/${guild}`} isExternal>
+              <HStack>
+                <Text>Guild.xyz</Text>
+                <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+              </HStack>
+            </Link>
+          ),
+        }))
+      : []),
+  ];
 
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
