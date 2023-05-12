@@ -39,10 +39,12 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
     parentOfTrees {
       id
       linkedToHat {
+        id
         prettyId
       }
     }
     linkedToHat {
+      id
       prettyId
       tree {
         id
@@ -56,6 +58,22 @@ export const TREE_DETAILS_FRAGMENT = gql`
   fragment TreeDetails on Tree {
     id
     hats {
+      id
+      details
+      imageUri
+      prettyId
+      admin {
+        id
+        prettyId
+      }
+    }
+  }
+`;
+
+export const TREE_TOP_HAT_DETAILS_FRAGMENT = gql`
+  fragment TreeTopHatDetails on Tree {
+    id
+    hats(first: 1) {
       id
       details
       imageUri
@@ -96,6 +114,15 @@ export const GET_ALL_TREES = gql`
     }
   }
   ${TREE_DETAILS_FRAGMENT}
+`;
+
+export const GET_PAGINATED_TREES = gql`
+  query getPaginatedTrees($skip: Int!, $first: Int!) {
+    trees(skip: $skip, first: $first) {
+      ...TreeTopHatDetails
+    }
+  }
+  ${TREE_TOP_HAT_DETAILS_FRAGMENT}
 `;
 
 export const HAT_DETAILS_FRAGMENT = gql`

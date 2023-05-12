@@ -11,35 +11,28 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+
 import { useDropzone } from 'react-dropzone';
-import _ from 'lodash';
-
 import Input from '../components/Input';
-import Select from '../components/Select';
 import Textarea from '../components/Textarea';
-import DropZone from '../components/DropZone';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
-import useHatRelinkTree from '../hooks/useHatRelinkTree';
+import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { prettyIdToIp } from '../lib/hats';
+import { prettyIdToIp, decimalId } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import DropZone from '../components/DropZone';
 
-const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
+const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
-      topHatDomain: hatData.prettyId,
-      newAdmin: parentTreeHats[0],
+      topHatDomain,
+      newAdmin: decimalId(hatData.id),
       description: '',
     },
   });
   const { handleSubmit, watch } = localForm;
-
-  const newAdmin = useDebounce(
-    watch('newAdmin', parentTreeHats[0]),
-    CONFIG.debounce,
-  );
 
   const [inputEligibility, setInputEligibility] = useState(false);
   const [inputToggle, setInputToggle] = useState(false);
@@ -70,7 +63,7 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
-  const decimalAdmin = prettyIdToIp(hatData.prettyId);
+  const decimalAdmin = prettyIdToIp(topHatDomain);
 
   const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
@@ -78,9 +71,9 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useHatRelinkTree({
-    topHatDomain: hatData.prettyId,
-    newAdmin,
+  const { writeAsync } = useHatLinkRequestApprove({
+    topHatDomain,
+    newAdmin: hatData.id,
     eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
     toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
     description,
@@ -113,22 +106,16 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
         </Text>
         <Flex>
           <Text fontWeight={500} mr={2}>
-            Hat to be relinked:
+            New Admin:
           </Text>
-          <Text>ID {prettyIdToIp(hatData?.prettyId)}</Text>
+          <Text>ID {prettyIdToIp(hatData.prettyId)}</Text>
         </Flex>
-
-        <Select
-          label='Select new Admin Hat'
-          name='newAdmin'
-          localForm={localForm}
-        >
-          {_.map(parentTreeHats, (hat) => (
-            <option value={hat} key={hat}>
-              {prettyIdToIp(hat)}
-            </option>
-          ))}
-        </Select>
+        <Flex>
+          <Text fontWeight={500} mr={2}>
+            Domain of the Top Hat to be linked:
+          </Text>
+          <Text>ID {prettyIdToIp(topHatDomain)}</Text>
+        </Flex>
         <FormControl>
           <Stack>
             <HStack>
@@ -212,7 +199,7 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
             // shouldn't be disabled if newAdmin && topHatDomain are set
             isDisabled={!writeAsync || imagePinLoading}
           >
-            {imagePinLoading ? <Spinner /> : 'Relink'}
+            {imagePinLoading ? <Spinner /> : 'Approve'}
           </Button>
         </Flex>
       </Stack>
@@ -220,4 +207,4 @@ const RelinkForm = ({ chainId, hatData, parentTreeHats }) => {
   );
 };
 
-export default RelinkForm;
+export default HatLinkRequestApproveForm;
