@@ -5,10 +5,12 @@ import {
   searchGuild,
   deleteGuild as deleteAssociatedGuild,
 } from '../lib/ipfs';
+import { decimalId } from '../lib/hats';
 
-const useHatGuild = ({ chainId, treeId }) => {
+const useHatGuild = ({ chainId, treeId, hatId }) => {
   const [guildNames, setGuildNames] = useState([]);
-  const [guildsData, setGuildsData] = useState([]);
+  const [guildData, setGuildData] = useState([]);
+  const [hatRoles, setHatRoles] = useState([]);
 
   const fetchGuildNames = async () => {
     try {
@@ -27,8 +29,6 @@ const useHatGuild = ({ chainId, treeId }) => {
     }
   };
 
-  // https://api.guild.xyz/v1/guild/{guildName}
-
   const fetchGuilds = async () => {
     try {
       const names = await fetchGuildNames();
@@ -38,13 +38,18 @@ const useHatGuild = ({ chainId, treeId }) => {
           const guildResponse = await fetch(
             `https://api.guild.xyz/v1/guild/${guildName}`,
           );
-          const guildData = await guildResponse.json();
+          if (!guildResponse.ok) {
+            throw new Error(
+              `Error fetching guild data: ${guildResponse.status}`,
+            );
+          }
+          const response = await guildResponse.json();
 
-          return guildData;
+          return response;
         }),
       );
 
-      setGuildsData(data);
+      setGuildData(data);
       return data;
     } catch (error) {
       console.error('Error fetching guilds:', error.message);
@@ -76,6 +81,53 @@ const useHatGuild = ({ chainId, treeId }) => {
     }
   };
 
+  const extractRoles = (data) => {
+    const extractedRoles = [];
+
+    _.forEach(data, (guild) => {
+      const { urlName, roles } = guild;
+
+      _.forEach(roles, (role) => {
+        const { name, requirements } = role;
+
+        if (requirements && _.isArray(requirements)) {
+          const requirementIds = _.map(requirements, (req) => req.data?.id);
+
+          extractedRoles.push({
+            role: name,
+            guild: urlName,
+            requirements: requirementIds,
+          });
+        }
+      });
+    });
+
+    return extractedRoles;
+  };
+
+  useEffect(() => {
+    if (guildData?.length > 0) {
+      const extractedRoles = extractRoles(guildData);
+
+      const rolesWithRequirement = [];
+
+      _.forEach(extractedRoles, (role) => {
+        const { requirements } = role;
+
+        const hasMatchingRequirement = _.some(
+          requirements,
+          (req) => req === decimalId(hatId),
+        );
+
+        if (hasMatchingRequirement) {
+          rolesWithRequirement.push(role);
+        }
+      });
+
+      setHatRoles(rolesWithRequirement);
+    }
+  }, [guildData, hatId]);
+
   useEffect(() => {
     fetchGuilds();
   }, []);
@@ -84,7 +136,7 @@ const useHatGuild = ({ chainId, treeId }) => {
     guildNames,
     saveGuild,
     deleteGuild,
-    guildsData,
+    hatRoles,
   };
 };
 

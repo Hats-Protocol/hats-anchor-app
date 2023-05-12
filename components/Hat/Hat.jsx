@@ -68,6 +68,7 @@ const Hat = ({
   childrenHats,
   linkRequestFromTree,
 }) => {
+  console.log('hatData', hatData);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -95,12 +96,12 @@ const Hat = ({
 
   const [guildName, setGuildName] = useState('');
 
-  const { guildNames, guildsData, saveGuild, deleteGuild } = useHatGuild({
+  const { guildNames, saveGuild, deleteGuild, hatRoles } = useHatGuild({
     chainId,
     treeId,
+    hatId: hatData?.id,
   });
-  console.log('guildNames', guildNames);
-  console.log('guildsData', guildsData);
+  console.log('hatRoles', hatRoles);
 
   if (!hatData) return null;
 
