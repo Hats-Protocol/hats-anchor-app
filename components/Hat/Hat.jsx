@@ -423,7 +423,6 @@ const Hat = ({
                 />
               </TabPanel>
             ) : null}
-            {/* temporary REMOVE/MODIFY LATER */}
           </TabPanels>
         </Tabs>
       </Stack>

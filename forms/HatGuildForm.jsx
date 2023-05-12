@@ -23,14 +23,16 @@ const HatGuildForm = ({ hatData, chainId, treeId }) => {
 
   return (
     <Stack spacing={4}>
-      <HStack>
-        <Text>Guild that is bound to this hat:</Text>
-        <Text>
-          {guildNames?.map((guild) => (
-            <Code key={guild}>{guild}</Code>
-          ))}
-        </Text>
-      </HStack>
+      {guildNames?.length > 0 && (
+        <HStack>
+          <Text>Guild that is bound to this hat:</Text>
+          <Text>
+            {guildNames.map((guild) => (
+              <Code key={guild}>{guild}</Code>
+            ))}
+          </Text>
+        </HStack>
+      )}
       <Input
         placeholder='Guild Name'
         onChange={(e) => setGuildName(e.target.value)}
