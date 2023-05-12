@@ -1,5 +1,18 @@
 import _ from 'lodash';
-import { SimpleGrid, Flex, Heading, Spinner } from '@chakra-ui/react';
+import {
+  CardBody,
+  Heading,
+  Link as ChakraLink,
+  SimpleGrid,
+  Card,
+  Flex,
+  Text,
+  Stack,
+  HStack,
+  Badge,
+  Box,
+} from '@chakra-ui/react';
+import Link from 'next/link';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
