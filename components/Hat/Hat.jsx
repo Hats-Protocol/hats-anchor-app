@@ -36,6 +36,7 @@ import {
   isMutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
+  isTopHat,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
@@ -76,6 +77,8 @@ const Hat = ({
     hatData,
   });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const isWearer = _.includes(currentWearerHats, _.get(hatData, 'prettyId'));
+
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
   const {
@@ -142,6 +145,7 @@ const Hat = ({
       value: (
         <AddressRow
           address={hatData.eligibility}
+          isTopHat={isTopHat(hatData)}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
           mutable={isMutableNotTopHat(hatData)}
@@ -160,6 +164,7 @@ const Hat = ({
       value: (
         <AddressRow
           address={hatData.toggle}
+          isTopHat={isTopHat(hatData)}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
           mutable={isMutableNotTopHat(hatData)}
@@ -223,8 +228,8 @@ const Hat = ({
               onMouseEnter={() => canEditImage && setImageHover(true)}
               onMouseLeave={() => setImageHover(false)}
               position='relative'
-              border='1px solid'
-              borderColor='gray.200'
+              borderWidth={isWearer ? '2px' : '1px'}
+              borderColor={isWearer ? '#2EA043' : '#CBD5E0'}
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
@@ -242,6 +247,26 @@ const Hat = ({
                   top='22%'
                   left='22%'
                 />
+              )}
+              {isWearer && (
+                <Flex
+                  position='absolute'
+                  bottom='-10px'
+                  left='50%'
+                  transform='translateX(-50%)'
+                  w='full'
+                  h='14px'
+                  color='white'
+                  fontSize='8px'
+                  fontWeight={700}
+                  alignItems='center'
+                  justifyContent='center'
+                  px={3}
+                >
+                  <Text bg='#2EA043' px={2} lineHeight='14px'>
+                    WEARER
+                  </Text>
+                </Flex>
               )}
             </Box>
 

@@ -7,6 +7,7 @@ import {
   GET_HAT,
   GET_WEARER_DETAILS,
   GET_ALL_WEARERS,
+  GET_PAGINATED_TREES,
 } from './queries';
 import { mapWithChainId } from '../lib/general';
 
@@ -24,6 +25,15 @@ export const fetchAllTreeIds = async (chainId) => {
 
 export const fetchAllTrees = async (chainId) => {
   const result = await client(chainId).request(GET_ALL_TREES);
+
+  return mapWithChainId(_.get(result, 'trees', null), chainId);
+};
+
+export const fetchPaginatedTrees = async (chainId, page, perPage) => {
+  const result = await client(chainId).request(GET_PAGINATED_TREES, {
+    skip: (page - 1) * perPage,
+    first: perPage,
+  });
 
   return mapWithChainId(_.get(result, 'trees', null), chainId);
 };

@@ -1,10 +1,18 @@
-import { usePrepareContractWrite, useContractWrite, useAccount } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useAccount,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { useQueryClient } from '@tanstack/react-query';
+
+import { treeCreateEventIdToTreeId } from '../lib/hats';
 
 const useTreeCreate = ({
   hatsAddress,
@@ -18,6 +26,7 @@ const useTreeCreate = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -32,7 +41,19 @@ const useTreeCreate = ({
     enabled: !!hatsAddress,
   });
 
-  const { writeAsync } = useContractWrite({
+  function handleSuccess(transactionData) {
+    const data = transactionData?.logs[0]?.data;
+    const treeId = treeCreateEventIdToTreeId(data);
+    if (!treeId) return;
+
+    router.push(`/trees/${chainId}/${treeId}/${treeId}`);
+  }
+
+  function handleError(error) {
+    console.error(error);
+  }
+
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -67,7 +88,13 @@ const useTreeCreate = ({
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+    onSuccess: handleSuccess,
+    onError: handleError,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useTreeCreate;

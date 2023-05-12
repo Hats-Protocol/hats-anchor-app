@@ -51,7 +51,6 @@ const useSearchResults = ({ search }) => {
   if (_.gt(_.size(search), 10) && !_.startsWith(search, '0x')) {
     localSearch = decimalIdToId(search);
   }
-  console.log(localSearch);
 
   const searchQueryResult = async () => {
     if (!search) return { trees: [], hats: [] };
@@ -68,7 +67,6 @@ const useSearchResults = ({ search }) => {
     );
 
     const result = await Promise.all(promises);
-    console.log(result);
 
     const allNetworkResults = {};
     _.forEach(result, (network, i) => {
