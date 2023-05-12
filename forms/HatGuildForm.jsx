@@ -7,7 +7,7 @@ import {
   Code,
   Tooltip,
   Input,
-  Box,
+  HStack,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import useHatGuild from '../hooks/useHatGuild';
@@ -15,7 +15,7 @@ import useHatGuild from '../hooks/useHatGuild';
 const HatGuildForm = ({ hatData, chainId, treeId }) => {
   const [guildName, setGuildName] = useState('');
 
-  const { guildNames, saveGuild, deleteGuild } = useHatGuild({
+  const { guildNames, createGuild, deleteGuild, updateGuild } = useHatGuild({
     chainId,
     treeId,
     hatId: hatData?.id,
@@ -23,14 +23,14 @@ const HatGuildForm = ({ hatData, chainId, treeId }) => {
 
   return (
     <Stack spacing={4}>
-      <Box>
-        <Text>Guilds bound to this hat:</Text>
+      <HStack>
+        <Text>Guild that is bound to this hat:</Text>
         <Text>
-          {guildNames.map((guild) => (
+          {guildNames?.map((guild) => (
             <Code key={guild}>{guild}</Code>
           ))}
         </Text>
-      </Box>
+      </HStack>
       <Input
         placeholder='Guild Name'
         onChange={(e) => setGuildName(e.target.value)}
@@ -38,19 +38,32 @@ const HatGuildForm = ({ hatData, chainId, treeId }) => {
       />
 
       <Flex justify='flex-end' gap={2}>
-        <Tooltip
-          label='Guild with this name already bound to this tree'
-          aria-label='Guild with this name already bound to this tree'
-          isDisabled={!guildNames.includes(guildName)}
-        >
-          <Button
-            onClick={() => saveGuild(guildName)}
-            isDisabled={guildNames.includes(guildName) || !guildName}
+        {!guildNames && (
+          <Tooltip
+            label='Guild with this name already bound to this tree'
+            aria-label='Guild with this name already bound to this tree'
+            isDisabled={!guildNames?.includes(guildName)}
           >
-            Save guild
-          </Button>
-        </Tooltip>
-        <Button onClick={() => deleteGuild(guildName)}>Delete guild</Button>
+            <Button
+              onClick={() => createGuild(guildName)}
+              isDisabled={guildNames?.includes(guildName) || !guildName}
+            >
+              Save guild
+            </Button>
+          </Tooltip>
+        )}
+        <Button
+          onClick={() => updateGuild(guildName)}
+          isDisabled={guildNames?.includes(guildName) || !guildName}
+        >
+          Update
+        </Button>
+        <Button
+          onClick={() => deleteGuild(guildName)}
+          isDisabled={!guildNames?.includes(guildName)}
+        >
+          Delete guild
+        </Button>
       </Flex>
     </Stack>
   );

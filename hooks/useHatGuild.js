@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
-  saveGuild as saveGuildToIpfs,
-  searchGuild,
+  createGuild as saveGuildToIpfs,
+  fetchGuild,
   deleteGuild as deleteAssociatedGuild,
+  updateGuild as updateAssociatedGuild,
 } from '../lib/ipfs';
 import { decimalId } from '../lib/hats';
 
+// currently works for only one guild per chainId/treeId
+// guild.xyz plan to add support to query all the guilds you could join based on an NFT address
+// we can create/update/delete a guild for the given treeId
+// if one of the guild's roles is gated by the current hat's NFT, we show that in authorities tab
 const useHatGuild = ({ chainId, treeId, hatId }) => {
-  console.log('treeId', treeId);
-  console.log('chainId', chainId);
   const [guildNames, setGuildNames] = useState([]);
   const [guildData, setGuildData] = useState([]);
   const [hatRoles, setHatRoles] = useState([]);
 
-  const fetchGuildNames = async () => {
+  const fetchGuildName = async () => {
     try {
-      const response = await searchGuild(chainId, treeId);
-      console.log('response', response);
-      console.log('treeId', treeId);
-      console.log('chainId', chainId);
+      const response = await fetchGuild(chainId, treeId);
 
       const names = _.map(
         _.filter(response, (obj) => !obj.date_unpinned),
@@ -36,8 +36,7 @@ const useHatGuild = ({ chainId, treeId, hatId }) => {
 
   const fetchGuilds = async () => {
     try {
-      const names = await fetchGuildNames();
-      console.log('names', names);
+      const names = await fetchGuildName();
 
       const data = await Promise.all(
         _.map(names, async (guildName) => {
@@ -56,20 +55,26 @@ const useHatGuild = ({ chainId, treeId, hatId }) => {
       );
 
       setGuildData(data);
-      return data;
     } catch (error) {
       console.error('Error fetching guilds:', error.message);
-      return [];
     }
   };
 
-  const saveGuild = async (guildName) =>
+  const createGuild = async (guildName) =>
     saveGuildToIpfs(chainId, treeId, guildName);
+
+  const updateGuild = async (guildName) => {
+    await updateAssociatedGuild(chainId, treeId, guildName);
+    fetchGuilds();
+  };
 
   const deleteGuild = async (guildName) => {
     try {
       await deleteAssociatedGuild(chainId, treeId, guildName);
-      fetchGuilds();
+
+      // optimistic update to avoid another API call
+      setGuildData([]);
+      setHatRoles([]);
     } catch (error) {
       console.error('Error deleting guild:', error.message);
     }
@@ -120,7 +125,7 @@ const useHatGuild = ({ chainId, treeId, hatId }) => {
 
       setHatRoles(rolesWithRequirement);
     }
-  }, [guildData, hatId]);
+  }, [guildData, guildNames, hatId]);
 
   useEffect(() => {
     fetchGuilds();
@@ -128,8 +133,9 @@ const useHatGuild = ({ chainId, treeId, hatId }) => {
 
   return {
     guildNames,
-    saveGuild,
+    createGuild,
     deleteGuild,
+    updateGuild,
     hatRoles,
   };
 };
