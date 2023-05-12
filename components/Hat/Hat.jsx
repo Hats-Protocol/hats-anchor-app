@@ -12,6 +12,10 @@ import {
   Icon,
   IconButton,
   Box,
+  Button,
+  Code,
+  Input,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -48,6 +52,7 @@ import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import AdminActions from './AdminActions';
+import useHatGuild from '../../hooks/useHatGuild';
 
 const defaultChainId = 5;
 const hatsAddress = hatsAddresses(defaultChainId);
@@ -85,6 +90,17 @@ const Hat = ({
     // error: hatDetailsFieldError,
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
+
+  // https://api.guild.xyz/v1/guild/hats-protocol
+
+  const [guildName, setGuildName] = useState('');
+
+  const { guildNames, guildsData, saveGuild, deleteGuild } = useHatGuild({
+    chainId,
+    treeId,
+  });
+  console.log('guildNames', guildNames);
+  console.log('guildsData', guildsData);
 
   if (!hatData) return null;
 
@@ -315,6 +331,8 @@ const Hat = ({
                 linkRequestFromTree?.length > 0) && (
                 <Tab fontSize='sm'>Admin</Tab>
               )}
+            {/* temporary REMOVE/MODIFY LATER */}
+            <Tab fontSize='sm'>Guild</Tab>
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -399,6 +417,35 @@ const Hat = ({
                 />
               </TabPanel>
             ) : null}
+            {/* temporary REMOVE/MODIFY LATER */}
+            <TabPanel>
+              <Input
+                placeholder='Guild Name'
+                onChange={(e) => setGuildName(e.target.value)}
+                value={guildName}
+              />
+              <Tooltip
+                label='Guild with this name already bound to this tree'
+                aria-label='Guild with this name already bound to this tree'
+                isDisabled={!guildNames.includes(guildName)}
+              >
+                <Button
+                  onClick={() => saveGuild(guildName)}
+                  isDisabled={guildNames.includes(guildName)}
+                >
+                  save data
+                </Button>
+              </Tooltip>
+              <Button onClick={() => deleteGuild(guildName)}>delete</Button>
+              <Text>{treeId}</Text>
+              <Text>{chainId}</Text>
+              <Text>
+                Guilds:
+                {guildNames.map((guild) => (
+                  <Code key={guild}>{guild}</Code>
+                ))}
+              </Text>
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Stack>
