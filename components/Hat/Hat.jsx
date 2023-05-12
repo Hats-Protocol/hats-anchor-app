@@ -12,10 +12,6 @@ import {
   Icon,
   IconButton,
   Box,
-  Button,
-  Code,
-  Input,
-  Tooltip,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -68,7 +64,6 @@ const Hat = ({
   childrenHats,
   linkRequestFromTree,
 }) => {
-  console.log('hatData', hatData);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -92,9 +87,7 @@ const Hat = ({
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
 
-  const [guildName, setGuildName] = useState('');
-
-  const { guildNames, saveGuild, deleteGuild, hatRoles } = useHatGuild({
+  const { hatRoles } = useHatGuild({
     chainId,
     treeId,
     hatId: hatData?.id,
@@ -345,8 +338,6 @@ const Hat = ({
                 linkRequestFromTree?.length > 0) && (
                 <Tab fontSize='sm'>Admin</Tab>
               )}
-            {/* temporary REMOVE/MODIFY LATER */}
-            <Tab fontSize='sm'>Guild</Tab>
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -428,38 +419,11 @@ const Hat = ({
                   hatsAddress={hatsAddress}
                   chainId={chainId}
                   linkedToHat={linkedToHat}
+                  treeId={treeId}
                 />
               </TabPanel>
             ) : null}
             {/* temporary REMOVE/MODIFY LATER */}
-            <TabPanel>
-              <Input
-                placeholder='Guild Name'
-                onChange={(e) => setGuildName(e.target.value)}
-                value={guildName}
-              />
-              <Tooltip
-                label='Guild with this name already bound to this tree'
-                aria-label='Guild with this name already bound to this tree'
-                isDisabled={!guildNames.includes(guildName)}
-              >
-                <Button
-                  onClick={() => saveGuild(guildName)}
-                  isDisabled={guildNames.includes(guildName)}
-                >
-                  save data
-                </Button>
-              </Tooltip>
-              <Button onClick={() => deleteGuild(guildName)}>delete</Button>
-              <Text>{treeId}</Text>
-              <Text>{chainId}</Text>
-              <Text>
-                Guilds:
-                {guildNames.map((guild) => (
-                  <Code key={guild}>{guild}</Code>
-                ))}
-              </Text>
-            </TabPanel>
           </TabPanels>
         </Tabs>
       </Stack>

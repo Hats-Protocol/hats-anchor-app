@@ -6,6 +6,7 @@ import { isTopHat, prettyIdToId, prettyIdToIp } from '../../lib/hats';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import Modal from '../Modal';
+import HatGuildForm from '../../forms/HatGuildForm';
 import HatSupplyForm from '../../forms/HatSupplyForm';
 import HatRelinkForm from '../../forms/HatRelinkForm';
 import HatUnlinkForm from '../../forms/HatUnlinkForm';
@@ -18,6 +19,7 @@ const AdminActions = ({
   hatsAddress,
   chainId,
   linkedToHat,
+  treeId,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -48,6 +50,10 @@ const AdminActions = ({
   const handleOpenLinkRequestApproveModal = (id) => {
     setTopHatDomain(id);
     setModals({ linkResponse: true });
+  };
+
+  const handleOpenHatGuildModal = () => {
+    setModals({ hatGuild: true });
   };
 
   return (
@@ -85,6 +91,9 @@ const AdminActions = ({
           onClick={() => setModals({ unlinkTree: true })}
         >
           Unlink Tree
+        </Button>
+        <Button variant='outline' onClick={handleOpenHatGuildModal}>
+          Guild.xyz
         </Button>
         {isTopHat(hatData) && linkedToHat && (
           <Button
@@ -131,6 +140,10 @@ const AdminActions = ({
         localOverlay={localOverlay}
       >
         <HatUnlinkForm hatData={hatData} chainId={chainId} />
+      </Modal>
+
+      <Modal name='hatGuild' title='Guild.xyz' localOverlay={localOverlay}>
+        <HatGuildForm hatData={hatData} chainId={chainId} treeId={treeId} />
       </Modal>
     </>
   );

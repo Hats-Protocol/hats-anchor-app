@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
-  pinJson,
+  saveGuild as saveGuildToIpfs,
   searchGuild,
   deleteGuild as deleteAssociatedGuild,
 } from '../lib/ipfs';
 import { decimalId } from '../lib/hats';
 
 const useHatGuild = ({ chainId, treeId, hatId }) => {
+  console.log('treeId', treeId);
+  console.log('chainId', chainId);
   const [guildNames, setGuildNames] = useState([]);
   const [guildData, setGuildData] = useState([]);
   const [hatRoles, setHatRoles] = useState([]);
 
   const fetchGuildNames = async () => {
     try {
-      const response = await searchGuild(chainId, treeId); // Replace with your desired chainId and treeId
+      const response = await searchGuild(chainId, treeId);
+      console.log('response', response);
+      console.log('treeId', treeId);
+      console.log('chainId', chainId);
 
       const names = _.map(
         _.filter(response, (obj) => !obj.date_unpinned),
@@ -32,6 +37,7 @@ const useHatGuild = ({ chainId, treeId, hatId }) => {
   const fetchGuilds = async () => {
     try {
       const names = await fetchGuildNames();
+      console.log('names', names);
 
       const data = await Promise.all(
         _.map(names, async (guildName) => {
@@ -57,20 +63,8 @@ const useHatGuild = ({ chainId, treeId, hatId }) => {
     }
   };
 
-  const saveGuild = async (guildName) => {
-    try {
-      await pinJson(
-        { type: '1.0' },
-        {
-          name: `network_${chainId}_treeId_${treeId}`,
-          keyvalues: { guildName },
-        },
-      );
-      fetchGuilds();
-    } catch (error) {
-      console.error('Error saving guild:', error.message);
-    }
-  };
+  const saveGuild = async (guildName) =>
+    saveGuildToIpfs(chainId, treeId, guildName);
 
   const deleteGuild = async (guildName) => {
     try {
