@@ -1,6 +1,17 @@
+/* eslint-disable default-case */
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
+
+const fetchDetailsIpfs = async (detailsField) => {
+  const url = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${detailsField.slice(
+    7,
+  )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+
+  // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
+  const res = await axios.get(url, { timeout: 5000 });
+  return res;
+};
 
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
@@ -18,8 +29,8 @@ const useHatDetailsField = (detailsField) => {
   });
 
   let schemaType;
-  if (!!data && data.headers['content-type'] == 'application/json') {
-    let schemaTypeField = data.data.type;
+  if (!!data && data.headers['content-type'] === 'application/json') {
+    const schemaTypeField = data.data.type;
     // schema validation
     switch (schemaTypeField) {
       case '1.0':
@@ -30,16 +41,6 @@ const useHatDetailsField = (detailsField) => {
   }
 
   return { data, isLoading, error, schemaType };
-};
-
-const fetchDetailsIpfs = async (detailsField) => {
-  const url = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${detailsField.slice(
-    7,
-  )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
-
-  // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
-  const res = await axios.get(url, { timeout: 5000 });
-  return res;
 };
 
 export default useHatDetailsField;

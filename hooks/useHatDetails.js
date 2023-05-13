@@ -3,11 +3,9 @@ import { fetchHatDetails } from '../gql/helpers';
 import { hatIdToHex } from '../lib/hats';
 
 const useHatDetails = ({ hatId, chainId }) => {
-  const hexId = hatIdToHex(hatId);
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ['hatDetails', hexId],
-    queryFn: () => fetchHatDetails(hexId, chainId),
+    queryKey: ['hatDetails', hatId],
+    queryFn: () => fetchHatDetails(hatId, chainId),
     enabled: !!hatId,
   });
 

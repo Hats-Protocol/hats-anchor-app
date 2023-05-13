@@ -16,7 +16,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
     abi: JSON.stringify(abi),
     functionName: 'unlinkTopHatFromTree',
     args: [_.get(hatData, 'prettyId'), wearer],
-    enabled: Boolean(_.get(hatData, 'prettyId')),
+    enabled: Boolean(_.get(hatData, 'prettyId')) && Boolean(wearer),
   });
 
   const { writeAsync, error: writeError } = useContractWrite({

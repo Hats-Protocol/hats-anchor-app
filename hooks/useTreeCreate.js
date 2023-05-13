@@ -2,16 +2,16 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useAccount,
-  useContractEvent,
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { BigNumber } from 'ethers';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
+
 import { treeCreateEventIdToTreeId } from '../lib/hats';
 
 const useTreeCreate = ({
@@ -25,6 +25,7 @@ const useTreeCreate = ({
   const { address } = useAccount();
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const { config } = usePrepareContractWrite({
@@ -54,8 +55,13 @@ const useTreeCreate = ({
 
   const { writeAsync, data: writeData } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Tree created!',
@@ -63,10 +69,9 @@ const useTreeCreate = ({
         },
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {

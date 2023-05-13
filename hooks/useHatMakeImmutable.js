@@ -1,14 +1,16 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
-import { decimalId } from '../lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
@@ -26,22 +28,30 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
 
   const { writeAsync } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
-        hash: data.hash,
-        toastData: {
-          title: 'Hat Updated!',
-          description: `Successfully made hat #${_.get(
-            data,
-            'prettyId',
-          )} immutable`,
-        },
-      });
-
+    onSuccess: async (data) => {
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
       });
+
+      await handlePendingTx({
+        hash: data.hash,
+        toastData: {
+          title: 'Hat Updated!',
+          description: `Successfully made hat #${prettyIdToIp(
+            idToPrettyId(_.get(hatData, 'id')),
+          )} immutable`,
+        },
+      });
+
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', _.get(hatData, 'id')],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
