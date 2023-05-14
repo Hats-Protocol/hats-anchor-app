@@ -22,9 +22,17 @@ import { formatAddress } from '../../lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '../../lib/hats';
 import { chainsColors, chainsMap } from '../../lib/web3';
 import ChakraNextLink from '../../components/ChakraNextLink';
+import useHatDetailsField from '../../hooks/useHatDetailsField';
 
 const CoreHat = ({ hat, image }) => {
-  console.log(hat);
+  const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
+    useHatDetailsField(_.get(hat, 'details'));
+
+  const hatName =
+    schemaTypeDetailsField === '1.0'
+      ? _.get(hatDetailsFieldData, 'data.data.name')
+      : _.get(hat, 'details');
+
   return (
     <Card key={_.get(hat, 'id')}>
       <CardBody as={Flex} h='75px'>
@@ -48,7 +56,7 @@ const CoreHat = ({ hat, image }) => {
             />
             <Stack maxW='60%' spacing={1}>
               <Text as='b' noOfLines={2}>
-                {_.get(hat, 'details')}
+                {hatName}
               </Text>
               <Text fontSize='sm'>
                 Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}

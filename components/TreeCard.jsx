@@ -10,9 +10,17 @@ import {
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { decimalId } from '../lib/hats';
+import useHatDetailsField from '../hooks/useHatDetailsField';
 
 const TreeCard = ({ tree, imagesData }) => {
   const topHat = _.get(tree, 'hats[0]');
+  const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
+    useHatDetailsField(_.get(topHat, 'details'));
+
+  const hatName =
+    schemaTypeDetailsField === '1.0'
+      ? _.get(hatDetailsFieldData, 'data.data.name')
+      : _.get(topHat, 'details');
 
   return (
     <ChakraLink
@@ -47,7 +55,7 @@ const TreeCard = ({ tree, imagesData }) => {
             />
             <Stack spacing={1} maxW='110px'>
               <Text fontWeight={700} noOfLines={2}>
-                {_.get(topHat, 'details')}
+                {hatName}
               </Text>
               <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
             </Stack>
