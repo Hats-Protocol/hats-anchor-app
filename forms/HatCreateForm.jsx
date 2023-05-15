@@ -84,7 +84,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     data: { name, description },
   });
 
-  const { writeAsync, isError, isLoading } = useHatCreate({
+  const { writeAsync, ensError, isLoading } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
     treeId,
@@ -248,7 +248,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
               !writeAsync ||
               detailsCidLoading ||
               imagePinLoading ||
-              isError ||
+              ensError ||
               isLoading
             }
           >

@@ -26,7 +26,7 @@ const HatUnlinkForm = ({ hatData, chainId }) => {
 
   const wearer = useDebounce(watch('wearer', null), CONFIG.debounce);
 
-  const { writeAsync, isError, isLoading } = useHatUnlinkTree({
+  const { writeAsync, ensError, isLoading } = useHatUnlinkTree({
     hatsAddress: hatsAddresses(chainId),
     hatData,
     wearer: userMintChecked ? address : wearer,
@@ -73,7 +73,7 @@ const HatUnlinkForm = ({ hatData, chainId }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || isLoading || isError}
+            isDisabled={!writeAsync || isLoading || ensError}
           >
             Unlink
           </Button>

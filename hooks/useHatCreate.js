@@ -99,7 +99,7 @@ const useHatCreate = ({
 
   return {
     writeAsync,
-    isError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
+    ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
     isLoading:
       isLoadingEligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
   };

@@ -68,7 +68,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   return {
     writeAsync,
     isLoading: isLoadingWearerResolvedAddress,
-    isError: isErrorWearerResolvedAddress,
+    ensError: isErrorWearerResolvedAddress,
   };
 };
 
