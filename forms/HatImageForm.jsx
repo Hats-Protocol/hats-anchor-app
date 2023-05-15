@@ -7,10 +7,9 @@ import {
   Spinner,
   Switch,
   FormControl,
-  Textarea,
 } from '@chakra-ui/react';
+import Textarea from '../components/Textarea';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
 import useHatImageUpdate from '../hooks/useHatImageUpdate';
 import { hatsAddresses } from '../constants';
 import useDebounce from '../hooks/useDebounce';
