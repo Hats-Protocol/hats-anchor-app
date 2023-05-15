@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses } from '../constants';
@@ -19,6 +23,15 @@ const useHatWearerStatusSet = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const {
+    data: wearerResolvedAddress,
+    isError: isErrorWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: wearer,
+    chainId: 1,
+  });
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
@@ -26,7 +39,7 @@ const useHatWearerStatusSet = ({
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
-      wearer || '',
+      wearerResolvedAddress || '',
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
@@ -75,7 +88,13 @@ const useHatWearerStatusSet = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    ensError: isErrorWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  };
 };
 
 export default useHatWearerStatusSet;

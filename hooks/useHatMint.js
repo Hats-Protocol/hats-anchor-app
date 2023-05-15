@@ -79,7 +79,7 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
 
   return {
     writeAsync,
-    isError: isErrorWearerResolvedAddress,
+    ensError: isErrorWearerResolvedAddress,
     isLoading: isLoadingWearerResolvedAddress,
   };
 };
