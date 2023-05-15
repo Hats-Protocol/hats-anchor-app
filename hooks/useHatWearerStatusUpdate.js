@@ -2,6 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
@@ -32,7 +33,11 @@ const useHatWearerStatusSet = ({
     chainId: 1,
   });
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    config,
+    error: prepareError,
+    data: writeData,
+  } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
@@ -88,12 +93,16 @@ const useHatWearerStatusSet = ({
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
     prepareError,
     writeError,
     ensError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress || isLoading,
   };
 };
 

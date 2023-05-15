@@ -13,7 +13,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
 
   const details = useDebounce(watch('details'));
 
-  const { writeAsync } = useHatDetailsUpdate({
+  const { writeAsync, isLoading } = useHatDetailsUpdate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
     hatId: _.get(hatData, 'id'),
@@ -36,7 +36,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>

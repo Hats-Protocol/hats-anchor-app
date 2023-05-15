@@ -16,7 +16,7 @@ const HatSupplyForm = ({ hatData, chainId }) => {
 
   const amount = useDebounce(watch('amount'), defaultDebounce);
 
-  const { writeAsync } = useHatSupplyUpdate({
+  const { writeAsync, isLoading } = useHatSupplyUpdate({
     hatsAddress: defaultHatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
@@ -30,10 +30,15 @@ const HatSupplyForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input localForm={localForm} name='amount' label='New Max Supply' placeholder='10' />
+        <Input
+          localForm={localForm}
+          name='amount'
+          label='New Max Supply'
+          placeholder='10'
+        />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>

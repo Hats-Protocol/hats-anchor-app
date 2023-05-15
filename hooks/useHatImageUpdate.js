@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
@@ -21,7 +25,7 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
     enabled: !!hatsAddress && !!hatId && image,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -53,7 +57,11 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useHatImageUpdate;

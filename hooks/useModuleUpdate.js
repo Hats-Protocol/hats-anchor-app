@@ -2,6 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { utils } from 'ethers';
@@ -51,7 +52,7 @@ const useModuleUpdate = ({
       utils.isAddress(newResolvedAddress),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -91,10 +92,14 @@ const useModuleUpdate = ({
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
     ensError: isErrorNewResolvedAddress,
-    isLoading: isLoadingNewResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress || isLoading,
   };
 };
 

@@ -2,6 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,7 +31,11 @@ const useHatTransferTree = ({
     chainId: 1,
   });
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    config,
+    error: prepareError,
+    data: writeData,
+  } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
@@ -85,12 +90,16 @@ const useHatTransferTree = ({
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
     prepareError,
     writeError,
     ensError: isErrorNewResolvedAddress,
-    isLoading: isLoadingNewResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress || isLoading,
   };
 };
 

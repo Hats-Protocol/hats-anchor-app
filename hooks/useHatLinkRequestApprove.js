@@ -2,6 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses, FALLBACK_ADDRESS } from '../constants';
@@ -55,7 +56,7 @@ const useHatLinkRequestApprove = ({
     enabled: !!topHatDomain && !!newAdmin,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -88,11 +89,17 @@ const useHatLinkRequestApprove = ({
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
     ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
     isLoading:
-      isLoadingEligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
+      isLoadingEligibilityResolvedAddress ||
+      isLoadingtoggleResolvedAddress ||
+      isLoading,
   };
 };
 

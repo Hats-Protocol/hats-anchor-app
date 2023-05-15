@@ -2,6 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses } from '../constants';
@@ -32,7 +33,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
     enabled: Boolean(_.get(hatData, 'prettyId')) && Boolean(wearer),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -65,10 +66,14 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
-    isLoading: isLoadingWearerResolvedAddress,
     ensError: isErrorWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress || isLoading,
   };
 };
 

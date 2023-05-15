@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses } from '../constants';
@@ -26,7 +30,7 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
       _.gt(_.get(hatData, 'levelAtLocalTree'), 0),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -68,7 +72,11 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useHatMakeImmutable;

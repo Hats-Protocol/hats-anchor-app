@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses } from '../constants';
@@ -22,7 +26,11 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
     enabled: Boolean(decimalId(_.get(hatData, 'id'))) && Boolean(wearerAddress),
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const {
+    writeAsync,
+    error: writeError,
+    data: writeData,
+  } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -79,7 +87,11 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, prepareError, writeError, isLoading };
 };
 
 export default useHatWearerStatusCheck;

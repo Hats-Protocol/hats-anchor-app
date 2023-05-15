@@ -1,6 +1,7 @@
 import {
   usePrepareContractWrite,
   useContractWrite,
+  useWaitForTransaction,
   useEnsAddress,
 } from 'wagmi';
 import _ from 'lodash';
@@ -62,7 +63,7 @@ const useHatCreate = ({
   });
   console.log(prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -97,11 +98,17 @@ const useHatCreate = ({
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
     ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
     isLoading:
-      isLoadingEligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
+      isLoadingEligibilityResolvedAddress ||
+      isLoadingtoggleResolvedAddress ||
+      isLoading,
   };
 };
 

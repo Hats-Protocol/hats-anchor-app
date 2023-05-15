@@ -2,6 +2,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { utils } from 'ethers';
@@ -39,7 +40,7 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
       utils.isAddress(newWearer),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -77,10 +78,14 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     },
   });
 
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
   return {
     writeAsync,
     ensError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress || isLoading,
   };
 };
 

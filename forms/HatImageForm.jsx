@@ -12,7 +12,7 @@ const HatImageForm = ({ hatData, chainId }) => {
 
   const image = useDebounce(watch('image'));
 
-  const { writeAsync } = useHatImageUpdate({
+  const { writeAsync, isLoading } = useHatImageUpdate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
     hatId: _.get(hatData, 'id'),
@@ -26,15 +26,15 @@ const HatImageForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input 
+        <Input
           localForm={localForm}
           name='image'
-          label='New Image' 
+          label='New Image'
           placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>
