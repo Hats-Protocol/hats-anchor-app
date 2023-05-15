@@ -1,6 +1,10 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import { hatsAddresses, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -18,6 +22,23 @@ const useHatLinkRequestApprove = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
+  const {
+    data: eligibilityResolvedAddress,
+    isError: isErrorEligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+    isError: isErrorToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
   const { config } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,
@@ -26,8 +47,8 @@ const useHatLinkRequestApprove = ({
     args: [
       topHatDomain,
       decimalId(newAdmin),
-      eligibility,
-      toggle,
+      eligibilityResolvedAddress || FALLBACK_ADDRESS,
+      toggleResolvedAddress || FALLBACK_ADDRESS,
       description,
       imageUrl || '',
     ],
@@ -67,7 +88,12 @@ const useHatLinkRequestApprove = ({
     },
   });
 
-  return { writeAsync };
+  return {
+    writeAsync,
+    ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
+    isLoading:
+      isLoadingEligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
+  };
 };
 
 export default useHatLinkRequestApprove;

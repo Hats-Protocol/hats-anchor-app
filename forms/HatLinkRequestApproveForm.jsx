@@ -16,7 +16,7 @@ import { useDropzone } from 'react-dropzone';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
+import { ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { prettyIdToIp, decimalId } from '../lib/hats';
 import { pinJson } from '../lib/ipfs';
@@ -34,8 +34,8 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   });
   const { handleSubmit, watch } = localForm;
 
-  const [inputEligibility, setInputEligibility] = useState(false);
-  const [inputToggle, setInputToggle] = useState(false);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
   const [newImage, setNewImage] = useState(false);
   const [image, setImage] = useState(hatData.imageUrl);
@@ -71,11 +71,11 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useHatLinkRequestApprove({
+  const { writeAsync, ensError, isLoading } = useHatLinkRequestApprove({
     topHatDomain,
     newAdmin: hatData.id,
-    eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
-    toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
+    eligibility: eligibilityChecked && eligibility,
+    toggle: toggleChecked && toggle,
     description,
     // eslint-disable-next-line no-nested-ternary
     imageUrl: newImage
@@ -162,11 +162,11 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputEligibility}
-              onChange={() => setInputEligibility(!inputEligibility)}
+              isChecked={eligibilityChecked}
+              onChange={() => setEligibilityChecked(!eligibilityChecked)}
             />
-            {!inputEligibility && <FormLabel>New Eligibility</FormLabel>}
-            {inputEligibility && (
+            {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
+            {eligibilityChecked && (
               <Input
                 name='eligibility'
                 label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -179,11 +179,11 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputToggle}
-              onChange={() => setInputToggle(!inputToggle)}
+              isChecked={toggleChecked}
+              onChange={() => setToggleChecked(!toggleChecked)}
             />
-            {!inputToggle && <FormLabel>New Toggle</FormLabel>}
-            {inputToggle && (
+            {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
+            {toggleChecked && (
               <Input
                 name='toggle'
                 label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
@@ -196,8 +196,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            // shouldn't be disabled if newAdmin && topHatDomain are set
-            isDisabled={!writeAsync || imagePinLoading}
+            isDisabled={!writeAsync || imagePinLoading || isLoading || ensError}
           >
             {imagePinLoading ? <Spinner /> : 'Approve'}
           </Button>
