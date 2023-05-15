@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
@@ -23,6 +27,23 @@ const useHatCreate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const {
+    data: eligibilityResolvedAddress,
+    isError: isErrorEligibilityResolvedAddress,
+    isLoading: isLoadingeligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+    isError: isErrorToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
@@ -32,8 +53,8 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      eligibility || FALLBACK_ADDRESS,
-      toggle || FALLBACK_ADDRESS,
+      eligibilityResolvedAddress || FALLBACK_ADDRESS,
+      toggleResolvedAddress || FALLBACK_ADDRESS,
       mutable === 'Mutable',
       imageUrl || '',
     ],
@@ -76,7 +97,12 @@ const useHatCreate = ({
     },
   });
 
-  return { writeAsync };
+  return {
+    writeAsync,
+    isError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
+    isLoading:
+      isLoadingeligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
+  };
 };
 
 export default useHatCreate;

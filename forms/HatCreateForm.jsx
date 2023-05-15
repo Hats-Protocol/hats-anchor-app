@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
-import { useChainId } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 
@@ -33,8 +33,8 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     defaultValues: { mutable: 'Mutable' },
   });
   const { handleSubmit, watch } = localForm;
-  const [inputEligibility, setInputEligibility] = useState(false);
-  const [inputToggle, setInputToggle] = useState(false);
+  const [isEligibilityChecked, setInputEligibility] = useState(false);
+  const [isToggleChecked, setInputToggle] = useState(false);
   const [customDetails, setCustomDetails] = useState(true);
   const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
@@ -84,15 +84,15 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     data: { name, description },
   });
 
-  const { writeAsync } = useHatCreate({
+  const { writeAsync, isError, isLoading } = useHatCreate({
     hatsAddress: hatsAddresses(chainId),
     chainId,
     treeId,
     admin: defaultAdmin,
     details: customDetails ? detailsCID : details,
     maxSupply: _.toNumber(maxSupply),
-    eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
-    toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
+    eligibility: isEligibilityChecked && eligibility,
+    toggle: isToggleChecked && toggle,
     mutable,
     imageUrl: customImage
       ? imagePinData !== undefined
@@ -210,11 +210,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputEligibility}
-              onChange={() => setInputEligibility(!inputEligibility)}
+              isChecked={isEligibilityChecked}
+              onChange={() => setInputEligibility(!isEligibilityChecked)}
             />
-            {!inputEligibility && <FormLabel>Set Eligibility</FormLabel>}
-            {inputEligibility && (
+            {!isEligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
+            {isEligibilityChecked && (
               <Input
                 name='eligibility'
                 label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -227,11 +227,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputToggle}
-              onChange={() => setInputToggle(!inputToggle)}
+              isChecked={isToggleChecked}
+              onChange={() => setInputToggle(!isToggleChecked)}
             />
-            {!inputToggle && <FormLabel>Set Toggle</FormLabel>}
-            {inputToggle && (
+            {!isToggleChecked && <FormLabel>Set Toggle</FormLabel>}
+            {isToggleChecked && (
               <Input
                 name='toggle'
                 label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
@@ -244,7 +244,13 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || detailsCidLoading || imagePinLoading}
+            isDisabled={
+              !writeAsync ||
+              detailsCidLoading ||
+              imagePinLoading ||
+              isError ||
+              isLoading
+            }
           >
             {imagePinLoading ? <Spinner /> : 'Create'}
           </Button>
