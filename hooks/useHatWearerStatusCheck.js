@@ -36,7 +36,7 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
           title: `Hat Minted!`,
           description: `Successfully minted hat`,
         },
-        useToast: false,
+        sendToast: false,
       });
 
       console.log(logs);
