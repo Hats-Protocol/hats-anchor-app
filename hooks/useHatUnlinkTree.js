@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { hatsAddresses } from '../constants';
 import abi from '../contracts/Hats.json';
@@ -10,16 +14,25 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    data: wearerResolvedAddress,
+    isError: isErrorWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: wearer,
+    chainId: 1,
+  });
+
+  const { config } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'unlinkTopHatFromTree',
-    args: [_.get(hatData, 'prettyId'), wearer],
+    args: [_.get(hatData, 'prettyId'), wearerResolvedAddress],
     enabled: Boolean(_.get(hatData, 'prettyId')) && Boolean(wearer),
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -52,7 +65,11 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  return {
+    writeAsync,
+    isLoading: isLoadingWearerResolvedAddress,
+    isError: isErrorWearerResolvedAddress,
+  };
 };
 
 export default useHatUnlinkTree;

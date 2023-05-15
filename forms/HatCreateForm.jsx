@@ -33,8 +33,8 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     defaultValues: { mutable: 'Mutable' },
   });
   const { handleSubmit, watch } = localForm;
-  const [isEligibilityChecked, setInputEligibility] = useState(false);
-  const [isToggleChecked, setInputToggle] = useState(false);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [toggleChecked, setInputChecked] = useState(false);
   const [customDetails, setCustomDetails] = useState(true);
   const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
@@ -91,8 +91,8 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     admin: defaultAdmin,
     details: customDetails ? detailsCID : details,
     maxSupply: _.toNumber(maxSupply),
-    eligibility: isEligibilityChecked && eligibility,
-    toggle: isToggleChecked && toggle,
+    eligibility: eligibilityChecked && eligibility,
+    toggle: toggleChecked && toggle,
     mutable,
     imageUrl: customImage
       ? imagePinData !== undefined
@@ -210,11 +210,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={isEligibilityChecked}
-              onChange={() => setInputEligibility(!isEligibilityChecked)}
+              isChecked={eligibilityChecked}
+              onChange={() => setEligibilityChecked(!eligibilityChecked)}
             />
-            {!isEligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
-            {isEligibilityChecked && (
+            {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
+            {eligibilityChecked && (
               <Input
                 name='eligibility'
                 label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -227,11 +227,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={isToggleChecked}
-              onChange={() => setInputToggle(!isToggleChecked)}
+              isChecked={toggleChecked}
+              onChange={() => setInputChecked(!toggleChecked)}
             />
-            {!isToggleChecked && <FormLabel>Set Toggle</FormLabel>}
-            {isToggleChecked && (
+            {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
+            {toggleChecked && (
               <Input
                 name='toggle'
                 label='Toggle — https://docs.hatsprotocol.xyz/#toggle'

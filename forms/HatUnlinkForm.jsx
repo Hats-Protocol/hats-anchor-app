@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Stack, Button, Flex, Switch, Text, Heading } from '@chakra-ui/react';
+import {
+  Stack,
+  Button,
+  Flex,
+  Switch,
+  Text,
+  Heading,
+  FormControl,
+} from '@chakra-ui/react';
 import { utils } from 'ethers';
 import _ from 'lodash';
 import { useAccount } from 'wagmi';
@@ -12,17 +20,16 @@ import { prettyIdToIp } from '../lib/hats';
 
 const HatUnlinkForm = ({ hatData, chainId }) => {
   const { address } = useAccount();
-  const [userMint, setUserMint] = useState(true);
+  const [userMintChecked, setUserMintChecked] = useState(true);
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
   const wearer = useDebounce(watch('wearer', null), CONFIG.debounce);
-  // TODO handle ens name
 
-  const { writeAsync } = useHatUnlinkTree({
+  const { writeAsync, isError, isLoading } = useHatUnlinkTree({
     hatsAddress: hatsAddresses(chainId),
     hatData,
-    wearer: userMint ? address : wearer,
+    wearer: userMintChecked ? address : wearer,
   });
 
   const onSubmit = async () => {
@@ -42,24 +49,32 @@ const HatUnlinkForm = ({ hatData, chainId }) => {
             #{prettyIdToIp(_.get(hatData, 'prettyId'))}
           </Heading>
         </Stack>
-        <Switch isChecked={userMint} onChange={() => setUserMint(!userMint)}>
-          Mint to me
-        </Switch>
-        {!userMint && (
-          <Input
-            localForm={localForm}
-            name='wearer'
-            label='New Wearer Address'
-            options={{
-              validate: (value) =>
-                utils.isAddress(value) ? true : 'Must be a valid address',
-            }}
-            placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-          />
-        )}
+        <FormControl>
+          <Switch
+            isChecked={userMintChecked}
+            onChange={() => setUserMintChecked(!userMintChecked)}
+          >
+            Mint to me
+          </Switch>
+          {!userMintChecked && (
+            <Input
+              localForm={localForm}
+              name='wearer'
+              label='New Wearer Address'
+              options={{
+                validate: (value) =>
+                  utils.isAddress(value) ? true : 'Must be a valid address',
+              }}
+              placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+            />
+          )}
+        </FormControl>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || isLoading || isError}
+          >
             Unlink
           </Button>
         </Flex>

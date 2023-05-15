@@ -30,7 +30,7 @@ const useHatCreate = ({
   const {
     data: eligibilityResolvedAddress,
     isError: isErrorEligibilityResolvedAddress,
-    isLoading: isLoadingeligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
     name: eligibility,
     chainId: 1,
@@ -101,7 +101,7 @@ const useHatCreate = ({
     writeAsync,
     isError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
     isLoading:
-      isLoadingeligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
+      isLoadingEligibilityResolvedAddress || isLoadingtoggleResolvedAddress,
   };
 };
 
