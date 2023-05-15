@@ -12,9 +12,8 @@ const HatWearerForm = ({ hatId, chainId }) => {
   const { handleSubmit, watch } = localForm;
 
   const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
-  // TODO handle ens name
 
-  const { writeAsync } = useHatMint({
+  const { writeAsync, isError, isLoading } = useHatMint({
     hatsAddress: hatsAddresses(chainId),
     hatId,
     newWearer,
@@ -39,7 +38,10 @@ const HatWearerForm = ({ hatId, chainId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || isError || isLoading}
+          >
             Mint
           </Button>
         </Flex>

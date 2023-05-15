@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { utils } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,12 +17,21 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const {
+    data: wearerResolvedAddress,
+    isError: isErrorWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
+  });
+
   const { config } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'mintHat',
-    args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
+    args: [decimalId(hatId), wearerResolvedAddress || ZERO_ADDRESS],
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
@@ -64,7 +77,11 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     },
   });
 
-  return { writeAsync };
+  return {
+    writeAsync,
+    isError: isErrorWearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  };
 };
 
 export default useHatMint;
