@@ -18,7 +18,7 @@ import Input from '../components/Input';
 import Select from '../components/Select';
 import Textarea from '../components/Textarea';
 import DropZone from '../components/DropZone';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import useHatRelinkTree from '../hooks/useHatRelinkTree';
 import useDebounce from '../hooks/useDebounce';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
@@ -41,8 +41,8 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
     CONFIG.debounce,
   );
 
-  const [inputEligibility, setInputEligibility] = useState(false);
-  const [inputToggle, setInputToggle] = useState(false);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
   const [newImage, setNewImage] = useState(false);
   const [image, setImage] = useState(hatData.imageUrl);
@@ -78,11 +78,11 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useHatRelinkTree({
+  const { writeAsync, ensError, isLoading } = useHatRelinkTree({
     topHatDomain: hatData.prettyId,
     newAdmin,
-    eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
-    toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
+    eligibility: eligibilityChecked && eligibility,
+    toggle: toggleChecked && toggle,
     description,
     // eslint-disable-next-line no-nested-ternary
     imageUrl: newImage
@@ -175,11 +175,11 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputEligibility}
-              onChange={() => setInputEligibility(!inputEligibility)}
+              isChecked={eligibilityChecked}
+              onChange={() => setEligibilityChecked(!eligibilityChecked)}
             />
-            {!inputEligibility && <FormLabel>New Eligibility</FormLabel>}
-            {inputEligibility && (
+            {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
+            {eligibilityChecked && (
               <Input
                 name='eligibility'
                 label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -192,11 +192,11 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputToggle}
-              onChange={() => setInputToggle(!inputToggle)}
+              isChecked={toggleChecked}
+              onChange={() => setToggleChecked(!toggleChecked)}
             />
-            {!inputToggle && <FormLabel>New Toggle</FormLabel>}
-            {inputToggle && (
+            {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
+            {toggleChecked && (
               <Input
                 name='toggle'
                 label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
@@ -209,8 +209,7 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            // shouldn't be disabled if newAdmin && topHatDomain are set
-            isDisabled={!writeAsync || imagePinLoading}
+            isDisabled={!writeAsync || imagePinLoading || ensError || isLoading}
           >
             {imagePinLoading ? <Spinner /> : 'Relink'}
           </Button>
