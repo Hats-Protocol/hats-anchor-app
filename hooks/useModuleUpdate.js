@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { utils } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
@@ -19,6 +23,15 @@ const useModuleUpdate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const {
+    data: newResolvedAddress,
+    isError: isErrorNewResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress,
+  } = useEnsAddress({
+    name: newAddress,
+    chainId: 1,
+  });
+
   const functionName =
     moduleType === MODULE_TYPES.eligibility
       ? 'changeHatEligibility'
@@ -29,13 +42,13 @@ const useModuleUpdate = ({
     chainId: _.toNumber(chainId),
     abi: JSON.stringify(abi),
     functionName,
-    args: [decimalId(hatId), newAddress || ZERO_ADDRESS],
+    args: [decimalId(hatId), newResolvedAddress || ZERO_ADDRESS],
     enabled:
       !!hatsAddress &&
       !!moduleType &&
       !!hatId &&
-      !!newAddress &&
-      utils.isAddress(newAddress),
+      !!newResolvedAddress &&
+      utils.isAddress(newResolvedAddress),
   });
 
   const { writeAsync } = useContractWrite({
@@ -78,7 +91,11 @@ const useModuleUpdate = ({
     },
   });
 
-  return { writeAsync };
+  return {
+    writeAsync,
+    ensError: isErrorNewResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress,
+  };
 };
 
 export default useModuleUpdate;
