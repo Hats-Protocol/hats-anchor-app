@@ -26,7 +26,7 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
     CONFIG.debounce,
   );
 
-  const { writeAsync } = useHatTransferTree({
+  const { writeAsync, isLoading, ensError } = useHatTransferTree({
     currentWearerAddress,
     hatData,
     newWearerAddress,
@@ -65,7 +65,10 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || isLoading || ensError}
+          >
             Transfer
           </Button>
         </Flex>

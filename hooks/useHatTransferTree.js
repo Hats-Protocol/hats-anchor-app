@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { hatsAddresses } from '../constants';
@@ -17,13 +21,26 @@ const useHatTransferTree = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const {
+    data: newWearerResolvedAddress,
+    isError: isErrorNewResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress,
+  } = useEnsAddress({
+    name: newWearerAddress,
+    chainId: 1,
+  });
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'transferHat',
-    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
-    enabled: Boolean(newWearerAddress),
+    args: [
+      decimalId(hatData.id),
+      currentWearerAddress,
+      newWearerResolvedAddress,
+    ],
+    enabled: Boolean(newWearerResolvedAddress),
   });
 
   const { writeAsync, error: writeError } = useContractWrite({
@@ -40,7 +57,7 @@ const useHatTransferTree = ({
           title: `Top Hat Transferred!`,
           description: `Successfully transferred top hat #${prettyIdToIp(
             _.get(hatData, 'prettyId'),
-          )} from ${currentWearerAddress} to ${newWearerAddress}`,
+          )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
         },
       });
 
@@ -68,7 +85,13 @@ const useHatTransferTree = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    ensError: isErrorNewResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress,
+  };
 };
 
 export default useHatTransferTree;
