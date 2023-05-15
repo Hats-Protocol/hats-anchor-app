@@ -3,6 +3,7 @@ import {
   useContractWrite,
   useAccount,
   useWaitForTransaction,
+  useEnsAddress,
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,13 +29,22 @@ const useTreeCreate = ({
   const queryClient = useQueryClient();
   const router = useRouter();
 
+  const {
+    data: newReceiverResolvedAddress,
+    isError: isErrorNewReceiverResolvedAddress,
+    isLoading: isLoadingNewReceiverResolvedAddress,
+  } = useEnsAddress({
+    name: receiver,
+    chainId: 1,
+  });
+
   const { config } = usePrepareContractWrite({
     address: hatsAddress || hatsAddresses(chainId),
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'mintTopHat',
     args: [
-      overrideReceiver ? receiver : address,
+      overrideReceiver ? newReceiverResolvedAddress : address,
       details || '',
       imageUrl || '',
     ],
@@ -94,7 +104,11 @@ const useTreeCreate = ({
     onError: handleError,
   });
 
-  return { writeAsync, isLoading };
+  return {
+    writeAsync,
+    isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
+    ensError: isErrorNewReceiverResolvedAddress,
+  };
 };
 
 export default useTreeCreate;
