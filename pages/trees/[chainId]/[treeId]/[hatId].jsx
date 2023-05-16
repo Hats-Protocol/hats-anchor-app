@@ -185,13 +185,15 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   ];
 
   const handleNodeClick = (nodePrettyId, nodeTreeId) => {
-    router.push(
-      `/trees/${chainId}/${decimalId(nodeTreeId)}/${prettyIdToUrlId(
-        nodePrettyId,
-      )}`,
-      undefined,
-      { scroll: false },
-    );
+    if (prettyIdToId(nodePrettyId) !== hatId) {
+      router.push(
+        `/trees/${chainId}/${decimalId(nodeTreeId)}/${prettyIdToUrlId(
+          nodePrettyId,
+        )}`,
+        undefined,
+        { scroll: false },
+      );
+    }
   };
 
   const handleAddChildClick = (nodePrettyId) => {
@@ -277,8 +279,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   data={tree}
                   dimensions={dimensions}
                   orientation='vertical'
-                  collapsible={false}
-                  nodeSize={{ x: 200, y: 200 }}
+                  collapsible={true}
                   translate={{ x: 200, y: 200 }}
                   renderCustomNodeElement={(rd3tProps) =>
                     TreeNode(

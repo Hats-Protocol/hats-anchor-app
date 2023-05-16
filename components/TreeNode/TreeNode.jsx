@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import _ from 'lodash';
 import { IconButton, Flex, Icon } from '@chakra-ui/react';
-import { FaPlus, FaLink } from 'react-icons/fa';
+import { FaPlus, FaLink, FaExpandArrowsAlt } from 'react-icons/fa';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
@@ -33,6 +33,10 @@ function Node({
 
   const isWearer = !_.isEmpty(_.filter(wearerHats, (val) => val === name));
   const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
+
+  const handleToggle = () => {
+    rd3tProps.toggleNode();
+  };
 
   useEffect(() => {
     if (isCurrentHat) {
@@ -112,6 +116,20 @@ function Node({
                   w='min-content'
                   icon={<Icon as={FaLink} />}
                   onClick={() => handleRequestLink(name)}
+                  size='xs'
+                  variant='outline'
+                />
+              )}
+              {rd3tProps.nodeDatum.children.length != 0 && (
+                <IconButton
+                  colorScheme='black'
+                  borderRadius={6}
+                  _hover={{
+                    backgroundColor: 'rgb(225, 233, 236)',
+                  }}
+                  w='min-content'
+                  icon={<Icon as={FaExpandArrowsAlt} />}
+                  onClick={() => handleToggle(name)}
                   size='xs'
                   variant='outline'
                 />
