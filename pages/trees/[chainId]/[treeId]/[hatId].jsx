@@ -118,7 +118,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   }
   if (treeError) return <p>Error : {treeError.message}</p>;
 
-  const tree = toTreeStructure(treeData, imagesData);
+  const tree = toTreeStructure(treeData, {}, imagesData);
   const events = _.get(treeData, 'events');
   const treeInfoTable = [
     {

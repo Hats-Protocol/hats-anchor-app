@@ -1,9 +1,12 @@
+/* eslint-disable no-nested-ternary */
+import _ from 'lodash';
 import { IconButton, Flex, Icon } from '@chakra-ui/react';
 import { FaPlus, FaLink } from 'react-icons/fa';
 import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin } from '../../lib/hats';
+import useHatDetails from '../../hooks/useHatDetails';
 
 function Node({
   rd3tProps,
@@ -19,21 +22,29 @@ function Node({
   const { address } = useAccount();
   const { attributes, name } = rd3tProps.nodeDatum;
   const { treeId } = attributes;
+  const { data: hatData } = useHatDetails({
+    hatId: prettyIdToId(name),
+    chainId,
+  });
 
-  const isHatActive = BigNumber.from(activeHatId).eq(
+  const isCurrentHat = BigNumber.from(activeHatId).eq(
     BigNumber.from(prettyIdToId(name)),
   );
 
+  const isWearer = !_.isEmpty(_.filter(wearerHats, (val) => val === name));
   const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
 
   useEffect(() => {
-    if (isHatActive) {
+    if (isCurrentHat) {
       rd3tProps.onNodeClick();
     }
   }, []);
 
   return (
-    <g>
+    <g
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+    >
       <defs>
         <pattern
           id={name}
@@ -48,27 +59,25 @@ function Node({
             y='0%'
             width='512'
             height='512'
+            style={{ opacity: !_.get(hatData, 'status') ? 0.6 : 1 }}
             href={attributes.imageURI}
           />
         </pattern>
       </defs>
       <circle
-        r={isHatActive || isHover ? 30 : 25}
+        r={isCurrentHat ? 30 : 25}
         fill={attributes.imageURI !== undefined ? `url(#${name})` : 'grey'}
         fillRule='evenOdd'
         style={{
-          stroke: isHatActive ? '#437bc9' : '#6d858f',
-          strokeWidth: isHatActive ? '4px' : '2px',
+          stroke: isWearer ? '#00B628' : isCurrentHat ? '#437bc9' : '#6d858f',
+          strokeWidth: isCurrentHat ? '4px' : '2px',
           strokeOpacity: '50%',
         }}
         onClick={() => {
           handleNodeClick(name, treeId);
           rd3tProps.onNodeClick();
         }}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
       />
-
       <foreignObject width={125} height={200} x={35} y={-25}>
         <div
           style={{
@@ -77,38 +86,41 @@ function Node({
           }}
         >
           <h4 style={{}}>ID {prettyIdToIp(name)}</h4>
-          <Flex gap={1}>
-            {address && chainId === userChain && isWearerOrAdminOfHat && (
-              <IconButton
-                colorScheme='black'
-                borderRadius={6}
-                _hover={{
-                  backgroundColor: 'rgb(225, 233, 236)',
-                }}
-                w='min-content'
-                icon={<Icon as={FaPlus} />}
-                onClick={() => handleAddChildClick(name)}
-                size='xs'
-                variant='outline'
-              />
-            )}
-            {address && wearerHats?.length > 0 && (
-              <IconButton
-                colorScheme='black'
-                borderRadius={6}
-                _hover={{
-                  backgroundColor: 'rgb(225, 233, 236)',
-                }}
-                w='min-content'
-                icon={<Icon as={FaLink} />}
-                onClick={() => handleRequestLink(name)}
-                size='xs'
-                variant='outline'
-              />
-            )}
-          </Flex>
+          {isHover && (
+            <Flex gap={1}>
+              {address && chainId === userChain && isWearerOrAdminOfHat && (
+                <IconButton
+                  colorScheme='black'
+                  borderRadius={6}
+                  _hover={{
+                    backgroundColor: 'rgb(225, 233, 236)',
+                  }}
+                  w='min-content'
+                  icon={<Icon as={FaPlus} />}
+                  onClick={() => handleAddChildClick(name)}
+                  size='xs'
+                  variant='outline'
+                />
+              )}
+              {address && wearerHats?.length > 0 && (
+                <IconButton
+                  colorScheme='black'
+                  borderRadius={6}
+                  _hover={{
+                    backgroundColor: 'rgb(225, 233, 236)',
+                  }}
+                  w='min-content'
+                  icon={<Icon as={FaLink} />}
+                  onClick={() => handleRequestLink(name)}
+                  size='xs'
+                  variant='outline'
+                />
+              )}
+            </Flex>
+          )}
         </div>
       </foreignObject>
+      ,
     </g>
   );
 }
