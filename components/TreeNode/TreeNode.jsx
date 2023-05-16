@@ -120,7 +120,7 @@ function Node({
                   variant='outline'
                 />
               )}
-              {rd3tProps.nodeDatum.children.length != 0 && (
+              {rd3tProps.nodeDatum.children.length !== 0 && (
                 <IconButton
                   colorScheme='black'
                   borderRadius={6}
