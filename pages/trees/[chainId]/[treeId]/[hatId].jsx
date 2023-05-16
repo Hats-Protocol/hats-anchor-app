@@ -279,7 +279,6 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   data={tree}
                   dimensions={dimensions}
                   orientation='vertical'
-                  collapsible={true}
                   translate={{ x: 200, y: 200 }}
                   renderCustomNodeElement={(rd3tProps) =>
                     TreeNode(
