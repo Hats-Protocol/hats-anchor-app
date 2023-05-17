@@ -89,6 +89,7 @@ const HatHoverCard = ({
       position='absolute'
       bg='white'
       w='225px'
+      top='-2px'
       border='2px solid'
       borderColor={isCurrentHat ? '#437bc9' : '#6d858f'}
       borderRadius='md'
