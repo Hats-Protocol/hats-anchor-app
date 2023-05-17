@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-// import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
@@ -21,7 +21,7 @@ const useHatCreate = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,

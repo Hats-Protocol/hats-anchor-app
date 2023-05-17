@@ -1,7 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import CONFIG from '../constants';
 import { useQueryClient } from '@tanstack/react-query';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
