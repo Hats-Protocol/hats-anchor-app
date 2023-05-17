@@ -259,6 +259,7 @@ function Node({
             height='512'
             style={{ opacity: !_.get(hatData, 'status') ? 0.6 : 1 }}
             href={attributes.imageURI}
+            preserveAspectRatio='xMidYMid slice'
           />
         </pattern>
       </defs>
