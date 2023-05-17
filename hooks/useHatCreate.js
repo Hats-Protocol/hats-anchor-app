@@ -43,20 +43,23 @@ const useHatCreate = ({
 
   const { writeAsync } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Hat Created',
           description: 'Successfully created hat',
         },
-        treeId,
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['treeDetails', treeId] });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {

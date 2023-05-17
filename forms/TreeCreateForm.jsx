@@ -27,8 +27,9 @@ const TreeCreateForm = () => {
   const imageUrl = useDebounce(watch('imageUrl', ''));
   const receiver = useDebounce(watch('receiver'));
 
-  const { writeAsync } = useTreeCreate({
+  const { writeAsync, isLoading } = useTreeCreate({
     hatsAddress: CONFIG.hatsAddress,
+    chainId,
     details,
     imageUrl,
     receiver,
@@ -77,7 +78,7 @@ const TreeCreateForm = () => {
         )}
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Create
           </Button>
         </Flex>
