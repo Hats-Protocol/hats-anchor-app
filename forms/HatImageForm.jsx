@@ -3,7 +3,7 @@ import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatImageUpdate from '../hooks/useHatImageUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
 const HatImageForm = ({ hatData, chainId }) => {
@@ -13,7 +13,7 @@ const HatImageForm = ({ hatData, chainId }) => {
   const image = useDebounce(watch('image'));
 
   const { writeAsync } = useHatImageUpdate({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
     image,
@@ -26,10 +26,10 @@ const HatImageForm = ({ hatData, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input 
+        <Input
           localForm={localForm}
           name='image'
-          label='New Image' 
+          label='New Image'
           placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
         />
 

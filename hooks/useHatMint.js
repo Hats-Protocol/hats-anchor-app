@@ -2,7 +2,7 @@ import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { utils } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -14,7 +14,7 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'mintHat',

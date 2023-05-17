@@ -7,7 +7,7 @@ import {
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -29,7 +29,7 @@ const useTreeCreate = ({
   const router = useRouter();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'mintTopHat',

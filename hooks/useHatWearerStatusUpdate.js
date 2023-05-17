@@ -1,7 +1,8 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import { utils } from 'ethers';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId, toTreeId } from '../lib/hats';
@@ -20,7 +21,7 @@ const useHatWearerStatusSet = ({
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'setHatWearerStatus',
@@ -30,9 +31,9 @@ const useHatWearerStatusSet = ({
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
-    enabled: !!hatsAddress && !!wearer,
+    enabled: !!hatsAddress && utils.isAddress(wearer),
   });
-  // console.log(prepareError);
+  console.log('hatWearerStatusUpdate- prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,

@@ -1,7 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
@@ -24,7 +24,7 @@ const useHatCreate = ({
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'createHat',
@@ -39,7 +39,7 @@ const useHatCreate = ({
     ],
     enabled: !!hatsAddress && !!admin,
   });
-  console.log(prepareError);
+  console.log('hatCreate - prepareError', prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,

@@ -6,11 +6,14 @@ import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useHatUnlinkTree from '../hooks/useHatUnlinkTree';
 import { prettyIdToIp } from '../lib/hats';
 
-const HatUnlinkForm = ({ hatData, chainId }) => {
+const HatUnlinkForm = ({
+  hatData,
+  // chainId
+}) => {
   const { address } = useAccount();
   const [userMint, setUserMint] = useState(true);
   const localForm = useForm({ mode: 'onBlur' });
@@ -20,7 +23,7 @@ const HatUnlinkForm = ({ hatData, chainId }) => {
   // TODO handle ens name
 
   const { writeAsync } = useHatUnlinkTree({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     hatData,
     wearer: userMint ? address : wearer,
   });

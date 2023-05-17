@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
 import { useMemo, useEffect } from 'react';
 import { Stack } from '@chakra-ui/react';
@@ -37,7 +38,7 @@ const rejectStyle = {
 const DropZone = ({
   getRootProps,
   getInputProps,
-  acceptedFiles,
+  // acceptedFiles,
   isFocused,
   isDragAccept,
   isDragReject,
@@ -95,6 +96,7 @@ const DropZone = ({
             onLoad={() => {
               URL.revokeObjectURL(image.preview);
             }}
+            alt='Uploaded item from user'
           />
         </div>
       </div>
@@ -107,6 +109,7 @@ const DropZone = ({
         URL.revokeObjectURL(image.preview);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
