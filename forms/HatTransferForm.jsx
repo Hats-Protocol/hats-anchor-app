@@ -8,7 +8,7 @@ import {
   HStack,
   Code,
 } from '@chakra-ui/react';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
@@ -59,7 +59,7 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
           label='New Wearer Address'
           options={{
             validate: (value) =>
-              utils.isAddress(value) ? true : 'Must be a valid address',
+              isAddress(value) ? true : 'Must be a valid address',
           }}
           placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
         />

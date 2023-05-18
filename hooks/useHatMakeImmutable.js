@@ -15,7 +15,7 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'makeHatImmutable',
     args: [
       decimalId(_.get(hatData, 'id')), // not a valid fallback? enabled handles, mostly for type

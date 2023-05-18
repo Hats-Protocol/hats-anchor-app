@@ -12,7 +12,7 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'changeHatImageURI',
     args: [
       hatId || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type

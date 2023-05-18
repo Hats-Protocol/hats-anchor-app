@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import { useQueryClient } from '@tanstack/react-query';
 import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
@@ -16,14 +16,14 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'mintHat',
     args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
       Boolean(newWearer) &&
-      utils.isAddress(newWearer),
+      isAddress(newWearer),
   });
 
   const { writeAsync } = useContractWrite({

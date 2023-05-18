@@ -1,7 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { utils } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
+import { isAddress } from 'viem';
 import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
@@ -27,7 +27,7 @@ const useModuleUpdate = ({
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName,
     args: [decimalId(hatId), newAddress || ZERO_ADDRESS],
     enabled:
@@ -35,7 +35,7 @@ const useModuleUpdate = ({
       !!moduleType &&
       !!hatId &&
       !!newAddress &&
-      utils.isAddress(newAddress),
+      isAddress(newAddress),
   });
 
   const { writeAsync } = useContractWrite({

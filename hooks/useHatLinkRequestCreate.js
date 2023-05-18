@@ -13,7 +13,7 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'requestLinkTopHatToTree',
     args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
     enabled: Boolean(topHatDomain) && Boolean(newAdmin),

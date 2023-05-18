@@ -31,7 +31,7 @@ const useTreeCreate = ({
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'mintTopHat',
     args: [
       overrideReceiver ? receiver : address,

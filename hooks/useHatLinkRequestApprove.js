@@ -21,7 +21,7 @@ const useHatLinkRequestApprove = ({
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'approveLinkTopHatToTree',
     args: [
       topHatDomain,

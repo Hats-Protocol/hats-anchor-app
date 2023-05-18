@@ -25,7 +25,7 @@ function MyApp({ Component, pageProps }) {
       <DefaultSeo {...SEO} />
 
       <ChakraProvider theme={theme}>
-        <WagmiConfig client={wagmiClient}>
+        <WagmiConfig config={wagmiClient}>
           <RainbowKitProvider chains={chains}>
             <QueryClientProvider client={queryClient}>
               <OverlayContextProvider>

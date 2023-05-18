@@ -15,7 +15,7 @@ const useHatStatusUpdate = ({ hatsAddress, hatId, chainId, status }) => {
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'setHatStatus',
     args: [prettyIdToId(hatId), status === 'Active'],
     enabled: Boolean(hatsAddress) && Boolean(hatId),
