@@ -40,7 +40,7 @@ const useHatDetailsField = (detailsField) => {
     switch (schemaTypeField) {
       case '1.0':
         if (
-          _.includes(_.keys(detailsData), 'name') &&
+          _.includes(_.keys(detailsData), 'name') ||
           _.includes(_.keys(detailsData), 'description')
         ) {
           schemaType = schemaTypeField;
