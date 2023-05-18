@@ -30,7 +30,7 @@ const CoreHat = ({ hat, image }) => {
 
   const hatName =
     schemaTypeDetailsField === '1.0'
-      ? _.get(hatDetailsFieldData, 'data.data.name')
+      ? _.get(hatDetailsFieldData, 'name')
       : _.get(hat, 'details');
 
   return (
