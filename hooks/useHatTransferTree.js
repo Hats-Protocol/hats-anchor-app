@@ -1,7 +1,8 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import { utils } from 'ethers';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -18,13 +19,18 @@ const useHatTransferTree = ({
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'transferHat',
     args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
-    enabled: Boolean(newWearerAddress),
+    enabled:
+      Boolean(newWearerAddress) &&
+      Boolean(currentWearerAddress) &&
+      utils.isAddress(newWearerAddress) &&
+      utils.isAddress(currentWearerAddress),
   });
+  console.log('hatLinkTransferTree - prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,

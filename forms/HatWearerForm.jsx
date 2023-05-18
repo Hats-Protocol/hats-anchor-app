@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 
 const HatWearerForm = ({ hatId, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });
@@ -15,7 +15,8 @@ const HatWearerForm = ({ hatId, chainId }) => {
   // TODO handle ens name
 
   const { writeAsync } = useHatMint({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
     hatId,
     newWearer,
   });

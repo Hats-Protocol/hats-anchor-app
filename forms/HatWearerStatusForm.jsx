@@ -4,7 +4,7 @@ import { utils } from 'ethers';
 import { Stack, Button, Flex, Text, Heading } from '@chakra-ui/react';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import RadioBox from '../components/RadioBox';
 import useHatWearerStatusSet from '../hooks/useHatWearerStatusUpdate';
 import { prettyIdToIp } from '../lib/hats';
@@ -19,8 +19,9 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   // TODO handle ens name
 
   const { writeAsync } = useHatWearerStatusSet({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     hatId: _.get(hatData, 'prettyId'),
+    chainId,
     wearer,
     eligibility,
     standing,

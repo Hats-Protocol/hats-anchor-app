@@ -1,6 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import { utils } from 'ethers';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
@@ -11,13 +12,17 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   const { handlePendingTx } = useOverlay();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
     abi: JSON.stringify(abi),
     functionName: 'unlinkTopHatFromTree',
     args: [_.get(hatData, 'prettyId'), wearer],
-    enabled: Boolean(_.get(hatData, 'prettyId')) && Boolean(wearer),
+    enabled:
+      Boolean(_.get(hatData, 'prettyId')) &&
+      Boolean(wearer) &&
+      utils.isAddress(wearer),
   });
+  console.log('hatUnlinkTree - prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
