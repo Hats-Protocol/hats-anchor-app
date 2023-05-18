@@ -5,9 +5,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { DefaultSeo } from 'next-seo';
 import theme from '../theme';
-import { wagmiConfig, chains } from '../lib/web3';
-import { OverlayContextProvider } from '../contexts/OverlayContext';
-import SEO from '../constants/next-seo.config';
+import { wagmiConfig, chains } from '@/lib/web3';
+import { OverlayContextProvider } from '@/contexts/OverlayContext';
+import SEO from '@/constants/next-seo.config';
 import '../public/style.css';
 
 const queryClient = new QueryClient({

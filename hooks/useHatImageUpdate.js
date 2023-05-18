@@ -1,9 +1,9 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import CONFIG, { ZERO_ADDRESS } from '../constants';
-import abi from '../contracts/Hats.json';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import abi from '@/contracts/Hats.json';
 import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 
 const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const { handlePendingTx } = useOverlay();

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import _ from 'lodash';
 import { HStack, Text, IconButton, Icon, useClipboard } from '@chakra-ui/react';
 import { FaRegCopy } from 'react-icons/fa';
-import useToast from '../hooks/useToast';
+import useToast from '@/hooks/useToast';
 
 const CopyToClipboard = ({
   children,

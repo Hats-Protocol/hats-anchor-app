@@ -11,11 +11,11 @@ import {
 import { isAddress } from 'viem';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import useHatTransferTree from '../hooks/useHatTransferTree';
-import { prettyIdToIp } from '../lib/hats';
+import Input from '@/components/Input';
+import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
+import useHatTransferTree from '@/hooks/useHatTransferTree';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
   const localForm = useForm({ mode: 'onBlur' });

@@ -2,10 +2,10 @@ import React from 'react';
 import { Stack, Button, Flex } from '@chakra-ui/react';
 import { isAddress } from 'viem';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
-import useHatMint from '../hooks/useHatMint';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
+import Input from '@/components/Input';
+import useHatMint from '@/hooks/useHatMint';
+import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
 
 const HatWearerForm = ({ hatId, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });

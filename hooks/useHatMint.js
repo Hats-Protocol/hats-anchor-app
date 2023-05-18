@@ -2,11 +2,11 @@ import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { isAddress } from 'viem';
 import { useQueryClient } from '@tanstack/react-query';
-import CONFIG, { ZERO_ADDRESS } from '../constants';
-import abi from '../contracts/Hats.json';
-import { decimalId, toTreeId } from '../lib/hats';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import abi from '@/contracts/Hats.json';
+import { decimalId, toTreeId } from '@/lib/hats';
 import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 
 const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const toast = useToast();

@@ -4,11 +4,11 @@ import { isAddress } from 'viem';
 import _ from 'lodash';
 import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import useHatUnlinkTree from '../hooks/useHatUnlinkTree';
-import { prettyIdToIp } from '../lib/hats';
+import Input from '@/components/Input';
+import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
+import useHatUnlinkTree from '@/hooks/useHatUnlinkTree';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatUnlinkForm = ({
   hatData,

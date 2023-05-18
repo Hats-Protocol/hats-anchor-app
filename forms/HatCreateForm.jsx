@@ -15,17 +15,17 @@ import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 
-import Input from '../components/Input';
-import Textarea from '../components/Textarea';
-import useHatCreate from '../hooks/useHatCreate';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import RadioBox from '../components/RadioBox';
-import { prettyIdToIp } from '../lib/hats';
-import { pinJson } from '../lib/ipfs';
-import useCid from '../hooks/useCid';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import DropZone from '../components/DropZone';
+import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
+import DropZone from '@/components/DropZone';
+import useHatCreate from '@/hooks/useHatCreate';
+import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import RadioBox from '@/components/RadioBox';
+import { prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
+import useCid from '@/hooks/useCid';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 
 const HatCreateForm = ({ defaultAdmin, treeId }) => {
   const localForm = useForm({

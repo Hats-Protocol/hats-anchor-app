@@ -9,7 +9,7 @@ import {
   GET_ALL_WEARERS,
   GET_PAGINATED_TREES,
 } from './queries';
-import { mapWithChainId } from '../lib/general';
+import { mapWithChainId } from '@/lib/general';
 
 export const fetchTreeDetails = async (treeId, chainId) => {
   const result = await client(chainId).request(GET_TREE, { id: treeId });

@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import axios from 'axios';
-import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
+import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 
 const fetchDetailsIpfs = async (detailsField) => {
   if (!detailsField) return null;

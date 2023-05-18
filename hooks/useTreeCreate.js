@@ -7,12 +7,12 @@ import {
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import CONFIG from '../constants';
-import abi from '../contracts/Hats.json';
+import CONFIG from '@/constants';
+import abi from '@/contracts/Hats.json';
 import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 
-import { treeCreateEventIdToTreeId } from '../lib/hats';
+import { treeCreateEventIdToTreeId } from '@/lib/hats';
 
 const useTreeCreate = ({
   hatsAddress,

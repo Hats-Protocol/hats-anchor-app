@@ -2,12 +2,12 @@ import { useForm } from 'react-hook-form';
 import _ from 'lodash';
 import { isAddress } from 'viem';
 import { Stack, Button, Flex, Text, Heading } from '@chakra-ui/react';
-import Input from '../components/Input';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import RadioBox from '../components/RadioBox';
-import useHatWearerStatusSet from '../hooks/useHatWearerStatusUpdate';
-import { prettyIdToIp } from '../lib/hats';
+import Input from '@/components/Input';
+import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
+import RadioBox from '@/components/RadioBox';
+import useHatWearerStatusSet from '@/hooks/useHatWearerStatusUpdate';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const localForm = useForm({ mode: 'onBlur' });

@@ -8,7 +8,6 @@
   "rules": {
     "no-unused-vars": "warn",
     "babel/no-unused-expressions": "error",
-    // react
     "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx"] }],
     "react/function-component-definition": [
       2,
@@ -16,15 +15,22 @@
     ],
     "react/require-default-props": "off",
     "react/destructuring-assignment": "off",
-    // import
     "import/extensions": [
       "error",
       "ignorePackages",
       {
         "js": "never",
-        "jsx": "never"
+        "jsx": "never",
       }
     ],
     "prettier/prettier": "error"
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [["@", "."]],
+        "extensions": [".js", ".jsx"]
+      }
+    }
   }
 }

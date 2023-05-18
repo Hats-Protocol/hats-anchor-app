@@ -18,10 +18,10 @@ import {
 import { FaEllipsisV } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
-import { prettyIdToId, prettyIdToIp, isAdmin, isTopHat } from '../../lib/hats';
-import useHatDetails from '../../hooks/useHatDetails';
-import { formatAddress } from '../../lib/general';
-import useHatDetailsField from '../../hooks/useHatDetailsField';
+import { prettyIdToId, prettyIdToIp, isAdmin, isTopHat } from '@/lib/hats';
+import { formatAddress } from '@/lib/general';
+import useHatDetails from '@/hooks/useHatDetails';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 
 const HatHoverCard = ({
   name,

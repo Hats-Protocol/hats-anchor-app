@@ -1,10 +1,10 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import CONFIG from '../constants';
-import abi from '../contracts/Hats.json';
+import CONFIG from '@/constants';
+import abi from '@/contracts/Hats.json';
 import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
-import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { prettyIdToIp, decimalId, prettyIdToId } from '@/lib/hats';
 
 const useHatRelinkTree = ({
   topHatDomain,

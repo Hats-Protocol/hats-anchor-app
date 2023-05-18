@@ -13,7 +13,7 @@ import { FaEllipsisV } from 'react-icons/fa';
 import _ from 'lodash';
 import { useAccount } from 'wagmi';
 import AddressLink from '../AddressLink';
-import { MODULE_TYPES, ZERO_ADDRESS } from '../../constants';
+import { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 
 const AddressRow = ({
   address,

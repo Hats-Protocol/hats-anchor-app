@@ -2,11 +2,11 @@
 /* eslint-disable no-await-in-loop */
 import { useContractReads } from 'wagmi';
 import { useEffect, useState } from 'react';
-import abi from '../contracts/Hats.json';
-import CONFIG from '../constants';
-import { chainsMap } from '../lib/web3';
-import { isImageUrl } from '../lib/general';
-import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
+import abi from '@/contracts/Hats.json';
+import CONFIG from '@/constants';
+import { chainsMap } from '@/lib/web3';
+import { isImageUrl } from '@/lib/general';
+import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 
 /**
  * returns an object, mapping from hat id to image url.

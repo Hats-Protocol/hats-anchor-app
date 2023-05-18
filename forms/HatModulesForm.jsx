@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Stack, Button, Flex } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
-import useModuleUpdate from '../hooks/useModuleUpdate';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG, { MODULE_TYPES } from '../constants';
+import Input from '@/components/Input';
+import useModuleUpdate from '@/hooks/useModuleUpdate';
+import useDebounce from '@/hooks/useDebounce';
+import CONFIG, { MODULE_TYPES } from '@/constants';
 
 const HatModulesForm = ({
   hatData,

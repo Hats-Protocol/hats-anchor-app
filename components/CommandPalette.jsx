@@ -10,10 +10,10 @@ import _ from 'lodash';
 import { Flex, Spinner } from '@chakra-ui/react';
 import 'react-cmdk/dist/cmdk.css';
 
-import useSearchResults from '../hooks/useSearchResults';
+import useSearchResults from '@/hooks/useSearchResults';
 import ChakraNextLink from './ChakraNextLink';
-import { useOverlay } from '../contexts/OverlayContext';
-import { prettyIdToIp, decimalIdToId, idToPrettyId } from '../lib/hats';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { prettyIdToIp, decimalIdToId, idToPrettyId } from '@/lib/hats';
 
 const CommandPaletteInternalLink = ({ href, children, closePalette }) => (
   <ChakraNextLink href={href} onClick={closePalette}>

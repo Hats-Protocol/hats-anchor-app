@@ -12,11 +12,11 @@ import Link from 'next/link';
 import { useAccount } from 'wagmi';
 
 import ConnectWallet from './ConnectWallet';
-// import CONFIG from '../constants';
-import { useOverlay } from '../contexts/OverlayContext';
-import { clearNonObjects } from '../lib/general';
+// import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { clearNonObjects } from '@/lib/general';
 import Modal from './Modal';
-import TreeCreateForm from '../forms/TreeCreateForm';
+import TreeCreateForm from '@/forms/TreeCreateForm';
 
 // TODO add drawer
 

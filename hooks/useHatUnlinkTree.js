@@ -1,11 +1,11 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { isAddress } from 'viem';
-import CONFIG from '../constants';
-import abi from '../contracts/Hats.json';
-import { prettyIdToIp } from '../lib/hats';
+import CONFIG from '@/constants';
+import abi from '@/contracts/Hats.json';
+import { prettyIdToIp } from '@/lib/hats';
 import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 
 const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   const toast = useToast();

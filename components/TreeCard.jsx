@@ -9,8 +9,8 @@ import {
   Box,
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import { decimalId } from '../lib/hats';
-import useHatDetailsField from '../hooks/useHatDetailsField';
+import { decimalId } from '@/lib/hats';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 
 const TreeCard = ({ tree, imagesData }) => {
   const topHat = _.get(tree, 'hats[0]');

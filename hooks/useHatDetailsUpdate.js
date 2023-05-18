@@ -1,10 +1,10 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
-import CONFIG, { ZERO_ADDRESS } from '../constants';
-import abi from '../contracts/Hats.json';
-import { useOverlay } from '../contexts/OverlayContext';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import abi from '@/contracts/Hats.json';
+import { useOverlay } from '@/contexts/OverlayContext';
 import useToast from './useToast';
-import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const toast = useToast();

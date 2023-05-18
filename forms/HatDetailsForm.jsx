@@ -2,10 +2,10 @@ import _ from 'lodash';
 import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 
-import Textarea from '../components/Textarea';
-import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import CONFIG from '../constants';
-import useDebounce from '../hooks/useDebounce';
+import Textarea from '@/components/Textarea';
+import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
 
 const HatDetailsForm = ({ hatData, chainId }) => {
   const localForm = useForm({ mode: 'onChange' });

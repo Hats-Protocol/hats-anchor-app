@@ -12,8 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
-import { explorerUrl } from '../lib/general';
-import { decimalId, prettyIdToIp, prettyIdToUrlId } from '../lib/hats';
+import { explorerUrl } from '@/lib/general';
+import { decimalId, prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
 
 const EventsTable = ({ treeId, events, chainId, includeHatId }) => (
   <Table>

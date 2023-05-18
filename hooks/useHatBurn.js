@@ -1,11 +1,11 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import CONFIG from '../constants';
-import abi from '../contracts/Hats.json';
+import CONFIG from '@/constants';
+import abi from '@/contracts/Hats.json';
 import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
-import { decimalIdToId, toTreeId } from '../lib/hats';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { decimalIdToId, toTreeId } from '@/lib/hats';
 
 const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
   const toast = useToast();

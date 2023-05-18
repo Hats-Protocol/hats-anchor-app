@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { pinImage, unpinImage } from '../lib/ipfs';
+import { pinImage, unpinImage } from '@/lib/ipfs';
 
 /**
  * Pins an image file to ipfs. If image file is updated, then unpins previous and pins updated image

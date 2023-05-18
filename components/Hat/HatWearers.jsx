@@ -21,17 +21,17 @@ import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
 import { FaEllipsisV } from 'react-icons/fa';
 
 import Link from '../ChakraNextLink';
-import { formatAddress } from '../../lib/general';
-import HatTransferForm from '../../forms/HatTransferForm';
-import HatWearerForm from '../../forms/HatWearerForm';
+import { formatAddress } from '@/lib/general';
+import HatTransferForm from '@/forms/HatTransferForm';
+import HatWearerForm from '@/forms/HatWearerForm';
 import Modal from '../Modal';
-import { useOverlay } from '../../contexts/OverlayContext';
-import { decimalId, isTopHat, isTopHatOrMutable } from '../../lib/hats';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { decimalId, isTopHat, isTopHatOrMutable } from '@/lib/hats';
 
-import useHatBurn from '../../hooks/useHatBurn';
-import CONFIG from '../../constants';
-import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
-import useHatWearerStatusCheck from '../../hooks/useHatWearerStatusCheck';
+import useHatBurn from '@/hooks/useHatBurn';
+import CONFIG from '@/constants';
+import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
+import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
 
 const WEARERS_PER_PAGE = 5;
 

@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
-import useHatSupplyUpdate from '../hooks/useHatSupplyUpdate';
-import CONFIG from '../constants';
-import useDebounce from '../hooks/useDebounce';
+import Input from '@/components/Input';
+import useHatSupplyUpdate from '@/hooks/useHatSupplyUpdate';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
 
 const HatSupplyForm = ({ hatData, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });

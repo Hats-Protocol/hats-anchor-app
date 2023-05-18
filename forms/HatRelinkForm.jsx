@@ -14,16 +14,16 @@ import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
 import _ from 'lodash';
 
-import Input from '../components/Input';
-import Select from '../components/Select';
-import Textarea from '../components/Textarea';
-import DropZone from '../components/DropZone';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
-import useHatRelinkTree from '../hooks/useHatRelinkTree';
-import useDebounce from '../hooks/useDebounce';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { prettyIdToIp } from '../lib/hats';
-import { pinJson } from '../lib/ipfs';
+import Input from '@/components/Input';
+import Select from '@/components/Select';
+import Textarea from '@/components/Textarea';
+import DropZone from '@/components/DropZone';
+import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import useHatRelinkTree from '@/hooks/useHatRelinkTree';
+import useDebounce from '@/hooks/useDebounce';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import { prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
 
 const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
   const localForm = useForm({

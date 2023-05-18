@@ -1,7 +1,7 @@
 import { Link } from '@chakra-ui/react';
 import { useEnsName } from 'wagmi';
-import { explorerUrl, formatAddress } from '../lib/general';
-import { ZERO_ADDRESS } from '../constants';
+import { explorerUrl, formatAddress } from '@/lib/general';
+import { ZERO_ADDRESS } from '@/constants';
 
 const AddressLink = ({ chainId, address, fullAddress = false }) => {
   const { data: ensName } = useEnsName({

@@ -13,15 +13,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useDropzone } from 'react-dropzone';
-import Input from '../components/Input';
-import Textarea from '../components/Textarea';
-import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import { prettyIdToIp, decimalId } from '../lib/hats';
-import { pinJson } from '../lib/ipfs';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import DropZone from '../components/DropZone';
+import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
+import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import { prettyIdToIp, decimalId } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import DropZone from '@/components/DropZone';
 
 const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   const localForm = useForm({
