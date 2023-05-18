@@ -39,7 +39,7 @@ const HatGuildForm = ({ hatData, chainId, treeId }) => {
       />
 
       <Flex justify='flex-end' gap={2}>
-        {!guildNames && (
+        {!guildNames?.length && (
           <Tooltip
             label='Guild with this name already bound to this tree'
             aria-label='Guild with this name already bound to this tree'
