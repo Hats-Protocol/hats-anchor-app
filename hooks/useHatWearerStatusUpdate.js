@@ -1,7 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
@@ -23,7 +23,7 @@ const useHatWearerStatusSet = ({
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
@@ -31,7 +31,7 @@ const useHatWearerStatusSet = ({
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
-    enabled: !!hatsAddress && utils.isAddress(wearer),
+    enabled: !!hatsAddress && isAddress(wearer),
   });
   console.log('hatWearerStatusUpdate- prepareError', prepareError);
 

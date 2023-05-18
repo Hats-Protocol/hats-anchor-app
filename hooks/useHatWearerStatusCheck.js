@@ -1,7 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, toTreeId } from '../lib/hats';
@@ -17,13 +17,13 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'checkHatWearerStatus',
     args: [decimalId(_.get(hatData, 'id')), wearerAddress],
     enabled:
       Boolean(decimalId(_.get(hatData, 'id'))) &&
       Boolean(wearerAddress) &&
-      utils.isAddress(wearerAddress),
+      isAddress(wearerAddress),
   });
 
   const { writeAsync, error: writeError } = useContractWrite({

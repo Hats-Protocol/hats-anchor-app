@@ -26,7 +26,7 @@ const useHatCreate = ({
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'createHat',
     args: [
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?

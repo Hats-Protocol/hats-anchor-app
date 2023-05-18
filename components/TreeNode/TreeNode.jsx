@@ -16,7 +16,6 @@ import {
   MenuItem,
 } from '@chakra-ui/react';
 import { FaEllipsisV } from 'react-icons/fa';
-import { BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { prettyIdToId, prettyIdToIp, isAdmin, isTopHat } from '../../lib/hats';
@@ -219,10 +218,7 @@ function Node({
   });
   const { data: hatDetails } = useHatDetailsField(_.get(hatData, 'details'));
 
-  const isCurrentHat = BigNumber.from(activeHatId).eq(
-    BigNumber.from(prettyIdToId(name)),
-  );
-
+  const isCurrentHat = activeHatId === prettyIdToId(name);
   const isWearer = !_.isEmpty(_.filter(wearerHats, (val) => val === name));
   const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
 

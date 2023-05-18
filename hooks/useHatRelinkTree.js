@@ -21,7 +21,7 @@ const useHatRelinkTree = ({
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'relinkTopHatWithinTree',
     args: [
       topHatDomain,

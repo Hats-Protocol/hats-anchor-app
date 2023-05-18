@@ -15,7 +15,7 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'changeHatMaxSupply',
     args: [
       decimalId(hatId) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type

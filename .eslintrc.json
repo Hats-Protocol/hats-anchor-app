@@ -1,9 +1,13 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "babel"],
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
   "extends": ["airbnb", "next/core-web-vitals", "plugin:prettier/recommended"],
   "rules": {
     "no-unused-vars": "warn",
+    "babel/no-unused-expressions": "error",
     // react
     "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx"] }],
     "react/function-component-definition": [

@@ -15,7 +15,7 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'renounceHat',
     args: [hatId],
     enabled: !!hatsAddress && !!hatId,

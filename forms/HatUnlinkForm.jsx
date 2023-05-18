@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Stack, Button, Flex, Switch, Text, Heading } from '@chakra-ui/react';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import _ from 'lodash';
 import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
@@ -55,7 +55,7 @@ const HatUnlinkForm = ({
             label='New Wearer Address'
             options={{
               validate: (value) =>
-                utils.isAddress(value) ? true : 'Must be a valid address',
+                isAddress(value) ? true : 'Must be a valid address',
             }}
             placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
           />

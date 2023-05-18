@@ -15,7 +15,7 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'checkHatStatus',
     args: [decimalId(_.get(hatData, 'id'))],
     enabled: Boolean(decimalId(_.get(hatData, 'id'))),

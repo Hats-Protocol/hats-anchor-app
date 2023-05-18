@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { prettyIdToIp } from '../lib/hats';
@@ -14,13 +14,13 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'unlinkTopHatFromTree',
     args: [_.get(hatData, 'prettyId'), wearer],
     enabled:
       Boolean(_.get(hatData, 'prettyId')) &&
       Boolean(wearer) &&
-      utils.isAddress(wearer),
+      isAddress(wearer),
   });
   console.log('hatUnlinkTree - prepareError', prepareError);
 

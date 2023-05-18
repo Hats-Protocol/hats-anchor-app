@@ -14,7 +14,7 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'changeHatDetails',
     args: [
       decimalId(hatId) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
