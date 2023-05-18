@@ -19,7 +19,8 @@ const fetchDetailsIpfs = async (detailsField) => {
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
  * @param {string} detailsField Details field as received from the contract
- * @returns if data is on ipfs and is compatible with a known schema, then returns the schema type with the data. Otherwise, just the data
+ * @returns If data is on ipfs and is compatible with a known schema, then returns the schema type with the data. Otherwise, just the fetched data.
+ * If not ipfs, returns undefined.
  */
 const useHatDetailsField = (detailsField) => {
   // currently uses this prefix as an indicator for ipfs data
@@ -39,7 +40,7 @@ const useHatDetailsField = (detailsField) => {
     switch (schemaTypeField) {
       case '1.0':
         if (
-          _.includes(_.keys(detailsData), 'name') &&
+          _.includes(_.keys(detailsData), 'name') ||
           _.includes(_.keys(detailsData), 'description')
         ) {
           schemaType = schemaTypeField;
