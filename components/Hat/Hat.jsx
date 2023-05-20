@@ -178,8 +178,6 @@ const Hat = ({
     },
   ];
 
-  console.log(hatDetailsFieldData, schemaTypeDetailsField);
-
   return (
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
@@ -329,13 +327,7 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Events
             </Tab>
-            {address &&
-              userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (isMutableNotTopHat(hatData) ||
-                linkRequestFromTree?.length > 0) && (
-                <Tab fontSize='sm'>Admin</Tab>
-              )}
+            {isAdminUser && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -405,25 +397,23 @@ const Hat = ({
             </TabPanel>
             <TabPanel minH='370px'>
               <EventsTable
+                chainId={chainId}
                 treeId={treeId}
                 events={hatData?.events}
-                chainId={chainId}
               />
             </TabPanel>
-            {isAdminUser &&
-            (showSupplyAndImmutableButtons ||
-              linkRequestFromTree?.length > 0) ? (
+            {isAdminUser && (
               <TabPanel minH='370px'>
                 <AdminActions
+                  hatData={hatData}
+                  chainId={chainId}
                   showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
                   linkRequestFromTree={linkRequestFromTree}
-                  hatData={hatData}
                   hatsAddress={CONFIG.hatsAddress}
-                  chainId={chainId}
                   linkedToHat={linkedToHat}
                 />
               </TabPanel>
-            ) : null}
+            )}
           </TabPanels>
         </Tabs>
       </Stack>
