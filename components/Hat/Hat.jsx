@@ -99,9 +99,6 @@ const Hat = ({
     userChain === chainId &&
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
 
-  const showSupplyAndImmutableButtons =
-    isAdminUser && isMutableNotTopHat(hatData);
-
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
@@ -407,7 +404,6 @@ const Hat = ({
                 <AdminActions
                   hatData={hatData}
                   chainId={chainId}
-                  showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
                   linkRequestFromTree={linkRequestFromTree}
                   hatsAddress={CONFIG.hatsAddress}
                   linkedToHat={linkedToHat}

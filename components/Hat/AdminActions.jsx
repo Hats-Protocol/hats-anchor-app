@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { Button, HStack } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useOverlay } from '../../contexts/OverlayContext';
-import { isTopHat, prettyIdToId, prettyIdToIp } from '../../lib/hats';
+import {
+  isTopHat,
+  prettyIdToId,
+  prettyIdToIp,
+  isMutableNotTopHat,
+} from '../../lib/hats';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import Modal from '../Modal';
@@ -12,7 +17,6 @@ import HatUnlinkForm from '../../forms/HatUnlinkForm';
 import useTreeDetails from '../../hooks/useTreeDetails';
 
 const AdminActions = ({
-  showSupplyAndImmutableButtons,
   linkRequestFromTree,
   hatData,
   hatsAddress,
@@ -21,6 +25,8 @@ const AdminActions = ({
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+
+  const showSupplyAndImmutableButtons = isMutableNotTopHat(hatData);
 
   const [topHatDomain, setTopHatDomain] = useState('');
 

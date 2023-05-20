@@ -22,7 +22,6 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
       Boolean(wearer) &&
       isAddress(wearer),
   });
-  console.log('hatUnlinkTree - prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
