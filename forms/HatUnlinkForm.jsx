@@ -1,31 +1,32 @@
-import React, { useState } from 'react';
-import { Stack, Button, Flex, Switch, Text, Heading } from '@chakra-ui/react';
-import { isAddress } from 'viem';
+import React from 'react';
+import { Stack, Button, Flex, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 import useHatUnlinkTree from '../hooks/useHatUnlinkTree';
 import { prettyIdToIp } from '../lib/hats';
+import Select from '../components/Select';
 
-const HatUnlinkForm = ({
-  hatData,
-  // chainId
-}) => {
+const HatUnlinkForm = ({ parentOfTrees }) => {
   const { address } = useAccount();
-  const [userMint, setUserMint] = useState(true);
-  const localForm = useForm({ mode: 'onBlur' });
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      topHatPrettyId: parentOfTrees[0],
+    },
+  });
   const { handleSubmit, watch } = localForm;
 
-  const wearer = useDebounce(watch('wearer', null), CONFIG.debounce);
-  // TODO handle ens name
+  const topHatPrettyId = useDebounce(
+    watch('topHatPrettyId', parentOfTrees[0]),
+    CONFIG.debounce,
+  );
 
   const { writeAsync } = useHatUnlinkTree({
-    hatsAddress: CONFIG.hatsAddress,
-    hatData,
-    wearer: userMint ? address : wearer,
+    topHatPrettyId,
+    wearer: address,
   });
 
   const onSubmit = async () => {
@@ -39,27 +40,18 @@ const HatUnlinkForm = ({
           Relinquish admin rights over the linked Top Hat, completely
           disconnecting it from the current tree.
         </Text>
-        <Stack>
-          <Text>Tree Domain</Text>
-          <Heading size='md' fontFamily='mono'>
-            #{prettyIdToIp(_.get(hatData, 'prettyId'))}
-          </Heading>
-        </Stack>
-        <Switch isChecked={userMint} onChange={() => setUserMint(!userMint)}>
-          Mint to me
-        </Switch>
-        {!userMint && (
-          <Input
-            localForm={localForm}
-            name='wearer'
-            label='New Wearer Address'
-            options={{
-              validate: (value) =>
-                isAddress(value) ? true : 'Must be a valid address',
-            }}
-            placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-          />
-        )}
+
+        <Select
+          label='Enter domain of the Top Hat to be unlinked'
+          name='topHatPrettyId'
+          localForm={localForm}
+        >
+          {_.map(parentOfTrees, (hat) => (
+            <option value={hat} key={hat}>
+              {prettyIdToIp(hat)}
+            </option>
+          ))}
+        </Select>
 
         <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync}>

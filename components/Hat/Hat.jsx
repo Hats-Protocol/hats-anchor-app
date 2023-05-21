@@ -59,6 +59,7 @@ const Hat = ({
   hatImage,
   childrenHats,
   linkRequestFromTree,
+  parentOfTrees,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -407,6 +408,7 @@ const Hat = ({
                   linkRequestFromTree={linkRequestFromTree}
                   hatsAddress={CONFIG.hatsAddress}
                   linkedToHat={linkedToHat}
+                  parentOfTrees={parentOfTrees}
                 />
               </TabPanel>
             )}

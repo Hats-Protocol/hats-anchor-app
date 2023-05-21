@@ -102,6 +102,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
     treeData,
     true,
   );
+  console.log('childrenHats', childrenHats);
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
@@ -119,6 +120,8 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   if (treeError) return <p>Error : {treeError.message}</p>;
 
   const tree = toTreeStructure(treeData, {}, imagesData);
+  console.log('treeData', treeData);
+
   const events = _.get(treeData, 'events');
   const treeInfoTable = [
     {
@@ -313,8 +316,9 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  linkedToHat={treeData?.linkedToHat}
-                  linkRequestFromTree={treeData?.linkRequestFromTree}
+                  parentOfTrees={_.map(_.get(treeData, 'parentOfTrees'), 'id')}
+                  linkedToHat={_.get(treeData, 'linkedToHat')}
+                  linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
                 />
               )}
             </CardBody>
