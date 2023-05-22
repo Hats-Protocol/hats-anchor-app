@@ -5,7 +5,7 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -17,9 +17,9 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'checkHatStatus',
     args: [decimalId(_.get(hatData, 'id'))],
     enabled: Boolean(decimalId(_.get(hatData, 'id'))),

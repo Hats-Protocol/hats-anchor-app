@@ -5,7 +5,7 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -17,9 +17,9 @@ const useHatMakeImmutable = ({ hatsAddress, chainId, hatData }) => {
   const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'makeHatImmutable',
     args: [
       decimalId(_.get(hatData, 'id')), // not a valid fallback? enabled handles, mostly for type

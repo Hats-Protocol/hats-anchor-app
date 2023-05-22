@@ -3,7 +3,7 @@ import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatImageUpdate from '../hooks/useHatImageUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
 const HatImageForm = ({ hatData, chainId }) => {
@@ -13,7 +13,7 @@ const HatImageForm = ({ hatData, chainId }) => {
   const image = useDebounce(watch('image'));
 
   const { writeAsync, isLoading } = useHatImageUpdate({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
     image,

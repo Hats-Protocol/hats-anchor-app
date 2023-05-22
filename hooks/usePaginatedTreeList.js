@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchPaginatedTrees } from '../gql/helpers';
 
 const usePaginatedTreeList = ({ chainId, perPage = 20, initialData }) => {
-  const { data, fetchNextPage, isLoading, error, isFetchingNextPage } =
+  const { data, fetchNextPage, isLoading, isFetchingNextPage, error } =
     useInfiniteQuery(
       ['treeList', chainId],
       {

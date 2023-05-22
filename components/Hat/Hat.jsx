@@ -23,7 +23,7 @@ import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
 import Link from '../ChakraNextLink';
 import DataTable from '../DataTable';
-import { MODULE_TYPES, hatsAddresses } from '../../constants';
+import CONFIG, { MODULE_TYPES } from '../../constants';
 import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
@@ -49,9 +49,6 @@ import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import AdminActions from './AdminActions';
 
-const defaultChainId = 5;
-const hatsAddress = hatsAddresses(defaultChainId);
-
 // TODO this should probably be more components
 
 const Hat = ({
@@ -72,7 +69,7 @@ const Hat = ({
     chainId,
   });
   const { writeAsync: checkHatStatus, isLoading } = useHatStatusCheck({
-    hatsAddress,
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatData,
   });
@@ -182,6 +179,8 @@ const Hat = ({
     },
   ];
 
+  console.log(hatDetailsFieldData, schemaTypeDetailsField);
+
   return (
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
@@ -234,7 +233,7 @@ const Hat = ({
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
+              bgImage={hatImage ? `url('${hatImage}')` : "url('/icon.jpeg')"}
               bgSize='cover'
               bgPosition='center'
             >
@@ -359,16 +358,20 @@ const Hat = ({
                   (hatDetailsFieldLoading ? (
                     'Loading...'
                   ) : (
-                    <>
-                      <Text fontSize='sm' as='b'>
-                        Name:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.name}</Text>
-                      <Text fontSize='sm' as='b'>
-                        Description:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.description}</Text>
-                    </>
+                    <Stack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Name:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'name')}</Text>
+                      </HStack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Description:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
+                      </HStack>
+                    </Stack>
                   ))}
                 {schemaTypeDetailsField !== '1.0' && (
                   <Text>{hatData?.details}</Text>
@@ -416,7 +419,7 @@ const Hat = ({
                   showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
                   linkRequestFromTree={linkRequestFromTree}
                   hatData={hatData}
-                  hatsAddress={hatsAddress}
+                  hatsAddress={CONFIG.hatsAddress}
                   chainId={chainId}
                   linkedToHat={linkedToHat}
                 />

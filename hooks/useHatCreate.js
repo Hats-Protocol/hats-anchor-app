@@ -6,7 +6,7 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
@@ -46,9 +46,9 @@ const useHatCreate = ({
   });
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'createHat',
     args: [
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
@@ -61,7 +61,7 @@ const useHatCreate = ({
     ],
     enabled: !!hatsAddress && !!admin,
   });
-  console.log(prepareError);
+  console.log('hatCreate - prepareError', prepareError);
 
   const { writeAsync, data: writeData } = useContractWrite({
     ...config,

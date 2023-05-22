@@ -1,10 +1,10 @@
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import { Stack, Button, Flex, Text, Heading } from '@chakra-ui/react';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import RadioBox from '../components/RadioBox';
 import useHatWearerStatusSet from '../hooks/useHatWearerStatusUpdate';
 import { prettyIdToIp } from '../lib/hats';
@@ -18,8 +18,9 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const standing = useDebounce(watch('standing', null), CONFIG.debounce);
 
   const { writeAsync, ensError, isLoading } = useHatWearerStatusSet({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     hatId: _.get(hatData, 'prettyId'),
+    chainId,
     wearer,
     eligibility,
     standing,
@@ -50,7 +51,7 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
           label='Wearer Address'
           options={{
             validate: (value) =>
-              utils.isAddress(value) ? true : 'Must be a valid address',
+              isAddress(value) ? true : 'Must be a valid address',
           }}
           placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
           defaultValue={_.get(defaultValues, 'wearer')}

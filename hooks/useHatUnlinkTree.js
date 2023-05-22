@@ -5,7 +5,8 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
@@ -25,12 +26,15 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
   });
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'unlinkTopHatFromTree',
     args: [_.get(hatData, 'prettyId'), wearerResolvedAddress],
-    enabled: Boolean(_.get(hatData, 'prettyId')) && Boolean(wearer),
+    enabled:
+      Boolean(_.get(hatData, 'prettyId')) &&
+      Boolean(wearer) &&
+      isAddress(wearer),
   });
 
   const { writeAsync, data: writeData } = useContractWrite({

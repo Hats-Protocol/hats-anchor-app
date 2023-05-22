@@ -5,9 +5,9 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -28,16 +28,16 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   });
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'mintHat',
     args: [decimalId(hatId), wearerResolvedAddress || ZERO_ADDRESS],
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
       Boolean(newWearer) &&
-      utils.isAddress(newWearer),
+      isAddress(newWearer),
   });
 
   const { writeAsync, data: writeData } = useContractWrite({

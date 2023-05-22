@@ -3,21 +3,17 @@ import { Stack, Flex, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useHatSupplyUpdate from '../hooks/useHatSupplyUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
-
-const defaultDebounce = 1500;
-const defaultChainId = 5;
-const defaultHatsAddress = hatsAddresses(defaultChainId);
 
 const HatSupplyForm = ({ hatData, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
-  const amount = useDebounce(watch('amount'), defaultDebounce);
+  const amount = useDebounce(watch('amount'), CONFIG.defaultDebounce);
 
   const { writeAsync, isLoading } = useHatSupplyUpdate({
-    hatsAddress: defaultHatsAddress,
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
     amount,

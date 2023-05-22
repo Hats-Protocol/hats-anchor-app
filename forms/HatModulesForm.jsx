@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useModuleUpdate from '../hooks/useModuleUpdate';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses, MODULE_TYPES } from '../constants';
+import CONFIG, { MODULE_TYPES } from '../constants';
 
 const HatModulesForm = ({
   hatData,
@@ -17,7 +17,7 @@ const HatModulesForm = ({
   const newAddress = useDebounce(watch('newAddress', null), CONFIG.debounce);
 
   const { writeAsync, ensError, isLoading } = useModuleUpdate({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: hatData.id,
     moduleType: type,

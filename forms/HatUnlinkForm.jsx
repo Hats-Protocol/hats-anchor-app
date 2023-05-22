@@ -8,17 +8,20 @@ import {
   Heading,
   FormControl,
 } from '@chakra-ui/react';
-import { utils } from 'ethers';
+import { isAddress } from 'viem';
 import _ from 'lodash';
 import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useHatUnlinkTree from '../hooks/useHatUnlinkTree';
 import { prettyIdToIp } from '../lib/hats';
 
-const HatUnlinkForm = ({ hatData, chainId }) => {
+const HatUnlinkForm = ({
+  hatData,
+  // chainId
+}) => {
   const { address } = useAccount();
   const [userMintChecked, setUserMintChecked] = useState(true);
   const localForm = useForm({ mode: 'onBlur' });
@@ -27,7 +30,7 @@ const HatUnlinkForm = ({ hatData, chainId }) => {
   const wearer = useDebounce(watch('wearer', null), CONFIG.debounce);
 
   const { writeAsync, ensError, isLoading } = useHatUnlinkTree({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     hatData,
     wearer: userMintChecked ? address : wearer,
   });
@@ -63,7 +66,7 @@ const HatUnlinkForm = ({ hatData, chainId }) => {
               label='New Wearer Address'
               options={{
                 validate: (value) =>
-                  utils.isAddress(value) ? true : 'Must be a valid address',
+                  isAddress(value) ? true : 'Must be a valid address',
               }}
               placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
             />

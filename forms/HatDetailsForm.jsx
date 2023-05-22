@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 
 import Textarea from '../components/Textarea';
 import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
 const HatDetailsForm = ({ hatData, chainId }) => {
@@ -14,7 +14,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
   const details = useDebounce(watch('details'));
 
   const { writeAsync, isLoading } = useHatDetailsUpdate({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
     details,

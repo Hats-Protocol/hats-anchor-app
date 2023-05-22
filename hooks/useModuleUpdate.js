@@ -5,9 +5,9 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
-import { utils } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToIp, idToPrettyId, decimalId, toTreeId } from '../lib/hats';
@@ -39,17 +39,18 @@ const useModuleUpdate = ({
       : 'changeHatToggle';
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName,
     args: [decimalId(hatId), newResolvedAddress || ZERO_ADDRESS],
     enabled:
       !!hatsAddress &&
       !!moduleType &&
       !!hatId &&
+      !!newAddress &&
       !!newResolvedAddress &&
-      utils.isAddress(newResolvedAddress),
+      isAddress(newAddress),
   });
 
   const { writeAsync, data: writeData } = useContractWrite({
