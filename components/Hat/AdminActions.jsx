@@ -151,11 +151,7 @@ const AdminActions = ({
         title='Unlink Top Hat From Tree'
         localOverlay={localOverlay}
       >
-        <HatUnlinkForm
-          hatData={hatData}
-          parentOfTrees={parentOfTrees}
-          chainId={chainId}
-        />
+        <HatUnlinkForm parentOfTrees={parentOfTrees} chainId={chainId} />
       </Modal>
     </>
   );

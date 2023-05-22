@@ -1,16 +1,15 @@
 import React from 'react';
 import { Stack, Button, Flex, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 import useHatUnlinkTree from '../hooks/useHatUnlinkTree';
-import { prettyIdToIp } from '../lib/hats';
+import { prettyIdToIp, prettyIdToId } from '../lib/hats';
 import Select from '../components/Select';
+import useHatDetails from '../hooks/useHatDetails';
 
-const HatUnlinkForm = ({ parentOfTrees }) => {
-  const { address } = useAccount();
+const HatUnlinkForm = ({ parentOfTrees, chainId }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -24,9 +23,14 @@ const HatUnlinkForm = ({ parentOfTrees }) => {
     CONFIG.debounce,
   );
 
+  const { data: topHatData } = useHatDetails({
+    hatId: prettyIdToId(topHatPrettyId),
+    chainId,
+  });
+
   const { writeAsync } = useHatUnlinkTree({
     topHatPrettyId,
-    wearer: address,
+    wearer: topHatData?.wearers?.[0]?.id,
   });
 
   const onSubmit = async () => {
