@@ -314,7 +314,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  parentOfTrees={_.map(_.get(treeData, 'parentOfTrees'), 'id')}
+                  parentOfTrees={_.get(treeData, 'parentOfTrees')}
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
                 />
