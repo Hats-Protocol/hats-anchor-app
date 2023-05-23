@@ -59,6 +59,7 @@ const Hat = ({
   hatImage,
   childrenHats,
   linkRequestFromTree,
+  parentOfTrees,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -98,9 +99,6 @@ const Hat = ({
   const isAdminUser =
     userChain === chainId &&
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
-
-  const showSupplyAndImmutableButtons =
-    isAdminUser && isMutableNotTopHat(hatData);
 
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
@@ -177,8 +175,6 @@ const Hat = ({
       ),
     },
   ];
-
-  console.log(hatDetailsFieldData, schemaTypeDetailsField);
 
   return (
     <>
@@ -329,13 +325,7 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Events
             </Tab>
-            {address &&
-              userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (isMutableNotTopHat(hatData) ||
-                linkRequestFromTree?.length > 0) && (
-                <Tab fontSize='sm'>Admin</Tab>
-              )}
+            {isAdminUser && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -405,25 +395,23 @@ const Hat = ({
             </TabPanel>
             <TabPanel minH='370px'>
               <EventsTable
+                chainId={chainId}
                 treeId={treeId}
                 events={hatData?.events}
-                chainId={chainId}
               />
             </TabPanel>
-            {isAdminUser &&
-            (showSupplyAndImmutableButtons ||
-              linkRequestFromTree?.length > 0) ? (
+            {isAdminUser && (
               <TabPanel minH='370px'>
                 <AdminActions
-                  showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
-                  linkRequestFromTree={linkRequestFromTree}
                   hatData={hatData}
-                  hatsAddress={CONFIG.hatsAddress}
                   chainId={chainId}
+                  linkRequestFromTree={linkRequestFromTree}
+                  hatsAddress={CONFIG.hatsAddress}
                   linkedToHat={linkedToHat}
+                  parentOfTrees={parentOfTrees}
                 />
               </TabPanel>
-            ) : null}
+            )}
           </TabPanels>
         </Tabs>
       </Stack>

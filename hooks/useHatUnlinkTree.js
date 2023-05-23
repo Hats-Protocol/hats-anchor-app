@@ -7,7 +7,7 @@ import { prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
+const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
@@ -16,13 +16,9 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
     chainId,
     abi,
     functionName: 'unlinkTopHatFromTree',
-    args: [_.get(hatData, 'prettyId'), wearer],
-    enabled:
-      Boolean(_.get(hatData, 'prettyId')) &&
-      Boolean(wearer) &&
-      isAddress(wearer),
+    args: [topHatPrettyId, wearer],
+    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
-  console.log('hatUnlinkTree - prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
@@ -32,7 +28,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
         toastData: {
           title: `Top Hat Unlinked!`,
           description: `Successfully unlinked top hat #${prettyIdToIp(
-            _.get(hatData, 'prettyId'),
+            topHatPrettyId,
           )}`,
         },
       });
