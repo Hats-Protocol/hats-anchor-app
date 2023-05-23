@@ -24,6 +24,7 @@ const AddressRow = ({
   setType,
   localOverlay,
   checkHatStatus,
+  isTopHat,
 }) => {
   const { address: userAddress } = useAccount();
   const { setModals } = localOverlay;
@@ -50,7 +51,7 @@ const AddressRow = ({
       {address !== ZERO_ADDRESS ? (
         <AddressLink address={address} chainId={chainId} />
       ) : (
-        <Text>None Set</Text>
+        <Text>{isTopHat ? 'None - Top Hat' : 'None Set'}</Text>
       )}
 
       {userAddress && ((mutable && admin) || userAddress === address) && (

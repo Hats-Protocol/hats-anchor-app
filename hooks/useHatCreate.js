@@ -1,7 +1,7 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId } from '../lib/hats';
@@ -24,9 +24,9 @@ const useHatCreate = ({
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'createHat',
     args: [
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
@@ -39,24 +39,27 @@ const useHatCreate = ({
     ],
     enabled: !!hatsAddress && !!admin,
   });
-  console.log(prepareError);
+  console.log('hatCreate - prepareError', prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Hat Created',
           description: 'Successfully created hat',
         },
-        treeId,
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['treeDetails', treeId] });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {

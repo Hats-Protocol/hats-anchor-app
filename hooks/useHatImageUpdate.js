@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -10,15 +10,15 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const toast = useToast();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'changeHatImageURI',
     args: [
       hatId || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
       image || '',
     ],
-    enabled: !!hatsAddress && !!hatId && image,
+    enabled: !!hatsAddress && !!hatId,
   });
 
   const { writeAsync } = useContractWrite({

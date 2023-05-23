@@ -18,8 +18,8 @@ const useCid = (data) => {
       setLoading(true);
       const bytes = json.encode(data);
       const hash = await sha256.digest(bytes);
-      const cid = CID.create(1, raw.code, hash);
-      setCid('ipfs://' + cid.toString());
+      const localCid = CID.create(1, raw.code, hash);
+      setCid(`ipfs://${localCid.toString()}`);
       setLoading(false);
     }
 

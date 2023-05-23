@@ -1,7 +1,9 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
 import { useContractReads } from 'wagmi';
 import { useEffect, useState } from 'react';
 import abi from '../contracts/Hats.json';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import { chainsMap } from '../lib/web3';
 import { isImageUrl } from '../lib/general';
 import { PINATA_GATEWAY_TOKEN } from '../lib/ipfs';
@@ -22,7 +24,7 @@ const useImageURIs = (hats, chainId) => {
   if (hats !== undefined) {
     calls = hats.map((hat) => {
       return {
-        address: hatsAddresses(chain),
+        address: CONFIG.hatsAddress,
         chainId: chain.id,
         abi,
         functionName: 'getImageURIForHat',
@@ -42,17 +44,18 @@ const useImageURIs = (hats, chainId) => {
         const hatIdToImage = {};
         for (let i = 0; i < hats.length; i++) {
           const hat = hats[i];
-          if (imagesData[i]?.startsWith('ipfs://')) {
+          const { result } = imagesData[i];
+          if (result?.startsWith('ipfs://')) {
             // converting the current base image uri from the contract to resolvable format
             hatIdToImage[
               hat
-            ] = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${imagesData[
-              i
-            ].slice(7)}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+            ] = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${result.slice(
+              7,
+            )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
           } else {
-            const isValidImage = await isImageUrl(imagesData[i]);
+            const isValidImage = await isImageUrl(result);
             if (isValidImage) {
-              hatIdToImage[hat] = imagesData[i];
+              hatIdToImage[hat] = result;
             } else {
               hatIdToImage[hat] = undefined;
             }
@@ -61,22 +64,16 @@ const useImageURIs = (hats, chainId) => {
 
         setData(hatIdToImage);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       } finally {
         setLoading(false);
       }
     };
-
-    if (
-      imagesData !== undefined &&
-      imagesData !== null &&
-      imagesData[0] !== null && // useContractReads returns with [null] at the beginning and then updates, TODO check if there's better fix
-      hats !== undefined &&
-      hats !== null &&
-      !imagesLoading
-    ) {
+    if (imagesData?.[0]?.result && (hats ?? null) && !imagesLoading) {
       validateImages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagesData, imagesLoading]);
 
   return { data, loading };

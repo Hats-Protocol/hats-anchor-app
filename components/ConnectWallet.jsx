@@ -22,7 +22,7 @@ const ConnectWallet = () => {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
-  const { data: ensAvatar } = useEnsAvatar({ address, chainId: 1 });
+  const { data: ensAvatar } = useEnsAvatar({ name: address, chainId: 1 });
 
   const blockie = null; // TODO implement blockie or other solution
   const [upTo780] = useMediaQuery('(max-width: 780px)');

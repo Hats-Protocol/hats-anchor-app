@@ -1,23 +1,24 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
 
-const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
+const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+  const { config, error: prepareError } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'requestLinkTopHatToTree',
     args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
     enabled: Boolean(topHatDomain) && Boolean(newAdmin),
   });
+  console.log('hatLinkRequestCreate - prepareError', prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,
@@ -52,7 +53,7 @@ const useLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
     },
   });
 
-  return { writeAsync };
+  return { writeAsync, prepareError };
 };
 
-export default useLinkRequestCreate;
+export default useHatLinkRequestCreate;

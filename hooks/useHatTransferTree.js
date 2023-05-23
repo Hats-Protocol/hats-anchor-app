@@ -1,13 +1,19 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
+import { isAddress } from 'viem';
 import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
-import { decimalId, toTreeId } from '../lib/hats';
+import { decimalId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatStatusCheck = ({ hatData, chainId }) => {
+const useHatTransferTree = ({
+  currentWearerAddress,
+  hatData,
+  newWearerAddress,
+  chainId,
+}) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
@@ -16,10 +22,15 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
     address: CONFIG.hatsAddress,
     chainId,
     abi,
-    functionName: 'checkHatStatus',
-    args: [decimalId(_.get(hatData, 'id'))],
-    enabled: Boolean(decimalId(_.get(hatData, 'id'))),
+    functionName: 'transferHat',
+    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
+    enabled:
+      Boolean(newWearerAddress) &&
+      Boolean(currentWearerAddress) &&
+      isAddress(newWearerAddress) &&
+      isAddress(currentWearerAddress),
   });
+  console.log('hatLinkTransferTree - prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
@@ -29,39 +40,24 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      const { logs } = await handlePendingTx({
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: `Hat Minted!`,
-          description: `Successfully minted hat`,
+          title: `Top Hat Transferred!`,
+          description: `Successfully transferred top hat #${prettyIdToIp(
+            _.get(hatData, 'prettyId'),
+          )} from ${currentWearerAddress} to ${newWearerAddress}`,
         },
-        useToast: false,
       });
 
-      if (logs.length === 0) {
-        toast.success({
-          title: 'Status Check Completed',
-          description: `No change: Hat Status remains ${
-            hatData.status ? 'Active' : 'Inactive'
-          }`,
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', _.get(hatData, 'id')],
         });
-      } else {
-        toast.success({
-          title: 'Status Check Completed',
-          description: `Hat Status Changed to ${
-            logs[0].data.slice(-1) === '1' ? 'Active' : 'Inactive'
-          }`,
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
         });
-
-        setTimeout(() => {
-          queryClient.invalidateQueries({
-            queryKey: ['hatDetails', _.get(hatData, 'id')],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-          });
-        }, 4000);
-      }
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
@@ -81,4 +77,4 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
   return { writeAsync, prepareError, writeError };
 };
 
-export default useHatStatusCheck;
+export default useHatTransferTree;

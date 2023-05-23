@@ -11,7 +11,6 @@ import {
   Badge,
   Icon,
   IconButton,
-  Button,
   Box,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -24,7 +23,7 @@ import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
 import Link from '../ChakraNextLink';
 import DataTable from '../DataTable';
-import { MODULE_TYPES, hatsAddresses } from '../../constants';
+import CONFIG, { MODULE_TYPES } from '../../constants';
 import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
@@ -32,32 +31,23 @@ import EventsTable from '../EventsTable';
 import {
   decimalId,
   prettyIdToIp,
-  topHatOrMutable,
+  isTopHatOrMutable,
   isAdmin,
-  mutableNotTopHat,
+  isMutableNotTopHat,
   prettyIdToUrlId,
   getTreeId,
   isTopHat,
-  prettyIdToId,
 } from '../../lib/hats';
 import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '../../lib/general';
 import HatDetailsForm from '../../forms/HatDetailsForm';
 import useWearerDetails from '../../hooks/useWearerDetails';
-import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatImageForm from '../../forms/HatImageForm';
-import HatSupplyForm from '../../forms/HatSupplyForm';
 import useHatDetailsField from '../../hooks/useHatDetailsField';
 import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
-import LinkRequestApprove from '../../forms/LinkRequestApproveForm';
-import RelinkForm from '../../forms/RelinkForm';
-import useTreeDetails from '../../hooks/useTreeDetails';
-import HatUnlinkForm from '../../forms/HatUnlinkForm';
-
-const defaultChainId = 5;
-const hatsAddress = hatsAddresses(defaultChainId);
+import AdminActions from './AdminActions';
 
 // TODO this should probably be more components
 
@@ -69,6 +59,7 @@ const Hat = ({
   hatImage,
   childrenHats,
   linkRequestFromTree,
+  parentOfTrees,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -78,32 +69,16 @@ const Hat = ({
     wearerAddress: address,
     chainId,
   });
-
-  const { data: parentTreeData } = useTreeDetails({
-    treeId: linkedToHat?.tree?.id,
-    chainId,
-    hatId: prettyIdToId(linkedToHat?.prettyId),
-  });
-
-  const parentTreeHats = _.filter(
-    _.map(_.get(parentTreeData, 'hats'), 'prettyId'),
-    (hat) => hat !== linkedToHat?.prettyId,
-  );
-
-  const { writeAsync: updateImmutability } = useHatMakeImmutable({
-    hatsAddress,
-    chainId,
-    hatData,
-  });
   const { writeAsync: checkHatStatus } = useHatStatusCheck({
-    hatsAddress,
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatData,
   });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const isWearer = _.includes(currentWearerHats, _.get(hatData, 'prettyId'));
+
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
-  const [topHatDomain, setTopHatDomain] = useState('');
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
@@ -121,31 +96,11 @@ const Hat = ({
     setModals({ hatImage: true });
   };
 
-  const handleOpenSupplyModal = () => {
-    setModals({ hatSupply: true });
-  };
-
-  const handleMakeImmutable = () => {
-    updateImmutability?.();
-  };
-
-  const handleOpenLinkRequestApproveModal = (id) => {
-    setTopHatDomain(id);
-    setModals({ linkResponse: true });
-  };
-
-  const handleOpenRelinkModal = () => {
-    setModals({ relink: true });
-  };
-
   const isAdminUser =
     userChain === chainId &&
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
 
-  const showSupplyAndImmutableButtons =
-    isAdminUser && mutableNotTopHat(hatData);
-
-  const canEditImage = isAdminUser && address && topHatOrMutable(hatData);
+  const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
   const authoritiesTable = _.map(childrenHats, (hat) => ({
     key: _.get(hat, 'prettyId'),
@@ -185,9 +140,10 @@ const Hat = ({
       value: (
         <AddressRow
           address={hatData.eligibility}
+          isTopHat={isTopHat(hatData)}
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
-          mutable={mutableNotTopHat(hatData)}
+          mutable={isMutableNotTopHat(hatData)}
           admin={
             isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
             chainId === userChain
@@ -203,9 +159,10 @@ const Hat = ({
       value: (
         <AddressRow
           address={hatData.toggle}
+          isTopHat={isTopHat(hatData)}
           chainId={chainId}
           type={MODULE_TYPES.toggle}
-          mutable={mutableNotTopHat(hatData)}
+          mutable={isMutableNotTopHat(hatData)}
           admin={
             isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
             chainId === userChain
@@ -235,13 +192,6 @@ const Hat = ({
         <HatImageForm hatData={hatData} chainId={chainId} />
       </Modal>
       <Modal
-        name='hatSupply'
-        title='Edit Max Supply'
-        localOverlay={localOverlay}
-      >
-        <HatSupplyForm hatData={hatData} chainId={chainId} />
-      </Modal>
-      <Modal
         name='hatWearerStatus'
         title='Change Wearer Status'
         localOverlay={localOverlay}
@@ -263,31 +213,6 @@ const Hat = ({
       >
         <HatStatusForm hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal
-        name='linkResponse'
-        title='Approve Link Request'
-        localOverlay={localOverlay}
-      >
-        <LinkRequestApprove
-          topHatDomain={topHatDomain}
-          hatData={hatData}
-          chainId={chainId}
-        />
-      </Modal>
-      <Modal name='relink' title='Relink Top Hat' localOverlay={localOverlay}>
-        <RelinkForm
-          parentTreeHats={parentTreeHats}
-          hatData={hatData}
-          chainId={chainId}
-        />
-      </Modal>
-      <Modal
-        name='unlinkTree'
-        title='Unlink Top Hat From Tree'
-        localOverlay={localOverlay}
-      >
-        <HatUnlinkForm hatData={hatData} chainId={chainId} />
-      </Modal>
 
       <Stack>
         <Flex justify='space-between'>
@@ -298,12 +223,12 @@ const Hat = ({
               onMouseEnter={() => canEditImage && setImageHover(true)}
               onMouseLeave={() => setImageHover(false)}
               position='relative'
-              border='1px solid'
-              borderColor='gray.200'
+              borderWidth={isWearer ? '2px' : '1px'}
+              borderColor={isWearer ? '#2EA043' : '#CBD5E0'}
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
+              bgImage={hatImage ? `url('${hatImage}')` : "url('/icon.jpeg')"}
               bgSize='cover'
               bgPosition='center'
             >
@@ -317,6 +242,26 @@ const Hat = ({
                   top='22%'
                   left='22%'
                 />
+              )}
+              {isWearer && (
+                <Flex
+                  position='absolute'
+                  bottom='-10px'
+                  left='50%'
+                  transform='translateX(-50%)'
+                  w='full'
+                  h='14px'
+                  color='white'
+                  fontSize='8px'
+                  fontWeight={700}
+                  alignItems='center'
+                  justifyContent='center'
+                  px={3}
+                >
+                  <Text bg='#2EA043' px={2} lineHeight='14px'>
+                    WEARER
+                  </Text>
+                </Flex>
               )}
             </Box>
 
@@ -380,13 +325,7 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Events
             </Tab>
-            {address &&
-              userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (mutableNotTopHat(hatData) ||
-                linkRequestFromTree?.length > 0) && (
-                <Tab fontSize='sm'>Admin</Tab>
-              )}
+            {isAdminUser && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -408,16 +347,20 @@ const Hat = ({
                   (hatDetailsFieldLoading ? (
                     'Loading...'
                   ) : (
-                    <>
-                      <Text fontSize='sm' as='b'>
-                        Name:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.name}</Text>
-                      <Text fontSize='sm' as='b'>
-                        Description:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.description}</Text>
-                    </>
+                    <Stack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Name:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'name')}</Text>
+                      </HStack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Description:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
+                      </HStack>
+                    </Stack>
                   ))}
                 {schemaTypeDetailsField !== '1.0' && (
                   <Text>{hatData?.details}</Text>
@@ -444,60 +387,31 @@ const Hat = ({
               />
             </TabPanel>
             <TabPanel minH='370px'>
-              <HatWearers hatData={hatData} chainId={chainId} />
+              <HatWearers
+                hatData={hatData}
+                chainId={chainId}
+                isAdminUser={isAdminUser}
+              />
             </TabPanel>
             <TabPanel minH='370px'>
               <EventsTable
+                chainId={chainId}
                 treeId={treeId}
                 events={hatData?.events}
-                chainId={chainId}
               />
             </TabPanel>
-            {isAdminUser &&
-            (showSupplyAndImmutableButtons ||
-              linkRequestFromTree?.length > 0) ? (
+            {isAdminUser && (
               <TabPanel minH='370px'>
-                <HStack
-                  justifyContent='space-between'
-                  flexWrap='wrap'
-                  spacing={1}
-                  gap={1}
-                >
-                  {showSupplyAndImmutableButtons && (
-                    <>
-                      <Button variant='outline' onClick={handleOpenSupplyModal}>
-                        Adjust Max Supply
-                      </Button>
-                      <Button variant='outline' onClick={handleMakeImmutable}>
-                        Make Immutable
-                      </Button>
-                    </>
-                  )}
-                  {linkRequestFromTree?.map((linkRequest) => (
-                    <Button
-                      variant='outline'
-                      onClick={() =>
-                        handleOpenLinkRequestApproveModal(linkRequest.id)
-                      }
-                      key={linkRequest.id}
-                    >
-                      Link Request to {linkRequest.id}
-                    </Button>
-                  ))}
-                  <Button
-                    variant='outline'
-                    onClick={() => setModals({ unlinkTree: true })}
-                  >
-                    Unlink Tree
-                  </Button>{' '}
-                  {isTopHat(hatData) && linkedToHat && (
-                    <Button variant='outline' onClick={handleOpenRelinkModal}>
-                      Relink Hat
-                    </Button>
-                  )}
-                </HStack>
+                <AdminActions
+                  hatData={hatData}
+                  chainId={chainId}
+                  linkRequestFromTree={linkRequestFromTree}
+                  hatsAddress={CONFIG.hatsAddress}
+                  linkedToHat={linkedToHat}
+                  parentOfTrees={parentOfTrees}
+                />
               </TabPanel>
-            ) : null}
+            )}
           </TabPanels>
         </Tabs>
       </Stack>

@@ -10,11 +10,10 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
-
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useTreeCreate from '../hooks/useTreeCreate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 
 const TreeCreateForm = () => {
@@ -29,8 +28,9 @@ const TreeCreateForm = () => {
   const imageUrl = useDebounce(watch('imageUrl', ''));
   const receiver = useDebounce(watch('receiver'));
 
-  const { writeAsync } = useTreeCreate({
-    hatsAddress: hatsAddresses(chainId),
+  const { writeAsync, isLoading } = useTreeCreate({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
     details,
     imageUrl,
     receiver,
@@ -79,7 +79,7 @@ const TreeCreateForm = () => {
         )}
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Create
           </Button>
         </Flex>

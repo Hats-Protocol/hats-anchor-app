@@ -1,6 +1,6 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -18,10 +18,10 @@ const useHatRelinkTree = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+  const { config, error: prepareError } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'relinkTopHatWithinTree',
     args: [
       topHatDomain,
@@ -33,6 +33,8 @@ const useHatRelinkTree = ({
     ],
     enabled: !!topHatDomain && !!newAdmin,
   });
+  console.log('hatRelink - prepareError', prepareError);
+
   const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {

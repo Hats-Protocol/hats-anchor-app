@@ -1,10 +1,11 @@
 import { usePrepareContractWrite, useContractWrite } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
-import { prettyIdToId } from '../lib/hats';
+import { prettyIdToId, toTreeId } from '../lib/hats';
 import { useOverlay } from '../contexts/OverlayContext';
 
 const useHatWearerStatusSet = ({
@@ -20,9 +21,9 @@ const useHatWearerStatusSet = ({
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
@@ -30,14 +31,19 @@ const useHatWearerStatusSet = ({
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
-    enabled: !!hatsAddress && !!wearer,
+    enabled: !!hatsAddress && isAddress(wearer),
   });
-  // console.log(prepareError);
+  console.log('hatWearerStatusUpdate- prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Wearer Status Updated',
@@ -46,10 +52,14 @@ const useHatWearerStatusSet = ({
         hatId,
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(hatId)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(prettyIdToId(hatId))],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
