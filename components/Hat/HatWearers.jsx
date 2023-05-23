@@ -229,6 +229,7 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
           hatId={_.get(hatData, 'id')}
           chainId={chainId}
           currentWearers={_.map(wearers, 'id')}
+          maxSupply={_.get(hatData, 'maxSupply')}
         />
       </Modal>
       <Modal

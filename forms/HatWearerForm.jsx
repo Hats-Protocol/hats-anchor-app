@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState } from 'react';
 import {
   Stack,
@@ -18,7 +19,7 @@ import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 
-const HatWearerForm = ({ hatId, chainId, currentWearers }) => {
+const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
 
@@ -30,6 +31,11 @@ const HatWearerForm = ({ hatId, chainId, currentWearers }) => {
   const isAddressAlreadyAdded =
     wearers.some((wearer) => wearer.address === newAddress) ||
     currentWearers.includes(newAddress);
+
+  const wouldExceedMaxSupply =
+    currentWearers.length + wearers.length + 1 > maxSupply;
+  const canAddWearer =
+    isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
   const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
@@ -79,17 +85,20 @@ const HatWearerForm = ({ hatId, chainId, currentWearers }) => {
             <InputRightElement w='4rem'>
               <Tooltip
                 label={
-                  // eslint-disable-next-line no-nested-ternary
-                  !isNewWearerAddress
-                    ? 'Please input a valid address'
-                    : isAddressAlreadyAdded
-                    ? 'Address already added'
+                  !canAddWearer
+                    ? !isNewWearerAddress
+                      ? 'Please input a valid address'
+                      : isAddressAlreadyAdded
+                      ? 'Address already added'
+                      : wouldExceedMaxSupply
+                      ? 'Max supply would be exceeded'
+                      : ''
                     : ''
                 }
                 shouldWrapChildren
               >
                 <IconButton
-                  isDisabled={!isNewWearerAddress || isAddressAlreadyAdded}
+                  isDisabled={!canAddWearer}
                   onClick={handleAddWearer}
                   icon={<FaCheck />}
                   aria-label='Add'
