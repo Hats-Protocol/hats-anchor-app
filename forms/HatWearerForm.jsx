@@ -9,6 +9,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
@@ -17,7 +18,7 @@ import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 
-const HatWearerForm = ({ hatId, chainId }) => {
+const HatWearerForm = ({ hatId, chainId, currentWearers }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
 
@@ -26,9 +27,9 @@ const HatWearerForm = ({ hatId, chainId }) => {
 
   const newWearer = useDebounce(newAddress, CONFIG.debounce);
   const isNewWearerAddress = isAddress(newWearer);
-  const isAddressAlreadyAdded = wearers.some(
-    (wearer) => wearer.address === newAddress,
-  );
+  const isAddressAlreadyAdded =
+    wearers.some((wearer) => wearer.address === newAddress) ||
+    currentWearers.includes(newAddress);
 
   const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
@@ -55,6 +56,9 @@ const HatWearerForm = ({ hatId, chainId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
+        <Text color='gray.500'>
+          Mint this hat to multiple addresses at once!
+        </Text>
         <Flex alignItems='center' borderRadius={8}>
           <InputGroup flexGrow={1}>
             <InputLeftElement>
