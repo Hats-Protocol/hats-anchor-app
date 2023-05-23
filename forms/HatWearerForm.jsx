@@ -1,48 +1,118 @@
-import React from 'react';
-import { Stack, Button, Flex } from '@chakra-ui/react';
-import { isAddress } from 'viem';
+import React, { useState } from 'react';
+import {
+  Stack,
+  Button,
+  Flex,
+  Tooltip,
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+} from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
+import { isAddress } from 'viem';
+import { FaCheck, FaUserPlus } from 'react-icons/fa';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 
 const HatWearerForm = ({ hatId, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });
-  const { handleSubmit, watch } = localForm;
+  const { handleSubmit } = localForm;
 
-  const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
+  const [wearers, setWearers] = useState([]);
+  const [newAddress, setNewAddress] = useState('');
 
-  const { writeAsync, ensError, isLoading } = useHatMint({
+  const newWearer = useDebounce(newAddress, CONFIG.debounce);
+  const isNewWearerAddress = isAddress(newWearer);
+  const isAddressAlreadyAdded = wearers.some(
+    (wearer) => wearer.address === newAddress,
+  );
+
+  const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
-    newWearer,
+    newWearers: wearers.map((wearer) => wearer.address),
   });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
 
+  const handleAddWearer = () => {
+    if (isNewWearerAddress && !isAddressAlreadyAdded) {
+      setWearers([...wearers, { address: newAddress }]);
+      setNewAddress('');
+    }
+  };
+
+  const handleRemoveWearer = (index) => {
+    setWearers(wearers.filter((_, i) => i !== index));
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input
-          localForm={localForm}
-          name='newWearer'
-          label='New Wearer Address'
-          options={{
-            validate: (value) =>
-              isAddress(value) ? true : 'Must be a valid address',
-          }}
-          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-        />
+        <Flex alignItems='center' borderRadius={8}>
+          <InputGroup flexGrow={1}>
+            <InputLeftElement>
+              <FaUserPlus ml={2} />
+            </InputLeftElement>
+            <Input
+              pl={16}
+              pr={3}
+              w='calc(100% - 7rem)'
+              textOverflow='ellipsis'
+              type='address'
+              placeholder='Paste or write an ETH address...'
+              value={newAddress}
+              onChange={(e) =>
+                setNewAddress(e.target.value?.toLowerCase() ?? '')
+              }
+            />
+            <InputRightElement w='4rem'>
+              <Tooltip
+                label={
+                  // eslint-disable-next-line no-nested-ternary
+                  !isNewWearerAddress
+                    ? 'Please input a valid address'
+                    : isAddressAlreadyAdded
+                    ? 'Address already added'
+                    : ''
+                }
+                shouldWrapChildren
+              >
+                <IconButton
+                  isDisabled={!isNewWearerAddress || isAddressAlreadyAdded}
+                  onClick={handleAddWearer}
+                  icon={<FaCheck />}
+                  aria-label='Add'
+                  height={9}
+                  w={16}
+                />
+              </Tooltip>
+            </InputRightElement>
+          </InputGroup>
+        </Flex>
+
+        {wearers.map((wearer, index) => (
+          <Flex
+            key={wearer}
+            align='center'
+            w='full'
+            justifyContent='space-between'
+          >
+            <Input value={wearer.address} readOnly w='calc(100% - 7rem)' />
+            <Button type='button' onClick={() => handleRemoveWearer(index)}>
+              Remove
+            </Button>
+          </Flex>
+        ))}
 
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={!writeAsync || ensError || isLoading}
-          >
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Mint
           </Button>
         </Flex>

@@ -1,43 +1,32 @@
 import {
   usePrepareContractWrite,
   useContractWrite,
-  useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
 import { isAddress } from 'viem';
 import { useQueryClient } from '@tanstack/react-query';
-import CONFIG, { ZERO_ADDRESS } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
+const useBatchHatMint = ({ hatsAddress, hatId, chainId, newWearers = [] }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
-
-  const {
-    data: wearerResolvedAddress,
-    isError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress,
-  } = useEnsAddress({
-    name: newWearer,
-    chainId: 1,
-  });
 
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
-    functionName: 'mintHat',
-    args: [decimalId(hatId), wearerResolvedAddress || ZERO_ADDRESS],
+    functionName: 'batchMintHats',
+    args: [new Array(newWearers.length).fill(decimalId(hatId)), newWearers],
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
-      Boolean(newWearer) &&
-      isAddress(newWearer),
+      newWearers.every((wearer) => isAddress(wearer)),
   });
 
   const { writeAsync, data: writeData } = useContractWrite({
@@ -51,8 +40,8 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
       await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: `Hat Minted!`,
-          description: `Successfully minted hat`,
+          title: `Hats Minted!`,
+          description: `Successfully minted hats`,
         },
       });
 
@@ -72,7 +61,6 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
       } else {
         toast.error({
           title: 'Error occurred!',
-          // description: 'Please accept the transaction in your wallet',
         });
       }
     },
@@ -84,9 +72,8 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
 
   return {
     writeAsync,
-    ensError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress || isLoading,
+    isLoading,
   };
 };
 
-export default useHatMint;
+export default useBatchHatMint;
