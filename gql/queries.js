@@ -187,6 +187,10 @@ export const GET_WEARER_DETAILS = gql`
         mutable
         status
         levelAtLocalTree
+        admin {
+          id
+          prettyId
+        }
       }
     }
   }

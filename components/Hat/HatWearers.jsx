@@ -268,14 +268,10 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
 
       <Stack align='center' spacing={4}>
         <Flex justify='space-between' w='100%'>
-          <HStack spacing={1}>
-            {_.get(hatData, 'currentSupply') &&
-              _.get(hatData, 'currentSupply') !==
-                _.get(hatData, 'maxSupply') && (
-                <Text>{_.get(hatData, 'currentSupply')} Worn /</Text>
-              )}
-            <Text>{_.get(hatData, 'maxSupply')} Max Supply</Text>
-          </HStack>
+          <Text>
+            {_.get(hatData, 'currentSupply')} Worn /{' '}
+            {_.get(hatData, 'maxSupply')} Max Supply
+          </Text>
 
           {address &&
             _.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&

@@ -59,6 +59,7 @@ const Hat = ({
   hatImage,
   childrenHats,
   linkRequestFromTree,
+  parentOfTrees,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -99,31 +100,30 @@ const Hat = ({
     userChain === chainId &&
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
 
-  const showSupplyAndImmutableButtons =
-    isAdminUser && isMutableNotTopHat(hatData);
-
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
-  const authoritiesTable = _.map(childrenHats, (hat) => ({
-    key: _.get(hat, 'prettyId'),
-    label: (
-      <Text as='span'>
-        Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
-      </Text>
-    ),
-    value: (
-      <Link
-        href={`/trees/${chainId}/${decimalId(
-          getTreeId(_.get(hat, 'prettyId')),
-        )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-      >
-        <HStack>
-          <Text>Hats Protocol</Text>
-          <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
-        </HStack>
-      </Link>
-    ),
-  }));
+  const childrenHatsIds = _.map(childrenHats, 'prettyId') || [];
+  const parentOfTreesIds = _.map(parentOfTrees, 'id') || [];
+
+  const authoritiesTable = _.map(
+    childrenHatsIds.concat(parentOfTreesIds),
+    (hatId) => ({
+      key: hatId,
+      label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
+      value: (
+        <Link
+          href={`/trees/${chainId}/${decimalId(
+            getTreeId(hatId),
+          )}/${prettyIdToUrlId(hatId)}`}
+        >
+          <HStack>
+            <Text>Hats Protocol</Text>
+            <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+          </HStack>
+        </Link>
+      ),
+    }),
+  );
 
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
@@ -178,8 +178,6 @@ const Hat = ({
       ),
     },
   ];
-
-  console.log(hatDetailsFieldData, schemaTypeDetailsField);
 
   return (
     <>
@@ -330,13 +328,7 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Events
             </Tab>
-            {address &&
-              userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (isMutableNotTopHat(hatData) ||
-                linkRequestFromTree?.length > 0) && (
-                <Tab fontSize='sm'>Admin</Tab>
-              )}
+            {isAdminUser && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -406,25 +398,23 @@ const Hat = ({
             </TabPanel>
             <TabPanel minH='370px'>
               <EventsTable
+                chainId={chainId}
                 treeId={treeId}
                 events={hatData?.events}
-                chainId={chainId}
               />
             </TabPanel>
-            {isAdminUser &&
-            (showSupplyAndImmutableButtons ||
-              linkRequestFromTree?.length > 0) ? (
+            {isAdminUser && (
               <TabPanel minH='370px'>
                 <AdminActions
-                  showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
-                  linkRequestFromTree={linkRequestFromTree}
                   hatData={hatData}
-                  hatsAddress={CONFIG.hatsAddress}
                   chainId={chainId}
+                  linkRequestFromTree={linkRequestFromTree}
+                  hatsAddress={CONFIG.hatsAddress}
                   linkedToHat={linkedToHat}
+                  parentOfTrees={_.map(parentOfTrees, 'id')}
                 />
               </TabPanel>
-            ) : null}
+            )}
           </TabPanels>
         </Tabs>
       </Stack>

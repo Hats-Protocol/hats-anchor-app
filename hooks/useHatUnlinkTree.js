@@ -1,7 +1,6 @@
 import {
   usePrepareContractWrite,
   useContractWrite,
-  useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
@@ -12,29 +11,17 @@ import { prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
+const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
-
-  const {
-    data: wearerResolvedAddress,
-    isError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress,
-  } = useEnsAddress({
-    name: wearer,
-    chainId: 1,
-  });
 
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'unlinkTopHatFromTree',
-    args: [_.get(hatData, 'prettyId'), wearerResolvedAddress],
-    enabled:
-      Boolean(_.get(hatData, 'prettyId')) &&
-      Boolean(wearer) &&
-      isAddress(wearer),
+    args: [topHatPrettyId, wearer],
+    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
   const { writeAsync, data: writeData } = useContractWrite({
@@ -45,7 +32,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
         toastData: {
           title: `Top Hat Unlinked!`,
           description: `Successfully unlinked top hat #${prettyIdToIp(
-            _.get(hatData, 'prettyId'),
+            topHatPrettyId,
           )}`,
         },
       });
@@ -76,8 +63,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
 
   return {
     writeAsync,
-    ensError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress || isLoading,
+    isLoading,
   };
 };
 

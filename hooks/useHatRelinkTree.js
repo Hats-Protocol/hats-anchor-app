@@ -25,22 +25,21 @@ const useHatRelinkTree = ({
 
   const {
     data: eligibilityResolvedAddress,
-    isError: isErrorEligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
     name: eligibility,
     chainId: 1,
   });
+
   const {
     data: toggleResolvedAddress,
     isLoading: isLoadingtoggleResolvedAddress,
-    isError: isErrorToggleResolvedAddress,
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
   });
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
@@ -48,8 +47,8 @@ const useHatRelinkTree = ({
     args: [
       topHatDomain,
       decimalId(prettyIdToId(newAdmin)),
-      eligibilityResolvedAddress || FALLBACK_ADDRESS,
-      toggleResolvedAddress || FALLBACK_ADDRESS,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       description,
       imageUrl || '',
     ],
@@ -95,7 +94,7 @@ const useHatRelinkTree = ({
 
   return {
     writeAsync,
-    ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
+
     isLoading:
       isLoadingEligibilityResolvedAddress ||
       isLoadingtoggleResolvedAddress ||

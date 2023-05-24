@@ -71,7 +71,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync, ensError, isLoading } = useHatLinkRequestApprove({
+  const { writeAsync, isLoading } = useHatLinkRequestApprove({
     topHatDomain,
     newAdmin: hatData.id,
     eligibility: eligibilityChecked && eligibility,
@@ -187,7 +187,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
               <Input
                 name='toggle'
                 label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+                placeholder='0x1234, vitalik.eth'
                 localForm={localForm}
               />
             )}
@@ -196,7 +196,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || imagePinLoading || isLoading || ensError}
+            isDisabled={!writeAsync || imagePinLoading || isLoading}
           >
             {imagePinLoading ? <Spinner /> : 'Approve'}
           </Button>

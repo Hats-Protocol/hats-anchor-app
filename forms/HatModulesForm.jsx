@@ -16,7 +16,7 @@ const HatModulesForm = ({
 
   const newAddress = useDebounce(watch('newAddress', null), CONFIG.debounce);
 
-  const { writeAsync, ensError, isLoading } = useModuleUpdate({
+  const { writeAsync, isLoading } = useModuleUpdate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: hatData.id,
@@ -45,14 +45,11 @@ const HatModulesForm = ({
           label={`New ${_.capitalize(
             type,
           )} Address — https://docs.hatsprotocol.xyz/#${_.capitalize(type)}`}
-          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+          placeholder='0x1234, vitalik.eth'
         />
 
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={!writeAsync || isLoading || ensError}
-          >
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>

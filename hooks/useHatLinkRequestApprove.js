@@ -25,16 +25,15 @@ const useHatLinkRequestApprove = ({
 
   const {
     data: eligibilityResolvedAddress,
-    isError: isErrorEligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
     name: eligibility,
     chainId: 1,
   });
+
   const {
     data: toggleResolvedAddress,
     isLoading: isLoadingtoggleResolvedAddress,
-    isError: isErrorToggleResolvedAddress,
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
@@ -48,8 +47,8 @@ const useHatLinkRequestApprove = ({
     args: [
       topHatDomain,
       decimalId(newAdmin),
-      eligibilityResolvedAddress || FALLBACK_ADDRESS,
-      toggleResolvedAddress || FALLBACK_ADDRESS,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       description,
       imageUrl || '',
     ],
@@ -100,7 +99,6 @@ const useHatLinkRequestApprove = ({
 
   return {
     writeAsync,
-    ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
     isLoading:
       isLoadingEligibilityResolvedAddress ||
       isLoadingtoggleResolvedAddress ||

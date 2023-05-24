@@ -17,7 +17,7 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const eligibility = useDebounce(watch('eligibility', null), CONFIG.debounce);
   const standing = useDebounce(watch('standing', null), CONFIG.debounce);
 
-  const { writeAsync, ensError, isLoading } = useHatWearerStatusSet({
+  const { writeAsync, isLoading } = useHatWearerStatusSet({
     hatsAddress: CONFIG.hatsAddress,
     hatId: _.get(hatData, 'prettyId'),
     chainId,
@@ -53,7 +53,7 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
             validate: (value) =>
               isAddress(value) ? true : 'Must be a valid address',
           }}
-          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+          placeholder='0x1234, vitalik.eth'
           defaultValue={_.get(defaultValues, 'wearer')}
         />
         <RadioBox
@@ -74,7 +74,7 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!wearer || ensError || isLoading}>
+          <Button type='submit' isDisabled={!wearer || isLoading}>
             Update
           </Button>
         </Flex>

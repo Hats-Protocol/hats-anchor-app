@@ -36,7 +36,6 @@ const HatHoverCard = ({
   isWearer,
   isWearerOrAdminOfHat,
   wearerHats,
-  handleLocalNodeClick,
   isCurrentHat,
 }) => {
   const wearer1 = _.get(_.first(_.get(hatData, 'wearers')), 'id');
@@ -92,8 +91,6 @@ const HatHoverCard = ({
       border='2px solid'
       borderColor={isCurrentHat ? '#437bc9' : '#6d858f'}
       borderRadius='md'
-      zIndex={5}
-      onClick={handleLocalNodeClick}
     >
       <Box w='100%' h='100%' position='relative'>
         <Box
@@ -271,7 +268,7 @@ function Node({
         }}
         onClick={handleLocalNodeClick}
       />
-      <foreignObject width={200} height={200} x={35} y={-25} overflow='visible'>
+      <foreignObject width={230} height={200} x={35} y={-25} overflow='visible'>
         <div
           style={{
             display: 'flex',

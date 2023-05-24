@@ -6,6 +6,7 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
+import { isAddress } from 'viem';
 import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
@@ -30,22 +31,21 @@ const useHatCreate = ({
 
   const {
     data: eligibilityResolvedAddress,
-    isError: isErrorEligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
     name: eligibility,
     chainId: 1,
   });
+
   const {
     data: toggleResolvedAddress,
     isLoading: isLoadingtoggleResolvedAddress,
-    isError: isErrorToggleResolvedAddress,
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
   });
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi,
@@ -54,14 +54,13 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      eligibilityResolvedAddress || FALLBACK_ADDRESS,
-      toggleResolvedAddress || FALLBACK_ADDRESS,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       mutable === 'Mutable',
       imageUrl || '',
     ],
     enabled: !!hatsAddress && !!admin,
   });
-  console.log('hatCreate - prepareError', prepareError);
 
   const { writeAsync, data: writeData } = useContractWrite({
     ...config,
@@ -104,7 +103,6 @@ const useHatCreate = ({
 
   return {
     writeAsync,
-    ensError: isErrorEligibilityResolvedAddress || isErrorToggleResolvedAddress,
     isLoading:
       isLoadingEligibilityResolvedAddress ||
       isLoadingtoggleResolvedAddress ||
