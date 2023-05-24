@@ -1,4 +1,9 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAddress } from 'viem';
@@ -11,23 +16,39 @@ import { useOverlay } from '../contexts/OverlayContext';
 const useHatTransferTree = ({
   currentWearerAddress,
   hatData,
-  newWearerAddress,
+  newWearer,
   chainId,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    data: newWearerResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress,
+  } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
+  });
+
+  const {
+    config,
+    error: prepareError,
+    data: writeData,
+  } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'transferHat',
-    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
+    args: [
+      decimalId(hatData.id),
+      currentWearerAddress,
+      newWearerResolvedAddress ?? newWearer,
+    ],
     enabled:
-      Boolean(newWearerAddress) &&
+      Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
-      isAddress(newWearerAddress) &&
+      isAddress(newWearerResolvedAddress ?? newWearer) &&
       isAddress(currentWearerAddress),
   });
   console.log('hatLinkTransferTree - prepareError', prepareError);
@@ -46,7 +67,7 @@ const useHatTransferTree = ({
           title: `Top Hat Transferred!`,
           description: `Successfully transferred top hat #${prettyIdToIp(
             _.get(hatData, 'prettyId'),
-          )} from ${currentWearerAddress} to ${newWearerAddress}`,
+          )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
         },
       });
 
@@ -74,7 +95,17 @@ const useHatTransferTree = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading: isLoadingNewResolvedAddress || isLoading,
+    newWearerResolvedAddress,
+  };
 };
 
 export default useHatTransferTree;

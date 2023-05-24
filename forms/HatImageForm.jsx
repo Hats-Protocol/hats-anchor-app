@@ -12,7 +12,7 @@ const HatImageForm = ({ hatData, chainId }) => {
 
   const image = useDebounce(watch('image'));
 
-  const { writeAsync } = useHatImageUpdate({
+  const { writeAsync, isLoading } = useHatImageUpdate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
@@ -34,7 +34,7 @@ const HatImageForm = ({ hatData, chainId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>

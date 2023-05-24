@@ -1,4 +1,9 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAddress } from 'viem';
@@ -20,14 +25,26 @@ const useHatWearerStatusSet = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    data: wearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: wearer,
+    chainId: 1,
+  });
+
+  const {
+    config,
+    error: prepareError,
+    data: writeData,
+  } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
-      wearer || '',
+      (wearerResolvedAddress ?? wearer) || '',
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
@@ -76,7 +93,17 @@ const useHatWearerStatusSet = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading: isLoadingWearerResolvedAddress || isLoading,
+    wearerResolvedAddress,
+  };
 };
 
 export default useHatWearerStatusSet;

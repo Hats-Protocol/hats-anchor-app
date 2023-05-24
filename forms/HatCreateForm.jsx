@@ -8,17 +8,20 @@ import {
   FormLabel,
   HStack,
   Spinner,
+  Box,
+  Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
+import { FaCheck } from 'react-icons/fa';
 import { useDropzone } from 'react-dropzone';
 
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
@@ -33,8 +36,8 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     defaultValues: { mutable: 'Mutable' },
   });
   const { handleSubmit, watch } = localForm;
-  const [inputEligibility, setInputEligibility] = useState(false);
-  const [inputToggle, setInputToggle] = useState(false);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [toggleChecked, setInputChecked] = useState(false);
   const [customDetails, setCustomDetails] = useState(true);
   const [customImage, setCustomImage] = useState(true);
   const chainId = useChainId();
@@ -84,15 +87,20 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     data: { name, description },
   });
 
-  const { writeAsync } = useHatCreate({
+  const {
+    writeAsync,
+    isLoading,
+    toggleResolvedAddress,
+    eligibilityResolvedAddress,
+  } = useHatCreate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     treeId,
     admin: defaultAdmin,
     details: customDetails ? detailsCID : details,
     maxSupply: _.toNumber(maxSupply),
-    eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
-    toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
+    eligibility: eligibilityChecked && eligibility,
+    toggle: toggleChecked && toggle,
     mutable,
     imageUrl: customImage
       ? imagePinData !== undefined
@@ -100,6 +108,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         : undefined
       : imageUrl,
   });
+
+  const showEligilityResolvedAddress =
+    eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
+  const showToggleResolvedAddress =
+    toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
   const onSubmit = async () => {
     writeAsync?.();
@@ -210,41 +223,63 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputEligibility}
-              onChange={() => setInputEligibility(!inputEligibility)}
+              isChecked={eligibilityChecked}
+              onChange={() => setEligibilityChecked(!eligibilityChecked)}
             />
-            {!inputEligibility && <FormLabel>Set Eligibility</FormLabel>}
-            {inputEligibility && (
-              <Input
-                name='eligibility'
-                label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                placeholder='0x4a750000403C3B91997911FCd989d9B5C25d7876'
-                localForm={localForm}
-              />
+            {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
+            {eligibilityChecked && (
+              <Box>
+                <Input
+                  name='eligibility'
+                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showEligilityResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showEligilityResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {eligibilityResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputToggle}
-              onChange={() => setInputToggle(!inputToggle)}
+              isChecked={toggleChecked}
+              onChange={() => setInputChecked(!toggleChecked)}
             />
-            {!inputToggle && <FormLabel>Set Toggle</FormLabel>}
-            {inputToggle && (
-              <Input
-                name='toggle'
-                label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-                localForm={localForm}
-              />
+            {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
+            {toggleChecked && (
+              <Box>
+                <Input
+                  name='toggle'
+                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showToggleResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showToggleResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {toggleResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || detailsCidLoading || imagePinLoading}
+            isDisabled={
+              !writeAsync || detailsCidLoading || imagePinLoading || isLoading
+            }
           >
             {imagePinLoading ? <Spinner /> : 'Create'}
           </Button>

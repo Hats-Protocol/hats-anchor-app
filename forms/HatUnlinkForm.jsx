@@ -28,7 +28,7 @@ const HatUnlinkForm = ({ parentOfTrees, chainId }) => {
     chainId,
   });
 
-  const { writeAsync } = useHatUnlinkTree({
+  const { writeAsync, isLoading } = useHatUnlinkTree({
     topHatPrettyId,
     wearer: topHatData?.wearers?.[0]?.id,
   });
@@ -58,7 +58,7 @@ const HatUnlinkForm = ({ parentOfTrees, chainId }) => {
         </Select>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Unlink
           </Button>
         </Flex>

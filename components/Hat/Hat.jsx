@@ -69,7 +69,7 @@ const Hat = ({
     wearerAddress: address,
     chainId,
   });
-  const { writeAsync: checkHatStatus } = useHatStatusCheck({
+  const { writeAsync: checkHatStatus, isLoading } = useHatStatusCheck({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatData,
@@ -173,6 +173,7 @@ const Hat = ({
           localOverlay={localOverlay}
           user={address}
           checkHatStatus={checkHatStatus}
+          isLoading={isLoading}
         />
       ),
     },

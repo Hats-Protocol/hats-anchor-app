@@ -42,7 +42,7 @@ const AdminActions = ({
     (hat) => hat !== linkedToHat?.prettyId,
   );
 
-  const { writeAsync: updateImmutability } = useHatMakeImmutable({
+  const { writeAsync: updateImmutability, isLoading } = useHatMakeImmutable({
     hatsAddress,
     chainId,
     hatData,
@@ -80,7 +80,11 @@ const AdminActions = ({
               >
                 Adjust Max Supply
               </Button>
-              <Button variant='outline' onClick={handleMakeImmutable}>
+              <Button
+                variant='outline'
+                onClick={handleMakeImmutable}
+                isDisabled={isLoading}
+              >
                 Make Immutable
               </Button>
             </>

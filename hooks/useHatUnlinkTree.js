@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { isAddress } from 'viem';
 import CONFIG from '../constants';
@@ -11,7 +15,7 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
@@ -20,7 +24,7 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
     enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -53,7 +57,14 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading,
+  };
 };
 
 export default useHatUnlinkTree;

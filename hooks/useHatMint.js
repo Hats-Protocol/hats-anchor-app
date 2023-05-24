@@ -1,4 +1,9 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { isAddress } from 'viem';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,20 +18,31 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const {
+    data: wearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
+  });
+
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'mintHat',
-    args: [decimalId(hatId), newWearer || ZERO_ADDRESS],
+    args: [
+      decimalId(hatId),
+      (wearerResolvedAddress ?? newWearer) || ZERO_ADDRESS,
+    ],
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
       Boolean(newWearer) &&
-      isAddress(newWearer),
+      isAddress(wearerResolvedAddress ?? newWearer),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -64,7 +80,14 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading: isLoadingWearerResolvedAddress || isLoading,
+  };
 };
 
 export default useHatMint;

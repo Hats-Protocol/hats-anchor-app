@@ -23,7 +23,7 @@ const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
     CONFIG.debounce,
   );
 
-  const { writeAsync } = useHatLinkRequestCreate({
+  const { writeAsync, isLoading } = useHatLinkRequestCreate({
     chainId,
     newAdmin,
     topHatDomain,
@@ -59,7 +59,7 @@ const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {
         </Select>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Request
           </Button>
         </Flex>

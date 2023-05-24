@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
@@ -20,7 +24,7 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   });
   console.log('hatLinkRequestCreate - prepareError', prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -53,7 +57,11 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
     },
   });
 
-  return { writeAsync, prepareError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, prepareError, isLoading };
 };
 
 export default useHatLinkRequestCreate;

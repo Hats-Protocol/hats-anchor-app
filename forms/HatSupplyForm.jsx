@@ -12,7 +12,7 @@ const HatSupplyForm = ({ hatData, chainId }) => {
 
   const amount = useDebounce(watch('amount'), CONFIG.defaultDebounce);
 
-  const { writeAsync } = useHatSupplyUpdate({
+  const { writeAsync, isLoading } = useHatSupplyUpdate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
@@ -34,7 +34,7 @@ const HatSupplyForm = ({ hatData, chainId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>

@@ -1,6 +1,11 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
-import CONFIG from '../constants';
+import CONFIG, { FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -18,6 +23,22 @@ const useHatLinkRequestApprove = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
@@ -26,8 +47,8 @@ const useHatLinkRequestApprove = ({
     args: [
       topHatDomain,
       decimalId(newAdmin),
-      eligibility,
-      toggle,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       description,
       imageUrl || '',
     ],
@@ -35,7 +56,11 @@ const useHatLinkRequestApprove = ({
   });
   console.log('hatLinkRequestApprove - prepareError', prepareError);
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const {
+    writeAsync,
+    error: writeError,
+    data: writeData,
+  } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -68,7 +93,21 @@ const useHatLinkRequestApprove = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading:
+      isLoadingEligibilityResolvedAddress ||
+      isLoadingtoggleResolvedAddress ||
+      isLoading,
+    prepareError,
+    writeError,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+  };
 };
 
 export default useHatLinkRequestApprove;

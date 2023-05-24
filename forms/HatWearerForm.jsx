@@ -12,9 +12,8 @@ const HatWearerForm = ({ hatId, chainId }) => {
   const { handleSubmit, watch } = localForm;
 
   const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
-  // TODO handle ens name
 
-  const { writeAsync } = useHatMint({
+  const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
@@ -36,11 +35,11 @@ const HatWearerForm = ({ hatId, chainId }) => {
             validate: (value) =>
               isAddress(value) ? true : 'Must be a valid address',
           }}
-          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
+          placeholder='0x1234, vitalik.eth'
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Mint
           </Button>
         </Flex>

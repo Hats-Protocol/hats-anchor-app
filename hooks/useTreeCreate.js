@@ -3,6 +3,7 @@ import {
   useContractWrite,
   useAccount,
   useWaitForTransaction,
+  useEnsAddress,
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,7 +12,6 @@ import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-
 import { treeCreateEventIdToTreeId } from '../lib/hats';
 
 const useTreeCreate = ({
@@ -28,13 +28,21 @@ const useTreeCreate = ({
   const queryClient = useQueryClient();
   const router = useRouter();
 
+  const {
+    data: newReceiverResolvedAddress,
+    isLoading: isLoadingNewReceiverResolvedAddress,
+  } = useEnsAddress({
+    name: receiver,
+    chainId: 1,
+  });
+
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'mintTopHat',
     args: [
-      overrideReceiver ? receiver : address,
+      overrideReceiver ? newReceiverResolvedAddress ?? receiver : address,
       details || '',
       imageUrl || '',
     ],
@@ -94,7 +102,11 @@ const useTreeCreate = ({
     onError: handleError,
   });
 
-  return { writeAsync, isLoading };
+  return {
+    writeAsync,
+    isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
+    receiverResolvedAddress: newReceiverResolvedAddress,
+  };
 };
 
 export default useTreeCreate;

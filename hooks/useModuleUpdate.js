@@ -1,4 +1,9 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAddress } from 'viem';
@@ -19,6 +24,12 @@ const useModuleUpdate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const { data: newResolvedAddress, isLoading: isLoadingNewResolvedAddress } =
+    useEnsAddress({
+      name: newAddress,
+      chainId: 1,
+    });
+
   const functionName =
     moduleType === MODULE_TYPES.eligibility
       ? 'changeHatEligibility'
@@ -29,7 +40,10 @@ const useModuleUpdate = ({
     chainId: _.toNumber(chainId),
     abi,
     functionName,
-    args: [decimalId(hatId), newAddress || ZERO_ADDRESS],
+    args: [
+      decimalId(hatId),
+      (newResolvedAddress ?? newAddress) || ZERO_ADDRESS,
+    ],
     enabled:
       !!hatsAddress &&
       !!moduleType &&
@@ -38,7 +52,7 @@ const useModuleUpdate = ({
       isAddress(newAddress),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -78,7 +92,15 @@ const useModuleUpdate = ({
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading: isLoadingNewResolvedAddress || isLoading,
+    newResolvedAddress,
+  };
 };
 
 export default useModuleUpdate;
