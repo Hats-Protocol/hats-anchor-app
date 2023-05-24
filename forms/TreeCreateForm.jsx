@@ -73,7 +73,7 @@ const TreeCreateForm = () => {
           <Input
             name='receiver'
             label='Receiver'
-            placeholder='0xabcd...'
+            placeholder='0x1234, vitalik.eth'
             localForm={localForm}
           />
         )}
