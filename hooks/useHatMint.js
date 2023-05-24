@@ -20,7 +20,6 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
 
   const {
     data: wearerResolvedAddress,
-    isError: isErrorWearerResolvedAddress,
     isLoading: isLoadingWearerResolvedAddress,
   } = useEnsAddress({
     name: newWearer,
@@ -32,12 +31,15 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
     chainId,
     abi,
     functionName: 'mintHat',
-    args: [decimalId(hatId), wearerResolvedAddress || ZERO_ADDRESS],
+    args: [
+      decimalId(hatId),
+      (wearerResolvedAddress ?? newWearer) || ZERO_ADDRESS,
+    ],
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
       Boolean(newWearer) &&
-      isAddress(newWearer),
+      isAddress(wearerResolvedAddress ?? newWearer),
   });
 
   const { writeAsync, data: writeData } = useContractWrite({
@@ -84,7 +86,6 @@ const useHatMint = ({ hatsAddress, hatId, chainId, newWearer }) => {
 
   return {
     writeAsync,
-    ensError: isErrorWearerResolvedAddress,
     isLoading: isLoadingWearerResolvedAddress || isLoading,
   };
 };

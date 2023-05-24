@@ -27,7 +27,6 @@ const useHatWearerStatusSet = ({
 
   const {
     data: wearerResolvedAddress,
-    isError: isErrorWearerResolvedAddress,
     isLoading: isLoadingWearerResolvedAddress,
   } = useEnsAddress({
     name: wearer,
@@ -45,7 +44,7 @@ const useHatWearerStatusSet = ({
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
-      wearerResolvedAddress || '',
+      (wearerResolvedAddress ?? wearer) || '',
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
@@ -102,7 +101,6 @@ const useHatWearerStatusSet = ({
     writeAsync,
     prepareError,
     writeError,
-    ensError: isErrorWearerResolvedAddress,
     isLoading: isLoadingWearerResolvedAddress || isLoading,
   };
 };

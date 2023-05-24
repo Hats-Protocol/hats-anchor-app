@@ -17,7 +17,7 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const eligibility = useDebounce(watch('eligibility', null), CONFIG.debounce);
   const standing = useDebounce(watch('standing', null), CONFIG.debounce);
 
-  const { writeAsync, ensError, isLoading } = useHatWearerStatusSet({
+  const { writeAsync, isLoading } = useHatWearerStatusSet({
     hatsAddress: CONFIG.hatsAddress,
     hatId: _.get(hatData, 'prettyId'),
     chainId,
@@ -74,7 +74,7 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!wearer || ensError || isLoading}>
+          <Button type='submit' isDisabled={!wearer || isLoading}>
             Update
           </Button>
         </Flex>

@@ -1,7 +1,6 @@
 import {
   usePrepareContractWrite,
   useContractWrite,
-  useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
@@ -16,21 +15,12 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const {
-    data: wearerResolvedAddress,
-    isError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress,
-  } = useEnsAddress({
-    name: wearer,
-    chainId: 1,
-  });
-
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'unlinkTopHatFromTree',
-    args: [topHatPrettyId, wearerResolvedAddress],
+    args: [topHatPrettyId, wearer],
     enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
@@ -73,8 +63,7 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
 
   return {
     writeAsync,
-    ensError: isErrorWearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress || isLoading,
+    isLoading,
   };
 };
 

@@ -71,7 +71,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync, ensError, isLoading } = useHatLinkRequestApprove({
+  const { writeAsync, isLoading } = useHatLinkRequestApprove({
     topHatDomain,
     newAdmin: hatData.id,
     eligibility: eligibilityChecked && eligibility,
@@ -196,7 +196,7 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || imagePinLoading || isLoading || ensError}
+            isDisabled={!writeAsync || imagePinLoading || isLoading}
           >
             {imagePinLoading ? <Spinner /> : 'Approve'}
           </Button>

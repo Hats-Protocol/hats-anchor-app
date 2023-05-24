@@ -84,7 +84,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     data: { name, description },
   });
 
-  const { writeAsync, ensError, isLoading } = useHatCreate({
+  const { writeAsync, isLoading } = useHatCreate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     treeId,
@@ -245,11 +245,7 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
           <Button
             type='submit'
             isDisabled={
-              !writeAsync ||
-              detailsCidLoading ||
-              imagePinLoading ||
-              ensError ||
-              isLoading
+              !writeAsync || detailsCidLoading || imagePinLoading || isLoading
             }
           >
             {imagePinLoading ? <Spinner /> : 'Create'}

@@ -12,7 +12,6 @@ import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-
 import { treeCreateEventIdToTreeId } from '../lib/hats';
 
 const useTreeCreate = ({
@@ -31,7 +30,6 @@ const useTreeCreate = ({
 
   const {
     data: newReceiverResolvedAddress,
-    isError: isErrorNewReceiverResolvedAddress,
     isLoading: isLoadingNewReceiverResolvedAddress,
   } = useEnsAddress({
     name: receiver,
@@ -44,7 +42,7 @@ const useTreeCreate = ({
     abi,
     functionName: 'mintTopHat',
     args: [
-      overrideReceiver ? newReceiverResolvedAddress : address,
+      overrideReceiver ? newReceiverResolvedAddress ?? receiver : address,
       details || '',
       imageUrl || '',
     ],
@@ -107,7 +105,6 @@ const useTreeCreate = ({
   return {
     writeAsync,
     isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
-    ensError: isErrorNewReceiverResolvedAddress,
   };
 };
 

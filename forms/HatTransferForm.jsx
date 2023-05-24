@@ -21,15 +21,12 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
-  const newWearerAddress = useDebounce(
-    watch('newWearerAddress', null),
-    CONFIG.debounce,
-  );
+  const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
 
-  const { writeAsync, isLoading, ensError } = useHatTransferTree({
+  const { writeAsync, isLoading } = useHatTransferTree({
     currentWearerAddress,
     hatData,
-    newWearerAddress,
+    newWearer,
     chainId,
   });
 
@@ -55,7 +52,7 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
         </HStack>
         <Input
           localForm={localForm}
-          name='newWearerAddress'
+          name='newWearer'
           label='New Wearer Address'
           options={{
             validate: (value) =>
@@ -65,10 +62,7 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={!writeAsync || isLoading || ensError}
-          >
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Transfer
           </Button>
         </Flex>

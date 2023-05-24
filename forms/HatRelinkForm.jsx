@@ -78,7 +78,7 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync, ensError, isLoading } = useHatRelinkTree({
+  const { writeAsync, isLoading } = useHatRelinkTree({
     topHatDomain: hatData.prettyId,
     newAdmin,
     eligibility: eligibilityChecked && eligibility,
@@ -209,7 +209,7 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || imagePinLoading || ensError || isLoading}
+            isDisabled={!writeAsync || imagePinLoading || isLoading}
           >
             {imagePinLoading ? <Spinner /> : 'Relink'}
           </Button>

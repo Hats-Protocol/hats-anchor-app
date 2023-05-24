@@ -24,14 +24,11 @@ const useModuleUpdate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const {
-    data: newResolvedAddress,
-    isError: isErrorNewResolvedAddress,
-    isLoading: isLoadingNewResolvedAddress,
-  } = useEnsAddress({
-    name: newAddress,
-    chainId: 1,
-  });
+  const { data: newResolvedAddress, isLoading: isLoadingNewResolvedAddress } =
+    useEnsAddress({
+      name: newAddress,
+      chainId: 1,
+    });
 
   const functionName =
     moduleType === MODULE_TYPES.eligibility
@@ -43,13 +40,15 @@ const useModuleUpdate = ({
     chainId: _.toNumber(chainId),
     abi,
     functionName,
-    args: [decimalId(hatId), newResolvedAddress || ZERO_ADDRESS],
+    args: [
+      decimalId(hatId),
+      (newResolvedAddress ?? newAddress) || ZERO_ADDRESS,
+    ],
     enabled:
       !!hatsAddress &&
       !!moduleType &&
       !!hatId &&
       !!newAddress &&
-      !!newResolvedAddress &&
       isAddress(newAddress),
   });
 
@@ -99,7 +98,6 @@ const useModuleUpdate = ({
 
   return {
     writeAsync,
-    ensError: isErrorNewResolvedAddress,
     isLoading: isLoadingNewResolvedAddress || isLoading,
   };
 };

@@ -16,7 +16,7 @@ import { useOverlay } from '../contexts/OverlayContext';
 const useHatTransferTree = ({
   currentWearerAddress,
   hatData,
-  newWearerAddress,
+  newWearer,
   chainId,
 }) => {
   const toast = useToast();
@@ -25,10 +25,9 @@ const useHatTransferTree = ({
 
   const {
     data: newWearerResolvedAddress,
-    isError: isErrorNewResolvedAddress,
     isLoading: isLoadingNewResolvedAddress,
   } = useEnsAddress({
-    name: newWearerAddress,
+    name: newWearer,
     chainId: 1,
   });
 
@@ -44,12 +43,12 @@ const useHatTransferTree = ({
     args: [
       decimalId(hatData.id),
       currentWearerAddress,
-      newWearerResolvedAddress,
+      newWearerResolvedAddress ?? newWearer,
     ],
     enabled:
-      Boolean(newWearerResolvedAddress) &&
+      Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
-      isAddress(newWearerAddress) &&
+      isAddress(newWearerResolvedAddress ?? newWearer) &&
       isAddress(currentWearerAddress),
   });
   console.log('hatLinkTransferTree - prepareError', prepareError);
@@ -104,7 +103,6 @@ const useHatTransferTree = ({
     writeAsync,
     prepareError,
     writeError,
-    ensError: isErrorNewResolvedAddress,
     isLoading: isLoadingNewResolvedAddress || isLoading,
   };
 };
