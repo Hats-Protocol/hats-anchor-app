@@ -11,11 +11,17 @@ import {
   InputLeftElement,
   InputRightElement,
   Text,
+  FormControl,
+  VStack,
+  Icon,
+  useDisclosure,
+  Collapse,
   Box,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
-import { FaCheck, FaTrash, FaUserPlus } from 'react-icons/fa';
+import { FaCheck, FaInfo, FaUserPlus, FaFileCsv } from 'react-icons/fa';
+import Papa from 'papaparse';
 import { useEnsAddress } from 'wagmi';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
@@ -66,13 +72,34 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
     setWearers(wearers.filter((_, i) => i !== index));
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    Papa.parse(file, {
+      complete: (results) => {
+        const csvAddresses = results.data
+          .flat()
+          .filter((address) => isAddress(address))
+          .slice(0, maxSupply - currentWearers.length - wearers.length);
+        setWearers([
+          ...wearers,
+          ...csvAddresses.map((address) => ({ address })),
+        ]);
+      },
+      error: (error) => {
+        console.error('Error parsing CSV file: ', error);
+      },
+    });
+  };
+
+  const { isOpen, onToggle } = useDisclosure();
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
         <Text color='gray.500'>
           Mint this hat to multiple addresses at once!
         </Text>
-        <Flex alignItems='center' borderRadius={8}>
+        <VStack borderRadius={8} alignItems='start'>
           <InputGroup flexGrow={1}>
             <InputLeftElement>
               <FaUserPlus ml={2} />
@@ -117,7 +144,30 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
               w={16}
             />
           </Tooltip>
-        </Flex>
+          <Box>
+            <Button size='sm' aria-label='Toggle CSV Input' onClick={onToggle}>
+              <FaFileCsv />
+              <Text ml={2}>Import CSV</Text>
+            </Button>
+          </Box>
+
+          <Collapse in={isOpen}>
+            <FormControl id='csvFile'>
+              <Input
+                type='file'
+                pl={1}
+                onChange={handleFileUpload}
+                accept='.csv'
+                border={0}
+              />
+              <Text fontSize='sm' mt={1} color='blue.500'>
+                <Icon as={FaInfo} mr={1} />
+                The CSV file must only contain Ethereum addresses, one per line.
+                Any additional data will be ignored.
+              </Text>
+            </FormControl>
+          </Collapse>
+        </VStack>
 
         {wearers.map(({ address, ens }, index) => (
           <Box key={address}>
