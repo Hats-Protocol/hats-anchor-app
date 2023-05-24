@@ -7,10 +7,11 @@ import {
   Heading,
   HStack,
   Code,
+  Box,
 } from '@chakra-ui/react';
-import { isAddress } from 'viem';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
@@ -23,16 +24,20 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
 
   const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
 
-  const { writeAsync, isLoading } = useHatTransferTree({
-    currentWearerAddress,
-    hatData,
-    newWearer,
-    chainId,
-  });
+  const { writeAsync, isLoading, newWearerResolvedAddress } =
+    useHatTransferTree({
+      currentWearerAddress,
+      hatData,
+      newWearer,
+      chainId,
+    });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
+
+  const showNewResolvedAddress =
+    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -50,16 +55,21 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
           <Text>Address of the current Wearer: </Text>
           <Code>{currentWearerAddress}</Code>
         </HStack>
-        <Input
-          localForm={localForm}
-          name='newWearer'
-          label='New Wearer Address'
-          options={{
-            validate: (value) =>
-              isAddress(value) ? true : 'Must be a valid address',
-          }}
-          placeholder='0x1234, vitalik.eth'
-        />
+        <Box>
+          <Input
+            localForm={localForm}
+            name='newWearer'
+            label='New Wearer Address'
+            placeholder='0x1234, vitalik.eth'
+            rightElement={showNewResolvedAddress && <FaCheck color='green' />}
+          />
+
+          {showNewResolvedAddress && (
+            <Text fontSize='sm' color='gray.500' mt={1}>
+              Resolved address: {newWearerResolvedAddress}
+            </Text>
+          )}
+        </Box>
 
         <Flex justify='flex-end'>
           <Button type='submit' isDisabled={!writeAsync || isLoading}>

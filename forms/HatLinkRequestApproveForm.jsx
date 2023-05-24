@@ -8,11 +8,13 @@ import {
   HStack,
   Spinner,
   Text,
+  Box,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useDropzone } from 'react-dropzone';
+import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
@@ -71,7 +73,12 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync, isLoading } = useHatLinkRequestApprove({
+  const {
+    writeAsync,
+    isLoading,
+    toggleResolvedAddress,
+    eligibilityResolvedAddress,
+  } = useHatLinkRequestApprove({
     topHatDomain,
     newAdmin: hatData.id,
     eligibility: eligibilityChecked && eligibility,
@@ -95,6 +102,11 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
       );
     }
   };
+
+  const showEligilityResolvedAddress =
+    eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
+  const showToggleResolvedAddress =
+    toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -167,12 +179,22 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
             />
             {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Input
-                name='eligibility'
-                label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                placeholder='0x4a750000403C3B91997911FCd989d9B5C25d7876'
-                localForm={localForm}
-              />
+              <Box>
+                <Input
+                  name='eligibility'
+                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showEligilityResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showEligilityResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {eligibilityResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
@@ -184,12 +206,22 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
             />
             {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
             {toggleChecked && (
-              <Input
-                name='toggle'
-                label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                placeholder='0x1234, vitalik.eth'
-                localForm={localForm}
-              />
+              <Box>
+                <Input
+                  name='toggle'
+                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showToggleResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showToggleResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {toggleResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>

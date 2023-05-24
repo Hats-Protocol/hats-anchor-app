@@ -8,10 +8,12 @@ import {
   HStack,
   Spinner,
   Text,
+  Box,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDropzone } from 'react-dropzone';
+import { FaCheck } from 'react-icons/fa';
 import _ from 'lodash';
 
 import Input from '../components/Input';
@@ -78,7 +80,12 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
     metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
   });
 
-  const { writeAsync, isLoading } = useHatRelinkTree({
+  const {
+    writeAsync,
+    isLoading,
+    toggleResolvedAddress,
+    eligibilityResolvedAddress,
+  } = useHatRelinkTree({
     topHatDomain: hatData.prettyId,
     newAdmin,
     eligibility: eligibilityChecked && eligibility,
@@ -92,6 +99,11 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
       : imageUrl,
     chainId,
   });
+
+  const showEligilityResolvedAddress =
+    eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
+  const showToggleResolvedAddress =
+    toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
   const onSubmit = async () => {
     writeAsync?.();
@@ -180,12 +192,22 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
             />
             {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Input
-                name='eligibility'
-                label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                placeholder='0x4a750000403C3B91997911FCd989d9B5C25d7876'
-                localForm={localForm}
-              />
+              <Box>
+                <Input
+                  name='eligibility'
+                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showEligilityResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showEligilityResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {eligibilityResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
@@ -197,12 +219,22 @@ const HatRelinkForm = ({ chainId, hatData, parentTreeHats }) => {
             />
             {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
             {toggleChecked && (
-              <Input
-                name='toggle'
-                label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                placeholder='0x1234, vitalik.eth'
-                localForm={localForm}
-              />
+              <Box>
+                <Input
+                  name='toggle'
+                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showToggleResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showToggleResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {toggleResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>

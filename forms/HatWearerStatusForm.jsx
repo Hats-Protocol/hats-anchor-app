@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
-import { isAddress } from 'viem';
-import { Stack, Button, Flex, Text, Heading } from '@chakra-ui/react';
+import { Stack, Button, Flex, Text, Heading, Box } from '@chakra-ui/react';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
@@ -17,18 +16,22 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
   const eligibility = useDebounce(watch('eligibility', null), CONFIG.debounce);
   const standing = useDebounce(watch('standing', null), CONFIG.debounce);
 
-  const { writeAsync, isLoading } = useHatWearerStatusSet({
-    hatsAddress: CONFIG.hatsAddress,
-    hatId: _.get(hatData, 'prettyId'),
-    chainId,
-    wearer,
-    eligibility,
-    standing,
-  });
+  const { writeAsync, isLoading, wearerResolvedAddress } =
+    useHatWearerStatusSet({
+      hatsAddress: CONFIG.hatsAddress,
+      hatId: _.get(hatData, 'prettyId'),
+      chainId,
+      wearer,
+      eligibility,
+      standing,
+    });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
+
+  const showWearerResolvedAddress =
+    wearerResolvedAddress && wearer !== wearerResolvedAddress;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -45,17 +48,21 @@ const HatWearerStatusForm = ({ hatData, chainId, defaultValues }) => {
             {prettyIdToIp(_.get(hatData, 'prettyId'))}
           </Heading>
         </Stack>
-        <Input
-          localForm={localForm}
-          name='wearer'
-          label='Wearer Address'
-          options={{
-            validate: (value) =>
-              isAddress(value) ? true : 'Must be a valid address',
-          }}
-          placeholder='0x1234, vitalik.eth'
-          defaultValue={_.get(defaultValues, 'wearer')}
-        />
+        <Box>
+          <Input
+            localForm={localForm}
+            name='wearer'
+            label='Wearer Address'
+            placeholder='0x1234, vitalik.eth'
+            defaultValue={_.get(defaultValues, 'wearer')}
+          />
+
+          {showWearerResolvedAddress && (
+            <Text fontSize='sm' color='gray.500' mt={1}>
+              Resolved address: {wearerResolvedAddress}
+            </Text>
+          )}
+        </Box>
         <RadioBox
           localForm={localForm}
           name='eligibility'

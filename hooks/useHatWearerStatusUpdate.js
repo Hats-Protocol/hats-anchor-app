@@ -102,6 +102,7 @@ const useHatWearerStatusSet = ({
     prepareError,
     writeError,
     isLoading: isLoadingWearerResolvedAddress || isLoading,
+    wearerResolvedAddress,
   };
 };
 

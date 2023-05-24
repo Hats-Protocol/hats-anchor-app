@@ -105,6 +105,7 @@ const useTreeCreate = ({
   return {
     writeAsync,
     isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
+    receiverResolvedAddress: newReceiverResolvedAddress,
   };
 };
 

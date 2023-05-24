@@ -7,9 +7,12 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  Text,
+  Box,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
+import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useTreeCreate from '../hooks/useTreeCreate';
@@ -27,6 +30,7 @@ const TreeCreateForm = () => {
   const details = useDebounce(watch('details', ''));
   const imageUrl = useDebounce(watch('imageUrl', ''));
   const receiver = useDebounce(watch('receiver'));
+  const receiverResolvedAddress = useDebounce(watch('receiverResolvedAddress'));
 
   const { writeAsync, isLoading } = useTreeCreate({
     hatsAddress: CONFIG.hatsAddress,
@@ -70,12 +74,22 @@ const TreeCreateForm = () => {
         </FormControl>
 
         {overrideReceiver && (
-          <Input
-            name='receiver'
-            label='Receiver'
-            placeholder='0x1234, vitalik.eth'
-            localForm={localForm}
-          />
+          <Box>
+            <Input
+              name='receiver'
+              label='Receiver'
+              placeholder='0x1234, vitalik.eth'
+              localForm={localForm}
+              rightElement={
+                receiverResolvedAddress && <FaCheck color='green' />
+              }
+            />
+            {receiverResolvedAddress && (
+              <Text fontSize='sm' color='gray.500'>
+                Resolved address: {receiverResolvedAddress}
+              </Text>
+            )}
+          </Box>
         )}
 
         <Flex justify='flex-end'>
