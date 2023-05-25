@@ -20,7 +20,13 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
-import { FaCheck, FaInfo, FaUserPlus, FaFileCsv } from 'react-icons/fa';
+import {
+  FaCheck,
+  FaInfo,
+  FaUserPlus,
+  FaFileCsv,
+  FaTrash,
+} from 'react-icons/fa';
 import Papa from 'papaparse';
 import { useEnsAddress } from 'wagmi';
 import useHatMint from '../hooks/useHatMint';
@@ -99,96 +105,96 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
         <Text color='gray.500'>
           Mint this hat to multiple addresses at once!
         </Text>
-        <VStack borderRadius={8} alignItems='start'>
-          <InputGroup flexGrow={1}>
-            <InputLeftElement>
-              <FaUserPlus ml={2} />
-            </InputLeftElement>
-            <Input
-              w='calc(100% - 1rem)'
-              textOverflow='ellipsis'
-              type='address'
-              placeholder='0x1234, vitalik.eth'
-              value={newAddress}
-              onChange={(e) =>
-                setNewAddress(e.target.value?.toLowerCase() ?? '')
-              }
-              rightElement={ensResolvedAddress && <FaCheck color='green' />}
-            />
-            {ensResolvedAddress && (
-              <InputRightElement right='2rem'>
-                <FaCheck color='green' />
-              </InputRightElement>
-            )}
-          </InputGroup>
-          <Tooltip
-            label={
-              !canAddWearer
-                ? !isNewWearerAddress
-                  ? 'Please input a valid address'
-                  : isAddressAlreadyAdded
-                  ? 'Address already added'
-                  : wouldExceedMaxSupply
-                  ? 'Max supply would be exceeded'
-                  : ''
-                : ''
-            }
-            shouldWrapChildren
-          >
-            <IconButton
-              isDisabled={!canAddWearer}
-              onClick={handleAddWearer}
-              icon={<FaCheck />}
-              aria-label='Add'
-              height={9}
-              w={16}
-            />
-          </Tooltip>
-          <Box>
-            <Button size='sm' aria-label='Toggle CSV Input' onClick={onToggle}>
-              <FaFileCsv />
-              <Text ml={2}>Import CSV</Text>
-            </Button>
-          </Box>
-
-          <Collapse in={isOpen}>
-            <FormControl id='csvFile'>
+        <VStack borderRadius={8} alignItems='start' spacing={3}>
+          <Flex w='full'>
+            <InputGroup flexGrow={1}>
+              <InputLeftElement>
+                <FaUserPlus ml={2} />
+              </InputLeftElement>
               <Input
-                type='file'
-                pl={1}
-                onChange={handleFileUpload}
-                accept='.csv'
-                border={0}
+                w='calc(100% - 1rem)'
+                textOverflow='ellipsis'
+                type='address'
+                placeholder='0x1234, vitalik.eth'
+                value={newAddress}
+                onChange={(e) =>
+                  setNewAddress(e.target.value?.toLowerCase() ?? '')
+                }
+                rightElement={ensResolvedAddress && <FaCheck color='green' />}
               />
-              <Text fontSize='sm' mt={1} color='blue.500'>
-                <Icon as={FaInfo} mr={1} />
-                The CSV file must only contain Ethereum addresses, one per line.
-                Any additional data will be ignored.
-              </Text>
-            </FormControl>
-          </Collapse>
-        </VStack>
-
-        {wearers.map(({ address, ens }, index) => (
-          <Box key={address}>
-            <Flex align='center' w='full' justifyContent='space-between'>
-              <Input value={ens || address} readOnly w='calc(100% - 5rem)' />
+              {ensResolvedAddress && (
+                <InputRightElement right='2rem'>
+                  <FaCheck color='green' />
+                </InputRightElement>
+              )}
+            </InputGroup>
+            <Tooltip
+              label={
+                !canAddWearer
+                  ? !isNewWearerAddress
+                    ? 'Please input a valid address'
+                    : isAddressAlreadyAdded
+                    ? 'Address already added'
+                    : wouldExceedMaxSupply
+                    ? 'Max supply would be exceeded'
+                    : ''
+                  : ''
+              }
+              shouldWrapChildren
+            >
               <IconButton
-                type='button'
-                onClick={() => handleRemoveWearer(index)}
-                icon={<FaTrash />}
-                aria-label='Remove'
-                height={9}
+                isDisabled={!canAddWearer}
+                onClick={handleAddWearer}
+                icon={<FaCheck />}
+                aria-label='Add'
                 w={16}
               />
-            </Flex>
-            {ens && (
-              <Text fontSize='sm' color='gray.500' mt={1}>
-                Resolved address: {address}
-              </Text>
-            )}
-          </Box>
-        ))}
+            </Tooltip>
+          </Flex>
+
+          {wearers.map(({ address, ens }, index) => (
+            <Box key={address} w='full'>
+              <Flex align='center' w='full' justifyContent='space-between'>
+                <Input value={ens || address} readOnly w='calc(100% - 5rem)' />
+                <IconButton
+                  type='button'
+                  onClick={() => handleRemoveWearer(index)}
+                  icon={<FaTrash />}
+                  aria-label='Remove'
+                  w={16}
+                />
+              </Flex>
+              {ens && (
+                <Text fontSize='sm' color='gray.500' mt={1}>
+                  Resolved address: {address}
+                </Text>
+              )}
+            </Box>
+          ))}
+        </VStack>
+        <Box>
+          <Button size='sm' aria-label='Toggle CSV Input' onClick={onToggle}>
+            <FaFileCsv />
+            <Text ml={2}>Import CSV</Text>
+          </Button>
+        </Box>
+
+        <Collapse in={isOpen}>
+          <FormControl id='csvFile'>
+            <Input
+              type='file'
+              pl={1}
+              onChange={handleFileUpload}
+              accept='.csv'
+              border={0}
+            />
+            <Text fontSize='sm' mt={1} color='blue.500'>
+              <Icon as={FaInfo} mr={1} />
+              The CSV file must only contain Ethereum addresses, one per line.
+              Any additional data will be ignored.
+            </Text>
+          </FormControl>
+        </Collapse>
 
         <Flex justify='flex-end'>
           <Button
