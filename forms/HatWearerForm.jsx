@@ -30,8 +30,9 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
 
   const newWearer = useDebounce(newAddress, CONFIG.debounce);
   const isAddressAlreadyAdded =
-    wearers.some((wearer) => wearer.address === newAddress) ||
-    currentWearers.includes(newAddress);
+    wearers.some(
+      (wearer) => wearer.address === newAddress || wearer.ens === newAddress,
+    ) || currentWearers.includes(newAddress);
 
   const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
