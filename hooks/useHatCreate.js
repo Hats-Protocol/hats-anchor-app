@@ -6,7 +6,6 @@ import {
 } from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { isAddress } from 'viem';
 import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';

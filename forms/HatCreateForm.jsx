@@ -8,17 +8,20 @@ import {
   FormLabel,
   HStack,
   Spinner,
+  Box,
+  Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 import { useForm } from 'react-hook-form';
+import { FaCheck } from 'react-icons/fa';
 import { useDropzone } from 'react-dropzone';
 
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatCreate from '../hooks/useHatCreate';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import RadioBox from '../components/RadioBox';
 import { prettyIdToIp } from '../lib/hats';
@@ -84,7 +87,12 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
     data: { name, description },
   });
 
-  const { writeAsync, isLoading } = useHatCreate({
+  const {
+    writeAsync,
+    isLoading,
+    toggleResolvedAddress,
+    eligibilityResolvedAddress,
+  } = useHatCreate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     treeId,
@@ -100,6 +108,11 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
         : undefined
       : imageUrl,
   });
+
+  const showEligilityResolvedAddress =
+    eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
+  const showToggleResolvedAddress =
+    toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
   const onSubmit = async () => {
     writeAsync?.();
@@ -215,12 +228,22 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
             />
             {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Input
-                name='eligibility'
-                label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                placeholder='0x4a750000403C3B91997911FCd989d9B5C25d7876'
-                localForm={localForm}
-              />
+              <Box>
+                <Input
+                  name='eligibility'
+                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showEligilityResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showEligilityResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {eligibilityResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
@@ -232,12 +255,22 @@ const HatCreateForm = ({ defaultAdmin, treeId }) => {
             />
             {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
             {toggleChecked && (
-              <Input
-                name='toggle'
-                label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                placeholder='0x1234, vitalik.eth'
-                localForm={localForm}
-              />
+              <Box>
+                <Input
+                  name='toggle'
+                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showToggleResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showToggleResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {toggleResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>

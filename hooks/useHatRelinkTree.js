@@ -94,11 +94,12 @@ const useHatRelinkTree = ({
 
   return {
     writeAsync,
-
     isLoading:
       isLoadingEligibilityResolvedAddress ||
       isLoadingtoggleResolvedAddress ||
       isLoading,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
   };
 };
 

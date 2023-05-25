@@ -105,6 +105,8 @@ const useHatLinkRequestApprove = ({
       isLoading,
     prepareError,
     writeError,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
   };
 };
 

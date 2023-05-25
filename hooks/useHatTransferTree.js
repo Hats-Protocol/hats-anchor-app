@@ -104,6 +104,7 @@ const useHatTransferTree = ({
     prepareError,
     writeError,
     isLoading: isLoadingNewResolvedAddress || isLoading,
+    newWearerResolvedAddress,
   };
 };
 

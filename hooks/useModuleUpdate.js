@@ -99,6 +99,7 @@ const useModuleUpdate = ({
   return {
     writeAsync,
     isLoading: isLoadingNewResolvedAddress || isLoading,
+    newResolvedAddress,
   };
 };
 
