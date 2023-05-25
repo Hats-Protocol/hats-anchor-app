@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Stack,
   Button,
@@ -26,9 +26,12 @@ import {
   FaUserPlus,
   FaFileCsv,
   FaTrash,
+  FaChevronUp,
+  FaChevronDown,
 } from 'react-icons/fa';
 import Papa from 'papaparse';
 import { useEnsAddress } from 'wagmi';
+import _ from 'lodash';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
@@ -36,11 +39,20 @@ import CONFIG from '../constants';
 const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
-
   const [wearers, setWearers] = useState([]);
   const [newAddress, setNewAddress] = useState('');
+  const [isNewAddress, setIsNewAddress] = useState(false);
 
   const newWearer = useDebounce(newAddress, CONFIG.debounce);
+  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
+    name: newAddress.includes('.eth') ? newAddress : null,
+    chainId: 1,
+  });
+
+  useEffect(() => {
+    setIsNewAddress(isAddress(newAddress));
+  }, [newAddress]);
+
   const isAddressAlreadyAdded =
     wearers.some(
       (wearer) => wearer.address === newAddress || wearer.ens === newAddress,
@@ -57,35 +69,35 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
     await writeAsync?.();
   };
 
-  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
-    name: newAddress,
-    chainId: 1,
-  });
-
-  const isNewWearerAddress = isAddress(newWearer) || ensResolvedAddress;
+  const isNewWearerAddress = isNewAddress || ensResolvedAddress;
   const wouldExceedMaxSupply =
     currentWearers.length + wearers.length + 1 > maxSupply;
   const canAddWearer =
     isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
   const handleAddWearer = () => {
-    const address = isAddress(newWearer) ? newWearer : ensResolvedAddress;
+    const address = isNewAddress ? newWearer : ensResolvedAddress;
     setWearers([...wearers, { address, ens: isEnsAddress && newWearer }]);
     setNewAddress('');
   };
 
   const handleRemoveWearer = (index) => {
-    setWearers(wearers.filter((_, i) => i !== index));
+    setWearers(_.filter(wearers, (_, i) => i !== index));
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
     Papa.parse(file, {
       complete: (results) => {
-        const csvAddresses = results.data
-          .flat()
-          .filter((address) => isAddress(address))
-          .slice(0, maxSupply - currentWearers.length - wearers.length);
+        const csvAddresses = _.take(
+          _.differenceWith(
+            _.filter(_.flatten(results.data), isAddress),
+            wearers,
+            (csvAddress, wearer) => csvAddress === wearer.address,
+          ),
+          maxSupply - currentWearers.length - wearers.length,
+        );
         setWearers([
           ...wearers,
           ...csvAddresses.map((address) => ({ address })),
@@ -173,9 +185,20 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
           ))}
         </VStack>
         <Box>
-          <Button size='sm' aria-label='Toggle CSV Input' onClick={onToggle}>
-            <FaFileCsv />
-            <Text ml={2}>Import CSV</Text>
+          <Button
+            size='sm'
+            aria-label='Toggle CSV Input'
+            onClick={onToggle}
+            variant='ghost'
+            _hover={{
+              bg: 'gray.100',
+              transition: 'background-color 0.3s',
+            }}
+            leftIcon={<FaFileCsv />}
+            rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
+            color='gray.600'
+          >
+            <Text ml={2}>CSV Import</Text>
           </Button>
         </Box>
 
