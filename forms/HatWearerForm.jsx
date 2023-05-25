@@ -82,7 +82,7 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   };
 
   const handleRemoveWearer = (index) => {
-    setWearers(_.filter(wearers, (_, i) => i !== index));
+    setWearers(_.filter(wearers, (__, i) => i !== index));
   };
 
   const handleFileUpload = (e) => {
