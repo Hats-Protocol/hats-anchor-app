@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
-import { FaCheck, FaUserPlus } from 'react-icons/fa';
+import { FaCheck, FaTrash, FaUserPlus } from 'react-icons/fa';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
@@ -118,9 +118,14 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
             justifyContent='space-between'
           >
             <Input value={wearer.address} readOnly w='calc(100% - 7rem)' />
-            <Button type='button' onClick={() => handleRemoveWearer(index)}>
-              Remove
-            </Button>
+            <IconButton
+              type='button'
+              onClick={() => handleRemoveWearer(index)}
+              icon={<FaTrash />}
+              aria-label='Remove'
+              height={9}
+              w={16}
+            />
           </Flex>
         ))}
 
