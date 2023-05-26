@@ -224,8 +224,13 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
 
   return (
     <>
-      <Modal name='newWearer' title='Mint Hat' localOverlay={localOverlay}>
-        <HatWearerForm hatId={_.get(hatData, 'id')} chainId={chainId} />
+      <Modal name='newWearer' title='Batch Mint' localOverlay={localOverlay}>
+        <HatWearerForm
+          hatId={_.get(hatData, 'id')}
+          chainId={chainId}
+          currentWearers={_.map(wearers, 'id')}
+          maxSupply={_.get(hatData, 'maxSupply')}
+        />
       </Modal>
       <Modal
         name='renounceConfirm'
