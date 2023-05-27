@@ -77,21 +77,6 @@ const TreeCreateForm = () => {
     data: { name, description },
   });
 
-  const {
-    data: imagePinData,
-    isLoading: imagePinLoading,
-    // error: imagePinError,
-  } = usePinImageIpfs({
-    imageFile: acceptedFiles[0],
-    enabled: customImage,
-    metadata: { name: `image_${_.toString(chainId)}_tophat` },
-  });
-
-  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
-    type: '1.0',
-    data: { name, description },
-  });
-
   const { writeAsync, isLoading } = useTreeCreate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
