@@ -11,7 +11,7 @@ import {
 import Textarea from '../components/Textarea';
 import { useForm } from 'react-hook-form';
 import useHatImageUpdate from '../hooks/useHatImageUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { useDropzone } from 'react-dropzone';
 import DropZone from '../components/DropZone';
@@ -53,8 +53,8 @@ const HatImageForm = ({ hatData, chainId }) => {
     metadata: { name: `image_${_.toString(chainId)}_tophat` },
   });
 
-  const { writeAsync } = useHatImageUpdate({
-    hatsAddress: hatsAddresses(chainId),
+  const { writeAsync, isLoading } = useHatImageUpdate({
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
     image: customImage
@@ -102,7 +102,10 @@ const HatImageForm = ({ hatData, chainId }) => {
         </FormControl>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || imagePinLoading}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || imagePinLoading || isLoading}
+          >
             {imagePinLoading ? <Spinner /> : 'Update'}
           </Button>
         </Flex>

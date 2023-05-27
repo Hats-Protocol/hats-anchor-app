@@ -119,6 +119,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   if (treeError) return <p>Error : {treeError.message}</p>;
 
   const tree = toTreeStructure(treeData, {}, imagesData);
+
   const events = _.get(treeData, 'events');
   const treeInfoTable = [
     {
@@ -236,7 +237,11 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
             <CardBody>
               <HStack align='flex-start' spacing={4}>
                 <Box
-                  bgImage={`url('${imagesData[topHatId]}'), url('/icon.jpeg')`}
+                  bgImage={
+                    imagesData[topHatId]
+                      ? `url('${imagesData[topHatId]}')`
+                      : "url('/icon.jpeg')"
+                  }
                   bgSize='cover'
                   bgPosition='center'
                   alt='Top Hat image'
@@ -278,19 +283,18 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   dimensions={dimensions}
                   orientation='vertical'
                   collapsible={false}
-                  nodeSize={{ x: 200, y: 200 }}
+                  nodeSize={{ x: 300, y: 200 }}
                   translate={{ x: 200, y: 200 }}
                   renderCustomNodeElement={(rd3tProps) =>
-                    TreeNode(
+                    TreeNode({
                       rd3tProps,
                       handleNodeClick,
                       handleAddChildClick,
                       handleRequestLink,
-                      hatId,
+                      activeHatId: hatId,
                       wearerHats,
                       chainId,
-                      wearerData,
-                    )
+                    })
                   }
                   pathClassFunc={({ target }) =>
                     target.data.attributes.dottedLine ? 'dotted-link' : ''
@@ -310,8 +314,9 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  linkedToHat={treeData?.linkedToHat}
-                  linkRequestFromTree={treeData?.linkRequestFromTree}
+                  parentOfTrees={_.get(treeData, 'parentOfTrees')}
+                  linkedToHat={_.get(treeData, 'linkedToHat')}
+                  linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
                 />
               )}
             </CardBody>
@@ -322,7 +327,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   );
 };
 
-export const getServerSideProps = async (context) => {
+export const getStaticProps = async (context) => {
   const { treeId, hatId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
   const prettyHatId = urlIdToPrettyId(hatId);
@@ -339,6 +344,14 @@ export const getServerSideProps = async (context) => {
       initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }) || null,
       topHat: _.get(initialData, 'hats[0]', null),
     },
+    revalidate: 10,
+  };
+};
+
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: true,
   };
 };
 

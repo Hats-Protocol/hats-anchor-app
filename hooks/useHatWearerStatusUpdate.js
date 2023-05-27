@@ -1,7 +1,13 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToId, toTreeId } from '../lib/hats';
@@ -19,20 +25,32 @@ const useHatWearerStatusSet = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+  const {
+    data: wearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: wearer,
+    chainId: 1,
+  });
+
+  const {
+    config,
+    error: prepareError,
+    data: writeData,
+  } = usePrepareContractWrite({
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
-      wearer || '',
+      (wearerResolvedAddress ?? wearer) || '',
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
-    enabled: !!hatsAddress && !!wearer,
+    enabled: !!hatsAddress && isAddress(wearer),
   });
-  // console.log(prepareError);
+  console.log('hatWearerStatusUpdate- prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
@@ -75,7 +93,17 @@ const useHatWearerStatusSet = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading: isLoadingWearerResolvedAddress || isLoading,
+    wearerResolvedAddress,
+  };
 };
 
 export default useHatWearerStatusSet;

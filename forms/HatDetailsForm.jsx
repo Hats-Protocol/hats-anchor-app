@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 
 import Textarea from '../components/Textarea';
 import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
@@ -33,8 +33,8 @@ const HatDetailsForm = ({ hatData, chainId }) => {
     data: { name, description },
   });
 
-  const { writeAsync } = useHatDetailsUpdate({
-    hatsAddress: hatsAddresses(chainId),
+  const { writeAsync, isLoading } = useHatDetailsUpdate({
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'id'),
     details: customDetails ? detailsCID : details,
@@ -93,7 +93,10 @@ const HatDetailsForm = ({ hatData, chainId }) => {
         </FormControl>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || detailsCidLoading}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || detailsCidLoading || isLoading}
+          >
             {detailsCidLoading ? <Spinner /> : 'Update'}
           </Button>
         </Flex>

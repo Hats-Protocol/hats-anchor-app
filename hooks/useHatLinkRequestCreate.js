@@ -1,7 +1,11 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -12,16 +16,17 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+  const { config, error: prepareError } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'requestLinkTopHatToTree',
     args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
     enabled: Boolean(topHatDomain) && Boolean(newAdmin),
   });
+  console.log('hatLinkRequestCreate - prepareError', prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -69,7 +74,11 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, prepareError, isLoading };
 };
 
 export default useHatLinkRequestCreate;

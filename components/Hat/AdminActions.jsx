@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Button, HStack } from '@chakra-ui/react';
+import { Button, HStack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useOverlay } from '../../contexts/OverlayContext';
-import { isTopHat, prettyIdToId, prettyIdToIp } from '../../lib/hats';
+import {
+  isTopHat,
+  prettyIdToId,
+  prettyIdToIp,
+  isMutableNotTopHat,
+} from '../../lib/hats';
 import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
 import Modal from '../Modal';
@@ -12,15 +17,17 @@ import HatUnlinkForm from '../../forms/HatUnlinkForm';
 import useTreeDetails from '../../hooks/useTreeDetails';
 
 const AdminActions = ({
-  showSupplyAndImmutableButtons,
   linkRequestFromTree,
   hatData,
   hatsAddress,
   chainId,
   linkedToHat,
+  parentOfTrees,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+
+  const showSupplyAndImmutableButtons = isMutableNotTopHat(hatData);
 
   const [topHatDomain, setTopHatDomain] = useState('');
 
@@ -35,7 +42,7 @@ const AdminActions = ({
     (hat) => hat !== linkedToHat?.prettyId,
   );
 
-  const { writeAsync: updateImmutability } = useHatMakeImmutable({
+  const { writeAsync: updateImmutability, isLoading } = useHatMakeImmutable({
     hatsAddress,
     chainId,
     hatData,
@@ -50,51 +57,69 @@ const AdminActions = ({
     setModals({ linkResponse: true });
   };
 
+  const anyActionsAvailable =
+    showSupplyAndImmutableButtons ||
+    parentOfTrees?.length ||
+    linkRequestFromTree?.length ||
+    (isTopHat(hatData) && linkedToHat);
+
   return (
     <>
-      <HStack
-        justifyContent='space-between'
-        flexWrap='wrap'
-        spacing={1}
-        gap={1}
-      >
-        {showSupplyAndImmutableButtons && (
-          <>
+      {anyActionsAvailable ? (
+        <HStack
+          // justifyContent='space-between'
+          flexWrap='wrap'
+          spacing={1}
+          gap={1}
+        >
+          {showSupplyAndImmutableButtons && (
+            <>
+              <Button
+                variant='outline'
+                onClick={() => setModals({ hatSupply: true })}
+              >
+                Adjust Max Supply
+              </Button>
+              <Button
+                variant='outline'
+                onClick={handleMakeImmutable}
+                isDisabled={isLoading}
+              >
+                Make Immutable
+              </Button>
+            </>
+          )}
+          {linkRequestFromTree?.map((linkRequest) => (
             <Button
               variant='outline'
-              onClick={() => setModals({ hatSupply: true })}
+              onClick={() => handleOpenLinkRequestApproveModal(linkRequest.id)}
+              key={linkRequest.id}
             >
-              Adjust Max Supply
+              Link Request to {prettyIdToIp(linkRequest.id)}
             </Button>
-            <Button variant='outline' onClick={handleMakeImmutable}>
-              Make Immutable
+          ))}
+          {parentOfTrees?.length && (
+            <Button
+              variant='outline'
+              onClick={() => setModals({ unlinkTree: true })}
+            >
+              Unlink Tree
             </Button>
-          </>
-        )}
-        {linkRequestFromTree?.map((linkRequest) => (
-          <Button
-            variant='outline'
-            onClick={() => handleOpenLinkRequestApproveModal(linkRequest.id)}
-            key={linkRequest.id}
-          >
-            Link Request to {prettyIdToIp(linkRequest.id)}
-          </Button>
-        ))}
-        <Button
-          variant='outline'
-          onClick={() => setModals({ unlinkTree: true })}
-        >
-          Unlink Tree
-        </Button>
-        {isTopHat(hatData) && linkedToHat && (
-          <Button
-            variant='outline'
-            onClick={() => setModals({ relinkHat: true })}
-          >
-            Relink Hat
-          </Button>
-        )}
-      </HStack>
+          )}
+          {isTopHat(hatData) && linkedToHat && (
+            <Button
+              variant='outline'
+              onClick={() => setModals({ relinkHat: true })}
+            >
+              Relink Hat
+            </Button>
+          )}
+        </HStack>
+      ) : (
+        <HStack>
+          <Text>No actions available</Text>
+        </HStack>
+      )}
 
       <Modal
         name='linkResponse'
@@ -130,7 +155,7 @@ const AdminActions = ({
         title='Unlink Top Hat From Tree'
         localOverlay={localOverlay}
       >
-        <HatUnlinkForm hatData={hatData} chainId={chainId} />
+        <HatUnlinkForm parentOfTrees={parentOfTrees} chainId={chainId} />
       </Modal>
     </>
   );

@@ -8,14 +8,16 @@ import {
   FormLabel,
   HStack,
   Spinner,
+  Text,
+  Box,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
-
+import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useTreeCreate from '../hooks/useTreeCreate';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
@@ -58,6 +60,22 @@ const TreeCreateForm = () => {
   const details = useDebounce(watch('details', ''));
   const imageUrl = useDebounce(watch('imageUrl', ''));
   const receiver = useDebounce(watch('receiver'));
+  const receiverResolvedAddress = useDebounce(watch('receiverResolvedAddress'));
+
+  const {
+    data: imagePinData,
+    isLoading: imagePinLoading,
+    // error: imagePinError,
+  } = usePinImageIpfs({
+    imageFile: acceptedFiles[0],
+    enabled: customImage,
+    metadata: { name: `image_${_.toString(chainId)}_tophat` },
+  });
+
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+    type: '1.0',
+    data: { name, description },
+  });
 
   const {
     data: imagePinData,
@@ -75,7 +93,7 @@ const TreeCreateForm = () => {
   });
 
   const { writeAsync, isLoading } = useTreeCreate({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     details: customDetails ? detailsCID : details,
     imageUrl: customImage
@@ -176,12 +194,22 @@ const TreeCreateForm = () => {
         </FormControl>
 
         {overrideReceiver && (
-          <Input
-            name='receiver'
-            label='Receiver'
-            placeholder='0xabcd...'
-            localForm={localForm}
-          />
+          <Box>
+            <Input
+              name='receiver'
+              label='Receiver'
+              placeholder='0x1234, vitalik.eth'
+              localForm={localForm}
+              rightElement={
+                receiverResolvedAddress && <FaCheck color='green' />
+              }
+            />
+            {receiverResolvedAddress && (
+              <Text fontSize='sm' color='gray.500'>
+                Resolved address: {receiverResolvedAddress}
+              </Text>
+            )}
+          </Box>
         )}
 
         <Flex justify='flex-end'>

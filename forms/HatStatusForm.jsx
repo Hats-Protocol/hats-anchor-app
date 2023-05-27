@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import RadioBox from '../components/RadioBox';
 import useHatStatusUpdate from '../hooks/useHatStatusUpdate';
 import useDebounce from '../hooks/useDebounce';
-import CONFIG, { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import Link from '../components/ChakraNextLink';
 
 const HatStatusForm = ({ hatData, chainId }) => {
@@ -14,8 +14,9 @@ const HatStatusForm = ({ hatData, chainId }) => {
 
   const status = useDebounce(watch('status', null), CONFIG.debounce);
 
-  const { writeAsync } = useHatStatusUpdate({
-    hatsAddress: hatsAddresses(chainId),
+  const { writeAsync, isLoading } = useHatStatusUpdate({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
     hatId: _.get(hatData, 'prettyId'),
     status,
   });
@@ -43,7 +44,7 @@ const HatStatusForm = ({ hatData, chainId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>
