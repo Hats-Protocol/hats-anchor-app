@@ -42,7 +42,6 @@ const WearerRow = ({
   setModals,
   setWearerToTransferFrom,
   isAdminUser,
-  isLoading,
 }) => {
   const localOverlay = useOverlay();
   const { data: ensName } = useEnsName({
@@ -50,7 +49,10 @@ const WearerRow = ({
     chainId: 1,
   });
 
-  const { writeAsync: checkEligibility } = useHatWearerStatusCheck({
+  const {
+    writeAsync: checkEligibility,
+    isLoading: isLoadingHatWearerStatusCheck,
+  } = useHatWearerStatusCheck({
     hatData,
     wearerAddress: wearer,
     chainId,
@@ -145,7 +147,9 @@ const WearerRow = ({
                   </MenuItem>
                 )}
                 <MenuItem
-                  isDisabled={!checkEligibility || isLoading}
+                  isDisabled={
+                    !checkEligibility || isLoadingHatWearerStatusCheck
+                  }
                   onClick={handleCheckEligibility}
                 >
                   <Tooltip
@@ -263,7 +267,6 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
                 key={wearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
                 isAdminUser={isAdminUser}
-                isLoading={isLoadingHatWearerStatusCheck}
               />
             ))
           )}

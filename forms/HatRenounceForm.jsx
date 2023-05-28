@@ -2,14 +2,14 @@ import { Button, HStack, Flex, Stack, Text, Box } from '@chakra-ui/react';
 import { useOverlay } from '../contexts/OverlayContext';
 import useHatBurn from '../hooks/useHatBurn';
 import { useChainId } from 'wagmi';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import { decimalId } from '../lib/hats';
 
 const HatRenounceForm = ({ hatData }) => {
   const { setModals } = useOverlay;
   const chainId = useChainId();
   const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: hatsAddresses(chainId),
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: decimalId(_.get(hatData, 'id')),
   });

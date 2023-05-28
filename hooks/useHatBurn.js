@@ -9,7 +9,7 @@ import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { decimalIdToId, toTreeId } from '../lib/hats';
+import { toTreeId, hatIdToHex } from '../lib/hats';
 
 const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
   const toast = useToast();
@@ -43,10 +43,10 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', decimalIdToId(hatId)],
+          queryKey: ['hatDetails', hatIdToHex(hatId)],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(decimalIdToId(hatId))],
+          queryKey: ['treeDetails', toTreeId(hatIdToHex(hatId))],
         });
       }, 4000);
     },
