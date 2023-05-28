@@ -5,11 +5,18 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
 import CONFIG, { FALLBACK_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { decimalId, idToPrettyId, prettyIdToIp } from '../lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  prettyIdToIp,
+  prettyIdToId,
+  toTreeId,
+} from '../lib/hats';
 
 const useHatLinkRequestApprove = ({
   chainId,
@@ -22,6 +29,7 @@ const useHatLinkRequestApprove = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const {
     data: eligibilityResolvedAddress,
@@ -62,8 +70,13 @@ const useHatLinkRequestApprove = ({
     data: writeData,
   } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Link Request Approved!',
@@ -73,10 +86,20 @@ const useHatLinkRequestApprove = ({
         },
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(newAdmin)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(topHatDomain)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', topHatDomain],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(newAdmin)],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {

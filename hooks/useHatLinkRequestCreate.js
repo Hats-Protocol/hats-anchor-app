@@ -4,15 +4,17 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 import _ from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
 import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
-import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
+import { prettyIdToIp, decimalId, prettyIdToId, toTreeId } from '../lib/hats';
 
 const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -26,8 +28,13 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
 
   const { writeAsync, data: writeData } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Successfully Requested to Link!`,
@@ -37,10 +44,20 @@ const useHatLinkRequestCreate = ({ topHatDomain, newAdmin, chainId }) => {
         },
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(newAdmin)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(topHatDomain)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', topHatDomain],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(newAdmin)],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
