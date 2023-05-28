@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-
+import _ from 'lodash';
 import { useDropzone } from 'react-dropzone';
 import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';

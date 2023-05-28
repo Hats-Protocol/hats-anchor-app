@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { useState } from 'react';
 import {
   Stack,
@@ -11,6 +12,8 @@ import {
   Text,
   Box,
 } from '@chakra-ui/react';
+import _ from 'lodash';
+import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
 import { FaCheck } from 'react-icons/fa';
@@ -21,7 +24,6 @@ import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
-import { useDropzone } from 'react-dropzone';
 import DropZone from '../components/DropZone';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 

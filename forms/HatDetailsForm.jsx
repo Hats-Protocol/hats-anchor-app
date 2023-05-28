@@ -8,8 +8,8 @@ import {
   FormControl,
   Switch,
 } from '@chakra-ui/react';
-import Input from '../components/Input';
 import { useForm } from 'react-hook-form';
+import Input from '../components/Input';
 
 import Textarea from '../components/Textarea';
 import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';

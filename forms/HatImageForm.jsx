@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { useState } from 'react';
 import _ from 'lodash';
 import {
@@ -8,12 +9,12 @@ import {
   Switch,
   FormControl,
 } from '@chakra-ui/react';
-import Textarea from '../components/Textarea';
 import { useForm } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
+import Textarea from '../components/Textarea';
 import useHatImageUpdate from '../hooks/useHatImageUpdate';
 import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
-import { useDropzone } from 'react-dropzone';
 import DropZone from '../components/DropZone';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 
