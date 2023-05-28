@@ -1,7 +1,8 @@
 import { Button, HStack, Flex, Stack, Text, Box } from '@chakra-ui/react';
-import { useOverlay } from '../contexts/OverlayContext';
-import useHatBurn from '../hooks/useHatBurn';
+import _ from 'lodash';
 import { useChainId } from 'wagmi';
+import useHatBurn from '../hooks/useHatBurn';
+import { useOverlay } from '../contexts/OverlayContext';
 import CONFIG from '../constants';
 import { decimalId } from '../lib/hats';
 
