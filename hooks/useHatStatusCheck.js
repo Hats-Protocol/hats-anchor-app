@@ -1,7 +1,11 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -13,15 +17,19 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
   const queryClient = useQueryClient();
 
   const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'checkHatStatus',
     args: [decimalId(_.get(hatData, 'id'))],
     enabled: Boolean(decimalId(_.get(hatData, 'id'))),
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const {
+    writeAsync,
+    error: writeError,
+    data: writeData,
+  } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -78,7 +86,11 @@ const useHatStatusCheck = ({ hatData, chainId }) => {
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, prepareError, writeError, isLoading };
 };
 
 export default useHatStatusCheck;

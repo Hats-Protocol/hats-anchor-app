@@ -23,10 +23,9 @@ const TreeDetails = ({ treeId, chainId, initialData }) => {
   return null;
 };
 
-export const getServerSideProps = async (context) => {
+export const getStaticProps = async (context) => {
   const { treeId, chainId } = context.params;
   const initialData = await fetchTreeDetails(ipToPrettyId(treeId), chainId);
-  console.log(initialData);
 
   return {
     props: {
@@ -34,6 +33,27 @@ export const getServerSideProps = async (context) => {
       chainId,
       initialData,
     },
+  };
+};
+
+export const getStaticPaths = async () => {
+  // const paths = [];
+  // const chains = [1, 5, 10, 100, 137, 42161];
+
+  // _.forEach(chains, (chainId) => {
+  //   _.forEach(_.range(1, 100), (treeId) => {
+  //     paths.push({
+  //       params: {
+  //         chainId: _.toString(chainId),
+  //         treeId: decimalId(treeId),
+  //       },
+  //     });
+  //   });
+  // });
+
+  return {
+    paths: [],
+    fallback: true,
   };
 };
 

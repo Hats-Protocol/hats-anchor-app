@@ -3,7 +3,7 @@
 /* eslint-disable no-restricted-syntax */
 import React, { useEffect, useState } from 'react';
 import { Box, Flex } from '@chakra-ui/react';
-import { useAccount, useConnect, useClient } from 'wagmi';
+import { useAccount, useConnect, useConfig } from 'wagmi';
 import Navbar from './Navbar';
 import CommandPalette from './CommandPalette';
 
@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
-  const client = useClient();
+  const client = useConfig();
 
   useEffect(() => {
     if (isAutoConnecting) return;
@@ -37,6 +37,7 @@ const Layout = ({ children }) => {
     };
 
     autoConnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -1,8 +1,13 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
-import { utils } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, MODULE_TYPES, ZERO_ADDRESS } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import useToast from './useToast';
 import { prettyIdToIp, idToPrettyId, decimalId, toTreeId } from '../lib/hats';
@@ -19,26 +24,35 @@ const useModuleUpdate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
+  const { data: newResolvedAddress, isLoading: isLoadingNewResolvedAddress } =
+    useEnsAddress({
+      name: newAddress,
+      chainId: 1,
+    });
+
   const functionName =
     moduleType === MODULE_TYPES.eligibility
       ? 'changeHatEligibility'
       : 'changeHatToggle';
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName,
-    args: [decimalId(hatId), newAddress || ZERO_ADDRESS],
+    args: [
+      decimalId(hatId),
+      (newResolvedAddress ?? newAddress) || ZERO_ADDRESS,
+    ],
     enabled:
       !!hatsAddress &&
       !!moduleType &&
       !!hatId &&
       !!newAddress &&
-      utils.isAddress(newAddress),
+      isAddress(newAddress),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -78,7 +92,15 @@ const useModuleUpdate = ({
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading: isLoadingNewResolvedAddress || isLoading,
+    newResolvedAddress,
+  };
 };
 
 export default useModuleUpdate;

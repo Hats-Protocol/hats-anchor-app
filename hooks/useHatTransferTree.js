@@ -1,7 +1,13 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -10,21 +16,42 @@ import { useOverlay } from '../contexts/OverlayContext';
 const useHatTransferTree = ({
   currentWearerAddress,
   hatData,
-  newWearerAddress,
+  newWearer,
   chainId,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
-    chainId,
-    abi: JSON.stringify(abi),
-    functionName: 'transferHat',
-    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
-    enabled: Boolean(newWearerAddress),
+  const {
+    data: newWearerResolvedAddress,
+    isLoading: isLoadingNewResolvedAddress,
+  } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
   });
+
+  const {
+    config,
+    error: prepareError,
+    data: writeData,
+  } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
+    chainId,
+    abi,
+    functionName: 'transferHat',
+    args: [
+      decimalId(hatData.id),
+      currentWearerAddress,
+      newWearerResolvedAddress ?? newWearer,
+    ],
+    enabled:
+      Boolean(newWearerResolvedAddress ?? newWearer) &&
+      Boolean(currentWearerAddress) &&
+      isAddress(newWearerResolvedAddress ?? newWearer) &&
+      isAddress(currentWearerAddress),
+  });
+  console.log('hatLinkTransferTree - prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
@@ -40,7 +67,7 @@ const useHatTransferTree = ({
           title: `Top Hat Transferred!`,
           description: `Successfully transferred top hat #${prettyIdToIp(
             _.get(hatData, 'prettyId'),
-          )} from ${currentWearerAddress} to ${newWearerAddress}`,
+          )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
         },
       });
 
@@ -68,7 +95,17 @@ const useHatTransferTree = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading: isLoadingNewResolvedAddress || isLoading,
+    newWearerResolvedAddress,
+  };
 };
 
 export default useHatTransferTree;

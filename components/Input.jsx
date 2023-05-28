@@ -1,6 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Input as ChakraInput, FormControl, FormLabel } from '@chakra-ui/react';
+import {
+  Input as ChakraInput,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+} from '@chakra-ui/react';
 
 /**
  * Primary Input component for React Hook Form
@@ -19,6 +25,7 @@ const Input = ({
   type = 'text',
   options,
   localForm,
+  rightElement,
   ...props
 }) => {
   if (!localForm) return null;
@@ -27,7 +34,10 @@ const Input = ({
   return (
     <FormControl {...props}>
       {label && <FormLabel>{label}</FormLabel>}
-      <ChakraInput type={type} {...register(name, options)} {...props} />
+      <InputGroup {...props}>
+        <ChakraInput type={type} {...register(name, options)} {...props} />
+        {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
+      </InputGroup>
     </FormControl>
   );
 };

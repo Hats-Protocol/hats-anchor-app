@@ -1,25 +1,30 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
-import { hatsAddresses } from '../constants';
+import { isAddress } from 'viem';
+import CONFIG from '../constants';
 import abi from '../contracts/Hats.json';
 import { prettyIdToIp } from '../lib/hats';
 import useToast from './useToast';
 import { useOverlay } from '../contexts/OverlayContext';
 
-const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
+const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: hatsAddresses(chainId),
+  const { config } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
     chainId,
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'unlinkTopHatFromTree',
-    args: [_.get(hatData, 'prettyId'), wearer],
-    enabled: Boolean(_.get(hatData, 'prettyId')) && Boolean(wearer),
+    args: [topHatPrettyId, wearer],
+    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -27,7 +32,7 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
         toastData: {
           title: `Top Hat Unlinked!`,
           description: `Successfully unlinked top hat #${prettyIdToIp(
-            _.get(hatData, 'prettyId'),
+            topHatPrettyId,
           )}`,
         },
       });
@@ -52,7 +57,14 @@ const useHatUnlinkTree = ({ hatData, wearer, chainId }) => {
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading,
+  };
 };
 
 export default useHatUnlinkTree;

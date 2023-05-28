@@ -1,7 +1,11 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatsAddresses, ZERO_ADDRESS } from '../constants';
+import CONFIG, { ZERO_ADDRESS } from '../constants';
 import abi from '../contracts/Hats.json';
 import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
 import useToast from './useToast';
@@ -13,9 +17,9 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
   const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
-    address: hatsAddress || hatsAddresses(chainId),
+    address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
-    abi: JSON.stringify(abi),
+    abi,
     functionName: 'changeHatMaxSupply',
     args: [
       decimalId(hatId) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
@@ -24,7 +28,7 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
     enabled: !!hatsAddress && !!hatId && !!amount,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -63,7 +67,11 @@ const useHatSupplyUpdate = ({ hatsAddress, chainId, hatId, amount }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useHatSupplyUpdate;

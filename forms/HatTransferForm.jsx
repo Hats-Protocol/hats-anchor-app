@@ -7,10 +7,11 @@ import {
   Heading,
   HStack,
   Code,
+  Box,
 } from '@chakra-ui/react';
-import { utils } from 'ethers';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
@@ -21,21 +22,22 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
-  const newWearerAddress = useDebounce(
-    watch('newWearerAddress', null),
-    CONFIG.debounce,
-  );
+  const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
 
-  const { writeAsync } = useHatTransferTree({
-    currentWearerAddress,
-    hatData,
-    newWearerAddress,
-    chainId,
-  });
+  const { writeAsync, isLoading, newWearerResolvedAddress } =
+    useHatTransferTree({
+      currentWearerAddress,
+      hatData,
+      newWearer,
+      chainId,
+    });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
+
+  const showNewResolvedAddress =
+    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -53,19 +55,24 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
           <Text>Address of the current Wearer: </Text>
           <Code>{currentWearerAddress}</Code>
         </HStack>
-        <Input
-          localForm={localForm}
-          name='newWearerAddress'
-          label='New Wearer Address'
-          options={{
-            validate: (value) =>
-              utils.isAddress(value) ? true : 'Must be a valid address',
-          }}
-          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-        />
+        <Box>
+          <Input
+            localForm={localForm}
+            name='newWearer'
+            label='New Wearer Address'
+            placeholder='0x1234, vitalik.eth'
+            rightElement={showNewResolvedAddress && <FaCheck color='green' />}
+          />
+
+          {showNewResolvedAddress && (
+            <Text fontSize='sm' color='gray.500' mt={1}>
+              Resolved address: {newWearerResolvedAddress}
+            </Text>
+          )}
+        </Box>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Transfer
           </Button>
         </Flex>

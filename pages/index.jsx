@@ -1,12 +1,5 @@
 import _ from 'lodash';
-import {
-  Heading,
-  // Link as ChakraLink,
-  SimpleGrid,
-  Flex,
-  Spinner,
-} from '@chakra-ui/react';
-// import Link from 'next/link';
+import { Heading, SimpleGrid, Flex, Spinner } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -28,10 +21,11 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
     [setSelectedNetwork],
   );
 
-  const { trees, fetchNextPage, isEnd } = usePaginatedTreeList({
-    chainId: selectedNetwork,
-    initialData,
-  });
+  const { trees, fetchNextPage, isEnd, isLoading, isFetchingNextPage } =
+    usePaginatedTreeList({
+      chainId: selectedNetwork,
+      initialData,
+    });
 
   const topHatIds = useMemo(() => {
     return _.map(trees, 'hats[0].id');
@@ -92,13 +86,13 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
           </InfiniteScroll>
         </div>
       )}
-      {trees?.length === 0 && (
+      {trees?.length === 0 && !(isLoading || isFetchingNextPage) && (
         <Flex justify='center' align='center'>
           <Heading size='md'>No Trees Found</Heading>
         </Flex>
       )}
-      {!trees && (
-        <Flex justify='center' align='center'>
+      {(isLoading || isFetchingNextPage) && (
+        <Flex justify='center' align='center' pt={10}>
           <Spinner />
         </Flex>
       )}
@@ -106,9 +100,7 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
   );
 };
 
-export default Home;
-
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
   const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
   const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
 
@@ -119,3 +111,5 @@ export const getServerSideProps = async () => {
     },
   };
 };
+
+export default Home;

@@ -23,7 +23,7 @@ import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
 import Link from '../ChakraNextLink';
 import DataTable from '../DataTable';
-import { MODULE_TYPES, hatsAddresses } from '../../constants';
+import CONFIG, { MODULE_TYPES } from '../../constants';
 import Modal from '../Modal';
 import HatModulesForm from '../../forms/HatModulesForm';
 import { useOverlay } from '../../contexts/OverlayContext';
@@ -49,9 +49,6 @@ import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import AdminActions from './AdminActions';
 
-const defaultChainId = 5;
-const hatsAddress = hatsAddresses(defaultChainId);
-
 // TODO this should probably be more components
 
 const Hat = ({
@@ -62,6 +59,7 @@ const Hat = ({
   hatImage,
   childrenHats,
   linkRequestFromTree,
+  parentOfTrees,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -71,8 +69,8 @@ const Hat = ({
     wearerAddress: address,
     chainId,
   });
-  const { writeAsync: checkHatStatus } = useHatStatusCheck({
-    hatsAddress,
+  const { writeAsync: checkHatStatus, isLoading } = useHatStatusCheck({
+    hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatData,
   });
@@ -102,31 +100,30 @@ const Hat = ({
     userChain === chainId &&
     isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
 
-  const showSupplyAndImmutableButtons =
-    isAdminUser && isMutableNotTopHat(hatData);
-
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
-  const authoritiesTable = _.map(childrenHats, (hat) => ({
-    key: _.get(hat, 'prettyId'),
-    label: (
-      <Text as='span'>
-        Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
-      </Text>
-    ),
-    value: (
-      <Link
-        href={`/trees/${chainId}/${decimalId(
-          getTreeId(_.get(hat, 'prettyId')),
-        )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-      >
-        <HStack>
-          <Text>Hats Protocol</Text>
-          <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
-        </HStack>
-      </Link>
-    ),
-  }));
+  const childrenHatsIds = _.map(childrenHats, 'prettyId') || [];
+  const parentOfTreesIds = _.map(parentOfTrees, 'id') || [];
+
+  const authoritiesTable = _.map(
+    childrenHatsIds.concat(parentOfTreesIds),
+    (hatId) => ({
+      key: hatId,
+      label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
+      value: (
+        <Link
+          href={`/trees/${chainId}/${decimalId(
+            getTreeId(hatId),
+          )}/${prettyIdToUrlId(hatId)}`}
+        >
+          <HStack>
+            <Text>Hats Protocol</Text>
+            <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+          </HStack>
+        </Link>
+      ),
+    }),
+  );
 
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
@@ -176,6 +173,7 @@ const Hat = ({
           localOverlay={localOverlay}
           user={address}
           checkHatStatus={checkHatStatus}
+          isLoading={isLoading}
         />
       ),
     },
@@ -233,7 +231,7 @@ const Hat = ({
               w='75px'
               h='75px'
               onClick={canEditImage ? handleOpenImageModal : undefined}
-              bgImage={`url('${hatImage}'), url('/icon.jpeg')`}
+              bgImage={hatImage ? `url('${hatImage}')` : "url('/icon.jpeg')"}
               bgSize='cover'
               bgPosition='center'
             >
@@ -330,13 +328,7 @@ const Hat = ({
             <Tab px={2} fontSize='sm'>
               Events
             </Tab>
-            {address &&
-              userChain === chainId &&
-              isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-              (isMutableNotTopHat(hatData) ||
-                linkRequestFromTree?.length > 0) && (
-                <Tab fontSize='sm'>Admin</Tab>
-              )}
+            {isAdminUser && <Tab fontSize='sm'>Admin</Tab>}
           </TabList>
           <TabPanels>
             {/* Details, where is this coming back from? IPFS hash? */}
@@ -358,16 +350,20 @@ const Hat = ({
                   (hatDetailsFieldLoading ? (
                     'Loading...'
                   ) : (
-                    <>
-                      <Text fontSize='sm' as='b'>
-                        Name:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.name}</Text>
-                      <Text fontSize='sm' as='b'>
-                        Description:
-                      </Text>
-                      <Text>{hatDetailsFieldData.data.data.description}</Text>
-                    </>
+                    <Stack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Name:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'name')}</Text>
+                      </HStack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Description:
+                        </Text>
+                        <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
+                      </HStack>
+                    </Stack>
                   ))}
                 {schemaTypeDetailsField !== '1.0' && (
                   <Text>{hatData?.details}</Text>
@@ -402,25 +398,23 @@ const Hat = ({
             </TabPanel>
             <TabPanel minH='370px'>
               <EventsTable
+                chainId={chainId}
                 treeId={treeId}
                 events={hatData?.events}
-                chainId={chainId}
               />
             </TabPanel>
-            {isAdminUser &&
-            (showSupplyAndImmutableButtons ||
-              linkRequestFromTree?.length > 0) ? (
+            {isAdminUser && (
               <TabPanel minH='370px'>
                 <AdminActions
-                  showSupplyAndImmutableButtons={showSupplyAndImmutableButtons}
-                  linkRequestFromTree={linkRequestFromTree}
                   hatData={hatData}
-                  hatsAddress={hatsAddress}
                   chainId={chainId}
+                  linkRequestFromTree={linkRequestFromTree}
+                  hatsAddress={CONFIG.hatsAddress}
                   linkedToHat={linkedToHat}
+                  parentOfTrees={_.map(parentOfTrees, 'id')}
                 />
               </TabPanel>
-            ) : null}
+            )}
           </TabPanels>
         </Tabs>
       </Stack>

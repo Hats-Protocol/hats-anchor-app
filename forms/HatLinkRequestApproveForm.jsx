@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Stack,
   Flex,
@@ -8,20 +9,23 @@ import {
   HStack,
   Spinner,
   Text,
+  Box,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-
+import _ from 'lodash';
 import { useDropzone } from 'react-dropzone';
+import { FaCheck } from 'react-icons/fa';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '../constants';
+import { ZERO_ADDRESS } from '../constants';
 import useDebounce from '../hooks/useDebounce';
 import { prettyIdToIp, decimalId } from '../lib/hats';
-import { pinJson } from '../lib/ipfs';
 import usePinImageIpfs from '../hooks/usePinImageIpfs';
 import DropZone from '../components/DropZone';
+import { pinJson } from '../lib/ipfs';
+import useCid from '../hooks/useCid';
 
 const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   const localForm = useForm({
@@ -34,8 +38,10 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   });
   const { handleSubmit, watch } = localForm;
 
-  const [inputEligibility, setInputEligibility] = useState(false);
-  const [inputToggle, setInputToggle] = useState(false);
+  const [customDetails, setCustomDetails] = useState(true);
+  const [customImage, setCustomImage] = useState(true);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
   const [newImage, setNewImage] = useState(false);
   const [image, setImage] = useState(hatData.imageUrl);
@@ -58,7 +64,9 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
     },
   });
 
+  const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
+  const details = useDebounce(watch('details', ''));
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
@@ -67,34 +75,49 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
 
   const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
-    enabled: newImage,
-    metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
+    enabled: newImage && customImage,
+    metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
   });
 
-  const { writeAsync } = useHatLinkRequestApprove({
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+    type: '1.0',
+    data: { name, description },
+  });
+
+  const {
+    writeAsync,
+    isLoading,
+    toggleResolvedAddress,
+    eligibilityResolvedAddress,
+  } = useHatLinkRequestApprove({
     topHatDomain,
     newAdmin: hatData.id,
-    eligibility: inputEligibility ? eligibility : FALLBACK_ADDRESS,
-    toggle: inputToggle ? toggle : FALLBACK_ADDRESS,
-    description,
-    // eslint-disable-next-line no-nested-ternary
-    imageUrl: newImage
-      ? imagePinData !== undefined
-        ? `ipfs://${imagePinData}`
-        : undefined
-      : imageUrl,
+    eligibility: eligibilityChecked && eligibility,
+    toggle: toggleChecked && toggle,
+    description: newDetails && customDetails ? detailsCID : details,
+    imageUrl:
+      newImage && customImage
+        ? imagePinData !== undefined
+          ? `ipfs://${imagePinData}`
+          : undefined
+        : imageUrl,
     chainId,
   });
 
   const onSubmit = async () => {
     writeAsync?.();
-    if (newDetails) {
+    if (newDetails && customDetails) {
       await pinJson(
-        { type: '1.0', data: { description } },
-        { name: `details_${chainId.toString()}_${decimalAdmin}` },
+        { type: '1.0', data: { name, description } },
+        { name: `details_${_.toString(chainId)}_${decimalAdmin}` },
       );
     }
   };
+
+  const showEligilityResolvedAddress =
+    eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
+  const showToggleResolvedAddress =
+    toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -126,14 +149,40 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
               <FormLabel>New Details</FormLabel>
             </HStack>
             {newDetails && (
-              <Stack spacing={2}>
-                <Textarea
-                  localForm={localForm}
-                  name='description'
-                  label='Description'
-                  placeholder='Hat description'
-                />
-              </Stack>
+              <FormControl>
+                <Stack>
+                  <Switch
+                    isChecked={customDetails}
+                    onChange={() => setCustomDetails(!customDetails)}
+                  >
+                    Custom details
+                  </Switch>
+                  {!customDetails && (
+                    <Textarea
+                      localForm={localForm}
+                      name='details'
+                      label='Details'
+                      placeholder='Hat details'
+                    />
+                  )}
+                  {customDetails && (
+                    <Stack spacing={2}>
+                      <Input
+                        localForm={localForm}
+                        name='name'
+                        label='Name'
+                        placeholder='Hat name'
+                      />
+                      <Textarea
+                        localForm={localForm}
+                        name='description'
+                        label='Description'
+                        placeholder='Hat description'
+                      />
+                    </Stack>
+                  )}
+                </Stack>
+              </FormControl>
             )}
           </Stack>
         </FormControl>
@@ -147,57 +196,98 @@ const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
               <FormLabel>New Image</FormLabel>
             </HStack>
             {newImage && (
-              <DropZone
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                acceptedFiles={acceptedFiles}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                image={image}
-              />
+              <FormControl>
+                <Stack spacing={2}>
+                  <Switch
+                    isChecked={customImage}
+                    onChange={() => setCustomImage(!customImage)}
+                  >
+                    Custom image
+                  </Switch>
+                  {!customImage && (
+                    <Textarea
+                      localForm={localForm}
+                      name='imageUrl'
+                      label='Image'
+                      placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
+                    />
+                  )}
+                  {customImage && (
+                    <DropZone
+                      getRootProps={getRootProps}
+                      getInputProps={getInputProps}
+                      acceptedFiles={acceptedFiles}
+                      isFocused={isFocused}
+                      isDragAccept={isDragAccept}
+                      isDragReject={isDragReject}
+                      image={image}
+                    />
+                  )}
+                </Stack>
+              </FormControl>
             )}
           </Stack>
         </FormControl>
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputEligibility}
-              onChange={() => setInputEligibility(!inputEligibility)}
+              isChecked={eligibilityChecked}
+              onChange={() => setEligibilityChecked(!eligibilityChecked)}
             />
-            {!inputEligibility && <FormLabel>New Eligibility</FormLabel>}
-            {inputEligibility && (
-              <Input
-                name='eligibility'
-                label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                placeholder='0x4a750000403C3B91997911FCd989d9B5C25d7876'
-                localForm={localForm}
-              />
+            {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
+            {eligibilityChecked && (
+              <Box>
+                <Input
+                  name='eligibility'
+                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showEligilityResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showEligilityResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {eligibilityResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
         <FormControl>
           <HStack>
             <Switch
-              isChecked={inputToggle}
-              onChange={() => setInputToggle(!inputToggle)}
+              isChecked={toggleChecked}
+              onChange={() => setToggleChecked(!toggleChecked)}
             />
-            {!inputToggle && <FormLabel>New Toggle</FormLabel>}
-            {inputToggle && (
-              <Input
-                name='toggle'
-                label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-                localForm={localForm}
-              />
+            {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
+            {toggleChecked && (
+              <Box>
+                <Input
+                  name='toggle'
+                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                  placeholder='0x1234, vitalik.eth'
+                  rightElement={
+                    showToggleResolvedAddress && <FaCheck color='green' />
+                  }
+                  localForm={localForm}
+                />
+                {showToggleResolvedAddress && (
+                  <Text fontSize='sm' color='gray.500' mt={1}>
+                    Resolved address: {toggleResolvedAddress}
+                  </Text>
+                )}
+              </Box>
             )}
           </HStack>
         </FormControl>
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            // shouldn't be disabled if newAdmin && topHatDomain are set
-            isDisabled={!writeAsync || imagePinLoading}
+            isDisabled={
+              !writeAsync || detailsCidLoading || imagePinLoading || isLoading
+            }
           >
             {imagePinLoading ? <Spinner /> : 'Approve'}
           </Button>
