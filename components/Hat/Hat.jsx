@@ -85,6 +85,7 @@ const Hat = ({
     // error: hatDetailsFieldError,
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
+  console.log('hatDetailsFieldData', hatDetailsFieldData);
 
   if (!hatData) return null;
 
@@ -362,6 +363,17 @@ const Hat = ({
                           Description:
                         </Text>
                         <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
+                      </HStack>
+                      <HStack>
+                        <Text fontSize='sm' as='b'>
+                          Guilds:
+                        </Text>
+                        <Text>
+                          {_.map(
+                            _.get(hatDetailsFieldData, 'guilds'),
+                            (guild) => guild,
+                          )}
+                        </Text>
                       </HStack>
                     </Stack>
                   ))}

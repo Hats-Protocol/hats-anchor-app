@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import _ from 'lodash';
+import React, { useState } from 'react';
 import {
   Stack,
   Flex,
@@ -7,20 +6,31 @@ import {
   Spinner,
   FormControl,
   Switch,
+  IconButton,
+  InputGroup,
+  Input as ChakraInput,
+  InputLeftElement,
+  Box,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
+import _ from 'lodash';
+import { FaCheck, FaHouseUser, FaTrash } from 'react-icons/fa';
 
+import Input from '../components/Input';
 import Textarea from '../components/Textarea';
 import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import CONFIG from '../constants';
 import useDebounce from '../hooks/useDebounce';
+import CONFIG from '../constants';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
 import { prettyIdToIp } from '../lib/hats';
 
 const HatDetailsForm = ({ hatData, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);
+  const [guilds, setGuilds] = useState([]);
+  const [newGuild, setNewGuild] = useState('');
+
   const localForm = useForm({ mode: 'onChange' });
   const { handleSubmit, watch } = localForm;
 
@@ -30,7 +40,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
-    data: { name, description },
+    data: { name, description, guilds },
   });
 
   const { writeAsync, isLoading } = useHatDetailsUpdate({
@@ -44,7 +54,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
     writeAsync?.();
     if (customDetails) {
       await pinJson(
-        { type: '1.0', data: { name, description } },
+        { type: '1.0', data: { name, description, guilds } },
         {
           name: `details_${_.toString(chainId)}_${prettyIdToIp(
             _.get(hatData, 'admin.id'),
@@ -52,6 +62,15 @@ const HatDetailsForm = ({ hatData, chainId }) => {
         },
       );
     }
+  };
+
+  const handleAddGuild = () => {
+    setGuilds([...guilds, newGuild]);
+    setNewGuild('');
+  };
+
+  const handleRemoveGuild = (index) => {
+    setGuilds(guilds.filter((__, i) => i !== index));
   };
 
   return (
@@ -87,6 +106,57 @@ const HatDetailsForm = ({ hatData, chainId }) => {
                   label='Description'
                   placeholder='Hat description'
                 />
+                <Flex alignItems='center'>
+                  <InputGroup>
+                    <InputLeftElement>
+                      <FaHouseUser ml={2} />
+                    </InputLeftElement>
+                    <ChakraInput
+                      w='calc(100% - 1rem)'
+                      textOverflow='ellipsis'
+                      type='guild'
+                      placeholder='Guild name'
+                      value={newGuild}
+                      onChange={(e) => setNewGuild(e.target.value)}
+                    />
+                  </InputGroup>
+                  <Tooltip
+                    label={!newGuild ? 'Please input a guild name' : ''}
+                    shouldWrapChildren
+                  >
+                    <IconButton
+                      isDisabled={!newGuild}
+                      onClick={handleAddGuild}
+                      icon={<FaCheck />}
+                      aria-label='Add'
+                      height={9}
+                      w={16}
+                    />
+                  </Tooltip>
+                </Flex>
+                {guilds.map((guild, index) => (
+                  <Box key={guild}>
+                    <Flex
+                      align='center'
+                      w='full'
+                      justifyContent='space-between'
+                    >
+                      <ChakraInput
+                        value={guild}
+                        readOnly
+                        w='calc(100% - 5rem)'
+                      />
+                      <IconButton
+                        type='button'
+                        onClick={() => handleRemoveGuild(index)}
+                        icon={<FaTrash />}
+                        aria-label='Remove'
+                        height={9}
+                        w={16}
+                      />
+                    </Flex>
+                  </Box>
+                ))}
               </Stack>
             )}
           </Stack>
