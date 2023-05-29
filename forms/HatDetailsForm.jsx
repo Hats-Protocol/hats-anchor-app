@@ -12,6 +12,7 @@ import {
   InputLeftElement,
   Box,
   Tooltip,
+  Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
@@ -24,7 +25,7 @@ import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
 import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
-import { prettyIdToIp } from '../lib/hats';
+import { isTopHat, prettyIdToIp } from '../lib/hats';
 
 const HatDetailsForm = ({ hatData, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);
@@ -106,57 +107,62 @@ const HatDetailsForm = ({ hatData, chainId }) => {
                   label='Description'
                   placeholder='Hat description'
                 />
-                <Flex alignItems='center'>
-                  <InputGroup>
-                    <InputLeftElement>
-                      <FaHouseUser ml={2} />
-                    </InputLeftElement>
-                    <ChakraInput
-                      w='calc(100% - 1rem)'
-                      textOverflow='ellipsis'
-                      type='guild'
-                      placeholder='Guild name'
-                      value={newGuild}
-                      onChange={(e) => setNewGuild(e.target.value)}
-                    />
-                  </InputGroup>
-                  <Tooltip
-                    label={!newGuild ? 'Please input a guild name' : ''}
-                    shouldWrapChildren
-                  >
-                    <IconButton
-                      isDisabled={!newGuild}
-                      onClick={handleAddGuild}
-                      icon={<FaCheck />}
-                      aria-label='Add'
-                      height={9}
-                      w={16}
-                    />
-                  </Tooltip>
-                </Flex>
-                {guilds.map((guild, index) => (
-                  <Box key={guild}>
-                    <Flex
-                      align='center'
-                      w='full'
-                      justifyContent='space-between'
-                    >
-                      <ChakraInput
-                        value={guild}
-                        readOnly
-                        w='calc(100% - 5rem)'
-                      />
-                      <IconButton
-                        type='button'
-                        onClick={() => handleRemoveGuild(index)}
-                        icon={<FaTrash />}
-                        aria-label='Remove'
-                        height={9}
-                        w={16}
-                      />
+                {isTopHat(hatData) && (
+                  <>
+                    <Text>Add one or more guilds to this hat.</Text>
+                    <Flex alignItems='center'>
+                      <InputGroup>
+                        <InputLeftElement>
+                          <FaHouseUser ml={2} />
+                        </InputLeftElement>
+                        <ChakraInput
+                          w='calc(100% - 1rem)'
+                          textOverflow='ellipsis'
+                          type='guild'
+                          placeholder='Guild name'
+                          value={newGuild}
+                          onChange={(e) => setNewGuild(e.target.value)}
+                        />
+                      </InputGroup>
+                      <Tooltip
+                        label={!newGuild ? 'Please input a guild name' : ''}
+                        shouldWrapChildren
+                      >
+                        <IconButton
+                          isDisabled={!newGuild}
+                          onClick={handleAddGuild}
+                          icon={<FaCheck />}
+                          aria-label='Add'
+                          height={9}
+                          w={16}
+                        />
+                      </Tooltip>
                     </Flex>
-                  </Box>
-                ))}
+                    {guilds.map((guild, index) => (
+                      <Box key={guild}>
+                        <Flex
+                          align='center'
+                          w='full'
+                          justifyContent='space-between'
+                        >
+                          <ChakraInput
+                            value={guild}
+                            readOnly
+                            w='calc(100% - 5rem)'
+                          />
+                          <IconButton
+                            type='button'
+                            onClick={() => handleRemoveGuild(index)}
+                            icon={<FaTrash />}
+                            aria-label='Remove'
+                            height={9}
+                            w={16}
+                          />
+                        </Flex>
+                      </Box>
+                    ))}
+                  </>
+                )}
               </Stack>
             )}
           </Stack>

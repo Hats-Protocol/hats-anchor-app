@@ -12,6 +12,7 @@ import {
   Icon,
   IconButton,
   Box,
+  Code,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -48,6 +49,7 @@ import HatStatusForm from '../../forms/HatStatusForm';
 import HatWearerStatusForm from '../../forms/HatWearerStatusForm';
 import useHatStatusCheck from '../../hooks/useHatStatusCheck';
 import AdminActions from './AdminActions';
+import useHatGuilds from '../../hooks/useGuilds';
 
 // TODO this should probably be more components
 
@@ -60,6 +62,7 @@ const Hat = ({
   childrenHats,
   linkRequestFromTree,
   parentOfTrees,
+  topHatDetails,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -82,10 +85,18 @@ const Hat = ({
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
-    // error: hatDetailsFieldError,
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
-  console.log('hatDetailsFieldData', hatDetailsFieldData);
+
+  const {
+    data: topHatDetailsFieldData,
+    schemaType: schemaTypeDetailsFieldTopHat,
+  } = useHatDetailsField(topHatDetails);
+
+  const { hatRoles } = useHatGuilds({
+    guildNames: _.get(topHatDetailsFieldData, 'guilds'),
+    hatId: _.get(hatData, 'id'),
+  });
 
   if (!hatData) return null;
 
@@ -103,19 +114,19 @@ const Hat = ({
 
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
-  const childrenHatsIds = _.map(childrenHats, 'prettyId') || [];
-  const parentOfTreesIds = _.map(parentOfTrees, 'id') || [];
-
-  const authoritiesTable = _.map(
-    childrenHatsIds.concat(parentOfTreesIds),
-    (hatId) => ({
-      key: hatId,
-      label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
+  const authoritiesTable = [
+    ..._.map(childrenHats, (hat) => ({
+      key: _.get(hat, 'prettyId'),
+      label: (
+        <Text as='span'>
+          Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
+        </Text>
+      ),
       value: (
         <Link
           href={`/trees/${chainId}/${decimalId(
-            getTreeId(hatId),
-          )}/${prettyIdToUrlId(hatId)}`}
+            getTreeId(_.get(hat, 'prettyId')),
+          )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
         >
           <HStack>
             <Text>Hats Protocol</Text>
@@ -123,8 +134,22 @@ const Hat = ({
           </HStack>
         </Link>
       ),
-    }),
-  );
+    })),
+    ...(hatRoles && hatRoles.length > 0
+      ? _.map(hatRoles, ({ role, guild }) => ({
+          key: role,
+          label: <Text as='span'>{role}</Text>,
+          value: (
+            <Link href={`https://guild.xyz/${guild}`} isExternal>
+              <HStack>
+                <Text>Guild.xyz</Text>
+                <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+              </HStack>
+            </Link>
+          ),
+        }))
+      : []),
+  ];
 
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
@@ -365,15 +390,20 @@ const Hat = ({
                         <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
                       </HStack>
                       <HStack>
-                        <Text fontSize='sm' as='b'>
-                          Guilds:
-                        </Text>
-                        <Text>
-                          {_.map(
-                            _.get(hatDetailsFieldData, 'guilds'),
-                            (guild) => guild,
-                          )}
-                        </Text>
+                        {schemaTypeDetailsFieldTopHat === '1.0' && (
+                          <>
+                            <Text fontSize='sm' as='b'>
+                              Guilds:
+                            </Text>
+
+                            {_.map(
+                              _.get(topHatDetailsFieldData, 'guilds'),
+                              (guild) => (
+                                <Code>{guild}</Code>
+                              ),
+                            )}
+                          </>
+                        )}
                       </HStack>
                     </Stack>
                   ))}
