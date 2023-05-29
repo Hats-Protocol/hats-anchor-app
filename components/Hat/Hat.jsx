@@ -114,19 +114,18 @@ const Hat = ({
 
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
+  const childrenHatsIds = _.map(childrenHats, 'prettyId') || [];
+  const parentOfTreesIds = _.map(parentOfTrees, 'id') || [];
+
   const authoritiesTable = [
-    ..._.map(childrenHats, (hat) => ({
-      key: _.get(hat, 'prettyId'),
-      label: (
-        <Text as='span'>
-          Admin of hat #{prettyIdToIp(_.get(hat, 'prettyId'))}
-        </Text>
-      ),
+    ..._.map(childrenHatsIds.concat(parentOfTreesIds), (hatId) => ({
+      key: hatId,
+      label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
       value: (
         <Link
           href={`/trees/${chainId}/${decimalId(
-            getTreeId(_.get(hat, 'prettyId')),
-          )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
+            getTreeId(hatId),
+          )}/${prettyIdToUrlId(hatId)}`}
         >
           <HStack>
             <Text>Hats Protocol</Text>
@@ -218,13 +217,7 @@ const Hat = ({
         <HatDetailsForm
           hatData={hatData}
           hatDetails={
-            schemaTypeDetailsField === '1.0'
-              ? {
-                  name: _.get(hatDetailsFieldData, 'name'),
-                  description: _.get(hatDetailsFieldData, 'description'),
-                  guilds: _.get(topHatDetailsFieldData, 'guilds'),
-                }
-              : {}
+            schemaTypeDetailsField === '1.0' ? hatDetailsFieldData : {}
           }
           chainId={chainId}
         />
