@@ -215,7 +215,19 @@ const Hat = ({
         title='Edit Hat Details'
         localOverlay={localOverlay}
       >
-        <HatDetailsForm hatData={hatData} chainId={chainId} />
+        <HatDetailsForm
+          hatData={hatData}
+          hatDetails={
+            schemaTypeDetailsField === '1.0'
+              ? {
+                  name: _.get(hatDetailsFieldData, 'name'),
+                  description: _.get(hatDetailsFieldData, 'description'),
+                  guilds: _.get(topHatDetailsFieldData, 'guilds'),
+                }
+              : {}
+          }
+          chainId={chainId}
+        />
       </Modal>
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
         <HatImageForm hatData={hatData} chainId={chainId} />

@@ -13,10 +13,11 @@ import {
   Box,
   Tooltip,
   Text,
+  Icon,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
-import { FaCheck, FaHouseUser, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaHouseUser, FaInfo, FaTrash } from 'react-icons/fa';
 
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
@@ -27,16 +28,24 @@ import { pinJson } from '../lib/ipfs';
 import useCid from '../hooks/useCid';
 import { isTopHat, prettyIdToIp } from '../lib/hats';
 
-const HatDetailsForm = ({ hatData, chainId }) => {
+const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);
-  const [guilds, setGuilds] = useState([]);
+  const [guilds, setGuilds] = useState(hatDetails?.guilds || []);
   const [newGuild, setNewGuild] = useState('');
 
-  const localForm = useForm({ mode: 'onChange' });
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      name: hatDetails?.name || '',
+      description: hatDetails?.description || '',
+    },
+  });
   const { handleSubmit, watch } = localForm;
 
-  const name = useDebounce(watch('name', ''));
-  const description = useDebounce(watch('description', ''));
+  const name = useDebounce(watch('name', hatDetails?.name || ''));
+  const description = useDebounce(
+    watch('description', hatDetails?.description || ''),
+  );
   const details = useDebounce(watch('details'));
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
@@ -109,7 +118,11 @@ const HatDetailsForm = ({ hatData, chainId }) => {
                 />
                 {isTopHat(hatData) && (
                   <>
-                    <Text>Add one or more guilds to this hat.</Text>
+                    <Text fontSize='sm' color='blue.500' pt={3}>
+                      <Icon as={FaInfo} mr={1} />
+                      Bind one or more guild.xyz to this hat. Remember to click
+                      the checkmark to add the guild.
+                    </Text>
                     <Flex alignItems='center'>
                       <InputGroup>
                         <InputLeftElement>
@@ -119,7 +132,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
                           w='calc(100% - 1rem)'
                           textOverflow='ellipsis'
                           type='guild'
-                          placeholder='Guild name'
+                          placeholder='Guild name (e.g. hats-protocol)'
                           value={newGuild}
                           onChange={(e) => setNewGuild(e.target.value)}
                         />
