@@ -32,9 +32,11 @@ import {
 import Papa from 'papaparse';
 import { useEnsAddress } from 'wagmi';
 import _ from 'lodash';
+import { useDropzone } from 'react-dropzone';
 import useHatMint from '../hooks/useHatMint';
 import useDebounce from '../hooks/useDebounce';
 import CONFIG from '../constants';
+import DropZone from '../components/DropZone';
 
 const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });
@@ -85,31 +87,34 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
     setWearers(_.filter(wearers, (__, i) => i !== index));
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    Papa.parse(file, {
-      complete: (results) => {
-        const csvAddresses = _.take(
-          _.differenceWith(
-            _.filter(_.flatten(results.data), isAddress),
-            wearers,
-            (csvAddress, wearer) => csvAddress === wearer.address,
-          ),
-          maxSupply - currentWearers.length - wearers.length,
-        );
-        setWearers([
-          ...wearers,
-          ...csvAddresses.map((address) => ({ address })),
-        ]);
-      },
-      error: (error) => {
-        console.error('Error parsing CSV file: ', error);
-      },
-    });
-  };
-
   const { isOpen, onToggle } = useDisclosure();
+
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+    accept: { '.csv': [] },
+    onDrop: (droppedFiles) => {
+      const file = droppedFiles[0];
+      if (!file) return;
+      Papa.parse(file, {
+        complete: (results) => {
+          const csvAddresses = _.take(
+            _.differenceWith(
+              _.filter(_.flatten(results.data), isAddress),
+              wearers,
+              (csvAddress, wearer) => csvAddress === wearer.address,
+            ),
+            maxSupply - currentWearers.length - wearers.length,
+          );
+          setWearers([
+            ...wearers,
+            ...csvAddresses.map((address) => ({ address })),
+          ]);
+        },
+        error: (error) => {
+          console.error('Error parsing CSV file: ', error);
+        },
+      });
+    },
+  });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -204,12 +209,12 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
 
         <Collapse in={isOpen}>
           <FormControl id='csvFile'>
-            <Input
-              type='file'
-              pl={1}
-              onChange={handleFileUpload}
-              accept='.csv'
-              border={0}
+            <DropZone
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              acceptedFiles={acceptedFiles}
+              isDragAccept
+              isDragReject
             />
             <Text fontSize='sm' mt={1} color='blue.500'>
               <Icon as={FaInfo} mr={1} />
