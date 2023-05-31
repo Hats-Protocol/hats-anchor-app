@@ -26,26 +26,38 @@ import HatTransferForm from '@/forms/HatTransferForm';
 import HatWearerForm from '@/forms/HatWearerForm';
 import Modal from '../Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { decimalId, isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
 
-import useHatBurn from '@/hooks/useHatBurn';
-import CONFIG from '@/constants';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
+import HatRenounceForm from '../../forms/HatRenounceForm';
+
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
 
 const WEARERS_PER_PAGE = 5;
 
 const WearerRow = ({
+  chainId,
   hatData,
   user,
   wearer,
   setModals,
-  checkEligibility,
   setWearerToTransferFrom,
   isAdminUser,
 }) => {
   const localOverlay = useOverlay();
-  const { data: ensName } = useEnsName({ address: wearer, chainId: 1 });
+  const { data: ensName } = useEnsName({
+    address: wearer,
+    chainId: 1,
+  });
+
+  const {
+    writeAsync: checkEligibility,
+    isLoading: isLoadingHatWearerStatusCheck,
+  } = useHatWearerStatusCheck({
+    hatData,
+    wearerAddress: wearer,
+    chainId,
+  });
 
   const handleCheckEligibility = async () => {
     await checkEligibility?.();
@@ -136,7 +148,9 @@ const WearerRow = ({
                   </MenuItem>
                 )}
                 <MenuItem
-                  isDisabled={!checkEligibility}
+                  isDisabled={
+                    !checkEligibility || isLoadingHatWearerStatusCheck
+                  }
                   onClick={handleCheckEligibility}
                 >
                   <Tooltip
@@ -170,16 +184,6 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId: decimalId(_.get(hatData, 'id')),
-  });
-  const { writeAsync: checkEligibility } = useHatWearerStatusCheck({
-    hatData,
-    wearerAddress: address,
-    chainId,
-  });
   const { setModals } = localOverlay;
 
   const wearerPages = useMemo(() => {
@@ -211,59 +215,30 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
     if (currentPage !== wearerPages.count) setCurrentPage((curr) => curr + 1);
   };
 
-  const handleRenounceHat = async () => {
-    await renounceHat();
-  };
-
   return (
     <>
-      <Modal name='newWearer' title='Mint Hat' localOverlay={localOverlay}>
-        <HatWearerForm hatId={_.get(hatData, 'id')} chainId={chainId} />
+      <Modal name='newWearer' title='Batch Mint' localOverlay={localOverlay}>
+        <HatWearerForm
+          hatId={_.get(hatData, 'id')}
+          chainId={chainId}
+          currentWearers={_.map(wearers, 'id')}
+          maxSupply={_.get(hatData, 'maxSupply')}
+        />
       </Modal>
       <Modal
         name='renounceConfirm'
         title='Are you sure?'
         localOverlay={localOverlay}
       >
-        <Stack>
-          <Text>
-            You are about to renounce (burn) your Hat with the following Hat ID:
-          </Text>
-          <Box bg='blackAlpha.200' p={4} borderRadius='md'>
-            <Text fontFamily='monospace' fontSize='md'>
-              {_.get(hatData, 'prettyId')}
-            </Text>
-          </Box>
-          <Text>Are you sure you want to do this?</Text>
-          <Flex justify='flex-end' w='100%'>
-            <HStack>
-              <Button
-                onClick={() => setModals({ renounceConfirm: false })}
-                variant='outline'
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleRenounceHat}
-                isDisabled={renounceHat === undefined}
-              >
-                Yes I&apos;m sure - Renounce
-              </Button>
-            </HStack>
-          </Flex>
-        </Stack>
+        <HatRenounceForm hatData={hatData} />
       </Modal>
 
       <Stack align='center' spacing={4}>
         <Flex justify='space-between' w='100%'>
-          <HStack spacing={1}>
-            {_.get(hatData, 'currentSupply') &&
-              _.get(hatData, 'currentSupply') !==
-                _.get(hatData, 'maxSupply') && (
-                <Text>{_.get(hatData, 'currentSupply')} Worn /</Text>
-              )}
-            <Text>{_.get(hatData, 'maxSupply')} Max Supply</Text>
-          </HStack>
+          <Text>
+            {_.get(hatData, 'currentSupply')} Worn /{' '}
+            {_.get(hatData, 'maxSupply')} Max Supply
+          </Text>
 
           {address &&
             _.get(hatData, 'currentSupply') !== _.get(hatData, 'maxSupply') &&
@@ -285,12 +260,12 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
           ) : (
             wearerPages.pages?.[currentPage]?.map((wearer) => (
               <WearerRow
+                chainId={chainId}
                 hatData={hatData}
                 wearer={wearer}
                 user={address}
                 setModals={setModals}
                 key={wearer}
-                checkEligibility={checkEligibility}
                 setWearerToTransferFrom={setWearerToTransferFrom}
                 isAdminUser={isAdminUser}
               />

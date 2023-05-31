@@ -1,4 +1,8 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
 import CONFIG, { ZERO_ADDRESS } from '@/constants';
 import abi from '@/contracts/Hats.json';
@@ -23,7 +27,7 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
     enabled: !!hatsAddress && !!hatId && !!details,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -63,7 +67,11 @@ const useHatDetailsUpdate = ({ hatsAddress, chainId, hatId, details }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useHatDetailsUpdate;

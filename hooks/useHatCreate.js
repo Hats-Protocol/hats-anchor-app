@@ -1,4 +1,9 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useEnsAddress,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '@/constants';
@@ -23,7 +28,23 @@ const useHatCreate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi,
@@ -32,16 +53,15 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      eligibility || FALLBACK_ADDRESS,
-      toggle || FALLBACK_ADDRESS,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       mutable === 'Mutable',
       imageUrl || '',
     ],
     enabled: !!hatsAddress && !!admin,
   });
-  console.log('hatCreate - prepareError', prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -76,7 +96,17 @@ const useHatCreate = ({
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading:
+      isLoadingEligibilityResolvedAddress ||
+      isLoadingtoggleResolvedAddress ||
+      isLoading,
+  };
 };
 
 export default useHatCreate;

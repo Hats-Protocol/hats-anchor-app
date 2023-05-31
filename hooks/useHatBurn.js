@@ -1,11 +1,15 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
 import { useQueryClient } from '@tanstack/react-query';
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
-import useToast from './useToast';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { decimalIdToId, toTreeId } from '@/lib/hats';
+import { toTreeId, hatIdToHex } from '@/lib/hats';
+import useToast from './useToast';
 
 const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
   const toast = useToast();
@@ -21,7 +25,7 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
     enabled: !!hatsAddress && !!hatId,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -39,10 +43,10 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', decimalIdToId(hatId)],
+          queryKey: ['hatDetails', hatIdToHex(hatId)],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(decimalIdToId(hatId))],
+          queryKey: ['treeDetails', toTreeId(hatIdToHex(hatId))],
         });
       }, 4000);
     },
@@ -61,7 +65,14 @@ const useHatBurn = ({ hatsAddress, chainId, hatId }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading,
+  };
 };
 
 export default useHatBurn;

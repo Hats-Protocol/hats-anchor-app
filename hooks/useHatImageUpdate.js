@@ -1,13 +1,20 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
 import CONFIG, { ZERO_ADDRESS } from '@/constants';
 import abi from '@/contracts/Hats.json';
-import useToast from './useToast';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
+import useToast from './useToast';
 
 const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const { handlePendingTx } = useOverlay();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
@@ -21,21 +28,30 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
     enabled: !!hatsAddress && !!hatId,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
-        hash: _.get(data, 'hash'),
-        toastData: {
-          title: 'Image updated!',
-          description: `Successfully updated the image for hat #${hatId}`,
-        },
-      });
-
+    onSuccess: async (data) => {
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
       });
+
+      handlePendingTx({
+        hash: _.get(data, 'hash'),
+        toastData: {
+          title: 'Image updated!',
+          description: `Successfully updated the image for hat #${prettyIdToIp(
+            idToPrettyId(hatId),
+          )}`,
+        },
+      });
+
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(hatId)],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
@@ -53,7 +69,11 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return { writeAsync, isLoading };
 };
 
 export default useHatImageUpdate;

@@ -14,7 +14,7 @@ const HatStatusForm = ({ hatData, chainId }) => {
 
   const status = useDebounce(watch('status', null), CONFIG.debounce);
 
-  const { writeAsync } = useHatStatusUpdate({
+  const { writeAsync, isLoading } = useHatStatusUpdate({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: _.get(hatData, 'prettyId'),
@@ -44,7 +44,7 @@ const HatStatusForm = ({ hatData, chainId }) => {
         />
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Update
           </Button>
         </Flex>

@@ -25,6 +25,7 @@ const AddressRow = ({
   localOverlay,
   checkHatStatus,
   isTopHat,
+  isLoading,
 }) => {
   const { address: userAddress } = useAccount();
   const { setModals } = localOverlay;
@@ -81,7 +82,7 @@ const AddressRow = ({
               <>
                 <MenuItem
                   onClick={handleCheckHatStatus}
-                  isDisabled={!checkHatStatus}
+                  isDisabled={!checkHatStatus || isLoading}
                 >
                   <Tooltip
                     label={!checkHatStatus ? 'Toggle is not a contract' : ''}

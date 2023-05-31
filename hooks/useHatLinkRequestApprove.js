@@ -1,10 +1,22 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
-import CONFIG from '@/constants';
+import { useQueryClient } from '@tanstack/react-query';
+import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
 import abi from '@/contracts/Hats.json';
-import useToast from './useToast';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  prettyIdToIp,
+  prettyIdToId,
+  toTreeId,
+} from '@/lib/hats';
+import useToast from './useToast';
 
 const useHatLinkRequestApprove = ({
   chainId,
@@ -17,6 +29,23 @@ const useHatLinkRequestApprove = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
+
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -26,8 +55,8 @@ const useHatLinkRequestApprove = ({
     args: [
       topHatDomain,
       decimalId(newAdmin),
-      eligibility,
-      toggle,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       description,
       imageUrl || '',
     ],
@@ -35,10 +64,19 @@ const useHatLinkRequestApprove = ({
   });
   console.log('hatLinkRequestApprove - prepareError', prepareError);
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const {
+    writeAsync,
+    error: writeError,
+    data: writeData,
+  } = useContractWrite({
     ...config,
-    onSuccess: (data) => {
-      handlePendingTx({
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Link Request Approved!',
@@ -48,10 +86,20 @@ const useHatLinkRequestApprove = ({
         },
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(newAdmin)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', prettyIdToId(topHatDomain)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', topHatDomain],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['treeDetails', toTreeId(newAdmin)],
+        });
+      }, 4000);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
@@ -68,7 +116,21 @@ const useHatLinkRequestApprove = ({
     },
   });
 
-  return { writeAsync, prepareError, writeError };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading:
+      isLoadingEligibilityResolvedAddress ||
+      isLoadingtoggleResolvedAddress ||
+      isLoading,
+    prepareError,
+    writeError,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+  };
 };
 
 export default useHatLinkRequestApprove;

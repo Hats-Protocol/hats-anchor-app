@@ -1,10 +1,15 @@
-import { usePrepareContractWrite, useContractWrite } from 'wagmi';
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useEnsAddress,
+  useWaitForTransaction,
+} from 'wagmi';
 import _ from 'lodash';
-import CONFIG from '@/constants';
+import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
 import abi from '@/contracts/Hats.json';
-import useToast from './useToast';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { prettyIdToIp, decimalId, prettyIdToId } from '@/lib/hats';
+import useToast from './useToast';
 
 const useHatRelinkTree = ({
   topHatDomain,
@@ -18,7 +23,23 @@ const useHatRelinkTree = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
@@ -26,16 +47,15 @@ const useHatRelinkTree = ({
     args: [
       topHatDomain,
       decimalId(prettyIdToId(newAdmin)),
-      eligibility,
-      toggle,
+      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
+      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
       description,
       imageUrl || '',
     ],
     enabled: !!topHatDomain && !!newAdmin,
   });
-  console.log('hatRelink - prepareError', prepareError);
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: (data) => {
       handlePendingTx({
@@ -68,7 +88,19 @@ const useHatRelinkTree = ({
     },
   });
 
-  return { writeAsync };
+  const { isLoading } = useWaitForTransaction({
+    hash: writeData?.hash,
+  });
+
+  return {
+    writeAsync,
+    isLoading:
+      isLoadingEligibilityResolvedAddress ||
+      isLoadingtoggleResolvedAddress ||
+      isLoading,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+  };
 };
 
 export default useHatRelinkTree;

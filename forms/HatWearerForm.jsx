@@ -1,46 +1,150 @@
-import React from 'react';
-import { Stack, Button, Flex } from '@chakra-ui/react';
-import { isAddress } from 'viem';
+/* eslint-disable no-nested-ternary */
+import React, { useState } from 'react';
+import {
+  Stack,
+  Button,
+  Flex,
+  Tooltip,
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Text,
+  Box,
+} from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '@/components/Input';
+import { isAddress } from 'viem';
+import { FaCheck, FaTrash, FaUserPlus } from 'react-icons/fa';
+import { useEnsAddress } from 'wagmi';
 import useHatMint from '@/hooks/useHatMint';
 import useDebounce from '@/hooks/useDebounce';
 import CONFIG from '@/constants';
 
-const HatWearerForm = ({ hatId, chainId }) => {
+const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });
-  const { handleSubmit, watch } = localForm;
+  const { handleSubmit } = localForm;
 
-  const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
-  // TODO handle ens name
+  const [wearers, setWearers] = useState([]);
+  const [newAddress, setNewAddress] = useState('');
 
-  const { writeAsync } = useHatMint({
+  const newWearer = useDebounce(newAddress, CONFIG.debounce);
+  const isAddressAlreadyAdded =
+    wearers.some(
+      (wearer) => wearer.address === newAddress || wearer.ens === newAddress,
+    ) || currentWearers.includes(newAddress);
+
+  const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
-    newWearer,
+    newWearers: wearers.map((wearer) => wearer.address),
   });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
 
+  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
+    name: newAddress,
+    chainId: 1,
+  });
+
+  const isNewWearerAddress = isAddress(newWearer) || ensResolvedAddress;
+  const wouldExceedMaxSupply =
+    currentWearers.length + wearers.length + 1 > maxSupply;
+  const canAddWearer =
+    isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
+
+  const handleAddWearer = () => {
+    const address = isAddress(newWearer) ? newWearer : ensResolvedAddress;
+    setWearers([...wearers, { address, ens: isEnsAddress && newWearer }]);
+    setNewAddress('');
+  };
+
+  const handleRemoveWearer = (index) => {
+    setWearers(wearers.filter((_, i) => i !== index));
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input
-          localForm={localForm}
-          name='newWearer'
-          label='New Wearer Address'
-          options={{
-            validate: (value) =>
-              isAddress(value) ? true : 'Must be a valid address',
-          }}
-          placeholder='0x4a75000089d9B5C25d7876403C3B91997911FCd9'
-        />
+        <Text color='gray.500'>
+          Mint this hat to multiple addresses at once!
+        </Text>
+        <Flex alignItems='center' borderRadius={8}>
+          <InputGroup flexGrow={1}>
+            <InputLeftElement>
+              <FaUserPlus ml={2} />
+            </InputLeftElement>
+            <Input
+              w='calc(100% - 1rem)'
+              textOverflow='ellipsis'
+              type='address'
+              placeholder='0x1234, vitalik.eth'
+              value={newAddress}
+              onChange={(e) =>
+                setNewAddress(e.target.value?.toLowerCase() ?? '')
+              }
+              rightElement={ensResolvedAddress && <FaCheck color='green' />}
+            />
+            {ensResolvedAddress && (
+              <InputRightElement right='2rem'>
+                <FaCheck color='green' />
+              </InputRightElement>
+            )}
+          </InputGroup>
+          <Tooltip
+            label={
+              !canAddWearer
+                ? !isNewWearerAddress
+                  ? 'Please input a valid address'
+                  : isAddressAlreadyAdded
+                  ? 'Address already added'
+                  : wouldExceedMaxSupply
+                  ? 'Max supply would be exceeded'
+                  : ''
+                : ''
+            }
+            shouldWrapChildren
+          >
+            <IconButton
+              isDisabled={!canAddWearer}
+              onClick={handleAddWearer}
+              icon={<FaCheck />}
+              aria-label='Add'
+              height={9}
+              w={16}
+            />
+          </Tooltip>
+        </Flex>
+
+        {wearers.map(({ address, ens }, index) => (
+          <Box key={address}>
+            <Flex align='center' w='full' justifyContent='space-between'>
+              <Input value={ens || address} readOnly w='calc(100% - 5rem)' />
+              <IconButton
+                type='button'
+                onClick={() => handleRemoveWearer(index)}
+                icon={<FaTrash />}
+                aria-label='Remove'
+                height={9}
+                w={16}
+              />
+            </Flex>
+            {ens && (
+              <Text fontSize='sm' color='gray.500' mt={1}>
+                Resolved address: {address}
+              </Text>
+            )}
+          </Box>
+        ))}
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || isLoading || wearers.length === 0}
+          >
             Mint
           </Button>
         </Flex>
