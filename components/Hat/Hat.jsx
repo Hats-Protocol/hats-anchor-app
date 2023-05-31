@@ -19,8 +19,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { FaPencilAlt, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import HatWearers from './HatWearers';
-import AddressRow from './AddressRow';
 import CONFIG, { MODULE_TYPES } from '@/constants';
 import HatModulesForm from '@/forms/HatModulesForm';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -42,12 +40,15 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import HatStatusForm from '@/forms/HatStatusForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
-import AdminActions from './AdminActions';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import Link from '@/components/ChakraNextLink';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import EventsTable from '@/components/EventsTable';
+
+import AdminActions from './AdminActions';
+import HatWearers from './HatWearers';
+import AddressRow from './AddressRow';
 
 // TODO this should probably be more components
 

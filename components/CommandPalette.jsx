@@ -10,11 +10,10 @@ import CmdkCommandPalette, {
 } from 'react-cmdk';
 import 'react-cmdk/dist/cmdk.css';
 
+import ChakraNextLink from '@/components/ChakraNextLink';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useSearchResults from '@/hooks/useSearchResults';
 import { prettyIdToIp, decimalIdToId, idToPrettyId } from '@/lib/hats';
-
-import ChakraNextLink from './ChakraNextLink';
 
 const CommandPaletteInternalLink = ({ href, children, closePalette }) => (
   <ChakraNextLink href={href} onClick={closePalette}>
