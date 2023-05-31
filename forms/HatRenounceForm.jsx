@@ -1,10 +1,10 @@
 import { Button, HStack, Flex, Stack, Text, Box } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
-import useHatBurn from '../hooks/useHatBurn';
-import { useOverlay } from '../contexts/OverlayContext';
-import CONFIG from '../constants';
-import { decimalId } from '../lib/hats';
+import useHatBurn from '@/hooks/useHatBurn';
+import { useOverlay } from '@/contexts/OverlayContext';
+import CONFIG from '@/constants';
+import { decimalId } from '@/lib/hats';
 
 const HatRenounceForm = ({ hatData }) => {
   const { setModals } = useOverlay;

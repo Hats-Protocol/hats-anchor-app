@@ -21,13 +21,9 @@ import { useAccount, useChainId } from 'wagmi';
 
 import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
-import Link from '../ChakraNextLink';
-import DataTable from '../DataTable';
 import CONFIG, { MODULE_TYPES } from '@/constants';
-import Modal from '../Modal';
 import HatModulesForm from '@/forms/HatModulesForm';
 import { useOverlay } from '@/contexts/OverlayContext';
-import EventsTable from '../EventsTable';
 import {
   decimalId,
   prettyIdToIp,
@@ -38,7 +34,6 @@ import {
   getTreeId,
   isTopHat,
 } from '@/lib/hats';
-import CopyToClipboard from '../CopyToClipboard';
 import { clearNonObjects } from '@/lib/general';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -48,6 +43,11 @@ import HatStatusForm from '@/forms/HatStatusForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import AdminActions from './AdminActions';
+import CopyToClipboard from '@/components/CopyToClipboard';
+import Link from '@/components/ChakraNextLink';
+import DataTable from '@/components/DataTable';
+import Modal from '@/components/Modal';
+import EventsTable from '@/components/EventsTable';
 
 // TODO this should probably be more components
 

@@ -20,18 +20,17 @@ import { useAccount, useEnsName } from 'wagmi';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
 import { FaEllipsisV } from 'react-icons/fa';
 
-import Link from '../ChakraNextLink';
+import Link from '@/components/ChakraNextLink';
 import { formatAddress } from '@/lib/general';
 import HatTransferForm from '@/forms/HatTransferForm';
 import HatWearerForm from '@/forms/HatWearerForm';
-import Modal from '../Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
-
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
-import HatRenounceForm from '../../forms/HatRenounceForm';
-
+import HatRenounceForm from '@/forms/HatRenounceForm';
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
+import Modal from '@/components/Modal';
+
 
 const WEARERS_PER_PAGE = 5;
 
