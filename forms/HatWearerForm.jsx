@@ -1,5 +1,4 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState, useEffect } from 'react';
 import {
   Stack,
   Button,
@@ -18,6 +17,7 @@ import {
   Collapse,
   Box,
 } from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
 import {

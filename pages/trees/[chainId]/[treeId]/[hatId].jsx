@@ -20,8 +20,8 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 
-import EventsTable from '../../../../components/EventsTable';
-import Hat from '../../../../components/Hat';
+import EventsTable from '@/components/EventsTable';
+import Hat from '@/components/Hat';
 import {
   toTreeStructure,
   prettyIdToId,
@@ -32,23 +32,23 @@ import {
   descendantsOf,
   prettyIdToIp,
   isTopHat,
-} from '../../../../lib/hats';
-import useTreeDetails from '../../../../hooks/useTreeDetails';
-import useHatDetails from '../../../../hooks/useHatDetails';
-import { chainsMap } from '../../../../lib/web3';
-import Layout from '../../../../components/Layout';
-import { fetchTreeDetails } from '../../../../gql/helpers';
-import DataTable from '../../../../components/DataTable';
-import { formatAddress } from '../../../../lib/general';
-import { useOverlay } from '../../../../contexts/OverlayContext';
-import Modal from '../../../../components/Modal';
-import HatCreateForm from '../../../../forms/HatCreateForm';
-import CopyToClipboard from '../../../../components/CopyToClipboard';
-import useImageURIs from '../../../../hooks/useImageURIs';
-import TreeNode from '../../../../components/TreeNode';
-import useWearerDetails from '../../../../hooks/useWearerDetails';
-import useContainerDimensions from '../../../../hooks/useContainerDimensions';
-import HatLinkRequestCreateForm from '../../../../forms/HatLinkRequestCreateForm';
+} from '@/lib/hats';
+import useTreeDetails from '@/hooks/useTreeDetails';
+import useHatDetails from '@/hooks/useHatDetails';
+import { chainsMap } from '@/lib/web3';
+import Layout from '@/components/Layout';
+import { fetchTreeDetails } from '@/gql/helpers';
+import DataTable from '@/components/DataTable';
+import { formatAddress } from '@/lib/general';
+import { useOverlay } from '@/contexts/OverlayContext';
+import Modal from '@/components/Modal';
+import HatCreateForm from '@/forms/HatCreateForm';
+import CopyToClipboard from '@/components/CopyToClipboard';
+import useImageURIs from '@/hooks/useImageURIs';
+import TreeNode from '@/components/TreeNode';
+import useWearerDetails from '@/hooks/useWearerDetails';
+import useContainerDimensions from '@/hooks/useContainerDimensions';
+import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 

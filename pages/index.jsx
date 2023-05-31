@@ -3,12 +3,12 @@ import { Heading, SimpleGrid, Flex, Spinner } from '@chakra-ui/react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import Layout from '../components/Layout';
-import useImageURIs from '../hooks/useImageURIs';
-import NetworkFilter from '../components/NetworkFilter';
-import TreeCard from '../components/TreeCard';
-import { fetchPaginatedTrees } from '../gql/helpers';
-import usePaginatedTreeList from '../hooks/usePaginatedTreeList';
+import Layout from '@/components/Layout';
+import useImageURIs from '@/hooks/useImageURIs';
+import NetworkFilter from '@/components/NetworkFilter';
+import TreeCard from '@/components/TreeCard';
+import { fetchPaginatedTrees } from '@/gql/helpers';
+import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 
 const Home = ({ trees: initialData, defaultNetworkId }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);

@@ -9,15 +9,15 @@ import {
   Switch,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '../components/Input';
+import Input from '@/components/Input';
 
-import Textarea from '../components/Textarea';
-import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import CONFIG from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import { pinJson } from '../lib/ipfs';
-import useCid from '../hooks/useCid';
-import { prettyIdToIp } from '../lib/hats';
+import Textarea from '@/components/Textarea';
+import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import { pinJson } from '@/lib/ipfs';
+import useCid from '@/hooks/useCid';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatDetailsForm = ({ hatData, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);

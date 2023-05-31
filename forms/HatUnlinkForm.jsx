@@ -1,13 +1,14 @@
-import React from 'react';
 import { Stack, Button, Flex, Text } from '@chakra-ui/react';
 import _ from 'lodash';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import useHatUnlinkTree from '../hooks/useHatUnlinkTree';
-import { prettyIdToIp, prettyIdToId } from '../lib/hats';
-import Select from '../components/Select';
-import useHatDetails from '../hooks/useHatDetails';
+
+import Select from '@/components/Select';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatDetails from '@/hooks/useHatDetails';
+import useHatUnlinkTree from '@/hooks/useHatUnlinkTree';
+import { prettyIdToIp, prettyIdToId } from '@/lib/hats';
 
 const HatUnlinkForm = ({ parentOfTrees, chainId }) => {
   const localForm = useForm({

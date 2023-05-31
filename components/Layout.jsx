@@ -4,8 +4,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Flex } from '@chakra-ui/react';
 import { useAccount, useConnect, useConfig } from 'wagmi';
-import Navbar from './Navbar';
-import CommandPalette from './CommandPalette';
+
+import CommandPalette from '@/components/CommandPalette';
+import Navbar from '@/components/Navbar';
 
 const Layout = ({ children }) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);

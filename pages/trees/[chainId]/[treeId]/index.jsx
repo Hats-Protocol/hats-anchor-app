@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import _ from 'lodash';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-import useTreeDetails from '../../../../hooks/useTreeDetails';
-import { fetchTreeDetails } from '../../../../gql/helpers';
-import { decimalId, ipToPrettyId } from '../../../../lib/hats';
+import { fetchTreeDetails } from '@/gql/helpers';
+import useTreeDetails from '@/hooks/useTreeDetails';
+import { decimalId, ipToPrettyId } from '@/lib/hats';
 
 const TreeDetails = ({ treeId, chainId, initialData }) => {
   const router = useRouter();

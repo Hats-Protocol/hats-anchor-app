@@ -1,6 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier", "babel"],
+  "plugins": ["prettier", "babel", "import"],
   "parserOptions": {
     "ecmaVersion": 2020
   },
@@ -8,7 +8,6 @@
   "rules": {
     "no-unused-vars": "warn",
     "babel/no-unused-expressions": "error",
-    // react
     "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx"] }],
     "react/function-component-definition": [
       2,
@@ -16,7 +15,6 @@
     ],
     "react/require-default-props": "off",
     "react/destructuring-assignment": "off",
-    // import
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -25,6 +23,32 @@
         "jsx": "never"
       }
     ],
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", ["parent", "sibling", "index"]],
+        "pathGroups": [
+          {
+            "pattern": "@/**",
+            "group": "internal"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
     "prettier/prettier": "error"
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [["@", "."]],
+        "extensions": [".js", ".jsx"]
+      }
+    }
   }
 }

@@ -16,16 +16,16 @@ import { useForm } from 'react-hook-form';
 import _ from 'lodash';
 import { useDropzone } from 'react-dropzone';
 import { FaCheck } from 'react-icons/fa';
-import Input from '../components/Input';
-import Textarea from '../components/Textarea';
-import useHatLinkRequestApprove from '../hooks/useHatLinkRequestApprove';
-import { ZERO_ADDRESS } from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import { prettyIdToIp, decimalId } from '../lib/hats';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import DropZone from '../components/DropZone';
-import { pinJson } from '../lib/ipfs';
-import useCid from '../hooks/useCid';
+import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
+import DropZone from '@/components/DropZone';
+import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
+import useDebounce from '@/hooks/useDebounce';
+import { ZERO_ADDRESS } from '@/constants';
+import { prettyIdToIp, decimalId } from '@/lib/hats';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import { pinJson } from '@/lib/ipfs';
+import useCid from '@/hooks/useCid';
 
 const HatLinkRequestApproveForm = ({ topHatDomain, chainId, hatData }) => {
   const localForm = useForm({

@@ -1,15 +1,16 @@
+import _ from 'lodash';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
-import _ from 'lodash';
-import CONFIG, { FALLBACK_ADDRESS } from '../constants';
-import abi from '../contracts/Hats.json';
-import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
-import { prettyIdToIp, decimalId, prettyIdToId } from '../lib/hats';
+
+import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
+import { prettyIdToIp, decimalId, prettyIdToId } from '@/lib/hats';
 
 const useHatRelinkTree = ({
   topHatDomain,

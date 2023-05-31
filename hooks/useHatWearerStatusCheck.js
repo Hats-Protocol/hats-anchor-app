@@ -1,16 +1,17 @@
+import { useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
+import { isAddress } from 'viem';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import { isAddress } from 'viem';
-import CONFIG from '../constants';
-import abi from '../contracts/Hats.json';
-import { decimalId, toTreeId } from '../lib/hats';
-import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
+
+import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
+import { decimalId, toTreeId } from '@/lib/hats';
 
 const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
   //

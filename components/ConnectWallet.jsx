@@ -1,5 +1,3 @@
-import React from 'react';
-import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import {
   Button,
   Flex,
@@ -14,6 +12,8 @@ import {
   useMediaQuery,
   Image,
 } from '@chakra-ui/react';
+import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
+import React from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 // import Image from 'next/image';
 import { useAccount, useEnsName, useDisconnect, useEnsAvatar } from 'wagmi';

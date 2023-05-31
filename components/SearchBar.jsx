@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { FaSearch } from 'react-icons/fa';
 import { IconButton, Icon, Select, HStack, Input } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { FaSearch } from 'react-icons/fa';
 
 // TODO archive if not used after v1
 

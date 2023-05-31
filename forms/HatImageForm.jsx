@@ -1,6 +1,4 @@
 /* eslint-disable no-nested-ternary */
-import { useState } from 'react';
-import _ from 'lodash';
 import {
   Stack,
   Flex,
@@ -9,14 +7,17 @@ import {
   Switch,
   FormControl,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import _ from 'lodash';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Textarea from '../components/Textarea';
-import useHatImageUpdate from '../hooks/useHatImageUpdate';
-import CONFIG from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import DropZone from '../components/DropZone';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { useForm } from 'react-hook-form';
+
+import DropZone from '@/components/DropZone';
+import Textarea from '@/components/Textarea';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatImageUpdate from '@/hooks/useHatImageUpdate';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 
 const HatImageForm = ({ hatData, chainId }) => {
   const [customImage, setCustomImage] = useState(true);

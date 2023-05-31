@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { Button, HStack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useOverlay } from '../../contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 import {
   isTopHat,
   prettyIdToId,
   prettyIdToIp,
   isMutableNotTopHat,
-} from '../../lib/hats';
-import useHatMakeImmutable from '../../hooks/useHatMakeImmutable';
-import HatLinkRequestApproveForm from '../../forms/HatLinkRequestApproveForm';
-import Modal from '../Modal';
-import HatSupplyForm from '../../forms/HatSupplyForm';
-import HatRelinkForm from '../../forms/HatRelinkForm';
-import HatUnlinkForm from '../../forms/HatUnlinkForm';
-import useTreeDetails from '../../hooks/useTreeDetails';
+} from '@/lib/hats';
+import Modal from '@/components/Modal';
+import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
+import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
+import HatSupplyForm from '@/forms/HatSupplyForm';
+import HatRelinkForm from '@/forms/HatRelinkForm';
+import HatUnlinkForm from '@/forms/HatUnlinkForm';
+import useTreeDetails from '@/hooks/useTreeDetails';
 
 const AdminActions = ({
   linkRequestFromTree,
