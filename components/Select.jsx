@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import {
   Select as ChakraSelect,
   FormControl,
   FormLabel,
 } from '@chakra-ui/react';
+import React from 'react';
 
 /**
  * Primary Select component for React Hook Form

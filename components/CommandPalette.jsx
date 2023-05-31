@@ -1,19 +1,20 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
+import { Flex, Spinner } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import CmdkCommandPalette, {
   filterItems,
   getItemIndex,
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
-import _ from 'lodash';
-import { Flex, Spinner } from '@chakra-ui/react';
 import 'react-cmdk/dist/cmdk.css';
 
-import useSearchResults from '@/hooks/useSearchResults';
-import ChakraNextLink from './ChakraNextLink';
 import { useOverlay } from '@/contexts/OverlayContext';
+import useSearchResults from '@/hooks/useSearchResults';
 import { prettyIdToIp, decimalIdToId, idToPrettyId } from '@/lib/hats';
+
+import ChakraNextLink from './ChakraNextLink';
 
 const CommandPaletteInternalLink = ({ href, children, closePalette }) => (
   <ChakraNextLink href={href} onClick={closePalette}>

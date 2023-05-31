@@ -10,19 +10,19 @@ import {
   Text,
   Box,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useDropzone } from 'react-dropzone';
-import { FaCheck } from 'react-icons/fa';
 import _ from 'lodash';
+import { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
+import { FaCheck } from 'react-icons/fa';
 
+import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
 import Textarea from '@/components/Textarea';
-import DropZone from '@/components/DropZone';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
-import useHatRelinkTree from '@/hooks/useHatRelinkTree';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
+import useHatRelinkTree from '@/hooks/useHatRelinkTree';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';

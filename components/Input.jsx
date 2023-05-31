@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import {
   Input as ChakraInput,
   FormControl,
@@ -7,6 +6,7 @@ import {
   InputGroup,
   InputRightElement,
 } from '@chakra-ui/react';
+import React from 'react';
 
 /**
  * Primary Input component for React Hook Form

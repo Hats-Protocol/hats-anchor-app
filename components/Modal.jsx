@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Heading,
   Modal as ChakraModal,
@@ -9,6 +8,7 @@ import {
   ModalCloseButton,
   ModalFooter,
 } from '@chakra-ui/react';
+import React from 'react';
 
 /**
  * Modal component, wraps Chakra's default Modal

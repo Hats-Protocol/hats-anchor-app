@@ -1,6 +1,4 @@
 /* eslint-disable no-plusplus */
-import _ from 'lodash';
-import { useMemo, useState } from 'react';
 import {
   Icon,
   IconButton,
@@ -15,20 +13,22 @@ import {
   MenuItem,
   Tooltip,
 } from '@chakra-ui/react';
-import { useAccount, useEnsName } from 'wagmi';
+import _ from 'lodash';
+import { useMemo, useState } from 'react';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
 import { FaEllipsisV } from 'react-icons/fa';
+import { useAccount, useEnsName } from 'wagmi';
 
 import Link from '@/components/ChakraNextLink';
-import { formatAddress } from '@/lib/general';
+import Modal from '@/components/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
+import HatRenounceForm from '@/forms/HatRenounceForm';
 import HatTransferForm from '@/forms/HatTransferForm';
 import HatWearerForm from '@/forms/HatWearerForm';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
-import HatRenounceForm from '@/forms/HatRenounceForm';
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
-import Modal from '@/components/Modal';
+import { formatAddress } from '@/lib/general';
+import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
 
 const WEARERS_PER_PAGE = 5;
 

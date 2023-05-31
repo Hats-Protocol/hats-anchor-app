@@ -1,5 +1,4 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState } from 'react';
 import {
   Stack,
   Button,
@@ -13,13 +12,15 @@ import {
   Text,
   Box,
 } from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { isAddress } from 'viem';
 import { FaCheck, FaTrash, FaUserPlus } from 'react-icons/fa';
+import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
-import useHatMint from '@/hooks/useHatMint';
-import useDebounce from '@/hooks/useDebounce';
+
 import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatMint from '@/hooks/useHatMint';
 
 const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });

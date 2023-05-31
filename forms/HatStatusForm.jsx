@@ -1,12 +1,13 @@
-import React from 'react';
-import _ from 'lodash';
 import { Stack, Button, Flex, Text } from '@chakra-ui/react';
+import _ from 'lodash';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import RadioBox from '@/components/RadioBox';
-import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
-import useDebounce from '@/hooks/useDebounce';
-import CONFIG from '@/constants';
+
 import Link from '@/components/ChakraNextLink';
+import RadioBox from '@/components/RadioBox';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 
 const HatStatusForm = ({ hatData, chainId }) => {
   const localForm = useForm({ mode: 'onBlur' });

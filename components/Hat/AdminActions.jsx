@@ -8,13 +8,13 @@ import {
   prettyIdToIp,
   isMutableNotTopHat,
 } from '@/lib/hats';
+import Modal from '@/components/Modal';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import HatSupplyForm from '@/forms/HatSupplyForm';
 import HatRelinkForm from '@/forms/HatRelinkForm';
 import HatUnlinkForm from '@/forms/HatUnlinkForm';
 import useTreeDetails from '@/hooks/useTreeDetails';
-import Modal from '@/components/Modal';
 
 const AdminActions = ({
   linkRequestFromTree,

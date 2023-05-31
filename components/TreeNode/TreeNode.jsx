@@ -1,5 +1,4 @@
 /* eslint-disable no-nested-ternary */
-import _ from 'lodash';
 import {
   chakra,
   IconButton,
@@ -15,13 +14,15 @@ import {
   MenuList,
   MenuItem,
 } from '@chakra-ui/react';
-import { FaEllipsisV } from 'react-icons/fa';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { FaEllipsisV } from 'react-icons/fa';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
-import { prettyIdToId, prettyIdToIp, isAdmin, isTopHat } from '@/lib/hats';
-import { formatAddress } from '@/lib/general';
+
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
+import { formatAddress } from '@/lib/general';
+import { prettyIdToId, prettyIdToIp, isAdmin, isTopHat } from '@/lib/hats';
 
 const HatHoverCard = ({
   name,

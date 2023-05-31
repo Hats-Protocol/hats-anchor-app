@@ -1,11 +1,12 @@
-import React from 'react';
 import { Stack, Button, Flex, Text } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
 import _ from 'lodash';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+
 import Select from '@/components/Select';
-import useHatLinkRequestCreate from '@/hooks/useHatLinkRequestCreate';
-import useDebounce from '@/hooks/useDebounce';
 import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatLinkRequestCreate from '@/hooks/useHatLinkRequestCreate';
 import { prettyIdToIp, prettyIdToId, decimalId } from '@/lib/hats';
 
 const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats, chainId }) => {

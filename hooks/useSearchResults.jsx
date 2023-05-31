@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+
 import client from '@/gql/client';
 import { SEARCH_QUERY } from '@/gql/queries';
-import { chainsList } from '@/lib/web3';
 import {
   idToPrettyId,
   ipToPrettyId,
@@ -11,6 +11,7 @@ import {
   toTreeId,
   decimalIdToId,
 } from '@/lib/hats';
+import { chainsList } from '@/lib/web3';
 
 const keyIcons = {
   trees: 'UserGroupIcon',

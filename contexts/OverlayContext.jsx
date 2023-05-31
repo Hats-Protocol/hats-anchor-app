@@ -1,7 +1,7 @@
+import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
 import React, { createContext, useState, useContext, useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { waitForTransaction } from '@wagmi/core';
+
 import useToast from '@/hooks/useToast';
 
 const defaults = {

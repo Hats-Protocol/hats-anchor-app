@@ -6,8 +6,9 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
-import { FaFilter } from 'react-icons/fa';
 import _ from 'lodash';
+import { FaFilter } from 'react-icons/fa';
+
 import { chainsList, networkImages } from '@/lib/web3';
 
 const NetworkFilter = ({ onFilterChange, selectedNetwork }) => (

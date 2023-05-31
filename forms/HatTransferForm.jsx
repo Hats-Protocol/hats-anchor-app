@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Stack,
   Button,
@@ -10,11 +9,13 @@ import {
   Box,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+
 import Input from '@/components/Input';
-import useDebounce from '@/hooks/useDebounce';
 import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
 import useHatTransferTree from '@/hooks/useHatTransferTree';
 import { prettyIdToIp } from '@/lib/hats';
 
