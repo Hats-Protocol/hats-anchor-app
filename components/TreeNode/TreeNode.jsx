@@ -30,6 +30,7 @@ const HatHoverCard = ({
   hatDetails,
   handleAddChildClick,
   handleRequestLink,
+  handleToggle,
   address,
   chainId,
   userChain,
@@ -157,6 +158,9 @@ const HatHoverCard = ({
                         Link Top Hat
                       </MenuItem>
                     )}
+                  <MenuItem onClick={() => handleToggle()}>
+                    Expand/Collapse
+                  </MenuItem>
                 </MenuList>
               </Menu>
             )}
@@ -218,6 +222,10 @@ function Node({
   const isCurrentHat = activeHatId === prettyIdToId(name);
   const isWearer = !_.isEmpty(_.filter(wearerHats, (val) => val === name));
   const isWearerOrAdminOfHat = isAdmin(name, wearerHats, true);
+
+  const handleToggle = () => {
+    rd3tProps.toggleNode();
+  };
 
   useEffect(() => {
     if (isCurrentHat) {
@@ -298,6 +306,7 @@ function Node({
                 hatDetails={hatDetails}
                 handleAddChildClick={handleAddChildClick}
                 handleRequestLink={handleRequestLink}
+                handleToggle={handleToggle}
                 address={address}
                 chainId={chainId}
                 userChain={userChain}
