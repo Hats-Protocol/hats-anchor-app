@@ -99,7 +99,8 @@ const Hat = ({
 
   const isAdminUser =
     userChain === chainId &&
-    isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
+    (isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) ||
+      isAdmin(linkedToHat?.tree?.id, currentWearerHats));
 
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
@@ -147,10 +148,7 @@ const Hat = ({
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
           mutable={isMutableNotTopHat(hatData)}
-          admin={
-            isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-            chainId === userChain
-          }
+          admin={isAdminUser}
           setType={setType}
           localOverlay={localOverlay}
           user={address}
@@ -166,10 +164,7 @@ const Hat = ({
           chainId={chainId}
           type={MODULE_TYPES.toggle}
           mutable={isMutableNotTopHat(hatData)}
-          admin={
-            isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-            chainId === userChain
-          }
+          admin={isAdminUser}
           setType={setType}
           localOverlay={localOverlay}
           user={address}
