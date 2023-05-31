@@ -1,15 +1,16 @@
+import _ from 'lodash';
+import { isAddress } from 'viem';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import _ from 'lodash';
-import { isAddress } from 'viem';
+
 import CONFIG from '@/constants';
-import abi from '@/contracts/Hats.json';
-import { prettyIdToIp } from '@/lib/hats';
-import useToast from './useToast';
 import { useOverlay } from '@/contexts/OverlayContext';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
+import { prettyIdToIp } from '@/lib/hats';
 
 const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();

@@ -1,3 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -5,14 +8,12 @@ import {
   useWaitForTransaction,
   useEnsAddress,
 } from 'wagmi';
-import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+
 import CONFIG from '@/constants';
-import abi from '@/contracts/Hats.json';
 import { useOverlay } from '@/contexts/OverlayContext';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
 import { treeCreateEventIdToTreeId } from '@/lib/hats';
-import useToast from './useToast';
 
 const useTreeCreate = ({
   hatsAddress,

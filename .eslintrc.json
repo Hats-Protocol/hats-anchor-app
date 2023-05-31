@@ -1,6 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier", "babel"],
+  "plugins": ["prettier", "babel", "import"],
   "parserOptions": {
     "ecmaVersion": 2020
   },
@@ -21,6 +21,24 @@
       {
         "js": "never",
         "jsx": "never"
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", ["parent", "sibling", "index"]],
+        "pathGroups": [
+          {
+            "pattern": "@/**",
+            "group": "internal"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
       }
     ],
     "prettier/prettier": "error"

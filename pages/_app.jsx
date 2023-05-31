@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { ChakraProvider } from '@chakra-ui/react';
-import { WagmiConfig } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DefaultSeo } from 'next-seo';
-import { wagmiConfig, chains } from '@/lib/web3';
-import { OverlayContextProvider } from '@/contexts/OverlayContext';
-import SEO from '@/constants/next-seo.config';
+import { WagmiConfig } from 'wagmi';
 import theme from '../theme';
+import SEO from '@/constants/next-seo.config';
+import { OverlayContextProvider } from '@/contexts/OverlayContext';
+import { wagmiConfig, chains } from '@/lib/web3';
 import '../public/style.css';
 
 const queryClient = new QueryClient({

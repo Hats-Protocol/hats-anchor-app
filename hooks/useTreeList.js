@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { fetchAllTrees } from '@/gql/helpers';
 
 const useTreeList = ({ chainId, initialData }) => {
