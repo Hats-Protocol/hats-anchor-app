@@ -98,8 +98,8 @@ const Hat = ({
 
   const isAdminUser =
     userChain === chainId &&
-    isAdmin(_.get(hatData, 'prettyId'), currentWearerHats);
-  isAdmin(linkedToHat?.tree?.id, currentWearerHats);
+    (isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) ||
+      isAdmin(linkedToHat?.tree?.id, currentWearerHats));
 
   const canEditImage = isAdminUser && address && isTopHatOrMutable(hatData);
 
