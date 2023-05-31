@@ -147,10 +147,7 @@ const Hat = ({
           chainId={chainId}
           type={MODULE_TYPES.eligibility}
           mutable={isMutableNotTopHat(hatData)}
-          admin={
-            isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-            chainId === userChain
-          }
+          admin={isAdminUser && chainId === userChain}
           setType={setType}
           localOverlay={localOverlay}
           user={address}
@@ -166,10 +163,7 @@ const Hat = ({
           chainId={chainId}
           type={MODULE_TYPES.toggle}
           mutable={isMutableNotTopHat(hatData)}
-          admin={
-            isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) &&
-            chainId === userChain
-          }
+          admin={isAdminUser && chainId === userChain}
           setType={setType}
           localOverlay={localOverlay}
           user={address}
