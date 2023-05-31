@@ -10,9 +10,6 @@ import {
 } from '@/lib/hats';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
-import { useOverlay } from '@/contexts/OverlayContext';
-import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
-import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import HatSupplyForm from '@/forms/HatSupplyForm';
 import HatRelinkForm from '@/forms/HatRelinkForm';
 import HatUnlinkForm from '@/forms/HatUnlinkForm';
