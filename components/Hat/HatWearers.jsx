@@ -9,7 +9,6 @@ import {
   Flex,
   Stack,
   Text,
-  Box,
   Menu,
   MenuButton,
   MenuList,
@@ -30,7 +29,6 @@ import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import HatRenounceForm from '@/forms/HatRenounceForm';
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
 import Modal from '@/components/Modal';
-
 
 const WEARERS_PER_PAGE = 5;
 
