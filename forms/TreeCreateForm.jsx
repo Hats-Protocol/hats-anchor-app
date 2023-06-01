@@ -17,15 +17,15 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
 import { FaCheck } from 'react-icons/fa';
-import Input from '../components/Input';
-import Textarea from '../components/Textarea';
-import useTreeCreate from '../hooks/useTreeCreate';
-import CONFIG from '../constants';
-import useDebounce from '../hooks/useDebounce';
-import { pinJson } from '../lib/ipfs';
-import useCid from '../hooks/useCid';
-import DropZone from '../components/DropZone';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
+import useTreeCreate from '@/hooks/useTreeCreate';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import { pinJson } from '@/lib/ipfs';
+import useCid from '@/hooks/useCid';
+import DropZone from '@/components/DropZone';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 
 const TreeCreateForm = () => {
   const [customDetails, setCustomDetails] = useState(true);

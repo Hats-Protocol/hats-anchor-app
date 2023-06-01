@@ -1,15 +1,16 @@
+import { useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import CONFIG, { ZERO_ADDRESS } from '../constants';
-import abi from '../contracts/Hats.json';
-import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
-import { idToPrettyId, prettyIdToIp, toTreeId } from '../lib/hats';
+
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
+import { idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const { handlePendingTx } = useOverlay();

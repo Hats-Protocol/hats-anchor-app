@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {
   CardBody,
   Link as ChakraLink,
@@ -8,9 +7,11 @@ import {
   HStack,
   Box,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import Link from 'next/link';
-import { decimalId } from '../lib/hats';
-import useHatDetailsField from '../hooks/useHatDetailsField';
+
+import useHatDetailsField from '@/hooks/useHatDetailsField';
+import { decimalId } from '@/lib/hats';
 
 const TreeCard = ({ tree, imagesData }) => {
   const topHat = _.get(tree, 'hats[0]');

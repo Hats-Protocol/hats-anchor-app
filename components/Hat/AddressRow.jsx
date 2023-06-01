@@ -9,11 +9,12 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { FaEllipsisV } from 'react-icons/fa';
 import _ from 'lodash';
+import { FaEllipsisV } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
-import AddressLink from '../AddressLink';
-import { MODULE_TYPES, ZERO_ADDRESS } from '../../constants';
+
+import AddressLink from '@/components/AddressLink';
+import { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 
 const AddressRow = ({
   address,

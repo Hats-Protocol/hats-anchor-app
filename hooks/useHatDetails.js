@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchHatDetails } from '../gql/helpers';
-import { hatIdToHex } from '../lib/hats';
+
+import { fetchHatDetails } from '@/gql/helpers';
+import { hatIdToHex } from '@/lib/hats';
 
 const useHatDetails = ({ hatId, chainId }) => {
   const hexId = hatIdToHex(hatId);

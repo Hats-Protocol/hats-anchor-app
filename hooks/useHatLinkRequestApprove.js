@@ -1,22 +1,23 @@
+import { useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
 import {
   usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
-import _ from 'lodash';
-import { useQueryClient } from '@tanstack/react-query';
-import CONFIG, { FALLBACK_ADDRESS } from '../constants';
-import abi from '../contracts/Hats.json';
-import useToast from './useToast';
-import { useOverlay } from '../contexts/OverlayContext';
+
+import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
 import {
   decimalId,
   idToPrettyId,
   prettyIdToIp,
   prettyIdToId,
   toTreeId,
-} from '../lib/hats';
+} from '@/lib/hats';
 
 const useHatLinkRequestApprove = ({
   chainId,

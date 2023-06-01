@@ -1,8 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect } from 'react';
-import { useController } from 'react-hook-form';
-import { AiOutlineInfoCircle } from 'react-icons/ai';
 import {
   Box,
   useRadio,
@@ -19,6 +16,9 @@ import {
   Icon,
   Tooltip,
 } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
+import { useController } from 'react-hook-form';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 const RadioCard = ({ children, variant, size, ...props }) => {
   const styles = useStyleConfig('RadioBox', { variant, size });

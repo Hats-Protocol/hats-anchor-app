@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchTreeDetails } from '../gql/helpers';
-import { prettyIdToId } from '../lib/hats';
+
+import { fetchTreeDetails } from '@/gql/helpers';
+import { prettyIdToId } from '@/lib/hats';
 
 const useTreeDetails = ({ treeId, chainId, hatId, initialData }) => {
   const { data, isLoading, error } = useQuery({

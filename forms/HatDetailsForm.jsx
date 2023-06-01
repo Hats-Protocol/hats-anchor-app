@@ -19,14 +19,14 @@ import { useForm } from 'react-hook-form';
 import _ from 'lodash';
 import { FaCheck, FaHouseUser, FaInfo, FaTrash } from 'react-icons/fa';
 
-import Input from '../components/Input';
-import Textarea from '../components/Textarea';
-import useHatDetailsUpdate from '../hooks/useHatDetailsUpdate';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import { pinJson } from '../lib/ipfs';
-import useCid from '../hooks/useCid';
-import { isTopHat, prettyIdToIp } from '../lib/hats';
+import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
+import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
+import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
+import { pinJson } from '@/lib/ipfs';
+import useCid from '@/hooks/useCid';
+import { isTopHat, prettyIdToIp } from '@/lib/hats';
 
 const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);

@@ -14,15 +14,15 @@ import {
   TagLabel,
 } from '@chakra-ui/react';
 import { useEnsName } from 'wagmi';
-import { fetchWearerDetails } from '../../gql/helpers';
-import useWearerDetails from '../../hooks/useWearerDetails';
-import useImageURIs from '../../hooks/useImageURIs';
-import Layout from '../../components/Layout';
-import { formatAddress } from '../../lib/general';
-import { prettyIdToIp, prettyIdToUrlId } from '../../lib/hats';
-import { chainsColors, chainsMap } from '../../lib/web3';
-import ChakraNextLink from '../../components/ChakraNextLink';
-import useHatDetailsField from '../../hooks/useHatDetailsField';
+import { fetchWearerDetails } from '@/gql/helpers';
+import useWearerDetails from '@/hooks/useWearerDetails';
+import useImageURIs from '@/hooks/useImageURIs';
+import Layout from '@/components/Layout';
+import { formatAddress } from '@/lib/general';
+import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
+import { chainsColors, chainsMap } from '@/lib/web3';
+import ChakraNextLink from '@/components/ChakraNextLink';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 
 const CoreHat = ({ hat, image }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
