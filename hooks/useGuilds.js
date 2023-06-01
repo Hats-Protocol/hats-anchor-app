@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import _ from 'lodash';
+import { useEffect, useState } from 'react';
 
-import { decimalId } from '../lib/hats';
+import { decimalId } from '@/lib/hats';
 
 const useHatGuilds = ({ guildNames, hatId }) => {
   const [hatRoles, setHatRoles] = useState([]);

@@ -17,9 +17,11 @@ import {
   Collapse,
   Box,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import _ from 'lodash';
+import Papa from 'papaparse';
+import React, { useState, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
-import { isAddress } from 'viem';
 import {
   FaCheck,
   FaInfo,
@@ -29,14 +31,13 @@ import {
   FaChevronUp,
   FaChevronDown,
 } from 'react-icons/fa';
-import Papa from 'papaparse';
+import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
-import _ from 'lodash';
-import { useDropzone } from 'react-dropzone';
-import useHatMint from '../hooks/useHatMint';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import DropZone from '../components/DropZone';
+
+import DropZone from '@/components/DropZone';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatMint from '@/hooks/useHatMint';
 
 const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });
