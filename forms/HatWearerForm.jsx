@@ -24,12 +24,12 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import {
   FaCheck,
-  FaInfo,
   FaUserPlus,
   FaFileCsv,
   FaTrash,
   FaChevronUp,
   FaChevronDown,
+  FaInfoCircle,
 } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
@@ -90,7 +90,13 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
 
   const { isOpen, onToggle } = useDisclosure();
 
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
     accept: { '.csv': [] },
     onDrop: (droppedFiles) => {
       const file = droppedFiles[0];
@@ -214,11 +220,11 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
               getRootProps={getRootProps}
               getInputProps={getInputProps}
               acceptedFiles={acceptedFiles}
-              isDragAccept
-              isDragReject
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
             />
             <Text fontSize='sm' mt={1} color='blue.500'>
-              <Icon as={FaInfo} mr={1} />
+              <Icon as={FaInfoCircle} mr={1} />
               The CSV file must only contain Ethereum addresses, one per line.
               Any additional data will be ignored.
             </Text>
