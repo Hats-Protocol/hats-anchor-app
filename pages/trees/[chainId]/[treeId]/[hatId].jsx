@@ -211,7 +211,7 @@ const TreeDetails = ({
   return (
     <>
       <HeadComponent
-        title={title} // fix this
+        title={title} // fill in when the details of the hat are loaded
         description={`Tree #${treeId} on ${chain?.name}`}
         url={`${CONFIG.url}/trees/${chainId}/${treeId}/${prettyHatId}`}
         img={imagesData[hatId]}
