@@ -49,6 +49,8 @@ import TreeNode from '@/components/TreeNode';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useContainerDimensions from '@/hooks/useContainerDimensions';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
+import HeadComponent from '@/components/HeadComponent';
+import CONFIG from '@/constants';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -212,7 +214,12 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
 
   return (
     <>
-      <NextSeo title={title} />
+      <HeadComponent
+        title={title}
+        description={`Tree #${treeId} on ${chain?.name}`}
+        url={`${CONFIG.url}/trees/${chainId}/${treeId}/${prettyHatId}`}
+        img={imagesData[hatId]}
+      />
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />

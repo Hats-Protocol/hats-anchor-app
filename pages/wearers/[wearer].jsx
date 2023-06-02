@@ -14,6 +14,7 @@ import {
   TagLabel,
 } from '@chakra-ui/react';
 import { useEnsName } from 'wagmi';
+
 import { fetchWearerDetails } from '@/gql/helpers';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -23,6 +24,7 @@ import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
 import { chainsColors, chainsMap } from '@/lib/web3';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
+import HeadComponent from '@/components/HeadComponent';
 
 const CoreHat = ({ hat, image }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
@@ -196,6 +198,11 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
 
   return (
     <Layout>
+      <HeadComponent
+        title={`${ensName || formatAddress(wearerAddress)}'s Hats`}
+        url={`https://hats.finance/wearers/${wearerAddress}`}
+      />
+
       <Stack align='center' spacing={6}>
         <Heading size='lg'>
           {ensName || formatAddress(wearerAddress)}&apos;s Hats

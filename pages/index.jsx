@@ -9,6 +9,7 @@ import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
+import HeadComponent from '@/components/HeadComponent';
 
 const Home = ({ trees: initialData, defaultNetworkId }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
@@ -60,6 +61,8 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
 
   return (
     <Layout>
+      <HeadComponent />
+
       <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
         <NetworkFilter
           onFilterChange={handleNetworkFilterChange}
