@@ -7,9 +7,9 @@ import Layout from '@/components/Layout';
 import useImageURIs from '@/hooks/useImageURIs';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
+import HeadComponent from '@/components/HeadComponent';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
-import HeadComponent from '@/components/HeadComponent';
 
 const Home = ({ trees: initialData, defaultNetworkId }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
