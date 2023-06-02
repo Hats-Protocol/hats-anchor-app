@@ -14,10 +14,11 @@ import {
   Tooltip,
   Text,
   Icon,
+  InputRightElement,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import _ from 'lodash';
-import { FaCheck, FaHouseUser, FaInfo, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
@@ -27,6 +28,7 @@ import CONFIG from '@/constants';
 import { pinJson } from '@/lib/ipfs';
 import useCid from '@/hooks/useCid';
 import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import useResolveGuild from '@/hooks/useResolvedGuild';
 
 const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);
@@ -40,6 +42,7 @@ const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
       description: hatDetails?.description || '',
     },
   });
+
   const { handleSubmit, watch } = localForm;
 
   const name = useDebounce(watch('name', hatDetails?.name || ''));
@@ -73,6 +76,10 @@ const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
       );
     }
   };
+
+  const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
+    guildName: newGuild,
+  });
 
   const handleAddGuild = () => {
     setGuilds([...guilds, newGuild]);
@@ -119,7 +126,7 @@ const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
                 {isTopHat(hatData) && (
                   <>
                     <Text fontSize='sm' color='blue.500' pt={3}>
-                      <Icon as={FaInfo} mr={1} />
+                      <Icon as={FaInfoCircle} mr={1} />
                       Bind one or more guild.xyz to this hat. Remember to click
                       the checkmark to add the guild.
                     </Text>
@@ -136,6 +143,17 @@ const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
                           value={newGuild}
                           onChange={(e) => setNewGuild(e.target.value)}
                         />
+                        {isResolved ? (
+                          <InputRightElement right='2rem'>
+                            <FaCheck color='green' />
+                          </InputRightElement>
+                        ) : (
+                          isResolvingGuild && (
+                            <InputRightElement right='2rem'>
+                              <Spinner size='sm' />
+                            </InputRightElement>
+                          )
+                        )}
                       </InputGroup>
                       <Tooltip
                         label={!newGuild ? 'Please input a guild name' : ''}
@@ -194,4 +212,4 @@ const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
   );
 };
 
-export default HatDetailsForm;
+export default React.memo(HatDetailsForm);

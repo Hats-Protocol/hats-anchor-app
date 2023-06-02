@@ -144,7 +144,6 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
                 onChange={(e) =>
                   setNewAddress(e.target.value?.toLowerCase() ?? '')
                 }
-                rightElement={ensResolvedAddress && <FaCheck color='green' />}
               />
               {ensResolvedAddress && (
                 <InputRightElement right='2rem'>
