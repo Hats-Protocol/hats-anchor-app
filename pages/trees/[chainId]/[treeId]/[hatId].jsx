@@ -58,8 +58,8 @@ const TreeDetails = ({
   prettyHatId,
   treeData,
   linkedHatIds,
-  hatDetails,
-  topHatDetails,
+  hatData,
+  topHatData,
 }) => {
   const [initialRender, setInitialRender] = useState(true);
   const [newAdmin, setNewAdmin] = useState('');
@@ -90,11 +90,11 @@ const TreeDetails = ({
   );
 
   const { data: topHatEnsName } = useEnsName({
-    address: _.get(_.first(_.get(topHatDetails, 'wearers')), 'id'),
+    address: _.get(_.first(_.get(topHatData, 'wearers')), 'id'),
     chainId: 1,
   });
   const childrenHats = descendantsOf(
-    _.get(hatDetails, 'prettyId'),
+    _.get(hatData, 'prettyId'),
     treeData,
     true,
   );
@@ -134,15 +134,13 @@ const TreeDetails = ({
         <ChakraLink
           as={Link}
           href={`/wearers/${_.get(
-            _.first(_.get(topHatDetails, 'wearers')),
+            _.first(_.get(topHatData, 'wearers')),
             'id',
           )}`}
           noOfLines={1}
         >
           {topHatEnsName ||
-            formatAddress(
-              _.get(_.first(_.get(topHatDetails, 'wearers')), 'id'),
-            )}
+            formatAddress(_.get(_.first(_.get(topHatData, 'wearers')), 'id'))}
         </ChakraLink>
       ),
     },
@@ -206,8 +204,8 @@ const TreeDetails = ({
   };
 
   // "Top Hat #21 or Hat #2.3.4"
-  const title = `${isTopHat(hatDetails) ? 'Top ' : ''}Hat #${prettyIdToIp(
-    _.get(hatDetails, 'prettyId'),
+  const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
+    _.get(hatData, 'prettyId'),
   )}`;
 
   return (
@@ -243,8 +241,8 @@ const TreeDetails = ({
               <HStack align='flex-start' spacing={4}>
                 <Box
                   bgImage={
-                    imagesData[topHatDetails.id]
-                      ? `url('${imagesData[topHatDetails.id]}')`
+                    imagesData[topHatData?.id]
+                      ? `url('${imagesData[topHatData?.id]}')`
                       : "url('/icon.jpeg')"
                   }
                   bgSize='cover'
@@ -311,14 +309,14 @@ const TreeDetails = ({
           {/* hat data */}
           <Card gridAutoRows='auto'>
             <CardBody>
-              {hatDetails && (
+              {hatData && (
                 <Hat
-                  hatData={hatDetails}
+                  hatData={hatData}
                   chainId={chainId}
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  topHatDetails={_.get(hatDetails, 'details')}
+                  topHatDetails={topHatData?.details}
                   parentOfTrees={_.get(treeData, 'parentOfTrees')}
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
@@ -338,10 +336,10 @@ export const getStaticProps = async (context) => {
   const prettyHatId = urlIdToPrettyId(hatId);
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, chainId);
-  const hatDetails = await fetchHatDetails(hatIdHex, chainId);
+  const hatData = await fetchHatDetails(hatIdHex, chainId);
 
   const topHatIdHex = _.get(treeData, 'hats[0].id');
-  const topHatDetails = await fetchHatDetails(topHatIdHex, chainId);
+  const topHatData = await fetchHatDetails(topHatIdHex, chainId);
 
   const { linkedToHat, parentOfTrees } = treeData || {};
   const linkedHatIds = [];
@@ -360,8 +358,8 @@ export const getStaticProps = async (context) => {
       prettyHatId: prettyHatId || null,
       treeData: treeData || null,
       linkedHatIds,
-      hatDetails,
-      topHatDetails,
+      hatData,
+      topHatData,
     },
     revalidate: 10,
   };

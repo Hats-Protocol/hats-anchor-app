@@ -390,9 +390,9 @@ const Hat = ({
                         </Text>
                         <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
                       </HStack>
-                      <HStack>
-                        {schemaTypeDetailsFieldTopHat === '1.0' && (
-                          <>
+                      {_.get(topHatDetailsFieldData, 'guilds') &&
+                        schemaTypeDetailsFieldTopHat === '1.0' && (
+                          <HStack>
                             <Text fontSize='sm' as='b'>
                               Guilds:
                             </Text>
@@ -403,9 +403,8 @@ const Hat = ({
                                 <Code>{guild}</Code>
                               ),
                             )}
-                          </>
+                          </HStack>
                         )}
-                      </HStack>
                     </Stack>
                   ))}
                 {schemaTypeDetailsField !== '1.0' && (
