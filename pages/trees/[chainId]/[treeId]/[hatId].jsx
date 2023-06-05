@@ -48,6 +48,7 @@ import useContainerDimensions from '@/hooks/useContainerDimensions';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
+import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
@@ -60,6 +61,8 @@ const TreeDetails = ({
   linkedHatIds,
   hatData,
   topHatData,
+  hatDetails,
+  topHatDetails,
 }) => {
   const [initialRender, setInitialRender] = useState(true);
   const [newAdmin, setNewAdmin] = useState('');
@@ -316,7 +319,7 @@ const TreeDetails = ({
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  topHatDetails={topHatData?.details}
+                  topHatDetails={topHatData?.detailsResolved}
                   parentOfTrees={_.get(treeData, 'parentOfTrees')}
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
@@ -337,9 +340,17 @@ export const getStaticProps = async (context) => {
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, chainId);
   const hatData = await fetchHatDetails(hatIdHex, chainId);
+  let hatDetails;
+  if (hatData?.details?.startsWith('ipfs://')) {
+    hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
+  }
 
   const topHatIdHex = _.get(treeData, 'hats[0].id');
   const topHatData = await fetchHatDetails(topHatIdHex, chainId);
+  let topHatDetails;
+  if (topHatData?.details?.startsWith('ipfs://')) {
+    topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
+  }
 
   const { linkedToHat, parentOfTrees } = treeData || {};
   const linkedHatIds = [];
@@ -358,8 +369,14 @@ export const getStaticProps = async (context) => {
       prettyHatId: prettyHatId || null,
       treeData: treeData || null,
       linkedHatIds,
-      hatData,
-      topHatData,
+      hatData: {
+        ...hatData,
+        detailsResolved: hatDetails?.data || null,
+      },
+      topHatData: {
+        ...topHatData,
+        detailsResolved: topHatDetails?.data || null,
+      },
     },
     revalidate: 10,
   };

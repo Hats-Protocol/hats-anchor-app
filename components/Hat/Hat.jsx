@@ -37,7 +37,7 @@ import { clearNonObjects } from '@/lib/general';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import HatImageForm from '@/forms/HatImageForm';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
+
 import HatStatusForm from '@/forms/HatStatusForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
@@ -83,23 +83,13 @@ const Hat = ({
 
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
-  const {
-    data: hatDetailsFieldData,
-    isLoading: hatDetailsFieldLoading,
-    schemaType: schemaTypeDetailsField,
-  } = useHatDetailsField(hatData?.details);
-
-  const {
-    data: topHatDetailsFieldData,
-    schemaType: schemaTypeDetailsFieldTopHat,
-  } = useHatDetailsField(topHatDetails);
-
-  const { hatRoles } = useHatGuilds({
-    guildNames: _.get(topHatDetailsFieldData, 'guilds'),
-    hatId: _.get(hatData, 'id'),
-  });
 
   if (!hatData) return null;
+
+  const { hatRoles } = useHatGuilds({
+    guildNames: _.get(topHatDetails?.data, 'guilds'),
+    hatId: _.get(hatData, 'id'),
+  });
 
   const handleOpenDetailsModal = () => {
     setModals({ hatDetails: true });
@@ -213,7 +203,9 @@ const Hat = ({
         <HatDetailsForm
           hatData={hatData}
           hatDetails={
-            schemaTypeDetailsField === '1.0' ? hatDetailsFieldData : {}
+            hatData.detailsResolved?.type === '1.0'
+              ? hatData.detailsResolved?.data
+              : {}
           }
           chainId={chainId}
         />
@@ -373,41 +365,42 @@ const Hat = ({
                   />
                 )}
 
-                {schemaTypeDetailsField === '1.0' &&
-                  (hatDetailsFieldLoading ? (
-                    'Loading...'
-                  ) : (
-                    <Stack>
-                      <HStack>
-                        <Text fontSize='sm' as='b'>
-                          Name:
-                        </Text>
-                        <Text>{_.get(hatDetailsFieldData, 'name')}</Text>
-                      </HStack>
-                      <HStack>
-                        <Text fontSize='sm' as='b'>
-                          Description:
-                        </Text>
-                        <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
-                      </HStack>
-                      {_.get(topHatDetailsFieldData, 'guilds') &&
-                        schemaTypeDetailsFieldTopHat === '1.0' && (
-                          <HStack>
-                            <Text fontSize='sm' as='b'>
-                              Guilds:
-                            </Text>
+                {hatData.detailsResolved?.type === '1.0' && (
+                  <Stack>
+                    <HStack>
+                      <Text fontSize='sm' as='b'>
+                        Name:
+                      </Text>
+                      <Text>
+                        {_.get(hatData.detailsResolved?.data, 'name')}
+                      </Text>
+                    </HStack>
+                    <HStack>
+                      <Text fontSize='sm' as='b'>
+                        Description:
+                      </Text>
+                      <Text>
+                        {_.get(hatData.detailsResolved?.data, 'description')}
+                      </Text>
+                    </HStack>
+                    {_.get(topHatDetails?.data, 'guilds') &&
+                      topHatDetails?.type === '1.0' && (
+                        <HStack>
+                          <Text fontSize='sm' as='b'>
+                            Guilds:
+                          </Text>
 
-                            {_.map(
-                              _.get(topHatDetailsFieldData, 'guilds'),
-                              (guild) => (
-                                <Code>{guild}</Code>
-                              ),
-                            )}
-                          </HStack>
-                        )}
-                    </Stack>
-                  ))}
-                {schemaTypeDetailsField !== '1.0' && (
+                          {_.map(
+                            _.get(topHatDetails?.data, 'guilds'),
+                            (guild) => (
+                              <Code>{guild}</Code>
+                            ),
+                          )}
+                        </HStack>
+                      )}
+                  </Stack>
+                )}
+                {hatData.detailsResolved?.type !== '1.0' && (
                   <Text>{hatData?.details}</Text>
                 )}
               </Box>
