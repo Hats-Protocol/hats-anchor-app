@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import _ from 'lodash';
+import React, { useState } from 'react';
 import {
   Stack,
   Flex,
@@ -7,30 +6,54 @@ import {
   Spinner,
   FormControl,
   Switch,
+  IconButton,
+  InputGroup,
+  Input as ChakraInput,
+  InputLeftElement,
+  Box,
+  Tooltip,
+  Text,
+  Icon,
+  InputRightElement,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import Input from '@/components/Input';
+import _ from 'lodash';
+import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 
+import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
 import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
-import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
 import { pinJson } from '@/lib/ipfs';
 import useCid from '@/hooks/useCid';
-import { prettyIdToIp } from '@/lib/hats';
+import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import useResolveGuild from '@/hooks/useResolvedGuild';
 
-const HatDetailsForm = ({ hatData, chainId }) => {
+const HatDetailsForm = ({ hatData, hatDetails, chainId }) => {
   const [customDetails, setCustomDetails] = useState(true);
-  const localForm = useForm({ mode: 'onChange' });
+  const [guilds, setGuilds] = useState(hatDetails?.guilds || []);
+  const [newGuild, setNewGuild] = useState('');
+
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      name: hatDetails?.name || '',
+      description: hatDetails?.description || '',
+    },
+  });
+
   const { handleSubmit, watch } = localForm;
 
-  const name = useDebounce(watch('name', ''));
-  const description = useDebounce(watch('description', ''));
+  const name = useDebounce(watch('name', hatDetails?.name || ''));
+  const description = useDebounce(
+    watch('description', hatDetails?.description || ''),
+  );
   const details = useDebounce(watch('details'));
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
-    data: { name, description },
+    data: { name, description, guilds },
   });
 
   const { writeAsync, isLoading } = useHatDetailsUpdate({
@@ -44,7 +67,7 @@ const HatDetailsForm = ({ hatData, chainId }) => {
     writeAsync?.();
     if (customDetails) {
       await pinJson(
-        { type: '1.0', data: { name, description } },
+        { type: '1.0', data: { name, description, guilds } },
         {
           name: `details_${_.toString(chainId)}_${prettyIdToIp(
             _.get(hatData, 'admin.id'),
@@ -52,6 +75,19 @@ const HatDetailsForm = ({ hatData, chainId }) => {
         },
       );
     }
+  };
+
+  const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
+    guildName: newGuild,
+  });
+
+  const handleAddGuild = () => {
+    setGuilds([...guilds, newGuild]);
+    setNewGuild('');
+  };
+
+  const handleRemoveGuild = (index) => {
+    setGuilds(guilds.filter((__, i) => i !== index));
   };
 
   return (
@@ -87,6 +123,77 @@ const HatDetailsForm = ({ hatData, chainId }) => {
                   label='Description'
                   placeholder='Hat description'
                 />
+                {isTopHat(hatData) && (
+                  <>
+                    <Text fontSize='sm' color='blue.500' pt={3}>
+                      <Icon as={FaInfoCircle} mr={1} />
+                      Bind one or more guild.xyz to this hat. Remember to click
+                      the checkmark to add the guild.
+                    </Text>
+                    <Flex alignItems='center'>
+                      <InputGroup>
+                        <InputLeftElement>
+                          <FaHouseUser ml={2} />
+                        </InputLeftElement>
+                        <ChakraInput
+                          w='calc(100% - 1rem)'
+                          textOverflow='ellipsis'
+                          type='guild'
+                          placeholder='Guild name (e.g. hats-protocol)'
+                          value={newGuild}
+                          onChange={(e) => setNewGuild(e.target.value)}
+                        />
+                        {isResolved ? (
+                          <InputRightElement right='2rem'>
+                            <FaCheck color='green' />
+                          </InputRightElement>
+                        ) : (
+                          isResolvingGuild && (
+                            <InputRightElement right='2rem'>
+                              <Spinner size='sm' />
+                            </InputRightElement>
+                          )
+                        )}
+                      </InputGroup>
+                      <Tooltip
+                        label={!newGuild ? 'Please input a guild name' : ''}
+                        shouldWrapChildren
+                      >
+                        <IconButton
+                          isDisabled={!newGuild}
+                          onClick={handleAddGuild}
+                          icon={<FaCheck />}
+                          aria-label='Add'
+                          height={9}
+                          w={16}
+                        />
+                      </Tooltip>
+                    </Flex>
+                    {guilds.map((guild, index) => (
+                      <Box key={guild}>
+                        <Flex
+                          align='center'
+                          w='full'
+                          justifyContent='space-between'
+                        >
+                          <ChakraInput
+                            value={guild}
+                            readOnly
+                            w='calc(100% - 5rem)'
+                          />
+                          <IconButton
+                            type='button'
+                            onClick={() => handleRemoveGuild(index)}
+                            icon={<FaTrash />}
+                            aria-label='Remove'
+                            height={9}
+                            w={16}
+                          />
+                        </Flex>
+                      </Box>
+                    ))}
+                  </>
+                )}
               </Stack>
             )}
           </Stack>
@@ -105,4 +212,4 @@ const HatDetailsForm = ({ hatData, chainId }) => {
   );
 };
 
-export default HatDetailsForm;
+export default React.memo(HatDetailsForm);

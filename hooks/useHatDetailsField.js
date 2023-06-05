@@ -42,7 +42,8 @@ const useHatDetailsField = (detailsField) => {
       case '1.0':
         if (
           _.includes(_.keys(detailsData), 'name') ||
-          _.includes(_.keys(detailsData), 'description')
+          _.includes(_.keys(detailsData), 'description') ||
+          _.includes(_.keys(detailsData), 'guilds')
         ) {
           schemaType = schemaTypeField;
         }

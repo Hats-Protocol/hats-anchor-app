@@ -313,6 +313,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
+                  topHatDetails={_.get(topHat, 'details')}
                   parentOfTrees={_.get(treeData, 'parentOfTrees')}
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}

@@ -12,6 +12,7 @@ import {
   Icon,
   IconButton,
   Box,
+  Code,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import _ from 'lodash';
@@ -45,6 +46,7 @@ import Link from '@/components/ChakraNextLink';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import EventsTable from '@/components/EventsTable';
+import useHatGuilds from '@/hooks/useGuilds';
 
 import AdminActions from './AdminActions';
 import HatWearers from './HatWearers';
@@ -61,6 +63,7 @@ const Hat = ({
   childrenHats,
   linkRequestFromTree,
   parentOfTrees,
+  topHatDetails,
 }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -83,9 +86,18 @@ const Hat = ({
   const {
     data: hatDetailsFieldData,
     isLoading: hatDetailsFieldLoading,
-    // error: hatDetailsFieldError,
     schemaType: schemaTypeDetailsField,
   } = useHatDetailsField(hatData?.details);
+
+  const {
+    data: topHatDetailsFieldData,
+    schemaType: schemaTypeDetailsFieldTopHat,
+  } = useHatDetailsField(topHatDetails);
+
+  const { hatRoles } = useHatGuilds({
+    guildNames: _.get(topHatDetailsFieldData, 'guilds'),
+    hatId: _.get(hatData, 'id'),
+  });
 
   if (!hatData) return null;
 
@@ -107,9 +119,8 @@ const Hat = ({
   const childrenHatsIds = _.map(childrenHats, 'prettyId') || [];
   const parentOfTreesIds = _.map(parentOfTrees, 'id') || [];
 
-  const authoritiesTable = _.map(
-    childrenHatsIds.concat(parentOfTreesIds),
-    (hatId) => ({
+  const authoritiesTable = [
+    ..._.map(childrenHatsIds.concat(parentOfTreesIds), (hatId) => ({
       key: hatId,
       label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
       value: (
@@ -124,8 +135,22 @@ const Hat = ({
           </HStack>
         </Link>
       ),
-    }),
-  );
+    })),
+    ...(hatRoles && hatRoles.length > 0
+      ? _.map(hatRoles, ({ role, guild }) => ({
+          key: role,
+          label: <Text as='span'>{role}</Text>,
+          value: (
+            <Link href={`https://guild.xyz/${guild}`} isExternal>
+              <HStack>
+                <Text>Guild.xyz</Text>
+                <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+              </HStack>
+            </Link>
+          ),
+        }))
+      : []),
+  ];
 
   const accountabilitiesTable = [
     _.gt(_.get(hatData, 'levelAtLocalTree'), 0) && {
@@ -185,7 +210,13 @@ const Hat = ({
         title='Edit Hat Details'
         localOverlay={localOverlay}
       >
-        <HatDetailsForm hatData={hatData} chainId={chainId} />
+        <HatDetailsForm
+          hatData={hatData}
+          hatDetails={
+            schemaTypeDetailsField === '1.0' ? hatDetailsFieldData : {}
+          }
+          chainId={chainId}
+        />
       </Modal>
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
         <HatImageForm hatData={hatData} chainId={chainId} />
@@ -358,6 +389,22 @@ const Hat = ({
                           Description:
                         </Text>
                         <Text>{_.get(hatDetailsFieldData, 'description')}</Text>
+                      </HStack>
+                      <HStack>
+                        {schemaTypeDetailsFieldTopHat === '1.0' && (
+                          <>
+                            <Text fontSize='sm' as='b'>
+                              Guilds:
+                            </Text>
+
+                            {_.map(
+                              _.get(topHatDetailsFieldData, 'guilds'),
+                              (guild) => (
+                                <Code>{guild}</Code>
+                              ),
+                            )}
+                          </>
+                        )}
                       </HStack>
                     </Stack>
                   ))}

@@ -214,7 +214,7 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
 
   return (
     <>
-      <Modal name='newWearer' title='Batch Mint' localOverlay={localOverlay}>
+      <Modal name='newWearer' title='Mint' localOverlay={localOverlay}>
         <HatWearerForm
           hatId={_.get(hatData, 'id')}
           chainId={chainId}

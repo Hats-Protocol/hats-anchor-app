@@ -17,26 +17,27 @@ import {
   Collapse,
   Box,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import _ from 'lodash';
+import Papa from 'papaparse';
+import React, { useState, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
-import { isAddress } from 'viem';
 import {
   FaCheck,
-  FaInfo,
   FaUserPlus,
   FaFileCsv,
   FaTrash,
   FaChevronUp,
   FaChevronDown,
+  FaInfoCircle,
 } from 'react-icons/fa';
-import Papa from 'papaparse';
+import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
-import _ from 'lodash';
-import { useDropzone } from 'react-dropzone';
-import useHatMint from '../hooks/useHatMint';
-import useDebounce from '../hooks/useDebounce';
-import CONFIG from '../constants';
-import DropZone from '../components/DropZone';
+
+import DropZone from '@/components/DropZone';
+import CONFIG from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
+import useHatMint from '@/hooks/useHatMint';
 
 const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
   const localForm = useForm({ mode: 'onBlur' });
@@ -89,7 +90,13 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
 
   const { isOpen, onToggle } = useDisclosure();
 
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
     accept: { '.csv': [] },
     onDrop: (droppedFiles) => {
       const file = droppedFiles[0];
@@ -137,7 +144,6 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
                 onChange={(e) =>
                   setNewAddress(e.target.value?.toLowerCase() ?? '')
                 }
-                rightElement={ensResolvedAddress && <FaCheck color='green' />}
               />
               {ensResolvedAddress && (
                 <InputRightElement right='2rem'>
@@ -213,11 +219,11 @@ const HatWearerForm = ({ hatId, chainId, currentWearers, maxSupply }) => {
               getRootProps={getRootProps}
               getInputProps={getInputProps}
               acceptedFiles={acceptedFiles}
-              isDragAccept
-              isDragReject
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
             />
             <Text fontSize='sm' mt={1} color='blue.500'>
-              <Icon as={FaInfo} mr={1} />
+              <Icon as={FaInfoCircle} mr={1} />
               The CSV file must only contain Ethereum addresses, one per line.
               Any additional data will be ignored.
             </Text>
