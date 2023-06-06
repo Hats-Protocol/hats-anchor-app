@@ -42,7 +42,7 @@ import HatStatusForm from '@/forms/HatStatusForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import CopyToClipboard from '@/components/CopyToClipboard';
-import Link from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/ChakraNextLink';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import EventsTable from '@/components/EventsTable';
@@ -84,12 +84,12 @@ const Hat = ({
   const [type, setType] = useState(MODULE_TYPES.eligibility);
   const [imageHover, setImageHover] = useState(false);
 
-  if (!hatData) return null;
-
   const { hatRoles } = useHatGuilds({
     guildNames: _.get(topHatDetails?.data, 'guilds'),
     hatId: _.get(hatData, 'id'),
   });
+
+  if (!hatData) return null;
 
   const handleOpenDetailsModal = () => {
     setModals({ hatDetails: true });
@@ -114,7 +114,7 @@ const Hat = ({
       key: hatId,
       label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
       value: (
-        <Link
+        <ChakraNextLink
           href={`/trees/${chainId}/${decimalId(
             getTreeId(hatId),
           )}/${prettyIdToUrlId(hatId)}`}
@@ -123,7 +123,7 @@ const Hat = ({
             <Text>Hats Protocol</Text>
             <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
           </HStack>
-        </Link>
+        </ChakraNextLink>
       ),
     })),
     ...(hatRoles && hatRoles.length > 0
@@ -131,12 +131,12 @@ const Hat = ({
           key: role,
           label: <Text as='span'>{role}</Text>,
           value: (
-            <Link href={`https://guild.xyz/${guild}`} isExternal>
+            <ChakraNextLink href={`https://guild.xyz/${guild}`} isExternal>
               <HStack>
                 <Text>Guild.xyz</Text>
                 <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
               </HStack>
-            </Link>
+            </ChakraNextLink>
           ),
         }))
       : []),

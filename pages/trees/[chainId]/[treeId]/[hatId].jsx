@@ -62,7 +62,6 @@ const TreeDetails = ({
   hatData,
   topHatData,
 }) => {
-  const [initialRender, setInitialRender] = useState(true);
   const [newAdmin, setNewAdmin] = useState('');
   const chain = chainsMap(chainId);
   const router = useRouter();
@@ -101,22 +100,9 @@ const TreeDetails = ({
   );
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
-
-  // TODO handle error and loading in layout
-  if (initialRender && imagesLoading) {
-    setInitialRender(false);
-    return (
-      <Layout>
-        <Flex justify='center' mt='200px'>
-          <Spinner size='xl' />
-        </Flex>
-      </Layout>
-    );
-  }
-
-  const tree = toTreeStructure(treeData, {}, imagesData);
-
+  const tree = toTreeStructure(treeData, imagesData);
   const events = _.get(treeData, 'events');
+
   const treeInfoTable = [
     {
       label: 'Tree ID',
@@ -281,9 +267,9 @@ const TreeDetails = ({
           )}
 
           {/* tree explorer */}
-          {!_.isEmpty(tree) && (
-            <Card gridAutoRows='auto'>
-              <CardBody minH='400px' ref={containerRef}>
+          <Card gridAutoRows='auto'>
+            <CardBody minH='400px' ref={containerRef}>
+              {!_.isEmpty(tree) ? (
                 <TreeGraph
                   data={tree}
                   dimensions={dimensions}
@@ -305,14 +291,23 @@ const TreeDetails = ({
                     target.data.attributes.dottedLine ? 'dotted-link' : ''
                   }
                 />
-              </CardBody>
-            </Card>
-          )}
+              ) : (
+                <Flex
+                  h='full'
+                  w='full'
+                  alignItems='center'
+                  justifyContent='center'
+                >
+                  <Spinner />
+                </Flex>
+              )}
+            </CardBody>
+          </Card>
 
           {/* hat data */}
           <Card gridAutoRows='auto'>
             <CardBody>
-              {hatData && (
+              {hatData ? (
                 <Hat
                   hatData={hatData}
                   chainId={chainId}
@@ -324,6 +319,15 @@ const TreeDetails = ({
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
                 />
+              ) : (
+                <Flex
+                  h='full'
+                  w='full'
+                  alignItems='center'
+                  justifyContent='center'
+                >
+                  <Spinner />
+                </Flex>
               )}
             </CardBody>
           </Card>
