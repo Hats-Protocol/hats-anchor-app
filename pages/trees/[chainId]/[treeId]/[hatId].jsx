@@ -214,9 +214,9 @@ const TreeDetails = ({
       <HeadComponent
         title={title}
         description={`Tree #${treeId} on ${chain?.name}`}
-        url={`${CONFIG.url}/trees/${chainId}/${treeId}/${prettyIdToUrlId(
-          prettyHatId,
-        )}`}
+        url={`${CONFIG.url}/trees/${chainId}/${decimalId(
+          treeId,
+        )}/${prettyIdToUrlId(prettyHatId)}`}
         img={imagesData[hatId]}
       />
 
