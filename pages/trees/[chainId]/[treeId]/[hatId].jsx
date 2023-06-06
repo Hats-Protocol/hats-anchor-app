@@ -61,8 +61,6 @@ const TreeDetails = ({
   linkedHatIds,
   hatData,
   topHatData,
-  hatDetails,
-  topHatDetails,
 }) => {
   const [initialRender, setInitialRender] = useState(true);
   const [newAdmin, setNewAdmin] = useState('');
@@ -214,9 +212,11 @@ const TreeDetails = ({
   return (
     <>
       <HeadComponent
-        title={title} // fill in when the details of the hat are loaded
+        title={title}
         description={`Tree #${treeId} on ${chain?.name}`}
-        url={`${CONFIG.url}/trees/${chainId}/${treeId}/${prettyHatId}`}
+        url={`${CONFIG.url}/trees/${chainId}/${treeId}/${prettyIdToUrlId(
+          prettyHatId,
+        )}`}
         img={imagesData[hatId]}
       />
 
