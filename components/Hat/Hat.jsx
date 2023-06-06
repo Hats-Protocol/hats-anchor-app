@@ -393,7 +393,7 @@ const Hat = ({
                           {_.map(
                             _.get(topHatDetails?.data, 'guilds'),
                             (guild) => (
-                              <Code>{guild}</Code>
+                              <Code key={guild}>{guild}</Code>
                             ),
                           )}
                         </HStack>
