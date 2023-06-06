@@ -213,7 +213,7 @@ const TreeDetails = ({
     <>
       <HeadComponent
         title={title}
-        description={`Tree #${treeId} on ${chain?.name}`}
+        description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
         url={`${CONFIG.url}/trees/${chainId}/${decimalId(
           treeId,
         )}/${prettyIdToUrlId(prettyHatId)}`}
