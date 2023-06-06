@@ -7,6 +7,7 @@ import Layout from '@/components/Layout';
 import useImageURIs from '@/hooks/useImageURIs';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
+import HeadComponent from '@/components/HeadComponent';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 
@@ -60,6 +61,8 @@ const Home = ({ trees: initialData, defaultNetworkId }) => {
 
   return (
     <Layout>
+      <HeadComponent />
+
       <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
         <NetworkFilter
           onFilterChange={handleNetworkFilterChange}
