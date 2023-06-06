@@ -18,7 +18,6 @@ import {
 import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { NextSeo } from 'next-seo';
 
 import EventsTable from '@/components/EventsTable';
 import Hat from '@/components/Hat';
@@ -33,11 +32,9 @@ import {
   prettyIdToIp,
   isTopHat,
 } from '@/lib/hats';
-import useTreeDetails from '@/hooks/useTreeDetails';
-import useHatDetails from '@/hooks/useHatDetails';
 import { chainsMap } from '@/lib/web3';
 import Layout from '@/components/Layout';
-import { fetchTreeDetails } from '@/gql/helpers';
+import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import DataTable from '@/components/DataTable';
 import { formatAddress } from '@/lib/general';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -49,19 +46,29 @@ import TreeNode from '@/components/TreeNode';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useContainerDimensions from '@/hooks/useContainerDimensions';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
+import HeadComponent from '@/components/HeadComponent';
+import CONFIG from '@/constants';
+import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 
 const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
 
-const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
+const TreeDetails = ({
+  treeId,
+  chainId,
+  hatId,
+  prettyHatId,
+  treeData,
+  linkedHatIds,
+  hatData,
+  topHatData,
+}) => {
   const [initialRender, setInitialRender] = useState(true);
   const [newAdmin, setNewAdmin] = useState('');
   const chain = chainsMap(chainId);
   const router = useRouter();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-
   const [dimensions, containerRef] = useContainerDimensions();
-
   const { address } = useAccount();
   const userChain = useChainId();
   const { data: wearerData } = useWearerDetails({
@@ -78,23 +85,13 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
     'prettyId',
   );
 
-  const {
-    data: treeData,
-    isLoading: treeLoading,
-    error: treeError,
-    linkedHatIds,
-  } = useTreeDetails({ treeId, chainId, hatId, initialData });
-
   const { data: imagesData, loading: imagesLoading } = useImageURIs(
     treeData?.hats?.map((hat) => hat.id).concat(linkedHatIds),
     chainId,
   );
 
-  const topHatId = _.get(treeData, 'hats[0].id');
-  const { data: topHat } = useHatDetails({ hatId: topHatId, chainId });
-  const { data: hatData } = useHatDetails({ hatId, chainId });
   const { data: topHatEnsName } = useEnsName({
-    address: _.get(_.first(_.get(topHat, 'wearers')), 'id'),
+    address: _.get(_.first(_.get(topHatData, 'wearers')), 'id'),
     chainId: 1,
   });
   const childrenHats = descendantsOf(
@@ -106,7 +103,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
   const [defaultHatAdmin, setDefaultHatAdmin] = useState();
 
   // TODO handle error and loading in layout
-  if (initialRender && (treeLoading || imagesLoading)) {
+  if (initialRender && imagesLoading) {
     setInitialRender(false);
     return (
       <Layout>
@@ -116,7 +113,6 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       </Layout>
     );
   }
-  if (treeError) return <p>Error : {treeError.message}</p>;
 
   const tree = toTreeStructure(treeData, {}, imagesData);
 
@@ -138,11 +134,14 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
       value: (
         <ChakraLink
           as={Link}
-          href={`/wearers/${_.get(_.first(_.get(topHat, 'wearers')), 'id')}`}
+          href={`/wearers/${_.get(
+            _.first(_.get(topHatData, 'wearers')),
+            'id',
+          )}`}
           noOfLines={1}
         >
           {topHatEnsName ||
-            formatAddress(_.get(_.first(_.get(topHat, 'wearers')), 'id'))}
+            formatAddress(_.get(_.first(_.get(topHatData, 'wearers')), 'id'))}
         </ChakraLink>
       ),
     },
@@ -212,7 +211,14 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
 
   return (
     <>
-      <NextSeo title={title} />
+      <HeadComponent
+        title={title}
+        description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
+        url={`${CONFIG.url}/trees/${chainId}/${decimalId(
+          treeId,
+        )}/${prettyIdToUrlId(prettyHatId)}`}
+        img={imagesData[hatId]}
+      />
 
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />
@@ -238,8 +244,8 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
               <HStack align='flex-start' spacing={4}>
                 <Box
                   bgImage={
-                    imagesData[topHatId]
-                      ? `url('${imagesData[topHatId]}')`
+                    imagesData[topHatData?.id]
+                      ? `url('${imagesData[topHatData?.id]}')`
                       : "url('/icon.jpeg')"
                   }
                   bgSize='cover'
@@ -313,7 +319,7 @@ const TreeDetails = ({ treeId, chainId, hatId, prettyHatId, initialData }) => {
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  topHatDetails={_.get(topHat, 'details')}
+                  topHatDetails={topHatData?.detailsResolved}
                   parentOfTrees={_.get(treeData, 'parentOfTrees')}
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
@@ -332,17 +338,45 @@ export const getStaticProps = async (context) => {
   const treeHex = decimalToTreeId(treeId);
   const prettyHatId = urlIdToPrettyId(hatId);
   const hatIdHex = prettyIdToId(prettyHatId);
-  const initialData = await fetchTreeDetails(treeHex, chainId);
+  const treeData = await fetchTreeDetails(treeHex, chainId);
+  const hatData = await fetchHatDetails(hatIdHex, chainId);
+  let hatDetails;
+  if (hatData?.details?.startsWith('ipfs://')) {
+    hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
+  }
+
+  const topHatIdHex = _.get(treeData, 'hats[0].id');
+  const topHatData = await fetchHatDetails(topHatIdHex, chainId);
+  let topHatDetails;
+  if (topHatData?.details?.startsWith('ipfs://')) {
+    topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
+  }
+
+  const { linkedToHat, parentOfTrees } = treeData || {};
+  const linkedHatIds = [];
+  if (linkedToHat) {
+    linkedHatIds.push(linkedToHat.id);
+  }
+  if (parentOfTrees) {
+    linkedHatIds.push(...parentOfTrees.map((tree) => prettyIdToId(tree.id)));
+  }
 
   return {
     props: {
       treeId: treeHex || null,
+      chainId: _.toNumber(chainId),
       hatId: hatIdHex || null,
       prettyHatId: prettyHatId || null,
-      chainId: _.toNumber(chainId),
-      initialTree: initialData || null,
-      initialHat: _.find(_.get(initialData, 'hats'), { id: hatIdHex }) || null,
-      topHat: _.get(initialData, 'hats[0]', null),
+      treeData: treeData || null,
+      linkedHatIds,
+      hatData: {
+        ...hatData,
+        detailsResolved: hatDetails?.data || null,
+      },
+      topHatData: {
+        ...topHatData,
+        detailsResolved: topHatDetails?.data || null,
+      },
     },
     revalidate: 10,
   };

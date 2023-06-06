@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 
-const fetchDetailsIpfs = async (detailsField) => {
+export const fetchDetailsIpfs = async (detailsField) => {
   if (!detailsField) return null;
   // todo config value
   const url = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${detailsField?.slice(
