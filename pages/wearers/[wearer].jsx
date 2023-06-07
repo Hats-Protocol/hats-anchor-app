@@ -25,6 +25,7 @@ import Layout from '@/components/Layout';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import HeadComponent from '@/components/HeadComponent';
+import CONFIG from '@/constants';
 
 const CoreHat = ({ hat, image }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
@@ -200,7 +201,7 @@ const WearerDetail = ({ wearerAddress, initialData }) => {
     <Layout>
       <HeadComponent
         title={`${ensName || formatAddress(wearerAddress)}'s Hats`}
-        url={`https://hats.finance/wearers/${wearerAddress}`}
+        url={`${CONFIG.url}/wearers/${wearerAddress}`}
       />
 
       <Stack align='center' spacing={6}>
