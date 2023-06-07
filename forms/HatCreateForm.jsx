@@ -22,7 +22,7 @@ import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
 import DropZone from '@/components/DropZone';
 import useHatCreate from '@/hooks/useHatCreate';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import RadioBox from '@/components/RadioBox';
 import { prettyIdToIp } from '@/lib/hats';
