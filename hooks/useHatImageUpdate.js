@@ -5,6 +5,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG, { ZERO_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -16,6 +17,7 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   const { handlePendingTx } = useOverlay();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
@@ -29,9 +31,11 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
     enabled: !!hatsAddress && !!hatId,
   });
 
-  const { writeAsync, data: writeData } = useContractWrite({
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -71,7 +75,7 @@ const useHatImageUpdate = ({ hatsAddress, chainId, hatId, image }) => {
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return { writeAsync, isLoading };

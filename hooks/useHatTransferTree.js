@@ -7,6 +7,7 @@ import {
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -23,6 +24,7 @@ const useHatTransferTree = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const {
     data: newWearerResolvedAddress,
@@ -32,11 +34,7 @@ const useHatTransferTree = ({
     chainId: 1,
   });
 
-  const {
-    config,
-    error: prepareError,
-    data: writeData,
-  } = usePrepareContractWrite({
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
@@ -57,6 +55,8 @@ const useHatTransferTree = ({
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -97,7 +97,7 @@ const useHatTransferTree = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {

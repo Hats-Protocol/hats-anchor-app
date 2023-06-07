@@ -6,6 +6,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -18,6 +19,7 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -31,19 +33,17 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
       isAddress(wearerAddress),
   });
 
-  const {
-    writeAsync,
-    error: writeError,
-    data: writeData,
-  } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      const { logs } = setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      const { logs } = await handlePendingTx({
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Hat Minted!`,
@@ -51,8 +51,6 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
         },
         sendToast: false,
       });
-
-      console.log(logs);
 
       if (logs.length === 0) {
         toast.success({
@@ -93,7 +91,7 @@ const useHatWearerStatusCheck = ({ hatData, wearerAddress, chainId }) => {
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return { writeAsync, prepareError, writeError, isLoading };
