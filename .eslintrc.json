@@ -1,14 +1,21 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier", "babel", "import"],
+  "plugins": ["@typescript-eslint", "prettier", "babel", "import"],
   "parserOptions": {
-    "ecmaVersion": 2020
+    "ecmaVersion": 2023
   },
-  "extends": ["airbnb", "next/core-web-vitals", "plugin:prettier/recommended"],
+  "extends": [
+    "airbnb",
+    "next/core-web-vitals",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "rules": {
-    "no-unused-vars": "warn",
+    "no-use-before-define": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error"],
     "babel/no-unused-expressions": "error",
-    "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx"] }],
+    "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],
     "react/function-component-definition": [
       2,
       { "namedComponents": ["arrow-function", "function-declaration"] }
@@ -20,7 +27,9 @@
       "ignorePackages",
       {
         "js": "never",
-        "jsx": "never"
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
       }
     ],
     "prettier/prettier": "error"
@@ -29,7 +38,7 @@
     "import/resolver": {
       "alias": {
         "map": [["@", "."]],
-        "extensions": [".js", ".jsx"]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     }
   }
