@@ -60,7 +60,6 @@ export const OverlayContextProvider = ({ children }) => {
       sendToast = true,
     }) => {
       const data = await waitForTransaction({ hash });
-      console.log(data);
 
       if (data) {
         if (sendToast) {
