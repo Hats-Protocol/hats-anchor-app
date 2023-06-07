@@ -8,7 +8,7 @@ import useHatBurn from '@/hooks/useHatBurn';
 import { decimalId } from '@/lib/hats';
 
 const HatRenounceForm = ({ hatData }) => {
-  const { setModals } = useOverlay;
+  const { closeModals } = useOverlay;
   const chainId = useChainId();
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
@@ -33,10 +33,7 @@ const HatRenounceForm = ({ hatData }) => {
       <Text>Are you sure you want to do this?</Text>
       <Flex justify='flex-end' w='100%'>
         <HStack>
-          <Button
-            onClick={() => setModals({ renounceConfirm: false })}
-            variant='outline'
-          >
+          <Button onClick={closeModals} variant='outline'>
             Cancel
           </Button>
           <Button

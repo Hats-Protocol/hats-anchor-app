@@ -110,6 +110,20 @@ const Hat = ({
   const parentOfTreesIds = _.map(parentOfTrees, 'id') || [];
 
   const authoritiesTable = [
+    ...(hatRoles && hatRoles.length > 0
+      ? _.map(hatRoles, ({ role, guild }) => ({
+          key: role,
+          label: <Text as='span'>{role}</Text>,
+          value: (
+            <Link href={`https://guild.xyz/${guild}`} isExternal>
+              <HStack>
+                <Text>Guild.xyz</Text>
+                <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
+              </HStack>
+            </Link>
+          ),
+        }))
+      : []),
     ..._.map(childrenHatsIds.concat(parentOfTreesIds), (hatId) => ({
       key: hatId,
       label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
@@ -126,20 +140,6 @@ const Hat = ({
         </Link>
       ),
     })),
-    ...(hatRoles && hatRoles.length > 0
-      ? _.map(hatRoles, ({ role, guild }) => ({
-          key: role,
-          label: <Text as='span'>{role}</Text>,
-          value: (
-            <Link href={`https://guild.xyz/${guild}`} isExternal>
-              <HStack>
-                <Text>Guild.xyz</Text>
-                <Icon as={FaExternalLinkAlt} h='15px' w='15px' />
-              </HStack>
-            </Link>
-          ),
-        }))
-      : []),
   ];
 
   const accountabilitiesTable = [
@@ -405,7 +405,6 @@ const Hat = ({
                 )}
               </Box>
             </TabPanel>
-            {/* TODO Authorities will be designated in details for now, hard-ish to track */}
             {!_.isEmpty(clearNonObjects(authoritiesTable)) && (
               <TabPanel minH='370px'>
                 <DataTable
