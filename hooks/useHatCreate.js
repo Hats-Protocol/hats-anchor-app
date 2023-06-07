@@ -6,6 +6,7 @@ import {
   useWaitForTransaction,
   useEnsAddress,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -28,6 +29,7 @@ const useHatCreate = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const {
     data: eligibilityResolvedAddress,
@@ -45,6 +47,10 @@ const useHatCreate = ({
     chainId: 1,
   });
 
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
@@ -54,17 +60,19 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
-      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
+      eligibilityAddress,
+      toggleAddress,
       mutable === 'Mutable',
       imageUrl || '',
     ],
     enabled: !!hatsAddress && !!admin,
   });
 
-  const { writeAsync, data: writeData } = useContractWrite({
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -98,7 +106,7 @@ const useHatCreate = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {

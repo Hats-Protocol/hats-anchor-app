@@ -7,6 +7,7 @@ import {
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -25,6 +26,7 @@ const useHatWearerStatusSet = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const {
     data: wearerResolvedAddress,
@@ -34,18 +36,16 @@ const useHatWearerStatusSet = ({
     chainId: 1,
   });
 
-  const {
-    config,
-    error: prepareError,
-    data: writeData,
-  } = usePrepareContractWrite({
+  const wearerAddress = (wearerResolvedAddress ?? wearer) || '';
+
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
-      (wearerResolvedAddress ?? wearer) || '',
+      wearerAddress,
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
@@ -56,6 +56,8 @@ const useHatWearerStatusSet = ({
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -95,7 +97,7 @@ const useHatWearerStatusSet = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {

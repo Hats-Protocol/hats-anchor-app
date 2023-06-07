@@ -8,7 +8,6 @@ import {
   Code,
   Box,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
@@ -19,7 +18,7 @@ import useDebounce from '@/hooks/useDebounce';
 import useHatTransferTree from '@/hooks/useHatTransferTree';
 import { prettyIdToIp } from '@/lib/hats';
 
-const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
+const HatTransferForm = ({ chainId, currentWearerAddress, id, prettyId }) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
@@ -28,7 +27,8 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
   const { writeAsync, isLoading, newWearerResolvedAddress } =
     useHatTransferTree({
       currentWearerAddress,
-      hatData,
+      id,
+      prettyId,
       newWearer,
       chainId,
     });
@@ -49,7 +49,7 @@ const HatTransferForm = ({ hatData, chainId, currentWearerAddress }) => {
         <Stack>
           <Text>Tree Domain</Text>
           <Heading size='md' fontFamily='mono'>
-            #{prettyIdToIp(_.get(hatData, 'prettyId'))}
+            #{prettyIdToIp(prettyId)}
           </Heading>
         </Stack>
         <HStack>

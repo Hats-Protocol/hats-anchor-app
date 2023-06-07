@@ -5,6 +5,7 @@ import {
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -23,6 +24,7 @@ const useHatRelinkTree = ({
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const [hash, setHash] = useState();
 
   const {
     data: eligibilityResolvedAddress,
@@ -40,6 +42,10 @@ const useHatRelinkTree = ({
     chainId: 1,
   });
 
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
@@ -48,17 +54,19 @@ const useHatRelinkTree = ({
     args: [
       topHatDomain,
       decimalId(prettyIdToId(newAdmin)),
-      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
-      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
+      eligibilityAddress,
+      toggleAddress,
       description,
       imageUrl || '',
     ],
     enabled: !!topHatDomain && !!newAdmin,
   });
 
-  const { writeAsync, data: writeData } = useContractWrite({
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
+      setHash(data.hash);
+
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
@@ -90,7 +98,7 @@ const useHatRelinkTree = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {

@@ -6,6 +6,7 @@ import {
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -31,6 +32,7 @@ const useHatLinkRequestApprove = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const {
     data: eligibilityResolvedAddress,
@@ -48,6 +50,10 @@ const useHatLinkRequestApprove = ({
     chainId: 1,
   });
 
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
@@ -56,8 +62,8 @@ const useHatLinkRequestApprove = ({
     args: [
       topHatDomain,
       decimalId(newAdmin),
-      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
-      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
+      eligibilityAddress,
+      toggleAddress,
       description,
       imageUrl || '',
     ],
@@ -65,13 +71,11 @@ const useHatLinkRequestApprove = ({
   });
   console.log('hatLinkRequestApprove - prepareError', prepareError);
 
-  const {
-    writeAsync,
-    error: writeError,
-    data: writeData,
-  } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -118,7 +122,7 @@ const useHatLinkRequestApprove = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {

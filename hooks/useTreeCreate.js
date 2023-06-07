@@ -1,6 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
   usePrepareContractWrite,
@@ -9,6 +8,7 @@ import {
   useWaitForTransaction,
   useEnsAddress,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -28,8 +28,8 @@ const useTreeCreate = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
   const router = useRouter();
-  const [isLoadingTx, setIsLoadingTx] = useState(false);
 
   const {
     data: newReceiverResolvedAddress,
@@ -52,36 +52,38 @@ const useTreeCreate = ({
     enabled: !!hatsAddress,
   });
 
-  const { writeAsync, data: writeData } = useContractWrite({
+  function handleSuccess(transactionData) {
+    const data = transactionData?.logs[0]?.data;
+    const treeId = treeCreateEventIdToTreeId(data);
+    if (!treeId) return;
+
+    router.push(`/trees/${chainId}/${treeId}/${treeId}`);
+  }
+
+  function handleError(error) {
+    console.error(error);
+  }
+
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      setIsLoadingTx(true);
-
-      const txResult = await handlePendingTx({
+      await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Tree created!',
           description: `Successfully created tree`,
         },
-        // redirect: '',
       });
-      const txData = txResult?.logs[0]?.data;
-      const treeId = treeCreateEventIdToTreeId(txData);
-      setIsLoadingTx(false);
-
-      if (treeId) {
-        router.push(`/trees/${chainId}/${treeId}/${treeId}`);
-      }
 
       setTimeout(() => {
-        queryClient.invalidateQueries({
-          queryKey: ['treeList', treeId],
-        });
+        queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
       }, 4000);
     },
     onError: (error) => {
@@ -100,12 +102,14 @@ const useTreeCreate = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
+    onSuccess: handleSuccess,
+    onError: handleError,
   });
 
   return {
     writeAsync,
-    isLoading: isLoadingTx || isLoading || isLoadingNewReceiverResolvedAddress,
+    isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
     receiverResolvedAddress: newReceiverResolvedAddress,
   };
 };

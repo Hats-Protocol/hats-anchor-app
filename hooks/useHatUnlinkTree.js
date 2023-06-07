@@ -5,6 +5,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -15,6 +16,7 @@ import { prettyIdToIp } from '@/lib/hats';
 const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
+  const [hash, setHash] = useState();
 
   const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -25,9 +27,11 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
     enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
-  const { writeAsync, data: writeData } = useContractWrite({
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: (data) => {
+      setHash(data.hash);
+
       handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
@@ -59,7 +63,7 @@ const useHatUnlinkTree = ({ topHatPrettyId, wearer, chainId }) => {
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {

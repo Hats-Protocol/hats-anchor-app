@@ -7,6 +7,7 @@ import {
   useEnsAddress,
   useWaitForTransaction,
 } from 'wagmi';
+import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -16,13 +17,15 @@ import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useHatTransferTree = ({
   currentWearerAddress,
-  hatData,
+  id,
+  prettyId,
   newWearer,
   chainId,
 }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const [hash, setHash] = useState();
 
   const {
     data: newWearerResolvedAddress,
@@ -32,20 +35,14 @@ const useHatTransferTree = ({
     chainId: 1,
   });
 
-  const {
-    config,
-    error: prepareError,
-    data: writeData,
-  } = usePrepareContractWrite({
+  const newWearerAddress = newWearerResolvedAddress ?? newWearer;
+
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'transferHat',
-    args: [
-      decimalId(hatData.id),
-      currentWearerAddress,
-      newWearerResolvedAddress ?? newWearer,
-    ],
+    args: [decimalId(id), currentWearerAddress, newWearerAddress],
     enabled:
       Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
@@ -57,6 +54,8 @@ const useHatTransferTree = ({
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
+      setHash(data.hash);
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -67,17 +66,17 @@ const useHatTransferTree = ({
         toastData: {
           title: `Top Hat Transferred!`,
           description: `Successfully transferred top hat #${prettyIdToIp(
-            _.get(hatData, 'prettyId'),
+            prettyId,
           )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
         },
       });
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', _.get(hatData, 'id')],
+          queryKey: ['hatDetails', id],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+          queryKey: ['treeDetails', toTreeId(id)],
         });
       }, 4000);
     },
@@ -97,7 +96,7 @@ const useHatTransferTree = ({
   });
 
   const { isLoading } = useWaitForTransaction({
-    hash: writeData?.hash,
+    hash,
   });
 
   return {
