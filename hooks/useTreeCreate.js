@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
-import _ from 'lodash';
+import { useState } from 'react';
+import _, { set } from 'lodash';
 import { useRouter } from 'next/router';
 import {
   usePrepareContractWrite,
@@ -28,6 +29,7 @@ const useTreeCreate = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [isLoadingTx, setIsLoadingTx] = useState(false);
 
   const {
     data: newReceiverResolvedAddress,
@@ -50,18 +52,6 @@ const useTreeCreate = ({
     enabled: !!hatsAddress,
   });
 
-  function handleSuccess(transactionData) {
-    const data = transactionData?.logs[0]?.data;
-    const treeId = treeCreateEventIdToTreeId(data);
-    if (!treeId) return;
-
-    router.push(`/trees/${chainId}/${treeId}/${treeId}`);
-  }
-
-  function handleError(error) {
-    console.error(error);
-  }
-
   const { writeAsync, data: writeData } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
@@ -70,16 +60,28 @@ const useTreeCreate = ({
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      await handlePendingTx({
+      setIsLoadingTx(true);
+
+      const txResult = await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
           title: 'Tree created!',
           description: `Successfully created tree`,
         },
+        // redirect: '',
       });
+      const txData = txResult?.logs[0]?.data;
+      const treeId = treeCreateEventIdToTreeId(txData);
+      setIsLoadingTx(false);
+
+      if (treeId) {
+        router.push(`/trees/${chainId}/${treeId}/${treeId}`);
+      }
 
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
+        queryClient.invalidateQueries({
+          queryKey: ['treeList', treeId],
+        });
       }, 4000);
     },
     onError: (error) => {
@@ -99,13 +101,11 @@ const useTreeCreate = ({
 
   const { isLoading } = useWaitForTransaction({
     hash: writeData?.hash,
-    onSuccess: handleSuccess,
-    onError: handleError,
   });
 
   return {
     writeAsync,
-    isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
+    isLoading: isLoadingTx || isLoading || isLoadingNewReceiverResolvedAddress,
     receiverResolvedAddress: newReceiverResolvedAddress,
   };
 };

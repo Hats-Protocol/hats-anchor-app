@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React, { createContext, useState, useContext, useMemo } from 'react';
 
 import useToast from '@/hooks/useToast';
+import { useRouter } from 'next/router';
 
 const defaults = {
   createTree: false,
@@ -20,6 +21,7 @@ export const OverlayContextProvider = ({ children }) => {
   const [modals, setModals] = useState(defaults);
   const [commandPallet, setCommandPallet] = useState(false);
   const toast = useToast();
+  const router = useRouter();
 
   const showModal = (m) => {
     // This allows to show only one modal at a time.
@@ -37,6 +39,9 @@ export const OverlayContextProvider = ({ children }) => {
      * @param {object} toastData
      * @param {string} toastData.title
      * @param {string} toastData.description
+     * @param {string} redirect
+     * @param {boolean} clearModals
+     * @param {boolean} sendToast
      * @returns {Promise<void>}
      * @example
      * handlePendingTx({
@@ -50,10 +55,12 @@ export const OverlayContextProvider = ({ children }) => {
     const handlePendingTx = async ({
       hash,
       toastData,
+      redirect = null,
       clearModals = true,
       sendToast = true,
     }) => {
       const data = await waitForTransaction({ hash });
+      console.log(data);
 
       if (data) {
         if (sendToast) {
@@ -65,6 +72,10 @@ export const OverlayContextProvider = ({ children }) => {
 
         if (clearModals) {
           setModals(defaults);
+        }
+
+        if (redirect) {
+          router.push(redirect);
         }
       } else {
         // TODO handle error
