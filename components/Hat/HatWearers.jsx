@@ -12,7 +12,6 @@ import {
   MenuList,
   MenuItem,
   Tooltip,
-  Code,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
@@ -30,6 +29,7 @@ import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
 import { formatAddress } from '@/lib/general';
 import {
+  isMutable,
   isTopHat,
   isTopHatOrMutable,
   prettyIdToId,
@@ -134,10 +134,23 @@ const WearerRow = ({
                       setHatToTransfer(hatData);
                       setModals({ transferHat: true });
                     }}
-                    // is disabled if is not a top hat or mutable, but enabled if it is linked top hat
-                    isDisabled={!isTopHatOrMutable(hatData) && !linkedTopHat}
+                    // is disabled if is not a top hat or mutable,
+                    // but enabled if it is linked top hat and mutable
+                    isDisabled={
+                      !isTopHatOrMutable(hatData) &&
+                      !(linkedTopHat && isMutable(hatData))
+                    }
                   >
-                    Transfer
+                    <Tooltip
+                      label={!isMutable(hatData) ? 'Hat is not mutable' : ''}
+                      shouldWrapChildren
+                      placement='left'
+                      hasArrow
+                      bg='gray.100'
+                      color='black'
+                    >
+                      Transfer
+                    </Tooltip>
                   </MenuItem>
                 )}
                 {/* {isAdmin(
