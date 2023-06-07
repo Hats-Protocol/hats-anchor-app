@@ -1,6 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { isAddress } from 'viem';
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -38,21 +37,15 @@ const useModuleUpdate = ({
       ? 'changeHatEligibility'
       : 'changeHatToggle';
 
+  const address = (newResolvedAddress ?? newAddress) || ZERO_ADDRESS;
+
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: _.toNumber(chainId),
     abi,
     functionName,
-    args: [
-      decimalId(hatId),
-      (newResolvedAddress ?? newAddress) || ZERO_ADDRESS,
-    ],
-    enabled:
-      !!hatsAddress &&
-      !!moduleType &&
-      !!hatId &&
-      !!newAddress &&
-      isAddress(newAddress),
+    args: [decimalId(hatId), address],
+    enabled: !!hatsAddress && !!moduleType && !!hatId && !!newAddress,
   });
 
   const { writeAsync } = useContractWrite({

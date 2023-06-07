@@ -47,6 +47,10 @@ const useHatCreate = ({
     chainId: 1,
   });
 
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
@@ -56,8 +60,8 @@ const useHatCreate = ({
       prettyIdToId(admin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
       details || '',
       maxSupply || '1',
-      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
-      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
+      eligibilityAddress,
+      toggleAddress,
       mutable === 'Mutable',
       imageUrl || '',
     ],

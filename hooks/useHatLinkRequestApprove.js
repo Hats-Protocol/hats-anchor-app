@@ -50,6 +50,10 @@ const useHatLinkRequestApprove = ({
     chainId: 1,
   });
 
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
@@ -58,8 +62,8 @@ const useHatLinkRequestApprove = ({
     args: [
       topHatDomain,
       decimalId(newAdmin),
-      (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS,
-      (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS,
+      eligibilityAddress,
+      toggleAddress,
       description,
       imageUrl || '',
     ],

@@ -34,16 +34,14 @@ const useHatTransferTree = ({
     chainId: 1,
   });
 
+  const newWearerAddress = newWearerResolvedAddress ?? newWearer;
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'transferHat',
-    args: [
-      decimalId(hatData.id),
-      currentWearerAddress,
-      newWearerResolvedAddress ?? newWearer,
-    ],
+    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
     enabled:
       Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&

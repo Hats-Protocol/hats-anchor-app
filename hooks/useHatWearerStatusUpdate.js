@@ -36,6 +36,8 @@ const useHatWearerStatusSet = ({
     chainId: 1,
   });
 
+  const wearerAddress = (wearerResolvedAddress ?? wearer) || '';
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId,
@@ -43,7 +45,7 @@ const useHatWearerStatusSet = ({
     functionName: 'setHatWearerStatus',
     args: [
       prettyIdToId(hatId), // not a valid fallback? throw instead?
-      (wearerResolvedAddress ?? wearer) || '',
+      wearerAddress,
       eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
