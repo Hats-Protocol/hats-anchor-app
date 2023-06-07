@@ -12,9 +12,10 @@ import {
   MenuList,
   MenuItem,
   Tooltip,
+  Code,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BsChevronRight, BsChevronLeft } from 'react-icons/bs';
 import { FaEllipsisV } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
@@ -28,17 +29,25 @@ import HatWearerForm from '@/forms/HatWearerForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
 import { formatAddress } from '@/lib/general';
-import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import {
+  isTopHat,
+  isTopHatOrMutable,
+  prettyIdToId,
+  prettyIdToIp,
+} from '@/lib/hats';
+import { fetchAllTreesByIds } from '@/gql/helpers';
 
 const WEARERS_PER_PAGE = 5;
 
 const WearerRow = ({
+  linkedTopHat = false,
   chainId,
   hatData,
   user,
   wearer,
   setModals,
   setWearerToTransferFrom,
+  setHatToTransfer,
   isAdminUser,
 }) => {
   const localOverlay = useOverlay();
@@ -86,9 +95,14 @@ const WearerRow = ({
         justify='space-between'
         p={1}
       >
-        <Link href={`/wearers/${wearer}`} key={wearer}>
-          <Text>{ensName || formatAddress(wearer)}</Text>
-        </Link>
+        <Flex>
+          {linkedTopHat && (
+            <Text pr={2}>Linked hat #{prettyIdToIp(hatData.prettyId)}: </Text>
+          )}
+          <Link href={`/wearers/${wearer}`} key={wearer}>
+            <Text>{ensName || formatAddress(wearer)}</Text>
+          </Link>
+        </Flex>
 
         <HStack spacing={6}>
           {user ? (
@@ -117,9 +131,11 @@ const WearerRow = ({
                   <MenuItem
                     onClick={() => {
                       setWearerToTransferFrom(wearer);
+                      setHatToTransfer(hatData);
                       setModals({ transferHat: true });
                     }}
-                    isDisabled={!isTopHatOrMutable(hatData)}
+                    // is disabled if is not a top hat or mutable, but enabled if it is linked top hat
+                    isDisabled={!isTopHatOrMutable(hatData) && !linkedTopHat}
                   >
                     Transfer
                   </MenuItem>
@@ -175,13 +191,27 @@ const WearerRow = ({
   );
 };
 
-function HatWearers({ hatData, chainId, isAdminUser }) {
+function HatWearers({ hatData, chainId, isAdminUser, parentOfTrees }) {
   const [currentPage, setCurrentPage] = useState(0);
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
+  const [hatToTransfer, setHatToTransfer] = useState({});
   const wearers = _.get(hatData, 'wearers', []);
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+
+  const [allParentOfTrees, setAllParentOfTrees] = useState([]);
+
+  // need to move this into getStaticProps of hat
+  useEffect(() => {
+    const fetchParentOfTrees = async () => {
+      const treeIds = parentOfTrees.map((tree) => prettyIdToId(tree.id));
+      const parentTrees = await fetchAllTreesByIds(treeIds, chainId);
+      setAllParentOfTrees(parentTrees);
+    };
+
+    fetchParentOfTrees();
+  }, [parentOfTrees, chainId]);
 
   const wearerPages = useMemo(() => {
     const w = [];
@@ -264,10 +294,25 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
                 setModals={setModals}
                 key={wearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
+                setHatToTransfer={setHatToTransfer}
                 isAdminUser={isAdminUser}
               />
             ))
           )}
+          {allParentOfTrees?.map((hat) => (
+            <WearerRow
+              linkedTopHat
+              chainId={chainId}
+              hatData={hat}
+              wearer={hat.wearers[0]?.id}
+              user={address}
+              setModals={setModals}
+              key={hat.id}
+              setWearerToTransferFrom={setWearerToTransferFrom}
+              setHatToTransfer={setHatToTransfer}
+              isAdminUser={isAdminUser}
+            />
+          ))}
         </Stack>
 
         <HStack spacing={3}>
@@ -303,7 +348,8 @@ function HatWearers({ hatData, chainId, isAdminUser }) {
         localOverlay={localOverlay}
       >
         <HatTransferForm
-          hatData={hatData}
+          id={_.get(hatToTransfer, 'id')}
+          prettyId={_.get(hatToTransfer, 'prettyId')}
           chainId={chainId}
           currentWearerAddress={wearerToTransferFrom}
         />

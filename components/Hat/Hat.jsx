@@ -427,6 +427,7 @@ const Hat = ({
             <TabPanel minH='370px'>
               <HatWearers
                 hatData={hatData}
+                parentOfTrees={parentOfTrees}
                 chainId={chainId}
                 isAdminUser={isAdminUser}
               />

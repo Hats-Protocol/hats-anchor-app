@@ -17,7 +17,8 @@ import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useHatTransferTree = ({
   currentWearerAddress,
-  hatData,
+  id,
+  prettyId,
   newWearer,
   chainId,
 }) => {
@@ -41,7 +42,7 @@ const useHatTransferTree = ({
     chainId,
     abi,
     functionName: 'transferHat',
-    args: [decimalId(hatData.id), currentWearerAddress, newWearerAddress],
+    args: [decimalId(id), currentWearerAddress, newWearerAddress],
     enabled:
       Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
@@ -65,17 +66,17 @@ const useHatTransferTree = ({
         toastData: {
           title: `Top Hat Transferred!`,
           description: `Successfully transferred top hat #${prettyIdToIp(
-            _.get(hatData, 'prettyId'),
+            prettyId,
           )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
         },
       });
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', _.get(hatData, 'id')],
+          queryKey: ['hatDetails', id],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+          queryKey: ['treeDetails', toTreeId(id)],
         });
       }, 4000);
     },

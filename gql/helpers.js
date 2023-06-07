@@ -49,6 +49,13 @@ export const fetchHatDetails = async (hatId, chainId) => {
   };
 };
 
+export const fetchAllTreesByIds = async (treeIds, chainId) => {
+  const promises = treeIds.map((treeId) => fetchHatDetails(treeId, chainId));
+  const treeDetails = await Promise.all(promises);
+
+  return treeDetails.filter((tree) => tree !== null);
+};
+
 export const fetchWearerDetails = async (address, chainId) => {
   const result = await client(chainId).request(GET_WEARER_DETAILS, {
     id: _.toLower(address),
