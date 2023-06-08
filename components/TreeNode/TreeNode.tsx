@@ -165,6 +165,7 @@ const HatHoverCard = ({
           <Heading
             size='sm'
             color={isCurrentHat ? '#437bc9' : isWearer ? '#2EA043' : '#6d858f'}
+            noOfLines={2}
           >
             {prettyIdToIp(name)}{' '}
             {_.get(hatDetails, 'name') || _.get(hatData, 'details')}
