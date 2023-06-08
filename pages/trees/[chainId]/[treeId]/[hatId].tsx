@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { switchNetwork } from '@wagmi/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardBody,
@@ -349,16 +349,27 @@ export const getStaticProps = async (context: any) => {
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
+
   let hatDetails: any;
   if (hatData?.details?.startsWith('ipfs://')) {
-    hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
+    try {
+      hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
+    } catch (err) {
+      console.error(err);
+      hatDetails = null; // default value
+    }
   }
 
   const topHatIdHex = _.get(treeData, 'hats[0].id');
   const topHatData = await fetchHatDetails(topHatIdHex, Number(chainId));
-  let topHatDetails;
+  let topHatDetails: any;
   if (topHatData?.details?.startsWith('ipfs://')) {
-    topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
+    try {
+      topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
+    } catch (err) {
+      console.error(err);
+      topHatDetails = null; // default value
+    }
   }
 
   const { linkedToHat, parentOfTrees } = treeData || {
@@ -385,11 +396,11 @@ export const getStaticProps = async (context: any) => {
       linkedHatIds,
       hatData: {
         ...hatData,
-        detailsResolved: hatDetails?.data || null,
+        detailsResolved: hatDetails || null,
       },
       topHatData: {
         ...topHatData,
-        detailsResolved: topHatDetails?.data || null,
+        detailsResolved: topHatDetails || null,
       },
     },
     revalidate: 10,
