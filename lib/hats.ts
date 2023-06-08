@@ -1,53 +1,33 @@
 /* eslint-disable no-use-before-define */
+import { Data } from '@/components/OrgChart';
 import _ from 'lodash';
 
-export function arrayToTreeRecursive(arr: any[], parent: string): any[] {
-  return _.map(
-    _.filter(arr, (item) => item.hatParent === parent),
-    (child) => ({
-      name: child.hatName,
-      attributes: {
-        details: child.details,
-        imageURI: child.imageURI,
-        dottedLine: child.dottedLine,
-        treeId: child.treeId,
-      },
-      children: arrayToTreeRecursive(arr, child.hatName),
-    }),
-  );
-}
+export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
+  const hatsArray: Data[] = [];
 
-export function toTreeStructure(treeData: any, hatIdToImage: any) {
-  // ! need to get all hats data to check inactive status
-  // Map the hats array to include the hatName, hatParent, and imageURI
-  const hatsArray = treeData?.hats?.map((hat: any) => {
-    // set the hatParent to the hat's admin.prettyId
+  treeData?.hats?.forEach((hat: any) => {
     let hatParent = hat.admin?.prettyId;
-    // If the hat is an admin of itself, set the hatParent to 'dummy'
     if (hat.admin.prettyId === hat.prettyId) {
-      hatParent = 'dummy';
-    }
-    // If the hat's parent is the linked hat
-    if (hat.admin.prettyId === treeData.linkedToHat?.prettyId) {
-      hatParent = treeData.linkedToHat?.prettyId;
+      hatParent = null;
     }
 
-    return {
-      hatName: hat.prettyId,
-      hatParent,
+    hatsArray.push({
+      id: hat.prettyId,
+      parentId: hatParent,
       imageURI: hatIdToImage[_.get(hat, 'id')],
       treeId: hat.tree.id,
       dottedLine: hat.admin?.prettyId === treeData.linkedToHat?.prettyId,
-    };
+    });
   });
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
     hatsArray.push({
-      hatName: treeData.linkedToHat.prettyId,
-      hatParent: 'dummy',
+      id: treeData.linkedToHat.prettyId,
+      parentId: null,
       imageURI: hatIdToImage[treeData.linkedToHat.id],
       treeId: treeData.linkedToHat.tree.id,
+      dottedLine: false,
     });
   }
 
@@ -56,8 +36,8 @@ export function toTreeStructure(treeData: any, hatIdToImage: any) {
     treeData.parentOfTrees.forEach((childTree: any) => {
       const id = prettyIdToId(childTree.id);
       hatsArray.push({
-        hatName: childTree.id,
-        hatParent: childTree.linkedToHat.prettyId,
+        id: childTree.id,
+        parentId: childTree.linkedToHat.prettyId,
         imageURI: id ? hatIdToImage[id] : undefined,
         treeId: childTree.id,
         dottedLine: true,
@@ -65,12 +45,7 @@ export function toTreeStructure(treeData: any, hatIdToImage: any) {
     });
   }
 
-  if (!hatsArray) return [];
-
-  return arrayToTreeRecursive(
-    [{ hatName: 'dummy', hatParent: 'null' }, ...hatsArray],
-    'dummy',
-  );
+  return hatsArray;
 }
 
 export function prettyIdToId(id: string | undefined) {

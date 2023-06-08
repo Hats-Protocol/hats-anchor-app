@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { switchNetwork } from '@wagmi/core';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardBody,
@@ -42,7 +42,7 @@ import Modal from '@/components/Modal';
 import HatCreateForm from '@/forms/HatCreateForm';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import useImageURIs from '@/hooks/useImageURIs';
-import TreeNode from '@/components/TreeNode';
+// import TreeNode from '@/components/TreeNode';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useContainerDimensions from '@/hooks/useContainerDimensions';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
@@ -50,7 +50,7 @@ import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 
-const TreeGraph = dynamic(() => import('react-d3-tree'), { ssr: false });
+const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 const TreeDetails = ({
   treeId,
@@ -84,7 +84,7 @@ const TreeDetails = ({
     'prettyId',
   );
 
-  const { data: imagesData, loading: imagesLoading } = useImageURIs(
+  const { data: imagesData } = useImageURIs(
     treeData?.hats?.map((hat: any) => hat.id).concat(linkedHatIds),
     chainId,
   );
@@ -269,26 +269,31 @@ const TreeDetails = ({
           <Card gridAutoRows='auto'>
             <CardBody minH='400px' ref={containerRef}>
               {!_.isEmpty(tree) ? (
-                <TreeGraph
-                  data={tree}
-                  dimensions={dimensions}
-                  orientation='vertical'
-                  nodeSize={{ x: 300, y: 200 }}
-                  translate={{ x: 200, y: 200 }}
-                  renderCustomNodeElement={(rd3tProps) =>
-                    TreeNode({
-                      rd3tProps,
-                      handleNodeClick,
-                      handleAddChildClick,
-                      handleRequestLink,
-                      activeHatId: hatId,
-                      wearerHats,
-                      chainId,
-                    })
-                  }
-                  pathClassFunc={({ target }) =>
-                    target.data.attributes?.dottedLine ? 'dotted-link' : ''
-                  }
+                // <TreeGraph
+                //   data={tree}
+                //   dimensions={dimensions}
+                //   orientation='vertical'
+                //   nodeSize={{ x: 300, y: 200 }}
+                //   translate={{ x: 200, y: 200 }}
+                //   renderCustomNodeElement={(rd3tProps) =>
+                //     TreeNode({
+                //       rd3tProps,
+                //       handleNodeClick,
+                //       handleAddChildClick,
+                //       handleRequestLink,
+                //       activeHatId: hatId,
+                //       wearerHats,
+                //       chainId,
+                //     })
+                //   }
+                //   pathClassFunc={({ target }) =>
+                //     target.data.attributes?.dottedLine ? 'dotted-link' : ''
+                //   }
+                // />
+                <OrgChart
+                  tree={tree}
+                  onNodeClick={handleNodeClick}
+                  setClick={() => console.log('setClick')}
                 />
               ) : (
                 <Flex
