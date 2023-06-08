@@ -27,15 +27,18 @@ const Home = ({
     [setSelectedNetwork],
   );
 
-  const { trees, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId: selectedNetwork,
       initialData,
     });
+  const trees = useMemo(() => {
+    return _.flatten(_.get(data, 'pages'));
+  }, [data]);
 
   const topHatIds = useMemo(() => {
-    return _.map(_.flatten(_.get(trees, 'pages')), 'hats[0].id');
-  }, [trees]);
+    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0].id');
+  }, [data]);
 
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
 
@@ -49,29 +52,27 @@ const Home = ({
           selectedNetwork={selectedNetwork}
         />
       </Flex>
-      {trees && (
+      {!_.isEmpty(trees) && (
         <InfiniteScroll
-          dataLength={_.size(_.flatten(_.get(trees, 'pages')))}
+          dataLength={_.size(trees)}
           next={fetchNextPage}
           hasMore={hasNextPage || false}
-          loader={<Spinner />}
+          loader={
+            <Flex justify='center' align='center' pt={10}>
+              <Spinner />
+            </Flex>
+          }
         >
           <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
-            {_.map(_.get(trees, 'pages'), (tree: any) => (
+            {_.map(trees, (tree: any) => (
               <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
             ))}
           </SimpleGrid>
         </InfiniteScroll>
       )}
-      {!_.isEmpty(_.get(trees, 'pages')) &&
-        !(isLoading || isFetchingNextPage) && (
-          <Flex justify='center' align='center'>
-            <Heading size='md'>No Trees Found</Heading>
-          </Flex>
-        )}
-      {(isLoading || isFetchingNextPage) && (
-        <Flex justify='center' align='center' pt={10}>
-          <Spinner />
+      {_.isEmpty(trees) && !(isLoading || isFetchingNextPage) && (
+        <Flex justify='center' align='center'>
+          <Heading size='md'>No Trees Found</Heading>
         </Flex>
       )}
     </Layout>

@@ -8,7 +8,7 @@ const usePaginatedTreeList = ({
   initialData,
 }: UsePaginatedTreeListProps) => {
   const {
-    data: trees,
+    data,
     fetchNextPage,
     isLoading,
     hasNextPage,
@@ -16,15 +16,16 @@ const usePaginatedTreeList = ({
     error,
   } = useInfiniteQuery({
     queryKey: ['treeList', chainId],
-    getNextPageParam: (_, allPages) =>
-      allPages ? allPages.length + 1 : undefined,
-    queryFn: ({ pageParam = 1 }) =>
+    getNextPageParam: (returnData: any[], allPages: any[][]) => {
+      return returnData.length === perPage ? allPages.length : undefined;
+    },
+    queryFn: ({ pageParam = 0 }) =>
       fetchPaginatedTrees(chainId, pageParam, perPage),
     initialData,
   });
 
   return {
-    trees,
+    data,
     isLoading,
     error,
     hasNextPage,

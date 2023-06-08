@@ -40,9 +40,10 @@ export const fetchPaginatedTrees = async (
   perPage: number,
 ) => {
   const result = await client(chainId).request(GET_PAGINATED_TREES, {
-    skip: (page - 1) * perPage,
+    skip: page * perPage,
     first: perPage,
   });
+  console.log(result);
 
   return mapWithChainId(_.get(result, 'trees', null), chainId);
 };
