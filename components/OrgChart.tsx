@@ -1,8 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { OrgChart } from 'd3-org-chart';
 
-// Assume that your data type looks like this
-// Please replace this with your actual data type
 export interface Data {
   id: string;
   parentId: string | null;
@@ -23,7 +21,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   setClick,
 }) => {
   const d3Container = useRef<HTMLDivElement>(null);
-  const [chart, setChart] = useState<OrgChart<unknown> | null>(null); // Use useState to manage the state of the chart
+  const [chart, setChart] = useState<OrgChart<unknown> | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -41,7 +39,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     if (tree && d3Container.current) {
       console.log('chart', chart);
       if (!chart) {
-        setChart(new OrgChart()); // Update the chart state using setChart
+        setChart(new OrgChart());
       } else {
         chart
           .container(d3Container.current)
