@@ -343,57 +343,74 @@ const TreeDetails = ({
 // }
 
 export const getStaticProps = async (context: any) => {
-  const { treeId, hatId, chainId } = context.params;
-  const treeHex = decimalToTreeId(treeId);
-  const prettyHatId = urlIdToPrettyId(hatId);
-  const hatIdHex = prettyIdToId(prettyHatId);
-  const treeData = await fetchTreeDetails(treeHex, Number(chainId));
-  const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
-  let hatDetails: any;
-  if (hatData?.details?.startsWith('ipfs://')) {
-    hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
-  }
+  try {
+    const { treeId, hatId, chainId } = context.params;
+    const treeHex = decimalToTreeId(treeId);
+    const prettyHatId = urlIdToPrettyId(hatId);
+    const hatIdHex = prettyIdToId(prettyHatId);
+    const treeData = await fetchTreeDetails(treeHex, Number(chainId));
+    const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
+    let hatDetails: any;
+    if (hatData?.details?.startsWith('ipfs://')) {
+      hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
+    }
 
-  const topHatIdHex = _.get(treeData, 'hats[0].id');
-  const topHatData = await fetchHatDetails(topHatIdHex, Number(chainId));
-  let topHatDetails;
-  if (topHatData?.details?.startsWith('ipfs://')) {
-    topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
-  }
+    const topHatIdHex = _.get(treeData, 'hats[0].id');
+    const topHatData = await fetchHatDetails(topHatIdHex, Number(chainId));
+    let topHatDetails;
+    if (topHatData?.details?.startsWith('ipfs://')) {
+      topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
+    }
 
-  const { linkedToHat, parentOfTrees } = treeData || {
-    linkedToHat: { id: null },
-    parentOfTrees: [],
-  };
-  const linkedHatIds = [];
-  if (linkedToHat?.id) {
-    linkedHatIds.push(linkedToHat.id);
-  }
-  if (parentOfTrees) {
-    linkedHatIds.push(
-      ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
-    );
-  }
+    const { linkedToHat, parentOfTrees } = treeData || {
+      linkedToHat: { id: null },
+      parentOfTrees: [],
+    };
+    const linkedHatIds = [];
+    if (linkedToHat?.id) {
+      linkedHatIds.push(linkedToHat.id);
+    }
+    if (parentOfTrees) {
+      linkedHatIds.push(
+        ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
+      );
+    }
 
-  return {
-    props: {
-      treeId: treeHex || null,
-      chainId: _.toNumber(chainId),
-      hatId: hatIdHex || null,
-      prettyHatId: prettyHatId || null,
-      treeData: treeData || null,
-      linkedHatIds,
-      hatData: {
-        ...hatData,
-        detailsResolved: hatDetails?.data || null,
+    return {
+      props: {
+        treeId: treeHex || null,
+        chainId: _.toNumber(chainId),
+        hatId: hatIdHex || null,
+        prettyHatId: prettyHatId || null,
+        treeData: treeData || null,
+        linkedHatIds,
+        hatData: {
+          ...hatData,
+          detailsResolved: hatDetails?.data || null,
+        },
+        topHatData: {
+          ...topHatData,
+          detailsResolved: topHatDetails?.data || null,
+        },
       },
-      topHatData: {
-        ...topHatData,
-        detailsResolved: topHatDetails?.data || null,
+      revalidate: 10,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      props: {
+        treeId: null,
+        chainId: null,
+        hatId: null,
+        prettyHatId: null,
+        treeData: null,
+        linkedHatIds: null,
+        hatData: null,
+        topHatData: null,
       },
-    },
-    revalidate: 10,
-  };
+      revalidate: 10,
+    };
+  }
 };
 
 export const getStaticPaths = async () => {

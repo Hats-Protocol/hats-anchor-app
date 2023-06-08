@@ -80,15 +80,25 @@ const Home = ({
 };
 
 export const getStaticProps = async () => {
-  const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
-  const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
+  try {
+    const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
+    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
 
-  return {
-    props: {
-      defaultNetworkId,
-      trees,
-    },
-  };
+    return {
+      props: {
+        defaultNetworkId,
+        trees,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      props: {
+        defaultNetworkId: 1,
+        trees: [],
+      },
+    };
+  }
 };
 
 export default Home;
