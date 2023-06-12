@@ -27,6 +27,7 @@ export const explorerUrl = (chainId: number) => {
   return explorerUrls[chainId] || explorerUrls[5];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const clearNonObjects = (array: any[]) => {
   return _.filter(array, (item) => typeof item === 'object');
 };
