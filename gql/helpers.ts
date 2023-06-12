@@ -43,7 +43,6 @@ export const fetchPaginatedTrees = async (
     skip: page * perPage,
     first: perPage,
   });
-  console.log(result);
 
   return mapWithChainId(_.get(result, 'trees', null), chainId);
 };

@@ -136,41 +136,36 @@ const HatHoverCard = ({
           )}
         </Box>
         <Flex w='100%' justify='flex-end' minH='25px'>
-          {address &&
-            chainId === userChain &&
-            (!_.isEmpty(wearerHats) || isWearerOrAdminOfHat) && (
-              <Menu placement='bottom-end'>
-                <MenuButton
-                  as={IconButton}
-                  icon={<Icon as={FaEllipsisV} />}
-                  aria-label='Options'
-                  variant='ghost'
-                  size='xs'
-                />
-                <MenuList>
-                  {address && chainId === userChain && isWearerOrAdminOfHat && (
-                    <MenuItem onClick={() => handleAddChildClick(name)}>
-                      Add Child
-                    </MenuItem>
-                  )}
-                  {address &&
-                    chainId === userChain &&
-                    !_.isEmpty(wearerHats) && (
-                      <MenuItem onClick={() => handleRequestLink(name)}>
-                        Link Top Hat
-                      </MenuItem>
-                    )}
-                  <MenuItem onClick={() => handleToggle()}>
-                    Expand/Collapse
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            )}
+          <Menu placement='bottom-end'>
+            <MenuButton
+              as={IconButton}
+              icon={<Icon as={FaEllipsisV} />}
+              aria-label='Options'
+              variant='ghost'
+              size='xs'
+            />
+            <MenuList>
+              {address && chainId === userChain && isWearerOrAdminOfHat && (
+                <MenuItem onClick={() => handleAddChildClick(name)}>
+                  Add Child
+                </MenuItem>
+              )}
+              {address && chainId === userChain && !_.isEmpty(wearerHats) && (
+                <MenuItem onClick={() => handleRequestLink(name)}>
+                  Link Top Hat
+                </MenuItem>
+              )}
+              <MenuItem onClick={() => handleToggle()}>
+                Expand/Collapse
+              </MenuItem>
+            </MenuList>
+          </Menu>
         </Flex>
         <Stack mt={4} spacing={1}>
           <Heading
             size='sm'
             color={isCurrentHat ? '#437bc9' : isWearer ? '#2EA043' : '#6d858f'}
+            noOfLines={2}
           >
             {prettyIdToIp(name)}{' '}
             {_.get(hatDetails, 'name') || _.get(hatData, 'details')}

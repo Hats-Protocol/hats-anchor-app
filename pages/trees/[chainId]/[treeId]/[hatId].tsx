@@ -357,19 +357,19 @@ export const getStaticProps = async (context: any) => {
     }
   }
 
-  const { linkedToHat, parentOfTrees } = treeData || {
-    linkedToHat: { id: null },
-    parentOfTrees: [],
-  };
-  const linkedHatIds = [];
-  if (linkedToHat?.id) {
-    linkedHatIds.push(linkedToHat.id);
-  }
-  if (parentOfTrees) {
-    linkedHatIds.push(
-      ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
-    );
-  }
+    const { linkedToHat, parentOfTrees } = treeData || {
+      linkedToHat: { id: null },
+      parentOfTrees: [],
+    };
+    const linkedHatIds = [];
+    if (linkedToHat?.id) {
+      linkedHatIds.push(linkedToHat.id);
+    }
+    if (parentOfTrees) {
+      linkedHatIds.push(
+        ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
+      );
+    }
 
   return {
     props: {
