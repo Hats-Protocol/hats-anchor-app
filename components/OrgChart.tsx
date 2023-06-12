@@ -97,7 +97,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
       ) : (
         <div
           style={{
-            height: 400,
+            minHeight: 400,
             overflow: 'hidden',
           }}
           ref={d3Container}
