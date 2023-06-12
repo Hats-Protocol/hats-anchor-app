@@ -61,7 +61,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               <div style='width:${d.width}px; height:${
               d.height
             }px; padding-top: 27px; padding-left:1px; padding-right:1px'>
-                <div style="display: flex; align-items: center; justify-content: space-between; background-color: rgba(255, 255, 255, 0.92); border: 1px solid #4A5568; border-radius: 4px; width: ${
+                <div style="display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.92); border: 1px solid #4A5568; border-radius: 4px; width: ${
                   d.width - 2
                 }px; height: 70px;">
                   <img src="${
