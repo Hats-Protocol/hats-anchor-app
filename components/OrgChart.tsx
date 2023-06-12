@@ -40,14 +40,13 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
   useLayoutEffect(() => {
     if (tree && d3Container.current) {
-      const containerId = 'd3Container';
-      d3Container.current.id = containerId;
-
       if (!chart) {
         setChart(new OrgChart());
       } else {
         chart
-          .container(`#${containerId}`)
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          .container(d3Container.current)
           .data(tree)
           .svgHeight(480)
           .nodeHeight(() => 85)
