@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import { Data } from '@/components/OrgChart';
 import { fetchHatsDetails } from '@/gql/helpers';
+import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 
 import _ from 'lodash';
 
@@ -28,8 +29,11 @@ export async function toTreeStructure(
 
   // needs to be optimised
   const hatsDetails = await fetchHatsDetails(hatIds, chainId);
+  const detailsFields = hatsDetails.map((hat: any) => hat.details);
+  const details = await fetchMultipleHatsDetails(detailsFields);
+
   const idToHatDetails = Object.fromEntries(
-    hatsDetails.map((hat: any) => [hat.id, hat.details]),
+    hatsDetails.map((hat: any, index) => [hat.id, details[index]]),
   );
 
   treeData?.hats?.forEach((hat: any) => {

@@ -56,6 +56,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           })
           .nodeContent((d: any) => {
             const { imageURI, name, details } = d.data;
+            const hasChildren = tree.filter((t) => t.parentId === d.id).length;
+            console.log('hasChildren', hasChildren);
+
+            const detailsName =
+              // eslint-disable-next-line no-nested-ternary
+              details?.type === '1.0'
+                ? details?.data?.name
+                : typeof details === 'string'
+                ? details
+                : '';
 
             return `
               <div style='width:${d.width}px; height:${
@@ -66,10 +76,10 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 }px; height: 70px;">
                   <img src="${
                     imageURI ?? '/icon.jpeg'
-                  }" style="width: 70px; height: 70px;" />
+                  }" style="width: 70px; height: 70px; border: 1px solid #4A5568; border-radius: 4px; margin-left: -1px;" />
                   <div style="display: flex; flex-direction: column; padding: 10px; height: 100%">
                     <div style="font-size: 15px; color: #08011E;">${name}</div>
-                    <div style="font-size: 12px; color: #08011E;">${details}</div>
+                    <div style="font-size: 12px; color: #08011E;">${detailsName}</div>
                   </div>
                 </div>
               </div>`;
@@ -88,6 +98,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
         <div
           style={{
             height: 400,
+            overflow: 'hidden',
           }}
           ref={d3Container}
           id='d3Container'

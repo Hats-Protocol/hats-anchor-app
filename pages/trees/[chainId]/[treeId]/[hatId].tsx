@@ -72,6 +72,38 @@ const TreeDetails = ({
     wearerAddress: address,
     chainId,
   });
+  const [topHatDetails, setTopHatDetails] = useState<any>({});
+  const [hatDetails, setHatDetails] = useState<any>({});
+
+  useEffect(() => {
+    const getDetails = async () => {
+      let details: any;
+      if (hatData?.details?.startsWith('ipfs://')) {
+        try {
+          details = await fetchDetailsIpfs(_.get(hatData, 'details'));
+          setHatDetails(details.data);
+        } catch (err) {
+          console.error(err);
+          details = null; // default value
+        }
+      }
+
+      const topHatIdHex = _.get(treeData, 'hats[0].id');
+      const topHat = await fetchHatDetails(topHatIdHex, Number(chainId));
+      let topDetails: any;
+      if (topHat?.details?.startsWith('ipfs://')) {
+        try {
+          topDetails = await fetchDetailsIpfs(_.get(topHat, 'details'));
+          setTopHatDetails(topDetails.data);
+        } catch (err) {
+          console.error(err);
+          topDetails = null; // default value
+        }
+      }
+    };
+
+    getDetails();
+  }, [treeData, hatData, chainId]);
 
   const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
   const wearerTopHats = _.map(
@@ -108,7 +140,7 @@ const TreeDetails = ({
       const tree = await toTreeStructure(treeData, imagesData, chainId);
       setOrgChartTree(tree);
     };
-  
+
     fetchTreeAndSetState();
   }, [treeData, imagesData]);
 
@@ -309,7 +341,8 @@ const TreeDetails = ({
                   treeId={treeId}
                   hatImage={imagesData[hatId]}
                   childrenHats={childrenHats}
-                  topHatDetails={topHatData?.detailsResolved}
+                  topHatDetails={topHatDetails}
+                  hatDetails={hatDetails}
                   parentOfTrees={_.get(treeData, 'parentOfTrees')}
                   linkedToHat={_.get(treeData, 'linkedToHat')}
                   linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
@@ -346,27 +379,8 @@ export const getStaticProps = async (context: any) => {
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
 
-  let hatDetails: any;
-  if (hatData?.details?.startsWith('ipfs://')) {
-    try {
-      hatDetails = await fetchDetailsIpfs(_.get(hatData, 'details'));
-    } catch (err) {
-      console.error(err);
-      hatDetails = null; // default value
-    }
-  }
-
   const topHatIdHex = _.get(treeData, 'hats[0].id');
   const topHatData = await fetchHatDetails(topHatIdHex, Number(chainId));
-  let topHatDetails: any;
-  if (topHatData?.details?.startsWith('ipfs://')) {
-    try {
-      topHatDetails = await fetchDetailsIpfs(_.get(topHatData, 'details'));
-    } catch (err) {
-      console.error(err);
-      topHatDetails = null; // default value
-    }
-  }
 
   const { linkedToHat, parentOfTrees } = treeData || {
     linkedToHat: { id: null },
@@ -390,14 +404,8 @@ export const getStaticProps = async (context: any) => {
       prettyHatId: prettyHatId || null,
       treeData: treeData || null,
       linkedHatIds,
-      hatData: {
-        ...hatData,
-        detailsResolved: hatDetails || null,
-      },
-      topHatData: {
-        ...topHatData,
-        detailsResolved: topHatDetails || null,
-      },
+      hatData: hatData || null,
+      topHatData: topHatData || null,
     },
     revalidate: 10,
   };
