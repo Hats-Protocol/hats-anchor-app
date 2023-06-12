@@ -42,9 +42,7 @@ import Modal from '@/components/Modal';
 import HatCreateForm from '@/forms/HatCreateForm';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import useImageURIs from '@/hooks/useImageURIs';
-// import TreeNode from '@/components/TreeNode';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import useContainerDimensions from '@/hooks/useContainerDimensions';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
@@ -279,11 +277,33 @@ const TreeDetails = ({
           {/* tree explorer */}
           <Card gridAutoRows='auto'>
             <CardBody minH='400px'>
+            {/* <TreeGraph
+                  data={tree}
+                  dimensions={dimensions}
+                  orientation='vertical'
+                  nodeSize={{ x: 300, y: 200 }}
+                  translate={{ x: 200, y: 200 }}
+                  renderCustomNodeElement={(rd3tProps) =>
+                    TreeNode({
+                      rd3tProps,
+                      activeHatId: hatId,
+                      wearerHats,
+                      chainId,
+                    })
+                  }
+                  pathClassFunc={({ target }) =>
+                    target.data.attributes?.dottedLine ? 'dotted-link' : ''
+                  }
+                /> */}
               <OrgChart
                 tree={orgChartTree}
                 isLoading={imagesDataLoading}
                 onNodeClick={handleNodeClick}
-                setClick={() => console.log('setClick')}
+                handleAddChildClick={handleAddChildClick}
+                handleRequestLink={handleRequestLink}
+                activeHatId={hatId}
+                wearerHats={wearerHats}
+                chainId={chainId}
               />
             </CardBody>
           </Card>

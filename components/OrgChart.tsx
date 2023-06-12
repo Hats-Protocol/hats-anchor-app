@@ -13,30 +13,34 @@ export interface Data {
 
 interface OrgChartComponentProps {
   tree: Data[] | null;
-  onNodeClick: (nodePrettyId: string, nodeTreeId: string) => void;
-  setClick: (addNode: (node: Data) => void) => void;
   isLoading: boolean;
+  onNodeClick: (nodePrettyId: string, nodeTreeId: string) => void;
+  handleAddChildClick: (nodePrettyId: string) => void;
+  handleRequestLink: (nodePrettyId: string) => void;
+  chainId: number;
+  wearerHats: string[];
+  activeHatId: string;
 }
 
 const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   tree,
-  onNodeClick,
-  setClick,
   isLoading,
+  onNodeClick,
+  handleAddChildClick,
+  handleRequestLink,
+  chainId,
+  wearerHats,
+  activeHatId,
 }) => {
+  console.log(
+    handleAddChildClick,
+    handleRequestLink,
+    chainId,
+    wearerHats,
+    activeHatId,
+  );
   const d3Container = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<OrgChart<unknown> | null>(null);
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-
-  function addNode(node: Data) {
-    if (chart) {
-      chart.addNode(node);
-    }
-  }
-
-  setClick(addNode);
 
   useLayoutEffect(() => {
     if (tree && d3Container.current) {
@@ -57,37 +61,35 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           })
           .nodeContent((d: any) => {
             const color = '#FFFFFF';
-            const imageDiffVert = 25 + 2;
+            const imageDiffVert = 27;
             const { name } = d.data;
 
             return `
             <div style='width:${d.width}px;height:${d.height}px;padding-top:${
               imageDiffVert - 2
             }px;padding-left:1px;padding-right:1px'>
-                    <div style="font-family: 'Inter', sans-serif;background-color:${color};  margin-left:-1px;width:${
+              <div style="font-family: 'Inter', sans-serif;background-color:${color};  margin-left:-1px;width:${
               d.width - 2
             }px;height:${
               d.height - imageDiffVert
             }px;border-radius:10px;border: 1px solid #E4E2E9">
-                        <div style="display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${name}</div>
-                        <div style="background-color:${color};margin-top:${
+                <div style="display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${name}</div>
+                <div style="background-color:${color};margin-top:${
               -imageDiffVert - 20
-            }px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;" ></div>
-                        <div style="margin-top:${
-                          -imageDiffVert - 20
-                        }px;">   <img src=" ${
-              d.data.imageURI ?? '/icon.jpeg'
-            }" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" /></div>
-                        <div style="font-size:15px;color:#08011E;margin-left:20px;margin-top:10px">  ${
-                          d.data.name
-                        } </div>
-                        <div style="color:#716E7B;margin-left:20px;margin-top:3px;font-size:10px;"> ${
-                          d.data.position
-                        } </div>
-
-                    </div>
+            }px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;"></div>
+                <div style="margin-top:${-imageDiffVert - 20}px;">
+                  <img src=" ${
+                    d.data.imageURI ?? '/icon.jpeg'
+                  }" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" />
                 </div>
-                        `;
+                <div style="font-size:15px;color:#08011E;margin-left:20px;margin-top:10px"> ${
+                  d.data.name
+                } </div>
+                <div style="color:#716E7B;margin-left:20px;margin-top:3px;font-size:10px;"> ${
+                  d.data.position
+                } </div>
+              </div>
+            </div> `;
           })
           .render();
       }
