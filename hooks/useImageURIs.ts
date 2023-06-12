@@ -19,7 +19,7 @@ import { chainsMap } from '@/lib/web3';
  */
 const useImageURIs = (hats: any[], chainId: number) => {
   const [data, setData] = useState<any>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   let calls: any[] = [];
   const chain = chainsMap(chainId);
