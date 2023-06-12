@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 import { switchNetwork } from '@wagmi/core';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardBody,
@@ -49,6 +49,7 @@ import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
+import { Data } from '@/components/OrgChart';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -67,7 +68,6 @@ const TreeDetails = ({
   const router = useRouter();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const [dimensions, containerRef] = useContainerDimensions();
   const { address } = useAccount();
   const userChain = useChainId();
   const { data: wearerData } = useWearerDetails({
@@ -84,11 +84,6 @@ const TreeDetails = ({
     'prettyId',
   );
 
-  const { data: imagesData } = useImageURIs(
-    treeData?.hats?.map((hat: any) => hat.id).concat(linkedHatIds),
-    chainId,
-  );
-
   const { data: topHatEnsName } = useEnsName({
     address: _.get(_.first(_.get(topHatData, 'wearers')), 'id'),
     chainId: 1,
@@ -100,8 +95,24 @@ const TreeDetails = ({
   );
 
   const [defaultHatAdmin, setDefaultHatAdmin] = useState<string>();
-  const tree = toTreeStructure(treeData, imagesData);
+
   const events = _.get(treeData, 'events');
+
+  const { data: imagesData, loading: imagesDataLoading } = useImageURIs(
+    treeData?.hats?.map((hat: any) => hat.id).concat(linkedHatIds),
+    chainId,
+  );
+
+  const [orgChartTree, setOrgChartTree] = useState<Data[]>([])
+
+  useEffect(() => {
+    const tree = toTreeStructure(treeData, imagesData);
+    setOrgChartTree(tree)
+  
+  }, [treeData, imagesData])
+  
+
+  console.log('tree', orgChartTree);
 
   const treeInfoTable = [
     {
@@ -267,44 +278,13 @@ const TreeDetails = ({
 
           {/* tree explorer */}
           <Card gridAutoRows='auto'>
-            <CardBody minH='400px' ref={containerRef}>
-              {!_.isEmpty(tree) ? (
-                // <TreeGraph
-                //   data={tree}
-                //   dimensions={dimensions}
-                //   orientation='vertical'
-                //   nodeSize={{ x: 300, y: 200 }}
-                //   translate={{ x: 200, y: 200 }}
-                //   renderCustomNodeElement={(rd3tProps) =>
-                //     TreeNode({
-                //       rd3tProps,
-                //       handleNodeClick,
-                //       handleAddChildClick,
-                //       handleRequestLink,
-                //       activeHatId: hatId,
-                //       wearerHats,
-                //       chainId,
-                //     })
-                //   }
-                //   pathClassFunc={({ target }) =>
-                //     target.data.attributes?.dottedLine ? 'dotted-link' : ''
-                //   }
-                // />
-                <OrgChart
-                  tree={tree}
-                  onNodeClick={handleNodeClick}
-                  setClick={() => console.log('setClick')}
-                />
-              ) : (
-                <Flex
-                  h='full'
-                  w='full'
-                  alignItems='center'
-                  justifyContent='center'
-                >
-                  <Spinner />
-                </Flex>
-              )}
+            <CardBody minH='400px'>
+              <OrgChart
+                tree={orgChartTree}
+                isLoading={imagesDataLoading}
+                onNodeClick={handleNodeClick}
+                setClick={() => console.log('setClick')}
+              />
             </CardBody>
           </Card>
 

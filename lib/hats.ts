@@ -13,6 +13,7 @@ export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
 
     hatsArray.push({
       id: hat.prettyId,
+      name: hat.prettyId,
       parentId: hatParent,
       imageURI: hatIdToImage[_.get(hat, 'id')],
       treeId: hat.tree.id,
@@ -24,6 +25,7 @@ export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
   if (treeData?.linkedToHat) {
     hatsArray.push({
       id: treeData.linkedToHat.prettyId,
+      name: treeData.linkedToHat.prettyId,
       parentId: null,
       imageURI: hatIdToImage[treeData.linkedToHat.id],
       treeId: treeData.linkedToHat.tree.id,
@@ -37,6 +39,7 @@ export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
       const id = prettyIdToId(childTree.id);
       hatsArray.push({
         id: childTree.id,
+        name: childTree.id,
         parentId: childTree.linkedToHat.prettyId,
         imageURI: id ? hatIdToImage[id] : undefined,
         treeId: childTree.id,
