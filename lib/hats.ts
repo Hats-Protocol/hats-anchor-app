@@ -1,8 +1,13 @@
 /* eslint-disable no-use-before-define */
 import { Data } from '@/components/OrgChart';
+
 import _ from 'lodash';
 
-export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
+export function toTreeStructure(
+  treeData: any,
+  hatIdToImage: any,
+  chainId: number,
+): Data[] {
   const hatsArray: Data[] = [];
 
   treeData?.hats?.forEach((hat: any) => {
@@ -10,26 +15,37 @@ export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
     if (hat.admin.prettyId === hat.prettyId) {
       hatParent = null;
     }
+    const treeId = hat.tree.id;
+    const { prettyId } = hat;
 
     hatsArray.push({
-      id: hat.prettyId,
-      name: hat.prettyId,
+      id: prettyId,
+      name: prettyId,
       parentId: hatParent,
       imageURI: hatIdToImage[_.get(hat, 'id')],
-      treeId: hat.tree.id,
+      treeId,
       dottedLine: hat.admin?.prettyId === treeData.linkedToHat?.prettyId,
+      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+        prettyId,
+      )}`,
     });
   });
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
+    const treeId = treeData.linkedToHat.tree.id;
+    const { prettyId } = treeData.linkedToHat;
+
     hatsArray.push({
-      id: treeData.linkedToHat.prettyId,
-      name: treeData.linkedToHat.prettyId,
+      id: prettyId,
+      name: prettyId,
       parentId: null,
       imageURI: hatIdToImage[treeData.linkedToHat.id],
-      treeId: treeData.linkedToHat.tree.id,
+      treeId,
       dottedLine: false,
+      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+        prettyId,
+      )}`,
     });
   }
 
@@ -37,13 +53,19 @@ export function toTreeStructure(treeData: any, hatIdToImage: any): Data[] {
   if (treeData?.parentOfTrees) {
     treeData.parentOfTrees.forEach((childTree: any) => {
       const id = prettyIdToId(childTree.id);
+      const treeId = childTree.id;
+      const { prettyId } = childTree.linkedToHat;
+
       hatsArray.push({
-        id: childTree.id,
-        name: childTree.id,
-        parentId: childTree.linkedToHat.prettyId,
+        id: treeId,
+        name: treeId,
+        parentId: prettyId,
         imageURI: id ? hatIdToImage[id] : undefined,
-        treeId: childTree.id,
+        treeId,
         dottedLine: true,
+        url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+          prettyId,
+        )}`,
       });
     });
   }

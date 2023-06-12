@@ -101,14 +101,12 @@ const TreeDetails = ({
     chainId,
   );
 
-  const [orgChartTree, setOrgChartTree] = useState<Data[]>([])
+  const [orgChartTree, setOrgChartTree] = useState<Data[]>([]);
 
   useEffect(() => {
-    const tree = toTreeStructure(treeData, imagesData);
-    setOrgChartTree(tree)
-  
-  }, [treeData, imagesData])
-  
+    const tree = toTreeStructure(treeData, imagesData, chainId);
+    setOrgChartTree(tree);
+  }, [treeData, imagesData]);
 
   console.log('tree', orgChartTree);
 
@@ -194,10 +192,11 @@ const TreeDetails = ({
     setModals?.({ createHat: true });
   };
 
-  const handleRequestLink = (nodePrettyId: string) => {
-    setNewAdmin(nodePrettyId);
-    setModals?.({ requestLink: true });
-  };
+  // to be implemented in the sidemenu
+  // const handleRequestLink = (nodePrettyId: string) => {
+  //   setNewAdmin(nodePrettyId);
+  //   setModals?.({ requestLink: true });
+  // };
 
   // "Top Hat #21 or Hat #2.3.4"
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
@@ -277,7 +276,7 @@ const TreeDetails = ({
           {/* tree explorer */}
           <Card gridAutoRows='auto'>
             <CardBody minH='400px'>
-            {/* <TreeGraph
+              {/* <TreeGraph
                   data={tree}
                   dimensions={dimensions}
                   orientation='vertical'
@@ -298,9 +297,7 @@ const TreeDetails = ({
               <OrgChart
                 tree={orgChartTree}
                 isLoading={imagesDataLoading}
-                onNodeClick={handleNodeClick}
                 handleAddChildClick={handleAddChildClick}
-                handleRequestLink={handleRequestLink}
                 activeHatId={hatId}
                 wearerHats={wearerHats}
                 chainId={chainId}
@@ -377,19 +374,19 @@ export const getStaticProps = async (context: any) => {
     }
   }
 
-    const { linkedToHat, parentOfTrees } = treeData || {
-      linkedToHat: { id: null },
-      parentOfTrees: [],
-    };
-    const linkedHatIds = [];
-    if (linkedToHat?.id) {
-      linkedHatIds.push(linkedToHat.id);
-    }
-    if (parentOfTrees) {
-      linkedHatIds.push(
-        ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
-      );
-    }
+  const { linkedToHat, parentOfTrees } = treeData || {
+    linkedToHat: { id: null },
+    parentOfTrees: [],
+  };
+  const linkedHatIds = [];
+  if (linkedToHat?.id) {
+    linkedHatIds.push(linkedToHat.id);
+  }
+  if (parentOfTrees) {
+    linkedHatIds.push(
+      ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
+    );
+  }
 
   return {
     props: {
