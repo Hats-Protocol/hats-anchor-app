@@ -11,7 +11,7 @@ export interface Data {
   treeId: string;
   dottedLine?: boolean;
   url: string;
-  details?: any;
+  details?: string;
 }
 
 interface OrgChartComponentProps {
@@ -46,6 +46,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .container(d3Container.current)
           .data(tree)
           .svgHeight(480)
+          .nodeHeight(() => 70)
           .nodeWidth(() => 220)
           .onNodeClick((node: any) => {
             const hat = tree.find((h) => h.id === node);
