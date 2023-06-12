@@ -46,7 +46,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .container(d3Container.current)
           .data(tree)
           .svgHeight(480)
-          .nodeHeight(() => 106)
           .nodeWidth(() => 220)
           .onNodeClick((node: any) => {
             const hat = tree.find((h) => h.id === node);
@@ -60,7 +59,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             return `
               <div style='width:${d.width}px; height:${
               d.height
-            }px; padding-top: 27px; padding-left:1px; padding-right:1px'>
+            }px; padding-left:1px; padding-right:1px'>
                 <div style="display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.92); border: 1px solid #4A5568; border-radius: 4px; width: ${
                   d.width - 2
                 }px; height: 70px;">
