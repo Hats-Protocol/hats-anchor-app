@@ -14,7 +14,6 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
 
 const TreeCard = ({ tree, imagesData }: { tree: any; imagesData: any }) => {
-  console.log(tree);
   const topHat = _.get(tree, 'hats[0]');
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(topHat, 'details'));

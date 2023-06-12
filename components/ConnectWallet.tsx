@@ -21,7 +21,11 @@ const ConnectWallet = () => {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
-  const { data: ensAvatar } = useEnsAvatar({ name: address, chainId: 1 });
+  const { data: ensAvatar } = useEnsAvatar({
+    name: ensName,
+    chainId: 1,
+    cacheTime: 60,
+  });
 
   const blockie = undefined; // TODO implement blockie or other solution
   const [upTo780] = useMediaQuery('(max-width: 780px)');
@@ -75,6 +79,7 @@ const ConnectWallet = () => {
                   onClick={openChainModal}
                   display='flex'
                   alignItems='center'
+                  px={2}
                 >
                   {chain.hasIcon && chain.iconUrl && (
                     <Image
@@ -90,14 +95,19 @@ const ConnectWallet = () => {
                   <MenuButton
                     as={Button}
                     rightIcon={<Icon as={FaChevronDown} />}
+                    bg='green.200'
+                    _hover={{ bg: 'green.300' }}
+                    color='green.700'
                   >
                     <HStack spacing={2} align='center'>
-                      {(ensAvatar || blockie) && !upTo780 && (
+                      {(ensAvatar || blockie) && !upTo780 ? (
                         <Box
-                          height='25px'
-                          width='25px'
+                          height='28px'
+                          width='28px'
                           borderRadius='50%'
                           overflow='hidden'
+                          borderColor='green.700'
+                          borderWidth='3px'
                         >
                           <Image
                             src={ensAvatar || blockie}
@@ -106,6 +116,13 @@ const ConnectWallet = () => {
                             width='25px'
                           />
                         </Box>
+                      ) : (
+                        <Box
+                          height='28px'
+                          width='28px'
+                          borderRadius='50%'
+                          bg='green.700'
+                        />
                       )}
 
                       <Heading size='sm'>
@@ -113,9 +130,23 @@ const ConnectWallet = () => {
                       </Heading>
                     </HStack>
                   </MenuButton>
-                  <MenuList>
-                    <MenuItem onClick={openAccountModal}>Wallet</MenuItem>
-                    <MenuItem onClick={() => disconnect()}>Sign Out</MenuItem>
+                  <MenuList bg='green.100' color='green.700'>
+                    <MenuItem
+                      onClick={openAccountModal}
+                      bg='green.100'
+                      _hover={{ bg: 'green.300' }}
+                      color='green.700'
+                    >
+                      Wallet
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => disconnect()}
+                      bg='green.100'
+                      _hover={{ bg: 'green.300' }}
+                      color='green.700'
+                    >
+                      Sign Out
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               </Flex>

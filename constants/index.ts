@@ -19,6 +19,24 @@ const CONFIG: {
     'https://ipfs.io/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
+
+  // terminology
+  hat: 'hat',
+  hats: 'hats',
+  tree: 'tree',
+  trees: 'trees',
+  authority: 'authority',
+  authorities: 'authorities',
+  permission: 'permission',
+  permissions: 'permissions',
+  right: 'right',
+  rights: 'rights',
+  eligibility: 'eligibility',
+  eligibilities: 'eligibilities',
+  toggle: 'toggle',
+  toggles: 'toggles',
+  wearer: 'wearer',
+  wearers: 'wearers',
 };
 
 export default CONFIG;
