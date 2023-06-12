@@ -11,13 +11,14 @@ export interface Data {
   treeId: string;
   dottedLine?: boolean;
   url: string;
+  details?: any;
 }
 
 interface OrgChartComponentProps {
   tree: Data[] | null;
   isLoading: boolean;
-  handleAddChildClick: (nodePrettyId: string) => void;
   chainId: number;
+  handleAddChildClick: (nodePrettyId: string) => void;
   wearerHats: string[];
   activeHatId: string;
 }
@@ -25,8 +26,8 @@ interface OrgChartComponentProps {
 const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   tree,
   isLoading,
-  handleAddChildClick,
   chainId,
+  handleAddChildClick,
   wearerHats,
   activeHatId,
 }) => {
@@ -45,7 +46,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .container(d3Container.current)
           .data(tree)
           .svgHeight(480)
-          .nodeHeight(() => 85)
+          .nodeHeight(() => 106)
           .nodeWidth(() => 220)
           .onNodeClick((node: any) => {
             const hat = tree.find((h) => h.id === node);
@@ -54,37 +55,26 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             }
           })
           .nodeContent((d: any) => {
-            const color = '#FFFFFF';
-            const imageDiffVert = 27;
-            const { name } = d.data;
+            const { imageURI, name, details } = d.data;
 
             return `
-        <div style='width:${d.width}px;height:${d.height}px;padding-top:${
-              imageDiffVert - 2
-            }px;padding-left:1px;padding-right:1px'>
-          <div style="font-family: 'Inter', sans-serif;background-color:${color};  margin-left:-1px;width:${
-              d.width - 2
-            }px;height:${
-              d.height - imageDiffVert
-            }px;border-radius:10px;border: 1px solid #E4E2E9">
-            <div style="display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${name}</div>
-            <div style="background-color:${color};margin-top:${
-              -imageDiffVert - 20
-            }px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;"></div>
-            <div style="margin-top:${-imageDiffVert - 20}px;">
-              <img src=" ${
-                d.data.imageURI ?? '/icon.jpeg'
-              }" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" />
-            </div>
-            <div style="font-size:15px;color:#08011E;margin-left:20px;margin-top:10px"> ${
-              d.data.name
-            } </div>
-            <div style="color:#716E7B;margin-left:20px;margin-top:3px;font-size:10px;"> ${
-              d.data.position
-            } </div>
-          </div>
-        </div>`;
+              <div style='width:${d.width}px; height:${
+              d.height
+            }px; padding-top: 27px; padding-left:1px; padding-right:1px'>
+                <div style="display: flex; align-items: center; justify-content: space-between; background-color: rgba(255, 255, 255, 0.92); border: 1px solid #4A5568; border-radius: 4px; width: ${
+                  d.width - 2
+                }px; height: 70px;">
+                  <img src="${
+                    imageURI ?? '/icon.jpeg'
+                  }" style="width: 70px; height: 70px;" />
+                  <div style="display: flex; flex-direction: column; padding: 10px; height: 100%">
+                    <div style="font-size: 15px; color: #08011E;">${name}</div>
+                    <div style="font-size: 12px; color: #08011E;">${details}</div>
+                  </div>
+                </div>
+              </div>`;
           })
+
           .render();
       }
     }

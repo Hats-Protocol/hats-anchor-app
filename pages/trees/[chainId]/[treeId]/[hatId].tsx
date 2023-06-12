@@ -104,8 +104,12 @@ const TreeDetails = ({
   const [orgChartTree, setOrgChartTree] = useState<Data[]>([]);
 
   useEffect(() => {
-    const tree = toTreeStructure(treeData, imagesData, chainId);
-    setOrgChartTree(tree);
+    const fetchTreeAndSetState = async () => {
+      const tree = await toTreeStructure(treeData, imagesData, chainId);
+      setOrgChartTree(tree);
+    };
+  
+    fetchTreeAndSetState();
   }, [treeData, imagesData]);
 
   console.log('tree', orgChartTree);
@@ -176,16 +180,6 @@ const TreeDetails = ({
         ]
       : []),
   ];
-
-  const handleNodeClick = (nodePrettyId: string, nodeTreeId: string) => {
-    router.push(
-      `/trees/${chainId}/${decimalId(nodeTreeId)}/${prettyIdToUrlId(
-        nodePrettyId,
-      )}`,
-      undefined,
-      { scroll: false },
-    );
-  };
 
   const handleAddChildClick = (nodePrettyId: string) => {
     setDefaultHatAdmin(nodePrettyId);

@@ -1,14 +1,36 @@
 /* eslint-disable no-use-before-define */
 import { Data } from '@/components/OrgChart';
+import { fetchHatsDetails } from '@/gql/helpers';
 
 import _ from 'lodash';
 
-export function toTreeStructure(
+export async function toTreeStructure(
   treeData: any,
   hatIdToImage: any,
   chainId: number,
-): Data[] {
+): Promise<Data[]> {
   const hatsArray: Data[] = [];
+  const hatIds: string[] = [];
+
+  treeData?.hats?.forEach((hat: any) => {
+    hatIds.push(hat.id);
+  });
+
+  if (treeData?.linkedToHat) {
+    hatIds.push(treeData.linkedToHat.id);
+  }
+
+  if (treeData?.parentOfTrees) {
+    treeData.parentOfTrees.forEach((childTree: any) => {
+      hatIds.push(childTree.id);
+    });
+  }
+
+  // needs to be optimised
+  const hatsDetails = await fetchHatsDetails(hatIds, chainId);
+  const idToHatDetails = Object.fromEntries(
+    hatsDetails.map((hat: any) => [hat.id, hat.details]),
+  );
 
   treeData?.hats?.forEach((hat: any) => {
     let hatParent = hat.admin?.prettyId;
@@ -16,36 +38,38 @@ export function toTreeStructure(
       hatParent = null;
     }
     const treeId = hat.tree.id;
-    const { prettyId } = hat;
+    const { prettyId, id } = hat;
 
     hatsArray.push({
       id: prettyId,
-      name: prettyId,
+      name: prettyIdToIp(prettyId),
       parentId: hatParent,
-      imageURI: hatIdToImage[_.get(hat, 'id')],
+      imageURI: hatIdToImage[id],
       treeId,
       dottedLine: hat.admin?.prettyId === treeData.linkedToHat?.prettyId,
       url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
         prettyId,
       )}`,
+      details: idToHatDetails[id],
     });
   });
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
     const treeId = treeData.linkedToHat.tree.id;
-    const { prettyId } = treeData.linkedToHat;
+    const { prettyId, id } = treeData.linkedToHat;
 
     hatsArray.push({
       id: prettyId,
       name: prettyId,
       parentId: null,
-      imageURI: hatIdToImage[treeData.linkedToHat.id],
+      imageURI: hatIdToImage[id],
       treeId,
       dottedLine: false,
       url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
         prettyId,
       )}`,
+      details: idToHatDetails[id],
     });
   }
 
@@ -66,6 +90,7 @@ export function toTreeStructure(
         url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
           prettyId,
         )}`,
+        details: id && idToHatDetails[id],
       });
     });
   }
