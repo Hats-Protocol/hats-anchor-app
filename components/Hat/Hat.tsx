@@ -64,6 +64,7 @@ const Hat = ({
   linkRequestFromTree,
   parentOfTrees,
   topHatDetails,
+  hatDetails,
 }: HatProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -199,11 +200,7 @@ const Hat = ({
       >
         <HatDetailsForm
           hatData={hatData}
-          hatDetails={
-            hatData.detailsResolved?.type === '1.0'
-              ? hatData.detailsResolved?.data
-              : {}
-          }
+          hatDetails={hatDetails?.type === '1.0' ? hatDetails?.data : {}}
           chainId={chainId}
         />
       </Modal>
@@ -363,23 +360,19 @@ const Hat = ({
                   />
                 )}
 
-                {hatData.detailsResolved?.type === '1.0' && (
+                {hatDetails?.type === '1.0' && (
                   <Stack>
                     <HStack>
                       <Text fontSize='sm' as='b'>
                         Name:
                       </Text>
-                      <Text>
-                        {_.get(hatData.detailsResolved?.data, 'name')}
-                      </Text>
+                      <Text>{_.get(hatDetails?.data, 'name')}</Text>
                     </HStack>
                     <HStack>
                       <Text fontSize='sm' as='b'>
                         Description:
                       </Text>
-                      <Text>
-                        {_.get(hatData.detailsResolved?.data, 'description')}
-                      </Text>
+                      <Text>{_.get(hatDetails?.data, 'description')}</Text>
                     </HStack>
                     {_.get(topHatDetails?.data, 'guilds') &&
                       topHatDetails?.type === '1.0' && (
@@ -398,9 +391,7 @@ const Hat = ({
                       )}
                   </Stack>
                 )}
-                {hatData.detailsResolved?.type !== '1.0' && (
-                  <Text>{hatData?.details}</Text>
-                )}
+                {hatDetails?.type !== '1.0' && <Text>{hatData?.details}</Text>}
               </Box>
             </TabPanel>
             {!_.isEmpty(clearNonObjects(authoritiesTable)) && (
@@ -467,4 +458,5 @@ interface HatProps {
   linkRequestFromTree: any;
   parentOfTrees: any;
   topHatDetails: any;
+  hatDetails: any;
 }

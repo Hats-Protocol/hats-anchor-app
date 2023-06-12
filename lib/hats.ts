@@ -1,53 +1,79 @@
 /* eslint-disable no-use-before-define */
+import { Data } from '@/components/OrgChart';
+import { fetchHatsDetails } from '@/gql/helpers';
+import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
+
 import _ from 'lodash';
 
-export function arrayToTreeRecursive(arr: any[], parent: string): any[] {
-  return _.map(
-    _.filter(arr, (item) => item.hatParent === parent),
-    (child) => ({
-      name: child.hatName,
-      attributes: {
-        details: child.details,
-        imageURI: child.imageURI,
-        dottedLine: child.dottedLine,
-        treeId: child.treeId,
-      },
-      children: arrayToTreeRecursive(arr, child.hatName),
-    }),
+export async function toTreeStructure(
+  treeData: any,
+  hatIdToImage: any,
+  chainId: number,
+): Promise<Data[]> {
+  const hatsArray: Data[] = [];
+  const hatIds: string[] = [];
+
+  treeData?.hats?.forEach((hat: any) => {
+    hatIds.push(hat.id);
+  });
+
+  if (treeData?.linkedToHat) {
+    hatIds.push(treeData.linkedToHat.id);
+  }
+
+  if (treeData?.parentOfTrees) {
+    treeData.parentOfTrees.forEach((childTree: any) => {
+      hatIds.push(childTree.id);
+    });
+  }
+
+  // needs to be optimised
+  const hatsDetails = await fetchHatsDetails(hatIds, chainId);
+  const detailsFields = hatsDetails.map((hat: any) => hat.details);
+  const details = await fetchMultipleHatsDetails(detailsFields);
+
+  const idToHatDetails = Object.fromEntries(
+    hatsDetails.map((hat: any, index) => [hat.id, details[index]]),
   );
-}
 
-export function toTreeStructure(treeData: any, hatIdToImage: any) {
-  // ! need to get all hats data to check inactive status
-  // Map the hats array to include the hatName, hatParent, and imageURI
-  const hatsArray = treeData?.hats?.map((hat: any) => {
-    // set the hatParent to the hat's admin.prettyId
+  treeData?.hats?.forEach((hat: any) => {
     let hatParent = hat.admin?.prettyId;
-    // If the hat is an admin of itself, set the hatParent to 'dummy'
     if (hat.admin.prettyId === hat.prettyId) {
-      hatParent = 'dummy';
+      hatParent = null;
     }
-    // If the hat's parent is the linked hat
-    if (hat.admin.prettyId === treeData.linkedToHat?.prettyId) {
-      hatParent = treeData.linkedToHat?.prettyId;
-    }
+    const treeId = hat.tree.id;
+    const { prettyId, id } = hat;
 
-    return {
-      hatName: hat.prettyId,
-      hatParent,
-      imageURI: hatIdToImage[_.get(hat, 'id')],
-      treeId: hat.tree.id,
+    hatsArray.push({
+      id: prettyId,
+      name: prettyIdToIp(prettyId),
+      parentId: hatParent,
+      imageURI: hatIdToImage[id],
+      treeId,
       dottedLine: hat.admin?.prettyId === treeData.linkedToHat?.prettyId,
-    };
+      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+        prettyId,
+      )}`,
+      details: idToHatDetails[id],
+    });
   });
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
+    const treeId = treeData.linkedToHat.tree.id;
+    const { prettyId, id } = treeData.linkedToHat;
+
     hatsArray.push({
-      hatName: treeData.linkedToHat.prettyId,
-      hatParent: 'dummy',
-      imageURI: hatIdToImage[treeData.linkedToHat.id],
-      treeId: treeData.linkedToHat.tree.id,
+      id: prettyId,
+      name: prettyId,
+      parentId: null,
+      imageURI: hatIdToImage[id],
+      treeId,
+      dottedLine: false,
+      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+        prettyId,
+      )}`,
+      details: idToHatDetails[id],
     });
   }
 
@@ -55,22 +81,25 @@ export function toTreeStructure(treeData: any, hatIdToImage: any) {
   if (treeData?.parentOfTrees) {
     treeData.parentOfTrees.forEach((childTree: any) => {
       const id = prettyIdToId(childTree.id);
+      const treeId = childTree.id;
+      const { prettyId } = childTree.linkedToHat;
+
       hatsArray.push({
-        hatName: childTree.id,
-        hatParent: childTree.linkedToHat.prettyId,
+        id: treeId,
+        name: treeId,
+        parentId: prettyId,
         imageURI: id ? hatIdToImage[id] : undefined,
-        treeId: childTree.id,
+        treeId,
         dottedLine: true,
+        url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
+          prettyId,
+        )}`,
+        details: id && idToHatDetails[id],
       });
     });
   }
 
-  if (!hatsArray) return [];
-
-  return arrayToTreeRecursive(
-    [{ hatName: 'dummy', hatParent: 'null' }, ...hatsArray],
-    'dummy',
-  );
+  return hatsArray;
 }
 
 export function prettyIdToId(id: string | undefined) {

@@ -17,6 +17,29 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   return res;
 };
 
+export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
+  const details = await detailsFields.reduce<Promise<any[]>>(
+    async (accPromise, detailsField) => {
+      const acc = await accPromise;
+      if (detailsField?.startsWith('ipfs://')) {
+        try {
+          const res = await fetchDetailsIpfs(detailsField);
+          acc.push(res?.data);
+        } catch (e) {
+          console.log(e);
+          acc.push({});
+        }
+      } else {
+        acc.push(detailsField);
+      }
+      return acc;
+    },
+    Promise.resolve([]),
+  );
+
+  return details;
+};
+
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
  * @param {string} detailsField Details field as received from the contract

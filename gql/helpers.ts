@@ -59,6 +59,14 @@ export const fetchHatDetails = async (
   };
 };
 
+export const fetchHatsDetails = async (
+  hatIds: string[],
+  chainId: number,
+): Promise<any[]> => {
+  const requests = hatIds.map((hatId) => fetchHatDetails(hatId, chainId));
+  return Promise.all(requests);
+};
+
 export const fetchAllTreesByIds = async (treeIds: any[], chainId: number) => {
   const promises = treeIds.map((treeId) => fetchHatDetails(treeId, chainId));
   const treeDetails = await Promise.all(promises);

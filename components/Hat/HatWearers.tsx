@@ -240,7 +240,9 @@ function HatWearers({
       setAllParentOfTrees(parentTrees);
     };
 
-    fetchParentOfTrees();
+    if (parentOfTrees?.length > 0) {
+      fetchParentOfTrees();
+    }
   }, [parentOfTrees, chainId]);
 
   const wearerPages = useMemo(() => {
