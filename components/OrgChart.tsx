@@ -80,8 +80,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               d.width
             }px; height: 70px;">
                 <img src="${imageURI ?? '/icon.jpeg'}" style="width: ${
-              isSelected ? '73.5px' : '70px'
-            }; height: ${isSelected ? '73.5px' : '70px'}; border: ${
+              isSelected ? '78.5px' : '70px'
+            }; height: ${isSelected ? '78.5px' : '70px'}; border: ${
               isSelected ? '2px' : '1px'
             } solid #4A5568; border-radius: 4px; margin-left: ${
               isSelected ? -2 : -1
@@ -108,7 +108,15 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .render();
       }
     }
-  }, [chart, tree, isLoading, chainId, setSelectedNode, selectedNode]);
+  }, [
+    chart,
+    tree,
+    isLoading,
+    chainId,
+    setSelectedNode,
+    selectedNode,
+    wearerHats,
+  ]);
 
   // Use selectedNode anywhere you like. It will contain the id of the selected node or null if no node is selected.
 
