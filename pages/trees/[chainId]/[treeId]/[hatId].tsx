@@ -89,6 +89,9 @@ const TreeDetails = ({
       }
 
       const topHatIdHex = _.get(treeData, 'hats[0].id');
+      if (!topHatIdHex) {
+        return;
+      }
       const topHat = await fetchHatDetails(topHatIdHex, Number(chainId));
       let topDetails: any;
       if (topHat?.details?.startsWith('ipfs://')) {

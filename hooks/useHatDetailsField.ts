@@ -21,7 +21,7 @@ export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
   const details = await detailsFields.reduce<Promise<any[]>>(
     async (accPromise, detailsField) => {
       const acc = await accPromise;
-      if (detailsField.startsWith('ipfs://')) {
+      if (detailsField?.startsWith('ipfs://')) {
         try {
           const res = await fetchDetailsIpfs(detailsField);
           acc.push(res?.data);
