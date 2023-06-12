@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { OrgChart } from 'd3-org-chart';
-import { Spinner } from '@chakra-ui/react';
-import router from 'next/router';
+import { Flex, Spinner } from '@chakra-ui/react';
 
 export interface Data {
   id: string;
@@ -18,20 +17,23 @@ interface OrgChartComponentProps {
   tree: Data[] | null;
   isLoading: boolean;
   chainId: number;
-  handleAddChildClick: (nodePrettyId: string) => void;
+  // handleAddChildClick: (nodePrettyId: string) => void;
   wearerHats: string[];
-  activeHatId: string;
+  setSelectedNode: (node: string | null) => void;
+  selectedNode: string | null;
 }
 
 const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   tree,
   isLoading,
   chainId,
-  handleAddChildClick,
+  // handleAddChildClick,
   wearerHats,
-  activeHatId,
+  setSelectedNode,
+  selectedNode,
 }) => {
-  console.log(handleAddChildClick, chainId, wearerHats, activeHatId);
+  // console.log(handleAddChildClick, chainId, wearerHats, activeHatId);
+  // console.log('wearerHats', wearerHats);
   const d3Container = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<OrgChart<unknown> | null>(null);
 
@@ -45,16 +47,14 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           // @ts-ignore
           .container(d3Container.current)
           .data(tree)
-          .svgHeight(480)
           .nodeHeight(() => 70)
           .nodeWidth(() => 220)
-          .onNodeClick((node: any) => {
-            const hat = tree.find((h) => h.id === node);
-            if (hat) {
-              router.push(hat.url, undefined, { scroll: false });
-            }
-          })
+          .onNodeClick((node: any) => setSelectedNode(node))
           .nodeContent((d: any) => {
+            // State to keep track of selected node
+
+            const isInWearerHats = wearerHats.includes(d.data.id);
+            // Placeholder for your icon. Replace it with actual URL.
             const { imageURI, name, details } = d.data;
             const hasChildren = tree.filter((t) => t.parentId === d.id).length;
             console.log('hasChildren', hasChildren);
@@ -67,44 +67,69 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 ? details
                 : '';
 
+            // Check if the current node is selected
+            const isSelected = selectedNode === d.id;
+
             return `
-              <div style='width:${d.width}px; height:${
+            <div style='width:${d.width}px; height:${
               d.height
             }px; padding-left:1px; padding-right:1px'>
-                <div style="display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.92); border: 1px solid #4A5568; border-radius: 4px; width: ${
-                  d.width - 2
-                }px; height: 70px;">
-                  <img src="${
-                    imageURI ?? '/icon.jpeg'
-                  }" style="width: 70px; height: 70px; border: 1px solid #4A5568; border-radius: 4px; margin-left: -1px;" />
-                  <div style="display: flex; flex-direction: column; padding: 10px; height: 100%">
-                    <div style="font-size: 15px; color: #08011E;">${name}</div>
-                    <div style="font-size: 12px; color: #08011E;">${detailsName}</div>
-                  </div>
+              <div style="display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.92); border: ${
+                isSelected ? '2px' : '1px'
+              } solid #4A5568; border-radius: 4px; width: ${
+              d.width
+            }px; height: 70px;">
+                <img src="${imageURI ?? '/icon.jpeg'}" style="width: ${
+              isSelected ? '73.5px' : '70px'
+            }; height: ${isSelected ? '73.5px' : '70px'}; border: ${
+              isSelected ? '2px' : '1px'
+            } solid #4A5568; border-radius: 4px; margin-left: ${
+              isSelected ? -2 : -1
+            }px;" />
+                <div style="display: flex; flex-direction: column; height: 100%; position: relative;">
+                  <div style="display: flex; flex-direction: column; padding: height: 100%; position: absolute; left: ${
+                    isSelected ? 8 : 10
+                  }px; top: ${isSelected ? 9 : 10}px;">
+                  <div style="font-size: 12px; color: ${
+                    isSelected ? '#248559' : '#08011E'
+                  };">${name}</div>
+                  <div style="font-size: 12px; color: #08011E;">${detailsName}</div>
                 </div>
-              </div>`;
+                </div>
+                ${
+                  isInWearerHats
+                    ? `<img src='/wearer.svg' style="width: 16; height: 12; position: absolute; right: 10px; top: 10px;" />`
+                    : ''
+                }
+              </div>
+            </div>`;
           })
 
           .render();
       }
     }
-  }, [chart, tree, isLoading, chainId]);
+  }, [chart, tree, isLoading, chainId, setSelectedNode, selectedNode]);
 
-  return (
-    <div>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <div
-          style={{
-            minHeight: 400,
-            overflow: 'hidden',
-          }}
-          ref={d3Container}
-          id='d3Container'
-        />
-      )}
-    </div>
+  // Use selectedNode anywhere you like. It will contain the id of the selected node or null if no node is selected.
+
+  return isLoading ? (
+    <Flex
+      h='calc(100vh - 200px)'
+      w='100%'
+      alignItems='center'
+      justifyContent='center'
+    >
+      <Spinner />
+    </Flex>
+  ) : (
+    <div
+      style={{
+        // minHeight: 400,
+        overflow: 'hidden',
+      }}
+      ref={d3Container}
+      id='d3Container'
+    />
   );
 };
 

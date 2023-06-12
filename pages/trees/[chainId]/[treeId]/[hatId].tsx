@@ -1,26 +1,8 @@
-import { useRouter } from 'next/router';
-import { useAccount, useChainId, useEnsName } from 'wagmi';
-import { switchNetwork } from '@wagmi/core';
+import { useAccount } from 'wagmi';
 import { useState, useEffect } from 'react';
-import {
-  Card,
-  CardBody,
-  Grid,
-  Stack,
-  Heading,
-  HStack,
-  Flex,
-  Spinner,
-  Box,
-  Link as ChakraLink,
-  Button,
-} from '@chakra-ui/react';
-import Link from 'next/link';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
-import EventsTable from '@/components/EventsTable';
-import Hat from '@/components/Hat';
 import {
   toTreeStructure,
   prettyIdToId,
@@ -28,25 +10,16 @@ import {
   decimalId,
   urlIdToPrettyId,
   prettyIdToUrlId,
-  descendantsOf,
   prettyIdToIp,
   isTopHat,
 } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import Layout from '@/components/Layout';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
-import DataTable from '@/components/DataTable';
-import { formatAddress } from '@/lib/general';
-import { useOverlay } from '@/contexts/OverlayContext';
-import Modal from '@/components/Modal';
-import HatCreateForm from '@/forms/HatCreateForm';
-import CopyToClipboard from '@/components/CopyToClipboard';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
-import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 import { Data } from '@/components/OrgChart';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
@@ -59,84 +32,22 @@ const TreeDetails = ({
   treeData,
   linkedHatIds,
   hatData,
-  topHatData,
 }: TreeDetailsProps) => {
-  const [newAdmin, setNewAdmin] = useState('');
   const chain = chainsMap(chainId);
-  const router = useRouter();
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
+  const [orgChartTree, setOrgChartTree] = useState<Data[]>([]);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const { address } = useAccount();
-  const userChain = useChainId();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
-  const [topHatDetails, setTopHatDetails] = useState<any>({});
-  const [hatDetails, setHatDetails] = useState<any>({});
-
-  useEffect(() => {
-    const getDetails = async () => {
-      let details: any;
-      if (hatData?.details?.startsWith('ipfs://')) {
-        try {
-          details = await fetchDetailsIpfs(_.get(hatData, 'details'));
-          setHatDetails(details.data);
-        } catch (err) {
-          console.error(err);
-          details = null; // default value
-        }
-      }
-
-      const topHatIdHex = _.get(treeData, 'hats[0].id');
-      if (!topHatIdHex) {
-        return;
-      }
-      const topHat = await fetchHatDetails(topHatIdHex, Number(chainId));
-      let topDetails: any;
-      if (topHat?.details?.startsWith('ipfs://')) {
-        try {
-          topDetails = await fetchDetailsIpfs(_.get(topHat, 'details'));
-          setTopHatDetails(topDetails.data);
-        } catch (err) {
-          console.error(err);
-          topDetails = null; // default value
-        }
-      }
-    };
-
-    getDetails();
-  }, [treeData, hatData, chainId]);
 
   const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
-  const wearerTopHats = _.map(
-    _.filter(
-      _.get(wearerData, 'currentHats', []),
-      (hat) => isTopHat(hat) && hat?.prettyId !== prettyHatId,
-    ),
-    'prettyId',
-  );
-
-  const { data: topHatEnsName } = useEnsName({
-    address: _.get(_.first(_.get(topHatData, 'wearers')), 'id'),
-    chainId: 1,
-  });
-  const childrenHats = descendantsOf(
-    _.get(hatData, 'prettyId'),
-    treeData,
-    true,
-  );
-
-  const [defaultHatAdmin, setDefaultHatAdmin] = useState<string>();
-
-  const events = _.get(treeData, 'events');
-
+  console.log('wearerHats', wearerHats);
   const { data: imagesData, loading: imagesDataLoading } = useImageURIs(
     treeData?.hats?.map((hat: any) => hat.id).concat(linkedHatIds),
     chainId,
   );
-
-  const [orgChartTree, setOrgChartTree] = useState<Data[]>([]);
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
@@ -145,87 +56,7 @@ const TreeDetails = ({
     };
 
     fetchTreeAndSetState();
-  }, [treeData, imagesData]);
-
-  console.log('tree', orgChartTree);
-
-  const treeInfoTable = [
-    {
-      label: 'Tree ID',
-      value: (
-        <CopyToClipboard
-          description='Tree ID'
-          copyValue={_.get(treeData, 'id')}
-        >
-          {decimalId(treeId)}
-        </CopyToClipboard>
-      ),
-    },
-    {
-      label: 'Top Hat Wearer',
-      value: (
-        <ChakraLink
-          as={Link}
-          href={`/wearers/${_.get(
-            _.first(_.get(topHatData, 'wearers')),
-            'id',
-          )}`}
-          noOfLines={1}
-        >
-          {topHatEnsName ||
-            formatAddress(_.get(_.first(_.get(topHatData, 'wearers')), 'id'))}
-        </ChakraLink>
-      ),
-    },
-    {
-      label: 'Network',
-      value:
-        !address || !userChain || chain?.id === userChain ? (
-          chain?.name
-        ) : (
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() =>
-              switchNetwork({
-                chainId: chain?.id,
-              })
-            }
-          >
-            Switch to {chain?.name}
-          </Button>
-        ),
-    },
-    ...(treeData?.linkedToHat
-      ? [
-          {
-            label: 'Child of',
-            value: (
-              <ChakraLink
-                as={Link}
-                href={`/trees/${chainId}/${decimalId(
-                  treeData.linkedToHat.tree.id,
-                )}/${prettyIdToUrlId(treeData.linkedToHat.prettyId)}`}
-                noOfLines={1}
-              >
-                {prettyIdToIp(treeData.linkedToHat.prettyId)}
-              </ChakraLink>
-            ),
-          },
-        ]
-      : []),
-  ];
-
-  const handleAddChildClick = (nodePrettyId: string) => {
-    setDefaultHatAdmin(nodePrettyId);
-    setModals?.({ createHat: true });
-  };
-
-  // to be implemented in the sidemenu
-  // const handleRequestLink = (nodePrettyId: string) => {
-  //   setNewAdmin(nodePrettyId);
-  //   setModals?.({ requestLink: true });
-  // };
+  }, [treeData, imagesData, chainId]);
 
   // "Top Hat #21 or Hat #2.3.4"
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
@@ -243,136 +74,19 @@ const TreeDetails = ({
         img={imagesData[hatId]}
       />
 
-      <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm defaultAdmin={defaultHatAdmin} treeId={treeId} />
-      </Modal>
-
-      <Modal
-        name='requestLink'
-        title='Request to Link'
-        localOverlay={localOverlay}
-      >
-        <HatLinkRequestCreateForm
-          newAdmin={newAdmin}
-          wearerTopHats={wearerTopHats}
-          chainId={chainId}
-        />
-      </Modal>
-
       <Layout>
-        <Grid gridTemplateColumns='repeat(2, 1fr)' gap={8}>
-          {/* info table */}
-          <Card>
-            <CardBody>
-              <HStack align='flex-start' spacing={4}>
-                <Box
-                  bgImage={
-                    imagesData[topHatData?.id]
-                      ? `url('${imagesData[topHatData?.id]}')`
-                      : "url('/icon.jpeg')"
-                  }
-                  bgSize='cover'
-                  bgPosition='center'
-                  w='200px'
-                  h='200px'
-                  border='1px solid'
-                  borderColor='gray.200'
-                />
-                <Stack spacing={4} w='60%'>
-                  <Heading size='md'>Tree Details</Heading>
-                  <DataTable data={treeInfoTable} labelWidth='40%' />
-                </Stack>
-              </HStack>
-            </CardBody>
-          </Card>
-          {/* recent events table */}
-          {events && (
-            <Card zIndex={1}>
-              <CardBody>
-                <Stack>
-                  <Heading size='md'>Recent Tree Events</Heading>
-                  <EventsTable
-                    events={_.slice(events, 0, 5)}
-                    chainId={chainId}
-                    treeId={treeId}
-                    includeHatId
-                  />
-                </Stack>
-              </CardBody>
-            </Card>
-          )}
-
-          {/* tree explorer */}
-          <Card gridAutoRows='auto'>
-            <CardBody minH='400px'>
-              {/* <TreeGraph
-                  data={tree}
-                  dimensions={dimensions}
-                  orientation='vertical'
-                  nodeSize={{ x: 300, y: 200 }}
-                  translate={{ x: 200, y: 200 }}
-                  renderCustomNodeElement={(rd3tProps) =>
-                    TreeNode({
-                      rd3tProps,
-                      activeHatId: hatId,
-                      wearerHats,
-                      chainId,
-                    })
-                  }
-                  pathClassFunc={({ target }) =>
-                    target.data.attributes?.dottedLine ? 'dotted-link' : ''
-                  }
-                /> */}
-              <OrgChart
-                tree={orgChartTree}
-                isLoading={imagesDataLoading}
-                handleAddChildClick={handleAddChildClick}
-                activeHatId={hatId}
-                wearerHats={wearerHats}
-                chainId={chainId}
-              />
-            </CardBody>
-          </Card>
-
-          {/* hat data */}
-          <Card gridAutoRows='auto'>
-            <CardBody>
-              {hatData ? (
-                <Hat
-                  hatData={hatData}
-                  chainId={chainId}
-                  treeId={treeId}
-                  hatImage={imagesData[hatId]}
-                  childrenHats={childrenHats}
-                  topHatDetails={topHatDetails}
-                  hatDetails={hatDetails}
-                  parentOfTrees={_.get(treeData, 'parentOfTrees')}
-                  linkedToHat={_.get(treeData, 'linkedToHat')}
-                  linkRequestFromTree={_.get(treeData, 'linkRequestFromTree')}
-                />
-              ) : (
-                <Flex
-                  h='full'
-                  w='full'
-                  alignItems='center'
-                  justifyContent='center'
-                >
-                  <Spinner />
-                </Flex>
-              )}
-            </CardBody>
-          </Card>
-        </Grid>
+        <OrgChart
+          tree={orgChartTree}
+          isLoading={imagesDataLoading}
+          wearerHats={wearerHats}
+          chainId={chainId}
+          setSelectedNode={setSelectedNode}
+          selectedNode={selectedNode}
+        />
       </Layout>
     </>
   );
 };
-
-// interface IParams extends ParsedUrlQuery {
-//   treeId: string | string[];
-//   hatId: string | string[];
-//   chainId: string | string[];
-// }
 
 export const getStaticProps = async (context: any) => {
   const { treeId, hatId, chainId } = context.params;
@@ -381,9 +95,6 @@ export const getStaticProps = async (context: any) => {
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
-
-  const topHatIdHex = _.get(treeData, 'hats[0].id');
-  const topHatData = await fetchHatDetails(topHatIdHex, Number(chainId));
 
   const { linkedToHat, parentOfTrees } = treeData || {
     linkedToHat: { id: null },
@@ -408,7 +119,6 @@ export const getStaticProps = async (context: any) => {
       treeData: treeData || null,
       linkedHatIds,
       hatData: hatData || null,
-      topHatData: topHatData || null,
     },
     revalidate: 10,
   };
@@ -431,5 +141,4 @@ interface TreeDetailsProps {
   treeData: any;
   linkedHatIds: string[];
   hatData: any;
-  topHatData: any;
 }
