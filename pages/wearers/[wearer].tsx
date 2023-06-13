@@ -209,7 +209,7 @@ const WearerDetail = ({
         url={`${CONFIG.url}/wearers/${wearerAddress}`}
       />
 
-      <Stack align='center' spacing={6}>
+      <Stack align='center' spacing={6} p={20}>
         <Heading size='lg'>
           {ensName || formatAddress(wearerAddress)}&apos;s Hats
         </Heading>
