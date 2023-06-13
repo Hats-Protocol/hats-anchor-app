@@ -86,8 +86,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             } solid #4A5568; border-radius: 4px; margin-left: ${
               isSelected ? -2 : -1
             }px;" />
-                <div style="display: flex; flex-direction: column; height: 100%; position: relative;">
-                  <div style="display: flex; flex-direction: column; padding: height: 100%; position: absolute; left: ${
+                <div style="display: flex; flex-direction: column; height: 100%; width: 100%; position: relative;">
+                  <div style="display: flex; flex-direction: column; position: absolute; left: ${
                     isSelected ? 8 : 10
                   }px; top: ${isSelected ? 9 : 10}px;">
                   <div style="font-size: 12px; color: ${

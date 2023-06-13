@@ -89,9 +89,9 @@ const TreeDetails = ({
 };
 
 export const getStaticProps = async (context: any) => {
-  const { treeId, hatId, chainId } = context.params;
+  const { treeId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
-  const prettyHatId = urlIdToPrettyId(hatId);
+  const prettyHatId = urlIdToPrettyId(treeId);
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
