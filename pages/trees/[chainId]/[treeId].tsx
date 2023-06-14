@@ -10,9 +10,7 @@ import {
   Popover,
   PopoverArrow,
   PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
-  PopoverHeader,
   PopoverTrigger,
   Text,
   useDisclosure,
@@ -179,9 +177,11 @@ const TreeDetails = ({
               </Text>
               <Text>
                 Last event:{' '}
-                {`${formatDistanceToNow(
-                  new Date(Number(events[0]?.timestamp) * 1000),
-                )} ago`}
+                {events
+                  ? `${formatDistanceToNow(
+                      new Date(Number(events[0]?.timestamp) * 1000),
+                    )} ago`
+                  : 'N/A'}
               </Text>
             </VStack>
           </Flex>
