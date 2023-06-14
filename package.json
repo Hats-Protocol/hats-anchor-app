@@ -25,6 +25,7 @@
     "lodash": "^4.17.21",
     "multiformats": "^11.0.2",
     "next": "13.0.6",
+    "next-plugin-svgr": "^1.1.4",
     "next-seo": "^5.15.0",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",

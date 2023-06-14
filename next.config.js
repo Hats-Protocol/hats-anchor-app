@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const withSvgr = require('next-plugin-svgr');
+
 const nextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -17,4 +19,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withSvgr(nextConfig);

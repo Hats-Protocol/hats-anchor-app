@@ -21,7 +21,7 @@ import {
   Divider,
   Stack,
 } from '@chakra-ui/react';
-import { FaChevronUp, FaChevronDown, FaCopy, FaEdit } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
 
 import {
   toTreeStructure,
@@ -42,6 +42,21 @@ import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
 import { Data } from '@/components/OrgChart';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  Title,
+  Stats,
+  Wearers,
+  Permissions,
+  Responsibilities,
+  Eligibility,
+  Toggles,
+  Edit,
+  Controls,
+  Ago,
+  Copy,
+  Close,
+  Inactive,
+} from '@/assets/icons';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -70,6 +85,7 @@ const TreeDetails = ({
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
   );
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [inactiveHats, setInactiveHats] = useState<boolean>(false);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
@@ -115,10 +131,13 @@ const TreeDetails = ({
               <Button
                 mr={3}
                 fontWeight={500}
-                border='1px solid #2D3748'
-                leftIcon={<FaEdit />}
+                border='1px solid #0987A0'
+                background='#C4F1F9'
+                color='#065666'
+                leftIcon={isEditMode ? <Close /> : <Edit color='#065666' />}
+                onClick={() => setIsEditMode(!isEditMode)}
               >
-                Edit Mode
+                {isEditMode ? 'Leave Edit Mode' : 'Edit Tree'}
               </Button>
               {/* <Button colorScheme="teal" mr={3}>
                 Table View
@@ -126,29 +145,65 @@ const TreeDetails = ({
               <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
                 <PopoverTrigger>
                   <Button
+                    leftIcon={<Controls fill={isOpen ? 'blue' : '#2D3748'} />}
                     rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                     fontWeight={500}
                     border='1px solid #2D3748'
+                    color={isOpen ? 'blue.500' : '#2D3748'}
                   >
                     View Controls
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
                   <PopoverArrow />
-                  <PopoverBody>
+                  <PopoverBody p={6}>
                     <RadioGroup
                       onChange={setSelectedOption}
                       value={selectedOption}
                     >
-                      <Stack direction='column'>
-                        <Radio value='Title only'>Title only</Radio>
-                        <Radio value='123'>123</Radio>
-                        <Radio value='Stats'>Stats</Radio>
-                        <Radio value='Wearers'>Wearers</Radio>
-                        <Radio value='Permissions'>Permissions</Radio>
-                        <Radio value='Responsibilities'>Responsibilities</Radio>
-                        <Radio value='Eligibility'>Eligibility</Radio>
-                        <Radio value='Toggles'>Toggles</Radio>
+                      <Stack direction='column' spacing={3}>
+                        <Radio value='Title only'>
+                          <Flex align='center' gap={2}>
+                            <Title />
+                            <Text>Title only</Text>
+                          </Flex>
+                        </Radio>
+                        <Radio value='Stats'>
+                          <Flex align='center' gap={2}>
+                            <Stats />
+                            <Text>Stats</Text>
+                          </Flex>
+                        </Radio>
+                        <Radio value='Wearers'>
+                          <Flex align='center' gap={2}>
+                            <Wearers />
+                            <Text>Wearers</Text>
+                          </Flex>
+                        </Radio>
+                        <Radio value='Permissions'>
+                          <Flex align='center' gap={2}>
+                            <Permissions />
+                            <Text>Permissions</Text>
+                          </Flex>
+                        </Radio>
+                        <Radio value='Responsibilities'>
+                          <Flex align='center' gap={2}>
+                            <Responsibilities />
+                            <Text>Responsibilities</Text>
+                          </Flex>
+                        </Radio>
+                        <Radio value='Eligibility'>
+                          <Flex align='center' gap={2}>
+                            <Eligibility />
+                            <Text>Eligibility</Text>
+                          </Flex>
+                        </Radio>
+                        <Radio value='Toggles'>
+                          <Flex align='center' gap={2}>
+                            <Toggles />
+                            <Text>Toggles</Text>
+                          </Flex>
+                        </Radio>
                       </Stack>
                     </RadioGroup>
                     <Divider my={4} />
@@ -156,33 +211,40 @@ const TreeDetails = ({
                       isChecked={inactiveHats}
                       onChange={(e) => setInactiveHats(e.target.checked)}
                     >
-                      Inactive Hats
+                      <Flex align='center' gap={2}>
+                        <Inactive />
+                        Inactive Hats
+                      </Flex>
                     </Checkbox>
                   </PopoverBody>
                 </PopoverContent>
               </Popover>
             </Box>
-            <VStack align='center' alignItems='flex-end'>
-              <Text>
-                Contract: {chain?.name}{' '}
+            <VStack align='center' alignItems='flex-end' spacing={1}>
+              <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
+                <Text>Contract: </Text>
+                <Text fontWeight={500}>{chain?.name}</Text>
                 <IconButton
                   aria-label='Copy contract address'
-                  icon={<FaCopy />}
+                  icon={<Copy />}
                   onClick={() => {
                     // navigator.clipboard.writeText(chain?.contractAddress);
                   }}
                   size='xs'
                   variant='ghost'
                 />
-              </Text>
-              <Text>
-                Last event:{' '}
-                {events
-                  ? `${formatDistanceToNow(
-                      new Date(Number(events[0]?.timestamp) * 1000),
-                    )} ago`
-                  : 'N/A'}
-              </Text>
+              </Flex>
+              <Flex align='center' gap={1} fontSize='sm'>
+                <Text>Last event: </Text>
+                <Text mr={2} fontWeight={500}>
+                  {events
+                    ? `${formatDistanceToNow(
+                        new Date(Number(events[0]?.timestamp) * 1000),
+                      )} ago`
+                    : 'N/A'}
+                </Text>
+                <Ago />
+              </Flex>
             </VStack>
           </Flex>
         </Box>

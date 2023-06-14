@@ -1,0 +1,13 @@
+export { default as Title } from './title.svg';
+export { default as Stats } from './stats.svg';
+export { default as Wearers } from './wearers.svg';
+export { default as Permissions } from './permissions.svg';
+export { default as Responsibilities } from './responsibilities.svg';
+export { default as Eligibility } from './eligibility.svg';
+export { default as Toggles } from './toggles.svg';
+export { default as Edit } from './edit.svg';
+export { default as Controls } from './controls.svg';
+export { default as Ago } from './ago.svg';
+export { default as Copy } from './copy.svg';
+export { default as Close } from './close.svg';
+export { default as Inactive } from './inactive.svg';
