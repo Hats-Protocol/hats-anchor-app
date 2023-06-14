@@ -57,6 +57,7 @@ import {
   Close,
   Inactive,
 } from '@/assets/icons';
+import useToast from '@/hooks/useToast';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -79,6 +80,7 @@ const TreeDetails = ({
   linkedHatIds,
   hatData,
 }: TreeDetailsProps) => {
+  const toast = useToast();
   const chain = chainsMap(chainId);
   const [orgChartTree, setOrgChartTree] = useState<Data[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
@@ -228,7 +230,10 @@ const TreeDetails = ({
                   aria-label='Copy contract address'
                   icon={<Copy />}
                   onClick={() => {
-                    // navigator.clipboard.writeText(chain?.contractAddress);
+                    navigator.clipboard.writeText(CONFIG.hatsAddress);
+                    toast.info({
+                      title: 'Succesfully copied contract address',
+                    });
                   }}
                   size='xs'
                   variant='ghost'
