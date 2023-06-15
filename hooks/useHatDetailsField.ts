@@ -4,11 +4,12 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
+import CONFIG from '@/constants';
 
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
   // todo config value
-  const url = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${detailsField?.slice(
+  const url = `${CONFIG.ipfsGateway}${detailsField?.slice(
     7,
   )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
 

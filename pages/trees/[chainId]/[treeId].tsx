@@ -57,6 +57,7 @@ import {
   Inactive,
 } from '@/assets/icons';
 import useToast from '@/hooks/useToast';
+import SelectedHatShade from '@/components/SelectedHatShade';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -121,6 +122,7 @@ const TreeDetails = ({
         img={imagesData[hatId]}
       />
 
+      <SelectedHatShade selectedHatId={hatId} chainId={chainId} />
       <Layout>
         <Box bg='gray.100' px={5} py={3} mb={5}>
           <Flex justify='space-between' align='center'>

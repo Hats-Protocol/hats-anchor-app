@@ -176,7 +176,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
   return isLoading ? (
     <Flex
-      h='calc(100vh - 200px)'
+      h='calc(100% - 200px)'
       w='100%'
       alignItems='center'
       justifyContent='center'
@@ -186,7 +186,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   ) : (
     <div
       style={{
-        // minHeight: 400,
         overflow: 'hidden',
       }}
       ref={d3Container}
