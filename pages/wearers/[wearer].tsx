@@ -209,7 +209,7 @@ const WearerDetail = ({
         url={`${CONFIG.url}/wearers/${wearerAddress}`}
       />
 
-      <Stack align='center' spacing={6}>
+      <Stack align='center' spacing={6} p={20}>
         <Heading size='lg'>
           {ensName || formatAddress(wearerAddress)}&apos;s Hats
         </Heading>
@@ -227,7 +227,7 @@ const WearerDetail = ({
                 href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
                   _.get(hat, 'prettyId'),
                   true,
-                )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
+                )}`}
                 key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
               >
                 <CoreHat

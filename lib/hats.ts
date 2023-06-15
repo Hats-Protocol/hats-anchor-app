@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import { Data } from '@/components/OrgChart';
+import { HatData } from '@/components/OrgChart';
 import { fetchHatsDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 
@@ -9,8 +9,8 @@ export async function toTreeStructure(
   treeData: any,
   hatIdToImage: any,
   chainId: number,
-): Promise<Data[]> {
-  const hatsArray: Data[] = [];
+): Promise<HatData[]> {
+  const hatsArray: HatData[] = [];
   const hatIds: string[] = [];
 
   treeData?.hats?.forEach((hat: any) => {
@@ -28,12 +28,18 @@ export async function toTreeStructure(
   }
 
   // needs to be optimised
-  const hatsDetails = await fetchHatsDetails(hatIds, chainId);
-  const detailsFields = hatsDetails.map((hat: any) => hat.details);
+  const hatsData = await fetchHatsDetails(hatIds, chainId);
+  const detailsFields = hatsData.map((hat: any) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
 
-  const idToHatDetails = Object.fromEntries(
-    hatsDetails.map((hat: any, index) => [hat.id, details[index]]),
+  const hats = Object.fromEntries(
+    hatsData.map((hat: any, index) => [
+      hat.id,
+      {
+        ...hat,
+        details: details[index],
+      },
+    ]),
   );
 
   treeData?.hats?.forEach((hat: any) => {
@@ -50,11 +56,10 @@ export async function toTreeStructure(
       parentId: hatParent,
       imageURI: hatIdToImage[id],
       treeId,
-      dottedLine: hat.admin?.prettyId === treeData.linkedToHat?.prettyId,
-      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-        prettyId,
-      )}`,
-      details: idToHatDetails[id],
+      isLinked: false,
+      url: `/trees/${chainId}/${decimalId(treeId)}`,
+      details: hats[id].details,
+      active: hats[id].status,
     });
   });
 
@@ -65,15 +70,14 @@ export async function toTreeStructure(
 
     hatsArray.push({
       id: prettyId,
-      name: prettyId,
+      name: prettyIdToIp(prettyId),
       parentId: null,
       imageURI: hatIdToImage[id],
       treeId,
-      dottedLine: false,
-      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-        prettyId,
-      )}`,
-      details: idToHatDetails[id],
+      isLinked: true,
+      url: `/trees/${chainId}/${decimalId(treeId)}`,
+      details: hats[id].details,
+      active: hats[id].status,
     });
   }
 
@@ -90,11 +94,10 @@ export async function toTreeStructure(
         parentId: prettyId,
         imageURI: id ? hatIdToImage[id] : undefined,
         treeId,
-        dottedLine: true,
-        url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-          prettyId,
-        )}`,
-        details: id && idToHatDetails[id],
+        isLinked: true,
+        url: `/trees/${chainId}/${decimalId(treeId)}`,
+        details: id && hats[id]?.details,
+        active: id && hats[id].status,
       });
     });
   }

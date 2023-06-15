@@ -29,7 +29,6 @@ import {
   isTopHatOrMutable,
   isAdmin,
   isMutableNotTopHat,
-  prettyIdToUrlId,
   getTreeId,
   isTopHat,
 } from '@/lib/hats';
@@ -129,9 +128,7 @@ const Hat = ({
       label: <Text as='span'>Admin of hat #{prettyIdToIp(hatId)}</Text>,
       value: (
         <ChakraNextLink
-          href={`/trees/${chainId}/${decimalId(
-            getTreeId(hatId),
-          )}/${prettyIdToUrlId(hatId)}`}
+          href={`/trees/${chainId}/${decimalId(getTreeId(hatId))}`}
         >
           <HStack>
             <Text>Hats Protocol</Text>

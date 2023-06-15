@@ -57,7 +57,7 @@ const useTreeCreate = ({
     const treeId = treeCreateEventIdToTreeId(data);
     if (!treeId) return;
 
-    router.push(`/trees/${chainId}/${treeId}/${treeId}`);
+    router.push(`/trees/${chainId}/${treeId}`);
   }
 
   function handleError(error: any) {
