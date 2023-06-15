@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const withSvgr = require('next-plugin-svgr');
 
 const nextConfig = {
@@ -16,6 +17,15 @@ const nextConfig = {
       'theme',
       'utils',
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/trees/:chainId/:treeId/:hatId',
+        destination: '/trees/:chainId/:treeId',
+        permanent: true,
+      },
+    ];
   },
 };
 

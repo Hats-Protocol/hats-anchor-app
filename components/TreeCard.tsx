@@ -26,9 +26,7 @@ const TreeCard = ({ tree, imagesData }: { tree: any; imagesData: any }) => {
   return (
     <ChakraLink
       as={Link}
-      href={`/trees/${_.get(tree, 'chainId')}/${decimalId(
-        _.get(tree, 'id'),
-      )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
+      href={`/trees/${_.get(tree, 'chainId')}/${decimalId(_.get(tree, 'id'))}`}
       key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
     >
       <Card overflow='hidden'>

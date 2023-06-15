@@ -227,7 +227,7 @@ const WearerDetail = ({
                 href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
                   _.get(hat, 'prettyId'),
                   true,
-                )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
+                )}`}
                 key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
               >
                 <CoreHat

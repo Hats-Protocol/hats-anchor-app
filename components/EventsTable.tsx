@@ -14,7 +14,7 @@ import React from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import { explorerUrl } from '@/lib/general';
-import { decimalId, prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
+import { decimalId, prettyIdToIp } from '@/lib/hats';
 
 const EventsTable = ({
   treeId,
@@ -45,11 +45,7 @@ const EventsTable = ({
           </Td>
           {includeHatId && (
             <Td p={2}>
-              <Link
-                href={`/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-                  _.get(event, 'hat.prettyId'),
-                )}`}
-              >
+              <Link href={`/trees/${chainId}/${decimalId(treeId)}`}>
                 <Text color='gray.500' fontSize='sm'>
                   #{prettyIdToIp(_.get(event, 'hat.prettyId'))}
                 </Text>

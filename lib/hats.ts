@@ -57,9 +57,7 @@ export async function toTreeStructure(
       imageURI: hatIdToImage[id],
       treeId,
       isLinked: false,
-      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-        prettyId,
-      )}`,
+      url: `/trees/${chainId}/${decimalId(treeId)}`,
       details: hats[id].details,
       active: hats[id].status,
     });
@@ -77,9 +75,7 @@ export async function toTreeStructure(
       imageURI: hatIdToImage[id],
       treeId,
       isLinked: true,
-      url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-        prettyId,
-      )}`,
+      url: `/trees/${chainId}/${decimalId(treeId)}`,
       details: hats[id].details,
       active: hats[id].status,
     });
@@ -99,9 +95,7 @@ export async function toTreeStructure(
         imageURI: id ? hatIdToImage[id] : undefined,
         treeId,
         isLinked: true,
-        url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
-          prettyId,
-        )}`,
+        url: `/trees/${chainId}/${decimalId(treeId)}`,
         details: id && hats[id]?.details,
         active: id && hats[id].status,
       });

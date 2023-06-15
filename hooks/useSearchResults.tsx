@@ -26,12 +26,10 @@ const processForCommandPalette = (key: string, record: any) => {
     href = `/trees/${_.get(record, 'network.id')}/${prettyIdToUrlId(
       _.get(record, 'id'),
       true,
-    )}/${prettyIdToUrlId(_.get(record, 'id'))}`;
+    )}`;
   }
   if (key === 'hats') {
-    href = `/trees/${_.get(record, 'network.id')}/${treeId}/${prettyIdToUrlId(
-      _.get(record, 'prettyId', _.get(record, 'id')),
-    )}`;
+    href = `/trees/${_.get(record, 'network.id')}/${treeId}`;
   }
 
   return {

@@ -29,7 +29,6 @@ import {
   decimalToTreeId,
   decimalId,
   urlIdToPrettyId,
-  prettyIdToUrlId,
   prettyIdToIp,
   isTopHat,
 } from '@/lib/hats';
@@ -65,7 +64,6 @@ interface TreeDetailsProps {
   treeId: string;
   chainId: number;
   hatId: string;
-  prettyHatId: string;
   treeData: any;
   linkedHatIds: string[];
   hatData: any;
@@ -75,7 +73,6 @@ const TreeDetails = ({
   treeId,
   chainId,
   hatId,
-  prettyHatId,
   treeData,
   linkedHatIds,
   hatData,
@@ -83,7 +80,6 @@ const TreeDetails = ({
   const toast = useToast();
   const chain = chainsMap(chainId);
   const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
-  console.log('orgChartTree', orgChartTree);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
@@ -121,9 +117,7 @@ const TreeDetails = ({
       <HeadComponent
         title={title}
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-        url={`${CONFIG.url}/trees/${chainId}/${decimalId(
-          treeId,
-        )}/${prettyIdToUrlId(prettyHatId)}`}
+        url={`${CONFIG.url}/trees/${chainId}/${decimalId(treeId)}`}
         img={imagesData[hatId]}
       />
 
@@ -299,7 +293,6 @@ export const getStaticProps = async (context: any) => {
       treeId: treeHex || null,
       chainId: _.toNumber(chainId),
       hatId: hatIdHex || null,
-      prettyHatId: prettyHatId || null,
       treeData: treeData || null,
       linkedHatIds,
       hatData: hatData || null,
