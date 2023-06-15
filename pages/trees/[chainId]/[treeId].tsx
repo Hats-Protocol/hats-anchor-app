@@ -124,7 +124,15 @@ const TreeDetails = ({
 
       <SelectedHatShade selectedHatId={hatId} chainId={chainId} />
       <Layout>
-        <Box bg='gray.100' px={5} py={3} mb={5}>
+        <Box
+          bg='gray.100'
+          px={5}
+          py={3}
+          mb={5}
+          position='absolute'
+          top='75px'
+          w='full'
+        >
           <Flex justify='space-between' align='center'>
             <Box>
               <Button
