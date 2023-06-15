@@ -1,5 +1,5 @@
 import { useAccount } from 'wagmi';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import {
@@ -20,6 +20,7 @@ import {
   Checkbox,
   Divider,
   Stack,
+  HStack,
 } from '@chakra-ui/react';
 import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
 
@@ -43,7 +44,7 @@ import { HatData } from '@/components/OrgChart';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Title,
-  Stats,
+  // Stats,
   Wearers,
   Permissions,
   Responsibilities,
@@ -70,6 +71,50 @@ interface TreeDetailsProps {
   hatData: any;
 }
 
+interface IControls {
+  label: string;
+  value: string;
+  icon: ReactNode;
+}
+
+const controls: IControls[] = [
+  {
+    label: 'Title',
+    value: 'title',
+    icon: <Title />,
+  },
+  // {
+  //   label: 'Stats',
+  //   value: 'stats',
+  //   icon: <Stats />,
+  // },
+  {
+    label: 'Wearers',
+    value: 'wearers',
+    icon: <Wearers />,
+  },
+  {
+    label: 'Permissions',
+    value: 'permissions',
+    icon: <Permissions />,
+  },
+  {
+    label: 'Responsibilities',
+    value: 'responsibilities',
+    icon: <Responsibilities />,
+  },
+  {
+    label: 'Eligibility',
+    value: 'eligibility',
+    icon: <Eligibility />,
+  },
+  {
+    label: 'Toggles',
+    value: 'toggles',
+    icon: <Toggles />,
+  },
+];
+
 const TreeDetails = ({
   treeId,
   chainId,
@@ -86,7 +131,7 @@ const TreeDetails = ({
     undefined,
   );
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [showInactiveHats, setInactiveHats] = useState<boolean>(false);
+  const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
@@ -122,7 +167,7 @@ const TreeDetails = ({
         img={imagesData[hatId]}
       />
 
-      <SelectedHatShade selectedHatId={hatId} chainId={chainId} />
+      <SelectedHatShade selectedHatId={null} chainId={chainId} />
       <Layout>
         <Box
           bg='gray.100'
@@ -132,6 +177,7 @@ const TreeDetails = ({
           position='absolute'
           top='75px'
           w='full'
+          zIndex={4}
         >
           <Flex justify='space-between' align='center'>
             <Box>
@@ -149,7 +195,12 @@ const TreeDetails = ({
               {/* <Button colorScheme="teal" mr={3}>
                 Table View
               </Button> */}
-              <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+              <Popover
+                isOpen={isOpen}
+                onOpen={onOpen}
+                onClose={onClose}
+                matchWidth
+              >
                 <PopoverTrigger>
                   <Button
                     leftIcon={<Controls fill={isOpen ? 'blue' : '#2D3748'} />}
@@ -161,56 +212,23 @@ const TreeDetails = ({
                     View Controls
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent>
+                <PopoverContent w='250px'>
                   <PopoverArrow />
                   <PopoverBody p={6}>
                     <RadioGroup
                       onChange={setSelectedOption}
                       value={selectedOption}
+                      w='100%'
                     >
                       <Stack direction='column' spacing={3}>
-                        <Radio value='titleOnly'>
-                          <Flex align='center' gap={2}>
-                            <Title />
-                            <Text>Title only</Text>
-                          </Flex>
-                        </Radio>
-                        <Radio value='stats'>
-                          <Flex align='center' gap={2}>
-                            <Stats />
-                            <Text>Stats</Text>
-                          </Flex>
-                        </Radio>
-                        <Radio value='wearers'>
-                          <Flex align='center' gap={2}>
-                            <Wearers />
-                            <Text>Wearers</Text>
-                          </Flex>
-                        </Radio>
-                        <Radio value='permissions'>
-                          <Flex align='center' gap={2}>
-                            <Permissions />
-                            <Text>Permissions</Text>
-                          </Flex>
-                        </Radio>
-                        <Radio value='responsibilities'>
-                          <Flex align='center' gap={2}>
-                            <Responsibilities />
-                            <Text>Responsibilities</Text>
-                          </Flex>
-                        </Radio>
-                        <Radio value='eligibility'>
-                          <Flex align='center' gap={2}>
-                            <Eligibility />
-                            <Text>Eligibility</Text>
-                          </Flex>
-                        </Radio>
-                        <Radio value='toggles'>
-                          <Flex align='center' gap={2}>
-                            <Toggles />
-                            <Text>Toggles</Text>
-                          </Flex>
-                        </Radio>
+                        {controls.map((control: IControls) => (
+                          <Radio value={control.value} key={control.value}>
+                            <HStack>
+                              {control.icon}
+                              <Text>{control.label}</Text>
+                            </HStack>
+                          </Radio>
+                        ))}
                       </Stack>
                     </RadioGroup>
                     <Divider my={4} />
@@ -218,10 +236,10 @@ const TreeDetails = ({
                       isChecked={showInactiveHats}
                       onChange={(e) => setInactiveHats(e.target.checked)}
                     >
-                      <Flex align='center' gap={2}>
+                      <HStack>
                         <Inactive />
-                        Inactive Hats
-                      </Flex>
+                        <Text>Inactive Hats</Text>
+                      </HStack>
                     </Checkbox>
                   </PopoverBody>
                 </PopoverContent>
@@ -237,7 +255,7 @@ const TreeDetails = ({
                   onClick={() => {
                     navigator.clipboard.writeText(CONFIG.hatsAddress);
                     toast.info({
-                      title: 'Succesfully copied contract address',
+                      title: 'Successfully copied contract address',
                     });
                   }}
                   size='xs'

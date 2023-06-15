@@ -1,6 +1,15 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { OrgChart } from 'd3-org-chart';
-import { Flex, Spinner } from '@chakra-ui/react';
+import {
+  Flex,
+  Spinner,
+  Button,
+  Box,
+  IconButton,
+  HStack,
+  Icon,
+} from '@chakra-ui/react';
+import { FaMinus, FaPlus } from 'react-icons/fa';
 
 export interface HatData {
   id: string;
@@ -18,7 +27,6 @@ interface OrgChartComponentProps {
   tree: HatData[] | null;
   isLoading: boolean;
   chainId: number;
-  // handleAddChildClick: (nodePrettyId: string) => void;
   wearerHats: string[];
   setSelectedNode: (node: string | null) => void;
   selectedNode: string | null;
@@ -30,7 +38,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   tree,
   isLoading,
   chainId,
-  // handleAddChildClick,
   wearerHats,
   setSelectedNode,
   selectedNode,
@@ -38,36 +45,41 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   showInactiveHats,
 }) => {
   console.log('selectedOption', selectedOption);
-  const d3Container = useRef<HTMLDivElement>(null);
-  const [chart, setChart] = useState<OrgChart<unknown> | null>(null);
+  const d3Container = useRef(null);
+  const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
 
   useLayoutEffect(() => {
-    const filteredTree = tree?.filter((t) => {
-      if (showInactiveHats) {
-        return t;
-      }
-      return t.active;
-    });
+    const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.active));
 
-    if (tree && d3Container.current) {
-      if (!chart) {
-        setChart(new OrgChart());
-      } else {
+    if (filteredTree && d3Container.current) {
+      if (chart) {
         chart
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           .container(d3Container.current)
           .data(filteredTree ?? [])
+          // set dims of the chart window
+          .svgHeight(window.innerHeight - 150)
+          .svgWidth(window.innerWidth)
+          // margin from top for root node
+          .rootMargin(80)
+          // set active node centered when clicking expand/collapse
+          .setActiveNodeCentered(true)
+          // set node sizes
           .nodeHeight(() => 70)
           .nodeWidth(() => 220)
-          .onNodeClick((node: any) => setSelectedNode(node))
+          // node click handler
+          .onNodeClick((node: any) => {
+            setSelectedNode(node);
+            chart.setCentered(node);
+          })
           .nodeContent((d: any) => {
             // State to keep track of selected node
 
             const isInWearerHats = wearerHats.includes(d.data.id);
             // Placeholder for your icon. Replace it with actual URL.
             const { imageURI, name, details, isLinked } = d.data;
-            const hasChildren = tree.filter((t) => t.parentId === d.id).length;
+            const hasChildren = filteredTree.filter(
+              (t) => t.parentId === d.id,
+            ).length;
             console.log('hasChildren', hasChildren);
 
             const detailsName =
@@ -137,7 +149,10 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                           <div style="
                             font-size: 16px;
                             color: #08011E;
-                            font-weight: 500;"
+                            font-weight: 500;
+                            overflow: hidden;
+                            max-width: 105px;
+                            max-height: 40px;"
                           >
                             ${detailsName}
                           </div>
@@ -170,9 +185,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     selectedNode,
     wearerHats,
     showInactiveHats,
+    selectedOption,
   ]);
-
-  // Use selectedNode anywhere you like. It will contain the id of the selected node or null if no node is selected.
 
   return isLoading ? (
     <Flex
@@ -184,13 +198,41 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
       <Spinner />
     </Flex>
   ) : (
-    <div
-      style={{
-        overflow: 'hidden',
-      }}
-      ref={d3Container}
-      id='d3Container'
-    />
+    <Box position='relative' pt='150px'>
+      <div
+        style={{
+          overflow: 'hidden',
+          zIndex: 0,
+          // background: 'blue',
+        }}
+        ref={d3Container}
+        id='d3Container'
+      />
+      <Button
+        variant='outline'
+        position='absolute'
+        bottom={4}
+        left={4}
+        onClick={() => chart?.fit()}
+      >
+        Show full structure
+      </Button>
+
+      <HStack position='absolute' bottom={4} right={4}>
+        <IconButton
+          icon={<Icon as={FaMinus} />}
+          variant='outline'
+          aria-label='zoom out'
+          onClick={() => chart?.zoomOut()}
+        />
+        <IconButton
+          icon={<Icon as={FaPlus} />}
+          variant='outline'
+          aria-label='zoom in'
+          onClick={() => chart?.zoomIn()}
+        />
+      </HStack>
+    </Box>
   );
 };
 
