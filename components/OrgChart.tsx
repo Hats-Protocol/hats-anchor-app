@@ -74,8 +74,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
             const isSelected = selectedNode === d.id;
 
-            // currently linked nodes have a different bg color
-            // background-color: ${isLinked ? '#dbfffe' : 'white'};
             return `
             <div style='
               width: ${d.width}px;
@@ -86,8 +84,10 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               <div style="
                 display: flex;
                 align-items: center;
-                background-color: ${isLinked ? '#daffe4' : 'white'};
-                border: ${isSelected ? '2px' : '1px'} solid #4A5568;
+                background-color: white;
+                border: 
+                  ${isSelected ? '2px' : '1px'} 
+                  ${isLinked ? 'dotted' : 'solid'} #4A5568;
                 border-radius: 4px;
                 width: ${d.width}px;
                 height: 70px;"
@@ -98,7 +98,9 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                       background: white;
                       width: ${isSelected ? '78.5px' : '70px'};
                       height: ${isSelected ? '78.5px' : '70px'};
-                      border: ${isSelected ? '2px' : '1px'} solid #4A5568;
+                      border: 
+                        ${isSelected ? '2px' : '1px'} 
+                        ${isLinked ? 'dotted' : 'solid'} #4A5568;
                       border-radius: 4px;
                       margin-left: ${isSelected ? -2 : -1}px;"
                   />
