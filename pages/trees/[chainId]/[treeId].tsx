@@ -40,7 +40,7 @@ import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
-import { Data } from '@/components/OrgChart';
+import { HatData } from '@/components/OrgChart';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Title,
@@ -82,13 +82,14 @@ const TreeDetails = ({
 }: TreeDetailsProps) => {
   const toast = useToast();
   const chain = chainsMap(chainId);
-  const [orgChartTree, setOrgChartTree] = useState<Data[]>([]);
+  const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
+  console.log('orgChartTree', orgChartTree);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
   );
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [inactiveHats, setInactiveHats] = useState<boolean>(false);
+  const [showInactiveHats, setInactiveHats] = useState<boolean>(false);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
@@ -210,7 +211,7 @@ const TreeDetails = ({
                     </RadioGroup>
                     <Divider my={4} />
                     <Checkbox
-                      isChecked={inactiveHats}
+                      isChecked={showInactiveHats}
                       onChange={(e) => setInactiveHats(e.target.checked)}
                     >
                       <Flex align='center' gap={2}>
@@ -258,6 +259,8 @@ const TreeDetails = ({
 
         <OrgChart
           tree={orgChartTree}
+          selectedOption={selectedOption}
+          showInactiveHats={showInactiveHats}
           isLoading={imagesDataLoading}
           wearerHats={wearerHats}
           chainId={chainId}

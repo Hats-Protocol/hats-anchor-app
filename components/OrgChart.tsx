@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { OrgChart } from 'd3-org-chart';
 import { Flex, Spinner } from '@chakra-ui/react';
 
-export interface Data {
+export interface HatData {
   id: string;
   name: string;
   parentId: string | null;
@@ -11,16 +11,19 @@ export interface Data {
   dottedLine?: boolean;
   url: string;
   details?: string;
+  active: boolean;
 }
 
 interface OrgChartComponentProps {
-  tree: Data[] | null;
+  tree: HatData[] | null;
   isLoading: boolean;
   chainId: number;
   // handleAddChildClick: (nodePrettyId: string) => void;
   wearerHats: string[];
   setSelectedNode: (node: string | null) => void;
   selectedNode: string | null;
+  selectedOption?: string;
+  showInactiveHats: boolean;
 }
 
 const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
@@ -31,9 +34,11 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   wearerHats,
   setSelectedNode,
   selectedNode,
+  selectedOption,
+  showInactiveHats,
 }) => {
-  // console.log(handleAddChildClick, chainId, wearerHats, activeHatId);
-  // console.log('wearerHats', wearerHats);
+  console.log('selectedOption', selectedOption);
+  console.log('showInactiveHats', showInactiveHats);
   const d3Container = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<OrgChart<unknown> | null>(null);
 
