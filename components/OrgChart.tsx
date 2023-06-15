@@ -38,11 +38,17 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   showInactiveHats,
 }) => {
   console.log('selectedOption', selectedOption);
-  console.log('showInactiveHats', showInactiveHats);
   const d3Container = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<OrgChart<unknown> | null>(null);
 
   useLayoutEffect(() => {
+    const filteredTree = tree?.filter((t) => {
+      if (showInactiveHats) {
+        return t;
+      }
+      return t.active;
+    });
+
     if (tree && d3Container.current) {
       if (!chart) {
         setChart(new OrgChart());
@@ -51,7 +57,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           .container(d3Container.current)
-          .data(tree)
+          .data(filteredTree ?? [])
           .nodeHeight(() => 70)
           .nodeWidth(() => 220)
           .onNodeClick((node: any) => setSelectedNode(node))
