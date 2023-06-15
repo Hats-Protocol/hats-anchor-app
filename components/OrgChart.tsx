@@ -8,7 +8,7 @@ export interface HatData {
   parentId: string | null;
   imageURI: string;
   treeId: string;
-  dottedLine?: boolean;
+  isLinked: boolean;
   url: string;
   details?: string;
   active: boolean;
@@ -60,7 +60,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
             const isInWearerHats = wearerHats.includes(d.data.id);
             // Placeholder for your icon. Replace it with actual URL.
-            const { imageURI, name, details } = d.data;
+            const { imageURI, name, details, isLinked } = d.data;
             const hasChildren = tree.filter((t) => t.parentId === d.id).length;
             console.log('hasChildren', hasChildren);
 
@@ -72,78 +72,79 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 ? details
                 : '';
 
-            // Check if the current node is selected
             const isSelected = selectedNode === d.id;
 
+            // currently linked nodes have a different bg color
+            // background-color: ${isLinked ? '#dbfffe' : 'white'};
             return `
             <div style='
-                width: ${d.width}px;
-                height: ${d.height}px;
-                padding-left: 1px;
-                padding-right: 1px;'
+              width: ${d.width}px;
+              height: ${d.height}px;
+              padding-left: 1px;
+              padding-right: 1px;'
             >
-                <div style="
+              <div style="
+                display: flex;
+                align-items: center;
+                background-color: ${isLinked ? '#daffe4' : 'white'};
+                border: ${isSelected ? '2px' : '1px'} solid #4A5568;
+                border-radius: 4px;
+                width: ${d.width}px;
+                height: 70px;"
+              >
+                  <img
+                    src="${imageURI ?? '/icon.jpeg'}"
+                    style="
+                      background: white;
+                      width: ${isSelected ? '78.5px' : '70px'};
+                      height: ${isSelected ? '78.5px' : '70px'};
+                      border: ${isSelected ? '2px' : '1px'} solid #4A5568;
+                      border-radius: 4px;
+                      margin-left: ${isSelected ? -2 : -1}px;"
+                  />
+                  <div style="
                     display: flex;
-                    align-items: center;
-                    background-color: rgba(255, 255, 255, 0.92);
-                    border: ${isSelected ? '2px' : '1px'} solid #4A5568;
-                    border-radius: 4px;
-                    width: ${d.width}px;
-                    height: 70px;"
-                >
-                    <img
-                        src="${imageURI ?? '/icon.jpeg'}"
-                        style="
-                            width: ${isSelected ? '78.5px' : '70px'};
-                            height: ${isSelected ? '78.5px' : '70px'};
-                            border: ${isSelected ? '2px' : '1px'} solid #4A5568;
-                            border-radius: 4px;
-                            margin-left: ${isSelected ? -2 : -1}px;"
-                    />
-                    <div style="
+                    flex-direction: column;
+                    height: 100%;
+                    width: 100%;
+                    position: relative;"
+                  >
+                      <div style="
                         display: flex;
                         flex-direction: column;
-                        height: 100%;
-                        width: 100%;
-                        position: relative;"
-                    >
-                        <div style="
-                            display: flex;
-                            flex-direction: column;
+                        position: absolute;
+                        left: ${isSelected ? 8 : 10}px;
+                        top: ${isSelected ? 9 : 10}px;"
+                      >
+                          <div style="
+                            font-size: 12px;
+                            color: ${isSelected ? '#248559' : '#08011E'};"
+                          >
+                            ${name}
+                          </div>
+                          <div style="
+                            font-size: 12px;
+                            color: #08011E;"
+                          >
+                            ${detailsName}
+                          </div>
+                      </div>
+                  </div>
+                  ${
+                    isInWearerHats
+                      ? `<img src='/wearer.svg'
+                          style="
+                            width: 16px;
+                            height: 12px;
                             position: absolute;
-                            left: ${isSelected ? 8 : 10}px;
-                            top: ${isSelected ? 9 : 10}px;"
-                        >
-                            <div style="
-                                font-size: 12px;
-                                color: ${isSelected ? '#248559' : '#08011E'};"
-                            >
-                                ${name}
-                            </div>
-                            <div style="
-                                font-size: 12px;
-                                color: #08011E;"
-                            >
-                                ${detailsName}
-                            </div>
-                        </div>
-                    </div>
-                    ${
-                      isInWearerHats
-                        ? `<img src='/wearer.svg'
-                            style="
-                                width: 16px;
-                                height: 12px;
-                                position: absolute;
-                                right: 10px;
-                                top: 10px;"
-                        />`
-                        : ''
-                    }
-                </div>
+                            right: 10px;
+                            top: 10px;"
+                      />`
+                      : ''
+                  }
+              </div>
             </div>`;
           })
-
           .render();
       }
     }

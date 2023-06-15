@@ -56,7 +56,7 @@ export async function toTreeStructure(
       parentId: hatParent,
       imageURI: hatIdToImage[id],
       treeId,
-      dottedLine: hat.admin?.prettyId === treeData.linkedToHat?.prettyId,
+      isLinked: false,
       url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
         prettyId,
       )}`,
@@ -72,11 +72,11 @@ export async function toTreeStructure(
 
     hatsArray.push({
       id: prettyId,
-      name: prettyId,
+      name: prettyIdToIp(prettyId),
       parentId: null,
       imageURI: hatIdToImage[id],
       treeId,
-      dottedLine: false,
+      isLinked: true,
       url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
         prettyId,
       )}`,
@@ -98,7 +98,7 @@ export async function toTreeStructure(
         parentId: prettyId,
         imageURI: id ? hatIdToImage[id] : undefined,
         treeId,
-        dottedLine: true,
+        isLinked: true,
         url: `/trees/${chainId}/${decimalId(treeId)}/${prettyIdToUrlId(
           prettyId,
         )}`,
