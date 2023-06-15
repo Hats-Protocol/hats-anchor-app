@@ -239,17 +239,19 @@ const TreeDetails = ({
                   variant='ghost'
                 />
               </Flex>
-              <Flex align='center' gap={1} fontSize='sm'>
-                <Text>Last event: </Text>
-                <Text mr={2} fontWeight={500}>
-                  {events
-                    ? `${formatDistanceToNow(
-                        new Date(Number(events[0]?.timestamp) * 1000),
-                      )} ago`
-                    : 'N/A'}
-                </Text>
-                <Ago />
-              </Flex>
+              {events?.length > 0 && (
+                <Flex align='center' gap={1} fontSize='sm'>
+                  <Text>Last event: </Text>
+                  <Text mr={2} fontWeight={500}>
+                    ? `$
+                    {formatDistanceToNow(
+                      new Date(Number(events[0]?.timestamp) * 1000),
+                    )}{' '}
+                    ago`
+                  </Text>
+                  <Ago />
+                </Flex>
+              )}
             </VStack>
           </Flex>
         </Box>
