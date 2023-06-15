@@ -16,7 +16,8 @@ const CONFIG: {
   shortName: 'Hats',
   url: 'https://app.hatsprotocol.xyz',
   logoUrl:
-    'https://ipfs.io/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg',
+    'https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg',
+  ipfsGateway: 'https://indigo-selective-coral-505.mypinata.cloud/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
 

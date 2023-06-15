@@ -52,9 +52,7 @@ const useImageURIs = (hats: any[], chainId: number) => {
             readData?.result?.startsWith('ipfs://')
           ) {
             // converting the current base image uri from the contract to resolvable format
-            hatIdToImage[
-              hat
-            ] = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${readData?.result.slice(
+            hatIdToImage[hat] = `${CONFIG.ipfsGateway}${readData?.result.slice(
               7,
             )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
           } else {

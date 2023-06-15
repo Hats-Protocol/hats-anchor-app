@@ -42,10 +42,10 @@ const Layout = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
+    <Flex direction='column' align='center' bg='blue.50' h='100%' w='100%'>
       <Navbar />
       <CommandPalette />
-      <Box w='100%' my='75px'>
+      <Box h='100vh' w='100vw'>
         {children}
       </Box>
     </Flex>
