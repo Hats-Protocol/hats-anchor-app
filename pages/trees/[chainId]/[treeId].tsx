@@ -238,11 +238,10 @@ const TreeDetails = ({
                 <Flex align='center' gap={1} fontSize='sm'>
                   <Text>Last event: </Text>
                   <Text mr={2} fontWeight={500}>
-                    ? `$
                     {formatDistanceToNow(
                       new Date(Number(events[0]?.timestamp) * 1000),
                     )}{' '}
-                    ago`
+                    ago
                   </Text>
                   <Ago />
                 </Flex>
