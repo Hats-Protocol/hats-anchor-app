@@ -124,22 +124,23 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                         left: ${isSelected ? 8 : 10}px;
                         top: ${isSelected ? 9 : 10}px;"
                       >
-                          <div style="
-                            font-size: 12px;
-                            color: ${isSelected ? '#248559' : '#08011E'};"
-                          >
-                            ${name}
-                          </div>
                           ${
-                            selectedOption === 'titleOnly'
+                            selectedOption === 'titleOnly' && detailsName !== ''
                               ? ''
                               : `<div style="
                                   font-size: 12px;
-                                  color: #08011E;"
+                                  color: ${isSelected ? '#248559' : '#08011E'};"
                                 >
-                                  ${detailsName}
+                                  ${name}
                                 </div>`
                           }
+                          <div style="
+                            font-size: 16px;
+                            color: #08011E;
+                            font-weight: 500;"
+                          >
+                            ${detailsName}
+                          </div>
                       </div>
                   </div>
                   ${
