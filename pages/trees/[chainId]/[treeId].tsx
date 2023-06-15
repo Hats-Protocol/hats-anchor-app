@@ -159,43 +159,43 @@ const TreeDetails = ({
                       value={selectedOption}
                     >
                       <Stack direction='column' spacing={3}>
-                        <Radio value='Title only'>
+                        <Radio value='titleOnly'>
                           <Flex align='center' gap={2}>
                             <Title />
                             <Text>Title only</Text>
                           </Flex>
                         </Radio>
-                        <Radio value='Stats'>
+                        <Radio value='stats'>
                           <Flex align='center' gap={2}>
                             <Stats />
                             <Text>Stats</Text>
                           </Flex>
                         </Radio>
-                        <Radio value='Wearers'>
+                        <Radio value='wearers'>
                           <Flex align='center' gap={2}>
                             <Wearers />
                             <Text>Wearers</Text>
                           </Flex>
                         </Radio>
-                        <Radio value='Permissions'>
+                        <Radio value='permissions'>
                           <Flex align='center' gap={2}>
                             <Permissions />
                             <Text>Permissions</Text>
                           </Flex>
                         </Radio>
-                        <Radio value='Responsibilities'>
+                        <Radio value='responsibilities'>
                           <Flex align='center' gap={2}>
                             <Responsibilities />
                             <Text>Responsibilities</Text>
                           </Flex>
                         </Radio>
-                        <Radio value='Eligibility'>
+                        <Radio value='eligibility'>
                           <Flex align='center' gap={2}>
                             <Eligibility />
                             <Text>Eligibility</Text>
                           </Flex>
                         </Radio>
-                        <Radio value='Toggles'>
+                        <Radio value='toggles'>
                           <Flex align='center' gap={2}>
                             <Toggles />
                             <Text>Toggles</Text>

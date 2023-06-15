@@ -130,12 +130,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                           >
                             ${name}
                           </div>
-                          <div style="
-                            font-size: 12px;
-                            color: #08011E;"
-                          >
-                            ${detailsName}
-                          </div>
+                          ${
+                            selectedOption === 'titleOnly'
+                              ? ''
+                              : `<div style="
+                                  font-size: 12px;
+                                  color: #08011E;"
+                                >
+                                  ${detailsName}
+                                </div>`
+                          }
                       </div>
                   </div>
                   ${
@@ -164,6 +168,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     setSelectedNode,
     selectedNode,
     wearerHats,
+    showInactiveHats,
   ]);
 
   // Use selectedNode anywhere you like. It will contain the id of the selected node or null if no node is selected.
