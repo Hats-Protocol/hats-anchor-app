@@ -23,6 +23,7 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { NextSeo } from 'next-seo';
 
 import {
   toTreeStructure,
@@ -38,7 +39,6 @@ import Layout from '@/components/Layout';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
 import { HatData } from '@/components/OrgChart';
 import { formatDistanceToNow } from 'date-fns';
@@ -160,11 +160,12 @@ const TreeDetails = ({
 
   return (
     <>
-      <HeadComponent
+      <NextSeo
         title={title}
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-        url={`${CONFIG.url}/trees/${chainId}/${decimalId(treeId)}`}
-        img={imagesData[hatId]}
+        openGraph={{
+          images: [imagesData[hatId]],
+        }}
       />
 
       <SelectedHatShade selectedHatId={null} chainId={chainId} />

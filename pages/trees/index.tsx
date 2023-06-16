@@ -7,7 +7,6 @@ import Layout from '@/components/Layout';
 import useImageURIs from '@/hooks/useImageURIs';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
-import HeadComponent from '@/components/HeadComponent';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 
@@ -45,8 +44,6 @@ const Trees = ({
 
   return (
     <Layout>
-      <HeadComponent />
-
       <Box py={100} px={100} bg='blue.50'>
         <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
           <NetworkFilter
