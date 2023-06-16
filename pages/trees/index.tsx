@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Heading, SimpleGrid, Flex, Spinner } from '@chakra-ui/react';
+import { Heading, SimpleGrid, Flex, Spinner, Box } from '@chakra-ui/react';
 import { useState, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -41,40 +41,43 @@ const Trees = ({
   }, [data]);
 
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
+  console.log(trees);
 
   return (
     <Layout>
       <HeadComponent />
 
-      <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
-        <NetworkFilter
-          onFilterChange={handleNetworkFilterChange}
-          selectedNetwork={selectedNetwork}
-        />
-      </Flex>
-      {!_.isEmpty(trees) && (
-        <InfiniteScroll
-          dataLength={_.size(trees)}
-          next={fetchNextPage}
-          hasMore={hasNextPage || false}
-          loader={
-            <Flex justify='center' align='center' pt={10}>
-              <Spinner />
-            </Flex>
-          }
-        >
-          <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
-            {_.map(trees, (tree: any) => (
-              <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-            ))}
-          </SimpleGrid>
-        </InfiniteScroll>
-      )}
-      {_.isEmpty(trees) && !(isLoading || isFetchingNextPage) && (
-        <Flex justify='center' align='center'>
-          <Heading size='md'>No Trees Found</Heading>
+      <Box py={100} px={100} bg='blue.50'>
+        <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
+          <NetworkFilter
+            onFilterChange={handleNetworkFilterChange}
+            selectedNetwork={selectedNetwork}
+          />
         </Flex>
-      )}
+        {!_.isEmpty(trees) && (
+          <InfiniteScroll
+            dataLength={_.size(trees)}
+            next={fetchNextPage}
+            hasMore={hasNextPage || false}
+            loader={
+              <Flex justify='center' align='center' pt={10}>
+                <Spinner />
+              </Flex>
+            }
+          >
+            <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
+              {_.map(trees, (tree: any) => (
+                <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+              ))}
+            </SimpleGrid>
+          </InfiniteScroll>
+        )}
+        {_.isEmpty(trees) && !(isLoading || isFetchingNextPage) && (
+          <Flex justify='center' align='center'>
+            <Heading size='md'>No Trees Found</Heading>
+          </Flex>
+        )}
+      </Box>
     </Layout>
   );
 };
