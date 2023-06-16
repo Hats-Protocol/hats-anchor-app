@@ -25,8 +25,9 @@ import { chainsColors, chainsMap } from '@/lib/web3';
 import Layout from '@/components/Layout';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
+import { IHat } from '@/types';
 
-const CoreHat = ({ hat, image }: { hat: any; image: string }) => {
+const CoreHat = ({ hat, image }: { hat: IHat; image: string }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 

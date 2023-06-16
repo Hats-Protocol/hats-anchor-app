@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { Heading, SimpleGrid, Flex, Spinner, Box } from '@chakra-ui/react';
 import { useState, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { InfiniteData } from '@tanstack/react-query';
 
 import Layout from '@/components/Layout';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -9,12 +10,13 @@ import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
+import { ITree } from '@/types';
 
 const Trees = ({
   trees: initialData,
   defaultNetworkId,
 }: {
-  trees: any[];
+  trees: InfiniteData<ITree[]>;
   defaultNetworkId: number;
 }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
@@ -63,7 +65,7 @@ const Trees = ({
             }
           >
             <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
-              {_.map(trees, (tree: any) => (
+              {_.map(trees, (tree: ITree) => (
                 <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
               ))}
             </SimpleGrid>
@@ -91,6 +93,7 @@ export const getStaticProps = async () => {
       },
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
     return {
       props: {

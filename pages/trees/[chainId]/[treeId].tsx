@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import { useAccount } from 'wagmi';
 import { useState, useEffect, ReactNode } from 'react';
 import _ from 'lodash';
@@ -40,7 +41,6 @@ import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import CONFIG from '@/constants';
-import { HatData } from '@/components/OrgChart';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Title,
@@ -59,6 +59,7 @@ import {
 } from '@/assets/icons';
 import useToast from '@/hooks/useToast';
 import SelectedHatShade from '@/components/SelectedHatShade';
+import { IHat, ITree, IHatData } from '@/types';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -66,9 +67,9 @@ interface TreeDetailsProps {
   treeId: string;
   chainId: number;
   hatId: string;
-  treeData: any;
+  treeData: ITree;
   linkedHatIds: string[];
-  hatData: any;
+  hatData: IHat;
 }
 
 interface IControls {
@@ -118,14 +119,13 @@ const controls: IControls[] = [
 const TreeDetails = ({
   treeId,
   chainId,
-  hatId,
   treeData,
   linkedHatIds,
   hatData,
 }: TreeDetailsProps) => {
   const toast = useToast();
   const chain = chainsMap(chainId);
-  const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
+  const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
@@ -140,6 +140,7 @@ const TreeDetails = ({
   const { onOpen, onClose, isOpen } = useDisclosure();
 
   const events = _.get(treeData, 'events');
+  console.log(treeData);
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
     _.get(hatData, 'prettyId'),
   )}`;
@@ -157,15 +158,17 @@ const TreeDetails = ({
 
     fetchTreeAndSetState();
   }, [treeData, imagesData, chainId]);
+  console.log(orgChartTree);
 
   return (
     <>
       <NextSeo
         title={title}
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-        openGraph={{
-          images: [imagesData[hatId]],
-        }}
+        // openGraph={{
+        //   url: `${CONFIG.url}/trees/${chainId}/${treeId}`,
+        //   images: [imagesData[hatId]],
+        // }}
       />
 
       <SelectedHatShade selectedHatId={null} chainId={chainId} />
@@ -263,7 +266,7 @@ const TreeDetails = ({
                   variant='ghost'
                 />
               </Flex>
-              {events?.length > 0 && (
+              {!_.isEmpty(events) && (
                 <Flex align='center' gap={1} fontSize='sm'>
                   <Text>Last event: </Text>
                   <Text mr={2} fontWeight={500}>
@@ -301,6 +304,7 @@ export const getStaticProps = async (context: any) => {
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
+  console.log(hatData);
 
   const { linkedToHat, parentOfTrees } = treeData || {
     linkedToHat: { id: null },
@@ -312,7 +316,7 @@ export const getStaticProps = async (context: any) => {
   }
   if (parentOfTrees) {
     linkedHatIds.push(
-      ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
+      ...parentOfTrees.map((tree: Partial<ITree>) => prettyIdToId(tree.id)),
     );
   }
 

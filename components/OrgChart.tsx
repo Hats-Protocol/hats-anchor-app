@@ -10,21 +10,10 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
-
-export interface HatData {
-  id: string;
-  name: string;
-  parentId: string | null;
-  imageURI: string;
-  treeId: string;
-  isLinked: boolean;
-  url: string;
-  details?: string;
-  active: boolean;
-}
+import { IHatData } from '@/types';
 
 interface OrgChartComponentProps {
-  tree: HatData[] | null;
+  tree: IHatData[] | null;
   isLoading: boolean;
   chainId: number;
   wearerHats: string[];
@@ -137,7 +126,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                         top: ${isSelected ? 9 : 10}px;"
                       >
                           ${
-                            selectedOption === 'titleOnly' && detailsName !== ''
+                            selectedOption === 'title' && detailsName !== ''
                               ? ''
                               : `<div style="
                                   font-size: 12px;

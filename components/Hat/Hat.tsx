@@ -46,6 +46,7 @@ import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import EventsTable from '@/components/EventsTable';
 import useHatGuilds from '@/hooks/useGuilds';
+import { IHat, ITree } from '@/types';
 
 import AdminActions from './AdminActions';
 import HatWearers from './HatWearers';
@@ -446,14 +447,22 @@ const Hat = ({
 export default Hat;
 
 interface HatProps {
-  hatData: any;
+  hatData: IHat;
   chainId: number;
   treeId: string;
-  linkedToHat: any;
-  hatImage: any;
-  childrenHats: any;
+  linkedToHat: IHat;
+  hatImage: string;
+  childrenHats: IHat[];
   linkRequestFromTree: any;
-  parentOfTrees: any;
-  topHatDetails: any;
-  hatDetails: any;
+  parentOfTrees: ITree[];
+  topHatDetails: {
+    type: string;
+    data: {
+      guilds: string[];
+    };
+  };
+  hatDetails: {
+    type: string;
+    data: object;
+  };
 }

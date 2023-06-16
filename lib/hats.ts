@@ -1,16 +1,16 @@
 /* eslint-disable no-use-before-define */
-import { HatData } from '@/components/OrgChart';
+import { IHatData, ITree } from '@/types';
 import { fetchHatsDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 
 import _ from 'lodash';
 
 export async function toTreeStructure(
-  treeData: any,
+  treeData: ITree,
   hatIdToImage: any,
   chainId: number,
-): Promise<HatData[]> {
-  const hatsArray: HatData[] = [];
+): Promise<IHatData[]> {
+  const hatsArray: IHatData[] = [];
   const hatIds: string[] = [];
 
   treeData?.hats?.forEach((hat: any) => {
@@ -83,9 +83,10 @@ export async function toTreeStructure(
 
   // If the tree has parentOfTrees, add them to the hatsArray with the linkedToHat as their parent
   if (treeData?.parentOfTrees) {
-    treeData.parentOfTrees.forEach((childTree: any) => {
+    treeData.parentOfTrees.forEach((childTree: ITree) => {
       const id = prettyIdToId(childTree.id);
       const treeId = childTree.id;
+      if (!childTree.linkedToHat) return;
       const { prettyId } = childTree.linkedToHat;
 
       hatsArray.push({
@@ -97,7 +98,7 @@ export async function toTreeStructure(
         isLinked: true,
         url: `/trees/${chainId}/${decimalId(treeId)}`,
         details: id && hats[id]?.details,
-        active: id && hats[id].status,
+        active: id && hats[id]?.status,
       });
     });
   }
