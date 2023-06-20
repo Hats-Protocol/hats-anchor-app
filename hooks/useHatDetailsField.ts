@@ -27,6 +27,7 @@ export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
           const res = await fetchDetailsIpfs(detailsField);
           acc.push(res?.data);
         } catch (e) {
+          // eslint-disable-next-line no-console
           console.log(e);
           acc.push({});
         }

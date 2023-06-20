@@ -1,6 +1,8 @@
 import _ from 'lodash';
 
 import { mapWithChainId } from '@/lib/general';
+import { fetchEnsName } from '@wagmi/core';
+import { checkAddressIsContract } from '@/lib/contract';
 
 import client from './client';
 import {
@@ -65,6 +67,32 @@ export const fetchHatsDetails = async (
 ): Promise<any[]> => {
   const requests = hatIds.map((hatId) => fetchHatDetails(hatId, chainId));
   return Promise.all(requests);
+};
+
+export const fetchManyWearerDetails = async (
+  wearerIds: `0x${string}`[],
+  chainId: number,
+) => {
+  // two promises per address
+  const promises = wearerIds.map((wearerId: `0x${string}`) => {
+    return [
+      checkAddressIsContract(wearerId, chainId),
+      fetchEnsName({
+        address: wearerId,
+        chainId: 1,
+      }),
+    ];
+  });
+  const data = await Promise.all(_.flatten(promises));
+
+  // map with ID so can be looked up later
+  return _.map(wearerIds, (wearerId, index) => {
+    return {
+      id: wearerId,
+      isContract: data[index * 2],
+      ensName: data[index * 2 + 1],
+    };
+  });
 };
 
 export const fetchAllTreesByIds = async (treeIds: any[], chainId: number) => {

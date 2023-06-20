@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { useAccount, useConnect, useConfig } from 'wagmi';
 
 import CommandPalette from '@/components/CommandPalette';
@@ -42,13 +42,19 @@ const Layout = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <Flex direction='column' align='center' bg='blue.50' h='100%' w='100%'>
+    <Box>
+      <Box
+        backgroundImage='/bg-topography.svg'
+        position='fixed'
+        h='100%'
+        w='100%'
+      />
       <Navbar />
       <CommandPalette />
       <Box h='100vh' w='100vw'>
         {children}
       </Box>
-    </Flex>
+    </Box>
   );
 };
 

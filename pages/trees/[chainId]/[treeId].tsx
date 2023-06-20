@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import { useAccount } from 'wagmi';
 import { useState, useEffect, ReactNode } from 'react';
 import _ from 'lodash';
@@ -21,8 +22,14 @@ import {
   Divider,
   Stack,
   HStack,
+  Image,
+  Icon,
+  Spinner,
 } from '@chakra-ui/react';
-import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown, FaRegCopy } from 'react-icons/fa';
+import { BsToggles } from 'react-icons/bs';
+import { NextSeo } from 'next-seo';
+import { formatDistanceToNow } from 'date-fns';
 
 import {
   toTreeStructure,
@@ -38,27 +45,10 @@ import Layout from '@/components/Layout';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import HeadComponent from '@/components/HeadComponent';
 import CONFIG from '@/constants';
-import { HatData } from '@/components/OrgChart';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  Title,
-  // Stats,
-  Wearers,
-  Permissions,
-  Responsibilities,
-  Eligibility,
-  Toggles,
-  Edit,
-  Controls,
-  Ago,
-  Copy,
-  Close,
-  Inactive,
-} from '@/assets/icons';
 import useToast from '@/hooks/useToast';
 import SelectedHatShade from '@/components/SelectedHatShade';
+import { IHat, ITree, IHatData } from '@/types';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -66,9 +56,9 @@ interface TreeDetailsProps {
   treeId: string;
   chainId: number;
   hatId: string;
-  treeData: any;
+  treeData: ITree;
   linkedHatIds: string[];
-  hatData: any;
+  hatData: IHat;
 }
 
 interface IControls {
@@ -79,58 +69,57 @@ interface IControls {
 
 const controls: IControls[] = [
   {
-    label: 'Title',
+    label: 'Title Only',
     value: 'title',
-    icon: <Title />,
+    icon: <Image src='/icons/title.svg' alt='Title Icon' />,
   },
   // {
   //   label: 'Stats',
   //   value: 'stats',
-  //   icon: <Stats />,
+  //   icon: <Image src='/icons/stats' alt='Stats Icon' />,
   // },
   {
     label: 'Wearers',
     value: 'wearers',
-    icon: <Wearers />,
+    icon: <Image src='/icons/wearers.svg' alt='Wearers Icon' />,
   },
   {
     label: 'Permissions',
     value: 'permissions',
-    icon: <Permissions />,
+    icon: <Image src='/icons/permissions.svg' alt='Permissions Icon' />,
   },
   {
     label: 'Responsibilities',
     value: 'responsibilities',
-    icon: <Responsibilities />,
+    icon: (
+      <Image src='/icons/responsibilities.svg' alt='Responsibilities Icon' />
+    ),
   },
   {
     label: 'Eligibility',
     value: 'eligibility',
-    icon: <Eligibility />,
+    icon: <Image src='/icons/eligibility.svg' alt='Eligibility Icon' />,
   },
   {
-    label: 'Toggles',
-    value: 'toggles',
-    icon: <Toggles />,
+    label: 'Toggle',
+    value: 'toggle',
+    icon: <Image src='/icons/toggle.svg' alt='Toggle icon' />,
   },
 ];
 
 const TreeDetails = ({
   treeId,
   chainId,
-  hatId,
   treeData,
   linkedHatIds,
   hatData,
 }: TreeDetailsProps) => {
   const toast = useToast();
   const chain = chainsMap(chainId);
-  const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
+  const [orgChartTree, setOrgChartTree] = useState<IHatData[] | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<string | undefined>(
-    undefined,
-  );
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [selectedOption, setSelectedOption] = useState<string>('title');
+  // const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
@@ -158,13 +147,42 @@ const TreeDetails = ({
     fetchTreeAndSetState();
   }, [treeData, imagesData, chainId]);
 
+  const hasPermissions = !_.isEmpty(
+    _.filter(orgChartTree, (node: IHatData) => {
+      return (
+        typeof node.details !== 'string' &&
+        _.includes(_.keys(node.details), 'permissions')
+      );
+    }),
+  );
+  const hasResponsibilities = !_.isEmpty(
+    _.filter(orgChartTree, (node: IHatData) => {
+      return (
+        typeof node.details !== 'string' &&
+        _.includes(_.keys(node.details), 'responsibilities')
+      );
+    }),
+  );
+
+  if (!hasPermissions) {
+    _.remove(controls, (control: IControls) => control.value === 'permissions');
+  }
+  if (!hasResponsibilities) {
+    _.remove(
+      controls,
+      (control: IControls) => control.value === 'responsibilities',
+    );
+  }
+
   return (
     <>
-      <HeadComponent
+      <NextSeo
         title={title}
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-        url={`${CONFIG.url}/trees/${chainId}/${decimalId(treeId)}`}
-        img={imagesData[hatId]}
+        // openGraph={{
+        //   url: `${CONFIG.url}/trees/${chainId}/${treeId}`,
+        //   images: [imagesData[hatId]],
+        // }}
       />
 
       <SelectedHatShade selectedHatId={null} chainId={chainId} />
@@ -181,7 +199,7 @@ const TreeDetails = ({
         >
           <Flex justify='space-between' align='center'>
             <Box>
-              <Button
+              {/* <Button
                 mr={3}
                 fontWeight={500}
                 border='1px solid #0987A0'
@@ -191,7 +209,7 @@ const TreeDetails = ({
                 onClick={() => setIsEditMode(!isEditMode)}
               >
                 {isEditMode ? 'Leave Edit Mode' : 'Edit Tree'}
-              </Button>
+              </Button> */}
               {/* <Button colorScheme="teal" mr={3}>
                 Table View
               </Button> */}
@@ -203,7 +221,12 @@ const TreeDetails = ({
               >
                 <PopoverTrigger>
                   <Button
-                    leftIcon={<Controls fill={isOpen ? 'blue' : '#2D3748'} />}
+                    leftIcon={
+                      <Icon
+                        as={BsToggles}
+                        color={isOpen ? 'blue.500' : '#2D3748'}
+                      />
+                    }
                     rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                     fontWeight={500}
                     border='1px solid #2D3748'
@@ -237,7 +260,7 @@ const TreeDetails = ({
                       onChange={(e) => setInactiveHats(e.target.checked)}
                     >
                       <HStack>
-                        <Inactive />
+                        <Image src='/icons/inactive.svg' alt='inactive icon' />
                         <Text>Inactive Hats</Text>
                       </HStack>
                     </Checkbox>
@@ -251,7 +274,7 @@ const TreeDetails = ({
                 <Text fontWeight={500}>{chain?.name}</Text>
                 <IconButton
                   aria-label='Copy contract address'
-                  icon={<Copy />}
+                  icon={<Icon as={FaRegCopy} />}
                   onClick={() => {
                     navigator.clipboard.writeText(CONFIG.hatsAddress);
                     toast.info({
@@ -262,7 +285,7 @@ const TreeDetails = ({
                   variant='ghost'
                 />
               </Flex>
-              {events?.length > 0 && (
+              {!_.isEmpty(events) && (
                 <Flex align='center' gap={1} fontSize='sm'>
                   <Text>Last event: </Text>
                   <Text mr={2} fontWeight={500}>
@@ -271,23 +294,30 @@ const TreeDetails = ({
                     )}{' '}
                     ago
                   </Text>
-                  <Ago />
+                  <Image src='/icons/ago.svg' alt='History icon' />
                 </Flex>
               )}
             </VStack>
           </Flex>
         </Box>
 
-        <OrgChart
-          tree={orgChartTree}
-          selectedOption={selectedOption}
-          showInactiveHats={showInactiveHats}
-          isLoading={imagesDataLoading}
-          wearerHats={wearerHats}
-          chainId={chainId}
-          setSelectedNode={setSelectedNode}
-          selectedNode={selectedNode}
-        />
+        {!_.isEmpty(orgChartTree) ? (
+          <OrgChart
+            tree={orgChartTree}
+            selectedOption={selectedOption}
+            showInactiveHats={showInactiveHats}
+            isLoading={imagesDataLoading}
+            wearerHats={wearerHats}
+            chainId={chainId}
+            setSelectedNode={setSelectedNode}
+            selectedNode={selectedNode}
+            // setSelectedOption={setSelectedOption}
+          />
+        ) : (
+          <Flex justify='center' align='center' w='full' h='full'>
+            <Spinner />
+          </Flex>
+        )}
       </Layout>
     </>
   );
@@ -311,7 +341,7 @@ export const getStaticProps = async (context: any) => {
   }
   if (parentOfTrees) {
     linkedHatIds.push(
-      ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
+      ...parentOfTrees.map((tree: Partial<ITree>) => prettyIdToId(tree.id)),
     );
   }
 
