@@ -28,8 +28,8 @@ interface OrgChartComponentProps {
   isLoading: boolean;
   chainId: number;
   wearerHats: string[];
-  setSelectedNode: (node: string | null) => void;
-  selectedNode: string | null;
+  onSelectHat: (node: string) => void;
+  selectedHat: string | null;
   selectedOption?: string;
   showInactiveHats: boolean;
 }
@@ -39,8 +39,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   isLoading,
   chainId,
   wearerHats,
-  setSelectedNode,
-  selectedNode,
+  onSelectHat,
+  selectedHat,
   selectedOption,
   showInactiveHats,
 }) => {
@@ -68,7 +68,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .nodeWidth(() => 220)
           // node click handler
           .onNodeClick((node: any) => {
-            setSelectedNode(node);
+            onSelectHat(node);
             chart.setCentered(node);
           })
           .nodeContent((d: any) => {
@@ -90,7 +90,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 ? details
                 : '';
 
-            const isSelected = selectedNode === d.id;
+            const isSelected = selectedHat === d.id;
 
             return `
             <div style='
@@ -181,8 +181,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     tree,
     isLoading,
     chainId,
-    setSelectedNode,
-    selectedNode,
+    onSelectHat,
+    selectedHat,
     wearerHats,
     showInactiveHats,
     selectedOption,

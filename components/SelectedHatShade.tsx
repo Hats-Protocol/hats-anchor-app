@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
   Box,
@@ -20,23 +20,53 @@ import {
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import { FaEllipsisV } from 'react-icons/fa';
-import useHatDetails from '@/hooks/useHatDetails';
 import { formatAddress } from '@/lib/general';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 
 const SelectedHatShade = ({
   selectedHatId,
-  chainId,
+  // chainId,
+  hatsData,
+  onClose,
 }: SelectedHatShadeProps) => {
-  const { data: hatData } = useHatDetails({
-    hatId: selectedHatId,
-    chainId,
-  });
-  console.log(hatData);
+  const [hatData, setHatData] = useState<any>({});
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [activeStatus, setActiveStatus] = useState('Inactive');
+  const [mutableStatus, setMutableStatus] = useState('Immutable');
+
+  useEffect(() => {
+    if (selectedHatId) {
+      const data = hatsData[prettyIdToId(selectedHatId)];
+
+      if (data) {
+        setHatData(data);
+        const { id, status, mutable, details } = data;
+
+        setName(
+          // eslint-disable-next-line no-nested-ternary
+          details?.type === '1.0'
+            ? details?.data?.name
+            : typeof details === 'string'
+            ? details
+            : prettyIdToIp(idToPrettyId(id)),
+        );
+        setDescription(
+          details?.type === '1.0' ? details?.data?.description : '',
+        );
+        setActiveStatus(status ? 'Active' : 'Inactive');
+        setMutableStatus(mutable ? 'Mutable' : 'Immutable');
+      }
+    }
+  }, [selectedHatId, hatsData]);
+
+  if (!hatData) return null;
 
   return (
     <Box
-      w='30%'
-      minW='700px'
+      // w='30%' // Change width based on collapsed state
+      w='full'
+      transition='width 0.5s' // Add transition
       bg='whiteAlpha.900'
       h='100%'
       borderLeft='1px solid'
@@ -75,7 +105,7 @@ const SelectedHatShade = ({
           top={0}
           zIndex={16}
         >
-          <Button variant='outline'>
+          <Button variant='outline' onClick={onClose}>
             <HStack>
               <Icon as={FiChevronsRight} />
               <Text>Collapse</Text>
@@ -101,21 +131,19 @@ const SelectedHatShade = ({
             <Stack spacing={4}>
               <Flex align='start' justify='space-between'>
                 <Stack>
-                  <Text fontSize='2xl' fontWeight='medium'>
-                    Top Hat #21
-                  </Text>
-                  <Text>Tree #1 on xDai</Text>
+                  <Text>{name}</Text>
+                  <Text>{description}</Text>
                 </Stack>
                 <HStack>
                   <Text>Hat ID:</Text>
-                  <Text>21.3</Text>
+                  <Text>{prettyIdToIp(idToPrettyId(hatData?.id))}</Text>
                 </HStack>
               </Flex>
               <HStack>
                 <Badge>My Hat</Badge>
-                <Badge>Mutable</Badge>
-                <Badge>Active</Badge>
-                <Badge>Level 3</Badge>
+                <Badge>{mutableStatus}</Badge>
+                <Badge>{activeStatus}</Badge>
+                <Badge>Level {hatData?.levelAtLocalTree}</Badge>
               </HStack>
             </Stack>
 
@@ -128,12 +156,12 @@ const SelectedHatShade = ({
                 >
                   Hat Wearers
                 </Heading>
-                <Text>1/5</Text>
+                <Text>{`${hatData?.wearers?.length}/${hatData?.currentSupply}`}</Text>
               </Flex>
 
               {/* Wearers list */}
               {_.map(_.get(hatData, 'wearers', []), (wearer: any) => (
-                <Flex>
+                <Flex key={wearer.id}>
                   <Text>{formatAddress(_.get(wearer, 'id'))}</Text>
                 </Flex>
               ))}
@@ -200,6 +228,7 @@ const SelectedHatShade = ({
 export default SelectedHatShade;
 
 interface SelectedHatShadeProps {
-  selectedHatId: any | undefined;
-  chainId: number;
+  selectedHatId?: string;
+  hatsData: any;
+  onClose: () => void;
 }

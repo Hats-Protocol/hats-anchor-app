@@ -21,6 +21,10 @@ import {
   Divider,
   Stack,
   HStack,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
 } from '@chakra-ui/react';
 import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
 
@@ -126,7 +130,8 @@ const TreeDetails = ({
   const toast = useToast();
   const chain = chainsMap(chainId);
   const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [hatsData, setHatsData] = useState<HatData[]>([]);
+  const [selectedHat, setSelectedHat] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
   );
@@ -138,6 +143,17 @@ const TreeDetails = ({
     chainId,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
+  const {
+    onOpen: onOpenShade,
+    onClose: onCloseShade,
+    isOpen: isOpenShade,
+  } = useDisclosure();
+
+  // eslint-disable-next-line no-shadow
+  const handleSelectHat = (hatId: string) => {
+    setSelectedHat(hatId);
+    onOpenShade();
+  };
 
   const events = _.get(treeData, 'events');
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
@@ -151,8 +167,13 @@ const TreeDetails = ({
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
-      const tree = await toTreeStructure(treeData, imagesData, chainId);
+      const { tree, hats } = await toTreeStructure(
+        treeData,
+        imagesData,
+        chainId,
+      );
       setOrgChartTree(tree);
+      setHatsData(hats);
     };
 
     fetchTreeAndSetState();
@@ -167,7 +188,18 @@ const TreeDetails = ({
         img={imagesData[hatId]}
       />
 
-      <SelectedHatShade selectedHatId={null} chainId={chainId} />
+      <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
+        <DrawerOverlay />
+        <DrawerContent maxW='30%'>
+          <DrawerBody>
+            <SelectedHatShade
+              selectedHatId={selectedHat}
+              hatsData={hatsData}
+              onClose={onCloseShade}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
       <Layout>
         <Box
           bg='gray.100'
@@ -285,8 +317,8 @@ const TreeDetails = ({
           isLoading={imagesDataLoading}
           wearerHats={wearerHats}
           chainId={chainId}
-          setSelectedNode={setSelectedNode}
-          selectedNode={selectedNode}
+          selectedHat={selectedHat}
+          onSelectHat={handleSelectHat}
         />
       </Layout>
     </>

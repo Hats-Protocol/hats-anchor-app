@@ -9,7 +9,10 @@ export async function toTreeStructure(
   treeData: any,
   hatIdToImage: any,
   chainId: number,
-): Promise<HatData[]> {
+): Promise<{
+  tree: HatData[];
+  hats: any;
+}> {
   const hatsArray: HatData[] = [];
   const hatIds: string[] = [];
 
@@ -23,7 +26,8 @@ export async function toTreeStructure(
 
   if (treeData?.parentOfTrees) {
     treeData.parentOfTrees.forEach((childTree: any) => {
-      hatIds.push(childTree.id);
+      if (!childTree?.id) return;
+      hatIds.push(prettyIdToId(childTree.id) || childTree.id);
     });
   }
 
@@ -97,15 +101,16 @@ export async function toTreeStructure(
         isLinked: true,
         url: `/trees/${chainId}/${decimalId(treeId)}`,
         details: id && hats[id]?.details,
-        active: id && hats[id].status,
+        active: id && hats[id]?.status,
       });
     });
   }
 
-  return hatsArray;
+  return { tree: hatsArray, hats };
 }
 
 export function prettyIdToId(id: string | undefined) {
+  if (!id) return '';
   return id?.replaceAll('.', '').padEnd(66, '0');
 }
 
