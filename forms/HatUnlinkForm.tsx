@@ -37,7 +37,7 @@ const HatUnlinkForm = ({
 
   const { writeAsync, isLoading } = useHatUnlinkTree({
     topHatPrettyId,
-    wearer: topHatData?.wearers?.[0]?.id,
+    wearer: topHatData?.wearers?.[0]?.id || '0x',
     chainId,
   });
 
