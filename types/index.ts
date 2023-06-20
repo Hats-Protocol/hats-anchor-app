@@ -4,8 +4,10 @@ interface IHatEvent {
   transactionID: string;
 }
 
-interface IHatWearer {
+export interface IHatWearer {
   id: `0x${string}`;
+  isContract?: boolean;
+  ensName?: string | null;
 }
 
 export interface IHat {
@@ -36,8 +38,14 @@ export interface IHatData {
   treeId: string;
   isLinked: boolean;
   url: string;
-  details?: string;
+  details?: string | object;
   active: boolean;
+  currentSupply?: string;
+  maxSupply?: string;
+  wearers?: any;
+  eligibility?: IHatWearer;
+  toggle?: IHatWearer;
+  levelAtLocalTree?: number;
 }
 
 interface ITreeEvent extends IHatEvent {

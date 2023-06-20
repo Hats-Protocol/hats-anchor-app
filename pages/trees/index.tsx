@@ -43,18 +43,21 @@ const Trees = ({
 
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
   console.log(trees);
+  console.log(isLoading);
 
   return (
     <Layout>
-      <Box py={100} px={100} bg='blue.50'>
+      <Box w='100%' h='100%' bg='blue' position='fixed' opacity={0.05} />
+      <Box py={100} px={100}>
         <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
           <NetworkFilter
             onFilterChange={handleNetworkFilterChange}
             selectedNetwork={selectedNetwork}
           />
         </Flex>
-        {!_.isEmpty(trees) && (
+        {!isLoading && !_.isEmpty(trees) && (
           <InfiniteScroll
+            hasChildren={!_.isEmpty(trees)}
             dataLength={_.size(trees)}
             next={fetchNextPage}
             hasMore={hasNextPage || false}
@@ -64,16 +67,21 @@ const Trees = ({
               </Flex>
             }
           >
-            <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
+            <SimpleGrid gap={8} justifyContent='center' columns={4}>
               {_.map(trees, (tree: ITree) => (
                 <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
               ))}
             </SimpleGrid>
           </InfiniteScroll>
         )}
-        {_.isEmpty(trees) && !(isLoading || isFetchingNextPage) && (
+        {_.isEmpty(trees) && !isLoading && !isFetchingNextPage && (
           <Flex justify='center' align='center'>
             <Heading size='md'>No Trees Found</Heading>
+          </Flex>
+        )}
+        {isLoading && (
+          <Flex justify='center' align='center' pt={10}>
+            <Spinner />
           </Flex>
         )}
       </Box>

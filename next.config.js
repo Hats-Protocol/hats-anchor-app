@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const withSvgr = require('next-plugin-svgr');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -29,4 +28,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withSvgr(nextConfig);
+module.exports = nextConfig;

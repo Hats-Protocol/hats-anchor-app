@@ -31,7 +31,7 @@ const SelectedHatShade = ({
     hatId: selectedHatId,
     chainId,
   });
-  console.log(hatData);
+  // console.log(hatData);
 
   return (
     <Box
