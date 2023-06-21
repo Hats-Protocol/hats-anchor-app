@@ -22,8 +22,6 @@ import {
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
-  FaArrowAltCircleLeft,
-  FaArrowCircleLeft,
   FaBan,
   FaCheck,
   FaChevronDown,
