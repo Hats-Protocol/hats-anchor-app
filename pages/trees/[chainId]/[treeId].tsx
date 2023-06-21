@@ -127,7 +127,7 @@ const TreeDetails = ({
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
   );
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
@@ -218,7 +218,6 @@ const TreeDetails = ({
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}
               hatsData={hatsData}
-              treeData={orgChartTree}
               onClose={onCloseShade}
             />
           </DrawerBody>

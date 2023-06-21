@@ -55,16 +55,14 @@ import Modal from '@/components/Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useWearerDetails from '@/hooks/useWearerDetails';
 
-import { HatData } from './OrgChart';
-
 const SelectedHatDrawer = ({
   selectedHatId,
   setSelectedHatId,
   chainId,
   hatsData,
-  treeData,
   onClose,
 }: SelectedHatDrawerProps) => {
+  console.log('hatsData', hatsData);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -88,7 +86,6 @@ const SelectedHatDrawer = ({
 
       if (data) {
         setHatData(data);
-        console.log('data', data);
         const { id, status, mutable, details } = data;
 
         setName(
@@ -106,10 +103,10 @@ const SelectedHatDrawer = ({
         setMutableStatus(mutable ? 'Mutable' : 'Immutable');
       }
 
-      const hierarchyData = treeData.find((t) => t.id === selectedHatId);
+      const hierarchyData = hatsData[prettyIdToId(selectedHatId)];
       setHierarchyHatData(hierarchyData);
     }
-  }, [selectedHatId, hatsData, treeData]);
+  }, [selectedHatId, hatsData]);
 
   const {
     writeAsync: updateImmutability,
@@ -274,7 +271,14 @@ const SelectedHatDrawer = ({
         </Flex>
         <Box w='100%' overflow='scroll'>
           {/* Main Details */}
-          <Stack position='relative' p={10} spacing={10} pt='110px'>
+          <Stack
+            position='relative'
+            p={10}
+            spacing={10}
+            pt='110px'
+            overflow='auto'
+            height='100%'
+          >
             <Stack spacing={4}>
               <Flex align='start' justify='space-between'>
                 <Stack>
@@ -442,7 +446,7 @@ const SelectedHatDrawer = ({
               </Flex>
             </Stack>
 
-            <Stack>
+            <Stack mb={10}>
               <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
                 Event history
               </Heading>
@@ -572,6 +576,5 @@ interface SelectedHatDrawerProps {
   setSelectedHatId: (id: string) => void;
   chainId: number;
   hatsData: any;
-  treeData: HatData[];
   onClose: () => void;
 }

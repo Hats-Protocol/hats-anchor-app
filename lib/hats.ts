@@ -19,6 +19,7 @@ export async function toTreeStructure(
   const hatsArray: IHatData[] = [];
   const hatIds: string[] = [];
 
+  console.log('treeData', treeData);
   treeData?.hats?.forEach((hat: any) => {
     hatIds.push(hat.id);
   });
@@ -64,11 +65,14 @@ export async function toTreeStructure(
   );
   console.log(wearersAndControllersInfo);
 
+  const populatedHats = populateSiblingsAndChild(hatsData);
+
   const hats = Object.fromEntries(
-    hatsData.map((hat: any, index) => [
+    populatedHats.map((hat: any, index) => [
       hat.id,
       {
         ...hat,
+        parentId: hat.admin.prettyId,
         details: details[index],
       },
     ]),
@@ -173,12 +177,10 @@ export async function toTreeStructure(
     });
   }
 
-  const tree = populateSiblingsAndChild(hatsArray);
-
-  return { tree, hats };
+  return { tree: hatsArray, hats };
 }
 
-function populateSiblingsAndChild(hatsArray: IHatData[]) {
+export function populateSiblingsAndChild(hatsArray: IHatData[]) {
   const idToNodeMap = {} as any;
 
   // Create a map from id to node
@@ -193,10 +195,13 @@ function populateSiblingsAndChild(hatsArray: IHatData[]) {
 
     const nodeIndex = siblings.findIndex((n) => n.id === node.id);
 
-    node.leftSibling = nodeIndex > 0 ? siblings[nodeIndex - 1].id : undefined;
+    node.leftSibling =
+      nodeIndex > 0 ? siblings[nodeIndex - 1].prettyId : undefined;
     node.rightSibling =
-      nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1].id : undefined;
-    node.firstChild = children.length > 0 ? children[0].id : undefined;
+      nodeIndex < siblings.length - 1
+        ? siblings[nodeIndex + 1].prettyId
+        : undefined;
+    node.firstChild = children.length > 0 ? children[0].prettyId : undefined;
   }
 
   // Return the updated array
