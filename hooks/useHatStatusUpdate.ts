@@ -11,7 +11,7 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import { prettyIdToId, toTreeId } from '@/lib/hats';
+import { toTreeId } from '@/lib/hats';
 
 const useHatStatusUpdate = ({
   hatsAddress,
@@ -29,7 +29,7 @@ const useHatStatusUpdate = ({
     chainId,
     abi,
     functionName: 'setHatStatus',
-    args: [prettyIdToId(hatId), status === 'Active'],
+    args: [hatId, status === 'Active'],
     enabled: Boolean(hatsAddress) && Boolean(hatId),
   });
 
@@ -53,10 +53,10 @@ const useHatStatusUpdate = ({
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', prettyIdToId(hatId)],
+          queryKey: ['hatDetails', hatId],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(prettyIdToId(hatId))],
+          queryKey: ['treeDetails', toTreeId(hatId)],
         });
       }, 4000);
     },

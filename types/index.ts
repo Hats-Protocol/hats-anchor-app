@@ -46,6 +46,10 @@ export interface IHatData {
   eligibility?: IHatWearer;
   toggle?: IHatWearer;
   levelAtLocalTree?: number;
+  prettyId?: string;
+  leftSibling?: string;
+  rightSibling?: string;
+  firstChild?: string;
 }
 
 interface ITreeEvent extends IHatEvent {

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-use-before-define */
 import { IHatData, ITree } from '@/types';
 import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
@@ -11,10 +12,14 @@ export async function toTreeStructure(
   treeData: ITree,
   hatIdToImage: any,
   chainId: number,
-): Promise<IHatData[] | null> {
+): Promise<{
+  tree: IHatData[];
+  hats: any;
+}> {
   const hatsArray: IHatData[] = [];
   const hatIds: string[] = [];
 
+  console.log('treeData', treeData);
   treeData?.hats?.forEach((hat: any) => {
     hatIds.push(hat.id);
   });
@@ -25,7 +30,9 @@ export async function toTreeStructure(
 
   if (treeData?.parentOfTrees) {
     treeData.parentOfTrees.forEach((childTree: any) => {
-      hatIds.push(childTree.id);
+      if (!childTree?.id) return;
+      const id = prettyIdToId(childTree.id) || childTree.id;
+      hatIds.push(id);
     });
   }
 
@@ -58,11 +65,14 @@ export async function toTreeStructure(
   );
   console.log(wearersAndControllersInfo);
 
+  const populatedHats = populateSiblingsAndChild(hatsData);
+
   const hats = Object.fromEntries(
-    hatsData.map((hat: any, index) => [
+    populatedHats.map((hat: any, index) => [
       hat.id,
       {
         ...hat,
+        parentId: hat.admin.prettyId,
         details: details[index],
       },
     ]),
@@ -157,8 +167,8 @@ export async function toTreeStructure(
         treeId,
         isLinked: true,
         url: `/trees/${chainId}/${decimalId(treeId)}`,
-        details: hats[id].details,
-        active: hats[id].status,
+        details: id && hats[id]?.details,
+        active: id && hats[id]?.status,
         currentSupply: hats[id].currentSupply,
         maxSupply: hats[id].maxSupply,
         wearers: hats[id].wearers,
@@ -167,10 +177,39 @@ export async function toTreeStructure(
     });
   }
 
+  return { tree: hatsArray, hats };
+}
+
+export function populateSiblingsAndChild(hatsArray: IHatData[]) {
+  const idToNodeMap = {} as any;
+
+  // Create a map from id to node
+  for (const node of hatsArray) {
+    idToNodeMap[node.id] = node;
+  }
+
+  // Populate the siblings and child fields
+  for (const node of hatsArray) {
+    const siblings = hatsArray.filter((n) => n.parentId === node.parentId);
+    const children = hatsArray.filter((n) => n.parentId === node.id);
+
+    const nodeIndex = siblings.findIndex((n) => n.id === node.id);
+
+    node.leftSibling =
+      nodeIndex > 0 ? siblings[nodeIndex - 1].prettyId : undefined;
+    node.rightSibling =
+      nodeIndex < siblings.length - 1
+        ? siblings[nodeIndex + 1].prettyId
+        : undefined;
+    node.firstChild = children.length > 0 ? children[0].prettyId : undefined;
+  }
+
+  // Return the updated array
   return hatsArray;
 }
 
 export function prettyIdToId(id: string | undefined) {
+  if (!id) return '';
   return id?.replaceAll('.', '').padEnd(66, '0');
 }
 

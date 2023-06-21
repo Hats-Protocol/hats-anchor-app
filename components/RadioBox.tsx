@@ -15,7 +15,6 @@ import {
   Flex,
   Icon,
   Tooltip,
-  useCheckbox,
 } from '@chakra-ui/react';
 import React, { useEffect, ReactNode } from 'react';
 import { useController } from 'react-hook-form';
@@ -25,25 +24,23 @@ const RadioCard = ({
   children,
   variant = 'outline',
   size,
+  value,
   ...props
 }: {
   children: ReactNode;
   variant?: string;
   size?: string;
+  value: string;
 }) => {
   const styles = useStyleConfig('RadioBox', { variant, size });
   const { getInputProps } = useRadio({ ...props });
-  const { getCheckboxProps } = useCheckbox({ ...props });
 
   const input = getInputProps();
-  const checkbox = getCheckboxProps();
 
   return (
     <Box as='label'>
-      <input {...input} />
-      <Box {...checkbox} __css={styles}>
-        {children}
-      </Box>
+      <input {...input} value={value} type='radio' />
+      <Box __css={styles}>{children}</Box>
     </Box>
   );
 };
@@ -83,16 +80,6 @@ const RadioBox = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const Options = () =>
-    options?.map((v) => {
-      const radio = getRadioProps({ value: v });
-      return (
-        <RadioCard key={v} size={size} {...radio}>
-          {v}
-        </RadioCard>
-      );
-    });
-
   const group = getRootProps();
   const error = errors[name] && errors[name]?.message;
 
@@ -123,11 +110,25 @@ const RadioBox = ({
         </HStack>
         {stack === 'vertical' ? (
           <VStack {...group} alignItems='inherit'>
-            <Options />
+            {options?.map((v) => {
+              const radio = getRadioProps({ value: v });
+              return (
+                <RadioCard key={v} size={size} {...radio} value={v}>
+                  {v}
+                </RadioCard>
+              );
+            })}
           </VStack>
         ) : (
           <HStack {...group}>
-            <Options />
+            {options?.map((v) => {
+              const radio = getRadioProps({ value: v });
+              return (
+                <RadioCard key={v} size={size} {...radio} value={v}>
+                  {v}
+                </RadioCard>
+              );
+            })}
           </HStack>
         )}
         {helperText && <FormHelperText>{helperText}</FormHelperText>}

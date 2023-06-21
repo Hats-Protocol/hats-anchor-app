@@ -37,14 +37,12 @@ import HatDetailsForm from '@/forms/HatDetailsForm';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import HatImageForm from '@/forms/HatImageForm';
 
-import HatStatusForm from '@/forms/HatStatusForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
-import EventsTable from '@/components/EventsTable';
 import useHatGuilds from '@/hooks/useGuilds';
 import { IHat, ITree } from '@/types';
 
@@ -204,28 +202,6 @@ const Hat = ({
       </Modal>
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
         <HatImageForm hatData={hatData} chainId={chainId} />
-      </Modal>
-      <Modal
-        name='hatWearerStatus'
-        title='Change Wearer Status'
-        localOverlay={localOverlay}
-      >
-        <HatWearerStatusForm
-          hatData={hatData}
-          chainId={chainId}
-          defaultValues={{
-            wearer: '',
-            eligibility: 'Eligible',
-            standing: 'Good Standing',
-          }}
-        />
-      </Modal>
-      <Modal
-        name='hatStatus'
-        title='Change Hat Status'
-        localOverlay={localOverlay}
-      >
-        <HatStatusForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
@@ -416,13 +392,6 @@ const Hat = ({
                 parentOfTrees={parentOfTrees}
                 chainId={chainId}
                 isAdminUser={isAdminUser}
-              />
-            </TabPanel>
-            <TabPanel minH='370px'>
-              <EventsTable
-                chainId={chainId}
-                treeId={treeId}
-                events={hatData?.events}
               />
             </TabPanel>
             {isAdminUser && (

@@ -44,10 +44,10 @@ const useHatWearerStatusSet = ({
     abi,
     functionName: 'setHatWearerStatus',
     args: [
-      prettyIdToId(hatId), // not a valid fallback? throw instead?
+      hatId, // not a valid fallback? throw instead?
       wearerAddress,
-      eligibility === 'Eligible',
-      standing === 'Good Standing',
+      eligibility,
+      standing,
     ],
     enabled: !!hatsAddress && isAddress(wearer),
   });
@@ -115,6 +115,6 @@ interface UseHatWearerStatusUpdateProps {
   chainId: number;
   hatId: string;
   wearer: string;
-  eligibility: string;
-  standing: string;
+  eligibility: boolean;
+  standing: boolean;
 }

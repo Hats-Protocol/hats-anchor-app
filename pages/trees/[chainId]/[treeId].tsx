@@ -25,6 +25,10 @@ import {
   Image,
   Icon,
   Spinner,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
 } from '@chakra-ui/react';
 import { FaChevronUp, FaChevronDown, FaRegCopy } from 'react-icons/fa';
 import { BsToggles } from 'react-icons/bs';
@@ -47,7 +51,7 @@ import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import CONFIG from '@/constants';
 import useToast from '@/hooks/useToast';
-import SelectedHatShade from '@/components/SelectedHatShade';
+import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 import { IHat, ITree, IHatData } from '@/types';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
@@ -110,16 +114,20 @@ const controls: IControls[] = [
 const TreeDetails = ({
   treeId,
   chainId,
+  hatId,
   treeData,
   linkedHatIds,
   hatData,
 }: TreeDetailsProps) => {
   const toast = useToast();
   const chain = chainsMap(chainId);
-  const [orgChartTree, setOrgChartTree] = useState<IHatData[] | null>(null);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<string>('title');
-  // const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
+  const [hatsData, setHatsData] = useState<IHatData[]>([]);
+  const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
+  const [selectedOption, setSelectedOption] = useState<string | undefined>(
+    undefined,
+  );
+
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
@@ -127,6 +135,17 @@ const TreeDetails = ({
     chainId,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
+  const {
+    onOpen: onOpenShade,
+    onClose: onCloseShade,
+    isOpen: isOpenShade,
+  } = useDisclosure();
+
+  // eslint-disable-next-line no-shadow
+  const handleSelectHat = (hatId: string) => {
+    setSelectedHatId(hatId);
+    onOpenShade();
+  };
 
   const events = _.get(treeData, 'events');
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
@@ -140,8 +159,13 @@ const TreeDetails = ({
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
-      const tree = await toTreeStructure(treeData, imagesData, chainId);
+      const { tree, hats } = await toTreeStructure(
+        treeData,
+        imagesData,
+        chainId,
+      );
       setOrgChartTree(tree);
+      setHatsData(hats);
     };
 
     fetchTreeAndSetState();
@@ -185,7 +209,21 @@ const TreeDetails = ({
         // }}
       />
 
-      <SelectedHatShade selectedHatId={null} chainId={chainId} />
+      <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
+        <DrawerOverlay />
+        <DrawerContent maxW='35%'>
+          <DrawerBody>
+            <SelectedHatDrawer
+              chainId={chainId}
+              selectedHatId={selectedHatId}
+              setSelectedHatId={setSelectedHatId}
+              hatsData={hatsData}
+              onClose={onCloseShade}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
       <Layout>
         <Box
           bg='gray.100'
@@ -309,9 +347,8 @@ const TreeDetails = ({
             isLoading={imagesDataLoading}
             wearerHats={wearerHats}
             chainId={chainId}
-            setSelectedNode={setSelectedNode}
-            selectedNode={selectedNode}
-            // setSelectedOption={setSelectedOption}
+            selectedHatId={selectedHatId}
+            onSelectHat={handleSelectHat}
           />
         ) : (
           <Flex justify='center' align='center' w='full' h='full'>
