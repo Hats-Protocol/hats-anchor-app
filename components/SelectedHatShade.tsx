@@ -21,7 +21,11 @@ import {
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
+  FaBan,
+  FaCheck,
+  FaChevronDown,
   FaCopy,
+  FaCross,
   FaDoorOpen,
   FaEllipsisV,
   FaLock,
@@ -29,12 +33,7 @@ import {
   FaUser,
 } from 'react-icons/fa';
 import { formatAddress } from '@/lib/general';
-import {
-  decimalId,
-  idToPrettyId,
-  prettyIdToId,
-  prettyIdToIp,
-} from '@/lib/hats';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import CONFIG from '@/constants';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useToast from '@/hooks/useToast';
@@ -330,7 +329,7 @@ const SelectedHatShade = ({
               ))}
             </Stack>
 
-            <Stack spacing={4}>
+            {/* <Stack spacing={4}>
               <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
                 Responsibilities
               </Heading>
@@ -350,18 +349,41 @@ const SelectedHatShade = ({
                 <ListItem>Post a report on Github</ListItem>
                 <ListItem>Moderate the Discord</ListItem>
               </UnorderedList>
-            </Stack>
+            </Stack> */}
 
             <Stack>
               <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
                 Eligibility
               </Heading>
+              <Flex justifyContent='space-between'>
+                <HStack>
+                  <Text>Can I wear this hat?</Text> <FaChevronDown />
+                </HStack>
+
+                <HStack color={isEligible ? 'green.500' : 'red.500'} ml={2}>
+                  <Text>{isEligible ? 'Yes' : 'No'}</Text>
+                  {isEligible ? <FaCheck /> : <FaBan />}
+                </HStack>
+              </Flex>
             </Stack>
 
             <Stack>
               <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
                 Toggle
               </Heading>
+              <Flex justifyContent='space-between'>
+                <HStack>
+                  <Text>Can I toggle this hat?</Text> <FaChevronDown />
+                </HStack>
+
+                <HStack
+                  color={hatData?.toggle === address ? 'green.500' : 'red.500'}
+                  ml={2}
+                >
+                  <Text>{hatData?.toggle === address ? 'Yes' : 'No'}</Text>
+                  {hatData?.toggle === address ? <FaCheck /> : <FaBan />}
+                </HStack>
+              </Flex>
             </Stack>
           </Stack>
         </Box>
