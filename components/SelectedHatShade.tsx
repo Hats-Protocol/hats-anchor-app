@@ -17,6 +17,7 @@ import {
   Heading,
   UnorderedList,
   ListItem,
+  Divider,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
@@ -25,15 +26,23 @@ import {
   FaEllipsisV,
   FaLock,
   FaPowerOff,
+  FaUser,
 } from 'react-icons/fa';
 import { formatAddress } from '@/lib/general';
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  prettyIdToId,
+  prettyIdToIp,
+} from '@/lib/hats';
 import CONFIG from '@/constants';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useToast from '@/hooks/useToast';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import { useAccount } from 'wagmi';
+import Link from 'next/link';
+import useHatBurn from '@/hooks/useHatBurn';
 
 const SelectedHatShade = ({
   selectedHatId,
@@ -98,11 +107,21 @@ const SelectedHatShade = ({
       hatId: hatData.id,
     });
 
+  const { writeAsync: renounceHat } = useHatBurn({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
+    hatId: hatData.id,
+  });
+
+  const handleRenounceHat = async () => {
+    console.log('renounceHat', renounceHat);
+    await renounceHat?.();
+  };
+
   if (!hatData) return null;
 
   return (
     <Box
-      // w='30%' // Change width based on collapsed state
       w='full'
       transition='width 0.5s' // Add transition
       bg='whiteAlpha.900'
@@ -237,7 +256,20 @@ const SelectedHatShade = ({
                 </Stack>
                 <HStack>
                   <Text>Hat ID:</Text>
-                  <Text>{prettyIdToIp(idToPrettyId(hatData?.id))}</Text>
+                  <Text color='blue.500'>
+                    {prettyIdToIp(idToPrettyId(hatData?.id))}
+                  </Text>
+                  <Icon
+                    as={FaCopy}
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => {
+                      navigator.clipboard.writeText(hatData?.id);
+                      toast.info({
+                        title: 'Successfully copied Hat id to clipboard',
+                      });
+                    }}
+                  />
                 </HStack>
               </Flex>
               <HStack>
@@ -261,13 +293,39 @@ const SelectedHatShade = ({
                 >
                   Hat Wearers
                 </Heading>
-                <Text>{`${hatData?.wearers?.length}/${hatData?.currentSupply}`}</Text>
+                <Flex gap={1}>
+                  <Text>{hatData?.wearers?.length}</Text>
+                  <Text color='gray.400'>of {hatData?.currentSupply}</Text>
+                </Flex>
               </Flex>
-
               {/* Wearers list */}
               {_.map(_.get(hatData, 'wearers', []), (wearer: any) => (
-                <Flex key={wearer.id}>
-                  <Text>{formatAddress(_.get(wearer, 'id'))}</Text>
+                <Flex
+                  key={wearer.id}
+                  justifyContent='space-between'
+                  alignItems='center'
+                  style={{
+                    backgroundColor:
+                      wearer.id === address ? 'green' : 'transparent', // adjust your color as necessary
+                  }}
+                >
+                  <Flex alignItems='center' gap={2}>
+                    <FaUser /> <Text>{formatAddress(_.get(wearer, 'id'))}</Text>
+                  </Flex>
+                  <Flex alignItems='center' gap={2}>
+                    <Link href={`/wearers/${wearer.id}`}>
+                      <Text color='blue.500'>View Profile</Text>
+                    </Link>
+                    {wearer.id === address?.toLowerCase() && (
+                      <Divider orientation='vertical' h={5} />
+                    )}
+
+                    {wearer.id === address?.toLowerCase() && (
+                      <Text color='red.500' onClick={handleRenounceHat}>
+                        Renounce
+                      </Text>
+                    )}
+                  </Flex>
                 </Flex>
               ))}
             </Stack>
