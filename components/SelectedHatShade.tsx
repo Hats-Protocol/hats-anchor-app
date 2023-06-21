@@ -18,7 +18,6 @@ import {
   // UnorderedList,
   // ListItem,
   Divider,
-  Spacer,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
@@ -422,7 +421,7 @@ const SelectedHatShade = ({
                 {prettyIdToIp(hierarchyHatData?.leftSibling)}
               </Button>
             ) : (
-              <Spacer />
+              <Box w={16} />
             )}
 
             <HStack>
@@ -436,7 +435,7 @@ const SelectedHatShade = ({
                   {prettyIdToIp(hierarchyHatData?.parentId)}
                 </Button>
               ) : (
-                <Spacer />
+                <Box w={16} />
               )}
 
               {hierarchyHatData?.firstChild ? (
@@ -449,7 +448,7 @@ const SelectedHatShade = ({
                   <FaRegArrowAltCircleDown />
                 </Button>
               ) : (
-                <Spacer />
+                <Box w={16} />
               )}
             </HStack>
 
