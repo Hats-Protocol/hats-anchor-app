@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
@@ -36,7 +37,7 @@ import {
   FaUser,
 } from 'react-icons/fa';
 import { formatAddress } from '@/lib/general';
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { idToPrettyId, isAdmin, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import CONFIG from '@/constants';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useToast from '@/hooks/useToast';
@@ -45,6 +46,11 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import useHatBurn from '@/hooks/useHatBurn';
+import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
+import Modal from '@/components/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
+import useWearerDetails from '@/hooks/useWearerDetails';
+
 import { HatData } from './OrgChart';
 
 const SelectedHatDrawer = ({
@@ -55,8 +61,13 @@ const SelectedHatDrawer = ({
   treeData,
   onClose,
 }: SelectedHatDrawerProps) => {
-  console.log('treeData', treeData);
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
   const { address } = useAccount();
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
   const toast = useToast();
   const [hatData, setHatData] = useState<any>({});
   const [hierarchyHatData, setHierarchyHatData] = useState<any>({});
@@ -64,6 +75,8 @@ const SelectedHatDrawer = ({
   const [description, setDescription] = useState('');
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
+  const [changeStatusWearer, setChangeStatusWearer] = useState('');
+  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
 
   useEffect(() => {
     if (selectedHatId) {
@@ -336,9 +349,30 @@ const SelectedHatDrawer = ({
                         onClick={handleRenounceHat}
                         cursor='pointer'
                       >
-                        Renounce
+                        Renounce Hat
                       </Text>
                     )}
+
+                    {wearer.id !== address?.toLowerCase() &&
+                      isAdmin(
+                        _.get(hatData, 'prettyId'),
+                        currentWearerHats,
+                      ) && (
+                        <Text
+                          color='red.500'
+                          onClick={() => {
+                            if (setModals) {
+                              setModals({
+                                hatWearerStatus: true,
+                              });
+                            }
+                            setChangeStatusWearer(wearer.id);
+                          }}
+                          cursor='pointer'
+                        >
+                          Revoke Hat
+                        </Text>
+                      )}
                   </Flex>
                 </Flex>
               ))}
@@ -467,6 +501,22 @@ const SelectedHatDrawer = ({
           </Flex>
         </Box>
       </Box>
+
+      <Modal
+        name='hatWearerStatus'
+        title='Change Wearer Status'
+        localOverlay={localOverlay}
+      >
+        <HatWearerStatusForm
+          hatData={hatData}
+          chainId={chainId}
+          defaultValues={{
+            wearer: changeStatusWearer,
+            eligibility: 'Eligible',
+            standing: 'Good Standing',
+          }}
+        />
+      </Modal>
     </Box>
   );
 };
