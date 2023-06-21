@@ -47,14 +47,14 @@ import Link from 'next/link';
 import useHatBurn from '@/hooks/useHatBurn';
 import { HatData } from './OrgChart';
 
-const SelectedHatShade = ({
+const SelectedHatDrawer = ({
   selectedHatId,
   setSelectedHatId,
   chainId,
   hatsData,
   treeData,
   onClose,
-}: SelectedHatShadeProps) => {
+}: SelectedHatDrawerProps) => {
   console.log('treeData', treeData);
   const { address } = useAccount();
   const toast = useToast();
@@ -471,9 +471,9 @@ const SelectedHatShade = ({
   );
 };
 
-export default SelectedHatShade;
+export default SelectedHatDrawer;
 
-interface SelectedHatShadeProps {
+interface SelectedHatDrawerProps {
   selectedHatId?: string;
   setSelectedHatId: (id: string) => void;
   chainId: number;

@@ -62,7 +62,7 @@ import {
   Inactive,
 } from '@/assets/icons';
 import useToast from '@/hooks/useToast';
-import SelectedHatShade from '@/components/SelectedHatShade';
+import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -193,7 +193,7 @@ const TreeDetails = ({
         <DrawerOverlay />
         <DrawerContent maxW='35%'>
           <DrawerBody>
-            <SelectedHatShade
+            <SelectedHatDrawer
               chainId={chainId}
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}

@@ -24,11 +24,13 @@ const RadioCard = ({
   children,
   variant = 'outline',
   size,
+  value,
   ...props
 }: {
   children: ReactNode;
   variant?: string;
   size?: string;
+  value: string;
 }) => {
   const styles = useStyleConfig('RadioBox', { variant, size });
   const { getInputProps } = useRadio({ ...props });
@@ -37,7 +39,7 @@ const RadioCard = ({
 
   return (
     <Box as='label'>
-      <input {...input} value={props.value} />
+      <input {...input} value={value} />
       <Box __css={styles}>{children}</Box>
     </Box>
   );
@@ -78,16 +80,6 @@ const RadioBox = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const Options = () =>
-    options?.map((v) => {
-      const radio = getRadioProps({ value: v });
-      return (
-        <RadioCard key={v} size={size} {...radio}>
-          {v}
-        </RadioCard>
-      );
-    });
-
   const group = getRootProps();
   const error = errors[name] && errors[name]?.message;
 
@@ -118,11 +110,25 @@ const RadioBox = ({
         </HStack>
         {stack === 'vertical' ? (
           <VStack {...group} alignItems='inherit'>
-            <Options />
+            {options?.map((v) => {
+              const radio = getRadioProps({ value: v });
+              return (
+                <RadioCard key={v} size={size} {...radio} value={v}>
+                  {v}
+                </RadioCard>
+              );
+            })}
           </VStack>
         ) : (
           <HStack {...group}>
-            <Options />
+            {options?.map((v) => {
+              const radio = getRadioProps({ value: v });
+              return (
+                <RadioCard key={v} size={size} {...radio} value={v}>
+                  {v}
+                </RadioCard>
+              );
+            })}
           </HStack>
         )}
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
