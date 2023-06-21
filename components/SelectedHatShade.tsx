@@ -15,8 +15,8 @@ import {
   Stack,
   Badge,
   Heading,
-  UnorderedList,
-  ListItem,
+  // UnorderedList,
+  // ListItem,
   Divider,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
@@ -25,7 +25,6 @@ import {
   FaCheck,
   FaChevronDown,
   FaCopy,
-  FaCross,
   FaDoorOpen,
   FaEllipsisV,
   FaLock,
@@ -113,7 +112,6 @@ const SelectedHatShade = ({
   });
 
   const handleRenounceHat = async () => {
-    console.log('renounceHat', renounceHat);
     await renounceHat?.();
   };
 
@@ -320,7 +318,11 @@ const SelectedHatShade = ({
                     )}
 
                     {wearer.id === address?.toLowerCase() && (
-                      <Text color='red.500' onClick={handleRenounceHat}>
+                      <Text
+                        color='red.500'
+                        onClick={handleRenounceHat}
+                        cursor='pointer'
+                      >
                         Renounce
                       </Text>
                     )}
