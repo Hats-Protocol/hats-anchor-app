@@ -43,7 +43,6 @@ import CopyToClipboard from '@/components/CopyToClipboard';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
-import EventsTable from '@/components/EventsTable';
 import useHatGuilds from '@/hooks/useGuilds';
 
 import AdminActions from './AdminActions';
@@ -392,13 +391,6 @@ const Hat = ({
                 parentOfTrees={parentOfTrees}
                 chainId={chainId}
                 isAdminUser={isAdminUser}
-              />
-            </TabPanel>
-            <TabPanel minH='370px'>
-              <EventsTable
-                chainId={chainId}
-                treeId={treeId}
-                events={hatData?.events}
               />
             </TabPanel>
             {isAdminUser && (
