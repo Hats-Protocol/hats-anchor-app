@@ -127,7 +127,7 @@ const TreeDetails = ({
   const [hierarchyData, setHierarchyData] = useState<any>({});
   const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
-    undefined,
+    'title',
   );
 
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);

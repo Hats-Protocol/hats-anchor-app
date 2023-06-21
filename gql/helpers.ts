@@ -83,7 +83,10 @@ export const fetchManyWearerDetails = async (
       }),
     ];
   });
-  const data = await Promise.all(_.flatten(promises));
+  const data = await Promise.all(_.flatten(promises)).catch((err) => {
+    console.log(err);
+    return [];
+  });
 
   // map with ID so can be looked up later
   return _.map(wearerIds, (wearerId, index) => {

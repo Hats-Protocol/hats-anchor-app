@@ -54,13 +54,6 @@ export async function toTreeStructure(
   const hatsData = await fetchHatsDetails(hatIds, chainId);
   const detailsFields = hatsData.map((hat: any) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
-  console.log(
-    _.concat(
-      _.map(_.flatten(hatsData.map((hat: any) => hat.wearers)), 'id'),
-      _.map(_.flatten(hatsData.map((hat: any) => hat.toggle)), 'id'),
-      _.map(_.flatten(hatsData.map((hat: any) => hat.eligibility)), 'id'),
-    ),
-  );
   const wearersAndControllersArray = _.uniq(
     _.filter(
       _.concat(
@@ -71,13 +64,10 @@ export async function toTreeStructure(
       (d) => d !== ZERO_ADDRESS && d !== undefined,
     ),
   );
-  // console.log(wearersAndControllersArray);
-
   const wearersAndControllersInfo = await fetchManyWearerDetails(
     wearersAndControllersArray,
     chainId,
   );
-  // console.log(wearersAndControllersInfo);
 
   const parentsAndIds = hatsData.map((hat: any) => ({
     id: hat.prettyId,

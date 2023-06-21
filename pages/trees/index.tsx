@@ -42,8 +42,6 @@ const Trees = ({
   }, [data]);
 
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
-  console.log(trees);
-  console.log(isLoading);
 
   return (
     <Layout>
