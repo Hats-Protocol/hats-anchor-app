@@ -44,14 +44,14 @@ const useHatWearerStatusSet = ({
     abi,
     functionName: 'setHatWearerStatus',
     args: [
-      prettyIdToId(hatId), // not a valid fallback? throw instead?
+      hatId, // not a valid fallback? throw instead?
       wearerAddress,
-      eligibility === 'Eligible',
-      standing === 'Good Standing',
+      eligibility,
+      standing,
     ],
     enabled: !!hatsAddress && isAddress(wearer),
   });
-  console.log('hatWearerStatusUpdate- prepareError', prepareError);
+  // console.log('hatWearerStatusUpdate- prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
@@ -115,6 +115,6 @@ interface UseHatWearerStatusUpdateProps {
   chainId: number;
   hatId: string;
   wearer: string;
-  eligibility: string;
-  standing: string;
+  eligibility: boolean;
+  standing: boolean;
 }

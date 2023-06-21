@@ -203,21 +203,6 @@ const Hat = ({
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
         <HatImageForm hatData={hatData} chainId={chainId} />
       </Modal>
-      <Modal
-        name='hatWearerStatus'
-        title='Change Wearer Status'
-        localOverlay={localOverlay}
-      >
-        <HatWearerStatusForm
-          hatData={hatData}
-          chainId={chainId}
-          defaultValues={{
-            wearer: '',
-            eligibility: 'Eligible',
-            standing: 'Good Standing',
-          }}
-        />
-      </Modal>
 
       <Stack>
         <Flex justify='space-between'>

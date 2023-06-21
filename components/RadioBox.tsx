@@ -39,7 +39,7 @@ const RadioCard = ({
 
   return (
     <Box as='label'>
-      <input {...input} value={value} />
+      <input {...input} value={value} type='radio' />
       <Box __css={styles}>{children}</Box>
     </Box>
   );

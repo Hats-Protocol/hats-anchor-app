@@ -25,7 +25,6 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import HatRenounceForm from '@/forms/HatRenounceForm';
 import HatTransferForm from '@/forms/HatTransferForm';
 import HatWearerForm from '@/forms/HatWearerForm';
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatWearerStatusCheck from '@/hooks/useHatWearerStatusCheck';
 import { formatAddress } from '@/lib/general';
 import {
@@ -50,7 +49,6 @@ const WearerRow = ({
   setHatToTransfer,
   isAdminUser,
 }: WearerRowProps) => {
-  const localOverlay = useOverlay();
   const { data: ensName } = useEnsName({
     address: wearer,
     chainId: 1,
@@ -70,90 +68,73 @@ const WearerRow = ({
   };
 
   return (
-    <>
-      <Modal
-        name={`wearerStatus-${wearer}`}
-        title='Change Wearer Status'
-        localOverlay={localOverlay}
-      >
-        <HatWearerStatusForm
-          defaultValues={{
-            wearer,
-            eligibility: 'Ineligible',
-            standing: 'Bad Standing',
-          }}
-          hatData={hatData}
-          chainId={_.get(hatData, 'chainId')}
-        />
-      </Modal>
+    <Flex
+      borderBottom='1px solid'
+      borderColor='gray.400'
+      key={wearer}
+      align='center'
+      justify='space-between'
+      p={1}
+    >
+      <Flex>
+        {linkedTopHat && (
+          <Text pr={2}>Linked hat #{prettyIdToIp(hatData.prettyId)}: </Text>
+        )}
+        <Link href={`/wearers/${wearer}`} key={wearer}>
+          <Text>{ensName || formatAddress(wearer)}</Text>
+        </Link>
+      </Flex>
 
-      <Flex
-        borderBottom='1px solid'
-        borderColor='gray.400'
-        key={wearer}
-        align='center'
-        justify='space-between'
-        p={1}
-      >
-        <Flex>
-          {linkedTopHat && (
-            <Text pr={2}>Linked hat #{prettyIdToIp(hatData.prettyId)}: </Text>
-          )}
-          <Link href={`/wearers/${wearer}`} key={wearer}>
-            <Text>{ensName || formatAddress(wearer)}</Text>
-          </Link>
-        </Flex>
-
-        <HStack spacing={6}>
-          {user ? (
-            <Menu>
-              <MenuButton
-                as={IconButton}
-                icon={<Icon as={FaEllipsisV} h='12px' w='12px' />}
-                minW='auto'
-                w={8}
-                h={8}
-                variant='ghost'
-              />
-              <MenuList>
-                <MenuItem as={Link} href={`/wearers/${wearer}`}>
-                  View Profile
-                </MenuItem>
-                {_.eq(_.toLower(user), _.toLower(wearer)) &&
-                  !isTopHat(hatData) && (
-                    <MenuItem
-                      onClick={() => setModals({ renounceConfirm: true })}
-                    >
-                      Renounce
-                    </MenuItem>
-                  )}
-                {isAdminUser && (
+      <HStack spacing={6}>
+        {user ? (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              icon={<Icon as={FaEllipsisV} h='12px' w='12px' />}
+              minW='auto'
+              w={8}
+              h={8}
+              variant='ghost'
+            />
+            <MenuList>
+              <MenuItem as={Link} href={`/wearers/${wearer}`}>
+                View Profile
+              </MenuItem>
+              {_.eq(_.toLower(user), _.toLower(wearer)) &&
+                !isTopHat(hatData) && (
                   <MenuItem
-                    onClick={() => {
-                      setWearerToTransferFrom(wearer);
-                      setHatToTransfer(hatData);
-                      setModals({ transferHat: true });
-                    }}
-                    // is disabled if is not a top hat or mutable,
-                    // but enabled if it is linked top hat and mutable
-                    isDisabled={
-                      !isTopHatOrMutable(hatData) &&
-                      !(linkedTopHat && isMutable(hatData))
-                    }
+                    onClick={() => setModals({ renounceConfirm: true })}
                   >
-                    <Tooltip
-                      label={!isMutable(hatData) ? 'Hat is not mutable' : ''}
-                      shouldWrapChildren
-                      placement='left'
-                      hasArrow
-                      bg='gray.100'
-                      color='black'
-                    >
-                      Transfer
-                    </Tooltip>
+                    Renounce
                   </MenuItem>
                 )}
-                {/* {isAdmin(
+              {isAdminUser && (
+                <MenuItem
+                  onClick={() => {
+                    setWearerToTransferFrom(wearer);
+                    setHatToTransfer(hatData);
+                    setModals({ transferHat: true });
+                  }}
+                  // is disabled if is not a top hat or mutable,
+                  // but enabled if it is linked top hat and mutable
+                  isDisabled={
+                    !isTopHatOrMutable(hatData) &&
+                    !(linkedTopHat && isMutable(hatData))
+                  }
+                >
+                  <Tooltip
+                    label={!isMutable(hatData) ? 'Hat is not mutable' : ''}
+                    shouldWrapChildren
+                    placement='left'
+                    hasArrow
+                    bg='gray.100'
+                    color='black'
+                  >
+                    Transfer
+                  </Tooltip>
+                </MenuItem>
+              )}
+              {/* {isAdmin(
                 _.get(hatData, 'prettyId'),
                 _.map(_.get(currentUser, 'currentHats'), 'prettyId'),
               ) && (
@@ -161,46 +142,43 @@ const WearerRow = ({
                   Remove
                 </MenuItem>
               )} */}
-                {_.eq(
-                  _.toLower(user),
-                  _.toLower(_.get(hatData, 'eligibility')),
-                ) && (
-                  <MenuItem
-                    onClick={() =>
-                      setModals({ [`wearerStatus-${wearer}`]: true })
-                    }
-                  >
-                    Revoke
-                  </MenuItem>
-                )}
+              {_.eq(
+                _.toLower(user),
+                _.toLower(_.get(hatData, 'eligibility')),
+              ) && (
                 <MenuItem
-                  isDisabled={
-                    !checkEligibility || isLoadingHatWearerStatusCheck
+                  onClick={() =>
+                    setModals({ [`wearerStatus-${wearer}`]: true })
                   }
-                  onClick={handleCheckEligibility}
                 >
-                  <Tooltip
-                    label={
-                      !checkEligibility ? 'Eligibility is not a contract' : ''
-                    }
-                    placement='left'
-                    hasArrow
-                    bg='gray.100'
-                    color='black'
-                  >
-                    Check Eligibility
-                  </Tooltip>
+                  Revoke
                 </MenuItem>
-              </MenuList>
-            </Menu>
-          ) : (
-            <Link href={`/wearers/${wearer}`} key={wearer}>
-              <Icon as={BsChevronRight} />
-            </Link>
-          )}
-        </HStack>
-      </Flex>
-    </>
+              )}
+              <MenuItem
+                isDisabled={!checkEligibility || isLoadingHatWearerStatusCheck}
+                onClick={handleCheckEligibility}
+              >
+                <Tooltip
+                  label={
+                    !checkEligibility ? 'Eligibility is not a contract' : ''
+                  }
+                  placement='left'
+                  hasArrow
+                  bg='gray.100'
+                  color='black'
+                >
+                  Check Eligibility
+                </Tooltip>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        ) : (
+          <Link href={`/wearers/${wearer}`} key={wearer}>
+            <Icon as={BsChevronRight} />
+          </Link>
+        )}
+      </HStack>
+    </Flex>
   );
 };
 

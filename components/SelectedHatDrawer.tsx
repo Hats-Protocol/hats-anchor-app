@@ -84,7 +84,6 @@ const SelectedHatDrawer = ({
 
       if (data) {
         setHatData(data);
-        console.log('data', data);
         const { id, status, mutable, details } = data;
 
         setName(
@@ -339,18 +338,18 @@ const SelectedHatDrawer = ({
                     <Link href={`/wearers/${wearer.id}`}>
                       <Text color='blue.500'>View Profile</Text>
                     </Link>
-                    {wearer.id === address?.toLowerCase() && (
-                      <Divider orientation='vertical' h={5} />
-                    )}
 
                     {wearer.id === address?.toLowerCase() && (
-                      <Text
-                        color='red.500'
-                        onClick={handleRenounceHat}
-                        cursor='pointer'
-                      >
-                        Renounce Hat
-                      </Text>
+                      <>
+                        <Divider orientation='vertical' h={5} />
+                        <Text
+                          color='red.500'
+                          onClick={handleRenounceHat}
+                          cursor='pointer'
+                        >
+                          Renounce Hat
+                        </Text>
+                      </>
                     )}
 
                     {wearer.id !== address?.toLowerCase() &&
@@ -358,20 +357,23 @@ const SelectedHatDrawer = ({
                         _.get(hatData, 'prettyId'),
                         currentWearerHats,
                       ) && (
-                        <Text
-                          color='red.500'
-                          onClick={() => {
-                            if (setModals) {
-                              setModals({
-                                hatWearerStatus: true,
-                              });
-                            }
-                            setChangeStatusWearer(wearer.id);
-                          }}
-                          cursor='pointer'
-                        >
-                          Revoke Hat
-                        </Text>
+                        <>
+                          <Divider orientation='vertical' h={5} />
+                          <Text
+                            color='red.500'
+                            onClick={() => {
+                              if (setModals) {
+                                setModals({
+                                  hatWearerStatus: true,
+                                });
+                              }
+                              setChangeStatusWearer(wearer.id);
+                            }}
+                            cursor='pointer'
+                          >
+                            Revoke Hat
+                          </Text>
+                        </>
                       )}
                   </Flex>
                 </Flex>
@@ -504,17 +506,15 @@ const SelectedHatDrawer = ({
 
       <Modal
         name='hatWearerStatus'
-        title='Change Wearer Status'
+        title='Remove a Wearer by revoking their Hat token'
         localOverlay={localOverlay}
+        size='3xl'
       >
         <HatWearerStatusForm
           hatData={hatData}
           chainId={chainId}
-          defaultValues={{
-            wearer: changeStatusWearer,
-            eligibility: 'Eligible',
-            standing: 'Good Standing',
-          }}
+          wearer={changeStatusWearer}
+          eligibility='Not Eligible'
         />
       </Modal>
     </Box>
