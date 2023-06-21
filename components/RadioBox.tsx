@@ -15,7 +15,6 @@ import {
   Flex,
   Icon,
   Tooltip,
-  useCheckbox,
 } from '@chakra-ui/react';
 import React, { useEffect, ReactNode } from 'react';
 import { useController } from 'react-hook-form';
@@ -33,17 +32,13 @@ const RadioCard = ({
 }) => {
   const styles = useStyleConfig('RadioBox', { variant, size });
   const { getInputProps } = useRadio({ ...props });
-  const { getCheckboxProps } = useCheckbox({ ...props });
 
   const input = getInputProps();
-  const checkbox = getCheckboxProps();
 
   return (
     <Box as='label'>
-      <input {...input} />
-      <Box {...checkbox} __css={styles}>
-        {children}
-      </Box>
+      <input {...input} value={props.value} />
+      <Box __css={styles}>{children}</Box>
     </Box>
   );
 };

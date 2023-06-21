@@ -19,16 +19,30 @@ import {
   ListItem,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
-import { FaEllipsisV } from 'react-icons/fa';
+import {
+  FaCopy,
+  FaDoorOpen,
+  FaEllipsisV,
+  FaLock,
+  FaPowerOff,
+} from 'react-icons/fa';
 import { formatAddress } from '@/lib/general';
 import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import CONFIG from '@/constants';
+import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
+import useToast from '@/hooks/useToast';
+import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
+import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import { useAccount } from 'wagmi';
 
 const SelectedHatShade = ({
   selectedHatId,
-  // chainId,
+  chainId,
   hatsData,
   onClose,
 }: SelectedHatShadeProps) => {
+  const { address } = useAccount();
+  const toast = useToast();
   const [hatData, setHatData] = useState<any>({});
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -59,6 +73,30 @@ const SelectedHatShade = ({
       }
     }
   }, [selectedHatId, hatsData]);
+
+  const {
+    writeAsync: updateImmutability,
+    isLoading: isLoadingUpdateImmutability,
+  } = useHatMakeImmutable({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
+    hatData,
+  });
+
+  const { writeAsync: deactivateHat, isLoading: isLoadingDeactivateHat } =
+    useHatStatusUpdate({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId: hatData.id,
+      status: 'Inactive',
+    });
+
+  const { data: isEligible, isLoading: isLoadingCheckEligibility } =
+    useHatCheckEligibility({
+      wearer: address || '',
+      chainId,
+      hatId: hatData.id,
+    });
 
   if (!hatData) return null;
 
@@ -119,8 +157,71 @@ const SelectedHatShade = ({
                   <Text>More</Text>
                 </HStack>
               </MenuButton>
-              <MenuList>
-                <MenuItem>Test</MenuItem>
+              <MenuList gap={5}>
+                <MenuItem
+                  gap={2}
+                  onClick={() => updateImmutability?.()}
+                  isDisabled={
+                    mutableStatus === 'Immutable' ||
+                    !updateImmutability ||
+                    isLoadingUpdateImmutability
+                  }
+                >
+                  <FaLock />
+                  Make immutable
+                </MenuItem>
+                <MenuItem
+                  gap={2}
+                  onClick={() => deactivateHat?.()}
+                  isDisabled={
+                    address?.toLowerCase() !== hatData?.toggle ||
+                    isLoadingDeactivateHat ||
+                    !hatData?.status
+                  }
+                >
+                  <FaPowerOff />
+                  Deactivate Hat
+                </MenuItem>
+                <MenuItem
+                  gap={2}
+                  onClick={() =>
+                    toast.info({
+                      title: isEligible ? 'Eligible' : 'Not Eligible',
+                    })
+                  }
+                  isDisabled={isLoadingCheckEligibility}
+                >
+                  <FaDoorOpen />
+                  Test Eligibility
+                </MenuItem>
+                <MenuItem
+                  gap={2}
+                  onClick={() => {
+                    navigator.clipboard.writeText(hatData?.id);
+                    toast.info({
+                      title: 'Successfully copied Hat id to clipboard',
+                    });
+                  }}
+                >
+                  <FaCopy />
+                  Copy Hat ID
+                </MenuItem>
+                <MenuItem
+                  gap={2}
+                  onClick={() => {
+                    navigator.clipboard.writeText(CONFIG.hatsAddress);
+                    toast.info({
+                      title: 'Successfully copied contract id to clipboard',
+                    });
+                  }}
+                >
+                  <FaCopy />
+                  Copy Contract ID
+                </MenuItem>
+                {/* <MenuItem gap={2}>
+                  <FaDanger />
+                  Report this hat
+                </MenuItem> */}
               </MenuList>
             </Menu>
           </HStack>
@@ -140,8 +241,12 @@ const SelectedHatShade = ({
                 </HStack>
               </Flex>
               <HStack>
-                <Badge>My Hat</Badge>
-                <Badge>{mutableStatus}</Badge>
+                <Badge colorScheme='green'>My Hat</Badge>
+                <Badge
+                  colorScheme={mutableStatus === 'Mutable' ? 'blue' : 'red'}
+                >
+                  {mutableStatus}
+                </Badge>
                 <Badge>{activeStatus}</Badge>
                 <Badge>Level {hatData?.levelAtLocalTree}</Badge>
               </HStack>
@@ -229,6 +334,7 @@ export default SelectedHatShade;
 
 interface SelectedHatShadeProps {
   selectedHatId?: string;
+  chainId: number;
   hatsData: any;
   onClose: () => void;
 }

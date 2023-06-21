@@ -130,6 +130,7 @@ const TreeDetails = ({
   const toast = useToast();
   const chain = chainsMap(chainId);
   const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
+  console.log('orgChartTree', orgChartTree);
   const [hatsData, setHatsData] = useState<HatData[]>([]);
   const [selectedHat, setSelectedHat] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -193,6 +194,7 @@ const TreeDetails = ({
         <DrawerContent maxW='30%'>
           <DrawerBody>
             <SelectedHatShade
+              chainId={chainId}
               selectedHatId={selectedHat}
               hatsData={hatsData}
               onClose={onCloseShade}
@@ -200,6 +202,7 @@ const TreeDetails = ({
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
       <Layout>
         <Box
           bg='gray.100'

@@ -2,14 +2,8 @@ import React, { useState } from 'react';
 import { Button, HStack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useOverlay } from '@/contexts/OverlayContext';
-import {
-  isTopHat,
-  prettyIdToId,
-  prettyIdToIp,
-  isMutableNotTopHat,
-} from '@/lib/hats';
+import { isTopHat, prettyIdToIp, isMutableNotTopHat } from '@/lib/hats';
 import Modal from '@/components/Modal';
-import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import HatSupplyForm from '@/forms/HatSupplyForm';
 import HatRelinkForm from '@/forms/HatRelinkForm';
@@ -19,7 +13,6 @@ import useTreeDetails from '@/hooks/useTreeDetails';
 const AdminActions = ({
   linkRequestFromTree,
   hatData,
-  hatsAddress,
   chainId,
   linkedToHat,
   parentOfTrees,
@@ -40,16 +33,6 @@ const AdminActions = ({
     _.map(_.get(parentTreeData, 'hats'), 'prettyId'),
     (hat) => hat !== linkedToHat?.prettyId,
   );
-
-  const { writeAsync: updateImmutability, isLoading } = useHatMakeImmutable({
-    hatsAddress,
-    chainId,
-    hatData,
-  });
-
-  const handleMakeImmutable = () => {
-    updateImmutability?.();
-  };
 
   const handleOpenLinkRequestApproveModal = (id: any) => {
     setTopHatDomain(id);
@@ -72,21 +55,12 @@ const AdminActions = ({
           gap={1}
         >
           {showSupplyAndImmutableButtons && (
-            <>
-              <Button
-                variant='outline'
-                onClick={() => setModals?.({ hatSupply: true })}
-              >
-                Adjust Max Supply
-              </Button>
-              <Button
-                variant='outline'
-                onClick={handleMakeImmutable}
-                isDisabled={isLoading}
-              >
-                Make Immutable
-              </Button>
-            </>
+            <Button
+              variant='outline'
+              onClick={() => setModals?.({ hatSupply: true })}
+            >
+              Adjust Max Supply
+            </Button>
           )}
           {linkRequestFromTree?.map((linkRequest) => (
             <Button

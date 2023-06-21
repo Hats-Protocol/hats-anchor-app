@@ -37,7 +37,6 @@ import HatDetailsForm from '@/forms/HatDetailsForm';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import HatImageForm from '@/forms/HatImageForm';
 
-import HatStatusForm from '@/forms/HatStatusForm';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import CopyToClipboard from '@/components/CopyToClipboard';
@@ -218,13 +217,6 @@ const Hat = ({
             standing: 'Good Standing',
           }}
         />
-      </Modal>
-      <Modal
-        name='hatStatus'
-        title='Change Hat Status'
-        localOverlay={localOverlay}
-      >
-        <HatStatusForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
