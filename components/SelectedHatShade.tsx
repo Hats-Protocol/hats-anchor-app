@@ -18,9 +18,12 @@ import {
   // UnorderedList,
   // ListItem,
   Divider,
+  Spacer,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
+  FaArrowAltCircleLeft,
+  FaArrowCircleLeft,
   FaBan,
   FaCheck,
   FaChevronDown,
@@ -29,6 +32,10 @@ import {
   FaEllipsisV,
   FaLock,
   FaPowerOff,
+  FaRegArrowAltCircleDown,
+  FaRegArrowAltCircleLeft,
+  FaRegArrowAltCircleRight,
+  FaRegArrowAltCircleUp,
   FaUser,
 } from 'react-icons/fa';
 import { formatAddress } from '@/lib/general';
@@ -41,16 +48,21 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import useHatBurn from '@/hooks/useHatBurn';
+import { HatData } from './OrgChart';
 
 const SelectedHatShade = ({
   selectedHatId,
+  setSelectedHatId,
   chainId,
   hatsData,
+  treeData,
   onClose,
 }: SelectedHatShadeProps) => {
+  console.log('treeData', treeData);
   const { address } = useAccount();
   const toast = useToast();
   const [hatData, setHatData] = useState<any>({});
+  const [hierarchyHatData, setHierarchyHatData] = useState<any>({});
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [activeStatus, setActiveStatus] = useState('Inactive');
@@ -62,6 +74,7 @@ const SelectedHatShade = ({
 
       if (data) {
         setHatData(data);
+        console.log('data', data);
         const { id, status, mutable, details } = data;
 
         setName(
@@ -78,8 +91,11 @@ const SelectedHatShade = ({
         setActiveStatus(status ? 'Active' : 'Inactive');
         setMutableStatus(mutable ? 'Mutable' : 'Immutable');
       }
+
+      const hierarchyData = treeData.find((t) => t.id === selectedHatId);
+      setHierarchyHatData(hierarchyData);
     }
-  }, [selectedHatId, hatsData]);
+  }, [selectedHatId, hatsData, treeData]);
 
   const {
     writeAsync: updateImmutability,
@@ -398,13 +414,59 @@ const SelectedHatShade = ({
             borderTop='1px solid'
             borderColor='gray.200'
           >
-            <Button variant='outline'>2.2</Button>
+            {hierarchyHatData?.leftSibling ? (
+              <Button
+                variant='outline'
+                onClick={() => setSelectedHatId(hierarchyHatData?.leftSibling)}
+                gap={1}
+              >
+                <FaRegArrowAltCircleLeft />
+                {prettyIdToIp(hierarchyHatData?.leftSibling)}
+              </Button>
+            ) : (
+              <Spacer />
+            )}
+
             <HStack>
-              <Button variant='outline'>2</Button>
-              <Button variant='outline'>2.3.1</Button>
+              {hierarchyHatData?.parentId ? (
+                <Button
+                  variant='outline'
+                  onClick={() => setSelectedHatId(hierarchyHatData?.parentId)}
+                  gap={1}
+                >
+                  <FaRegArrowAltCircleUp />
+                  {prettyIdToIp(hierarchyHatData?.parentId)}
+                </Button>
+              ) : (
+                <Spacer />
+              )}
+
+              {hierarchyHatData?.firstChild ? (
+                <Button
+                  variant='outline'
+                  onClick={() => setSelectedHatId(hierarchyHatData?.firstChild)}
+                  gap={1}
+                >
+                  {prettyIdToIp(hierarchyHatData?.firstChild)}
+                  <FaRegArrowAltCircleDown />
+                </Button>
+              ) : (
+                <Spacer />
+              )}
             </HStack>
 
-            <Button variant='outline'>2.4</Button>
+            {hierarchyHatData?.rightSibling ? (
+              <Button
+                variant='outline'
+                onClick={() => setSelectedHatId(hierarchyHatData?.rightSibling)}
+                gap={1}
+              >
+                {prettyIdToIp(hierarchyHatData?.rightSibling)}
+                <FaRegArrowAltCircleRight />
+              </Button>
+            ) : (
+              <Box w={16} />
+            )}
           </Flex>
         </Box>
       </Box>
@@ -416,7 +478,9 @@ export default SelectedHatShade;
 
 interface SelectedHatShadeProps {
   selectedHatId?: string;
+  setSelectedHatId: (id: string) => void;
   chainId: number;
   hatsData: any;
+  treeData: HatData[];
   onClose: () => void;
 }

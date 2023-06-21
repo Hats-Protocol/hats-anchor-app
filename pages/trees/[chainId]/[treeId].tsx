@@ -132,7 +132,7 @@ const TreeDetails = ({
   const [orgChartTree, setOrgChartTree] = useState<HatData[]>([]);
   console.log('orgChartTree', orgChartTree);
   const [hatsData, setHatsData] = useState<HatData[]>([]);
-  const [selectedHat, setSelectedHat] = useState<string>(hatId);
+  const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
   );
@@ -152,7 +152,7 @@ const TreeDetails = ({
 
   // eslint-disable-next-line no-shadow
   const handleSelectHat = (hatId: string) => {
-    setSelectedHat(hatId);
+    setSelectedHatId(hatId);
     onOpenShade();
   };
 
@@ -195,8 +195,10 @@ const TreeDetails = ({
           <DrawerBody>
             <SelectedHatShade
               chainId={chainId}
-              selectedHatId={selectedHat}
+              selectedHatId={selectedHatId}
+              setSelectedHatId={setSelectedHatId}
               hatsData={hatsData}
+              treeData={orgChartTree}
               onClose={onCloseShade}
             />
           </DrawerBody>
@@ -320,7 +322,7 @@ const TreeDetails = ({
           isLoading={imagesDataLoading}
           wearerHats={wearerHats}
           chainId={chainId}
-          selectedHat={selectedHat}
+          selectedHatId={selectedHatId}
           onSelectHat={handleSelectHat}
         />
       </Layout>

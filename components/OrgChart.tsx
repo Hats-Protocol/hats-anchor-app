@@ -21,6 +21,9 @@ export interface HatData {
   url: string;
   details?: string;
   active: boolean;
+  leftSibling?: string;
+  rightSibling?: string;
+  firstChild?: string;
 }
 
 interface OrgChartComponentProps {
@@ -29,7 +32,7 @@ interface OrgChartComponentProps {
   chainId: number;
   wearerHats: string[];
   onSelectHat: (node: string) => void;
-  selectedHat: string | null;
+  selectedHatId: string | null;
   selectedOption?: string;
   showInactiveHats: boolean;
 }
@@ -40,7 +43,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   chainId,
   wearerHats,
   onSelectHat,
-  selectedHat,
+  selectedHatId,
   selectedOption,
   showInactiveHats,
 }) => {
@@ -90,7 +93,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 ? details
                 : '';
 
-            const isSelected = selectedHat === d.id;
+            const isSelected = selectedHatId === d.id;
 
             return `
             <div style='
@@ -182,7 +185,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     isLoading,
     chainId,
     onSelectHat,
-    selectedHat,
+    selectedHatId,
     wearerHats,
     showInactiveHats,
     selectedOption,

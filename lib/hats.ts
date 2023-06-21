@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-use-before-define */
 import { HatData } from '@/components/OrgChart';
 import { fetchHatsDetails } from '@/gql/helpers';
@@ -27,7 +28,8 @@ export async function toTreeStructure(
   if (treeData?.parentOfTrees) {
     treeData.parentOfTrees.forEach((childTree: any) => {
       if (!childTree?.id) return;
-      hatIds.push(prettyIdToId(childTree.id) || childTree.id);
+      const id = prettyIdToId(childTree.id) || childTree.id;
+      hatIds.push(id);
     });
   }
 
@@ -106,7 +108,34 @@ export async function toTreeStructure(
     });
   }
 
-  return { tree: hatsArray, hats };
+  const tree = populateSiblingsAndChild(hatsArray);
+
+  return { tree, hats };
+}
+
+function populateSiblingsAndChild(hatsArray: HatData[]) {
+  const idToNodeMap = {} as any;
+
+  // Create a map from id to node
+  for (const node of hatsArray) {
+    idToNodeMap[node.id] = node;
+  }
+
+  // Populate the siblings and child fields
+  for (const node of hatsArray) {
+    const siblings = hatsArray.filter((n) => n.parentId === node.parentId);
+    const children = hatsArray.filter((n) => n.parentId === node.id);
+
+    const nodeIndex = siblings.findIndex((n) => n.id === node.id);
+
+    node.leftSibling = nodeIndex > 0 ? siblings[nodeIndex - 1].id : undefined;
+    node.rightSibling =
+      nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1].id : undefined;
+    node.firstChild = children.length > 0 ? children[0].id : undefined;
+  }
+
+  // Return the updated array
+  return hatsArray;
 }
 
 export function prettyIdToId(id: string | undefined) {
