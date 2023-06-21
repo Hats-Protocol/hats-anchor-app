@@ -16,6 +16,7 @@ import {
   Stack,
   Badge,
   Heading,
+  Link as ChakraLink,
   // UnorderedList,
   // ListItem,
   Divider,
@@ -28,6 +29,7 @@ import {
   FaCopy,
   FaDoorOpen,
   FaEllipsisV,
+  FaExternalLinkAlt,
   FaLock,
   FaPowerOff,
   FaRegArrowAltCircleDown,
@@ -36,7 +38,9 @@ import {
   FaRegArrowAltCircleUp,
   FaUser,
 } from 'react-icons/fa';
-import { formatAddress } from '@/lib/general';
+import { formatDistanceToNow } from 'date-fns';
+
+import { explorerUrl, formatAddress } from '@/lib/general';
 import { idToPrettyId, isAdmin, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import CONFIG from '@/constants';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
@@ -84,6 +88,7 @@ const SelectedHatDrawer = ({
 
       if (data) {
         setHatData(data);
+        console.log('data', data);
         const { id, status, mutable, details } = data;
 
         setName(
@@ -435,6 +440,45 @@ const SelectedHatDrawer = ({
                   {hatData?.toggle === address ? <FaCheck /> : <FaBan />}
                 </HStack>
               </Flex>
+            </Stack>
+
+            <Stack>
+              <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+                Event history
+              </Heading>
+              <Box>
+                {hatData.events?.map((event: any) => (
+                  <Flex
+                    key={`${event?.transactionID}-${event?.id}`}
+                    align='center'
+                    justify='space-between'
+                    borderBottom='1px'
+                    borderColor='gray.200'
+                    py={2}
+                  >
+                    <Text>{`${formatDistanceToNow(
+                      new Date(Number(event?.timestamp) * 1000),
+                    )} ago`}</Text>
+
+                    <ChakraLink
+                      isExternal
+                      href={`${explorerUrl(chainId)}/tx/${
+                        event?.transactionID
+                      }`}
+                      display='block'
+                    >
+                      <HStack spacing={3}>
+                        <Text>{event?.id?.split('-')[0]}</Text>
+                        <Icon
+                          as={FaExternalLinkAlt}
+                          w='12px'
+                          color='blue.500'
+                        />
+                      </HStack>
+                    </ChakraLink>
+                  </Flex>
+                ))}
+              </Box>
             </Stack>
           </Stack>
         </Box>

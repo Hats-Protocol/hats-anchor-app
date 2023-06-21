@@ -51,7 +51,7 @@ const useHatWearerStatusSet = ({
     ],
     enabled: !!hatsAddress && isAddress(wearer),
   });
-  // console.log('hatWearerStatusUpdate- prepareError', prepareError);
+  console.log('hatWearerStatusUpdate- prepareError', prepareError);
 
   const { writeAsync, error: writeError } = useContractWrite({
     ...config,
