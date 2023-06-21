@@ -102,8 +102,8 @@ const ConnectWallet = () => {
                     <HStack spacing={2} align='center'>
                       {(ensAvatar || blockie) && !upTo780 ? (
                         <Box
-                          height='28px'
-                          width='28px'
+                          height={ensAvatar ? '28px' : '20px'}
+                          width={ensAvatar ? '28px' : '20px'}
                           borderRadius='50%'
                           overflow='hidden'
                           borderColor='green.700'

@@ -14,6 +14,7 @@ import {
   TagLabel,
 } from '@chakra-ui/react';
 import { useEnsName } from 'wagmi';
+import { NextSeo } from 'next-seo';
 
 import { fetchWearerDetails } from '@/gql/helpers';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -24,10 +25,9 @@ import { chainsColors, chainsMap } from '@/lib/web3';
 import Layout from '@/components/Layout';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import HeadComponent from '@/components/HeadComponent';
-import CONFIG from '@/constants';
+import { IHat } from '@/types';
 
-const CoreHat = ({ hat, image }: { hat: any; image: string }) => {
+const CoreHat = ({ hat, image }: { hat: IHat; image: string }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 
@@ -204,10 +204,7 @@ const WearerDetail = ({
 
   return (
     <Layout>
-      <HeadComponent
-        title={`${ensName || formatAddress(wearerAddress)}'s Hats`}
-        url={`${CONFIG.url}/wearers/${wearerAddress}`}
-      />
+      <NextSeo title={`${ensName || formatAddress(wearerAddress)}'s Hats`} />
 
       <Stack align='center' spacing={6} p={20}>
         <Heading size='lg'>

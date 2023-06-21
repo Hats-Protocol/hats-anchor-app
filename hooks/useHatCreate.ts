@@ -41,7 +41,7 @@ const useHatCreate = ({
 
   const {
     data: toggleResolvedAddress,
-    isLoading: isLoadingtoggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
@@ -115,7 +115,7 @@ const useHatCreate = ({
     eligibilityResolvedAddress: eligibilityAddress,
     isLoading:
       isLoadingEligibilityResolvedAddress ||
-      isLoadingtoggleResolvedAddress ||
+      isLoadingToggleResolvedAddress ||
       isLoading,
   };
 };

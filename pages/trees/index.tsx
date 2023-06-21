@@ -2,20 +2,21 @@ import _ from 'lodash';
 import { Heading, SimpleGrid, Flex, Spinner, Box } from '@chakra-ui/react';
 import { useState, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { InfiniteData } from '@tanstack/react-query';
 
 import Layout from '@/components/Layout';
 import useImageURIs from '@/hooks/useImageURIs';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
-import HeadComponent from '@/components/HeadComponent';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
+import { ITree } from '@/types';
 
 const Trees = ({
   trees: initialData,
   defaultNetworkId,
 }: {
-  trees: any[];
+  trees: InfiniteData<ITree[]>;
   defaultNetworkId: number;
 }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
@@ -42,20 +43,21 @@ const Trees = ({
 
   const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
   console.log(trees);
+  console.log(isLoading);
 
   return (
     <Layout>
-      <HeadComponent />
-
-      <Box py={100} px={100} bg='blue.50'>
+      <Box w='100%' h='100%' bg='blue' position='fixed' opacity={0.05} />
+      <Box py={100} px={100}>
         <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
           <NetworkFilter
             onFilterChange={handleNetworkFilterChange}
             selectedNetwork={selectedNetwork}
           />
         </Flex>
-        {!_.isEmpty(trees) && (
+        {!isLoading && !_.isEmpty(trees) && (
           <InfiniteScroll
+            hasChildren={!_.isEmpty(trees)}
             dataLength={_.size(trees)}
             next={fetchNextPage}
             hasMore={hasNextPage || false}
@@ -65,16 +67,21 @@ const Trees = ({
               </Flex>
             }
           >
-            <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
-              {_.map(trees, (tree: any) => (
+            <SimpleGrid gap={8} justifyContent='center' columns={4}>
+              {_.map(trees, (tree: ITree) => (
                 <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
               ))}
             </SimpleGrid>
           </InfiniteScroll>
         )}
-        {_.isEmpty(trees) && !(isLoading || isFetchingNextPage) && (
+        {_.isEmpty(trees) && !isLoading && !isFetchingNextPage && (
           <Flex justify='center' align='center'>
             <Heading size='md'>No Trees Found</Heading>
+          </Flex>
+        )}
+        {isLoading && (
+          <Flex justify='center' align='center' pt={10}>
+            <Spinner />
           </Flex>
         )}
       </Box>
@@ -94,6 +101,7 @@ export const getStaticProps = async () => {
       },
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
     return {
       props: {

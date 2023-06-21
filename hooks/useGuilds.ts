@@ -45,6 +45,7 @@ const useHatGuilds = ({
 
         setHatRoles(roles);
       } catch (error: any) {
+        // eslint-disable-next-line no-console
         console.error('Error fetching guilds:', error.message);
       }
     };

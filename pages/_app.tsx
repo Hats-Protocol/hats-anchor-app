@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { ChakraProvider } from '@chakra-ui/react';
+import { CSSReset, ChakraProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DefaultSeo } from 'next-seo';
@@ -27,6 +27,7 @@ function MyApp({ Component, pageProps }: { Component: any; pageProps: any }) {
       <DefaultSeo {...SEO} />
 
       <ChakraProvider theme={theme}>
+        <CSSReset />
         <WagmiConfig config={wagmiConfig}>
           <RainbowKitProvider chains={chains}>
             <QueryClientProvider client={queryClient}>

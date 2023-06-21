@@ -12,6 +12,7 @@ import {
   decimalIdToId,
 } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
+import { ITree, IHat } from '@/types';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',
@@ -62,20 +63,20 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
 
     const result = await Promise.all(promises);
 
-    const allNetworkResults: { trees: any[]; hats: any[] } = {
+    const allNetworkResults: { trees: ITree[]; hats: IHat[] } = {
       trees: [],
       hats: [],
     };
     _.forEach(result, (network, i) => {
       allNetworkResults.trees = _.concat(
-        _.map(_.get(network, 'trees'), (tree: object) => ({
+        _.map(_.get(network, 'trees'), (tree: ITree) => ({
           ...tree,
           network: _.values(chainsList)[i],
         })),
         allNetworkResults?.trees || [],
       );
       allNetworkResults.hats = _.concat(
-        _.map(_.get(network, 'hats'), (hat: object) => ({
+        _.map(_.get(network, 'hats'), (hat: IHat) => ({
           ...hat,
           network: _.values(chainsList)[i],
         })),
