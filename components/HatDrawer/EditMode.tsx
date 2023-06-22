@@ -14,6 +14,7 @@ import {
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import HatDetailsForm from '@/forms/HatDetailsForm';
+import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 
 const EditMode = ({
   hatData,
@@ -23,6 +24,7 @@ const EditMode = ({
   imageUrl,
 }: EditModeProps) => {
   if (!hatData) return null;
+  console.log('hatData', hatData);
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -65,6 +67,13 @@ const EditMode = ({
               </TabPanel>
             </TabPanels>
           </Tabs>
+        </Stack>
+        <Stack spacing={4}>
+          <Heading size='sm' fontWeight='medium'>
+            Wearers & Administrators
+          </Heading>
+          <Text>The people and contracts that control and wear this Hat.</Text>
+          <HatWearersAndAdminsForm defaultAdmin={hatData?.admin?.prettyId} />
         </Stack>
       </Stack>
     </Box>
