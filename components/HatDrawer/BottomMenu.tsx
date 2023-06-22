@@ -25,7 +25,13 @@ const BottomMenu = ({
   }, [selectedHatId, hatsData]);
 
   return (
-    <Box w='100%' position='absolute' bottom={0} zIndex={14}>
+    <Box
+      w='100%'
+      position='absolute'
+      bottom={0}
+      zIndex={14}
+      bg='whiteAlpha.900'
+    >
       <Flex
         justify='space-between'
         p={4}

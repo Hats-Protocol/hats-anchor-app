@@ -68,7 +68,7 @@ const MainContent = ({
   if (!hatData) return null;
 
   return (
-    <Box w='100%' overflow='scroll'>
+    <Box w='100%' overflow='scroll' height='100%'>
       {/* Main Details */}
       <Stack
         position='relative'
