@@ -27,29 +27,35 @@ import { prettyIdToIp } from '@/lib/hats';
 const HatDetailsForm = ({
   hatData,
   chainId,
+  defaultValues,
 }: {
   hatData: any;
   chainId: number;
+  defaultValues: {
+    name?: string;
+    description?: string;
+    imageUrl?: string;
+  };
 }) => {
   const [customImage, setCustomImage] = useState(true);
   const [image, setImage] = useState<any>();
   const localForm = useForm({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
-      name: hatData.details?.name || '',
-      imageUrl: hatData.details?.imageUrl || '',
-      description: hatData.details?.description || '',
+      name: 'rofl',
+      imageUrl: defaultValues.imageUrl || '',
+      description: defaultValues.description || '',
       details: {},
     },
   });
   const { handleSubmit, watch } = localForm;
 
-  const imageUrl = useDebounce(
-    watch('imageUrl', hatData.details?.imageUrl || ''),
-  );
-  const name = useDebounce(watch('name', hatData.details?.name || ''));
+  const name = useDebounce(watch('name', defaultValues?.name || ''));
   const description = useDebounce(
-    watch('description', hatData.details?.description || ''),
+    watch('description', defaultValues?.description || ''),
+  );
+  const imageUrl = useDebounce(
+    watch('imageUrl', defaultValues?.imageUrl || ''),
   );
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({

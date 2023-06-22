@@ -112,9 +112,7 @@ const DropZone = ({
           )}
         </div>
       </div>
-      <Flex wrap='wrap' marginTop={16}>
-        {thumbs}
-      </Flex>
+      <Flex wrap='wrap'>{thumbs}</Flex>
     </Stack>
   );
 };

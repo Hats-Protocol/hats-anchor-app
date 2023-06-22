@@ -15,7 +15,13 @@ import {
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 
-const EditMode = ({ hatData, chainId, name, description }: EditModeProps) => {
+const EditMode = ({
+  hatData,
+  chainId,
+  name,
+  description,
+  imageUrl,
+}: EditModeProps) => {
   if (!hatData) return null;
 
   return (
@@ -46,8 +52,16 @@ const EditMode = ({ hatData, chainId, name, description }: EditModeProps) => {
             </TabList>
 
             <TabPanels>
-              <TabPanel>
-                <HatDetailsForm hatData={hatData} chainId={chainId} />
+              <TabPanel px={0}>
+                <HatDetailsForm
+                  hatData={hatData}
+                  chainId={chainId}
+                  defaultValues={{
+                    name,
+                    description,
+                    imageUrl,
+                  }}
+                />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -64,4 +78,5 @@ interface EditModeProps {
   chainId: number;
   name: string;
   description: string;
+  imageUrl: string;
 }

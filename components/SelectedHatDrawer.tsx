@@ -118,14 +118,15 @@ const SelectedHatDrawer = ({
           />
         )}
 
-        {/* {editMode && ( */}
-        <EditMode
-          chainId={chainId}
-          hatData={hatData}
-          name={name}
-          description={description}
-        />
-        {/* )} */}
+        {editMode && (
+          <EditMode
+            chainId={chainId}
+            hatData={hatData}
+            name={name}
+            description={description}
+            imageUrl={hatData?.imageUri}
+          />
+        )}
 
         <BottomMenu
           selectedHatId={selectedHatId}
