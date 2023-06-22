@@ -34,6 +34,8 @@ const TopMenu = ({
   hatData,
   isEligible,
   isLoadingCheckEligibility,
+  editMode,
+  setEditMode,
 }: TopMenuProps) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -83,10 +85,11 @@ const TopMenu = ({
           background='cyan.100'
           color='cyan.700'
           borderColor='cyan.700'
+          onClick={() => setEditMode(!editMode)}
         >
           <HStack>
             <Icon as={FaEdit} />
-            <Text>Edit Hat</Text>
+            <Text>{editMode ? 'Save' : 'Edit'}</Text>
           </HStack>
         </Button>
         <Menu>
@@ -177,4 +180,6 @@ interface TopMenuProps {
   onClose: () => void;
   isEligible: boolean;
   isLoadingCheckEligibility: boolean;
+  editMode: boolean;
+  setEditMode: (editMode: boolean) => void;
 }

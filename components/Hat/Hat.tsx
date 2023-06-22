@@ -33,11 +33,9 @@ import {
   isTopHat,
 } from '@/lib/hats';
 import { clearNonObjects } from '@/lib/general';
-import HatDetailsForm from '@/forms/HatDetailsForm';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import HatImageForm from '@/forms/HatImageForm';
 
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -55,7 +53,6 @@ import AddressRow from './AddressRow';
 const Hat = ({
   hatData,
   chainId,
-  treeId,
   linkedToHat,
   hatImage,
   childrenHats,
@@ -188,17 +185,6 @@ const Hat = ({
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
         <HatModulesForm type={type} hatData={hatData} chainId={chainId} />
-      </Modal>
-      <Modal
-        name='hatDetails'
-        title='Edit Hat Details'
-        localOverlay={localOverlay}
-      >
-        <HatDetailsForm
-          hatData={hatData}
-          hatDetails={hatDetails?.type === '1.0' ? hatDetails?.data : {}}
-          chainId={chainId}
-        />
       </Modal>
       <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
         <HatImageForm hatData={hatData} chainId={chainId} />

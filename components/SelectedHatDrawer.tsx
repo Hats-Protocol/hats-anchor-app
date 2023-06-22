@@ -12,6 +12,7 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
 import BottomMenu from './HatDrawer/BottomMenu';
+import EditMode from './HatDrawer/EditMode';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -28,6 +29,8 @@ const SelectedHatDrawer = ({
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const [changeStatusWearer, setChangeStatusWearer] = useState('');
+  const [editMode, setEditMode] = useState(false);
+  console.log('editMode', editMode);
 
   useEffect(() => {
     if (selectedHatId) {
@@ -67,7 +70,7 @@ const SelectedHatDrawer = ({
     <Box
       w='full'
       transition='width 0.5s' // Add transition
-      bg='whiteAlpha.900'
+      bg='cyan/50'
       h='100%'
       borderLeft='1px solid'
       borderColor='gray.200'
@@ -91,7 +94,6 @@ const SelectedHatDrawer = ({
           zIndex={16}
         />
 
-        {/* Top Menu */}
         <TopMenu
           chainId={chainId}
           onClose={onClose}
@@ -99,21 +101,32 @@ const SelectedHatDrawer = ({
           hatData={hatData}
           isEligible={!!isEligible}
           isLoadingCheckEligibility={isLoadingCheckEligibility}
+          editMode={editMode}
+          setEditMode={setEditMode}
         />
 
-        {/* Main Content */}
-        <MainContent
+        {!editMode && (
+          <MainContent
+            chainId={chainId}
+            hatData={hatData}
+            isEligible={!!isEligible}
+            name={name}
+            description={description}
+            mutableStatus={mutableStatus}
+            activeStatus={activeStatus}
+            setChangeStatusWearer={setChangeStatusWearer}
+          />
+        )}
+
+        {/* {editMode && ( */}
+        <EditMode
           chainId={chainId}
           hatData={hatData}
-          isEligible={!!isEligible}
           name={name}
           description={description}
-          mutableStatus={mutableStatus}
-          activeStatus={activeStatus}
-          setChangeStatusWearer={setChangeStatusWearer}
         />
+        {/* )} */}
 
-        {/* Bottom Menu */}
         <BottomMenu
           selectedHatId={selectedHatId}
           setSelectedHatId={setSelectedHatId}

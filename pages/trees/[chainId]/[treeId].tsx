@@ -211,8 +211,8 @@ const TreeDetails = ({
 
       <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
         <DrawerOverlay />
-        <DrawerContent maxW='35%'>
-          <DrawerBody>
+        <DrawerContent maxW='35%' background='cyan.50'>
+          <DrawerBody pt={0}>
             <SelectedHatDrawer
               chainId={chainId}
               selectedHatId={selectedHatId}
