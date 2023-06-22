@@ -34,7 +34,6 @@ import {
 } from '@/lib/hats';
 import { clearNonObjects } from '@/lib/general';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import HatImageForm from '@/forms/HatImageForm';
 
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import CopyToClipboard from '@/components/CopyToClipboard';
@@ -185,9 +184,6 @@ const Hat = ({
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
         <HatModulesForm type={type} hatData={hatData} chainId={chainId} />
-      </Modal>
-      <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
-        <HatImageForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
@@ -404,7 +400,6 @@ export default Hat;
 interface HatProps {
   hatData: IHat;
   chainId: number;
-  treeId: string;
   linkedToHat: IHat;
   hatImage: string;
   childrenHats: IHat[];

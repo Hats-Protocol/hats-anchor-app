@@ -21,6 +21,8 @@ import useHatImageUpdate from '@/hooks/useHatImageUpdate';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
 import useCid from '@/hooks/useCid';
+import { pinJson } from '@/lib/ipfs';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatDetailsForm = ({
   hatData,
@@ -103,9 +105,17 @@ const HatDetailsForm = ({
   });
   console.log('writeAsync', writeAsync);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     writeAsync?.();
     writeAsyncImage?.();
+    await pinJson(
+      { type: '1.0', data: { name, description } },
+      {
+        name: `details_${_.toString(chainId)}_${prettyIdToIp(
+          _.get(hatData, 'admin.id'),
+        )}`,
+      },
+    );
   };
 
   return (
