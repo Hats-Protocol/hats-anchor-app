@@ -20,6 +20,7 @@
     "d3-org-chart": "3.0.1-next.1",
     "date-fns": "^2.29.3",
     "framer-motion": "^10.12.16",
+    "get-ens": "^2.1.1",
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
     "lodash": "^4.17.21",

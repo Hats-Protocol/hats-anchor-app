@@ -186,7 +186,11 @@ export const GET_WEARER_DETAILS = gql`
         imageUri
         mutable
         status
+        createdAt
         levelAtLocalTree
+        events {
+          ...EventDetails
+        }
         admin {
           id
           prettyId
@@ -194,6 +198,7 @@ export const GET_WEARER_DETAILS = gql`
       }
     }
   }
+  ${EVENT_DETAILS_FRAGMENT}
 `;
 
 export const GET_ALL_WEARERS = gql`

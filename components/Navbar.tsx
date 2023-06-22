@@ -99,7 +99,7 @@ const Navbar = () => {
           <ChakraNextLink href={`/${CONFIG.wearers}/${address}`}>
             <Button
               h='75px'
-              minW='100px'
+              minW='125px'
               variant='ghost'
               borderRadius={0}
               fontSize='lg'

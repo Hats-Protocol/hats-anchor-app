@@ -370,7 +370,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                     </div>
                     ${
                       isInWearerHats
-                        ? `<img src='/wearer.svg'
+                        ? `<img src='/icons/wearer.svg'
                             style="
                               width: 16px;
                               height: 12px;
