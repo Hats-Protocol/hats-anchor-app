@@ -48,6 +48,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         position='fixed'
         h='100%'
         w='100%'
+        zIndex={-1}
       />
       <Navbar />
       <CommandPalette />
