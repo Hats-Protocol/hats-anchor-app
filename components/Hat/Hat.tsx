@@ -44,7 +44,6 @@ import useHatGuilds from '@/hooks/useGuilds';
 import { IHat, ITree } from '@/types';
 
 import AdminActions from './AdminActions';
-import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
 
 // TODO this should probably be more components
@@ -366,14 +365,6 @@ const Hat = ({
                 data={clearNonObjects(accountabilitiesTable)}
                 justify='space-between'
                 minH={10}
-              />
-            </TabPanel>
-            <TabPanel minH='370px'>
-              <HatWearers
-                hatData={hatData}
-                parentOfTrees={parentOfTrees}
-                chainId={chainId}
-                isAdminUser={isAdminUser}
               />
             </TabPanel>
             {isAdminUser && (

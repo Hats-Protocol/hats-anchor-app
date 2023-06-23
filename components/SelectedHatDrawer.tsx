@@ -4,8 +4,6 @@ import { Box, Image } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 
 import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
-import Modal from '@/components/Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 
@@ -28,9 +26,9 @@ const SelectedHatDrawer = ({
   const [description, setDescription] = useState('');
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
-  const [changeStatusWearer, setChangeStatusWearer] = useState('');
   const [editMode, setEditMode] = useState(false);
   console.log('editMode', editMode);
+  const { setModals } = localOverlay;
 
   useEffect(() => {
     if (selectedHatId) {
@@ -114,7 +112,8 @@ const SelectedHatDrawer = ({
             description={description}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
-            setChangeStatusWearer={setChangeStatusWearer}
+            setModals={setModals}
+            localOverlay={localOverlay}
           />
         )}
 
@@ -134,20 +133,6 @@ const SelectedHatDrawer = ({
           hatsData={hatsData}
         />
       </Box>
-
-      <Modal
-        name='hatWearerStatus'
-        title='Remove a Wearer by revoking their Hat token'
-        localOverlay={localOverlay}
-        size='3xl'
-      >
-        <HatWearerStatusForm
-          hatData={hatData}
-          chainId={chainId}
-          wearer={changeStatusWearer}
-          eligibility='Not Eligible'
-        />
-      </Modal>
     </Box>
   );
 };

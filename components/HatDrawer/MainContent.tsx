@@ -1,6 +1,5 @@
 /* eslint-disable no-shadow */
 import React from 'react';
-import _ from 'lodash';
 import {
   Box,
   Flex,
@@ -11,9 +10,6 @@ import {
   Badge,
   Heading,
   Link as ChakraLink,
-  // UnorderedList,
-  // ListItem,
-  Divider,
 } from '@chakra-ui/react';
 import {
   FaBan,
@@ -21,19 +17,14 @@ import {
   FaChevronDown,
   FaCopy,
   FaExternalLinkAlt,
-  FaUser,
 } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 
-import { explorerUrl, formatAddress } from '@/lib/general';
-import { idToPrettyId, isAdmin, prettyIdToIp } from '@/lib/hats';
-import CONFIG from '@/constants';
+import { explorerUrl } from '@/lib/general';
+import { prettyIdToIp } from '@/lib/hats';
 import useToast from '@/hooks/useToast';
 import { useAccount } from 'wagmi';
-import Link from 'next/link';
-import useHatBurn from '@/hooks/useHatBurn';
-import { useOverlay } from '@/contexts/OverlayContext';
-import useWearerDetails from '@/hooks/useWearerDetails';
+import WearersList from './WearersList';
 
 const MainContent = ({
   chainId,
@@ -43,27 +34,11 @@ const MainContent = ({
   description,
   mutableStatus,
   activeStatus,
-  setChangeStatusWearer,
+  setModals,
+  localOverlay,
 }: MainContentProps) => {
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
   const { address } = useAccount();
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
   const toast = useToast();
-  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
-
-  const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId: hatData.id,
-  });
-
-  const handleRenounceHat = async () => {
-    await renounceHat?.();
-  };
 
   if (!hatData) return null;
 
@@ -86,9 +61,7 @@ const MainContent = ({
             </Stack>
             <HStack>
               <Text>Hat ID:</Text>
-              <Text color='blue.500'>
-                {prettyIdToIp(idToPrettyId(hatData?.id))}
-              </Text>
+              <Text color='blue.500'>{prettyIdToIp(hatData.prettyId)}</Text>
               <Icon
                 as={FaCopy}
                 color='blue.500'
@@ -112,72 +85,15 @@ const MainContent = ({
           </HStack>
         </Stack>
 
-        <Stack spacing={4}>
-          <Flex justify='space-between'>
-            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-              Hat Wearers
-            </Heading>
-            <Flex gap={1}>
-              <Text>{hatData?.wearers?.length}</Text>
-              <Text color='gray.400'>of {hatData?.currentSupply}</Text>
-            </Flex>
-          </Flex>
-          {/* Wearers list */}
-          {_.map(_.get(hatData, 'wearers', []), (wearer: any) => (
-            <Flex
-              key={wearer.id}
-              justifyContent='space-between'
-              alignItems='center'
-              style={{
-                backgroundColor:
-                  wearer.id === address ? 'green' : 'transparent', // adjust your color as necessary
-              }}
-            >
-              <Flex alignItems='center' gap={2}>
-                <FaUser /> <Text>{formatAddress(_.get(wearer, 'id'))}</Text>
-              </Flex>
-              <Flex alignItems='center' gap={2}>
-                <Link href={`/wearers/${wearer.id}`}>
-                  <Text color='blue.500'>View Profile</Text>
-                </Link>
-
-                {wearer.id === address?.toLowerCase() && (
-                  <>
-                    <Divider orientation='vertical' h={5} />
-                    <Text
-                      color='red.500'
-                      onClick={handleRenounceHat}
-                      cursor='pointer'
-                    >
-                      Renounce Hat
-                    </Text>
-                  </>
-                )}
-
-                {wearer.id !== address?.toLowerCase() &&
-                  isAdmin(_.get(hatData, 'prettyId'), currentWearerHats) && (
-                    <>
-                      <Divider orientation='vertical' h={5} />
-                      <Text
-                        color='red.500'
-                        onClick={() => {
-                          if (setModals) {
-                            setModals({
-                              hatWearerStatus: true,
-                            });
-                          }
-                          setChangeStatusWearer(wearer.id);
-                        }}
-                        cursor='pointer'
-                      >
-                        Revoke Hat
-                      </Text>
-                    </>
-                  )}
-              </Flex>
-            </Flex>
-          ))}
-        </Stack>
+        <WearersList
+          chainId={chainId}
+          setModals={setModals}
+          localOverlay={localOverlay}
+          hatId={hatData.id}
+          wearers={hatData.wearers}
+          maxSupply={hatData.maxSupply}
+          prettyId={hatData.prettyId}
+        />
 
         {/* <Stack spacing={4}>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
@@ -283,5 +199,6 @@ interface MainContentProps {
   description: string;
   mutableStatus: string;
   activeStatus: string;
-  setChangeStatusWearer: any;
+  setModals: any;
+  localOverlay: any;
 }

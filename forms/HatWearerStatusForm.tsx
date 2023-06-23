@@ -8,7 +8,6 @@ import {
   HStack,
   VStack,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 
 import CONFIG from '@/constants';
@@ -19,12 +18,12 @@ import { formatAddress } from '@/lib/general';
 import { prettyIdToId } from '@/lib/hats';
 
 const HatWearerStatusForm = ({
-  hatData,
+  prettyId,
   chainId,
   wearer,
   eligibility,
 }: {
-  hatData: any;
+  prettyId: string;
   chainId: number;
   wearer: string;
   eligibility: string;
@@ -36,7 +35,7 @@ const HatWearerStatusForm = ({
 
   const { writeAsync, isLoading } = useHatWearerStatusSet({
     hatsAddress: CONFIG.hatsAddress,
-    hatId: prettyIdToId(_.get(hatData, 'prettyId')),
+    hatId: prettyIdToId(prettyId),
     chainId,
     wearer,
     eligibility: eligibility === 'Eligible',
