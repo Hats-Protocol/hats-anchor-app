@@ -21,12 +21,12 @@ import { prettyIdToIp } from '@/lib/hats';
 const HatTransferForm = ({
   chainId,
   currentWearerAddress,
-  id,
+  hatId,
   prettyId,
 }: {
   chainId: number;
   currentWearerAddress: string;
-  id: string | undefined;
+  hatId: string | undefined;
   prettyId: string | undefined;
 }) => {
   const localForm = useForm({ mode: 'onBlur' });
@@ -37,7 +37,7 @@ const HatTransferForm = ({
   const { writeAsync, isLoading, newWearerResolvedAddress } =
     useHatTransferTree({
       currentWearerAddress,
-      id,
+      hatId,
       prettyId,
       newWearer,
       chainId,

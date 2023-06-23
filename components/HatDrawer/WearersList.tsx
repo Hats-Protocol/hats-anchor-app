@@ -27,6 +27,7 @@ import Modal from '@/components/Modal';
 import { checkENSNames } from '@/lib/contract';
 import { IHatWearer } from '@/types';
 import HatWearerForm from '@/forms/HatWearerForm';
+import HatTransferForm from '@/forms/HatTransferForm';
 
 const WearersList = ({
   chainId,
@@ -39,6 +40,7 @@ const WearersList = ({
 }: WearersListProps) => {
   const { address } = useAccount();
   const [changeStatusWearer, setChangeStatusWearer] = useState('');
+  const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const [ensNames, setEnsNames] = useState<{
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
@@ -134,6 +136,7 @@ const WearersList = ({
             currentWearerHats={currentWearerHats}
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
+            setWearerToTransferFrom={setWearerToTransferFrom}
           />
         ))}
 
@@ -173,7 +176,7 @@ const WearersList = ({
 
       <Modal name='hatWearers' title='Hat Wearers' localOverlay={localOverlay}>
         <Flex direction='column' gap={4}>
-          {wearers.map((wearer: { id: string }) => (
+          {wearers?.map((wearer: { id: string }) => (
             <WearerRow
               key={wearer.id}
               wearer={wearer}
@@ -184,6 +187,7 @@ const WearersList = ({
               currentWearerHats={currentWearerHats}
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
+              setWearerToTransferFrom={setWearerToTransferFrom}
             />
           ))}
         </Flex>
@@ -202,6 +206,19 @@ const WearersList = ({
           eligibility='Not Eligible'
         />
       </Modal>
+
+      <Modal
+        name='transferHat'
+        title='Transfer Hat to New Address'
+        localOverlay={localOverlay}
+      >
+        <HatTransferForm
+          hatId={hatId}
+          prettyId={prettyId}
+          chainId={chainId}
+          currentWearerAddress={wearerToTransferFrom}
+        />
+      </Modal>
     </>
   );
 };
@@ -217,6 +234,7 @@ const WearerRow = ({
   currentWearerHats,
   setModals,
   setChangeStatusWearer,
+  setWearerToTransferFrom,
 }: {
   wearer: { id: string };
   prettyId: string;
@@ -228,6 +246,7 @@ const WearerRow = ({
   currentWearerHats: string[];
   setModals: any;
   setChangeStatusWearer: any;
+  setWearerToTransferFrom: (wearer: string) => void;
 }) => {
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -252,6 +271,24 @@ const WearerRow = ({
         <Link href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
         </Link>
+
+        {isAdmin(prettyId, currentWearerHats) && (
+          <>
+            <Divider orientation='vertical' h={5} />
+            <Text
+              color='blue.500'
+              onClick={() => {
+                setModals({
+                  transferHat: true,
+                });
+                setWearerToTransferFrom(wearer.id);
+              }}
+              cursor='pointer'
+            >
+              Transfer
+            </Text>
+          </>
+        )}
 
         {wearer.id === address?.toLowerCase() && (
           <>
