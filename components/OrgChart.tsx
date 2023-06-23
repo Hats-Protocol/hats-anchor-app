@@ -112,7 +112,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             const isInWearerHats = wearerHats.includes(d.data.id);
 
             const {
-              imageURI,
+              imageUrl,
               name,
               details,
               isLinked,
@@ -322,7 +322,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   position: relative;
                 ">
                   <img
-                    src="${imageURI ?? '/icon.jpeg'}"
+                    src="${imageUrl ?? '/icon.jpeg'}"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '70px'};

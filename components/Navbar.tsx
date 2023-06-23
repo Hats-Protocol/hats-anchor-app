@@ -96,19 +96,21 @@ const Navbar = () => {
               )}
             </Button>
           </ChakraNextLink>
-          <ChakraNextLink href={`/${CONFIG.wearers}/${address}`}>
-            <Button
-              h='75px'
-              minW='125px'
-              variant='ghost'
-              borderRadius={0}
-              fontSize='lg'
-              _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-              isActive={_.includes(path, address)}
-            >
-              {`My ${_.capitalize(CONFIG.hats)}`}
-            </Button>
-          </ChakraNextLink>
+          {address && (
+            <ChakraNextLink href={`/${CONFIG.wearers}/${address}`}>
+              <Button
+                h='75px'
+                minW='125px'
+                variant='ghost'
+                borderRadius={0}
+                fontSize='lg'
+                _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
+                isActive={_.includes(path, address)}
+              >
+                {`My ${_.capitalize(CONFIG.hats)}`}
+              </Button>
+            </ChakraNextLink>
+          )}
         </HStack>
       </HStack>
 
@@ -117,6 +119,7 @@ const Navbar = () => {
           icon={<Icon as={FaSearch} h='25px' w='25px' />}
           onClick={() => setOpen?.(true)}
           aria-label='Search'
+          variant='outline'
         />
         <ConnectWallet />
       </HStack>

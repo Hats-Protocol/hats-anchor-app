@@ -8,20 +8,54 @@ const EVENT_DETAILS_FRAGMENT = gql`
   }
 `;
 
+export const HAT_DETAILS_FRAGMENT = gql`
+  fragment HatDetailsUnit on Hat {
+    id
+    prettyId
+    status
+    createdAt
+    details
+    maxSupply
+    eligibility
+    toggle
+    mutable
+    imageUri
+    levelAtLocalTree
+    currentSupply
+    events(orderBy: timestamp, orderDirection: desc) {
+      ...EventDetails
+    }
+    tree {
+      id
+    }
+  }
+  fragment HatDetails on Hat {
+    ...HatDetailsUnit
+    wearers {
+      id
+    }
+    admin {
+      ...HatDetailsUnit
+    }
+  }
+  ${EVENT_DETAILS_FRAGMENT}
+`;
+
+export const GET_HAT = gql`
+  query getHat($id: ID!) {
+    hat(id: $id) {
+      ...HatDetails
+    }
+  }
+  ${HAT_DETAILS_FRAGMENT}
+`;
+
 // TODO handle inline sort for events
 export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
   fragment TreeDetailsWithEvents on Tree {
     id
     hats {
-      id
-      prettyId
-      admin {
-        id
-        prettyId
-      }
-      tree {
-        id
-      }
+      ...HatDetails
     }
     events(orderBy: timestamp, orderDirection: desc, first: 5) {
       ...EventDetails
@@ -52,6 +86,7 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
     }
   }
   ${EVENT_DETAILS_FRAGMENT}
+  ${HAT_DETAILS_FRAGMENT}
 `;
 
 export const TREE_DETAILS_FRAGMENT = gql`
@@ -125,45 +160,6 @@ export const GET_PAGINATED_TREES = gql`
   ${TREE_TOP_HAT_DETAILS_FRAGMENT}
 `;
 
-export const HAT_DETAILS_FRAGMENT = gql`
-  fragment HatDetailsUnit on Hat {
-    id
-    prettyId
-    status
-    createdAt
-    details
-    maxSupply
-    eligibility
-    toggle
-    mutable
-    imageUri
-    levelAtLocalTree
-    currentSupply
-    events(orderBy: timestamp, orderDirection: desc) {
-      ...EventDetails
-    }
-  }
-  fragment HatDetails on Hat {
-    ...HatDetailsUnit
-    wearers {
-      id
-    }
-    admin {
-      ...HatDetailsUnit
-    }
-  }
-  ${EVENT_DETAILS_FRAGMENT}
-`;
-
-export const GET_HAT = gql`
-  query getHat($id: ID!) {
-    hat(id: $id) {
-      ...HatDetails
-    }
-  }
-  ${HAT_DETAILS_FRAGMENT}
-`;
-
 export const SEARCH_QUERY = gql`
   query search($search: String!) {
     trees(where: { id: $search }) {
@@ -205,6 +201,14 @@ export const GET_ALL_WEARERS = gql`
   query getAllWearers {
     wearers {
       id
+    }
+  }
+`;
+
+export const GET_CONTROLLERS_FOR_USER = gql`
+  query getControllersForUser($address: String!) {
+    hats(where: { _or: { toggle: $address, eligibility: $address } }) {
+      ...HatDetails
     }
   }
 `;

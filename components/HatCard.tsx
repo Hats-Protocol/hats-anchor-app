@@ -13,11 +13,11 @@ import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
+import { IHat } from '@/types';
 
-const HatCard = ({ hat, imagesPerChain }: HatCardProps) => {
+const HatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
-  console.log(hatDetailsFieldData);
 
   const hatName =
     schemaTypeDetailsField === '1.0'
@@ -33,9 +33,7 @@ const HatCard = ({ hat, imagesPerChain }: HatCardProps) => {
           <HStack spacing={4}>
             <Box
               bgImage={
-                imagesPerChain[hat.chainId][hat.id]
-                  ? imagesPerChain[hat.chainId][hat.id]
-                  : '/icon.jpeg'
+                _.get(hat, 'imageUrl') ? _.get(hat, 'imageUrl') : '/icon.jpeg'
               }
               bgSize='cover'
               bgPosition='center'
@@ -68,10 +66,5 @@ const HatCard = ({ hat, imagesPerChain }: HatCardProps) => {
 export default HatCard;
 
 interface HatCardProps {
-  hat: any;
-  imagesPerChain: {
-    [key: number]: {
-      [key: number]: string;
-    };
-  };
+  hat: IHat;
 }

@@ -31,6 +31,7 @@ const CommandPaletteInternalLink = ({
   </ChakraNextLink>
 );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let timeout: any = null;
 
 const CommandPalette = () => {
@@ -40,6 +41,7 @@ const CommandPalette = () => {
   const [serverSearch, setServerSearch] = useState<string | undefined>(
     undefined,
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [localResults, setLocalResults] = useState<any>({
     trees: [],
     hats: [],

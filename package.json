@@ -36,7 +36,7 @@
     "react-icons": "^4.7.1",
     "react-infinite-scroll-component": "^6.1.0",
     "viem": "^0.3.30",
-    "wagmi": "^1.0.9",
+    "wagmi": "~1.0.1",
     "webpack": "^5.87.0"
   },
   "devDependencies": {

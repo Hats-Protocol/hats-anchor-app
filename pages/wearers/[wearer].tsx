@@ -10,8 +10,6 @@ import {
   CardBody,
   Flex,
   Box,
-  Tag,
-  TagLabel,
   Avatar,
   Divider,
 } from '@chakra-ui/react';
@@ -23,14 +21,16 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import useImageURIs from '@/hooks/useImageURIs';
 import { formatAddress } from '@/lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
-import { chainsColors, chainsMap } from '@/lib/web3';
+import { chainsList } from '@/lib/web3';
 import Layout from '@/components/Layout';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { IHat } from '@/types';
 import { format } from 'date-fns';
+import { GetServerSidePropsContext } from 'next';
+import useControllerList from '@/hooks/useControllerList';
 
-const CoreHat = ({ hat, image }: { hat: IHat; image: string }) => {
+const CoreHat = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 
@@ -53,7 +53,7 @@ const CoreHat = ({ hat, image }: { hat: IHat; image: string }) => {
         borderColor='gray.600'
       >
         <Box
-          bgImage={image || '/icon.jpeg'}
+          bgImage={_.get(hat, 'imageUrl') || '/icon.jpeg'}
           bgSize='cover'
           bgPosition='center'
           w='110%'
@@ -86,99 +86,27 @@ const WearerDetail = ({
   initialData,
 }: {
   wearerAddress: `0x${string}`;
-  initialData: any;
+  initialData: IHat[];
 }) => {
-  const { data: mainnetWearer } = useWearerDetails({
+  const { data: currentHats } = useWearerDetails({
     wearerAddress,
-    chainId: 1,
-    initialData: initialData[1],
+    initialData,
   });
-  const { data: goerliWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 5,
-    initialData: initialData[5],
-  });
-  const { data: optimismWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 10,
-    initialData: initialData[10],
-  });
-  const { data: gnosisWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 100,
-    initialData: initialData[100],
-  });
-  const { data: polygonWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 137,
-    initialData: initialData[137],
-  });
-  const { data: arbitrumWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 42161,
-    initialData: initialData[42161],
-  });
-  // const { data: sepoliaWearer } = useWearerDetails({
-  //   wearerAddress,
-  //   chainId: 11155111,
-  //   initialData: initialData[11155111],
-  // });
-
-  const mainnetHats = _.get(mainnetWearer, 'currentHats', []);
-  const goerliHats = _.get(goerliWearer, 'currentHats', []);
-  const optimismHats = _.get(optimismWearer, 'currentHats', []);
-  const gnosisHats = _.get(gnosisWearer, 'currentHats', []);
-  const polygonHats = _.get(polygonWearer, 'currentHats', []);
-  const arbitrumHats = _.get(arbitrumWearer, 'currentHats', []);
-  // const sepoliaHats = _.get(sepoliaWearer, 'currentHats', []);
-
-  const currentHats = _.concat(
-    mainnetHats,
-    arbitrumHats,
-    optimismHats,
-    gnosisHats,
-    polygonHats,
-    goerliHats,
-    // sepoliaHats,
-  );
 
   const firstCreated = _.minBy(currentHats, 'createdAt');
 
-  const { data: mainnetImagesData } = useImageURIs(_.map(mainnetHats, 'id'), 1);
-  const { data: goerliImagesData } = useImageURIs(_.map(goerliHats, 'id'), 5);
-  const { data: optimismImagesData } = useImageURIs(
-    _.map(optimismHats, 'id'),
-    10,
-  );
-  const { data: gnosisImagesData } = useImageURIs(_.map(gnosisHats, 'id'), 100);
-  const { data: polygonImagesData } = useImageURIs(
-    _.map(polygonHats, 'id'),
-    137,
-  );
-  const { data: arbitrumImagesData } = useImageURIs(
-    _.map(arbitrumHats, 'id'),
-    42161,
-  );
-  // const { data: sepoliaImagesData } = useImageURIs(
-  //   _.map(sepoliaHats, 'id'),
-  //   11155111,
-  // );
-
-  const imagesPerChain: { [key: number]: any } = {
-    1: mainnetImagesData,
-    5: goerliImagesData,
-    10: optimismImagesData,
-    100: gnosisImagesData,
-    137: polygonImagesData,
-    42161: arbitrumImagesData,
-    // 11155111: sepoliaImagesData,
-  };
+  const { data: currentHatsWithImagesData } = useImageURIs(currentHats);
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName,
     chainId: 1,
   });
+
+  const { data: controllerData } = useControllerList({
+    address: wearerAddress,
+  });
+  console.log(controllerData);
 
   const headlineStats = [
     {
@@ -251,10 +179,9 @@ const WearerDetail = ({
             <Divider borderColor='black' />
           </Stack>
           <SimpleGrid columns={4} gap={5}>
-            {_.map(currentHats, (hat) => (
+            {_.map(currentHatsWithImagesData, (hat) => (
               <CoreHat
                 hat={hat}
-                image={imagesPerChain[hat.chainId][hat.id]}
                 key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
               />
             ))}
@@ -333,31 +260,22 @@ const WearerDetail = ({
   );
 };
 
-export const getServerSideProps = async (context: any) => {
-  const { wearer } = context.params;
-  const result = await Promise.all([
-    fetchWearerDetails(_.toLower(wearer), 1),
-    fetchWearerDetails(_.toLower(wearer), 5),
-    fetchWearerDetails(_.toLower(wearer), 10),
-    fetchWearerDetails(_.toLower(wearer), 100),
-    fetchWearerDetails(_.toLower(wearer), 137),
-    fetchWearerDetails(_.toLower(wearer), 42161),
-    // fetchWearerDetails(_.toLower(wearer), 1115111),
-  ]);
-  // const initialData = await fetchAllWearerDetails(_.toLower(wearer));
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  const wearerParam = _.get(context, 'params.wearer');
+  const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
+
+  const promises = _.map(_.keys(chainsList), (chainId) =>
+    fetchWearerDetails(_.toLower(wearer), Number(chainId)),
+  );
+
+  const result = await Promise.all(promises);
 
   return {
     props: {
       wearerAddress: wearer,
-      initialData: {
-        1: result[0] || null,
-        5: result[1] || null,
-        10: result[2] || null,
-        100: result[3] || null,
-        137: result[4] || null,
-        42161: result[5] || null,
-        // 1115111: result[6] || null,
-      },
+      initialData: _.flatten(_.map(result, 'currentHats')),
     },
   };
 };

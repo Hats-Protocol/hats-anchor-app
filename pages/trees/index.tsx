@@ -10,7 +10,7 @@ import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
-import { ITree } from '@/types';
+import { IHat, ITree } from '@/types';
 
 const Trees = ({
   trees: initialData,
@@ -37,11 +37,13 @@ const Trees = ({
     return _.flatten(_.get(data, 'pages'));
   }, [data]);
 
-  const topHatIds = useMemo(() => {
-    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0].id');
+  const topHats = useMemo(() => {
+    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0]');
   }, [data]);
 
-  const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
+  const { data: topHatsWithImagesData } = useImageURIs(
+    _.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })),
+  );
 
   return (
     <Layout>
@@ -67,7 +69,16 @@ const Trees = ({
           >
             <SimpleGrid gap={8} justifyContent='center' columns={4}>
               {_.map(trees, (tree: ITree) => (
-                <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
+                <TreeCard
+                  key={tree.id}
+                  tree={tree}
+                  topHat={_.find(
+                    topHatsWithImagesData,
+                    (h: IHat) =>
+                      _.get(h, 'id') ===
+                      _.get(_.first(_.get(tree, 'hats')), 'id'),
+                  )}
+                />
               ))}
             </SimpleGrid>
           </InfiniteScroll>
