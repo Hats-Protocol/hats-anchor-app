@@ -12,6 +12,8 @@ import {
   InputLeftElement,
   InputGroup,
   Image,
+  Tooltip,
+  Box,
 } from '@chakra-ui/react';
 import { FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 
@@ -97,6 +99,7 @@ const WearersList = ({
   }, [address, wearers]);
 
   const filteredWearers = filterWearers(wearers);
+  const maxWearersReached = wearers?.length >= maxSupply;
 
   return (
     <>
@@ -141,16 +144,29 @@ const WearersList = ({
         ))}
 
         <Flex justify='space-between' color='blue.500'>
-          <HStack
-            cursor='pointer'
-            _hover={{
-              textDecor: 'underline',
-            }}
-            onClick={() => setModals({ newWearer: true })}
+          <Tooltip
+            label={
+              maxWearersReached ? 'Maximum number of wearers reached.' : ''
+            }
+            fontSize='md'
+            isDisabled={!maxWearersReached}
           >
-            <FaPlus />
-            <Text variant='ghost'>Add a wearer</Text>
-          </HStack>
+            <Box>
+              <HStack
+                cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
+                _hover={{
+                  textDecor: maxWearersReached ? 'none' : 'underline',
+                }}
+                onClick={() =>
+                  !maxWearersReached ? setModals({ newWearer: true }) : {}
+                }
+                color={maxWearersReached ? 'gray.500' : 'blue.500'}
+              >
+                <FaPlus />
+                <Text variant='ghost'>Add a wearer</Text>
+              </HStack>
+            </Box>
+          </Tooltip>
           {wearers?.length > 6 && (
             <Text
               onClick={() => setModals({ hatWearers: true })}
@@ -294,7 +310,7 @@ const WearerRow = ({
           <>
             <Divider orientation='vertical' h={5} />
             <Text color='red.500' onClick={handleRenounceHat} cursor='pointer'>
-              Renounce Hat
+              Renounce
             </Text>
           </>
         )}
