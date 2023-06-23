@@ -100,6 +100,7 @@ const WearersList = ({
 
   const filteredWearers = filterWearers(wearers);
   const maxWearersReached = wearers?.length >= maxSupply;
+  const isAdminUser = isAdmin(prettyId, currentWearerHats);
 
   return (
     <>
@@ -132,11 +133,10 @@ const WearersList = ({
           <WearerRow
             key={wearer.id}
             wearer={wearer}
-            prettyId={prettyId}
+            isAdminUser={isAdminUser}
             address={address}
             ensNames={ensNames}
             handleRenounceHat={handleRenounceHat}
-            currentWearerHats={currentWearerHats}
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
@@ -144,29 +144,31 @@ const WearersList = ({
         ))}
 
         <Flex justify='space-between' color='blue.500'>
-          <Tooltip
-            label={
-              maxWearersReached ? 'Maximum number of wearers reached.' : ''
-            }
-            fontSize='md'
-            isDisabled={!maxWearersReached}
-          >
-            <Box>
-              <HStack
-                cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-                _hover={{
-                  textDecor: maxWearersReached ? 'none' : 'underline',
-                }}
-                onClick={() =>
-                  !maxWearersReached ? setModals({ newWearer: true }) : {}
-                }
-                color={maxWearersReached ? 'gray.500' : 'blue.500'}
-              >
-                <FaPlus />
-                <Text variant='ghost'>Add a wearer</Text>
-              </HStack>
-            </Box>
-          </Tooltip>
+          {isAdminUser && (
+            <Tooltip
+              label={
+                maxWearersReached ? 'Maximum number of wearers reached.' : ''
+              }
+              fontSize='md'
+              isDisabled={!maxWearersReached}
+            >
+              <Box>
+                <HStack
+                  cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
+                  _hover={{
+                    textDecor: maxWearersReached ? 'none' : 'underline',
+                  }}
+                  onClick={() =>
+                    !maxWearersReached ? setModals({ newWearer: true }) : {}
+                  }
+                  color={maxWearersReached ? 'gray.500' : 'blue.500'}
+                >
+                  <FaPlus />
+                  <Text variant='ghost'>Add a wearer</Text>
+                </HStack>
+              </Box>
+            </Tooltip>
+          )}
           {wearers?.length > 6 && (
             <Text
               onClick={() => setModals({ hatWearers: true })}
@@ -196,11 +198,10 @@ const WearersList = ({
             <WearerRow
               key={wearer.id}
               wearer={wearer}
-              prettyId={prettyId}
+              isAdminUser={isAdminUser}
               address={address}
               ensNames={ensNames}
               handleRenounceHat={handleRenounceHat}
-              currentWearerHats={currentWearerHats}
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
@@ -243,23 +244,21 @@ export default WearersList;
 
 const WearerRow = ({
   wearer,
-  prettyId,
+  isAdminUser,
   address,
   ensNames,
   handleRenounceHat,
-  currentWearerHats,
   setModals,
   setChangeStatusWearer,
   setWearerToTransferFrom,
 }: {
   wearer: { id: string };
-  prettyId: string;
+  isAdminUser: boolean;
   address?: string;
   ensNames: {
     [key: string]: string;
   };
   handleRenounceHat: () => void;
-  currentWearerHats: string[];
   setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (wearer: string) => void;
@@ -288,7 +287,7 @@ const WearerRow = ({
           <Text color='blue.500'>View</Text>
         </Link>
 
-        {isAdmin(prettyId, currentWearerHats) && (
+        {isAdminUser && (
           <>
             <Divider orientation='vertical' h={5} />
             <Text
@@ -315,24 +314,23 @@ const WearerRow = ({
           </>
         )}
 
-        {wearer.id !== address?.toLowerCase() &&
-          isAdmin(prettyId, currentWearerHats) && (
-            <>
-              <Divider orientation='vertical' h={5} />
-              <Text
-                color='red.500'
-                onClick={() => {
-                  setModals({
-                    hatWearerStatus: true,
-                  });
-                  setChangeStatusWearer(wearer.id);
-                }}
-                cursor='pointer'
-              >
-                Revoke Hat
-              </Text>
-            </>
-          )}
+        {wearer.id !== address?.toLowerCase() && isAdminUser && (
+          <>
+            <Divider orientation='vertical' h={5} />
+            <Text
+              color='red.500'
+              onClick={() => {
+                setModals({
+                  hatWearerStatus: true,
+                });
+                setChangeStatusWearer(wearer.id);
+              }}
+              cursor='pointer'
+            >
+              Revoke Hat
+            </Text>
+          </>
+        )}
       </Flex>
     </Flex>
   );
