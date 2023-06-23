@@ -68,7 +68,6 @@ const SelectedHatDrawer = ({
     <Box
       w='full'
       transition='width 0.5s' // Add transition
-      bg='cyan/50'
       h='100%'
       borderLeft='1px solid'
       borderColor='gray.200'
