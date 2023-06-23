@@ -3,7 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { Box, Image } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import {
+  HierarchyObject,
+  idToPrettyId,
+  prettyIdToId,
+  prettyIdToIp,
+} from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 
@@ -18,6 +23,7 @@ const SelectedHatDrawer = ({
   chainId,
   hatsData,
   onClose,
+  hierarchyData,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
@@ -27,7 +33,6 @@ const SelectedHatDrawer = ({
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const [editMode, setEditMode] = useState(false);
-  console.log('editMode', editMode);
   const { setModals } = localOverlay;
 
   useEffect(() => {
@@ -129,7 +134,7 @@ const SelectedHatDrawer = ({
         <BottomMenu
           selectedHatId={selectedHatId}
           setSelectedHatId={setSelectedHatId}
-          hatsData={hatsData}
+          hierarchyData={hierarchyData}
         />
       </Box>
     </Box>
@@ -144,4 +149,5 @@ interface SelectedHatDrawerProps {
   chainId: number;
   hatsData: any;
   onClose: () => void;
+  hierarchyData: HierarchyObject[];
 }

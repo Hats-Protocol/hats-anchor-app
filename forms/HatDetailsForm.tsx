@@ -101,7 +101,6 @@ const HatDetailsForm = ({
         : undefined
       : imageUrl,
   });
-  console.log('writeAsyncImage', writeAsyncImage);
 
   const { writeAsync } = useHatDetailsUpdate({
     hatsAddress: CONFIG.hatsAddress,
@@ -109,7 +108,6 @@ const HatDetailsForm = ({
     hatId: _.get(hatData, 'id'),
     details: detailsCID,
   });
-  console.log('writeAsync', writeAsync);
 
   const onSubmit = async () => {
     writeAsync?.();

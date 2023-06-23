@@ -123,6 +123,7 @@ const TreeDetails = ({
   const chain = chainsMap(chainId);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [hatsData, setHatsData] = useState<IHatData[]>([]);
+  const [hierarchyData, setHierarchyData] = useState<any>({});
   const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
@@ -159,13 +160,14 @@ const TreeDetails = ({
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
-      const { tree, hats } = await toTreeStructure(
+      const { tree, hats, hierarchy } = await toTreeStructure(
         treeData,
         imagesData,
         chainId,
       );
       setOrgChartTree(tree);
       setHatsData(hats);
+      setHierarchyData(hierarchy);
     };
 
     fetchTreeAndSetState();
@@ -218,6 +220,7 @@ const TreeDetails = ({
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}
               hatsData={hatsData}
+              hierarchyData={hierarchyData}
               onClose={onCloseShade}
             />
           </DrawerBody>

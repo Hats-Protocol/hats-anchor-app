@@ -8,64 +8,70 @@ import {
   FaRegArrowAltCircleUp,
 } from 'react-icons/fa';
 
-import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { HierarchyObject, prettyIdToIp } from '@/lib/hats';
 
 const BottomMenu = ({
   selectedHatId,
   setSelectedHatId,
-  hatsData,
+  hierarchyData,
 }: BottomMenuProps) => {
-  const [hierarchyHatData, setHierarchyHatData] = useState<any>({});
+  const [currentHat, setCurrentHat] = useState<any>({});
 
   useEffect(() => {
     if (selectedHatId) {
-      const hierarchyData = hatsData[prettyIdToId(selectedHatId)];
-      setHierarchyHatData(hierarchyData);
+      const hat = hierarchyData.find((h) => h.id === selectedHatId);
+      if (hat) setCurrentHat(hat);
     }
-  }, [selectedHatId, hatsData]);
+  }, [selectedHatId, hierarchyData]);
 
   return (
-    <Box w='100%' position='absolute' bottom={0} zIndex={14} bg='cyan.50'>
+    <Box
+      w='100%'
+      position='absolute'
+      bottom={0}
+      zIndex={14}
+      bg='whiteAlpha.900'
+    >
       <Flex
         justify='space-between'
         p={4}
         borderTop='1px solid'
         borderColor='gray.200'
       >
-        {hierarchyHatData?.leftSibling ? (
+        {currentHat?.leftSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId(hierarchyHatData?.leftSibling)}
+            onClick={() => setSelectedHatId(currentHat?.leftSibling)}
             gap={1}
           >
             <FaRegArrowAltCircleLeft />
-            {prettyIdToIp(hierarchyHatData?.leftSibling)}
+            {prettyIdToIp(currentHat?.leftSibling)}
           </Button>
         ) : (
           <Box w={16} />
         )}
 
         <HStack>
-          {hierarchyHatData?.parentId ? (
+          {currentHat?.parentId ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId(hierarchyHatData?.parentId)}
+              onClick={() => setSelectedHatId(currentHat?.parentId)}
               gap={1}
             >
               <FaRegArrowAltCircleUp />
-              {prettyIdToIp(hierarchyHatData?.parentId)}
+              {prettyIdToIp(currentHat?.parentId)}
             </Button>
           ) : (
             <Box w={16} />
           )}
 
-          {hierarchyHatData?.firstChild ? (
+          {currentHat?.firstChild ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId(hierarchyHatData?.firstChild)}
+              onClick={() => setSelectedHatId(currentHat?.firstChild)}
               gap={1}
             >
-              {prettyIdToIp(hierarchyHatData?.firstChild)}
+              {prettyIdToIp(currentHat?.firstChild)}
               <FaRegArrowAltCircleDown />
             </Button>
           ) : (
@@ -73,13 +79,13 @@ const BottomMenu = ({
           )}
         </HStack>
 
-        {hierarchyHatData?.rightSibling ? (
+        {currentHat?.rightSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId(hierarchyHatData?.rightSibling)}
+            onClick={() => setSelectedHatId(currentHat?.rightSibling)}
             gap={1}
           >
-            {prettyIdToIp(hierarchyHatData?.rightSibling)}
+            {prettyIdToIp(currentHat?.rightSibling)}
             <FaRegArrowAltCircleRight />
           </Button>
         ) : (
@@ -95,5 +101,5 @@ export default BottomMenu;
 interface BottomMenuProps {
   selectedHatId?: string;
   setSelectedHatId: (id: string) => void;
-  hatsData: any;
+  hierarchyData: HierarchyObject[];
 }
