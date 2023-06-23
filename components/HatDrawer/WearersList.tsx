@@ -250,7 +250,7 @@ const WearerRow = ({
       </Flex>
       <Flex alignItems='center' gap={2}>
         <Link href={`/wearers/${wearer.id}`}>
-          <Text color='blue.500'>View Profile</Text>
+          <Text color='blue.500'>View</Text>
         </Link>
 
         {wearer.id === address?.toLowerCase() && (
