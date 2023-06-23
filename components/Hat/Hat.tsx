@@ -33,11 +33,8 @@ import {
   isTopHat,
 } from '@/lib/hats';
 import { clearNonObjects } from '@/lib/general';
-import HatDetailsForm from '@/forms/HatDetailsForm';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import HatImageForm from '@/forms/HatImageForm';
 
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -47,7 +44,6 @@ import useHatGuilds from '@/hooks/useGuilds';
 import { IHat, ITree } from '@/types';
 
 import AdminActions from './AdminActions';
-import HatWearers from './HatWearers';
 import AddressRow from './AddressRow';
 
 // TODO this should probably be more components
@@ -55,7 +51,6 @@ import AddressRow from './AddressRow';
 const Hat = ({
   hatData,
   chainId,
-  treeId,
   linkedToHat,
   hatImage,
   childrenHats,
@@ -188,20 +183,6 @@ const Hat = ({
     <>
       <Modal name='editModule' title='Edit Module' localOverlay={localOverlay}>
         <HatModulesForm type={type} hatData={hatData} chainId={chainId} />
-      </Modal>
-      <Modal
-        name='hatDetails'
-        title='Edit Hat Details'
-        localOverlay={localOverlay}
-      >
-        <HatDetailsForm
-          hatData={hatData}
-          hatDetails={hatDetails?.type === '1.0' ? hatDetails?.data : {}}
-          chainId={chainId}
-        />
-      </Modal>
-      <Modal name='hatImage' title='Edit Hat Image' localOverlay={localOverlay}>
-        <HatImageForm hatData={hatData} chainId={chainId} />
       </Modal>
 
       <Stack>
@@ -386,14 +367,6 @@ const Hat = ({
                 minH={10}
               />
             </TabPanel>
-            <TabPanel minH='370px'>
-              <HatWearers
-                hatData={hatData}
-                parentOfTrees={parentOfTrees}
-                chainId={chainId}
-                isAdminUser={isAdminUser}
-              />
-            </TabPanel>
             {isAdminUser && (
               <TabPanel minH='370px'>
                 <AdminActions
@@ -418,7 +391,6 @@ export default Hat;
 interface HatProps {
   hatData: IHat;
   chainId: number;
-  treeId: string;
   linkedToHat: IHat;
   hatImage: string;
   childrenHats: IHat[];

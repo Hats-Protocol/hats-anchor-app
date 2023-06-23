@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-use-before-define */
 import { IHatData, ITree } from '@/types';
@@ -8,6 +9,19 @@ import { extendWearers, extendControllers } from '@/lib/contract';
 import _ from 'lodash';
 import { ZERO_ADDRESS } from '@/constants';
 
+export type HierarchyObject = {
+  id: string;
+  parentId: string | null;
+  firstChild: string | null;
+  leftSibling: string | null;
+  rightSibling: string | null;
+};
+
+type InputObject = {
+  id: string;
+  parentId: string;
+};
+
 export async function toTreeStructure(
   treeData: ITree,
   hatIdToImage: any,
@@ -15,11 +29,11 @@ export async function toTreeStructure(
 ): Promise<{
   tree: IHatData[];
   hats: any;
+  hierarchy: HierarchyObject[];
 }> {
   const hatsArray: IHatData[] = [];
   const hatIds: string[] = [];
 
-  console.log('treeData', treeData);
   treeData?.hats?.forEach((hat: any) => {
     hatIds.push(hat.id);
   });
@@ -57,18 +71,23 @@ export async function toTreeStructure(
       (d) => d !== ZERO_ADDRESS && d !== undefined,
     ),
   );
-  console.log(wearersAndControllersArray);
+  // console.log(wearersAndControllersArray);
 
   const wearersAndControllersInfo = await fetchManyWearerDetails(
     wearersAndControllersArray,
     chainId,
   );
-  console.log(wearersAndControllersInfo);
+  // console.log(wearersAndControllersInfo);
 
-  const populatedHats = populateSiblingsAndChild(hatsData);
+  const parentsAndIds = hatsData.map((hat: any) => ({
+    id: hat.prettyId,
+    parentId: hat.admin.prettyId,
+  }));
+
+  const hierarchy = createHierarchy(parentsAndIds);
 
   const hats = Object.fromEntries(
-    populatedHats.map((hat: any, index) => [
+    hatsData.map((hat: any, index) => [
       hat.id,
       {
         ...hat,
@@ -177,35 +196,58 @@ export async function toTreeStructure(
     });
   }
 
-  return { tree: hatsArray, hats };
+  return { tree: hatsArray, hats, hierarchy };
 }
 
-export function populateSiblingsAndChild(hatsArray: IHatData[]) {
-  const idToNodeMap = {} as any;
+export function createHierarchy(data: InputObject[]): HierarchyObject[] {
+  // Sort by parentId and id
+  data.sort(
+    (a, b) => a.parentId.localeCompare(b.parentId) || a.id.localeCompare(b.id),
+  );
 
-  // Create a map from id to node
-  for (const node of hatsArray) {
-    idToNodeMap[node.id] = node;
+  // Create initial hierarchy objects
+  const hierarchyObjects: HierarchyObject[] = data.map((obj) => ({
+    id: obj.id,
+    parentId: obj.id === obj.parentId ? null : obj.parentId,
+    firstChild: null,
+    leftSibling: null,
+    rightSibling: null,
+  }));
+
+  // Add firstChild, leftSibling, rightSibling
+  for (let i = 0; i < hierarchyObjects.length; i++) {
+    const current = hierarchyObjects[i];
+
+    // Find siblings and first child
+    const siblings = hierarchyObjects.filter(
+      (node) => node.parentId === current.parentId,
+    );
+
+    for (let j = 0; j < siblings.length; j++) {
+      if (current.id > siblings[j].id) {
+        // Sibling is a left sibling if its id is smaller
+        current.leftSibling = siblings[j].id;
+      } else if (current.id < siblings[j].id) {
+        // Sibling is a right sibling if its id is bigger and current right sibling is null or its id is bigger than the sibling
+        if (
+          current.rightSibling === null ||
+          siblings[j].id < current.rightSibling
+        ) {
+          current.rightSibling = siblings[j].id;
+        }
+      }
+    }
+
+    // Find first child
+    const children = hierarchyObjects.filter(
+      (node) => node.parentId === current.id,
+    );
+    if (children.length > 0) {
+      current.firstChild = children[0].id;
+    }
   }
 
-  // Populate the siblings and child fields
-  for (const node of hatsArray) {
-    const siblings = hatsArray.filter((n) => n.parentId === node.parentId);
-    const children = hatsArray.filter((n) => n.parentId === node.id);
-
-    const nodeIndex = siblings.findIndex((n) => n.id === node.id);
-
-    node.leftSibling =
-      nodeIndex > 0 ? siblings[nodeIndex - 1].prettyId : undefined;
-    node.rightSibling =
-      nodeIndex < siblings.length - 1
-        ? siblings[nodeIndex + 1].prettyId
-        : undefined;
-    node.firstChild = children.length > 0 ? children[0].prettyId : undefined;
-  }
-
-  // Return the updated array
-  return hatsArray;
+  return hierarchyObjects;
 }
 
 export function prettyIdToId(id: string | undefined) {

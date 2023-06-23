@@ -121,8 +121,10 @@ const TreeDetails = ({
 }: TreeDetailsProps) => {
   const toast = useToast();
   const chain = chainsMap(chainId);
+  const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [hatsData, setHatsData] = useState<IHatData[]>([]);
+  const [hierarchyData, setHierarchyData] = useState<any>({});
   const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined,
@@ -159,13 +161,14 @@ const TreeDetails = ({
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
-      const { tree, hats } = await toTreeStructure(
+      const { tree, hats, hierarchy } = await toTreeStructure(
         treeData,
         imagesData,
         chainId,
       );
       setOrgChartTree(tree);
       setHatsData(hats);
+      setHierarchyData(hierarchy);
     };
 
     fetchTreeAndSetState();
@@ -211,14 +214,20 @@ const TreeDetails = ({
 
       <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
         <DrawerOverlay />
-        <DrawerContent maxW='35%'>
-          <DrawerBody>
+        <DrawerContent
+          maxW='35%'
+          background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
+        >
+          <DrawerBody pt={0}>
             <SelectedHatDrawer
               chainId={chainId}
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}
               hatsData={hatsData}
+              hierarchyData={hierarchyData}
               onClose={onCloseShade}
+              editMode={editMode}
+              setEditMode={setEditMode}
             />
           </DrawerBody>
         </DrawerContent>

@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { createPublicClient, http, custom } from 'viem';
 import _ from 'lodash';
+import { mainnet } from 'viem/chains';
 import { IHatWearer } from '@/types';
 import { chainsMap } from './web3';
 
@@ -23,7 +24,7 @@ export const checkAddressIsContract = async (
   return false;
 };
 
-export const extendWearers = (wearers: any, wearersInfo: any) => {
+export const extendWearers = (wearers: IHatWearer[], wearersInfo: any) => {
   if (_.gt(_.size(wearers), 1)) {
     return wearers;
   }
@@ -47,4 +48,36 @@ export const extendControllers = async (
     id: controller,
     ...controllerInfo,
   };
+};
+
+export const checkENSNames = async (wearers: IHatWearer[]) => {
+  const publicClient = createPublicClient({
+    chain: mainnet,
+    transport: http(),
+  });
+
+  const ensNamePromises = wearers?.map(async (wearer: IHatWearer) => {
+    const ensName = await publicClient.getEnsName({
+      address: wearer.id,
+    });
+
+    return { id: wearer.id, ensName };
+  });
+
+  if (ensNamePromises) {
+    const ensNamesList = await Promise.all(ensNamePromises);
+
+    const newEnsNames = ensNamesList.reduce(
+      (acc: { [key: string]: string }, { id, ensName }) => {
+        if (ensName) {
+          acc[id] = ensName;
+        }
+        return acc;
+      },
+      {},
+    );
+    return newEnsNames;
+  }
+
+  return {};
 };
