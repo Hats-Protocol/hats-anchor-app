@@ -121,6 +121,7 @@ const TreeDetails = ({
 }: TreeDetailsProps) => {
   const toast = useToast();
   const chain = chainsMap(chainId);
+  const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [hatsData, setHatsData] = useState<IHatData[]>([]);
   const [hierarchyData, setHierarchyData] = useState<any>({});
@@ -213,7 +214,10 @@ const TreeDetails = ({
 
       <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
         <DrawerOverlay />
-        <DrawerContent maxW='35%' background='cyan.50'>
+        <DrawerContent
+          maxW='35%'
+          background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
+        >
           <DrawerBody pt={0}>
             <SelectedHatDrawer
               chainId={chainId}
@@ -222,6 +226,8 @@ const TreeDetails = ({
               hatsData={hatsData}
               hierarchyData={hierarchyData}
               onClose={onCloseShade}
+              editMode={editMode}
+              setEditMode={setEditMode}
             />
           </DrawerBody>
         </DrawerContent>

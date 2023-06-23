@@ -24,6 +24,8 @@ const SelectedHatDrawer = ({
   hatsData,
   onClose,
   hierarchyData,
+  editMode,
+  setEditMode,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
@@ -32,7 +34,6 @@ const SelectedHatDrawer = ({
   const [description, setDescription] = useState('');
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
-  const [editMode, setEditMode] = useState(false);
   const { setModals } = localOverlay;
 
   useEffect(() => {
@@ -150,4 +151,6 @@ interface SelectedHatDrawerProps {
   hatsData: any;
   onClose: () => void;
   hierarchyData: HierarchyObject[];
+  editMode: boolean;
+  setEditMode: (value: boolean) => void;
 }

@@ -42,7 +42,7 @@ const HatDetailsForm = ({
   const localForm = useForm({
     mode: 'onBlur',
     defaultValues: {
-      name: 'rofl',
+      name: defaultValues.name || '',
       imageUrl: defaultValues.imageUrl || '',
       description: defaultValues.description || '',
       details: {},
