@@ -10,6 +10,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Link,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
@@ -17,6 +18,7 @@ import {
   FaDoorOpen,
   FaEdit,
   FaEllipsisV,
+  FaExclamationCircle,
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
@@ -160,10 +162,10 @@ const TopMenu = ({
               <FaCopy />
               Copy Contract ID
             </MenuItem>
-            {/* <MenuItem gap={2}>
-              <FaDanger />
+            <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
+              <FaExclamationCircle />
               Report this hat
-            </MenuItem> */}
+            </MenuItem>
           </MenuList>
         </Menu>
       </HStack>
