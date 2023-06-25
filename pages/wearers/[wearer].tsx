@@ -29,6 +29,7 @@ import { IHat } from '@/types';
 import { format } from 'date-fns';
 import { GetServerSidePropsContext } from 'next';
 import useControllerList from '@/hooks/useControllerList';
+import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 
 const CoreHat = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
@@ -103,10 +104,13 @@ const WearerDetail = ({
     chainId: 1,
   });
 
-  const { data: controllerData } = useControllerList({
+  const { data: controllerHats } = useControllerList({
     address: wearerAddress,
   });
-  console.log(controllerData);
+  const { data: adminOfHats } = useHatsAdminOf({
+    hats: currentHats,
+  });
+  console.log(adminOfHats);
 
   const headlineStats = [
     {
@@ -115,15 +119,19 @@ const WearerDetail = ({
     },
     {
       label: 'Admin of',
-      value: 1,
+      value: _.size(adminOfHats),
     },
     {
       label: 'Eligibility for',
-      value: 1,
+      value: _.size(
+        _.filter(controllerHats, ['eligibility', _.toLower(wearerAddress)]),
+      ),
     },
     {
       label: 'Toggle for',
-      value: 1,
+      value: _.size(
+        _.filter(controllerHats, ['toggle', _.toLower(wearerAddress)]),
+      ),
     },
   ];
 

@@ -102,6 +102,23 @@ export const TREE_DETAILS_FRAGMENT = gql`
         prettyId
       }
     }
+    childOfTree {
+      id
+    }
+    parentOfTrees {
+      id
+      linkedToHat {
+        id
+        prettyId
+      }
+    }
+    linkedToHat {
+      id
+      prettyId
+      tree {
+        id
+      }
+    }
   }
 `;
 
@@ -160,6 +177,15 @@ export const GET_PAGINATED_TREES = gql`
   ${TREE_TOP_HAT_DETAILS_FRAGMENT}
 `;
 
+export const GET_TREES_BY_ID = gql`
+  query getTreesById($ids: [ID!]!) {
+    trees(where: { id_in: $ids }) {
+      ...TreeDetails
+    }
+  }
+  ${TREE_DETAILS_FRAGMENT}
+`;
+
 export const SEARCH_QUERY = gql`
   query search($search: String!) {
     trees(where: { id: $search }) {
@@ -176,25 +202,11 @@ export const GET_WEARER_DETAILS = gql`
   query getCurrentHatsForWearer($id: ID!) {
     wearer(id: $id) {
       currentHats {
-        id
-        prettyId
-        details
-        imageUri
-        mutable
-        status
-        createdAt
-        levelAtLocalTree
-        events {
-          ...EventDetails
-        }
-        admin {
-          id
-          prettyId
-        }
+        ...HatDetails
       }
     }
   }
-  ${EVENT_DETAILS_FRAGMENT}
+  ${HAT_DETAILS_FRAGMENT}
 `;
 
 export const GET_ALL_WEARERS = gql`
@@ -207,8 +219,9 @@ export const GET_ALL_WEARERS = gql`
 
 export const GET_CONTROLLERS_FOR_USER = gql`
   query getControllersForUser($address: String!) {
-    hats(where: { _or: { toggle: $address, eligibility: $address } }) {
+    hats(where: { or: [{ toggle: $address }, { eligibility: $address }] }) {
       ...HatDetails
     }
   }
+  ${HAT_DETAILS_FRAGMENT}
 `;
