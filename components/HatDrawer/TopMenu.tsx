@@ -11,6 +11,7 @@ import {
   MenuList,
   MenuItem,
   Link,
+  Tooltip,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
@@ -28,14 +29,13 @@ import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useToast from '@/hooks/useToast';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import { useAccount } from 'wagmi';
+import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 
 const TopMenu = ({
   chainId,
   onClose,
   mutableStatus,
   hatData,
-  isEligible,
-  isLoadingCheckEligibility,
   editMode,
   setEditMode,
 }: TopMenuProps) => {
@@ -58,6 +58,21 @@ const TopMenu = ({
       hatId: hatData.id,
       status: 'Inactive',
     });
+
+  const {
+    writeAsync: checkHatStatus,
+    isLoading: isLoadingCheckHatStatus,
+    prepareError,
+  } = useHatCheckStatus({
+    chainId,
+    hatId: hatData.id,
+  });
+
+  function containsNotHatsToggleErrorMessage(message?: string) {
+    if (!message) return false;
+    const regex = /Error: NotHatsToggle()/;
+    return regex.test(message);
+  }
 
   if (!hatData) return null;
 
@@ -120,24 +135,43 @@ const TopMenu = ({
               isDisabled={
                 address?.toLowerCase() !== hatData?.toggle ||
                 isLoadingDeactivateHat ||
-                !hatData?.status
+                !hatData?.status ||
+                !deactivateHat
               }
             >
-              <FaPowerOff />
-              Deactivate Hat
+              <Tooltip
+                label={
+                  address?.toLowerCase() !== hatData?.toggle
+                    ? "You don't have the permission to toggle this hat"
+                    : ''
+                }
+                shouldWrapChildren
+              >
+                <HStack>
+                  <FaPowerOff />
+                  <Text>Deactivate Hat</Text>
+                </HStack>
+              </Tooltip>
             </MenuItem>
-            <MenuItem
-              gap={2}
-              onClick={() =>
-                toast.info({
-                  title: isEligible ? 'Eligible' : 'Not Eligible',
-                })
+            <Tooltip
+              label={
+                containsNotHatsToggleErrorMessage(prepareError?.message)
+                  ? 'The toggle is not "humanistic"'
+                  : ''
               }
-              isDisabled={isLoadingCheckEligibility}
+              shouldWrapChildren
             >
-              <FaDoorOpen />
-              Test Eligibility
-            </MenuItem>
+              <MenuItem
+                gap={2}
+                onClick={() => checkHatStatus?.()}
+                isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
+              >
+                <HStack>
+                  <FaDoorOpen />
+                  <Text>Test Status</Text>
+                </HStack>
+              </MenuItem>
+            </Tooltip>
             <MenuItem
               gap={2}
               onClick={() => {
@@ -180,8 +214,6 @@ interface TopMenuProps {
   hatData: any;
   chainId: number;
   onClose: () => void;
-  isEligible: boolean;
-  isLoadingCheckEligibility: boolean;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
 }

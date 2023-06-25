@@ -61,13 +61,13 @@ const SelectedHatDrawer = ({
     }
   }, [selectedHatId, hatsData]);
 
-  const { data: isEligible, isLoading: isLoadingCheckEligibility } =
-    useHatCheckEligibility({
-      wearer: address || '',
-      chainId,
-      hatId: hatData.id,
-    });
+  const { data: isEligible } = useHatCheckEligibility({
+    wearer: address || '',
+    chainId,
+    hatId: hatData.id,
+  });
 
+  console.log('hatData', hatData);
   if (!hatData) return null;
 
   return (
@@ -102,8 +102,6 @@ const SelectedHatDrawer = ({
           onClose={onClose}
           mutableStatus={mutableStatus}
           hatData={hatData}
-          isEligible={!!isEligible}
-          isLoadingCheckEligibility={isLoadingCheckEligibility}
           editMode={editMode}
           setEditMode={setEditMode}
         />

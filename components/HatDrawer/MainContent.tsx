@@ -143,11 +143,21 @@ const MainContent = ({
             </HStack>
 
             <HStack
-              color={hatData?.toggle === address ? 'green.500' : 'red.500'}
+              color={
+                hatData?.toggle === address?.toLowerCase()
+                  ? 'green.500'
+                  : 'red.500'
+              }
               ml={2}
             >
-              <Text>{hatData?.toggle === address ? 'Yes' : 'No'}</Text>
-              {hatData?.toggle === address ? <FaCheck /> : <FaBan />}
+              <Text>
+                {hatData?.toggle === address?.toLowerCase() ? 'Yes' : 'No'}
+              </Text>
+              {hatData?.toggle === address?.toLowerCase() ? (
+                <FaCheck />
+              ) : (
+                <FaBan />
+              )}
             </HStack>
           </Flex>
         </Stack>
