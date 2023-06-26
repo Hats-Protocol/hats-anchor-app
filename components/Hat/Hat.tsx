@@ -65,13 +65,15 @@ const Hat = ({
   const userChain = useChainId();
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
-    chainId,
   });
   const { writeAsync: checkHatStatus, isLoading } = useHatStatusCheck({
     chainId,
     hatData,
   });
-  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const currentWearerHats = _.map(
+    _.filter(_.get(wearer, 'currentHats'), { chainId }),
+    'prettyId',
+  );
   const isWearer = _.includes(currentWearerHats, _.get(hatData, 'prettyId'));
 
   const [type, setType] = useState(MODULE_TYPES.eligibility);

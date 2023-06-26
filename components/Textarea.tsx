@@ -75,7 +75,8 @@ export default Textarea;
 interface TextareaProps extends ChakraTextareaProps {
   label?: string;
   name: string;
-  localForm: UseFormReturn;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   helperText?: string;
   tooltip?: string;
   placeholder?: string;

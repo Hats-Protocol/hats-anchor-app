@@ -8,7 +8,8 @@ import {
   FaRegArrowAltCircleUp,
 } from 'react-icons/fa';
 
-import { HierarchyObject, prettyIdToIp } from '@/lib/hats';
+import { prettyIdToIp } from '@/lib/hats';
+import { HierarchyObject } from '@/types';
 
 const BottomMenu = ({
   selectedHatId,

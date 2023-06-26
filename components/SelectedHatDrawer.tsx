@@ -3,14 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { Box, Image } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 
-import {
-  HierarchyObject,
-  idToPrettyId,
-  prettyIdToId,
-  prettyIdToIp,
-} from '@/lib/hats';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import { HierarchyObject } from '@/types';
 
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';

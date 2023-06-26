@@ -68,18 +68,18 @@ const Trees = ({
             }
           >
             <SimpleGrid gap={8} justifyContent='center' columns={4}>
-              {_.map(trees, (tree: ITree) => (
-                <TreeCard
-                  key={tree.id}
-                  tree={tree}
-                  topHat={_.find(
-                    topHatsWithImagesData,
-                    (h: IHat) =>
-                      _.get(h, 'id') ===
-                      _.get(_.first(_.get(tree, 'hats')), 'id'),
-                  )}
-                />
-              ))}
+              {_.map(trees, (tree: ITree) => {
+                const topHat = _.find(
+                  topHatsWithImagesData,
+                  (h: IHat) =>
+                    _.get(h, 'id') ===
+                    _.get(_.first(_.get(tree, 'hats')), 'id'),
+                );
+
+                if (!topHat) return null;
+
+                return <TreeCard key={tree.id} tree={tree} topHat={topHat} />;
+              })}
             </SimpleGrid>
           </InfiniteScroll>
         )}

@@ -50,9 +50,11 @@ const WearersList = ({
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
-    chainId,
   });
-  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const currentWearerHats = _.map(
+    _.filter(_.get(wearer, 'currentHats'), { chainId }),
+    'prettyId',
+  );
 
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
