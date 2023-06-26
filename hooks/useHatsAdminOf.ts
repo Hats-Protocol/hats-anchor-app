@@ -40,7 +40,6 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
       fetchTreesById(v.trees, _.toNumber(k)),
     );
     const data: unknown[] = await Promise.all(promises);
-    console.log(data);
 
     // consolidate the associated hats for each tree
     const test = _.map(data, (arr: ITree[], i) =>

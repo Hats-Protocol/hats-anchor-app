@@ -33,17 +33,14 @@ const Trees = ({
       chainId: selectedNetwork,
       initialData,
     });
-  const trees = useMemo(() => {
-    return _.flatten(_.get(data, 'pages'));
-  }, [data]);
+  const trees = _.flatten(_.get(data, 'pages'));
 
   const topHats = useMemo(() => {
     return _.map(_.flatten(_.get(data, 'pages')), 'hats[0]');
   }, [data]);
 
-  const { data: topHatsWithImagesData } = useImageURIs(
-    _.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })),
-  );
+  const { data: topHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs(_.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })));
 
   return (
     <Layout>
@@ -55,7 +52,7 @@ const Trees = ({
             selectedNetwork={selectedNetwork}
           />
         </Flex>
-        {!isLoading && !_.isEmpty(trees) && (
+        {!isLoading && !imagesLoading && !_.isEmpty(trees) && (
           <InfiniteScroll
             hasChildren={!_.isEmpty(trees)}
             dataLength={_.size(trees)}
@@ -83,12 +80,15 @@ const Trees = ({
             </SimpleGrid>
           </InfiniteScroll>
         )}
-        {_.isEmpty(trees) && !isLoading && !isFetchingNextPage && (
-          <Flex justify='center' align='center'>
-            <Heading size='md'>No Trees Found</Heading>
-          </Flex>
-        )}
-        {isLoading && (
+        {_.isEmpty(trees) &&
+          !isLoading &&
+          !imagesLoading &&
+          !isFetchingNextPage && (
+            <Flex justify='center' align='center'>
+              <Heading size='md'>No Trees Found</Heading>
+            </Flex>
+          )}
+        {(isLoading || imagesLoading) && (
           <Flex justify='center' align='center' pt={10}>
             <Spinner />
           </Flex>

@@ -96,7 +96,8 @@ const WearerDetail = ({
 
   const firstCreated = _.minBy(currentHats, 'createdAt');
 
-  const { data: currentHatsWithImagesData } = useImageURIs(currentHats);
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs(currentHats);
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -110,7 +111,6 @@ const WearerDetail = ({
   const { data: adminOfHats } = useHatsAdminOf({
     hats: currentHats,
   });
-  console.log(adminOfHats);
 
   const headlineStats = [
     {

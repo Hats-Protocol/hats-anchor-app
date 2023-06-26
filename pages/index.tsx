@@ -44,11 +44,12 @@ const featuredTrees = [
 const Home = () => {
   const { address: wearerAddress } = useAccount();
 
-  const { data: currentHats, isLoading } = useWearerDetails({
+  const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
   });
 
-  const { data: currentHatsWithImagesData } = useImageURIs(currentHats);
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs(currentHats);
 
   return (
     <Layout>
@@ -77,7 +78,7 @@ const Home = () => {
               <Heading as='h1' size='md' fontWeight={500}>
                 My Hats
               </Heading>
-              {isLoading ? (
+              {imagesLoading || detailsLoading ? (
                 <Flex justify='center' align='center' pt={10}>
                   <Spinner />
                 </Flex>
