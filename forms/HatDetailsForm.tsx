@@ -87,7 +87,7 @@ const HatDetailsForm = ({
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
-    data: { name, description },
+    data: { name, description, guilds },
   });
 
   const {
