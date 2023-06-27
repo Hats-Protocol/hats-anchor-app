@@ -24,6 +24,7 @@ const EditMode = ({
   guilds,
   imageUrl,
 }: EditModeProps) => {
+  console.log('hatData', hatData);
   if (!hatData) return null;
 
   return (
@@ -75,7 +76,10 @@ const EditMode = ({
             <Text>
               The people and contracts that control and wear this Hat.
             </Text>
-            <HatWearersAndAdminsForm defaultAdmin={hatData?.admin?.prettyId} />
+            <HatWearersAndAdminsForm
+              defaultAdmin={hatData.admin?.prettyId}
+              mutable={hatData.mutable}
+            />
           </Stack>
         </CustomAccordion>
       </Stack>
