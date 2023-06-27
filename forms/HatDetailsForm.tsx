@@ -136,6 +136,7 @@ const HatDetailsForm = ({
             <Textarea
               localForm={localForm}
               name='description'
+              headerNote='optional'
               label='Description'
               placeholder='Hat description'
             />

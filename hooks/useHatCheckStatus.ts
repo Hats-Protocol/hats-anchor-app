@@ -20,7 +20,6 @@ const useHatCheckStatus = ({
   chainId: number;
   hatId: string;
 }) => {
-  console.log('hatId', hatId);
   const { handlePendingTx } = useOverlay();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -34,7 +33,6 @@ const useHatCheckStatus = ({
     args: [hatId],
     enabled: !!hatId,
   });
-  console.log('prepareError', prepareError?.message);
 
   const { writeAsync } = useContractWrite({
     ...config,
@@ -78,8 +76,6 @@ const useHatCheckStatus = ({
       }
     },
   });
-
-  console.log('writeAsync', writeAsync);
 
   const { isLoading } = useWaitForTransaction({
     hash,

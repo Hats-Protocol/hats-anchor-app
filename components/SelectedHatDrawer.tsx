@@ -67,7 +67,6 @@ const SelectedHatDrawer = ({
     hatId: hatData.id,
   });
 
-  console.log('hatData', hatData);
   if (!hatData) return null;
 
   return (
