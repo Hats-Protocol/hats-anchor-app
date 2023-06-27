@@ -32,6 +32,7 @@ const SelectedHatDrawer = ({
   const [hatData, setHatData] = useState<any>({});
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [guilds, setGuilds] = useState<any[]>([]);
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const { setModals } = localOverlay;
@@ -55,6 +56,7 @@ const SelectedHatDrawer = ({
         setDescription(
           details?.type === '1.0' ? details?.data?.description : '',
         );
+        setGuilds(details?.type === '1.0' ? details?.data?.guilds : []);
         setActiveStatus(status ? 'Active' : 'Inactive');
         setMutableStatus(mutable ? 'Mutable' : 'Immutable');
       }
@@ -126,6 +128,7 @@ const SelectedHatDrawer = ({
             name={name}
             description={description}
             imageUrl={hatData?.imageUri}
+            guilds={guilds}
           />
         )}
 

@@ -27,6 +27,7 @@ const EditMode = ({
   chainId,
   name,
   description,
+  guilds,
   imageUrl,
 }: EditModeProps) => {
   if (!hatData) return null;
@@ -66,6 +67,7 @@ const EditMode = ({
                       name,
                       description,
                       imageUrl,
+                      guilds,
                     }}
                   />
                 </TabPanel>
@@ -126,5 +128,6 @@ interface EditModeProps {
   chainId: number;
   name: string;
   description: string;
+  guilds: string[];
   imageUrl: string;
 }
