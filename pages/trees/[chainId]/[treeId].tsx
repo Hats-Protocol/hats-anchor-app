@@ -212,7 +212,14 @@ const TreeDetails = ({
         // }}
       />
 
-      <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
+      <Drawer
+        placement='right'
+        onClose={() => {
+          onCloseShade();
+          setEditMode(false);
+        }}
+        isOpen={isOpenShade}
+      >
         <DrawerOverlay />
         <DrawerContent
           maxW='35%'
