@@ -34,7 +34,7 @@ const CustomAccordion = ({
             </Heading>
           </Flex>
         </AccordionButton>
-        <AccordionPanel pl={7} mr={0}>
+        <AccordionPanel pl={7} mr={0} pr={0}>
           {children}
         </AccordionPanel>
       </AccordionItem>
