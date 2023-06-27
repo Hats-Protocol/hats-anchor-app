@@ -1,26 +1,20 @@
 /* eslint-disable no-shadow */
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
   Box,
   Text,
   Stack,
-  Heading,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
-  Flex,
 } from '@chakra-ui/react';
-import { FaRegMinusSquare, FaRegPlusSquare } from 'react-icons/fa';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
+import CustomAccordion from '@/components/CustomAccordion';
 
 const EditMode = ({
   hatData,
@@ -39,7 +33,7 @@ const EditMode = ({
         position='relative'
         p={10}
         spacing={10}
-        pt='110px'
+        py='110px'
         overflow='auto'
         height='100%'
       >
@@ -86,38 +80,6 @@ const EditMode = ({
         </CustomAccordion>
       </Stack>
     </Box>
-  );
-};
-
-const CustomAccordion = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => {
-  const [isOpen, setIsOpen] = useState(true);
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
-  return (
-    <Accordion defaultIndex={[0]} allowMultiple>
-      <AccordionItem>
-        <AccordionButton onClick={handleToggle} px={0}>
-          <Flex flex='1' alignItems='center'>
-            {isOpen ? <FaRegMinusSquare /> : <FaRegPlusSquare />}
-            <Heading size='sm' fontWeight='medium' ml={3}>
-              {title}
-            </Heading>
-          </Flex>
-        </AccordionButton>
-        <AccordionPanel pl={7} mr={0}>
-          {children}
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
   );
 };
 
