@@ -3,13 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Image } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 
-import {
-  HierarchyObject,
-  idToPrettyId,
-  isAdmin,
-  prettyIdToId,
-  prettyIdToIp,
-} from '@/lib/hats';
+import { idToPrettyId, isAdmin, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatGuilds from '@/hooks/useGuilds';
@@ -50,7 +44,6 @@ const SelectedHatDrawer = ({
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
-    chainId,
   });
   const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
   const isAdminUser = isAdmin(currentWearerHats, selectedHatId);

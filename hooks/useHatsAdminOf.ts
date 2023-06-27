@@ -56,7 +56,7 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
 
     // filter out the hats that the user is not an admin of
     const filteredAdminHats = _.filter(_.flatten(test), (h: IHat) =>
-      isAdmin(h.prettyId, _.map(hats, 'prettyId')),
+      isAdmin(_.map(hats, 'prettyId'), h.prettyId),
     );
 
     return filteredAdminHats;
