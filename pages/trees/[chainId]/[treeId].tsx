@@ -52,7 +52,8 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import CONFIG from '@/constants';
 import useToast from '@/hooks/useToast';
 import SelectedHatDrawer from '@/components/SelectedHatDrawer';
-import { IHat, ITree, IHatData } from '@/types';
+import { IHat, ITree, IHatData, HierarchyObject } from '@/types';
+import { mapWithChainId } from '@/lib/general';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -61,7 +62,7 @@ interface TreeDetailsProps {
   chainId: number;
   hatId: string;
   treeData: ITree;
-  linkedHatIds: string[];
+  linkedHats: IHat[];
   hatData: IHat;
 }
 
@@ -116,7 +117,7 @@ const TreeDetails = ({
   chainId,
   hatId,
   treeData,
-  linkedHatIds,
+  linkedHats,
   hatData,
 }: TreeDetailsProps) => {
   const toast = useToast();
@@ -124,17 +125,16 @@ const TreeDetails = ({
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [hatsData, setHatsData] = useState<IHatData[]>([]);
-  const [hierarchyData, setHierarchyData] = useState<any>({});
+  const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
   const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
-    undefined,
+    'title',
   );
 
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const { address } = useAccount();
   const { data: wearerData } = useWearerDetails({
     wearerAddress: address,
-    chainId,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
   const {
@@ -154,16 +154,13 @@ const TreeDetails = ({
     _.get(hatData, 'prettyId'),
   )}`;
   const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
-  const { data: imagesData, loading: imagesDataLoading } = useImageURIs(
-    treeData?.hats?.map((hat: any) => hat.id).concat(linkedHatIds),
-    chainId,
-  );
+  const { data: hatsWithImageData, isLoading: imagesDataLoading } =
+    useImageURIs(_.concat(_.get(treeData, 'hats'), linkedHats), chainId);
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
       const { tree, hats, hierarchy } = await toTreeStructure(
-        treeData,
-        imagesData,
+        { ...treeData, hats: hatsWithImageData || [] },
         chainId,
       );
       setOrgChartTree(tree);
@@ -172,7 +169,7 @@ const TreeDetails = ({
     };
 
     fetchTreeAndSetState();
-  }, [treeData, imagesData, chainId]);
+  }, [treeData, hatsWithImageData, chainId]);
 
   const hasPermissions = !_.isEmpty(
     _.filter(orgChartTree, (node: IHatData) => {
@@ -388,12 +385,12 @@ export const getStaticProps = async (context: any) => {
     linkedToHat: { id: null },
     parentOfTrees: [],
   };
-  const linkedHatIds = [];
-  if (linkedToHat?.id) {
-    linkedHatIds.push(linkedToHat.id);
+  const linkedHats = [];
+  if (linkedToHat) {
+    linkedHats.push(linkedToHat);
   }
   if (parentOfTrees) {
-    linkedHatIds.push(
+    linkedHats.push(
       ...parentOfTrees.map((tree: Partial<ITree>) => prettyIdToId(tree.id)),
     );
   }
@@ -404,8 +401,8 @@ export const getStaticProps = async (context: any) => {
       chainId: _.toNumber(chainId),
       hatId: hatIdHex || null,
       treeData: treeData || null,
-      linkedHatIds,
-      hatData: hatData || null,
+      linkedHats,
+      hatData: mapWithChainId(hatData, chainId) || null,
     },
     revalidate: 10,
   };

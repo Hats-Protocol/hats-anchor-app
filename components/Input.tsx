@@ -5,8 +5,10 @@ import {
   FormLabel,
   InputGroup,
   InputRightElement,
+  InputProps as ChakraInputProps,
 } from '@chakra-ui/react';
 import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
 
 /**
  * Primary Input component for React Hook Form
@@ -44,12 +46,13 @@ const Input = ({
 
 export default Input;
 
-interface InputProps {
+interface InputProps extends ChakraInputProps {
   label?: string;
   name: string;
   type?: string;
-  options?: any;
-  localForm: any;
+  options?: object;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   placeholder?: string;
   rightElement?: React.ReactNode;
   defaultValue?: string | number;

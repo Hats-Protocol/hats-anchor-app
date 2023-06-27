@@ -10,9 +10,11 @@ import {
   HStack,
   Flex,
   Tooltip,
+  TextareaProps as ChakraTextareaProps,
   Text,
 } from '@chakra-ui/react';
 import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 /**
@@ -79,10 +81,11 @@ const Textarea = ({
 
 export default Textarea;
 
-interface TextareaProps {
+interface TextareaProps extends ChakraTextareaProps {
   label?: string;
   name: string;
-  localForm: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   helperText?: string;
   tooltip?: string;
   placeholder?: string;

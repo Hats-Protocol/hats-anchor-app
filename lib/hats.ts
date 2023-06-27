@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-use-before-define */
-import { IHatData, ITree } from '@/types';
+import { IHat, IHatData, ITree, HierarchyObject, InputObject } from '@/types';
 import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendWearers, extendControllers } from '@/lib/contract';
@@ -9,26 +9,12 @@ import { extendWearers, extendControllers } from '@/lib/contract';
 import _ from 'lodash';
 import { ZERO_ADDRESS } from '@/constants';
 
-export type HierarchyObject = {
-  id: string;
-  parentId: string | null;
-  firstChild: string | null;
-  leftSibling: string | null;
-  rightSibling: string | null;
-};
-
-type InputObject = {
-  id: string;
-  parentId: string;
-};
-
 export async function toTreeStructure(
   treeData: ITree,
-  hatIdToImage: any,
   chainId: number,
 ): Promise<{
   tree: IHatData[];
-  hats: any;
+  hats: IHatData[];
   hierarchy: HierarchyObject[];
 }> {
   const hatsArray: IHatData[] = [];
@@ -54,13 +40,6 @@ export async function toTreeStructure(
   const hatsData = await fetchHatsDetails(hatIds, chainId);
   const detailsFields = hatsData.map((hat: any) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
-  console.log(
-    _.concat(
-      _.map(_.flatten(hatsData.map((hat: any) => hat.wearers)), 'id'),
-      _.map(_.flatten(hatsData.map((hat: any) => hat.toggle)), 'id'),
-      _.map(_.flatten(hatsData.map((hat: any) => hat.eligibility)), 'id'),
-    ),
-  );
   const wearersAndControllersArray = _.uniq(
     _.filter(
       _.concat(
@@ -71,13 +50,10 @@ export async function toTreeStructure(
       (d) => d !== ZERO_ADDRESS && d !== undefined,
     ),
   );
-  // console.log(wearersAndControllersArray);
-
   const wearersAndControllersInfo = await fetchManyWearerDetails(
     wearersAndControllersArray,
     chainId,
   );
-  // console.log(wearersAndControllersInfo);
 
   const parentsAndIds = hatsData.map((hat: any) => ({
     id: hat.prettyId,
@@ -97,8 +73,8 @@ export async function toTreeStructure(
     ]),
   );
 
-  treeData?.hats?.forEach(async (hat: any) => {
-    let hatParent = hat.admin?.prettyId;
+  treeData?.hats?.forEach(async (hat: IHat) => {
+    let hatParent: string | null = hat.admin?.prettyId;
     if (hat.admin.prettyId === hat.prettyId) {
       hatParent = null;
     }
@@ -126,7 +102,7 @@ export async function toTreeStructure(
       id: prettyId,
       name: prettyIdToIp(prettyId),
       parentId: hatParent,
-      imageURI: hatIdToImage[id],
+      imageUrl: hat.imageUrl,
       treeId,
       isLinked: false,
       url: `/trees/${chainId}/${decimalId(treeId)}`,
@@ -147,13 +123,14 @@ export async function toTreeStructure(
       prettyId,
       id,
       tree: { id: treeId },
+      imageUrl,
     } = treeData.linkedToHat;
 
     hatsArray.push({
       id: prettyId,
       name: prettyIdToIp(prettyId),
       parentId: null,
-      imageURI: hatIdToImage[id],
+      imageUrl,
       treeId,
       isLinked: true,
       url: `/trees/${chainId}/${decimalId(treeId)}`,
@@ -182,7 +159,7 @@ export async function toTreeStructure(
         id: treeId,
         name: treeId,
         parentId: prettyId,
-        imageURI: id ? hatIdToImage[id] : undefined,
+        // imageUrl: hats[id].imageUrl,
         treeId,
         isLinked: true,
         url: `/trees/${chainId}/${decimalId(treeId)}`,

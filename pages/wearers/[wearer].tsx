@@ -10,10 +10,10 @@ import {
   CardBody,
   Flex,
   Box,
-  Tag,
-  TagLabel,
+  Avatar,
+  Divider,
 } from '@chakra-ui/react';
-import { useEnsName } from 'wagmi';
+import { useEnsAvatar, useEnsName } from 'wagmi';
 import { NextSeo } from 'next-seo';
 
 import { fetchWearerDetails } from '@/gql/helpers';
@@ -21,13 +21,17 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import useImageURIs from '@/hooks/useImageURIs';
 import { formatAddress } from '@/lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
-import { chainsColors, chainsMap } from '@/lib/web3';
+import { chainsList } from '@/lib/web3';
 import Layout from '@/components/Layout';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { IHat } from '@/types';
+import { format } from 'date-fns';
+import { GetServerSidePropsContext } from 'next';
+import useControllerList from '@/hooks/useControllerList';
+import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 
-const CoreHat = ({ hat, image }: { hat: IHat; image: string }) => {
+const CoreHat = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 
@@ -37,75 +41,44 @@ const CoreHat = ({ hat, image }: { hat: IHat; image: string }) => {
       : _.get(hat, 'details');
 
   return (
-    <Card key={_.get(hat, 'id')}>
-      <CardBody as={Flex} h='75px'>
-        <Stack>
-          <HStack
-            h='100px'
-            w='100%'
-            justify='left'
-            align='center'
-            spacing='16px'
-          >
-            <Box
-              bgImage={image || '/icon.jpeg'}
-              bgSize='cover'
-              bgPosition='center'
-              w='85px'
-              h='85px'
-              border='1px solid'
-              borderColor='gray.200'
-            />
-            <Stack maxW='60%' spacing={1}>
-              <Text as='b' noOfLines={2}>
-                {hatName}
-              </Text>
-              <Text fontSize='sm'>
-                Hat ID: {prettyIdToIp(_.get(hat, 'prettyId'))}
-              </Text>
-              {/* <Text fontSize='sm'>Tree: Hats Protocol DAO</Text> */}
-            </Stack>
-          </HStack>
-          <HStack>
-            {_.eq(_.get(hat, 'levelAtLocalTree'), 0) ? (
-              <Tag size='md' colorScheme='purple' borderRadius='full'>
-                <TagLabel>Top Hat</TagLabel>
-              </Tag>
-            ) : (
-              <Tag size='md' colorScheme='blue' borderRadius='full'>
-                <TagLabel>Level {_.get(hat, 'levelAtLocalTree')}</TagLabel>
-              </Tag>
-            )}
-
-            {_.get(hat, 'status') ? (
-              <Tag size='md' colorScheme='green' borderRadius='full'>
-                <TagLabel>Active</TagLabel>
-              </Tag>
-            ) : (
-              <Tag size='md' colorScheme='gray' borderRadius='full'>
-                <TagLabel>Inactive</TagLabel>
-              </Tag>
-            )}
-
-            {_.get(hat, 'mutable') ? (
-              <Tag size='md' colorScheme='blue' borderRadius='full'>
-                <TagLabel>Mutable</TagLabel>
-              </Tag>
-            ) : (
-              <Tag size='md' colorScheme='gray' borderRadius='full'>
-                <TagLabel>Immutable</TagLabel>
-              </Tag>
-            )}
-            <Tag
-              colorScheme={chainsColors(_.get(hat, 'chainId'))}
-              borderRadius='full'
-            >
-              <TagLabel>{chainsMap(_.get(hat, 'chainId'))?.name}</TagLabel>
-            </Tag>
-          </HStack>
-        </Stack>
-      </CardBody>
-    </Card>
+    <ChakraNextLink
+      href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
+        _.get(hat, 'prettyId'),
+        true,
+      )}`}
+    >
+      <Card
+        key={_.get(hat, 'id')}
+        overflow='hidden'
+        border='2px solid'
+        borderColor='gray.600'
+      >
+        <Box
+          bgImage={_.get(hat, 'imageUrl') || '/icon.jpeg'}
+          bgSize='cover'
+          bgPosition='center'
+          w='110%'
+          ml={-3}
+          mt={-1}
+          h='250px'
+          border='1px solid'
+          borderColor='gray.200'
+        />
+        <Box
+          borderY='1px solid'
+          borderColor='gray.600'
+          p={2}
+          mt={-1}
+          bg='white'
+        >
+          <Text fontSize='xs'>{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>
+          <Text as='b' noOfLines={1}>
+            {hatName}
+          </Text>
+        </Box>
+        {/* <Box p={2}>Cabin DAO</Box> */}
+      </Card>
+    </ChakraNextLink>
   );
 };
 
@@ -114,124 +87,111 @@ const WearerDetail = ({
   initialData,
 }: {
   wearerAddress: `0x${string}`;
-  initialData: any;
+  initialData: IHat[];
 }) => {
-  const { data: mainnetWearer } = useWearerDetails({
+  const { data: currentHats } = useWearerDetails({
     wearerAddress,
-    chainId: 1,
-    initialData: initialData[1],
+    initialData,
   });
-  const { data: goerliWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 5,
-    initialData: initialData[5],
-  });
-  const { data: optimismWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 10,
-    initialData: initialData[10],
-  });
-  const { data: gnosisWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 100,
-    initialData: initialData[100],
-  });
-  const { data: polygonWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 137,
-    initialData: initialData[137],
-  });
-  const { data: arbitrumWearer } = useWearerDetails({
-    wearerAddress,
-    chainId: 42161,
-    initialData: initialData[42161],
-  });
-  // const { data: sepoliaWearer } = useWearerDetails({
-  //   wearerAddress,
-  //   chainId: 11155111,
-  //   initialData: initialData[11155111],
-  // });
 
-  const mainnetHats = _.get(mainnetWearer, 'currentHats', []);
-  const goerliHats = _.get(goerliWearer, 'currentHats', []);
-  const optimismHats = _.get(optimismWearer, 'currentHats', []);
-  const gnosisHats = _.get(gnosisWearer, 'currentHats', []);
-  const polygonHats = _.get(polygonWearer, 'currentHats', []);
-  const arbitrumHats = _.get(arbitrumWearer, 'currentHats', []);
-  // const sepoliaHats = _.get(sepoliaWearer, 'currentHats', []);
+  const firstCreated = _.minBy(currentHats, 'createdAt');
 
-  const currentHats = _.concat(
-    mainnetHats,
-    arbitrumHats,
-    optimismHats,
-    gnosisHats,
-    polygonHats,
-    goerliHats,
-    // sepoliaHats,
-  );
-
-  const { data: mainnetImagesData } = useImageURIs(_.map(mainnetHats, 'id'), 1);
-  const { data: goerliImagesData } = useImageURIs(_.map(goerliHats, 'id'), 5);
-  const { data: optimismImagesData } = useImageURIs(
-    _.map(optimismHats, 'id'),
-    10,
-  );
-  const { data: gnosisImagesData } = useImageURIs(_.map(gnosisHats, 'id'), 100);
-  const { data: polygonImagesData } = useImageURIs(
-    _.map(polygonHats, 'id'),
-    137,
-  );
-  const { data: arbitrumImagesData } = useImageURIs(
-    _.map(arbitrumHats, 'id'),
-    42161,
-  );
-  // const { data: sepoliaImagesData } = useImageURIs(
-  //   _.map(sepoliaHats, 'id'),
-  //   11155111,
-  // );
-
-  const imagesPerChain: { [key: number]: any } = {
-    1: mainnetImagesData,
-    5: goerliImagesData,
-    10: optimismImagesData,
-    100: gnosisImagesData,
-    137: polygonImagesData,
-    42161: arbitrumImagesData,
-    // 11155111: sepoliaImagesData,
-  };
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs(currentHats);
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+  const { data: ensAvatar } = useEnsAvatar({
+    name: ensName,
+    chainId: 1,
+  });
+
+  const { data: controllerHats } = useControllerList({
+    address: wearerAddress,
+  });
+  const { data: adminOfHats } = useHatsAdminOf({
+    hats: currentHats,
+  });
+
+  const headlineStats = [
+    {
+      label: 'Wearer of',
+      value: _.size(currentHats),
+    },
+    {
+      label: 'Admin of',
+      value: _.size(adminOfHats),
+    },
+    {
+      label: 'Eligibility for',
+      value: _.size(
+        _.filter(controllerHats, ['eligibility', _.toLower(wearerAddress)]),
+      ),
+    },
+    {
+      label: 'Toggle for',
+      value: _.size(
+        _.filter(controllerHats, ['toggle', _.toLower(wearerAddress)]),
+      ),
+    },
+  ];
 
   return (
     <Layout>
       <NextSeo title={`${ensName || formatAddress(wearerAddress)}'s Hats`} />
 
-      <Stack align='center' spacing={6} p={20}>
-        <Heading size='lg'>
-          {ensName || formatAddress(wearerAddress)}&apos;s Hats
-        </Heading>
-        <Stack
-          width='100%'
-          justify='left'
-          border='1px solid'
-          borderColor='gray.200'
-          padding={6}
-        >
-          <Heading size='md'>Hats Worn</Heading>
-          <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(currentHats, (hat) => (
-              <ChakraNextLink
-                href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
-                  _.get(hat, 'prettyId'),
-                  true,
-                )}`}
+      <Box
+        w='100%'
+        h='100%'
+        bg='blue'
+        position='fixed'
+        opacity={0.07}
+        zIndex={-1}
+      />
+
+      <Stack align='center' spacing={6} p={20} pt={100}>
+        <Flex w='100%' justify='space-between'>
+          <HStack spacing={6}>
+            <Avatar src={ensAvatar || undefined} h='100px' w='100px' />
+            <Stack>
+              <Heading size='lg' fontWeight={500}>
+                {ensName || formatAddress(wearerAddress)}
+              </Heading>
+              <Text>
+                Hat Wearer since:{' '}
+                {format(
+                  Number(_.get(firstCreated, 'createdAt')) * 1000,
+                  'MMMM yyyy',
+                )}
+              </Text>
+            </Stack>
+          </HStack>
+          <HStack>
+            {_.map(headlineStats, (stat) => (
+              <Card w='125px' key={stat.label}>
+                <CardBody>
+                  <Stack align='center'>
+                    <Text fontSize='sm'>{stat.label}</Text>
+                    <Heading size='lg'>{stat.value}</Heading>
+                  </Stack>
+                </CardBody>
+              </Card>
+            ))}
+          </HStack>
+        </Flex>
+
+        <Stack width='100%' justify='left' padding={6} spacing={4}>
+          <Stack>
+            <Heading size='lg' fontWeight={500}>
+              Wearer of
+            </Heading>
+            <Divider borderColor='black' />
+          </Stack>
+          <SimpleGrid columns={4} gap={5}>
+            {_.map(currentHatsWithImagesData, (hat) => (
+              <CoreHat
+                hat={hat}
                 key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
-              >
-                <CoreHat
-                  hat={hat}
-                  image={imagesPerChain[hat.chainId][hat.id]}
-                />
-              </ChakraNextLink>
+              />
             ))}
           </SimpleGrid>
         </Stack>
@@ -308,31 +268,22 @@ const WearerDetail = ({
   );
 };
 
-export const getServerSideProps = async (context: any) => {
-  const { wearer } = context.params;
-  const result = await Promise.all([
-    fetchWearerDetails(_.toLower(wearer), 1),
-    fetchWearerDetails(_.toLower(wearer), 5),
-    fetchWearerDetails(_.toLower(wearer), 10),
-    fetchWearerDetails(_.toLower(wearer), 100),
-    fetchWearerDetails(_.toLower(wearer), 137),
-    fetchWearerDetails(_.toLower(wearer), 42161),
-    // fetchWearerDetails(_.toLower(wearer), 1115111),
-  ]);
-  // const initialData = await fetchAllWearerDetails(_.toLower(wearer));
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  const wearerParam = _.get(context, 'params.wearer');
+  const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
+
+  const promises = _.map(_.keys(chainsList), (chainId) =>
+    fetchWearerDetails(_.toLower(wearer), Number(chainId)),
+  );
+
+  const result = await Promise.all(promises);
 
   return {
     props: {
       wearerAddress: wearer,
-      initialData: {
-        1: result[0] || null,
-        5: result[1] || null,
-        10: result[2] || null,
-        100: result[3] || null,
-        137: result[4] || null,
-        42161: result[5] || null,
-        // 1115111: result[6] || null,
-      },
+      initialData: _.flatten(_.map(result, 'currentHats')),
     },
   };
 };

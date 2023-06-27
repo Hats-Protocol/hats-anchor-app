@@ -15,6 +15,7 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatGuilds from '@/hooks/useGuilds';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import _ from 'lodash';
+import { HierarchyObject } from '@/types';
 
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';

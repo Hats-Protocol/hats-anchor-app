@@ -1,104 +1,106 @@
 import _ from 'lodash';
-import { Heading, SimpleGrid, Flex, Spinner } from '@chakra-ui/react';
-import { useState, useCallback, useMemo } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { InfiniteData } from '@tanstack/react-query';
+import {
+  Heading,
+  SimpleGrid,
+  Flex,
+  Box,
+  Stack,
+  Spinner,
+} from '@chakra-ui/react';
+import { useAccount } from 'wagmi';
 
 import Layout from '@/components/Layout';
+// import CONFIG from '@/constants';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import useImageURIs from '@/hooks/useImageURIs';
-import NetworkFilter from '@/components/NetworkFilter';
-import TreeCard from '@/components/TreeCard';
-import { fetchPaginatedTrees } from '@/gql/helpers';
-import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
-import { ITree } from '@/types';
+import FeaturedTreeCard from '@/components/FeaturedTreeCard';
+import HatCard from '@/components/HatCard';
 
-const Home = ({
-  trees: initialData,
-  defaultNetworkId,
-}: {
-  trees: InfiniteData<ITree[]>;
-  defaultNetworkId: number;
-}) => {
-  const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
+// todo use our ipfs gateway
+const featuredTrees = [
+  {
+    chainId: 10,
+    id: 2,
+    name: 'Cabin DAO',
+    description: 'A DAO for the Cabin community',
+    image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
+  },
+  {
+    chainId: 10,
+    id: 2,
+    name: 'Cabin DAO',
+    description: 'A DAO for the Cabin community',
+    image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
+  },
+  {
+    chainId: 10,
+    id: 2,
+    name: 'Cabin DAO',
+    description: 'A DAO for the Cabin community',
+    image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
+  },
+];
 
-  const handleNetworkFilterChange = useCallback(
-    (networkId: number) => {
-      setSelectedNetwork(networkId);
-    },
-    [setSelectedNetwork],
-  );
+const Home = () => {
+  const { address: wearerAddress } = useAccount();
 
-  const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
-    usePaginatedTreeList({
-      chainId: selectedNetwork,
-      initialData,
-    });
-  const trees = useMemo(() => {
-    return _.flatten(_.get(data, 'pages'));
-  }, [data]);
+  const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
+    wearerAddress,
+  });
 
-  const topHatIds = useMemo(() => {
-    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0].id');
-  }, [data]);
-
-  const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs(currentHats);
 
   return (
     <Layout>
-      <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
-        <NetworkFilter
-          onFilterChange={handleNetworkFilterChange}
-          selectedNetwork={selectedNetwork}
-        />
-      </Flex>
-      {!_.isEmpty(trees) && (
-        <InfiniteScroll
-          dataLength={_.size(trees)}
-          next={fetchNextPage}
-          hasMore={hasNextPage || false}
-          loader={
-            <Flex justify='center' align='center' pt={10}>
-              <Spinner />
+      <Box
+        w='100%'
+        h='100%'
+        bg='blue'
+        position='fixed'
+        opacity={0.07}
+        zIndex={-1}
+      />
+      <Flex py='150px' mx={20}>
+        <Stack spacing={12}>
+          <Stack spacing={4}>
+            <Heading as='h1' size='md' fontWeight={500}>
+              Featured Trees
+            </Heading>
+            <SimpleGrid columns={3} spacing={6}>
+              {_.map(featuredTrees, (tree, i) => (
+                <FeaturedTreeCard key={i} treeData={tree} />
+              ))}
+            </SimpleGrid>
+          </Stack>
+          {wearerAddress ? (
+            <Stack spacing={4}>
+              <Heading as='h1' size='md' fontWeight={500}>
+                My Hats
+              </Heading>
+              {imagesLoading || detailsLoading ? (
+                <Flex justify='center' align='center' pt={10}>
+                  <Spinner />
+                </Flex>
+              ) : (
+                <SimpleGrid columns={3} spacing={6}>
+                  {_.map(currentHatsWithImagesData, (hat, i) => (
+                    <HatCard hat={hat} key={i} />
+                  ))}
+                </SimpleGrid>
+              )}
+            </Stack>
+          ) : (
+            <Flex>
+              <Heading size='md' fontWeight={500}>
+                Connect to see your hats
+              </Heading>
             </Flex>
-          }
-        >
-          <SimpleGrid gap={5} justifyContent='center' minChildWidth='250px'>
-            {_.map(trees, (tree: ITree) => (
-              <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-            ))}
-          </SimpleGrid>
-        </InfiniteScroll>
-      )}
-      {_.isEmpty(trees) && !(isLoading || isFetchingNextPage) && (
-        <Flex justify='center' align='center'>
-          <Heading size='md'>No Trees Found</Heading>
-        </Flex>
-      )}
+          )}
+        </Stack>
+      </Flex>
     </Layout>
   );
-};
-
-export const getStaticProps = async () => {
-  try {
-    const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
-    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
-
-    return {
-      props: {
-        defaultNetworkId,
-        trees,
-      },
-    };
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
-    return {
-      props: {
-        defaultNetworkId: 1,
-        trees: [],
-      },
-    };
-  }
 };
 
 export default Home;

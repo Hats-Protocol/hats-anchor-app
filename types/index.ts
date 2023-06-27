@@ -23,6 +23,7 @@ export interface IHat {
   toggle: `0x${string}`;
   mutable: boolean;
   imageUri: string;
+  imageUrl?: string;
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
@@ -34,7 +35,8 @@ export interface IHatData {
   id: string;
   name: string;
   parentId: string | null;
-  imageURI: string;
+  // imageURI: string;
+  imageUrl?: string;
   treeId: string;
   isLinked: boolean;
   url: string;
@@ -63,3 +65,16 @@ export interface ITree {
   linkedToHat: IHat | null;
   linkRequestFromTree: string | null;
 }
+
+export type HierarchyObject = {
+  id: string;
+  parentId: string | null;
+  firstChild: string | null;
+  leftSibling: string | null;
+  rightSibling: string | null;
+};
+
+export type InputObject = {
+  id: string;
+  parentId: string;
+};

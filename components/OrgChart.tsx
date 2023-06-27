@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { OrgChart } from 'd3-org-chart';
@@ -112,7 +113,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             const isInWearerHats = wearerHats.includes(d.data.id);
 
             const {
-              imageURI,
+              imageUrl,
               name,
               details,
               isLinked,
@@ -322,7 +323,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   position: relative;
                 ">
                   <img
-                    src="${imageURI ?? '/icon.jpeg'}"
+                    src="${imageUrl ?? '/icon.jpeg'}"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '70px'};

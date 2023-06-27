@@ -10,7 +10,7 @@ import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
-import { ITree } from '@/types';
+import { IHat, ITree } from '@/types';
 
 const Trees = ({
   trees: initialData,
@@ -33,17 +33,14 @@ const Trees = ({
       chainId: selectedNetwork,
       initialData,
     });
-  const trees = useMemo(() => {
-    return _.flatten(_.get(data, 'pages'));
+  const trees = _.flatten(_.get(data, 'pages'));
+
+  const topHats = useMemo(() => {
+    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0]');
   }, [data]);
 
-  const topHatIds = useMemo(() => {
-    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0].id');
-  }, [data]);
-
-  const { data: imagesData } = useImageURIs(topHatIds, selectedNetwork);
-  console.log(trees);
-  console.log(isLoading);
+  const { data: topHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs(_.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })));
 
   return (
     <Layout>
@@ -55,7 +52,7 @@ const Trees = ({
             selectedNetwork={selectedNetwork}
           />
         </Flex>
-        {!isLoading && !_.isEmpty(trees) && (
+        {!isLoading && !imagesLoading && !_.isEmpty(trees) && (
           <InfiniteScroll
             hasChildren={!_.isEmpty(trees)}
             dataLength={_.size(trees)}
@@ -68,18 +65,30 @@ const Trees = ({
             }
           >
             <SimpleGrid gap={8} justifyContent='center' columns={4}>
-              {_.map(trees, (tree: ITree) => (
-                <TreeCard key={tree.id} tree={tree} imagesData={imagesData} />
-              ))}
+              {_.map(trees, (tree: ITree) => {
+                const topHat = _.find(
+                  topHatsWithImagesData,
+                  (h: IHat) =>
+                    _.get(h, 'id') ===
+                    _.get(_.first(_.get(tree, 'hats')), 'id'),
+                );
+
+                if (!topHat) return null;
+
+                return <TreeCard key={tree.id} tree={tree} topHat={topHat} />;
+              })}
             </SimpleGrid>
           </InfiniteScroll>
         )}
-        {_.isEmpty(trees) && !isLoading && !isFetchingNextPage && (
-          <Flex justify='center' align='center'>
-            <Heading size='md'>No Trees Found</Heading>
-          </Flex>
-        )}
-        {isLoading && (
+        {_.isEmpty(trees) &&
+          !isLoading &&
+          !imagesLoading &&
+          !isFetchingNextPage && (
+            <Flex justify='center' align='center'>
+              <Heading size='md'>No Trees Found</Heading>
+            </Flex>
+          )}
+        {(isLoading || imagesLoading) && (
           <Flex justify='center' align='center' pt={10}>
             <Spinner />
           </Flex>
