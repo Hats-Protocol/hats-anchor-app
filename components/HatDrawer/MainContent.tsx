@@ -32,6 +32,7 @@ const MainContent = ({
   isEligible,
   name,
   description,
+  hatRoles,
   mutableStatus,
   activeStatus,
   setModals,
@@ -94,6 +95,37 @@ const MainContent = ({
           maxSupply={hatData.maxSupply}
           prettyId={hatData.prettyId}
         />
+
+        {hatRoles?.length && (
+          <Stack>
+            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+              Guild Roles
+            </Heading>
+            {hatRoles?.map(({ role, guild }: any) => (
+              <Flex
+                key={role}
+                align='center'
+                justify='space-between'
+                borderBottom='1px'
+                borderColor='gray.200'
+                py={2}
+              >
+                <Text>{role}</Text>
+
+                <ChakraLink
+                  href={`https://guild.xyz/${guild}`}
+                  isExternal
+                  display='block'
+                >
+                  <HStack spacing={3}>
+                    <Text>Guild.xyz</Text>
+                    <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+                  </HStack>
+                </ChakraLink>
+              </Flex>
+            ))}
+          </Stack>
+        )}
 
         {/* <Stack spacing={4}>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
@@ -207,6 +239,7 @@ interface MainContentProps {
   isEligible: boolean;
   name: string;
   description: string;
+  hatRoles: any[];
   mutableStatus: string;
   activeStatus: string;
   setModals: any;

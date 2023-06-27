@@ -11,6 +11,7 @@ import {
 } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatGuilds from '@/hooks/useGuilds';
 
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
@@ -36,6 +37,12 @@ const SelectedHatDrawer = ({
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const { setModals } = localOverlay;
+
+  const { hatRoles } = useHatGuilds({
+    guildNames: guilds,
+    hatId: hatData.id,
+  });
+  console.log('hatRoles', hatRoles);
 
   useEffect(() => {
     if (selectedHatId) {
@@ -114,6 +121,7 @@ const SelectedHatDrawer = ({
             isEligible={!!isEligible}
             name={name}
             description={description}
+            hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
             setModals={setModals}
