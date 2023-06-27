@@ -80,6 +80,7 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
     enabled: !_.isEmpty(hats),
   });
 
+  console.log('data', data);
   return { data, isLoading: isLoading || imagesLoading };
 };
 

@@ -157,6 +157,7 @@ const TreeDetails = ({
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
     useImageURIs(_.concat(_.get(treeData, 'hats'), linkedHats), chainId);
 
+  console.log('hatsWithImageData', hatsWithImageData);
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
       const { tree, hats, hierarchy } = await toTreeStructure(

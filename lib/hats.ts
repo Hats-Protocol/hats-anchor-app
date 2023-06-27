@@ -21,7 +21,7 @@ export async function toTreeStructure(
   const hatIds: string[] = [];
 
   treeData?.hats?.forEach((hat: any) => {
-    hatIds.push(hat.id);
+    if (hat.id) hatIds.push(hat.id);
   });
 
   if (treeData?.linkedToHat) {
