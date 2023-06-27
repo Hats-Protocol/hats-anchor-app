@@ -30,6 +30,7 @@ import useToast from '@/hooks/useToast';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import { useAccount } from 'wagmi';
 import useHatCheckStatus from '@/hooks/useHatCheckStatus';
+import { isTopHat } from '@/lib/hats';
 
 const TopMenu = ({
   chainId,
@@ -100,18 +101,28 @@ const TopMenu = ({
       </Button>
       <HStack>
         {isAdminUser && (
-          <Button
-            variant='outline'
-            background='cyan.100'
-            color='cyan.700'
-            borderColor='cyan.700'
-            onClick={() => setEditMode(!editMode)}
+          <Tooltip
+            label={
+              !(mutableStatus === 'Mutable' && !isTopHat(hatData))
+                ? 'The hat is not mutable or a top hat.'
+                : ''
+            }
+            shouldWrapChildren
           >
-            <HStack>
-              <Icon as={FaEdit} />
-              <Text>{editMode ? 'Save' : 'Edit'}</Text>
-            </HStack>
-          </Button>
+            <Button
+              variant='outline'
+              background='cyan.100'
+              color='cyan.700'
+              borderColor='cyan.700'
+              onClick={() => setEditMode(!editMode)}
+              isDisabled={!(mutableStatus === 'Mutable' && !isTopHat(hatData))}
+            >
+              <HStack>
+                <Icon as={FaEdit} />
+                <Text>{editMode ? 'Save' : 'Edit'}</Text>
+              </HStack>
+            </Button>
+          </Tooltip>
         )}
         <Menu>
           <MenuButton as={Button} variant='outline'>

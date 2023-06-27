@@ -54,6 +54,11 @@ const HatWearersAndAdminsForm = ({
   const showToggleResolvedAddress =
     toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
+  // changeHatMaxSupply
+  // changeHatEligibility
+  // changeHatToggle
+  // makeHatImmutable
+
   const onSubmit = async () => {
     // writeAsync?.();
   };
@@ -72,6 +77,7 @@ const HatWearersAndAdminsForm = ({
           name='maxSupply'
           label='Max Supply'
           placeholder='10'
+          isDisabled={!mutable}
           localForm={localForm}
         />
 
@@ -79,6 +85,7 @@ const HatWearersAndAdminsForm = ({
           name='mutable'
           defaultValue={mutable ? 'Mutable' : 'Immutable'}
           onChange={(value) => setValue('mutable', value)}
+          isDisabled={!mutable}
         >
           <HStack spacing={4}>
             <Radio value='Mutable'>Mutable</Radio>
@@ -95,6 +102,7 @@ const HatWearersAndAdminsForm = ({
             <Switch
               isChecked={eligibilityChecked}
               onChange={() => setEligibilityChecked(!eligibilityChecked)}
+              isDisabled={!mutable}
             />
             {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
             {eligibilityChecked && (
@@ -107,6 +115,7 @@ const HatWearersAndAdminsForm = ({
                     showEligibilityResolvedAddress && <FaCheck color='green' />
                   }
                   localForm={localForm}
+                  isDisabled={!mutable}
                 />
                 {showEligibilityResolvedAddress && (
                   <Text fontSize='sm' color='gray.500' mt={1}>
@@ -122,6 +131,7 @@ const HatWearersAndAdminsForm = ({
             <Switch
               isChecked={toggleChecked}
               onChange={() => setInputChecked(!toggleChecked)}
+              isDisabled={!mutable}
             />
             {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
             {toggleChecked && (
@@ -134,6 +144,7 @@ const HatWearersAndAdminsForm = ({
                     showToggleResolvedAddress && <FaCheck color='green' />
                   }
                   localForm={localForm}
+                  isDisabled={!mutable}
                 />
                 {showToggleResolvedAddress && (
                   <Text fontSize='sm' color='gray.500' mt={1}>
