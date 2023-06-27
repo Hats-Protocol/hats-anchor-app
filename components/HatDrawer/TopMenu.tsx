@@ -115,7 +115,7 @@ const TopMenu = ({
               color='cyan.700'
               borderColor='cyan.700'
               onClick={() => setEditMode(!editMode)}
-              isDisabled={!(mutableStatus === 'Mutable' && !isTopHat(hatData))}
+              isDisabled={!(mutableStatus === 'Mutable' || isTopHat(hatData))}
             >
               <HStack>
                 <Icon as={FaEdit} />
