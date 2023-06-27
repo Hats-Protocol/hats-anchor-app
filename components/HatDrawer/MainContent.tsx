@@ -37,6 +37,7 @@ const MainContent = ({
   activeStatus,
   setModals,
   localOverlay,
+  isAdminUser,
 }: MainContentProps) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -94,6 +95,7 @@ const MainContent = ({
           wearers={hatData.wearers}
           maxSupply={hatData.maxSupply}
           prettyId={hatData.prettyId}
+          isAdminUser={isAdminUser}
         />
 
         {hatRoles?.length && (
@@ -244,4 +246,5 @@ interface MainContentProps {
   activeStatus: string;
   setModals: any;
   localOverlay: any;
+  isAdminUser: boolean;
 }

@@ -18,12 +18,10 @@ import {
 import { FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 
 import { formatAddress } from '@/lib/general';
-import { isAdmin } from '@/lib/hats';
 import CONFIG from '@/constants';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import useHatBurn from '@/hooks/useHatBurn';
-import useWearerDetails from '@/hooks/useWearerDetails';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import Modal from '@/components/Modal';
 import { checkENSNames } from '@/lib/contract';
@@ -39,6 +37,7 @@ const WearersList = ({
   prettyId,
   setModals,
   localOverlay,
+  isAdminUser,
 }: WearersListProps) => {
   const { address } = useAccount();
   const [changeStatusWearer, setChangeStatusWearer] = useState('');
@@ -47,12 +46,6 @@ const WearersList = ({
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
-
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
-  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
 
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
@@ -100,7 +93,6 @@ const WearersList = ({
 
   const filteredWearers = filterWearers(wearers);
   const maxWearersReached = wearers?.length >= maxSupply;
-  const isAdminUser = isAdmin(prettyId, currentWearerHats);
 
   return (
     <>
@@ -344,4 +336,5 @@ interface WearersListProps {
   prettyId: string;
   setModals: any;
   localOverlay: any;
+  isAdminUser: boolean;
 }

@@ -379,8 +379,8 @@ const includesAny = (arr: any[], target: any[]) =>
  * @param current default `false`, include wearing current hatId
  */
 export const isAdmin = (
-  hatId: string,
   wearerHatIds: string[],
+  hatId?: string,
   current = false,
 ) => {
   if (!hatId) return false;

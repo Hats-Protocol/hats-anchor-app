@@ -6,12 +6,15 @@ import { useAccount } from 'wagmi';
 import {
   HierarchyObject,
   idToPrettyId,
+  isAdmin,
   prettyIdToId,
   prettyIdToIp,
 } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatGuilds from '@/hooks/useGuilds';
+import useWearerDetails from '@/hooks/useWearerDetails';
+import _ from 'lodash';
 
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
@@ -43,6 +46,14 @@ const SelectedHatDrawer = ({
     hatId: hatData.id,
   });
   console.log('hatRoles', hatRoles);
+
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
+  console.log('isAdminUser', isAdminUser);
 
   useEffect(() => {
     if (selectedHatId) {
@@ -112,6 +123,7 @@ const SelectedHatDrawer = ({
           hatData={hatData}
           editMode={editMode}
           setEditMode={setEditMode}
+          isAdminUser={isAdminUser}
         />
 
         {!editMode && (
@@ -126,6 +138,7 @@ const SelectedHatDrawer = ({
             activeStatus={activeStatus}
             setModals={setModals}
             localOverlay={localOverlay}
+            isAdminUser={isAdminUser}
           />
         )}
 
