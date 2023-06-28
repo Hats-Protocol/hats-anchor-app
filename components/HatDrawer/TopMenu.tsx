@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import React from 'react';
 import {
   Flex,
@@ -11,6 +10,7 @@ import {
   MenuList,
   MenuItem,
   Link,
+  Tooltip,
 } from '@chakra-ui/react';
 import { FiChevronsRight } from 'react-icons/fi';
 import {
@@ -28,17 +28,19 @@ import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useToast from '@/hooks/useToast';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import { useAccount } from 'wagmi';
+import useHatCheckStatus from '@/hooks/useHatCheckStatus';
+import { isTopHat } from '@/lib/hats';
 
 const TopMenu = ({
   chainId,
   onClose,
   mutableStatus,
   hatData,
-  isEligible,
-  isLoadingCheckEligibility,
   editMode,
   setEditMode,
+  isAdminUser,
 }: TopMenuProps) => {
+  console.log('isAdminUser', isAdminUser);
   const { address } = useAccount();
   const toast = useToast();
 
@@ -58,6 +60,21 @@ const TopMenu = ({
       hatId: hatData.id,
       status: 'Inactive',
     });
+
+  const {
+    writeAsync: checkHatStatus,
+    isLoading: isLoadingCheckHatStatus,
+    prepareError,
+  } = useHatCheckStatus({
+    chainId,
+    hatId: hatData.id,
+  });
+
+  function containsNotHatsToggleErrorMessage(message?: string) {
+    if (!message) return false;
+    const regex = /Error: NotHatsToggle()/;
+    return regex.test(message);
+  }
 
   if (!hatData) return null;
 
@@ -82,18 +99,30 @@ const TopMenu = ({
         </HStack>
       </Button>
       <HStack>
-        <Button
-          variant='outline'
-          background='cyan.100'
-          color='cyan.700'
-          borderColor='cyan.700'
-          onClick={() => setEditMode(!editMode)}
-        >
-          <HStack>
-            <Icon as={FaEdit} />
-            <Text>{editMode ? 'Save' : 'Edit'}</Text>
-          </HStack>
-        </Button>
+        {isAdminUser && (
+          <Tooltip
+            label={
+              !(mutableStatus === 'Mutable' && !isTopHat(hatData))
+                ? 'The hat is not mutable or a top hat.'
+                : ''
+            }
+            shouldWrapChildren
+          >
+            <Button
+              variant='outline'
+              background='cyan.100'
+              color='cyan.700'
+              borderColor='cyan.700'
+              onClick={() => setEditMode(!editMode)}
+              isDisabled={!(mutableStatus === 'Mutable' || isTopHat(hatData))}
+            >
+              <HStack>
+                <Icon as={FaEdit} />
+                <Text>{editMode ? 'Save' : 'Edit'}</Text>
+              </HStack>
+            </Button>
+          </Tooltip>
+        )}
         <Menu>
           <MenuButton as={Button} variant='outline'>
             <HStack>
@@ -102,42 +131,65 @@ const TopMenu = ({
             </HStack>
           </MenuButton>
           <MenuList gap={5}>
-            <MenuItem
-              gap={2}
-              onClick={() => updateImmutability?.()}
-              isDisabled={
-                mutableStatus === 'Immutable' ||
-                !updateImmutability ||
-                isLoadingUpdateImmutability
-              }
-            >
-              <FaLock />
-              Make immutable
-            </MenuItem>
-            <MenuItem
-              gap={2}
-              onClick={() => deactivateHat?.()}
-              isDisabled={
-                address?.toLowerCase() !== hatData?.toggle ||
-                isLoadingDeactivateHat ||
-                !hatData?.status
-              }
-            >
-              <FaPowerOff />
-              Deactivate Hat
-            </MenuItem>
-            <MenuItem
-              gap={2}
-              onClick={() =>
-                toast.info({
-                  title: isEligible ? 'Eligible' : 'Not Eligible',
-                })
-              }
-              isDisabled={isLoadingCheckEligibility}
-            >
-              <FaDoorOpen />
-              Test Eligibility
-            </MenuItem>
+            {isAdminUser && (
+              <>
+                <MenuItem
+                  gap={2}
+                  onClick={() => updateImmutability?.()}
+                  isDisabled={
+                    mutableStatus === 'Immutable' ||
+                    !updateImmutability ||
+                    isLoadingUpdateImmutability
+                  }
+                >
+                  <FaLock />
+                  Make immutable
+                </MenuItem>
+                <MenuItem
+                  gap={2}
+                  onClick={() => deactivateHat?.()}
+                  isDisabled={
+                    address?.toLowerCase() !== hatData?.toggle ||
+                    isLoadingDeactivateHat ||
+                    !hatData?.status ||
+                    !deactivateHat
+                  }
+                >
+                  <Tooltip
+                    label={
+                      address?.toLowerCase() !== hatData?.toggle
+                        ? "You don't have the permission to toggle this hat"
+                        : ''
+                    }
+                    shouldWrapChildren
+                  >
+                    <HStack>
+                      <FaPowerOff />
+                      <Text>Deactivate Hat</Text>
+                    </HStack>
+                  </Tooltip>
+                </MenuItem>
+                <Tooltip
+                  label={
+                    containsNotHatsToggleErrorMessage(prepareError?.message)
+                      ? 'The toggle is not "humanistic"'
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <MenuItem
+                    gap={2}
+                    onClick={() => checkHatStatus?.()}
+                    isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
+                  >
+                    <HStack>
+                      <FaDoorOpen />
+                      <Text>Test Status</Text>
+                    </HStack>
+                  </MenuItem>
+                </Tooltip>
+              </>
+            )}
             <MenuItem
               gap={2}
               onClick={() => {
@@ -180,8 +232,7 @@ interface TopMenuProps {
   hatData: any;
   chainId: number;
   onClose: () => void;
-  isEligible: boolean;
-  isLoadingCheckEligibility: boolean;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
+  isAdminUser: boolean;
 }

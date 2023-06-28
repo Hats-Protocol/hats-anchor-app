@@ -14,7 +14,15 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
 import { ITree, IHat } from '@/types';
 
-const TreeCard = ({ tree, topHat }: { tree: ITree; topHat: IHat }) => {
+const TreeCard = ({
+  tree,
+  topHat,
+  topHatImage,
+}: {
+  tree: ITree;
+  topHat: IHat;
+  topHatImage: IHat | undefined;
+}) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(topHat, 'details'));
 
@@ -40,8 +48,8 @@ const TreeCard = ({ tree, topHat }: { tree: ITree; topHat: IHat }) => {
           >
             <Box
               bgImage={
-                _.get(topHat, 'imageUrl')
-                  ? `url('${_.get(topHat, 'imageUrl')}')`
+                _.get(topHatImage, 'imageUrl')
+                  ? `url('${_.get(topHatImage, 'imageUrl')}')`
                   : `url('/icon.jpeg')`
               }
               bgSize='cover'

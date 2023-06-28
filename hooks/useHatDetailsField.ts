@@ -1,4 +1,3 @@
-/* eslint-disable default-case */
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import _ from 'lodash';
@@ -72,6 +71,9 @@ const useHatDetailsField = (detailsField: string) => {
         ) {
           schemaType = schemaTypeField;
         }
+        break;
+      default:
+        schemaType = undefined;
     }
   }
 

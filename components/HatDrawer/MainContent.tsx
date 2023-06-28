@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import React from 'react';
 import {
   Box,
@@ -32,10 +31,12 @@ const MainContent = ({
   isEligible,
   name,
   description,
+  hatRoles,
   mutableStatus,
   activeStatus,
   setModals,
   localOverlay,
+  isAdminUser,
 }: MainContentProps) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -93,7 +94,39 @@ const MainContent = ({
           wearers={hatData.wearers}
           maxSupply={hatData.maxSupply}
           prettyId={hatData.prettyId}
+          isAdminUser={isAdminUser}
         />
+
+        {hatRoles?.length && (
+          <Stack>
+            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+              Guild Roles
+            </Heading>
+            {hatRoles?.map(({ role, guild }: any) => (
+              <Flex
+                key={role}
+                align='center'
+                justify='space-between'
+                borderBottom='1px'
+                borderColor='gray.200'
+                py={2}
+              >
+                <Text>{role}</Text>
+
+                <ChakraLink
+                  href={`https://guild.xyz/${guild}`}
+                  isExternal
+                  display='block'
+                >
+                  <HStack spacing={3}>
+                    <Text>Guild.xyz</Text>
+                    <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+                  </HStack>
+                </ChakraLink>
+              </Flex>
+            ))}
+          </Stack>
+        )}
 
         {/* <Stack spacing={4}>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
@@ -143,11 +176,21 @@ const MainContent = ({
             </HStack>
 
             <HStack
-              color={hatData?.toggle === address ? 'green.500' : 'red.500'}
+              color={
+                hatData?.toggle === address?.toLowerCase()
+                  ? 'green.500'
+                  : 'red.500'
+              }
               ml={2}
             >
-              <Text>{hatData?.toggle === address ? 'Yes' : 'No'}</Text>
-              {hatData?.toggle === address ? <FaCheck /> : <FaBan />}
+              <Text>
+                {hatData?.toggle === address?.toLowerCase() ? 'Yes' : 'No'}
+              </Text>
+              {hatData?.toggle === address?.toLowerCase() ? (
+                <FaCheck />
+              ) : (
+                <FaBan />
+              )}
             </HStack>
           </Flex>
         </Stack>
@@ -197,8 +240,10 @@ interface MainContentProps {
   isEligible: boolean;
   name: string;
   description: string;
+  hatRoles: any[];
   mutableStatus: string;
   activeStatus: string;
   setModals: any;
   localOverlay: any;
+  isAdminUser: boolean;
 }

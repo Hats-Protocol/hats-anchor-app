@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
@@ -18,12 +17,10 @@ import {
 import { FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 
 import { formatAddress } from '@/lib/general';
-import { isAdmin } from '@/lib/hats';
 import CONFIG from '@/constants';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import useHatBurn from '@/hooks/useHatBurn';
-import useWearerDetails from '@/hooks/useWearerDetails';
 import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import Modal from '@/components/Modal';
 import { checkENSNames } from '@/lib/contract';
@@ -39,6 +36,7 @@ const WearersList = ({
   prettyId,
   setModals,
   localOverlay,
+  isAdminUser,
 }: WearersListProps) => {
   const { address } = useAccount();
   const [changeStatusWearer, setChangeStatusWearer] = useState('');
@@ -47,14 +45,6 @@ const WearersList = ({
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
-
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
-  });
-  const currentWearerHats = _.map(
-    _.filter(_.get(wearer, 'currentHats'), { chainId }),
-    'prettyId',
-  );
 
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
@@ -66,10 +56,10 @@ const WearersList = ({
     await renounceHat?.();
   };
 
-  const filterWearers = (wearers: IHatWearer[]) => {
+  const filterWearers = (localWearers: IHatWearer[]) => {
     if (!searchTerm) return wearers;
 
-    return _.filter(wearers, (wearer) => {
+    return _.filter(localWearers, (wearer) => {
       const idSearch = wearer.id
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -83,8 +73,8 @@ const WearersList = ({
 
   useEffect(() => {
     const fetchENSNames = async () => {
-      const ensNames = await checkENSNames(wearers);
-      setEnsNames(ensNames);
+      const localEnsNames = await checkENSNames(wearers);
+      setEnsNames(localEnsNames);
     };
 
     fetchENSNames();
@@ -102,7 +92,6 @@ const WearersList = ({
 
   const filteredWearers = filterWearers(wearers);
   const maxWearersReached = wearers?.length >= maxSupply;
-  const isAdminUser = isAdmin(prettyId, currentWearerHats);
 
   return (
     <>
@@ -263,7 +252,7 @@ const WearerRow = ({
   handleRenounceHat: () => void;
   setModals: any;
   setChangeStatusWearer: any;
-  setWearerToTransferFrom: (wearer: string) => void;
+  setWearerToTransferFrom: (w: string) => void;
 }) => {
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -346,4 +335,5 @@ interface WearersListProps {
   prettyId: string;
   setModals: any;
   localOverlay: any;
+  isAdminUser: boolean;
 }

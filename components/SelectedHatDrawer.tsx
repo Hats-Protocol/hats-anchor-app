@@ -1,11 +1,13 @@
-/* eslint-disable no-shadow */
+import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Box, Image } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { isAdmin } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatGuilds from '@/hooks/useGuilds';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { HierarchyObject } from '@/types';
 
 import MainContent from './HatDrawer/MainContent';
@@ -28,41 +30,53 @@ const SelectedHatDrawer = ({
   const [hatData, setHatData] = useState<any>({});
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [guilds, setGuilds] = useState<any[]>([]);
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const { setModals } = localOverlay;
 
+  const { hatRoles } = useHatGuilds({
+    guildNames: guilds,
+    hatId: hatData.id,
+  });
+  console.log('hatRoles', hatRoles);
+
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+  });
+  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
+  console.log('isAdminUser', isAdminUser);
+
   useEffect(() => {
     if (selectedHatId) {
-      const data = hatsData[prettyIdToId(selectedHatId)];
+      const data = _.find(hatsData, ['id', selectedHatId]);
 
       if (data) {
         setHatData(data);
-        const { id, status, mutable, details } = data;
+        const { status, mutable, details, detailsObject } = data;
 
-        setName(
-          // eslint-disable-next-line no-nested-ternary
-          details?.type === '1.0'
-            ? details?.data?.name
-            : typeof details === 'string'
-            ? details
-            : prettyIdToIp(idToPrettyId(id)),
-        );
-        setDescription(
-          details?.type === '1.0' ? details?.data?.description : '',
-        );
+        let name = details;
+        if (detailsObject?.type === '1.0') {
+          name = detailsObject?.data?.name;
+        }
+        setName(name);
+        if (detailsObject?.type === '1.0') {
+          setDescription(detailsObject?.data?.description);
+          setGuilds(detailsObject?.data?.guilds);
+        }
+
         setActiveStatus(status ? 'Active' : 'Inactive');
         setMutableStatus(mutable ? 'Mutable' : 'Immutable');
       }
     }
   }, [selectedHatId, hatsData]);
 
-  const { data: isEligible, isLoading: isLoadingCheckEligibility } =
-    useHatCheckEligibility({
-      wearer: address || '',
-      chainId,
-      hatId: hatData.id,
-    });
+  const { data: isEligible } = useHatCheckEligibility({
+    wearer: address || '',
+    chainId,
+    hatId: hatData.id,
+  });
 
   if (!hatData) return null;
 
@@ -98,10 +112,9 @@ const SelectedHatDrawer = ({
           onClose={onClose}
           mutableStatus={mutableStatus}
           hatData={hatData}
-          isEligible={!!isEligible}
-          isLoadingCheckEligibility={isLoadingCheckEligibility}
           editMode={editMode}
           setEditMode={setEditMode}
+          isAdminUser={isAdminUser}
         />
 
         {!editMode && (
@@ -111,10 +124,12 @@ const SelectedHatDrawer = ({
             isEligible={!!isEligible}
             name={name}
             description={description}
+            hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
             setModals={setModals}
             localOverlay={localOverlay}
+            isAdminUser={isAdminUser}
           />
         )}
 
@@ -125,6 +140,7 @@ const SelectedHatDrawer = ({
             name={name}
             description={description}
             imageUrl={hatData?.imageUri}
+            guilds={guilds}
           />
         )}
 

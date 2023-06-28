@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import {
   Stack,
   Button,
@@ -124,6 +123,15 @@ const HatWearerForm = ({
       },
     });
 
+  let toolTip = '';
+  if (isNewWearerAddress) {
+    toolTip = 'Please input a valid address';
+  } else if (isAddressAlreadyAdded) {
+    toolTip = 'Address already added';
+  } else if (wouldExceedMaxSupply) {
+    toolTip = 'Would exceed max supply';
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
@@ -152,20 +160,7 @@ const HatWearerForm = ({
                 </InputRightElement>
               )}
             </InputGroup>
-            <Tooltip
-              label={
-                !canAddWearer
-                  ? !isNewWearerAddress
-                    ? 'Please input a valid address'
-                    : isAddressAlreadyAdded
-                    ? 'Address already added'
-                    : wouldExceedMaxSupply
-                    ? 'Max supply would be exceeded'
-                    : ''
-                  : ''
-              }
-              shouldWrapChildren
-            >
+            <Tooltip label={toolTip} shouldWrapChildren>
               <IconButton
                 isDisabled={!canAddWearer}
                 onClick={handleAddWearer}

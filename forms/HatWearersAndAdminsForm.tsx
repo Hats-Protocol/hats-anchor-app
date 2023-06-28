@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import {
   Stack,
   Flex,
@@ -9,6 +8,8 @@ import {
   HStack,
   Box,
   Text,
+  Radio,
+  RadioGroup,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,13 +18,14 @@ import { FaCheck } from 'react-icons/fa';
 import Input from '@/components/Input';
 import { ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import RadioBox from '@/components/RadioBox';
 import { prettyIdToIp } from '@/lib/hats';
 
 const HatWearersAndAdminsForm = ({
   defaultAdmin,
+  mutable,
 }: {
   defaultAdmin: string | undefined;
+  mutable: boolean;
 }) => {
   const localForm = useForm({
     mode: 'onChange',
@@ -31,9 +33,10 @@ const HatWearersAndAdminsForm = ({
       maxSupply: 1,
       eligibility: '',
       toggle: '',
+      mutable: mutable ? 'Mutable' : 'Immutable',
     },
   });
-  const { handleSubmit, watch } = localForm;
+  const { handleSubmit, watch, setValue } = localForm;
   const [eligibilityChecked, setEligibilityChecked] = useState(false);
   const [toggleChecked, setInputChecked] = useState(false);
 
@@ -41,9 +44,7 @@ const HatWearersAndAdminsForm = ({
   console.log('maxSupply', maxSupply);
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
-
   const decimalAdmin = prettyIdToIp(defaultAdmin);
-
   const toggleResolvedAddress = 'toggle';
   const eligibilityResolvedAddress = 'eligibility';
 
@@ -51,6 +52,11 @@ const HatWearersAndAdminsForm = ({
     eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
   const showToggleResolvedAddress =
     toggleResolvedAddress && toggleResolvedAddress !== toggle;
+
+  // changeHatMaxSupply
+  // changeHatEligibility
+  // changeHatToggle
+  // makeHatImmutable
 
   const onSubmit = async () => {
     // writeAsync?.();
@@ -70,21 +76,32 @@ const HatWearersAndAdminsForm = ({
           name='maxSupply'
           label='Max Supply'
           placeholder='10'
+          isDisabled={!mutable}
           localForm={localForm}
         />
-        <RadioBox
+
+        <RadioGroup
           name='mutable'
-          label='Mutablility'
-          options={['Mutable', 'Immutable']}
-          helperText='Whether or not this Hat should be able to be modified by its Admin. If unsure, default to mutable. This can be changed from mutable to immutable later (but not the other way).'
-          localForm={localForm}
-          isRequired
-        />
+          defaultValue={mutable ? 'Mutable' : 'Immutable'}
+          onChange={(value) => setValue('mutable', value)}
+          isDisabled={!mutable}
+        >
+          <HStack spacing={4}>
+            <Radio value='Mutable'>Mutable</Radio>
+            <Radio value='Immutable'>Immutable</Radio>
+          </HStack>
+        </RadioGroup>
+        <Text>
+          Whether or not this Hat should be able to be modified by its Admin. If
+          unsure, default to mutable. This can be changed from mutable to
+          immutable later (but not the other way).
+        </Text>
         <FormControl>
           <HStack>
             <Switch
               isChecked={eligibilityChecked}
               onChange={() => setEligibilityChecked(!eligibilityChecked)}
+              isDisabled={!mutable}
             />
             {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
             {eligibilityChecked && (
@@ -97,6 +114,7 @@ const HatWearersAndAdminsForm = ({
                     showEligibilityResolvedAddress && <FaCheck color='green' />
                   }
                   localForm={localForm}
+                  isDisabled={!mutable}
                 />
                 {showEligibilityResolvedAddress && (
                   <Text fontSize='sm' color='gray.500' mt={1}>
@@ -112,6 +130,7 @@ const HatWearersAndAdminsForm = ({
             <Switch
               isChecked={toggleChecked}
               onChange={() => setInputChecked(!toggleChecked)}
+              isDisabled={!mutable}
             />
             {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
             {toggleChecked && (
@@ -124,6 +143,7 @@ const HatWearersAndAdminsForm = ({
                     showToggleResolvedAddress && <FaCheck color='green' />
                   }
                   localForm={localForm}
+                  isDisabled={!mutable}
                 />
                 {showToggleResolvedAddress && (
                   <Text fontSize='sm' color='gray.500' mt={1}>

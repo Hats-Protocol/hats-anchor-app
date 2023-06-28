@@ -40,7 +40,10 @@ const Trees = ({
   }, [data]);
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(_.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })));
+    useImageURIs(
+      _.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })),
+      selectedNetwork,
+    );
 
   return (
     <Layout>
@@ -52,7 +55,7 @@ const Trees = ({
             selectedNetwork={selectedNetwork}
           />
         </Flex>
-        {!isLoading && !imagesLoading && !_.isEmpty(trees) && (
+        {!isLoading && !_.isEmpty(trees) && (
           <InfiniteScroll
             hasChildren={!_.isEmpty(trees)}
             dataLength={_.size(trees)}
@@ -67,6 +70,12 @@ const Trees = ({
             <SimpleGrid gap={8} justifyContent='center' columns={4}>
               {_.map(trees, (tree: ITree) => {
                 const topHat = _.find(
+                  topHats,
+                  (h: IHat) =>
+                    _.get(h, 'id') ===
+                    _.get(_.first(_.get(tree, 'hats')), 'id'),
+                );
+                const topHatImage = _.find(
                   topHatsWithImagesData,
                   (h: IHat) =>
                     _.get(h, 'id') ===
@@ -75,7 +84,14 @@ const Trees = ({
 
                 if (!topHat) return null;
 
-                return <TreeCard key={tree.id} tree={tree} topHat={topHat} />;
+                return (
+                  <TreeCard
+                    key={tree.id}
+                    tree={tree}
+                    topHat={topHat}
+                    topHatImage={topHatImage}
+                  />
+                );
               })}
             </SimpleGrid>
           </InfiniteScroll>
@@ -88,7 +104,7 @@ const Trees = ({
               <Heading size='md'>No Trees Found</Heading>
             </Flex>
           )}
-        {(isLoading || imagesLoading) && (
+        {isLoading && _.isEmpty(trees) && (
           <Flex justify='center' align='center' pt={10}>
             <Spinner />
           </Flex>

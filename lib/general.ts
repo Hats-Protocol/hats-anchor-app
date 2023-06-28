@@ -1,4 +1,3 @@
-import { ITree } from '@/types';
 import _ from 'lodash';
 
 export function parseUri(uri: string) {
@@ -78,5 +77,5 @@ export async function isImageUrl(url: string | unknown) {
   return false;
 }
 
-export const mapWithChainId = (trees: ITree[] | null, chainId: number) =>
-  _.map(trees, (tree) => ({ ...tree, chainId }));
+export const mapWithChainId = (array: object[] | null, chainId: number) =>
+  _.map(array, (obj: object) => ({ ...obj, chainId }));

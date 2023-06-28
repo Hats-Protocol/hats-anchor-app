@@ -53,6 +53,8 @@ export const fetchHatDetails = async (
   hatId: string | undefined,
   chainId: number,
 ): Promise<any> => {
+  if (!hatId) return {};
+
   const result = await client(chainId).request(GET_HAT, { id: hatId });
 
   return {
@@ -99,6 +101,7 @@ export const fetchManyWearerDetails = async (
 };
 
 export const fetchAllTreesByIds = async (treeIds: any[], chainId: number) => {
+  console.log('treeIds', treeIds);
   const promises = treeIds.map((treeId) => fetchHatDetails(treeId, chainId));
   const treeDetails = await Promise.all(promises);
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
 import { useAccount } from 'wagmi';
 import { useState, useEffect, ReactNode } from 'react';
 import _ from 'lodash';
@@ -159,10 +158,11 @@ const TreeDetails = ({
 
   useEffect(() => {
     const fetchTreeAndSetState = async () => {
-      const { tree, hats, hierarchy } = await toTreeStructure(
-        { ...treeData, hats: hatsWithImageData || [] },
+      const { tree, hats, hierarchy } = await toTreeStructure({
+        treeData,
+        hatsImages: hatsWithImageData,
         chainId,
-      );
+      });
       setOrgChartTree(tree);
       setHatsData(hats);
       setHierarchyData(hierarchy);
@@ -209,7 +209,14 @@ const TreeDetails = ({
         // }}
       />
 
-      <Drawer placement='right' onClose={onCloseShade} isOpen={isOpenShade}>
+      <Drawer
+        placement='right'
+        onClose={() => {
+          onCloseShade();
+          setEditMode(false);
+        }}
+        isOpen={isOpenShade}
+      >
         <DrawerOverlay />
         <DrawerContent
           maxW='35%'
@@ -378,14 +385,22 @@ export const getStaticProps = async (context: any) => {
     linkedToHat: { id: null },
     parentOfTrees: [],
   };
+
   const linkedHats = [];
   if (linkedToHat) {
-    linkedHats.push(linkedToHat);
+    linkedHats.push({ id: linkedToHat });
   }
   if (parentOfTrees) {
-    linkedHats.push(
-      ...parentOfTrees.map((tree: Partial<ITree>) => prettyIdToId(tree.id)),
-    );
+    _.forEach(parentOfTrees, (tree: Partial<ITree>) => {
+      linkedHats.push({
+        id: prettyIdToId(tree.id),
+        admin: {
+          id: tree.linkedToHat?.prettyId,
+          prettyId: tree.linkedToHat?.prettyId,
+        },
+        tree: tree.id,
+      });
+    });
   }
 
   return {
@@ -394,7 +409,7 @@ export const getStaticProps = async (context: any) => {
       chainId: _.toNumber(chainId),
       hatId: hatIdHex || null,
       treeData: treeData || null,
-      linkedHats,
+      linkedHats: mapWithChainId(linkedHats, chainId) || null,
       hatData: mapWithChainId(hatData, chainId) || null,
     },
     revalidate: 10,

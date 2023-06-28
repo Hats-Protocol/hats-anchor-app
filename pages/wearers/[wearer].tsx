@@ -12,6 +12,7 @@ import {
   Box,
   Avatar,
   Divider,
+  Spinner,
 } from '@chakra-ui/react';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 import { NextSeo } from 'next-seo';
@@ -89,7 +90,7 @@ const WearerDetail = ({
   wearerAddress: `0x${string}`;
   initialData: IHat[];
 }) => {
-  const { data: currentHats } = useWearerDetails({
+  const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     initialData,
   });
@@ -186,14 +187,18 @@ const WearerDetail = ({
             </Heading>
             <Divider borderColor='black' />
           </Stack>
-          <SimpleGrid columns={4} gap={5}>
-            {_.map(currentHatsWithImagesData, (hat) => (
-              <CoreHat
-                hat={hat}
-                key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
-              />
-            ))}
-          </SimpleGrid>
+          {wearerLoading || imagesLoading ? (
+            <Spinner />
+          ) : (
+            <SimpleGrid columns={4} gap={5}>
+              {_.map(currentHatsWithImagesData, (hat) => (
+                <CoreHat
+                  hat={hat}
+                  key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
+                />
+              ))}
+            </SimpleGrid>
+          )}
         </Stack>
         {/* <Stack
           width='100%'

@@ -11,6 +11,7 @@ import {
   Flex,
   Tooltip,
   TextareaProps as ChakraTextareaProps,
+  Text,
 } from '@chakra-ui/react';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -25,6 +26,7 @@ const Textarea = ({
   localForm,
   helperText,
   tooltip,
+  headerNote,
   ...props
 }: TextareaProps) => {
   const {
@@ -38,7 +40,14 @@ const Textarea = ({
     <FormControl>
       <Stack spacing={2}>
         <HStack align='center'>
-          {label && <FormLabel m='0'>{label}</FormLabel>}
+          {label && (
+            <FormLabel m='0' display='contents' alignItems='baseline'>
+              {label}
+              <Text fontSize={14} color='gray.400'>
+                {headerNote}
+              </Text>
+            </FormLabel>
+          )}
           {tooltip && (
             <Tooltip
               label={tooltip}
@@ -80,4 +89,5 @@ interface TextareaProps extends ChakraTextareaProps {
   helperText?: string;
   tooltip?: string;
   placeholder?: string;
+  headerNote?: string;
 }
