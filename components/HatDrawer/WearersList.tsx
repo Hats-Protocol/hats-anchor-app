@@ -205,7 +205,11 @@ const WearersList = ({
         </Flex>
       </Stack>
 
-      <Modal name='newWearer' title='Mint' localOverlay={localOverlay}>
+      <Modal
+        name='newWearer'
+        title='Add a Wearer by minting a Hat token'
+        localOverlay={localOverlay}
+      >
         <HatWearerForm
           hatId={hatId}
           chainId={chainId}
