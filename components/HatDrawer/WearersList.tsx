@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import {
@@ -57,10 +56,10 @@ const WearersList = ({
     await renounceHat?.();
   };
 
-  const filterWearers = (wearers: IHatWearer[]) => {
+  const filterWearers = (localWearers: IHatWearer[]) => {
     if (!searchTerm) return wearers;
 
-    return _.filter(wearers, (wearer) => {
+    return _.filter(localWearers, (wearer) => {
       const idSearch = wearer.id
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -74,8 +73,8 @@ const WearersList = ({
 
   useEffect(() => {
     const fetchENSNames = async () => {
-      const ensNames = await checkENSNames(wearers);
-      setEnsNames(ensNames);
+      const localEnsNames = await checkENSNames(wearers);
+      setEnsNames(localEnsNames);
     };
 
     fetchENSNames();
@@ -253,7 +252,7 @@ const WearerRow = ({
   handleRenounceHat: () => void;
   setModals: any;
   setChangeStatusWearer: any;
-  setWearerToTransferFrom: (wearer: string) => void;
+  setWearerToTransferFrom: (w: string) => void;
 }) => {
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>

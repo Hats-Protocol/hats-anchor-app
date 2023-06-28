@@ -75,12 +75,11 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ['imageUrls', hats],
+    queryKey: ['imageUrls', _.map(hats, 'id')],
     queryFn: checkImagesForHats,
     enabled: !_.isEmpty(hats),
   });
 
-  console.log('data', data);
   return { data, isLoading: isLoading || imagesLoading };
 };
 

@@ -1,14 +1,13 @@
-/* eslint-disable no-shadow */
+import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Box, Image } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
 
-import { idToPrettyId, isAdmin, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { isAdmin } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatGuilds from '@/hooks/useGuilds';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import _ from 'lodash';
 import { HierarchyObject } from '@/types';
 
 import MainContent from './HatDrawer/MainContent';
@@ -51,24 +50,22 @@ const SelectedHatDrawer = ({
 
   useEffect(() => {
     if (selectedHatId) {
-      const data = hatsData[prettyIdToId(selectedHatId)];
+      const data = _.find(hatsData, ['id', selectedHatId]);
 
       if (data) {
         setHatData(data);
-        const { id, status, mutable, details } = data;
+        const { status, mutable, details, detailsObject } = data;
 
-        setName(
-          // eslint-disable-next-line no-nested-ternary
-          details?.type === '1.0'
-            ? details?.data?.name
-            : typeof details === 'string'
-            ? details
-            : prettyIdToIp(idToPrettyId(id)),
-        );
-        setDescription(
-          details?.type === '1.0' ? details?.data?.description : '',
-        );
-        setGuilds(details?.type === '1.0' ? details?.data?.guilds : []);
+        let name = details;
+        if (detailsObject?.type === '1.0') {
+          name = detailsObject?.data?.name;
+        }
+        setName(name);
+        if (detailsObject?.type === '1.0') {
+          setDescription(detailsObject?.data?.description);
+          setGuilds(detailsObject?.data?.guilds);
+        }
+
         setActiveStatus(status ? 'Active' : 'Inactive');
         setMutableStatus(mutable ? 'Mutable' : 'Immutable');
       }

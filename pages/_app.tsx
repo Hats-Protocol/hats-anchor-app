@@ -21,6 +21,7 @@ const queryClient = new QueryClient({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MyApp({ Component, pageProps }: { Component: any; pageProps: any }) {
   return (
     <>

@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { createPublicClient, http, custom } from 'viem';
 import _ from 'lodash';
 import { mainnet } from 'viem/chains';
@@ -11,6 +10,7 @@ export const checkAddressIsContract = async (
 ) => {
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transport: custom((window as any).ethereum) || http(),
   });
 
@@ -24,7 +24,7 @@ export const checkAddressIsContract = async (
   return false;
 };
 
-export const extendWearers = (wearers: IHatWearer[], wearersInfo: any) => {
+export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) => {
   if (_.gt(_.size(wearers), 1)) {
     return wearers;
   }
@@ -38,9 +38,9 @@ export const extendWearers = (wearers: IHatWearer[], wearersInfo: any) => {
   });
 };
 
-export const extendControllers = async (
+export const extendControllers = (
   controller: `0x${string}`,
-  controllersInfo: any,
+  controllersInfo: object[],
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: controller });
 

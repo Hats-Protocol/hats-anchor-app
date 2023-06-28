@@ -116,6 +116,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               imageUrl,
               name,
               details,
+              detailsObject,
               isLinked,
               wearers,
               maxSupply,
@@ -126,8 +127,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             } = d.data;
 
             let detailsName = details;
-            if (details?.type === '1.0') {
-              detailsName = details?.data?.name;
+            if (detailsObject?.type === '1.0') {
+              detailsName = detailsObject?.data?.name;
             }
 
             const isSelected = selectedHatId === d.id;

@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import React, { useEffect, useState } from 'react';
 import { Box, Flex, HStack, Button } from '@chakra-ui/react';
 import {
