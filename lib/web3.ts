@@ -73,6 +73,7 @@ export const { chains, publicClient } = configureChains(_.values(chainsList), [
 const { connectors } = getDefaultWallets({
   appName: 'Hats',
   chains,
+  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
 });
 
 export const wagmiConfig = createConfig({
