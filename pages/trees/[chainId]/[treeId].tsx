@@ -132,7 +132,7 @@ const TreeDetails = ({
 
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const { address } = useAccount();
-  const { data: wearerData } = useWearerDetails({
+  const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
@@ -152,7 +152,7 @@ const TreeDetails = ({
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
     _.get(hatData, 'prettyId'),
   )}`;
-  const wearerHats = _.map(wearerData, 'prettyId');
+  const currentHats = _.map(_.filter(wearerHats, { chainId }), 'prettyId');
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
     useImageURIs(hatsData, chainId);
 
@@ -368,7 +368,7 @@ const TreeDetails = ({
             selectedOption={selectedOption}
             showInactiveHats={showInactiveHats}
             isLoading={imagesDataLoading}
-            wearerHats={wearerHats}
+            wearerHats={currentHats}
             chainId={chainId}
             selectedHatId={selectedHatId}
             onSelectHat={handleSelectHat}

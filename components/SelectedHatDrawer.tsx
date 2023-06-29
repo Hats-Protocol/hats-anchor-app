@@ -1,21 +1,21 @@
-import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
 import { Box, Image } from '@chakra-ui/react';
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
-import { isAdmin } from '@/lib/hats';
 import { useOverlay } from '@/contexts/OverlayContext';
-import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatGuilds from '@/hooks/useGuilds';
+import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { isAdmin } from '@/lib/hats';
 import { HierarchyObject } from '@/types';
 
-import MainContent from './HatDrawer/MainContent';
-import TopMenu from './HatDrawer/TopMenu';
-import BottomMenu from './HatDrawer/BottomMenu';
-import EditMode from './HatDrawer/EditMode';
 import { Authority } from '@/forms/AuthorityDetailsForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
+import BottomMenu from './HatDrawer/BottomMenu';
+import EditMode from './HatDrawer/EditMode';
+import MainContent from './HatDrawer/MainContent';
+import TopMenu from './HatDrawer/TopMenu';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -49,7 +49,7 @@ const SelectedHatDrawer = ({
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
   });
-  const currentWearerHats = _.map(wearer, 'prettyId');
+  const currentWearerHats = _.map(_.filter(wearer, { chainId }), 'prettyId');
   const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
 
   useEffect(() => {
