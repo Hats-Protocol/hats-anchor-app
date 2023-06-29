@@ -108,7 +108,7 @@ const Home = () => {
                           >
                             <Icon as={FaPlus} w={6} h={6} />
                           </Flex>
-                          <Stack>
+                          <Stack spacing={1}>
                             <Heading
                               as='h1'
                               size='md'
@@ -117,7 +117,9 @@ const Home = () => {
                             >
                               Create a new Structure
                             </Heading>
-                            <Text>Set up your DAO Hats Org Chart</Text>
+                            <Text fontSize='sm'>
+                              Set up your DAO Hats Org Chart
+                            </Text>
                           </Stack>
                         </HStack>
                       </CardBody>

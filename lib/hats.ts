@@ -1,11 +1,11 @@
 /* eslint-disable no-plusplus */
-import { IHat, IHatData, ITree, HierarchyObject, InputObject } from '@/types';
 import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
-import { extendWearers, extendControllers } from '@/lib/contract';
+import { extendControllers, extendWearers } from '@/lib/contract';
+import { HierarchyObject, IHat, IHatData, ITree, InputObject } from '@/types';
 
-import _ from 'lodash';
 import { ZERO_ADDRESS } from '@/constants';
+import _ from 'lodash';
 
 export async function toTreeStructure({
   treeData,
@@ -145,6 +145,8 @@ export async function toTreeStructure({
       });
     });
   }
+
+  console.log('hatsArray', hatsArray);
 
   return Promise.resolve({ tree: hatsArray, hats: hatsData, hierarchy });
 }

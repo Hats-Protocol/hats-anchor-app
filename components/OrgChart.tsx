@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-import React, { useLayoutEffect, useRef, useState } from 'react';
-import { OrgChart } from 'd3-org-chart';
-import _ from 'lodash';
+import { formatAddress } from '@/lib/general';
+import { IHatData, IHatWearer } from '@/types';
 import {
-  Flex,
-  Spinner,
-  Button,
   Box,
-  IconButton,
+  Button,
+  Flex,
   HStack,
   Icon,
+  IconButton,
+  Spinner,
 } from '@chakra-ui/react';
+import { OrgChart } from 'd3-org-chart';
+import _ from 'lodash';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
-import { IHatData, IHatWearer } from '@/types';
-import { formatAddress } from '@/lib/general';
 
 interface OrgChartComponentProps {
   tree: IHatData[] | null;

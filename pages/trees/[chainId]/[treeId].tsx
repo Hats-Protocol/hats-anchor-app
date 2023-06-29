@@ -1,58 +1,58 @@
-import { useAccount } from 'wagmi';
-import { useState, useEffect, ReactNode } from 'react';
-import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import {
   Box,
   Button,
+  Checkbox,
+  Divider,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerOverlay,
   Flex,
+  HStack,
+  Icon,
   IconButton,
+  Image,
   Popover,
   PopoverArrow,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Text,
-  useDisclosure,
-  VStack,
-  RadioGroup,
   Radio,
-  Checkbox,
-  Divider,
-  Stack,
-  HStack,
-  Image,
-  Icon,
+  RadioGroup,
   Spinner,
-  Drawer,
-  DrawerBody,
-  DrawerOverlay,
-  DrawerContent,
+  Stack,
+  Text,
+  VStack,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { FaChevronUp, FaChevronDown, FaRegCopy } from 'react-icons/fa';
-import { BsToggles } from 'react-icons/bs';
-import { NextSeo } from 'next-seo';
 import { formatDistanceToNow } from 'date-fns';
+import _ from 'lodash';
+import { NextSeo } from 'next-seo';
+import dynamic from 'next/dynamic';
+import { ReactNode, useEffect, useState } from 'react';
+import { BsToggles } from 'react-icons/bs';
+import { FaChevronDown, FaChevronUp, FaRegCopy } from 'react-icons/fa';
+import { useAccount } from 'wagmi';
 
-import {
-  toTreeStructure,
-  prettyIdToId,
-  decimalToTreeId,
-  decimalId,
-  urlIdToPrettyId,
-  prettyIdToIp,
-  isTopHat,
-} from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
 import Layout from '@/components/Layout';
+import SelectedHatDrawer from '@/components/SelectedHatDrawer';
+import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import CONFIG from '@/constants';
 import useToast from '@/hooks/useToast';
-import SelectedHatDrawer from '@/components/SelectedHatDrawer';
-import { IHat, ITree, IHatData, HierarchyObject } from '@/types';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
+import {
+  decimalId,
+  decimalToTreeId,
+  isTopHat,
+  prettyIdToId,
+  prettyIdToIp,
+  toTreeStructure,
+  urlIdToPrettyId,
+} from '@/lib/hats';
+import { chainsMap } from '@/lib/web3';
+import { HierarchyObject, IHat, IHatData, ITree } from '@/types';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -123,7 +123,7 @@ const TreeDetails = ({
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
-  const [hatsData, setHatsData] = useState<IHatData[]>([]);
+  const [hatsData, setHatsData] = useState<IHat[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
   const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -154,22 +154,32 @@ const TreeDetails = ({
   )}`;
   const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
-    useImageURIs(_.concat(_.get(treeData, 'hats'), linkedHats), chainId);
+    useImageURIs(hatsData, chainId);
 
   useEffect(() => {
+    if (treeData && linkedHats) {
+      setHatsData(
+        _.filter(
+          _.concat(_.get(treeData, 'hats'), linkedHats),
+          (x) => x,
+        ) as IHat[],
+      );
+    }
     const fetchTreeAndSetState = async () => {
-      const { tree, hats, hierarchy } = await toTreeStructure({
+      console.log(hatsWithImageData);
+      const { tree, hierarchy } = await toTreeStructure({
         treeData,
         hatsImages: hatsWithImageData,
         chainId,
       });
       setOrgChartTree(tree);
-      setHatsData(hats);
       setHierarchyData(hierarchy);
     };
 
-    fetchTreeAndSetState();
-  }, [treeData, hatsWithImageData, chainId]);
+    if (treeData && !imagesDataLoading) {
+      fetchTreeAndSetState();
+    }
+  }, [treeData, linkedHats, hatsWithImageData, imagesDataLoading, chainId]);
 
   const hasPermissions = !_.isEmpty(
     _.filter(orgChartTree, (node: IHatData) => {

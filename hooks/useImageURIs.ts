@@ -1,5 +1,5 @@
-import { useContractReads } from 'wagmi';
 import _ from 'lodash';
+import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
@@ -17,6 +17,7 @@ import { Abi } from 'viem';
  * @param {number} chainId Chain ID -- optional if not nested on hat object
  */
 const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
+  console.log(hats);
   const calls = _.map(hats, (hat) => {
     return {
       address: CONFIG.hatsAddress,
@@ -29,7 +30,9 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
 
   const { data: imagesData, isLoading: imagesLoading } = useContractReads({
     contracts: calls,
+    enabled: hats && !_.isEmpty(hats),
   });
+  console.log(imagesData);
 
   const formatImageUrl = (url?: string) => {
     if (_.startsWith(url, 'https://')) {
@@ -56,6 +59,7 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
       return isImageUrl(formatImageUrl(imageData?.result));
     });
     const isValidImages = await Promise.all(promises);
+    console.log(isValidImages);
 
     try {
       return _.map(hats, (hat, i) => {
@@ -77,7 +81,7 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
   const { data, isLoading } = useQuery({
     queryKey: ['imageUrls', _.map(hats, 'id')],
     queryFn: checkImagesForHats,
-    enabled: !_.isEmpty(hats),
+    enabled: hats && !_.isEmpty(hats) && !!imagesData,
   });
 
   return { data, isLoading: isLoading || imagesLoading };
