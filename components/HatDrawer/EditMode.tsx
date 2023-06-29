@@ -83,7 +83,6 @@ const EditMode = ({
             </Text>
             <HatWearersAndAdminsForm
               defaultAdmin={hatData.admin?.prettyId}
-              mutable={hatData.mutable}
               chainId={chainId}
               hatData={hatData}
               levelAtLocalTree={hatData.levelAtLocalTree}
