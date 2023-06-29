@@ -130,9 +130,6 @@ const HatWearersAndAdminsForm = ({
 
   const isMutableDisabled =
     !isMutableChanged || isLoadingImmutable || !writeAsyncImmutable;
-  console.log('writeAsyncImmutable', writeAsyncImmutable);
-  console.log('isLoadingImmutable', isLoadingImmutable);
-  console.log('isMutableChanged', isMutableChanged);
 
   return (
     <form>

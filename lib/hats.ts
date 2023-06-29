@@ -36,8 +36,7 @@ export async function toTreeStructure({
   let hatsData = await fetchHatsDetails(hatIds, chainId);
   const detailsFields = hatsData.map((hat: IHat) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
-  console.log('details', details);
-  hatsData = _.map(hatsData, (hat: IHat, index) => {
+  hatsData = _.map(hatsData, (hat: IHat, index: number) => {
     const imageUrl = _.find(hatsImages, ['id', hat.id])?.imageUrl;
     return {
       ...hat,
