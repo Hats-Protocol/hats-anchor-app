@@ -28,6 +28,7 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { pinJson } from '@/lib/ipfs';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
+import { chainsMap } from '@/lib/web3';
 
 const NewTree = () => {
   const [image, setImage] = useState<any>();
@@ -107,7 +108,7 @@ const NewTree = () => {
         h='100%'
         bg='blue'
         position='fixed'
-        opacity={0.07}
+        opacity={0.02}
         zIndex={-1}
       />
 
@@ -118,7 +119,7 @@ const NewTree = () => {
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>
           <Stack mt={10} spacing={6}>
             <Stack>
-              <Text fontWeight={600}>Top Hat Image</Text>
+              <Text fontWeight={600}>{_.toUpper('Top Hat Image')}</Text>
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
@@ -129,13 +130,15 @@ const NewTree = () => {
             </Stack>
             <Input
               name='name'
-              label='Top Hat name'
+              label={_.toUpper('Top Hat name')}
+              placeholder='Name of Top Hat'
               variant='filled'
               localForm={localForm}
             />
             <Textarea
               name='description'
-              label='Top Hat description'
+              label={_.toUpper('Top Hat description')}
+              placeholder='Describe the Tree and this Top Hat'
               variant='filled'
               localForm={localForm}
             />
@@ -148,7 +151,7 @@ const NewTree = () => {
                   onChange={() => setOverrideReceiver(!overrideReceiver)}
                 />
                 <FormLabel htmlFor='overrideReceiver' m={0}>
-                  Mint to Me
+                  {_.toUpper('Mint to Me')}
                 </FormLabel>
               </HStack>
             </FormControl>
@@ -174,6 +177,14 @@ const NewTree = () => {
                 )}
               </Box>
             )}
+
+            <Stack>
+              <Text fontWeight={600}>{_.toUpper('Network')}</Text>
+              <Text>
+                This Tree will be minted on{' '}
+                {_.capitalize(chainsMap(chainId).name)}
+              </Text>
+            </Stack>
 
             <Flex justify='flex-end'>
               <Button

@@ -102,7 +102,7 @@ const SelectedHatDrawer = ({
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
         <Image
-          src='/icon.jpeg'
+          src={hatData?.imageUrl ? hatData?.imageUrl : '/icon.jpeg'}
           alt='hat image'
           position='absolute'
           w='100px'

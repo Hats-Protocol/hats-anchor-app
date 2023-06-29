@@ -1,20 +1,27 @@
-import _ from 'lodash';
 import {
-  Heading,
-  SimpleGrid,
-  Flex,
   Box,
-  Stack,
+  Card,
+  CardBody,
+  Flex,
+  HStack,
+  Heading,
+  Icon,
+  SimpleGrid,
   Spinner,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useAccount } from 'wagmi';
 
 import Layout from '@/components/Layout';
 // import CONFIG from '@/constants';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import useImageURIs from '@/hooks/useImageURIs';
+import ChakraNextLink from '@/components/ChakraNextLink';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import HatCard from '@/components/HatCard';
+import useImageURIs from '@/hooks/useImageURIs';
+import useWearerDetails from '@/hooks/useWearerDetails';
+import { FaPlus } from 'react-icons/fa';
 
 // todo use our ipfs gateway
 const featuredTrees = [
@@ -84,6 +91,38 @@ const Home = () => {
                 </Flex>
               ) : (
                 <SimpleGrid columns={3} spacing={6}>
+                  {/* New Tree Card first */}
+                  <ChakraNextLink href='/trees/new'>
+                    <Card h='100px' overflow='hidden'>
+                      <CardBody p={4}>
+                        <HStack>
+                          <Flex
+                            border='3px solid'
+                            borderColor='gray.200'
+                            borderRadius={4}
+                            h='72px'
+                            w='72px'
+                            align='center'
+                            justify='center'
+                            bg='blue.400'
+                          >
+                            <Icon as={FaPlus} w={6} h={6} />
+                          </Flex>
+                          <Stack>
+                            <Heading
+                              as='h1'
+                              size='md'
+                              fontWeight={500}
+                              noOfLines={1}
+                            >
+                              Create a new Structure
+                            </Heading>
+                            <Text>Set up your DAO Hats Org Chart</Text>
+                          </Stack>
+                        </HStack>
+                      </CardBody>
+                    </Card>
+                  </ChakraNextLink>
                   {_.map(currentHatsWithImagesData, (hat, i) => (
                     <HatCard hat={hat} key={i} />
                   ))}
