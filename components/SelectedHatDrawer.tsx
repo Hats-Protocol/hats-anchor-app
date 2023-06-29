@@ -14,6 +14,7 @@ import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
+import { Authority, Responsibility } from '@/forms/HatDetailsForm';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -31,6 +32,10 @@ const SelectedHatDrawer = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [guilds, setGuilds] = useState<any[]>([]);
+  const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
+    [],
+  );
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const { setModals } = localOverlay;
@@ -60,8 +65,11 @@ const SelectedHatDrawer = ({
         }
         setName(detailName);
         if (detailsObject?.type === '1.0') {
+          console.log('detailsObject?.data', detailsObject?.data);
           setDescription(detailsObject?.data?.description);
           setGuilds(detailsObject?.data?.guilds);
+          setAuthorities(detailsObject?.data?.authorities);
+          setResponsibilities(detailsObject?.data?.responsibilities);
         }
 
         setActiveStatus(status ? 'Active' : 'Inactive');
@@ -140,6 +148,8 @@ const SelectedHatDrawer = ({
             description={description}
             imageUrl={hatData?.imageUri}
             guilds={guilds}
+            authorities={authorities}
+            responsibilities={responsibilities}
           />
         )}
 

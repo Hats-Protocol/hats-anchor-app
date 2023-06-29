@@ -11,7 +11,10 @@ import {
 } from '@chakra-ui/react';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import HatDetailsForm from '@/forms/HatDetailsForm';
+import HatDetailsForm, {
+  Authority,
+  Responsibility,
+} from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 import CustomAccordion from '@/components/CustomAccordion';
 
@@ -22,6 +25,8 @@ const EditMode = ({
   description,
   guilds,
   imageUrl,
+  responsibilities,
+  authorities,
 }: EditModeProps) => {
   console.log('hatData', hatData);
   if (!hatData) return null;
@@ -62,6 +67,8 @@ const EditMode = ({
                       description,
                       imageUrl,
                       guilds,
+                      responsibilities,
+                      authorities,
                     }}
                   />
                 </TabPanel>
@@ -95,4 +102,6 @@ interface EditModeProps {
   description: string;
   guilds: string[];
   imageUrl: string;
+  responsibilities: Responsibility[];
+  authorities: Authority[];
 }

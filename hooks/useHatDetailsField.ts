@@ -67,7 +67,9 @@ const useHatDetailsField = (detailsField: string) => {
         if (
           _.includes(_.keys(detailsData), 'name') ||
           _.includes(_.keys(detailsData), 'description') ||
-          _.includes(_.keys(detailsData), 'guilds')
+          _.includes(_.keys(detailsData), 'guilds') ||
+          _.includes(_.keys(detailsData), 'responsibilities') ||
+          _.includes(_.keys(detailsData), 'authorities')
         ) {
           schemaType = schemaTypeField;
         }
