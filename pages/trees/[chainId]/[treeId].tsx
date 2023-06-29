@@ -123,7 +123,8 @@ const TreeDetails = ({
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
-  const [hatsData, setHatsData] = useState<IHat[] | undefined>(undefined);
+  const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
+  const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
   const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -154,11 +155,11 @@ const TreeDetails = ({
   )}`;
   const currentHats = _.map(_.filter(wearerHats, { chainId }), 'prettyId');
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
-    useImageURIs(hatsData, chainId);
+    useImageURIs(initialHats, chainId);
 
   useEffect(() => {
     if (treeData && linkedHats) {
-      setHatsData(
+      setInitialHats(
         _.filter(
           _.concat(_.get(treeData, 'hats'), linkedHats),
           (x) => x,
@@ -167,11 +168,12 @@ const TreeDetails = ({
     }
     const fetchTreeAndSetState = async () => {
       console.log(hatsWithImageData);
-      const { tree, hierarchy } = await toTreeStructure({
+      const { tree, hats, hierarchy } = await toTreeStructure({
         treeData,
         hatsImages: hatsWithImageData,
         chainId,
       });
+      setHatsData(hats);
       setOrgChartTree(tree);
       setHierarchyData(hierarchy);
     };
@@ -208,6 +210,11 @@ const TreeDetails = ({
     );
   }
 
+  const fullHatData = _.map(hatsData, (hat: IHat, index: number) => ({
+    ...hatsWithImageData?.[index],
+    ...hat,
+  }));
+
   return (
     <>
       <NextSeo
@@ -237,7 +244,7 @@ const TreeDetails = ({
               chainId={chainId}
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}
-              hatsData={hatsWithImageData}
+              hatsData={fullHatData}
               hierarchyData={hierarchyData}
               onClose={onCloseShade}
               editMode={editMode}

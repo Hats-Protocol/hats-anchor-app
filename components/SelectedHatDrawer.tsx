@@ -59,6 +59,7 @@ const SelectedHatDrawer = ({
       if (data) {
         setHatData(data);
         const { status, mutable, details, detailsObject } = data;
+        console.log(detailsObject);
 
         let detailName = details;
         if (detailsObject?.type === '1.0') {
