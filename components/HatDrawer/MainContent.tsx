@@ -25,9 +25,10 @@ import { explorerUrl } from '@/lib/general';
 import { prettyIdToIp } from '@/lib/hats';
 import useToast from '@/hooks/useToast';
 import { useAccount } from 'wagmi';
-import WearersList from './WearersList';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import { Authority } from '@/forms/AuthorityDetailsForm';
+
+import WearersList from './WearersList';
 
 const MainContent = ({
   chainId,
