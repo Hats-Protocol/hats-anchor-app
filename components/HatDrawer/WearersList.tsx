@@ -6,15 +6,20 @@ import {
   Text,
   Stack,
   Heading,
-  Divider,
   Input,
   InputLeftElement,
   InputGroup,
   Image,
   Tooltip,
   Box,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
 } from '@chakra-ui/react';
-import { FaPlus, FaSearch, FaUser } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaUser, FaEllipsisH } from 'react-icons/fa';
+import { readContract } from '@wagmi/core';
 
 import { formatAddress } from '@/lib/general';
 import CONFIG from '@/constants';
@@ -27,6 +32,8 @@ import { checkENSNames } from '@/lib/contract';
 import { IHatWearer } from '@/types';
 import HatWearerForm from '@/forms/HatWearerForm';
 import HatTransferForm from '@/forms/HatTransferForm';
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
 
 const WearersList = ({
   chainId,
@@ -45,6 +52,7 @@ const WearersList = ({
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
+  const toast = useToast();
 
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
@@ -93,6 +101,28 @@ const WearersList = ({
   const filteredWearers = filterWearers(wearers);
   const maxWearersReached = wearers?.length >= maxSupply;
 
+  const checkEligibility = async (wearer: string) => {
+    const isEligible = await readContract({
+      address: CONFIG.hatsAddress,
+      abi,
+      chainId,
+      functionName: 'isEligible',
+      args: [wearer, hatId],
+    });
+
+    if (isEligible) {
+      toast.info({
+        title: 'Eligible',
+        description: `${wearer} is eligible to receive the hat.`,
+      });
+    } else {
+      toast.error({
+        title: 'Not Eligible',
+        description: `${wearer} is not eligible to receive the hat.`,
+      });
+    }
+  };
+
   return (
     <>
       {/* Main Details */}
@@ -131,6 +161,7 @@ const WearersList = ({
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
+            checkEligibility={checkEligibility}
           />
         ))}
 
@@ -174,7 +205,11 @@ const WearersList = ({
         </Flex>
       </Stack>
 
-      <Modal name='newWearer' title='Mint' localOverlay={localOverlay}>
+      <Modal
+        name='newWearer'
+        title='Add a Wearer by minting a Hat token'
+        localOverlay={localOverlay}
+      >
         <HatWearerForm
           hatId={hatId}
           chainId={chainId}
@@ -196,6 +231,7 @@ const WearersList = ({
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
+              checkEligibility={checkEligibility}
             />
           ))}
         </Flex>
@@ -242,6 +278,7 @@ const WearerRow = ({
   setModals,
   setChangeStatusWearer,
   setWearerToTransferFrom,
+  checkEligibility,
 }: {
   wearer: { id: string };
   isAdminUser: boolean;
@@ -253,6 +290,7 @@ const WearerRow = ({
   setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
+  checkEligibility: (w: string) => void;
 }) => {
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -278,50 +316,54 @@ const WearerRow = ({
           <Text color='blue.500'>View</Text>
         </Link>
 
-        {isAdminUser && (
-          <>
-            <Divider orientation='vertical' h={5} />
-            <Text
-              color='blue.500'
-              onClick={() => {
-                setModals({
-                  transferHat: true,
-                });
-                setWearerToTransferFrom(wearer.id);
-              }}
-              cursor='pointer'
-            >
-              Transfer
-            </Text>
-          </>
-        )}
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            aria-label='Options'
+            icon={<FaEllipsisH />}
+            size='xs'
+            variant='outline'
+          />
+          <MenuList>
+            {isAdminUser && (
+              <MenuItem
+                onClick={() => {
+                  setModals({
+                    transferHat: true,
+                  });
+                  setWearerToTransferFrom(wearer.id);
+                }}
+              >
+                Transfer
+              </MenuItem>
+            )}
 
-        {wearer.id === address?.toLowerCase() && (
-          <>
-            <Divider orientation='vertical' h={5} />
-            <Text color='red.500' onClick={handleRenounceHat} cursor='pointer'>
-              Renounce
-            </Text>
-          </>
-        )}
+            {wearer.id === address?.toLowerCase() && (
+              <MenuItem onClick={handleRenounceHat}>Renounce</MenuItem>
+            )}
 
-        {wearer.id !== address?.toLowerCase() && isAdminUser && (
-          <>
-            <Divider orientation='vertical' h={5} />
-            <Text
-              color='red.500'
+            {wearer.id !== address?.toLowerCase() && isAdminUser && (
+              <MenuItem
+                onClick={() => {
+                  setModals({
+                    hatWearerStatus: true,
+                  });
+                  setChangeStatusWearer(wearer.id);
+                }}
+              >
+                Revoke Hat
+              </MenuItem>
+            )}
+
+            <MenuItem
               onClick={() => {
-                setModals({
-                  hatWearerStatus: true,
-                });
-                setChangeStatusWearer(wearer.id);
+                checkEligibility(wearer.id);
               }}
-              cursor='pointer'
             >
-              Revoke Hat
-            </Text>
-          </>
-        )}
+              Test Eligibility
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
     </Flex>
   );

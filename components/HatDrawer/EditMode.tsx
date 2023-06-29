@@ -14,6 +14,8 @@ import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 import CustomAccordion from '@/components/CustomAccordion';
+import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 
 const EditMode = ({
   hatData,
@@ -22,6 +24,8 @@ const EditMode = ({
   description,
   guilds,
   imageUrl,
+  responsibilities,
+  authorities,
 }: EditModeProps) => {
   console.log('hatData', hatData);
   if (!hatData) return null;
@@ -62,6 +66,8 @@ const EditMode = ({
                       description,
                       imageUrl,
                       guilds,
+                      responsibilities,
+                      authorities,
                     }}
                   />
                 </TabPanel>
@@ -77,7 +83,9 @@ const EditMode = ({
             </Text>
             <HatWearersAndAdminsForm
               defaultAdmin={hatData.admin?.prettyId}
-              mutable={hatData.mutable}
+              chainId={chainId}
+              hatData={hatData}
+              levelAtLocalTree={hatData.levelAtLocalTree}
             />
           </Stack>
         </CustomAccordion>
@@ -95,4 +103,6 @@ interface EditModeProps {
   description: string;
   guilds: string[];
   imageUrl: string;
+  responsibilities: Responsibility[];
+  authorities: Authority[];
 }

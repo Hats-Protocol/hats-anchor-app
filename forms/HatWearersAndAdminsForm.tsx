@@ -1,52 +1,76 @@
 import {
   Stack,
-  Flex,
   Button,
   FormControl,
-  Switch,
-  FormLabel,
   HStack,
   Box,
   Text,
   Radio,
   RadioGroup,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 
 import Input from '@/components/Input';
-import { ZERO_ADDRESS } from '@/constants';
+import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import { prettyIdToIp } from '@/lib/hats';
+import useHatSupplyUpdate from '@/hooks/useHatSupplyUpdate';
+import useModuleUpdate from '@/hooks/useModuleUpdate';
+import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
+import { useEnsAddress } from 'wagmi';
 
 const HatWearersAndAdminsForm = ({
   defaultAdmin,
-  mutable,
+  chainId,
+  levelAtLocalTree,
+  hatData,
 }: {
   defaultAdmin: string | undefined;
-  mutable: boolean;
+  chainId: number;
+  levelAtLocalTree: number;
+  hatData: any;
 }) => {
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
-      maxSupply: 1,
-      eligibility: '',
-      toggle: '',
-      mutable: mutable ? 'Mutable' : 'Immutable',
+      maxSupply: hatData?.maxSupply,
+      eligibility: hatData?.eligibility,
+      toggle: hatData?.toggle,
+      mutable: hatData?.mutable ? 'Mutable' : 'Immutable',
     },
   });
-  const { handleSubmit, watch, setValue } = localForm;
-  const [eligibilityChecked, setEligibilityChecked] = useState(false);
-  const [toggleChecked, setInputChecked] = useState(false);
+  const { watch, setValue } = localForm;
 
-  const maxSupply = useDebounce(watch('maxSupply', 1));
-  console.log('maxSupply', maxSupply);
-  const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
+  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply));
+  const eligibility = useDebounce(
+    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  );
+  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+  const mutable = useDebounce(watch('mutable', hatData?.mutable));
+
   const decimalAdmin = prettyIdToIp(defaultAdmin);
-  const toggleResolvedAddress = 'toggle';
-  const eligibilityResolvedAddress = 'eligibility';
+
+  const isMaxSupplyChanged = maxSupply !== hatData?.maxSupply;
+  const isMutableChanged = hatData?.mutable && mutable === 'Immutable';
+  const isEligibilityChanged = eligibility !== hatData?.eligibility;
+  const isToggleChanged = toggle !== hatData?.toggle;
+
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
 
   const showEligibilityResolvedAddress =
     eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
@@ -54,16 +78,61 @@ const HatWearersAndAdminsForm = ({
     toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
   // changeHatMaxSupply
-  // changeHatEligibility
-  // changeHatToggle
-  // makeHatImmutable
+  const { writeAsync: writeAsyncMaxSupply, isLoading: isLoadingMaxSupply } =
+    useHatSupplyUpdate({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId: hatData?.id,
+      amount: maxSupply,
+    });
 
-  const onSubmit = async () => {
-    // writeAsync?.();
-  };
+  // changeHatEligibility
+  const { writeAsync: writeAsyncEligibility, isLoading: isLoadingEligibility } =
+    useModuleUpdate({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId: hatData?.id,
+      moduleType: MODULE_TYPES.eligibility,
+      newAddress: eligibility,
+    });
+
+  // changeHatToggle
+  const { writeAsync: writeAsyncToggle, isLoading: isLoadingToggle } =
+    useModuleUpdate({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId: hatData?.id,
+      moduleType: MODULE_TYPES.toggle,
+      newAddress: toggle,
+    });
+
+  // makeHatImmutable
+  const { writeAsync: writeAsyncImmutable, isLoading: isLoadingImmutable } =
+    useHatMakeImmutable({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId: hatData?.id,
+      levelAtLocalTree,
+    });
+
+  const isMaxSupplyDisabled =
+    !isMaxSupplyChanged || isLoadingMaxSupply || !writeAsyncMaxSupply;
+  const isEligibilityDisabled =
+    !isEligibilityChanged ||
+    isLoadingEligibility ||
+    !writeAsyncEligibility ||
+    isLoadingEligibilityResolvedAddress;
+  const isToggleDisabled =
+    !isToggleChanged ||
+    isLoadingToggle ||
+    !writeAsyncToggle ||
+    isLoadingToggleResolvedAddress;
+
+  const isMutableDisabled =
+    !isMutableChanged || isLoadingImmutable || !writeAsyncImmutable;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form>
       <Stack spacing={6}>
         <Input
           localForm={localForm}
@@ -72,91 +141,110 @@ const HatWearersAndAdminsForm = ({
           defaultValue={decimalAdmin}
           isDisabled
         />
-        <Input
-          name='maxSupply'
-          label='Max Supply'
-          placeholder='10'
-          isDisabled={!mutable}
-          localForm={localForm}
-        />
+        <Box>
+          <Input
+            name='maxSupply'
+            label='MAX SUPPLY'
+            placeholder='10'
+            isDisabled={!mutable}
+            localForm={localForm}
+          />
+          <Button
+            colorScheme='blue'
+            isLoading={isLoadingMaxSupply}
+            isDisabled={isMaxSupplyDisabled}
+            onClick={() => writeAsyncMaxSupply?.()}
+            mt={4}
+          >
+            Update Max Supply
+          </Button>
+        </Box>
 
-        <RadioGroup
-          name='mutable'
-          defaultValue={mutable ? 'Mutable' : 'Immutable'}
-          onChange={(value) => setValue('mutable', value)}
-          isDisabled={!mutable}
-        >
-          <HStack spacing={4}>
-            <Radio value='Mutable'>Mutable</Radio>
-            <Radio value='Immutable'>Immutable</Radio>
-          </HStack>
-        </RadioGroup>
-        <Text>
-          Whether or not this Hat should be able to be modified by its Admin. If
-          unsure, default to mutable. This can be changed from mutable to
-          immutable later (but not the other way).
-        </Text>
+        <Box>
+          <Text fontWeight={500} mb={2}>
+            MUTABILITY
+          </Text>
+          <RadioGroup
+            name='mutable'
+            defaultValue={hatData?.mutable ? 'Mutable' : 'Immutable'}
+            onChange={(value) => setValue('mutable', value)}
+            isDisabled={!hatData?.mutable}
+          >
+            <HStack spacing={4}>
+              <Radio value='Mutable'>Mutable</Radio>
+              <Radio value='Immutable'>Immutable</Radio>
+            </HStack>
+          </RadioGroup>
+          <Button
+            colorScheme='blue'
+            isLoading={isLoadingImmutable}
+            isDisabled={isMutableDisabled}
+            onClick={() => writeAsyncImmutable?.()}
+            mt={4}
+          >
+            Update Mutability
+          </Button>
+        </Box>
         <FormControl>
-          <HStack>
-            <Switch
-              isChecked={eligibilityChecked}
-              onChange={() => setEligibilityChecked(!eligibilityChecked)}
-              isDisabled={!mutable}
+          <Box>
+            <Input
+              name='eligibility'
+              label='ELIGIBILITY'
+              info='https://docs.hatsprotocol.xyz/#eligibility'
+              placeholder='0x1234, vitalik.eth'
+              rightElement={
+                showEligibilityResolvedAddress && <FaCheck color='green' />
+              }
+              localForm={localForm}
+              isDisabled={!hatData?.mutable}
             />
-            {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
-            {eligibilityChecked && (
-              <Box>
-                <Input
-                  name='eligibility'
-                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                  placeholder='0x1234, vitalik.eth'
-                  rightElement={
-                    showEligibilityResolvedAddress && <FaCheck color='green' />
-                  }
-                  localForm={localForm}
-                  isDisabled={!mutable}
-                />
-                {showEligibilityResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500' mt={1}>
-                    Resolved address: {eligibilityResolvedAddress}
-                  </Text>
-                )}
-              </Box>
+            {showEligibilityResolvedAddress && (
+              <Text fontSize='sm' color='gray.500' mt={1}>
+                Resolved address: {eligibilityResolvedAddress}
+              </Text>
             )}
-          </HStack>
+          </Box>
+          <Button
+            colorScheme='blue'
+            isLoading={
+              isLoadingEligibility || isLoadingEligibilityResolvedAddress
+            }
+            isDisabled={isEligibilityDisabled}
+            onClick={() => writeAsyncEligibility?.()}
+            mt={4}
+          >
+            Update Eligibility
+          </Button>
         </FormControl>
         <FormControl>
-          <HStack>
-            <Switch
-              isChecked={toggleChecked}
-              onChange={() => setInputChecked(!toggleChecked)}
-              isDisabled={!mutable}
+          <Box>
+            <Input
+              name='toggle'
+              label='TOGGLE'
+              info='https://docs.hatsprotocol.xyz/#toggle'
+              placeholder='0x1234, vitalik.eth'
+              rightElement={
+                showToggleResolvedAddress && <FaCheck color='green' />
+              }
+              localForm={localForm}
+              isDisabled={!hatData?.mutable}
             />
-            {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
-            {toggleChecked && (
-              <Box>
-                <Input
-                  name='toggle'
-                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                  placeholder='0x1234, vitalik.eth'
-                  rightElement={
-                    showToggleResolvedAddress && <FaCheck color='green' />
-                  }
-                  localForm={localForm}
-                  isDisabled={!mutable}
-                />
-                {showToggleResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500' mt={1}>
-                    Resolved address: {toggleResolvedAddress}
-                  </Text>
-                )}
-              </Box>
+            {showToggleResolvedAddress && (
+              <Text fontSize='sm' color='gray.500' mt={1}>
+                Resolved address: {toggleResolvedAddress}
+              </Text>
             )}
-          </HStack>
+          </Box>
+          <Button
+            colorScheme='blue'
+            isLoading={isLoadingToggle || isLoadingToggleResolvedAddress}
+            isDisabled={isToggleDisabled}
+            onClick={() => writeAsyncToggle?.()}
+            mt={4}
+          >
+            Update Toggle
+          </Button>
         </FormControl>
-        <Flex justify='flex-end'>
-          <Button type='submit'>Update</Button>
-        </Flex>
       </Stack>
     </form>
   );

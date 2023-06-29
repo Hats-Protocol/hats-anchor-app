@@ -33,6 +33,10 @@ import { pinJson } from '@/lib/ipfs';
 import { isTopHat, prettyIdToIp } from '@/lib/hats';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import { FaInfoCircle, FaHouseUser, FaCheck, FaTrash } from 'react-icons/fa';
+import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
+import ResponsibilityDetailsForm, {
+  Responsibility,
+} from './ResponsibilityDetailsForm';
 
 const HatDetailsForm = ({
   hatData,
@@ -46,6 +50,8 @@ const HatDetailsForm = ({
     description?: string;
     imageUrl?: string;
     guilds?: string[];
+    responsibilities: Responsibility[];
+    authorities: Authority[];
   };
 }) => {
   const [customImage, setCustomImage] = useState(true);
@@ -62,6 +68,12 @@ const HatDetailsForm = ({
   const { handleSubmit, watch } = localForm;
   const [guilds, setGuilds] = useState(defaultValues.guilds || []);
   const [newGuild, setNewGuild] = useState('');
+  const [responsibilities, setResponsibilities] = useState(
+    defaultValues.responsibilities || [],
+  );
+  const [authorities, setAuthorities] = useState(
+    defaultValues.authorities || [],
+  );
 
   const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
     guildName: newGuild,
@@ -72,8 +84,24 @@ const HatDetailsForm = ({
     setNewGuild('');
   };
 
+  const handleAddResponsibility = ({ link, label }: Responsibility) => {
+    setResponsibilities([...responsibilities, { link, label }]);
+  };
+
+  const handleAddAuthority = ({ link, label }: Authority) => {
+    setAuthorities([...authorities, { link, label }]);
+  };
+
   const handleRemoveGuild = (index: number) => {
     setGuilds(guilds.filter((__: any, i: number) => i !== index));
+  };
+
+  const handleRemoveResponsibility = (index: number) => {
+    setResponsibilities(responsibilities.filter((__, i) => i !== index));
+  };
+
+  const handleRemoveAuthority = (index: number) => {
+    setAuthorities(authorities.filter((__, i) => i !== index));
   };
 
   const name = useDebounce(watch('name', defaultValues?.name || ''));
@@ -86,7 +114,7 @@ const HatDetailsForm = ({
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
-    data: { name, description, guilds },
+    data: { name, description, guilds, responsibilities, authorities },
   });
 
   const {
@@ -139,7 +167,10 @@ const HatDetailsForm = ({
     writeAsync?.();
     writeAsyncImage?.();
     await pinJson(
-      { type: '1.0', data: { name, description, guilds } },
+      {
+        type: '1.0',
+        data: { name, description, guilds, responsibilities, authorities },
+      },
       {
         name: `details_${_.toString(chainId)}_${prettyIdToIp(
           _.get(hatData, 'admin.id'),
@@ -165,6 +196,21 @@ const HatDetailsForm = ({
               label='Description'
               placeholder='Hat description'
             />
+
+            <ResponsibilityDetailsForm
+              responsibilities={responsibilities}
+              setResponsibilities={setResponsibilities}
+              handleAddResponsibility={handleAddResponsibility}
+              handleRemoveResponsibility={handleRemoveResponsibility}
+            />
+
+            <AuthorityDetailsForm
+              authorities={authorities}
+              setAuthorities={setAuthorities}
+              handleAddAuthority={handleAddAuthority}
+              handleRemoveAuthority={handleRemoveAuthority}
+            />
+
             <Switch
               isChecked={customImage}
               onChange={() => setCustomImage(!customImage)}

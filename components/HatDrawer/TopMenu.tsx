@@ -30,6 +30,8 @@ import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import { useAccount } from 'wagmi';
 import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 import { isTopHat } from '@/lib/hats';
+import HatCreateForm from '@/forms/HatCreateForm';
+import Modal from '@/components/Modal';
 
 const TopMenu = ({
   chainId,
@@ -39,8 +41,9 @@ const TopMenu = ({
   editMode,
   setEditMode,
   isAdminUser,
+  localOverlay,
 }: TopMenuProps) => {
-  console.log('isAdminUser', isAdminUser);
+  const { setModals } = localOverlay;
   const { address } = useAccount();
   const toast = useToast();
 
@@ -50,9 +53,9 @@ const TopMenu = ({
   } = useHatMakeImmutable({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
-    hatData,
+    hatId: hatData.id,
+    levelAtLocalTree: hatData.levelAtLocalTree,
   });
-
   const { writeAsync: deactivateHat, isLoading: isLoadingDeactivateHat } =
     useHatStatusUpdate({
       hatsAddress: CONFIG.hatsAddress,
@@ -118,7 +121,7 @@ const TopMenu = ({
             >
               <HStack>
                 <Icon as={FaEdit} />
-                <Text>{editMode ? 'Save' : 'Edit'}</Text>
+                <Text>{editMode ? 'Exit' : 'Edit'}</Text>
               </HStack>
             </Button>
           </Tooltip>
@@ -188,6 +191,15 @@ const TopMenu = ({
                     </HStack>
                   </MenuItem>
                 </Tooltip>
+                <MenuItem
+                  gap={2}
+                  onClick={() => setModals?.({ createHat: true })}
+                >
+                  <HStack>
+                    <FaDoorOpen />
+                    <Text>Add Child Hat</Text>
+                  </HStack>
+                </MenuItem>
               </>
             )}
             <MenuItem
@@ -216,11 +228,18 @@ const TopMenu = ({
             </MenuItem>
             <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
               <FaExclamationCircle />
-              Report this hat
+              Report this Hat
             </MenuItem>
           </MenuList>
         </Menu>
       </HStack>
+
+      <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
+        <HatCreateForm
+          defaultAdmin={hatData.prettyId}
+          treeId={hatData.treeId}
+        />
+      </Modal>
     </Flex>
   );
 };
@@ -235,4 +254,5 @@ interface TopMenuProps {
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
+  localOverlay: any;
 }

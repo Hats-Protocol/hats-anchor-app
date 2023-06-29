@@ -14,6 +14,8 @@ import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
+import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -31,6 +33,10 @@ const SelectedHatDrawer = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [guilds, setGuilds] = useState<any[]>([]);
+  const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
+    [],
+  );
   const [activeStatus, setActiveStatus] = useState('Inactive');
   const [mutableStatus, setMutableStatus] = useState('Immutable');
   const { setModals } = localOverlay;
@@ -39,31 +45,32 @@ const SelectedHatDrawer = ({
     guildNames: guilds,
     hatId: hatData.id,
   });
-  console.log('hatRoles', hatRoles);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
   });
-  const currentWearerHats = _.map(_.get(wearer, 'currentHats'), 'prettyId');
+  const currentWearerHats = _.map(wearer, 'prettyId');
   const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
-  console.log('isAdminUser', isAdminUser);
 
   useEffect(() => {
     if (selectedHatId) {
-      const data = _.find(hatsData, ['id', selectedHatId]);
+      const data = _.find(hatsData, ['prettyId', selectedHatId]);
 
       if (data) {
         setHatData(data);
         const { status, mutable, details, detailsObject } = data;
 
-        let name = details;
+        let detailName = details;
         if (detailsObject?.type === '1.0') {
-          name = detailsObject?.data?.name;
+          detailName = detailsObject?.data?.name;
         }
-        setName(name);
+        setName(detailName);
         if (detailsObject?.type === '1.0') {
+          console.log('detailsObject?.data', detailsObject?.data);
           setDescription(detailsObject?.data?.description);
           setGuilds(detailsObject?.data?.guilds);
+          setAuthorities(detailsObject?.data?.authorities);
+          setResponsibilities(detailsObject?.data?.responsibilities);
         }
 
         setActiveStatus(status ? 'Active' : 'Inactive');
@@ -115,6 +122,7 @@ const SelectedHatDrawer = ({
           editMode={editMode}
           setEditMode={setEditMode}
           isAdminUser={isAdminUser}
+          localOverlay={localOverlay}
         />
 
         {!editMode && (
@@ -124,6 +132,8 @@ const SelectedHatDrawer = ({
             isEligible={!!isEligible}
             name={name}
             description={description}
+            responsibilities={responsibilities}
+            authorities={authorities}
             hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
@@ -141,6 +151,8 @@ const SelectedHatDrawer = ({
             description={description}
             imageUrl={hatData?.imageUri}
             guilds={guilds}
+            authorities={authorities}
+            responsibilities={responsibilities}
           />
         )}
 

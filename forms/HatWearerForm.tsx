@@ -15,6 +15,7 @@ import {
   useDisclosure,
   Collapse,
   Box,
+  HStack,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import Papa from 'papaparse';
@@ -29,13 +30,13 @@ import {
   FaChevronUp,
   FaChevronDown,
   FaInfoCircle,
+  FaRegQuestionCircle,
 } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
 import useHatMint from '@/hooks/useHatMint';
 
 const HatWearerForm = ({
@@ -47,33 +48,49 @@ const HatWearerForm = ({
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
   const [wearers, setWearers] = useState<any[]>([]);
-  const [newAddress, setNewAddress] = useState('');
   const [isNewAddress, setIsNewAddress] = useState(false);
-
-  const newWearer = useDebounce(newAddress, CONFIG.debounce);
-  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
-    name: newAddress.includes('.eth') ? newAddress : null,
-    chainId: 1,
-  });
+  const [currentInput, setCurrentInput] = useState('');
 
   useEffect(() => {
-    setIsNewAddress(isAddress(newAddress));
-  }, [newAddress]);
+    setIsNewAddress(isAddress(currentInput));
+  }, [currentInput]);
 
   const isAddressAlreadyAdded =
     wearers.some(
-      (wearer) => wearer.address === newAddress || wearer.ens === newAddress,
-    ) || currentWearers.includes(newAddress);
+      (wearer) =>
+        wearer.address === currentInput || wearer.ens === currentInput,
+    ) || currentWearers.includes(currentInput);
+
+  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
+    name: currentInput.includes('.eth') ? currentInput : null,
+    chainId: 1,
+  });
 
   const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
-    newWearers: wearers.map((wearer) => wearer.address),
+    newWearers: wearers
+      .map((wearer) => wearer.address)
+      .concat(
+        // just concat if this resolves into something that is not undefined
+        (isNewAddress ? currentInput : ensResolvedAddress)
+          ? [isNewAddress ? currentInput : ensResolvedAddress]
+          : [],
+      ),
   });
 
   const onSubmit = async () => {
     await writeAsync?.();
+  };
+
+  const handleAddWearer = () => {
+    const address = isNewAddress ? currentInput : ensResolvedAddress;
+    setWearers((prevWearers) => [
+      ...prevWearers,
+      { address, ens: isEnsAddress && currentInput },
+    ]);
+    setCurrentInput('');
   };
 
   const isNewWearerAddress = isNewAddress || ensResolvedAddress;
@@ -81,12 +98,6 @@ const HatWearerForm = ({
     currentWearers.length + wearers.length + 1 > maxSupply;
   const canAddWearer =
     isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
-
-  const handleAddWearer = () => {
-    const address = isNewAddress ? newWearer : ensResolvedAddress;
-    setWearers([...wearers, { address, ens: isEnsAddress && newWearer }]);
-    setNewAddress('');
-  };
 
   const handleRemoveWearer = (index: number) => {
     setWearers(_.filter(wearers, (__, i) => i !== index));
@@ -124,7 +135,8 @@ const HatWearerForm = ({
     });
 
   let toolTip = '';
-  if (isNewWearerAddress) {
+
+  if (!isNewWearerAddress) {
     toolTip = 'Please input a valid address';
   } else if (isAddressAlreadyAdded) {
     toolTip = 'Address already added';
@@ -135,8 +147,12 @@ const HatWearerForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
+        <HStack>
+          <Text>WEARER ADDRESS</Text>
+          <FaRegQuestionCircle />
+        </HStack>
         <Text color='gray.500'>
-          Mint this hat to multiple addresses at once!
+          The address will receive a Hat token and become a Wearer.
         </Text>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
           <Flex w='full'>
@@ -149,9 +165,9 @@ const HatWearerForm = ({
                 textOverflow='ellipsis'
                 type='address'
                 placeholder='0x1234, vitalik.eth'
-                value={newAddress}
+                value={currentInput}
                 onChange={(e) =>
-                  setNewAddress(e.target.value?.toLowerCase() ?? '')
+                  setCurrentInput(e.target.value?.toLowerCase() ?? '')
                 }
               />
               {ensResolvedAddress && (
@@ -160,16 +176,18 @@ const HatWearerForm = ({
                 </InputRightElement>
               )}
             </InputGroup>
-            <Tooltip label={toolTip} shouldWrapChildren>
-              <IconButton
-                isDisabled={!canAddWearer}
-                onClick={handleAddWearer}
-                icon={<FaCheck />}
-                aria-label='Add'
-                w={16}
-              />
-            </Tooltip>
           </Flex>
+
+          <Tooltip label={toolTip} shouldWrapChildren>
+            <Button
+              isDisabled={!canAddWearer}
+              onClick={handleAddWearer}
+              aria-label='Add Another Wallet'
+            >
+              <Icon as={FaUserPlus} mr={2} />
+              Add Another Wallet
+            </Button>
+          </Tooltip>
 
           {wearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
@@ -226,10 +244,7 @@ const HatWearerForm = ({
         </Collapse>
 
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={!writeAsync || isLoading || wearers.length === 0}
-          >
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Mint
           </Button>
         </Flex>
