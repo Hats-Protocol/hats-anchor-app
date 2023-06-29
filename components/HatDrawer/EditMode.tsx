@@ -11,12 +11,11 @@ import {
 } from '@chakra-ui/react';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import HatDetailsForm, {
-  Authority,
-  Responsibility,
-} from '@/forms/HatDetailsForm';
+import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 import CustomAccordion from '@/components/CustomAccordion';
+import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 
 const EditMode = ({
   hatData,
