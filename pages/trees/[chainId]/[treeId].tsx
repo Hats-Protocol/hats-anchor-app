@@ -152,7 +152,7 @@ const TreeDetails = ({
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
     _.get(hatData, 'prettyId'),
   )}`;
-  const wearerHats = _.map(_.get(wearerData, 'currentHats', []), 'prettyId');
+  const wearerHats = _.map(wearerData, 'prettyId');
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
     useImageURIs(hatsData, chainId);
 
