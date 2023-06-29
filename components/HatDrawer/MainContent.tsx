@@ -45,7 +45,6 @@ const MainContent = ({
   responsibilities,
   authorities,
 }: MainContentProps) => {
-  console.log('responsibilities', responsibilities);
   const { address } = useAccount();
   const toast = useToast();
 
