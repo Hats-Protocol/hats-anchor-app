@@ -9,6 +9,8 @@ import {
   Badge,
   Heading,
   Link as ChakraLink,
+  UnorderedList,
+  ListItem,
 } from '@chakra-ui/react';
 import {
   FaBan,
@@ -24,6 +26,8 @@ import { prettyIdToIp } from '@/lib/hats';
 import useToast from '@/hooks/useToast';
 import { useAccount } from 'wagmi';
 import WearersList from './WearersList';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
+import { Authority } from '@/forms/AuthorityDetailsForm';
 
 const MainContent = ({
   chainId,
@@ -37,7 +41,10 @@ const MainContent = ({
   setModals,
   localOverlay,
   isAdminUser,
+  responsibilities,
+  authorities,
 }: MainContentProps) => {
+  console.log('responsibilities', responsibilities);
   const { address } = useAccount();
   const toast = useToast();
 
@@ -168,6 +175,56 @@ const MainContent = ({
 
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+            Responsibilities
+          </Heading>
+          <UnorderedList>
+            {!!responsibilities?.length &&
+              responsibilities.map(({ label, link }: Responsibility) => (
+                <ListItem key={label}>
+                  <Flex justifyContent='space-between'>
+                    <Text>{label}</Text>
+                    {link && (
+                      <ChakraLink isExternal href={link} display='block'>
+                        <Icon
+                          as={FaExternalLinkAlt}
+                          w='12px'
+                          color='blue.500'
+                        />
+                      </ChakraLink>
+                    )}
+                  </Flex>
+                </ListItem>
+              ))}
+          </UnorderedList>
+        </Stack>
+
+        <Stack>
+          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+            Responsibilities
+          </Heading>
+          <UnorderedList>
+            {!!authorities?.length &&
+              authorities.map(({ label, link }: Responsibility) => (
+                <ListItem key={label}>
+                  <Flex justifyContent='space-between'>
+                    <Text>{label}</Text>
+                    {link && (
+                      <ChakraLink isExternal href={link} display='block'>
+                        <Icon
+                          as={FaExternalLinkAlt}
+                          w='12px'
+                          color='blue.500'
+                        />
+                      </ChakraLink>
+                    )}
+                  </Flex>
+                </ListItem>
+              ))}
+          </UnorderedList>
+        </Stack>
+
+        <Stack>
+          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Toggle
           </Heading>
           <Flex justifyContent='space-between'>
@@ -205,8 +262,6 @@ const MainContent = ({
                 key={`${event?.transactionID}-${event?.id}`}
                 align='center'
                 justify='space-between'
-                borderBottom='1px'
-                borderColor='gray.200'
                 py={2}
               >
                 <Text>{`${formatDistanceToNow(
@@ -246,4 +301,6 @@ interface MainContentProps {
   setModals: any;
   localOverlay: any;
   isAdminUser: boolean;
+  responsibilities: Responsibility[];
+  authorities: Authority[];
 }

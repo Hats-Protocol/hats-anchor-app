@@ -14,19 +14,6 @@ import {
   Tooltip,
   Input as ChakraInput,
   Text,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  useDisclosure,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -45,20 +32,11 @@ import useCid from '@/hooks/useCid';
 import { pinJson } from '@/lib/ipfs';
 import { isTopHat, prettyIdToIp } from '@/lib/hats';
 import useResolveGuild from '@/hooks/useResolvedGuild';
-import {
-  FaInfoCircle,
-  FaHouseUser,
-  FaCheck,
-  FaTrash,
-  FaPlus,
-} from 'react-icons/fa';
+import { FaInfoCircle, FaHouseUser, FaCheck, FaTrash } from 'react-icons/fa';
 import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
-import ResponsibilityDetailsForm from './ResponsibilityDetailsForm';
-
-export type Responsibility = {
-  link: string;
-  label: string;
-};
+import ResponsibilityDetailsForm, {
+  Responsibility,
+} from './ResponsibilityDetailsForm';
 
 const HatDetailsForm = ({
   hatData,

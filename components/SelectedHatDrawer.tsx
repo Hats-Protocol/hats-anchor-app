@@ -14,7 +14,8 @@ import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
-import { Authority, Responsibility } from '@/forms/HatDetailsForm';
+import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -131,6 +132,8 @@ const SelectedHatDrawer = ({
             isEligible={!!isEligible}
             name={name}
             description={description}
+            responsibilities={responsibilities}
+            authorities={authorities}
             hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
