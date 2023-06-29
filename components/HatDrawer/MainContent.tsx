@@ -178,7 +178,7 @@ const MainContent = ({
             Responsibilities
           </Heading>
           <UnorderedList>
-            {!!responsibilities?.length &&
+            {responsibilities?.length ? (
               responsibilities.map(({ label, link }: Responsibility) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
@@ -194,16 +194,19 @@ const MainContent = ({
                     )}
                   </Flex>
                 </ListItem>
-              ))}
+              ))
+            ) : (
+              <ListItem>None</ListItem>
+            )}
           </UnorderedList>
         </Stack>
 
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Responsibilities
+            Authorities
           </Heading>
           <UnorderedList>
-            {!!authorities?.length &&
+            {authorities?.length ? (
               authorities.map(({ label, link }: Responsibility) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
@@ -219,7 +222,10 @@ const MainContent = ({
                     )}
                   </Flex>
                 </ListItem>
-              ))}
+              ))
+            ) : (
+              <ListItem>None</ListItem>
+            )}
           </UnorderedList>
         </Stack>
 
