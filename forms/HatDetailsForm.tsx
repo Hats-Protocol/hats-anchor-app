@@ -15,6 +15,18 @@ import {
   Input as ChakraInput,
   Text,
   HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  useDisclosure,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -40,13 +52,10 @@ import {
   FaTrash,
   FaPlus,
 } from 'react-icons/fa';
+import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
+import ResponsibilityDetailsForm from './ResponsibilityDetailsForm';
 
 export type Responsibility = {
-  link: string;
-  label: string;
-};
-
-export type Authority = {
   link: string;
   label: string;
 };
@@ -209,95 +218,20 @@ const HatDetailsForm = ({
               label='Description'
               placeholder='Hat description'
             />
-            <Text fontWeight={500}>Responsibilities</Text>
-            {responsibilities.map((responsibility, index) => (
-              <HStack
-                key={index}
-                alignItems='center'
-                justifyContent='space-between'
-              >
-                <ChakraInput
-                  value={responsibility.label}
-                  onChange={(e) => {
-                    const newArr = [...responsibilities];
-                    newArr[index].label = e.target.value;
-                    setResponsibilities(newArr);
-                  }}
-                  placeholder='Label'
-                />
-                <ChakraInput
-                  value={responsibility.link}
-                  onChange={(e) => {
-                    const newArr = [...responsibilities];
-                    newArr[index].link = e.target.value;
-                    setResponsibilities(newArr);
-                  }}
-                  placeholder='Link'
-                />
-                <IconButton
-                  icon={<FaTrash />}
-                  aria-label='Remove'
-                  onClick={() => handleRemoveResponsibility(index)}
-                />
-              </HStack>
-            ))}
-            <Box>
-              <Button
-                onClick={() => handleAddResponsibility({ link: '', label: '' })}
-                isDisabled={
-                  responsibilities[responsibilities.length - 1]?.label === '' &&
-                  responsibilities[responsibilities.length - 1]?.link === ''
-                }
-                gap={2}
-              >
-                <FaPlus /> Add Responsibility
-              </Button>
-            </Box>
-            <Text fontWeight={500}>Authorities</Text>
-            {authorities.map((authority, index) => (
-              <HStack
-                key={index}
-                alignItems='center'
-                justifyContent='space-between'
-              >
-                <ChakraInput
-                  value={authority.label}
-                  onChange={(e) => {
-                    const newArr = [...authorities];
-                    newArr[index].label = e.target.value;
-                    setAuthorities(newArr);
-                  }}
-                  placeholder='Label'
-                />
-                <ChakraInput
-                  value={authority.link}
-                  onChange={(e) => {
-                    const newArr = [...authorities];
-                    newArr[index].link = e.target.value;
-                    setAuthorities(newArr);
-                  }}
-                  placeholder='Link'
-                />
-                <IconButton
-                  icon={<FaTrash />}
-                  aria-label='Remove'
-                  onClick={() => handleRemoveAuthority(index)}
-                />
-              </HStack>
-            ))}
-            <Box mb={2}>
-              <Button
-                onClick={() => handleAddAuthority({ link: '', label: '' })}
-                isDisabled={
-                  authorities[authorities.length - 1]?.label === '' &&
-                  authorities[authorities.length - 1]?.link === ''
-                }
-                gap={2}
-              >
-                <FaPlus />
-                Add Authority
-              </Button>
-            </Box>
+
+            <ResponsibilityDetailsForm
+              responsibilities={responsibilities}
+              setResponsibilities={setResponsibilities}
+              handleAddResponsibility={handleAddResponsibility}
+              handleRemoveResponsibility={handleRemoveResponsibility}
+            />
+
+            <AuthorityDetailsForm
+              authorities={authorities}
+              setAuthorities={setAuthorities}
+              handleAddAuthority={handleAddAuthority}
+              handleRemoveAuthority={handleRemoveAuthority}
+            />
 
             <Switch
               isChecked={customImage}
