@@ -6,9 +6,14 @@ import {
   InputGroup,
   InputRightElement,
   InputProps as ChakraInputProps,
+  Tooltip,
+  HStack,
+  Text,
+  Flex,
 } from '@chakra-ui/react';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { FaRegQuestionCircle } from 'react-icons/fa';
 
 /**
  * Primary Input component for React Hook Form
@@ -24,6 +29,7 @@ import { UseFormReturn } from 'react-hook-form';
 const Input = ({
   label,
   name,
+  info,
   type = 'text',
   options,
   localForm,
@@ -35,7 +41,18 @@ const Input = ({
 
   return (
     <FormControl {...props}>
-      {label && <FormLabel>{label}</FormLabel>}
+      {label && (
+        <FormLabel>
+          <HStack>
+            <Text>{label}</Text>
+            {info && (
+              <Tooltip shouldWrapChildren label={info}>
+                <FaRegQuestionCircle />
+              </Tooltip>
+            )}
+          </HStack>
+        </FormLabel>
+      )}
       <InputGroup {...props}>
         <ChakraInput type={type} {...register(name, options)} {...props} />
         {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
@@ -49,6 +66,7 @@ export default Input;
 interface InputProps extends ChakraInputProps {
   label?: string;
   name: string;
+  info?: string;
   type?: string;
   options?: object;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

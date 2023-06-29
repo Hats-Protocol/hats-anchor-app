@@ -16,7 +16,8 @@ import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 const useHatMakeImmutable = ({
   hatsAddress,
   chainId,
-  hatData,
+  hatId,
+  levelAtLocalTree,
 }: UseHatMakeImmutableProps) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
@@ -29,12 +30,9 @@ const useHatMakeImmutable = ({
     abi,
     functionName: 'makeHatImmutable',
     args: [
-      decimalId(_.get(hatData, 'id')), // not a valid fallback? enabled handles, mostly for type
+      decimalId(hatId), // not a valid fallback? enabled handles, mostly for type
     ],
-    enabled:
-      !!hatsAddress &&
-      !!decimalId(_.get(hatData, 'id')) &&
-      _.gt(_.get(hatData, 'levelAtLocalTree'), 0),
+    enabled: !!hatsAddress && !!decimalId(hatId) && _.gt(levelAtLocalTree, 0),
   });
 
   const { writeAsync } = useContractWrite({
@@ -52,17 +50,17 @@ const useHatMakeImmutable = ({
         toastData: {
           title: 'Hat Updated!',
           description: `Successfully made hat #${prettyIdToIp(
-            idToPrettyId(_.get(hatData, 'id')),
+            idToPrettyId(hatId),
           )} immutable`,
         },
       });
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', _.get(hatData, 'id')],
+          queryKey: ['hatDetails', hatId],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+          queryKey: ['treeDetails', toTreeId(hatId)],
         });
       }, 4000);
     },
@@ -93,5 +91,6 @@ export default useHatMakeImmutable;
 interface UseHatMakeImmutableProps {
   hatsAddress?: `0x${string}`;
   chainId: number;
-  hatData: any;
+  hatId: string;
+  levelAtLocalTree: number;
 }

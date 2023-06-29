@@ -53,7 +53,8 @@ const TopMenu = ({
   } = useHatMakeImmutable({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
-    hatData,
+    hatId: hatData.id,
+    levelAtLocalTree: hatData.levelAtLocalTree,
   });
   const { writeAsync: deactivateHat, isLoading: isLoadingDeactivateHat } =
     useHatStatusUpdate({
@@ -120,7 +121,7 @@ const TopMenu = ({
             >
               <HStack>
                 <Icon as={FaEdit} />
-                <Text>{editMode ? 'Save' : 'Edit'}</Text>
+                <Text>{editMode ? 'Exit' : 'Edit'}</Text>
               </HStack>
             </Button>
           </Tooltip>

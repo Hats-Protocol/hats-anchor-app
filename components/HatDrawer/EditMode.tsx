@@ -84,6 +84,9 @@ const EditMode = ({
             <HatWearersAndAdminsForm
               defaultAdmin={hatData.admin?.prettyId}
               mutable={hatData.mutable}
+              chainId={chainId}
+              hatData={hatData}
+              levelAtLocalTree={hatData.levelAtLocalTree}
             />
           </Stack>
         </CustomAccordion>
