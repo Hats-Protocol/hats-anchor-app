@@ -18,7 +18,7 @@ import {
   useDisclosure,
   Text,
 } from '@chakra-ui/react';
-import { FaEllipsisV, FaPlus } from 'react-icons/fa';
+import { FaEllipsisV, FaPlus, FaKey } from 'react-icons/fa';
 import { useState } from 'react';
 
 export type Authority = {
@@ -52,65 +52,76 @@ const AuthorityDetailsForm = ({
 
   return (
     <>
-      <Text fontWeight={500}>Authorities</Text>
+      <HStack alignItems='center' ml={-6}>
+        <FaKey />
+        <Text fontWeight={500}>Authorities</Text>
+      </HStack>
       {authorities.map((authority, index) => (
-        <HStack
-          key={authority.label}
-          alignItems='center'
-          justifyContent='space-between'
-        >
-          <ChakraInput
-            value={authority.label}
-            onChange={(e) => {
-              const newArr = [...authorities];
-              newArr[index].label = e.target.value;
-              setAuthorities(newArr);
-            }}
-            placeholder='Label'
-          />
-
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label='Options'
-              icon={<FaEllipsisV />}
-              variant='outline'
+        <>
+          <HStack
+            key={authority.label}
+            alignItems='center'
+            justifyContent='space-between'
+          >
+            <ChakraInput
+              value={authority.label}
+              onChange={(e) => {
+                const newArr = [...authorities];
+                newArr[index].label = e.target.value;
+                setAuthorities(newArr);
+              }}
+              placeholder='Label'
             />
-            <MenuList>
-              <MenuItem onClick={() => handleEdit(index)}>Edit Link</MenuItem>
-              <MenuItem onClick={() => handleRemoveAuthority(index)}>
-                Delete
-              </MenuItem>
-            </MenuList>
-          </Menu>
 
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Edit Authority Link</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <ChakraInput
-                  value={authorities[currentAuthorityIndex]?.link}
-                  onChange={(e) => {
-                    const newArr = [...authorities];
-                    newArr[currentAuthorityIndex].link = e.target.value;
-                    setAuthorities(newArr);
-                  }}
-                  placeholder='Link'
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button colorScheme='blue' mr={3} onClick={handleSave}>
-                  Ok
-                </Button>
-                <Button variant='ghost' onClick={onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </HStack>
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label='Options'
+                icon={<FaEllipsisV />}
+                variant='outline'
+              />
+              <MenuList>
+                <MenuItem onClick={() => handleEdit(index)}>Edit Link</MenuItem>
+                <MenuItem onClick={() => handleRemoveAuthority(index)}>
+                  Delete
+                </MenuItem>
+              </MenuList>
+            </Menu>
+
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Edit Authority Link</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <ChakraInput
+                    value={authorities[currentAuthorityIndex]?.link}
+                    onChange={(e) => {
+                      const newArr = [...authorities];
+                      newArr[currentAuthorityIndex].link = e.target.value;
+                      setAuthorities(newArr);
+                    }}
+                    placeholder='Link'
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button colorScheme='blue' mr={3} onClick={handleSave}>
+                    Ok
+                  </Button>
+                  <Button variant='ghost' onClick={onClose}>
+                    Cancel
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </HStack>
+
+          {authorities[currentAuthorityIndex]?.link && (
+            <Text fontSize='sm' color='gray.500'>
+              {authorities[currentAuthorityIndex]?.link}
+            </Text>
+          )}
+        </>
       ))}
       <Box mb={2}>
         <Button
