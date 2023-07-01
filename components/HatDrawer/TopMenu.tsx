@@ -41,6 +41,7 @@ const TopMenu = ({
   editMode,
   setEditMode,
   isAdminUser,
+  isCurrentWearer,
   localOverlay,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
@@ -172,6 +173,10 @@ const TopMenu = ({
                     </HStack>
                   </Tooltip>
                 </MenuItem>
+              </>
+            )}
+            {isAdminUser ||
+              (isCurrentWearer && (
                 <MenuItem
                   gap={2}
                   onClick={() => setModals?.({ createHat: true })}
@@ -181,8 +186,7 @@ const TopMenu = ({
                     <Text>Add Child Hat</Text>
                   </HStack>
                 </MenuItem>
-              </>
-            )}
+              ))}
             <Tooltip
               label={
                 containsNotHatsToggleErrorMessage(prepareError?.message)
@@ -254,5 +258,6 @@ interface TopMenuProps {
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
+  isCurrentWearer: boolean;
   localOverlay: any;
 }

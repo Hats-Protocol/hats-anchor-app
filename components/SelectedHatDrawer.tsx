@@ -50,6 +50,7 @@ const SelectedHatDrawer = ({
     wearerAddress: address,
   });
   const currentWearerHats = _.map(_.filter(wearer, { chainId }), 'prettyId');
+  const isCurrentWearer = _.includes(currentWearerHats, selectedHatId);
   const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
 
   useEffect(() => {
@@ -124,6 +125,7 @@ const SelectedHatDrawer = ({
           editMode={editMode}
           setEditMode={setEditMode}
           isAdminUser={isAdminUser}
+          isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
         />
 
