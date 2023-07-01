@@ -172,25 +172,6 @@ const TopMenu = ({
                     </HStack>
                   </Tooltip>
                 </MenuItem>
-                <Tooltip
-                  label={
-                    containsNotHatsToggleErrorMessage(prepareError?.message)
-                      ? 'The toggle is not "humanistic"'
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <MenuItem
-                    gap={2}
-                    onClick={() => checkHatStatus?.()}
-                    isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
-                  >
-                    <HStack>
-                      <FaDoorOpen />
-                      <Text>Test Status</Text>
-                    </HStack>
-                  </MenuItem>
-                </Tooltip>
                 <MenuItem
                   gap={2}
                   onClick={() => setModals?.({ createHat: true })}
@@ -202,6 +183,25 @@ const TopMenu = ({
                 </MenuItem>
               </>
             )}
+            <Tooltip
+              label={
+                containsNotHatsToggleErrorMessage(prepareError?.message)
+                  ? 'The toggle is "humanistic"'
+                  : ''
+              }
+              shouldWrapChildren
+            >
+              <MenuItem
+                gap={2}
+                onClick={() => checkHatStatus?.()}
+                isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
+              >
+                <HStack>
+                  <FaDoorOpen />
+                  <Text>Test Status</Text>
+                </HStack>
+              </MenuItem>
+            </Tooltip>
             <MenuItem
               gap={2}
               onClick={() => {
