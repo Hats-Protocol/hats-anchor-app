@@ -144,6 +144,7 @@ const SelectedHatDrawer = ({
             setModals={setModals}
             localOverlay={localOverlay}
             isAdminUser={isAdminUser}
+            isCurrentWearer={isCurrentWearer}
           />
         )}
 

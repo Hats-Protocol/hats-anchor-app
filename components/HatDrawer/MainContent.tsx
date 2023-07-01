@@ -39,6 +39,7 @@ const MainContent = ({
   isAdminUser,
   responsibilities,
   authorities,
+  isCurrentWearer,
 }: MainContentProps) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -83,7 +84,7 @@ const MainContent = ({
             </Stack>
           </Flex>
           <HStack>
-            <Badge colorScheme='green'>My Hat</Badge>
+            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
             <Badge colorScheme={mutableStatus === 'Mutable' ? 'blue' : 'red'}>
               {mutableStatus}
             </Badge>
@@ -308,4 +309,5 @@ interface MainContentProps {
   isAdminUser: boolean;
   responsibilities: Responsibility[];
   authorities: Authority[];
+  isCurrentWearer: boolean;
 }
