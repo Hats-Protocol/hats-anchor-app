@@ -106,6 +106,7 @@ const SelectedHatDrawer = ({
           src={hatData?.imageUrl ? hatData?.imageUrl : '/icon.jpeg'}
           alt='hat image'
           position='absolute'
+          background='white'
           w='100px'
           h='100px'
           border='2px solid'
