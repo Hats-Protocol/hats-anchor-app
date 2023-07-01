@@ -11,6 +11,7 @@ import {
   Link as ChakraLink,
   UnorderedList,
   ListItem,
+  Tooltip,
 } from '@chakra-ui/react';
 import {
   FaBan,
@@ -63,25 +64,29 @@ const MainContent = ({
       >
         <Stack spacing={4}>
           <Flex align='start' justify='space-between'>
-            <Stack>
-              <Text>{name}</Text>
+            <Stack w='full'>
+              <HStack>
+                <Tooltip label={name} aria-label='A tooltip'>
+                  <Box isTruncated>{name}</Box>
+                </Tooltip>
+                <HStack>
+                  <Text whiteSpace='nowrap'>Hat ID:</Text>
+                  <Text color='blue.500'>{prettyIdToIp(hatData.prettyId)}</Text>
+                  <Icon
+                    as={FaCopy}
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => {
+                      navigator.clipboard.writeText(hatData?.id);
+                      toast.info({
+                        title: 'Successfully copied Hat id to clipboard',
+                      });
+                    }}
+                  />
+                </HStack>
+              </HStack>
               <Text>{description}</Text>
             </Stack>
-            <HStack>
-              <Text>Hat ID:</Text>
-              <Text color='blue.500'>{prettyIdToIp(hatData.prettyId)}</Text>
-              <Icon
-                as={FaCopy}
-                color='blue.500'
-                cursor='pointer'
-                onClick={() => {
-                  navigator.clipboard.writeText(hatData?.id);
-                  toast.info({
-                    title: 'Successfully copied Hat id to clipboard',
-                  });
-                }}
-              />
-            </HStack>
           </Flex>
           <HStack>
             <Badge colorScheme='green'>My Hat</Badge>
