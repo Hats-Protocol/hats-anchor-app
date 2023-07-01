@@ -13,13 +13,7 @@ import {
   ListItem,
   Tooltip,
 } from '@chakra-ui/react';
-import {
-  FaBan,
-  FaCheck,
-  FaChevronDown,
-  FaCopy,
-  FaExternalLinkAlt,
-} from 'react-icons/fa';
+import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 
 import { explorerUrl } from '@/lib/general';
@@ -164,22 +158,6 @@ const MainContent = ({
 
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Eligibility
-          </Heading>
-          <Flex justifyContent='space-between'>
-            <HStack>
-              <Text>Can I wear this hat?</Text> <FaChevronDown />
-            </HStack>
-
-            <HStack color={isEligible ? 'green.500' : 'red.500'} ml={2}>
-              <Text>{isEligible ? 'Yes' : 'No'}</Text>
-              {isEligible ? <FaCheck /> : <FaBan />}
-            </HStack>
-          </Flex>
-        </Stack>
-
-        <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Responsibilities
           </Heading>
           <UnorderedList>
@@ -236,11 +214,27 @@ const MainContent = ({
 
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+            Eligibility
+          </Heading>
+          <Flex justifyContent='space-between'>
+            <HStack>
+              <Text>Can I wear this hat?</Text>
+            </HStack>
+
+            <HStack color={isEligible ? 'green.500' : 'red.500'} ml={2}>
+              <Text>{isEligible ? 'Yes' : 'No'}</Text>
+              {isEligible ? <FaCheck /> : <FaBan />}
+            </HStack>
+          </Flex>
+        </Stack>
+
+        <Stack>
+          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Toggle
           </Heading>
           <Flex justifyContent='space-between'>
             <HStack>
-              <Text>Can I toggle this hat?</Text> <FaChevronDown />
+              <Text>Can I toggle this hat?</Text>
             </HStack>
 
             <HStack
