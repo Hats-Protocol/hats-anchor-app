@@ -234,7 +234,7 @@ const MainContent = ({
           </Heading>
           <Flex justifyContent='space-between'>
             <HStack>
-              <Text>Can I toggle this hat?</Text>
+              <Text>Is this hat active?</Text>
             </HStack>
 
             <HStack
