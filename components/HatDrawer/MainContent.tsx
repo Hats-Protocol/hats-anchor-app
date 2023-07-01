@@ -62,7 +62,9 @@ const MainContent = ({
             <Stack w='full'>
               <HStack>
                 <Tooltip label={name} aria-label='A tooltip'>
-                  <Box isTruncated>{name}</Box>
+                  <Text fontSize={24} isTruncated>
+                    {name}
+                  </Text>
                 </Tooltip>
                 <HStack>
                   <Text whiteSpace='nowrap'>Hat ID:</Text>
