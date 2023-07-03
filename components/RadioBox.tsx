@@ -2,21 +2,21 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  Icon,
+  Stack,
+  Tooltip,
   useRadio,
   useRadioGroup,
-  HStack,
-  VStack,
   useStyleConfig,
-  FormControl,
-  FormLabel,
-  FormHelperText,
-  FormErrorMessage,
-  Stack,
-  Flex,
-  Icon,
-  Tooltip,
+  VStack,
 } from '@chakra-ui/react';
-import React, { useEffect, ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useController } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 

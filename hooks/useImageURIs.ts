@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { Abi } from 'viem';
 import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
@@ -6,8 +8,6 @@ import abi from '@/contracts/Hats.json';
 import { isImageUrl } from '@/lib/general';
 import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 import { IHat } from '@/types';
-import { useQuery } from '@tanstack/react-query';
-import { Abi } from 'viem';
 
 /**
  * returns an object, mapping from hat id to image url.

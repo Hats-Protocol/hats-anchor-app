@@ -1,19 +1,19 @@
 import {
-  Stack,
-  Flex,
-  Button,
-  Spinner,
-  Switch,
-  FormControl,
   Box,
+  Button,
+  Input as ChakraInput,
+  Flex,
+  FormControl,
   Icon,
   IconButton,
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Tooltip,
-  Input as ChakraInput,
+  Spinner,
+  Stack,
+  Switch,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -21,18 +21,18 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 
 import DropZone from '@/components/DropZone';
-import Textarea from '@/components/Textarea';
 import Input from '@/components/Input';
+import Textarea from '@/components/Textarea';
 import CONFIG from '@/constants';
+import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
+import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
 import useHatImageUpdate from '@/hooks/useHatImageUpdate';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
-import useCid from '@/hooks/useCid';
-import { pinJson } from '@/lib/ipfs';
-import { isTopHat, prettyIdToIp } from '@/lib/hats';
 import useResolveGuild from '@/hooks/useResolvedGuild';
-import { FaInfoCircle, FaHouseUser, FaCheck, FaTrash } from 'react-icons/fa';
+import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
+import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
 import ResponsibilityDetailsForm, {
   Responsibility,

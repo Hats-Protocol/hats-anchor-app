@@ -1,39 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import _ from 'lodash';
 import {
-  Flex,
-  HStack,
-  Text,
-  Stack,
-  Heading,
-  Input,
-  InputLeftElement,
-  InputGroup,
-  Image,
-  Tooltip,
   Box,
+  Flex,
+  Heading,
+  HStack,
+  IconButton,
+  Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  IconButton,
+  MenuList,
+  Stack,
+  Text,
+  Tooltip,
 } from '@chakra-ui/react';
-import { FaPlus, FaSearch, FaUser, FaEllipsisH } from 'react-icons/fa';
 import { readContract } from '@wagmi/core';
-
-import { formatAddress } from '@/lib/general';
-import CONFIG from '@/constants';
-import { useAccount } from 'wagmi';
+import _ from 'lodash';
 import Link from 'next/link';
-import useHatBurn from '@/hooks/useHatBurn';
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
+import { useEffect, useState } from 'react';
+import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
+import { useAccount } from 'wagmi';
+
 import Modal from '@/components/Modal';
-import { checkENSNames } from '@/lib/contract';
-import { IHatWearer } from '@/types';
-import HatWearerForm from '@/forms/HatWearerForm';
-import HatTransferForm from '@/forms/HatTransferForm';
+import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
+import HatTransferForm from '@/forms/HatTransferForm';
+import HatWearerForm from '@/forms/HatWearerForm';
+import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
+import useHatBurn from '@/hooks/useHatBurn';
 import useToast from '@/hooks/useToast';
+import { checkENSNames } from '@/lib/contract';
+import { formatAddress } from '@/lib/general';
+import { IHatWearer } from '@/types';
 
 const WearersList = ({
   chainId,

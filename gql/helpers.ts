@@ -1,18 +1,18 @@
+import { fetchEnsName } from '@wagmi/core';
 import _ from 'lodash';
 
-import { mapWithChainId } from '@/lib/general';
-import { fetchEnsName } from '@wagmi/core';
 import { checkAddressIsContract } from '@/lib/contract';
+import { mapWithChainId } from '@/lib/general';
 
 import client from './client';
 import {
-  GET_TREE,
   GET_ALL_TREE_IDS,
   GET_ALL_TREES,
-  GET_HAT,
-  GET_WEARER_DETAILS,
   GET_ALL_WEARERS,
+  GET_HAT,
   GET_PAGINATED_TREES,
+  GET_TREE,
+  GET_WEARER_DETAILS,
 } from './queries';
 
 export const fetchTreeDetails = async (

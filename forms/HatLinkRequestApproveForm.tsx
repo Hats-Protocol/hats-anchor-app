@@ -1,30 +1,31 @@
 import {
-  Stack,
-  Flex,
+  Box,
   Button,
+  Flex,
   FormControl,
-  Switch,
   FormLabel,
   HStack,
   Spinner,
+  Stack,
+  Switch,
   Text,
-  Box,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import _ from 'lodash';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+
+import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import DropZone from '@/components/DropZone';
-import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
-import useDebounce from '@/hooks/useDebounce';
 import { ZERO_ADDRESS } from '@/constants';
-import { prettyIdToIp, decimalId } from '@/lib/hats';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { pinJson } from '@/lib/ipfs';
 import useCid from '@/hooks/useCid';
+import useDebounce from '@/hooks/useDebounce';
+import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import { decimalId, prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
 
 const HatLinkRequestApproveForm = ({
   topHatDomain,

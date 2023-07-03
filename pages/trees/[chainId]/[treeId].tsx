@@ -34,6 +34,7 @@ import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp, FaRegCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
+import ChakraNextLink from '@/components/ChakraNextLink';
 import Layout from '@/components/Layout';
 import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 import CONFIG from '@/constants';
@@ -338,7 +339,12 @@ const TreeDetails = ({
             </Box>
             <VStack align='center' alignItems='flex-end' spacing={1}>
               <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
-                <Text>Contract: </Text>
+                <ChakraNextLink
+                  href={`https://etherscan.io/address/${CONFIG.hatsAddress}`}
+                >
+                  <Text>{`${CONFIG.appName} v${CONFIG.hatsVersion}`}</Text>
+                </ChakraNextLink>
+
                 <Text fontWeight={500}>{chain?.name}</Text>
                 <IconButton
                   aria-label='Copy contract address'

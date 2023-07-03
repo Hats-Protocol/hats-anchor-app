@@ -1,4 +1,4 @@
-import { Button, HStack, Flex, Stack, Text, Box } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 

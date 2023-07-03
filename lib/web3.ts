@@ -1,3 +1,5 @@
+import '@rainbow-me/rainbowkit/styles.css';
+
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 // import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc';
@@ -5,16 +7,13 @@ import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
 import { Chain, configureChains, createConfig } from 'wagmi';
 import {
-  mainnet,
-  goerli,
-  polygon,
-  gnosis,
-  optimism,
   arbitrum,
-  // sepolia,
+  gnosis,
+  goerli,
+  mainnet,
+  optimism,
+  polygon,
 } from 'wagmi/chains';
-
-import '@rainbow-me/rainbowkit/styles.css';
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 

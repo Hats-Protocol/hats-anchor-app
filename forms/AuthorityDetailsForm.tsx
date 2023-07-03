@@ -2,24 +2,24 @@ import {
   Box,
   Button,
   HStack,
-  Input as ChakraInput,
+  IconButton,
+  Input,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  IconButton,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
-  ModalFooter,
   ModalCloseButton,
-  useDisclosure,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { FaEllipsisV, FaPlus, FaKey } from 'react-icons/fa';
 import { useState } from 'react';
+import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
 export type Authority = {
   link: string;
@@ -63,7 +63,7 @@ const AuthorityDetailsForm = ({
             alignItems='center'
             justifyContent='space-between'
           >
-            <ChakraInput
+            <Input
               value={authority.label}
               onChange={(e) => {
                 const newArr = [...authorities];
@@ -94,7 +94,7 @@ const AuthorityDetailsForm = ({
                 <ModalHeader>Edit Authority Link</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                  <ChakraInput
+                  <Input
                     value={authorities[currentAuthorityIndex]?.link}
                     onChange={(e) => {
                       const newArr = [...authorities];

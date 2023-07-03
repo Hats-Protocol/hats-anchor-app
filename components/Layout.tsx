@@ -1,9 +1,9 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import React, { useEffect, useState, ReactNode } from 'react';
 import { Box } from '@chakra-ui/react';
-import { useAccount, useConnect, useConfig } from 'wagmi';
+import { ReactNode, useEffect, useState } from 'react';
+import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import CommandPalette from '@/components/CommandPalette';
 import Navbar from '@/components/Navbar';

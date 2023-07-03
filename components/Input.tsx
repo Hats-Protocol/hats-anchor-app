@@ -1,15 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
+// eslint-disable-next-line simple-import-sort/imports
 import {
   Input as ChakraInput,
+  InputProps as ChakraInputProps,
   FormControl,
   FormLabel,
+  HStack,
   InputGroup,
   InputRightElement,
-  InputProps as ChakraInputProps,
-  Tooltip,
-  HStack,
   Text,
-  Flex,
+  Tooltip,
 } from '@chakra-ui/react';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';

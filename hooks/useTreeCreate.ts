@@ -1,14 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useAccount,
-  useWaitForTransaction,
-  useEnsAddress,
-} from 'wagmi';
 import { useState } from 'react';
+import {
+  useAccount,
+  useContractWrite,
+  useEnsAddress,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';

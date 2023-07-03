@@ -1,6 +1,6 @@
-import { HStack, Text, IconButton, Icon, useClipboard } from '@chakra-ui/react';
+import { HStack, Icon, IconButton, Text, useClipboard } from '@chakra-ui/react';
 import _ from 'lodash';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { FaRegCopy } from 'react-icons/fa';
 
 import useToast from '@/hooks/useToast';

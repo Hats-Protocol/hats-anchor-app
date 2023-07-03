@@ -1,10 +1,11 @@
-import _ from 'lodash';
 import { useQuery } from '@tanstack/react-query';
+import _ from 'lodash';
+
+import client from '@/gql/client';
+import { GET_TREES_BY_ID } from '@/gql/queries';
+import { isAdmin } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
 import { IHat, ITree } from '@/types';
-import { GET_TREES_BY_ID } from '@/gql/queries';
-import client from '@/gql/client';
-import { isAdmin } from '@/lib/hats';
 
 const chains = _.keys(chainsList);
 

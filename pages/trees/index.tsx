@@ -1,14 +1,14 @@
-import _ from 'lodash';
-import { Heading, SimpleGrid, Flex, Spinner, Box } from '@chakra-ui/react';
-import { useState, useCallback, useMemo } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { InfiniteData } from '@tanstack/react-query';
+import _ from 'lodash';
+import { useCallback, useMemo, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import Layout from '@/components/Layout';
-import useImageURIs from '@/hooks/useImageURIs';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
+import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { IHat, ITree } from '@/types';
 

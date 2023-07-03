@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import _ from 'lodash';
 import {
+  Button,
   Flex,
-  Image,
   HStack,
   Icon,
   IconButton,
-  Button,
+  Image,
   Stack,
   Text,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
-import { useOverlay } from '@/contexts/OverlayContext';
 import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
-import { urlIdToPrettyId, prettyIdToId } from '@/lib/hats';
+import { prettyIdToId, urlIdToPrettyId } from '@/lib/hats';
 
 const Navbar = () => {
   const localOverlay = useOverlay();

@@ -1,18 +1,16 @@
-import React from 'react';
 import {
+  Button,
   Flex,
   HStack,
   Icon,
-  Button,
-  Text,
+  Link,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  Link,
+  MenuList,
+  Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { FiChevronsRight } from 'react-icons/fi';
 import {
   FaCopy,
   FaDoorOpen,
@@ -22,16 +20,17 @@ import {
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
+import { FiChevronsRight } from 'react-icons/fi';
 
-import CONFIG from '@/constants';
-import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
-import useToast from '@/hooks/useToast';
-import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
-import { useAccount } from 'wagmi';
-import useHatCheckStatus from '@/hooks/useHatCheckStatus';
-import { isTopHat } from '@/lib/hats';
-import HatCreateForm from '@/forms/HatCreateForm';
 import Modal from '@/components/Modal';
+import CONFIG from '@/constants';
+import HatCreateForm from '@/forms/HatCreateForm';
+import useHatCheckStatus from '@/hooks/useHatCheckStatus';
+import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
+import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
+import useToast from '@/hooks/useToast';
+import { isTopHat } from '@/lib/hats';
+import { useAccount } from 'wagmi';
 
 const TopMenu = ({
   chainId,

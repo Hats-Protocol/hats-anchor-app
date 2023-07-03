@@ -4,14 +4,14 @@ import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '@/contexts/OverlayContext';
+import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin } from '@/lib/hats';
 import { HierarchyObject } from '@/types';
 
-import { Authority } from '@/forms/AuthorityDetailsForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
 import MainContent from './HatDrawer/MainContent';

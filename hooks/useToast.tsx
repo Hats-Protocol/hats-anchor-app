@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useToast as useChakraToast, Toast } from '@chakra-ui/react';
+import { Toast, useToast as useChakraToast } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRef } from 'react';
 

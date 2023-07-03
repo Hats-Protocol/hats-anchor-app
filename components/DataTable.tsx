@@ -1,5 +1,5 @@
-import { HStack, Text, Stack } from '@chakra-ui/react';
-import React, { ReactNode } from 'react';
+import { HStack, Stack, Text } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 
 /**
  * Builds a horizontal data table for showing key-value data

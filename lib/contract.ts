@@ -1,7 +1,9 @@
-import { createPublicClient, http, custom } from 'viem';
 import _ from 'lodash';
+import { createPublicClient, custom, http } from 'viem';
 import { mainnet } from 'viem/chains';
+
 import { IHatWearer } from '@/types';
+
 import { chainsMap } from './web3';
 
 export const checkAddressIsContract = async (

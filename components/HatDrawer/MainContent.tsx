@@ -1,28 +1,27 @@
-import React from 'react';
 import {
+  Badge,
   Box,
   Flex,
+  Heading,
   HStack,
   Icon,
-  Text,
-  Stack,
-  Badge,
-  Heading,
-  Link as ChakraLink,
-  UnorderedList,
   ListItem,
+  Stack,
+  Text,
   Tooltip,
+  UnorderedList,
 } from '@chakra-ui/react';
-import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
+import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
+import { useAccount } from 'wagmi';
 
+import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
+import useToast from '@/hooks/useToast';
 import { explorerUrl } from '@/lib/general';
 import { prettyIdToIp } from '@/lib/hats';
-import useToast from '@/hooks/useToast';
-import { useAccount } from 'wagmi';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
-import { Authority } from '@/forms/AuthorityDetailsForm';
 
+import ChakraNextLink from '../ChakraNextLink';
 import WearersList from './WearersList';
 
 const MainContent = ({
@@ -122,7 +121,7 @@ const MainContent = ({
               >
                 <Text>{role}</Text>
 
-                <ChakraLink
+                <ChakraNextLink
                   href={`https://guild.xyz/${guild}`}
                   isExternal
                   display='block'
@@ -131,7 +130,7 @@ const MainContent = ({
                     <Text>Guild.xyz</Text>
                     <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
                   </HStack>
-                </ChakraLink>
+                </ChakraNextLink>
               </Flex>
             ))}
           </Stack>
@@ -170,13 +169,13 @@ const MainContent = ({
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
                     {link && (
-                      <ChakraLink isExternal href={link} display='block'>
+                      <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
                           as={FaExternalLinkAlt}
                           w='12px'
                           color='blue.500'
                         />
-                      </ChakraLink>
+                      </ChakraNextLink>
                     )}
                   </Flex>
                 </ListItem>
@@ -198,13 +197,13 @@ const MainContent = ({
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
                     {link && (
-                      <ChakraLink isExternal href={link} display='block'>
+                      <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
                           as={FaExternalLinkAlt}
                           w='12px'
                           color='blue.500'
                         />
-                      </ChakraLink>
+                      </ChakraNextLink>
                     )}
                   </Flex>
                 </ListItem>
@@ -276,7 +275,7 @@ const MainContent = ({
                   new Date(Number(event?.timestamp) * 1000),
                 )} ago`}</Text>
 
-                <ChakraLink
+                <ChakraNextLink
                   isExternal
                   href={`${explorerUrl(chainId)}/tx/${event?.transactionID}`}
                   display='block'
@@ -285,7 +284,7 @@ const MainContent = ({
                     <Text>{event?.id?.split('-')[0]}</Text>
                     <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
                   </HStack>
-                </ChakraLink>
+                </ChakraNextLink>
               </Flex>
             ))}
           </Box>

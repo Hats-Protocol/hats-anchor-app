@@ -3,8 +3,8 @@ import {
   Card,
   CardBody,
   Flex,
-  HStack,
   Heading,
+  HStack,
   Icon,
   SimpleGrid,
   Spinner,
@@ -12,16 +12,17 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { FaPlus } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-import Layout from '@/components/Layout';
 // import CONFIG from '@/constants';
 import ChakraNextLink from '@/components/ChakraNextLink';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import HatCard from '@/components/HatCard';
+import Layout from '@/components/Layout';
+import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { FaPlus } from 'react-icons/fa';
 
 // todo use our ipfs gateway
 const featuredTrees = [
@@ -115,10 +116,10 @@ const Home = () => {
                               fontWeight={500}
                               noOfLines={1}
                             >
-                              Create a new Structure
+                              Create a new {CONFIG.tree}
                             </Heading>
                             <Text fontSize='sm'>
-                              Set up your DAO Hats Org Chart
+                              Set up a new Hats {CONFIG.tree}
                             </Text>
                           </Stack>
                         </HStack>

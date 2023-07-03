@@ -1,11 +1,12 @@
 /* eslint-disable no-plusplus */
+import _ from 'lodash';
+
+import { ZERO_ADDRESS } from '@/constants';
 import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HierarchyObject, IHat, IHatData, ITree, InputObject } from '@/types';
-
-import { ZERO_ADDRESS } from '@/constants';
-import _ from 'lodash';
+// eslint-disable-next-line simple-import-sort/imports
+import { HierarchyObject, IHat, IHatData, InputObject, ITree } from '@/types';
 
 export async function toTreeStructure({
   treeData,

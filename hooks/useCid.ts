@@ -3,7 +3,7 @@ import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Computes the CID of a Json object
