@@ -11,14 +11,9 @@ import {
   Link as ChakraLink,
   UnorderedList,
   ListItem,
+  Tooltip,
 } from '@chakra-ui/react';
-import {
-  FaBan,
-  FaCheck,
-  FaChevronDown,
-  FaCopy,
-  FaExternalLinkAlt,
-} from 'react-icons/fa';
+import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 
 import { explorerUrl } from '@/lib/general';
@@ -44,6 +39,7 @@ const MainContent = ({
   isAdminUser,
   responsibilities,
   authorities,
+  isCurrentWearer,
 }: MainContentProps) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -63,28 +59,34 @@ const MainContent = ({
       >
         <Stack spacing={4}>
           <Flex align='start' justify='space-between'>
-            <Stack>
-              <Text>{name}</Text>
+            <Stack w='full'>
+              <HStack>
+                <Tooltip label={name} aria-label='A tooltip'>
+                  <Text fontSize={24} isTruncated>
+                    {name}
+                  </Text>
+                </Tooltip>
+                <HStack>
+                  <Text whiteSpace='nowrap'>Hat ID:</Text>
+                  <Text color='blue.500'>{prettyIdToIp(hatData.prettyId)}</Text>
+                  <Icon
+                    as={FaCopy}
+                    color='blue.500'
+                    cursor='pointer'
+                    onClick={() => {
+                      navigator.clipboard.writeText(hatData?.id);
+                      toast.info({
+                        title: 'Successfully copied Hat id to clipboard',
+                      });
+                    }}
+                  />
+                </HStack>
+              </HStack>
               <Text>{description}</Text>
             </Stack>
-            <HStack>
-              <Text>Hat ID:</Text>
-              <Text color='blue.500'>{prettyIdToIp(hatData.prettyId)}</Text>
-              <Icon
-                as={FaCopy}
-                color='blue.500'
-                cursor='pointer'
-                onClick={() => {
-                  navigator.clipboard.writeText(hatData?.id);
-                  toast.info({
-                    title: 'Successfully copied Hat id to clipboard',
-                  });
-                }}
-              />
-            </HStack>
           </Flex>
           <HStack>
-            <Badge colorScheme='green'>My Hat</Badge>
+            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
             <Badge colorScheme={mutableStatus === 'Mutable' ? 'blue' : 'red'}>
               {mutableStatus}
             </Badge>
@@ -159,22 +161,6 @@ const MainContent = ({
 
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Eligibility
-          </Heading>
-          <Flex justifyContent='space-between'>
-            <HStack>
-              <Text>Can I wear this hat?</Text> <FaChevronDown />
-            </HStack>
-
-            <HStack color={isEligible ? 'green.500' : 'red.500'} ml={2}>
-              <Text>{isEligible ? 'Yes' : 'No'}</Text>
-              {isEligible ? <FaCheck /> : <FaBan />}
-            </HStack>
-          </Flex>
-        </Stack>
-
-        <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Responsibilities
           </Heading>
           <UnorderedList>
@@ -231,11 +217,27 @@ const MainContent = ({
 
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+            Eligibility
+          </Heading>
+          <Flex justifyContent='space-between'>
+            <HStack>
+              <Text>Can I wear this hat?</Text>
+            </HStack>
+
+            <HStack color={isEligible ? 'green.500' : 'red.500'} ml={2}>
+              <Text>{isEligible ? 'Yes' : 'No'}</Text>
+              {isEligible ? <FaCheck /> : <FaBan />}
+            </HStack>
+          </Flex>
+        </Stack>
+
+        <Stack>
+          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Toggle
           </Heading>
           <Flex justifyContent='space-between'>
             <HStack>
-              <Text>Can I toggle this hat?</Text> <FaChevronDown />
+              <Text>Is this hat active?</Text>
             </HStack>
 
             <HStack
@@ -309,4 +311,5 @@ interface MainContentProps {
   isAdminUser: boolean;
   responsibilities: Responsibility[];
   authorities: Authority[];
+  isCurrentWearer: boolean;
 }

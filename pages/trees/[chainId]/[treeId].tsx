@@ -236,7 +236,7 @@ const TreeDetails = ({
       >
         <DrawerOverlay />
         <DrawerContent
-          maxW='35%'
+          maxW='40%'
           background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
         >
           <DrawerBody pt={0}>

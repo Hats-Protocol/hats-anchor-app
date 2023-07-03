@@ -41,6 +41,7 @@ const TopMenu = ({
   editMode,
   setEditMode,
   isAdminUser,
+  isCurrentWearer,
   localOverlay,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
@@ -172,25 +173,10 @@ const TopMenu = ({
                     </HStack>
                   </Tooltip>
                 </MenuItem>
-                <Tooltip
-                  label={
-                    containsNotHatsToggleErrorMessage(prepareError?.message)
-                      ? 'The toggle is not "humanistic"'
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <MenuItem
-                    gap={2}
-                    onClick={() => checkHatStatus?.()}
-                    isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
-                  >
-                    <HStack>
-                      <FaDoorOpen />
-                      <Text>Test Status</Text>
-                    </HStack>
-                  </MenuItem>
-                </Tooltip>
+              </>
+            )}
+            {isAdminUser ||
+              (isCurrentWearer && (
                 <MenuItem
                   gap={2}
                   onClick={() => setModals?.({ createHat: true })}
@@ -200,8 +186,26 @@ const TopMenu = ({
                     <Text>Add Child Hat</Text>
                   </HStack>
                 </MenuItem>
-              </>
-            )}
+              ))}
+            <Tooltip
+              label={
+                containsNotHatsToggleErrorMessage(prepareError?.message)
+                  ? 'The toggle is "humanistic"'
+                  : ''
+              }
+              shouldWrapChildren
+            >
+              <MenuItem
+                gap={2}
+                onClick={() => checkHatStatus?.()}
+                isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
+              >
+                <HStack>
+                  <FaDoorOpen />
+                  <Text>Test Status</Text>
+                </HStack>
+              </MenuItem>
+            </Tooltip>
             <MenuItem
               gap={2}
               onClick={() => {
@@ -254,5 +258,6 @@ interface TopMenuProps {
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
+  isCurrentWearer: boolean;
   localOverlay: any;
 }
