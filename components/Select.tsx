@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
-// eslint-disable-next-line simple-import-sort/imports
 import {
-  Select as ChakraSelect,
   FormControl,
   FormLabel,
+  Select as ChakraSelect,
 } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 

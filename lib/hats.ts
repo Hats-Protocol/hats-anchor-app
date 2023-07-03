@@ -5,7 +5,6 @@ import { ZERO_ADDRESS } from '@/constants';
 import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-// eslint-disable-next-line simple-import-sort/imports
 import { HierarchyObject, IHat, IHatData, InputObject, ITree } from '@/types';
 
 export async function toTreeStructure({

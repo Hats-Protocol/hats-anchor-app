@@ -1,12 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
-// eslint-disable-next-line simple-import-sort/imports
 import {
-  Input as ChakraInput,
-  InputProps as ChakraInputProps,
   FormControl,
   FormLabel,
   HStack,
+  Input as ChakraInput,
   InputGroup,
+  InputProps as ChakraInputProps,
   InputRightElement,
   Text,
   Tooltip,

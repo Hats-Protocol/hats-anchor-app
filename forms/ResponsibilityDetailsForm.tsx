@@ -1,10 +1,9 @@
-// eslint-disable-next-line simple-import-sort/imports
 import {
   Box,
   Button,
-  Input as ChakraInput,
   HStack,
   IconButton,
+  Input as ChakraInput,
   Menu,
   MenuButton,
   MenuItem,
