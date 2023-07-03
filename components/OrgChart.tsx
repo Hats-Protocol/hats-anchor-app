@@ -429,7 +429,10 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
         position='absolute'
         bottom={4}
         left={4}
-        onClick={() => chart?.fit()}
+        onClick={() => {
+          chart?.expandAll();
+          chart?.fit();
+        }}
       >
         Show full {CONFIG.tree}
       </Button>
