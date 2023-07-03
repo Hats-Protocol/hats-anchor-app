@@ -1,25 +1,26 @@
+// eslint-disable-next-line simple-import-sort/imports
 import {
   Box,
   Button,
-  HStack,
   Input as ChakraInput,
+  HStack,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  IconButton,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
-  ModalFooter,
   ModalCloseButton,
-  useDisclosure,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { FaEllipsisV, FaRegListAlt, FaPlus } from 'react-icons/fa';
 import { useState } from 'react';
+import { FaEllipsisV, FaPlus, FaRegListAlt } from 'react-icons/fa';
 
 export type Responsibility = {
   link: string;

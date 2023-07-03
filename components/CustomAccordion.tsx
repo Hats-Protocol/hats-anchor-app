@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
 import {
   Accordion,
-  AccordionItem,
   AccordionButton,
+  AccordionItem,
   AccordionPanel,
-  Heading,
   Flex,
+  Heading,
 } from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { FaRegMinusSquare, FaRegPlusSquare } from 'react-icons/fa';
 
 const CustomAccordion = ({

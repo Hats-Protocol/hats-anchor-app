@@ -1,19 +1,19 @@
 /* eslint-disable react/jsx-props-no-spreading */
+// eslint-disable-next-line simple-import-sort/imports
 import {
   Textarea as ChakraTextarea,
-  FormControl,
-  FormLabel,
-  Stack,
-  FormHelperText,
-  FormErrorMessage,
-  Icon,
-  HStack,
-  Flex,
-  Tooltip,
   TextareaProps as ChakraTextareaProps,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  Icon,
+  Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
-import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 

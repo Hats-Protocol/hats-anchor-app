@@ -1,8 +1,9 @@
-import _ from 'lodash';
 import { useQuery } from '@tanstack/react-query';
+import _ from 'lodash';
+
 import client from '@/gql/client';
-import { chainsList } from '@/lib/web3';
 import { GET_CONTROLLERS_FOR_USER } from '@/gql/queries';
+import { chainsList } from '@/lib/web3';
 import { IHat } from '@/types';
 
 const chains = _.keys(chainsList);

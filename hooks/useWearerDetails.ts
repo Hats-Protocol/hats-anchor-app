@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+
 import { fetchWearerDetails } from '@/gql/helpers';
 import { chainsList } from '@/lib/web3';
 import { IHat } from '@/types';

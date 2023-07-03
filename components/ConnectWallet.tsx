@@ -1,21 +1,20 @@
 import {
+  Box,
   Button,
   Flex,
+  Heading,
+  HStack,
+  Icon,
+  Image,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  Icon,
-  HStack,
-  Heading,
-  Box,
+  MenuList,
   useMediaQuery,
-  Image,
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
-import React from 'react';
 import { FaChevronDown } from 'react-icons/fa';
-import { useAccount, useEnsName, useDisconnect, useEnsAvatar } from 'wagmi';
+import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
 
 const ConnectWallet = () => {
   const { address } = useAccount();

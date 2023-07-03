@@ -1,14 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useEnsAddress,
-} from 'wagmi';
 import { useState } from 'react';
+import {
+  useContractWrite,
+  useEnsAddress,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
-import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '@/constants';
+import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';

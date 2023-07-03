@@ -1,24 +1,24 @@
 import {
-  Stack,
+  Box,
   Button,
   FormControl,
   HStack,
-  Box,
-  Text,
   Radio,
   RadioGroup,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { useEnsAddress } from 'wagmi';
 
 import Input from '@/components/Input';
 import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import { prettyIdToIp } from '@/lib/hats';
+import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatSupplyUpdate from '@/hooks/useHatSupplyUpdate';
 import useModuleUpdate from '@/hooks/useModuleUpdate';
-import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
-import { useEnsAddress } from 'wagmi';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatWearersAndAdminsForm = ({
   defaultAdmin,

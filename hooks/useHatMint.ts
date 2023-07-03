@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import { isAddress } from 'viem';
 import {
-  usePrepareContractWrite,
   useContractWrite,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';

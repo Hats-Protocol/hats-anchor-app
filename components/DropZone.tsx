@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
-import { Stack, Box, Flex } from '@chakra-ui/react';
-import { useMemo, useEffect } from 'react';
+import { Box, Flex, Stack } from '@chakra-ui/react';
+import { useEffect, useMemo } from 'react';
 
 const baseStyle = {
   flex: 1,

@@ -1,14 +1,13 @@
 import {
-  Stack,
+  Box,
   Button,
+  Code,
   Flex,
-  Text,
   Heading,
   HStack,
-  Code,
-  Box,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 

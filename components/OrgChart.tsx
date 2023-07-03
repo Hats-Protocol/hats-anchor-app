@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-import { formatAddress } from '@/lib/general';
-import { IHatData, IHatWearer } from '@/types';
 import {
   Box,
   Button,
@@ -15,6 +13,10 @@ import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+
+import CONFIG from '@/constants';
+import { formatAddress } from '@/lib/general';
+import { IHatData, IHatWearer } from '@/types';
 
 interface OrgChartComponentProps {
   tree: IHatData[] | null;
@@ -427,9 +429,12 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
         position='absolute'
         bottom={4}
         left={4}
-        onClick={() => chart?.fit()}
+        onClick={() => {
+          chart?.expandAll();
+          chart?.fit();
+        }}
       >
-        Show full structure
+        Show full {CONFIG.tree}
       </Button>
 
       <HStack position='absolute' bottom={4} right={4}>

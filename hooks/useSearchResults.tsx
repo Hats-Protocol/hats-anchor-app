@@ -4,15 +4,15 @@ import _ from 'lodash';
 import client from '@/gql/client';
 import { SEARCH_QUERY } from '@/gql/queries';
 import {
+  decimalIdToId,
   idToPrettyId,
   ipToPrettyId,
   prettyIdToIp,
   prettyIdToUrlId,
   toTreeId,
-  decimalIdToId,
 } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
-import { ITree, IHat } from '@/types';
+import { IHat, ITree } from '@/types';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',

@@ -1,36 +1,35 @@
-import React from 'react';
-import _ from 'lodash';
 import {
-  Stack,
-  HStack,
-  Heading,
-  SimpleGrid,
-  Text,
+  Avatar,
+  Box,
   Card,
   CardBody,
-  Flex,
-  Box,
-  Avatar,
   Divider,
+  Flex,
+  Heading,
+  HStack,
+  SimpleGrid,
   Spinner,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
-import { useEnsAvatar, useEnsName } from 'wagmi';
+import { format } from 'date-fns';
+import _ from 'lodash';
+import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
+import { useEnsAvatar, useEnsName } from 'wagmi';
 
+import ChakraNextLink from '@/components/ChakraNextLink';
+import Layout from '@/components/Layout';
 import { fetchWearerDetails } from '@/gql/helpers';
-import useWearerDetails from '@/hooks/useWearerDetails';
+import useControllerList from '@/hooks/useControllerList';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
+import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
-import Layout from '@/components/Layout';
-import ChakraNextLink from '@/components/ChakraNextLink';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { IHat } from '@/types';
-import { format } from 'date-fns';
-import { GetServerSidePropsContext } from 'next';
-import useControllerList from '@/hooks/useControllerList';
-import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 
 const CoreHat = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
@@ -158,7 +157,7 @@ const WearerDetail = ({
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
               <Text>
-                Hat Wearer since:{' '}
+                Hat wearer since:{' '}
                 {format(
                   Number(_.get(firstCreated, 'createdAt')) * 1000,
                   'MMMM yyyy',

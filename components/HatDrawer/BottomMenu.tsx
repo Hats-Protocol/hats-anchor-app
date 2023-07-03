@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Flex, HStack, Button } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import {
   FaRegArrowAltCircleDown,
   FaRegArrowAltCircleLeft,

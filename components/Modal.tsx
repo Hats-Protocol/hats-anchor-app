@@ -1,12 +1,13 @@
+// eslint-disable-next-line simple-import-sort/imports
 import {
-  Heading,
   Modal as ChakraModal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
+  Heading,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
+  ModalOverlay,
 } from '@chakra-ui/react';
 import React, { ReactNode } from 'react';
 

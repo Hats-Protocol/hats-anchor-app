@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import {
-  usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
 import CONFIG, { FALLBACK_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -15,8 +15,8 @@ import useToast from '@/hooks/useToast';
 import {
   decimalId,
   idToPrettyId,
-  prettyIdToIp,
   prettyIdToId,
+  prettyIdToIp,
   toTreeId,
 } from '@/lib/hats';
 

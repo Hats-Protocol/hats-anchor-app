@@ -1,33 +1,33 @@
 import {
-  Stack,
-  Flex,
+  Box,
   Button,
+  Flex,
   FormControl,
-  Switch,
   FormLabel,
   HStack,
   Spinner,
-  Box,
+  Stack,
+  Switch,
   Text,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import _ from 'lodash';
-import { useChainId } from 'wagmi';
+import { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { useDropzone } from 'react-dropzone';
+import { useChainId } from 'wagmi';
 
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
 import DropZone from '@/components/DropZone';
-import useHatCreate from '@/hooks/useHatCreate';
-import CONFIG, { ZERO_ADDRESS } from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
+import Input from '@/components/Input';
 import RadioBox from '@/components/RadioBox';
+import Textarea from '@/components/Textarea';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import useCid from '@/hooks/useCid';
+import useDebounce from '@/hooks/useDebounce';
+import useHatCreate from '@/hooks/useHatCreate';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
-import useCid from '@/hooks/useCid';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 
 const HatCreateForm = ({
   defaultAdmin,

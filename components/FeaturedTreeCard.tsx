@@ -1,8 +1,8 @@
-import React from 'react';
-import _ from 'lodash';
-import { Flex, Image, Box, HStack, Text, Icon } from '@chakra-ui/react';
+import { Box, HStack, Icon, Image, Text } from '@chakra-ui/react';
 import { GrTextAlignLeft } from 'react-icons/gr';
+
 import { chainsMap } from '@/lib/web3';
+
 import ChakraNextLink from './ChakraNextLink';
 
 const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {

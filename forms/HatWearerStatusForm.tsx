@@ -1,19 +1,19 @@
 import {
-  Stack,
   Button,
   Flex,
-  Text,
-  RadioGroup,
-  Radio,
   HStack,
+  Radio,
+  RadioGroup,
+  Stack,
+  Text,
   VStack,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatWearerStatusSet from '@/hooks/useHatWearerStatusUpdate';
-import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { formatAddress } from '@/lib/general';
 import { prettyIdToId } from '@/lib/hats';
 

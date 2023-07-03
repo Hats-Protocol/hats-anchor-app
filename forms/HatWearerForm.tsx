@@ -1,36 +1,36 @@
 import {
-  Stack,
+  Box,
   Button,
+  Collapse,
   Flex,
-  Tooltip,
+  FormControl,
+  HStack,
+  Icon,
   IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Stack,
   Text,
-  FormControl,
-  VStack,
-  Icon,
+  Tooltip,
   useDisclosure,
-  Collapse,
-  Box,
-  HStack,
+  VStack,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import {
   FaCheck,
-  FaUserPlus,
-  FaFileCsv,
-  FaTrash,
-  FaChevronUp,
   FaChevronDown,
+  FaChevronUp,
+  FaFileCsv,
   FaInfoCircle,
   FaRegQuestionCircle,
+  FaTrash,
+  FaUserPlus,
 } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';

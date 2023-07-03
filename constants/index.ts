@@ -13,6 +13,7 @@ const CONFIG: {
   hatsAddress: '0x9d2dfd6066d5935267291718e8aa16c8ab729e9d',
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
+  protocolVersion: '1.0',
   shortName: 'Hats',
   url: 'https://app.hatsprotocol.xyz',
   logoUrl:

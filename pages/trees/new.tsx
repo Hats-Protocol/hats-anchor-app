@@ -1,34 +1,35 @@
-import React, { useState } from 'react';
-import _ from 'lodash';
 import {
-  Flex,
-  Heading,
-  Stack,
-  Text,
-  FormControl,
   Box,
-  HStack,
-  Switch,
-  FormLabel,
   Button,
-  Spinner,
+  Flex,
+  FormControl,
+  FormLabel,
+  HStack,
+  Heading,
   Icon,
+  Spinner,
+  Stack,
+  Switch,
+  Text,
 } from '@chakra-ui/react';
+import _ from 'lodash';
+import { useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
 
-import Layout from '@/components/Layout';
-import CONFIG from '@/constants';
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
+import Layout from '@/components/Layout';
 import Textarea from '@/components/Textarea';
-import useDebounce from '@/hooks/useDebounce';
-import useTreeCreate from '@/hooks/useTreeCreate';
+import CONFIG from '@/constants';
 import useCid from '@/hooks/useCid';
+import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import useTreeCreate from '@/hooks/useTreeCreate';
 import { pinJson } from '@/lib/ipfs';
+import { chainsMap } from '@/lib/web3';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
-import { chainsMap } from '@/lib/web3';
+import { useChainId } from 'wagmi';
 
 const NewTree = () => {
   const [image, setImage] = useState<any>();
@@ -50,6 +51,7 @@ const NewTree = () => {
     },
   });
 
+  const chainId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
   });
@@ -60,7 +62,6 @@ const NewTree = () => {
   const description = useDebounce(watch('description', ''));
   const imageUrl = useDebounce(watch('imageUrl', ''));
   const receiver = useDebounce(watch('receiver'));
-  const chainId = useDebounce(watch('chainId', 5));
   const receiverResolvedAddress = useDebounce(watch('receiverResolvedAddress'));
 
   const {

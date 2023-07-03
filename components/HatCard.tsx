@@ -1,14 +1,14 @@
-import React from 'react';
-import _ from 'lodash';
 import {
   Box,
+  Card,
+  CardBody,
   Heading,
   HStack,
   Stack,
   Text,
-  Card,
-  CardBody,
 } from '@chakra-ui/react';
+import _ from 'lodash';
+
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId } from '@/lib/hats';

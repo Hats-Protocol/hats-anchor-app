@@ -1,18 +1,11 @@
-import {
-  CardBody,
-  Link as ChakraLink,
-  Card,
-  Text,
-  Stack,
-  HStack,
-  Box,
-} from '@chakra-ui/react';
+import { Box, Card, CardBody, HStack, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import Link from 'next/link';
 
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
-import { ITree, IHat } from '@/types';
+import { IHat, ITree } from '@/types';
+
+import ChakraNextLink from './ChakraNextLink';
 
 const TreeCard = ({
   tree,
@@ -32,8 +25,7 @@ const TreeCard = ({
       : _.get(topHat, 'details');
 
   return (
-    <ChakraLink
-      as={Link}
+    <ChakraNextLink
       href={`/trees/${_.get(tree, 'chainId')}/${decimalId(_.get(tree, 'id'))}`}
       key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
     >
@@ -68,7 +60,7 @@ const TreeCard = ({
           </HStack>
         </CardBody>
       </Card>
-    </ChakraLink>
+    </ChakraNextLink>
   );
 };
 
