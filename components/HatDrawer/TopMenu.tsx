@@ -190,6 +190,13 @@ const TopMenu = ({
                   </HStack>
                 </MenuItem>
               ))}
+            <MenuItem
+              gap={2}
+              onClick={() => setModals?.({ requestLink: true })}
+            >
+              <FaLink />
+              Request to link tree here
+            </MenuItem>
             <Tooltip
               label={
                 containsNotHatsToggleErrorMessage(prepareError?.message)
@@ -232,13 +239,6 @@ const TopMenu = ({
             >
               <FaCopy />
               Copy Contract ID
-            </MenuItem>
-            <MenuItem
-              gap={2}
-              onClick={() => setModals?.({ requestLink: true })}
-            >
-              <FaLink />
-              Request to link tree here
             </MenuItem>
             <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
               <FaExclamationCircle />
