@@ -191,17 +191,14 @@ const HatWearerForm = ({
           {typeof isEligible === 'boolean' && !isEligible && (
             <Text fontSize='sm' color='red.500'>
               <Icon as={FaInfoCircle} mr={1} />
-              This address is not eligible to receive a Hat token.
+              This address is not eligible to mint a Hat
             </Text>
           )}
 
           <Tooltip label={toolTip} shouldWrapChildren>
             <Button
               isDisabled={
-                !canAddWearer ||
-                !!isEligible ||
-                isLoading ||
-                isLoadingIsEligible
+                !canAddWearer || !isEligible || isLoading || isLoadingIsEligible
               }
               onClick={handleAddWearer}
               aria-label='Add Another Wallet'
