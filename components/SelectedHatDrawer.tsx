@@ -35,6 +35,9 @@ const SelectedHatDrawer = ({
   const [description, setDescription] = useState('');
   const [guilds, setGuilds] = useState<any[]>([]);
   const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [isCurrentWearer, setIsCurrentWearer] = useState(false);
+  const [wearerTopHats, setWearerTopHats] = useState<string[]>([]);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
     [],
   );
@@ -50,17 +53,26 @@ const SelectedHatDrawer = ({
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
   });
-  const currentWearerHats = _.map(_.filter(wearer, { chainId }), 'prettyId');
-  const isCurrentWearer = _.includes(currentWearerHats, selectedHatId);
-  const wearerTopHats = _.map(
-    _.filter(
-      wearer,
-      (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
-    ),
-    'prettyId',
-  );
 
-  const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
+  useEffect(() => {
+    if (wearer) {
+      const currentWearerHats = _.map(
+        _.filter(wearer, { chainId }),
+        'prettyId',
+      );
+      setIsCurrentWearer(_.includes(currentWearerHats, selectedHatId));
+      const topHats = _.map(
+        _.filter(
+          wearer,
+          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
+        ),
+        'prettyId',
+      );
+
+      setWearerTopHats(topHats);
+      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId));
+    }
+  }, [wearer, chainId]);
 
   useEffect(() => {
     if (selectedHatId) {
