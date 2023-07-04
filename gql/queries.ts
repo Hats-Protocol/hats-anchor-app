@@ -66,6 +66,10 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
     }
     linkRequestFromTree {
       id
+      requestedLinkToHat {
+        id
+        prettyId
+      }
     }
     childOfTree {
       id

@@ -22,6 +22,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiChevronsRight } from 'react-icons/fi';
+import _ from 'lodash';
 
 import Modal from '@/components/Modal';
 import CONFIG from '@/constants';
@@ -237,7 +238,7 @@ const TopMenu = ({
               onClick={() => setModals?.({ requestLink: true })}
             >
               <FaLink />
-              Request to Link
+              Request to link tree here
             </MenuItem>
             <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
               <FaExclamationCircle />
@@ -261,7 +262,10 @@ const TopMenu = ({
       >
         <HatLinkRequestCreateForm
           newAdmin={hatData.prettyId}
-          wearerTopHats={wearerTopHats}
+          wearerTopHats={_.filter(
+            wearerTopHats,
+            (hat) => hat !== hatData.admin?.prettyId,
+          )}
           chainId={chainId}
         />
       </Modal>

@@ -26,6 +26,7 @@ const SelectedHatDrawer = ({
   hierarchyData,
   editMode,
   setEditMode,
+  linkRequestFromTree,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
@@ -150,10 +151,11 @@ const SelectedHatDrawer = ({
             hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
-            setModals={setModals}
-            localOverlay={localOverlay}
             isAdminUser={isAdminUser}
             isCurrentWearer={isCurrentWearer}
+            linkRequestFromTree={linkRequestFromTree}
+            setModals={setModals}
+            localOverlay={localOverlay}
           />
         )}
 
@@ -187,6 +189,7 @@ interface SelectedHatDrawerProps {
   setSelectedHatId: (id: string) => void;
   chainId: number;
   hatsData: any;
+  linkRequestFromTree: any;
   onClose: () => void;
   hierarchyData: HierarchyObject[];
   editMode: boolean;
