@@ -9,8 +9,8 @@ import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { isAdmin } from '@/lib/hats';
-import { HierarchyObject } from '@/types';
+import { isAdmin, isTopHat } from '@/lib/hats';
+import { HierarchyObject, IHat } from '@/types';
 
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
@@ -51,6 +51,14 @@ const SelectedHatDrawer = ({
   });
   const currentWearerHats = _.map(_.filter(wearer, { chainId }), 'prettyId');
   const isCurrentWearer = _.includes(currentWearerHats, selectedHatId);
+  const wearerTopHats = _.map(
+    _.filter(
+      wearer,
+      (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
+    ),
+    'prettyId',
+  );
+
   const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
 
   useEffect(() => {
@@ -127,6 +135,7 @@ const SelectedHatDrawer = ({
           isAdminUser={isAdminUser}
           isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
+          wearerTopHats={wearerTopHats}
         />
 
         {!editMode && (

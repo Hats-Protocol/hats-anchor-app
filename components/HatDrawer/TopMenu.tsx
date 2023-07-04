@@ -17,6 +17,7 @@ import {
   FaEdit,
   FaEllipsisV,
   FaExclamationCircle,
+  FaLink,
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
@@ -31,6 +32,7 @@ import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
 import { isTopHat } from '@/lib/hats';
 import { useAccount } from 'wagmi';
+import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 
 const TopMenu = ({
   chainId,
@@ -42,6 +44,7 @@ const TopMenu = ({
   isAdminUser,
   isCurrentWearer,
   localOverlay,
+  wearerTopHats,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -220,14 +223,21 @@ const TopMenu = ({
             <MenuItem
               gap={2}
               onClick={() => {
-                navigator.clipboard.writeText(CONFIG.hatsAddress);
+                navigator.clipboard.writeText(hatData?.id);
                 toast.info({
-                  title: 'Successfully copied contract id to clipboard',
+                  title: 'Successfully copied Hat id to clipboard',
                 });
               }}
             >
               <FaCopy />
               Copy Contract ID
+            </MenuItem>
+            <MenuItem
+              gap={2}
+              onClick={() => setModals?.({ requestLink: true })}
+            >
+              <FaLink />
+              Request to Link
             </MenuItem>
             <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
               <FaExclamationCircle />
@@ -241,6 +251,18 @@ const TopMenu = ({
         <HatCreateForm
           defaultAdmin={hatData.prettyId}
           treeId={hatData.treeId}
+        />
+      </Modal>
+
+      <Modal
+        name='requestLink'
+        title='Request to Link'
+        localOverlay={localOverlay}
+      >
+        <HatLinkRequestCreateForm
+          newAdmin={hatData.prettyId}
+          wearerTopHats={wearerTopHats}
+          chainId={chainId}
         />
       </Modal>
     </Flex>
@@ -259,4 +281,5 @@ interface TopMenuProps {
   isAdminUser: boolean;
   isCurrentWearer: boolean;
   localOverlay: any;
+  wearerTopHats: string[];
 }
