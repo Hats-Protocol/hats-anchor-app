@@ -98,7 +98,7 @@ const SelectedHatDrawer = ({
         }
 
         setActiveStatus(status ? STATUS.ACTIVE : STATUS.INACTIVE);
-        setMutableStatus(mutable ? MUTABILITY.IMMUTABLE : MUTABILITY.IMMUTABLE);
+        setMutableStatus(mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE);
       }
     }
   }, [selectedHatId, hatsData]);
