@@ -16,6 +16,7 @@ import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
+import { MUTABILITY, STATUS } from '@/constants';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -41,8 +42,8 @@ const SelectedHatDrawer = ({
   const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
     [],
   );
-  const [activeStatus, setActiveStatus] = useState('Inactive');
-  const [mutableStatus, setMutableStatus] = useState('Immutable');
+  const [activeStatus, setActiveStatus] = useState(STATUS.INACTIVE);
+  const [mutableStatus, setMutableStatus] = useState(MUTABILITY.IMMUTABLE);
   const { setModals } = localOverlay;
 
   const { hatRoles } = useHatGuilds({
@@ -96,8 +97,8 @@ const SelectedHatDrawer = ({
           setResponsibilities(detailsObject?.data?.responsibilities);
         }
 
-        setActiveStatus(status ? 'Active' : 'Inactive');
-        setMutableStatus(mutable ? 'Mutable' : 'Immutable');
+        setActiveStatus(status ? STATUS.ACTIVE : STATUS.INACTIVE);
+        setMutableStatus(mutable ? MUTABILITY.IMMUTABLE : MUTABILITY.IMMUTABLE);
       }
     }
   }, [selectedHatId, hatsData]);

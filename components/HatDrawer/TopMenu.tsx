@@ -25,7 +25,7 @@ import { FiChevronsRight } from 'react-icons/fi';
 import _ from 'lodash';
 
 import Modal from '@/components/Modal';
-import CONFIG from '@/constants';
+import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import HatCreateForm from '@/forms/HatCreateForm';
 import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
@@ -65,7 +65,7 @@ const TopMenu = ({
       hatsAddress: CONFIG.hatsAddress,
       chainId,
       hatId: hatData.id,
-      status: 'Inactive',
+      status: STATUS.INACTIVE,
     });
 
   const {
@@ -109,7 +109,7 @@ const TopMenu = ({
         {isAdminUser && (
           <Tooltip
             label={
-              !(mutableStatus === 'Mutable' && !isTopHat(hatData))
+              !(mutableStatus === MUTABILITY.MUTABLE && !isTopHat(hatData))
                 ? 'The hat is not mutable or a top hat.'
                 : ''
             }
@@ -121,7 +121,9 @@ const TopMenu = ({
               color='cyan.700'
               borderColor='cyan.700'
               onClick={() => setEditMode(!editMode)}
-              isDisabled={!(mutableStatus === 'Mutable' || isTopHat(hatData))}
+              isDisabled={
+                !(mutableStatus === MUTABILITY.MUTABLE || isTopHat(hatData))
+              }
             >
               <HStack>
                 <Icon as={FaEdit} />
@@ -144,7 +146,7 @@ const TopMenu = ({
                   gap={2}
                   onClick={() => updateImmutability?.()}
                   isDisabled={
-                    mutableStatus === 'Immutable' ||
+                    mutableStatus === MUTABILITY.IMMUTABLE ||
                     !updateImmutability ||
                     isLoadingUpdateImmutability
                   }

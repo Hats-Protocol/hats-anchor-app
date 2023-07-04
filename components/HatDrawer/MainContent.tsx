@@ -27,6 +27,7 @@ import WearersList from './WearersList';
 import Modal from '../Modal';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { useState } from 'react';
+import { MUTABILITY } from '@/constants';
 
 const MainContent = ({
   chainId,
@@ -101,7 +102,11 @@ const MainContent = ({
           </Flex>
           <HStack>
             {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-            <Badge colorScheme={mutableStatus === 'Mutable' ? 'blue' : 'red'}>
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+              }
+            >
               {mutableStatus}
             </Badge>
             <Badge>{activeStatus}</Badge>

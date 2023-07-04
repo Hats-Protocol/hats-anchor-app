@@ -7,7 +7,7 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 
-import CONFIG from '@/constants';
+import CONFIG, { STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
@@ -56,14 +56,14 @@ const useHatStatusCheck = ({
         toast.success({
           title: 'Status Check Completed',
           description: `No change: Hat Status remains ${
-            hatData.status ? 'Active' : 'Inactive'
+            hatData.status ? STATUS.ACTIVE : STATUS.INACTIVE
           }`,
         });
       } else {
         toast.success({
           title: 'Status Check Completed',
           description: `Hat Status Changed to ${
-            logs[0].data.slice(-1) === '1' ? 'Active' : 'Inactive'
+            logs[0].data.slice(-1) === '1' ? STATUS.ACTIVE : STATUS.INACTIVE
           }`,
         });
 

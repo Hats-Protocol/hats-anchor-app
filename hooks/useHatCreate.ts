@@ -8,7 +8,11 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import CONFIG, {
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  ZERO_ADDRESS,
+} from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
@@ -62,7 +66,7 @@ const useHatCreate = ({
       maxSupply || '1',
       eligibilityAddress,
       toggleAddress,
-      mutable === 'Mutable',
+      mutable === MUTABILITY.MUTABLE,
       imageUrl || '',
     ],
     enabled: !!hatsAddress && !!admin,
