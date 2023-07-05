@@ -22,13 +22,13 @@ import {
   Spinner,
   Stack,
   Text,
-  VStack,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
-import { NextSeo } from 'next-seo';
 import dynamic from 'next/dynamic';
+import { NextSeo } from 'next-seo';
 import { ReactNode, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp, FaRegCopy } from 'react-icons/fa';
@@ -344,7 +344,7 @@ const TreeDetails = ({
                 <ChakraNextLink
                   href={`https://etherscan.io/address/${CONFIG.hatsAddress}`}
                 >
-                  <Text>{`${CONFIG.appName} v${CONFIG.hatsVersion}`}</Text>
+                  <Text>{`${CONFIG.appName} v${CONFIG.protocolVersion}:`}</Text>
                 </ChakraNextLink>
 
                 <Text fontWeight={500}>{chain?.name}</Text>
