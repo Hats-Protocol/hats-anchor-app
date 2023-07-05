@@ -104,11 +104,12 @@ const Trees = ({
               <Heading size='md'>No Trees Found</Heading>
             </Flex>
           )}
-        {isLoading && _.isEmpty(trees) && (
-          <Flex justify='center' align='center' pt={10}>
-            <Spinner />
-          </Flex>
-        )}
+        {(isLoading || imagesLoading || isFetchingNextPage) &&
+          _.isEmpty(trees) && (
+            <Flex justify='center' align='center' pt={10}>
+              <Spinner />
+            </Flex>
+          )}
       </Box>
     </Layout>
   );
