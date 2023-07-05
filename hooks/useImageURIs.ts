@@ -17,7 +17,7 @@ import { IHat } from '@/types';
  * @param {number} chainId Chain ID -- optional if not nested on hat object
  */
 const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
-  const calls = _.map(hats, (hat) => {
+  const calls: any = _.map(hats, (hat) => {
     return {
       address: CONFIG.hatsAddress,
       chainId: hat?.chainId || chainId,
@@ -29,7 +29,7 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
 
   const { data: imagesData, isLoading: imagesLoading } = useContractReads({
     contracts: calls,
-    enabled: hats && !_.isEmpty(hats),
+    enabled: !!hats && !_.isEmpty(hats),
   });
 
   const formatImageUrl = (url?: string) => {
@@ -78,7 +78,7 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
   const { data, isLoading } = useQuery({
     queryKey: ['imageUrls', _.map(hats, 'id')],
     queryFn: checkImagesForHats,
-    enabled: hats && !_.isEmpty(hats) && !!imagesData,
+    enabled: !!hats && !_.isEmpty(hats) && !!imagesData,
   });
 
   return { data, isLoading: isLoading || imagesLoading };
