@@ -7,13 +7,14 @@ const baseStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  justifyContent: 'center',
   padding: '20px',
   borderWidth: 2,
   borderRadius: 2,
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
   backgroundColor: '#fafafa',
-  width: '85%',
+  width: '83%',
   height: 100,
   color: '#bdbdbd',
   outline: 'none',
@@ -60,7 +61,8 @@ const DropZone = ({
     border: '1px solid #eaeaea',
     marginBottom: 8,
     marginRight: 8,
-    width: 'auto',
+    fit: 'cover',
+    width: 100,
     height: 100,
     padding: 4,
     // boxSizing: 'border-box',
@@ -101,8 +103,7 @@ const DropZone = ({
 
   return (
     <Stack spacing={2}>
-      <Flex>
-        {thumbs && <Flex wrap='wrap'>{thumbs}</Flex>}
+      <Flex gap={3}>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
           {image !== undefined ? (
@@ -113,6 +114,7 @@ const DropZone = ({
             <p>Drag n drop, or click to select</p>
           )}
         </div>
+        {thumbs && <Flex wrap='wrap'>{thumbs}</Flex>}
       </Flex>
     </Stack>
   );

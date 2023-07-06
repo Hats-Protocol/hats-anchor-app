@@ -197,6 +197,7 @@ const NewTree = () => {
                   detailsCidLoading ||
                   imagePinLoading
                 }
+                isLoading={isLoading}
               >
                 {imagePinLoading ? <Spinner /> : 'Create'}
               </Button>
