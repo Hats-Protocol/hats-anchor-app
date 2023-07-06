@@ -8,6 +8,7 @@ import {
   Heading,
   HStack,
   SimpleGrid,
+  Skeleton,
   Spinner,
   Stack,
   Text,
@@ -114,22 +115,26 @@ const WearerDetail = ({
     {
       label: 'Wearer of',
       value: _.size(currentHats),
+      loading: !!currentHats,
     },
     {
       label: 'Admin of',
       value: _.size(adminOfHats),
+      loading: !!adminOfHats,
     },
     {
       label: 'Eligibility for',
       value: _.size(
         _.filter(controllerHats, ['eligibility', _.toLower(wearerAddress)]),
       ),
+      loading: !!controllerHats,
     },
     {
       label: 'Toggle for',
       value: _.size(
         _.filter(controllerHats, ['toggle', _.toLower(wearerAddress)]),
       ),
+      loading: !!controllerHats,
     },
   ];
 
@@ -159,15 +164,16 @@ const WearerDetail = ({
               <Heading size='lg' fontWeight={500}>
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
-              {firstCreated && (
+              <Skeleton isLoaded={!!_.get(firstCreated, 'createdAt')}>
                 <Text>
                   Hat wearer since:{' '}
-                  {format(
-                    Number(_.get(firstCreated, 'createdAt')) * 1000,
-                    'MMMM yyyy',
-                  )}
+                  {_.get(firstCreated, 'createdAt') &&
+                    format(
+                      Number(_.get(firstCreated, 'createdAt')) * 1000,
+                      'MMMM yyyy',
+                    )}
                 </Text>
-              )}
+              </Skeleton>
             </Stack>
           </HStack>
           <HStack>
@@ -176,7 +182,9 @@ const WearerDetail = ({
                 <CardBody>
                   <Stack align='center'>
                     <Text fontSize='sm'>{stat.label}</Text>
-                    <Heading size='lg'>{stat.value}</Heading>
+                    <Skeleton isLoaded={stat.loading}>
+                      <Heading size='lg'>{stat.value}</Heading>
+                    </Skeleton>
                   </Stack>
                 </CardBody>
               </Card>
