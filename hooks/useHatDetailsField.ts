@@ -47,14 +47,14 @@ export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
  * @returns If data is on ipfs and is compatible with a known schema, then returns the schema type with the data. Otherwise, just the fetched data.
  * If not ipfs, returns undefined.
  */
-const useHatDetailsField = (detailsField: string) => {
+const useHatDetailsField = (detailsField?: string) => {
   // currently uses this prefix as an indicator for ipfs data
   const isIpfs = detailsField?.startsWith('ipfs://');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetailsField', detailsField],
     queryFn: () => fetchDetailsIpfs(detailsField),
-    enabled: isIpfs,
+    enabled: !!detailsField && isIpfs,
   });
   const detailsData = data?.data?.data;
 

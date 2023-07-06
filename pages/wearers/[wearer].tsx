@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Avatar,
   Box,
@@ -23,12 +24,13 @@ import ChakraNextLink from '@/components/ChakraNextLink';
 import Layout from '@/components/Layout';
 // import { fetchWearerDetails } from '@/gql/helpers';
 import useControllerList from '@/hooks/useControllerList';
+import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
-import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
+import { getTreeId, prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
 import { chainsMap, orderedChains } from '@/lib/web3';
 import { IHat } from '@/types';
 
@@ -36,10 +38,24 @@ const CoreHat = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 
+  const { data: topHat } = useHatDetails({
+    hatId: getTreeId(_.get(hat, 'id'), true),
+    chainId: _.get(hat, 'chainId'),
+  });
+  const {
+    data: topHatDetailsFieldData,
+    schemaType: topHatSchemaTypeDetailsField,
+  } = useHatDetailsField(_.get(topHat, 'details'));
+
   const hatName =
     schemaTypeDetailsField === '1.0'
       ? _.get(hatDetailsFieldData, 'name')
       : _.get(hat, 'details');
+
+  const topHatName =
+    topHatSchemaTypeDetailsField === '1.0'
+      ? _.get(topHatDetailsFieldData, 'name')
+      : _.get(topHat, 'details');
 
   return (
     <ChakraNextLink
@@ -72,7 +88,15 @@ const CoreHat = ({ hat }: { hat: IHat }) => {
           mt={-1}
           bg='white'
         >
-          <Text fontSize='xs'>{prettyIdToIp(_.get(hat, 'prettyId'))}</Text>
+          <Flex justify='space-between'>
+            <Text fontSize='xs' mr={2} fontWeight={600}>
+              {topHatName}
+            </Text>
+            <Text fontSize='xs' color='gray.500'>
+              {prettyIdToIp(_.get(hat, 'prettyId'))}
+            </Text>
+          </Flex>
+
           <Text as='b' noOfLines={1}>
             {hatName}
           </Text>
@@ -203,6 +227,8 @@ const WearerDetail = ({
             <Flex w='100%' justify='center' pt='100px'>
               <Spinner />
             </Flex>
+          ) : _.isEmpty(_.keys(localOrderedChains)) ? (
+            <Text>Not wearing any hats</Text>
           ) : (
             <Stack>
               {_.map(localOrderedChains, (chainId) => (
