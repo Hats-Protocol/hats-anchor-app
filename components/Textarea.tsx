@@ -1,17 +1,19 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
-  Textarea as ChakraTextarea,
-  FormControl,
-  FormLabel,
-  Stack,
-  FormHelperText,
-  FormErrorMessage,
-  Icon,
-  HStack,
   Flex,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  Icon,
+  Stack,
+  Text,
+  Textarea as ChakraTextarea,
+  TextareaProps as ChakraTextareaProps,
   Tooltip,
 } from '@chakra-ui/react';
-import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 /**
@@ -23,6 +25,7 @@ const Textarea = ({
   localForm,
   helperText,
   tooltip,
+  headerNote,
   ...props
 }: TextareaProps) => {
   const {
@@ -36,7 +39,14 @@ const Textarea = ({
     <FormControl>
       <Stack spacing={2}>
         <HStack align='center'>
-          {label && <FormLabel m='0'>{label}</FormLabel>}
+          {label && (
+            <FormLabel m='0' display='contents' alignItems='baseline'>
+              {label}
+              <Text fontSize={14} color='gray.400'>
+                {headerNote}
+              </Text>
+            </FormLabel>
+          )}
           {tooltip && (
             <Tooltip
               label={tooltip}
@@ -70,11 +80,13 @@ const Textarea = ({
 
 export default Textarea;
 
-interface TextareaProps {
+interface TextareaProps extends ChakraTextareaProps {
   label?: string;
   name: string;
-  localForm: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   helperText?: string;
   tooltip?: string;
   placeholder?: string;
+  headerNote?: string;
 }

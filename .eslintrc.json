@@ -1,6 +1,12 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "prettier", "babel", "import"],
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "babel",
+    "import",
+    "simple-import-sort"
+  ],
   "parserOptions": {
     "ecmaVersion": 2023
   },
@@ -13,7 +19,7 @@
   "rules": {
     "no-use-before-define": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "@typescript-eslint/no-unused-vars": ["warn"],
     "babel/no-unused-expressions": "error",
     "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],
     "react/function-component-definition": [
@@ -32,6 +38,11 @@
         "tsx": "never"
       }
     ],
+    "import/no-cycle": [2, { "ignoreExternal": true }],
+
+    // increase the severity of rules so they are auto-fixable
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
     "prettier/prettier": "error"
   },
   "settings": {

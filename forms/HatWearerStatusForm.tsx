@@ -1,97 +1,96 @@
-import { Stack, Button, Flex, Text, Heading, Box } from '@chakra-ui/react';
-import _ from 'lodash';
+import {
+  Button,
+  Flex,
+  HStack,
+  Radio,
+  RadioGroup,
+  Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 
-import Input from '@/components/Input';
-import RadioBox from '@/components/RadioBox';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatWearerStatusSet from '@/hooks/useHatWearerStatusUpdate';
-import { prettyIdToIp } from '@/lib/hats';
+import { formatAddress } from '@/lib/general';
+import { prettyIdToId } from '@/lib/hats';
 
 const HatWearerStatusForm = ({
-  hatData,
+  prettyId,
   chainId,
-  defaultValues,
+  wearer,
+  eligibility,
 }: {
-  hatData: any;
+  prettyId: string;
   chainId: number;
-  defaultValues: any;
+  wearer: string;
+  eligibility: string;
 }) => {
   const localForm = useForm({ mode: 'onBlur' });
-  const { handleSubmit, watch } = localForm;
+  const { handleSubmit, watch, setValue } = localForm;
 
-  const wearer = useDebounce(watch('wearer', null), CONFIG.debounce);
-  const eligibility = useDebounce(watch('eligibility', null), CONFIG.debounce);
-  const standing = useDebounce(watch('standing', null), CONFIG.debounce);
+  const standing = useDebounce(watch('standing', 'Good Standing'));
 
-  const { writeAsync, isLoading, wearerResolvedAddress } =
-    useHatWearerStatusSet({
-      hatsAddress: CONFIG.hatsAddress,
-      hatId: _.get(hatData, 'prettyId'),
-      chainId,
-      wearer,
-      eligibility,
-      standing,
-    });
+  const { writeAsync, isLoading } = useHatWearerStatusSet({
+    hatsAddress: CONFIG.hatsAddress,
+    hatId: prettyIdToId(prettyId),
+    chainId,
+    wearer,
+    eligibility: eligibility === 'Eligible',
+    standing: standing === 'Good Standing',
+  });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
 
-  const showWearerResolvedAddress =
-    wearerResolvedAddress && wearer !== wearerResolvedAddress;
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
+      <Stack spacing={8}>
         <Text>
-          Rule on a wearer&apos;s status. Selecting ineligible or bad standing
-          will revoke their Hat. Standings are permanently recorded but can be
-          changed later. Learn more in the docs.
+          Are you sure? The revoked Hats will loose all permissions instantly.
         </Text>
 
-        <Stack>
-          <Text>Hat ID</Text>
-          <Heading size='md'>
-            {prettyIdToIp(_.get(hatData, 'prettyId'))}
-          </Heading>
-        </Stack>
-        <Box>
-          <Input
-            localForm={localForm}
-            name='wearer'
-            label='Wearer Address'
-            placeholder='0x1234, vitalik.eth'
-            defaultValue={_.get(defaultValues, 'wearer')}
-          />
+        <VStack alignItems='start'>
+          <Text fontSize='sm'>REVOKING HAT OF:</Text>
+          <HStack>
+            <FaRegUserCircle />
+            <Text>{formatAddress(wearer)}</Text>
+          </HStack>
+        </VStack>
 
-          {showWearerResolvedAddress && (
-            <Text fontSize='sm' color='gray.500' mt={1}>
-              Resolved address: {wearerResolvedAddress}
-            </Text>
-          )}
-        </Box>
-        <RadioBox
-          localForm={localForm}
-          name='eligibility'
-          label='Eligibility'
-          options={['Eligible', 'Ineligible']}
-          defaultValue={_.get(defaultValues, 'eligibility')}
-          isRequired
-        />
-        <RadioBox
-          localForm={localForm}
+        <VStack alignItems='start'>
+          <HStack>
+            <Text>WEARER STANDING</Text>
+            <FaRegQuestionCircle />
+          </HStack>
+          <Text color='gray.600'>
+            Changes of wearer standing are being recorded on chain. To change it
+            back to good you will have to submit a smart contract transaction.
+          </Text>
+        </VStack>
+
+        <RadioGroup
           name='standing'
-          label='Standing'
-          options={['Good Standing', 'Bad Standing']}
-          defaultValue={_.get(defaultValues, 'standing')}
-          isRequired
-        />
+          defaultValue='Good Standing'
+          onChange={(value) => setValue('standing', value)}
+        >
+          <HStack spacing={4}>
+            <Radio value='Good Standing'>Good Standing</Radio>
+            <Radio value='Bad Standing'>Bad Standing</Radio>
+          </HStack>
+        </RadioGroup>
 
-        <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!wearer || isLoading}>
-            Update
+        <Flex justify='flex-end' gap='3'>
+          <Button>Cancel</Button>
+          <Button
+            type='submit'
+            isDisabled={!wearer || isLoading || !writeAsync}
+            colorScheme={standing === 'Good Standing' ? 'blue' : 'red'}
+          >
+            Revoke Hat Token in {standing}
           </Button>
         </Flex>
       </Stack>

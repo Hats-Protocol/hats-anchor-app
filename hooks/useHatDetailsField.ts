@@ -1,20 +1,44 @@
-/* eslint-disable default-case */
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import _ from 'lodash';
 
+import CONFIG from '@/constants';
 import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
   // todo config value
-  const url = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${detailsField?.slice(
+  const url = `${CONFIG.ipfsGateway}${detailsField?.slice(
     7,
   )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   const res = await axios.get(url, { timeout: 5000 });
   return res;
+};
+
+export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
+  const details = await detailsFields.reduce<Promise<any[]>>(
+    async (accPromise, detailsField) => {
+      const acc = await accPromise;
+      if (detailsField?.startsWith('ipfs://')) {
+        try {
+          const res = await fetchDetailsIpfs(detailsField);
+          acc.push(res?.data);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.log(e);
+          acc.push({});
+        }
+      } else {
+        acc.push(detailsField);
+      }
+      return acc;
+    },
+    Promise.resolve([]),
+  );
+
+  return details;
 };
 
 /**
@@ -43,10 +67,15 @@ const useHatDetailsField = (detailsField: string) => {
         if (
           _.includes(_.keys(detailsData), 'name') ||
           _.includes(_.keys(detailsData), 'description') ||
-          _.includes(_.keys(detailsData), 'guilds')
+          _.includes(_.keys(detailsData), 'guilds') ||
+          _.includes(_.keys(detailsData), 'responsibilities') ||
+          _.includes(_.keys(detailsData), 'authorities')
         ) {
           schemaType = schemaTypeField;
         }
+        break;
+      default:
+        schemaType = undefined;
     }
   }
 

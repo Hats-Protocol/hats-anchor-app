@@ -1,3 +1,5 @@
+import '@rainbow-me/rainbowkit/styles.css';
+
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 // import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc';
@@ -5,16 +7,13 @@ import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
 import { Chain, configureChains, createConfig } from 'wagmi';
 import {
-  mainnet,
-  goerli,
-  polygon,
-  gnosis,
-  optimism,
   arbitrum,
-  // sepolia,
+  gnosis,
+  goerli,
+  mainnet,
+  optimism,
+  polygon,
 } from 'wagmi/chains';
-
-import '@rainbow-me/rainbowkit/styles.css';
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
@@ -40,6 +39,12 @@ const gnosisContract = {
   iconUrl: networkImages[100],
   iconBackground: 'none',
 };
+
+// ORDER HERE WILL BE USED IN THE UI
+export const orderedChains = [
+  1, 10, 42161, 137, 100, 5,
+  // 11155111,
+];
 
 export const chainsList: { [key: number]: Chain } = {
   1: mainnet,
@@ -73,10 +78,10 @@ export const { chains, publicClient } = configureChains(_.values(chainsList), [
 const { connectors } = getDefaultWallets({
   appName: 'Hats',
   chains,
+  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
 });
 
 export const wagmiConfig = createConfig({
-  // autoConnect: true,
   connectors,
   publicClient,
 });

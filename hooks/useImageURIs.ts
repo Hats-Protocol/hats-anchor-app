@@ -1,87 +1,87 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-await-in-loop */
-import { useEffect, useState } from 'react';
-import { useContractReads } from 'wagmi';
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { Abi } from 'viem';
+import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 import { isImageUrl } from '@/lib/general';
 import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
-import { chainsMap } from '@/lib/web3';
+import { IHat } from '@/types';
 
 /**
  * returns an object, mapping from hat id to image url.
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
  * for every url, checks if valid. If not, sets the image url to undefined.
- * @param {string[]} hats Array of hat IDs
- * @param {number} chainId Chain ID
+ * @param {IHat[]} hats Array of Hats
+ * @param {number} chainId Chain ID -- optional if not nested on hat object
  */
-const useImageURIs = (hats: any[], chainId: number) => {
-  const [data, setData] = useState<any>({});
-  const [loading, setLoading] = useState(false);
-
-  let calls: any[] = [];
-  const chain = chainsMap(chainId);
-  if (hats !== undefined) {
-    calls = hats.map((hat) => {
-      return {
-        address: CONFIG.hatsAddress,
-        chainId: chain.id,
-        abi,
-        functionName: 'getImageURIForHat',
-        args: [hat],
-      };
-    });
-  }
+const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
+  const calls: any = _.map(hats, (hat) => {
+    return {
+      address: CONFIG.hatsAddress,
+      chainId: hat?.chainId || chainId,
+      abi: abi as Abi,
+      functionName: 'getImageURIForHat',
+      args: [hat?.id || hat],
+    };
+  });
 
   const { data: imagesData, isLoading: imagesLoading } = useContractReads({
     contracts: calls,
+    enabled: !!hats && !_.isEmpty(hats),
   });
 
-  useEffect(() => {
-    const validateImages = async () => {
-      try {
-        setLoading(true);
-        const hatIdToImage: { [key: string]: any } = {};
-        for (let i = 0; i < hats.length; i++) {
-          const hat = hats[i];
-          const readData = _.get(imagesData, i);
-          if (
-            typeof readData?.result === 'string' &&
-            readData?.result?.startsWith('ipfs://')
-          ) {
-            // converting the current base image uri from the contract to resolvable format
-            hatIdToImage[
-              hat
-            ] = `https://indigo-selective-coral-505.mypinata.cloud/ipfs/${readData?.result.slice(
-              7,
-            )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
-          } else {
-            const isValidImage = await isImageUrl(readData?.result);
-            if (isValidImage) {
-              hatIdToImage[hat] = readData?.result;
-            } else {
-              hatIdToImage[hat] = undefined;
-            }
-          }
-        }
-
-        setData(hatIdToImage);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (imagesData?.[0]?.result && (hats ?? null) && !imagesLoading) {
-      validateImages();
+  const formatImageUrl = (url?: string) => {
+    if (_.startsWith(url, 'https://')) {
+      return url;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imagesData, imagesLoading]);
+    if (_.startsWith(url, 'ipfs://')) {
+      return `${CONFIG.ipfsGateway}${url?.slice(
+        7,
+      )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+    }
+    if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
+      const ipfsHash = url?.slice(21);
+      const ipfsHashSplit = ipfsHash?.split('?')[0];
+      const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
+      const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
+      return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+    }
 
-  return { data, loading };
+    return undefined;
+  };
+
+  const checkImagesForHats = async () => {
+    const promises = _.map(imagesData, (imageData: { result: string }) => {
+      return isImageUrl(formatImageUrl(imageData?.result));
+    });
+    const isValidImages = await Promise.all(promises);
+
+    try {
+      return _.map(hats, (hat, i) => {
+        // console.log(imagesData?.[i]?.result);
+        return {
+          ...hat,
+          imageUrl: isValidImages[i]
+            ? formatImageUrl(imagesData?.[i]?.result as string)
+            : undefined,
+        };
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      return hats;
+    }
+  };
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['imageUrls', _.map(hats, 'id')],
+    queryFn: checkImagesForHats,
+    enabled: !!hats && !_.isEmpty(hats) && !!imagesData,
+  });
+
+  return { data, isLoading: isLoading || imagesLoading };
 };
 
 export default useImageURIs;

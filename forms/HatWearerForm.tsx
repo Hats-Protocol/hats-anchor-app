@@ -1,43 +1,44 @@
-/* eslint-disable no-nested-ternary */
 import {
-  Stack,
+  Box,
   Button,
+  Collapse,
   Flex,
-  Tooltip,
+  FormControl,
+  HStack,
+  Icon,
   IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Stack,
   Text,
-  FormControl,
-  VStack,
-  Icon,
+  Tooltip,
   useDisclosure,
-  Collapse,
-  Box,
+  VStack,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import {
   FaCheck,
-  FaUserPlus,
-  FaFileCsv,
-  FaTrash,
-  FaChevronUp,
   FaChevronDown,
+  FaChevronUp,
+  FaFileCsv,
   FaInfoCircle,
+  FaRegQuestionCircle,
+  FaTrash,
+  FaUserPlus,
 } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
 import useHatMint from '@/hooks/useHatMint';
+import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 
 const HatWearerForm = ({
   hatId,
@@ -48,46 +49,66 @@ const HatWearerForm = ({
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
   const [wearers, setWearers] = useState<any[]>([]);
-  const [newAddress, setNewAddress] = useState('');
-  const [isNewAddress, setIsNewAddress] = useState(false);
+  const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
+  const [currentInput, setCurrentInput] = useState('');
+  const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
 
-  const newWearer = useDebounce(newAddress, CONFIG.debounce);
-  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
-    name: newAddress.includes('.eth') ? newAddress : null,
-    chainId: 1,
-  });
+  const { data: isEligible, isLoading: isLoadingIsEligible } =
+    useHatCheckEligibility({
+      wearer: currentResolvedAddress,
+      hatId,
+      chainId,
+    });
 
   useEffect(() => {
-    setIsNewAddress(isAddress(newAddress));
-  }, [newAddress]);
+    setIsCurrentInputAddress(isAddress(currentInput));
+    setCurrentResolvedAddress(
+      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
+        ? isCurrentInputAddress
+          ? currentInput
+          : ensResolvedAddress
+        : '',
+    );
+  }, [currentInput]);
 
   const isAddressAlreadyAdded =
     wearers.some(
-      (wearer) => wearer.address === newAddress || wearer.ens === newAddress,
-    ) || currentWearers.includes(newAddress);
+      (wearer) =>
+        wearer.address === currentInput || wearer.ens === currentInput,
+    ) || currentWearers.includes(currentInput);
+
+  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
+    name: currentInput.includes('.eth') ? currentInput : null,
+    chainId: 1,
+  });
 
   const { writeAsync, isLoading } = useHatMint({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
-    newWearers: wearers.map((wearer) => wearer.address),
+    newWearers: wearers
+      .map((wearer) => wearer.address)
+      .concat([currentResolvedAddress]),
   });
 
   const onSubmit = async () => {
     await writeAsync?.();
   };
 
-  const isNewWearerAddress = isNewAddress || ensResolvedAddress;
+  const handleAddWearer = () => {
+    const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
+    setWearers((prevWearers) => [
+      ...prevWearers,
+      { address, ens: isEnsAddress && currentInput },
+    ]);
+    setCurrentInput('');
+  };
+
+  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
   const wouldExceedMaxSupply =
     currentWearers.length + wearers.length + 1 > maxSupply;
   const canAddWearer =
     isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
-
-  const handleAddWearer = () => {
-    const address = isNewAddress ? newWearer : ensResolvedAddress;
-    setWearers([...wearers, { address, ens: isEnsAddress && newWearer }]);
-    setNewAddress('');
-  };
 
   const handleRemoveWearer = (index: number) => {
     setWearers(_.filter(wearers, (__, i) => i !== index));
@@ -124,11 +145,25 @@ const HatWearerForm = ({
       },
     });
 
+  let toolTip = '';
+
+  if (!isNewWearerAddress) {
+    toolTip = 'Please input a valid address';
+  } else if (isAddressAlreadyAdded) {
+    toolTip = 'Address already added';
+  } else if (wouldExceedMaxSupply) {
+    toolTip = 'Would exceed max supply';
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
+        <HStack>
+          <Text>WEARER ADDRESS</Text>
+          <FaRegQuestionCircle />
+        </HStack>
         <Text color='gray.500'>
-          Mint this hat to multiple addresses at once!
+          The address will receive a Hat token and become a Wearer.
         </Text>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
           <Flex w='full'>
@@ -141,9 +176,9 @@ const HatWearerForm = ({
                 textOverflow='ellipsis'
                 type='address'
                 placeholder='0x1234, vitalik.eth'
-                value={newAddress}
+                value={currentInput}
                 onChange={(e) =>
-                  setNewAddress(e.target.value?.toLowerCase() ?? '')
+                  setCurrentInput(e.target.value?.toLowerCase() ?? '')
                 }
               />
               {ensResolvedAddress && (
@@ -152,29 +187,26 @@ const HatWearerForm = ({
                 </InputRightElement>
               )}
             </InputGroup>
-            <Tooltip
-              label={
-                !canAddWearer
-                  ? !isNewWearerAddress
-                    ? 'Please input a valid address'
-                    : isAddressAlreadyAdded
-                    ? 'Address already added'
-                    : wouldExceedMaxSupply
-                    ? 'Max supply would be exceeded'
-                    : ''
-                  : ''
-              }
-              shouldWrapChildren
-            >
-              <IconButton
-                isDisabled={!canAddWearer}
-                onClick={handleAddWearer}
-                icon={<FaCheck />}
-                aria-label='Add'
-                w={16}
-              />
-            </Tooltip>
           </Flex>
+          {typeof isEligible === 'boolean' && !isEligible && (
+            <Text fontSize='sm' color='red.500'>
+              <Icon as={FaInfoCircle} mr={1} />
+              This address is not eligible to mint a Hat
+            </Text>
+          )}
+
+          <Tooltip label={toolTip} shouldWrapChildren>
+            <Button
+              isDisabled={
+                !canAddWearer || !isEligible || isLoading || isLoadingIsEligible
+              }
+              onClick={handleAddWearer}
+              aria-label='Add Another Wallet'
+            >
+              <Icon as={FaUserPlus} mr={2} />
+              Add Another Wallet
+            </Button>
+          </Tooltip>
 
           {wearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
@@ -231,10 +263,7 @@ const HatWearerForm = ({
         </Collapse>
 
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={!writeAsync || isLoading || wearers.length === 0}
-          >
+          <Button type='submit' isDisabled={!writeAsync || isLoading}>
             Mint
           </Button>
         </Flex>

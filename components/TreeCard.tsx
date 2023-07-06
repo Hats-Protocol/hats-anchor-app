@@ -1,21 +1,21 @@
-import {
-  CardBody,
-  Link as ChakraLink,
-  Card,
-  Text,
-  Stack,
-  HStack,
-  Box,
-} from '@chakra-ui/react';
+import { Box, Card, CardBody, HStack, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import Link from 'next/link';
 
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
+import { IHat, ITree } from '@/types';
 
-const TreeCard = ({ tree, imagesData }: { tree: any; imagesData: any }) => {
-  console.log(tree);
-  const topHat = _.get(tree, 'hats[0]');
+import ChakraNextLink from './ChakraNextLink';
+
+const TreeCard = ({
+  tree,
+  topHat,
+  topHatImage,
+}: {
+  tree: ITree;
+  topHat: IHat;
+  topHatImage: IHat | undefined;
+}) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(topHat, 'details'));
 
@@ -25,11 +25,8 @@ const TreeCard = ({ tree, imagesData }: { tree: any; imagesData: any }) => {
       : _.get(topHat, 'details');
 
   return (
-    <ChakraLink
-      as={Link}
-      href={`/trees/${_.get(tree, 'chainId')}/${decimalId(
-        _.get(tree, 'id'),
-      )}/${decimalId(_.get(tree, 'hats[0].prettyId'))}`}
+    <ChakraNextLink
+      href={`/trees/${_.get(tree, 'chainId')}/${decimalId(_.get(tree, 'id'))}`}
       key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
@@ -43,13 +40,12 @@ const TreeCard = ({ tree, imagesData }: { tree: any; imagesData: any }) => {
           >
             <Box
               bgImage={
-                imagesData[topHat?.id]
-                  ? `url('${imagesData[topHat?.id]}')`
+                _.get(topHatImage, 'imageUrl')
+                  ? `url('${_.get(topHatImage, 'imageUrl')}')`
                   : `url('/icon.jpeg')`
               }
               bgSize='cover'
               bgPosition='center'
-              // alt='Top Hat image'
               w='85px'
               h='85px'
               border='1px solid'
@@ -64,7 +60,7 @@ const TreeCard = ({ tree, imagesData }: { tree: any; imagesData: any }) => {
           </HStack>
         </CardBody>
       </Card>
-    </ChakraLink>
+    </ChakraNextLink>
   );
 };
 

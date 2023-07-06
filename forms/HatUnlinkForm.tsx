@@ -1,6 +1,5 @@
-import { Stack, Button, Flex, Text } from '@chakra-ui/react';
+import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 
 import Select from '@/components/Select';
@@ -8,7 +7,7 @@ import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatUnlinkTree from '@/hooks/useHatUnlinkTree';
-import { prettyIdToIp, prettyIdToId } from '@/lib/hats';
+import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
 
 const HatUnlinkForm = ({
   parentOfTrees,
@@ -37,7 +36,7 @@ const HatUnlinkForm = ({
 
   const { writeAsync, isLoading } = useHatUnlinkTree({
     topHatPrettyId,
-    wearer: topHatData?.wearers?.[0]?.id,
+    wearer: topHatData?.wearers?.[0]?.id || '0x',
     chainId,
   });
 

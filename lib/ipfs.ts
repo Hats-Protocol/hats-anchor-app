@@ -5,7 +5,7 @@ const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 export const PINATA_GATEWAY_TOKEN =
   process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN;
 
-export const pinJson = async (data: any, metadata: any) => {
+export const pinJson = async (data: object, metadata: object) => {
   const pinataData = JSON.stringify({
     pinataOptions: {
       cidVersion: 1,

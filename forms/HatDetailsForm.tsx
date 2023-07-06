@@ -1,90 +1,79 @@
-import React, { useState } from 'react';
 import {
-  Stack,
-  Flex,
+  Box,
   Button,
-  Spinner,
+  Input as ChakraInput,
+  Flex,
   FormControl,
-  Switch,
+  Icon,
   IconButton,
   InputGroup,
-  Input as ChakraInput,
   InputLeftElement,
-  Box,
-  Tooltip,
-  Text,
-  Icon,
   InputRightElement,
+  Spinner,
+  Stack,
+  Switch,
+  Text,
+  Tooltip,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
 import _ from 'lodash';
-import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
+import { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
 
+import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
-import useDebounce from '@/hooks/useDebounce';
 import CONFIG from '@/constants';
-import { pinJson } from '@/lib/ipfs';
 import useCid from '@/hooks/useCid';
-import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import useDebounce from '@/hooks/useDebounce';
+import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
+import useHatImageUpdate from '@/hooks/useHatImageUpdate';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
+import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
+import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
+import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
+import ResponsibilityDetailsForm, {
+  Responsibility,
+} from './ResponsibilityDetailsForm';
 
 const HatDetailsForm = ({
   hatData,
-  hatDetails,
   chainId,
+  defaultValues,
 }: {
   hatData: any;
-  hatDetails: any;
   chainId: number;
+  defaultValues: {
+    name?: string;
+    description?: string;
+    imageUrl?: string;
+    guilds?: string[];
+    responsibilities: Responsibility[];
+    authorities: Authority[];
+  };
 }) => {
-  const [customDetails, setCustomDetails] = useState(true);
-  const [guilds, setGuilds] = useState(hatDetails?.guilds || []);
-  const [newGuild, setNewGuild] = useState('');
-
+  const [customImage, setCustomImage] = useState(true);
+  const [image, setImage] = useState<any>();
   const localForm = useForm({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
-      name: hatDetails?.name || '',
+      name: defaultValues.name || '',
+      imageUrl: defaultValues.imageUrl || '',
+      description: defaultValues.description || '',
       details: {},
-      description: hatDetails?.description || '',
     },
   });
-
   const { handleSubmit, watch } = localForm;
-
-  const name = useDebounce(watch('name', hatDetails?.name || ''));
-  const description = useDebounce(
-    watch('description', hatDetails?.description || ''),
+  const [guilds, setGuilds] = useState(defaultValues.guilds || []);
+  const [newGuild, setNewGuild] = useState('');
+  const [responsibilities, setResponsibilities] = useState(
+    defaultValues.responsibilities || [],
   );
-  const details = useDebounce(watch('details'));
-
-  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
-    type: '1.0',
-    data: { name, description, guilds },
-  });
-
-  const { writeAsync, isLoading } = useHatDetailsUpdate({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId: _.get(hatData, 'id'),
-    details: customDetails ? detailsCID : details,
-  });
-
-  const onSubmit = async () => {
-    writeAsync?.();
-    if (customDetails) {
-      await pinJson(
-        { type: '1.0', data: { name, description, guilds } },
-        {
-          name: `details_${_.toString(chainId)}_${prettyIdToIp(
-            _.get(hatData, 'admin.id'),
-          )}`,
-        },
-      );
-    }
-  };
+  const [authorities, setAuthorities] = useState(
+    defaultValues.authorities || [],
+  );
 
   const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
     guildName: newGuild,
@@ -95,115 +84,227 @@ const HatDetailsForm = ({
     setNewGuild('');
   };
 
+  const handleAddResponsibility = ({ link, label }: Responsibility) => {
+    setResponsibilities([...responsibilities, { link, label }]);
+  };
+
+  const handleAddAuthority = ({ link, label }: Authority) => {
+    setAuthorities([...authorities, { link, label }]);
+  };
+
   const handleRemoveGuild = (index: number) => {
     setGuilds(guilds.filter((__: any, i: number) => i !== index));
+  };
+
+  const handleRemoveResponsibility = (index: number) => {
+    setResponsibilities(responsibilities.filter((__, i) => i !== index));
+  };
+
+  const handleRemoveAuthority = (index: number) => {
+    setAuthorities(authorities.filter((__, i) => i !== index));
+  };
+
+  const name = useDebounce(watch('name', defaultValues?.name || ''));
+  const description = useDebounce(
+    watch('description', defaultValues?.description || ''),
+  );
+  const imageUrl = useDebounce(
+    watch('imageUrl', defaultValues?.imageUrl || ''),
+  );
+
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+    type: '1.0',
+    data: { name, description, guilds, responsibilities, authorities },
+  });
+
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: { 'image/*': [] },
+    onDrop: (a) => {
+      setImage(
+        Object.assign(a[0], {
+          preview: URL.createObjectURL(a[0]),
+        }),
+      );
+    },
+  });
+
+  const {
+    data: imagePinData,
+    isLoading: imagePinLoading,
+    // error: imagePinError,
+  } = usePinImageIpfs({
+    imageFile: acceptedFiles[0],
+    enabled: customImage,
+    metadata: { name: `image_${_.toString(chainId)}_tophat` },
+  });
+
+  const { writeAsync: writeAsyncImage, isLoading } = useHatImageUpdate({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
+    hatId: _.get(hatData, 'id'),
+    image: customImage
+      ? imagePinData !== undefined
+        ? `ipfs://${imagePinData}`
+        : undefined
+      : imageUrl,
+  });
+
+  const { writeAsync } = useHatDetailsUpdate({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
+    hatId: _.get(hatData, 'id'),
+    details: detailsCID,
+  });
+
+  const onSubmit = async () => {
+    writeAsync?.();
+    writeAsyncImage?.();
+    await pinJson(
+      {
+        type: '1.0',
+        data: { name, description, guilds, responsibilities, authorities },
+      },
+      {
+        name: `details_${_.toString(chainId)}_${prettyIdToIp(
+          _.get(hatData, 'admin.id'),
+        )}`,
+      },
+    );
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
         <FormControl>
-          <Stack>
+          <Stack spacing={2}>
+            <Input
+              localForm={localForm}
+              name='name'
+              label='Name'
+              placeholder='Hat name'
+            />
+            <Textarea
+              localForm={localForm}
+              name='description'
+              label='Description'
+              placeholder='Hat description'
+            />
+
+            <ResponsibilityDetailsForm
+              responsibilities={responsibilities}
+              setResponsibilities={setResponsibilities}
+              handleAddResponsibility={handleAddResponsibility}
+              handleRemoveResponsibility={handleRemoveResponsibility}
+            />
+
+            <AuthorityDetailsForm
+              authorities={authorities}
+              setAuthorities={setAuthorities}
+              handleAddAuthority={handleAddAuthority}
+              handleRemoveAuthority={handleRemoveAuthority}
+            />
+
             <Switch
-              isChecked={customDetails}
-              onChange={() => setCustomDetails(!customDetails)}
+              isChecked={customImage}
+              onChange={() => setCustomImage(!customImage)}
             >
-              Custom details
+              Custom image
             </Switch>
-            {!customDetails && (
+            {!customImage && (
               <Textarea
                 localForm={localForm}
-                name='details'
-                label='Details'
-                placeholder='Hat details'
+                name='imageUrl'
+                label='Image'
+                placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
               />
             )}
-            {customDetails && (
-              <Stack spacing={2}>
-                <Input
-                  localForm={localForm}
-                  name='name'
-                  label='Name'
-                  placeholder='Hat name'
-                />
-                <Textarea
-                  localForm={localForm}
-                  name='description'
-                  label='Description'
-                  placeholder='Hat description'
-                />
-                {isTopHat(hatData) && (
-                  <>
-                    <Text fontSize='sm' color='blue.500' pt={3}>
-                      <Icon as={FaInfoCircle} mr={1} />
-                      Bind one or more guild.xyz to this hat. Remember to click
-                      the checkmark to add the guild.
-                    </Text>
-                    <Flex alignItems='center'>
-                      <InputGroup>
-                        <InputLeftElement>
-                          <Icon as={FaHouseUser} ml={2} />
-                        </InputLeftElement>
-                        <ChakraInput
-                          w='calc(100% - 1rem)'
-                          textOverflow='ellipsis'
-                          type='guild'
-                          placeholder='Guild name (e.g. hats-protocol)'
-                          value={newGuild}
-                          onChange={(e) => setNewGuild(e.target.value)}
-                        />
-                        {isResolved ? (
-                          <InputRightElement right='2rem'>
-                            <FaCheck color='green' />
-                          </InputRightElement>
-                        ) : (
-                          isResolvingGuild && (
-                            <InputRightElement right='2rem'>
-                              <Spinner size='sm' />
-                            </InputRightElement>
-                          )
-                        )}
-                      </InputGroup>
-                      <Tooltip
-                        label={!newGuild ? 'Please input a guild name' : ''}
-                        shouldWrapChildren
-                      >
-                        <IconButton
-                          isDisabled={!newGuild}
-                          onClick={handleAddGuild}
-                          icon={<FaCheck />}
-                          aria-label='Add'
-                          height={9}
-                          w={16}
-                        />
-                      </Tooltip>
+            {customImage && (
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                isFocused={isFocused}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+                image={image}
+              />
+            )}
+            {isTopHat(hatData) && (
+              <>
+                <Text fontSize='sm' color='blue.500' pt={3}>
+                  <Icon as={FaInfoCircle} mr={1} />
+                  Bind one or more guild.xyz to this hat. Remember to click the
+                  checkmark to add the guild.
+                </Text>
+                <Flex alignItems='center'>
+                  <InputGroup>
+                    <InputLeftElement>
+                      <Icon as={FaHouseUser} ml={2} />
+                    </InputLeftElement>
+                    <ChakraInput
+                      w='calc(100% - 1rem)'
+                      textOverflow='ellipsis'
+                      type='guild'
+                      placeholder='Guild name (e.g. hats-protocol)'
+                      value={newGuild}
+                      onChange={(e) => setNewGuild(e.target.value)}
+                    />
+                    {isResolved ? (
+                      <InputRightElement right='2rem'>
+                        <FaCheck color='green' />
+                      </InputRightElement>
+                    ) : (
+                      isResolvingGuild && (
+                        <InputRightElement right='2rem'>
+                          <Spinner size='sm' />
+                        </InputRightElement>
+                      )
+                    )}
+                  </InputGroup>
+                  <Tooltip
+                    label={!newGuild ? 'Please input a guild name' : ''}
+                    shouldWrapChildren
+                  >
+                    <IconButton
+                      isDisabled={!newGuild}
+                      onClick={handleAddGuild}
+                      icon={<FaCheck />}
+                      aria-label='Add'
+                      height={9}
+                      w={16}
+                    />
+                  </Tooltip>
+                </Flex>
+                {guilds.map((guild: string, index: number) => (
+                  <Box key={guild}>
+                    <Flex
+                      align='center'
+                      w='full'
+                      justifyContent='space-between'
+                    >
+                      <ChakraInput
+                        value={guild}
+                        readOnly
+                        w='calc(100% - 5rem)'
+                      />
+                      <IconButton
+                        type='button'
+                        onClick={() => handleRemoveGuild(index)}
+                        icon={<FaTrash />}
+                        aria-label='Remove'
+                        height={9}
+                        w={16}
+                      />
                     </Flex>
-                    {guilds.map((guild: string, index: number) => (
-                      <Box key={guild}>
-                        <Flex
-                          align='center'
-                          w='full'
-                          justifyContent='space-between'
-                        >
-                          <ChakraInput
-                            value={guild}
-                            readOnly
-                            w='calc(100% - 5rem)'
-                          />
-                          <IconButton
-                            type='button'
-                            onClick={() => handleRemoveGuild(index)}
-                            icon={<FaTrash />}
-                            aria-label='Remove'
-                            height={9}
-                            w={16}
-                          />
-                        </Flex>
-                      </Box>
-                    ))}
-                  </>
-                )}
-              </Stack>
+                  </Box>
+                ))}
+              </>
             )}
           </Stack>
         </FormControl>
@@ -211,9 +312,15 @@ const HatDetailsForm = ({
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || detailsCidLoading || isLoading}
+            isDisabled={
+              !writeAsync ||
+              !writeAsyncImage ||
+              imagePinLoading ||
+              isLoading ||
+              detailsCidLoading
+            }
           >
-            {detailsCidLoading ? <Spinner /> : 'Update'}
+            {imagePinLoading ? <Spinner /> : 'Update'}
           </Button>
         </Flex>
       </Stack>
@@ -221,4 +328,4 @@ const HatDetailsForm = ({
   );
 };
 
-export default React.memo(HatDetailsForm);
+export default HatDetailsForm;

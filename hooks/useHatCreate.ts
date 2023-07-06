@@ -1,14 +1,18 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useEnsAddress,
-} from 'wagmi';
 import { useState } from 'react';
+import {
+  useContractWrite,
+  useEnsAddress,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
-import CONFIG, { ZERO_ADDRESS, FALLBACK_ADDRESS } from '@/constants';
+import CONFIG, {
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  ZERO_ADDRESS,
+} from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
@@ -41,7 +45,7 @@ const useHatCreate = ({
 
   const {
     data: toggleResolvedAddress,
-    isLoading: isLoadingtoggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
@@ -62,7 +66,7 @@ const useHatCreate = ({
       maxSupply || '1',
       eligibilityAddress,
       toggleAddress,
-      mutable === 'Mutable',
+      mutable === MUTABILITY.MUTABLE,
       imageUrl || '',
     ],
     enabled: !!hatsAddress && !!admin,
@@ -115,7 +119,7 @@ const useHatCreate = ({
     eligibilityResolvedAddress: eligibilityAddress,
     isLoading:
       isLoadingEligibilityResolvedAddress ||
-      isLoadingtoggleResolvedAddress ||
+      isLoadingToggleResolvedAddress ||
       isLoading,
   };
 };

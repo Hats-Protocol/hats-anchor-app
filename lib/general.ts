@@ -27,10 +27,12 @@ export const explorerUrl = (chainId: number) => {
   return explorerUrls[chainId] || explorerUrls[5];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const clearNonObjects = (array: any[]) => {
   return _.filter(array, (item) => typeof item === 'object');
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchWithTimeout(resource: any, options: any = {}) {
   const { timeout = 8000 } = options;
 
@@ -48,30 +50,32 @@ async function fetchWithTimeout(resource: any, options: any = {}) {
  * checks if a url links to an image
  */
 export async function isImageUrl(url: string | unknown) {
-  let isImage = false;
   if (typeof url === 'string' && url?.startsWith('http')) {
     try {
-      isImage = await fetchWithTimeout(url, { method: 'HEAD' })
+      return fetchWithTimeout(url, { method: 'HEAD' })
         .then((res) => {
           if (!res.ok) {
-            throw new Error();
+            // eslint-disable-next-line no-console
+            console.log(res);
+            return false;
           }
           return res.headers?.get('Content-Type')?.startsWith('image') || false;
         })
         .catch((error) => {
           // eslint-disable-next-line no-console
           console.log(error);
-          throw new Error(`Fetching ${url} failed`);
+          // throw new Error(`Fetching ${url} failed`);
+          return false;
         });
     } catch (error) {
-      isImage = false;
       // eslint-disable-next-line no-console
       console.log(error);
+      return false;
     }
   }
 
-  return isImage;
+  return false;
 }
 
-export const mapWithChainId = (trees: any[] | null, chainId: number) =>
-  _.map(trees, (tree) => ({ ...tree, chainId }));
+export const mapWithChainId = (array: object[] | null, chainId: number) =>
+  _.map(array, (obj: object) => ({ ...obj, chainId }));

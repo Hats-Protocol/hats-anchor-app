@@ -1,14 +1,13 @@
 import {
-  Stack,
+  Box,
   Button,
+  Code,
   Flex,
-  Text,
   Heading,
   HStack,
-  Code,
-  Box,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 
@@ -21,12 +20,12 @@ import { prettyIdToIp } from '@/lib/hats';
 const HatTransferForm = ({
   chainId,
   currentWearerAddress,
-  id,
+  hatId,
   prettyId,
 }: {
   chainId: number;
   currentWearerAddress: string;
-  id: string | undefined;
+  hatId: string | undefined;
   prettyId: string | undefined;
 }) => {
   const localForm = useForm({ mode: 'onBlur' });
@@ -37,7 +36,7 @@ const HatTransferForm = ({
   const { writeAsync, isLoading, newWearerResolvedAddress } =
     useHatTransferTree({
       currentWearerAddress,
-      id,
+      hatId,
       prettyId,
       newWearer,
       chainId,

@@ -1,38 +1,40 @@
-/* eslint-disable no-nested-ternary */
 import {
-  Stack,
-  Flex,
+  Box,
   Button,
+  Flex,
   FormControl,
-  Switch,
   FormLabel,
   HStack,
   Spinner,
+  Stack,
+  Switch,
   Text,
-  Box,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import _ from 'lodash';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+
+import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import DropZone from '@/components/DropZone';
-import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
-import useDebounce from '@/hooks/useDebounce';
 import { ZERO_ADDRESS } from '@/constants';
-import { prettyIdToIp, decimalId } from '@/lib/hats';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { pinJson } from '@/lib/ipfs';
 import useCid from '@/hooks/useCid';
+import useDebounce from '@/hooks/useDebounce';
+import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
+import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
 
 const HatLinkRequestApproveForm = ({
   topHatDomain,
+  newAdmin,
   chainId,
   hatData,
 }: {
   topHatDomain: string;
+  newAdmin: string;
   chainId: number;
   hatData: any;
 }) => {
@@ -42,7 +44,7 @@ const HatLinkRequestApproveForm = ({
       name: '',
       details: '',
       topHatDomain,
-      newAdmin: decimalId(hatData.id),
+      newAdmin: decimalId(prettyIdToId(newAdmin)),
       eligibility: ZERO_ADDRESS,
       toggle: ZERO_ADDRESS,
       description: '',
@@ -104,7 +106,7 @@ const HatLinkRequestApproveForm = ({
     eligibilityResolvedAddress,
   } = useHatLinkRequestApprove({
     topHatDomain,
-    newAdmin: hatData.id,
+    newAdmin: prettyIdToId(newAdmin),
     eligibility: eligibilityChecked && eligibility,
     toggle: toggleChecked && toggle,
     description: newDetails && customDetails ? detailsCID : details,
@@ -144,7 +146,7 @@ const HatLinkRequestApproveForm = ({
           <Text fontWeight={500} mr={2}>
             New Admin:
           </Text>
-          <Text>ID {prettyIdToIp(hatData.prettyId)}</Text>
+          <Text>ID {prettyIdToIp(newAdmin)}</Text>
         </Flex>
         <Flex>
           <Text fontWeight={500} mr={2}>

@@ -1,15 +1,10 @@
 import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useMemo,
-  ReactNode,
-} from 'react';
-import { TransactionReceipt } from 'viem';
-import useToast from '@/hooks/useToast';
 import { useRouter } from 'next/router';
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import { TransactionReceipt } from 'viem';
+
+import useToast from '@/hooks/useToast';
 
 const defaults = {
   createTree: false,

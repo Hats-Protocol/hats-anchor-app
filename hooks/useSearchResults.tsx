@@ -4,14 +4,15 @@ import _ from 'lodash';
 import client from '@/gql/client';
 import { SEARCH_QUERY } from '@/gql/queries';
 import {
+  decimalIdToId,
   idToPrettyId,
   ipToPrettyId,
   prettyIdToIp,
   prettyIdToUrlId,
   toTreeId,
-  decimalIdToId,
 } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
+import { IHat, ITree } from '@/types';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',
@@ -26,12 +27,10 @@ const processForCommandPalette = (key: string, record: any) => {
     href = `/trees/${_.get(record, 'network.id')}/${prettyIdToUrlId(
       _.get(record, 'id'),
       true,
-    )}/${prettyIdToUrlId(_.get(record, 'id'))}`;
+    )}`;
   }
   if (key === 'hats') {
-    href = `/trees/${_.get(record, 'network.id')}/${treeId}/${prettyIdToUrlId(
-      _.get(record, 'prettyId', _.get(record, 'id')),
-    )}`;
+    href = `/trees/${_.get(record, 'network.id')}/${treeId}`;
   }
 
   return {
@@ -64,20 +63,20 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
 
     const result = await Promise.all(promises);
 
-    const allNetworkResults: { trees: any[]; hats: any[] } = {
+    const allNetworkResults: { trees: ITree[]; hats: IHat[] } = {
       trees: [],
       hats: [],
     };
     _.forEach(result, (network, i) => {
       allNetworkResults.trees = _.concat(
-        _.map(_.get(network, 'trees'), (tree: object) => ({
+        _.map(_.get(network, 'trees'), (tree: ITree) => ({
           ...tree,
           network: _.values(chainsList)[i],
         })),
         allNetworkResults?.trees || [],
       );
       allNetworkResults.hats = _.concat(
-        _.map(_.get(network, 'hats'), (hat: object) => ({
+        _.map(_.get(network, 'hats'), (hat: IHat) => ({
           ...hat,
           network: _.values(chainsList)[i],
         })),

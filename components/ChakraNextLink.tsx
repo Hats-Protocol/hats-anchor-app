@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { Link as ChakraLink } from '@chakra-ui/react';
+import { Link as ChakraLink, LinkProps } from '@chakra-ui/react';
 import Link from 'next/link';
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 const ChakraNextLink = ({
   children,
@@ -13,7 +13,7 @@ const ChakraNextLink = ({
   children: ReactNode;
   decoration?: boolean;
   isExternal?: boolean;
-}) => (
+} & LinkProps) => (
   <ChakraLink
     as={Link}
     textDecoration={decoration ? 'underline' : 'none'}
