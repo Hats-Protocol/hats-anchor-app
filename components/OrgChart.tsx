@@ -64,10 +64,46 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .nodeHeight(() => (selectedOption !== 'title' ? 110 : 70))
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick((node: any) => {
-            onSelectHat(node);
-            chart.setCentered(node);
+          .onNodeClick((nodeId: string) => {
+            onSelectHat(nodeId);
+
+            const currentState = chart?.getChartState();
+            if (!currentState) {
+              chart.setCentered(nodeId);
+              return;
+            }
+
+            const nodeData = currentState.allNodes.find(
+              (n) => n.id === nodeId,
+            ) as any;
+
+            if (!nodeData) {
+              chart.setCentered(nodeId);
+              return;
+            }
+
+            const nodeX = nodeData.x;
+            const nodeY = nodeData.y;
+
+            const svgWidth = chart.svgWidth();
+            const svgHeight = chart.svgHeight();
+
+            const targetX = svgWidth * 0.9;
+            const targetY = svgHeight * 0.6;
+
+            const zoomTreeBounds = {
+              x0: nodeX - targetX / 2,
+              y0: nodeY - targetY / 2,
+              x1: nodeX + targetX,
+              y1: nodeY + targetY,
+              params: {
+                animate: true,
+              },
+            };
+
+            chart?.zoomTreeBounds(zoomTreeBounds);
           })
+
           .buttonContent(({ node, state }: { node: any; state: any }) => {
             const icons: { [key: string]: (d: any) => string } = {
               left: (d: any) =>

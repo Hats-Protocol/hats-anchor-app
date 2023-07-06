@@ -15,19 +15,19 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
+import { useState } from 'react';
 
 import { Authority } from '@/forms/AuthorityDetailsForm';
+import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
 import { explorerUrl } from '@/lib/general';
 import { prettyIdToIp } from '@/lib/hats';
+import { MUTABILITY } from '@/constants';
 
 import ChakraNextLink from '../ChakraNextLink';
-import WearersList from './WearersList';
 import Modal from '../Modal';
-import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
-import { useState } from 'react';
-import { MUTABILITY } from '@/constants';
+import WearersList from './WearersList';
 
 const MainContent = ({
   chainId,
@@ -46,8 +46,6 @@ const MainContent = ({
   isCurrentWearer,
   linkRequestFromTree,
 }: MainContentProps) => {
-  console.log('linkRequestFromTree', linkRequestFromTree);
-  console.log(hatData);
   const { address } = useAccount();
   const toast = useToast();
   const [linkFrom, setLinkFrom] = useState('');
