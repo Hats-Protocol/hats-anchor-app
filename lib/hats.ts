@@ -397,7 +397,8 @@ export const descendantsOf = (
   return directChildren;
 };
 
-export const getTreeId = (prettyHatId: string | null) => {
+export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
-  return prettyHatId.slice(0, 10);
+  if (!full) return prettyHatId.slice(0, 10);
+  return prettyHatId.slice(0, 10).padEnd(66, '0');
 };
