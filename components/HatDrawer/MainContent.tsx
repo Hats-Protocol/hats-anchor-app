@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Button,
   Flex,
   Heading,
   HStack,
@@ -23,6 +24,10 @@ import { prettyIdToIp } from '@/lib/hats';
 
 import ChakraNextLink from '../ChakraNextLink';
 import WearersList from './WearersList';
+import Modal from '../Modal';
+import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
+import { useState } from 'react';
+import { MUTABILITY } from '@/constants';
 
 const MainContent = ({
   chainId,
@@ -39,9 +44,20 @@ const MainContent = ({
   responsibilities,
   authorities,
   isCurrentWearer,
+  linkRequestFromTree,
 }: MainContentProps) => {
+  console.log('linkRequestFromTree', linkRequestFromTree);
+  console.log(hatData);
   const { address } = useAccount();
   const toast = useToast();
+  const [linkFrom, setLinkFrom] = useState('');
+  const [linkTo, setLinkTo] = useState('');
+
+  const handleOpenLinkRequestApproveModal = (from: string, to: string) => {
+    setLinkFrom(from);
+    setLinkTo(to);
+    setModals?.({ linkResponse: true });
+  };
 
   if (!hatData) return null;
 
@@ -59,7 +75,7 @@ const MainContent = ({
         <Stack spacing={4}>
           <Flex align='start' justify='space-between'>
             <Stack w='full'>
-              <HStack>
+              <HStack justifyContent='space-between'>
                 <Tooltip label={name} aria-label='A tooltip'>
                   <Text fontSize={24} isTruncated>
                     {name}
@@ -86,7 +102,11 @@ const MainContent = ({
           </Flex>
           <HStack>
             {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-            <Badge colorScheme={mutableStatus === 'Mutable' ? 'blue' : 'red'}>
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+              }
+            >
               {mutableStatus}
             </Badge>
             <Badge>{activeStatus}</Badge>
@@ -259,6 +279,36 @@ const MainContent = ({
           </Flex>
         </Stack>
 
+        {isAdminUser &&
+          linkRequestFromTree?.some(
+            (linkRequest) =>
+              linkRequest.requestedLinkToHat?.prettyId === hatData.prettyId,
+          ) && (
+            <Stack wrap='wrap'>
+              <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+                Link Requests
+              </Heading>
+              <Flex justifyContent='space-between'>
+                <HStack>
+                  {linkRequestFromTree?.map((linkRequest) => (
+                    <Button
+                      variant='outline'
+                      onClick={() =>
+                        handleOpenLinkRequestApproveModal(
+                          linkRequest.id,
+                          linkRequest.requestedLinkToHat.prettyId,
+                        )
+                      }
+                      key={linkRequest.id}
+                    >
+                      Link Request to {prettyIdToIp(linkRequest.id)}
+                    </Button>
+                  ))}
+                </HStack>
+              </Flex>
+            </Stack>
+          )}
+
         <Stack mb={10}>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Event history
@@ -290,6 +340,19 @@ const MainContent = ({
           </Box>
         </Stack>
       </Stack>
+
+      <Modal
+        name='linkResponse'
+        title='Approve Link Request'
+        localOverlay={localOverlay}
+      >
+        <HatLinkRequestApproveForm
+          topHatDomain={linkFrom}
+          newAdmin={linkTo}
+          hatData={hatData}
+          chainId={chainId}
+        />
+      </Modal>
     </Box>
   );
 };
@@ -305,10 +368,11 @@ interface MainContentProps {
   hatRoles: any[];
   mutableStatus: string;
   activeStatus: string;
-  setModals: any;
-  localOverlay: any;
+  isCurrentWearer: boolean;
   isAdminUser: boolean;
   responsibilities: Responsibility[];
   authorities: Authority[];
-  isCurrentWearer: boolean;
+  linkRequestFromTree: any[];
+  setModals: any;
+  localOverlay: any;
 }

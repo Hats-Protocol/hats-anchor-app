@@ -7,7 +7,7 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 
-import CONFIG from '@/constants';
+import CONFIG, { STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
@@ -29,7 +29,7 @@ const useHatStatusUpdate = ({
     chainId,
     abi,
     functionName: 'setHatStatus',
-    args: [hatId, status === 'Active'],
+    args: [hatId, status === STATUS.ACTIVE],
     enabled: Boolean(hatsAddress) && Boolean(hatId),
   });
 

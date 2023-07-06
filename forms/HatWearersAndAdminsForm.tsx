@@ -13,7 +13,7 @@ import { FaCheck } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
 
 import Input from '@/components/Input';
-import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
+import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatSupplyUpdate from '@/hooks/useHatSupplyUpdate';
@@ -37,7 +37,7 @@ const HatWearersAndAdminsForm = ({
       maxSupply: hatData?.maxSupply,
       eligibility: hatData?.eligibility,
       toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? 'Mutable' : 'Immutable',
+      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
     },
   });
   const { watch, setValue } = localForm;
@@ -52,7 +52,7 @@ const HatWearersAndAdminsForm = ({
   const decimalAdmin = prettyIdToIp(defaultAdmin);
 
   const isMaxSupplyChanged = maxSupply !== hatData?.maxSupply;
-  const isMutableChanged = hatData?.mutable && mutable === 'Immutable';
+  const isMutableChanged = hatData?.mutable && mutable === MUTABILITY.IMMUTABLE;
   const isEligibilityChanged = eligibility !== hatData?.eligibility;
   const isToggleChanged = toggle !== hatData?.toggle;
 
@@ -166,13 +166,15 @@ const HatWearersAndAdminsForm = ({
           </Text>
           <RadioGroup
             name='mutable'
-            defaultValue={hatData?.mutable ? 'Mutable' : 'Immutable'}
+            defaultValue={
+              hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE
+            }
             onChange={(value) => setValue('mutable', value)}
             isDisabled={!hatData?.mutable}
           >
             <HStack spacing={4}>
-              <Radio value='Mutable'>Mutable</Radio>
-              <Radio value='Immutable'>Immutable</Radio>
+              <Radio value={MUTABILITY.MUTABLE}>Mutable</Radio>
+              <Radio value={MUTABILITY.IMMUTABLE}>Immutable</Radio>
             </HStack>
           </RadioGroup>
           <Button

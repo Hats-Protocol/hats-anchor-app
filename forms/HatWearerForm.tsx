@@ -38,6 +38,7 @@ import { useEnsAddress } from 'wagmi';
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
 import useHatMint from '@/hooks/useHatMint';
+import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 
 const HatWearerForm = ({
   hatId,
@@ -48,11 +49,26 @@ const HatWearerForm = ({
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
   const [wearers, setWearers] = useState<any[]>([]);
-  const [isNewAddress, setIsNewAddress] = useState(false);
+  const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
+  const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
+
+  const { data: isEligible, isLoading: isLoadingIsEligible } =
+    useHatCheckEligibility({
+      wearer: currentResolvedAddress,
+      hatId,
+      chainId,
+    });
 
   useEffect(() => {
-    setIsNewAddress(isAddress(currentInput));
+    setIsCurrentInputAddress(isAddress(currentInput));
+    setCurrentResolvedAddress(
+      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
+        ? isCurrentInputAddress
+          ? currentInput
+          : ensResolvedAddress
+        : '',
+    );
   }, [currentInput]);
 
   const isAddressAlreadyAdded =
@@ -72,12 +88,7 @@ const HatWearerForm = ({
     hatId,
     newWearers: wearers
       .map((wearer) => wearer.address)
-      .concat(
-        // just concat if this resolves into something that is not undefined
-        (isNewAddress ? currentInput : ensResolvedAddress)
-          ? [isNewAddress ? currentInput : ensResolvedAddress]
-          : [],
-      ),
+      .concat([currentResolvedAddress]),
   });
 
   const onSubmit = async () => {
@@ -85,7 +96,7 @@ const HatWearerForm = ({
   };
 
   const handleAddWearer = () => {
-    const address = isNewAddress ? currentInput : ensResolvedAddress;
+    const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
     setWearers((prevWearers) => [
       ...prevWearers,
       { address, ens: isEnsAddress && currentInput },
@@ -93,7 +104,7 @@ const HatWearerForm = ({
     setCurrentInput('');
   };
 
-  const isNewWearerAddress = isNewAddress || ensResolvedAddress;
+  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
   const wouldExceedMaxSupply =
     currentWearers.length + wearers.length + 1 > maxSupply;
   const canAddWearer =
@@ -177,10 +188,18 @@ const HatWearerForm = ({
               )}
             </InputGroup>
           </Flex>
+          {typeof isEligible === 'boolean' && !isEligible && (
+            <Text fontSize='sm' color='red.500'>
+              <Icon as={FaInfoCircle} mr={1} />
+              This address is not eligible to mint a Hat
+            </Text>
+          )}
 
           <Tooltip label={toolTip} shouldWrapChildren>
             <Button
-              isDisabled={!canAddWearer}
+              isDisabled={
+                !canAddWearer || !isEligible || isLoading || isLoadingIsEligible
+              }
               onClick={handleAddWearer}
               aria-label='Add Another Wallet'
             >

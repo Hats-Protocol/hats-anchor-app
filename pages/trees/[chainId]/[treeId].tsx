@@ -151,6 +151,7 @@ const TreeDetails = ({
   };
 
   const events = _.get(treeData, 'events');
+  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
   const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
     _.get(hatData, 'prettyId'),
   )}`;
@@ -247,6 +248,7 @@ const TreeDetails = ({
               setSelectedHatId={setSelectedHatId}
               hatsData={fullHatData}
               hierarchyData={hierarchyData}
+              linkRequestFromTree={linkRequestFromTree}
               onClose={onCloseShade}
               editMode={editMode}
               setEditMode={setEditMode}

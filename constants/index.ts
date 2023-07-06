@@ -6,6 +6,16 @@ export const MODULE_TYPES: { [key: string]: string } = {
   toggle: 'TOGGLE',
 };
 
+export const STATUS = {
+  ACTIVE: 'Active',
+  INACTIVE: 'Inactive',
+};
+
+export const MUTABILITY = {
+  MUTABLE: 'Mutable',
+  IMMUTABLE: 'Immutable',
+};
+
 const CONFIG: {
   [key: string]: any;
   hatsAddress: `0x${string}`;

@@ -9,13 +9,14 @@ import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { isAdmin } from '@/lib/hats';
-import { HierarchyObject } from '@/types';
+import { isAdmin, isTopHat } from '@/lib/hats';
+import { HierarchyObject, IHat } from '@/types';
 
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
+import { MUTABILITY, STATUS } from '@/constants';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -26,6 +27,7 @@ const SelectedHatDrawer = ({
   hierarchyData,
   editMode,
   setEditMode,
+  linkRequestFromTree,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
@@ -34,11 +36,14 @@ const SelectedHatDrawer = ({
   const [description, setDescription] = useState('');
   const [guilds, setGuilds] = useState<any[]>([]);
   const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [isCurrentWearer, setIsCurrentWearer] = useState(false);
+  const [wearerTopHats, setWearerTopHats] = useState<string[]>([]);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
     [],
   );
-  const [activeStatus, setActiveStatus] = useState('Inactive');
-  const [mutableStatus, setMutableStatus] = useState('Immutable');
+  const [activeStatus, setActiveStatus] = useState(STATUS.INACTIVE);
+  const [mutableStatus, setMutableStatus] = useState(MUTABILITY.IMMUTABLE);
   const { setModals } = localOverlay;
 
   const { hatRoles } = useHatGuilds({
@@ -49,9 +54,26 @@ const SelectedHatDrawer = ({
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
   });
-  const currentWearerHats = _.map(_.filter(wearer, { chainId }), 'prettyId');
-  const isCurrentWearer = _.includes(currentWearerHats, selectedHatId);
-  const isAdminUser = isAdmin(currentWearerHats, selectedHatId);
+
+  useEffect(() => {
+    if (wearer) {
+      const currentWearerHats = _.map(
+        _.filter(wearer, { chainId }),
+        'prettyId',
+      );
+      setIsCurrentWearer(_.includes(currentWearerHats, selectedHatId));
+      const topHats = _.map(
+        _.filter(
+          wearer,
+          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
+        ),
+        'prettyId',
+      );
+
+      setWearerTopHats(topHats);
+      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId));
+    }
+  }, [wearer, chainId]);
 
   useEffect(() => {
     if (selectedHatId) {
@@ -75,8 +97,8 @@ const SelectedHatDrawer = ({
           setResponsibilities(detailsObject?.data?.responsibilities);
         }
 
-        setActiveStatus(status ? 'Active' : 'Inactive');
-        setMutableStatus(mutable ? 'Mutable' : 'Immutable');
+        setActiveStatus(status ? STATUS.ACTIVE : STATUS.INACTIVE);
+        setMutableStatus(mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE);
       }
     }
   }, [selectedHatId, hatsData]);
@@ -127,6 +149,7 @@ const SelectedHatDrawer = ({
           isAdminUser={isAdminUser}
           isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
+          wearerTopHats={wearerTopHats}
         />
 
         {!editMode && (
@@ -141,10 +164,11 @@ const SelectedHatDrawer = ({
             hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
-            setModals={setModals}
-            localOverlay={localOverlay}
             isAdminUser={isAdminUser}
             isCurrentWearer={isCurrentWearer}
+            linkRequestFromTree={linkRequestFromTree}
+            setModals={setModals}
+            localOverlay={localOverlay}
           />
         )}
 
@@ -178,6 +202,7 @@ interface SelectedHatDrawerProps {
   setSelectedHatId: (id: string) => void;
   chainId: number;
   hatsData: any;
+  linkRequestFromTree: any;
   onClose: () => void;
   hierarchyData: HierarchyObject[];
   editMode: boolean;

@@ -21,7 +21,7 @@ import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import RadioBox from '@/components/RadioBox';
 import Textarea from '@/components/Textarea';
-import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import CONFIG, { MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import useHatCreate from '@/hooks/useHatCreate';
@@ -46,7 +46,7 @@ const HatCreateForm = ({
       eligibility: '',
       toggle: '',
       imageUrl: '',
-      mutable: 'Mutable',
+      mutable: MUTABILITY.MUTABLE,
     },
   });
   const { handleSubmit, watch } = localForm;
@@ -81,7 +81,7 @@ const HatCreateForm = ({
   const maxSupply = useDebounce(watch('maxSupply', 1));
   const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
   const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
-  const mutable = useDebounce(watch('mutable', 'Mutable'));
+  const mutable = useDebounce(watch('mutable', MUTABILITY.MUTABLE));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = prettyIdToIp(defaultAdmin);
@@ -200,7 +200,7 @@ const HatCreateForm = ({
         <RadioBox
           name='mutable'
           label='Mutablility'
-          options={['Mutable', 'Immutable']}
+          options={[MUTABILITY.MUTABLE, MUTABILITY.IMMUTABLE]}
           helperText='Whether or not this Hat should be able to be modified by its Admin. If unsure, default to mutable. This can be changed from mutable to immutable later (but not the other way).'
           localForm={localForm}
           isRequired
