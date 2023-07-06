@@ -4,7 +4,6 @@ import { Box, Flex, Stack } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
 const baseStyle = {
-  flex: 1,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -14,6 +13,8 @@ const baseStyle = {
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
   backgroundColor: '#fafafa',
+  width: '85%',
+  height: 100,
   color: '#bdbdbd',
   outline: 'none',
   transition: 'border .24s ease-in-out',
@@ -100,7 +101,8 @@ const DropZone = ({
 
   return (
     <Stack spacing={2}>
-      <div>
+      <Flex>
+        {thumbs && <Flex wrap='wrap'>{thumbs}</Flex>}
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
           {image !== undefined ? (
@@ -111,8 +113,7 @@ const DropZone = ({
             <p>Drag n drop, or click to select</p>
           )}
         </div>
-      </div>
-      <Flex wrap='wrap'>{thumbs}</Flex>
+      </Flex>
     </Stack>
   );
 };

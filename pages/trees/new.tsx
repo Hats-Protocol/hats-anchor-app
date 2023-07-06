@@ -127,6 +127,7 @@ const NewTree = () => {
                 isFocused={isFocused}
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
+                image={image}
               />
             </Stack>
             <Input
