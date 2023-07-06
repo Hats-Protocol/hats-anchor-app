@@ -427,7 +427,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               </div>
             </div>`;
           })
-          .render();
+          .render()
+          .expandAll();
       }
     }
   }, [
