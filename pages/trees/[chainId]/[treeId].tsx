@@ -345,7 +345,9 @@ const TreeDetails = ({
                 <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
                 <ChakraNextLink
-                  href={`https://etherscan.io/address/${CONFIG.hatsAddress}`}
+                  href={`${
+                    chainsMap(chainId).blockExplorers?.default.url
+                  }/address/${CONFIG.hatsAddress}`}
                   isExternal
                 >
                   <HStack spacing={1}>

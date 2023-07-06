@@ -118,7 +118,7 @@ const Trees = ({
 export const getStaticProps = async () => {
   try {
     const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
-    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
+    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 40);
 
     return {
       props: {

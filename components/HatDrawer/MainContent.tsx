@@ -16,7 +16,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
-import { useState } from 'react';
 
 import { MUTABILITY } from '@/constants';
 import { Authority } from '@/forms/AuthorityDetailsForm';
@@ -25,7 +24,6 @@ import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
 import { explorerUrl } from '@/lib/general';
 import { prettyIdToIp } from '@/lib/hats';
-import { MUTABILITY } from '@/constants';
 
 import ChakraNextLink from '../ChakraNextLink';
 import Modal from '../Modal';

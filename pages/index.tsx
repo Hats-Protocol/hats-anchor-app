@@ -23,6 +23,7 @@ import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { orderedChains } from '@/lib/web3';
 
 // todo use our ipfs gateway
 const featuredTrees = [
@@ -35,17 +36,17 @@ const featuredTrees = [
   },
   {
     chainId: 10,
-    id: 2,
-    name: 'Cabin DAO',
-    description: 'A DAO for the Cabin community',
-    image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
+    id: 1,
+    name: 'Haberdasher Labs',
+    description: 'Creators of Hats Protocol',
+    image: `https://ipfs.io/ipfs/QmPkZzvUTNE8UWt4pZuG8nhXi8VovpE5ZDXrF3vfinUgd4`,
   },
   {
     chainId: 10,
-    id: 2,
-    name: 'Cabin DAO',
-    description: 'A DAO for the Cabin community',
-    image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
+    id: 3,
+    name: 'DemoDAO',
+    description: 'An exquisite DAO for demo purposes',
+    image: `https://ipfs.io/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik`,
   },
 ];
 
@@ -58,6 +59,10 @@ const Home = () => {
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
     useImageURIs(currentHats);
+
+  const sortedHats = _.sortBy(currentHatsWithImagesData, (hat) => {
+    return _.indexOf(orderedChains, hat.chainId);
+  });
 
   return (
     <Layout>
@@ -126,7 +131,7 @@ const Home = () => {
                       </CardBody>
                     </Card>
                   </ChakraNextLink>
-                  {_.map(currentHatsWithImagesData, (hat, i) => (
+                  {_.map(sortedHats, (hat, i) => (
                     <HatCard hat={hat} key={i} />
                   ))}
                 </SimpleGrid>
