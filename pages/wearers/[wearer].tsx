@@ -8,6 +8,7 @@ import {
   Heading,
   HStack,
   SimpleGrid,
+  Skeleton,
   Spinner,
   Stack,
   Text,
@@ -20,7 +21,7 @@ import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import Layout from '@/components/Layout';
-import { fetchWearerDetails } from '@/gql/helpers';
+// import { fetchWearerDetails } from '@/gql/helpers';
 import useControllerList from '@/hooks/useControllerList';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useHatsAdminOf from '@/hooks/useHatsAdminOf';
@@ -28,7 +29,7 @@ import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
-import { chainsList } from '@/lib/web3';
+import { chainsMap, orderedChains } from '@/lib/web3';
 import { IHat } from '@/types';
 
 const CoreHat = ({ hat }: { hat: IHat }) => {
@@ -84,14 +85,12 @@ const CoreHat = ({ hat }: { hat: IHat }) => {
 
 const WearerDetail = ({
   wearerAddress,
-  initialData,
 }: {
   wearerAddress: `0x${string}`;
-  initialData: IHat[];
+  // initialData: IHat[] | undefined;
 }) => {
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
-    initialData,
   });
 
   const firstCreated = _.minBy(currentHats, 'createdAt');
@@ -116,24 +115,33 @@ const WearerDetail = ({
     {
       label: 'Wearer of',
       value: _.size(currentHats),
+      loading: !!currentHats,
     },
     {
       label: 'Admin of',
       value: _.size(adminOfHats),
+      loading: !!adminOfHats,
     },
     {
       label: 'Eligibility for',
       value: _.size(
         _.filter(controllerHats, ['eligibility', _.toLower(wearerAddress)]),
       ),
+      loading: !!controllerHats,
     },
     {
       label: 'Toggle for',
       value: _.size(
         _.filter(controllerHats, ['toggle', _.toLower(wearerAddress)]),
       ),
+      loading: !!controllerHats,
     },
   ];
+
+  const groupedHats = _.groupBy(currentHatsWithImagesData, 'chainId');
+  const localOrderedChains = _.filter(orderedChains, (k) =>
+    _.includes(_.keys(groupedHats), String(k)),
+  );
 
   return (
     <Layout>
@@ -156,13 +164,16 @@ const WearerDetail = ({
               <Heading size='lg' fontWeight={500}>
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
-              <Text>
-                Hat wearer since:{' '}
-                {format(
-                  Number(_.get(firstCreated, 'createdAt')) * 1000,
-                  'MMMM yyyy',
-                )}
-              </Text>
+              <Skeleton isLoaded={!!_.get(firstCreated, 'createdAt')}>
+                <Text>
+                  Hat wearer since:{' '}
+                  {_.get(firstCreated, 'createdAt') &&
+                    format(
+                      Number(_.get(firstCreated, 'createdAt')) * 1000,
+                      'MMMM yyyy',
+                    )}
+                </Text>
+              </Skeleton>
             </Stack>
           </HStack>
           <HStack>
@@ -171,7 +182,9 @@ const WearerDetail = ({
                 <CardBody>
                   <Stack align='center'>
                     <Text fontSize='sm'>{stat.label}</Text>
-                    <Heading size='lg'>{stat.value}</Heading>
+                    <Skeleton isLoaded={stat.loading}>
+                      <Heading size='lg'>{stat.value}</Heading>
+                    </Skeleton>
                   </Stack>
                 </CardBody>
               </Card>
@@ -187,86 +200,31 @@ const WearerDetail = ({
             <Divider borderColor='black' />
           </Stack>
           {wearerLoading || imagesLoading ? (
-            <Spinner />
+            <Flex w='100%' justify='center' pt='100px'>
+              <Spinner />
+            </Flex>
           ) : (
-            <SimpleGrid columns={4} gap={5}>
-              {_.map(currentHatsWithImagesData, (hat) => (
-                <CoreHat
-                  hat={hat}
-                  key={`${_.get(hat, 'chainId')}-${_.get(hat, 'id')}`}
-                />
+            <Stack>
+              {_.map(localOrderedChains, (chainId) => (
+                <Stack mt={4} spacing={4}>
+                  <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
+
+                  <SimpleGrid columns={4} gap={5} key={chainId}>
+                    {_.map(
+                      _.filter(currentHatsWithImagesData, {
+                        chainId: Number(chainId),
+                      }),
+                      (hat: IHat) => (
+                        <CoreHat hat={hat} key={`${chainId}-${hat.prettyId}`} />
+                      ),
+                    )}
+                  </SimpleGrid>
+                  <Divider border='1px solid' borderColor='gray.400' />
+                </Stack>
               ))}
-            </SimpleGrid>
+            </Stack>
           )}
         </Stack>
-        {/* <Stack
-          width='100%'
-          justify='left'
-          border='1px solid'
-          borderColor='gray.200'
-          padding={6}
-        >
-          <Heading size='md'>Admin Authorities</Heading>
-          <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(wearerHats, (hat) => {
-              if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return (
-                  <CoreHat
-                    hat={hat}
-                    image={imagesData[hat.id]}
-                    key={_.get(hat, 'id')}
-                  />
-                );
-              }
-
-              return (
-                <ChakraLink
-                  as={Link}
-                  href={`/trees/5/${decimalId(
-                    _.get(hat, 'prettyId'),
-                  )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-                  key={_.get(hat, 'id')}
-                >
-                  <CoreHat hat={hat} image={imagesData[hat.id]} />
-                </ChakraLink>
-              );
-            })}
-          </SimpleGrid>
-        </Stack>
-        <Stack
-          width='100%'
-          justify='left'
-          border='1px solid'
-          borderColor='gray.200'
-          padding={6}
-        >
-          <Heading size='md'>Eligibility / Toggle Authorities</Heading>
-          <SimpleGrid templateColumns='repeat(auto-fit, 350px)' gap={5}>
-            {_.map(wearerHats, (hat) => {
-              if (!_.eq(_.toNumber(_.get(hat, 'levelAtLocalTree')), 0)) {
-                return (
-                  <CoreHat
-                    hat={hat}
-                    image={imagesData[hat.id]}
-                    key={_.get(hat, 'id')}
-                  />
-                );
-              }
-
-              return (
-                <ChakraLink
-                  as={Link}
-                  href={`/trees/5/${decimalId(
-                    _.get(hat, 'prettyId'),
-                  )}/${prettyIdToUrlId(_.get(hat, 'prettyId'))}`}
-                  key={_.get(hat, 'id')}
-                >
-                  <CoreHat hat={hat} image={imagesData[hat.id]} />
-                </ChakraLink>
-              );
-            })}
-          </SimpleGrid>
-        </Stack> */}
       </Stack>
     </Layout>
   );
@@ -278,16 +236,16 @@ export const getServerSideProps = async (
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
-  const promises = _.map(_.keys(chainsList), (chainId) =>
-    fetchWearerDetails(_.toLower(wearer), Number(chainId)),
-  );
+  // const promises = _.map(_.keys(chainsList), (chainId) =>
+  //   fetchWearerDetails(_.toLower(wearer), Number(chainId)),
+  // );
 
-  const result = await Promise.all(promises);
+  // const result = await Promise.all(promises);
 
   return {
     props: {
       wearerAddress: wearer,
-      initialData: _.flatten(_.map(result, 'currentHats')),
+      // initialData: undefined,
     },
   };
 };

@@ -199,7 +199,7 @@ const HatCreateForm = ({
         />
         <RadioBox
           name='mutable'
-          label='Mutablility'
+          label='Mutability'
           options={[MUTABILITY.MUTABLE, MUTABILITY.IMMUTABLE]}
           helperText='Whether or not this Hat should be able to be modified by its Admin. If unsure, default to mutable. This can be changed from mutable to immutable later (but not the other way).'
           localForm={localForm}

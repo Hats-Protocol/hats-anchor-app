@@ -1,7 +1,6 @@
-// eslint-disable-next-line simple-import-sort/imports
 import {
-  Modal as ChakraModal,
   Heading,
+  Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
   ModalContent,

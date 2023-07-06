@@ -1,4 +1,6 @@
 import {
+  HStack,
+  Icon,
   IconButton,
   Image,
   Menu,
@@ -19,13 +21,19 @@ const NetworkFilter = ({
   selectedNetwork: number;
 }) => (
   <Menu>
-    <Image src={networkImages[selectedNetwork]} alt='chain' w={6} h={6} />
     <MenuButton
       as={IconButton}
-      icon={<FaFilter />}
       aria-label='Filter networks'
-      variant='outline'
-    />
+      bg='gray.300'
+      border='1px solid'
+      borderColor='gray.500'
+      p={2}
+    >
+      <HStack spacing={4}>
+        <Image src={networkImages[selectedNetwork]} alt='chain' w={6} h={6} />
+        <Icon as={FaFilter} />
+      </HStack>
+    </MenuButton>
     <MenuList>
       {_.map(chainsList, ({ id, name }) => (
         <MenuItem

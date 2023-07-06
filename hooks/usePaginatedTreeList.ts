@@ -5,7 +5,7 @@ import { ITree } from '@/types';
 
 const usePaginatedTreeList = ({
   chainId,
-  perPage = 20,
+  perPage = 40,
   initialData,
 }: UsePaginatedTreeListProps) => {
   const {

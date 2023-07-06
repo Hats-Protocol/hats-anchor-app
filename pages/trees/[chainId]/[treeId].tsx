@@ -22,16 +22,17 @@ import {
   Spinner,
   Stack,
   Text,
-  VStack,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
-import { NextSeo } from 'next-seo';
 import dynamic from 'next/dynamic';
+import { NextSeo } from 'next-seo';
 import { ReactNode, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
-import { FaChevronDown, FaChevronUp, FaRegCopy } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -341,25 +342,24 @@ const TreeDetails = ({
             </Box>
             <VStack align='center' alignItems='flex-end' spacing={1}>
               <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
-                <ChakraNextLink
-                  href={`https://etherscan.io/address/${CONFIG.hatsAddress}`}
-                >
-                  <Text>{`${CONFIG.appName} v${CONFIG.hatsVersion}`}</Text>
-                </ChakraNextLink>
+                <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
-                <Text fontWeight={500}>{chain?.name}</Text>
-                <IconButton
-                  aria-label='Copy contract address'
-                  icon={<Icon as={FaRegCopy} />}
-                  onClick={() => {
-                    navigator.clipboard.writeText(CONFIG.hatsAddress);
-                    toast.info({
-                      title: 'Successfully copied contract address',
-                    });
-                  }}
-                  size='xs'
-                  variant='ghost'
-                />
+                <ChakraNextLink
+                  href={`${
+                    chainsMap(chainId).blockExplorers?.default.url
+                  }/address/${CONFIG.hatsAddress}`}
+                  isExternal
+                >
+                  <HStack spacing={1}>
+                    <Text fontWeight={500}>{chain?.name}</Text>
+                    <IconButton
+                      aria-label='Copy contract address'
+                      icon={<Icon as={FiExternalLink} />}
+                      size='xs'
+                      variant='ghost'
+                    />
+                  </HStack>
+                </ChakraNextLink>
               </Flex>
               {!_.isEmpty(events) && (
                 <Flex align='center' gap={1} fontSize='sm'>

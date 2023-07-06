@@ -127,6 +127,7 @@ const NewTree = () => {
                 isFocused={isFocused}
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
+                image={image}
               />
             </Stack>
             <Input
@@ -196,6 +197,7 @@ const NewTree = () => {
                   detailsCidLoading ||
                   imagePinLoading
                 }
+                isLoading={isLoading}
               >
                 {imagePinLoading ? <Spinner /> : 'Create'}
               </Button>

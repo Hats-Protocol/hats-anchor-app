@@ -4,16 +4,18 @@ import { Box, Flex, Stack } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
 const baseStyle = {
-  flex: 1,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  justifyContent: 'center',
   padding: '20px',
   borderWidth: 2,
   borderRadius: 2,
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
   backgroundColor: '#fafafa',
+  width: '83%',
+  height: 100,
   color: '#bdbdbd',
   outline: 'none',
   transition: 'border .24s ease-in-out',
@@ -59,7 +61,8 @@ const DropZone = ({
     border: '1px solid #eaeaea',
     marginBottom: 8,
     marginRight: 8,
-    width: 'auto',
+    fit: 'cover',
+    width: 100,
     height: 100,
     padding: 4,
     // boxSizing: 'border-box',
@@ -100,7 +103,7 @@ const DropZone = ({
 
   return (
     <Stack spacing={2}>
-      <div>
+      <Flex gap={3}>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
           {image !== undefined ? (
@@ -111,8 +114,8 @@ const DropZone = ({
             <p>Drag n drop, or click to select</p>
           )}
         </div>
-      </div>
-      <Flex wrap='wrap'>{thumbs}</Flex>
+        {thumbs && <Flex wrap='wrap'>{thumbs}</Flex>}
+      </Flex>
     </Stack>
   );
 };

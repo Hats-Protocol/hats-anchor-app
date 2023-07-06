@@ -104,11 +104,12 @@ const Trees = ({
               <Heading size='md'>No Trees Found</Heading>
             </Flex>
           )}
-        {isLoading && _.isEmpty(trees) && (
-          <Flex justify='center' align='center' pt={10}>
-            <Spinner />
-          </Flex>
-        )}
+        {(isLoading || imagesLoading || isFetchingNextPage) &&
+          _.isEmpty(trees) && (
+            <Flex justify='center' align='center' pt={10}>
+              <Spinner />
+            </Flex>
+          )}
       </Box>
     </Layout>
   );
@@ -117,7 +118,7 @@ const Trees = ({
 export const getStaticProps = async () => {
   try {
     const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
-    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 20);
+    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 40);
 
     return {
       props: {

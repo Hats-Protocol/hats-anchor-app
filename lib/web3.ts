@@ -40,6 +40,12 @@ const gnosisContract = {
   iconBackground: 'none',
 };
 
+// ORDER HERE WILL BE USED IN THE UI
+export const orderedChains = [
+  1, 10, 42161, 137, 100, 5,
+  // 11155111,
+];
+
 export const chainsList: { [key: number]: Chain } = {
   1: mainnet,
   5: goerli,
