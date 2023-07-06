@@ -29,7 +29,7 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
@@ -41,12 +41,12 @@ import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
-import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
 import {
   decimalId,
   decimalToTreeId,
+  ipToPrettyId,
   isTopHat,
   prettyIdToId,
   prettyIdToIp,
@@ -55,13 +55,14 @@ import {
 } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import { HierarchyObject, IHat, IHatData, ITree } from '@/types';
+import { useRouter } from 'next/router';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 interface TreeDetailsProps {
   treeId: string;
   chainId: number;
-  hatId: string;
+  topHatId: string;
   treeData: ITree;
   linkedHats: IHat[];
   hatData: IHat;
@@ -116,19 +117,23 @@ const controls: IControls[] = [
 const TreeDetails = ({
   treeId,
   chainId,
-  hatId,
+  topHatId,
   treeData,
   linkedHats,
   hatData,
 }: TreeDetailsProps) => {
-  const toast = useToast();
+  const router = useRouter();
+  const { hatId } = router.query;
+
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
-  const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
+  const [selectedHatId, setSelectedHatId] = useState<string>(
+    ipToPrettyId(String(hatId)) || topHatId,
+  );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'title',
   );
@@ -145,11 +150,19 @@ const TreeDetails = ({
     isOpen: isOpenShade,
   } = useDisclosure();
 
-  // eslint-disable-next-line no-shadow
-  const handleSelectHat = (hatId: string) => {
-    setSelectedHatId(hatId);
-    onOpenShade();
-  };
+  const handleSelectHat = useCallback(
+    (id: string) => {
+      setSelectedHatId(id);
+      onOpenShade();
+    },
+    [onOpenShade],
+  );
+
+  useEffect(() => {
+    if (hatId) {
+      handleSelectHat(ipToPrettyId(String(hatId)));
+    }
+  }, [handleSelectHat, hatId]);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
@@ -170,7 +183,6 @@ const TreeDetails = ({
       );
     }
     const fetchTreeAndSetState = async () => {
-      console.log(hatsWithImageData);
       const { tree, hats, hierarchy } = await toTreeStructure({
         treeData,
         hatsImages: hatsWithImageData,
@@ -225,7 +237,7 @@ const TreeDetails = ({
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
         // openGraph={{
         //   url: `${CONFIG.url}/trees/${chainId}/${treeId}`,
-        //   images: [imagesData[hatId]],
+        //   images: [imagesData[topHatId]],
         // }}
       />
 
@@ -432,7 +444,7 @@ export const getStaticProps = async (context: any) => {
     props: {
       treeId: treeHex || null,
       chainId: _.toNumber(chainId),
-      hatId: hatIdHex || null,
+      topHatId: hatIdHex || null,
       treeData: treeData || null,
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
       hatData: mapWithChainId(hatData, chainId) || null,
