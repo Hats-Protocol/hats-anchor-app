@@ -11,7 +11,7 @@ import _ from 'lodash';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { getTreeId } from '@/lib/hats';
+import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
@@ -26,7 +26,9 @@ const HatCard = ({ hat }: HatCardProps) => {
 
   return (
     <ChakraNextLink
-      href={`trees/${hat.chainId}/${Number(getTreeId(hat.prettyId))}`}
+      href={`trees/${hat.chainId}/${Number(
+        getTreeId(hat.prettyId),
+      )}?hatId=${prettyIdToIp(hat.prettyId)}`}
     >
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>

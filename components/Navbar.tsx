@@ -20,7 +20,8 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
-import { prettyIdToId, urlIdToPrettyId } from '@/lib/hats';
+import { containsUpperCase } from '@/lib/general';
+import { ipToPrettyId, prettyIdToId } from '@/lib/hats';
 
 const Navbar = () => {
   const localOverlay = useOverlay();
@@ -33,16 +34,20 @@ const Navbar = () => {
   useEffect(() => {
     const getTopHatDetails = async () => {
       const chainId = path[1];
-      const topHatId = urlIdToPrettyId(path[3]?.split('_').slice(0, 1)[0]);
+      const topHatId = ipToPrettyId(_.split(path[2], '?')[0]);
 
-      if (!topHatId) {
+      if (!topHatId || topHatId === '0x') {
         return;
       }
       const topHat = await fetchHatDetails(
         prettyIdToId(topHatId),
         Number(chainId),
       );
-      if (topHat && topHat.details.startsWith('ipfs://')) {
+
+      if (!topHat) {
+        return;
+      }
+      if (topHat && topHat.details?.startsWith('ipfs://')) {
         const details = await fetchDetailsIpfs(_.get(topHat, 'details'));
         const name = _.get(details, 'name');
         setCurrentTopHatName(name);
@@ -90,7 +95,9 @@ const Navbar = () => {
                 <Stack align='start' w='90%' mx={3}>
                   <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
                   <Text fontSize='lg' color='gray.500'>
-                    {_.capitalize(currentTopHatName)}
+                    {containsUpperCase(currentTopHatName)
+                      ? currentTopHatName
+                      : _.capitalize(currentTopHatName)}
                   </Text>
                 </Stack>
               )}

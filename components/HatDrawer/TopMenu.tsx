@@ -11,6 +11,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import {
   FaCopy,
   FaDoorOpen,
@@ -22,18 +23,19 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiChevronsRight } from 'react-icons/fi';
-import _ from 'lodash';
+import { useAccount } from 'wagmi';
 
 import Modal from '@/components/Modal';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
+import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
+import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
-import { isTopHat } from '@/lib/hats';
-import { useAccount } from 'wagmi';
-import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
+import { decimalId, isTopHat } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const TopMenu = ({
   chainId,
@@ -222,9 +224,9 @@ const TopMenu = ({
             <MenuItem
               gap={2}
               onClick={() => {
-                navigator.clipboard.writeText(hatData?.id);
+                navigator.clipboard.writeText(decimalId(hatData?.id));
                 toast.info({
-                  title: 'Successfully copied Hat id to clipboard',
+                  title: 'Successfully copied Hat ID to clipboard',
                 });
               }}
             >
@@ -236,7 +238,7 @@ const TopMenu = ({
               onClick={() => {
                 navigator.clipboard.writeText(hatData?.id);
                 toast.info({
-                  title: 'Successfully copied Hat id to clipboard',
+                  title: 'Successfully copied Hat ID to clipboard',
                 });
               }}
             >
@@ -254,7 +256,7 @@ const TopMenu = ({
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm
           defaultAdmin={hatData.prettyId}
-          treeId={hatData.treeId}
+          treeId={hatData.tree.id}
         />
       </Modal>
 
@@ -280,13 +282,13 @@ export default TopMenu;
 
 interface TopMenuProps {
   mutableStatus: string;
-  hatData: any;
+  hatData: IHat;
   chainId: number;
   onClose: () => void;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
   isCurrentWearer: boolean;
-  localOverlay: any;
+  localOverlay: IOverlayContext;
   wearerTopHats: string[];
 }

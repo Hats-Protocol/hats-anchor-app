@@ -24,6 +24,6 @@ export default useHatCheckEligibility;
 
 interface UseHatStatusUpdateProps {
   wearer: string;
-  hatId: string;
+  hatId?: string;
   chainId: number;
 }

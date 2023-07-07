@@ -146,8 +146,6 @@ export async function toTreeStructure({
     });
   }
 
-  console.log('hatsArray', hatsArray);
-
   return Promise.resolve({ tree: hatsArray, hats: hatsData, hierarchy });
 }
 
