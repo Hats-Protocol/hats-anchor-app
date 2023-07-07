@@ -180,18 +180,17 @@ const TopMenu = ({
                 </MenuItem>
               </>
             )}
-            {isAdminUser ||
-              (isCurrentWearer && (
-                <MenuItem
-                  gap={2}
-                  onClick={() => setModals?.({ createHat: true })}
-                >
-                  <HStack>
-                    <FaDoorOpen />
-                    <Text>Add Child Hat</Text>
-                  </HStack>
-                </MenuItem>
-              ))}
+            {(isAdminUser || isCurrentWearer) && (
+              <MenuItem
+                gap={2}
+                onClick={() => setModals?.({ createHat: true })}
+              >
+                <HStack>
+                  <FaDoorOpen />
+                  <Text>Add Child Hat</Text>
+                </HStack>
+              </MenuItem>
+            )}
             {address && (
               <MenuItem
                 gap={2}
