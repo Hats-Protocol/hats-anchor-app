@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 
 import CONFIG from '@/constants';
@@ -41,6 +41,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 }) => {
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   useLayoutEffect(() => {
     const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.active));
@@ -66,42 +67,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           // node click handler
           .onNodeClick((nodeId: string) => {
             onSelectHat(nodeId);
-
-            const currentState = chart?.getChartState();
-            if (!currentState) {
-              chart.setCentered(nodeId);
-              return;
-            }
-
-            const nodeData = currentState.allNodes.find(
-              (n) => n.id === nodeId,
-            ) as any;
-
-            if (!nodeData) {
-              chart.setCentered(nodeId);
-              return;
-            }
-
-            const nodeX = nodeData.x;
-            const nodeY = nodeData.y;
-
-            const svgWidth = chart.svgWidth();
-            const svgHeight = chart.svgHeight();
-
-            const targetX = svgWidth * 0.9;
-            const targetY = svgHeight * 0.6;
-
-            const zoomTreeBounds = {
-              x0: nodeX - targetX / 2,
-              y0: nodeY - targetY / 2,
-              x1: nodeX + targetX,
-              y1: nodeY + targetY,
-              params: {
-                animate: true,
-              },
-            };
-
-            chart?.zoomTreeBounds(zoomTreeBounds);
+            centerChart(chart, nodeId);
           })
 
           .buttonContent(({ node, state }: { node: any; state: any }) => {
@@ -427,7 +393,14 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               </div>
             </div>`;
           })
-          .render();
+          .render()
+          .expandAll();
+
+        if (selectedHatId && initialLoad) {
+          centerChart(chart, selectedHatId);
+
+          setInitialLoad(false);
+        }
       }
     }
   }, [
@@ -440,6 +413,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     wearerHats,
     showInactiveHats,
     selectedOption,
+    initialLoad,
   ]);
 
   return isLoading ? (
@@ -489,6 +463,44 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
       </HStack>
     </Box>
   );
+};
+
+const centerChart = (chart: any, nodeId: string) => {
+  const currentState = chart?.getChartState();
+  if (!currentState) {
+    chart.setCentered(nodeId);
+    return;
+  }
+
+  const nodeData = currentState.allNodes.find(
+    (n: { id: string }) => n.id === nodeId,
+  ) as any;
+
+  if (!nodeData) {
+    chart.setCentered(nodeId);
+    return;
+  }
+
+  const nodeX = nodeData.x;
+  const nodeY = nodeData.y;
+
+  const svgWidth = chart.svgWidth();
+  const svgHeight = chart.svgHeight();
+
+  const targetX = svgWidth * 0.9;
+  const targetY = svgHeight * 0.6;
+
+  const zoomTreeBounds = {
+    x0: nodeX - targetX / 2,
+    y0: nodeY - targetY / 2,
+    x1: nodeX + targetX,
+    y1: nodeY + targetY,
+    params: {
+      animate: true,
+    },
+  };
+
+  chart?.zoomTreeBounds(zoomTreeBounds);
 };
 
 export default OrgChartComponent;

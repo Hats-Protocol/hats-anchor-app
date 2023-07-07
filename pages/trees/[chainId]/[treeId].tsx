@@ -2,12 +2,12 @@ import {
   Box,
   Button,
   Checkbox,
-  Divider,
   Drawer,
   DrawerBody,
   DrawerContent,
   DrawerOverlay,
   Flex,
+  Heading,
   HStack,
   Icon,
   IconButton,
@@ -15,6 +15,7 @@ import {
   Popover,
   PopoverArrow,
   PopoverBody,
+  PopoverCloseButton,
   PopoverContent,
   PopoverTrigger,
   Radio,
@@ -24,6 +25,14 @@ import {
   Text,
   useDisclosure,
   VStack,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Divider,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
@@ -31,9 +40,10 @@ import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { ReactNode, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
+import { useRouter } from 'next/router';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import Layout from '@/components/Layout';
@@ -41,12 +51,12 @@ import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
-import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { mapWithChainId } from '@/lib/general';
+import { explorerUrl, mapWithChainId } from '@/lib/general';
 import {
   decimalId,
   decimalToTreeId,
+  ipToPrettyId,
   isTopHat,
   prettyIdToId,
   prettyIdToIp,
@@ -61,7 +71,7 @@ const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 interface TreeDetailsProps {
   treeId: string;
   chainId: number;
-  hatId: string;
+  topHatId: string;
   treeData: ITree;
   linkedHats: IHat[];
   hatData: IHat;
@@ -116,19 +126,23 @@ const controls: IControls[] = [
 const TreeDetails = ({
   treeId,
   chainId,
-  hatId,
+  topHatId,
   treeData,
   linkedHats,
   hatData,
 }: TreeDetailsProps) => {
-  const toast = useToast();
+  const router = useRouter();
+  const { hatId } = router.query;
+
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
-  const [selectedHatId, setSelectedHatId] = useState<string>(hatId);
+  const [selectedHatId, setSelectedHatId] = useState<string>(
+    ipToPrettyId(String(hatId)) || topHatId,
+  );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'title',
   );
@@ -145,11 +159,31 @@ const TreeDetails = ({
     isOpen: isOpenShade,
   } = useDisclosure();
 
-  // eslint-disable-next-line no-shadow
-  const handleSelectHat = (hatId: string) => {
-    setSelectedHatId(hatId);
+  const {
+    isOpen: isEventsModalOpen,
+    onOpen: handleOpenModal,
+    onClose: handleCloseModal,
+  } = useDisclosure();
+
+  const handleSelectHat = (id: string) => {
+    setSelectedHatId(id);
+
+    const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
+    const updatedUrl = {
+      pathname: router.pathname,
+      query: updatedQuery,
+    };
+
+    router.push(updatedUrl, undefined, { shallow: true });
+
     onOpenShade();
   };
+
+  useEffect(() => {
+    if (hatId) {
+      handleSelectHat(ipToPrettyId(String(hatId)));
+    }
+  }, [hatId]);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
@@ -170,7 +204,6 @@ const TreeDetails = ({
       );
     }
     const fetchTreeAndSetState = async () => {
-      console.log(hatsWithImageData);
       const { tree, hats, hierarchy } = await toTreeStructure({
         treeData,
         hatsImages: hatsWithImageData,
@@ -225,7 +258,7 @@ const TreeDetails = ({
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
         // openGraph={{
         //   url: `${CONFIG.url}/trees/${chainId}/${treeId}`,
-        //   images: [imagesData[hatId]],
+        //   images: [imagesData[topHatId]],
         // }}
       />
 
@@ -362,16 +395,56 @@ const TreeDetails = ({
                 </ChakraNextLink>
               </Flex>
               {!_.isEmpty(events) && (
-                <Flex align='center' gap={1} fontSize='sm'>
-                  <Text>Last event: </Text>
-                  <Text mr={2} fontWeight={500}>
-                    {formatDistanceToNow(
-                      new Date(Number(events[0]?.timestamp) * 1000),
-                    )}{' '}
-                    ago
-                  </Text>
-                  <Image src='/icons/ago.svg' alt='History icon' />
-                </Flex>
+                <Popover trigger='hover'>
+                  <PopoverTrigger>
+                    <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
+                      <Text>Last event: </Text>
+                      <Text mr={2} fontWeight={500}>
+                        {formatDistanceToNow(
+                          new Date(Number(events[0]?.timestamp) * 1000),
+                        )}{' '}
+                        ago
+                      </Text>
+                      <Image src='/icons/ago.svg' alt='History icon' />
+                    </Flex>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverBody>
+                      <Stack>
+                        <Heading
+                          size='sm'
+                          fontWeight='medium'
+                          textTransform='uppercase'
+                        >
+                          Event history
+                        </Heading>
+                        <Box>
+                          {treeData.events?.slice(0, 5).map((event: any) => (
+                            <Event
+                              key={`${event?.transactionID}-${event?.id}`}
+                              event={event}
+                              chainId={chainId}
+                            />
+                          ))}
+                          {treeData.events?.length > 4 && (
+                            <>
+                              <Divider my={2} />
+                              <Button
+                                onClick={handleOpenModal}
+                                variant='link'
+                                colorScheme='blue'
+                              >
+                                View Full History
+                              </Button>
+                            </>
+                          )}
+                        </Box>
+                      </Stack>
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
               )}
             </VStack>
           </Flex>
@@ -394,7 +467,55 @@ const TreeDetails = ({
           </Flex>
         )}
       </Layout>
+
+      <Modal isOpen={isEventsModalOpen} onClose={handleCloseModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Event History</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {treeData?.events?.map((event: any) => (
+              <Event
+                key={`${event?.transactionID}-${event?.id}`}
+                event={event}
+                chainId={chainId}
+              />
+            ))}
+          </ModalBody>
+          <ModalFooter>
+            <Button variant='ghost' onClick={handleCloseModal}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
+  );
+};
+
+const Event = ({ event, chainId }: { event: any; chainId: number }) => {
+  return (
+    <Flex
+      key={`${event?.transactionID}-${event?.id}`}
+      align='center'
+      justify='space-between'
+      py={2}
+    >
+      <Text>{`${formatDistanceToNow(
+        new Date(Number(event?.timestamp) * 1000),
+      )} ago`}</Text>
+
+      <ChakraNextLink
+        isExternal
+        href={`${explorerUrl(chainId)}/tx/${event?.transactionID}`}
+        display='block'
+      >
+        <HStack spacing={3}>
+          <Text>{event?.id?.split('-')[0]}</Text>
+          <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+        </HStack>
+      </ChakraNextLink>
+    </Flex>
   );
 };
 
@@ -432,7 +553,7 @@ export const getStaticProps = async (context: any) => {
     props: {
       treeId: treeHex || null,
       chainId: _.toNumber(chainId),
-      hatId: hatIdHex || null,
+      topHatId: hatIdHex || null,
       treeData: treeData || null,
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
       hatData: mapWithChainId(hatData, chainId) || null,
