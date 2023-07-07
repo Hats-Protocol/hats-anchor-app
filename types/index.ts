@@ -32,7 +32,7 @@ export interface IHat {
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: (`0x${string}` | IHatWearer)[];
+  wearers: any[]; // (`0x${string}` | IHatWearer)[];
   admin: IHat;
 }
 
@@ -49,7 +49,7 @@ export interface IHatData {
   active: boolean;
   currentSupply?: string;
   maxSupply?: string;
-  wearers?: (`0x${string}` | IHatWearer)[];
+  wearers?: any[]; // (`0x${string}` | IHatWearer)[];
   eligibility?: IHatWearer;
   toggle?: IHatWearer;
   levelAtLocalTree?: number;
