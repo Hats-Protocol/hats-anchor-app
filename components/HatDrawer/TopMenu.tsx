@@ -192,13 +192,15 @@ const TopMenu = ({
                   </HStack>
                 </MenuItem>
               ))}
-            <MenuItem
-              gap={2}
-              onClick={() => setModals?.({ requestLink: true })}
-            >
-              <FaLink />
-              Request to link tree here
-            </MenuItem>
+            {address && (
+              <MenuItem
+                gap={2}
+                onClick={() => setModals?.({ requestLink: true })}
+              >
+                <FaLink />
+                Request to link tree here
+              </MenuItem>
+            )}
             <Tooltip
               label={
                 containsNotHatsToggleErrorMessage(prepareError?.message)
