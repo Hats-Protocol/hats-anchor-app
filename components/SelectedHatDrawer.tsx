@@ -148,6 +148,7 @@ const SelectedHatDrawer = ({
           isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
+          setSelectedHatId={setSelectedHatId}
         />
 
         {!editMode && (
@@ -197,7 +198,7 @@ export default SelectedHatDrawer;
 
 interface SelectedHatDrawerProps {
   selectedHatId?: string;
-  setSelectedHatId: (id: string) => void;
+  setSelectedHatId: (id?: string) => void;
   chainId: number;
   hatsData: IHat[];
   linkRequestFromTree: any;

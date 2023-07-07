@@ -139,7 +139,7 @@ const TreeDetails = ({
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
-  const [selectedHatId, setSelectedHatId] = useState<string>(
+  const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
     ipToPrettyId(String(hatId)) || topHatId,
   );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -185,7 +185,8 @@ const TreeDetails = ({
     if (hatId) {
       handleSelectHat(ipToPrettyId(String(hatId)));
     }
-  }, [hatId, handleSelectHat]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hatId]);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
@@ -248,7 +249,7 @@ const TreeDetails = ({
     );
   }
 
-  const fullHatData: IHat[] = _.map(hatsData, (hat: IHat, index: number) => ({
+  const fullHatData: any[] = _.map(hatsData, (hat: IHat, index: number) => ({
     ...hatsWithImageData?.[index],
     ...hat,
   }));
@@ -269,6 +270,7 @@ const TreeDetails = ({
         onClose={() => {
           onCloseShade();
           setEditMode(false);
+          setSelectedHatId(undefined);
         }}
         isOpen={isOpenShade}
       >
@@ -382,7 +384,7 @@ const TreeDetails = ({
                 <ChakraNextLink
                   href={`${
                     chainsMap(chainId).blockExplorers?.default.url
-                  }/address/${CONFIG.hatsAddress}`}
+                  }address/${CONFIG.hatsAddress}`}
                   isExternal
                 >
                   <HStack spacing={1}>
@@ -527,13 +529,9 @@ export const getStaticProps = async (context: any) => {
   const { treeId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
   const prettyHatId = ipToPrettyId(treeId);
-  console.log(prettyHatId);
   const hatIdHex = prettyIdToId(prettyHatId);
-  console.log(hatIdHex);
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
-  console.log(treeData);
-  console.log(hatData);
 
   const { linkedToHat, parentOfTrees } = treeData || {
     linkedToHat: { id: null },

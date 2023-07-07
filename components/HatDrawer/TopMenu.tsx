@@ -48,6 +48,7 @@ const TopMenu = ({
   isCurrentWearer,
   localOverlay,
   wearerTopHats,
+  setSelectedHatId,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -101,7 +102,13 @@ const TopMenu = ({
       top={0}
       zIndex={16}
     >
-      <Button variant='outline' onClick={onClose}>
+      <Button
+        variant='outline'
+        onClick={() => {
+          onClose();
+          setSelectedHatId(undefined);
+        }}
+      >
         <HStack>
           <Icon as={FiChevronsRight} />
           <Text>Collapse</Text>
@@ -291,4 +298,5 @@ interface TopMenuProps {
   isCurrentWearer: boolean;
   localOverlay: IOverlayContext;
   wearerTopHats: string[];
+  setSelectedHatId: (hatId?: string) => void;
 }

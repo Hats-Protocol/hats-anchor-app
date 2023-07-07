@@ -29,11 +29,18 @@ const Navbar = () => {
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
-  const [currentTopHatName, setCurrentTopHatName] = useState<any>(null);
+  const [currentChain, setCurrentChain] = useState<number | undefined>();
+  const [currentTopHatName, setCurrentTopHatName] = useState<
+    string | undefined
+  >();
 
   useEffect(() => {
     const getTopHatDetails = async () => {
-      const chainId = path[1];
+      let chainId = 1;
+      if (path.includes(CONFIG.trees)) {
+        chainId = Number(path[1]);
+        setCurrentChain(chainId);
+      }
       const topHatId = ipToPrettyId(_.split(path[2], '?')[0]);
 
       if (!topHatId || topHatId === '0x') {
@@ -80,7 +87,7 @@ const Navbar = () => {
           <Image src='/icon.jpeg' h='70px' alt='Hats Logo' />
         </ChakraNextLink>
         <HStack spacing={5}>
-          <ChakraNextLink href={`/${CONFIG.trees}`}>
+          <ChakraNextLink href={`/${CONFIG.trees}/${currentChain || 1}`}>
             <Button
               h='75px'
               minW='125px'
