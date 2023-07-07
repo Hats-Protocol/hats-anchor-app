@@ -1,7 +1,8 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { InfiniteData } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useCallback, useMemo, useState } from 'react';
+import { GetStaticPropsContext } from 'next';
+import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import Layout from '@/components/Layout';
@@ -14,23 +15,14 @@ import { IHat, ITree } from '@/types';
 
 const Trees = ({
   trees: initialData,
-  defaultNetworkId,
+  chainId,
 }: {
   trees: InfiniteData<ITree[]>;
-  defaultNetworkId: number;
+  chainId: number;
 }) => {
-  const [selectedNetwork, setSelectedNetwork] = useState(defaultNetworkId);
-
-  const handleNetworkFilterChange = useCallback(
-    (networkId: number) => {
-      setSelectedNetwork(networkId);
-    },
-    [setSelectedNetwork],
-  );
-
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
-      chainId: selectedNetwork,
+      chainId,
       initialData,
     });
   const trees = _.flatten(_.get(data, 'pages'));
@@ -40,20 +32,14 @@ const Trees = ({
   }, [data]);
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(
-      _.map(topHats, (h) => ({ ...h, chainId: selectedNetwork })),
-      selectedNetwork,
-    );
+    useImageURIs(_.map(topHats, (h) => ({ ...h, chainId })));
 
   return (
     <Layout>
       <Box w='100%' h='100%' bg='blue' position='fixed' opacity={0.05} />
       <Box py={100} px={100}>
         <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
-          <NetworkFilter
-            onFilterChange={handleNetworkFilterChange}
-            selectedNetwork={selectedNetwork}
-          />
+          <NetworkFilter selectedNetwork={chainId} />
         </Flex>
         {!isLoading && !_.isEmpty(trees) && (
           <InfiniteScroll
@@ -115,14 +101,15 @@ const Trees = ({
   );
 };
 
-export const getStaticProps = async () => {
+export const getStaticProps = async (context: GetStaticPropsContext) => {
+  const chainId = _.get(context, 'params.chainId');
+
   try {
-    const defaultNetworkId = process.env.NODE_ENV === 'production' ? 1 : 5;
-    const trees = await fetchPaginatedTrees(defaultNetworkId, 1, 40);
+    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 1, 40);
 
     return {
       props: {
-        defaultNetworkId,
+        chainId,
         trees,
       },
     };
@@ -131,11 +118,18 @@ export const getStaticProps = async () => {
     console.log(error);
     return {
       props: {
-        defaultNetworkId: 1,
+        chainId: 1,
         trees: [],
       },
     };
   }
+};
+
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
 };
 
 export default Trees;

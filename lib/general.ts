@@ -80,4 +80,4 @@ export async function isImageUrl(url: string | unknown) {
 export const mapWithChainId = (array: object[] | null, chainId: number) =>
   _.map(array, (obj: object) => ({ ...obj, chainId }));
 
-export const containsUpperCase = (string: string) => /^[A-Z]*$/.test(string);
+export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);

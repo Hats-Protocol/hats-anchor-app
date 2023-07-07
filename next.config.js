@@ -28,6 +28,11 @@ const nextConfig = {
         destination: '/trees/:chainId/:treeId',
         permanent: true,
       },
+      {
+        source: '/trees',
+        destination: '/trees/1',
+        permanent: true,
+      },
     ];
   },
 };
