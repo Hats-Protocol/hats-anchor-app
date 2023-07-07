@@ -11,12 +11,12 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
 import { HierarchyObject, IHat } from '@/types';
+import { MUTABILITY, STATUS } from '@/constants';
 
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
 import MainContent from './HatDrawer/MainContent';
 import TopMenu from './HatDrawer/TopMenu';
-import { MUTABILITY, STATUS } from '@/constants';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -82,7 +82,6 @@ const SelectedHatDrawer = ({
       if (data) {
         setHatData(data);
         const { status, mutable, details, detailsObject } = data;
-        console.log(detailsObject);
 
         let detailName = details;
         if (detailsObject?.type === '1.0') {
@@ -90,7 +89,6 @@ const SelectedHatDrawer = ({
         }
         setName(detailName);
         if (detailsObject?.type === '1.0') {
-          console.log('detailsObject?.data', detailsObject?.data);
           setDescription(detailsObject?.data?.description);
           setGuilds(detailsObject?.data?.guilds);
           setAuthorities(detailsObject?.data?.authorities);

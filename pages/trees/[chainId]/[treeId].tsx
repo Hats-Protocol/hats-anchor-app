@@ -34,6 +34,7 @@ import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
+import { useRouter } from 'next/router';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import Layout from '@/components/Layout';
@@ -55,7 +56,6 @@ import {
 } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import { HierarchyObject, IHat, IHatData, ITree } from '@/types';
-import { useRouter } from 'next/router';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -150,19 +150,25 @@ const TreeDetails = ({
     isOpen: isOpenShade,
   } = useDisclosure();
 
-  const handleSelectHat = useCallback(
-    (id: string) => {
-      setSelectedHatId(id);
-      onOpenShade();
-    },
-    [onOpenShade],
-  );
+  const handleSelectHat = (id: string) => {
+    setSelectedHatId(id);
+
+    const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
+    const updatedUrl = {
+      pathname: router.pathname,
+      query: updatedQuery,
+    };
+
+    router.push(updatedUrl, undefined, { shallow: true });
+
+    onOpenShade();
+  };
 
   useEffect(() => {
     if (hatId) {
       handleSelectHat(ipToPrettyId(String(hatId)));
     }
-  }, [handleSelectHat, hatId]);
+  }, [hatId]);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
