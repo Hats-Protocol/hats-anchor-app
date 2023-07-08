@@ -8,7 +8,6 @@ import {
   idToPrettyId,
   ipToPrettyId,
   prettyIdToIp,
-  prettyIdToUrlId,
   toTreeId,
 } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
@@ -21,12 +20,11 @@ const keyIcons: { [key: string]: string } = {
 
 const processForCommandPalette = (key: string, record: any) => {
   const parts = _.split(_.get(record, 'id'), '.');
-  const treeId = prettyIdToUrlId(idToPrettyId(_.first(parts)), true);
+  const treeId = prettyIdToIp(idToPrettyId(_.first(parts)));
   let href = '#';
   if (key === 'trees') {
-    href = `/trees/${_.get(record, 'network.id')}/${prettyIdToUrlId(
+    href = `/trees/${_.get(record, 'network.id')}/${prettyIdToIp(
       _.get(record, 'id'),
-      true,
     )}`;
   }
   if (key === 'hats') {
