@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-import { MUTABILITY } from '@/constants';
+import { MUTABILITY, STATUS } from '@/constants';
 import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
@@ -258,21 +258,11 @@ const MainContent = ({
             </HStack>
 
             <HStack
-              color={
-                hatData?.toggle === address?.toLowerCase()
-                  ? 'green.500'
-                  : 'red.500'
-              }
+              color={activeStatus === STATUS.ACTIVE ? 'green.500' : 'red.500'}
               ml={2}
             >
-              <Text>
-                {hatData?.toggle === address?.toLowerCase() ? 'Yes' : 'No'}
-              </Text>
-              {hatData?.toggle === address?.toLowerCase() ? (
-                <FaCheck />
-              ) : (
-                <FaBan />
-              )}
+              <Text>{activeStatus === STATUS.ACTIVE ? 'Yes' : 'No'}</Text>
+              {activeStatus === STATUS.ACTIVE ? <FaCheck /> : <FaBan />}
             </HStack>
           </Flex>
         </Stack>

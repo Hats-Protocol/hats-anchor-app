@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fa';
 import { FiChevronsRight } from 'react-icons/fi';
 import _ from 'lodash';
+import { useAccount } from 'wagmi';
 
 import Modal from '@/components/Modal';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
@@ -32,7 +33,6 @@ import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
 import { isTopHat } from '@/lib/hats';
-import { useAccount } from 'wagmi';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 
 const TopMenu = ({
