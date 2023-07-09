@@ -180,10 +180,10 @@ const TreeDetails = ({
   };
 
   useEffect(() => {
-    if (hatId) {
+    if (hatId && hatsData) {
       handleSelectHat(ipToPrettyId(String(hatId)));
     }
-  }, [hatId]);
+  }, [hatId, hatsData]);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
