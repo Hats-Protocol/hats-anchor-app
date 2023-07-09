@@ -37,8 +37,8 @@ import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
-import useHatMint from '@/hooks/useHatMint';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatMint from '@/hooks/useHatMint';
 
 const HatWearerForm = ({
   hatId,
@@ -63,19 +63,21 @@ const HatWearerForm = ({
   useEffect(() => {
     setIsCurrentInputAddress(isAddress(currentInput));
     setCurrentResolvedAddress(
+      // eslint-disable-next-line no-nested-ternary
       (isCurrentInputAddress ? currentInput : ensResolvedAddress)
         ? isCurrentInputAddress
           ? currentInput
           : ensResolvedAddress
         : '',
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentInput]);
 
   const isAddressAlreadyAdded =
     wearers.some(
       (wearer) =>
         wearer.address === currentInput || wearer.ens === currentInput,
-    ) || currentWearers.includes(currentInput);
+    ) || currentWearers.includes(currentResolvedAddress.toLowerCase());
 
   const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
     name: currentInput.includes('.eth') ? currentInput : null,
