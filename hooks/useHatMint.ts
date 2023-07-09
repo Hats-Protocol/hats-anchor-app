@@ -44,7 +44,7 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Hats Minted!`,
-          description: `Successfully minted hats`,
+          description: `Successfully minted hat`,
         },
       });
 
