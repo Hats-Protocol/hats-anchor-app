@@ -37,8 +37,8 @@ import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
+import useBatchMintHats from '@/hooks/useBatchMintHats';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
-import useHatMint from '@/hooks/useHatMint';
 
 const HatWearerForm = ({
   hatId,
@@ -84,7 +84,7 @@ const HatWearerForm = ({
     chainId: 1,
   });
 
-  const { writeAsync, isLoading } = useHatMint({
+  const { writeAsync, isLoading } = useBatchMintHats({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,

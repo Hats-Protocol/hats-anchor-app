@@ -14,12 +14,12 @@ import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { decimalId, toTreeId } from '@/lib/hats';
 
-const useBatchHatMint = ({
+const useBatchMintHats = ({
   hatsAddress,
   hatId,
   chainId,
   newWearers = [],
-}: UseBatchHatMintProps) => {
+}: UseBatchMintHatProps) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
@@ -86,9 +86,9 @@ const useBatchHatMint = ({
   };
 };
 
-export default useBatchHatMint;
+export default useBatchMintHats;
 
-interface UseBatchHatMintProps {
+interface UseBatchMintHatProps {
   hatsAddress?: `0x${string}`;
   hatId: string | undefined;
   chainId: number;
