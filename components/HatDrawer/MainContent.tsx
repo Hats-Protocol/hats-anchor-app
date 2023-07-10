@@ -134,6 +134,7 @@ const MainContent = ({
         </Stack>
 
         <WearersList
+          hatName={name}
           chainId={chainId}
           setModals={setModals}
           localOverlay={localOverlay}

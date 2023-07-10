@@ -3,16 +3,16 @@ import { useContractRead } from 'wagmi';
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 
-const useHatCheckEligibility = ({
+const useHatIsInGoodStanding = ({
   wearer,
   hatId,
   chainId,
-}: UseHatCheckEligibilityProps) => {
+}: UseHatIsInGoodStanding) => {
   const { data, isLoading } = useContractRead({
     address: CONFIG.hatsAddress,
     abi,
     chainId,
-    functionName: 'isEligible',
+    functionName: 'isInGoodStanding',
     args: [wearer, hatId],
     enabled: Boolean(wearer) && Boolean(hatId),
   });
@@ -20,9 +20,9 @@ const useHatCheckEligibility = ({
   return { data, isLoading };
 };
 
-export default useHatCheckEligibility;
+export default useHatIsInGoodStanding;
 
-interface UseHatCheckEligibilityProps {
+interface UseHatIsInGoodStanding {
   wearer: string;
   hatId: string;
   chainId: number;
