@@ -16,6 +16,8 @@ const Layout = ({ children }) => {
           align='center'
           justify='center'
           color='white'
+          position='fixed'
+          zIndex={10}
         >
           <HStack spacing={1}>
             <Text fontWeight={600}>Announcement:</Text>
