@@ -10,7 +10,7 @@ const ChakraNextLink = ({
 }: {
   href: string;
   onClick?: () => void;
-  children: ReactNode;
+  children?: ReactNode;
   decoration?: boolean;
   isExternal?: boolean;
 } & LinkProps) => (
