@@ -319,7 +319,8 @@ const HatWearerForm = ({
               </Text>
               <Text fontSize='md' mt={1} color='blackAlpha.700' mb={4}>
                 The CSV file must only contain Ethereum addresses, one per line.
-                Any additional data will be ignored.
+                ENS is currently not supported. Any additional data will be
+                ignored.
               </Text>
               <DropZone
                 getRootProps={getRootProps}
