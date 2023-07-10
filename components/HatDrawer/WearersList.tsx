@@ -205,19 +205,6 @@ const WearersList = ({
         </Flex>
       </Stack>
 
-      <Modal
-        name='newWearer'
-        title='Add a Wearer by minting a Hat token'
-        localOverlay={localOverlay}
-      >
-        <HatWearerForm
-          hatId={hatId}
-          chainId={chainId}
-          currentWearers={_.map(wearers, 'id')}
-          maxSupply={maxSupply}
-        />
-      </Modal>
-
       <Modal name='hatWearers' title='Hat Wearers' localOverlay={localOverlay}>
         <Flex direction='column' gap={4}>
           {wearers?.map((wearer: { id: string }) => (
@@ -261,6 +248,19 @@ const WearersList = ({
           prettyId={prettyId}
           chainId={chainId}
           currentWearerAddress={wearerToTransferFrom}
+        />
+      </Modal>
+
+      <Modal
+        name='newWearer'
+        title='Add a Wearer by minting a Hat token'
+        localOverlay={localOverlay}
+      >
+        <HatWearerForm
+          hatId={hatId}
+          chainId={chainId}
+          currentWearers={_.map(wearers, 'id')}
+          maxSupply={maxSupply}
         />
       </Modal>
     </>

@@ -37,8 +37,9 @@ import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
-import useHatMint from '@/hooks/useHatMint';
+import useBatchMintHats from '@/hooks/useBatchMintHats';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useMintHat from '@/hooks/useHatMint';
 
 const HatWearerForm = ({
   hatId,
@@ -63,36 +64,53 @@ const HatWearerForm = ({
   useEffect(() => {
     setIsCurrentInputAddress(isAddress(currentInput));
     setCurrentResolvedAddress(
+      // eslint-disable-next-line no-nested-ternary
       (isCurrentInputAddress ? currentInput : ensResolvedAddress)
         ? isCurrentInputAddress
           ? currentInput
           : ensResolvedAddress
         : '',
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentInput]);
 
   const isAddressAlreadyAdded =
     wearers.some(
       (wearer) =>
         wearer.address === currentInput || wearer.ens === currentInput,
-    ) || currentWearers.includes(currentInput);
+    ) || currentWearers.includes(currentResolvedAddress?.toLowerCase());
 
   const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
     name: currentInput.includes('.eth') ? currentInput : null,
     chainId: 1,
   });
 
-  const { writeAsync, isLoading } = useHatMint({
+  const {
+    writeAsync: writeAsyncBatchMintHats,
+    isLoading: isLoadingBatchMintHats,
+  } = useBatchMintHats({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
     newWearers: wearers
       .map((wearer) => wearer.address)
-      .concat([currentResolvedAddress]),
+      .concat(currentResolvedAddress ? [currentResolvedAddress] : []),
   });
 
+  const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
+    useMintHat({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId,
+      newWearer: currentResolvedAddress,
+    });
+
   const onSubmit = async () => {
-    await writeAsync?.();
+    if (wearers.length === 0) {
+      await writeAsyncMintHat?.();
+    } else {
+      await writeAsyncBatchMintHats?.();
+    }
   };
 
   const handleAddWearer = () => {
@@ -198,7 +216,11 @@ const HatWearerForm = ({
           <Tooltip label={toolTip} shouldWrapChildren>
             <Button
               isDisabled={
-                !canAddWearer || !isEligible || isLoading || isLoadingIsEligible
+                !canAddWearer ||
+                !isEligible ||
+                isLoadingIsEligible ||
+                isLoadingMintHat ||
+                isLoadingBatchMintHats
               }
               onClick={handleAddWearer}
               aria-label='Add Another Wallet'
@@ -263,7 +285,11 @@ const HatWearerForm = ({
         </Collapse>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || isLoading}>
+          <Button
+            type='submit'
+            isLoading={isLoadingMintHat || isLoadingBatchMintHats}
+            isDisabled={!writeAsyncBatchMintHats && !writeAsyncMintHat}
+          >
             Mint
           </Button>
         </Flex>

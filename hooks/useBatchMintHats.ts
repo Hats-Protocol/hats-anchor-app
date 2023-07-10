@@ -14,7 +14,12 @@ import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { decimalId, toTreeId } from '@/lib/hats';
 
-const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
+const useBatchMintHats = ({
+  hatsAddress,
+  hatId,
+  chainId,
+  newWearers = [],
+}: UseBatchMintHatProps) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
@@ -24,10 +29,12 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
     address: CONFIG.hatsAddress,
     chainId,
     abi,
-    functionName: 'mintHat',
-    args: [decimalId(hatId), newWearer],
+    functionName: 'batchMintHats',
+    args: [new Array(newWearers.length).fill(decimalId(hatId)), newWearers],
     enabled:
-      Boolean(hatsAddress) && Boolean(decimalId(hatId)) && isAddress(newWearer),
+      Boolean(hatsAddress) &&
+      Boolean(decimalId(hatId)) &&
+      newWearers.every((wearer) => isAddress(wearer)),
   });
 
   const { writeAsync } = useContractWrite({
@@ -44,7 +51,7 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Hats Minted!`,
-          description: `Successfully minted hat`,
+          description: `Successfully minted hats`,
         },
       });
 
@@ -79,11 +86,11 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
   };
 };
 
-export default useMintHat;
+export default useBatchMintHats;
 
-interface UseMintHat {
+interface UseBatchMintHatProps {
   hatsAddress?: `0x${string}`;
   hatId: string | undefined;
   chainId: number;
-  newWearer: string;
+  newWearers: string[];
 }
