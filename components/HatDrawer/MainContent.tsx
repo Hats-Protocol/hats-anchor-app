@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Icon,
+  Image,
   ListItem,
   Stack,
   Text,
@@ -235,16 +236,24 @@ const MainContent = ({
             <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
               Eligibility
             </Heading>
-            <HStack>
-              {isEligibilityAContract && (
-                <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
-              )}
-              <Tooltip label={hatData.eligibility}>
+            <Tooltip label={hatData.eligibility}>
+              <HStack>
+                {isEligibilityAContract ? (
+                  <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                ) : (
+                  <Image
+                    src='/icons/wearers.svg'
+                    alt='Wearers'
+                    w={4}
+                    h={4}
+                    color='gray.500'
+                  />
+                )}
                 <Text color='gray.500' fontSize='sm'>
                   {formatAddress(hatData.eligibility)}
                 </Text>
-              </Tooltip>
-            </HStack>
+              </HStack>
+            </Tooltip>
           </HStack>
           <Flex justifyContent='space-between'>
             <HStack>
@@ -263,14 +272,24 @@ const MainContent = ({
             <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
               Toggle
             </Heading>
-            <HStack>
-              {isToggleAContract && <Icon as={FaCode} ml={2} w={4} h={4} />}
-              <Tooltip label={hatData.toggle}>
+            <Tooltip label={hatData.toggle}>
+              <HStack>
+                {isToggleAContract ? (
+                  <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                ) : (
+                  <Image
+                    src='/icons/wearers.svg'
+                    alt='Wearers'
+                    w={4}
+                    h={4}
+                    color='gray.500'
+                  />
+                )}
                 <Text color='gray.500' fontSize='sm'>
                   {formatAddress(hatData.toggle)}
                 </Text>
-              </Tooltip>
-            </HStack>
+              </HStack>
+            </Tooltip>
           </HStack>
           <Flex justifyContent='space-between'>
             <HStack>
