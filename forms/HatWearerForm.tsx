@@ -26,9 +26,6 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import {
   FaCheck,
-  FaChevronDown,
-  FaChevronUp,
-  FaFileCsv,
   FaInfoCircle,
   FaRegQuestionCircle,
   FaRegTrashAlt,
