@@ -10,6 +10,7 @@ import {
   MenuList,
   Text,
   Tooltip,
+  useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import {
@@ -85,6 +86,9 @@ const TopMenu = ({
     const regex = /Error: NotHatsToggle()/;
     return regex.test(message);
   }
+
+  const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   if (!hatData) return null;
 
@@ -231,7 +235,7 @@ const TopMenu = ({
             <MenuItem
               gap={2}
               onClick={() => {
-                navigator.clipboard.writeText(decimalId(hatData?.id));
+                copyHatId();
                 toast.info({
                   title: 'Successfully copied Hat ID to clipboard',
                 });
@@ -243,9 +247,9 @@ const TopMenu = ({
             <MenuItem
               gap={2}
               onClick={() => {
-                navigator.clipboard.writeText(hatData?.id);
+                copyContractAddress();
                 toast.info({
-                  title: 'Successfully copied Hat ID to clipboard',
+                  title: 'Successfully copied contract address to clipboard',
                 });
               }}
             >

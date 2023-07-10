@@ -11,19 +11,19 @@ import {
   Text,
   Tooltip,
   UnorderedList,
+  useClipboard,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
-import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
-import { explorerUrl } from '@/lib/general';
-import { prettyIdToIp } from '@/lib/hats';
+import { decimalId, prettyIdToIp } from '@/lib/hats';
+import { explorerUrl } from '@/lib/web3';
 
 import ChakraNextLink from '../ChakraNextLink';
 import Modal from '../Modal';
@@ -46,10 +46,10 @@ const MainContent = ({
   isCurrentWearer,
   linkRequestFromTree,
 }: MainContentProps) => {
-  const { address } = useAccount();
   const toast = useToast();
   const [linkFrom, setLinkFrom] = useState('');
   const [linkTo, setLinkTo] = useState('');
+  const { onCopy } = useClipboard(decimalId(hatData?.id));
 
   const handleOpenLinkRequestApproveModal = (from: string, to: string) => {
     setLinkFrom(from);
@@ -87,7 +87,7 @@ const MainContent = ({
                     color='blue.500'
                     cursor='pointer'
                     onClick={() => {
-                      navigator.clipboard.writeText(hatData?.id);
+                      onCopy();
                       toast.info({
                         title: 'Successfully copied Hat id to clipboard',
                       });

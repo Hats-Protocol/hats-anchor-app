@@ -6,7 +6,6 @@ import {
   Drawer,
   DrawerBody,
   DrawerContent,
-  DrawerOverlay,
   Flex,
   Heading,
   HStack,
@@ -52,7 +51,7 @@ import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { explorerUrl, mapWithChainId } from '@/lib/general';
+import { mapWithChainId } from '@/lib/general';
 import {
   decimalId,
   decimalToTreeId,
@@ -62,7 +61,7 @@ import {
   prettyIdToIp,
   toTreeStructure,
 } from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
+import { chainsMap, explorerUrl } from '@/lib/web3';
 import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
@@ -274,7 +273,6 @@ const TreeDetails = ({
         }}
         isOpen={isOpenShade}
       >
-        <DrawerOverlay />
         <DrawerContent
           maxW='40%'
           background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
@@ -382,15 +380,13 @@ const TreeDetails = ({
                 <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
                 <ChakraNextLink
-                  href={`${
-                    chainsMap(chainId).blockExplorers?.default.url
-                  }address/${CONFIG.hatsAddress}`}
+                  href={`${explorerUrl(chainId)}/address/${CONFIG.hatsAddress}`}
                   isExternal
                 >
                   <HStack spacing={1}>
                     <Text fontWeight={500}>{chain?.name}</Text>
                     <IconButton
-                      aria-label='Copy contract address'
+                      aria-label='Explorer contract address'
                       icon={<Icon as={FiExternalLink} />}
                       size='xs'
                       variant='ghost'
