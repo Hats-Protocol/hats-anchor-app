@@ -14,7 +14,7 @@ const baseStyle = {
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
   backgroundColor: '#fafafa',
-  width: '83%',
+  width: '100%',
   height: 100,
   color: '#bdbdbd',
   outline: 'none',
@@ -102,7 +102,7 @@ const DropZone = ({
   }, []);
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} w='full'>
       <Flex gap={3}>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />

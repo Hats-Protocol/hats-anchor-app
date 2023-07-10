@@ -282,16 +282,21 @@ const HatWearerForm = ({
                   w={4}
                   h={4}
                   alt='Wearer'
-                  mr={2}
+                  mr={3}
+                  ml={-1}
                 />
                 Add Another Wallet
               </Button>
             </Tooltip>
             <Box>
-              <Button as='span' cursor='pointer'>
+              <Button
+                aria-label='Toggle CSV Input'
+                onClick={onToggle}
+                bg='white'
+                border='1px solid #e8e8e8'
+              >
                 <Icon
                   as={FaUpload}
-                  onClick={onToggle}
                   mr={2}
                   color='gray.500'
                   _hover={{ color: 'gray.600' }}
@@ -301,23 +306,29 @@ const HatWearerForm = ({
                 Upload CSV
               </Button>
             </Box>
-
-            <Collapse in={isOpen}>
-              <FormControl id='csvFile'>
-                <DropZone
-                  getRootProps={getRootProps}
-                  getInputProps={getInputProps}
-                  isDragAccept={isDragAccept}
-                  isDragReject={isDragReject}
-                />
-                <Text fontSize='sm' mt={1} color='blue.500'>
-                  <Icon as={FaInfoCircle} mr={1} />
-                  The CSV file must only contain Ethereum addresses, one per
-                  line. Any additional data will be ignored.
-                </Text>
-              </FormControl>
-            </Collapse>
           </HStack>
+          <Collapse in={isOpen}>
+            <FormControl id='csvFile'>
+              <Text
+                fontSize='sm'
+                textTransform='uppercase'
+                fontWeight={500}
+                mt={6}
+              >
+                Upload CSV
+              </Text>
+              <Text fontSize='md' mt={1} color='blackAlpha.700' mb={4}>
+                The CSV file must only contain Ethereum addresses, one per line.
+                Any additional data will be ignored.
+              </Text>
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+              />
+            </FormControl>
+          </Collapse>
         </VStack>
 
         <Flex justify='flex-end'>
