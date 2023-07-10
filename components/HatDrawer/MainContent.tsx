@@ -236,23 +236,28 @@ const MainContent = ({
             <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
               Eligibility
             </Heading>
-            <Tooltip label={hatData.eligibility}>
-              <HStack>
-                {isEligibilityAContract ? (
-                  <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
-                ) : (
-                  <Image
-                    src='/icons/wearers.svg'
-                    alt='Wearers'
-                    w={4}
-                    h={4}
-                    color='gray.500'
-                  />
-                )}
-                <Text color='gray.500' fontSize='sm'>
-                  {formatAddress(hatData.eligibility)}
-                </Text>
-              </HStack>
+            <Tooltip label={hatData.eligibility} shouldWrapChildren>
+              <ChakraNextLink
+                href={`${explorerUrl(chainId)}/address/${hatData.eligibility}`}
+                isExternal
+              >
+                <HStack>
+                  {isEligibilityAContract ? (
+                    <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                  ) : (
+                    <Image
+                      src='/icons/wearers.svg'
+                      alt='Wearers'
+                      w={4}
+                      h={4}
+                      color='gray.500'
+                    />
+                  )}
+                  <Text color='gray.500' fontSize='sm'>
+                    {formatAddress(hatData.eligibility)}
+                  </Text>
+                </HStack>
+              </ChakraNextLink>
             </Tooltip>
           </HStack>
           <Flex justifyContent='space-between'>
@@ -272,23 +277,28 @@ const MainContent = ({
             <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
               Toggle
             </Heading>
-            <Tooltip label={hatData.toggle}>
-              <HStack>
-                {isToggleAContract ? (
-                  <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
-                ) : (
-                  <Image
-                    src='/icons/wearers.svg'
-                    alt='Wearers'
-                    w={4}
-                    h={4}
-                    color='gray.500'
-                  />
-                )}
-                <Text color='gray.500' fontSize='sm'>
-                  {formatAddress(hatData.toggle)}
-                </Text>
-              </HStack>
+            <Tooltip label={hatData.toggle} shouldWrapChildren>
+              <ChakraNextLink
+                href={`${explorerUrl(chainId)}/address/${hatData.eligibility}`}
+                isExternal
+              >
+                <HStack>
+                  {isToggleAContract ? (
+                    <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                  ) : (
+                    <Image
+                      src='/icons/wearers.svg'
+                      alt='Wearers'
+                      w={4}
+                      h={4}
+                      color='gray.500'
+                    />
+                  )}
+                  <Text color='gray.500' fontSize='sm'>
+                    {formatAddress(hatData.toggle)}
+                  </Text>
+                </HStack>
+              </ChakraNextLink>
             </Tooltip>
           </HStack>
           <Flex justifyContent='space-between'>
