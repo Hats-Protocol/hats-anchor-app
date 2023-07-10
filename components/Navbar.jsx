@@ -27,10 +27,10 @@ const Navbar = () => {
 
   const navLinks = useMemo(() => {
     const links = [
-      address && {
-        name: 'Create Tree',
-        onClick: () => localOverlay.setModals({ createTree: true }),
-      },
+      // address && {
+      //   name: 'Create Tree',
+      //   onClick: () => localOverlay.setModals({ createTree: true }),
+      // },
       address && { name: 'My Hats', href: `/wearers/${address}` },
     ];
 

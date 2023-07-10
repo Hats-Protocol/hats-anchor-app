@@ -75,7 +75,7 @@ function Node({
           }}
         >
           <h4 style={{}}>ID {prettyIdToIp(rd3tProps.nodeDatum.name)}</h4>
-          {chainId === userChain && isUserAdminOfHat && (
+          {/* {chainId === userChain && isUserAdminOfHat && (
             <Button
               className={styles.button1}
               type='button'
@@ -85,7 +85,7 @@ function Node({
             >
               Add Child Hat
             </Button>
-          )}
+          )} */}
         </div>
       </foreignObject>
     </g>
