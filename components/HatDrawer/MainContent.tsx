@@ -154,28 +154,6 @@ const MainContent = ({
           </Stack>
         )}
 
-        {/* <Stack spacing={4}>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Responsibilities
-          </Heading>
-
-          <UnorderedList spacing={3}>
-            <ListItem>Post a report on Github</ListItem>
-            <ListItem>Moderate the Discord</ListItem>
-          </UnorderedList>
-        </Stack>
-
-        <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Authorities
-          </Heading>
-
-          <UnorderedList spacing={3}>
-            <ListItem>Post a report on Github</ListItem>
-            <ListItem>Moderate the Discord</ListItem>
-          </UnorderedList>
-        </Stack> */}
-
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Responsibilities

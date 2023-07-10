@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 
 import CONFIG from '@/constants';
@@ -24,7 +24,7 @@ interface OrgChartComponentProps {
   chainId: number;
   wearerHats: string[];
   onSelectHat: (node: string) => void;
-  selectedHatId: string | null;
+  selectedHatId?: string;
   selectedOption?: string;
   showInactiveHats: boolean;
 }
@@ -364,12 +364,15 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                         ${name}
                       </div>
                         <div style="
+                          display: -webkit-box;
                           font-size: 16px;
+                          overflow: hidden;
                           color: #08011E;
                           font-weight: 500;
-                          overflow: hidden;
-                          max-width: 105px;
-                          max-height: 40px;"
+                          width: 120px;
+                          height: 40px;
+                          -webkit-line-clamp: 2;
+                          -webkit-box-orient: vertical;"
                         >
                           ${detailsName}
                         </div>

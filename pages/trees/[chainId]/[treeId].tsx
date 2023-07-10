@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Divider,
   Drawer,
   DrawerBody,
   DrawerContent,
@@ -12,6 +13,13 @@ import {
   Icon,
   IconButton,
   Image,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -25,25 +33,17 @@ import {
   Text,
   useDisclosure,
   VStack,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Divider,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
-import { useRouter } from 'next/router';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import Layout from '@/components/Layout';
@@ -61,10 +61,9 @@ import {
   prettyIdToId,
   prettyIdToIp,
   toTreeStructure,
-  urlIdToPrettyId,
 } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { HierarchyObject, IHat, IHatData, ITree } from '@/types';
+import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -140,7 +139,7 @@ const TreeDetails = ({
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
-  const [selectedHatId, setSelectedHatId] = useState<string>(
+  const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
     ipToPrettyId(String(hatId)) || topHatId,
   );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -165,24 +164,28 @@ const TreeDetails = ({
     onClose: handleCloseModal,
   } = useDisclosure();
 
-  const handleSelectHat = (id: string) => {
-    setSelectedHatId(id);
+  const handleSelectHat = useCallback(
+    (id: string) => {
+      setSelectedHatId(id);
 
-    const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
-    const updatedUrl = {
-      pathname: router.pathname,
-      query: updatedQuery,
-    };
+      const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
+      const updatedUrl = {
+        pathname: router.pathname,
+        query: updatedQuery,
+      };
 
-    router.push(updatedUrl, undefined, { shallow: true });
+      router.push(updatedUrl, undefined, { shallow: true });
 
-    onOpenShade();
-  };
+      onOpenShade();
+    },
+    [onOpenShade, router],
+  );
 
   useEffect(() => {
     if (hatId) {
       handleSelectHat(ipToPrettyId(String(hatId)));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hatId]);
 
   const events = _.get(treeData, 'events');
@@ -246,7 +249,7 @@ const TreeDetails = ({
     );
   }
 
-  const fullHatData = _.map(hatsData, (hat: IHat, index: number) => ({
+  const fullHatData: any[] = _.map(hatsData, (hat: IHat, index: number) => ({
     ...hatsWithImageData?.[index],
     ...hat,
   }));
@@ -267,6 +270,7 @@ const TreeDetails = ({
         onClose={() => {
           onCloseShade();
           setEditMode(false);
+          setSelectedHatId(undefined);
         }}
         isOpen={isOpenShade}
       >
@@ -380,7 +384,7 @@ const TreeDetails = ({
                 <ChakraNextLink
                   href={`${
                     chainsMap(chainId).blockExplorers?.default.url
-                  }/address/${CONFIG.hatsAddress}`}
+                  }address/${CONFIG.hatsAddress}`}
                   isExternal
                 >
                   <HStack spacing={1}>
@@ -421,13 +425,15 @@ const TreeDetails = ({
                           Event history
                         </Heading>
                         <Box>
-                          {treeData.events?.slice(0, 5).map((event: any) => (
-                            <Event
-                              key={`${event?.transactionID}-${event?.id}`}
-                              event={event}
-                              chainId={chainId}
-                            />
-                          ))}
+                          {treeData.events
+                            ?.slice(0, 5)
+                            .map((event: IHatEvent) => (
+                              <Event
+                                key={`${event?.transactionID}-${event?.id}`}
+                                event={event}
+                                chainId={chainId}
+                              />
+                            ))}
                           {treeData.events?.length > 4 && (
                             <>
                               <Divider my={2} />
@@ -522,7 +528,7 @@ const Event = ({ event, chainId }: { event: any; chainId: number }) => {
 export const getStaticProps = async (context: any) => {
   const { treeId, chainId } = context.params;
   const treeHex = decimalToTreeId(treeId);
-  const prettyHatId = urlIdToPrettyId(treeId);
+  const prettyHatId = ipToPrettyId(treeId);
   const hatIdHex = prettyIdToId(prettyHatId);
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
   const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
@@ -556,7 +562,7 @@ export const getStaticProps = async (context: any) => {
       topHatId: hatIdHex || null,
       treeData: treeData || null,
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
-      hatData: mapWithChainId(hatData, chainId) || null,
+      hatData: { ...hatData, chainId } || null,
     },
     revalidate: 10,
   };
