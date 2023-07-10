@@ -101,7 +101,6 @@ export const fetchManyWearerDetails = async (
 };
 
 export const fetchAllTreesByIds = async (treeIds: any[], chainId: number) => {
-  console.log('treeIds', treeIds);
   const promises = treeIds.map((treeId) => fetchHatDetails(treeId, chainId));
   const treeDetails = await Promise.all(promises);
 

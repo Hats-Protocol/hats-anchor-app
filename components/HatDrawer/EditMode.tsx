@@ -26,7 +26,6 @@ const EditMode = ({
   responsibilities,
   authorities,
 }: EditModeProps) => {
-  console.log('hatData', hatData);
   if (!hatData) return null;
 
   return (

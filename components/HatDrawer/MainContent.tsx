@@ -13,17 +13,23 @@ import {
   UnorderedList,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { useState } from 'react';
-import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
-import { useAccount } from 'wagmi';
+import { useEffect, useState } from 'react';
+import {
+  FaBan,
+  FaCheck,
+  FaCode,
+  FaCopy,
+  FaExternalLinkAlt,
+} from 'react-icons/fa';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
-import { explorerUrl } from '@/lib/general';
+import { explorerUrl, formatAddress } from '@/lib/general';
 import { prettyIdToIp } from '@/lib/hats';
+import { checkAddressIsContract } from '@/lib/contract';
 
 import ChakraNextLink from '../ChakraNextLink';
 import Modal from '../Modal';
@@ -46,16 +52,30 @@ const MainContent = ({
   isCurrentWearer,
   linkRequestFromTree,
 }: MainContentProps) => {
-  const { address } = useAccount();
   const toast = useToast();
   const [linkFrom, setLinkFrom] = useState('');
   const [linkTo, setLinkTo] = useState('');
+  const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
+  const [isToggleAContract, setIsToggleAContract] = useState(false);
 
   const handleOpenLinkRequestApproveModal = (from: string, to: string) => {
     setLinkFrom(from);
     setLinkTo(to);
     setModals?.({ linkResponse: true });
   };
+
+  useEffect(() => {
+    const check = async () => {
+      const isEligibility = await checkAddressIsContract(
+        hatData?.eligibility,
+        chainId,
+      );
+      const isToggle = await checkAddressIsContract(hatData?.toggle, chainId);
+      setIsEligibilityAContract(isEligibility);
+      setIsToggleAContract(isToggle);
+    };
+    check();
+  }, [chainId, hatData]);
 
   if (!hatData) return null;
 
@@ -154,28 +174,6 @@ const MainContent = ({
           </Stack>
         )}
 
-        {/* <Stack spacing={4}>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Responsibilities
-          </Heading>
-
-          <UnorderedList spacing={3}>
-            <ListItem>Post a report on Github</ListItem>
-            <ListItem>Moderate the Discord</ListItem>
-          </UnorderedList>
-        </Stack>
-
-        <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Authorities
-          </Heading>
-
-          <UnorderedList spacing={3}>
-            <ListItem>Post a report on Github</ListItem>
-            <ListItem>Moderate the Discord</ListItem>
-          </UnorderedList>
-        </Stack> */}
-
         <Stack>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Responsibilities
@@ -233,9 +231,21 @@ const MainContent = ({
         </Stack>
 
         <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Eligibility
-          </Heading>
+          <HStack justifyContent='space-between'>
+            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+              Eligibility
+            </Heading>
+            <HStack>
+              {isEligibilityAContract && (
+                <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+              )}
+              <Tooltip label={hatData.eligibility}>
+                <Text color='gray.500' fontSize='sm'>
+                  {formatAddress(hatData.eligibility)}
+                </Text>
+              </Tooltip>
+            </HStack>
+          </HStack>
           <Flex justifyContent='space-between'>
             <HStack>
               <Text>Can I wear this hat?</Text>
@@ -249,9 +259,19 @@ const MainContent = ({
         </Stack>
 
         <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Toggle
-          </Heading>
+          <HStack justifyContent='space-between'>
+            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+              Toggle
+            </Heading>
+            <HStack>
+              {isToggleAContract && <Icon as={FaCode} ml={2} w={4} h={4} />}
+              <Tooltip label={hatData.toggle}>
+                <Text color='gray.500' fontSize='sm'>
+                  {formatAddress(hatData.toggle)}
+                </Text>
+              </Tooltip>
+            </HStack>
+          </HStack>
           <Flex justifyContent='space-between'>
             <HStack>
               <Text>Is this hat active?</Text>
