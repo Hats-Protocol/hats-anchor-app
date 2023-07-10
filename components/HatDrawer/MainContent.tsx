@@ -72,10 +72,10 @@ const MainContent = ({
       >
         <Stack spacing={4}>
           <Flex align='start' justify='space-between'>
-            <Stack w='full'>
+            <Stack w='full' spacing={1}>
               <HStack justifyContent='space-between'>
                 <Tooltip label={name} aria-label='A tooltip'>
-                  <Text fontSize={24} isTruncated>
+                  <Text fontSize={24} isTruncated fontWeight={600}>
                     {name}
                   </Text>
                 </Tooltip>
@@ -95,7 +95,7 @@ const MainContent = ({
                   />
                 </HStack>
               </HStack>
-              <Text>{description}</Text>
+              <Text opacity={0.6}>{description}</Text>
             </Stack>
           </Flex>
           <HStack>

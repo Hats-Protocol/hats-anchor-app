@@ -274,8 +274,9 @@ const TreeDetails = ({
         isOpen={isOpenShade}
       >
         <DrawerContent
-          maxW='40%'
           background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
+          maxW='43%'
+          width='650px'
         >
           <DrawerBody pt={0}>
             <SelectedHatDrawer
