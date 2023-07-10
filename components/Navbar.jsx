@@ -44,6 +44,7 @@ const Navbar = () => {
       </Modal>
 
       <Flex
+        mt={CONFIG.banner1 || CONFIG.banner2 ? 16 : 0}
         w='100%'
         justify='space-between'
         align='center'

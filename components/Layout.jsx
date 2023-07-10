@@ -1,11 +1,43 @@
 import React from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, Text, HStack } from '@chakra-ui/react';
 import Navbar from './Navbar';
 import CommandPalette from './CommandPalette';
+import CONFIG from '../constants';
+import ChakraNextLink from './ChakraNextLink';
 
 const Layout = ({ children }) => {
   return (
     <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
+      {(CONFIG.banner1 || CONFIG.banner2) && (
+        <Flex
+          bg='blue.600'
+          w='100%'
+          h={16}
+          align='center'
+          justify='center'
+          color='white'
+        >
+          <HStack spacing={1}>
+            <Text fontWeight={600}>Announcement:</Text>
+            {CONFIG.banner1 && (
+              <Text textAlign='center'>
+                Hat creation and editing will be temporarily disabled from this
+                front-end for 48 hours (until Wednesday July 12th at noon EST)
+                while we migrate to v2.0.
+              </Text>
+            )}
+            {CONFIG.banner2 && (
+              <Text>
+                This version of the app (v1.3) is now deprecated. The live
+                version (v2.0) is now deployed to app.hatsprotocol.xyz.
+              </Text>
+            )}
+            <ChakraNextLink href='#' decoration isExternal>
+              Read more here.
+            </ChakraNextLink>
+          </HStack>
+        </Flex>
+      )}
       <Navbar />
       <CommandPalette />
       <Box w='90%' my={20} mt={40}>
