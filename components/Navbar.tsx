@@ -12,6 +12,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
+import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -20,6 +21,7 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
 import { ipToPrettyId, prettyIdToId } from '@/lib/hats';
 
@@ -67,6 +69,8 @@ const Navbar = () => {
       getTopHatDetails();
     }
   }, [path, currentTopHatName]);
+
+  const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
 
   return (
     <Flex
@@ -127,6 +131,42 @@ const Navbar = () => {
           )}
         </HStack>
       </HStack>
+
+      {!clearBanner && CONFIG.banner && (
+        <Flex
+          bg='blue.600'
+          color='white'
+          h={10}
+          fontSize='xs'
+          pl={6}
+          borderRadius={20}
+          align='center'
+        >
+          <HStack spacing={1}>
+            <Text fontWeight={700}>Announcement:</Text>
+            <Text>We’re excited to share the brand new Hats App v2.0! 🎉</Text>
+            <ChakraNextLink
+              href='#'
+              isExternal
+              decoration
+              _hover={{ color: 'whiteAlpha.800' }}
+            >
+              Read the launch post here.
+            </ChakraNextLink>
+          </HStack>
+          <IconButton
+            icon={<Icon as={IoCloseOutline} color='white' h='16px' w='16px' />}
+            h='20px'
+            w='20px'
+            mx={4}
+            minW={0}
+            onClick={() => setClearBanner(true)}
+            _hover={{ color: 'whiteAlpha.800', bg: 'whiteAlpha.400' }}
+            aria-label='Close Announcement'
+            variant='ghost'
+          />
+        </Flex>
+      )}
 
       <HStack spacing={2}>
         <IconButton
