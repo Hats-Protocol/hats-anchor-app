@@ -27,6 +27,7 @@ import {
   PopoverTrigger,
   Radio,
   RadioGroup,
+  Skeleton,
   Spinner,
   Stack,
   Text,
@@ -377,25 +378,29 @@ const TreeDetails = ({
               </Popover>
             </Box>
             <VStack align='center' alignItems='flex-end' spacing={1}>
-              <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
-                <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
+              <Skeleton isLoaded={!!chain && !!orgChartTree}>
+                <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
+                  <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
-                <ChakraNextLink
-                  href={`${explorerUrl(chainId)}/address/${CONFIG.hatsAddress}`}
-                  isExternal
-                >
-                  <HStack spacing={1}>
-                    <Text fontWeight={500}>{chain?.name}</Text>
-                    <IconButton
-                      aria-label='Explorer contract address'
-                      icon={<Icon as={FiExternalLink} />}
-                      size='xs'
-                      variant='ghost'
-                    />
-                  </HStack>
-                </ChakraNextLink>
-              </Flex>
-              {!_.isEmpty(events) && (
+                  <ChakraNextLink
+                    href={`${explorerUrl(chainId)}/address/${
+                      CONFIG.hatsAddress
+                    }`}
+                    isExternal
+                  >
+                    <HStack spacing={1}>
+                      <Text fontWeight={500}>{chain?.name}</Text>
+                      <IconButton
+                        aria-label='Explorer contract address'
+                        icon={<Icon as={FiExternalLink} />}
+                        size='xs'
+                        variant='ghost'
+                      />
+                    </HStack>
+                  </ChakraNextLink>
+                </Flex>
+              </Skeleton>
+              <Skeleton isLoaded={!_.isEmpty(events)}>
                 <Popover trigger='hover'>
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
@@ -448,7 +453,7 @@ const TreeDetails = ({
                     </PopoverBody>
                   </PopoverContent>
                 </Popover>
-              )}
+              </Skeleton>
             </VStack>
           </Flex>
         </Box>
@@ -477,7 +482,7 @@ const TreeDetails = ({
           <ModalHeader>Event History</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {treeData?.events?.map((event: any) => (
+            {treeData?.events?.map((event: IHatEvent) => (
               <Event
                 key={`${event?.transactionID}-${event?.id}`}
                 event={event}
@@ -496,7 +501,7 @@ const TreeDetails = ({
   );
 };
 
-const Event = ({ event, chainId }: { event: any; chainId: number }) => {
+const Event = ({ event, chainId }: { event: IHatEvent; chainId: number }) => {
   return (
     <Flex
       key={`${event?.transactionID}-${event?.id}`}
