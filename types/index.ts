@@ -1,4 +1,4 @@
-interface IHatEvent {
+export interface IHatEvent {
   id: string;
   timestamp: string;
   transactionID: string;
@@ -18,6 +18,11 @@ export interface IHat {
   status: boolean;
   createdAt: string;
   details: string;
+  detailsObject?: {
+    type: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
+  };
   maxSupply: string;
   eligibility: `0x${string}`;
   toggle: `0x${string}`;
@@ -27,7 +32,7 @@ export interface IHat {
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: IHatWearer[];
+  wearers: any[]; // (`0x${string}` | IHatWearer)[];
   admin: IHat;
 }
 
@@ -44,7 +49,7 @@ export interface IHatData {
   active: boolean;
   currentSupply?: string;
   maxSupply?: string;
-  wearers?: any;
+  wearers?: any[]; // (`0x${string}` | IHatWearer)[];
   eligibility?: IHatWearer;
   toggle?: IHatWearer;
   levelAtLocalTree?: number;

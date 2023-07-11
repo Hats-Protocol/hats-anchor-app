@@ -1,7 +1,7 @@
 import { Icon, Link } from '@chakra-ui/react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
-import { explorerUrl } from '@/lib/general';
+import { explorerUrl } from '@/lib/web3';
 
 const TransactionLink = ({ chainId, tx }: { chainId: number; tx: string }) => {
   return (

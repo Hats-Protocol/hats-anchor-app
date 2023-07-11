@@ -12,6 +12,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
+import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -20,7 +21,9 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
-import { prettyIdToId, urlIdToPrettyId } from '@/lib/hats';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { containsUpperCase } from '@/lib/general';
+import { ipToPrettyId, prettyIdToId } from '@/lib/hats';
 
 const Navbar = () => {
   const localOverlay = useOverlay();
@@ -28,21 +31,32 @@ const Navbar = () => {
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
-  const [currentTopHatName, setCurrentTopHatName] = useState<any>(null);
+  const [currentChain, setCurrentChain] = useState<number | undefined>();
+  const [currentTopHatName, setCurrentTopHatName] = useState<
+    string | undefined
+  >();
 
   useEffect(() => {
     const getTopHatDetails = async () => {
-      const chainId = path[1];
-      const topHatId = urlIdToPrettyId(path[3]?.split('_').slice(0, 1)[0]);
+      let chainId = 1;
+      if (path.includes(CONFIG.trees)) {
+        chainId = Number(path[1]);
+        setCurrentChain(chainId);
+      }
+      const topHatId = ipToPrettyId(_.split(path[2], '?')[0]);
 
-      if (!topHatId) {
+      if (!topHatId || topHatId === '0x') {
         return;
       }
       const topHat = await fetchHatDetails(
         prettyIdToId(topHatId),
         Number(chainId),
       );
-      if (topHat && topHat.details.startsWith('ipfs://')) {
+
+      if (!topHat) {
+        return;
+      }
+      if (topHat && topHat.details?.startsWith('ipfs://')) {
         const details = await fetchDetailsIpfs(_.get(topHat, 'details'));
         const name = _.get(details, 'name');
         setCurrentTopHatName(name);
@@ -55,6 +69,8 @@ const Navbar = () => {
       getTopHatDetails();
     }
   }, [path, currentTopHatName]);
+
+  const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
 
   return (
     <Flex
@@ -75,7 +91,7 @@ const Navbar = () => {
           <Image src='/icon.jpeg' h='70px' alt='Hats Logo' />
         </ChakraNextLink>
         <HStack spacing={5}>
-          <ChakraNextLink href={`/${CONFIG.trees}`}>
+          <ChakraNextLink href={`/${CONFIG.trees}/${currentChain || 1}`}>
             <Button
               h='75px'
               minW='125px'
@@ -90,7 +106,9 @@ const Navbar = () => {
                 <Stack align='start' w='90%' mx={3}>
                   <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
                   <Text fontSize='lg' color='gray.500'>
-                    {_.capitalize(currentTopHatName)}
+                    {containsUpperCase(currentTopHatName)
+                      ? currentTopHatName
+                      : _.capitalize(currentTopHatName)}
                   </Text>
                 </Stack>
               )}
@@ -113,6 +131,42 @@ const Navbar = () => {
           )}
         </HStack>
       </HStack>
+
+      {!clearBanner && CONFIG.banner && (
+        <Flex
+          bg='blue.600'
+          color='white'
+          h={10}
+          fontSize='xs'
+          pl={6}
+          borderRadius={20}
+          align='center'
+        >
+          <HStack spacing={1}>
+            <Text fontWeight={700}>Announcement:</Text>
+            <Text>We’re excited to share the brand new Hats App v2.0! 🎉</Text>
+            <ChakraNextLink
+              href='#'
+              isExternal
+              decoration
+              _hover={{ color: 'whiteAlpha.800' }}
+            >
+              Read the launch post here.
+            </ChakraNextLink>
+          </HStack>
+          <IconButton
+            icon={<Icon as={IoCloseOutline} color='white' h='16px' w='16px' />}
+            h='20px'
+            w='20px'
+            mx={4}
+            minW={0}
+            onClick={() => setClearBanner(true)}
+            _hover={{ color: 'whiteAlpha.800', bg: 'whiteAlpha.400' }}
+            aria-label='Close Announcement'
+            variant='ghost'
+          />
+        </Flex>
+      )}
 
       <HStack spacing={2}>
         <IconButton

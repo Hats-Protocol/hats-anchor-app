@@ -146,8 +146,6 @@ export async function toTreeStructure({
     });
   }
 
-  console.log('hatsArray', hatsArray);
-
   return Promise.resolve({ tree: hatsArray, hats: hatsData, hierarchy });
 }
 
@@ -258,38 +256,6 @@ export function ipToPrettyId(id: string | undefined) {
   });
 
   return _.join([treeId, ...children], '.');
-}
-
-export function urlIdToPrettyId(id: string) {
-  try {
-    const parts = _.split(id, '_');
-    const start = _.first(parts);
-    if (!start) return '';
-    const treeId = `0x${BigInt(start).toString(16)?.padStart(8, '0')}`;
-    const children = parts?.slice(1)?.map((child) => {
-      return BigInt(child).toString(16).padStart(4, '0');
-    });
-
-    return _.join([treeId, ...children], '.');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    // console.log(e);
-    return '';
-  }
-}
-
-export function prettyIdToUrlId(id: string, topOnly = false) {
-  if (!id) return '';
-  const treeId = decimalId(id.slice(0, 10));
-  const children = id.slice(11, 66);
-  if (topOnly || !children) return treeId;
-
-  const childrenIds = _.split(children, '.');
-  const test = _.map(childrenIds, (index) => {
-    return BigInt(`0x${index}`).toString();
-  });
-  const joined = _.join([treeId, ...test], '_');
-  return joined;
 }
 
 export const hatIdToHex = (hatId: string | null) => {

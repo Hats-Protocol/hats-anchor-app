@@ -12,6 +12,7 @@ import {
   Text,
   Tooltip,
   UnorderedList,
+  useClipboard,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
@@ -28,9 +29,10 @@ import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
-import { explorerUrl, formatAddress } from '@/lib/general';
-import { prettyIdToIp } from '@/lib/hats';
 import { checkAddressIsContract } from '@/lib/contract';
+import { formatAddress } from '@/lib/general';
+import { decimalId, prettyIdToIp } from '@/lib/hats';
+import { explorerUrl } from '@/lib/web3';
 
 import ChakraNextLink from '../ChakraNextLink';
 import Modal from '../Modal';
@@ -58,6 +60,7 @@ const MainContent = ({
   const [linkTo, setLinkTo] = useState('');
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
+  const { onCopy } = useClipboard(decimalId(hatData?.id));
 
   const handleOpenLinkRequestApproveModal = (from: string, to: string) => {
     setLinkFrom(from);
@@ -93,10 +96,10 @@ const MainContent = ({
       >
         <Stack spacing={4}>
           <Flex align='start' justify='space-between'>
-            <Stack w='full'>
+            <Stack w='full' spacing={1}>
               <HStack justifyContent='space-between'>
                 <Tooltip label={name} aria-label='A tooltip'>
-                  <Text fontSize={24} isTruncated>
+                  <Text fontSize={24} isTruncated fontWeight={600}>
                     {name}
                   </Text>
                 </Tooltip>
@@ -108,7 +111,7 @@ const MainContent = ({
                     color='blue.500'
                     cursor='pointer'
                     onClick={() => {
-                      navigator.clipboard.writeText(hatData?.id);
+                      onCopy();
                       toast.info({
                         title: 'Successfully copied Hat id to clipboard',
                       });
@@ -116,7 +119,7 @@ const MainContent = ({
                   />
                 </HStack>
               </HStack>
-              <Text>{description}</Text>
+              <Text opacity={0.6}>{description}</Text>
             </Stack>
           </Flex>
           <HStack>

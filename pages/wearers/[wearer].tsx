@@ -30,7 +30,7 @@ import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
-import { getTreeId, prettyIdToIp, prettyIdToUrlId } from '@/lib/hats';
+import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { chainsMap, orderedChains } from '@/lib/web3';
 import { IHat } from '@/types';
 
@@ -59,10 +59,9 @@ const CoreHat = ({ hat }: { hat: IHat }) => {
 
   return (
     <ChakraNextLink
-      href={`/trees/${_.get(hat, 'chainId')}/${prettyIdToUrlId(
-        _.get(hat, 'prettyId'),
-        true,
-      )}`}
+      href={`/trees/${_.get(hat, 'chainId')}/${Number(
+        getTreeId(_.get(hat, 'prettyId')),
+      )}?hatId=${prettyIdToIp(_.get(hat, 'prettyId'))}`}
     >
       <Card
         key={_.get(hat, 'id')}

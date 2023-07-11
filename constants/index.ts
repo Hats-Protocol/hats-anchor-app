@@ -17,6 +17,7 @@ export const MUTABILITY = {
 };
 
 const CONFIG: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   hatsAddress: `0x${string}`;
 } = {
@@ -31,6 +32,7 @@ const CONFIG: {
   ipfsGateway: 'https://indigo-selective-coral-505.mypinata.cloud/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
+  banner: true,
 
   // terminology
   hat: 'hat',

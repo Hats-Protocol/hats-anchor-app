@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
+import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { Authority } from '@/forms/AuthorityDetailsForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
@@ -11,7 +12,6 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
 import { HierarchyObject, IHat } from '@/types';
-import { MUTABILITY, STATUS } from '@/constants';
 
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
@@ -31,7 +31,7 @@ const SelectedHatDrawer = ({
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
-  const [hatData, setHatData] = useState<any>({});
+  const [hatData, setHatData] = useState<IHat | undefined>();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [guilds, setGuilds] = useState<any[]>([]);
@@ -48,7 +48,7 @@ const SelectedHatDrawer = ({
 
   const { hatRoles } = useHatGuilds({
     guildNames: guilds,
-    hatId: hatData.id,
+    hatId: hatData?.id,
   });
 
   const { data: wearer } = useWearerDetails({
@@ -104,7 +104,7 @@ const SelectedHatDrawer = ({
   const { data: isEligible } = useHatCheckEligibility({
     wearer: address || '',
     chainId,
-    hatId: hatData.id,
+    hatId: hatData?.id,
   });
 
   if (!hatData) return null;
@@ -130,7 +130,8 @@ const SelectedHatDrawer = ({
           background='white'
           w='100px'
           h='100px'
-          border='2px solid'
+          border='3px solid'
+          borderColor='gray.700'
           borderRadius='md'
           top='110px'
           left={-81}
@@ -148,6 +149,7 @@ const SelectedHatDrawer = ({
           isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
+          setSelectedHatId={setSelectedHatId}
         />
 
         {!editMode && (
@@ -197,9 +199,9 @@ export default SelectedHatDrawer;
 
 interface SelectedHatDrawerProps {
   selectedHatId?: string;
-  setSelectedHatId: (id: string) => void;
+  setSelectedHatId: (id?: string) => void;
   chainId: number;
-  hatsData: any;
+  hatsData: IHat[];
   linkRequestFromTree: any;
   onClose: () => void;
   hierarchyData: HierarchyObject[];

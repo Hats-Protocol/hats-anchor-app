@@ -10,7 +10,9 @@ import {
   MenuList,
   Text,
   Tooltip,
+  useClipboard,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import {
   FaCopy,
   FaDoorOpen,
@@ -22,18 +24,19 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiChevronsRight } from 'react-icons/fi';
-import _ from 'lodash';
 import { useAccount } from 'wagmi';
 
 import Modal from '@/components/Modal';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
+import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
+import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
-import { isTopHat } from '@/lib/hats';
-import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
+import { decimalId, isTopHat } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const TopMenu = ({
   chainId,
@@ -46,6 +49,7 @@ const TopMenu = ({
   isCurrentWearer,
   localOverlay,
   wearerTopHats,
+  setSelectedHatId,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -83,6 +87,9 @@ const TopMenu = ({
     return regex.test(message);
   }
 
+  const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+
   if (!hatData) return null;
 
   return (
@@ -99,7 +106,13 @@ const TopMenu = ({
       top={0}
       zIndex={16}
     >
-      <Button variant='outline' onClick={onClose}>
+      <Button
+        variant='outline'
+        onClick={() => {
+          onClose();
+          setSelectedHatId(undefined);
+        }}
+      >
         <HStack>
           <Icon as={FiChevronsRight} />
           <Text>Collapse</Text>
@@ -222,9 +235,9 @@ const TopMenu = ({
             <MenuItem
               gap={2}
               onClick={() => {
-                navigator.clipboard.writeText(hatData?.id);
+                copyHatId();
                 toast.info({
-                  title: 'Successfully copied Hat id to clipboard',
+                  title: 'Successfully copied Hat ID to clipboard',
                 });
               }}
             >
@@ -234,9 +247,9 @@ const TopMenu = ({
             <MenuItem
               gap={2}
               onClick={() => {
-                navigator.clipboard.writeText(hatData?.id);
+                copyContractAddress();
                 toast.info({
-                  title: 'Successfully copied Hat id to clipboard',
+                  title: 'Successfully copied contract address to clipboard',
                 });
               }}
             >
@@ -254,7 +267,7 @@ const TopMenu = ({
       <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
         <HatCreateForm
           defaultAdmin={hatData.prettyId}
-          treeId={hatData.treeId}
+          treeId={hatData.tree.id}
         />
       </Modal>
 
@@ -280,13 +293,14 @@ export default TopMenu;
 
 interface TopMenuProps {
   mutableStatus: string;
-  hatData: any;
+  hatData: IHat;
   chainId: number;
   onClose: () => void;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
   isCurrentWearer: boolean;
-  localOverlay: any;
+  localOverlay: IOverlayContext;
   wearerTopHats: string[];
+  setSelectedHatId: (hatId?: string) => void;
 }
