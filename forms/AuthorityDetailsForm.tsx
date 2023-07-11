@@ -3,7 +3,7 @@ import {
   Button,
   HStack,
   IconButton,
-  Input,
+  Input as ChakraInput,
   Menu,
   MenuButton,
   MenuItem,
@@ -18,7 +18,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
 export type Authority = {
@@ -50,6 +50,20 @@ const AuthorityDetailsForm = ({
     setCurrentAuthorityIndex(0);
   };
 
+  const [labels, setLabels] = useState<string[]>(
+    authorities.map((a) => a.label),
+  );
+
+  useEffect(() => {
+    setLabels(authorities.map((a) => a.label));
+  }, [authorities]);
+
+  const handleLabelChange = (index: number, newLabel: string) => {
+    const newLabels = [...labels];
+    newLabels[index] = newLabel;
+    setLabels(newLabels);
+  };
+
   return (
     <>
       <HStack alignItems='center' ml={-6}>
@@ -63,13 +77,9 @@ const AuthorityDetailsForm = ({
             alignItems='center'
             justifyContent='space-between'
           >
-            <Input
-              value={authority.label}
-              onChange={(e) => {
-                const newArr = [...authorities];
-                newArr[index].label = e.target.value;
-                setAuthorities(newArr);
-              }}
+            <ChakraInput
+              value={labels[index]}
+              onChange={(e) => handleLabelChange(index, e.target.value)}
               placeholder='Label'
             />
 
@@ -94,7 +104,7 @@ const AuthorityDetailsForm = ({
                 <ModalHeader>Edit Authority Link</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                  <Input
+                  <ChakraInput
                     value={authorities[currentAuthorityIndex]?.link}
                     onChange={(e) => {
                       const newArr = [...authorities];

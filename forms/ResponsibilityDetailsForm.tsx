@@ -18,7 +18,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaEllipsisV, FaPlus, FaRegListAlt } from 'react-icons/fa';
 
 export type Responsibility = {
@@ -40,6 +40,7 @@ const ResponsibilityDetailsForm = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentResponsibilityIndex, setCurrentResponsibilityIndex] =
     useState(0);
+  const focusedInputRef = useRef<number | null>(null);
 
   const handleEdit = (index: number) => {
     setCurrentResponsibilityIndex(index);
@@ -50,6 +51,21 @@ const ResponsibilityDetailsForm = ({
     onClose();
     setCurrentResponsibilityIndex(0);
   };
+
+  const handleLabelChange = (index: number, newLabel: string) => {
+    const newLabels = [...labels];
+    newLabels[index] = newLabel;
+    setLabels(newLabels);
+    focusedInputRef.current = index; // Update the ref to the currently focused input
+  };
+
+  const [labels, setLabels] = useState<string[]>(
+    responsibilities.map((r) => r.label),
+  );
+
+  useEffect(() => {
+    setLabels(responsibilities.map((r) => r.label));
+  }, [responsibilities]);
 
   return (
     <>
@@ -65,12 +81,8 @@ const ResponsibilityDetailsForm = ({
             justifyContent='space-between'
           >
             <ChakraInput
-              value={responsibility.label}
-              onChange={(e) => {
-                const newArr = [...responsibilities];
-                newArr[index].label = e.target.value;
-                setResponsibilities(newArr);
-              }}
+              value={labels[index]}
+              onChange={(e) => handleLabelChange(index, e.target.value)}
               placeholder='Label'
             />
 
