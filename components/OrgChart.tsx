@@ -338,20 +338,28 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   align-items: center;
                   position: relative;
                 ">
+                  <div style="
+                    position: fixed;
+                    width: ${isSelected ? '78.5px' : '70px'};
+                    height: ${isSelected ? '78.5px' : '70px'};
+                    border: 
+                      ${isSelected ? '2px' : '1px'} 
+                      ${isLinked ? 'dotted' : 'solid'} #4A5568;
+                    left: ${isSelected ? -4 : 0}px;
+                    top: ${isSelected ? -4 : 0}px;
+                    border-radius: 4px;
+                    overflow: hidden;
+                  ">
                   <img
                     src="${imageUrl ?? '/icon.jpeg'}"
                     style="
                       background: white;
-                      width: ${isSelected ? '78.5px' : '70px'};
-                      height: ${isSelected ? '78.5px' : '70px'};
-                      border: 
-                        ${isSelected ? '2px' : '1px'} 
-                        ${isLinked ? 'dotted' : 'solid'} #4A5568;
-                      border-radius: 4px;
-                      position: fixed;
-                      left: ${isSelected ? -4 : 0}px;
-                      top: ${isSelected ? -4 : 0}px;"
+                      width: ${isSelected ? '78.5px' : '72px'};
+                      height: ${isSelected ? '78.5px' : '72px'};
+                      left: ${isSelected ? -4 : -1}px;
+                      top: ${isSelected ? -4 : -1}px;"
                   />
+                  </div>
                   <div style="
                     display: flex;
                     flex-direction: column;
