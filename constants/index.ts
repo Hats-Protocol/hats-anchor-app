@@ -21,7 +21,7 @@ const CONFIG: {
   [key: string]: any;
   hatsAddress: `0x${string}`;
 } = {
-  hatsAddress: '0x9d2dfd6066d5935267291718e8aa16c8ab729e9d',
+  hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
   protocolVersion: '1.0',
