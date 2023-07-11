@@ -14,6 +14,7 @@ import {
   Switch,
   Text,
   Tooltip,
+  HStack,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -62,7 +63,11 @@ const HatDetailsForm = ({
       name: defaultValues.name || '',
       imageUrl: defaultValues.imageUrl || '',
       description: defaultValues.description || '',
-      details: {},
+      details: {
+        guilds: defaultValues.guilds || [],
+        responsibilities: defaultValues.responsibilities || [],
+        authorities: defaultValues.authorities || [],
+      },
     },
   });
   const { handleSubmit, watch } = localForm;
@@ -163,9 +168,8 @@ const HatDetailsForm = ({
     details: detailsCID,
   });
 
-  const onSubmit = async () => {
+  const onSubmitDetails = async () => {
     writeAsync?.();
-    writeAsyncImage?.();
     await pinJson(
       {
         type: '1.0',
@@ -179,8 +183,12 @@ const HatDetailsForm = ({
     );
   };
 
+  const onSubmitImage = async () => {
+    writeAsyncImage?.();
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form>
       <Stack spacing={4}>
         <FormControl>
           <Stack spacing={2}>
@@ -309,20 +317,22 @@ const HatDetailsForm = ({
           </Stack>
         </FormControl>
 
-        <Flex justify='flex-end'>
+        <HStack justify='flex-end'>
           <Button
-            type='submit'
-            isDisabled={
-              !writeAsync ||
-              !writeAsyncImage ||
-              imagePinLoading ||
-              isLoading ||
-              detailsCidLoading
-            }
+            type='button'
+            onClick={handleSubmit(onSubmitDetails)}
+            isDisabled={!writeAsync || detailsCidLoading}
           >
-            {imagePinLoading ? <Spinner /> : 'Update'}
+            Update Details
           </Button>
-        </Flex>
+          <Button
+            type='button'
+            onClick={handleSubmit(onSubmitImage)}
+            isDisabled={!writeAsyncImage || imagePinLoading || isLoading}
+          >
+            {imagePinLoading ? <Spinner /> : 'Update Image'}
+          </Button>
+        </HStack>
       </Stack>
     </form>
   );

@@ -27,6 +27,7 @@ const EditMode = ({
   authorities,
 }: EditModeProps) => {
   if (!hatData) return null;
+  console.log('hatData', hatData);
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
