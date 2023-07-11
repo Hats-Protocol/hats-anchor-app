@@ -14,10 +14,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import blockies from 'blockies-ts';
 import { format } from 'date-fns';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
+import { useEffect, useState } from 'react';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -112,6 +114,7 @@ const WearerDetail = ({
   wearerAddress: `0x${string}`;
   // initialData: IHat[] | undefined;
 }) => {
+  const [blockie, setBlockie] = useState<string | undefined>();
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
   });
@@ -133,6 +136,12 @@ const WearerDetail = ({
   const { data: adminOfHats } = useHatsAdminOf({
     hats: currentHats,
   });
+
+  useEffect(() => {
+    setBlockie(
+      blockies.create({ seed: wearerAddress.toLowerCase() }).toDataURL(),
+    );
+  }, [wearerAddress]);
 
   const headlineStats = [
     {
@@ -182,7 +191,7 @@ const WearerDetail = ({
       <Stack align='center' spacing={6} p={20} pt={100}>
         <Flex w='100%' justify='space-between'>
           <HStack spacing={6}>
-            <Avatar src={ensAvatar || undefined} h='100px' w='100px' />
+            <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
               <Heading size='lg' fontWeight={500}>
                 {ensName || formatAddress(wearerAddress)}

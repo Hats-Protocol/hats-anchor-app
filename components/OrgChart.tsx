@@ -9,6 +9,7 @@ import {
   IconButton,
   Spinner,
 } from '@chakra-ui/react';
+// import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
@@ -69,7 +70,11 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             onSelectHat(nodeId);
             centerChart(chart, nodeId);
           })
-
+          // .linkUpdate(() => {
+          //   d3.select(this).attr('stroke', () => '#718096');
+          //   d3.select(this).attr('stroke-width', () => '1');
+          //   // handle linked links?
+          // })
           .buttonContent(({ node, state }: { node: any; state: any }) => {
             const icons: { [key: string]: (d: any) => string } = {
               left: (d: any) =>
@@ -139,24 +144,29 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
             let wearersColor = '#FFFFFF';
             const wearer: IHatWearer | undefined = _.first(wearers);
-            let wearerContent =
-              wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
-            let wearerAccent = '1 of 1';
-            let wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
+            let wearerContent = 'No Wearers';
+            let wearerAccent: string | null = null;
+            let wearerIcon: string | null = null;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
+              wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
               wearerAccent = `of ${maxSupply}`;
             }
             if (_.size(wearers) === 1) {
+              wearerContent =
+                wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
+              wearerAccent = `1 of ${maxSupply}`;
               if (wearer?.isContract) {
                 wearersColor = '#F0FFF4';
                 wearerIcon = `<img src="/icons/contract.svg" alt="wearer contract">`;
               } else {
+                wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
                 wearersColor = '#FFFAF0';
               }
             }
+            console.log(wearerAccent);
 
             const selectedOptionContent = () => {
               switch (selectedOption) {
@@ -180,7 +190,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                         gap: 4px;
                       ">
                         <div style="min-width: 16px;">
-                          ${wearerIcon}
+                          ${wearerIcon || ''}
                         </div>
                         <div style="
                           display: inline-block;
@@ -191,12 +201,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                           ${wearerContent}
                         </div>
                       </div>
-                      <div style="
-                        display: inline-block;
-                        opacity: 0.6;
-                      ">
-                        ${wearerAccent}
-                      </div>
+                      ${
+                        wearerAccent
+                          ? `<div style="
+                          display: inline-block;
+                          opacity: 0.6;
+                        ">
+                          ${wearerAccent}
+                        </div>`
+                          : ''
+                      }
                     </div>`;
                 case 'permissions':
                   return `
@@ -319,7 +333,13 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 border-radius: 4px;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                overflow: hidden;"
+                overflow: hidden;
+                box-shadow: ${
+                  isSelected
+                    ? '0px 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                    : '0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
+                };
+                "
               >
                 <div style="
                   width: 100%;
@@ -327,20 +347,28 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   align-items: center;
                   position: relative;
                 ">
+                  <div style="
+                    position: fixed;
+                    width: ${isSelected ? '78.5px' : '70px'};
+                    height: ${isSelected ? '78.5px' : '70px'};
+                    border: 
+                      ${isSelected ? '2px' : '1px'} 
+                      ${isLinked ? 'dotted' : 'solid'} #4A5568;
+                    left: ${isSelected ? -4 : 1}px;
+                    top: ${isSelected ? -4 : 0}px;
+                    border-radius: 4px;
+                    overflow: hidden;
+                  ">
                   <img
                     src="${imageUrl ?? '/icon.jpeg'}"
                     style="
                       background: white;
-                      width: ${isSelected ? '78.5px' : '70px'};
-                      height: ${isSelected ? '78.5px' : '70px'};
-                      border: 
-                        ${isSelected ? '2px' : '1px'} 
-                        ${isLinked ? 'dotted' : 'solid'} #4A5568;
-                      border-radius: 4px;
-                      position: fixed;
-                      left: ${isSelected ? -4 : 0}px;
-                      top: ${isSelected ? -4 : 0}px;"
+                      width: ${isSelected ? '78.5px' : '72px'};
+                      height: ${isSelected ? '78.5px' : '72px'};
+                      left: ${isSelected ? -4 : -1}px;
+                      top: ${isSelected ? -4 : -1}px;"
                   />
+                  </div>
                   <div style="
                     display: flex;
                     flex-direction: column;
@@ -399,8 +427,12 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .render()
           .expandAll();
 
-        if (selectedHatId && initialLoad) {
-          centerChart(chart, selectedHatId);
+        if (initialLoad) {
+          if (selectedHatId && selectedHatId !== '0x') {
+            centerChart(chart, selectedHatId);
+          } else {
+            chart.fit();
+          }
 
           setInitialLoad(false);
         }

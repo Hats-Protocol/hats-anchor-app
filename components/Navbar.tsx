@@ -95,6 +95,7 @@ const Navbar = () => {
             <Button
               h='75px'
               minW='125px'
+              maxW='200px'
               variant='ghost'
               borderRadius={0}
               _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
@@ -105,7 +106,7 @@ const Navbar = () => {
               ) : (
                 <Stack align='start' w='90%' mx={3}>
                   <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
-                  <Text fontSize='lg' color='gray.500'>
+                  <Text fontSize='lg' color='gray.500' isTruncated>
                     {containsUpperCase(currentTopHatName)
                       ? currentTopHatName
                       : _.capitalize(currentTopHatName)}
@@ -144,12 +145,15 @@ const Navbar = () => {
         >
           <HStack spacing={1}>
             <Text fontWeight={700}>Announcement:</Text>
-            <Text>We’re excited to share the brand new Hats App v2.0! 🎉</Text>
+            <Text textAlign='center'>
+              We’re excited to share the brand new Hats App v2.0! 🎉
+            </Text>
             <ChakraNextLink
-              href='#'
+              href='https://hatsprotocol.xyz'
               isExternal
               decoration
               _hover={{ color: 'whiteAlpha.800' }}
+              textAlign='center'
             >
               Read the launch post here.
             </ChakraNextLink>
