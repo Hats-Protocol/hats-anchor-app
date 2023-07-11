@@ -13,10 +13,13 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
+import blockies from 'blockies-ts';
+import { useEffect, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
 
 const ConnectWallet = () => {
+  const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
@@ -26,8 +29,13 @@ const ConnectWallet = () => {
     cacheTime: 60,
   });
 
-  const blockie = undefined; // TODO implement blockie or other solution
   const [upTo780] = useMediaQuery('(max-width: 780px)');
+
+  useEffect(() => {
+    if (address) {
+      setBlockie(blockies.create({ seed: address.toLowerCase() }).toDataURL());
+    }
+  }, [address]);
 
   return (
     <RainbowConnectButton.Custom>
