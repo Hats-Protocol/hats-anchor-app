@@ -144,24 +144,29 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
             let wearersColor = '#FFFFFF';
             const wearer: IHatWearer | undefined = _.first(wearers);
-            let wearerContent =
-              wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
-            let wearerAccent = `1 of ${maxSupply}`;
-            let wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
+            let wearerContent = 'No Wearers';
+            let wearerAccent: string | null = null;
+            let wearerIcon: string | null = null;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
+              wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
               wearerAccent = `of ${maxSupply}`;
             }
             if (_.size(wearers) === 1) {
+              wearerContent =
+                wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
+              wearerAccent = `1 of ${maxSupply}`;
               if (wearer?.isContract) {
                 wearersColor = '#F0FFF4';
                 wearerIcon = `<img src="/icons/contract.svg" alt="wearer contract">`;
               } else {
+                wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
                 wearersColor = '#FFFAF0';
               }
             }
+            console.log(wearerAccent);
 
             const selectedOptionContent = () => {
               switch (selectedOption) {
@@ -185,7 +190,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                         gap: 4px;
                       ">
                         <div style="min-width: 16px;">
-                          ${wearerIcon}
+                          ${wearerIcon || ''}
                         </div>
                         <div style="
                           display: inline-block;
@@ -196,12 +201,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                           ${wearerContent}
                         </div>
                       </div>
-                      <div style="
-                        display: inline-block;
-                        opacity: 0.6;
-                      ">
-                        ${wearerAccent}
-                      </div>
+                      ${
+                        wearerAccent
+                          ? `<div style="
+                          display: inline-block;
+                          opacity: 0.6;
+                        ">
+                          ${wearerAccent}
+                        </div>`
+                          : ''
+                      }
                     </div>`;
                 case 'permissions':
                   return `
@@ -345,7 +354,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                     border: 
                       ${isSelected ? '2px' : '1px'} 
                       ${isLinked ? 'dotted' : 'solid'} #4A5568;
-                    left: ${isSelected ? -4 : 0}px;
+                    left: ${isSelected ? -4 : 1}px;
                     top: ${isSelected ? -4 : 0}px;
                     border-radius: 4px;
                     overflow: hidden;
