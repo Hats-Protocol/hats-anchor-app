@@ -43,6 +43,7 @@ const DropZone = ({
   isFocused,
   isDragAccept,
   isDragReject,
+  isFullWidth,
   image,
 }: DropZoneProps) => {
   const style = useMemo(
@@ -51,8 +52,9 @@ const DropZone = ({
       ...(isFocused ? focusedStyle : {}),
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
+      ...(isFullWidth ? { width: '100%' } : {}),
     }),
-    [isFocused, isDragAccept, isDragReject],
+    [isFocused, isDragAccept, isDragReject, isFullWidth],
   );
 
   const thumb = {
@@ -102,7 +104,7 @@ const DropZone = ({
   }, []);
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} w='full'>
       <Flex gap={3}>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
@@ -129,5 +131,6 @@ interface DropZoneProps {
   isFocused?: boolean;
   isDragAccept?: boolean;
   isDragReject?: boolean;
+  isFullWidth?: boolean;
   image?: any;
 }

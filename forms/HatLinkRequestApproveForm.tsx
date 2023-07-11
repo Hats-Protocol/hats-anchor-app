@@ -254,7 +254,7 @@ const HatLinkRequestApproveForm = ({
                 <Input
                   name='eligibility'
                   label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                  placeholder='0x1234, vitalik.eth'
+                  placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
                     showEligilityResolvedAddress && <FaCheck color='green' />
                   }
@@ -281,7 +281,7 @@ const HatLinkRequestApproveForm = ({
                 <Input
                   name='toggle'
                   label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                  placeholder='0x1234, vitalik.eth'
+                  placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
                     showToggleResolvedAddress && <FaCheck color='green' />
                   }

@@ -70,7 +70,7 @@ const HatTransferForm = ({
             localForm={localForm}
             name='newWearer'
             label='New Wearer Address'
-            placeholder='0x1234, vitalik.eth'
+            placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
             rightElement={showNewResolvedAddress && <FaCheck color='green' />}
           />
 

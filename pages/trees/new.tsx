@@ -163,7 +163,7 @@ const NewTree = () => {
                 <Input
                   name='receiver'
                   label='Receiver'
-                  placeholder='0x1234, vitalik.eth'
+                  placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   localForm={localForm}
                   variant='filled'
                   rightElement={

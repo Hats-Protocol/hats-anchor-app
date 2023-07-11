@@ -37,6 +37,7 @@ import { IHatWearer } from '@/types';
 
 const WearersList = ({
   chainId,
+  hatName,
   hatId,
   wearers,
   maxSupply,
@@ -257,6 +258,7 @@ const WearersList = ({
         localOverlay={localOverlay}
       >
         <HatWearerForm
+          hatName={hatName}
           hatId={hatId}
           chainId={chainId}
           currentWearers={_.map(wearers, 'id')}
@@ -371,6 +373,7 @@ const WearerRow = ({
 
 interface WearersListProps {
   chainId: number;
+  hatName: string;
   hatId: string;
   wearers: IHatWearer[];
   maxSupply: number;

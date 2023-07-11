@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Icon,
+  Image,
   ListItem,
   Stack,
   Text,
@@ -14,14 +15,22 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { useState } from 'react';
-import { FaBan, FaCheck, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import {
+  FaBan,
+  FaCheck,
+  FaCode,
+  FaCopy,
+  FaExternalLinkAlt,
+} from 'react-icons/fa';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
+import { checkAddressIsContract } from '@/lib/contract';
+import { formatAddress } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 
@@ -49,6 +58,8 @@ const MainContent = ({
   const toast = useToast();
   const [linkFrom, setLinkFrom] = useState('');
   const [linkTo, setLinkTo] = useState('');
+  const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
+  const [isToggleAContract, setIsToggleAContract] = useState(false);
   const { onCopy } = useClipboard(decimalId(hatData?.id));
 
   const handleOpenLinkRequestApproveModal = (from: string, to: string) => {
@@ -56,6 +67,19 @@ const MainContent = ({
     setLinkTo(to);
     setModals?.({ linkResponse: true });
   };
+
+  useEffect(() => {
+    const check = async () => {
+      const isEligibility = await checkAddressIsContract(
+        hatData?.eligibility,
+        chainId,
+      );
+      const isToggle = await checkAddressIsContract(hatData?.toggle, chainId);
+      setIsEligibilityAContract(isEligibility);
+      setIsToggleAContract(isToggle);
+    };
+    check();
+  }, [chainId, hatData]);
 
   if (!hatData) return null;
 
@@ -113,6 +137,7 @@ const MainContent = ({
         </Stack>
 
         <WearersList
+          hatName={name}
           chainId={chainId}
           setModals={setModals}
           localOverlay={localOverlay}
@@ -211,9 +236,34 @@ const MainContent = ({
         </Stack>
 
         <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Eligibility
-          </Heading>
+          <HStack justifyContent='space-between'>
+            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+              Eligibility
+            </Heading>
+            <Tooltip label={hatData.eligibility} shouldWrapChildren>
+              <ChakraNextLink
+                href={`${explorerUrl(chainId)}/address/${hatData.eligibility}`}
+                isExternal
+              >
+                <HStack>
+                  {isEligibilityAContract ? (
+                    <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                  ) : (
+                    <Image
+                      src='/icons/wearers.svg'
+                      alt='Wearers'
+                      w={4}
+                      h={4}
+                      color='gray.500'
+                    />
+                  )}
+                  <Text color='gray.500' fontSize='sm'>
+                    {formatAddress(hatData.eligibility)}
+                  </Text>
+                </HStack>
+              </ChakraNextLink>
+            </Tooltip>
+          </HStack>
           <Flex justifyContent='space-between'>
             <HStack>
               <Text>Can I wear this hat?</Text>
@@ -227,9 +277,34 @@ const MainContent = ({
         </Stack>
 
         <Stack>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Toggle
-          </Heading>
+          <HStack justifyContent='space-between'>
+            <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+              Toggle
+            </Heading>
+            <Tooltip label={hatData.toggle} shouldWrapChildren>
+              <ChakraNextLink
+                href={`${explorerUrl(chainId)}/address/${hatData.eligibility}`}
+                isExternal
+              >
+                <HStack>
+                  {isToggleAContract ? (
+                    <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                  ) : (
+                    <Image
+                      src='/icons/wearers.svg'
+                      alt='Wearers'
+                      w={4}
+                      h={4}
+                      color='gray.500'
+                    />
+                  )}
+                  <Text color='gray.500' fontSize='sm'>
+                    {formatAddress(hatData.toggle)}
+                  </Text>
+                </HStack>
+              </ChakraNextLink>
+            </Tooltip>
+          </HStack>
           <Flex justifyContent='space-between'>
             <HStack>
               <Text>Is this hat active?</Text>
