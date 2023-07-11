@@ -6,6 +6,8 @@ import CONFIG from '../constants';
 import ChakraNextLink from './ChakraNextLink';
 
 const Layout = ({ children }) => {
+  const link = null;
+
   return (
     <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
       {(CONFIG.banner1 || CONFIG.banner2) && (
@@ -34,9 +36,11 @@ const Layout = ({ children }) => {
                 version (v2.0) is now deployed to app.hatsprotocol.xyz.
               </Text>
             )}
-            <ChakraNextLink href='#' decoration isExternal>
-              Read more here.
-            </ChakraNextLink>
+            {link && (
+              <ChakraNextLink href={link} decoration isExternal>
+                Read more here.
+              </ChakraNextLink>
+            )}
           </HStack>
         </Flex>
       )}
