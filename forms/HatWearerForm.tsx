@@ -38,8 +38,8 @@ import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
 import useBatchMintHats from '@/hooks/useBatchMintHats';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';
 import useMintHat from '@/hooks/useHatMint';
-import useHatIsInGoodStanding from '@/hooks/usHatIsInGoodStanding';
 import { chainsMap } from '@/lib/web3';
 
 const HatWearerForm = ({
@@ -324,6 +324,7 @@ const HatWearerForm = ({
                 getInputProps={getInputProps}
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
+                isFullWidth
               />
             </FormControl>
           </Collapse>
