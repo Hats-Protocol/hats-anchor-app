@@ -9,6 +9,7 @@ import {
   IconButton,
   Spinner,
 } from '@chakra-ui/react';
+// import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
@@ -69,7 +70,11 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             onSelectHat(nodeId);
             centerChart(chart, nodeId);
           })
-
+          // .linkUpdate(() => {
+          //   d3.select(this).attr('stroke', () => '#718096');
+          //   d3.select(this).attr('stroke-width', () => '1');
+          //   // handle linked links?
+          // })
           .buttonContent(({ node, state }: { node: any; state: any }) => {
             const icons: { [key: string]: (d: any) => string } = {
               left: (d: any) =>
@@ -141,7 +146,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             const wearer: IHatWearer | undefined = _.first(wearers);
             let wearerContent =
               wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
-            let wearerAccent = '1 of 1';
+            let wearerAccent = `1 of ${maxSupply}`;
             let wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
 
             if (_.toNumber(currentSupply) > 1) {
@@ -319,7 +324,13 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 border-radius: 4px;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                overflow: hidden;"
+                overflow: hidden;
+                box-shadow: ${
+                  isSelected
+                    ? '0px 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                    : '0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
+                };
+                "
               >
                 <div style="
                   width: 100%;
@@ -399,8 +410,12 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .render()
           .expandAll();
 
-        if (selectedHatId && initialLoad) {
-          centerChart(chart, selectedHatId);
+        if (initialLoad) {
+          if (selectedHatId && selectedHatId !== '0x') {
+            centerChart(chart, selectedHatId);
+          } else {
+            chart.fit();
+          }
 
           setInitialLoad(false);
         }
