@@ -9,6 +9,7 @@ const chains = _.keys(chainsList);
 
 const useWearerDetails = ({
   wearerAddress,
+  chainId,
   initialData,
 }: UseWearerDetailsProps) => {
   const fetchWearerDetailsForAllChains = async (
@@ -39,4 +40,5 @@ export default useWearerDetails;
 interface UseWearerDetailsProps {
   wearerAddress: `0x${string}` | undefined;
   initialData?: IHat[];
+  chainId?: number;
 }
