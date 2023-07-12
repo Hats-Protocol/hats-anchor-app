@@ -397,7 +397,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                           color: #08011E;
                           font-weight: 500;
                           width: 120px;
-                          height: 40px;
                           -webkit-line-clamp: 2;
                           -webkit-box-orient: vertical;"
                         >
