@@ -1,31 +1,31 @@
-/* eslint-disable no-nested-ternary */
-import { useState } from 'react';
 import {
-  Stack,
-  Flex,
+  Box,
   Button,
-  Switch,
+  Flex,
   FormControl,
   FormLabel,
   HStack,
   Spinner,
+  Stack,
+  Switch,
   Text,
-  Box,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
-import { useChainId } from 'wagmi';
 import { FaCheck } from 'react-icons/fa';
+import { useChainId } from 'wagmi';
+
+import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import useTreeCreate from '@/hooks/useTreeCreate';
 import CONFIG from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
-import { pinJson } from '@/lib/ipfs';
 import useCid from '@/hooks/useCid';
-import DropZone from '@/components/DropZone';
+import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import useTreeCreate from '@/hooks/useTreeCreate';
+import { pinJson } from '@/lib/ipfs';
 
 const TreeCreateForm = () => {
   const [customDetails, setCustomDetails] = useState(true);
@@ -184,7 +184,7 @@ const TreeCreateForm = () => {
             <Input
               name='receiver'
               label='Receiver'
-              placeholder='0x1234, vitalik.eth'
+              placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
               localForm={localForm}
               rightElement={
                 receiverResolvedAddress && <FaCheck color='green' />

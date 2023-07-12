@@ -1,12 +1,18 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
-  Input as ChakraInput,
   FormControl,
   FormLabel,
+  HStack,
+  Input as ChakraInput,
   InputGroup,
+  InputProps as ChakraInputProps,
   InputRightElement,
+  Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { FaRegQuestionCircle } from 'react-icons/fa';
 
 /**
  * Primary Input component for React Hook Form
@@ -22,6 +28,7 @@ import React from 'react';
 const Input = ({
   label,
   name,
+  info,
   type = 'text',
   options,
   localForm,
@@ -33,7 +40,18 @@ const Input = ({
 
   return (
     <FormControl {...props}>
-      {label && <FormLabel>{label}</FormLabel>}
+      {label && (
+        <FormLabel>
+          <HStack>
+            <Text>{label}</Text>
+            {info && (
+              <Tooltip shouldWrapChildren label={info}>
+                <FaRegQuestionCircle />
+              </Tooltip>
+            )}
+          </HStack>
+        </FormLabel>
+      )}
       <InputGroup {...props}>
         <ChakraInput type={type} {...register(name, options)} {...props} />
         {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
@@ -44,12 +62,14 @@ const Input = ({
 
 export default Input;
 
-interface InputProps {
+interface InputProps extends ChakraInputProps {
   label?: string;
   name: string;
+  info?: string;
   type?: string;
-  options?: any;
-  localForm: any;
+  options?: object;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   placeholder?: string;
   rightElement?: React.ReactNode;
   defaultValue?: string | number;

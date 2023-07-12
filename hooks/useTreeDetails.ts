@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { fetchTreeDetails } from '@/gql/helpers';
 import { prettyIdToId } from '@/lib/hats';
+import { ITree } from '@/types';
 
 const useTreeDetails = ({
   treeId,
@@ -22,7 +23,7 @@ const useTreeDetails = ({
   }
   if (parentOfTrees) {
     linkedHatIds.push(
-      ...parentOfTrees.map((tree: any) => prettyIdToId(tree.id)),
+      ...parentOfTrees.map((tree: ITree) => prettyIdToId(tree.id)),
     );
   }
 
@@ -34,5 +35,5 @@ export default useTreeDetails;
 interface UseTreeDetailsProps {
   treeId: string;
   chainId: number;
-  initialData?: any;
+  initialData?: ITree | null;
 }

@@ -1,9 +1,9 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import React, { useEffect, useState, ReactNode } from 'react';
-import { Box, Flex } from '@chakra-ui/react';
-import { useAccount, useConnect, useConfig } from 'wagmi';
+import { Box } from '@chakra-ui/react';
+import { ReactNode, useEffect, useState } from 'react';
+import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import CommandPalette from '@/components/CommandPalette';
 import Navbar from '@/components/Navbar';
@@ -42,13 +42,20 @@ const Layout = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
+    <Box>
+      <Box
+        backgroundImage='/bg-topography.svg'
+        position='fixed'
+        h='100%'
+        w='100%'
+        zIndex={-1}
+      />
       <Navbar />
       <CommandPalette />
-      <Box w='90%' my={20} mt={40}>
+      <Box h='100vh' w='100vw'>
         {children}
       </Box>
-    </Flex>
+    </Box>
   );
 };
 

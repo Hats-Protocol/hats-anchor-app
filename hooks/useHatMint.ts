@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import { isAddress } from 'viem';
 import {
-  usePrepareContractWrite,
   useContractWrite,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -14,12 +14,7 @@ import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { decimalId, toTreeId } from '@/lib/hats';
 
-const useBatchHatMint = ({
-  hatsAddress,
-  hatId,
-  chainId,
-  newWearers = [],
-}: UseBatchHatMintProps) => {
+const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
@@ -29,12 +24,10 @@ const useBatchHatMint = ({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
-    functionName: 'batchMintHats',
-    args: [new Array(newWearers.length).fill(decimalId(hatId)), newWearers],
+    functionName: 'mintHat',
+    args: [decimalId(hatId), newWearer],
     enabled:
-      Boolean(hatsAddress) &&
-      Boolean(decimalId(hatId)) &&
-      newWearers.every((wearer) => isAddress(wearer)),
+      Boolean(hatsAddress) && Boolean(decimalId(hatId)) && isAddress(newWearer),
   });
 
   const { writeAsync } = useContractWrite({
@@ -51,7 +44,7 @@ const useBatchHatMint = ({
         hash: _.get(data, 'hash'),
         toastData: {
           title: `Hats Minted!`,
-          description: `Successfully minted hats`,
+          description: `Successfully minted hat`,
         },
       });
 
@@ -86,11 +79,11 @@ const useBatchHatMint = ({
   };
 };
 
-export default useBatchHatMint;
+export default useMintHat;
 
-interface UseBatchHatMintProps {
+interface UseMintHat {
   hatsAddress?: `0x${string}`;
   hatId: string | undefined;
   chainId: number;
-  newWearers: string[];
+  newWearer: string;
 }

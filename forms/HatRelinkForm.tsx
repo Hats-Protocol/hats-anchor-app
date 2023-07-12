@@ -1,14 +1,14 @@
 import {
-  Stack,
-  Flex,
+  Box,
   Button,
+  Flex,
   FormControl,
-  Switch,
   FormLabel,
   HStack,
   Spinner,
+  Stack,
+  Switch,
   Text,
-  Box,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -206,7 +206,7 @@ const HatRelinkForm = ({
                 <Input
                   name='eligibility'
                   label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
-                  placeholder='0x1234, vitalik.eth'
+                  placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
                     showEligilityResolvedAddress && <FaCheck color='green' />
                   }
@@ -233,7 +233,7 @@ const HatRelinkForm = ({
                 <Input
                   name='toggle'
                   label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
-                  placeholder='0x1234, vitalik.eth'
+                  placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
                     showToggleResolvedAddress && <FaCheck color='green' />
                   }

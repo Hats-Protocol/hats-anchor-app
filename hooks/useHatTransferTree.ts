@@ -1,13 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import { isAddress } from 'viem';
 import {
-  usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -17,7 +17,7 @@ import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useHatTransferTree = ({
   currentWearerAddress,
-  id,
+  hatId,
   prettyId,
   newWearer,
   chainId,
@@ -42,7 +42,7 @@ const useHatTransferTree = ({
     chainId,
     abi,
     functionName: 'transferHat',
-    args: [decimalId(id), currentWearerAddress, newWearerAddress],
+    args: [decimalId(hatId), currentWearerAddress, newWearerAddress],
     enabled:
       Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
@@ -73,10 +73,10 @@ const useHatTransferTree = ({
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', id],
+          queryKey: ['hatDetails', hatId],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(id)],
+          queryKey: ['treeDetails', toTreeId(hatId)],
         });
       }, 4000);
     },
@@ -112,7 +112,7 @@ export default useHatTransferTree;
 
 interface UseHatTransferTreeProps {
   currentWearerAddress: string;
-  id: string | undefined;
+  hatId: string | undefined;
   prettyId: string | undefined;
   newWearer: string;
   chainId: number;

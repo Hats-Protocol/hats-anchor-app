@@ -8,7 +8,7 @@ const useHatGuilds = ({
   hatId,
 }: {
   guildNames: string[];
-  hatId: string;
+  hatId?: string;
 }) => {
   const [hatRoles, setHatRoles] = useState<
     { role: any; guild: any; requirements: any[] }[]
@@ -43,8 +43,11 @@ const useHatGuilds = ({
           );
         });
 
-        setHatRoles(roles);
+        if (hatId) {
+          setHatRoles(roles);
+        }
       } catch (error: any) {
+        // eslint-disable-next-line no-console
         console.error('Error fetching guilds:', error.message);
       }
     };

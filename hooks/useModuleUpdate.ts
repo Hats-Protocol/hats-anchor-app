@@ -1,18 +1,18 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import {
-  usePrepareContractWrite,
   useContractWrite,
   useEnsAddress,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
 import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import { prettyIdToIp, idToPrettyId, decimalId, toTreeId } from '@/lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useModuleUpdate = ({
   hatsAddress,

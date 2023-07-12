@@ -1,27 +1,30 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import {
-  usePrepareContractWrite,
+  useAccount,
   useContractWrite,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
-import CONFIG from '@/constants';
+import CONFIG, { STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import { prettyIdToId, toTreeId } from '@/lib/hats';
+import { toTreeId } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const useHatStatusUpdate = ({
   hatsAddress,
-  hatId,
+  hatData,
   chainId,
   status,
 }: UseHatStatusUpdateProps) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
+  const { address } = useAccount();
   const [hash, setHash] = useState<`0x${string}`>();
 
   const { config } = usePrepareContractWrite({
@@ -29,8 +32,9 @@ const useHatStatusUpdate = ({
     chainId,
     abi,
     functionName: 'setHatStatus',
-    args: [prettyIdToId(hatId), status === 'Active'],
-    enabled: Boolean(hatsAddress) && Boolean(hatId),
+    args: [hatData.id, status === STATUS.ACTIVE],
+    enabled:
+      Boolean(hatsAddress) && Boolean(hatData) && address === hatData.toggle,
   });
 
   const { writeAsync } = useContractWrite({
@@ -53,10 +57,10 @@ const useHatStatusUpdate = ({
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', prettyIdToId(hatId)],
+          queryKey: ['hatDetails', hatData.id],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(prettyIdToId(hatId))],
+          queryKey: ['treeDetails', toTreeId(hatData.id)],
         });
       }, 4000);
     },
@@ -86,7 +90,7 @@ export default useHatStatusUpdate;
 
 interface UseHatStatusUpdateProps {
   hatsAddress: `0x${string}`;
-  hatId: string;
+  hatData: IHat;
   chainId: number;
   status: string;
 }

@@ -1,3 +1,5 @@
+import '@rainbow-me/rainbowkit/styles.css';
+
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 // import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc';
@@ -5,16 +7,13 @@ import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
 import { Chain, configureChains, createConfig } from 'wagmi';
 import {
-  mainnet,
-  goerli,
-  polygon,
-  gnosis,
-  optimism,
   arbitrum,
-  // sepolia,
+  gnosis,
+  goerli,
+  mainnet,
+  optimism,
+  polygon,
 } from 'wagmi/chains';
-
-import '@rainbow-me/rainbowkit/styles.css';
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
@@ -41,6 +40,9 @@ const gnosisContract = {
   iconBackground: 'none',
 };
 
+// ORDER HERE WILL BE USED IN THE UI
+export const orderedChains = [1, 10, 42161, 137, 100, 5];
+
 export const chainsList: { [key: number]: Chain } = {
   1: mainnet,
   5: goerli,
@@ -51,19 +53,27 @@ export const chainsList: { [key: number]: Chain } = {
   // 11155111: sepolia,
 };
 
-export const chainsMap = (chainId: number) =>
-  chainsList[chainId] || chainsList[5];
-
-export const chainsColors = (chainId: number) => {
-  const colors: { [key: number]: string } = {
-    // 1: '#000000',
-    5: 'blue',
-    100: 'green',
-    137: 'purple',
+export const explorerUrl = (chainId: number) => {
+  const explorerUrls: { [key: number]: string } = {
+    1: mainnet.blockExplorers.etherscan.url,
+    5: goerli.blockExplorers.etherscan.url,
+    10: optimism.blockExplorers.etherscan.url,
+    100: gnosis.blockExplorers.etherscan.url,
+    137: polygon.blockExplorers.etherscan.url,
+    42161: arbitrum.blockExplorers.etherscan.url,
+    // 11155111: sepolia.blockExplorers.etherscan.url,
   };
 
-  return colors[chainId] || colors[5];
+  let url = explorerUrls[chainId] || explorerUrls[5];
+  // TODO remove with fix to @wagmi/chains
+  if (_.endsWith(url, '/')) {
+    url = url?.slice(0, -1);
+  }
+  return url;
 };
+
+export const chainsMap = (chainId: number) =>
+  chainsList[chainId] || chainsList[5];
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
@@ -73,10 +83,10 @@ export const { chains, publicClient } = configureChains(_.values(chainsList), [
 const { connectors } = getDefaultWallets({
   appName: 'Hats',
   chains,
+  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
 });
 
 export const wagmiConfig = createConfig({
-  // autoConnect: true,
   connectors,
   publicClient,
 });

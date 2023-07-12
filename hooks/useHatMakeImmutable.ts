@@ -1,40 +1,53 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useState } from 'react';
 import {
-  usePrepareContractWrite,
+  useAccount,
   useContractWrite,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  isAdmin,
+  prettyIdToIp,
+  toTreeId,
+} from '@/lib/hats';
+import { IHat } from '@/types';
+
+import useWearerDetails from './useWearerDetails';
 
 const useHatMakeImmutable = ({
   hatsAddress,
   chainId,
   hatData,
+  levelAtLocalTree,
 }: UseHatMakeImmutableProps) => {
   const toast = useToast();
+  const { address } = useAccount();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
+
+  const { data: wearerHats } = useWearerDetails({ wearerAddress: address });
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
     chainId: Number(chainId),
     abi,
     functionName: 'makeHatImmutable',
-    args: [
-      decimalId(_.get(hatData, 'id')), // not a valid fallback? enabled handles, mostly for type
-    ],
+    args: [decimalId(hatData?.id)],
     enabled:
       !!hatsAddress &&
-      !!decimalId(_.get(hatData, 'id')) &&
-      _.gt(_.get(hatData, 'levelAtLocalTree'), 0),
+      !!decimalId(hatData?.id) &&
+      _.gt(levelAtLocalTree, 0) &&
+      isAdmin(_.map(wearerHats, 'id'), hatData?.id),
   });
 
   const { writeAsync } = useContractWrite({
@@ -52,17 +65,17 @@ const useHatMakeImmutable = ({
         toastData: {
           title: 'Hat Updated!',
           description: `Successfully made hat #${prettyIdToIp(
-            idToPrettyId(_.get(hatData, 'id')),
+            idToPrettyId(hatData.id),
           )} immutable`,
         },
       });
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', _.get(hatData, 'id')],
+          queryKey: ['hatDetails', hatData.id],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+          queryKey: ['treeDetails', toTreeId(hatData.id)],
         });
       }, 4000);
     },
@@ -93,5 +106,6 @@ export default useHatMakeImmutable;
 interface UseHatMakeImmutableProps {
   hatsAddress?: `0x${string}`;
   chainId: number;
-  hatData: any;
+  hatData: IHat;
+  levelAtLocalTree: number;
 }

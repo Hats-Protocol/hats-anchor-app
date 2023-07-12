@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
+import 'react-cmdk/dist/cmdk.css';
+
 import { Flex, Spinner } from '@chakra-ui/react';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
@@ -8,12 +10,11 @@ import CmdkCommandPalette, {
   getItemIndex,
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
-import 'react-cmdk/dist/cmdk.css';
 
 import ChakraNextLink from '@/components/ChakraNextLink';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useSearchResults from '@/hooks/useSearchResults';
-import { prettyIdToIp, decimalIdToId, idToPrettyId } from '@/lib/hats';
+import { decimalIdToId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
 
 const CommandPaletteInternalLink = ({
   href,
@@ -31,6 +32,7 @@ const CommandPaletteInternalLink = ({
   </ChakraNextLink>
 );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let timeout: any = null;
 
 const CommandPalette = () => {
@@ -40,6 +42,7 @@ const CommandPalette = () => {
   const [serverSearch, setServerSearch] = useState<string | undefined>(
     undefined,
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [localResults, setLocalResults] = useState<any>({
     trees: [],
     hats: [],

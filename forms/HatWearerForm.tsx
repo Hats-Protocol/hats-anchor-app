@@ -1,98 +1,144 @@
-/* eslint-disable no-nested-ternary */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import {
-  Stack,
+  Box,
   Button,
+  Collapse,
   Flex,
-  Tooltip,
+  FormControl,
+  HStack,
+  Icon,
   IconButton,
+  Image,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Stack,
   Text,
-  FormControl,
-  VStack,
-  Icon,
+  Tooltip,
   useDisclosure,
-  Collapse,
-  Box,
+  VStack,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import {
   FaCheck,
-  FaUserPlus,
-  FaFileCsv,
-  FaTrash,
-  FaChevronUp,
-  FaChevronDown,
   FaInfoCircle,
+  FaRegQuestionCircle,
+  FaRegTrashAlt,
+  FaUpload,
 } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import CONFIG from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
-import useHatMint from '@/hooks/useHatMint';
+import useBatchMintHats from '@/hooks/useBatchMintHats';
+import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';
+import useMintHat from '@/hooks/useHatMint';
+import { chainsMap } from '@/lib/web3';
 
 const HatWearerForm = ({
   hatId,
   chainId,
   currentWearers,
   maxSupply,
+  hatName,
 }: HatWearerFormProps) => {
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
   const [wearers, setWearers] = useState<any[]>([]);
-  const [newAddress, setNewAddress] = useState('');
-  const [isNewAddress, setIsNewAddress] = useState(false);
+  const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
+  const [currentInput, setCurrentInput] = useState('');
+  const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
 
-  const newWearer = useDebounce(newAddress, CONFIG.debounce);
-  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
-    name: newAddress.includes('.eth') ? newAddress : null,
-    chainId: 1,
-  });
+  const { data: isEligible, isLoading: isLoadingIsEligible } =
+    useHatCheckEligibility({
+      wearer: currentResolvedAddress,
+      hatId,
+      chainId,
+    });
 
   useEffect(() => {
-    setIsNewAddress(isAddress(newAddress));
-  }, [newAddress]);
+    setIsCurrentInputAddress(isAddress(currentInput));
+    setCurrentResolvedAddress(
+      // eslint-disable-next-line no-nested-ternary
+      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
+        ? isCurrentInputAddress
+          ? currentInput
+          : ensResolvedAddress
+        : '',
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentInput]);
 
   const isAddressAlreadyAdded =
     wearers.some(
-      (wearer) => wearer.address === newAddress || wearer.ens === newAddress,
-    ) || currentWearers.includes(newAddress);
+      (wearer) =>
+        wearer.address === currentInput || wearer.ens === currentInput,
+    ) || currentWearers.includes(currentResolvedAddress?.toLowerCase());
 
-  const { writeAsync, isLoading } = useHatMint({
+  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
+    name: currentInput.includes('.eth') ? currentInput : null,
+    chainId: 1,
+  });
+
+  const { data: isInGoodStanding } = useHatIsInGoodStanding({
+    wearer: currentResolvedAddress,
+    hatId,
+    chainId,
+  });
+
+  const {
+    writeAsync: writeAsyncBatchMintHats,
+    isLoading: isLoadingBatchMintHats,
+  } = useBatchMintHats({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
-    newWearers: wearers.map((wearer) => wearer.address),
+    newWearers: wearers
+      .map((wearer) => wearer.address)
+      .concat(currentResolvedAddress ? [currentResolvedAddress] : []),
   });
 
+  const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
+    useMintHat({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId,
+      newWearer: currentResolvedAddress,
+    });
+
   const onSubmit = async () => {
-    await writeAsync?.();
+    if (wearers.length === 0) {
+      await writeAsyncMintHat?.();
+    } else {
+      await writeAsyncBatchMintHats?.();
+    }
   };
 
-  const isNewWearerAddress = isNewAddress || ensResolvedAddress;
+  const handleAddWearer = () => {
+    const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
+    setWearers((prevWearers) => [
+      ...prevWearers,
+      { address, ens: isEnsAddress && currentInput },
+    ]);
+    setCurrentInput('');
+  };
+
+  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
   const wouldExceedMaxSupply =
     currentWearers.length + wearers.length + 1 > maxSupply;
   const canAddWearer =
     isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
-  const handleAddWearer = () => {
-    const address = isNewAddress ? newWearer : ensResolvedAddress;
-    setWearers([...wearers, { address, ens: isEnsAddress && newWearer }]);
-    setNewAddress('');
-  };
-
   const handleRemoveWearer = (index: number) => {
     setWearers(_.filter(wearers, (__, i) => i !== index));
   };
-
   const { isOpen, onToggle } = useDisclosure();
 
   const { getRootProps, getInputProps, isDragAccept, isDragReject } =
@@ -124,70 +170,45 @@ const HatWearerForm = ({
       },
     });
 
+  let toolTip = '';
+
+  if (!isNewWearerAddress) {
+    toolTip = 'Please input a valid address';
+  } else if (isAddressAlreadyAdded) {
+    toolTip = 'Address already added';
+  } else if (wouldExceedMaxSupply) {
+    toolTip = 'Would exceed max supply';
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Text color='gray.500'>
-          Mint this hat to multiple addresses at once!
-        </Text>
+        <Stack gap={0}>
+          <HStack>
+            <Text fontSize='sm'>WEARER ADDRESS</Text>
+            <FaRegQuestionCircle />
+          </HStack>
+          <Text fontSize='sm' color='blackAlpha.700'>
+            Address will receive a {hatName} Hat token on{' '}
+            {chainsMap(chainId).name}
+          </Text>
+        </Stack>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
-          <Flex w='full'>
-            <InputGroup flexGrow={1}>
-              <InputLeftElement>
-                <Icon as={FaUserPlus} ml={2} />
-              </InputLeftElement>
-              <Input
-                w='calc(100% - 1rem)'
-                textOverflow='ellipsis'
-                type='address'
-                placeholder='0x1234, vitalik.eth'
-                value={newAddress}
-                onChange={(e) =>
-                  setNewAddress(e.target.value?.toLowerCase() ?? '')
-                }
-              />
-              {ensResolvedAddress && (
-                <InputRightElement right='2rem'>
-                  <FaCheck color='green' />
-                </InputRightElement>
-              )}
-            </InputGroup>
-            <Tooltip
-              label={
-                !canAddWearer
-                  ? !isNewWearerAddress
-                    ? 'Please input a valid address'
-                    : isAddressAlreadyAdded
-                    ? 'Address already added'
-                    : wouldExceedMaxSupply
-                    ? 'Max supply would be exceeded'
-                    : ''
-                  : ''
-              }
-              shouldWrapChildren
-            >
-              <IconButton
-                isDisabled={!canAddWearer}
-                onClick={handleAddWearer}
-                icon={<FaCheck />}
-                aria-label='Add'
-                w={16}
-              />
-            </Tooltip>
-          </Flex>
-
           {wearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
               <Flex align='center' w='full' justifyContent='space-between'>
-                <Input value={ens || address} readOnly w='calc(100% - 5rem)' />
+                <Input value={ens || address} readOnly w='calc(100% - 3rem)' />
                 <IconButton
                   type='button'
                   onClick={() => handleRemoveWearer(index)}
-                  icon={<FaTrash />}
+                  icon={<FaRegTrashAlt />}
                   aria-label='Remove'
-                  w={16}
+                  bg='transparent'
+                  border='1px solid #d6d6d6'
+                  w={10}
                 />
               </Flex>
+
               {ens && (
                 <Text fontSize='sm' color='gray.500' mt={1}>
                   Resolved address: {address}
@@ -195,47 +216,136 @@ const HatWearerForm = ({
               )}
             </Box>
           ))}
-        </VStack>
-        <Box>
-          <Button
-            size='sm'
-            aria-label='Toggle CSV Input'
-            onClick={onToggle}
-            variant='ghost'
-            _hover={{
-              bg: 'gray.100',
-              transition: 'background-color 0.3s',
-            }}
-            leftIcon={<FaFileCsv />}
-            rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
-            color='gray.600'
-          >
-            <Text ml={2}>CSV Import</Text>
-          </Button>
-        </Box>
+          <Flex w='full' direction='column' gap={1}>
+            <InputGroup flexGrow={1}>
+              <InputLeftElement>
+                <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+              </InputLeftElement>
+              <Input
+                w='full'
+                textOverflow='ellipsis'
+                type='address'
+                placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
+                value={currentInput}
+                isInvalid={currentResolvedAddress && !isInGoodStanding}
+                onChange={(e) =>
+                  setCurrentInput(e.target.value?.toLowerCase() ?? '')
+                }
+              />
+              {ensResolvedAddress && (
+                <InputRightElement right='1rem'>
+                  <FaCheck color='green' />
+                </InputRightElement>
+              )}
+            </InputGroup>
 
-        <Collapse in={isOpen}>
-          <FormControl id='csvFile'>
-            <DropZone
-              getRootProps={getRootProps}
-              getInputProps={getInputProps}
-              isDragAccept={isDragAccept}
-              isDragReject={isDragReject}
-            />
-            <Text fontSize='sm' mt={1} color='blue.500'>
+            {currentResolvedAddress && !isInGoodStanding && (
+              <Text fontSize='sm' color='red.500'>
+                <Icon as={FaInfoCircle} mr={1} />
+                This address was set as in bad standing
+              </Text>
+            )}
+
+            {currentResolvedAddress && (
+              <Text fontSize='sm' color='gray.500' textAlign='left' w='full'>
+                {currentResolvedAddress}
+              </Text>
+            )}
+          </Flex>
+
+          {typeof isEligible === 'boolean' && !isEligible && (
+            <Text fontSize='sm' color='red.500'>
               <Icon as={FaInfoCircle} mr={1} />
-              The CSV file must only contain Ethereum addresses, one per line.
-              Any additional data will be ignored.
+              This address is not eligible to mint a Hat
             </Text>
-          </FormControl>
-        </Collapse>
+          )}
+
+          <HStack>
+            <Tooltip label={toolTip} shouldWrapChildren>
+              <Button
+                isDisabled={
+                  !canAddWearer ||
+                  !isEligible ||
+                  isLoadingIsEligible ||
+                  isLoadingMintHat ||
+                  isLoadingBatchMintHats ||
+                  !isInGoodStanding
+                }
+                onClick={handleAddWearer}
+                aria-label='Add Another Wallet'
+              >
+                <Image
+                  src='/icons/wearers.svg'
+                  w={4}
+                  h={4}
+                  alt='Wearer'
+                  mr={3}
+                  ml={-1}
+                />
+                Add Another Wallet
+              </Button>
+            </Tooltip>
+            <Box>
+              <Button
+                aria-label='Toggle CSV Input'
+                onClick={onToggle}
+                bg='white'
+                border='1px solid #e8e8e8'
+              >
+                <Icon
+                  as={FaUpload}
+                  mr={2}
+                  color='gray.500'
+                  _hover={{ color: 'gray.600' }}
+                  w={3}
+                  h={3}
+                />
+                Upload CSV
+              </Button>
+            </Box>
+          </HStack>
+          <Collapse in={isOpen}>
+            <FormControl id='csvFile'>
+              <Text
+                fontSize='sm'
+                textTransform='uppercase'
+                fontWeight={500}
+                mt={6}
+              >
+                Upload CSV
+              </Text>
+              <Text fontSize='md' mt={1} color='blackAlpha.700' mb={4}>
+                The CSV file must only contain Ethereum addresses, one per line.
+                ENS is currently not supported. Any additional data will be
+                ignored.
+              </Text>
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+                isFullWidth
+              />
+            </FormControl>
+          </Collapse>
+        </VStack>
 
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || isLoading || wearers.length === 0}
+            isLoading={isLoadingMintHat || isLoadingBatchMintHats}
+            colorScheme='blue'
+            isDisabled={
+              (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
+              !isInGoodStanding ||
+              isLoadingIsEligible ||
+              isLoadingMintHat ||
+              isLoadingBatchMintHats ||
+              wearers.length === 0
+            }
           >
-            Mint
+            <Image src='/icons/mint.svg' w={4} h={4} alt='Mint' mr={2} /> Mint
+            Hat{wearers.length > 0 && 's'}
           </Button>
         </Flex>
       </Stack>
@@ -250,4 +360,5 @@ interface HatWearerFormProps {
   chainId: number;
   currentWearers: string[];
   maxSupply: number;
+  hatName: string;
 }

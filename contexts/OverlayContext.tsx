@@ -1,15 +1,10 @@
 import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useMemo,
-  ReactNode,
-} from 'react';
-import { TransactionReceipt } from 'viem';
-import useToast from '@/hooks/useToast';
 import { useRouter } from 'next/router';
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import { TransactionReceipt } from 'viem';
+
+import useToast from '@/hooks/useToast';
 
 const defaults = {
   createTree: false,
@@ -21,9 +16,9 @@ const defaults = {
   hatSupply: false,
 };
 
-export const OverlayContext = createContext<{
+export interface IOverlayContext {
   modals?: object;
-  setModals?: (m: any) => void;
+  setModals?: (m: object) => void;
   closeModals?: () => void;
   commandPallet?: boolean;
   setCommandPallet?: (m: boolean) => void;
@@ -40,7 +35,9 @@ export const OverlayContext = createContext<{
     clearModals?: boolean;
     sendToast?: boolean;
   }) => Promise<TransactionReceipt>;
-}>({
+}
+
+export const OverlayContext = createContext<IOverlayContext>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: (m: object) => console.log('setModals() not implemented'),
   closeModals: () => console.log('clearModals() not implemented'),
@@ -60,7 +57,7 @@ export const OverlayContextProvider = ({
   const toast = useToast();
   const router = useRouter();
 
-  const showModal = (m: any) => {
+  const showModal = (m: object) => {
     // This allows to show only one modal at a time.
     // In addition, this reset any true value for other modals.
     setModals({ ...defaults, ...m });

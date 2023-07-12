@@ -1,19 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
-import { Stack, Box, Flex } from '@chakra-ui/react';
-import { useMemo, useEffect } from 'react';
+import { Box, Flex, Stack } from '@chakra-ui/react';
+import { useEffect, useMemo } from 'react';
 
 const baseStyle = {
-  flex: 1,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  justifyContent: 'center',
   padding: '20px',
   borderWidth: 2,
   borderRadius: 2,
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
   backgroundColor: '#fafafa',
+  width: '83%',
+  height: 100,
   color: '#bdbdbd',
   outline: 'none',
   transition: 'border .24s ease-in-out',
@@ -41,6 +43,7 @@ const DropZone = ({
   isFocused,
   isDragAccept,
   isDragReject,
+  isFullWidth,
   image,
 }: DropZoneProps) => {
   const style = useMemo(
@@ -49,8 +52,9 @@ const DropZone = ({
       ...(isFocused ? focusedStyle : {}),
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
+      ...(isFullWidth ? { width: '100%' } : {}),
     }),
-    [isFocused, isDragAccept, isDragReject],
+    [isFocused, isDragAccept, isDragReject, isFullWidth],
   );
 
   const thumb = {
@@ -59,7 +63,8 @@ const DropZone = ({
     border: '1px solid #eaeaea',
     marginBottom: 8,
     marginRight: 8,
-    width: 'auto',
+    fit: 'cover',
+    width: 100,
     height: 100,
     padding: 4,
     // boxSizing: 'border-box',
@@ -99,8 +104,8 @@ const DropZone = ({
   }, []);
 
   return (
-    <Stack spacing={2}>
-      <div>
+    <Stack spacing={2} w='full'>
+      <Flex gap={3}>
         <div {...getRootProps({ style })}>
           <input {...getInputProps()} />
           {image !== undefined ? (
@@ -111,9 +116,7 @@ const DropZone = ({
             <p>Drag n drop, or click to select</p>
           )}
         </div>
-      </div>
-      <Flex wrap='wrap' marginTop={16}>
-        {thumbs}
+        {thumbs && <Flex wrap='wrap'>{thumbs}</Flex>}
       </Flex>
     </Stack>
   );
@@ -128,5 +131,6 @@ interface DropZoneProps {
   isFocused?: boolean;
   isDragAccept?: boolean;
   isDragReject?: boolean;
+  isFullWidth?: boolean;
   image?: any;
 }
