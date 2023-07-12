@@ -481,7 +481,7 @@ const TreeDetails = ({
           <ModalHeader>Event History</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {treeData?.events?.map((event: IHatEvent) => (
+            {events?.map((event: IHatEvent) => (
               <Event
                 key={`${event?.transactionID}-${event?.id}`}
                 event={event}
