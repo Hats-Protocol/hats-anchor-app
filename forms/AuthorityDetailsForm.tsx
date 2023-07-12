@@ -22,6 +22,8 @@ import {
 import { useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
+import { validateURL } from '@/lib/general';
+
 export type Authority = {
   link: string;
   label: string;
@@ -40,6 +42,7 @@ const AuthorityDetailsForm = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentAuthorityIndex, setCurrentAuthorityIndex] = useState(0);
+  const [isLinkValid, setIsLinkValid] = useState(false);
 
   const handleEdit = (index: number) => {
     setCurrentAuthorityIndex(index);
@@ -98,12 +101,18 @@ const AuthorityDetailsForm = ({
                       const newArr = [...authorities];
                       newArr[currentAuthorityIndex].link = e.target.value;
                       setAuthorities(newArr);
+                      setIsLinkValid(validateURL(e.target.value));
                     }}
                     placeholder='Link'
                   />
                 </ModalBody>
                 <ModalFooter>
-                  <Button colorScheme='blue' mr={3} onClick={handleSave}>
+                  <Button
+                    colorScheme='blue'
+                    mr={3}
+                    onClick={handleSave}
+                    isDisabled={!isLinkValid}
+                  >
                     Ok
                   </Button>
                   <Button variant='ghost' onClick={onClose}>

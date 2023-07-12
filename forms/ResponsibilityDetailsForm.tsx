@@ -22,6 +22,8 @@ import {
 import { useState } from 'react';
 import { FaEllipsisV, FaPlus, FaRegListAlt } from 'react-icons/fa';
 
+import { validateURL } from '@/lib/general';
+
 export type Responsibility = {
   link: string;
   label: string;
@@ -41,6 +43,7 @@ const ResponsibilityDetailsForm = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentResponsibilityIndex, setCurrentResponsibilityIndex] =
     useState(0);
+  const [isLinkValid, setIsLinkValid] = useState(false);
 
   const handleEdit = (index: number) => {
     setCurrentResponsibilityIndex(index);
@@ -99,12 +102,18 @@ const ResponsibilityDetailsForm = ({
                       const newArr = [...responsibilities];
                       newArr[currentResponsibilityIndex].link = e.target.value;
                       setResponsibilities(newArr);
+                      setIsLinkValid(validateURL(e.target.value));
                     }}
                     placeholder='Link'
                   />
                 </ModalBody>
                 <ModalFooter>
-                  <Button colorScheme='blue' mr={3} onClick={handleSave}>
+                  <Button
+                    colorScheme='blue'
+                    mr={3}
+                    onClick={handleSave}
+                    isDisabled={!isLinkValid}
+                  >
                     Ok
                   </Button>
                   <Button variant='ghost' onClick={onClose}>
