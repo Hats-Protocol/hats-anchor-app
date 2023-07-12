@@ -52,7 +52,7 @@ const EditMode = ({
             <Text>Describe the role that this Hat symbolizes.</Text>
             <Tabs>
               <TabList>
-                <Tab>Hats V2 Schema</Tab>
+                <Tab>Basic</Tab>
               </TabList>
 
               <TabPanels>

@@ -149,7 +149,7 @@ const Navbar = () => {
               We’re excited to share the brand new Hats App v2.0! 🎉
             </Text>
             <ChakraNextLink
-              href='https://hatsprotocol.xyz'
+              href='https://app.charmverse.io/hats-protocol/page-8570460396062165'
               isExternal
               decoration
               _hover={{ color: 'whiteAlpha.800' }}

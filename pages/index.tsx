@@ -80,7 +80,7 @@ const Home = () => {
             <Heading as='h1' size='md' fontWeight={500}>
               Featured Trees
             </Heading>
-            <SimpleGrid columns={3} spacing={6}>
+            <SimpleGrid columns={3} spacing={6} mx='auto'>
               {_.map(featuredTrees, (tree, i) => (
                 <FeaturedTreeCard key={i} treeData={tree} />
               ))}
