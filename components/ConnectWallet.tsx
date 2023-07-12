@@ -19,8 +19,6 @@ import { useEffect, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
 
-import CONFIG from '@/constants';
-
 const ConnectWallet = () => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
@@ -142,16 +140,6 @@ const ConnectWallet = () => {
                     </HStack>
                   </MenuButton>
                   <MenuList bg='green.100' color='green.700'>
-                    <MenuItem
-                      onClick={() =>
-                        router.push(`/${CONFIG.wearers}/${address}`)
-                      }
-                      bg='green.100'
-                      _hover={{ bg: 'green.300' }}
-                      color='green.700'
-                    >
-                      My Hats
-                    </MenuItem>
                     <MenuItem
                       onClick={openAccountModal}
                       bg='green.100'

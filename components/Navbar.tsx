@@ -115,7 +115,7 @@ const Navbar = () => {
               )}
             </Button>
           </ChakraNextLink>
-          {address && !CONFIG.banner && (
+          {address && (
             <ChakraNextLink href={`/${CONFIG.wearers}/${address}`}>
               <Button
                 h='75px'
