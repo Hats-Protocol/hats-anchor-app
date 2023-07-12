@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useState } from 'react';
 import {
+  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -24,6 +25,7 @@ const useHatStatusCheck = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
+  const address = useAccount();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -31,7 +33,8 @@ const useHatStatusCheck = ({
     abi,
     functionName: 'checkHatStatus',
     args: [decimalId(_.get(hatData, 'id'))],
-    enabled: Boolean(decimalId(_.get(hatData, 'id'))),
+    enabled:
+      Boolean(decimalId(_.get(hatData, 'id'))) && address === hatData.toggle,
   });
 
   const { writeAsync, error: writeError } = useContractWrite({

@@ -122,8 +122,8 @@ const TopMenu = ({
         {isAdminUser && (
           <Tooltip
             label={
-              !(mutableStatus === MUTABILITY.MUTABLE && !isTopHat(hatData))
-                ? 'The hat is not mutable or a top hat.'
+              mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
+                ? 'The hat is not mutable'
                 : ''
             }
             shouldWrapChildren
@@ -135,7 +135,7 @@ const TopMenu = ({
               borderColor='cyan.700'
               onClick={() => setEditMode(!editMode)}
               isDisabled={
-                !(mutableStatus === MUTABILITY.MUTABLE || isTopHat(hatData))
+                mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
               }
             >
               <HStack>

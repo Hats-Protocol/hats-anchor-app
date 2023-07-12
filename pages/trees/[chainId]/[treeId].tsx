@@ -400,15 +400,16 @@ const TreeDetails = ({
                   </ChakraNextLink>
                 </Flex>
               </Skeleton>
-              <Skeleton isLoaded={!_.isEmpty(events)}>
+              <Skeleton isLoaded={!!_.get(_.first(events), 'timestamp')}>
                 <Popover trigger='hover'>
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
                       <Text>Last event: </Text>
                       <Text mr={2} fontWeight={500}>
-                        {formatDistanceToNow(
-                          new Date(Number(events[0]?.timestamp) * 1000),
-                        )}{' '}
+                        {events?.[0]?.timestamp &&
+                          formatDistanceToNow(
+                            new Date(Number(events[0]?.timestamp) * 1000),
+                          )}{' '}
                         ago
                       </Text>
                       <Image src='/icons/ago.svg' alt='History icon' />
@@ -427,7 +428,7 @@ const TreeDetails = ({
                           Event history
                         </Heading>
                         <Box>
-                          {treeData.events
+                          {treeData?.events
                             ?.slice(0, 5)
                             .map((event: IHatEvent) => (
                               <Event
@@ -436,7 +437,7 @@ const TreeDetails = ({
                                 chainId={chainId}
                               />
                             ))}
-                          {treeData.events?.length > 4 && (
+                          {treeData?.events?.length > 4 && (
                             <>
                               <Divider my={2} />
                               <Button
