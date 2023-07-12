@@ -24,7 +24,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiChevronsRight } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import Modal from '@/components/Modal';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
@@ -53,6 +53,7 @@ const TopMenu = ({
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
+  const userChainId = useChainId();
   const toast = useToast();
 
   const {
@@ -113,7 +114,7 @@ const TopMenu = ({
         </HStack>
       </Button>
       <HStack>
-        {isAdminUser && (
+        {isAdminUser && chainId === userChainId && (
           <Tooltip
             label={
               mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
