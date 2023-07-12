@@ -15,10 +15,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
 export type Authority = {
@@ -50,20 +51,6 @@ const AuthorityDetailsForm = ({
     setCurrentAuthorityIndex(0);
   };
 
-  const [labels, setLabels] = useState<string[]>(
-    authorities.map((a) => a.label),
-  );
-
-  useEffect(() => {
-    setLabels(authorities.map((a) => a.label));
-  }, [authorities]);
-
-  const handleLabelChange = (index: number, newLabel: string) => {
-    const newLabels = [...labels];
-    newLabels[index] = newLabel;
-    setLabels(newLabels);
-  };
-
   return (
     <>
       <HStack alignItems='center' ml={-6}>
@@ -71,15 +58,16 @@ const AuthorityDetailsForm = ({
         <Text fontWeight={500}>Authorities</Text>
       </HStack>
       {authorities.map((authority, index) => (
-        <>
-          <HStack
-            key={authority.label}
-            alignItems='center'
-            justifyContent='space-between'
-          >
+        // eslint-disable-next-line react/no-array-index-key
+        <Stack key={index}>
+          <HStack alignItems='center' justifyContent='space-between'>
             <ChakraInput
-              value={labels[index]}
-              onChange={(e) => handleLabelChange(index, e.target.value)}
+              value={authority.label}
+              onChange={(e) => {
+                const newArr = [...authorities];
+                newArr[index].label = e.target.value;
+                setAuthorities(newArr);
+              }}
               placeholder='Label'
             />
 
@@ -126,13 +114,14 @@ const AuthorityDetailsForm = ({
             </Modal>
           </HStack>
 
-          {authorities[currentAuthorityIndex]?.link && (
+          {authorities[index]?.link && (
             <Text fontSize='sm' color='gray.500'>
-              {authorities[currentAuthorityIndex]?.link}
+              {authorities[index]?.link}
             </Text>
           )}
-        </>
+        </Stack>
       ))}
+
       <Box mb={2}>
         <Button
           onClick={() => handleAddAuthority({ link: '', label: '' })}

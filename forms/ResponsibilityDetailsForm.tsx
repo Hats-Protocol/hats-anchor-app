@@ -15,10 +15,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { FaEllipsisV, FaPlus, FaRegListAlt } from 'react-icons/fa';
 
 export type Responsibility = {
@@ -40,7 +41,6 @@ const ResponsibilityDetailsForm = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentResponsibilityIndex, setCurrentResponsibilityIndex] =
     useState(0);
-  const focusedInputRef = useRef<number | null>(null);
 
   const handleEdit = (index: number) => {
     setCurrentResponsibilityIndex(index);
@@ -52,21 +52,6 @@ const ResponsibilityDetailsForm = ({
     setCurrentResponsibilityIndex(0);
   };
 
-  const handleLabelChange = (index: number, newLabel: string) => {
-    const newLabels = [...labels];
-    newLabels[index] = newLabel;
-    setLabels(newLabels);
-    focusedInputRef.current = index; // Update the ref to the currently focused input
-  };
-
-  const [labels, setLabels] = useState<string[]>(
-    responsibilities.map((r) => r.label),
-  );
-
-  useEffect(() => {
-    setLabels(responsibilities.map((r) => r.label));
-  }, [responsibilities]);
-
   return (
     <>
       <HStack alignItems='center' ml={-6}>
@@ -74,15 +59,16 @@ const ResponsibilityDetailsForm = ({
         <Text fontWeight={500}>Responsibilities</Text>
       </HStack>
       {responsibilities.map((responsibility, index) => (
-        <>
-          <HStack
-            key={responsibility.label}
-            alignItems='center'
-            justifyContent='space-between'
-          >
+        // eslint-disable-next-line react/no-array-index-key
+        <Stack key={index}>
+          <HStack alignItems='center' justifyContent='space-between'>
             <ChakraInput
-              value={labels[index]}
-              onChange={(e) => handleLabelChange(index, e.target.value)}
+              value={responsibility.label}
+              onChange={(e) => {
+                const newArr = [...responsibilities];
+                newArr[index].label = e.target.value;
+                setResponsibilities(newArr);
+              }}
               placeholder='Label'
             />
 
@@ -129,13 +115,14 @@ const ResponsibilityDetailsForm = ({
             </Modal>
           </HStack>
 
-          {responsibilities[currentResponsibilityIndex]?.link && (
+          {responsibilities[index]?.link && (
             <Text fontSize='sm' color='gray.500'>
-              {responsibilities[currentResponsibilityIndex]?.link}
+              {responsibilities[index]?.link}
             </Text>
           )}
-        </>
+        </Stack>
       ))}
+
       <Box mb={2}>
         <Button
           onClick={() => handleAddResponsibility({ link: '', label: '' })}
