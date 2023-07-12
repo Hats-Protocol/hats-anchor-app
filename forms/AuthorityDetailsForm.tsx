@@ -43,15 +43,23 @@ const AuthorityDetailsForm = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentAuthorityIndex, setCurrentAuthorityIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
+  const [inputLink, setInputLink] = useState('');
 
   const handleEdit = (index: number) => {
+    setInputLink(authorities[index].link);
     setCurrentAuthorityIndex(index);
     onOpen();
   };
 
   const handleSave = () => {
+    if (isLinkValid) {
+      const newArr = [...authorities];
+      newArr[currentAuthorityIndex].link = inputLink;
+      setAuthorities(newArr);
+      setInputLink('');
+      setCurrentAuthorityIndex(0);
+    }
     onClose();
-    setCurrentAuthorityIndex(0);
   };
 
   return (
@@ -98,9 +106,7 @@ const AuthorityDetailsForm = ({
                   <ChakraInput
                     value={authorities[currentAuthorityIndex]?.link}
                     onChange={(e) => {
-                      const newArr = [...authorities];
-                      newArr[currentAuthorityIndex].link = e.target.value;
-                      setAuthorities(newArr);
+                      setInputLink(e.target.value);
                       setIsLinkValid(validateURL(e.target.value));
                     }}
                     placeholder='Link'
@@ -139,9 +145,8 @@ const AuthorityDetailsForm = ({
             }
           }}
           isDisabled={
-            (authorities[authorities.length - 1]?.label === '' &&
-              authorities[authorities.length - 1]?.link === '') ||
-            authorities.length >= 2
+            authorities[authorities.length - 1]?.label === '' &&
+            authorities[authorities.length - 1]?.link === ''
           }
           gap={2}
         >

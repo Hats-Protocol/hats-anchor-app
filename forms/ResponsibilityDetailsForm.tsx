@@ -44,15 +44,23 @@ const ResponsibilityDetailsForm = ({
   const [currentResponsibilityIndex, setCurrentResponsibilityIndex] =
     useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
+  const [inputLink, setInputLink] = useState('');
 
   const handleEdit = (index: number) => {
+    setInputLink(responsibilities[index].link);
     setCurrentResponsibilityIndex(index);
     onOpen();
   };
 
   const handleSave = () => {
+    if (isLinkValid) {
+      const newArr = [...responsibilities];
+      newArr[currentResponsibilityIndex].link = inputLink;
+      setResponsibilities(newArr);
+      setInputLink('');
+      setCurrentResponsibilityIndex(0);
+    }
     onClose();
-    setCurrentResponsibilityIndex(0);
   };
 
   return (
@@ -97,11 +105,9 @@ const ResponsibilityDetailsForm = ({
                 <ModalCloseButton />
                 <ModalBody>
                   <ChakraInput
-                    value={responsibilities[currentResponsibilityIndex]?.link}
+                    value={inputLink}
                     onChange={(e) => {
-                      const newArr = [...responsibilities];
-                      newArr[currentResponsibilityIndex].link = e.target.value;
-                      setResponsibilities(newArr);
+                      setInputLink(e.target.value);
                       setIsLinkValid(validateURL(e.target.value));
                     }}
                     placeholder='Link'
@@ -140,9 +146,8 @@ const ResponsibilityDetailsForm = ({
             }
           }}
           isDisabled={
-            (responsibilities[responsibilities.length - 1]?.label === '' &&
-              responsibilities[responsibilities.length - 1]?.link === '') ||
-            responsibilities.length >= 2
+            responsibilities[responsibilities.length - 1]?.label === '' &&
+            responsibilities[responsibilities.length - 1]?.link === ''
           }
           gap={2}
         >
