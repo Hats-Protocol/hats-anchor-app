@@ -70,6 +70,6 @@ export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
 
 export const validateURL = (textval: string) => {
   const urlregex =
-    /^((http|https):\/\/)?([w|W]{3}\.)+[a-zA-Z0-9\-.]{3,}\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
+    /^((http|https):\/\/)?(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-\._~:\/\?#\[\]@!$&'\(\)*+,;%=]*)?$/;
   return urlregex.test(textval);
 };
