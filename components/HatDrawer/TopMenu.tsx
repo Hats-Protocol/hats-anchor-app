@@ -76,16 +76,11 @@ const TopMenu = ({
     writeAsync: checkHatStatus,
     isLoading: isLoadingCheckHatStatus,
     prepareError,
+    toggleIsContract,
   } = useHatCheckStatus({
     chainId,
     hatId: hatData.id,
   });
-
-  function containsNotHatsToggleErrorMessage(message?: string) {
-    if (!message) return false;
-    const regex = /Error: NotHatsToggle()/;
-    return regex.test(message);
-  }
 
   const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
@@ -214,17 +209,17 @@ const TopMenu = ({
               </MenuItem>
             )}
             <Tooltip
-              label={
-                containsNotHatsToggleErrorMessage(prepareError?.message)
-                  ? 'The toggle is "humanistic"'
-                  : ''
-              }
+              label={!toggleIsContract ? 'The toggle is "humanistic"' : ''}
               shouldWrapChildren
             >
               <MenuItem
                 gap={2}
                 onClick={() => checkHatStatus?.()}
-                isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
+                isDisabled={
+                  isLoadingCheckHatStatus ||
+                  !checkHatStatus ||
+                  !toggleIsContract
+                }
               >
                 <HStack>
                   <FaDoorOpen />

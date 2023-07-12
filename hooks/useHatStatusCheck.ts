@@ -1,8 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -12,6 +11,7 @@ import CONFIG, { STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
+import { checkAddressIsContract } from '@/lib/contract';
 import { decimalId, toTreeId } from '@/lib/hats';
 
 const useHatStatusCheck = ({
@@ -25,7 +25,18 @@ const useHatStatusCheck = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
-  const address = useAccount();
+  const [toggleIsContract, setToggleIsContract] = useState(false);
+  const [testingToggle, setTestingToggle] = useState(false);
+
+  useEffect(() => {
+    const testToggle = async () => {
+      setTestingToggle(true);
+      const localData = await checkAddressIsContract(hatData.toggle, chainId);
+      setToggleIsContract(localData);
+      setTestingToggle(false);
+    };
+    testToggle();
+  }, [hatData, chainId]);
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -33,8 +44,7 @@ const useHatStatusCheck = ({
     abi,
     functionName: 'checkHatStatus',
     args: [decimalId(_.get(hatData, 'id'))],
-    enabled:
-      Boolean(decimalId(_.get(hatData, 'id'))) && address === hatData.toggle,
+    enabled: Boolean(decimalId(_.get(hatData, 'id'))) && toggleIsContract,
   });
 
   const { writeAsync, error: writeError } = useContractWrite({
@@ -99,7 +109,13 @@ const useHatStatusCheck = ({
     hash,
   });
 
-  return { writeAsync, prepareError, writeError, isLoading };
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading: isLoading || testingToggle,
+    toggleIsContract,
+  };
 };
 
 export default useHatStatusCheck;
