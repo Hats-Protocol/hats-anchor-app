@@ -14,13 +14,17 @@ import {
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
 
+import CONFIG from '@/constants';
+
 const ConnectWallet = () => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
+  const router = useRouter();
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -138,6 +142,16 @@ const ConnectWallet = () => {
                     </HStack>
                   </MenuButton>
                   <MenuList bg='green.100' color='green.700'>
+                    <MenuItem
+                      onClick={() =>
+                        router.push(`/${CONFIG.wearers}/${address}`)
+                      }
+                      bg='green.100'
+                      _hover={{ bg: 'green.300' }}
+                      color='green.700'
+                    >
+                      My Hats
+                    </MenuItem>
                     <MenuItem
                       onClick={openAccountModal}
                       bg='green.100'

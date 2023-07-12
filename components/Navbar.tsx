@@ -88,7 +88,7 @@ const Navbar = () => {
     >
       <HStack spacing={6}>
         <ChakraNextLink href='/'>
-          <Image src='/icon.jpeg' h='70px' alt='Hats Logo' />
+          <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
         </ChakraNextLink>
         <HStack spacing={5}>
           <ChakraNextLink href={`/${CONFIG.trees}/${currentChain || 1}`}>
@@ -115,7 +115,7 @@ const Navbar = () => {
               )}
             </Button>
           </ChakraNextLink>
-          {address && (
+          {address && !CONFIG.banner && (
             <ChakraNextLink href={`/${CONFIG.wearers}/${address}`}>
               <Button
                 h='75px'
