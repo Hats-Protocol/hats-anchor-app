@@ -67,3 +67,9 @@ export const mapWithChainId = (array: object[] | null, chainId: number) =>
   _.map(array, (obj: object) => ({ ...obj, chainId }));
 
 export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
+
+export const validateURL = (textval: string) => {
+  const urlregex =
+    /^((http|https):\/\/)?(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
+  return urlregex.test(textval);
+};

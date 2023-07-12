@@ -3,7 +3,7 @@ import {
   Button,
   HStack,
   IconButton,
-  Input,
+  Input as ChakraInput,
   Menu,
   MenuButton,
   MenuItem,
@@ -15,11 +15,14 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
+
+import { validateURL } from '@/lib/general';
 
 export type Authority = {
   link: string;
@@ -39,15 +42,24 @@ const AuthorityDetailsForm = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentAuthorityIndex, setCurrentAuthorityIndex] = useState(0);
+  const [isLinkValid, setIsLinkValid] = useState(false);
+  const [inputLink, setInputLink] = useState('');
 
   const handleEdit = (index: number) => {
+    setInputLink(authorities[index].link);
     setCurrentAuthorityIndex(index);
     onOpen();
   };
 
   const handleSave = () => {
+    if (isLinkValid) {
+      const newArr = [...authorities];
+      newArr[currentAuthorityIndex].link = inputLink;
+      setAuthorities(newArr);
+      setInputLink('');
+      setCurrentAuthorityIndex(0);
+    }
     onClose();
-    setCurrentAuthorityIndex(0);
   };
 
   return (
@@ -57,13 +69,10 @@ const AuthorityDetailsForm = ({
         <Text fontWeight={500}>Authorities</Text>
       </HStack>
       {authorities.map((authority, index) => (
-        <>
-          <HStack
-            key={authority.label}
-            alignItems='center'
-            justifyContent='space-between'
-          >
-            <Input
+        // eslint-disable-next-line react/no-array-index-key
+        <Stack key={index}>
+          <HStack alignItems='center' justifyContent='space-between'>
+            <ChakraInput
               value={authority.label}
               onChange={(e) => {
                 const newArr = [...authorities];
@@ -94,18 +103,22 @@ const AuthorityDetailsForm = ({
                 <ModalHeader>Edit Authority Link</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                  <Input
+                  <ChakraInput
                     value={authorities[currentAuthorityIndex]?.link}
                     onChange={(e) => {
-                      const newArr = [...authorities];
-                      newArr[currentAuthorityIndex].link = e.target.value;
-                      setAuthorities(newArr);
+                      setInputLink(e.target.value);
+                      setIsLinkValid(validateURL(e.target.value));
                     }}
                     placeholder='Link'
                   />
                 </ModalBody>
                 <ModalFooter>
-                  <Button colorScheme='blue' mr={3} onClick={handleSave}>
+                  <Button
+                    colorScheme='blue'
+                    mr={3}
+                    onClick={handleSave}
+                    isDisabled={!isLinkValid}
+                  >
                     Ok
                   </Button>
                   <Button variant='ghost' onClick={onClose}>
@@ -116,20 +129,20 @@ const AuthorityDetailsForm = ({
             </Modal>
           </HStack>
 
-          {authorities[currentAuthorityIndex]?.link && (
+          {authorities[index]?.link && (
             <Text fontSize='sm' color='gray.500'>
-              {authorities[currentAuthorityIndex]?.link}
+              {authorities[index]?.link}
             </Text>
           )}
-        </>
+        </Stack>
       ))}
+
       <Box mb={2}>
         <Button
-          onClick={() => handleAddAuthority({ link: '', label: '' })}
-          isDisabled={
-            authorities[authorities.length - 1]?.label === '' &&
-            authorities[authorities.length - 1]?.link === ''
-          }
+          onClick={() => {
+            handleAddAuthority({ link: '', label: '' });
+          }}
+          isDisabled={authorities.some((authority) => authority.label === '')}
           gap={2}
         >
           <FaPlus />

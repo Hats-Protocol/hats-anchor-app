@@ -15,11 +15,14 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FaEllipsisV, FaPlus, FaRegListAlt } from 'react-icons/fa';
+
+import { validateURL } from '@/lib/general';
 
 export type Responsibility = {
   link: string;
@@ -40,15 +43,24 @@ const ResponsibilityDetailsForm = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentResponsibilityIndex, setCurrentResponsibilityIndex] =
     useState(0);
+  const [isLinkValid, setIsLinkValid] = useState(false);
+  const [inputLink, setInputLink] = useState('');
 
   const handleEdit = (index: number) => {
+    setInputLink(responsibilities[index].link);
     setCurrentResponsibilityIndex(index);
     onOpen();
   };
 
   const handleSave = () => {
+    if (isLinkValid) {
+      const newArr = [...responsibilities];
+      newArr[currentResponsibilityIndex].link = inputLink;
+      setResponsibilities(newArr);
+      setInputLink('');
+      setCurrentResponsibilityIndex(0);
+    }
     onClose();
-    setCurrentResponsibilityIndex(0);
   };
 
   return (
@@ -58,12 +70,9 @@ const ResponsibilityDetailsForm = ({
         <Text fontWeight={500}>Responsibilities</Text>
       </HStack>
       {responsibilities.map((responsibility, index) => (
-        <>
-          <HStack
-            key={responsibility.label}
-            alignItems='center'
-            justifyContent='space-between'
-          >
+        // eslint-disable-next-line react/no-array-index-key
+        <Stack key={index}>
+          <HStack alignItems='center' justifyContent='space-between'>
             <ChakraInput
               value={responsibility.label}
               onChange={(e) => {
@@ -96,17 +105,21 @@ const ResponsibilityDetailsForm = ({
                 <ModalCloseButton />
                 <ModalBody>
                   <ChakraInput
-                    value={responsibilities[currentResponsibilityIndex]?.link}
+                    value={inputLink}
                     onChange={(e) => {
-                      const newArr = [...responsibilities];
-                      newArr[currentResponsibilityIndex].link = e.target.value;
-                      setResponsibilities(newArr);
+                      setInputLink(e.target.value);
+                      setIsLinkValid(validateURL(e.target.value));
                     }}
                     placeholder='Link'
                   />
                 </ModalBody>
                 <ModalFooter>
-                  <Button colorScheme='blue' mr={3} onClick={handleSave}>
+                  <Button
+                    colorScheme='blue'
+                    mr={3}
+                    onClick={handleSave}
+                    isDisabled={!isLinkValid}
+                  >
                     Ok
                   </Button>
                   <Button variant='ghost' onClick={onClose}>
@@ -117,20 +130,22 @@ const ResponsibilityDetailsForm = ({
             </Modal>
           </HStack>
 
-          {responsibilities[currentResponsibilityIndex]?.link && (
+          {responsibilities[index]?.link && (
             <Text fontSize='sm' color='gray.500'>
-              {responsibilities[currentResponsibilityIndex]?.link}
+              {responsibilities[index]?.link}
             </Text>
           )}
-        </>
+        </Stack>
       ))}
+
       <Box mb={2}>
         <Button
-          onClick={() => handleAddResponsibility({ link: '', label: '' })}
-          isDisabled={
-            responsibilities[responsibilities.length - 1]?.label === '' &&
-            responsibilities[responsibilities.length - 1]?.link === ''
-          }
+          onClick={() => {
+            handleAddResponsibility({ link: '', label: '' });
+          }}
+          isDisabled={responsibilities.some(
+            (responsibility) => responsibility.label === '',
+          )}
           gap={2}
         >
           <FaPlus />
