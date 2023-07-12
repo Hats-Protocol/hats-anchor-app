@@ -11,12 +11,13 @@ const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {
 
   return (
     <ChakraNextLink href={`/trees/${chainId}/${id}`} _hover={{}}>
-      <Box border='1px solid' bg='white'>
+      <Box border='1px solid' bg='white' maxW='400px'>
         <Box bg='gray.100'>
           <Image
             src={image}
             alt={`${name} featured image`}
-            h='250px'
+            minH='250px'
+            w='100%'
             fit='cover'
           />
         </Box>

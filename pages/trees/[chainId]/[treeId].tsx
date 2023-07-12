@@ -143,7 +143,7 @@ const TreeDetails = ({
     ipToPrettyId(String(hatId)) || topHatId,
   );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
-    'title',
+    'wearers',
   );
 
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);

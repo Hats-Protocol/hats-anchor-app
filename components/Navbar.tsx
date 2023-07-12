@@ -104,9 +104,9 @@ const Navbar = () => {
               {!currentTopHatName ? (
                 <Text fontSize='lg'>{_.capitalize(CONFIG.trees)}</Text>
               ) : (
-                <Stack align='start' w='90%' mx={3}>
+                <Stack align='start' w='90%' mx={2}>
                   <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
-                  <Text fontSize='lg' color='gray.500' isTruncated>
+                  <Text fontSize='lg' color='gray.500' isTruncated maxW='170px'>
                     {containsUpperCase(currentTopHatName)
                       ? currentTopHatName
                       : _.capitalize(currentTopHatName)}
@@ -149,7 +149,7 @@ const Navbar = () => {
               We’re excited to share the brand new Hats App v2.0! 🎉
             </Text>
             <ChakraNextLink
-              href='https://hatsprotocol.xyz'
+              href='https://app.charmverse.io/hats-protocol/page-8570460396062165'
               isExternal
               decoration
               _hover={{ color: 'whiteAlpha.800' }}
