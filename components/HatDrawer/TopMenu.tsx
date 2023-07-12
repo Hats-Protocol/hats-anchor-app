@@ -62,14 +62,14 @@ const TopMenu = ({
   } = useHatMakeImmutable({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
-    hatId: hatData.id,
+    hatData,
     levelAtLocalTree: hatData.levelAtLocalTree,
   });
   const { writeAsync: deactivateHat, isLoading: isLoadingDeactivateHat } =
     useHatStatusUpdate({
       hatsAddress: CONFIG.hatsAddress,
       chainId,
-      hatId: hatData.id,
+      hatData,
       status: STATUS.INACTIVE,
     });
 
