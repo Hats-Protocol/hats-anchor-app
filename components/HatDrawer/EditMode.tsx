@@ -15,6 +15,7 @@ import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -95,7 +96,7 @@ const EditMode = ({
 export default EditMode;
 
 interface EditModeProps {
-  hatData: any;
+  hatData: IHat;
   chainId: number;
   name: string;
   description: string;

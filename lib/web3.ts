@@ -75,17 +75,6 @@ export const explorerUrl = (chainId: number) => {
 export const chainsMap = (chainId: number) =>
   chainsList[chainId] || chainsList[5];
 
-export const chainsColors = (chainId: number) => {
-  const colors: { [key: number]: string } = {
-    // 1: '#000000',
-    5: 'blue',
-    100: 'green',
-    137: 'purple',
-  };
-
-  return colors[chainId] || colors[5];
-};
-
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
   publicProvider(),
