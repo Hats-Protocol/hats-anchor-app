@@ -189,7 +189,7 @@ const HatWearerForm = ({
             <FaRegQuestionCircle />
           </HStack>
           <Text fontSize='sm' color='blackAlpha.700'>
-            Address will receive a {hatName} Hat token in on{' '}
+            Address will receive a {hatName} Hat token on{' '}
             {chainsMap(chainId).name}
           </Text>
         </Stack>

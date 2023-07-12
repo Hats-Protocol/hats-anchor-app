@@ -18,7 +18,7 @@ import useDebounce from '@/hooks/useDebounce';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatSupplyUpdate from '@/hooks/useHatSupplyUpdate';
 import useModuleUpdate from '@/hooks/useModuleUpdate';
-import { prettyIdToIp } from '@/lib/hats';
+import { isTopHat, prettyIdToIp } from '@/lib/hats';
 
 const HatWearersAndAdminsForm = ({
   defaultAdmin,
@@ -146,7 +146,7 @@ const HatWearersAndAdminsForm = ({
             name='maxSupply'
             label='MAX SUPPLY'
             placeholder='10'
-            isDisabled={!mutable}
+            isDisabled={!mutable || isTopHat(hatData)}
             localForm={localForm}
           />
           <Button

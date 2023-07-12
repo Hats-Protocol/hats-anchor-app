@@ -166,7 +166,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 wearersColor = '#FFFAF0';
               }
             }
-            console.log(wearerAccent);
 
             const selectedOptionContent = () => {
               switch (selectedOption) {
@@ -502,6 +501,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
 
 const centerChart = (chart: any, nodeId: string) => {
   const currentState = chart?.getChartState();
+  currentState.lastTransform.k = 1;
+
   if (!currentState) {
     chart.setCentered(nodeId);
     return;

@@ -31,8 +31,8 @@ import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
-import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
+import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
 import { decimalId, isTopHat } from '@/lib/hats';
@@ -75,17 +75,11 @@ const TopMenu = ({
   const {
     writeAsync: checkHatStatus,
     isLoading: isLoadingCheckHatStatus,
-    prepareError,
-  } = useHatCheckStatus({
+    toggleIsContract,
+  } = useHatStatusCheck({
     chainId,
-    hatId: hatData.id,
+    hatData,
   });
-
-  function containsNotHatsToggleErrorMessage(message?: string) {
-    if (!message) return false;
-    const regex = /Error: NotHatsToggle()/;
-    return regex.test(message);
-  }
 
   const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
@@ -122,8 +116,8 @@ const TopMenu = ({
         {isAdminUser && (
           <Tooltip
             label={
-              !(mutableStatus === MUTABILITY.MUTABLE && !isTopHat(hatData))
-                ? 'The hat is not mutable or a top hat.'
+              mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
+                ? 'The hat is not mutable'
                 : ''
             }
             shouldWrapChildren
@@ -135,7 +129,7 @@ const TopMenu = ({
               borderColor='cyan.700'
               onClick={() => setEditMode(!editMode)}
               isDisabled={
-                !(mutableStatus === MUTABILITY.MUTABLE || isTopHat(hatData))
+                mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
               }
             >
               <HStack>
@@ -214,17 +208,17 @@ const TopMenu = ({
               </MenuItem>
             )}
             <Tooltip
-              label={
-                containsNotHatsToggleErrorMessage(prepareError?.message)
-                  ? 'The toggle is "humanistic"'
-                  : ''
-              }
+              label={!toggleIsContract ? 'The toggle is "humanistic"' : ''}
               shouldWrapChildren
             >
               <MenuItem
                 gap={2}
                 onClick={() => checkHatStatus?.()}
-                isDisabled={isLoadingCheckHatStatus || !checkHatStatus}
+                isDisabled={
+                  isLoadingCheckHatStatus ||
+                  !checkHatStatus ||
+                  !toggleIsContract
+                }
               >
                 <HStack>
                   <FaDoorOpen />
