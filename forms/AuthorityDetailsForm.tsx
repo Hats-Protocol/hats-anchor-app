@@ -124,10 +124,15 @@ const AuthorityDetailsForm = ({
 
       <Box mb={2}>
         <Button
-          onClick={() => handleAddAuthority({ link: '', label: '' })}
+          onClick={() => {
+            if (authorities.length < 2) {
+              handleAddAuthority({ link: '', label: '' });
+            }
+          }}
           isDisabled={
-            authorities[authorities.length - 1]?.label === '' &&
-            authorities[authorities.length - 1]?.link === ''
+            (authorities[authorities.length - 1]?.label === '' &&
+              authorities[authorities.length - 1]?.link === '') ||
+            authorities.length >= 2
           }
           gap={2}
         >
