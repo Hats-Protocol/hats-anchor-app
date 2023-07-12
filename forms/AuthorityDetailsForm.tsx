@@ -140,14 +140,9 @@ const AuthorityDetailsForm = ({
       <Box mb={2}>
         <Button
           onClick={() => {
-            if (authorities.length < 2) {
-              handleAddAuthority({ link: '', label: '' });
-            }
+            handleAddAuthority({ link: '', label: '' });
           }}
-          isDisabled={
-            authorities[authorities.length - 1]?.label === '' &&
-            authorities[authorities.length - 1]?.link === ''
-          }
+          isDisabled={authorities.some((authority) => authority.label === '')}
           gap={2}
         >
           <FaPlus />

@@ -141,14 +141,11 @@ const ResponsibilityDetailsForm = ({
       <Box mb={2}>
         <Button
           onClick={() => {
-            if (responsibilities.length < 2) {
-              handleAddResponsibility({ link: '', label: '' });
-            }
+            handleAddResponsibility({ link: '', label: '' });
           }}
-          isDisabled={
-            responsibilities[responsibilities.length - 1]?.label === '' &&
-            responsibilities[responsibilities.length - 1]?.link === ''
-          }
+          isDisabled={responsibilities.some(
+            (responsibility) => responsibility.label === '',
+          )}
           gap={2}
         >
           <FaPlus />
