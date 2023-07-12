@@ -13,12 +13,13 @@ import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
 import { decimalId, toTreeId } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const useHatStatusCheck = ({
   hatData,
   chainId,
 }: {
-  hatData: any;
+  hatData: IHat;
   chainId: number;
 }) => {
   const toast = useToast();

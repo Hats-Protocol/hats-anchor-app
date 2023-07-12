@@ -31,8 +31,8 @@ import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
-import useHatCheckStatus from '@/hooks/useHatCheckStatus';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
+import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
 import { decimalId, isTopHat } from '@/lib/hats';
@@ -75,11 +75,10 @@ const TopMenu = ({
   const {
     writeAsync: checkHatStatus,
     isLoading: isLoadingCheckHatStatus,
-    prepareError,
     toggleIsContract,
-  } = useHatCheckStatus({
+  } = useHatStatusCheck({
     chainId,
-    hatId: hatData.id,
+    hatData,
   });
 
   const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
