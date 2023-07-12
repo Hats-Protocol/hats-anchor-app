@@ -428,16 +428,14 @@ const TreeDetails = ({
                           Event history
                         </Heading>
                         <Box>
-                          {treeData?.events
-                            ?.slice(0, 5)
-                            .map((event: IHatEvent) => (
-                              <Event
-                                key={`${event?.transactionID}-${event?.id}`}
-                                event={event}
-                                chainId={chainId}
-                              />
-                            ))}
-                          {treeData?.events?.length > 4 && (
+                          {events?.slice(0, 5).map((event: IHatEvent) => (
+                            <Event
+                              key={`${event?.transactionID}-${event?.id}`}
+                              event={event}
+                              chainId={chainId}
+                            />
+                          ))}
+                          {events?.length > 4 && (
                             <>
                               <Divider my={2} />
                               <Button
