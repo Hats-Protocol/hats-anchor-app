@@ -86,7 +86,8 @@ const TopMenu = ({
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   if (!hatData) return null;
-
+  console.log('isAdminUser', isAdminUser);
+  console.log('isCurrentWearer', isCurrentWearer);
   return (
     <Flex
       w='100%'

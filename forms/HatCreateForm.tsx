@@ -9,11 +9,14 @@ import {
   Stack,
   Switch,
   Text,
+  Radio,
+  RadioGroup,
+  FormHelperText,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { useChainId } from 'wagmi';
 
@@ -197,14 +200,28 @@ const HatCreateForm = ({
           placeholder='10'
           localForm={localForm}
         />
-        <RadioBox
-          name='mutable'
-          label='Mutability'
-          options={[MUTABILITY.MUTABLE, MUTABILITY.IMMUTABLE]}
-          helperText='Whether or not this Hat should be able to be modified by its Admin. If unsure, default to mutable. This can be changed from mutable to immutable later (but not the other way).'
-          localForm={localForm}
-          isRequired
-        />
+        <FormControl isRequired>
+          <FormLabel>Mutability</FormLabel>
+          <Controller
+            control={localForm.control}
+            name='mutable'
+            render={({ field: { onChange, value } }) => (
+              <RadioGroup onChange={onChange} value={value}>
+                <HStack spacing='24px'>
+                  <Radio value={MUTABILITY.MUTABLE}>{MUTABILITY.MUTABLE}</Radio>
+                  <Radio value={MUTABILITY.IMMUTABLE}>
+                    {MUTABILITY.IMMUTABLE}
+                  </Radio>
+                </HStack>
+              </RadioGroup>
+            )}
+          />
+          <FormHelperText>
+            Whether or not this Hat should be able to be modified by its Admin.
+            If unsure, default to mutable. This can be changed from mutable to
+            immutable later (but not the other way).
+          </FormHelperText>
+        </FormControl>
         <FormControl>
           <Stack spacing={2}>
             <Switch
