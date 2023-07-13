@@ -24,8 +24,8 @@ export const MODULE_TYPES = {
 // TODO add mainnet
 const CONFIG = {
   emojis: '🧢🎩👒',
-  banner1: true,
-  banner2: false,
+  banner1: false,
+  banner2: true,
   appName: 'Hats Protocol',
   shortName: 'Hats',
   url: 'https://app.hatsprotocol.xyz',
