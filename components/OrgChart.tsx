@@ -45,7 +45,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   useLayoutEffect(() => {
-    console.log(tree);
     const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.status));
 
     if (filteredTree && d3Container.current) {

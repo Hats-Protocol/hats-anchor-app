@@ -16,13 +16,13 @@ export async function toTreeStructure({
   hatsImages: IHat[] | undefined;
   chainId: number;
 }): Promise<{
-  tree: IHatData[];
+  tree: IHat[];
   hats: IHatData[];
   hierarchy: HierarchyObject[];
 }> {
   if (!treeData || !hatsImages)
     return Promise.resolve({ tree: [], hats: [], hierarchy: [] });
-  const hatsArray: IHatData[] = [];
+  const hatsArray: IHat[] = [];
 
   const hatIds: string[] = _.uniq(
     _.concat(
