@@ -31,6 +31,7 @@ import useHatCreate from '@/hooks/useHatCreate';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
+import ChakraNextLink from '@/components/ChakraNextLink';
 
 const HatCreateForm = ({
   defaultAdmin,
@@ -245,6 +246,7 @@ const HatCreateForm = ({
                 isFocused={isFocused}
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
+                isFullWidth
                 image={image}
               />
             )}
@@ -258,14 +260,28 @@ const HatCreateForm = ({
             />
             {!eligibilityChecked && <FormLabel>Set Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Box>
+              <Box w='100%'>
                 <Input
                   name='eligibility'
-                  label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
+                  label='Eligibility'
+                  tip={
+                    <Text size='xs' color='gray.600'>
+                      See{' '}
+                      <ChakraNextLink
+                        href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
+                        decoration
+                        isExternal
+                      >
+                        docs.hatsprotocol.xyz
+                      </ChakraNextLink>{' '}
+                      for details
+                    </Text>
+                  }
                   placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
                     showEligibilityResolvedAddress && <FaCheck color='green' />
                   }
+                  // w='100%'
                   localForm={localForm}
                 />
                 {showEligibilityResolvedAddress && (
@@ -285,10 +301,23 @@ const HatCreateForm = ({
             />
             {!toggleChecked && <FormLabel>Set Toggle</FormLabel>}
             {toggleChecked && (
-              <Box>
+              <Box w='100%'>
                 <Input
                   name='toggle'
-                  label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
+                  label='Toggle'
+                  tip={
+                    <Text size='xs' color='gray.500'>
+                      See{' '}
+                      <ChakraNextLink
+                        href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
+                        decoration
+                        isExternal
+                      >
+                        docs.hatsprotocol.xyz
+                      </ChakraNextLink>{' '}
+                      for details
+                    </Text>
+                  }
                   placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
                     showToggleResolvedAddress && <FaCheck color='green' />

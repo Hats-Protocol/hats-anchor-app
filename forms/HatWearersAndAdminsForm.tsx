@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
 
+import ChakraNextLink from '@/components/ChakraNextLink';
 import Input from '@/components/Input';
 import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
@@ -192,7 +193,19 @@ const HatWearersAndAdminsForm = ({
             <Input
               name='eligibility'
               label='ELIGIBILITY'
-              info='https://docs.hatsprotocol.xyz/#eligibility'
+              tip={
+                <Text size='xs' color='gray.500'>
+                  See{' '}
+                  <ChakraNextLink
+                    href=' https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
+                    decoration
+                    isExternal
+                  >
+                    docs.hatsprotocol.xyz
+                  </ChakraNextLink>{' '}
+                  for details
+                </Text>
+              }
               placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
               rightElement={
                 showEligibilityResolvedAddress && <FaCheck color='green' />
@@ -223,7 +236,19 @@ const HatWearersAndAdminsForm = ({
             <Input
               name='toggle'
               label='TOGGLE'
-              info='https://docs.hatsprotocol.xyz/#toggle'
+              tip={
+                <Text size='xs' color='gray.500'>
+                  See{' '}
+                  <ChakraNextLink
+                    href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
+                    decoration
+                    isExternal
+                  >
+                    docs.hatsprotocol.xyz
+                  </ChakraNextLink>{' '}
+                  for details
+                </Text>
+              }
               placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
               rightElement={
                 showToggleResolvedAddress && <FaCheck color='green' />
