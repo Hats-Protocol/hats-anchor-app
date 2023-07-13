@@ -220,7 +220,7 @@ const HatWearerForm = ({
 
               {ens && (
                 <Text fontSize='sm' color='gray.500' mt={1}>
-                  Resolved address: {address}
+                  {address}
                 </Text>
               )}
             </Box>
