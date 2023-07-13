@@ -17,10 +17,10 @@ import { FaMinus, FaPlus } from 'react-icons/fa';
 
 import CONFIG from '@/constants';
 import { formatAddress } from '@/lib/general';
-import { IHatData, IHatWearer } from '@/types';
+import { IHat, IHatWearer } from '@/types';
 
 interface OrgChartComponentProps {
-  tree: IHatData[] | null;
+  tree: IHat[] | null;
   isLoading: boolean;
   chainId: number;
   wearerHats: string[];
@@ -45,7 +45,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
   useLayoutEffect(() => {
-    const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.active));
+    console.log(tree);
+    const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.status));
 
     if (filteredTree && d3Container.current) {
       if (chart) {
