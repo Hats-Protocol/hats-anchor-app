@@ -6,7 +6,7 @@ import CONFIG from '../constants';
 import ChakraNextLink from './ChakraNextLink';
 
 const Layout = ({ children }) => {
-  const link = null;
+  const link = 'https://app.charmverse.io/hats-protocol/page-8570460396062165';
 
   return (
     <Flex direction='column' align='center' bg='blue.50' minH='100vh' h='100%'>
