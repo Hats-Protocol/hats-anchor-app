@@ -240,6 +240,7 @@ const HatDetailsForm = ({
                 isFocused={isFocused}
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
+                isFullWidth
                 image={image}
               />
             )}

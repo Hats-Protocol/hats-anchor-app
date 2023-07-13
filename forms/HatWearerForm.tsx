@@ -63,19 +63,6 @@ const HatWearerForm = ({
       chainId,
     });
 
-  useEffect(() => {
-    setIsCurrentInputAddress(isAddress(currentInput));
-    setCurrentResolvedAddress(
-      // eslint-disable-next-line no-nested-ternary
-      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
-        ? isCurrentInputAddress
-          ? currentInput
-          : ensResolvedAddress
-        : '',
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentInput]);
-
   const isAddressAlreadyAdded =
     wearers.some(
       (wearer) =>
@@ -92,6 +79,18 @@ const HatWearerForm = ({
     hatId,
     chainId,
   });
+
+  useEffect(() => {
+    setIsCurrentInputAddress(isAddress(currentInput));
+    setCurrentResolvedAddress(
+      // eslint-disable-next-line no-nested-ternary
+      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
+        ? isCurrentInputAddress
+          ? currentInput
+          : ensResolvedAddress
+        : '',
+    );
+  }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
   const {
     writeAsync: writeAsyncBatchMintHats,
@@ -197,7 +196,16 @@ const HatWearerForm = ({
           {wearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
               <Flex align='center' w='full' justifyContent='space-between'>
-                <Input value={ens || address} readOnly w='calc(100% - 3rem)' />
+                <InputGroup flexGrow={1}>
+                  <InputLeftElement>
+                    <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                  </InputLeftElement>
+                  <Input
+                    value={ens || address}
+                    readOnly
+                    w='calc(100% - 2rem)'
+                  />
+                </InputGroup>
                 <IconButton
                   type='button'
                   onClick={() => handleRemoveWearer(index)}
@@ -211,7 +219,7 @@ const HatWearerForm = ({
 
               {ens && (
                 <Text fontSize='sm' color='gray.500' mt={1}>
-                  Resolved address: {address}
+                  {address}
                 </Text>
               )}
             </Box>
@@ -246,9 +254,9 @@ const HatWearerForm = ({
               </Text>
             )}
 
-            {currentResolvedAddress && (
+            {ensResolvedAddress && (
               <Text fontSize='sm' color='gray.500' textAlign='left' w='full'>
-                {currentResolvedAddress}
+                {ensResolvedAddress}
               </Text>
             )}
           </Flex>
@@ -340,8 +348,7 @@ const HatWearerForm = ({
               !isInGoodStanding ||
               isLoadingIsEligible ||
               isLoadingMintHat ||
-              isLoadingBatchMintHats ||
-              wearers.length === 0
+              isLoadingBatchMintHats
             }
           >
             <Image src='/icons/mint.svg' w={4} h={4} alt='Mint' mr={2} /> Mint

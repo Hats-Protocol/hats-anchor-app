@@ -7,10 +7,11 @@ import {
   InputGroup,
   InputProps as ChakraInputProps,
   InputRightElement,
+  Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
@@ -29,6 +30,7 @@ const Input = ({
   label,
   name,
   info,
+  tip,
   type = 'text',
   options,
   localForm,
@@ -40,22 +42,27 @@ const Input = ({
 
   return (
     <FormControl {...props}>
-      {label && (
-        <FormLabel>
-          <HStack>
-            <Text>{label}</Text>
-            {info && (
-              <Tooltip shouldWrapChildren label={info}>
-                <FaRegQuestionCircle />
-              </Tooltip>
-            )}
-          </HStack>
-        </FormLabel>
-      )}
-      <InputGroup {...props}>
-        <ChakraInput type={type} {...register(name, options)} {...props} />
-        {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
-      </InputGroup>
+      <Stack spacing={1} w='100%'>
+        {label && (
+          <FormLabel>
+            <HStack>
+              <Text>{label}</Text>
+              {info && (
+                <Tooltip shouldWrapChildren label={info}>
+                  <FaRegQuestionCircle />
+                </Tooltip>
+              )}
+            </HStack>
+          </FormLabel>
+        )}
+        {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
+        <InputGroup {...props}>
+          <ChakraInput type={type} {...register(name, options)} {...props} />
+          {rightElement && (
+            <InputRightElement>{rightElement}</InputRightElement>
+          )}
+        </InputGroup>
+      </Stack>
     </FormControl>
   );
 };
@@ -66,6 +73,7 @@ interface InputProps extends ChakraInputProps {
   label?: string;
   name: string;
   info?: string;
+  tip?: string | ReactNode;
   type?: string;
   options?: object;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
