@@ -197,7 +197,16 @@ const HatWearerForm = ({
           {wearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
               <Flex align='center' w='full' justifyContent='space-between'>
-                <Input value={ens || address} readOnly w='calc(100% - 3rem)' />
+                <InputGroup flexGrow={1}>
+                  <InputLeftElement>
+                    <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                  </InputLeftElement>
+                  <Input
+                    value={ens || address}
+                    readOnly
+                    w='calc(100% - 2rem)'
+                  />
+                </InputGroup>
                 <IconButton
                   type='button'
                   onClick={() => handleRemoveWearer(index)}
@@ -246,9 +255,9 @@ const HatWearerForm = ({
               </Text>
             )}
 
-            {currentResolvedAddress && (
+            {ensResolvedAddress && (
               <Text fontSize='sm' color='gray.500' textAlign='left' w='full'>
-                {currentResolvedAddress}
+                {ensResolvedAddress}
               </Text>
             )}
           </Flex>
@@ -340,8 +349,7 @@ const HatWearerForm = ({
               !isInGoodStanding ||
               isLoadingIsEligible ||
               isLoadingMintHat ||
-              isLoadingBatchMintHats ||
-              wearers.length === 0
+              isLoadingBatchMintHats
             }
           >
             <Image src='/icons/mint.svg' w={4} h={4} alt='Mint' mr={2} /> Mint
