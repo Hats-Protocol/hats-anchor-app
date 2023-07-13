@@ -55,7 +55,6 @@ const HatWearerForm = ({
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
-  console.log(currentResolvedAddress);
 
   const { data: isEligible, isLoading: isLoadingIsEligible } =
     useHatCheckEligibility({
@@ -105,17 +104,13 @@ const HatWearerForm = ({
       .concat(currentResolvedAddress ? [currentResolvedAddress] : []),
   });
 
-  const {
-    writeAsync: writeAsyncMintHat,
-    isLoading: isLoadingMintHat,
-    prepareError,
-  } = useMintHat({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId,
-    newWearer: currentResolvedAddress,
-  });
-  console.log(prepareError);
+  const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
+    useMintHat({
+      hatsAddress: CONFIG.hatsAddress,
+      chainId,
+      hatId,
+      newWearer: currentResolvedAddress,
+    });
 
   const onSubmit = async () => {
     if (wearers.length === 0) {
