@@ -22,7 +22,7 @@ import { useChainId } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
-import RadioBox from '@/components/RadioBox';
+// import RadioBox from '@/components/RadioBox';
 import Textarea from '@/components/Textarea';
 import CONFIG, { MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';

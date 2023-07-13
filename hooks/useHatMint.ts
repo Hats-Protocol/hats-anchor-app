@@ -19,8 +19,12 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
+  console.log(hatsAddress, decimalId(hatId), newWearer);
+  console.log(
+    Boolean(hatsAddress) && Boolean(decimalId(hatId)) && isAddress(newWearer),
+  );
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
@@ -30,7 +34,7 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
       Boolean(hatsAddress) && Boolean(decimalId(hatId)) && isAddress(newWearer),
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       setHash(data.hash);
@@ -76,6 +80,8 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
   return {
     writeAsync,
     isLoading,
+    prepareError,
+    writeError,
   };
 };
 

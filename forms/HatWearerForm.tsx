@@ -55,6 +55,7 @@ const HatWearerForm = ({
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
+  console.log(currentResolvedAddress);
 
   const { data: isEligible, isLoading: isLoadingIsEligible } =
     useHatCheckEligibility({
@@ -62,19 +63,6 @@ const HatWearerForm = ({
       hatId,
       chainId,
     });
-
-  useEffect(() => {
-    setIsCurrentInputAddress(isAddress(currentInput));
-    setCurrentResolvedAddress(
-      // eslint-disable-next-line no-nested-ternary
-      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
-        ? isCurrentInputAddress
-          ? currentInput
-          : ensResolvedAddress
-        : '',
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentInput]);
 
   const isAddressAlreadyAdded =
     wearers.some(
@@ -93,6 +81,18 @@ const HatWearerForm = ({
     chainId,
   });
 
+  useEffect(() => {
+    setIsCurrentInputAddress(isAddress(currentInput));
+    setCurrentResolvedAddress(
+      // eslint-disable-next-line no-nested-ternary
+      (isCurrentInputAddress ? currentInput : ensResolvedAddress)
+        ? isCurrentInputAddress
+          ? currentInput
+          : ensResolvedAddress
+        : '',
+    );
+  }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
+
   const {
     writeAsync: writeAsyncBatchMintHats,
     isLoading: isLoadingBatchMintHats,
@@ -105,13 +105,17 @@ const HatWearerForm = ({
       .concat(currentResolvedAddress ? [currentResolvedAddress] : []),
   });
 
-  const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
-    useMintHat({
-      hatsAddress: CONFIG.hatsAddress,
-      chainId,
-      hatId,
-      newWearer: currentResolvedAddress,
-    });
+  const {
+    writeAsync: writeAsyncMintHat,
+    isLoading: isLoadingMintHat,
+    prepareError,
+  } = useMintHat({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
+    hatId,
+    newWearer: currentResolvedAddress,
+  });
+  console.log(prepareError);
 
   const onSubmit = async () => {
     if (wearers.length === 0) {
