@@ -135,7 +135,7 @@ const TreeDetails = ({
 
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
-  const [orgChartTree, setOrgChartTree] = useState<IHatData[]>([]);
+  const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
