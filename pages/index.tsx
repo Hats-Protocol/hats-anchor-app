@@ -39,7 +39,7 @@ const featuredTrees = [
     id: 72,
     name: 'The DIA',
     description: 'A DAO for decentralized curation of intel',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeialvfqplxbyhxu7zy3egsov2bqyrtuzaunb4rbxpuxr5tsndya4zq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     chainId: 10,
