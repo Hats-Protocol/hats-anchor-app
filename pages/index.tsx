@@ -35,11 +35,11 @@ const featuredTrees = [
     image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
   },
   {
-    chainId: 10,
-    id: 1,
-    name: 'Haberdasher Labs',
-    description: 'Creators of Hats Protocol',
-    image: `https://ipfs.io/ipfs/QmPkZzvUTNE8UWt4pZuG8nhXi8VovpE5ZDXrF3vfinUgd4`,
+    chainId: 100,
+    id: 72,
+    name: 'The DIA',
+    description: 'A DAO for decentralized curation of intel',
+    image: `https://ipfs.io/ipfs/bafybeialvfqplxbyhxu7zy3egsov2bqyrtuzaunb4rbxpuxr5tsndya4zq`,
   },
   {
     chainId: 10,
