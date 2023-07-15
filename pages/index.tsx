@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaPlus } from 'react-icons/fa';
-import { useAccount } from 'wagmi';
+import { useAccount, useEnsName } from 'wagmi';
 
 // import CONFIG from '@/constants';
 import ChakraNextLink from '@/components/ChakraNextLink';
@@ -24,6 +24,7 @@ import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { formatAddress } from '@/lib/general';
 import { orderedChains } from '@/lib/web3';
 
 const featuredDocumentation = [
@@ -109,6 +110,8 @@ const Home = () => {
     return _.indexOf(orderedChains, hat.chainId);
   });
 
+  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+
   return (
     <Layout>
       <Box
@@ -121,7 +124,13 @@ const Home = () => {
       />
       <Flex py='150px' mx={20}>
         <Stack spacing={12}>
-          <Stack spacing={4} mx='auto'>
+          <Heading as='h1' size='md' fontWeight={500}>
+              Hey, {ensName || formatAddress(wearerAddress)}!
+          </Heading>
+          <Heading as='h3' size='md' fontWeight={500}>
+              Here's what's happening with your Hats
+          </Heading>
+          <Stack spacing={4} me='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Read more about how to get started with Hats
             </Heading>
@@ -131,7 +140,7 @@ const Home = () => {
               ))}
             </SimpleGrid>
           </Stack>
-          <Stack spacing={4} mx='auto'>
+          <Stack spacing={4} me='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Jump right in with a forkable Hat Tree template
             </Heading>
@@ -141,7 +150,7 @@ const Home = () => {
               ))}
             </SimpleGrid>
           </Stack>
-          <Stack spacing={4} mx='auto'>
+          <Stack spacing={4} me='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Explore featured trees
             </Heading>
