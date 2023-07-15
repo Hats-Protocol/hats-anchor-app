@@ -15,7 +15,7 @@ const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
           <Image
             src={image}
             alt={`${name} featured image`}
-            minH='250px'
+            minH='150px'
             w='100%'
             fit='cover'
           />
