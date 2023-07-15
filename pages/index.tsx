@@ -17,6 +17,7 @@ import { useAccount } from 'wagmi';
 
 // import CONFIG from '@/constants';
 import ChakraNextLink from '@/components/ChakraNextLink';
+import FeaturedDocsCard from '@/components/FeaturedDocsCard';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import HatCard from '@/components/HatCard';
 import Layout from '@/components/Layout';
@@ -27,22 +28,19 @@ import { orderedChains } from '@/lib/web3';
 
 const featuredDocumentation = [
   {
-    chainId: 10,
-    id: 2,
+    url: 'https://docs.hatsprotocol.xyz/',
     name: 'For Hat Wearers',
     description: 'So your DAO gave you a Hat, now what?',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
-    chainId: 100,
-    id: 72,
+    url: 'https://docs.hatsprotocol.xyz/getting-started-with-hats',
     name: 'For Governors',
     description: 'Getting started with Hats',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
-    chainId: 10,
-    id: 3,
+    url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
     name: 'For Chad Hats Dev',
     description: 'Protocol & SDK Documentation: building on top of Hats',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
@@ -128,8 +126,8 @@ const Home = () => {
               Read more about how to get started with Hats
             </Heading>
             <SimpleGrid columns={3} spacing={6}>
-              {_.map(featuredDocumentation, (tree, i) => (
-                <FeaturedTreeCard key={i} treeData={tree} />
+              {_.map(featuredDocumentation, (docsLink, i) => (
+                <FeaturedDocsCard key={i} docsData={docsLink} />
               ))}
             </SimpleGrid>
           </Stack>
