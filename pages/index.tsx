@@ -31,19 +31,19 @@ const featuredDocumentation = [
     url: 'https://docs.hatsprotocol.xyz/',
     name: 'For Hat Wearers',
     description: 'So your DAO gave you a Hat, now what?',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreiaq4gg3wr6cbm4cekrn7bkbew5g6qqn7lmtuv2zqic6llisx24haq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     url: 'https://docs.hatsprotocol.xyz/getting-started-with-hats',
     name: 'For Governors',
     description: 'Getting started with Hats',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreiaq4gg3wr6cbm4cekrn7bkbew5g6qqn7lmtuv2zqic6llisx24haq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
     name: 'For Chad Hats Dev',
     description: 'Protocol & SDK Documentation: building on top of Hats',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreiaq4gg3wr6cbm4cekrn7bkbew5g6qqn7lmtuv2zqic6llisx24haq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
 ];
 
