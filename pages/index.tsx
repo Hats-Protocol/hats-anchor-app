@@ -133,21 +133,21 @@ const Home = () => {
               ))}
             </SimpleGrid>
           </Stack>
-          <Stack spacing={4}>
+          <Stack spacing={4} mx='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Jump right in with a forkable Hat Tree template
             </Heading>
-            <SimpleGrid columns={3} spacing={6} mx='auto'>
+            <SimpleGrid columns={3} spacing={6}>
               {_.map(featuredTemplates, (tree, i) => (
                 <FeaturedTreeCard key={i} treeData={tree} />
               ))}
             </SimpleGrid>
           </Stack>
-          <Stack spacing={4}>
+          <Stack spacing={4} mx='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Explore featured trees
             </Heading>
-            <SimpleGrid columns={3} spacing={6} mx='auto'>
+            <SimpleGrid columns={3} spacing={6}>
               {_.map(featuredTrees, (tree, i) => (
                 <FeaturedTreeCard key={i} treeData={tree} />
               ))}
