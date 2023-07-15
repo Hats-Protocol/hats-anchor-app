@@ -25,14 +25,37 @@ import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { orderedChains } from '@/lib/web3';
 
-// todo use our ipfs gateway
-const featuredTrees = [
+const featuredDocumentation = [
+  {
+    chainId: 10,
+    id: 2,
+    name: 'For Hat Wearers',
+    description: 'So your DAO gave you a Hat, now what?',
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+  },
+  {
+    chainId: 100,
+    id: 72,
+    name: 'For Governors',
+    description: 'Getting started with Hats',
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+  },
+  {
+    chainId: 10,
+    id: 3,
+    name: 'For Chad Hats Dev',
+    description: 'Protocol & SDK Documentation: building on top of Hats',
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+  },
+];
+
+const featuredTemplates = [
   {
     chainId: 10,
     id: 2,
     name: 'Cabin DAO',
     description: 'A DAO for the Cabin community',
-    image: `https://ipfs.io/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     chainId: 100,
@@ -46,7 +69,31 @@ const featuredTrees = [
     id: 3,
     name: 'DemoDAO',
     description: 'An exquisite DAO for demo purposes',
-    image: `https://ipfs.io/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+  },
+];
+
+const featuredTrees = [
+  {
+    chainId: 10,
+    id: 2,
+    name: 'Cabin DAO',
+    description: 'A DAO for the Cabin community',
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+  },
+  {
+    chainId: 100,
+    id: 72,
+    name: 'The DIA',
+    description: 'A DAO for decentralized curation of intel',
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+  },
+  {
+    chainId: 10,
+    id: 3,
+    name: 'DemoDAO',
+    description: 'An exquisite DAO for demo purposes',
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
 ];
 
@@ -78,27 +125,27 @@ const Home = () => {
         <Stack spacing={12}>
           <Stack spacing={4}>
             <Heading as='h1' size='md' fontWeight={500}>
-              Get Started with Hats
+              Read more about how to get started with Hats
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
-              {_.map(featuredTrees, (tree, i) => (
+              {_.map(featuredDocumentation, (tree, i) => (
                 <FeaturedTreeCard key={i} treeData={tree} />
               ))}
             </SimpleGrid>
           </Stack>
           <Stack spacing={4}>
             <Heading as='h1' size='md' fontWeight={500}>
-              Jump Right In
+              Jump right in with a forkable Hat Tree template
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
-              {_.map(featuredTrees, (tree, i) => (
+              {_.map(featuredTemplates, (tree, i) => (
                 <FeaturedTreeCard key={i} treeData={tree} />
               ))}
             </SimpleGrid>
           </Stack>
           <Stack spacing={4}>
             <Heading as='h1' size='md' fontWeight={500}>
-              Exemplary Trees from around the Hats Ecosystem
+              Explore featured trees
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
               {_.map(featuredTrees, (tree, i) => (
