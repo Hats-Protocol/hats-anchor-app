@@ -124,12 +124,16 @@ const Home = () => {
       />
       <Flex py='150px' mx={20}>
         <Stack spacing={12}>
-          <Heading as='h1' size='md' fontWeight={500}>
-              Hey, {ensName || formatAddress(wearerAddress)}!
-          </Heading>
-          <Heading as='h3' size='md' fontWeight={500}>
-              Here's what's happening with your Hats
-          </Heading>
+          {wearerAddress ? (
+            <Heading size='md' fontWeight={500}>
+                Hey, {ensName || formatAddress(wearerAddress)}!
+                Here's what's happening with your Hats
+            </Heading>
+            ) : (
+              <Heading size='md' fontWeight={500}>
+                Welcome to Hats Protocol! Please connect your wallet to get started.
+              </Heading>
+          )}
           <Stack spacing={4} me='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Read more about how to get started with Hats
