@@ -123,11 +123,11 @@ const Home = () => {
       />
       <Flex py='150px' mx={20}>
         <Stack spacing={12}>
-          <Stack spacing={4}>
+          <Stack spacing={4} mx='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
               Read more about how to get started with Hats
             </Heading>
-            <SimpleGrid columns={3} spacing={6} mx='auto'>
+            <SimpleGrid columns={3} spacing={6}>
               {_.map(featuredDocumentation, (tree, i) => (
                 <FeaturedTreeCard key={i} treeData={tree} />
               ))}
