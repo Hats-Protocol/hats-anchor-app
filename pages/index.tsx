@@ -78,7 +78,27 @@ const Home = () => {
         <Stack spacing={12}>
           <Stack spacing={4}>
             <Heading as='h1' size='md' fontWeight={500}>
-              Featured Trees
+              Get Started with Hats
+            </Heading>
+            <SimpleGrid columns={3} spacing={6} mx='auto'>
+              {_.map(featuredTrees, (tree, i) => (
+                <FeaturedTreeCard key={i} treeData={tree} />
+              ))}
+            </SimpleGrid>
+          </Stack>
+          <Stack spacing={4}>
+            <Heading as='h1' size='md' fontWeight={500}>
+              Jump Right In
+            </Heading>
+            <SimpleGrid columns={3} spacing={6} mx='auto'>
+              {_.map(featuredTrees, (tree, i) => (
+                <FeaturedTreeCard key={i} treeData={tree} />
+              ))}
+            </SimpleGrid>
+          </Stack>
+          <Stack spacing={4}>
+            <Heading as='h1' size='md' fontWeight={500}>
+              Exemplary Trees from around the Hats Ecosystem
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
               {_.map(featuredTrees, (tree, i) => (
