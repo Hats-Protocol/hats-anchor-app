@@ -24,10 +24,9 @@ import { useForm } from 'react-hook-form';
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import { ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
-import useHatImageUpdate from '@/hooks/useHatImageUpdate';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import {
@@ -163,15 +162,28 @@ const HatDetailsForm = ({
     metadata: { name: `image_${_.toString(chainId)}_tophat` },
   });
 
-  const { writeAsync: writeAsyncImage, isLoading } = useHatImageUpdate({
-    hatsAddress: CONFIG.hatsAddress,
+  const { writeAsync: writeAsyncImage, isLoading } = useHatContractWrite({
+    functionName: 'changeHatImageURI',
+    args: [
+      _.get(hatData, 'id'),
+      customImage
+        ? imagePinData !== undefined
+          ? `ipfs://${imagePinData}`
+          : undefined
+        : imageUrl || '',
+    ],
     chainId,
-    hatId: _.get(hatData, 'id'),
-    image: customImage
-      ? imagePinData !== undefined
-        ? `ipfs://${imagePinData}`
-        : undefined
-      : imageUrl,
+    onSuccessToastData: {
+      title: 'Image updated!',
+      description: `Successfully updated the image for hat #${prettyIdToIp(
+        idToPrettyId(_.get(hatData, 'id')),
+      )}`,
+    },
+    queryKeys: [
+      ['hatDetails', _.get(hatData, 'id')],
+      ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+    ],
+    enabled: Boolean(_.get(hatData, 'id')),
   });
 
   const { writeAsync, isLoading: isLoadingUpdateDetails } = useHatContractWrite(
