@@ -17,7 +17,7 @@ interface ContractInteractionProps {
   chainId: number;
   onSuccessToastData: { title: string; description?: string };
   onErrorToastData?: { title: string; description?: string };
-  queryKeys: string[][];
+  queryKeys: (string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
 }
