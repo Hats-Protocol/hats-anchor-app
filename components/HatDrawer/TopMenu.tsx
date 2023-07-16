@@ -51,6 +51,7 @@ const TopMenu = ({
   setSelectedHatId,
   isAdminUser,
   isUserAdminOfAnyParent,
+  currentNetworkId,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -206,20 +207,43 @@ const TopMenu = ({
               <MenuItem
                 gap={2}
                 onClick={() => setModals?.({ createHat: true })}
+                isDisabled={chainId !== currentNetworkId}
               >
-                <HStack>
-                  <FaDoorOpen />
-                  <Text>Add Child Hat</Text>
-                </HStack>
+                <Tooltip
+                  label={
+                    chainId !== currentNetworkId
+                      ? "You can't create a child hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <HStack>
+                    <FaDoorOpen />
+                    <Text>Add Child Hat</Text>
+                  </HStack>
+                </Tooltip>
               </MenuItem>
             )}
             {address && (
               <MenuItem
                 gap={2}
                 onClick={() => setModals?.({ requestLink: true })}
+                isDisabled={chainId !== currentNetworkId}
               >
-                <FaLink />
-                Request to link tree here
+                <Tooltip
+                  label={
+                    chainId !== currentNetworkId
+                      ? "You can't request to link a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <HStack>
+                    <FaLink />
+
+                    <Text>Request to link tree here</Text>
+                  </HStack>
+                </Tooltip>
               </MenuItem>
             )}
             <Tooltip
@@ -235,10 +259,19 @@ const TopMenu = ({
                   !toggleIsContract
                 }
               >
-                <HStack>
-                  <FaDoorOpen />
-                  <Text>Test Status</Text>
-                </HStack>
+                <Tooltip
+                  label={
+                    chainId !== currentNetworkId
+                      ? "You can't test status of a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <HStack>
+                    <FaDoorOpen />
+                    <Text>Test Status</Text>
+                  </HStack>
+                </Tooltip>
               </MenuItem>
             </Tooltip>
             <MenuItem
@@ -313,4 +346,5 @@ interface TopMenuProps {
   wearerTopHats: string[];
   setSelectedHatId: (hatId?: string) => void;
   isUserAdminOfAnyParent: boolean;
+  currentNetworkId?: number;
 }

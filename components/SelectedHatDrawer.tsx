@@ -1,7 +1,7 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -46,6 +46,7 @@ const SelectedHatDrawer = ({
   const [activeStatus, setActiveStatus] = useState(STATUS.INACTIVE);
   const [mutableStatus, setMutableStatus] = useState(MUTABILITY.IMMUTABLE);
   const { setModals } = localOverlay;
+  const { chain } = useNetwork();
 
   const { hatRoles } = useHatGuilds({
     guildNames: guilds,
@@ -158,6 +159,7 @@ const SelectedHatDrawer = ({
           wearerTopHats={wearerTopHats}
           setSelectedHatId={setSelectedHatId}
           isUserAdminOfAnyParent={isUserAdminOfAnyParent}
+          currentNetworkId={chain?.id}
         />
 
         {!editMode && (
@@ -177,6 +179,7 @@ const SelectedHatDrawer = ({
             linkRequestFromTree={linkRequestFromTree}
             setModals={setModals}
             localOverlay={localOverlay}
+            currentNetworkId={chain?.id}
           />
         )}
 

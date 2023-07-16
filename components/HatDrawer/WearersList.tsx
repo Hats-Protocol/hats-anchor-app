@@ -45,6 +45,7 @@ const WearersList = ({
   setModals,
   localOverlay,
   isAdminUser,
+  currentNetworkId,
 }: WearersListProps) => {
   const { address } = useAccount();
   const [changeStatusWearer, setChangeStatusWearer] = useState('');
@@ -163,6 +164,7 @@ const WearersList = ({
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
             checkEligibility={checkEligibility}
+            isSameChain={chainId === currentNetworkId}
           />
         ))}
 
@@ -220,6 +222,7 @@ const WearersList = ({
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
               checkEligibility={checkEligibility}
+              isSameChain={chainId === currentNetworkId}
             />
           ))}
         </Flex>
@@ -281,6 +284,7 @@ const WearerRow = ({
   setChangeStatusWearer,
   setWearerToTransferFrom,
   checkEligibility,
+  isSameChain,
 }: {
   wearer: { id: string };
   isAdminUser: boolean;
@@ -293,6 +297,7 @@ const WearerRow = ({
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
   checkEligibility: (w: string) => void;
+  isSameChain: boolean;
 }) => {
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -336,12 +341,32 @@ const WearerRow = ({
                   setWearerToTransferFrom(wearer.id);
                 }}
               >
-                Transfer
+                <Tooltip
+                  label={
+                    !isSameChain
+                      ? "You can't transfer a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <Text>Transfer</Text>
+                </Tooltip>
               </MenuItem>
             )}
 
             {wearer.id === address?.toLowerCase() && (
-              <MenuItem onClick={handleRenounceHat}>Renounce</MenuItem>
+              <MenuItem onClick={handleRenounceHat}>
+                <Tooltip
+                  label={
+                    !isSameChain
+                      ? "You can't renounce a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <Text>Renounce</Text>
+                </Tooltip>
+              </MenuItem>
             )}
 
             {wearer.id !== address?.toLowerCase() && isAdminUser && (
@@ -353,7 +378,16 @@ const WearerRow = ({
                   setChangeStatusWearer(wearer.id);
                 }}
               >
-                Revoke Hat
+                <Tooltip
+                  label={
+                    !isSameChain
+                      ? "You can't revoke a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <Text>Revoke Hat</Text>
+                </Tooltip>
               </MenuItem>
             )}
 
@@ -362,7 +396,16 @@ const WearerRow = ({
                 checkEligibility(wearer.id);
               }}
             >
-              Test Eligibility
+              <Tooltip
+                label={
+                  !isSameChain
+                    ? "You can't test eligibility of a hat on a different chain"
+                    : ''
+                }
+                shouldWrapChildren
+              >
+                <Text>Test Eligibility</Text>
+              </Tooltip>
             </MenuItem>
           </MenuList>
         </Menu>
@@ -381,4 +424,5 @@ interface WearersListProps {
   setModals: any;
   localOverlay: any;
   isAdminUser: boolean;
+  currentNetworkId?: number;
 }
