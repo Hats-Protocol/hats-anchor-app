@@ -7,6 +7,7 @@ import {
   HStack,
   Icon,
   Image,
+  Link,
   ListItem,
   Stack,
   Text,
@@ -25,9 +26,8 @@ import {
 } from 'react-icons/fa';
 
 import { MUTABILITY, STATUS } from '@/constants';
-import { Authority } from '@/forms/AuthorityDetailsForm';
+import { Authority, Responsibility } from '@/forms/HatDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
 import { formatAddress } from '@/lib/general';
@@ -68,6 +68,13 @@ const MainContent = ({
     setLinkTo(to);
     setModals?.({ linkResponse: true });
   };
+
+  function ensureProtocol(url: string) {
+    if (!/^https?:\/\//i.test(url)) {
+      return `http://${url}`;
+    }
+    return url;
+  }
 
   useEffect(() => {
     const check = async () => {
@@ -192,7 +199,11 @@ const MainContent = ({
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
                     {link && (
-                      <ChakraNextLink isExternal href={link} display='block'>
+                      <ChakraNextLink
+                        isExternal
+                        href={ensureProtocol(link)}
+                        display='block'
+                      >
                         <Icon
                           as={FaExternalLinkAlt}
                           w='12px'
@@ -215,12 +226,16 @@ const MainContent = ({
           </Heading>
           <UnorderedList>
             {authorities?.length ? (
-              authorities.map(({ label, link }: Responsibility) => (
+              authorities.map(({ label, link }: Authority) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
                     {link && (
-                      <ChakraNextLink isExternal href={link} display='block'>
+                      <ChakraNextLink
+                        isExternal
+                        href={ensureProtocol(link)}
+                        display='block'
+                      >
                         <Icon
                           as={FaExternalLinkAlt}
                           w='12px'

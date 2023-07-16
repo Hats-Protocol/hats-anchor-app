@@ -5,8 +5,7 @@ import { useAccount, useNetwork } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { Authority } from '@/forms/AuthorityDetailsForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
+import { Authority, Responsibility } from '@/forms/HatDetailsForm';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
