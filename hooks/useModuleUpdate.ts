@@ -1,31 +1,17 @@
-import { useQueryClient } from '@tanstack/react-query';
-import _ from 'lodash';
-import { useState } from 'react';
-import {
-  useContractWrite,
-  useEnsAddress,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { isAddress } from 'viem';
+import { useEnsAddress } from 'wagmi';
 
-import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import abi from '@/contracts/Hats.json';
-import useToast from '@/hooks/useToast';
+import { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
-const useModuleUpdate = ({
+export const useModuleUpdate = ({
   hatsAddress,
   chainId,
   hatId,
   moduleType,
   newAddress,
 }: UseModuleUpdateProps) => {
-  const toast = useToast();
-  const { handlePendingTx } = useOverlay();
-  const queryClient = useQueryClient();
-  const [hash, setHash] = useState<`0x${string}`>();
-
   const { data: newResolvedAddress, isLoading: isLoadingNewResolvedAddress } =
     useEnsAddress({
       name: newAddress,
@@ -39,64 +25,30 @@ const useModuleUpdate = ({
 
   const address = (newResolvedAddress ?? newAddress) || ZERO_ADDRESS;
 
-  const { config } = usePrepareContractWrite({
-    address: hatsAddress || CONFIG.hatsAddress,
-    chainId: _.toNumber(chainId),
-    abi,
+  const { writeAsync, isLoading } = useHatContractWrite({
     functionName,
     args: [decimalId(hatId), address],
-    enabled: !!hatsAddress && !!moduleType && !!hatId && !!newAddress,
-  });
-
-  const { writeAsync } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      setHash(data.hash);
-
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
-
-      await handlePendingTx({
-        hash: _.get(data, 'hash'),
-        toastData: {
-          title: `${moduleType} module updated!`,
-          description: `Successfully updated the ${moduleType} module of hat #${prettyIdToIp(
-            idToPrettyId(hatId),
-          )}`,
-        },
-      });
-
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
-        queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(hatId)],
-        });
-      }, 4000);
+    chainId,
+    onSuccessToastData: {
+      title: `${moduleType} module updated!`,
+      description: `Successfully updated the ${moduleType} module of hat #${prettyIdToIp(
+        idToPrettyId(hatId),
+      )}`,
     },
-    onError: (error) => {
-      if (error.name === 'UserRejectedRequestError') {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
-        });
-      } else {
-        toast.error({
-          title: 'Error occurred!',
-          // description: 'Please accept the transaction in your wallet',
-        });
-      }
+    onErrorToastData: {
+      title: 'Error occurred!',
     },
-  });
-
-  const { isLoading } = useWaitForTransaction({
-    hash,
+    queryKeys: [
+      ['hatDetails', hatId],
+      ['treeDetails', toTreeId(hatId)],
+    ],
+    transactionTimeout: 4000,
+    enabled: Boolean(hatsAddress) && isAddress(newAddress),
   });
 
   return {
     writeAsync,
-    isLoading: isLoadingNewResolvedAddress || isLoading,
+    isLoading: isLoading || isLoadingNewResolvedAddress,
     newResolvedAddress,
   };
 };
