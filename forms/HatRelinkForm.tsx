@@ -15,16 +15,17 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
 import Textarea from '@/components/Textarea';
-import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import useHatRelinkTree from '@/hooks/useHatRelinkTree';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { prettyIdToIp } from '@/lib/hats';
+import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 
 const HatRelinkForm = ({
@@ -92,23 +93,43 @@ const HatRelinkForm = ({
   });
 
   const {
-    writeAsync,
-    isLoading,
-    toggleResolvedAddress,
-    eligibilityResolvedAddress,
-  } = useHatRelinkTree({
-    topHatDomain: hatData.prettyId,
-    newAdmin,
-    eligibility: eligibilityChecked && eligibility,
-    toggle: toggleChecked && toggle,
-    description,
-    // eslint-disable-next-line no-nested-ternary
-    imageUrl: newImage
-      ? imagePinData !== undefined
-        ? `ipfs://${imagePinData}`
-        : undefined
-      : imageUrl,
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({ name: eligibility, chainId: 1 });
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({ name: toggle, chainId: 1 });
+
+  const eligibilityAddress = eligibilityResolvedAddress || FALLBACK_ADDRESS;
+  const toggleAddress = toggleResolvedAddress || FALLBACK_ADDRESS;
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'relinkTopHatWithinTree',
     chainId,
+    args: [
+      hatData.prettyId,
+      decimalId(prettyIdToId(newAdmin)),
+      eligibilityAddress,
+      toggleAddress,
+      description,
+      // eslint-disable-next-line no-nested-ternary
+      newImage
+        ? imagePinData !== undefined
+          ? `ipfs://${imagePinData}`
+          : undefined
+        : imageUrl,
+    ],
+    onSuccessToastData: {
+      title: 'Top Hat Relinked!',
+      description: `Successfully relinked top hat ${prettyIdToIp(
+        hatData.prettyId,
+      )} to ${prettyIdToIp(newAdmin)}`,
+    },
+    onErrorToastData: {
+      title: 'Error occurred!',
+    },
+    enabled: !!hatData.prettyId && !!newAdmin,
   });
 
   const showEligilityResolvedAddress =
@@ -251,7 +272,13 @@ const HatRelinkForm = ({
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync || imagePinLoading || isLoading}
+            isDisabled={
+              !writeAsync ||
+              imagePinLoading ||
+              isLoading ||
+              isLoadingEligibilityResolvedAddress ||
+              isLoadingToggleResolvedAddress
+            }
           >
             {imagePinLoading ? <Spinner /> : 'Relink'}
           </Button>
