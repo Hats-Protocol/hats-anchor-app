@@ -20,7 +20,6 @@ interface ContractInteractionProps {
   queryKeys?: (string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
-  onSuccessCallback?: () => void; // implement later
 }
 
 const useHatContractWrite = ({

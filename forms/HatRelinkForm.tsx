@@ -106,7 +106,6 @@ const HatRelinkForm = ({
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'relinkTopHatWithinTree',
-    chainId,
     args: [
       hatData.prettyId,
       decimalId(prettyIdToId(newAdmin)),
@@ -120,14 +119,12 @@ const HatRelinkForm = ({
           : undefined
         : imageUrl,
     ],
+    chainId,
     onSuccessToastData: {
       title: 'Top Hat Relinked!',
       description: `Successfully relinked top hat ${prettyIdToIp(
         hatData.prettyId,
       )} to ${prettyIdToIp(newAdmin)}`,
-    },
-    onErrorToastData: {
-      title: 'Error occurred!',
     },
     enabled: !!hatData.prettyId && !!newAdmin,
   });

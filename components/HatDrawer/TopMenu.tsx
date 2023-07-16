@@ -77,14 +77,10 @@ const TopMenu = ({
         title: 'Hat Status Updated!',
         description: 'Successfully updated hat',
       },
-      onErrorToastData: {
-        title: 'Error occurred!',
-      },
       queryKeys: [
         ['hatDetails', hatData.id],
         ['treeDetails', toTreeId(hatData.id)],
       ],
-      transactionTimeout: 4000,
       enabled: Boolean(hatData) && address === hatData.toggle,
     });
 

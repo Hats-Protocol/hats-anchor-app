@@ -55,9 +55,6 @@ const HatTransferForm = ({
         prettyId,
       )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
     },
-    onErrorToastData: {
-      title: 'Error occurred!',
-    },
     queryKeys: [
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],

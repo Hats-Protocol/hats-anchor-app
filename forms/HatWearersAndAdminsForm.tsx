@@ -98,9 +98,6 @@ const HatWearersAndAdminsForm = ({
           idToPrettyId(hatData?.id),
         )}`,
       },
-      onErrorToastData: {
-        title: 'Error occurred!',
-      },
       queryKeys: [
         ['hatDetails', hatData?.id],
         ['treeDetails', toTreeId(hatData?.id)],

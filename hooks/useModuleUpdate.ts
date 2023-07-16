@@ -35,9 +35,6 @@ const useModuleUpdate = ({
         idToPrettyId(hatId),
       )}`,
     },
-    onErrorToastData: {
-      title: 'Error occurred!',
-    },
     queryKeys: [
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],

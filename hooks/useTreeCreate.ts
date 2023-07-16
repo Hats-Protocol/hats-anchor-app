@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { isAddress } from 'viem';
 import { useAccount, useEnsAddress } from 'wagmi';
 
@@ -12,7 +11,6 @@ const useTreeCreate = ({
   imageUrl,
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
-
   const {
     data: newReceiverResolvedAddress,
     isLoading: isLoadingNewReceiverResolvedAddress,
@@ -32,9 +30,6 @@ const useTreeCreate = ({
     onSuccessToastData: {
       title: 'Tree created!',
       description: 'Successfully created tree',
-    },
-    onErrorToastData: {
-      title: 'Error occurred!',
     },
     queryKeys: [['treeList', chainId]],
     enabled: isAddress(

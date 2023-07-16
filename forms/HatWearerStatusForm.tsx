@@ -52,9 +52,6 @@ const HatWearerStatusForm = ({
       title: 'Wearer Status Updated',
       description: 'Successfully updated hat',
     },
-    onErrorToastData: {
-      title: 'Error occurred!',
-    },
     queryKeys: [
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],

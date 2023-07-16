@@ -122,17 +122,11 @@ const HatWearerForm = ({
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [
-        new Array(newWearers.length + 1).fill(decimalId(hatId)),
-        newWearers,
-      ],
+      args: [decimalId(hatId), currentResolvedAddress],
       chainId,
       onSuccessToastData: {
         title: `Hat Minted!`,
         description: `Successfully minted hat`,
-      },
-      onErrorToastData: {
-        title: 'Error occurred!',
       },
       queryKeys: [
         ['hatDetails', hatId],
