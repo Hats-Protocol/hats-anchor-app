@@ -1,12 +1,13 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { isAddress } from 'viem';
 
 import Select from '@/components/Select';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatDetails from '@/hooks/useHatDetails';
-import useHatUnlinkTree from '@/hooks/useHatUnlinkTree';
 import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
 
 const HatUnlinkForm = ({
@@ -34,10 +35,21 @@ const HatUnlinkForm = ({
     chainId,
   });
 
-  const { writeAsync, isLoading } = useHatUnlinkTree({
-    topHatPrettyId,
-    wearer: topHatData?.wearers?.[0]?.id || '0x',
+  const wearer = topHatData?.wearers?.[0]?.id || '0x';
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'unlinkTopHatFromTree',
+    args: [topHatPrettyId, wearer],
     chainId,
+    onSuccessToastData: {
+      title: `Top Hat Unlinked!`,
+      description: `Successfully unlinked top hat #${prettyIdToIp(
+        topHatPrettyId,
+      )}`,
+    },
+    queryKeys: [['topHat', topHatPrettyId]],
+    transactionTimeout: 4000,
+    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
   const onSubmit = async () => {
