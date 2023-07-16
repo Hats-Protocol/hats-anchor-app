@@ -112,7 +112,7 @@ const HatWearersAndAdminsForm = ({
     useHatMakeImmutable({
       hatsAddress: CONFIG.hatsAddress,
       chainId,
-      hatData,
+      hatId: hatData.id,
       levelAtLocalTree,
     });
 

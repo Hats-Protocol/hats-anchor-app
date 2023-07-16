@@ -326,6 +326,36 @@ export const isAdmin = (
   return !!includesAny(wearerHatIds, hatIds);
 };
 
+/**
+ * @param hatId should be a `prettyId`
+ * @param wearerHatIds should be an array of `prettyId`s worn by the wearer
+ */
+export const isAdminOfAnyParent = (wearerHatIds: string[], hatId?: string) => {
+  console.log('wearerHatIds', wearerHatIds);
+  if (!hatId) return false;
+  console.log('hatId', hatId);
+  const treeId = hatId.slice(0, 10);
+  console.log('treeId', treeId);
+  // separate children IDs
+  const children = hatId.slice(11);
+  console.log('children', children);
+  const parentHats = _.split(children, '.');
+
+  // map all parent hatIds for the lineage
+  console.log('parentHats', parentHats);
+  const parentHatIds = _.map(parentHats, (__, i) => {
+    const joinedParentHats =
+      i > 0 ? `.${_.join(parentHats.slice(0, i), '.')}` : '';
+    return `${treeId}${joinedParentHats}`;
+  });
+
+  console.log('parentHatIds', parentHatIds);
+
+  if (!wearerHatIds) return false;
+  // check if any of the wearer hats' IDs are admin of any parent hat IDs
+  return !!includesAny(wearerHatIds, parentHatIds);
+};
+
 export const isTopHat = (hatData: IHat) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.prettyId') === _.get(hatData, 'prettyId');

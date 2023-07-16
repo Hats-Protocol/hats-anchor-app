@@ -16,17 +16,17 @@ import {
   decimalId,
   idToPrettyId,
   isAdmin,
+  isAdminOfAnyParent,
   prettyIdToIp,
   toTreeId,
 } from '@/lib/hats';
-import { IHat } from '@/types';
 
 import useWearerDetails from './useWearerDetails';
 
 const useHatMakeImmutable = ({
   hatsAddress,
   chainId,
-  hatData,
+  hatId,
   levelAtLocalTree,
 }: UseHatMakeImmutableProps) => {
   const toast = useToast();
@@ -42,12 +42,13 @@ const useHatMakeImmutable = ({
     chainId: Number(chainId),
     abi,
     functionName: 'makeHatImmutable',
-    args: [decimalId(hatData?.id)],
+    args: [decimalId(hatId)],
     enabled:
       !!hatsAddress &&
-      !!decimalId(hatData?.id) &&
+      !!decimalId(hatId) &&
       _.gt(levelAtLocalTree, 0) &&
-      isAdmin(_.map(wearerHats, 'id'), hatData?.id),
+      (isAdminOfAnyParent(_.map(wearerHats, 'id'), hatId) ||
+        isAdmin(_.map(wearerHats, 'id'), hatId)),
   });
 
   const { writeAsync } = useContractWrite({
@@ -65,17 +66,17 @@ const useHatMakeImmutable = ({
         toastData: {
           title: 'Hat Updated!',
           description: `Successfully made hat #${prettyIdToIp(
-            idToPrettyId(hatData.id),
+            idToPrettyId(hatId),
           )} immutable`,
         },
       });
 
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ['hatDetails', hatData.id],
+          queryKey: ['hatDetails', hatId],
         });
         queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(hatData.id)],
+          queryKey: ['treeDetails', toTreeId(hatId)],
         });
       }, 4000);
     },
@@ -106,6 +107,6 @@ export default useHatMakeImmutable;
 interface UseHatMakeImmutableProps {
   hatsAddress?: `0x${string}`;
   chainId: number;
-  hatData: IHat;
+  hatId: string;
   levelAtLocalTree: number;
 }

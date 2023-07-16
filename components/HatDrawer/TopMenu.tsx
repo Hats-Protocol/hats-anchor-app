@@ -45,11 +45,12 @@ const TopMenu = ({
   hatData,
   editMode,
   setEditMode,
-  isAdminUser,
   isCurrentWearer,
   localOverlay,
   wearerTopHats,
   setSelectedHatId,
+  isAdminUser,
+  isUserAdminOfAnyParent,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -62,10 +63,11 @@ const TopMenu = ({
   } = useHatMakeImmutable({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
-    hatData,
+    hatId: hatData.id,
     levelAtLocalTree: hatData.levelAtLocalTree,
   });
-  const { writeAsync: deactivateHat, isLoading: isLoadingDeactivateHat } =
+
+  const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatStatusUpdate({
       hatsAddress: CONFIG.hatsAddress,
       chainId,
@@ -148,45 +150,57 @@ const TopMenu = ({
             </HStack>
           </MenuButton>
           <MenuList gap={5}>
-            {isAdminUser && (
-              <>
-                <MenuItem
-                  gap={2}
-                  onClick={() => updateImmutability?.()}
-                  isDisabled={
-                    mutableStatus === MUTABILITY.IMMUTABLE ||
-                    !updateImmutability ||
-                    isLoadingUpdateImmutability
+            {(isAdminUser || isUserAdminOfAnyParent) && (
+              <MenuItem
+                gap={2}
+                onClick={() => updateImmutability?.()}
+                isDisabled={
+                  mutableStatus === MUTABILITY.IMMUTABLE ||
+                  !updateImmutability ||
+                  isLoadingUpdateImmutability
+                }
+              >
+                <Tooltip
+                  label={
+                    !updateImmutability
+                      ? "You don't have permission to make this hat immutable"
+                      : ''
                   }
+                  shouldWrapChildren
                 >
-                  <FaLock />
-                  Make immutable
-                </MenuItem>
-                <MenuItem
-                  gap={2}
-                  onClick={() => deactivateHat?.()}
-                  isDisabled={
-                    address?.toLowerCase() !== hatData?.toggle ||
-                    isLoadingDeactivateHat ||
-                    !hatData?.status ||
-                    !deactivateHat
+                  <HStack>
+                    <FaLock />
+                    <Text>Make immutable</Text>
+                  </HStack>
+                </Tooltip>
+              </MenuItem>
+            )}
+            {(isAdminUser || hatData?.toggle === address?.toLowerCase()) && (
+              <MenuItem
+                gap={2}
+                onClick={() => toggleHat?.()}
+                isDisabled={
+                  address?.toLowerCase() !== hatData?.toggle ||
+                  isLoadingToggleHat ||
+                  !toggleHat
+                }
+              >
+                <Tooltip
+                  label={
+                    address?.toLowerCase() !== hatData?.toggle
+                      ? "Your address doesn't match the hat's toggle address"
+                      : ''
                   }
+                  shouldWrapChildren
                 >
-                  <Tooltip
-                    label={
-                      address?.toLowerCase() !== hatData?.toggle
-                        ? "You don't have the permission to toggle this hat"
-                        : ''
-                    }
-                    shouldWrapChildren
-                  >
-                    <HStack>
-                      <FaPowerOff />
-                      <Text>Deactivate Hat</Text>
-                    </HStack>
-                  </Tooltip>
-                </MenuItem>
-              </>
+                  <HStack>
+                    <FaPowerOff />
+                    <Text>
+                      {hatData?.status ? 'Deactivate' : 'Activate'} Hat
+                    </Text>
+                  </HStack>
+                </Tooltip>
+              </MenuItem>
             )}
             {(isAdminUser || isCurrentWearer) && (
               <MenuItem
@@ -298,4 +312,5 @@ interface TopMenuProps {
   localOverlay: IOverlayContext;
   wearerTopHats: string[];
   setSelectedHatId: (hatId?: string) => void;
+  isUserAdminOfAnyParent: boolean;
 }
