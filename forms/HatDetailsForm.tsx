@@ -24,17 +24,23 @@ import { useForm } from 'react-hook-form';
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import CONFIG from '@/constants';
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
-import useHatDetailsUpdate from '@/hooks/useHatDetailsUpdate';
 import useHatImageUpdate from '@/hooks/useHatImageUpdate';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
-import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  isTopHat,
+  prettyIdToIp,
+  toTreeId,
+} from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import ItemDetailsForm from './ItemDetailsForm';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 
 export type Authority = {
   link: string;
@@ -168,12 +174,27 @@ const HatDetailsForm = ({
       : imageUrl,
   });
 
-  const { writeAsync } = useHatDetailsUpdate({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId: _.get(hatData, 'id'),
-    details: detailsCID,
-  });
+  const { writeAsync, isLoading: isLoadingUpdateDetails } = useHatContractWrite(
+    {
+      functionName: 'changeHatDetails',
+      args: [
+        decimalId(_.get(hatData, 'id')) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
+        detailsCID || '',
+      ],
+      chainId: Number(chainId),
+      onSuccessToastData: {
+        title: 'Details updated!',
+        description: `Successfully updated the details for hat #${prettyIdToIp(
+          idToPrettyId(_.get(hatData, 'id')),
+        )}`,
+      },
+      queryKeys: [
+        ['hatDetails', _.get(hatData, 'id')],
+        ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+      ],
+      enabled: Boolean(_.get(hatData, 'id')) && Boolean(detailsCID),
+    },
+  );
 
   const onSubmitDetails = async () => {
     writeAsync?.();
@@ -333,16 +354,18 @@ const HatDetailsForm = ({
           <Button
             type='button'
             onClick={handleSubmit(onSubmitDetails)}
-            isDisabled={!writeAsync || detailsCidLoading}
+            isDisabled={!writeAsync}
+            isLoading={isLoadingUpdateDetails || detailsCidLoading}
           >
             Update Details
           </Button>
           <Button
             type='button'
             onClick={handleSubmit(onSubmitImage)}
-            isDisabled={!writeAsyncImage || imagePinLoading || isLoading}
+            isDisabled={!writeAsyncImage}
+            isLoading={isLoading || imagePinLoading}
           >
-            {imagePinLoading ? <Spinner /> : 'Update Image'}
+            Update Image
           </Button>
         </HStack>
       </Stack>
