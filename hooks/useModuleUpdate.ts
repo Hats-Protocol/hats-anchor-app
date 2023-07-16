@@ -5,7 +5,7 @@ import { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
-export const useModuleUpdate = ({
+const useModuleUpdate = ({
   hatsAddress,
   chainId,
   hatId,
@@ -42,7 +42,6 @@ export const useModuleUpdate = ({
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],
     ],
-    transactionTimeout: 4000,
     enabled: Boolean(hatsAddress) && isAddress(newAddress),
   });
 

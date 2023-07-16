@@ -48,7 +48,6 @@ const HatUnlinkForm = ({
       )}`,
     },
     queryKeys: [['topHat', topHatPrettyId]],
-    transactionTimeout: 4000,
     enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 

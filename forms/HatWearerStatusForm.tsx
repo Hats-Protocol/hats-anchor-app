@@ -59,7 +59,6 @@ const HatWearerStatusForm = ({
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],
     ],
-    transactionTimeout: 4000,
     enabled: isAddress(wearerAddress),
   });
 

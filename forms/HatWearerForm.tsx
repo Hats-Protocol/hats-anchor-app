@@ -138,7 +138,6 @@ const HatWearerForm = ({
         ['hatDetails', hatId],
         ['treeDetails', toTreeId(hatId)],
       ],
-      transactionTimeout: 4000,
       enabled: Boolean(decimalId(hatId)) && isAddress(currentResolvedAddress),
     });
 

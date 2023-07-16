@@ -37,7 +37,6 @@ const useTreeCreate = ({
       title: 'Error occurred!',
     },
     queryKeys: [['treeList', chainId]],
-    transactionTimeout: 4000,
     enabled: isAddress(
       overrideReceiver ? newReceiverResolvedAddress ?? receiver : address || '',
     ),

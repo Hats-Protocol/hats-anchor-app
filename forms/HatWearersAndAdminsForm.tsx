@@ -16,10 +16,16 @@ import ChakraNextLink from '@/components/ChakraNextLink';
 import Input from '@/components/Input';
 import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
-import useHatSupplyUpdate from '@/hooks/useHatSupplyUpdate';
 import useModuleUpdate from '@/hooks/useModuleUpdate';
-import { isTopHat, prettyIdToIp } from '@/lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  isTopHat,
+  prettyIdToIp,
+  toTreeId,
+} from '@/lib/hats';
 
 const HatWearersAndAdminsForm = ({
   defaultAdmin,
@@ -82,11 +88,24 @@ const HatWearersAndAdminsForm = ({
 
   // changeHatMaxSupply
   const { writeAsync: writeAsyncMaxSupply, isLoading: isLoadingMaxSupply } =
-    useHatSupplyUpdate({
-      hatsAddress: CONFIG.hatsAddress,
+    useHatContractWrite({
+      functionName: 'changeHatMaxSupply',
+      args: [decimalId(hatData?.id), maxSupply],
       chainId,
-      hatId: hatData?.id,
-      amount: maxSupply,
+      onSuccessToastData: {
+        title: 'Max Supply updated!',
+        description: `Successfully updated the max supply of hat #${prettyIdToIp(
+          idToPrettyId(hatData?.id),
+        )}`,
+      },
+      onErrorToastData: {
+        title: 'Error occurred!',
+      },
+      queryKeys: [
+        ['hatDetails', hatData?.id],
+        ['treeDetails', toTreeId(hatData?.id)],
+      ],
+      enabled: Boolean(hatData?.id) && Boolean(maxSupply),
     });
 
   // changeHatEligibility

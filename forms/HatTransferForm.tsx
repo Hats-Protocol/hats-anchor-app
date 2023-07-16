@@ -62,7 +62,6 @@ const HatTransferForm = ({
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],
     ],
-    transactionTimeout: 4000,
     enabled:
       Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
