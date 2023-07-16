@@ -2,7 +2,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useState } from 'react';
 import {
-  useAccount,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -12,30 +11,19 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import {
-  decimalId,
-  idToPrettyId,
-  isAdmin,
-  isAdminOfAnyParent,
-  prettyIdToIp,
-  toTreeId,
-} from '@/lib/hats';
-
-import useWearerDetails from './useWearerDetails';
+import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const useHatMakeImmutable = ({
   hatsAddress,
   chainId,
   hatId,
   levelAtLocalTree,
+  isAdminUser,
 }: UseHatMakeImmutableProps) => {
   const toast = useToast();
-  const { address } = useAccount();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
-
-  const { data: wearerHats } = useWearerDetails({ wearerAddress: address });
 
   const { config } = usePrepareContractWrite({
     address: hatsAddress || CONFIG.hatsAddress,
@@ -47,8 +35,7 @@ const useHatMakeImmutable = ({
       !!hatsAddress &&
       !!decimalId(hatId) &&
       _.gt(levelAtLocalTree, 0) &&
-      (isAdminOfAnyParent(_.map(wearerHats, 'id'), hatId) ||
-        isAdmin(_.map(wearerHats, 'id'), hatId)),
+      isAdminUser,
   });
 
   const { writeAsync } = useContractWrite({
@@ -109,4 +96,5 @@ interface UseHatMakeImmutableProps {
   chainId: number;
   hatId: string;
   levelAtLocalTree: number;
+  isAdminUser: boolean;
 }

@@ -50,7 +50,6 @@ const TopMenu = ({
   wearerTopHats,
   setSelectedHatId,
   isAdminUser,
-  isUserAdminOfAnyParent,
   currentNetworkId,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
@@ -66,6 +65,7 @@ const TopMenu = ({
     chainId,
     hatId: hatData.id,
     levelAtLocalTree: hatData.levelAtLocalTree,
+    isAdminUser,
   });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
@@ -151,7 +151,7 @@ const TopMenu = ({
             </HStack>
           </MenuButton>
           <MenuList gap={5}>
-            {(isAdminUser || isUserAdminOfAnyParent) && (
+            {isAdminUser && (
               <MenuItem
                 gap={2}
                 onClick={() => updateImmutability?.()}
@@ -345,6 +345,5 @@ interface TopMenuProps {
   localOverlay: IOverlayContext;
   wearerTopHats: string[];
   setSelectedHatId: (hatId?: string) => void;
-  isUserAdminOfAnyParent: boolean;
   currentNetworkId?: number;
 }

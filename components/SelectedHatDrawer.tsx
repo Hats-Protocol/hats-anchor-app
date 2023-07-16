@@ -9,7 +9,7 @@ import { Authority, Responsibility } from '@/forms/HatDetailsForm';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { isAdmin, isAdminOfAnyParent, isTopHat } from '@/lib/hats';
+import { isAdmin, isTopHat } from '@/lib/hats';
 import { HierarchyObject, IHat } from '@/types';
 
 import BottomMenu from './HatDrawer/BottomMenu';
@@ -38,7 +38,6 @@ const SelectedHatDrawer = ({
   const [isCurrentWearer, setIsCurrentWearer] = useState(false);
   const [wearerTopHats, setWearerTopHats] = useState<string[]>([]);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [isUserAdminOfAnyParent, setIsUserAdminOfAnyParent] = useState(false);
   const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
     [],
   );
@@ -75,10 +74,7 @@ const SelectedHatDrawer = ({
       );
 
       setWearerTopHats(topHats);
-      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId));
-      setIsUserAdminOfAnyParent(
-        isAdminOfAnyParent(currentWearerHats, selectedHatId),
-      );
+      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId, true));
     }
   }, [wearer, chainId]);
 
@@ -157,7 +153,6 @@ const SelectedHatDrawer = ({
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
           setSelectedHatId={setSelectedHatId}
-          isUserAdminOfAnyParent={isUserAdminOfAnyParent}
           currentNetworkId={chain?.id}
         />
 
