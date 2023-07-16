@@ -35,11 +35,9 @@ import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
-import CONFIG from '@/constants';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';
-import useMintHat from '@/hooks/useHatMint';
 import { decimalId, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
@@ -122,11 +120,26 @@ const HatWearerForm = ({
   });
 
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
-    useMintHat({
-      hatsAddress: CONFIG.hatsAddress,
+    useHatContractWrite({
+      functionName: 'mintHat',
+      args: [
+        new Array(newWearers.length + 1).fill(decimalId(hatId)),
+        newWearers,
+      ],
       chainId,
-      hatId,
-      newWearer: currentResolvedAddress,
+      onSuccessToastData: {
+        title: `Hat Minted!`,
+        description: `Successfully minted hat`,
+      },
+      onErrorToastData: {
+        title: 'Error occurred!',
+      },
+      queryKeys: [
+        ['hatDetails', hatId],
+        ['treeDetails', toTreeId(hatId)],
+      ],
+      transactionTimeout: 4000,
+      enabled: Boolean(decimalId(hatId)) && isAddress(currentResolvedAddress),
     });
 
   const onSubmit = async () => {
