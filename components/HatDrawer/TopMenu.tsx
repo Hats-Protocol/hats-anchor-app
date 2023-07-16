@@ -31,11 +31,11 @@ import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
 import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
-import useHatStatusUpdate from '@/hooks/useHatStatusUpdate';
 import useToast from '@/hooks/useToast';
-import { decimalId, isTopHat } from '@/lib/hats';
+import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const TopMenu = ({
@@ -69,11 +69,23 @@ const TopMenu = ({
   });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
-    useHatStatusUpdate({
-      hatsAddress: CONFIG.hatsAddress,
+    useHatContractWrite({
+      functionName: 'setHatStatus',
+      args: [hatData.id, hatData.status ? STATUS.INACTIVE : STATUS.ACTIVE],
       chainId,
-      hatData,
-      status: STATUS.INACTIVE,
+      onSuccessToastData: {
+        title: 'Hat Status Updated!',
+        description: 'Successfully updated hat',
+      },
+      onErrorToastData: {
+        title: 'Error occurred!',
+      },
+      queryKeys: [
+        ['hatDetails', hatData.id],
+        ['treeDetails', toTreeId(hatData.id)],
+      ],
+      transactionTimeout: 4000,
+      enabled: Boolean(hatData) && address === hatData.toggle,
     });
 
   const {
