@@ -25,9 +25,16 @@ import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
+<<<<<<< HEAD
 import { ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
+=======
+import CONFIG, { ZERO_ADDRESS } from '@/constants';
+import useCid from '@/hooks/useCid';
+import useDebounce from '@/hooks/useDebounce';
+import useHatImageUpdate from '@/hooks/useHatImageUpdate';
+>>>>>>> da2ac2c3 (replace useHatDetailsUpdate)
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import {
