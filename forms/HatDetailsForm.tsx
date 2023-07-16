@@ -34,10 +34,17 @@ import useResolveGuild from '@/hooks/useResolvedGuild';
 import { isTopHat, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
-import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
-import ResponsibilityDetailsForm, {
-  Responsibility,
-} from './ResponsibilityDetailsForm';
+import ItemDetailsForm from './ItemDetailsForm';
+
+export type Authority = {
+  link: string;
+  label: string;
+};
+
+export type Responsibility = {
+  link: string;
+  label: string;
+};
 
 const HatDetailsForm = ({
   hatData,
@@ -205,18 +212,22 @@ const HatDetailsForm = ({
               placeholder='Hat description'
             />
 
-            <ResponsibilityDetailsForm
-              responsibilities={responsibilities}
-              setResponsibilities={setResponsibilities}
-              handleAddResponsibility={handleAddResponsibility}
-              handleRemoveResponsibility={handleRemoveResponsibility}
+            <ItemDetailsForm
+              items={responsibilities}
+              setItems={setResponsibilities}
+              handleAddItem={handleAddResponsibility}
+              handleRemoveItem={handleRemoveResponsibility}
+              title='Responsibilities'
+              label='Responsibility'
             />
 
-            <AuthorityDetailsForm
-              authorities={authorities}
-              setAuthorities={setAuthorities}
-              handleAddAuthority={handleAddAuthority}
-              handleRemoveAuthority={handleRemoveAuthority}
+            <ItemDetailsForm
+              items={authorities}
+              setItems={setAuthorities}
+              handleAddItem={handleAddAuthority}
+              handleRemoveItem={handleRemoveAuthority}
+              title='Authorities'
+              label='Authority'
             />
 
             <Switch
