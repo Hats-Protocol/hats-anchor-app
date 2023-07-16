@@ -132,7 +132,7 @@ const WearersList = ({
       <Stack spacing={4}>
         <Flex justify='space-between'>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Hat Wearer
+            Hat Wearers
           </Heading>
           <Flex gap={1}>
             <Text>{wearers?.length}</Text>
@@ -140,17 +140,19 @@ const WearersList = ({
           </Flex>
         </Flex>
 
-        <InputGroup>
-          <InputLeftElement pointerEvents='none'>
-            <FaSearch />
-          </InputLeftElement>
-          <Input
-            // add left icon inside of input field
-            placeholder='Find by address (0x) or ens (.eth)'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </InputGroup>
+        {wearers?.length > 5 && (
+          <InputGroup>
+            <InputLeftElement pointerEvents='none'>
+              <FaSearch />
+            </InputLeftElement>
+            <Input
+              // add left icon inside of input field
+              placeholder='Find by address (0x) or ens (.eth)'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        )}
         {/* Wearers list */}
         {_.slice(filteredWearers, 0, 6).map((wearer: { id: string }) => (
           <WearerRow
