@@ -49,7 +49,6 @@ export const useModuleUpdate = ({
   return {
     writeAsync,
     isLoading: isLoading || isLoadingNewResolvedAddress,
-    newResolvedAddress,
   };
 };
 

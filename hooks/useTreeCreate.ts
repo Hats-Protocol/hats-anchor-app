@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { isAddress } from 'viem';
 import { useAccount, useEnsAddress } from 'wagmi';
 
