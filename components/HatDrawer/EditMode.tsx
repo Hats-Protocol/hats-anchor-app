@@ -10,10 +10,11 @@ import {
 } from '@chakra-ui/react';
 
 import CustomAccordion from '@/components/CustomAccordion';
-import { Authority } from '@/forms/AuthorityDetailsForm';
-import HatDetailsForm from '@/forms/HatDetailsForm';
+import HatDetailsForm, {
+  Authority,
+  Responsibility,
+} from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { IHat } from '@/types';
 
