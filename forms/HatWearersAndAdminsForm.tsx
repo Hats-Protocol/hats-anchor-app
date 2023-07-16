@@ -26,11 +26,13 @@ const HatWearersAndAdminsForm = ({
   chainId,
   levelAtLocalTree,
   hatData,
+  isAdminUser,
 }: {
   defaultAdmin: string | undefined;
   chainId: number;
   levelAtLocalTree: number;
   hatData: any;
+  isAdminUser: boolean;
 }) => {
   const localForm = useForm({
     mode: 'onChange',
@@ -114,6 +116,7 @@ const HatWearersAndAdminsForm = ({
       chainId,
       hatId: hatData.id,
       levelAtLocalTree,
+      isAdminUser,
     });
 
   const isMaxSupplyDisabled =

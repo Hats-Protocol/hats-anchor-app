@@ -27,6 +27,7 @@ const EditMode = ({
   imageUrl,
   responsibilities,
   authorities,
+  isAdminUser,
 }: EditModeProps) => {
   if (!hatData) return null;
 
@@ -86,6 +87,7 @@ const EditMode = ({
               chainId={chainId}
               hatData={hatData}
               levelAtLocalTree={hatData.levelAtLocalTree}
+              isAdminUser={isAdminUser}
             />
           </Stack>
         </CustomAccordion>
@@ -105,4 +107,5 @@ interface EditModeProps {
   imageUrl: string;
   responsibilities: Responsibility[];
   authorities: Authority[];
+  isAdminUser: boolean;
 }
