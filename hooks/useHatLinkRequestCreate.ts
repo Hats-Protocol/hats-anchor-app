@@ -31,7 +31,6 @@ const useHatLinkRequestCreate = ({
     args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
     enabled: Boolean(topHatDomain) && Boolean(newAdmin),
   });
-  console.log('hatLinkRequestCreate - prepareError', prepareError);
 
   const { writeAsync } = useContractWrite({
     ...config,

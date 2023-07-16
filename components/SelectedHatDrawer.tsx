@@ -66,7 +66,10 @@ const SelectedHatDrawer = ({
       const topHats = _.map(
         _.filter(
           wearer,
-          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
+          (hat: IHat) =>
+            isTopHat(hat) &&
+            hat?.prettyId !== hatData?.prettyId &&
+            hat.chainId === chainId,
         ),
         'prettyId',
       );

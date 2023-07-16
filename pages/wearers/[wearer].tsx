@@ -136,7 +136,6 @@ const WearerDetail = ({
   const { data: adminOfHats } = useHatsAdminOf({
     hats: currentHats,
   });
-  console.log('adminOfHats', adminOfHats);
 
   useEffect(() => {
     setBlockie(

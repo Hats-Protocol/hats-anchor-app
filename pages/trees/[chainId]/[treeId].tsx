@@ -130,7 +130,6 @@ const TreeDetails = ({
   linkedHats,
   hatData,
 }: TreeDetailsProps) => {
-  console.log('treeData', treeData);
   const router = useRouter();
   const { hatId } = router.query;
 
