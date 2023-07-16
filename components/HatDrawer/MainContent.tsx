@@ -41,6 +41,7 @@ import WearersList from './WearersList';
 const MainContent = ({
   chainId,
   hatData,
+
   isEligible,
   name,
   description,
