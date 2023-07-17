@@ -9,7 +9,7 @@ const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
   const { url, name, image, description } = docsData;
 
   return (
-    <ChakraNextLink href={url} _hover={{}}>
+    <ChakraNextLink href={url} _hover={{}} isExternal>
       <Box border='1px solid' bg='white' maxW='400px'>
         <Box bg='gray.100'>
           <Image
