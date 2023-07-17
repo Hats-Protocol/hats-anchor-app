@@ -2,7 +2,6 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
-// import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc';
 import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
 import { Chain, configureChains, createConfig } from 'wagmi';
@@ -17,6 +16,7 @@ import {
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
+// can we use the defaults here again?
 export const networkImages: { [key: number]: string } = {
   1: '/chains/ethereum.svg',
   5: '/chains/ethereum.svg',
@@ -26,6 +26,7 @@ export const networkImages: { [key: number]: string } = {
   42161: '/chains/arbitrum.svg',
 };
 
+// todo check if this got fixed, submit issue if not (should be fixed)
 // gnosis chain object from wagmi doesn't include multicall contract details. This is a temporary fix
 const gnosisContract = {
   contracts: {
@@ -53,27 +54,12 @@ export const chainsList: { [key: number]: Chain } = {
   // 11155111: sepolia,
 };
 
-export const explorerUrl = (chainId: number) => {
-  const explorerUrls: { [key: number]: string } = {
-    1: mainnet.blockExplorers.etherscan.url,
-    5: goerli.blockExplorers.etherscan.url,
-    10: optimism.blockExplorers.etherscan.url,
-    100: gnosis.blockExplorers.etherscan.url,
-    137: polygon.blockExplorers.etherscan.url,
-    42161: arbitrum.blockExplorers.etherscan.url,
-    // 11155111: sepolia.blockExplorers.etherscan.url,
-  };
-
-  let url = explorerUrls[chainId] || explorerUrls[5];
-  // TODO remove with fix to @wagmi/chains
-  if (_.endsWith(url, '/')) {
-    url = url?.slice(0, -1);
-  }
-  return url;
-};
-
 export const chainsMap = (chainId: number) =>
   chainsList[chainId] || chainsList[5];
+
+export const explorerUrl = (chainId: number) =>
+  chainsMap(chainId)?.blockExplorers?.etherscan.url ||
+  chainsMap(chainId)?.blockExplorers?.default.url;
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),

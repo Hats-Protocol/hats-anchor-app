@@ -3,7 +3,7 @@ import { GrTextAlignLeft } from 'react-icons/gr';
 
 import { chainsMap } from '@/lib/web3';
 
-import ChakraNextLink from './ChakraNextLink';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, description } = treeData;

@@ -45,9 +45,9 @@ import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import HatDrawer from '@/components/HatDrawer';
 import Layout from '@/components/Layout';
-import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -259,10 +259,6 @@ const TreeDetails = ({
       <NextSeo
         title={title}
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-        // openGraph={{
-        //   url: `${CONFIG.url}/trees/${chainId}/${treeId}`,
-        //   images: [imagesData[topHatId]],
-        // }}
       />
 
       <Drawer
@@ -280,7 +276,7 @@ const TreeDetails = ({
           width='650px'
         >
           <DrawerBody pt={0}>
-            <SelectedHatDrawer
+            <HatDrawer
               chainId={chainId}
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}

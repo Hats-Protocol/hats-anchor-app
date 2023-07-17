@@ -5,7 +5,7 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
 import { IHat, ITree } from '@/types';
 
-import ChakraNextLink from './ChakraNextLink';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const TreeCard = ({
   tree,

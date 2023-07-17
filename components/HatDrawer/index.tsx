@@ -11,10 +11,10 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
 import { DetailsItem, HierarchyObject, IHat } from '@/types';
 
-import BottomMenu from './HatDrawer/BottomMenu';
-import EditMode from './HatDrawer/EditMode';
-import MainContent from './HatDrawer/MainContent';
-import TopMenu from './HatDrawer/TopMenu';
+import BottomMenu from './BottomMenu';
+import EditMode from './EditMode';
+import MainContent from './MainContent';
+import TopMenu from './TopMenu';
 
 const SelectedHatDrawer = ({
   selectedHatId,

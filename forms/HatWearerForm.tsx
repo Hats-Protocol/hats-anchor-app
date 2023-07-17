@@ -34,7 +34,7 @@ import {
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/DropZone';
+import DropZone from '@/components/atoms/DropZone';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';

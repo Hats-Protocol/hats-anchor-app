@@ -33,8 +33,8 @@ import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 import { DetailsItem } from '@/types';
 
-import ChakraNextLink from '../ChakraNextLink';
-import Modal from '../Modal';
+import ChakraNextLink from '../atoms/ChakraNextLink';
+import Modal from '../atoms/Modal';
 import WearersList from './WearersList';
 
 const MainContent = ({

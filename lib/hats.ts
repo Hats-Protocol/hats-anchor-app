@@ -227,6 +227,7 @@ export function prettyIdToIp(id: string | undefined) {
   return domains.join('.');
 }
 
+// unused
 export function treeCreateEventIdToTreeId(id: string) {
   if (!id) return undefined;
   const hexString = id.slice(0, 10);
@@ -331,9 +332,11 @@ export const isMutable = (hatData: IHat) => _.get(hatData, 'mutable');
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
+// unused
 export const isMutableNotTopHat = (hatData: IHat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
+// unused
 export const descendantsOf = (
   prettyHatId: string,
   tree: ITree,
@@ -359,6 +362,7 @@ export const descendantsOf = (
   return directChildren;
 };
 
+// same as toTreeId???
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);

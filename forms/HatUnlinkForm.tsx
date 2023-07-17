@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
 
-import Select from '@/components/Select';
+import Select from '@/components/atoms/Select';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';

@@ -13,7 +13,7 @@ import { FaCheck } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
-import Input from '@/components/Input';
+import Input from '@/components/atoms/Input';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';

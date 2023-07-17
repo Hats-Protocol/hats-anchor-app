@@ -17,10 +17,10 @@ import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/DropZone';
-import Input from '@/components/Input';
-import Select from '@/components/Select';
-import Textarea from '@/components/Textarea';
+import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
+import Select from '@/components/atoms/Select';
+import Textarea from '@/components/atoms/Textarea';
 import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';

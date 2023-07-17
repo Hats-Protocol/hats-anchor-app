@@ -27,6 +27,7 @@ const HatWearerStatusForm = ({
   prettyId: string;
   chainId: number;
   wearer: string;
+  // TODO is there a reason for this to be passed from above?
   eligibility: string;
 }) => {
   const localForm = useForm({ mode: 'onBlur' });

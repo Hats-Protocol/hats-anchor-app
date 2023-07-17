@@ -16,7 +16,7 @@ import { FaPlus } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
 // import CONFIG from '@/constants';
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import HatCard from '@/components/HatCard';
 import Layout from '@/components/Layout';

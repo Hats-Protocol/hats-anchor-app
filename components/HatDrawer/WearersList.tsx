@@ -25,7 +25,7 @@ import { useEffect, useState } from 'react';
 import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import Modal from '@/components/Modal';
+import Modal from '@/components/atoms/Modal';
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 import HatTransferForm from '@/forms/HatTransferForm';

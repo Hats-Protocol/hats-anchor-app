@@ -11,7 +11,7 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useSearchResults from '@/hooks/useSearchResults';
 import { decimalIdToId, idToPrettyId, prettyIdToIp } from '@/lib/hats';

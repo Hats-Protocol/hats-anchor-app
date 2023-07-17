@@ -16,9 +16,9 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 
-import DropZone from '@/components/DropZone';
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
+import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
+import Textarea from '@/components/atoms/Textarea';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';

@@ -12,8 +12,8 @@ import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
 
-import ChakraNextLink from '@/components/ChakraNextLink';
-import Input from '@/components/Input';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Input from '@/components/atoms/Input';
 import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';

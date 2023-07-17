@@ -26,7 +26,7 @@ import {
 import { FiChevronsRight } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
-import Modal from '@/components/Modal';
+import Modal from '@/components/atoms/Modal';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
@@ -35,7 +35,7 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
-import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
+import { decimalId, isTopHat, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const TopMenu = ({
@@ -129,11 +129,7 @@ const TopMenu = ({
       <HStack>
         {isAdminUser && chainId === currentNetworkId && (
           <Tooltip
-            label={
-              mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
-                ? 'The hat is not mutable'
-                : ''
-            }
+            label={isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
             shouldWrapChildren
           >
             <Button
@@ -142,9 +138,7 @@ const TopMenu = ({
               color='cyan.700'
               borderColor='cyan.700'
               onClick={() => setEditMode(!editMode)}
-              isDisabled={
-                mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
-              }
+              isDisabled={isTopHatOrMutable(hatData)}
             >
               <HStack>
                 <Icon as={FaEdit} />

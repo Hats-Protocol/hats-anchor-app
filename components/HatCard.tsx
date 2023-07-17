@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';

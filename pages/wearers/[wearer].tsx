@@ -22,7 +22,7 @@ import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Layout from '@/components/Layout';
 // import { fetchWearerDetails } from '@/gql/helpers';
 import useControllerList from '@/hooks/useControllerList';
