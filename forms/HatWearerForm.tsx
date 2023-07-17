@@ -35,11 +35,10 @@ import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
-import CONFIG from '@/constants';
-import useBatchMintHats from '@/hooks/useBatchMintHats';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';
-import useMintHat from '@/hooks/useHatMint';
+import { decimalId, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
 const HatWearerForm = ({
@@ -55,6 +54,7 @@ const HatWearerForm = ({
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
+  const [newWearers, setNewWearers] = useState<any[]>([]);
 
   const { data: isEligible, isLoading: isLoadingIsEligible } =
     useHatCheckEligibility({
@@ -92,24 +92,47 @@ const HatWearerForm = ({
     );
   }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
+  useEffect(() => {
+    const newW = wearers
+      .map((wearer) => wearer.address)
+      .concat(currentResolvedAddress ? [currentResolvedAddress] : []);
+    setNewWearers(newW);
+  }, [currentResolvedAddress, wearers]);
+
   const {
     writeAsync: writeAsyncBatchMintHats,
     isLoading: isLoadingBatchMintHats,
-  } = useBatchMintHats({
-    hatsAddress: CONFIG.hatsAddress,
+  } = useHatContractWrite({
+    functionName: 'batchMintHats',
+    args: [new Array(wearers.length + 1).fill(decimalId(hatId)), newWearers],
     chainId,
-    hatId,
-    newWearers: wearers
-      .map((wearer) => wearer.address)
-      .concat(currentResolvedAddress ? [currentResolvedAddress] : []),
+    onSuccessToastData: {
+      title: `Hats Minted!`,
+      description: `Successfully minted hats`,
+    },
+    queryKeys: [
+      ['hatDetails', hatId],
+      ['treeDetails', toTreeId(hatId)],
+    ],
+    enabled:
+      Boolean(decimalId(hatId)) &&
+      newWearers.every((wearer) => isAddress(wearer)),
   });
 
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
-    useMintHat({
-      hatsAddress: CONFIG.hatsAddress,
+    useHatContractWrite({
+      functionName: 'mintHat',
+      args: [decimalId(hatId), currentResolvedAddress],
       chainId,
-      hatId,
-      newWearer: currentResolvedAddress,
+      onSuccessToastData: {
+        title: `Hat Minted!`,
+        description: `Successfully minted hat`,
+      },
+      queryKeys: [
+        ['hatDetails', hatId],
+        ['treeDetails', toTreeId(hatId)],
+      ],
+      enabled: Boolean(decimalId(hatId)) && isAddress(currentResolvedAddress),
     });
 
   const onSubmit = async () => {

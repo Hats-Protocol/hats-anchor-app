@@ -18,20 +18,19 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm, Controller } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { useChainId } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
-// import RadioBox from '@/components/RadioBox';
 import Textarea from '@/components/Textarea';
-import CONFIG, { MUTABILITY, ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
-import useHatCreate from '@/hooks/useHatCreate';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { prettyIdToIp } from '@/lib/hats';
+import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import ChakraNextLink from '@/components/ChakraNextLink';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 
 const HatCreateForm = ({
   defaultAdmin,
@@ -106,25 +105,47 @@ const HatCreateForm = ({
   });
 
   const {
-    writeAsync,
-    isLoading,
-    toggleResolvedAddress,
-    eligibilityResolvedAddress,
-  } = useHatCreate({
-    hatsAddress: CONFIG.hatsAddress,
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'createHat',
+    args: [
+      prettyIdToId(defaultAdmin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
+      (customDetails ? detailsCID : details) || '',
+      maxSupply || '1',
+      eligibilityAddress,
+      toggleAddress,
+      mutable === MUTABILITY.MUTABLE,
+      customImage
+        ? imagePinData !== undefined
+          ? `ipfs://${imagePinData}`
+          : undefined
+        : imageUrl || '',
+    ],
     chainId,
-    treeId,
-    admin: defaultAdmin,
-    details: customDetails ? detailsCID : details,
-    maxSupply: _.toNumber(maxSupply),
-    eligibility: eligibilityChecked && eligibility,
-    toggle: toggleChecked && toggle,
-    mutable,
-    imageUrl: customImage
-      ? imagePinData !== undefined
-        ? `ipfs://${imagePinData}`
-        : undefined
-      : imageUrl,
+    onSuccessToastData: {
+      title: 'Hat Created',
+      description: 'Successfully created hat',
+    },
+    queryKeys: [['treeDetails', treeId]],
+    enabled: Boolean(defaultAdmin),
   });
 
   const showEligibilityResolvedAddress =
@@ -337,7 +358,12 @@ const HatCreateForm = ({
           <Button
             type='submit'
             isDisabled={
-              !writeAsync || detailsCidLoading || imagePinLoading || isLoading
+              !writeAsync ||
+              detailsCidLoading ||
+              imagePinLoading ||
+              isLoading ||
+              isLoadingEligibilityResolvedAddress ||
+              isLoadingToggleResolvedAddress
             }
           >
             {imagePinLoading ? <Spinner /> : 'Create'}

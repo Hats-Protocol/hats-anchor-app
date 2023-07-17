@@ -1,7 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import _ from 'lodash';
 import { useState } from 'react';
-import { isAddress } from 'viem';
 import {
   useContractWrite,
   usePrepareContractWrite,
@@ -12,48 +10,65 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import { decimalId, toTreeId } from '@/lib/hats';
 
-const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
+interface ContractInteractionProps {
+  functionName: string;
+  args: any[];
+  chainId: number;
+  onSuccessToastData: { title: string; description?: string };
+  onErrorToastData?: { title: string; description?: string };
+  queryKeys?: (string | number)[][];
+  transactionTimeout?: number;
+  enabled: boolean;
+  handleSuccess?: (data: any) => void;
+}
+
+const useHatContractWrite = ({
+  functionName,
+  args,
+  chainId,
+  onSuccessToastData,
+  onErrorToastData,
+  queryKeys = [],
+  transactionTimeout = 4000,
+  enabled,
+  handleSuccess,
+}: ContractInteractionProps) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
 
-  const { config, error: prepareError } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
-    chainId,
+    chainId: Number(chainId),
     abi,
-    functionName: 'mintHat',
-    args: [decimalId(hatId), newWearer],
-    enabled:
-      Boolean(hatsAddress) && Boolean(decimalId(hatId)) && isAddress(newWearer),
+    functionName,
+    args,
+    enabled,
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const { writeAsync } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       setHash(data.hash);
-
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
       });
 
       await handlePendingTx({
-        hash: _.get(data, 'hash'),
-        toastData: {
-          title: `Hats Minted!`,
-          description: `Successfully minted hat`,
-        },
+        hash: data.hash,
+        toastData: onSuccessToastData,
       });
 
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['hatDetails', hatId] });
-        queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(hatId)],
-        });
-      }, 4000);
+        queryKeys.forEach((key) =>
+          queryClient.invalidateQueries({
+            queryKey: key,
+          }),
+        );
+      }, transactionTimeout);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
@@ -64,6 +79,9 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
       } else {
         toast.error({
           title: 'Error occurred!',
+          description:
+            onErrorToastData?.description ??
+            'An error occurred while processing the transaction.',
         });
       }
     },
@@ -71,21 +89,10 @@ const useMintHat = ({ hatsAddress, hatId, chainId, newWearer }: UseMintHat) => {
 
   const { isLoading } = useWaitForTransaction({
     hash,
+    onSuccess: handleSuccess,
   });
 
-  return {
-    writeAsync,
-    isLoading,
-    prepareError,
-    writeError,
-  };
+  return { writeAsync, isLoading };
 };
 
-export default useMintHat;
-
-interface UseMintHat {
-  hatsAddress?: `0x${string}`;
-  hatId: string | undefined;
-  chainId: number;
-  newWearer: string;
-}
+export default useHatContractWrite;

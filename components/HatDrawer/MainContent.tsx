@@ -40,7 +40,6 @@ import WearersList from './WearersList';
 const MainContent = ({
   chainId,
   hatData,
-
   isEligible,
   name,
   description,
@@ -188,7 +187,13 @@ const MainContent = ({
               responsibilities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
-                    <Text>{label}</Text>
+                    {link && validateURL(link) ? (
+                      <ChakraNextLink isExternal href={link}>
+                        <Text>{label}</Text>
+                      </ChakraNextLink>
+                    ) : (
+                      <Text>{label}</Text>
+                    )}
                     {link && validateURL(link) && (
                       <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
@@ -216,7 +221,13 @@ const MainContent = ({
               authorities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
-                    <Text>{label}</Text>
+                    {link && validateURL(link) ? (
+                      <ChakraNextLink isExternal href={link}>
+                        <Text>{label}</Text>
+                      </ChakraNextLink>
+                    ) : (
+                      <Text>{label}</Text>
+                    )}
                     {link && validateURL(link) && (
                       <ChakraNextLink isExternal href={link} display='block'>
                         <Icon

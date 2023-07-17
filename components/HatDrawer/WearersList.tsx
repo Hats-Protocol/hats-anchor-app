@@ -348,7 +348,6 @@ const WearerRow = (props: {
         <Link href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
         </Link>
-
         <Menu>
           <MenuButton
             as={IconButton}

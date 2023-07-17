@@ -19,13 +19,20 @@ import { FaCheck } from 'react-icons/fa';
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
-import { ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
-import useHatLinkRequestApprove from '@/hooks/useHatLinkRequestApprove';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import {
+  decimalId,
+  idToPrettyId,
+  prettyIdToId,
+  prettyIdToIp,
+  toTreeId,
+} from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
+import { useEnsAddress } from 'wagmi';
 
 const HatLinkRequestApproveForm = ({
   topHatDomain,
@@ -82,8 +89,8 @@ const HatLinkRequestApproveForm = ({
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
   const details = useDebounce(watch('details', ''));
-  const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
+  const eligibility = useDebounce(watch('eligibility', FALLBACK_ADDRESS));
+  const toggle = useDebounce(watch('toggle', FALLBACK_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = prettyIdToIp(topHatDomain);
@@ -100,23 +107,52 @@ const HatLinkRequestApproveForm = ({
   });
 
   const {
-    writeAsync,
-    isLoading,
-    toggleResolvedAddress,
-    eligibilityResolvedAddress,
-  } = useHatLinkRequestApprove({
-    topHatDomain,
-    newAdmin: prettyIdToId(newAdmin),
-    eligibility: eligibilityChecked && eligibility,
-    toggle: toggleChecked && toggle,
-    description: newDetails && customDetails ? detailsCID : details,
-    imageUrl:
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingtoggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  const eligibilityAddress =
+    (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
+  const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'approveLinkTopHatToTree',
+    args: [
+      topHatDomain,
+      decimalId(prettyIdToId(newAdmin)),
+      eligibilityAddress,
+      toggleAddress,
+      newDetails && customDetails ? detailsCID : details,
       newImage && customImage
         ? imagePinData !== undefined
           ? `ipfs://${imagePinData}`
           : undefined
         : imageUrl,
+    ],
     chainId,
+    onSuccessToastData: {
+      title: 'Link Request Approved!',
+      description: `Successfully linked top hat ${prettyIdToIp(
+        topHatDomain,
+      )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
+    },
+    queryKeys: [
+      ['hatDetails', prettyIdToId(newAdmin)],
+      ['hatDetails', prettyIdToId(topHatDomain)],
+      ['treeDetails', topHatDomain],
+      ['treeDetails', toTreeId(newAdmin)],
+    ],
+    enabled: Boolean(topHatDomain) && Boolean(newAdmin),
   });
 
   const onSubmit = async () => {
@@ -299,8 +335,13 @@ const HatLinkRequestApproveForm = ({
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={
-              !writeAsync || detailsCidLoading || imagePinLoading || isLoading
+            isDisabled={!writeAsync}
+            isLoading={
+              detailsCidLoading ||
+              imagePinLoading ||
+              isLoading ||
+              isLoadingEligibilityResolvedAddress ||
+              isLoadingtoggleResolvedAddress
             }
           >
             {imagePinLoading ? <Spinner /> : 'Approve'}

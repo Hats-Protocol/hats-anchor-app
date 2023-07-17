@@ -61,8 +61,8 @@ const useHatStatusCheck = ({
       const { logs } = await handlePendingTx({
         hash: _.get(data, 'hash'),
         toastData: {
-          title: `Hat Minted!`,
-          description: `Successfully minted hat`,
+          title: 'Transaction Confirmed',
+          description: 'Checking Hat Status...',
         },
       });
 
