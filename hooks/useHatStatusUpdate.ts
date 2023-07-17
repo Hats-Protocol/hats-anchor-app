@@ -27,14 +27,16 @@ const useHatStatusUpdate = ({
   const { address } = useAccount();
   const [hash, setHash] = useState<`0x${string}`>();
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
     abi,
     functionName: 'setHatStatus',
     args: [hatData.id, status === STATUS.ACTIVE],
     enabled:
-      Boolean(hatsAddress) && Boolean(hatData) && address === hatData.toggle,
+      Boolean(hatsAddress) &&
+      Boolean(hatData) &&
+      address?.toLowerCase() === hatData.toggle?.toLowerCase(),
   });
 
   const { writeAsync } = useContractWrite({
@@ -83,7 +85,7 @@ const useHatStatusUpdate = ({
     hash,
   });
 
-  return { writeAsync, isLoading };
+  return { writeAsync, isLoading, prepareError };
 };
 
 export default useHatStatusUpdate;

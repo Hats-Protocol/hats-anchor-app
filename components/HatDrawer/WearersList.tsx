@@ -1,5 +1,7 @@
+/* eslint-disable no-nested-ternary */
 import {
   Box,
+  Button,
   Flex,
   Heading,
   HStack,
@@ -8,6 +10,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Link,
   Menu,
   MenuButton,
   MenuItem,
@@ -18,10 +21,9 @@ import {
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
 import _ from 'lodash';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import Modal from '@/components/Modal';
 import CONFIG from '@/constants';
@@ -46,6 +48,7 @@ const WearersList = ({
   localOverlay,
   isAdminUser,
 }: WearersListProps) => {
+  const currentNetworkId = useChainId();
   const { address } = useAccount();
   const [changeStatusWearer, setChangeStatusWearer] = useState('');
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
@@ -131,7 +134,7 @@ const WearersList = ({
       <Stack spacing={4}>
         <Flex justify='space-between'>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-            Hat Wearer
+            Hat Wearers
           </Heading>
           <Flex gap={1}>
             <Text>{wearers?.length}</Text>
@@ -139,17 +142,19 @@ const WearersList = ({
           </Flex>
         </Flex>
 
-        <InputGroup>
-          <InputLeftElement pointerEvents='none'>
-            <FaSearch />
-          </InputLeftElement>
-          <Input
-            // add left icon inside of input field
-            placeholder='Find by address (0x) or ens (.eth)'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </InputGroup>
+        {wearers?.length > 5 && (
+          <InputGroup>
+            <InputLeftElement pointerEvents='none'>
+              <FaSearch />
+            </InputLeftElement>
+            <Input
+              // add left icon inside of input field
+              placeholder='Find by address (0x) or ens (.eth)'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        )}
         {/* Wearers list */}
         {_.slice(filteredWearers, 0, 6).map((wearer: { id: string }) => (
           <WearerRow
@@ -163,6 +168,7 @@ const WearersList = ({
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
             checkEligibility={checkEligibility}
+            isSameChain={chainId === currentNetworkId}
           />
         ))}
 
@@ -170,26 +176,31 @@ const WearersList = ({
           {isAdminUser && (
             <Tooltip
               label={
-                maxWearersReached ? 'Maximum number of wearers reached.' : ''
+                maxWearersReached
+                  ? 'Maximum number of wearers reached.'
+                  : chainId !== currentNetworkId
+                  ? "You can't add a wearer on a different chain."
+                  : ''
               }
               fontSize='md'
-              isDisabled={!maxWearersReached}
+              isDisabled={!maxWearersReached && chainId === currentNetworkId}
+              shouldWrapChildren
             >
-              <Box>
+              <Button
+                variant='unstyled'
+                isDisabled={maxWearersReached || chainId !== currentNetworkId}
+                onClick={() =>
+                  !maxWearersReached ? setModals({ newWearer: true }) : {}
+                }
+              >
                 <HStack
                   cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-                  _hover={{
-                    textDecor: maxWearersReached ? 'none' : 'underline',
-                  }}
-                  onClick={() =>
-                    !maxWearersReached ? setModals({ newWearer: true }) : {}
-                  }
                   color={maxWearersReached ? 'gray.500' : 'blue.500'}
                 >
                   <FaPlus />
                   <Text variant='ghost'>Add a wearer</Text>
                 </HStack>
-              </Box>
+              </Button>
             </Tooltip>
           )}
           {wearers?.length > 6 && (
@@ -220,6 +231,7 @@ const WearersList = ({
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
               checkEligibility={checkEligibility}
+              isSameChain={chainId === currentNetworkId}
             />
           ))}
         </Flex>
@@ -271,17 +283,22 @@ const WearersList = ({
 
 export default WearersList;
 
-const WearerRow = ({
-  wearer,
-  isAdminUser,
-  address,
-  ensNames,
-  handleRenounceHat,
-  setModals,
-  setChangeStatusWearer,
-  setWearerToTransferFrom,
-  checkEligibility,
+// TooltipWrapper component
+const TooltipWrapper = ({
+  children,
+  label,
+  isSameChain,
 }: {
+  children: React.ReactNode;
+  label: string;
+  isSameChain: boolean;
+}) => (
+  <Tooltip label={!isSameChain ? label : ''} shouldWrapChildren>
+    {children}
+  </Tooltip>
+);
+
+const WearerRow = (props: {
   wearer: { id: string };
   isAdminUser: boolean;
   address?: string;
@@ -293,7 +310,21 @@ const WearerRow = ({
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
   checkEligibility: (w: string) => void;
+  isSameChain: boolean;
 }) => {
+  const {
+    wearer,
+    isAdminUser,
+    address,
+    ensNames,
+    handleRenounceHat,
+    setModals,
+    setChangeStatusWearer,
+    setWearerToTransferFrom,
+    checkEligibility,
+    isSameChain,
+  } = props;
+
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
       <Flex
@@ -329,40 +360,61 @@ const WearerRow = ({
           <MenuList>
             {isAdminUser && (
               <MenuItem
+                isDisabled={!isSameChain}
                 onClick={() => {
-                  setModals({
-                    transferHat: true,
-                  });
+                  setModals({ transferHat: true });
                   setWearerToTransferFrom(wearer.id);
                 }}
               >
-                Transfer
+                <TooltipWrapper
+                  isSameChain={isSameChain}
+                  label="You can't transfer a hat on a different chain"
+                >
+                  <Text>Transfer</Text>
+                </TooltipWrapper>
               </MenuItem>
             )}
 
             {wearer.id === address?.toLowerCase() && (
-              <MenuItem onClick={handleRenounceHat}>Renounce</MenuItem>
+              <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
+                <TooltipWrapper
+                  isSameChain={isSameChain}
+                  label="You can't renounce a hat on a different chain"
+                >
+                  <Text>Renounce</Text>
+                </TooltipWrapper>
+              </MenuItem>
             )}
 
             {wearer.id !== address?.toLowerCase() && isAdminUser && (
               <MenuItem
+                isDisabled={!isSameChain}
                 onClick={() => {
-                  setModals({
-                    hatWearerStatus: true,
-                  });
+                  setModals({ hatWearerStatus: true });
                   setChangeStatusWearer(wearer.id);
                 }}
               >
-                Revoke Hat
+                <TooltipWrapper
+                  isSameChain={isSameChain}
+                  label="You can't revoke a hat on a different chain"
+                >
+                  <Text>Revoke Hat</Text>
+                </TooltipWrapper>
               </MenuItem>
             )}
 
             <MenuItem
+              isDisabled={!isSameChain}
               onClick={() => {
                 checkEligibility(wearer.id);
               }}
             >
-              Test Eligibility
+              <TooltipWrapper
+                isSameChain={isSameChain}
+                label="You can't test eligibility of a hat on a different chain"
+              >
+                <Text>Test Eligibility</Text>
+              </TooltipWrapper>
             </MenuItem>
           </MenuList>
         </Menu>

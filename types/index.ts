@@ -4,6 +4,11 @@ export interface IHatEvent {
   transactionID: string;
 }
 
+export type DetailsItem = {
+  link: string;
+  label: string;
+};
+
 export interface IHatWearer {
   id: `0x${string}`;
   isContract?: boolean;
