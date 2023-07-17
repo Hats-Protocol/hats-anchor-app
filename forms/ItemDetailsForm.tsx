@@ -23,13 +23,12 @@ import { useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
 import { validateURL } from '@/lib/general';
-
-import { Authority, Responsibility } from './HatDetailsForm';
+import { DetailsItem } from '@/types';
 
 interface ItemDetailsFormProps {
-  items: Authority[] | Responsibility[];
-  setItems: (items: Authority[] | Responsibility[]) => void;
-  handleAddItem: (item: Authority | Responsibility) => void;
+  items: DetailsItem[];
+  setItems: (items: DetailsItem[]) => void;
+  handleAddItem: (item: DetailsItem) => void;
   handleRemoveItem: (index: number) => void;
   title: string;
   label: string;
