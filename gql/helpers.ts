@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
+import { IHat } from '@/types';
 
 import client from './client';
 import {
@@ -38,8 +39,8 @@ export const fetchAllTrees = async (chainId: number) => {
 
 export const fetchPaginatedTrees = async (
   chainId: number,
-  page: number,
-  perPage: number,
+  page: number = 0,
+  perPage: number = 40,
 ) => {
   const result = await client(chainId).request(GET_PAGINATED_TREES, {
     skip: page * perPage,
@@ -52,13 +53,13 @@ export const fetchPaginatedTrees = async (
 export const fetchHatDetails = async (
   hatId: string | undefined,
   chainId: number,
-): Promise<any> => {
-  if (!hatId) return {};
+): Promise<IHat | null> => {
+  if (!hatId) return null;
 
   const result = await client(chainId).request(GET_HAT, { id: hatId });
 
   return {
-    ..._.get(result, 'hat', {}),
+    ...(_.get(result, 'hat', {}) as IHat),
     chainId,
   };
 };

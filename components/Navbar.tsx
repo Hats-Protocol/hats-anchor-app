@@ -173,12 +173,12 @@ const Navbar = () => {
       )}
 
       <HStack spacing={2}>
-        <IconButton
+        {/* <IconButton
           icon={<Icon as={FaSearch} h='25px' w='25px' />}
           onClick={() => setOpen?.(true)}
           aria-label='Search'
           variant='outline'
-        />
+        /> */}
         <ConnectWallet />
       </HStack>
     </Flex>
