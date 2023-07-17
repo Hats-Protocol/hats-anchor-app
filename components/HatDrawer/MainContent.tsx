@@ -24,6 +24,7 @@ import {
   FaCopy,
   FaExternalLinkAlt,
 } from 'react-icons/fa';
+import { useChainId } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { Authority, Responsibility } from '@/forms/HatDetailsForm';
@@ -55,7 +56,6 @@ const MainContent = ({
   authorities,
   isCurrentWearer,
   linkRequestFromTree,
-  currentNetworkId,
 }: MainContentProps) => {
   const toast = useToast();
   const [linkFrom, setLinkFrom] = useState('');
@@ -155,7 +155,6 @@ const MainContent = ({
           maxSupply={hatData.maxSupply}
           prettyId={hatData.prettyId}
           isAdminUser={isAdminUser}
-          currentNetworkId={currentNetworkId}
         />
 
         {hatRoles?.length && (
@@ -434,5 +433,4 @@ interface MainContentProps {
   linkRequestFromTree: any[];
   setModals: any;
   localOverlay: any;
-  currentNetworkId?: number;
 }
