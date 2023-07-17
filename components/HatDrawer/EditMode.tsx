@@ -10,12 +10,10 @@ import {
 } from '@chakra-ui/react';
 
 import CustomAccordion from '@/components/CustomAccordion';
-import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { IHat } from '@/types';
+import { DetailsItem, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -26,9 +24,9 @@ const EditMode = ({
   imageUrl,
   responsibilities,
   authorities,
+  isAdminUser,
 }: EditModeProps) => {
   if (!hatData) return null;
-  console.log('hatData', hatData);
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -86,6 +84,7 @@ const EditMode = ({
               chainId={chainId}
               hatData={hatData}
               levelAtLocalTree={hatData.levelAtLocalTree}
+              isAdminUser={isAdminUser}
             />
           </Stack>
         </CustomAccordion>
@@ -103,6 +102,7 @@ interface EditModeProps {
   description: string;
   guilds: string[];
   imageUrl: string;
-  responsibilities: Responsibility[];
-  authorities: Authority[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
+  isAdminUser: boolean;
 }

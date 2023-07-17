@@ -26,11 +26,13 @@ const HatWearersAndAdminsForm = ({
   chainId,
   levelAtLocalTree,
   hatData,
+  isAdminUser,
 }: {
   defaultAdmin: string | undefined;
   chainId: number;
   levelAtLocalTree: number;
   hatData: any;
+  isAdminUser: boolean;
 }) => {
   const localForm = useForm({
     mode: 'onChange',
@@ -112,12 +114,16 @@ const HatWearersAndAdminsForm = ({
     useHatMakeImmutable({
       hatsAddress: CONFIG.hatsAddress,
       chainId,
-      hatData,
+      hatId: hatData.id,
       levelAtLocalTree,
+      isAdminUser,
     });
 
   const isMaxSupplyDisabled =
-    !isMaxSupplyChanged || isLoadingMaxSupply || !writeAsyncMaxSupply;
+    !isMaxSupplyChanged ||
+    isLoadingMaxSupply ||
+    !writeAsyncMaxSupply ||
+    !mutable;
   const isEligibilityDisabled =
     !isEligibilityChanged ||
     isLoadingEligibility ||

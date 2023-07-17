@@ -307,22 +307,18 @@ export const isAdmin = (
   const treeId = hatId.slice(0, 10);
   // separate children IDs
   const children = hatId.slice(11);
-  const parentHats = _.split(children, '.');
-  // remove the current hat Id
-  if (!current) {
-    parentHats.pop();
-  }
+  const hats = _.split(children, '.');
 
-  // map all hatIds for the lineage
-  const hatIds = _.map(
-    parentHats,
-    (__, i) => `${treeId}.${_.join(parentHats.slice(0, i + 1), '.')}`,
-  );
-  // include the treeId
-  hatIds.push(treeId);
+  if (!current) hats.pop();
+
+  // map all parent hatIds for the lineage
+  const hatIds = hats.map((__, i) => {
+    const joinedParentHats = hats.slice(0, i).join('.');
+    return `${treeId}${i > 0 ? `.${joinedParentHats}` : ''}`;
+  });
 
   if (!wearerHatIds) return false;
-  // check if any of the wearer hats' IDs are admin hat IDs
+  // check if any of the wearer hats' IDs are admin of any parent hat IDs
   return !!includesAny(wearerHatIds, hatIds);
 };
 

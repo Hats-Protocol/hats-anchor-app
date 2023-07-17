@@ -20,45 +20,46 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FaEllipsisV, FaPlus, FaRegListAlt } from 'react-icons/fa';
+import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
 import { validateURL } from '@/lib/general';
+import { DetailsItem } from '@/types';
 
-export type Responsibility = {
-  link: string;
+interface ItemDetailsFormProps {
+  items: DetailsItem[];
+  setItems: (items: DetailsItem[]) => void;
+  handleAddItem: (item: DetailsItem) => void;
+  handleRemoveItem: (index: number) => void;
+  title: string;
   label: string;
-};
+}
 
-const ResponsibilityDetailsForm = ({
-  responsibilities,
-  setResponsibilities,
-  handleAddResponsibility,
-  handleRemoveResponsibility,
-}: {
-  responsibilities: Responsibility[];
-  setResponsibilities: (auths: Responsibility[]) => void;
-  handleAddResponsibility: (responsibility: Responsibility) => void;
-  handleRemoveResponsibility: (index: number) => void;
-}) => {
+const ItemDetailsForm = ({
+  items,
+  setItems,
+  handleAddItem,
+  handleRemoveItem,
+  title,
+  label,
+}: ItemDetailsFormProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [currentResponsibilityIndex, setCurrentResponsibilityIndex] =
-    useState(0);
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
   const [inputLink, setInputLink] = useState('');
 
   const handleEdit = (index: number) => {
-    setInputLink(responsibilities[index].link);
-    setCurrentResponsibilityIndex(index);
+    setInputLink(items[index].link);
+    setCurrentItemIndex(index);
     onOpen();
   };
 
   const handleSave = () => {
     if (isLinkValid) {
-      const newArr = [...responsibilities];
-      newArr[currentResponsibilityIndex].link = inputLink;
-      setResponsibilities(newArr);
+      const newArr = [...items];
+      newArr[currentItemIndex].link = inputLink;
+      setItems(newArr);
       setInputLink('');
-      setCurrentResponsibilityIndex(0);
+      setCurrentItemIndex(0);
     }
     onClose();
   };
@@ -66,19 +67,19 @@ const ResponsibilityDetailsForm = ({
   return (
     <>
       <HStack alignItems='center' ml={-6}>
-        <FaRegListAlt />
-        <Text fontWeight={500}>Responsibilities</Text>
+        <FaKey />
+        <Text fontWeight={500}>{title}</Text>
       </HStack>
-      {responsibilities.map((responsibility, index) => (
+      {items.map((item, index) => (
         // eslint-disable-next-line react/no-array-index-key
-        <Stack key={index}>
+        <Stack key={label + index}>
           <HStack alignItems='center' justifyContent='space-between'>
             <ChakraInput
-              value={responsibility.label}
+              value={item.label}
               onChange={(e) => {
-                const newArr = [...responsibilities];
+                const newArr = [...items];
                 newArr[index].label = e.target.value;
-                setResponsibilities(newArr);
+                setItems(newArr);
               }}
               placeholder='Label'
             />
@@ -92,7 +93,7 @@ const ResponsibilityDetailsForm = ({
               />
               <MenuList>
                 <MenuItem onClick={() => handleEdit(index)}>Edit Link</MenuItem>
-                <MenuItem onClick={() => handleRemoveResponsibility(index)}>
+                <MenuItem onClick={() => handleRemoveItem(index)}>
                   Delete
                 </MenuItem>
               </MenuList>
@@ -101,7 +102,7 @@ const ResponsibilityDetailsForm = ({
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>Edit Responsibility Link</ModalHeader>
+                <ModalHeader>Edit {label} Link</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <ChakraInput
@@ -110,7 +111,7 @@ const ResponsibilityDetailsForm = ({
                       setInputLink(e.target.value);
                       setIsLinkValid(validateURL(e.target.value));
                     }}
-                    placeholder='Link'
+                    placeholder='https://example.com'
                   />
                 </ModalBody>
                 <ModalFooter>
@@ -130,9 +131,9 @@ const ResponsibilityDetailsForm = ({
             </Modal>
           </HStack>
 
-          {responsibilities[index]?.link && (
+          {items[index]?.link && (
             <Text fontSize='sm' color='gray.500'>
-              {responsibilities[index]?.link}
+              {items[index]?.link}
             </Text>
           )}
         </Stack>
@@ -141,19 +142,17 @@ const ResponsibilityDetailsForm = ({
       <Box mb={2}>
         <Button
           onClick={() => {
-            handleAddResponsibility({ link: '', label: '' });
+            handleAddItem({ link: '', label: '' });
           }}
-          isDisabled={responsibilities.some(
-            (responsibility) => responsibility.label === '',
-          )}
+          isDisabled={items.some((item) => item.label === '')}
           gap={2}
         >
           <FaPlus />
-          Add Responsibility
+          Add {label}
         </Button>
       </Box>
     </>
   );
 };
 
-export default ResponsibilityDetailsForm;
+export default ItemDetailsForm;

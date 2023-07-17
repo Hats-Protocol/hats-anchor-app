@@ -5,13 +5,11 @@ import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { Authority } from '@/forms/AuthorityDetailsForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
-import { HierarchyObject, IHat } from '@/types';
+import { DetailsItem, HierarchyObject, IHat } from '@/types';
 
 import BottomMenu from './HatDrawer/BottomMenu';
 import EditMode from './HatDrawer/EditMode';
@@ -35,13 +33,11 @@ const SelectedHatDrawer = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [guilds, setGuilds] = useState<any[]>([]);
-  const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [authorities, setAuthorities] = useState<DetailsItem[]>([]);
   const [isCurrentWearer, setIsCurrentWearer] = useState(false);
   const [wearerTopHats, setWearerTopHats] = useState<string[]>([]);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [responsibilities, setResponsibilities] = useState<Responsibility[]>(
-    [],
-  );
+  const [responsibilities, setResponsibilities] = useState<DetailsItem[]>([]);
   const [activeStatus, setActiveStatus] = useState(STATUS.INACTIVE);
   const [mutableStatus, setMutableStatus] = useState(MUTABILITY.IMMUTABLE);
   const { setModals } = localOverlay;
@@ -58,20 +54,23 @@ const SelectedHatDrawer = ({
   useEffect(() => {
     if (wearer) {
       const currentWearerHats = _.map(
-        _.filter(wearer, { chainId }),
+        _.filter(wearer, (w) => w.chainId === chainId),
         'prettyId',
       );
       setIsCurrentWearer(_.includes(currentWearerHats, selectedHatId));
       const topHats = _.map(
         _.filter(
           wearer,
-          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
+          (hat: IHat) =>
+            isTopHat(hat) &&
+            hat?.prettyId !== hatData?.prettyId &&
+            hat.chainId === chainId,
         ),
         'prettyId',
       );
 
       setWearerTopHats(topHats);
-      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId));
+      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId, true));
     }
   }, [wearer, chainId]);
 
@@ -182,6 +181,7 @@ const SelectedHatDrawer = ({
             guilds={guilds}
             authorities={authorities}
             responsibilities={responsibilities}
+            isAdminUser={isAdminUser}
           />
         )}
 

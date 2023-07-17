@@ -25,14 +25,13 @@ import {
 } from 'react-icons/fa';
 
 import { MUTABILITY, STATUS } from '@/constants';
-import { Authority } from '@/forms/AuthorityDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
-import { formatAddress } from '@/lib/general';
+import { formatAddress, validateURL } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
+import { DetailsItem } from '@/types';
 
 import ChakraNextLink from '../ChakraNextLink';
 import Modal from '../Modal';
@@ -41,6 +40,7 @@ import WearersList from './WearersList';
 const MainContent = ({
   chainId,
   hatData,
+
   isEligible,
   name,
   description,
@@ -185,11 +185,11 @@ const MainContent = ({
           </Heading>
           <UnorderedList>
             {responsibilities?.length ? (
-              responsibilities.map(({ label, link }: Responsibility) => (
+              responsibilities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
-                    {link && (
+                    {link && validateURL(link) && (
                       <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
                           as={FaExternalLinkAlt}
@@ -213,11 +213,11 @@ const MainContent = ({
           </Heading>
           <UnorderedList>
             {authorities?.length ? (
-              authorities.map(({ label, link }: Responsibility) => (
+              authorities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
-                    {link && (
+                    {link && validateURL(link) && (
                       <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
                           as={FaExternalLinkAlt}
@@ -411,8 +411,8 @@ interface MainContentProps {
   activeStatus: string;
   isCurrentWearer: boolean;
   isAdminUser: boolean;
-  responsibilities: Responsibility[];
-  authorities: Authority[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
   linkRequestFromTree: any[];
   setModals: any;
   localOverlay: any;

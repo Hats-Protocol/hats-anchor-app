@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
+import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 
 import DropZone from '@/components/DropZone';
 import Input from '@/components/Input';
@@ -33,11 +34,9 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import { isTopHat, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
-import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
-import AuthorityDetailsForm, { Authority } from './AuthorityDetailsForm';
-import ResponsibilityDetailsForm, {
-  Responsibility,
-} from './ResponsibilityDetailsForm';
+import { DetailsItem } from '@/types';
+
+import ItemDetailsForm from './ItemDetailsForm';
 
 const HatDetailsForm = ({
   hatData,
@@ -51,8 +50,8 @@ const HatDetailsForm = ({
     description?: string;
     imageUrl?: string;
     guilds?: string[];
-    responsibilities: Responsibility[];
-    authorities: Authority[];
+    responsibilities: DetailsItem[];
+    authorities: DetailsItem[];
   };
 }) => {
   const [customImage, setCustomImage] = useState(true);
@@ -89,11 +88,11 @@ const HatDetailsForm = ({
     setNewGuild('');
   };
 
-  const handleAddResponsibility = ({ link, label }: Responsibility) => {
+  const handleAddResponsibility = ({ link, label }: DetailsItem) => {
     setResponsibilities([...responsibilities, { link, label }]);
   };
 
-  const handleAddAuthority = ({ link, label }: Authority) => {
+  const handleAddAuthority = ({ link, label }: DetailsItem) => {
     setAuthorities([...authorities, { link, label }]);
   };
 
@@ -205,18 +204,22 @@ const HatDetailsForm = ({
               placeholder='Hat description'
             />
 
-            <ResponsibilityDetailsForm
-              responsibilities={responsibilities}
-              setResponsibilities={setResponsibilities}
-              handleAddResponsibility={handleAddResponsibility}
-              handleRemoveResponsibility={handleRemoveResponsibility}
+            <ItemDetailsForm
+              items={responsibilities}
+              setItems={setResponsibilities}
+              handleAddItem={handleAddResponsibility}
+              handleRemoveItem={handleRemoveResponsibility}
+              title='Responsibilities'
+              label='Responsibility'
             />
 
-            <AuthorityDetailsForm
-              authorities={authorities}
-              setAuthorities={setAuthorities}
-              handleAddAuthority={handleAddAuthority}
-              handleRemoveAuthority={handleRemoveAuthority}
+            <ItemDetailsForm
+              items={authorities}
+              setItems={setAuthorities}
+              handleAddItem={handleAddAuthority}
+              handleRemoveItem={handleRemoveAuthority}
+              title='Authorities'
+              label='Authority'
             />
 
             <Switch

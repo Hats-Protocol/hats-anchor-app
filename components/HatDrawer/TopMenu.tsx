@@ -45,15 +45,16 @@ const TopMenu = ({
   hatData,
   editMode,
   setEditMode,
-  isAdminUser,
   isCurrentWearer,
   localOverlay,
   wearerTopHats,
   setSelectedHatId,
+  isAdminUser,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
   const userChainId = useChainId();
+  const currentNetworkId = useChainId();
   const toast = useToast();
 
   const {
@@ -62,10 +63,12 @@ const TopMenu = ({
   } = useHatMakeImmutable({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
-    hatData,
+    hatId: hatData.id,
     levelAtLocalTree: hatData.levelAtLocalTree,
+    isAdminUser,
   });
-  const { writeAsync: deactivateHat, isLoading: isLoadingDeactivateHat } =
+
+  const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatStatusUpdate({
       hatsAddress: CONFIG.hatsAddress,
       chainId,
@@ -149,63 +152,98 @@ const TopMenu = ({
           </MenuButton>
           <MenuList gap={5}>
             {isAdminUser && (
-              <>
-                <MenuItem
-                  gap={2}
-                  onClick={() => updateImmutability?.()}
-                  isDisabled={
-                    mutableStatus === MUTABILITY.IMMUTABLE ||
-                    !updateImmutability ||
-                    isLoadingUpdateImmutability
+              <MenuItem
+                gap={2}
+                onClick={() => updateImmutability?.()}
+                isDisabled={
+                  mutableStatus === MUTABILITY.IMMUTABLE ||
+                  !updateImmutability ||
+                  isLoadingUpdateImmutability
+                }
+              >
+                <Tooltip
+                  label={
+                    !updateImmutability
+                      ? "You don't have permission to make this hat immutable"
+                      : ''
                   }
+                  shouldWrapChildren
                 >
-                  <FaLock />
-                  Make immutable
-                </MenuItem>
-                <MenuItem
-                  gap={2}
-                  onClick={() => deactivateHat?.()}
-                  isDisabled={
-                    address?.toLowerCase() !== hatData?.toggle ||
-                    isLoadingDeactivateHat ||
-                    !hatData?.status ||
-                    !deactivateHat
+                  <HStack>
+                    <FaLock />
+                    <Text>Make immutable</Text>
+                  </HStack>
+                </Tooltip>
+              </MenuItem>
+            )}
+            {(isAdminUser || hatData?.toggle === address?.toLowerCase()) && (
+              <MenuItem
+                gap={2}
+                onClick={() => toggleHat?.()}
+                isDisabled={
+                  address?.toLowerCase() !== hatData?.toggle ||
+                  isLoadingToggleHat ||
+                  !toggleHat
+                }
+              >
+                <Tooltip
+                  label={
+                    address?.toLowerCase() !== hatData?.toggle
+                      ? "Your address doesn't match the hat's toggle address"
+                      : ''
                   }
+                  shouldWrapChildren
                 >
-                  <Tooltip
-                    label={
-                      address?.toLowerCase() !== hatData?.toggle
-                        ? "You don't have the permission to toggle this hat"
-                        : ''
-                    }
-                    shouldWrapChildren
-                  >
-                    <HStack>
-                      <FaPowerOff />
-                      <Text>Deactivate Hat</Text>
-                    </HStack>
-                  </Tooltip>
-                </MenuItem>
-              </>
+                  <HStack>
+                    <FaPowerOff />
+                    <Text>
+                      {hatData?.status ? 'Deactivate' : 'Activate'} Hat
+                    </Text>
+                  </HStack>
+                </Tooltip>
+              </MenuItem>
             )}
             {(isAdminUser || isCurrentWearer) && (
               <MenuItem
                 gap={2}
                 onClick={() => setModals?.({ createHat: true })}
+                isDisabled={chainId !== currentNetworkId}
               >
-                <HStack>
-                  <FaDoorOpen />
-                  <Text>Add Child Hat</Text>
-                </HStack>
+                <Tooltip
+                  label={
+                    chainId !== currentNetworkId
+                      ? "You can't create a child hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <HStack>
+                    <FaDoorOpen />
+                    <Text>Add Child Hat</Text>
+                  </HStack>
+                </Tooltip>
               </MenuItem>
             )}
             {address && (
               <MenuItem
                 gap={2}
                 onClick={() => setModals?.({ requestLink: true })}
+                isDisabled={chainId !== currentNetworkId}
               >
-                <FaLink />
-                Request to link tree here
+                <Tooltip
+                  label={
+                    chainId !== currentNetworkId
+                      ? "You can't request to link a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <HStack>
+                    <FaLink />
+
+                    <Text>Request to link tree here</Text>
+                  </HStack>
+                </Tooltip>
               </MenuItem>
             )}
             <Tooltip
@@ -221,10 +259,19 @@ const TopMenu = ({
                   !toggleIsContract
                 }
               >
-                <HStack>
-                  <FaDoorOpen />
-                  <Text>Test Status</Text>
-                </HStack>
+                <Tooltip
+                  label={
+                    chainId !== currentNetworkId
+                      ? "You can't test status of a hat on a different chain"
+                      : ''
+                  }
+                  shouldWrapChildren
+                >
+                  <HStack>
+                    <FaDoorOpen />
+                    <Text>Test Status</Text>
+                  </HStack>
+                </Tooltip>
               </MenuItem>
             </Tooltip>
             <MenuItem
