@@ -20,6 +20,7 @@ interface ContractInteractionProps {
   queryKeys?: (string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
+  handleSuccess?: (data: any) => void;
 }
 
 const useHatContractWrite = ({
@@ -31,6 +32,7 @@ const useHatContractWrite = ({
   queryKeys = [],
   transactionTimeout = 4000,
   enabled,
+  handleSuccess,
 }: ContractInteractionProps) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
@@ -87,6 +89,7 @@ const useHatContractWrite = ({
 
   const { isLoading } = useWaitForTransaction({
     hash,
+    onSuccess: handleSuccess,
   });
 
   return { writeAsync, isLoading };

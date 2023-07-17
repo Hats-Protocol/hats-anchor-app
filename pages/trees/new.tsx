@@ -191,13 +191,8 @@ const NewTree = () => {
             <Flex justify='flex-end'>
               <Button
                 type='submit'
-                isDisabled={
-                  !writeAsync ||
-                  isLoading ||
-                  detailsCidLoading ||
-                  imagePinLoading
-                }
-                isLoading={isLoading}
+                isDisabled={!writeAsync}
+                isLoading={isLoading || detailsCidLoading || imagePinLoading}
               >
                 {imagePinLoading ? <Spinner /> : 'Create'}
               </Button>

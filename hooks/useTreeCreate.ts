@@ -1,5 +1,8 @@
+import router from 'next/router';
 import { isAddress } from 'viem';
 import { useAccount, useEnsAddress } from 'wagmi';
+
+import { treeCreateEventIdToTreeId } from '@/lib/hats';
 
 import useHatContractWrite from './useHatContractWrite';
 
@@ -19,6 +22,14 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
+  function handleSuccess(transactionData: any) {
+    const data = transactionData?.logs[0]?.data;
+    const treeId = treeCreateEventIdToTreeId(data);
+    if (!treeId) return;
+
+    router.push(`/trees/${chainId}/${treeId}`);
+  }
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'mintTopHat',
     args: [
@@ -35,6 +46,7 @@ const useTreeCreate = ({
     enabled: isAddress(
       overrideReceiver ? newReceiverResolvedAddress ?? receiver : address || '',
     ),
+    handleSuccess,
   });
 
   return {
