@@ -12,18 +12,19 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { FaPlus } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-// import CONFIG from '@/constants';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import FeaturedTreeCard from '@/components/FeaturedTreeCard';
-import HatCard from '@/components/HatCard';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { orderedChains } from '@/lib/web3';
+
+const FeaturedTreeCard = dynamic(() => import('@/components/FeaturedTreeCard'));
+const HatCard = dynamic(() => import('@/components/HatCard'));
 
 // todo use our ipfs gateway
 const featuredTrees = [

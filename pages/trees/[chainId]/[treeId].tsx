@@ -46,7 +46,6 @@ import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import HatDrawer from '@/components/HatDrawer';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
@@ -65,6 +64,7 @@ import {
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
 
+const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 interface TreeDetailsProps {
@@ -145,8 +145,8 @@ const TreeDetails = ({
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
   );
-
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
+
   const { address } = useAccount();
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
@@ -561,14 +561,14 @@ export const getStaticProps = async (context: any) => {
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
       hatData: { ...hatData, chainId } || null,
     },
-    revalidate: 10,
+    revalidate: 5,
   };
 };
 
 export const getStaticPaths = async () => {
   return {
     paths: [],
-    fallback: true,
+    fallback: 'blocking',
   };
 };
 

@@ -13,6 +13,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { lazy } from 'react';
 import {
   FaCopy,
   FaDoorOpen,
@@ -26,17 +27,20 @@ import {
 import { FiChevronsRight } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
-import Modal from '@/components/atoms/Modal';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
-import HatCreateForm from '@/forms/HatCreateForm';
-import HatLinkRequestCreateForm from '@/forms/HatLinkRequestCreateForm';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
-import { decimalId, isTopHat, isTopHatOrMutable, toTreeId } from '@/lib/hats';
+import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
+
+const Modal = lazy(() => import('@/components/atoms/Modal'));
+const HatCreateForm = lazy(() => import('@/forms/HatCreateForm'));
+const HatLinkRequestCreateForm = lazy(
+  () => import('@/forms/HatLinkRequestCreateForm'),
+);
 
 const TopMenu = ({
   chainId,

@@ -24,7 +24,6 @@ import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Layout from '@/components/Layout';
-// import { fetchWearerDetails } from '@/gql/helpers';
 import useControllerList from '@/hooks/useControllerList';
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
@@ -264,23 +263,23 @@ const WearerDetail = ({
   );
 };
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
-) => {
+export const getStaticProps = async (context: GetServerSidePropsContext) => {
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
-
-  // const promises = _.map(_.keys(chainsList), (chainId) =>
-  //   fetchWearerDetails(_.toLower(wearer), Number(chainId)),
-  // );
-
-  // const result = await Promise.all(promises);
 
   return {
     props: {
       wearerAddress: wearer,
       // initialData: undefined,
     },
+    revalidate: 60,
+  };
+};
+
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
   };
 };
 

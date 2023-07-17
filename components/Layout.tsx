@@ -2,11 +2,11 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Box } from '@chakra-ui/react';
-import { ReactNode, useEffect, useState } from 'react';
+import { lazy, ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import CommandPalette from '@/components/CommandPalette';
-import Navbar from '@/components/Navbar';
+const CommandPalette = lazy(() => import('@/components/CommandPalette'));
+const Navbar = lazy(() => import('@/components/Navbar'));
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);

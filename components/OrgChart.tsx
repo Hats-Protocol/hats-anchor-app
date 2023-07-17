@@ -152,7 +152,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               wearersColor = '#FFFFF0';
               wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
-              wearerAccent = `of ${maxSupply}`;
+              wearerAccent = `out of ${maxSupply}`;
             }
             if (_.size(wearers) === 1) {
               wearerContent =

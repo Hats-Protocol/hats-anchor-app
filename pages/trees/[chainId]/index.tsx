@@ -2,16 +2,18 @@ import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { InfiniteData } from '@tanstack/react-query';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import Layout from '@/components/Layout';
 import NetworkFilter from '@/components/NetworkFilter';
-import TreeCard from '@/components/TreeCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { IHat, ITree } from '@/types';
+
+const TreeCard = dynamic(() => import('@/components/TreeCard'));
 
 const Trees = ({
   trees: initialData,
@@ -121,6 +123,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
         chainId: 1,
         trees: [],
       },
+      revalidate: 30,
     };
   }
 };
