@@ -80,7 +80,7 @@ const HatLinkRequestCreateForm = ({
         </Select>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || isLoading}>
+          <Button type='submit' isDisabled={!writeAsync} isLoading={isLoading}>
             Request
           </Button>
         </Flex>

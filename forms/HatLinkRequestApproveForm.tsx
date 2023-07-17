@@ -89,8 +89,8 @@ const HatLinkRequestApproveForm = ({
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
   const details = useDebounce(watch('details', ''));
-  const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
+  const eligibility = useDebounce(watch('eligibility', FALLBACK_ADDRESS));
+  const toggle = useDebounce(watch('toggle', FALLBACK_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = prettyIdToIp(topHatDomain);
@@ -125,16 +125,19 @@ const HatLinkRequestApproveForm = ({
   const eligibilityAddress =
     (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
   const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
-
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'approveLinkTopHatToTree',
     args: [
       topHatDomain,
-      decimalId(newAdmin),
+      decimalId(prettyIdToId(newAdmin)),
       eligibilityAddress,
       toggleAddress,
-      description,
-      imageUrl || '',
+      newDetails && customDetails ? detailsCID : details,
+      newImage && customImage
+        ? imagePinData !== undefined
+          ? `ipfs://${imagePinData}`
+          : undefined
+        : imageUrl,
     ],
     chainId,
     onSuccessToastData: {
