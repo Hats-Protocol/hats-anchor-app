@@ -120,7 +120,10 @@ const HatWearersAndAdminsForm = ({
     });
 
   const isMaxSupplyDisabled =
-    !isMaxSupplyChanged || isLoadingMaxSupply || !writeAsyncMaxSupply;
+    !isMaxSupplyChanged ||
+    isLoadingMaxSupply ||
+    !writeAsyncMaxSupply ||
+    !mutable;
   const isEligibilityDisabled =
     !isEligibilityChanged ||
     isLoadingEligibility ||
