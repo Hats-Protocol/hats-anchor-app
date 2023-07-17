@@ -7,7 +7,6 @@ import {
   HStack,
   Icon,
   Image,
-  Link,
   ListItem,
   Stack,
   Text,
@@ -24,16 +23,15 @@ import {
   FaCopy,
   FaExternalLinkAlt,
 } from 'react-icons/fa';
-import { useChainId } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
-import { Authority, Responsibility } from '@/forms/HatDetailsForm';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
 import { formatAddress } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
+import { DetailsItem } from '@/types';
 
 import ChakraNextLink from '../ChakraNextLink';
 import Modal from '../Modal';
@@ -194,7 +192,7 @@ const MainContent = ({
           </Heading>
           <UnorderedList>
             {responsibilities?.length ? (
-              responsibilities.map(({ label, link }: Responsibility) => (
+              responsibilities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
@@ -226,7 +224,7 @@ const MainContent = ({
           </Heading>
           <UnorderedList>
             {authorities?.length ? (
-              authorities.map(({ label, link }: Authority) => (
+              authorities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
                     <Text>{label}</Text>
@@ -428,8 +426,8 @@ interface MainContentProps {
   activeStatus: string;
   isCurrentWearer: boolean;
   isAdminUser: boolean;
-  responsibilities: Responsibility[];
-  authorities: Authority[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
   linkRequestFromTree: any[];
   setModals: any;
   localOverlay: any;
