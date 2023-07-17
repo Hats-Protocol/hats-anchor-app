@@ -51,9 +51,9 @@ const TopMenu = ({
   setSelectedHatId,
   isAdminUser,
 }: TopMenuProps) => {
-  const currentNetworkId = useChainId();
   const { setModals } = localOverlay;
   const { address } = useAccount();
+  const currentNetworkId = useChainId();
   const toast = useToast();
 
   const {
