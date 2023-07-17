@@ -23,7 +23,6 @@ import {
   FaCopy,
   FaExternalLinkAlt,
 } from 'react-icons/fa';
-import { useChainId } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
@@ -41,7 +40,6 @@ import WearersList from './WearersList';
 const MainContent = ({
   chainId,
   hatData,
-
   isEligible,
   name,
   description,
