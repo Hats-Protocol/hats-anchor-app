@@ -128,7 +128,7 @@ const HatCreateForm = ({
     functionName: 'createHat',
     args: [
       prettyIdToId(defaultAdmin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
-      details || '',
+      (customDetails ? detailsCID : details) || '',
       maxSupply || '1',
       eligibilityAddress,
       toggleAddress,

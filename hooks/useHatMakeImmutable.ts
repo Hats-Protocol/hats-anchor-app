@@ -10,6 +10,7 @@ const useHatMakeImmutable = ({
   hatId,
   levelAtLocalTree,
   isAdminUser,
+  mutable,
 }: UseHatMakeImmutableProps) => {
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',
@@ -29,7 +30,8 @@ const useHatMakeImmutable = ({
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
       _.gt(levelAtLocalTree, 0) &&
-      isAdminUser,
+      isAdminUser &&
+      mutable,
   });
 
   return { writeAsync, isLoading };
@@ -43,4 +45,5 @@ interface UseHatMakeImmutableProps {
   hatId: string;
   levelAtLocalTree: number;
   isAdminUser: boolean;
+  mutable: boolean;
 }

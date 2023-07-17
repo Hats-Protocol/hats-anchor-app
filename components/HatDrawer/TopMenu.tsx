@@ -65,6 +65,7 @@ const TopMenu = ({
     hatId: hatData.id,
     levelAtLocalTree: hatData.levelAtLocalTree,
     isAdminUser,
+    mutable: hatData.mutable,
   });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =

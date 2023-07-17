@@ -102,7 +102,7 @@ const HatWearersAndAdminsForm = ({
         ['hatDetails', hatData?.id],
         ['treeDetails', toTreeId(hatData?.id)],
       ],
-      enabled: Boolean(hatData?.id) && Boolean(maxSupply),
+      enabled: Boolean(hatData?.id) && Boolean(maxSupply) && isAdminUser,
     });
 
   // changeHatEligibility
@@ -133,6 +133,7 @@ const HatWearersAndAdminsForm = ({
       hatId: hatData.id,
       levelAtLocalTree,
       isAdminUser,
+      mutable,
     });
 
   const isMaxSupplyDisabled =
