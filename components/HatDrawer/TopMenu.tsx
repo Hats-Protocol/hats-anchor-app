@@ -81,7 +81,9 @@ const TopMenu = ({
         ['hatDetails', hatData.id],
         ['treeDetails', toTreeId(hatData.id)],
       ],
-      enabled: Boolean(hatData) && address === hatData.toggle,
+      enabled:
+        Boolean(hatData) &&
+        address?.toLowerCase() === hatData.toggle?.toLowerCase(),
     });
 
   const {
