@@ -28,7 +28,7 @@ import { MUTABILITY, STATUS } from '@/constants';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
-import { formatAddress } from '@/lib/general';
+import { formatAddress, validateURL } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 import { DetailsItem } from '@/types';
@@ -66,13 +66,6 @@ const MainContent = ({
     setLinkTo(to);
     setModals?.({ linkResponse: true });
   };
-
-  function ensureProtocol(url: string) {
-    if (!/^https?:\/\//i.test(url)) {
-      return `http://${url}`;
-    }
-    return url;
-  }
 
   useEffect(() => {
     const check = async () => {
@@ -194,13 +187,15 @@ const MainContent = ({
               responsibilities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
-                    <Text>{label}</Text>
-                    {link && (
-                      <ChakraNextLink
-                        isExternal
-                        href={ensureProtocol(link)}
-                        display='block'
-                      >
+                    {link && validateURL(link) ? (
+                      <ChakraNextLink isExternal href={link}>
+                        <Text>{label}</Text>
+                      </ChakraNextLink>
+                    ) : (
+                      <Text>{label}</Text>
+                    )}
+                    {link && validateURL(link) && (
+                      <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
                           as={FaExternalLinkAlt}
                           w='12px'
@@ -226,13 +221,15 @@ const MainContent = ({
               authorities.map(({ label, link }: DetailsItem) => (
                 <ListItem key={label}>
                   <Flex justifyContent='space-between'>
-                    <Text>{label}</Text>
-                    {link && (
-                      <ChakraNextLink
-                        isExternal
-                        href={ensureProtocol(link)}
-                        display='block'
-                      >
+                    {link && validateURL(link) ? (
+                      <ChakraNextLink isExternal href={link}>
+                        <Text>{label}</Text>
+                      </ChakraNextLink>
+                    ) : (
+                      <Text>{label}</Text>
+                    )}
+                    {link && validateURL(link) && (
+                      <ChakraNextLink isExternal href={link} display='block'>
                         <Icon
                           as={FaExternalLinkAlt}
                           w='12px'
