@@ -6,7 +6,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Image,
   Input,
   InputGroup,
   InputLeftElement,
@@ -22,7 +21,7 @@ import {
 import { readContract } from '@wagmi/core';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
+import { FaEllipsisH, FaPlus, FaSearch } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
 import Modal from '@/components/Modal';
@@ -34,7 +33,6 @@ import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatBurn from '@/hooks/useHatBurn';
 import useToast from '@/hooks/useToast';
 import { checkENSNames } from '@/lib/contract';
-import { formatAddress } from '@/lib/general';
 import { IHatWearer } from '@/types';
 
 const WearersList = ({
@@ -327,28 +325,9 @@ const WearerRow = (props: {
 
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
-      <Flex
-        alignItems='center'
-        gap={2}
-        backgroundColor={
-          wearer.id.toLowerCase() === address?.toLowerCase()
-            ? 'green.100'
-            : 'transparent'
-        }
-      >
-        {wearer.id.toLowerCase() === address?.toLowerCase() ? (
-          <Image src='/icons/hat.svg' alt='Hat' />
-        ) : (
-          <FaUser />
-        )}
-
-        <Text>{ensNames[wearer.id] || formatAddress(_.get(wearer, 'id'))}</Text>
-      </Flex>
+      {/* ... existing code ... */}
       <Flex alignItems='center' gap={2}>
-        <Link href={`/wearers/${wearer.id}`}>
-          <Text color='blue.500'>View</Text>
-        </Link>
-
+        {/* ... existing code ... */}
         <Menu>
           <MenuButton
             as={IconButton}

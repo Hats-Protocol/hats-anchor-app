@@ -51,10 +51,9 @@ const TopMenu = ({
   setSelectedHatId,
   isAdminUser,
 }: TopMenuProps) => {
+  const currentNetworkId = useChainId();
   const { setModals } = localOverlay;
   const { address } = useAccount();
-  const userChainId = useChainId();
-  const currentNetworkId = useChainId();
   const toast = useToast();
 
   const {
@@ -125,7 +124,7 @@ const TopMenu = ({
         </HStack>
       </Button>
       <HStack>
-        {isAdminUser && chainId === userChainId && (
+        {isAdminUser && chainId === currentNetworkId && (
           <Tooltip
             label={
               mutableStatus !== MUTABILITY.MUTABLE && !isTopHat(hatData)
