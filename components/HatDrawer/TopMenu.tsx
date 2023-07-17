@@ -50,11 +50,11 @@ const TopMenu = ({
   wearerTopHats,
   setSelectedHatId,
   isAdminUser,
-  currentNetworkId,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
   const userChainId = useChainId();
+  const currentNetworkId = useChainId();
   const toast = useToast();
 
   const {
@@ -345,5 +345,4 @@ interface TopMenuProps {
   localOverlay: IOverlayContext;
   wearerTopHats: string[];
   setSelectedHatId: (hatId?: string) => void;
-  currentNetworkId?: number;
 }
