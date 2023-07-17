@@ -111,7 +111,7 @@ const ItemDetailsForm = ({
                       setInputLink(e.target.value);
                       setIsLinkValid(validateURL(e.target.value));
                     }}
-                    placeholder='Link'
+                    placeholder='https://example.com'
                   />
                 </ModalBody>
                 <ModalFooter>
