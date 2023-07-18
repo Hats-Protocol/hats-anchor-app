@@ -20,12 +20,14 @@ const StatusCard = ({
   statusCheck,
   isAContract,
   chainId,
+  label,
 }: {
   statusName: string;
   statusData: string;
   statusCheck: boolean;
   isAContract: boolean;
   chainId: number;
+  label: string;
 }) => (
   <Stack>
     <HStack justifyContent='space-between'>
@@ -58,7 +60,7 @@ const StatusCard = ({
     </HStack>
     <Flex justifyContent='space-between'>
       <HStack>
-        <Text>Is this {statusName.toLowerCase()}?</Text>
+        <Text>{label}</Text>
       </HStack>
 
       <HStack color={statusCheck ? 'green.500' : 'red.500'} ml={2}>

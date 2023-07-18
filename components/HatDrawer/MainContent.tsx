@@ -93,6 +93,7 @@ const MainContent = ({
         statusCheck={isEligible}
         isAContract={isEligibilityAContract}
         chainId={chainId}
+        label='Can I wear this hat?'
       />
 
       <StatusCard
@@ -101,6 +102,7 @@ const MainContent = ({
         statusCheck={activeStatus === STATUS.ACTIVE}
         isAContract={isToggleAContract}
         chainId={chainId}
+        label='Is this hat active?'
       />
 
       <LinkRequests

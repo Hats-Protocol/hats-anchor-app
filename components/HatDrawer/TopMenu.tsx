@@ -134,7 +134,7 @@ const TopMenu = ({
       <HStack>
         {isAdminUser && chainId === currentNetworkId && (
           <Tooltip
-            label={isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
+            label={!isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
             shouldWrapChildren
           >
             <Button
@@ -143,7 +143,7 @@ const TopMenu = ({
               color='cyan.700'
               borderColor='cyan.700'
               onClick={() => setEditMode(!editMode)}
-              isDisabled={isTopHatOrMutable(hatData)}
+              isDisabled={!isTopHatOrMutable(hatData)}
             >
               <HStack>
                 <Icon as={FaEdit} />
