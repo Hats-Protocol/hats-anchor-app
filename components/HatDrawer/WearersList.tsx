@@ -17,7 +17,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { readContract } from '@wagmi/core';
 import _ from 'lodash';
 import { lazy, useEffect, useState } from 'react';
 import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
@@ -25,11 +24,12 @@ import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import CONFIG from '@/constants';
-import abi from '@/contracts/Hats.json';
 import useHatBurn from '@/hooks/useHatBurn';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
 import { checkENSNames } from '@/lib/contract';
 import { formatAddress } from '@/lib/general';
+import { decimalId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
@@ -56,7 +56,6 @@ const WearersList = ({
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
-  const toast = useToast();
 
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
@@ -105,28 +104,6 @@ const WearersList = ({
   const filteredWearers = filterWearers(wearers);
   const maxWearersReached = wearers?.length >= maxSupply;
 
-  const checkEligibility = async (wearer: string) => {
-    const isEligible = await readContract({
-      address: CONFIG.hatsAddress,
-      abi,
-      chainId,
-      functionName: 'isEligible',
-      args: [wearer, hatId],
-    });
-
-    if (isEligible) {
-      toast.info({
-        title: 'Eligible',
-        description: `${wearer} is eligible to receive the hat.`,
-      });
-    } else {
-      toast.error({
-        title: 'Not Eligible',
-        description: `${wearer} is not eligible to receive the hat.`,
-      });
-    }
-  };
-
   return (
     <>
       {/* Main Details */}
@@ -167,8 +144,10 @@ const WearersList = ({
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
-            checkEligibility={checkEligibility}
             isSameChain={chainId === currentNetworkId}
+            hatId={hatId}
+            chainId={chainId}
+            currentNetworkId={currentNetworkId}
           />
         ))}
 
@@ -230,8 +209,10 @@ const WearersList = ({
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
-              checkEligibility={checkEligibility}
               isSameChain={chainId === currentNetworkId}
+              hatId={hatId}
+              chainId={chainId}
+              currentNetworkId={currentNetworkId}
             />
           ))}
         </Flex>
@@ -298,7 +279,20 @@ const TooltipWrapper = ({
   </Tooltip>
 );
 
-const WearerRow = (props: {
+const WearerRow = ({
+  wearer,
+  isAdminUser,
+  address,
+  ensNames,
+  handleRenounceHat,
+  setModals,
+  setChangeStatusWearer,
+  setWearerToTransferFrom,
+  isSameChain,
+  hatId,
+  chainId,
+  currentNetworkId,
+}: {
   wearer: { id: string };
   isAdminUser: boolean;
   address?: string;
@@ -309,21 +303,22 @@ const WearerRow = (props: {
   setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
-  checkEligibility: (w: string) => void;
   isSameChain: boolean;
+  hatId: string;
+  chainId: number;
+  currentNetworkId: number;
 }) => {
-  const {
-    wearer,
-    isAdminUser,
-    address,
-    ensNames,
-    handleRenounceHat,
-    setModals,
-    setChangeStatusWearer,
-    setWearerToTransferFrom,
-    checkEligibility,
-    isSameChain,
-  } = props;
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'checkHatWearerStatus',
+    args: [decimalId(hatId), wearer.id],
+    chainId,
+    onSuccessToastData: {
+      title: 'Success',
+      description: `${wearer.id} is eligible to receive the hat.`,
+    },
+    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+  });
+  const toast = useToast();
 
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -403,9 +398,18 @@ const WearerRow = (props: {
             )}
 
             <MenuItem
-              isDisabled={!isSameChain}
-              onClick={() => {
-                checkEligibility(wearer.id);
+              isDisabled={!isSameChain || isLoading || !writeAsync}
+              onClick={async () => {
+                const updated = await writeAsync?.();
+                if (updated) {
+                  toast.info({
+                    title: `The status of ${wearer.id} was successfully updated.`,
+                  });
+                } else {
+                  toast.info({
+                    title: `The status of ${wearer.id} was not updated.`,
+                  });
+                }
               }}
             >
               <TooltipWrapper
