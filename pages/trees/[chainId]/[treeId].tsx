@@ -46,6 +46,7 @@ import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import EventHistory from '@/components/EventHistory';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
@@ -168,6 +169,7 @@ const TreeDetails = ({
   const handleSelectHat = useCallback(
     (id: string) => {
       setSelectedHatId(id);
+      console.log('id', id);
 
       const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
       const updatedUrl = {
@@ -475,16 +477,18 @@ const TreeDetails = ({
       <Modal isOpen={isEventsModalOpen} onClose={handleCloseModal}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Event History</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {events?.map((event: IHatEvent) => (
+          {/* <ModalHeader>Event History</ModalHeader> */}
+          {/* <ModalCloseButton /> */}
+          <ModalBody pt={4}>
+            <EventHistory chainId={chainId} events={events} />
+
+            {/* {events?.map((event: IHatEvent) => (
               <Event
                 key={`${event?.transactionID}-${event?.id}`}
                 event={event}
                 chainId={chainId}
               />
-            ))}
+            ))} */}
           </ModalBody>
           <ModalFooter>
             <Button variant='ghost' onClick={handleCloseModal}>

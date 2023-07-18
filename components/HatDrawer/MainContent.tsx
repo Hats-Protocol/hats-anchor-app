@@ -1,13 +1,13 @@
 import { Box, Stack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
+import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
 import { DetailsItem } from '@/types';
 
 import DetailList from './MainContentComponents/DetailList';
-import EventHistory from './MainContentComponents/EventHistory';
 import GuildRoles from './MainContentComponents/GuildRoles';
 import Header from './MainContentComponents/Header';
 import LinkRequests from './MainContentComponents/LinkRequests';
@@ -49,15 +49,14 @@ const MainContent = ({
   if (!hatData) return null;
 
   return (
-    <Box w='100%' overflow='scroll' height='100%'>
-      <Stack
-        position='relative'
-        p={10}
-        spacing={10}
-        pt='110px'
-        overflow='auto'
-        height='100%'
-      >
+    <Box
+      w='100%'
+      overflow='scroll'
+      height='calc(100% - 150px)'
+      top={75}
+      pos='relative'
+    >
+      <Stack p={10} pt={8} spacing={10} overflow='auto' height='100%'>
         <Header
           name={name}
           description={description}

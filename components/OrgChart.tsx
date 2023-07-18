@@ -66,9 +66,9 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .nodeHeight(() => (selectedOption !== 'title' ? 110 : 70))
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick((node: IHat) => {
-            onSelectHat(node?.id);
-            centerChart(chart, node?.id);
+          .onNodeClick((nodeId: string) => {
+            onSelectHat(nodeId);
+            centerChart(chart, nodeId);
           })
           // .linkUpdate(() => {
           //   d3.select(this).attr('stroke', () => '#718096');

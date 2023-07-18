@@ -20,7 +20,7 @@ const EventHistory = ({
   chainId: number;
   events: any;
 }) => (
-  <Stack mb={10}>
+  <Stack>
     <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
       Event history
     </Heading>
