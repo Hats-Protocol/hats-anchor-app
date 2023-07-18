@@ -13,13 +13,14 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
 import _ from 'lodash';
-import { lazy, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -62,6 +63,7 @@ const WearersList = ({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
+    wearers,
   });
 
   const handleRenounceHat = async () => {
@@ -237,46 +239,52 @@ const WearersList = ({
         </Flex>
       </Modal>
 
-      <Modal
-        name='hatWearerStatus'
-        title='Remove a Wearer by revoking their Hat token'
-        localOverlay={localOverlay}
-        size='3xl'
-      >
-        <HatWearerStatusForm
-          prettyId={prettyId}
-          chainId={chainId}
-          wearer={changeStatusWearer}
-          eligibility='Not Eligible'
-        />
-      </Modal>
+      <Suspense fallback={<Spinner />}>
+        <Modal
+          name='hatWearerStatus'
+          title='Remove a Wearer by revoking their Hat token'
+          localOverlay={localOverlay}
+          size='3xl'
+        >
+          <HatWearerStatusForm
+            prettyId={prettyId}
+            chainId={chainId}
+            wearer={changeStatusWearer}
+            eligibility='Not Eligible'
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='transferHat'
-        title='Transfer Hat to New Address'
-        localOverlay={localOverlay}
-      >
-        <HatTransferForm
-          hatId={hatId}
-          prettyId={prettyId}
-          chainId={chainId}
-          currentWearerAddress={wearerToTransferFrom}
-        />
-      </Modal>
+      <Suspense fallback={<Spinner />}>
+        <Modal
+          name='transferHat'
+          title='Transfer Hat to New Address'
+          localOverlay={localOverlay}
+        >
+          <HatTransferForm
+            hatId={hatId}
+            prettyId={prettyId}
+            chainId={chainId}
+            currentWearerAddress={wearerToTransferFrom}
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='newWearer'
-        title='Add a Wearer by minting a Hat token'
-        localOverlay={localOverlay}
-      >
-        <HatWearerForm
-          hatName={hatName}
-          hatId={hatId}
-          chainId={chainId}
-          currentWearers={_.map(wearers, 'id')}
-          maxSupply={maxSupply}
-        />
-      </Modal>
+      <Suspense fallback={<Spinner />}>
+        <Modal
+          name='newWearer'
+          title='Add a Wearer by minting a Hat token'
+          localOverlay={localOverlay}
+        >
+          <HatWearerForm
+            hatName={hatName}
+            hatId={hatId}
+            chainId={chainId}
+            currentWearers={_.map(wearers, 'id')}
+            maxSupply={maxSupply}
+          />
+        </Modal>
+      </Suspense>
     </>
   );
 };
