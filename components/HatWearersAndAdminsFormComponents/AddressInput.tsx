@@ -7,64 +7,67 @@ import Input from '@/components/atoms/Input';
 
 import ChakraNextLink from '../atoms/ChakraNextLink';
 
-type ToggleInputProps = {
+type AddressInputProps = {
+  name: string;
+  label: string;
+  docsLink: string;
   localForm: any;
-  showToggleResolvedAddress: boolean;
+  showResolvedAddress: boolean;
   mutable: boolean | undefined;
-  toggleResolvedAddress: string;
-  isToggleDisabled: boolean;
+  resolvedAddress: string;
+  isDisabled: boolean;
   isLoading: boolean;
-  writeAsyncToggle: (() => Promise<WriteContractResult>) | undefined;
+  writeAsync: (() => Promise<WriteContractResult>) | undefined;
 };
 
-const ToggleInput: React.FC<ToggleInputProps> = ({
+const AddressInput: React.FC<AddressInputProps> = ({
+  name,
+  label,
+  docsLink,
+
   localForm,
-  showToggleResolvedAddress,
+  showResolvedAddress,
   mutable,
-  toggleResolvedAddress,
-  isToggleDisabled,
+  resolvedAddress,
+  isDisabled,
   isLoading,
-  writeAsyncToggle,
+  writeAsync,
 }) => (
   <FormControl>
     <Box>
       <Input
-        name='toggle'
-        label='TOGGLE'
+        name={name}
+        label={label}
         tip={
           <Text size='xs' color='gray.500'>
             See{' '}
-            <ChakraNextLink
-              href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
-              decoration
-              isExternal
-            >
+            <ChakraNextLink href={docsLink} decoration isExternal>
               docs.hatsprotocol.xyz
             </ChakraNextLink>{' '}
             for details
           </Text>
         }
         placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
-        rightElement={showToggleResolvedAddress && <FaCheck color='green' />}
+        rightElement={showResolvedAddress && <FaCheck color='green' />}
         localForm={localForm}
         isDisabled={!mutable}
       />
-      {showToggleResolvedAddress && (
+      {showResolvedAddress && (
         <Text fontSize='sm' color='gray.500' mt={1}>
-          Resolved address: {toggleResolvedAddress}
+          Resolved address: {resolvedAddress}
         </Text>
       )}
     </Box>
     <Button
       colorScheme='blue'
       isLoading={isLoading}
-      isDisabled={isToggleDisabled}
-      onClick={() => writeAsyncToggle?.()}
+      isDisabled={isDisabled}
+      onClick={() => writeAsync?.()}
       mt={4}
     >
-      Update Toggle
+      Update {label}
     </Button>
   </FormControl>
 );
 
-export default ToggleInput;
+export default AddressInput;

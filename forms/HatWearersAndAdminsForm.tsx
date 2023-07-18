@@ -3,10 +3,9 @@ import { useForm } from 'react-hook-form';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import Input from '@/components/atoms/Input';
-import EligibilityInput from '@/components/HatWearersAndAdminsFormComponents/EligibilityInput';
+import AddressInput from '@/components/HatWearersAndAdminsFormComponents/AddressInput';
 import MaxSupplyInput from '@/components/HatWearersAndAdminsFormComponents/MaxSupplyInput';
 import MutabilityInput from '@/components/HatWearersAndAdminsFormComponents/MutabilityInput';
-import ToggleInput from '@/components/HatWearersAndAdminsFormComponents/ToggleInput';
 import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -178,28 +177,32 @@ const HatWearersAndAdminsForm = ({
           isMutableDisabled={isMutableDisabled}
         />
 
-        <EligibilityInput
+        <AddressInput
+          name='eligibility'
+          label='ELIGIBILITY'
+          docsLink='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
           localForm={localForm}
-          showEligibilityResolvedAddress={Boolean(
-            showEligibilityResolvedAddress,
-          )}
+          showResolvedAddress={Boolean(showEligibilityResolvedAddress)}
           mutable={hatData?.mutable}
-          eligibilityResolvedAddress={String(eligibilityResolvedAddress)}
-          isEligibilityDisabled={isEligibilityDisabled}
+          resolvedAddress={String(eligibilityResolvedAddress)}
+          isDisabled={isEligibilityDisabled}
           isLoading={
             isLoadingEligibility || isLoadingEligibilityResolvedAddress
           }
-          writeAsyncEligibility={writeAsyncEligibility}
+          writeAsync={writeAsyncEligibility}
         />
 
-        <ToggleInput
+        <AddressInput
+          name='toggle'
+          label='TOGGLE'
+          docsLink='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
           localForm={localForm}
-          showToggleResolvedAddress={Boolean(showToggleResolvedAddress)}
+          showResolvedAddress={Boolean(showToggleResolvedAddress)}
           mutable={hatData?.mutable}
-          toggleResolvedAddress={String(toggleResolvedAddress)}
-          isToggleDisabled={isToggleDisabled}
+          resolvedAddress={String(toggleResolvedAddress)}
+          isDisabled={isToggleDisabled}
           isLoading={isLoadingToggle || isLoadingToggleResolvedAddress}
-          writeAsyncToggle={writeAsyncToggle}
+          writeAsync={writeAsyncToggle}
         />
       </Stack>
     </form>
