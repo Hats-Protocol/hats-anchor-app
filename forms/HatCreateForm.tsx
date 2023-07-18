@@ -39,6 +39,7 @@ const HatCreateForm = ({
   defaultAdmin: string | undefined;
   treeId: string;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -145,7 +146,7 @@ const HatCreateForm = ({
       description: 'Successfully created hat',
     },
     queryKeys: [['treeDetails', treeId]],
-    enabled: Boolean(defaultAdmin),
+    enabled: Boolean(defaultAdmin) && chainId === currentNetworkId,
   });
 
   const showEligibilityResolvedAddress =

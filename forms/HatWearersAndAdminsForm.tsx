@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Input from '@/components/atoms/Input';
@@ -40,6 +40,7 @@ const HatWearersAndAdminsForm = ({
   hatData: any;
   isAdminUser: boolean;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -102,7 +103,11 @@ const HatWearersAndAdminsForm = ({
         ['hatDetails', hatData?.id],
         ['treeDetails', toTreeId(hatData?.id)],
       ],
-      enabled: Boolean(hatData?.id) && Boolean(maxSupply) && isAdminUser,
+      enabled:
+        Boolean(hatData?.id) &&
+        Boolean(maxSupply) &&
+        isAdminUser &&
+        chainId === currentNetworkId,
     });
 
   // changeHatEligibility

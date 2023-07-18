@@ -87,7 +87,8 @@ const TopMenu = ({
       ],
       enabled:
         Boolean(hatData) &&
-        address?.toLowerCase() === hatData.toggle?.toLowerCase(),
+        address?.toLowerCase() === hatData.toggle?.toLowerCase() &&
+        chainId === currentNetworkId,
     });
 
   const {

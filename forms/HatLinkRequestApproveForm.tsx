@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
@@ -22,6 +23,7 @@ import Textarea from '@/components/atoms/Textarea';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import {
   decimalId,
@@ -31,8 +33,6 @@ import {
   toTreeId,
 } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { useEnsAddress } from 'wagmi';
 
 const HatLinkRequestApproveForm = ({
   topHatDomain,
@@ -45,6 +45,7 @@ const HatLinkRequestApproveForm = ({
   chainId: number;
   hatData: any;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -116,7 +117,7 @@ const HatLinkRequestApproveForm = ({
 
   const {
     data: toggleResolvedAddress,
-    isLoading: isLoadingtoggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
@@ -152,7 +153,10 @@ const HatLinkRequestApproveForm = ({
       ['treeDetails', topHatDomain],
       ['treeDetails', toTreeId(newAdmin)],
     ],
-    enabled: Boolean(topHatDomain) && Boolean(newAdmin),
+    enabled:
+      Boolean(topHatDomain) &&
+      Boolean(newAdmin) &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -165,7 +169,7 @@ const HatLinkRequestApproveForm = ({
     }
   };
 
-  const showEligilityResolvedAddress =
+  const showEligibilityResolvedAddress =
     eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
   const showToggleResolvedAddress =
     toggleResolvedAddress && toggleResolvedAddress !== toggle;
@@ -292,11 +296,11 @@ const HatLinkRequestApproveForm = ({
                   label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
                   placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                   rightElement={
-                    showEligilityResolvedAddress && <FaCheck color='green' />
+                    showEligibilityResolvedAddress && <FaCheck color='green' />
                   }
                   localForm={localForm}
                 />
-                {showEligilityResolvedAddress && (
+                {showEligibilityResolvedAddress && (
                   <Text fontSize='sm' color='gray.500' mt={1}>
                     Resolved address: {eligibilityResolvedAddress}
                   </Text>
@@ -341,7 +345,7 @@ const HatLinkRequestApproveForm = ({
               imagePinLoading ||
               isLoading ||
               isLoadingEligibilityResolvedAddress ||
-              isLoadingtoggleResolvedAddress
+              isLoadingToggleResolvedAddress
             }
           >
             {imagePinLoading ? <Spinner /> : 'Approve'}

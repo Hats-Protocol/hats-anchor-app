@@ -72,6 +72,7 @@ const SelectedHatDrawer = ({
       setWearerTopHats(topHats);
       setIsAdminUser(isAdmin(currentWearerHats, selectedHatId, true));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
 
   useEffect(() => {

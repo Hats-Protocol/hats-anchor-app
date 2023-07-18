@@ -1,10 +1,9 @@
 import router from 'next/router';
 import { isAddress } from 'viem';
-import { useAccount, useEnsAddress } from 'wagmi';
+import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { treeCreateEventIdToTreeId } from '@/lib/hats';
-
-import useHatContractWrite from './useHatContractWrite';
 
 const useTreeCreate = ({
   chainId,
@@ -14,6 +13,7 @@ const useTreeCreate = ({
   imageUrl,
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
+  const currentNetworkId = useChainId();
   const {
     data: newReceiverResolvedAddress,
     isLoading: isLoadingNewReceiverResolvedAddress,
@@ -43,9 +43,12 @@ const useTreeCreate = ({
       description: 'Successfully created tree',
     },
     queryKeys: [['treeList', chainId]],
-    enabled: isAddress(
-      overrideReceiver ? newReceiverResolvedAddress ?? receiver : address || '',
-    ),
+    enabled:
+      isAddress(
+        overrideReceiver
+          ? newReceiverResolvedAddress ?? receiver
+          : address || '',
+      ) && chainId === currentNetworkId,
     handleSuccess,
   });
 

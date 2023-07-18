@@ -1,5 +1,5 @@
 import { isAddress } from 'viem';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
 import { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -12,6 +12,7 @@ const useModuleUpdate = ({
   moduleType,
   newAddress,
 }: UseModuleUpdateProps) => {
+  const currentNetworkId = useChainId();
   const { data: newResolvedAddress, isLoading: isLoadingNewResolvedAddress } =
     useEnsAddress({
       name: newAddress,
@@ -39,7 +40,10 @@ const useModuleUpdate = ({
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],
     ],
-    enabled: Boolean(hatsAddress) && isAddress(newAddress),
+    enabled:
+      Boolean(hatsAddress) &&
+      isAddress(newAddress) &&
+      chainId === currentNetworkId,
   });
 
   return {

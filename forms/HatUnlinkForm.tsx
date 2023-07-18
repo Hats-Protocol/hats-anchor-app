@@ -2,6 +2,7 @@ import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
+import { useChainId } from 'wagmi';
 
 import Select from '@/components/atoms/Select';
 import CONFIG from '@/constants';
@@ -17,6 +18,7 @@ const HatUnlinkForm = ({
   parentOfTrees: string[];
   chainId: number;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -48,7 +50,11 @@ const HatUnlinkForm = ({
       )}`,
     },
     queryKeys: [['topHat', topHatPrettyId]],
-    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
+    enabled:
+      Boolean(topHatPrettyId) &&
+      Boolean(wearer) &&
+      isAddress(wearer) &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

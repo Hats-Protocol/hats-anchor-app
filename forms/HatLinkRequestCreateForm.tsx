@@ -1,6 +1,7 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { useChainId } from 'wagmi';
 
 import Select from '@/components/atoms/Select';
 import CONFIG from '@/constants';
@@ -17,6 +18,7 @@ const HatLinkRequestCreateForm = ({
   wearerTopHats: string[];
   chainId: number;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
@@ -47,7 +49,10 @@ const HatLinkRequestCreateForm = ({
       ['treeDetails', topHatDomain],
       ['treeDetails', prettyIdToId(newAdmin)],
     ],
-    enabled: Boolean(topHatDomain) && Boolean(newAdmin),
+    enabled:
+      Boolean(topHatDomain) &&
+      Boolean(newAdmin) &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

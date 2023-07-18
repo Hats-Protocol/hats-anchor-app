@@ -1,6 +1,7 @@
-import { hatIdToHex } from '@/lib/hats';
+import { useChainId } from 'wagmi';
 
-import useHatContractWrite from './useHatContractWrite';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
+import { hatIdToHex } from '@/lib/hats';
 
 const useHatBurn = ({
   hatsAddress,
@@ -11,6 +12,7 @@ const useHatBurn = ({
   chainId: number;
   hatId: string | null;
 }) => {
+  const currentNetworkId = useChainId();
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'renounceHat',
     args: [hatId],
@@ -23,7 +25,8 @@ const useHatBurn = ({
       ['hatDetails', hatIdToHex(hatId)],
       ['treeDetails', hatIdToHex(hatId)],
     ],
-    enabled: Boolean(hatsAddress) && Boolean(hatId),
+    enabled:
+      Boolean(hatsAddress) && Boolean(hatId) && chainId === currentNetworkId,
   });
 
   return { writeAsync, isLoading };

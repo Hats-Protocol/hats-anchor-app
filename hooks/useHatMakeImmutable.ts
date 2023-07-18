@@ -1,8 +1,8 @@
 import _ from 'lodash';
+import { useChainId } from 'wagmi';
 
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
-
-import useHatContractWrite from './useHatContractWrite';
 
 const useHatMakeImmutable = ({
   hatsAddress,
@@ -12,6 +12,7 @@ const useHatMakeImmutable = ({
   isAdminUser,
   mutable,
 }: UseHatMakeImmutableProps) => {
+  const currentNetworkId = useChainId();
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',
     args: [decimalId(hatId)],
@@ -31,7 +32,8 @@ const useHatMakeImmutable = ({
       Boolean(decimalId(hatId)) &&
       _.gt(levelAtLocalTree, 0) &&
       isAdminUser &&
-      mutable,
+      mutable &&
+      chainId === currentNetworkId,
   });
 
   return { writeAsync, isLoading };
