@@ -49,10 +49,12 @@ const SelectedHatDrawer = ({
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
+    chainId,
   });
 
   useEffect(() => {
     if (wearer) {
+      // limit this?
       const currentWearerHats = _.map(
         _.filter(wearer, (w) => w.chainId === chainId),
         'prettyId',

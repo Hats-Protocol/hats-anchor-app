@@ -56,6 +56,7 @@ const Home = () => {
 
   const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
+    chainId: 'all',
   });
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =

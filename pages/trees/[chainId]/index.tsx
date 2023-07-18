@@ -20,7 +20,6 @@ const Trees = ({
   trees: InfiniteData<ITree[]>;
   chainId: number;
 }) => {
-  console.log(initialData);
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,

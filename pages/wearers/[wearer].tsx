@@ -116,6 +116,7 @@ const WearerDetail = ({
   const [blockie, setBlockie] = useState<string | undefined>();
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
+    chainId: 'all',
   });
 
   const firstCreated = _.minBy(currentHats, 'createdAt');

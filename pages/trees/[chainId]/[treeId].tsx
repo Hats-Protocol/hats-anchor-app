@@ -46,7 +46,6 @@ import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import HatDrawer from '@/components/HatDrawer';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
@@ -65,6 +64,7 @@ import {
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
 
+const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 interface TreeDetailsProps {
@@ -132,6 +132,7 @@ const TreeDetails = ({
 }: TreeDetailsProps) => {
   const router = useRouter();
   const { hatId } = router.query;
+  const { address } = useAccount();
 
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
@@ -147,9 +148,9 @@ const TreeDetails = ({
   );
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
 
-  const { address } = useAccount();
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
+    chainId,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
   const {
