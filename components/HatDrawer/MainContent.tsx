@@ -49,69 +49,70 @@ const MainContent = ({
   if (!hatData) return null;
 
   return (
-    <Box
+    <Stack
+      p={10}
+      pt={8}
+      spacing={10}
       w='100%'
       overflow='scroll'
       height='calc(100% - 150px)'
       top={75}
       pos='relative'
     >
-      <Stack p={10} pt={8} spacing={10} overflow='auto' height='100%'>
-        <Header
-          name={name}
-          description={description}
-          mutableStatus={mutableStatus}
-          activeStatus={activeStatus}
-          isCurrentWearer={isCurrentWearer}
-          hatId={hatData.id}
-          prettyId={hatData.prettyId}
-          levelAtLocalTree={hatData.levelAtLocalTree}
-        />
+      <Header
+        name={name}
+        description={description}
+        mutableStatus={mutableStatus}
+        activeStatus={activeStatus}
+        isCurrentWearer={isCurrentWearer}
+        hatId={hatData.id}
+        prettyId={hatData.prettyId}
+        levelAtLocalTree={hatData.levelAtLocalTree}
+      />
 
-        <WearersList
-          hatName={name}
-          chainId={chainId}
-          setModals={setModals}
-          localOverlay={localOverlay}
-          hatId={hatData.id}
-          wearers={hatData.wearers}
-          maxSupply={hatData.maxSupply}
-          prettyId={hatData.prettyId}
-          isAdminUser={isAdminUser}
-        />
+      <WearersList
+        hatName={name}
+        chainId={chainId}
+        setModals={setModals}
+        localOverlay={localOverlay}
+        hatId={hatData.id}
+        wearers={hatData.wearers}
+        maxSupply={hatData.maxSupply}
+        prettyId={hatData.prettyId}
+        isAdminUser={isAdminUser}
+      />
 
-        <GuildRoles hatRoles={hatRoles} />
+      <GuildRoles hatRoles={hatRoles} />
 
-        <DetailList title='Responsibilities' details={responsibilities} />
-        <DetailList title='Authorities' details={authorities} />
+      <DetailList title='Responsibilities' details={responsibilities} />
+      <DetailList title='Authorities' details={authorities} />
 
-        <StatusCard
-          statusName='Eligibility'
-          statusData={hatData.eligibility}
-          statusCheck={isEligible}
-          isAContract={isEligibilityAContract}
-          chainId={chainId}
-        />
+      <StatusCard
+        statusName='Eligibility'
+        statusData={hatData.eligibility}
+        statusCheck={isEligible}
+        isAContract={isEligibilityAContract}
+        chainId={chainId}
+      />
 
-        <StatusCard
-          statusName='Toggle'
-          statusData={hatData.toggle}
-          statusCheck={activeStatus === STATUS.ACTIVE}
-          isAContract={isToggleAContract}
-          chainId={chainId}
-        />
+      <StatusCard
+        statusName='Toggle'
+        statusData={hatData.toggle}
+        statusCheck={activeStatus === STATUS.ACTIVE}
+        isAContract={isToggleAContract}
+        chainId={chainId}
+      />
 
-        <LinkRequests
-          linkRequestFromTree={linkRequestFromTree}
-          hatData={hatData}
-          setModals={setModals}
-          localOverlay={localOverlay}
-          chainId={chainId}
-        />
+      <LinkRequests
+        linkRequestFromTree={linkRequestFromTree}
+        hatData={hatData}
+        setModals={setModals}
+        localOverlay={localOverlay}
+        chainId={chainId}
+      />
 
-        <EventHistory chainId={chainId} events={hatData.events} />
-      </Stack>
-    </Box>
+      <EventHistory chainId={chainId} events={hatData.events} />
+    </Stack>
   );
 };
 
