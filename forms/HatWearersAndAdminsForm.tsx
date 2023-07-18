@@ -109,7 +109,7 @@ const HatWearersAndAdminsForm = ({
       chainId,
       hatId: hatData?.id,
       moduleType: MODULE_TYPES.eligibility,
-      newAddress: eligibility,
+      newAddress: eligibilityResolvedAddress ?? eligibility,
     });
 
   // changeHatToggle
@@ -119,7 +119,7 @@ const HatWearersAndAdminsForm = ({
       chainId,
       hatId: hatData?.id,
       moduleType: MODULE_TYPES.toggle,
-      newAddress: toggle,
+      newAddress: toggleResolvedAddress ?? toggle,
     });
 
   // makeHatImmutable
