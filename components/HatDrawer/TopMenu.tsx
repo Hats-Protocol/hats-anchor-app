@@ -8,12 +8,13 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
   Text,
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import {
   FaCopy,
   FaDoorOpen,
@@ -152,7 +153,7 @@ const TopMenu = ({
             </Button>
           </Tooltip>
         )}
-        <Menu>
+        <Menu isLazy>
           <MenuButton as={Button} variant='outline'>
             <HStack>
               <Icon as={FaEllipsisV} />
@@ -315,27 +316,31 @@ const TopMenu = ({
         </Menu>
       </HStack>
 
-      <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm
-          defaultAdmin={hatData.prettyId}
-          treeId={hatData.tree.id}
-        />
-      </Modal>
+      <Suspense fallback={<Spinner />}>
+        <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
+          <HatCreateForm
+            defaultAdmin={hatData.prettyId}
+            treeId={hatData.tree.id}
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='requestLink'
-        title='Request to Link'
-        localOverlay={localOverlay}
-      >
-        <HatLinkRequestCreateForm
-          newAdmin={hatData.prettyId}
-          wearerTopHats={_.filter(
-            wearerTopHats,
-            (hat) => hat !== hatData.admin?.prettyId,
-          )}
-          chainId={chainId}
-        />
-      </Modal>
+      <Suspense fallback={<Spinner />}>
+        <Modal
+          name='requestLink'
+          title='Request to Link'
+          localOverlay={localOverlay}
+        >
+          <HatLinkRequestCreateForm
+            newAdmin={hatData.prettyId}
+            wearerTopHats={_.filter(
+              wearerTopHats,
+              (hat) => hat !== hatData.admin?.prettyId,
+            )}
+            chainId={chainId}
+          />
+        </Modal>
+      </Suspense>
     </Flex>
   );
 };

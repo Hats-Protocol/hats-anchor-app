@@ -18,7 +18,7 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
   const router = useRouter();
 
   return (
-    <Menu>
+    <Menu isLazy>
       <MenuButton
         as={IconButton}
         aria-label='Filter networks'

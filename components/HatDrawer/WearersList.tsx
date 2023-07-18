@@ -356,7 +356,7 @@ const WearerRow = (props: {
         <ChakraNextLink href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
         </ChakraNextLink>
-        <Menu>
+        <Menu isLazy>
           <MenuButton
             as={IconButton}
             aria-label='Options'

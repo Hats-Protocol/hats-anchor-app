@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
@@ -84,7 +85,9 @@ const Home = () => {
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
               {_.map(featuredTrees, (tree, i) => (
-                <FeaturedTreeCard key={i} treeData={tree} />
+                <Suspense fallback={<Spinner />}>
+                  <FeaturedTreeCard key={i} treeData={tree} />
+                </Suspense>
               ))}
             </SimpleGrid>
           </Stack>
@@ -134,7 +137,9 @@ const Home = () => {
                     </Card>
                   </ChakraNextLink>
                   {_.map(sortedHats, (hat, i) => (
-                    <HatCard hat={hat} key={i} />
+                    <Suspense fallback={<Spinner />}>
+                      <HatCard hat={hat} key={i} />
+                    </Suspense>
                   ))}
                 </SimpleGrid>
               )}

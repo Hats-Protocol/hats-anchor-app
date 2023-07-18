@@ -98,7 +98,7 @@ const ConnectWallet = () => {
                   )}
                 </Button>
 
-                <Menu placement='bottom-end'>
+                <Menu placement='bottom-end' isLazy>
                   <MenuButton
                     as={Button}
                     rightIcon={<Icon as={FaChevronDown} />}
