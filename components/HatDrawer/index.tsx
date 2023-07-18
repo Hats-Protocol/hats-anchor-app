@@ -27,6 +27,7 @@ const SelectedHatDrawer = ({
   setEditMode,
   linkRequestFromTree,
 }: SelectedHatDrawerProps) => {
+  console.log('hatsData', hatsData);
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const [hatData, setHatData] = useState<IHat | undefined>();
@@ -188,11 +189,13 @@ const SelectedHatDrawer = ({
           />
         )}
 
-        <BottomMenu
-          selectedHatId={selectedHatId}
-          setSelectedHatId={setSelectedHatId}
-          hierarchyData={hierarchyData}
-        />
+        {hatsData?.length > 1 && (
+          <BottomMenu
+            selectedHatId={selectedHatId}
+            setSelectedHatId={setSelectedHatId}
+            hierarchyData={hierarchyData}
+          />
+        )}
       </Box>
     </Box>
   );
