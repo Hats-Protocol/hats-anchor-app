@@ -42,7 +42,14 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
             opacity='1 !important'
             my={1}
           >
-            <Image src={networkImages[id]} alt='chain' w={6} h={6} mr={4} />
+            <Image
+              loading='lazy'
+              src={networkImages[id]}
+              alt='chain'
+              w={6}
+              h={6}
+              mr={4}
+            />
             {name}
             {selectedNetwork === id ? ' ✓' : ''}
           </MenuItem>

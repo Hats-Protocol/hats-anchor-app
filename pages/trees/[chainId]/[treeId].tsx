@@ -46,6 +46,7 @@ import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
@@ -277,7 +278,7 @@ const TreeDetails = ({
           width='650px'
         >
           <DrawerBody pt={0}>
-            <Suspense fallback={<Spinner />}>
+            <Suspense fallback={<Suspender />}>
               <HatDrawer
                 chainId={chainId}
                 selectedHatId={selectedHatId}
@@ -457,7 +458,7 @@ const TreeDetails = ({
         </Box>
 
         {!_.isEmpty(orgChartTree) ? (
-          <Suspense fallback={<Spinner />}>
+          <Suspense fallback={<Suspender />}>
             <OrgChart
               tree={orgChartTree}
               selectedOption={selectedOption}

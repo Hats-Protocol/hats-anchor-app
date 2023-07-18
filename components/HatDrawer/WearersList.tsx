@@ -13,7 +13,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Spinner,
   Stack,
   Text,
   Tooltip,
@@ -25,6 +24,7 @@ import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 import useHatBurn from '@/hooks/useHatBurn';
@@ -239,7 +239,7 @@ const WearersList = ({
         </Flex>
       </Modal>
 
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Suspender />}>
         <Modal
           name='hatWearerStatus'
           title='Remove a Wearer by revoking their Hat token'
@@ -255,7 +255,7 @@ const WearersList = ({
         </Modal>
       </Suspense>
 
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Suspender />}>
         <Modal
           name='transferHat'
           title='Transfer Hat to New Address'
@@ -270,7 +270,7 @@ const WearersList = ({
         </Modal>
       </Suspense>
 
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Suspender />}>
         <Modal
           name='newWearer'
           title='Add a Wearer by minting a Hat token'
