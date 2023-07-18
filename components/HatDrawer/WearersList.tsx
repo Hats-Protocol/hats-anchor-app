@@ -1,6 +1,5 @@
 /* eslint-disable no-nested-ternary */
 import {
-  Box,
   Button,
   Flex,
   Heading,
@@ -10,7 +9,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
@@ -21,21 +19,24 @@ import {
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import Modal from '@/components/Modal';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
-import HatTransferForm from '@/forms/HatTransferForm';
-import HatWearerForm from '@/forms/HatWearerForm';
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
 import useHatBurn from '@/hooks/useHatBurn';
 import useToast from '@/hooks/useToast';
 import { checkENSNames } from '@/lib/contract';
 import { formatAddress } from '@/lib/general';
 import { IHatWearer } from '@/types';
+
+const Modal = lazy(() => import('@/components/atoms/Modal'));
+const HatTransferForm = lazy(() => import('@/forms/HatTransferForm'));
+const HatWearerForm = lazy(() => import('@/forms/HatWearerForm'));
+const HatWearerStatusForm = lazy(() => import('@/forms/HatWearerStatusForm'));
 
 const WearersList = ({
   chainId,
@@ -62,6 +63,7 @@ const WearersList = ({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId,
+    wearers,
   });
 
   const handleRenounceHat = async () => {
@@ -237,46 +239,52 @@ const WearersList = ({
         </Flex>
       </Modal>
 
-      <Modal
-        name='hatWearerStatus'
-        title='Remove a Wearer by revoking their Hat token'
-        localOverlay={localOverlay}
-        size='3xl'
-      >
-        <HatWearerStatusForm
-          prettyId={prettyId}
-          chainId={chainId}
-          wearer={changeStatusWearer}
-          eligibility='Not Eligible'
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='hatWearerStatus'
+          title='Remove a Wearer by revoking their Hat token'
+          localOverlay={localOverlay}
+          size='3xl'
+        >
+          <HatWearerStatusForm
+            prettyId={prettyId}
+            chainId={chainId}
+            wearer={changeStatusWearer}
+            eligibility='Not Eligible'
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='transferHat'
-        title='Transfer Hat to New Address'
-        localOverlay={localOverlay}
-      >
-        <HatTransferForm
-          hatId={hatId}
-          prettyId={prettyId}
-          chainId={chainId}
-          currentWearerAddress={wearerToTransferFrom}
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='transferHat'
+          title='Transfer Hat to New Address'
+          localOverlay={localOverlay}
+        >
+          <HatTransferForm
+            hatId={hatId}
+            prettyId={prettyId}
+            chainId={chainId}
+            currentWearerAddress={wearerToTransferFrom}
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='newWearer'
-        title='Add a Wearer by minting a Hat token'
-        localOverlay={localOverlay}
-      >
-        <HatWearerForm
-          hatName={hatName}
-          hatId={hatId}
-          chainId={chainId}
-          currentWearers={_.map(wearers, 'id')}
-          maxSupply={maxSupply}
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='newWearer'
+          title='Add a Wearer by minting a Hat token'
+          localOverlay={localOverlay}
+        >
+          <HatWearerForm
+            hatName={hatName}
+            hatId={hatId}
+            chainId={chainId}
+            currentWearers={_.map(wearers, 'id')}
+            maxSupply={maxSupply}
+          />
+        </Modal>
+      </Suspense>
     </>
   );
 };
@@ -345,10 +353,10 @@ const WearerRow = (props: {
         <Text>{ensNames[wearer.id] || formatAddress(_.get(wearer, 'id'))}</Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
-        <Link href={`/wearers/${wearer.id}`}>
+        <ChakraNextLink href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
-        </Link>
-        <Menu>
+        </ChakraNextLink>
+        <Menu isLazy>
           <MenuButton
             as={IconButton}
             aria-label='Options'

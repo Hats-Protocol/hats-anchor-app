@@ -84,7 +84,7 @@ const ItemDetailsForm = ({
               placeholder='Label'
             />
 
-            <Menu>
+            <Menu isLazy>
               <MenuButton
                 as={IconButton}
                 aria-label='Options'

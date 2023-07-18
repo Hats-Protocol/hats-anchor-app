@@ -11,9 +11,9 @@ import {
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { isAddress } from 'viem';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
-import Input from '@/components/Input';
+import Input from '@/components/atoms/Input';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -30,6 +30,7 @@ const HatTransferForm = ({
   hatId: string;
   prettyId: string | undefined;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
@@ -63,7 +64,8 @@ const HatTransferForm = ({
       Boolean(newWearerResolvedAddress ?? newWearer) &&
       Boolean(currentWearerAddress) &&
       isAddress(newWearerResolvedAddress ?? newWearer) &&
-      isAddress(currentWearerAddress),
+      isAddress(currentWearerAddress) &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

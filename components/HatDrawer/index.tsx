@@ -11,10 +11,10 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
 import { DetailsItem, HierarchyObject, IHat } from '@/types';
 
-import BottomMenu from './HatDrawer/BottomMenu';
-import EditMode from './HatDrawer/EditMode';
-import MainContent from './HatDrawer/MainContent';
-import TopMenu from './HatDrawer/TopMenu';
+import BottomMenu from './BottomMenu';
+import EditMode from './EditMode';
+import MainContent from './MainContent';
+import TopMenu from './TopMenu';
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -49,22 +49,18 @@ const SelectedHatDrawer = ({
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
+    chainId,
   });
 
   useEffect(() => {
     if (wearer) {
-      const currentWearerHats = _.map(
-        _.filter(wearer, (w) => w.chainId === chainId),
-        'prettyId',
-      );
+      console.log(wearer);
+      const currentWearerHats = _.map(wearer, 'prettyId');
       setIsCurrentWearer(_.includes(currentWearerHats, selectedHatId));
       const topHats = _.map(
         _.filter(
           wearer,
-          (hat: IHat) =>
-            isTopHat(hat) &&
-            hat?.prettyId !== hatData?.prettyId &&
-            hat.chainId === chainId,
+          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
         ),
         'prettyId',
       );
@@ -72,6 +68,7 @@ const SelectedHatDrawer = ({
       setWearerTopHats(topHats);
       setIsAdminUser(isAdmin(currentWearerHats, selectedHatId, true));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
 
   useEffect(() => {
@@ -123,6 +120,7 @@ const SelectedHatDrawer = ({
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
         <Image
+          loading='lazy'
           src={hatData?.imageUrl ? hatData?.imageUrl : '/icon.jpeg'}
           alt='hat image'
           position='absolute'

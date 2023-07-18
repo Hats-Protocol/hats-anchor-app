@@ -32,9 +32,9 @@ import {
   FaUpload,
 } from 'react-icons/fa';
 import { isAddress } from 'viem';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/DropZone';
+import DropZone from '@/components/atoms/DropZone';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';
@@ -48,6 +48,7 @@ const HatWearerForm = ({
   maxSupply,
   hatName,
 }: HatWearerFormProps) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit } = localForm;
   const [wearers, setWearers] = useState<any[]>([]);
@@ -116,6 +117,7 @@ const HatWearerForm = ({
     ],
     enabled:
       Boolean(decimalId(hatId)) &&
+      !_.isEmpty(wearers) &&
       newWearers.every((wearer) => isAddress(wearer)),
   });
 
@@ -132,7 +134,10 @@ const HatWearerForm = ({
         ['hatDetails', hatId],
         ['treeDetails', toTreeId(hatId)],
       ],
-      enabled: Boolean(decimalId(hatId)) && isAddress(currentResolvedAddress),
+      enabled:
+        Boolean(decimalId(hatId)) &&
+        isAddress(currentResolvedAddress) &&
+        chainId === currentNetworkId,
     });
 
   const onSubmit = async () => {

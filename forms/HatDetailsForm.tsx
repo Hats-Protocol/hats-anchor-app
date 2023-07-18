@@ -21,13 +21,16 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
+import { useChainId } from 'wagmi';
 
-import DropZone from '@/components/DropZone';
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
+import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
+import Textarea from '@/components/atoms/Textarea';
 import { ZERO_ADDRESS } from '@/constants';
+import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import {
@@ -39,9 +42,6 @@ import {
 } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { DetailsItem } from '@/types';
-
-import ItemDetailsForm from './ItemDetailsForm';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
 
 const HatDetailsForm = ({
   hatData,
@@ -59,6 +59,7 @@ const HatDetailsForm = ({
     authorities: DetailsItem[];
   };
 }) => {
+  const currentNetworkId = useChainId();
   const [customImage, setCustomImage] = useState(true);
   const [image, setImage] = useState<any>();
   const localForm = useForm({
@@ -196,7 +197,10 @@ const HatDetailsForm = ({
         ['hatDetails', _.get(hatData, 'id')],
         ['treeDetails', toTreeId(_.get(hatData, 'id'))],
       ],
-      enabled: Boolean(_.get(hatData, 'id')) && Boolean(detailsCID),
+      enabled:
+        Boolean(_.get(hatData, 'id')) &&
+        Boolean(detailsCID) &&
+        chainId === currentNetworkId,
     },
   );
 

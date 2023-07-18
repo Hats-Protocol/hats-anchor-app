@@ -24,6 +24,9 @@ import {
   FaExternalLinkAlt,
 } from 'react-icons/fa';
 
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Modal from '@/components/atoms/Modal';
+import WearersList from '@/components/HatDrawer/WearersList';
 import { MUTABILITY, STATUS } from '@/constants';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import useToast from '@/hooks/useToast';
@@ -32,10 +35,6 @@ import { formatAddress, validateURL } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 import { DetailsItem } from '@/types';
-
-import ChakraNextLink from '../ChakraNextLink';
-import Modal from '../Modal';
-import WearersList from './WearersList';
 
 const MainContent = ({
   chainId,

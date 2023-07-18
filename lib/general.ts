@@ -1,10 +1,12 @@
 import _ from 'lodash';
 
+// unused
 export function parseUri(uri: string) {
   const parsed = JSON.parse(uri);
   return parsed;
 }
 
+// unused
 export function decodeUri(uri: string) {
   const decoded = Buffer.from(uri.substring(29), 'base64').toString('utf8');
   return decoded;
@@ -13,11 +15,13 @@ export function decodeUri(uri: string) {
 export const formatAddress = (address: string | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
+// unused
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const clearNonObjects = (array: any[]) => {
   return _.filter(array, (item) => typeof item === 'object');
 };
 
+// unused?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchWithTimeout(resource: any, options: any = {}) {
   const { timeout = 8000 } = options;
@@ -68,8 +72,8 @@ export const mapWithChainId = (array: object[] | null, chainId: number) =>
 
 export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
 
-export const validateURL = (textval: string) => {
-  const urlregex =
+export const validateURL = (textVal: string) => {
+  const urlRegex =
     /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
-  return urlregex.test(textval);
+  return urlRegex.test(textVal);
 };

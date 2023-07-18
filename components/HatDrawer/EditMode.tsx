@@ -9,7 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-import CustomAccordion from '@/components/CustomAccordion';
+import CustomAccordion from '@/components/atoms/CustomAccordion';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';

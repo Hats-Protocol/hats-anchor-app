@@ -15,12 +15,12 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/DropZone';
-import Input from '@/components/Input';
-import Select from '@/components/Select';
-import Textarea from '@/components/Textarea';
+import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
+import Select from '@/components/atoms/Select';
+import Textarea from '@/components/atoms/Textarea';
 import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -37,6 +37,7 @@ const HatRelinkForm = ({
   hatData: any;
   parentTreeHats: any;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -126,7 +127,7 @@ const HatRelinkForm = ({
         hatData.prettyId,
       )} to ${prettyIdToIp(newAdmin)}`,
     },
-    enabled: !!hatData.prettyId && !!newAdmin,
+    enabled: !!hatData.prettyId && !!newAdmin && chainId === currentNetworkId,
   });
 
   const showEligilityResolvedAddress =

@@ -20,16 +20,16 @@ import { useForm, Controller } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/DropZone';
-import Input from '@/components/Input';
-import Textarea from '@/components/Textarea';
+import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
+import Textarea from '@/components/atoms/Textarea';
 import { FALLBACK_ADDRESS, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 
 const HatCreateForm = ({
@@ -39,6 +39,7 @@ const HatCreateForm = ({
   defaultAdmin: string | undefined;
   treeId: string;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -145,7 +146,7 @@ const HatCreateForm = ({
       description: 'Successfully created hat',
     },
     queryKeys: [['treeDetails', treeId]],
-    enabled: Boolean(defaultAdmin),
+    enabled: Boolean(defaultAdmin) && chainId === currentNetworkId,
   });
 
   const showEligibilityResolvedAddress =

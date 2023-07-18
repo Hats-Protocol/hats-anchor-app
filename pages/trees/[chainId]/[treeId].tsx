@@ -39,15 +39,15 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import Layout from '@/components/Layout';
-import SelectedHatDrawer from '@/components/SelectedHatDrawer';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -65,6 +65,7 @@ import {
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
 
+const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 interface TreeDetailsProps {
@@ -132,6 +133,7 @@ const TreeDetails = ({
 }: TreeDetailsProps) => {
   const router = useRouter();
   const { hatId } = router.query;
+  const { address } = useAccount();
 
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
@@ -145,11 +147,11 @@ const TreeDetails = ({
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
   );
-
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
-  const { address } = useAccount();
+
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
+    chainId,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
   const {
@@ -259,10 +261,6 @@ const TreeDetails = ({
       <NextSeo
         title={title}
         description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-        // openGraph={{
-        //   url: `${CONFIG.url}/trees/${chainId}/${treeId}`,
-        //   images: [imagesData[topHatId]],
-        // }}
       />
 
       <Drawer
@@ -280,17 +278,19 @@ const TreeDetails = ({
           width='650px'
         >
           <DrawerBody pt={0}>
-            <SelectedHatDrawer
-              chainId={chainId}
-              selectedHatId={selectedHatId}
-              setSelectedHatId={setSelectedHatId}
-              hatsData={fullHatData}
-              hierarchyData={hierarchyData}
-              linkRequestFromTree={linkRequestFromTree}
-              onClose={onCloseShade}
-              editMode={editMode}
-              setEditMode={setEditMode}
-            />
+            <Suspense fallback={<Suspender />}>
+              <HatDrawer
+                chainId={chainId}
+                selectedHatId={selectedHatId}
+                setSelectedHatId={setSelectedHatId}
+                hatsData={fullHatData}
+                hierarchyData={hierarchyData}
+                linkRequestFromTree={linkRequestFromTree}
+                onClose={onCloseShade}
+                editMode={editMode}
+                setEditMode={setEditMode}
+              />
+            </Suspense>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -458,16 +458,18 @@ const TreeDetails = ({
         </Box>
 
         {!_.isEmpty(orgChartTree) ? (
-          <OrgChart
-            tree={orgChartTree}
-            selectedOption={selectedOption}
-            showInactiveHats={showInactiveHats}
-            isLoading={imagesDataLoading}
-            wearerHats={currentHats}
-            chainId={chainId}
-            selectedHatId={selectedHatId}
-            onSelectHat={handleSelectHat}
-          />
+          <Suspense fallback={<Suspender />}>
+            <OrgChart
+              tree={orgChartTree}
+              selectedOption={selectedOption}
+              showInactiveHats={showInactiveHats}
+              isLoading={imagesDataLoading}
+              wearerHats={currentHats}
+              chainId={chainId}
+              selectedHatId={selectedHatId}
+              onSelectHat={handleSelectHat}
+            />
+          </Suspense>
         ) : (
           <Flex justify='center' align='center' w='full' h='full'>
             <Spinner />
@@ -565,14 +567,14 @@ export const getStaticProps = async (context: any) => {
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
       hatData: { ...hatData, chainId } || null,
     },
-    revalidate: 10,
+    revalidate: 5,
   };
 };
 
 export const getStaticPaths = async () => {
   return {
     paths: [],
-    fallback: true,
+    fallback: 'blocking',
   };
 };
 
