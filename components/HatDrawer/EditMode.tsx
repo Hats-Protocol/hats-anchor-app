@@ -9,7 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-import CustomAccordion from '@/components/atoms/CustomAccordion';
+import Accordion from '@/components/atoms/CustomAccordion';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
@@ -46,7 +46,7 @@ const EditMode = ({
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
-        <CustomAccordion title='Hat Details'>
+        <Accordion title='Hat Details'>
           <Stack spacing={4}>
             <Text>Describe the role that this Hat symbolizes.</Text>
             <Tabs>
@@ -72,9 +72,9 @@ const EditMode = ({
               </TabPanels>
             </Tabs>
           </Stack>
-        </CustomAccordion>
+        </Accordion>
 
-        <CustomAccordion title='Wearers & Administrators'>
+        <Accordion title='Wearers & Administrators'>
           <Stack spacing={4}>
             <Text>
               The people and contracts that control and wear this Hat.
@@ -87,7 +87,7 @@ const EditMode = ({
               isAdminUser={isAdminUser}
             />
           </Stack>
-        </CustomAccordion>
+        </Accordion>
       </Stack>
     </Box>
   );
