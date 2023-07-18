@@ -414,26 +414,16 @@ const TreeDetails = ({
                       <Image src='/icons/ago.svg' alt='History icon' />
                     </Flex>
                   </PopoverTrigger>
-                  <PopoverContent>
+                  <PopoverContent width='400px' mr={4}>
                     <PopoverArrow />
                     <PopoverCloseButton />
                     <PopoverBody>
                       <Stack>
-                        <Heading
-                          size='sm'
-                          fontWeight='medium'
-                          textTransform='uppercase'
-                        >
-                          Event history
-                        </Heading>
                         <Box>
-                          {events?.slice(0, 5).map((event: IHatEvent) => (
-                            <Event
-                              key={`${event?.transactionID}-${event?.id}`}
-                              event={event}
-                              chainId={chainId}
-                            />
-                          ))}
+                          <EventHistory
+                            chainId={chainId}
+                            events={events?.slice(0, 5)}
+                          />
                           {events?.length > 4 && (
                             <>
                               <Divider my={2} />
@@ -477,18 +467,8 @@ const TreeDetails = ({
       <Modal isOpen={isEventsModalOpen} onClose={handleCloseModal}>
         <ModalOverlay />
         <ModalContent>
-          {/* <ModalHeader>Event History</ModalHeader> */}
-          {/* <ModalCloseButton /> */}
           <ModalBody pt={4}>
             <EventHistory chainId={chainId} events={events} />
-
-            {/* {events?.map((event: IHatEvent) => (
-              <Event
-                key={`${event?.transactionID}-${event?.id}`}
-                event={event}
-                chainId={chainId}
-              />
-            ))} */}
           </ModalBody>
           <ModalFooter>
             <Button variant='ghost' onClick={handleCloseModal}>
@@ -498,32 +478,6 @@ const TreeDetails = ({
         </ModalContent>
       </Modal>
     </>
-  );
-};
-
-const Event = ({ event, chainId }: { event: IHatEvent; chainId: number }) => {
-  return (
-    <Flex
-      key={`${event?.transactionID}-${event?.id}`}
-      align='center'
-      justify='space-between'
-      py={2}
-    >
-      <Text>{`${formatDistanceToNow(
-        new Date(Number(event?.timestamp) * 1000),
-      )} ago`}</Text>
-
-      <ChakraNextLink
-        isExternal
-        href={`${explorerUrl(chainId)}/tx/${event?.transactionID}`}
-        display='block'
-      >
-        <HStack spacing={3}>
-          <Text>{event?.id?.split('-')[0]}</Text>
-          <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
-        </HStack>
-      </ChakraNextLink>
-    </Flex>
   );
 };
 
