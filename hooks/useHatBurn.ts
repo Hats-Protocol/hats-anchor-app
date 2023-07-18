@@ -1,18 +1,24 @@
-import { useChainId } from 'wagmi';
+import _ from 'lodash';
+import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { hatIdToHex } from '@/lib/hats';
+import { IHatWearer } from '@/types';
 
 const useHatBurn = ({
   hatsAddress,
   chainId,
   hatId,
+  wearers,
 }: {
   hatsAddress?: `0x${string}`;
   chainId: number;
   hatId: string | null;
+  wearers: IHatWearer[];
 }) => {
   const currentNetworkId = useChainId();
+  const { address } = useAccount();
+  const currentlyWearing = _.findKey(wearers, ['id', address]);
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'renounceHat',
     args: [hatId],
@@ -26,7 +32,10 @@ const useHatBurn = ({
       ['treeDetails', hatIdToHex(hatId)],
     ],
     enabled:
-      Boolean(hatsAddress) && Boolean(hatId) && chainId === currentNetworkId,
+      Boolean(hatsAddress) &&
+      Boolean(hatId) &&
+      chainId === currentNetworkId &&
+      !!currentlyWearing,
   });
 
   return { writeAsync, isLoading };

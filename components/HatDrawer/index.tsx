@@ -55,19 +55,13 @@ const SelectedHatDrawer = ({
 
   useEffect(() => {
     if (wearer) {
-      // limit this?
-      const currentWearerHats = _.map(
-        _.filter(wearer, (w) => w.chainId === chainId),
-        'prettyId',
-      );
+      console.log(wearer);
+      const currentWearerHats = _.map(wearer, 'prettyId');
       setIsCurrentWearer(_.includes(currentWearerHats, selectedHatId));
       const topHats = _.map(
         _.filter(
           wearer,
-          (hat: IHat) =>
-            isTopHat(hat) &&
-            hat?.prettyId !== hatData?.prettyId &&
-            hat.chainId === chainId,
+          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
         ),
         'prettyId',
       );
@@ -127,6 +121,7 @@ const SelectedHatDrawer = ({
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
         <Image
+          loading='lazy'
           src={hatData?.imageUrl ? hatData?.imageUrl : '/icon.jpeg'}
           alt='hat image'
           position='absolute'

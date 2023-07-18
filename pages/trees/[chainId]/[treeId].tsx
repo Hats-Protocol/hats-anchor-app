@@ -39,13 +39,14 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import EventHistory from '@/components/EventHistory';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
@@ -279,17 +280,19 @@ const TreeDetails = ({
           width='650px'
         >
           <DrawerBody pt={0}>
-            <HatDrawer
-              chainId={chainId}
-              selectedHatId={selectedHatId}
-              setSelectedHatId={setSelectedHatId}
-              hatsData={fullHatData}
-              hierarchyData={hierarchyData}
-              linkRequestFromTree={linkRequestFromTree}
-              onClose={onCloseShade}
-              editMode={editMode}
-              setEditMode={setEditMode}
-            />
+            <Suspense fallback={<Suspender />}>
+              <HatDrawer
+                chainId={chainId}
+                selectedHatId={selectedHatId}
+                setSelectedHatId={setSelectedHatId}
+                hatsData={fullHatData}
+                hierarchyData={hierarchyData}
+                linkRequestFromTree={linkRequestFromTree}
+                onClose={onCloseShade}
+                editMode={editMode}
+                setEditMode={setEditMode}
+              />
+            </Suspense>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -447,16 +450,18 @@ const TreeDetails = ({
         </Box>
 
         {!_.isEmpty(orgChartTree) ? (
-          <OrgChart
-            tree={orgChartTree}
-            selectedOption={selectedOption}
-            showInactiveHats={showInactiveHats}
-            isLoading={imagesDataLoading}
-            wearerHats={currentHats}
-            chainId={chainId}
-            selectedHatId={selectedHatId}
-            onSelectHat={handleSelectHat}
-          />
+          <Suspense fallback={<Suspender />}>
+            <OrgChart
+              tree={orgChartTree}
+              selectedOption={selectedOption}
+              showInactiveHats={showInactiveHats}
+              isLoading={imagesDataLoading}
+              wearerHats={currentHats}
+              chainId={chainId}
+              selectedHatId={selectedHatId}
+              onSelectHat={handleSelectHat}
+            />
+          </Suspense>
         ) : (
           <Flex justify='center' align='center' w='full' h='full'>
             <Spinner />

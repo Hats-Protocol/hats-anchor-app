@@ -13,6 +13,7 @@ const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {
       <Box border='1px solid' bg='white' maxW='400px'>
         <Box bg='gray.100'>
           <Image
+            loading='lazy'
             src={image}
             alt={`${name} featured image`}
             minH='250px'

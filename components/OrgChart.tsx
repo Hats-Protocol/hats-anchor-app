@@ -359,6 +359,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                     overflow: hidden;
                   ">
                   <img
+                    loading="lazy"
                     src="${imageUrl ?? '/icon.jpeg'}"
                     style="
                       background: white;

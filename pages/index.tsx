@@ -13,10 +13,12 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -84,7 +86,9 @@ const Home = () => {
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
               {_.map(featuredTrees, (tree, i) => (
-                <FeaturedTreeCard key={i} treeData={tree} />
+                <Suspense key={i} fallback={<Suspender />}>
+                  <FeaturedTreeCard treeData={tree} />
+                </Suspense>
               ))}
             </SimpleGrid>
           </Stack>
@@ -134,7 +138,9 @@ const Home = () => {
                     </Card>
                   </ChakraNextLink>
                   {_.map(sortedHats, (hat, i) => (
-                    <HatCard hat={hat} key={i} />
+                    <Suspense fallback={<Suspender />} key={i}>
+                      <HatCard hat={hat} key={i} />
+                    </Suspense>
                   ))}
                 </SimpleGrid>
               )}

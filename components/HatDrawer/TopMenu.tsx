@@ -8,12 +8,13 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
   Text,
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import {
   FaCopy,
   FaDoorOpen,
@@ -27,6 +28,7 @@ import {
 import { FiChevronsRight } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
+import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
@@ -152,7 +154,7 @@ const TopMenu = ({
             </Button>
           </Tooltip>
         )}
-        <Menu>
+        <Menu isLazy>
           <MenuButton as={Button} variant='outline'>
             <HStack>
               <Icon as={FaEllipsisV} />
@@ -315,27 +317,31 @@ const TopMenu = ({
         </Menu>
       </HStack>
 
-      <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
-        <HatCreateForm
-          defaultAdmin={hatData.prettyId}
-          treeId={hatData.tree.id}
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
+          <HatCreateForm
+            defaultAdmin={hatData.prettyId}
+            treeId={hatData.tree.id}
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='requestLink'
-        title='Request to Link'
-        localOverlay={localOverlay}
-      >
-        <HatLinkRequestCreateForm
-          newAdmin={hatData.prettyId}
-          wearerTopHats={_.filter(
-            wearerTopHats,
-            (hat) => hat !== hatData.admin?.prettyId,
-          )}
-          chainId={chainId}
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='requestLink'
+          title='Request to Link'
+          localOverlay={localOverlay}
+        >
+          <HatLinkRequestCreateForm
+            newAdmin={hatData.prettyId}
+            wearerTopHats={_.filter(
+              wearerTopHats,
+              (hat) => hat !== hatData.admin?.prettyId,
+            )}
+            chainId={chainId}
+          />
+        </Modal>
+      </Suspense>
     </Flex>
   );
 };

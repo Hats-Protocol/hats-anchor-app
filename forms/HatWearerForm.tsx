@@ -117,6 +117,7 @@ const HatWearerForm = ({
     ],
     enabled:
       Boolean(decimalId(hatId)) &&
+      !_.isEmpty(wearers) &&
       newWearers.every((wearer) => isAddress(wearer)),
   });
 
