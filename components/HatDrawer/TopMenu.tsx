@@ -29,6 +29,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
+import HatCreateForm from '@/forms/HatCreateForm';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
@@ -37,7 +38,6 @@ import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
-const HatCreateForm = lazy(() => import('@/forms/HatCreateForm'));
 const HatLinkRequestCreateForm = lazy(
   () => import('@/forms/HatLinkRequestCreateForm'),
 );

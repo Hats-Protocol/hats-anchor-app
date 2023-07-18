@@ -1,19 +1,12 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  HStack,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { FaCheck } from 'react-icons/fa';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Input from '@/components/atoms/Input';
+import EligibilityInput from '@/components/HatWearersAndAdminsFormComponents/EligibilityInput';
+import MaxSupplyInput from '@/components/HatWearersAndAdminsFormComponents/MaxSupplyInput';
+import MutabilityInput from '@/components/HatWearersAndAdminsFormComponents/MutabilityInput';
+import ToggleInput from '@/components/HatWearersAndAdminsFormComponents/ToggleInput';
 import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -22,7 +15,7 @@ import useModuleUpdate from '@/hooks/useModuleUpdate';
 import {
   decimalId,
   idToPrettyId,
-  isTopHat,
+  isTopHatOrMutable,
   prettyIdToIp,
   toTreeId,
 } from '@/lib/hats';
@@ -170,136 +163,44 @@ const HatWearersAndAdminsForm = ({
           defaultValue={decimalAdmin}
           isDisabled
         />
-        <Box>
-          <Input
-            name='maxSupply'
-            label='MAX SUPPLY'
-            placeholder='10'
-            isDisabled={!mutable || isTopHat(hatData)}
-            localForm={localForm}
-          />
-          <Button
-            colorScheme='blue'
-            isLoading={isLoadingMaxSupply}
-            isDisabled={isMaxSupplyDisabled}
-            onClick={() => writeAsyncMaxSupply?.()}
-            mt={4}
-          >
-            Update Max Supply
-          </Button>
-        </Box>
+        <MaxSupplyInput
+          isTopHatOrMutable={isTopHatOrMutable(hatData)}
+          localForm={localForm}
+          isMaxSupplyDisabled={isMaxSupplyDisabled}
+          isLoadingMaxSupply={isLoadingMaxSupply}
+        />
 
-        <Box>
-          <Text fontWeight={500} mb={2}>
-            MUTABILITY
-          </Text>
-          <RadioGroup
-            name='mutable'
-            defaultValue={
-              hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE
-            }
-            onChange={(value) => setValue('mutable', value)}
-            isDisabled={!hatData?.mutable}
-          >
-            <HStack spacing={4}>
-              <Radio value={MUTABILITY.MUTABLE}>Mutable</Radio>
-              <Radio value={MUTABILITY.IMMUTABLE}>Immutable</Radio>
-            </HStack>
-          </RadioGroup>
-          <Button
-            colorScheme='blue'
-            isLoading={isLoadingImmutable}
-            isDisabled={isMutableDisabled}
-            onClick={() => writeAsyncImmutable?.()}
-            mt={4}
-          >
-            Update Mutability
-          </Button>
-        </Box>
-        <FormControl>
-          <Box>
-            <Input
-              name='eligibility'
-              label='ELIGIBILITY'
-              tip={
-                <Text size='xs' color='gray.500'>
-                  See{' '}
-                  <ChakraNextLink
-                    href=' https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
-                    decoration
-                    isExternal
-                  >
-                    docs.hatsprotocol.xyz
-                  </ChakraNextLink>{' '}
-                  for details
-                </Text>
-              }
-              placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
-              rightElement={
-                showEligibilityResolvedAddress && <FaCheck color='green' />
-              }
-              localForm={localForm}
-              isDisabled={!hatData?.mutable}
-            />
-            {showEligibilityResolvedAddress && (
-              <Text fontSize='sm' color='gray.500' mt={1}>
-                Resolved address: {eligibilityResolvedAddress}
-              </Text>
-            )}
-          </Box>
-          <Button
-            colorScheme='blue'
-            isLoading={
-              isLoadingEligibility || isLoadingEligibilityResolvedAddress
-            }
-            isDisabled={isEligibilityDisabled}
-            onClick={() => writeAsyncEligibility?.()}
-            mt={4}
-          >
-            Update Eligibility
-          </Button>
-        </FormControl>
-        <FormControl>
-          <Box>
-            <Input
-              name='toggle'
-              label='TOGGLE'
-              tip={
-                <Text size='xs' color='gray.500'>
-                  See{' '}
-                  <ChakraNextLink
-                    href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
-                    decoration
-                    isExternal
-                  >
-                    docs.hatsprotocol.xyz
-                  </ChakraNextLink>{' '}
-                  for details
-                </Text>
-              }
-              placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
-              rightElement={
-                showToggleResolvedAddress && <FaCheck color='green' />
-              }
-              localForm={localForm}
-              isDisabled={!hatData?.mutable}
-            />
-            {showToggleResolvedAddress && (
-              <Text fontSize='sm' color='gray.500' mt={1}>
-                Resolved address: {toggleResolvedAddress}
-              </Text>
-            )}
-          </Box>
-          <Button
-            colorScheme='blue'
-            isLoading={isLoadingToggle || isLoadingToggleResolvedAddress}
-            isDisabled={isToggleDisabled}
-            onClick={() => writeAsyncToggle?.()}
-            mt={4}
-          >
-            Update Toggle
-          </Button>
-        </FormControl>
+        <MutabilityInput
+          mutable={hatData?.mutable}
+          isLoadingImmutable={isLoadingImmutable}
+          writeAsyncImmutable={writeAsyncImmutable}
+          onChange={(value) => setValue('mutable', value)}
+          isMutableDisabled={isMutableDisabled}
+        />
+
+        <EligibilityInput
+          localForm={localForm}
+          showEligibilityResolvedAddress={Boolean(
+            showEligibilityResolvedAddress,
+          )}
+          mutable={hatData?.mutable}
+          eligibilityResolvedAddress={String(eligibilityResolvedAddress)}
+          isEligibilityDisabled={isEligibilityDisabled}
+          isLoading={
+            isLoadingEligibility || isLoadingEligibilityResolvedAddress
+          }
+          writeAsyncEligibility={writeAsyncEligibility}
+        />
+
+        <ToggleInput
+          localForm={localForm}
+          showToggleResolvedAddress={Boolean(showToggleResolvedAddress)}
+          mutable={hatData?.mutable}
+          toggleResolvedAddress={String(toggleResolvedAddress)}
+          isToggleDisabled={isToggleDisabled}
+          isLoading={isLoadingToggle || isLoadingToggleResolvedAddress}
+          writeAsyncToggle={writeAsyncToggle}
+        />
       </Stack>
     </form>
   );
