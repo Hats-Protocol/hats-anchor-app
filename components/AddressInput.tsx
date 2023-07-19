@@ -1,6 +1,7 @@
 import { Box, Button, FormControl, Text } from '@chakra-ui/react';
 import { WriteContractResult } from '@wagmi/core';
 import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
@@ -11,7 +12,7 @@ type AddressInputProps = {
   name: string;
   label: string;
   docsLink: string;
-  localForm: any;
+  localForm: UseFormReturn;
   showResolvedAddress: boolean;
   mutable: boolean | undefined;
   resolvedAddress: string;

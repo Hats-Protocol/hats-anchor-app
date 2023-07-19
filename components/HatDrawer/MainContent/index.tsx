@@ -5,7 +5,7 @@ import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { DetailsItem } from '@/types';
+import { DetailsItem, IHat } from '@/types';
 
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
@@ -122,7 +122,7 @@ export default MainContent;
 
 interface MainContentProps {
   chainId: number;
-  hatData: any;
+  hatData: IHat;
   isEligible: boolean;
   name: string;
   description: string;
@@ -134,6 +134,6 @@ interface MainContentProps {
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
   linkRequestFromTree: any[];
-  setModals: any;
+  setModals: (m: object) => void;
   localOverlay: any;
 }

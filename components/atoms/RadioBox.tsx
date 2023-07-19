@@ -17,7 +17,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { ReactNode, useEffect } from 'react';
-import { useController } from 'react-hook-form';
+import { useController, UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 const RadioCard = ({
@@ -145,7 +145,7 @@ export default RadioBox;
 interface RadioBoxProps {
   name: string;
   label?: string;
-  localForm: any;
+  localForm: UseFormReturn;
   options?: string[];
   stack?: string;
   isRequired?: boolean;
