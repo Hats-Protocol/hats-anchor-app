@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
@@ -7,11 +7,11 @@ import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
 import { DetailsItem } from '@/types';
 
-import DetailList from './MainContentComponents/DetailList';
-import GuildRoles from './MainContentComponents/GuildRoles';
-import Header from './MainContentComponents/Header';
-import LinkRequests from './MainContentComponents/LinkRequests';
-import StatusCard from './MainContentComponents/Status';
+import DetailList from './DetailList';
+import GuildRoles from './GuildRoles';
+import Header from './Header';
+import LinkRequests from './LinkRequests';
+import StatusCard from './Status';
 
 const MainContent = ({
   chainId,

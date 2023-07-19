@@ -27,7 +27,6 @@ const SelectedHatDrawer = ({
   setEditMode,
   linkRequestFromTree,
 }: SelectedHatDrawerProps) => {
-  console.log('hatsData', hatsData);
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const [hatData, setHatData] = useState<IHat | undefined>();

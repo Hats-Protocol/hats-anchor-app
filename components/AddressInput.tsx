@@ -5,7 +5,7 @@ import { FaCheck } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
 
-import ChakraNextLink from '../atoms/ChakraNextLink';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 type AddressInputProps = {
   name: string;

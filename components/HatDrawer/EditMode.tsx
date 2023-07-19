@@ -10,8 +10,9 @@ import {
 } from '@chakra-ui/react';
 
 import Accordion from '@/components/atoms/Accordion';
+import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
-import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
+import HatWearersForm from '@/forms/HatWearersForm';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { DetailsItem, IHat } from '@/types';
 
@@ -79,13 +80,14 @@ const EditMode = ({
             <Text>
               The people and contracts that control and wear this Hat.
             </Text>
-            <HatWearersAndAdminsForm
+            <HatWearersForm
               defaultAdmin={hatData.admin?.prettyId}
               chainId={chainId}
               hatData={hatData}
               levelAtLocalTree={hatData.levelAtLocalTree}
               isAdminUser={isAdminUser}
             />
+            <HatAdminsForm chainId={chainId} hatData={hatData} />
           </Stack>
         </Accordion>
       </Stack>

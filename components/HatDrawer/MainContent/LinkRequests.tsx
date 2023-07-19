@@ -1,4 +1,3 @@
-// LinkRequests.js
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
 

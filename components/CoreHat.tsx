@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import { Box, Card, Flex, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 
@@ -74,7 +73,6 @@ const CoreHat = ({ hat }: { hat: IHat }) => {
             {hatName}
           </Text>
         </Box>
-        {/* <Box p={2}>Cabin DAO</Box> */}
       </Card>
     </ChakraNextLink>
   );

@@ -52,10 +52,3 @@ const DetailList = ({
 );
 
 export default DetailList;
-
-//   const ResponsibilityAuthority = ({ responsibilities, authorities }) => (
-//     <>
-//       <DetailList title="Responsibilities" details={responsibilities} />
-//       <DetailList title="Authorities" details={authorities} />
-//     </>
-//   );
