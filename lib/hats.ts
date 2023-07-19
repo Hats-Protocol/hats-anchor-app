@@ -5,7 +5,7 @@ import { ZERO_ADDRESS } from '@/constants';
 import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HierarchyObject, IHat, IHatData, InputObject, ITree } from '@/types';
+import { HierarchyObject, IHat, InputObject, ITree } from '@/types';
 
 export async function toTreeStructure({
   treeData,
@@ -17,7 +17,7 @@ export async function toTreeStructure({
   chainId: number;
 }): Promise<{
   tree: IHat[];
-  hats: IHatData[];
+  hats: IHat[];
   hierarchy: HierarchyObject[];
 }> {
   if (!treeData || !hatsImages)

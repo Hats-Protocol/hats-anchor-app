@@ -39,26 +39,12 @@ export interface IHat {
   events: IHatEvent[];
   wearers: any[]; // (`0x${string}` | IHatWearer)[];
   admin: IHat;
-}
-
-export interface IHatData {
-  id: string;
-  name: string;
-  parentId: string | null;
-  // imageURI: string;
-  imageUrl?: string;
-  treeId: string;
-  isLinked: boolean;
-  url: string;
-  details?: string | object;
-  active: boolean;
-  currentSupply?: string;
-  maxSupply?: string;
-  wearers?: any[]; // (`0x${string}` | IHatWearer)[];
-  eligibility?: IHatWearer;
-  toggle?: IHatWearer;
-  levelAtLocalTree?: number;
-  prettyId?: string;
+  name?: string;
+  parentId?: string | null;
+  treeId?: string;
+  isLinked?: boolean;
+  url?: string;
+  active?: boolean;
 }
 
 interface ITreeEvent extends IHatEvent {

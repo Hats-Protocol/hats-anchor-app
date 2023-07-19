@@ -7,17 +7,14 @@ import {
   DrawerBody,
   DrawerContent,
   Flex,
-  Heading,
   HStack,
   Icon,
   IconButton,
   Image,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   ModalOverlay,
   Popover,
   PopoverArrow,
@@ -41,7 +38,7 @@ import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
-import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
@@ -64,7 +61,7 @@ import {
   toTreeStructure,
 } from '@/lib/hats';
 import { chainsMap, explorerUrl } from '@/lib/web3';
-import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
+import { HierarchyObject, IHat, ITree } from '@/types';
 
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
@@ -140,7 +137,7 @@ const TreeDetails = ({
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
-  const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
+  const [hatsData, setHatsData] = useState<IHat[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
   const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
     ipToPrettyId(String(hatId)) || topHatId,
@@ -227,7 +224,7 @@ const TreeDetails = ({
   }, [treeData, linkedHats, hatsWithImageData, imagesDataLoading, chainId]);
 
   const hasPermissions = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHatData) => {
+    _.filter(orgChartTree, (node: IHat) => {
       return (
         typeof node.details !== 'string' &&
         _.includes(_.keys(node.details), 'permissions')
@@ -235,7 +232,7 @@ const TreeDetails = ({
     }),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHatData) => {
+    _.filter(orgChartTree, (node: IHat) => {
       return (
         typeof node.details !== 'string' &&
         _.includes(_.keys(node.details), 'responsibilities')
