@@ -1,6 +1,6 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
@@ -9,12 +9,55 @@ import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
-import { DetailsItem, HierarchyObject, IHat } from '@/types';
+import { HierarchyObject, IHat } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
+
+const initialState = {
+  hatData: undefined,
+  name: '',
+  description: '',
+  guilds: [],
+  authorities: [],
+  isCurrentWearer: false,
+  wearerTopHats: [],
+  isAdminUser: false,
+  responsibilities: [],
+  activeStatus: STATUS.INACTIVE,
+  mutableStatus: MUTABILITY.IMMUTABLE,
+};
+
+function reducer(state: any, action: { type: any; payload: any }) {
+  switch (action.type) {
+    case 'SET_HAT_DATA':
+      return { ...state, hatData: action.payload };
+    case 'SET_NAME':
+      return { ...state, name: action.payload };
+    case 'SET_DESCRIPTION':
+      return { ...state, description: action.payload };
+    case 'SET_GUILDS':
+      return { ...state, guilds: action.payload };
+    case 'SET_AUTHORITIES':
+      return { ...state, authorities: action.payload };
+    case 'SET_IS_CURRENT_WEARER':
+      return { ...state, isCurrentWearer: action.payload };
+    case 'SET_WEARER_TOP_HATS':
+      return { ...state, wearerTopHats: action.payload };
+    case 'SET_IS_ADMIN_USER':
+      return { ...state, isAdminUser: action.payload };
+    case 'SET_RESPONSIBILITIES':
+      return { ...state, responsibilities: action.payload };
+    case 'SET_ACTIVE_STATUS':
+      return { ...state, activeStatus: action.payload };
+    case 'SET_MUTABLE_STATUS':
+      return { ...state, mutableStatus: action.payload };
+    default:
+      throw new Error();
+  }
+}
 
 const SelectedHatDrawer = ({
   selectedHatId,
@@ -29,17 +72,20 @@ const SelectedHatDrawer = ({
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
-  const [hatData, setHatData] = useState<IHat | undefined>();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [guilds, setGuilds] = useState<any[]>([]);
-  const [authorities, setAuthorities] = useState<DetailsItem[]>([]);
-  const [isCurrentWearer, setIsCurrentWearer] = useState(false);
-  const [wearerTopHats, setWearerTopHats] = useState<string[]>([]);
-  const [isAdminUser, setIsAdminUser] = useState(false);
-  const [responsibilities, setResponsibilities] = useState<DetailsItem[]>([]);
-  const [activeStatus, setActiveStatus] = useState(STATUS.INACTIVE);
-  const [mutableStatus, setMutableStatus] = useState(MUTABILITY.IMMUTABLE);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {
+    hatData,
+    name,
+    description,
+    guilds,
+    authorities,
+    isCurrentWearer,
+    wearerTopHats,
+    isAdminUser,
+    responsibilities,
+    activeStatus,
+    mutableStatus,
+  } = state;
   const { setModals } = localOverlay;
 
   const { hatRoles } = useHatGuilds({
@@ -54,9 +100,11 @@ const SelectedHatDrawer = ({
 
   useEffect(() => {
     if (wearer) {
-      console.log(wearer);
       const currentWearerHats = _.map(wearer, 'prettyId');
-      setIsCurrentWearer(_.includes(currentWearerHats, selectedHatId));
+      dispatch({
+        type: 'SET_IS_CURRENT_WEARER',
+        payload: _.includes(currentWearerHats, selectedHatId),
+      });
       const topHats = _.map(
         _.filter(
           wearer,
@@ -65,8 +113,11 @@ const SelectedHatDrawer = ({
         'prettyId',
       );
 
-      setWearerTopHats(topHats);
-      setIsAdminUser(isAdmin(currentWearerHats, selectedHatId, true));
+      dispatch({ type: 'SET_WEARER_TOP_HATS', payload: topHats });
+      dispatch({
+        type: 'SET_IS_ADMIN_USER',
+        payload: isAdmin(currentWearerHats, selectedHatId, true),
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
@@ -76,23 +127,42 @@ const SelectedHatDrawer = ({
       const data = _.find(hatsData, ['prettyId', selectedHatId]);
 
       if (data) {
-        setHatData(data);
+        dispatch({ type: 'SET_HAT_DATA', payload: data });
         const { status, mutable, details, detailsObject } = data;
 
         let detailName = details;
         if (detailsObject?.type === '1.0') {
           detailName = detailsObject?.data?.name;
         }
-        setName(detailName);
+        dispatch({ type: 'SET_NAME', payload: detailName });
+
         if (detailsObject?.type === '1.0') {
-          setDescription(detailsObject?.data?.description);
-          setGuilds(detailsObject?.data?.guilds);
-          setAuthorities(detailsObject?.data?.authorities);
-          setResponsibilities(detailsObject?.data?.responsibilities);
+          dispatch({
+            type: 'SET_DESCRIPTION',
+            payload: detailsObject?.data?.description,
+          });
+          dispatch({
+            type: 'SET_GUILDS',
+            payload: detailsObject?.data?.guilds,
+          });
+          dispatch({
+            type: 'SET_AUTHORITIES',
+            payload: detailsObject?.data?.authorities,
+          });
+          dispatch({
+            type: 'SET_RESPONSIBILITIES',
+            payload: detailsObject?.data?.responsibilities,
+          });
         }
 
-        setActiveStatus(status ? STATUS.ACTIVE : STATUS.INACTIVE);
-        setMutableStatus(mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE);
+        dispatch({
+          type: 'SET_ACTIVE_STATUS',
+          payload: status ? STATUS.ACTIVE : STATUS.INACTIVE,
+        });
+        dispatch({
+          type: 'SET_MUTABLE_STATUS',
+          payload: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+        });
       }
     }
   }, [selectedHatId, hatsData]);
