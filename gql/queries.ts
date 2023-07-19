@@ -50,6 +50,15 @@ export const GET_HAT = gql`
   ${HAT_DETAILS_FRAGMENT}
 `;
 
+export const GET_HATS_BY_IDS = gql`
+  query getHatsByIds($ids: [ID!]!) {
+    hats(where: { id_in: $ids }) {
+      ...HatDetails
+    }
+  }
+  ${HAT_DETAILS_FRAGMENT}
+`;
+
 // TODO handle inline sort for events
 export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
   fragment TreeDetailsWithEvents on Tree {
