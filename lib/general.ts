@@ -15,6 +15,11 @@ export function decodeUri(uri: string) {
 export const formatAddress = (address: string | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
+export const isSameAddress = (address1?: string, address2?: string) => {
+  if (!address1 || !address2) return false;
+  return address1.toLowerCase() === address2.toLowerCase();
+};
+
 // unused
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const clearNonObjects = (array: any[]) => {

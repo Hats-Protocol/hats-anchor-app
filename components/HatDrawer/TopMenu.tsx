@@ -8,7 +8,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Spinner,
   Text,
   Tooltip,
   useClipboard,
@@ -36,6 +35,7 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
+import { isSameAddress } from '@/lib/general';
 import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
@@ -89,7 +89,7 @@ const TopMenu = ({
       ],
       enabled:
         Boolean(hatData) &&
-        address?.toLowerCase() === hatData.toggle?.toLowerCase() &&
+        isSameAddress(address, hatData.toggle) &&
         chainId === currentNetworkId,
     });
 
@@ -187,19 +187,19 @@ const TopMenu = ({
                 </Tooltip>
               </MenuItem>
             )}
-            {(isAdminUser || hatData?.toggle === address?.toLowerCase()) && (
+            {(isAdminUser || isSameAddress(hatData?.toggle, address)) && (
               <MenuItem
                 gap={2}
                 onClick={() => toggleHat?.()}
                 isDisabled={
-                  address?.toLowerCase() !== hatData?.toggle ||
+                  !isSameAddress(hatData?.toggle, address) ||
                   isLoadingToggleHat ||
                   !toggleHat
                 }
               >
                 <Tooltip
                   label={
-                    address?.toLowerCase() !== hatData?.toggle
+                    !isSameAddress(hatData?.toggle, address)
                       ? "Your address doesn't match the hat's toggle address"
                       : ''
                   }

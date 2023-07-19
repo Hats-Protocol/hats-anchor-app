@@ -29,7 +29,7 @@ import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
 import { checkENSNames } from '@/lib/contract';
-import { formatAddress } from '@/lib/general';
+import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
 
@@ -96,8 +96,8 @@ const WearersList = ({
   useEffect(() => {
     if (address) {
       wearers?.sort((w1, w2) => {
-        if (w1.id.toLowerCase() === address.toLowerCase()) return -1;
-        if (w2.id.toLowerCase() === address.toLowerCase()) return 1;
+        if (isSameAddress(w1.id, address)) return -1;
+        if (isSameAddress(w2.id, address)) return 1;
         return 0;
       });
     }
@@ -334,12 +334,10 @@ const WearerRow = ({
         alignItems='center'
         gap={2}
         backgroundColor={
-          wearer.id.toLowerCase() === address?.toLowerCase()
-            ? 'green.100'
-            : 'transparent'
+          isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
         }
       >
-        {wearer.id.toLowerCase() === address?.toLowerCase() ? (
+        {isSameAddress(wearer.id, address) ? (
           <Image src='/icons/hat.svg' alt='Hat' />
         ) : (
           <FaUser />
@@ -377,7 +375,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {wearer.id === address?.toLowerCase() && (
+            {isSameAddress(wearer.id, address) && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
                 <TooltipWrapper
                   isSameChain={isSameChain}
@@ -388,7 +386,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {wearer.id !== address?.toLowerCase() && isAdminUser && (
+            {!isSameAddress(wearer.id, address) && isAdminUser && (
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
