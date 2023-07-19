@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react';
+import { Box, Heading, Stack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
@@ -113,7 +113,12 @@ const MainContent = ({
         chainId={chainId}
       />
 
-      <EventHistory chainId={chainId} events={hatData.events} />
+      <Box>
+        <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={1}>
+          Event history
+        </Heading>
+        <EventHistory chainId={chainId} events={hatData.events} />
+      </Box>
     </Stack>
   );
 };
