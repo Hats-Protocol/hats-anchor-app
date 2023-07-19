@@ -2,7 +2,7 @@
 import _ from 'lodash';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
+import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
 import { HierarchyObject, IHat, IHatData, InputObject, ITree } from '@/types';
@@ -33,7 +33,7 @@ export async function toTreeStructure({
   );
 
   // needs to be optimised
-  let hatsData = await fetchHatsDetails(hatIds, chainId);
+  let hatsData = await fetchManyHatDetails(hatIds, chainId);
   const detailsFields = hatsData.map((hat: IHat) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
   hatsData = _.map(hatsData, (hat: IHat, index: number) => {

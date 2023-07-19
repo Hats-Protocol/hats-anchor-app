@@ -11,7 +11,6 @@ const fetchWearerDetailsForChain = async (
   address: string | undefined,
   chainId: number,
 ) => {
-  console.log('running fetchWearerDetailsForChain');
   if (!address) return [];
   const data: { currentHats: IHat[] } = await fetchWearerDetails(
     address,
@@ -22,7 +21,6 @@ const fetchWearerDetailsForChain = async (
 };
 
 const fetchWearerDetailsForAllChains = async (address: string | undefined) => {
-  console.log('running fetchWearerDetailsForAllChains');
   if (!address) return [];
   const promises = _.map(chains, (cId: string) =>
     fetchWearerDetails(address, Number(cId)),

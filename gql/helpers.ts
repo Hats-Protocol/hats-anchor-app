@@ -11,6 +11,7 @@ import {
   GET_ALL_TREES,
   GET_ALL_WEARERS,
   GET_HAT,
+  GET_HATS_BY_IDS,
   GET_PAGINATED_TREES,
   GET_TREE,
   GET_WEARER_DETAILS,
@@ -64,12 +65,18 @@ export const fetchHatDetails = async (
   };
 };
 
-export const fetchHatsDetails = async (
+export const fetchManyHatDetails = async (
   hatIds: string[],
   chainId: number,
 ): Promise<any[]> => {
-  const requests = hatIds.map((hatId) => fetchHatDetails(hatId, chainId));
-  return Promise.all(requests);
+  const result = await client(chainId).request(GET_HATS_BY_IDS, {
+    ids: hatIds,
+  });
+
+  return (_.get(result, 'hats', []) as IHat[]).map((hat) => ({
+    ...hat,
+    chainId,
+  }));
 };
 
 export const fetchManyWearerDetails = async (

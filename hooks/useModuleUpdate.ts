@@ -1,5 +1,5 @@
 import { isAddress } from 'viem';
-import { useChainId, useEnsAddress } from 'wagmi';
+import { useChainId } from 'wagmi';
 
 import { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -13,22 +13,16 @@ const useModuleUpdate = ({
   newAddress,
 }: UseModuleUpdateProps) => {
   const currentNetworkId = useChainId();
-  const { data: newResolvedAddress, isLoading: isLoadingNewResolvedAddress } =
-    useEnsAddress({
-      name: newAddress,
-      chainId: 1,
-    });
 
   const functionName =
     moduleType === MODULE_TYPES.eligibility
       ? 'changeHatEligibility'
       : 'changeHatToggle';
 
-  const address = (newResolvedAddress ?? newAddress) || ZERO_ADDRESS;
-
+  // const address = console.log('address', address);
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName,
-    args: [decimalId(hatId), address],
+    args: [decimalId(hatId), newAddress || ZERO_ADDRESS],
     chainId,
     onSuccessToastData: {
       title: `${moduleType} module updated!`,
@@ -48,7 +42,7 @@ const useModuleUpdate = ({
 
   return {
     writeAsync,
-    isLoading: isLoading || isLoadingNewResolvedAddress,
+    isLoading,
   };
 };
 

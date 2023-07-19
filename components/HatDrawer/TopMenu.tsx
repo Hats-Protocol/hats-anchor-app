@@ -8,7 +8,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Spinner,
   Text,
   Tooltip,
   useClipboard,
@@ -31,15 +30,16 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY, STATUS } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
+import HatCreateForm from '@/forms/HatCreateForm';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
+import { isSameAddress } from '@/lib/general';
 import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
-const HatCreateForm = lazy(() => import('@/forms/HatCreateForm'));
 const HatLinkRequestCreateForm = lazy(
   () => import('@/forms/HatLinkRequestCreateForm'),
 );
@@ -89,7 +89,7 @@ const TopMenu = ({
       ],
       enabled:
         Boolean(hatData) &&
-        address?.toLowerCase() === hatData.toggle?.toLowerCase() &&
+        isSameAddress(address, hatData.toggle) &&
         chainId === currentNetworkId,
     });
 
@@ -187,19 +187,19 @@ const TopMenu = ({
                 </Tooltip>
               </MenuItem>
             )}
-            {(isAdminUser || hatData?.toggle === address?.toLowerCase()) && (
+            {(isAdminUser || isSameAddress(hatData?.toggle, address)) && (
               <MenuItem
                 gap={2}
                 onClick={() => toggleHat?.()}
                 isDisabled={
-                  address?.toLowerCase() !== hatData?.toggle ||
+                  !isSameAddress(hatData?.toggle, address) ||
                   isLoadingToggleHat ||
                   !toggleHat
                 }
               >
                 <Tooltip
                   label={
-                    address?.toLowerCase() !== hatData?.toggle
+                    !isSameAddress(hatData?.toggle, address)
                       ? "Your address doesn't match the hat's toggle address"
                       : ''
                   }

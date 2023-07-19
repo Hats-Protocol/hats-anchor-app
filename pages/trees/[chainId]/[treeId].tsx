@@ -47,6 +47,7 @@ import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Suspender from '@/components/atoms/Suspender';
+import EventHistory from '@/components/EventHistory';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
@@ -169,6 +170,7 @@ const TreeDetails = ({
   const handleSelectHat = useCallback(
     (id: string) => {
       setSelectedHatId(id);
+      console.log('id', id);
 
       const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
       const updatedUrl = {
@@ -415,26 +417,16 @@ const TreeDetails = ({
                       <Image src='/icons/ago.svg' alt='History icon' />
                     </Flex>
                   </PopoverTrigger>
-                  <PopoverContent>
+                  <PopoverContent width='400px' mr={4}>
                     <PopoverArrow />
                     <PopoverCloseButton />
                     <PopoverBody>
                       <Stack>
-                        <Heading
-                          size='sm'
-                          fontWeight='medium'
-                          textTransform='uppercase'
-                        >
-                          Event history
-                        </Heading>
                         <Box>
-                          {events?.slice(0, 5).map((event: IHatEvent) => (
-                            <Event
-                              key={`${event?.transactionID}-${event?.id}`}
-                              event={event}
-                              chainId={chainId}
-                            />
-                          ))}
+                          <EventHistory
+                            chainId={chainId}
+                            events={events?.slice(0, 5)}
+                          />
                           {events?.length > 4 && (
                             <>
                               <Divider my={2} />
@@ -480,16 +472,8 @@ const TreeDetails = ({
       <Modal isOpen={isEventsModalOpen} onClose={handleCloseModal}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Event History</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {events?.map((event: IHatEvent) => (
-              <Event
-                key={`${event?.transactionID}-${event?.id}`}
-                event={event}
-                chainId={chainId}
-              />
-            ))}
+          <ModalBody pt={4}>
+            <EventHistory chainId={chainId} events={events} />
           </ModalBody>
           <ModalFooter>
             <Button variant='ghost' onClick={handleCloseModal}>
@@ -499,32 +483,6 @@ const TreeDetails = ({
         </ModalContent>
       </Modal>
     </>
-  );
-};
-
-const Event = ({ event, chainId }: { event: IHatEvent; chainId: number }) => {
-  return (
-    <Flex
-      key={`${event?.transactionID}-${event?.id}`}
-      align='center'
-      justify='space-between'
-      py={2}
-    >
-      <Text>{`${formatDistanceToNow(
-        new Date(Number(event?.timestamp) * 1000),
-      )} ago`}</Text>
-
-      <ChakraNextLink
-        isExternal
-        href={`${explorerUrl(chainId)}/tx/${event?.transactionID}`}
-        display='block'
-      >
-        <HStack spacing={3}>
-          <Text>{event?.id?.split('-')[0]}</Text>
-          <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
-        </HStack>
-      </ChakraNextLink>
-    </Flex>
   );
 };
 
