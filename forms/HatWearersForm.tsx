@@ -16,6 +16,7 @@ import {
   prettyIdToIp,
   toTreeId,
 } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const HatWearersForm = ({
   defaultAdmin,
@@ -27,7 +28,7 @@ const HatWearersForm = ({
   defaultAdmin: string | undefined;
   chainId: number;
   levelAtLocalTree: number;
-  hatData: any;
+  hatData: IHat;
   isAdminUser: boolean;
 }) => {
   const currentNetworkId = useChainId();
@@ -43,7 +44,12 @@ const HatWearersForm = ({
   const { watch, setValue } = localForm;
 
   const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply));
-  const mutable = useDebounce(watch('mutable', hatData?.mutable));
+  const mutable = useDebounce(
+    watch(
+      'mutable',
+      hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+    ),
+  );
 
   const decimalAdmin = prettyIdToIp(defaultAdmin);
 

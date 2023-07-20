@@ -5,6 +5,7 @@ import {
   Select as ChakraSelect,
 } from '@chakra-ui/react';
 import { ReactNode } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 
 /**
  * Primary Select component for React Hook Form
@@ -43,8 +44,8 @@ export default Select;
 interface SelectProps {
   label?: string;
   name: string;
-  options?: any;
-  localForm: any;
+  options?: object;
+  localForm: UseFormReturn<any>;
   placeholder?: string;
   defaultValue?: string | number;
   isDisabled?: boolean;

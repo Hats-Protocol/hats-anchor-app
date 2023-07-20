@@ -12,20 +12,21 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { explorerUrl } from '@/lib/web3';
+import { IHatEvent } from '@/types';
 
 const EventHistory = ({
   chainId,
   events,
 }: {
   chainId: number;
-  events: any;
+  events: IHatEvent[];
 }) => (
   <Stack>
     <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
       Event history
     </Heading>
     <Box>
-      {events?.map((event: any) => (
+      {events?.map((event: IHatEvent) => (
         <Flex
           key={`${event?.transactionID}-${event?.id}`}
           align='center'

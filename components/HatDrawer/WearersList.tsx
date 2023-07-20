@@ -308,7 +308,7 @@ const WearerRow = ({
     [key: string]: string;
   };
   handleRenounceHat: () => void;
-  setModals: any;
+  setModals: (m: object) => void;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
   isSameChain: boolean;
@@ -439,7 +439,7 @@ interface WearersListProps {
   wearers: IHatWearer[];
   maxSupply: number;
   prettyId: string;
-  setModals: any;
+  setModals: (m: object) => void;
   localOverlay: any;
   isAdminUser: boolean;
 }
