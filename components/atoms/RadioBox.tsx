@@ -145,7 +145,7 @@ export default RadioBox;
 interface RadioBoxProps {
   name: string;
   label?: string;
-  localForm: UseFormReturn;
+  localForm: UseFormReturn<any>;
   options?: string[];
   stack?: string;
   isRequired?: boolean;

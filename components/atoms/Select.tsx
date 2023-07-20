@@ -45,7 +45,7 @@ interface SelectProps {
   label?: string;
   name: string;
   options?: object;
-  localForm: UseFormReturn;
+  localForm: UseFormReturn<any>;
   placeholder?: string;
   defaultValue?: string | number;
   isDisabled?: boolean;

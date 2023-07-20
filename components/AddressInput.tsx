@@ -12,7 +12,7 @@ type AddressInputProps = {
   name: string;
   label: string;
   docsLink: string;
-  localForm: UseFormReturn;
+  localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
   mutable: boolean | undefined;
   resolvedAddress: string;

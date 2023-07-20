@@ -39,7 +39,7 @@ const useHatContractWrite = ({
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
 
-  const { config } = usePrepareContractWrite({
+  const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId: Number(chainId),
     abi,
@@ -48,7 +48,7 @@ const useHatContractWrite = ({
     enabled,
   });
 
-  const { writeAsync } = useContractWrite({
+  const { writeAsync, error: writeError } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       setHash(data.hash);
@@ -92,7 +92,7 @@ const useHatContractWrite = ({
     onSuccess: handleSuccess,
   });
 
-  return { writeAsync, isLoading };
+  return { writeAsync, isLoading, prepareError, writeError };
 };
 
 export default useHatContractWrite;

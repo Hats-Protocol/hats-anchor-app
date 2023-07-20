@@ -1,4 +1,5 @@
 import { Stack } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
@@ -77,7 +78,7 @@ const MainContent = ({
         localOverlay={localOverlay}
         hatId={hatData.id}
         wearers={hatData.wearers}
-        maxSupply={hatData.maxSupply}
+        maxSupply={_.toNumber(hatData.maxSupply)}
         prettyId={hatData.prettyId}
         isAdminUser={isAdminUser}
       />
@@ -134,6 +135,6 @@ interface MainContentProps {
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
   linkRequestFromTree: any[];
-  setModals: (m: object) => void;
+  setModals: any;
   localOverlay: any;
 }
