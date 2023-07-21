@@ -74,3 +74,9 @@ export type InputObject = {
   id: string;
   parentId: string;
 };
+
+export interface HatRole {
+  role: string;
+  guild: string;
+  requirements: (string | null)[];
+}

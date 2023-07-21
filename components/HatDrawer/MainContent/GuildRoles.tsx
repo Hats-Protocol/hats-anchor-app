@@ -2,14 +2,15 @@ import { Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import { HatRole } from '@/types';
 
-const GuildRoles = ({ hatRoles }: { hatRoles: any }) => {
+const GuildRoles = ({ hatRoles }: { hatRoles: HatRole[] }) => {
   return hatRoles?.length ? (
     <Stack>
       <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
         Guild Roles
       </Heading>
-      {hatRoles?.map(({ role, guild }: any) => (
+      {hatRoles?.map(({ role, guild }: HatRole) => (
         <Flex
           key={role}
           align='center'

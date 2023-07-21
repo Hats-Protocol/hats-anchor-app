@@ -5,7 +5,7 @@ import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { DetailsItem } from '@/types';
+import { DetailsItem, HatRole } from '@/types';
 
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
@@ -131,7 +131,7 @@ interface MainContentProps {
   isEligible: boolean;
   name: string;
   description: string;
-  hatRoles: any[];
+  hatRoles: HatRole[];
   mutableStatus: string;
   activeStatus: string;
   isCurrentWearer: boolean;
