@@ -1,9 +1,16 @@
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  http,
+} from 'viem-hats-client';
 import { Chain, configureChains, createConfig } from 'wagmi';
 import {
   arbitrum,
@@ -76,3 +83,27 @@ export const wagmiConfig = createConfig({
   connectors,
   publicClient,
 });
+
+export function createHatsClient(chainId: number) {
+  const chain = chainsMap(chainId);
+
+  const publicClientHats = createPublicClient({
+    chain,
+    transport: http(),
+  });
+
+  const walletClientHats = createWalletClient({
+    chain,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    transport: custom(window.ethereum),
+  });
+
+  const hatsClient = new HatsClient({
+    chainId,
+    publicClient: publicClientHats,
+    walletClient: walletClientHats,
+  });
+
+  return hatsClient;
+}

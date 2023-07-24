@@ -8,11 +8,7 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { useForm } from 'react-hook-form';
-import { goerli } from 'viem/chains';
-import { createPublicClient, createWalletClient, http } from 'viem-hats-client';
-import { useAccount } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
@@ -21,6 +17,7 @@ import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
 import useDebounce from '@/hooks/useDebounce';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { createHatsClient } from '@/lib/web3';
 import { DetailsItem, IHat } from '@/types';
 
 const EditMode = ({
@@ -34,7 +31,6 @@ const EditMode = ({
   authorities,
   isAdminUser,
 }: EditModeProps) => {
-  const { address } = useAccount();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -58,22 +54,7 @@ const EditMode = ({
     ),
   );
 
-  const publicClient = createPublicClient({
-    chain: goerli,
-    transport: http(),
-  });
-
-  const walletClient = createWalletClient({
-    account: address,
-    chain: goerli,
-    transport: http(),
-  });
-
-  const hatsClient = new HatsClient({
-    chainId,
-    publicClient,
-    walletClient,
-  });
+  const hatsClient = createHatsClient(chainId);
 
   console.log('hatsClient', hatsClient);
 
