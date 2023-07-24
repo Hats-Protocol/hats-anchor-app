@@ -62,6 +62,7 @@ const TopMenu = ({
   const currentNetworkId = useChainId();
   const toast = useToast();
 
+  console.log('hatData', hatData);
   const {
     writeAsync: updateImmutability,
     isLoading: isLoadingUpdateImmutability,

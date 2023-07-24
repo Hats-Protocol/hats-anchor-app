@@ -4,8 +4,7 @@ import { useChainId } from 'wagmi';
 import Input from '@/components/atoms/Input';
 import MaxSupplyInput from '@/components/MaxSupplyInput';
 import MutabilityInput from '@/components/MutabilityInput';
-import CONFIG, { MUTABILITY } from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
+import CONFIG from '@/constants';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import {
@@ -34,13 +33,13 @@ const HatWearersForm = ({
   isAdminUser: boolean;
   localForm: any;
   maxSupply: string;
-  mutable: string;
+  mutable: boolean;
 }) => {
   const currentNetworkId = useChainId();
   const { setValue } = localForm;
   const decimalAdmin = prettyIdToIp(defaultAdmin);
   const isMaxSupplyChanged = maxSupply !== hatData?.maxSupply;
-  const isMutableChanged = hatData?.mutable && mutable === MUTABILITY.IMMUTABLE;
+  const isMutableChanged = hatData?.mutable && !mutable;
 
   // changeHatMaxSupply
   const { writeAsync: writeAsyncMaxSupply, isLoading: isLoadingMaxSupply } =

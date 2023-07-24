@@ -30,7 +30,7 @@ const useHatMakeImmutable = ({
     enabled:
       Boolean(hatsAddress) &&
       Boolean(decimalId(hatId)) &&
-      Boolean(mutable) &&
+      mutable &&
       _.gt(levelAtLocalTree, 0) &&
       isAdminUser &&
       chainId === currentNetworkId,
@@ -47,5 +47,5 @@ interface UseHatMakeImmutableProps {
   hatId: string;
   levelAtLocalTree: number;
   isAdminUser: boolean;
-  mutable: string;
+  mutable: boolean;
 }

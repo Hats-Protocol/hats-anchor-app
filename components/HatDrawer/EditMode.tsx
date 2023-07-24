@@ -8,7 +8,11 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { useForm } from 'react-hook-form';
+import { goerli } from 'viem/chains';
+import { createPublicClient, createWalletClient, http } from 'viem-hats-client';
+import { useAccount } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
@@ -30,6 +34,7 @@ const EditMode = ({
   authorities,
   isAdminUser,
 }: EditModeProps) => {
+  const { address } = useAccount();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -52,6 +57,25 @@ const EditMode = ({
       hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
     ),
   );
+
+  const publicClient = createPublicClient({
+    chain: goerli,
+    transport: http(),
+  });
+
+  const walletClient = createWalletClient({
+    account: address,
+    chain: goerli,
+    transport: http(),
+  });
+
+  const hatsClient = new HatsClient({
+    chainId,
+    publicClient,
+    walletClient,
+  });
+
+  console.log('hatsClient', hatsClient);
 
   if (!hatData) return null;
 
@@ -114,7 +138,7 @@ const EditMode = ({
               isAdminUser={isAdminUser}
               localForm={localForm}
               maxSupply={maxSupply}
-              mutable={mutable}
+              mutable={mutable === MUTABILITY.MUTABLE}
             />
             <HatAdminsForm
               chainId={chainId}
