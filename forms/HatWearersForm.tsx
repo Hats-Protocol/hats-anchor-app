@@ -1,5 +1,4 @@
 import { Stack } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
 
 import Input from '@/components/atoms/Input';
@@ -24,35 +23,22 @@ const HatWearersForm = ({
   levelAtLocalTree,
   hatData,
   isAdminUser,
+  localForm,
+  maxSupply,
+  mutable,
 }: {
   defaultAdmin: string | undefined;
   chainId: number;
   levelAtLocalTree: number;
   hatData: IHat;
   isAdminUser: boolean;
+  localForm: any;
+  maxSupply: string;
+  mutable: string;
 }) => {
   const currentNetworkId = useChainId();
-  const localForm = useForm({
-    mode: 'onChange',
-    defaultValues: {
-      maxSupply: hatData?.maxSupply,
-      eligibility: hatData?.eligibility,
-      toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    },
-  });
-  const { watch, setValue } = localForm;
-
-  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply));
-  const mutable = useDebounce(
-    watch(
-      'mutable',
-      hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    ),
-  );
-
+  const { setValue } = localForm;
   const decimalAdmin = prettyIdToIp(defaultAdmin);
-
   const isMaxSupplyChanged = maxSupply !== hatData?.maxSupply;
   const isMutableChanged = hatData?.mutable && mutable === MUTABILITY.IMMUTABLE;
 

@@ -8,11 +8,14 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
 
 import Accordion from '@/components/atoms/Accordion';
+import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
+import useDebounce from '@/hooks/useDebounce';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { DetailsItem, IHat } from '@/types';
 
@@ -27,6 +30,29 @@ const EditMode = ({
   authorities,
   isAdminUser,
 }: EditModeProps) => {
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      maxSupply: hatData?.maxSupply,
+      eligibility: hatData?.eligibility,
+      toggle: hatData?.toggle,
+      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+    },
+  });
+  const { watch } = localForm;
+
+  const eligibility = useDebounce(
+    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  );
+  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply));
+  const mutable = useDebounce(
+    watch(
+      'mutable',
+      hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+    ),
+  );
+
   if (!hatData) return null;
 
   return (
@@ -86,8 +112,17 @@ const EditMode = ({
               hatData={hatData}
               levelAtLocalTree={hatData.levelAtLocalTree}
               isAdminUser={isAdminUser}
+              localForm={localForm}
+              maxSupply={maxSupply}
+              mutable={mutable}
             />
-            <HatAdminsForm chainId={chainId} hatData={hatData} />
+            <HatAdminsForm
+              chainId={chainId}
+              hatData={hatData}
+              localForm={localForm}
+              eligibility={eligibility}
+              toggle={toggle}
+            />
           </Stack>
         </Accordion>
       </Stack>

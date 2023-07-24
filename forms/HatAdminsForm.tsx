@@ -1,35 +1,24 @@
 import { Stack } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
 import { useEnsAddress } from 'wagmi';
 
 import AddressInput from '@/components/AddressInput';
-import CONFIG, { MODULE_TYPES, MUTABILITY, ZERO_ADDRESS } from '@/constants';
+import CONFIG, { MODULE_TYPES, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useModuleUpdate from '@/hooks/useModuleUpdate';
 
 const HatAdminsForm = ({
   chainId,
   hatData,
+  localForm,
+  eligibility,
+  toggle,
 }: {
   chainId: number;
   hatData: any;
+  localForm: any;
+  eligibility: string;
+  toggle: string;
 }) => {
-  const localForm = useForm({
-    mode: 'onChange',
-    defaultValues: {
-      maxSupply: hatData?.maxSupply,
-      eligibility: hatData?.eligibility,
-      toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    },
-  });
-  const { watch } = localForm;
-
-  const eligibility = useDebounce(
-    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
-  );
-  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
-
   const isEligibilityChanged = eligibility !== hatData?.eligibility;
   const isToggleChanged = toggle !== hatData?.toggle;
 
