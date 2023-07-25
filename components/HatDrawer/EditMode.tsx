@@ -9,8 +9,9 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAccount } from 'wagmi';
+import { useAccount, useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
@@ -31,9 +32,9 @@ const EditMode = ({
   imageUrl,
   responsibilities,
   authorities,
-  isAdminUser,
 }: EditModeProps) => {
   const account = useAccount();
+  const [isLoading, setIsLoading] = useState(false);
 
   const localForm = useForm({
     mode: 'onChange',
@@ -63,6 +64,22 @@ const EditMode = ({
     ),
   );
 
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
   const hatsClient = createHatsClient(chainId);
 
   const onSubmit = async () => {
@@ -77,21 +94,43 @@ const EditMode = ({
       calls.push(callData);
     }
 
-    // if (dirtyFields.eligibility) {
-    //   calls.push(
-    //     hatsClient.getChangeHatEligibilityCallData(hatData?.id, eligibility),
-    //   );
-    // }
+    if (dirtyFields.mutable) {
+      const callData = await hatsClient.makeHatImmutableCallData({
+        hatId: decimalId(hatData?.id) as unknown as bigint,
+      });
 
-    // if (dirtyFields.toggle) {
-    //   calls.push(hatsClient.getChangeHatToggleCallData(hatData?.id, toggle));
-    // }
+      calls.push(callData);
+    }
+
+    if (dirtyFields.eligibility) {
+      const callData = await hatsClient.changeHatEligibilityCallData({
+        hatId: decimalId(hatData?.id) as unknown as bigint,
+        newEligibility: eligibilityResolvedAddress ?? eligibility,
+      });
+
+      calls.push(callData);
+    }
+
+    if (dirtyFields.toggle) {
+      const callData = await hatsClient.changeHatToggleCallData({
+        hatId: decimalId(hatData?.id) as unknown as bigint,
+        newToggle: toggleResolvedAddress ?? toggle,
+      });
+
+      calls.push(callData);
+    }
 
     if (calls.length > 0) {
-      await hatsClient.multicall({
-        account: account.address as `0x${string}`,
-        calls,
-      });
+      setIsLoading(true);
+      try {
+        await hatsClient.multicall({
+          account: account.address as `0x${string}`,
+          calls,
+        });
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -150,23 +189,38 @@ const EditMode = ({
             </Text>
             <HatWearersForm
               defaultAdmin={hatData.admin?.prettyId}
-              chainId={chainId}
               hatData={hatData}
-              levelAtLocalTree={hatData.levelAtLocalTree}
-              isAdminUser={isAdminUser}
               localForm={localForm}
-              maxSupply={maxSupply}
               mutable={mutable === MUTABILITY.MUTABLE}
             />
             <HatAdminsForm
-              chainId={chainId}
-              hatData={hatData}
               localForm={localForm}
+              mutable={hatData?.mutable}
               eligibility={eligibility}
               toggle={toggle}
+              eligibilityResolvedAddress={eligibilityResolvedAddress}
+              toggleResolvedAddress={toggleResolvedAddress}
             />
 
-            <Button onClick={handleSubmit(onSubmit)}>Submit</Button>
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              isLoading={
+                isLoadingEligibilityResolvedAddress ||
+                isLoadingToggleResolvedAddress ||
+                isLoading
+              }
+              isDisabled={
+                hatData.levelAtLocalTree === 0 ||
+                (!dirtyFields.maxSupply &&
+                  !dirtyFields.mutable &&
+                  !dirtyFields.eligibility &&
+                  !dirtyFields.toggle) ||
+                maxSupply > hatData.maxSupply ||
+                maxSupply < 0
+              }
+            >
+              Submit
+            </Button>
           </Stack>
         </Accordion>
       </Stack>
@@ -185,5 +239,4 @@ interface EditModeProps {
   imageUrl: string;
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
-  isAdminUser: boolean;
 }

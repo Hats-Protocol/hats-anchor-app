@@ -249,7 +249,6 @@ const SelectedHatDrawer = ({
             guilds={guilds}
             authorities={authorities}
             responsibilities={responsibilities}
-            isAdminUser={isAdminUser}
           />
         )}
 
