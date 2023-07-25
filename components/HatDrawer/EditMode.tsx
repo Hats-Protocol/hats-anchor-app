@@ -19,6 +19,7 @@ import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
 import useDebounce from '@/hooks/useDebounce';
+import useToast from '@/hooks/useToast';
 import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { createHatsClient } from '@/lib/web3';
 import { DetailsItem, IHat } from '@/types';
@@ -35,6 +36,7 @@ const EditMode = ({
 }: EditModeProps) => {
   const account = useAccount();
   const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
 
   const localForm = useForm({
     mode: 'onChange',
@@ -86,38 +88,82 @@ const EditMode = ({
     const calls = [];
 
     if (dirtyFields.maxSupply) {
-      const callData = await hatsClient.changeHatMaxSupplyCallData({
-        hatId: decimalId(hatData?.id) as unknown as bigint,
-        newMaxSupply: maxSupply as number,
-      });
+      try {
+        const callData = await hatsClient.changeHatMaxSupplyCallData({
+          hatId: decimalId(hatData?.id) as unknown as bigint,
+          newMaxSupply: maxSupply as number,
+        });
 
-      calls.push(callData);
-    }
-
-    if (dirtyFields.mutable) {
-      const callData = await hatsClient.makeHatImmutableCallData({
-        hatId: decimalId(hatData?.id) as unknown as bigint,
-      });
-
-      calls.push(callData);
+        calls.push(callData);
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occured',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+        return;
+      }
     }
 
     if (dirtyFields.eligibility) {
-      const callData = await hatsClient.changeHatEligibilityCallData({
-        hatId: decimalId(hatData?.id) as unknown as bigint,
-        newEligibility: eligibilityResolvedAddress ?? eligibility,
-      });
+      try {
+        const callData = await hatsClient.changeHatEligibilityCallData({
+          hatId: decimalId(hatData?.id) as unknown as bigint,
+          newEligibility: eligibilityResolvedAddress ?? eligibility,
+        });
 
-      calls.push(callData);
+        calls.push(callData);
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occured',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+        return;
+      }
     }
 
     if (dirtyFields.toggle) {
-      const callData = await hatsClient.changeHatToggleCallData({
-        hatId: decimalId(hatData?.id) as unknown as bigint,
-        newToggle: toggleResolvedAddress ?? toggle,
-      });
+      try {
+        const callData = await hatsClient.changeHatToggleCallData({
+          hatId: decimalId(hatData?.id) as unknown as bigint,
+          newToggle: toggleResolvedAddress ?? toggle,
+        });
 
-      calls.push(callData);
+        calls.push(callData);
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occured',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+        return;
+      }
+    }
+
+    if (dirtyFields.mutable) {
+      try {
+        const callData = await hatsClient.makeHatImmutableCallData({
+          hatId: decimalId(hatData?.id) as unknown as bigint,
+        });
+
+        calls.push(callData);
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occured',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+        return;
+      }
     }
 
     if (calls.length > 0) {
@@ -127,8 +173,21 @@ const EditMode = ({
           account: account.address as `0x${string}`,
           calls,
         });
-      } catch (error) {
-        console.error(error);
+        setIsLoading(false);
+
+        toast.success({
+          title: 'Transaction successful',
+          description: 'Hat was successfully updated',
+        });
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occurred!',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+
         setIsLoading(false);
       }
     }
@@ -188,14 +247,13 @@ const EditMode = ({
               The people and contracts that control and wear this Hat.
             </Text>
             <HatWearersForm
-              defaultAdmin={hatData.admin?.prettyId}
-              hatData={hatData}
               localForm={localForm}
-              mutable={mutable === MUTABILITY.MUTABLE}
+              hatData={hatData}
+              defaultAdmin={hatData.admin?.prettyId}
             />
             <HatAdminsForm
               localForm={localForm}
-              mutable={hatData?.mutable}
+              hatData={hatData}
               eligibility={eligibility}
               toggle={toggle}
               eligibilityResolvedAddress={eligibilityResolvedAddress}
@@ -215,7 +273,6 @@ const EditMode = ({
                   !dirtyFields.mutable &&
                   !dirtyFields.eligibility &&
                   !dirtyFields.toggle) ||
-                maxSupply > hatData.maxSupply ||
                 maxSupply < 0
               }
             >

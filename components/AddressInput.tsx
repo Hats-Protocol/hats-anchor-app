@@ -13,7 +13,7 @@ type AddressInputProps = {
   docsLink: string;
   localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
-  mutable: boolean | undefined;
+  isDisabled: boolean;
   resolvedAddress: string;
 };
 
@@ -24,7 +24,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
 
   localForm,
   showResolvedAddress,
-  mutable,
+  isDisabled,
   resolvedAddress,
 }) => (
   <FormControl>
@@ -44,7 +44,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
         rightElement={showResolvedAddress && <FaCheck color='green' />}
         localForm={localForm}
-        isDisabled={!mutable}
+        isDisabled={isDisabled}
       />
       {showResolvedAddress && (
         <Text fontSize='sm' color='gray.500' mt={1}>

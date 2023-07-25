@@ -1,4 +1,5 @@
 import { HStack, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
+import { Controller } from 'react-hook-form';
 
 import Input from '@/components/atoms/Input';
 import { MUTABILITY } from '@/constants';
@@ -9,14 +10,11 @@ const HatWearersForm = ({
   defaultAdmin,
   hatData,
   localForm,
-  mutable,
 }: {
   defaultAdmin: string | undefined;
   hatData: IHat;
   localForm: any;
-  mutable: boolean;
 }) => {
-  const { setValue } = localForm;
   const decimalAdmin = prettyIdToIp(defaultAdmin);
 
   return (
@@ -41,17 +39,19 @@ const HatWearersForm = ({
         <Text fontWeight={500} mb={2}>
           MUTABILITY
         </Text>
-        <RadioGroup
+        <Controller
+          control={localForm.control}
           name='mutable'
-          defaultValue={mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE}
-          onChange={(value) => setValue('mutable', value)}
-          isDisabled={!mutable}
-        >
-          <HStack spacing={4}>
-            <Radio value={MUTABILITY.MUTABLE}>Mutable</Radio>
-            <Radio value={MUTABILITY.IMMUTABLE}>Immutable</Radio>
-          </HStack>
-        </RadioGroup>
+          render={({ field }) => (
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            <RadioGroup {...field} isDisabled={!isTopHatOrMutable(hatData)}>
+              <HStack spacing={4}>
+                <Radio value={MUTABILITY.MUTABLE}>Mutable</Radio>
+                <Radio value={MUTABILITY.IMMUTABLE}>Immutable</Radio>
+              </HStack>
+            </RadioGroup>
+          )}
+        />
       </Stack>
     </form>
   );

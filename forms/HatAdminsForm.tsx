@@ -1,16 +1,17 @@
 import { Stack } from '@chakra-ui/react';
 
 import AddressInput from '@/components/AddressInput';
+import { isTopHatOrMutable } from '@/lib/hats';
 
 const HatAdminsForm = ({
-  mutable,
+  hatData,
   localForm,
   eligibility,
   toggle,
   eligibilityResolvedAddress,
   toggleResolvedAddress,
 }: {
-  mutable?: boolean;
+  hatData: any;
   localForm: any;
   eligibility: string;
   toggle: string;
@@ -31,7 +32,7 @@ const HatAdminsForm = ({
           docsLink='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
           localForm={localForm}
           showResolvedAddress={Boolean(showEligibilityResolvedAddress)}
-          mutable={mutable}
+          isDisabled={!isTopHatOrMutable(hatData)}
           resolvedAddress={String(eligibilityResolvedAddress)}
         />
 
@@ -41,7 +42,7 @@ const HatAdminsForm = ({
           docsLink='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
           localForm={localForm}
           showResolvedAddress={Boolean(showToggleResolvedAddress)}
-          mutable={mutable}
+          isDisabled={!isTopHatOrMutable(hatData)}
           resolvedAddress={String(toggleResolvedAddress)}
         />
       </Stack>
