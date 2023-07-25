@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Stack,
   Tab,
   TabList,
@@ -9,6 +10,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { useAccount } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
@@ -16,7 +18,7 @@ import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
 import useDebounce from '@/hooks/useDebounce';
-import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { createHatsClient } from '@/lib/web3';
 import { DetailsItem, IHat } from '@/types';
 
@@ -31,6 +33,8 @@ const EditMode = ({
   authorities,
   isAdminUser,
 }: EditModeProps) => {
+  const account = useAccount();
+
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -40,13 +44,18 @@ const EditMode = ({
       mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
     },
   });
-  const { watch } = localForm;
+  const {
+    handleSubmit,
+    watch,
+    formState: { dirtyFields },
+  } = localForm;
 
+  // Watch for changes
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
   );
   const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
-  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply));
+  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
   const mutable = useDebounce(
     watch(
       'mutable',
@@ -56,7 +65,35 @@ const EditMode = ({
 
   const hatsClient = createHatsClient(chainId);
 
-  console.log('hatsClient', hatsClient);
+  const onSubmit = async () => {
+    const calls = [];
+
+    if (dirtyFields.maxSupply) {
+      const callData = await hatsClient.changeHatMaxSupplyCallData({
+        hatId: decimalId(hatData?.id) as unknown as bigint,
+        newMaxSupply: maxSupply as number,
+      });
+
+      calls.push(callData);
+    }
+
+    // if (dirtyFields.eligibility) {
+    //   calls.push(
+    //     hatsClient.getChangeHatEligibilityCallData(hatData?.id, eligibility),
+    //   );
+    // }
+
+    // if (dirtyFields.toggle) {
+    //   calls.push(hatsClient.getChangeHatToggleCallData(hatData?.id, toggle));
+    // }
+
+    if (calls.length > 0) {
+      await hatsClient.multicall({
+        account: account.address as `0x${string}`,
+        calls,
+      });
+    }
+  };
 
   if (!hatData) return null;
 
@@ -128,6 +165,8 @@ const EditMode = ({
               eligibility={eligibility}
               toggle={toggle}
             />
+
+            <Button onClick={handleSubmit(onSubmit)}>Submit</Button>
           </Stack>
         </Accordion>
       </Stack>
