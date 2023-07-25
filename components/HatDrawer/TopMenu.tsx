@@ -77,7 +77,7 @@ const TopMenu = ({
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
       functionName: 'setHatStatus',
-      args: [hatData.id, hatData.status ? STATUS.INACTIVE : STATUS.ACTIVE],
+      args: [hatData.id, !hatData.status],
       chainId,
       onSuccessToastData: {
         title: 'Hat Status Updated!',

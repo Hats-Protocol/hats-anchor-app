@@ -257,7 +257,7 @@ interface WearersListProps {
   wearers: IHatWearer[];
   maxSupply: number;
   prettyId: string;
-  setModals: any;
+  setModals: (m: object) => void;
   localOverlay: any;
   isAdminUser: boolean;
 }

@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCopy } from 'react-icons/fa';
 
-import { MUTABILITY } from '@/constants';
+import { MUTABILITY, STATUS } from '@/constants';
 import useToast from '@/hooks/useToast';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 
@@ -72,7 +72,9 @@ const Header = ({
         >
           {mutableStatus}
         </Badge>
-        <Badge>{activeStatus}</Badge>
+        <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
+          {activeStatus}
+        </Badge>
         <Badge>Level {levelAtLocalTree}</Badge>
       </HStack>
     </Stack>

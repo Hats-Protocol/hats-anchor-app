@@ -1,11 +1,12 @@
 import { Box, Heading, Stack } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { DetailsItem, HatRole } from '@/types';
+import { DetailsItem, HatRole, IHat } from '@/types';
 
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
@@ -77,7 +78,7 @@ const MainContent = ({
         localOverlay={localOverlay}
         hatId={hatData.id}
         wearers={hatData.wearers}
-        maxSupply={hatData.maxSupply}
+        maxSupply={_.toNumber(hatData.maxSupply)}
         prettyId={hatData.prettyId}
         isAdminUser={isAdminUser}
       />
@@ -127,7 +128,7 @@ export default MainContent;
 
 interface MainContentProps {
   chainId: number;
-  hatData: any;
+  hatData: IHat;
   isEligible: boolean;
   name: string;
   description: string;
