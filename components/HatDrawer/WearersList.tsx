@@ -17,8 +17,6 @@ import { FaPlus, FaSearch } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
-import CONFIG from '@/constants';
-import useHatBurn from '@/hooks/useHatBurn';
 import { checkENSNames } from '@/lib/contract';
 import { isSameAddress } from '@/lib/general';
 import { IHatWearer } from '@/types';
@@ -49,17 +47,6 @@ const WearersList = ({
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
-
-  const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId,
-    wearers,
-  });
-
-  const handleRenounceHat = async () => {
-    await renounceHat?.();
-  };
 
   const filterWearers = (localWearers: IHatWearer[]) => {
     if (!searchTerm) return wearers;
@@ -134,7 +121,6 @@ const WearersList = ({
             isAdminUser={isAdminUser}
             address={address}
             ensNames={ensNames}
-            handleRenounceHat={handleRenounceHat}
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
@@ -142,6 +128,7 @@ const WearersList = ({
             hatId={hatId}
             chainId={chainId}
             currentNetworkId={currentNetworkId}
+            wearers={wearers}
           />
         ))}
 
@@ -199,7 +186,6 @@ const WearersList = ({
               isAdminUser={isAdminUser}
               address={address}
               ensNames={ensNames}
-              handleRenounceHat={handleRenounceHat}
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
@@ -207,6 +193,7 @@ const WearersList = ({
               hatId={hatId}
               chainId={chainId}
               currentNetworkId={currentNetworkId}
+              wearers={wearers}
             />
           ))}
         </Flex>

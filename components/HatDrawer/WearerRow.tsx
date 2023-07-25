@@ -8,38 +8,26 @@ import {
   MenuItem,
   MenuList,
   Text,
-  Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import CONFIG from '@/constants';
+import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
 import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
+import { IHatWearer } from '@/types';
 
-// TooltipWrapper component
-const TooltipWrapper = ({
-  children,
-  label,
-  isSameChain,
-}: {
-  children: React.ReactNode;
-  label: string;
-  isSameChain: boolean;
-}) => (
-  <Tooltip label={!isSameChain ? label : ''} shouldWrapChildren>
-    {children}
-  </Tooltip>
-);
+import TooltipWrapper from './TooltipWrapper';
 
 const WearerRow = ({
   wearer,
   isAdminUser,
   address,
   ensNames,
-  handleRenounceHat,
   setModals,
   setChangeStatusWearer,
   setWearerToTransferFrom,
@@ -47,6 +35,7 @@ const WearerRow = ({
   hatId,
   chainId,
   currentNetworkId,
+  wearers,
 }: WearerRowProps) => {
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
@@ -59,6 +48,30 @@ const WearerRow = ({
     enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
   });
   const toast = useToast();
+
+  const testEligibility = async () => {
+    const updated = await writeAsync?.();
+    if (updated) {
+      toast.info({
+        title: `The status of ${wearer.id} was successfully updated.`,
+      });
+    } else {
+      toast.info({
+        title: `The status of ${wearer.id} was not updated.`,
+      });
+    }
+  };
+
+  const { writeAsync: renounceHat } = useHatBurn({
+    hatsAddress: CONFIG.hatsAddress,
+    chainId,
+    hatId,
+    wearers,
+  });
+
+  const handleRenounceHat = async () => {
+    await renounceHat?.();
+  };
 
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -137,18 +150,7 @@ const WearerRow = ({
 
             <MenuItem
               isDisabled={!isSameChain || isLoading || !writeAsync}
-              onClick={async () => {
-                const updated = await writeAsync?.();
-                if (updated) {
-                  toast.info({
-                    title: `The status of ${wearer.id} was successfully updated.`,
-                  });
-                } else {
-                  toast.info({
-                    title: `The status of ${wearer.id} was not updated.`,
-                  });
-                }
-              }}
+              onClick={testEligibility}
             >
               <TooltipWrapper
                 isSameChain={isSameChain}
@@ -173,7 +175,6 @@ interface WearerRowProps {
   ensNames: {
     [key: string]: string;
   };
-  handleRenounceHat: () => void;
   setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
@@ -181,4 +182,5 @@ interface WearerRowProps {
   hatId: string;
   chainId: number;
   currentNetworkId: number;
+  wearers: IHatWearer[];
 }
