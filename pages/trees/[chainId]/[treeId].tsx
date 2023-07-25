@@ -12,13 +12,6 @@ import {
   Icon,
   IconButton,
   Image,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -39,9 +32,16 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
+import {
+  lazy,
+  ReactNode,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { BsToggles } from 'react-icons/bs';
-import { FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
@@ -50,6 +50,7 @@ import Suspender from '@/components/atoms/Suspender';
 import EventHistory from '@/components/EventHistory';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -64,8 +65,9 @@ import {
   toTreeStructure,
 } from '@/lib/hats';
 import { chainsMap, explorerUrl } from '@/lib/web3';
-import { HierarchyObject, IHat, IHatData, IHatEvent, ITree } from '@/types';
+import { HierarchyObject, IHat, ITree } from '@/types';
 
+const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
@@ -135,12 +137,14 @@ const TreeDetails = ({
   const router = useRouter();
   const { hatId } = router.query;
   const { address } = useAccount();
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
 
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
-  const [hatsData, setHatsData] = useState<IHatData[] | undefined>(undefined);
+  const [hatsData, setHatsData] = useState<IHat[] | undefined>(undefined);
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
   const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
     ipToPrettyId(String(hatId)) || topHatId,
@@ -161,16 +165,9 @@ const TreeDetails = ({
     isOpen: isOpenShade,
   } = useDisclosure();
 
-  const {
-    isOpen: isEventsModalOpen,
-    onOpen: handleOpenModal,
-    onClose: handleCloseModal,
-  } = useDisclosure();
-
   const handleSelectHat = useCallback(
     (id: string) => {
       setSelectedHatId(id);
-      console.log('id', id);
 
       const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
       const updatedUrl = {
@@ -227,7 +224,7 @@ const TreeDetails = ({
   }, [treeData, linkedHats, hatsWithImageData, imagesDataLoading, chainId]);
 
   const hasPermissions = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHatData) => {
+    _.filter(orgChartTree, (node: IHat) => {
       return (
         typeof node.details !== 'string' &&
         _.includes(_.keys(node.details), 'permissions')
@@ -235,7 +232,7 @@ const TreeDetails = ({
     }),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHatData) => {
+    _.filter(orgChartTree, (node: IHat) => {
       return (
         typeof node.details !== 'string' &&
         _.includes(_.keys(node.details), 'responsibilities')
@@ -423,6 +420,14 @@ const TreeDetails = ({
                     <PopoverBody>
                       <Stack>
                         <Box>
+                          <Heading
+                            size='sm'
+                            fontWeight='medium'
+                            textTransform='uppercase'
+                            mb={1}
+                          >
+                            Event history
+                          </Heading>
                           <EventHistory
                             chainId={chainId}
                             events={events?.slice(0, 5)}
@@ -431,7 +436,7 @@ const TreeDetails = ({
                             <>
                               <Divider my={2} />
                               <Button
-                                onClick={handleOpenModal}
+                                onClick={() => setModals?.({ events: true })}
                                 variant='link'
                                 colorScheme='blue'
                               >
@@ -469,18 +474,13 @@ const TreeDetails = ({
         )}
       </Layout>
 
-      <Modal isOpen={isEventsModalOpen} onClose={handleCloseModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalBody pt={4}>
-            <EventHistory chainId={chainId} events={events} />
-          </ModalBody>
-          <ModalFooter>
-            <Button variant='ghost' onClick={handleCloseModal}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
+      <Modal
+        name='events'
+        title='Events'
+        size='2xl'
+        localOverlay={localOverlay}
+      >
+        <EventHistory chainId={chainId} events={events} />
       </Modal>
     </>
   );

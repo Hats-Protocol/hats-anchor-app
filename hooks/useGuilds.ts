@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { decimalId } from '@/lib/hats';
+import { HatRole } from '@/types';
 
 const useHatGuilds = ({
   guildNames,
@@ -10,9 +11,7 @@ const useHatGuilds = ({
   guildNames: string[];
   hatId?: string;
 }) => {
-  const [hatRoles, setHatRoles] = useState<
-    { role: any; guild: any; requirements: any[] }[]
-  >([]);
+  const [hatRoles, setHatRoles] = useState<HatRole[]>([]);
 
   useEffect(() => {
     const fetchAndProcessGuilds = async () => {

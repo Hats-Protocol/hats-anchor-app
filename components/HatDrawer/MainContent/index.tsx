@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react';
+import { Box, Heading, Stack } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
@@ -6,7 +6,7 @@ import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { DetailsItem, IHat } from '@/types';
+import { DetailsItem, HatRole, IHat } from '@/types';
 
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
@@ -114,7 +114,12 @@ const MainContent = ({
         chainId={chainId}
       />
 
-      <EventHistory chainId={chainId} events={hatData.events} />
+      <Box>
+        <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={1}>
+          Event history
+        </Heading>
+        <EventHistory chainId={chainId} events={hatData.events} />
+      </Box>
     </Stack>
   );
 };
@@ -127,7 +132,7 @@ interface MainContentProps {
   isEligible: boolean;
   name: string;
   description: string;
-  hatRoles: any[];
+  hatRoles: HatRole[];
   mutableStatus: string;
   activeStatus: string;
   isCurrentWearer: boolean;
