@@ -9,6 +9,7 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAccount, useEnsAddress } from 'wagmi';
@@ -21,6 +22,7 @@ import HatWearersForm from '@/forms/HatWearersForm';
 import useDebounce from '@/hooks/useDebounce';
 import useToast from '@/hooks/useToast';
 import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { DetailsItem, IHat } from '@/types';
 
@@ -37,6 +39,8 @@ const EditMode = ({
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const [newImageURI, setNewImageURI] = useState('');
+  const [newDetails, setNewDetailsURI] = useState('');
+  const [newDetailsData, setNewDetailsData] = useState<any>({});
 
   const localForm = useForm({
     mode: 'onChange',
@@ -46,6 +50,8 @@ const EditMode = ({
       toggle: hatData?.toggle,
       mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
       imageUrl: hatData?.imageUrl || '',
+      name,
+      description,
     },
   });
   const {
@@ -54,7 +60,6 @@ const EditMode = ({
     formState: { dirtyFields },
   } = localForm;
 
-  // Watch for changes
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
   );
@@ -82,6 +87,42 @@ const EditMode = ({
 
   const onSubmit = async () => {
     const calls = [];
+
+    if (hatData.details !== newDetails) {
+      try {
+        const callData = await hatsClient.changeHatDetailsCallData({
+          hatId: decimalId(hatData?.id) as unknown as bigint,
+          newDetails,
+        });
+
+        const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
+          _.get(hatData, 'admin.id'),
+        )}`;
+
+        await pinJson(
+          {
+            type: '1.0',
+            data: newDetailsData,
+          },
+          {
+            name: detailsName,
+          },
+        );
+
+        calls.push(callData);
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occured',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+        return;
+      }
+    }
+
+    // return;
 
     if (
       dirtyFields.imageUrl ||
@@ -247,15 +288,15 @@ const EditMode = ({
                     hatData={hatData}
                     chainId={chainId}
                     setNewImageURI={setNewImageURI}
-                    // defaultValues={{
-                    //   name,
-                    //   description,
-                    //   imageUrl,
-                    //   guilds,
-                    //   responsibilities,
-                    //   authorities,
-                    //   imageUrl,
-                    // }}
+                    setNewDetailsURI={setNewDetailsURI}
+                    setNewDetailsData={setNewDetailsData}
+                    defaultValues={{
+                      name,
+                      description,
+                      guilds,
+                      responsibilities,
+                      authorities,
+                    }}
                   />
                 </TabPanel>
               </TabPanels>

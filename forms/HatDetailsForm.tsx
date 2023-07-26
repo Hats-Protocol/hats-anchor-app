@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Input as ChakraInput,
   Flex,
   FormControl,
@@ -19,28 +18,18 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useForm } from 'react-hook-form';
 import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import { useChainId } from 'wagmi';
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
-import { ZERO_ADDRESS } from '@/constants';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
-import {
-  decimalId,
-  idToPrettyId,
-  isTopHat,
-  prettyIdToIp,
-  toTreeId,
-} from '@/lib/hats';
-import { pinJson } from '@/lib/ipfs';
+import { isTopHat } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 const HatDetailsForm = ({
@@ -48,85 +37,87 @@ const HatDetailsForm = ({
   hatData,
   chainId,
   setNewImageURI,
-}: // defaultValues,
-{
+  defaultValues,
+  setNewDetailsURI,
+  setNewDetailsData,
+}: {
   localForm: any;
   hatData: any;
   chainId: number;
-  // defaultValues: {
-  //   name?: string;
-  //   description?: string;
-  //   imageUrl?: string;
-  //   guilds?: string[];
-  //   responsibilities: DetailsItem[];
-  //   authorities: DetailsItem[];
-  // };
+  defaultValues: {
+    name?: string;
+    description?: string;
+    imageUrl?: string;
+    guilds?: string[];
+    responsibilities: DetailsItem[];
+    authorities: DetailsItem[];
+  };
   setNewImageURI: (uri: string) => void;
+  setNewDetailsURI: (uri: string) => void;
+  setNewDetailsData: (data: any) => void;
 }) => {
-  const currentNetworkId = useChainId();
   const [customImage, setCustomImage] = useState(true);
   const [image, setImage] = useState<any>();
-  // const localForm = useForm({
-  //   mode: 'onBlur',
-  //   defaultValues: {
-  //     name: defaultValues.name || '',
-  //     description: defaultValues.description || '',
-  //     details: {
-  //       guilds: defaultValues.guilds || [],
-  //       responsibilities: defaultValues.responsibilities || [],
-  //       authorities: defaultValues.authorities || [],
-  //     },
-  //   },
-  // });
-  const { formState } = localForm;
-  // const [guilds, setGuilds] = useState(defaultValues.guilds || []);
-  // const [newGuild, setNewGuild] = useState('');
-  // const [responsibilities, setResponsibilities] = useState(
-  //   defaultValues.responsibilities || [],
-  // );
-  // const [authorities, setAuthorities] = useState(
-  //   defaultValues.authorities || [],
-  // );
+  const { formState, watch } = localForm;
+  const [guilds, setGuilds] = useState(defaultValues.guilds || []);
+  const [newGuild, setNewGuild] = useState('');
+  const [responsibilities, setResponsibilities] = useState(
+    defaultValues.responsibilities || [],
+  );
+  const [authorities, setAuthorities] = useState(
+    defaultValues.authorities || [],
+  );
 
-  // const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
-  //   guildName: newGuild,
-  // });
+  const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
+    guildName: newGuild,
+  });
 
-  // const handleAddGuild = () => {
-  //   setGuilds([...guilds, newGuild]);
-  //   setNewGuild('');
-  // };
+  const handleAddGuild = () => {
+    setGuilds([...guilds, newGuild]);
+    setNewGuild('');
+  };
 
-  // const handleAddResponsibility = ({ link, label }: DetailsItem) => {
-  //   setResponsibilities([...responsibilities, { link, label }]);
-  // };
+  const handleAddResponsibility = ({ link, label }: DetailsItem) => {
+    setResponsibilities([...responsibilities, { link, label }]);
+  };
 
-  // const handleAddAuthority = ({ link, label }: DetailsItem) => {
-  //   setAuthorities([...authorities, { link, label }]);
-  // };
+  const handleAddAuthority = ({ link, label }: DetailsItem) => {
+    setAuthorities([...authorities, { link, label }]);
+  };
 
-  // const handleRemoveGuild = (index: number) => {
-  //   setGuilds(guilds.filter((__: any, i: number) => i !== index));
-  // };
+  const handleRemoveGuild = (index: number) => {
+    setGuilds(guilds.filter((__: any, i: number) => i !== index));
+  };
 
-  // const handleRemoveResponsibility = (index: number) => {
-  //   setResponsibilities(responsibilities.filter((__, i) => i !== index));
-  // };
+  const handleRemoveResponsibility = (index: number) => {
+    setResponsibilities(responsibilities.filter((__, i) => i !== index));
+  };
 
-  // const handleRemoveAuthority = (index: number) => {
-  //   setAuthorities(authorities.filter((__, i) => i !== index));
-  // };
+  const handleRemoveAuthority = (index: number) => {
+    setAuthorities(authorities.filter((__, i) => i !== index));
+  };
 
-  // const name = useDebounce(watch('name', defaultValues?.name || ''));
-  // const description = useDebounce(
-  //   watch('description', defaultValues?.description || ''),
-  // );
+  const name = useDebounce(watch('name', defaultValues?.name || ''));
+  const description = useDebounce(
+    watch('description', defaultValues?.description || ''),
+  );
 
-  // const { cid: detailsCID, loading: detailsCidLoading } = useCid({
-  //   type: '1.0',
-  //   data: { name, description, guilds, responsibilities, authorities },
-  // });
-  // console.log('detailsCID', detailsCID);
+  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+    type: '1.0',
+    data: { name, description, guilds, responsibilities, authorities },
+  });
+  console.log('detailsCID', detailsCID);
+
+  useEffect(() => {
+    setNewDetailsURI(detailsCID);
+    setNewDetailsData({
+      name,
+      description,
+      guilds,
+      responsibilities,
+      authorities,
+    });
+  }, [detailsCID]);
 
   const {
     acceptedFiles,
@@ -165,74 +156,6 @@ const HatDetailsForm = ({
     setNewImageURI(hatImageURI);
   }, [customImage, imagePinData, formState?.values?.imageUrl]);
 
-  const { writeAsync: writeAsyncImage, isLoading } = useHatContractWrite({
-    functionName: 'changeHatImageURI',
-    args: [
-      _.get(hatData, 'id'),
-      customImage
-        ? imagePinData !== undefined
-          ? `ipfs://${imagePinData}`
-          : undefined
-        : formState?.values?.imageUrl || '',
-    ],
-    chainId,
-    onSuccessToastData: {
-      title: 'Image updated!',
-      description: `Successfully updated the image for hat #${prettyIdToIp(
-        idToPrettyId(_.get(hatData, 'id')),
-      )}`,
-    },
-    queryKeys: [
-      ['hatDetails', _.get(hatData, 'id')],
-      ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-    ],
-    enabled: Boolean(_.get(hatData, 'id')),
-  });
-
-  // const { writeAsync, isLoading: isLoadingUpdateDetails } = useHatContractWrite(
-  //   {
-  //     functionName: 'changeHatDetails',
-  //     args: [
-  //       decimalId(_.get(hatData, 'id')) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
-  //       detailsCID || '',
-  //     ],
-  //     chainId: Number(chainId),
-  //     onSuccessToastData: {
-  //       title: 'Details updated!',
-  //       description: `Successfully updated the details for hat #${prettyIdToIp(
-  //         idToPrettyId(_.get(hatData, 'id')),
-  //       )}`,
-  //     },
-  //     queryKeys: [
-  //       ['hatDetails', _.get(hatData, 'id')],
-  //       ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-  //     ],
-  //     enabled:
-  //       Boolean(_.get(hatData, 'id')) &&
-  //       Boolean(detailsCID) &&
-  //       chainId === currentNetworkId,
-  //   },
-  // );
-
-  // const onSubmitDetails = async () => {
-  //   writeAsync?.();
-  //   await pinJson(
-  //     {
-  //       type: '1.0',
-  //       data: { name, description, guilds, responsibilities, authorities },
-  //     },
-  //     {
-  //       name: `details_${_.toString(chainId)}_${prettyIdToIp(
-  //         _.get(hatData, 'admin.id'),
-  //       )}`,
-  //     },
-  //   );
-  // };
-
-  const onSubmitImage = async () => {
-    writeAsyncImage?.();
-  };
-
   return (
     <form>
       <Stack spacing={4}>
@@ -244,7 +167,7 @@ const HatDetailsForm = ({
               label='Name'
               placeholder='Hat name'
             />
-            {/* <Textarea
+            <Textarea
               localForm={localForm}
               name='description'
               label='Description'
@@ -267,7 +190,7 @@ const HatDetailsForm = ({
               handleRemoveItem={handleRemoveAuthority}
               title='Authorities'
               label='Authority'
-            /> */}
+            />
 
             <Switch
               isChecked={customImage}
@@ -294,7 +217,7 @@ const HatDetailsForm = ({
                 image={image}
               />
             )}
-            {/* {isTopHat(hatData) && (
+            {isTopHat(hatData) && (
               <>
                 <Text fontSize='sm' color='blue.500' pt={3}>
                   <Icon as={FaInfoCircle} mr={1} />
@@ -364,20 +287,9 @@ const HatDetailsForm = ({
                   </Box>
                 ))}
               </>
-            )} */}
+            )}
           </Stack>
         </FormControl>
-
-        <HStack justify='flex-end'>
-          {/* <Button
-            type='button'
-            onClick={handleSubmit(onSubmitDetails)}
-            isDisabled={!writeAsync}
-            isLoading={isLoadingUpdateDetails || detailsCidLoading}
-          >
-            Update Details
-          </Button> */}
-        </HStack>
       </Stack>
     </form>
   );
