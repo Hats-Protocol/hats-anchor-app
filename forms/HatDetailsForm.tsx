@@ -116,7 +116,7 @@ const HatDetailsForm = ({
       responsibilities,
       authorities,
     });
-  }, [detailsCID]);
+  }, [detailsCID, name, description, guilds, responsibilities, authorities]);
 
   const {
     acceptedFiles,
@@ -135,6 +135,8 @@ const HatDetailsForm = ({
       );
     },
   });
+
+  console.log('lol');
 
   const {
     data: imagePinData,

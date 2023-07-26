@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Stack,
   Tab,
   TabList,
@@ -320,29 +321,32 @@ const EditMode = ({
               eligibilityResolvedAddress={eligibilityResolvedAddress}
               toggleResolvedAddress={toggleResolvedAddress}
             />
-
-            <Button
-              onClick={handleSubmit(onSubmit)}
-              isLoading={
-                isLoadingEligibilityResolvedAddress ||
-                isLoadingToggleResolvedAddress ||
-                isLoading
-              }
-              isDisabled={
-                hatData.levelAtLocalTree === 0 ||
-                (!dirtyFields.maxSupply &&
-                  !dirtyFields.mutable &&
-                  !dirtyFields.eligibility &&
-                  !dirtyFields.toggle &&
-                  !dirtyFields.imageUrl &&
-                  !(imageUrl && newImageURI && imageUrl !== newImageURI)) ||
-                maxSupply < 0
-              }
-            >
-              Submit
-            </Button>
           </Stack>
         </Accordion>
+        <Flex justifyContent='flex-end'>
+          <Button
+            colorScheme='blue'
+            onClick={handleSubmit(onSubmit)}
+            isLoading={
+              isLoadingEligibilityResolvedAddress ||
+              isLoadingToggleResolvedAddress ||
+              isLoading
+            }
+            isDisabled={
+              hatData.levelAtLocalTree === 0 ||
+              (!dirtyFields.maxSupply &&
+                !dirtyFields.mutable &&
+                !dirtyFields.eligibility &&
+                !dirtyFields.toggle &&
+                !dirtyFields.imageUrl &&
+                imageUrl === newImageURI &&
+                hatData.details === newDetails) ||
+              maxSupply < 0
+            }
+          >
+            Submit
+          </Button>
+        </Flex>
       </Stack>
     </Box>
   );
