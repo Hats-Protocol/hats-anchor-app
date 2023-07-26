@@ -268,8 +268,6 @@ const EditMode = ({
       >
         <Stack>
           <Text>{prettyIdToIp(idToPrettyId(hatData?.id))}</Text>
-          <Text>{name}</Text>
-          <Text>{description}</Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
