@@ -88,3 +88,11 @@ export type InputObject = {
   id: string;
   parentId: string;
 };
+
+export type DetailsObject = {
+  guilds: string[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
+  name: string;
+  description: string;
+};

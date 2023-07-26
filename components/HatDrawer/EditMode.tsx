@@ -10,10 +10,9 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAccount, useEnsAddress } from 'wagmi';
+import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
@@ -21,11 +20,9 @@ import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
 import useDebounce from '@/hooks/useDebounce';
-import useToast from '@/hooks/useToast';
-import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { pinJson } from '@/lib/ipfs';
-import { createHatsClient } from '@/lib/web3';
-import { DetailsItem, IHat } from '@/types';
+import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
+import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { DetailsItem, DetailsObject, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -36,12 +33,9 @@ const EditMode = ({
   responsibilities,
   authorities,
 }: EditModeProps) => {
-  const account = useAccount();
-  const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
   const [newImageURI, setNewImageURI] = useState('');
   const [newDetails, setNewDetailsURI] = useState('');
-  const [newDetailsData, setNewDetailsData] = useState<any>({});
+  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
 
   const localForm = useForm({
     mode: 'onChange',
@@ -55,6 +49,7 @@ const EditMode = ({
       description,
     },
   });
+
   const {
     handleSubmit,
     watch,
@@ -84,175 +79,20 @@ const EditMode = ({
     chainId: 1,
   });
 
-  const hatsClient = createHatsClient(chainId);
-
-  const onSubmit = async () => {
-    const calls = [];
-
-    if (hatData.details !== newDetails) {
-      try {
-        const callData = await hatsClient.changeHatDetailsCallData({
-          hatId: decimalId(hatData?.id) as unknown as bigint,
-          newDetails,
-        });
-
-        const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
-          _.get(hatData, 'admin.id'),
-        )}`;
-
-        await pinJson(
-          {
-            type: '1.0',
-            data: newDetailsData,
-          },
-          {
-            name: detailsName,
-          },
-        );
-
-        calls.push(callData);
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occured',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-        return;
-      }
-    }
-
-    // return;
-
-    if (
-      dirtyFields.imageUrl ||
-      (imageUrl && newImageURI && imageUrl !== newImageURI)
-    ) {
-      try {
-        const callData = await hatsClient.changeHatImageURICallData({
-          hatId: decimalId(hatData?.id) as unknown as bigint,
-          newImageURI,
-        });
-
-        calls.push(callData);
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occured',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-        return;
-      }
-    }
-
-    if (dirtyFields.maxSupply) {
-      try {
-        const callData = await hatsClient.changeHatMaxSupplyCallData({
-          hatId: decimalId(hatData?.id) as unknown as bigint,
-          newMaxSupply: maxSupply as number,
-        });
-
-        calls.push(callData);
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occured',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-        return;
-      }
-    }
-
-    if (dirtyFields.eligibility) {
-      try {
-        const callData = await hatsClient.changeHatEligibilityCallData({
-          hatId: decimalId(hatData?.id) as unknown as bigint,
-          newEligibility: eligibilityResolvedAddress ?? eligibility,
-        });
-
-        calls.push(callData);
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occured',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-        return;
-      }
-    }
-
-    if (dirtyFields.toggle) {
-      try {
-        const callData = await hatsClient.changeHatToggleCallData({
-          hatId: decimalId(hatData?.id) as unknown as bigint,
-          newToggle: toggleResolvedAddress ?? toggle,
-        });
-
-        calls.push(callData);
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occured',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-        return;
-      }
-    }
-
-    if (dirtyFields.mutable) {
-      try {
-        const callData = await hatsClient.makeHatImmutableCallData({
-          hatId: decimalId(hatData?.id) as unknown as bigint,
-        });
-
-        calls.push(callData);
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occured',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-        return;
-      }
-    }
-
-    if (calls.length > 0) {
-      setIsLoading(true);
-      try {
-        await hatsClient.multicall({
-          account: account.address as `0x${string}`,
-          calls,
-        });
-        setIsLoading(false);
-
-        toast.success({
-          title: 'Transaction successful',
-          description: 'Hat was successfully updated',
-        });
-      } catch (error: unknown) {
-        toast.error({
-          title: 'Error occurred!',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-
-        setIsLoading(false);
-      }
-    }
-  };
+  const { onSubmit, isLoading } = useSubmitHatChanges({
+    hatData,
+    chainId,
+    newImageURI,
+    newDetails,
+    dirtyFields,
+    newDetailsData,
+    maxSupply,
+    eligibility,
+    toggle,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+    imageUrl,
+  });
 
   if (!hatData) return null;
 
