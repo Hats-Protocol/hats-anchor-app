@@ -71,6 +71,8 @@ const SelectedHatDrawer = ({
   linkRequestFromTree,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
+
   const { address } = useAccount();
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
@@ -86,7 +88,6 @@ const SelectedHatDrawer = ({
     activeStatus,
     mutableStatus,
   } = state;
-  const { setModals } = localOverlay;
 
   const { hatRoles } = useHatGuilds({
     guildNames: guilds,
