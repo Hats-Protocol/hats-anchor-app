@@ -106,7 +106,6 @@ const HatDetailsForm = ({
     type: '1.0',
     data: { name, description, guilds, responsibilities, authorities },
   });
-  console.log('detailsCID', detailsCID);
 
   useEffect(() => {
     setNewDetailsURI(detailsCID);

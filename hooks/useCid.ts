@@ -12,7 +12,6 @@ import { useEffect, useRef, useState } from 'react';
  * @returns The CID, prefixed with "ipfs://"
  */
 const useCid = (data: object) => {
-  console.log('data', data);
   const [cid, setCid] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +28,6 @@ const useCid = (data: object) => {
     calcCid();
   }, [data]);
 
-  console.log('cid', cid);
   return { cid, loading };
 };
 
