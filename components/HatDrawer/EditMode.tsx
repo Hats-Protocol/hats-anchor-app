@@ -55,6 +55,7 @@ const EditMode = ({
     watch,
     formState: { dirtyFields },
   } = localForm;
+  console.log('dirtyFields', dirtyFields);
 
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
@@ -93,6 +94,11 @@ const EditMode = ({
     toggleResolvedAddress,
     imageUrl,
   });
+
+  console.log('imageUrl === newImageURI', imageUrl === newImageURI);
+  console.log('newImageURI', newImageURI);
+  console.log('imageUrl', imageUrl);
+  console.log('hatData.details === newDetails', hatData.details === newDetails);
 
   if (!hatData) return null;
 
@@ -179,7 +185,7 @@ const EditMode = ({
                 !dirtyFields.eligibility &&
                 !dirtyFields.toggle &&
                 !dirtyFields.imageUrl &&
-                imageUrl === newImageURI &&
+                (!newImageURI || imageUrl === newImageURI) &&
                 hatData.details === newDetails) ||
               maxSupply < 0
             }

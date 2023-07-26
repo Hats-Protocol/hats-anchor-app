@@ -195,6 +195,7 @@ const useSubmitHatChanges = ({
           description: 'Hat was successfully updated',
         });
       } catch (error: unknown) {
+        console.log('error', error);
         toast.error({
           title: 'Error occurred!',
           description:
