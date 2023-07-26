@@ -75,13 +75,18 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
     }
   };
 
-  const { data, isLoading } = useQuery({
+  const enabled = !_.isEmpty(hats) && !!imagesData;
+
+  const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['imageUrls', _.map(hats, 'id')],
     queryFn: checkImagesForHats,
-    enabled: !!hats && !_.isEmpty(hats) && !!imagesData,
+    enabled,
   });
 
-  return { data, isLoading: isLoading || imagesLoading };
+  return {
+    data,
+    isLoading: (isLoading && fetchStatus !== 'idle') || imagesLoading,
+  };
 };
 
 export default useImageURIs;
