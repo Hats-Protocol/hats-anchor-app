@@ -30,13 +30,13 @@ const EditMode = ({
   name,
   description,
   guilds,
-  imageUrl,
   responsibilities,
   authorities,
 }: EditModeProps) => {
   const account = useAccount();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+  const [newImageURI, setNewImageURI] = useState('');
 
   const localForm = useForm({
     mode: 'onChange',
@@ -45,6 +45,7 @@ const EditMode = ({
       eligibility: hatData?.eligibility,
       toggle: hatData?.toggle,
       mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      imageUrl: hatData?.imageUrl || '',
     },
   });
   const {
@@ -59,12 +60,7 @@ const EditMode = ({
   );
   const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
   const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
-  const mutable = useDebounce(
-    watch(
-      'mutable',
-      hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    ),
-  );
+  const imageUrl = useDebounce(watch('imageUrl', hatData?.imageUrl || ''));
 
   const {
     data: eligibilityResolvedAddress,
@@ -86,6 +82,29 @@ const EditMode = ({
 
   const onSubmit = async () => {
     const calls = [];
+
+    if (
+      dirtyFields.imageUrl ||
+      (imageUrl && newImageURI && imageUrl !== newImageURI)
+    ) {
+      try {
+        const callData = await hatsClient.changeHatImageURICallData({
+          hatId: decimalId(hatData?.id) as unknown as bigint,
+          newImageURI,
+        });
+
+        calls.push(callData);
+      } catch (error: unknown) {
+        toast.error({
+          title: 'Error occured',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+        return;
+      }
+    }
 
     if (dirtyFields.maxSupply) {
       try {
@@ -224,16 +243,19 @@ const EditMode = ({
               <TabPanels>
                 <TabPanel px={0}>
                   <HatDetailsForm
+                    localForm={localForm}
                     hatData={hatData}
                     chainId={chainId}
-                    defaultValues={{
-                      name,
-                      description,
-                      imageUrl,
-                      guilds,
-                      responsibilities,
-                      authorities,
-                    }}
+                    setNewImageURI={setNewImageURI}
+                    // defaultValues={{
+                    //   name,
+                    //   description,
+                    //   imageUrl,
+                    //   guilds,
+                    //   responsibilities,
+                    //   authorities,
+                    //   imageUrl,
+                    // }}
                   />
                 </TabPanel>
               </TabPanels>
@@ -272,7 +294,9 @@ const EditMode = ({
                 (!dirtyFields.maxSupply &&
                   !dirtyFields.mutable &&
                   !dirtyFields.eligibility &&
-                  !dirtyFields.toggle) ||
+                  !dirtyFields.toggle &&
+                  !dirtyFields.imageUrl &&
+                  !(imageUrl && newImageURI && imageUrl !== newImageURI)) ||
                 maxSupply < 0
               }
             >
@@ -293,7 +317,6 @@ interface EditModeProps {
   name: string;
   description: string;
   guilds: string[];
-  imageUrl: string;
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
 }

@@ -245,7 +245,6 @@ const SelectedHatDrawer = ({
             hatData={hatData}
             name={name}
             description={description}
-            imageUrl={hatData?.imageUri}
             guilds={guilds}
             authorities={authorities}
             responsibilities={responsibilities}
