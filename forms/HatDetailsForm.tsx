@@ -38,6 +38,8 @@ const HatDetailsForm = ({
   defaultValues,
   setNewDetailsURI,
   setNewDetailsData,
+  responsibilities,
+  authorities,
 }: {
   localForm: any;
   hatData: any;
@@ -47,24 +49,18 @@ const HatDetailsForm = ({
     description?: string;
     imageUrl?: string;
     guilds?: string[];
-    responsibilities: DetailsItem[];
-    authorities: DetailsItem[];
   };
   setNewImageURI: (uri: string) => void;
   setNewDetailsURI: (uri: string) => void;
   setNewDetailsData: (data: any) => void;
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
 }) => {
   const [customImage, setCustomImage] = useState(true);
   const [image, setImage] = useState<any>();
   const { formState, watch } = localForm;
   const [guilds, setGuilds] = useState(defaultValues.guilds || []);
   const [newGuild, setNewGuild] = useState('');
-  const [responsibilities, setResponsibilities] = useState(
-    defaultValues.responsibilities || [],
-  );
-  const [authorities, setAuthorities] = useState(
-    defaultValues.authorities || [],
-  );
 
   const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
     guildName: newGuild,
@@ -75,24 +71,8 @@ const HatDetailsForm = ({
     setNewGuild('');
   };
 
-  const handleAddResponsibility = ({ link, label }: DetailsItem) => {
-    setResponsibilities([...responsibilities, { link, label }]);
-  };
-
-  const handleAddAuthority = ({ link, label }: DetailsItem) => {
-    setAuthorities([...authorities, { link, label }]);
-  };
-
   const handleRemoveGuild = (index: number) => {
     setGuilds(guilds.filter((__: any, i: number) => i !== index));
-  };
-
-  const handleRemoveResponsibility = (index: number) => {
-    setResponsibilities(responsibilities.filter((__, i) => i !== index));
-  };
-
-  const handleRemoveAuthority = (index: number) => {
-    setAuthorities(authorities.filter((__, i) => i !== index));
   };
 
   const name = useDebounce(watch('name', defaultValues?.name || ''));
@@ -169,24 +149,6 @@ const HatDetailsForm = ({
               name='description'
               label='Description'
               placeholder='Hat description'
-            />
-
-            <ItemDetailsForm
-              items={responsibilities}
-              setItems={setResponsibilities}
-              handleAddItem={handleAddResponsibility}
-              handleRemoveItem={handleRemoveResponsibility}
-              title='Responsibilities'
-              label='Responsibility'
-            />
-
-            <ItemDetailsForm
-              items={authorities}
-              setItems={setAuthorities}
-              handleAddItem={handleAddAuthority}
-              handleRemoveItem={handleRemoveAuthority}
-              title='Authorities'
-              label='Authority'
             />
 
             <Switch

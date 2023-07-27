@@ -12,7 +12,8 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
+import { IconType } from 'react-icons';
+import { FaEllipsisV, FaPlus } from 'react-icons/fa';
 
 import Modal from '@/components/atoms/Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -25,6 +26,7 @@ interface ItemDetailsFormProps {
   handleAddItem: (item: DetailsItem) => void;
   handleRemoveItem: (index: number) => void;
   title: string;
+  Icon: IconType;
   label: string;
 }
 
@@ -34,6 +36,7 @@ const ItemDetailsForm = ({
   handleAddItem,
   handleRemoveItem,
   title,
+  Icon,
   label,
 }: ItemDetailsFormProps) => {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -46,7 +49,7 @@ const ItemDetailsForm = ({
     setInputLink(items[index].link);
     setCurrentItemIndex(index);
     setModals?.({
-      [`editLabel-${label}`]: true,
+      [`editLabel-${title}`]: true,
     });
   };
 
@@ -59,19 +62,19 @@ const ItemDetailsForm = ({
       setCurrentItemIndex(0);
     }
     setModals?.({
-      [`editLabel-${label}`]: false,
+      [`editLabel-${title}`]: false,
     });
   };
 
   return (
     <>
       <HStack alignItems='center' ml={-6}>
-        <FaKey />
-        <Text fontWeight={500}>{title}</Text>
+        {Icon && <Icon />}
+        <Text fontSize={14}>{title}</Text>
       </HStack>
       {items.map((item, index) => (
         // eslint-disable-next-line react/no-array-index-key
-        <Stack key={label + index}>
+        <Stack key={title + index}>
           <HStack alignItems='center' justifyContent='space-between'>
             <ChakraInput
               value={item.label}
@@ -99,8 +102,8 @@ const ItemDetailsForm = ({
             </Menu>
 
             <Modal
-              name={`editLabel-${label}`}
-              title={`Edit ${label} Link`}
+              name={`editLabel-${title}`}
+              title={`Edit ${title.toLowerCase()} Link`}
               localOverlay={localOverlay}
             >
               <Stack>
@@ -125,7 +128,7 @@ const ItemDetailsForm = ({
                     variant='ghost'
                     onClick={() =>
                       setModals?.({
-                        [`editLabel-${label}`]: false,
+                        [`editLabel-${title}`]: false,
                       })
                     }
                   >
@@ -153,7 +156,7 @@ const ItemDetailsForm = ({
           gap={2}
         >
           <FaPlus />
-          Add {label}
+          Add a {label}
         </Button>
       </Box>
     </>

@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { FaKey, FaRegListAlt } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
@@ -19,6 +20,7 @@ import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
+import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
@@ -30,8 +32,8 @@ const EditMode = ({
   name,
   description,
   guilds,
-  responsibilities,
-  authorities,
+  responsibilities: initialResponsibilities,
+  authorities: initialAuthorities,
 }: EditModeProps) => {
   const [newImageURI, setNewImageURI] = useState('');
   const [newDetails, setNewDetailsURI] = useState('');
@@ -94,6 +96,27 @@ const EditMode = ({
     imageUrl,
   });
 
+  const [responsibilities, setResponsibilities] = useState(
+    initialResponsibilities || [],
+  );
+  const handleAddResponsibility = ({ link, label }: DetailsItem) => {
+    setResponsibilities([...responsibilities, { link, label }]);
+  };
+
+  const handleRemoveResponsibility = (index: number) => {
+    setResponsibilities(responsibilities.filter((__, i) => i !== index));
+  };
+
+  const [authorities, setAuthorities] = useState(initialAuthorities || []);
+
+  const handleAddAuthority = ({ link, label }: DetailsItem) => {
+    setAuthorities([...authorities, { link, label }]);
+  };
+
+  const handleRemoveAuthority = (index: number) => {
+    setAuthorities(authorities.filter((__, i) => i !== index));
+  };
+
   if (!hatData) return null;
 
   return (
@@ -129,17 +152,51 @@ const EditMode = ({
                     setNewImageURI={setNewImageURI}
                     setNewDetailsURI={setNewDetailsURI}
                     setNewDetailsData={setNewDetailsData}
+                    responsibilities={responsibilities}
+                    authorities={authorities}
                     defaultValues={{
                       name,
                       description,
                       guilds,
-                      responsibilities,
-                      authorities,
                     }}
                   />
                 </TabPanel>
               </TabPanels>
             </Tabs>
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Powers'
+          subtitle='Permissions and rights that are controlled by wearers of this hat.'
+        >
+          <Stack spacing={4}>
+            <ItemDetailsForm
+              items={authorities}
+              setItems={setAuthorities}
+              handleAddItem={handleAddAuthority}
+              handleRemoveItem={handleRemoveAuthority}
+              title='PERMISSIONS'
+              label='Permission'
+              Icon={FaKey}
+            />
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Responsibilities'
+          subtitle='Specific work that wearers of this hat will be held accountable for.'
+        >
+          <Stack spacing={4}>
+            <ItemDetailsForm
+              items={responsibilities}
+              setItems={setResponsibilities}
+              handleAddItem={handleAddResponsibility}
+              handleRemoveItem={handleRemoveResponsibility}
+              title='RESPONSIBILITIES'
+              label='Responsibility'
+              Icon={FaRegListAlt}
+            />
           </Stack>
         </Accordion>
 
