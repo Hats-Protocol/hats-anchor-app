@@ -14,6 +14,7 @@ import {
   Text,
   Tooltip,
   HStack,
+  Button,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -31,6 +32,9 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import { isTopHat } from '@/lib/hats';
 import { DetailsItem } from '@/types';
+import { validateURL } from '@/lib/general';
+import Modal from '@/components/atoms/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
 
 const HatDetailsForm = ({
   localForm,
@@ -136,8 +140,6 @@ const HatDetailsForm = ({
     },
   });
 
-  console.log('lol');
-
   const {
     data: imagePinData,
     isLoading: imagePinLoading,
@@ -156,6 +158,46 @@ const HatDetailsForm = ({
       : formState?.values?.imageUrl || '';
     setNewImageURI(hatImageURI);
   }, [customImage, imagePinData, formState?.values?.imageUrl]);
+
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [isLinkValid, setIsLinkValid] = useState(false);
+  const [inputLink, setInputLink] = useState('');
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
+
+  const handleEdit = (index: number, label: string) => {
+    setInputLink(
+      label === 'Responsibility'
+        ? responsibilities[index].link
+        : authorities[index].link,
+    );
+    setLabel(label);
+    setCurrentItemIndex(index);
+    setModals?.({
+      editLink: true,
+    });
+  };
+
+  const [label, setLabel] = useState('');
+
+  const handleSave = () => {
+    if (isLinkValid) {
+      const newArr = [
+        ...(label === 'Responsibility' ? responsibilities : authorities),
+      ];
+      newArr[currentItemIndex].link = inputLink;
+      if (label === 'Responsibility') {
+        setResponsibilities(newArr);
+      } else {
+        setAuthorities(newArr);
+      }
+      setInputLink('');
+      setCurrentItemIndex(0);
+    }
+    setModals?.({
+      editLink: false,
+    });
+  };
 
   return (
     <form>
@@ -182,6 +224,7 @@ const HatDetailsForm = ({
               handleRemoveItem={handleRemoveResponsibility}
               title='Responsibilities'
               label='Responsibility'
+              handleEdit={handleEdit}
             />
 
             <ItemDetailsForm
@@ -191,7 +234,41 @@ const HatDetailsForm = ({
               handleRemoveItem={handleRemoveAuthority}
               title='Authorities'
               label='Authority'
+              handleEdit={handleEdit}
             />
+
+            <Modal
+              name='editLink'
+              title={`Edit ${label} Link`}
+              localOverlay={localOverlay}
+            >
+              <Stack>
+                <ChakraInput
+                  value={inputLink}
+                  onChange={(e) => {
+                    setInputLink(e.target.value);
+                    setIsLinkValid(validateURL(e.target.value));
+                  }}
+                  placeholder='https://example.com'
+                />
+                <HStack justifyContent='end'>
+                  <Button
+                    colorScheme='blue'
+                    mr={3}
+                    onClick={handleSave}
+                    isDisabled={!isLinkValid}
+                  >
+                    Ok
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    onClick={() => setModals?.({ editLink: false })}
+                  >
+                    Cancel
+                  </Button>
+                </HStack>
+              </Stack>
+            </Modal>
 
             <Switch
               isChecked={customImage}
