@@ -11,7 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { isAddress } from 'viem';
-import { useChainId, useEnsAddress, useEnsName } from 'wagmi';
+import { useChainId, useEnsName } from 'wagmi';
 
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -26,7 +26,7 @@ const HatWearerStatusForm = ({
 }: {
   prettyId: string;
   chainId: number;
-  wearer: `0x${string}`;
+  wearer: `0x${string}` | undefined;
   // TODO is there a reason for this to be passed from above?
   eligibility: string;
 }) => {
@@ -58,7 +58,7 @@ const HatWearerStatusForm = ({
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],
     ],
-    enabled: isAddress(wearer) && chainId === currentNetworkId,
+    enabled: !!wearer && isAddress(wearer) && chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
