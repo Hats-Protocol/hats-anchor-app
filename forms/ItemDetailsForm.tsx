@@ -11,8 +11,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
+import Modal from '@/components/atoms/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { validateURL } from '@/lib/general';
 import { DetailsItem } from '@/types';
 
 interface ItemDetailsFormProps {
@@ -22,7 +26,6 @@ interface ItemDetailsFormProps {
   handleRemoveItem: (index: number) => void;
   title: string;
   label: string;
-  handleEdit: (index: number, label: string) => void;
 }
 
 const ItemDetailsForm = ({
@@ -32,8 +35,34 @@ const ItemDetailsForm = ({
   handleRemoveItem,
   title,
   label,
-  handleEdit,
 }: ItemDetailsFormProps) => {
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [isLinkValid, setIsLinkValid] = useState(false);
+  const [inputLink, setInputLink] = useState('');
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
+
+  const handleEdit = (index: number) => {
+    setInputLink(items[index].link);
+    setCurrentItemIndex(index);
+    setModals?.({
+      [`editLabel-${label}`]: true,
+    });
+  };
+
+  const handleSave = () => {
+    if (isLinkValid) {
+      const newArr = [...items];
+      newArr[currentItemIndex].link = inputLink;
+      setItems(newArr);
+      setInputLink('');
+      setCurrentItemIndex(0);
+    }
+    setModals?.({
+      [`editLabel-${label}`]: false,
+    });
+  };
+
   return (
     <>
       <HStack alignItems='center' ml={-6}>
@@ -62,14 +91,49 @@ const ItemDetailsForm = ({
                 variant='outline'
               />
               <MenuList>
-                <MenuItem onClick={() => handleEdit(index, label)}>
-                  Edit Link
-                </MenuItem>
+                <MenuItem onClick={() => handleEdit(index)}>Edit Link</MenuItem>
                 <MenuItem onClick={() => handleRemoveItem(index)}>
                   Delete
                 </MenuItem>
               </MenuList>
             </Menu>
+
+            <Modal
+              name={`editLabel-${label}`}
+              title={`Edit ${label} Link`}
+              localOverlay={localOverlay}
+            >
+              <Stack>
+                <ChakraInput
+                  value={inputLink}
+                  onChange={(e) => {
+                    setInputLink(e.target.value);
+                    setIsLinkValid(validateURL(e.target.value));
+                  }}
+                  placeholder='https://example.com'
+                />
+                <HStack justifyContent='end'>
+                  <Button
+                    colorScheme='blue'
+                    mr={3}
+                    onClick={handleSave}
+                    isDisabled={!isLinkValid}
+                  >
+                    Ok
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    onClick={() =>
+                      setModals?.({
+                        [`editLabel-${label}`]: false,
+                      })
+                    }
+                  >
+                    Cancel
+                  </Button>
+                </HStack>
+              </Stack>
+            </Modal>
           </HStack>
 
           {items[index]?.link && (
