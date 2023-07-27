@@ -1,5 +1,7 @@
 import {
   Box,
+  Button,
+  Flex,
   Stack,
   Tab,
   TabList,
@@ -8,13 +10,19 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
+import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import HatAdminsForm from '@/forms/HatAdminsForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatWearersForm from '@/forms/HatWearersForm';
+import useDebounce from '@/hooks/useDebounce';
+import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { DetailsItem, IHat } from '@/types';
+import { DetailsItem, DetailsObject, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -22,11 +30,70 @@ const EditMode = ({
   name,
   description,
   guilds,
-  imageUrl,
   responsibilities,
   authorities,
-  isAdminUser,
 }: EditModeProps) => {
+  const [newImageURI, setNewImageURI] = useState('');
+  const [newDetails, setNewDetailsURI] = useState('');
+  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
+
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      maxSupply: hatData?.maxSupply,
+      eligibility: hatData?.eligibility,
+      toggle: hatData?.toggle,
+      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      imageUrl: hatData?.imageUrl || '',
+      name,
+      description,
+    },
+  });
+
+  const {
+    handleSubmit,
+    watch,
+    formState: { dirtyFields },
+  } = localForm;
+
+  const eligibility = useDebounce(
+    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  );
+  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
+  const imageUrl = useDebounce(watch('imageUrl', hatData?.imageUrl || ''));
+
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  const { onSubmit, isLoading } = useSubmitHatChanges({
+    hatData,
+    chainId,
+    newImageURI,
+    newDetails,
+    dirtyFields,
+    newDetailsData,
+    maxSupply,
+    eligibility,
+    toggle,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+    imageUrl,
+  });
+
   if (!hatData) return null;
 
   return (
@@ -42,8 +109,6 @@ const EditMode = ({
       >
         <Stack>
           <Text>{prettyIdToIp(idToPrettyId(hatData?.id))}</Text>
-          <Text>{name}</Text>
-          <Text>{description}</Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
@@ -58,12 +123,15 @@ const EditMode = ({
               <TabPanels>
                 <TabPanel px={0}>
                   <HatDetailsForm
+                    localForm={localForm}
                     hatData={hatData}
                     chainId={chainId}
+                    setNewImageURI={setNewImageURI}
+                    setNewDetailsURI={setNewDetailsURI}
+                    setNewDetailsData={setNewDetailsData}
                     defaultValues={{
                       name,
                       description,
-                      imageUrl,
                       guilds,
                       responsibilities,
                       authorities,
@@ -81,15 +149,44 @@ const EditMode = ({
               The people and contracts that control and wear this Hat.
             </Text>
             <HatWearersForm
-              defaultAdmin={hatData.admin?.prettyId}
-              chainId={chainId}
+              localForm={localForm}
               hatData={hatData}
-              levelAtLocalTree={hatData.levelAtLocalTree}
-              isAdminUser={isAdminUser}
+              defaultAdmin={hatData.admin?.prettyId}
             />
-            <HatAdminsForm chainId={chainId} hatData={hatData} />
+            <HatAdminsForm
+              localForm={localForm}
+              hatData={hatData}
+              eligibility={eligibility}
+              toggle={toggle}
+              eligibilityResolvedAddress={eligibilityResolvedAddress}
+              toggleResolvedAddress={toggleResolvedAddress}
+            />
           </Stack>
         </Accordion>
+        <Flex justifyContent='flex-end'>
+          <Button
+            colorScheme='blue'
+            onClick={handleSubmit(onSubmit)}
+            isLoading={
+              isLoadingEligibilityResolvedAddress ||
+              isLoadingToggleResolvedAddress ||
+              isLoading
+            }
+            isDisabled={
+              hatData.levelAtLocalTree === 0 ||
+              (!dirtyFields.maxSupply &&
+                !dirtyFields.mutable &&
+                !dirtyFields.eligibility &&
+                !dirtyFields.toggle &&
+                !dirtyFields.imageUrl &&
+                (!newImageURI || imageUrl === newImageURI) &&
+                hatData.details === newDetails) ||
+              maxSupply < 0
+            }
+          >
+            Submit
+          </Button>
+        </Flex>
       </Stack>
     </Box>
   );
@@ -103,8 +200,6 @@ interface EditModeProps {
   name: string;
   description: string;
   guilds: string[];
-  imageUrl: string;
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
-  isAdminUser: boolean;
 }

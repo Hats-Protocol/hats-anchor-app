@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Input as ChakraInput,
   Flex,
   FormControl,
@@ -14,40 +13,33 @@ import {
   Switch,
   Text,
   Tooltip,
-  HStack,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useForm } from 'react-hook-form';
 import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
-import { useChainId } from 'wagmi';
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
-import { ZERO_ADDRESS } from '@/constants';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
-import {
-  decimalId,
-  idToPrettyId,
-  isTopHat,
-  prettyIdToIp,
-  toTreeId,
-} from '@/lib/hats';
-import { pinJson } from '@/lib/ipfs';
+import { isTopHat } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 const HatDetailsForm = ({
+  localForm,
   hatData,
   chainId,
+  setNewImageURI,
   defaultValues,
+  setNewDetailsURI,
+  setNewDetailsData,
 }: {
+  localForm: any;
   hatData: any;
   chainId: number;
   defaultValues: {
@@ -58,24 +50,13 @@ const HatDetailsForm = ({
     responsibilities: DetailsItem[];
     authorities: DetailsItem[];
   };
+  setNewImageURI: (uri: string) => void;
+  setNewDetailsURI: (uri: string) => void;
+  setNewDetailsData: (data: any) => void;
 }) => {
-  const currentNetworkId = useChainId();
   const [customImage, setCustomImage] = useState(true);
   const [image, setImage] = useState<any>();
-  const localForm = useForm({
-    mode: 'onBlur',
-    defaultValues: {
-      name: defaultValues.name || '',
-      imageUrl: defaultValues.imageUrl || '',
-      description: defaultValues.description || '',
-      details: {
-        guilds: defaultValues.guilds || [],
-        responsibilities: defaultValues.responsibilities || [],
-        authorities: defaultValues.authorities || [],
-      },
-    },
-  });
-  const { handleSubmit, watch } = localForm;
+  const { formState, watch } = localForm;
   const [guilds, setGuilds] = useState(defaultValues.guilds || []);
   const [newGuild, setNewGuild] = useState('');
   const [responsibilities, setResponsibilities] = useState(
@@ -118,15 +99,22 @@ const HatDetailsForm = ({
   const description = useDebounce(
     watch('description', defaultValues?.description || ''),
   );
-  const imageUrl = useDebounce(
-    watch('imageUrl', defaultValues?.imageUrl || ''),
-  );
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
     data: { name, description, guilds, responsibilities, authorities },
   });
-  console.log('detailsCID', detailsCID);
+
+  useEffect(() => {
+    setNewDetailsURI(detailsCID);
+    setNewDetailsData({
+      name,
+      description,
+      guilds,
+      responsibilities,
+      authorities,
+    });
+  }, [detailsCID, name, description, guilds, responsibilities, authorities]);
 
   const {
     acceptedFiles,
@@ -156,73 +144,14 @@ const HatDetailsForm = ({
     metadata: { name: `image_${_.toString(chainId)}_tophat` },
   });
 
-  const { writeAsync: writeAsyncImage, isLoading } = useHatContractWrite({
-    functionName: 'changeHatImageURI',
-    args: [
-      _.get(hatData, 'id'),
-      customImage
-        ? imagePinData !== undefined
-          ? `ipfs://${imagePinData}`
-          : undefined
-        : imageUrl || '',
-    ],
-    chainId,
-    onSuccessToastData: {
-      title: 'Image updated!',
-      description: `Successfully updated the image for hat #${prettyIdToIp(
-        idToPrettyId(_.get(hatData, 'id')),
-      )}`,
-    },
-    queryKeys: [
-      ['hatDetails', _.get(hatData, 'id')],
-      ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-    ],
-    enabled: Boolean(_.get(hatData, 'id')),
-  });
-
-  const { writeAsync, isLoading: isLoadingUpdateDetails } = useHatContractWrite(
-    {
-      functionName: 'changeHatDetails',
-      args: [
-        decimalId(_.get(hatData, 'id')) || ZERO_ADDRESS, // not a valid fallback? enabled handles, mostly for type
-        detailsCID || '',
-      ],
-      chainId: Number(chainId),
-      onSuccessToastData: {
-        title: 'Details updated!',
-        description: `Successfully updated the details for hat #${prettyIdToIp(
-          idToPrettyId(_.get(hatData, 'id')),
-        )}`,
-      },
-      queryKeys: [
-        ['hatDetails', _.get(hatData, 'id')],
-        ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-      ],
-      enabled:
-        Boolean(_.get(hatData, 'id')) &&
-        Boolean(detailsCID) &&
-        chainId === currentNetworkId,
-    },
-  );
-
-  const onSubmitDetails = async () => {
-    writeAsync?.();
-    await pinJson(
-      {
-        type: '1.0',
-        data: { name, description, guilds, responsibilities, authorities },
-      },
-      {
-        name: `details_${_.toString(chainId)}_${prettyIdToIp(
-          _.get(hatData, 'admin.id'),
-        )}`,
-      },
-    );
-  };
-
-  const onSubmitImage = async () => {
-    writeAsyncImage?.();
-  };
+  useEffect(() => {
+    const hatImageURI = customImage
+      ? imagePinData !== undefined
+        ? `ipfs://${imagePinData}`
+        : undefined
+      : formState?.values?.imageUrl || '';
+    setNewImageURI(hatImageURI);
+  }, [customImage, imagePinData, formState?.values?.imageUrl]);
 
   return (
     <form>
@@ -358,25 +287,6 @@ const HatDetailsForm = ({
             )}
           </Stack>
         </FormControl>
-
-        <HStack justify='flex-end'>
-          <Button
-            type='button'
-            onClick={handleSubmit(onSubmitDetails)}
-            isDisabled={!writeAsync}
-            isLoading={isLoadingUpdateDetails || detailsCidLoading}
-          >
-            Update Details
-          </Button>
-          <Button
-            type='button'
-            onClick={handleSubmit(onSubmitImage)}
-            isDisabled={!writeAsyncImage}
-            isLoading={isLoading || imagePinLoading}
-          >
-            Update Image
-          </Button>
-        </HStack>
       </Stack>
     </form>
   );

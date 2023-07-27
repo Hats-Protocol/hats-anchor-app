@@ -80,3 +80,11 @@ export interface HatRole {
   guild: string;
   requirements: (string | null)[];
 }
+
+export type DetailsObject = {
+  guilds: string[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
+  name: string;
+  description: string;
+};

@@ -1,5 +1,4 @@
-import { Box, Button, FormControl, Text } from '@chakra-ui/react';
-import { WriteContractResult } from '@wagmi/core';
+import { Box, FormControl, Text } from '@chakra-ui/react';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
@@ -14,11 +13,8 @@ type AddressInputProps = {
   docsLink: string;
   localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
-  mutable: boolean | undefined;
-  resolvedAddress: string;
   isDisabled: boolean;
-  isLoading: boolean;
-  writeAsync: (() => Promise<WriteContractResult>) | undefined;
+  resolvedAddress: string;
 };
 
 const AddressInput: React.FC<AddressInputProps> = ({
@@ -28,11 +24,8 @@ const AddressInput: React.FC<AddressInputProps> = ({
 
   localForm,
   showResolvedAddress,
-  mutable,
-  resolvedAddress,
   isDisabled,
-  isLoading,
-  writeAsync,
+  resolvedAddress,
 }) => (
   <FormControl>
     <Box>
@@ -51,7 +44,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
         rightElement={showResolvedAddress && <FaCheck color='green' />}
         localForm={localForm}
-        isDisabled={!mutable}
+        isDisabled={isDisabled}
       />
       {showResolvedAddress && (
         <Text fontSize='sm' color='gray.500' mt={1}>
@@ -59,15 +52,6 @@ const AddressInput: React.FC<AddressInputProps> = ({
         </Text>
       )}
     </Box>
-    <Button
-      colorScheme='blue'
-      isLoading={isLoading}
-      isDisabled={isDisabled}
-      onClick={() => writeAsync?.()}
-      mt={4}
-    >
-      Update {label}
-    </Button>
   </FormControl>
 );
 

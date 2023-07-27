@@ -1,103 +1,21 @@
-import { Stack } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { useChainId } from 'wagmi';
+import { HStack, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
+import { Controller } from 'react-hook-form';
 
 import Input from '@/components/atoms/Input';
-import MaxSupplyInput from '@/components/MaxSupplyInput';
-import MutabilityInput from '@/components/MutabilityInput';
-import CONFIG, { MUTABILITY } from '@/constants';
-import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
-import {
-  decimalId,
-  idToPrettyId,
-  isTopHatOrMutable,
-  prettyIdToIp,
-  toTreeId,
-} from '@/lib/hats';
+import { MUTABILITY } from '@/constants';
+import { isTopHatOrMutable, prettyIdToIp } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const HatWearersForm = ({
   defaultAdmin,
-  chainId,
-  levelAtLocalTree,
   hatData,
-  isAdminUser,
+  localForm,
 }: {
   defaultAdmin: string | undefined;
-  chainId: number;
-  levelAtLocalTree: number;
   hatData: IHat;
-  isAdminUser: boolean;
+  localForm: any;
 }) => {
-  const currentNetworkId = useChainId();
-  const localForm = useForm({
-    mode: 'onChange',
-    defaultValues: {
-      maxSupply: hatData?.maxSupply,
-      eligibility: hatData?.eligibility,
-      toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    },
-  });
-  const { watch, setValue } = localForm;
-
-  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply));
-  const mutable = useDebounce(
-    watch(
-      'mutable',
-      hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    ),
-  );
-
   const decimalAdmin = prettyIdToIp(defaultAdmin);
-
-  const isMaxSupplyChanged = maxSupply !== hatData?.maxSupply;
-  const isMutableChanged = hatData?.mutable && mutable === MUTABILITY.IMMUTABLE;
-
-  // changeHatMaxSupply
-  const { writeAsync: writeAsyncMaxSupply, isLoading: isLoadingMaxSupply } =
-    useHatContractWrite({
-      functionName: 'changeHatMaxSupply',
-      args: [decimalId(hatData?.id), maxSupply],
-      chainId,
-      onSuccessToastData: {
-        title: 'Max Supply updated!',
-        description: `Successfully updated the max supply of hat #${prettyIdToIp(
-          idToPrettyId(hatData?.id),
-        )}`,
-      },
-      queryKeys: [
-        ['hatDetails', hatData?.id],
-        ['treeDetails', toTreeId(hatData?.id)],
-      ],
-      enabled:
-        Boolean(hatData?.id) &&
-        Boolean(maxSupply) &&
-        isAdminUser &&
-        chainId === currentNetworkId,
-    });
-
-  // makeHatImmutable
-  const { writeAsync: writeAsyncImmutable, isLoading: isLoadingImmutable } =
-    useHatMakeImmutable({
-      hatsAddress: CONFIG.hatsAddress,
-      chainId,
-      hatId: hatData.id,
-      levelAtLocalTree,
-      isAdminUser,
-      mutable,
-    });
-
-  const isMaxSupplyDisabled =
-    !isMaxSupplyChanged ||
-    isLoadingMaxSupply ||
-    !writeAsyncMaxSupply ||
-    !mutable;
-
-  const isMutableDisabled =
-    !isMutableChanged || isLoadingImmutable || !writeAsyncImmutable;
 
   return (
     <form>
@@ -109,19 +27,30 @@ const HatWearersForm = ({
           defaultValue={decimalAdmin}
           isDisabled
         />
-        <MaxSupplyInput
-          isTopHatOrMutable={isTopHatOrMutable(hatData)}
+
+        <Input
+          name='maxSupply'
+          label='MAX SUPPLY'
+          placeholder='10'
+          isDisabled={!isTopHatOrMutable(hatData)}
           localForm={localForm}
-          isMaxSupplyDisabled={isMaxSupplyDisabled}
-          isLoadingMaxSupply={isLoadingMaxSupply}
         />
 
-        <MutabilityInput
-          mutable={hatData?.mutable}
-          isLoadingImmutable={isLoadingImmutable}
-          writeAsyncImmutable={writeAsyncImmutable}
-          onChange={(value) => setValue('mutable', value)}
-          isMutableDisabled={isMutableDisabled}
+        <Text fontWeight={500} mb={2}>
+          MUTABILITY
+        </Text>
+        <Controller
+          control={localForm.control}
+          name='mutable'
+          render={({ field }) => (
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            <RadioGroup {...field} isDisabled={!isTopHatOrMutable(hatData)}>
+              <HStack spacing={4}>
+                <Radio value={MUTABILITY.MUTABLE}>Mutable</Radio>
+                <Radio value={MUTABILITY.IMMUTABLE}>Immutable</Radio>
+              </HStack>
+            </RadioGroup>
+          )}
         />
       </Stack>
     </form>

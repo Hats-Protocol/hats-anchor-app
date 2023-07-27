@@ -46,7 +46,7 @@ const ItemDetailsForm = ({
     setInputLink(items[index].link);
     setCurrentItemIndex(index);
     setModals?.({
-      editLabel: true,
+      [`editLabel-${label}`]: true,
     });
   };
 
@@ -59,7 +59,7 @@ const ItemDetailsForm = ({
       setCurrentItemIndex(0);
     }
     setModals?.({
-      editLabel: false,
+      [`editLabel-${label}`]: false,
     });
   };
 
@@ -99,7 +99,7 @@ const ItemDetailsForm = ({
             </Menu>
 
             <Modal
-              name='editLabel'
+              name={`editLabel-${label}`}
               title={`Edit ${label} Link`}
               localOverlay={localOverlay}
             >
@@ -123,7 +123,11 @@ const ItemDetailsForm = ({
                   </Button>
                   <Button
                     variant='ghost'
-                    onClick={() => setModals?.({ editLabel: false })}
+                    onClick={() =>
+                      setModals?.({
+                        [`editLabel-${label}`]: false,
+                      })
+                    }
                   >
                     Cancel
                   </Button>
