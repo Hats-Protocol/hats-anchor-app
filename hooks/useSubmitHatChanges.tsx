@@ -47,7 +47,7 @@ const useSubmitHatChanges = ({
 
     if (hatData.details !== newDetails) {
       try {
-        const callData = await hatsClient.changeHatDetailsCallData({
+        const callData = hatsClient.changeHatDetailsCallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newDetails,
         });
@@ -84,7 +84,7 @@ const useSubmitHatChanges = ({
       (imageUrl && newImageURI && imageUrl !== newImageURI)
     ) {
       try {
-        const callData = await hatsClient.changeHatImageURICallData({
+        const callData = hatsClient.changeHatImageURICallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newImageURI,
         });
@@ -104,7 +104,7 @@ const useSubmitHatChanges = ({
 
     if (dirtyFields.maxSupply) {
       try {
-        const callData = await hatsClient.changeHatMaxSupplyCallData({
+        const callData = hatsClient.changeHatMaxSupplyCallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newMaxSupply: maxSupply as number,
         });
@@ -124,7 +124,7 @@ const useSubmitHatChanges = ({
 
     if (dirtyFields.eligibility) {
       try {
-        const callData = await hatsClient.changeHatEligibilityCallData({
+        const callData = hatsClient.changeHatEligibilityCallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newEligibility: eligibilityResolvedAddress ?? eligibility,
         });
@@ -144,7 +144,7 @@ const useSubmitHatChanges = ({
 
     if (dirtyFields.toggle) {
       try {
-        const callData = await hatsClient.changeHatToggleCallData({
+        const callData = hatsClient.changeHatToggleCallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newToggle: toggleResolvedAddress ?? toggle,
         });
@@ -164,7 +164,7 @@ const useSubmitHatChanges = ({
 
     if (dirtyFields.mutable) {
       try {
-        const callData = await hatsClient.makeHatImmutableCallData({
+        const callData = hatsClient.makeHatImmutableCallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
         });
 
