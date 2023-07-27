@@ -11,7 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { isAddress } from 'viem';
-import { useChainId, useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress, useEnsName } from 'wagmi';
 
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -26,7 +26,7 @@ const HatWearerStatusForm = ({
 }: {
   prettyId: string;
   chainId: number;
-  wearer: string;
+  wearer: `0x${string}`;
   // TODO is there a reason for this to be passed from above?
   eligibility: string;
 }) => {
@@ -36,19 +36,19 @@ const HatWearerStatusForm = ({
   const hatId = prettyIdToId(prettyId);
   const standing = useDebounce(watch('standing', 'Good Standing'));
 
-  const {
-    data: wearerResolvedAddress,
-    isLoading: isLoadingWearerResolvedAddress,
-  } = useEnsAddress({
-    name: wearer,
+  const { data: wearerName } = useEnsName({
+    address: wearer,
     chainId: 1,
   });
 
-  const wearerAddress = (wearerResolvedAddress ?? wearer) || '';
-
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'setHatWearerStatus',
-    args: [hatId, wearerAddress, eligibility, standing],
+    args: [
+      hatId,
+      wearer,
+      eligibility === 'Not Eligible',
+      standing === 'Good Standing',
+    ],
     chainId,
     onSuccessToastData: {
       title: 'Wearer Status Updated',
@@ -58,7 +58,7 @@ const HatWearerStatusForm = ({
       ['hatDetails', hatId],
       ['treeDetails', toTreeId(hatId)],
     ],
-    enabled: isAddress(wearerAddress) && chainId === currentNetworkId,
+    enabled: isAddress(wearer) && chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -69,14 +69,15 @@ const HatWearerStatusForm = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={8}>
         <Text>
-          Are you sure? The revoked Hats will loose all permissions instantly.
+          Are you sure? The revoked Hats will lose all permissions instantly.
         </Text>
 
         <VStack alignItems='start'>
           <Text fontSize='sm'>REVOKING HAT OF:</Text>
           <HStack>
             <FaRegUserCircle />
-            <Text>{formatAddress(wearer)}</Text>
+            <Text>{wearerName || formatAddress(wearer)}</Text>
+            {wearerName && <Text fontSize='sm'>({formatAddress(wearer)})</Text>}
           </HStack>
         </VStack>
 
@@ -106,12 +107,7 @@ const HatWearerStatusForm = ({
           <Button>Cancel</Button>
           <Button
             type='submit'
-            isDisabled={
-              !wearer ||
-              isLoading ||
-              !writeAsync ||
-              isLoadingWearerResolvedAddress
-            }
+            isDisabled={!wearer || isLoading || !writeAsync}
             colorScheme={standing === 'Good Standing' ? 'blue' : 'red'}
           >
             Revoke Hat Token in {standing}
