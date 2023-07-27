@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { createPublicClient, custom, http } from 'viem';
-import { mainnet } from 'viem/chains';
 
+import { ZERO_ADDRESS } from '@/constants';
 import { IHatWearer } from '@/types';
 
 import { chainsMap } from './web3';
@@ -10,9 +10,12 @@ export const checkAddressIsContract = async (
   address: `0x${string}`,
   chainId: number,
 ) => {
+  if (address === ZERO_ADDRESS) {
+    return false;
+  }
+
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transport: custom((window as any).ethereum) || http(),
   });
 
@@ -54,7 +57,7 @@ export const extendControllers = (
 
 export const checkENSNames = async (wearers: IHatWearer[]) => {
   const publicClient = createPublicClient({
-    chain: mainnet,
+    chain: chainsMap(1),
     transport: http(),
   });
 

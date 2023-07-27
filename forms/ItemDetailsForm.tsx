@@ -8,20 +8,14 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Stack,
   Text,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { FaEllipsisV, FaKey, FaPlus } from 'react-icons/fa';
 
+import Modal from '@/components/atoms/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { validateURL } from '@/lib/general';
 import { DetailsItem } from '@/types';
 
@@ -42,15 +36,18 @@ const ItemDetailsForm = ({
   title,
   label,
 }: ItemDetailsFormProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
   const [inputLink, setInputLink] = useState('');
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
 
   const handleEdit = (index: number) => {
     setInputLink(items[index].link);
     setCurrentItemIndex(index);
-    onOpen();
+    setModals?.({
+      editLabel: true,
+    });
   };
 
   const handleSave = () => {
@@ -61,7 +58,9 @@ const ItemDetailsForm = ({
       setInputLink('');
       setCurrentItemIndex(0);
     }
-    onClose();
+    setModals?.({
+      editLabel: false,
+    });
   };
 
   return (
@@ -84,7 +83,7 @@ const ItemDetailsForm = ({
               placeholder='Label'
             />
 
-            <Menu>
+            <Menu isLazy>
               <MenuButton
                 as={IconButton}
                 aria-label='Options'
@@ -99,22 +98,21 @@ const ItemDetailsForm = ({
               </MenuList>
             </Menu>
 
-            <Modal isOpen={isOpen} onClose={onClose}>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>Edit {label} Link</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <ChakraInput
-                    value={inputLink}
-                    onChange={(e) => {
-                      setInputLink(e.target.value);
-                      setIsLinkValid(validateURL(e.target.value));
-                    }}
-                    placeholder='https://example.com'
-                  />
-                </ModalBody>
-                <ModalFooter>
+            <Modal
+              name='editLabel'
+              title={`Edit ${label} Link`}
+              localOverlay={localOverlay}
+            >
+              <Stack>
+                <ChakraInput
+                  value={inputLink}
+                  onChange={(e) => {
+                    setInputLink(e.target.value);
+                    setIsLinkValid(validateURL(e.target.value));
+                  }}
+                  placeholder='https://example.com'
+                />
+                <HStack justifyContent='end'>
                   <Button
                     colorScheme='blue'
                     mr={3}
@@ -123,11 +121,14 @@ const ItemDetailsForm = ({
                   >
                     Ok
                   </Button>
-                  <Button variant='ghost' onClick={onClose}>
+                  <Button
+                    variant='ghost'
+                    onClick={() => setModals?.({ editLabel: false })}
+                  >
                     Cancel
                   </Button>
-                </ModalFooter>
-              </ModalContent>
+                </HStack>
+              </Stack>
             </Modal>
           </HStack>
 

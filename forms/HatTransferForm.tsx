@@ -10,12 +10,14 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { isAddress } from 'viem';
+import { useChainId, useEnsAddress } from 'wagmi';
 
-import Input from '@/components/Input';
+import Input from '@/components/atoms/Input';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import useHatTransferTree from '@/hooks/useHatTransferTree';
-import { prettyIdToIp } from '@/lib/hats';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
+import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 
 const HatTransferForm = ({
   chainId,
@@ -25,22 +27,46 @@ const HatTransferForm = ({
 }: {
   chainId: number;
   currentWearerAddress: string;
-  hatId: string | undefined;
+  hatId: string;
   prettyId: string | undefined;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
 
   const newWearer = useDebounce(watch('newWearer', null), CONFIG.debounce);
 
-  const { writeAsync, isLoading, newWearerResolvedAddress } =
-    useHatTransferTree({
-      currentWearerAddress,
-      hatId,
-      prettyId,
-      newWearer,
-      chainId,
-    });
+  const {
+    data: newWearerResolvedAddress,
+    isLoading: isLoadingNewWearerResolvedAddress,
+  } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
+  });
+
+  const newWearerAddress = newWearerResolvedAddress ?? newWearer;
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'transferHat',
+    args: [decimalId(hatId), currentWearerAddress, newWearerAddress],
+    chainId,
+    onSuccessToastData: {
+      title: `Top Hat Transferred!`,
+      description: `Successfully transferred top hat #${prettyIdToIp(
+        prettyId,
+      )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
+    },
+    queryKeys: [
+      ['hatDetails', hatId],
+      ['treeDetails', toTreeId(hatId)],
+    ],
+    enabled:
+      Boolean(newWearerResolvedAddress ?? newWearer) &&
+      Boolean(currentWearerAddress) &&
+      isAddress(newWearerResolvedAddress ?? newWearer) &&
+      isAddress(currentWearerAddress) &&
+      chainId === currentNetworkId,
+  });
 
   const onSubmit = async () => {
     await writeAsync?.();
@@ -82,7 +108,12 @@ const HatTransferForm = ({
         </Box>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || isLoading}>
+          <Button
+            type='submit'
+            isDisabled={
+              !writeAsync || isLoading || isLoadingNewWearerResolvedAddress
+            }
+          >
             Transfer
           </Button>
         </Flex>

@@ -2,10 +2,10 @@
 import _ from 'lodash';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
+import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HierarchyObject, IHat, IHatData, InputObject, ITree } from '@/types';
+import { HierarchyObject, IHat, InputObject, ITree } from '@/types';
 
 export async function toTreeStructure({
   treeData,
@@ -17,7 +17,7 @@ export async function toTreeStructure({
   chainId: number;
 }): Promise<{
   tree: IHat[];
-  hats: IHatData[];
+  hats: IHat[];
   hierarchy: HierarchyObject[];
 }> {
   if (!treeData || !hatsImages)
@@ -33,7 +33,7 @@ export async function toTreeStructure({
   );
 
   // needs to be optimised
-  let hatsData = await fetchHatsDetails(hatIds, chainId);
+  let hatsData = await fetchManyHatDetails(hatIds, chainId);
   const detailsFields = hatsData.map((hat: IHat) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
   hatsData = _.map(hatsData, (hat: IHat, index: number) => {
@@ -227,6 +227,7 @@ export function prettyIdToIp(id: string | undefined) {
   return domains.join('.');
 }
 
+// unused
 export function treeCreateEventIdToTreeId(id: string) {
   if (!id) return undefined;
   const hexString = id.slice(0, 10);
@@ -259,7 +260,7 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 export const hatIdToHex = (hatId: string | null) => {
-  if (!hatId) return undefined;
+  if (!hatId) return '';
   return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
 };
 
@@ -331,9 +332,11 @@ export const isMutable = (hatData: IHat) => _.get(hatData, 'mutable');
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
+// unused
 export const isMutableNotTopHat = (hatData: IHat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
+// unused
 export const descendantsOf = (
   prettyHatId: string,
   tree: ITree,
@@ -359,6 +362,7 @@ export const descendantsOf = (
   return directChildren;
 };
 
+// same as toTreeId???
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);

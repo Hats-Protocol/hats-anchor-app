@@ -1,41 +1,32 @@
 /* eslint-disable no-nested-ternary */
 import {
-  Box,
   Button,
   Flex,
   Heading,
   HStack,
-  IconButton,
-  Image,
   Input,
   InputGroup,
   InputLeftElement,
-  Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { readContract } from '@wagmi/core';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
-import { FaEllipsisH, FaPlus, FaSearch, FaUser } from 'react-icons/fa';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { FaPlus, FaSearch } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import Modal from '@/components/Modal';
-import CONFIG from '@/constants';
-import abi from '@/contracts/Hats.json';
-import HatTransferForm from '@/forms/HatTransferForm';
-import HatWearerForm from '@/forms/HatWearerForm';
-import HatWearerStatusForm from '@/forms/HatWearerStatusForm';
-import useHatBurn from '@/hooks/useHatBurn';
-import useToast from '@/hooks/useToast';
+import Suspender from '@/components/atoms/Suspender';
 import { checkENSNames } from '@/lib/contract';
-import { formatAddress } from '@/lib/general';
+import { isSameAddress } from '@/lib/general';
 import { IHatWearer } from '@/types';
+
+import WearerRow from './WearerRow';
+
+const Modal = lazy(() => import('@/components/atoms/Modal'));
+const HatTransferForm = lazy(() => import('@/forms/HatTransferForm'));
+const HatWearerForm = lazy(() => import('@/forms/HatWearerForm'));
+const HatWearerStatusForm = lazy(() => import('@/forms/HatWearerStatusForm'));
 
 const WearersList = ({
   chainId,
@@ -56,17 +47,6 @@ const WearersList = ({
     [key: string]: string;
   }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
-  const toast = useToast();
-
-  const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId,
-  });
-
-  const handleRenounceHat = async () => {
-    await renounceHat?.();
-  };
 
   const filterWearers = (localWearers: IHatWearer[]) => {
     if (!searchTerm) return wearers;
@@ -95,8 +75,8 @@ const WearersList = ({
   useEffect(() => {
     if (address) {
       wearers?.sort((w1, w2) => {
-        if (w1.id.toLowerCase() === address.toLowerCase()) return -1;
-        if (w2.id.toLowerCase() === address.toLowerCase()) return 1;
+        if (isSameAddress(w1.id, address)) return -1;
+        if (isSameAddress(w2.id, address)) return 1;
         return 0;
       });
     }
@@ -104,28 +84,6 @@ const WearersList = ({
 
   const filteredWearers = filterWearers(wearers);
   const maxWearersReached = wearers?.length >= maxSupply;
-
-  const checkEligibility = async (wearer: string) => {
-    const isEligible = await readContract({
-      address: CONFIG.hatsAddress,
-      abi,
-      chainId,
-      functionName: 'isEligible',
-      args: [wearer, hatId],
-    });
-
-    if (isEligible) {
-      toast.info({
-        title: 'Eligible',
-        description: `${wearer} is eligible to receive the hat.`,
-      });
-    } else {
-      toast.error({
-        title: 'Not Eligible',
-        description: `${wearer} is not eligible to receive the hat.`,
-      });
-    }
-  };
 
   return (
     <>
@@ -163,12 +121,14 @@ const WearersList = ({
             isAdminUser={isAdminUser}
             address={address}
             ensNames={ensNames}
-            handleRenounceHat={handleRenounceHat}
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
-            checkEligibility={checkEligibility}
             isSameChain={chainId === currentNetworkId}
+            hatId={hatId}
+            chainId={chainId}
+            currentNetworkId={currentNetworkId}
+            wearers={wearers}
           />
         ))}
 
@@ -226,203 +186,70 @@ const WearersList = ({
               isAdminUser={isAdminUser}
               address={address}
               ensNames={ensNames}
-              handleRenounceHat={handleRenounceHat}
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
-              checkEligibility={checkEligibility}
               isSameChain={chainId === currentNetworkId}
+              hatId={hatId}
+              chainId={chainId}
+              currentNetworkId={currentNetworkId}
+              wearers={wearers}
             />
           ))}
         </Flex>
       </Modal>
 
-      <Modal
-        name='hatWearerStatus'
-        title='Remove a Wearer by revoking their Hat token'
-        localOverlay={localOverlay}
-        size='3xl'
-      >
-        <HatWearerStatusForm
-          prettyId={prettyId}
-          chainId={chainId}
-          wearer={changeStatusWearer}
-          eligibility='Not Eligible'
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='hatWearerStatus'
+          title='Remove a Wearer by revoking their Hat token'
+          localOverlay={localOverlay}
+          size='3xl'
+        >
+          <HatWearerStatusForm
+            prettyId={prettyId}
+            chainId={chainId}
+            wearer={changeStatusWearer}
+            eligibility='Not Eligible'
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='transferHat'
-        title='Transfer Hat to New Address'
-        localOverlay={localOverlay}
-      >
-        <HatTransferForm
-          hatId={hatId}
-          prettyId={prettyId}
-          chainId={chainId}
-          currentWearerAddress={wearerToTransferFrom}
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='transferHat'
+          title='Transfer Hat to New Address'
+          localOverlay={localOverlay}
+        >
+          <HatTransferForm
+            hatId={hatId}
+            prettyId={prettyId}
+            chainId={chainId}
+            currentWearerAddress={wearerToTransferFrom}
+          />
+        </Modal>
+      </Suspense>
 
-      <Modal
-        name='newWearer'
-        title='Add a Wearer by minting a Hat token'
-        localOverlay={localOverlay}
-      >
-        <HatWearerForm
-          hatName={hatName}
-          hatId={hatId}
-          chainId={chainId}
-          currentWearers={_.map(wearers, 'id')}
-          maxSupply={maxSupply}
-        />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='newWearer'
+          title='Add a Wearer by minting a Hat token'
+          localOverlay={localOverlay}
+        >
+          <HatWearerForm
+            hatName={hatName}
+            hatId={hatId}
+            chainId={chainId}
+            currentWearers={_.map(wearers, 'id')}
+            maxSupply={maxSupply}
+          />
+        </Modal>
+      </Suspense>
     </>
   );
 };
 
 export default WearersList;
-
-// TooltipWrapper component
-const TooltipWrapper = ({
-  children,
-  label,
-  isSameChain,
-}: {
-  children: React.ReactNode;
-  label: string;
-  isSameChain: boolean;
-}) => (
-  <Tooltip label={!isSameChain ? label : ''} shouldWrapChildren>
-    {children}
-  </Tooltip>
-);
-
-const WearerRow = (props: {
-  wearer: { id: string };
-  isAdminUser: boolean;
-  address?: string;
-  ensNames: {
-    [key: string]: string;
-  };
-  handleRenounceHat: () => void;
-  setModals: any;
-  setChangeStatusWearer: any;
-  setWearerToTransferFrom: (w: string) => void;
-  checkEligibility: (w: string) => void;
-  isSameChain: boolean;
-}) => {
-  const {
-    wearer,
-    isAdminUser,
-    address,
-    ensNames,
-    handleRenounceHat,
-    setModals,
-    setChangeStatusWearer,
-    setWearerToTransferFrom,
-    checkEligibility,
-    isSameChain,
-  } = props;
-
-  return (
-    <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
-      <Flex
-        alignItems='center'
-        gap={2}
-        backgroundColor={
-          wearer.id.toLowerCase() === address?.toLowerCase()
-            ? 'green.100'
-            : 'transparent'
-        }
-      >
-        {wearer.id.toLowerCase() === address?.toLowerCase() ? (
-          <Image src='/icons/hat.svg' alt='Hat' />
-        ) : (
-          <FaUser />
-        )}
-
-        <Text>{ensNames[wearer.id] || formatAddress(_.get(wearer, 'id'))}</Text>
-      </Flex>
-      <Flex alignItems='center' gap={2}>
-        <Link href={`/wearers/${wearer.id}`}>
-          <Text color='blue.500'>View</Text>
-        </Link>
-
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            aria-label='Options'
-            icon={<FaEllipsisH />}
-            size='xs'
-            variant='outline'
-          />
-          <MenuList>
-            {isAdminUser && (
-              <MenuItem
-                isDisabled={!isSameChain}
-                onClick={() => {
-                  setModals({ transferHat: true });
-                  setWearerToTransferFrom(wearer.id);
-                }}
-              >
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't transfer a hat on a different chain"
-                >
-                  <Text>Transfer</Text>
-                </TooltipWrapper>
-              </MenuItem>
-            )}
-
-            {wearer.id === address?.toLowerCase() && (
-              <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't renounce a hat on a different chain"
-                >
-                  <Text>Renounce</Text>
-                </TooltipWrapper>
-              </MenuItem>
-            )}
-
-            {wearer.id !== address?.toLowerCase() && isAdminUser && (
-              <MenuItem
-                isDisabled={!isSameChain}
-                onClick={() => {
-                  setModals({ hatWearerStatus: true });
-                  setChangeStatusWearer(wearer.id);
-                }}
-              >
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't revoke a hat on a different chain"
-                >
-                  <Text>Revoke Hat</Text>
-                </TooltipWrapper>
-              </MenuItem>
-            )}
-
-            <MenuItem
-              isDisabled={!isSameChain}
-              onClick={() => {
-                checkEligibility(wearer.id);
-              }}
-            >
-              <TooltipWrapper
-                isSameChain={isSameChain}
-                label="You can't test eligibility of a hat on a different chain"
-              >
-                <Text>Test Eligibility</Text>
-              </TooltipWrapper>
-            </MenuItem>
-          </MenuList>
-        </Menu>
-      </Flex>
-    </Flex>
-  );
-};
-
 interface WearersListProps {
   chainId: number;
   hatName: string;
@@ -430,7 +257,7 @@ interface WearersListProps {
   wearers: IHatWearer[];
   maxSupply: number;
   prettyId: string;
-  setModals: any;
+  setModals: (m: object) => void;
   localOverlay: any;
   isAdminUser: boolean;
 }

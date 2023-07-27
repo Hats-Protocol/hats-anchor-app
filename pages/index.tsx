@@ -12,18 +12,21 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-// import CONFIG from '@/constants';
-import ChakraNextLink from '@/components/ChakraNextLink';
-import FeaturedTreeCard from '@/components/FeaturedTreeCard';
-import HatCard from '@/components/HatCard';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { orderedChains } from '@/lib/web3';
+
+const FeaturedTreeCard = dynamic(() => import('@/components/FeaturedTreeCard'));
+const HatCard = dynamic(() => import('@/components/HatCard'));
 
 // todo use our ipfs gateway
 const featuredTrees = [
@@ -55,6 +58,7 @@ const Home = () => {
 
   const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
+    chainId: 'all',
   });
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
@@ -82,7 +86,9 @@ const Home = () => {
             </Heading>
             <SimpleGrid columns={3} spacing={6} mx='auto'>
               {_.map(featuredTrees, (tree, i) => (
-                <FeaturedTreeCard key={i} treeData={tree} />
+                <Suspense key={i} fallback={<Suspender />}>
+                  <FeaturedTreeCard treeData={tree} />
+                </Suspense>
               ))}
             </SimpleGrid>
           </Stack>
@@ -132,7 +138,9 @@ const Home = () => {
                     </Card>
                   </ChakraNextLink>
                   {_.map(sortedHats, (hat, i) => (
-                    <HatCard hat={hat} key={i} />
+                    <Suspense fallback={<Suspender />} key={i}>
+                      <HatCard hat={hat} key={i} />
+                    </Suspense>
                   ))}
                 </SimpleGrid>
               )}

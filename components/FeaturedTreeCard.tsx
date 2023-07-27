@@ -1,9 +1,8 @@
 import { Box, HStack, Icon, Image, Text } from '@chakra-ui/react';
 import { GrTextAlignLeft } from 'react-icons/gr';
 
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { chainsMap } from '@/lib/web3';
-
-import ChakraNextLink from './ChakraNextLink';
 
 const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, description } = treeData;
@@ -14,6 +13,7 @@ const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {
       <Box border='1px solid' bg='white' maxW='400px'>
         <Box bg='gray.100'>
           <Image
+            loading='lazy'
             src={image}
             alt={`${name} featured image`}
             minH='250px'

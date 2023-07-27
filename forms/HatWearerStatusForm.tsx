@@ -10,12 +10,13 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
+import { isAddress } from 'viem';
+import { useChainId, useEnsAddress } from 'wagmi';
 
-import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import useHatWearerStatusSet from '@/hooks/useHatWearerStatusUpdate';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { formatAddress } from '@/lib/general';
-import { prettyIdToId } from '@/lib/hats';
+import { prettyIdToId, toTreeId } from '@/lib/hats';
 
 const HatWearerStatusForm = ({
   prettyId,
@@ -26,20 +27,38 @@ const HatWearerStatusForm = ({
   prettyId: string;
   chainId: number;
   wearer: string;
+  // TODO is there a reason for this to be passed from above?
   eligibility: string;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
-
+  const hatId = prettyIdToId(prettyId);
   const standing = useDebounce(watch('standing', 'Good Standing'));
 
-  const { writeAsync, isLoading } = useHatWearerStatusSet({
-    hatsAddress: CONFIG.hatsAddress,
-    hatId: prettyIdToId(prettyId),
+  const {
+    data: wearerResolvedAddress,
+    isLoading: isLoadingWearerResolvedAddress,
+  } = useEnsAddress({
+    name: wearer,
+    chainId: 1,
+  });
+
+  const wearerAddress = (wearerResolvedAddress ?? wearer) || '';
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'setHatWearerStatus',
+    args: [hatId, wearerAddress, eligibility, standing],
     chainId,
-    wearer,
-    eligibility: eligibility === 'Eligible',
-    standing: standing === 'Good Standing',
+    onSuccessToastData: {
+      title: 'Wearer Status Updated',
+      description: 'Successfully updated hat',
+    },
+    queryKeys: [
+      ['hatDetails', hatId],
+      ['treeDetails', toTreeId(hatId)],
+    ],
+    enabled: isAddress(wearerAddress) && chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -87,7 +106,12 @@ const HatWearerStatusForm = ({
           <Button>Cancel</Button>
           <Button
             type='submit'
-            isDisabled={!wearer || isLoading || !writeAsync}
+            isDisabled={
+              !wearer ||
+              isLoading ||
+              !writeAsync ||
+              isLoadingWearerResolvedAddress
+            }
             colorScheme={standing === 'Good Standing' ? 'blue' : 'red'}
           >
             Revoke Hat Token in {standing}

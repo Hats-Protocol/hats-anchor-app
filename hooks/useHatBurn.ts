@@ -1,91 +1,44 @@
-import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useState } from 'react';
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import abi from '@/contracts/Hats.json';
-import useToast from '@/hooks/useToast';
-import { hatIdToHex, toTreeId } from '@/lib/hats';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
+import { hatIdToHex } from '@/lib/hats';
+import { IHatWearer } from '@/types';
 
 const useHatBurn = ({
   hatsAddress,
   chainId,
   hatId,
+  wearers,
 }: {
   hatsAddress?: `0x${string}`;
   chainId: number;
   hatId: string | null;
+  wearers: IHatWearer[];
 }) => {
-  const toast = useToast();
-  const { handlePendingTx } = useOverlay();
-  const queryClient = useQueryClient();
-  const [hash, setHash] = useState<`0x${string}`>();
-
-  const { config } = usePrepareContractWrite({
-    address: hatsAddress || CONFIG.hatsAddress,
-    chainId,
-    abi,
+  const currentNetworkId = useChainId();
+  const { address } = useAccount();
+  const currentlyWearing = _.findKey(wearers, ['id', address]);
+  const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'renounceHat',
     args: [hatId],
-    enabled: !!hatsAddress && !!hatId,
-  });
-
-  const { writeAsync } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      setHash(data.hash);
-
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
-
-      await handlePendingTx({
-        hash: _.get(data, 'hash'),
-        toastData: {
-          title: 'Hat removed!',
-          description: `Successfully removed hat`,
-        },
-      });
-
-      setTimeout(() => {
-        queryClient.invalidateQueries({
-          queryKey: ['hatDetails', hatIdToHex(hatId)],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ['treeDetails', toTreeId(hatIdToHex(hatId))],
-        });
-      }, 4000);
+    chainId,
+    onSuccessToastData: {
+      title: 'Hat removed!',
+      description: 'Successfully removed hat',
     },
-    onError: (error) => {
-      if (error.name === 'UserRejectedRequestError') {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
-        });
-      } else {
-        toast.error({
-          title: 'Error occurred!',
-          // description: 'Please accept the transaction in your wallet',
-        });
-      }
-    },
+    queryKeys: [
+      ['hatDetails', hatIdToHex(hatId)],
+      ['treeDetails', hatIdToHex(hatId)],
+    ],
+    enabled:
+      Boolean(hatsAddress) &&
+      Boolean(hatId) &&
+      chainId === currentNetworkId &&
+      !!currentlyWearing,
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-  });
-
-  return {
-    writeAsync,
-    isLoading,
-  };
+  return { writeAsync, isLoading };
 };
 
 export default useHatBurn;

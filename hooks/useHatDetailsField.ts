@@ -7,7 +7,6 @@ import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
-  // todo config value
   const url = `${CONFIG.ipfsGateway}${detailsField?.slice(
     7,
   )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;

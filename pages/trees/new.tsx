@@ -16,10 +16,10 @@ import _ from 'lodash';
 import { useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
 
-import DropZone from '@/components/DropZone';
-import Input from '@/components/Input';
+import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
 import Layout from '@/components/Layout';
-import Textarea from '@/components/Textarea';
+import Textarea from '@/components/atoms/Textarea';
 import CONFIG from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
@@ -191,13 +191,8 @@ const NewTree = () => {
             <Flex justify='flex-end'>
               <Button
                 type='submit'
-                isDisabled={
-                  !writeAsync ||
-                  isLoading ||
-                  detailsCidLoading ||
-                  imagePinLoading
-                }
-                isLoading={isLoading}
+                isDisabled={!writeAsync}
+                isLoading={isLoading || detailsCidLoading || imagePinLoading}
               >
                 {imagePinLoading ? <Spinner /> : 'Create'}
               </Button>

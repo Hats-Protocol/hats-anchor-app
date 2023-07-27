@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
@@ -22,7 +21,6 @@ import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
 const ConnectWallet = () => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
-  const router = useRouter();
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -100,7 +98,7 @@ const ConnectWallet = () => {
                   )}
                 </Button>
 
-                <Menu placement='bottom-end'>
+                <Menu placement='bottom-end' isLazy>
                   <MenuButton
                     as={Button}
                     rightIcon={<Icon as={FaChevronDown} />}
