@@ -70,7 +70,7 @@ const ItemDetailsForm = ({
     <>
       <HStack alignItems='center' ml={-6}>
         {Icon && <Icon />}
-        <Text fontSize={14}>{title}</Text>
+        <Text fontSize='sm'>{title}</Text>
       </HStack>
       {items.map((item, index) => (
         // eslint-disable-next-line react/no-array-index-key

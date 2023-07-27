@@ -40,11 +40,14 @@ const Textarea = ({
       <Stack spacing={2}>
         <HStack align='center'>
           {label && (
-            <FormLabel m='0' display='contents' alignItems='baseline'>
-              {label}
-              <Text fontSize={14} color='gray.400'>
-                {headerNote}
-              </Text>
+            <FormLabel
+              m='0'
+              display='contents'
+              alignItems='baseline'
+              fontSize='sm'
+            >
+              <Text>{label.toUpperCase()}</Text>
+              <Text color='gray.400'>{headerNote}</Text>
             </FormLabel>
           )}
           {tooltip && (

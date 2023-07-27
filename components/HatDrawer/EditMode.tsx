@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
@@ -135,34 +124,27 @@ const EditMode = ({
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
-        <Accordion title='Hat Details'>
+        <Accordion
+          title='Hat Basics'
+          subtitle='The fundamentals of the hat, including name, image, and supply.'
+        >
           <Stack spacing={4}>
-            <Text>Describe the role that this Hat symbolizes.</Text>
-            <Tabs>
-              <TabList>
-                <Tab>Basic</Tab>
-              </TabList>
-
-              <TabPanels>
-                <TabPanel px={0}>
-                  <HatDetailsForm
-                    localForm={localForm}
-                    hatData={hatData}
-                    chainId={chainId}
-                    setNewImageURI={setNewImageURI}
-                    setNewDetailsURI={setNewDetailsURI}
-                    setNewDetailsData={setNewDetailsData}
-                    responsibilities={responsibilities}
-                    authorities={authorities}
-                    defaultValues={{
-                      name,
-                      description,
-                      guilds,
-                    }}
-                  />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
+            <HatDetailsForm
+              localForm={localForm}
+              hatData={hatData}
+              chainId={chainId}
+              setNewImageURI={setNewImageURI}
+              setNewDetailsURI={setNewDetailsURI}
+              setNewDetailsData={setNewDetailsData}
+              responsibilities={responsibilities}
+              authorities={authorities}
+              defaultValues={{
+                name,
+                description,
+                guilds,
+              }}
+            />
+            <HatWearersForm localForm={localForm} hatData={hatData} />
           </Stack>
         </Accordion>
 
@@ -205,11 +187,6 @@ const EditMode = ({
             <Text>
               The people and contracts that control and wear this Hat.
             </Text>
-            <HatWearersForm
-              localForm={localForm}
-              hatData={hatData}
-              defaultAdmin={hatData.admin?.prettyId}
-            />
             <HatAdminsForm
               localForm={localForm}
               hatData={hatData}

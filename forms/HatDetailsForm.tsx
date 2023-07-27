@@ -10,7 +10,6 @@ import {
   InputRightElement,
   Spinner,
   Stack,
-  Switch,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
@@ -22,7 +21,6 @@ import { FaCheck, FaHouseUser, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
-import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
@@ -56,7 +54,6 @@ const HatDetailsForm = ({
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
 }) => {
-  const [customImage, setCustomImage] = useState(true);
   const [image, setImage] = useState<any>();
   const { formState, watch } = localForm;
   const [guilds, setGuilds] = useState(defaultValues.guilds || []);
@@ -120,136 +117,113 @@ const HatDetailsForm = ({
     // error: imagePinError,
   } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
-    enabled: customImage,
+    enabled: true,
     metadata: { name: `image_${_.toString(chainId)}_tophat` },
   });
 
   useEffect(() => {
-    const hatImageURI = customImage
-      ? imagePinData !== undefined
-        ? `ipfs://${imagePinData}`
-        : undefined
-      : formState?.values?.imageUrl || '';
+    const hatImageURI =
+      imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
     setNewImageURI(hatImageURI);
-  }, [customImage, imagePinData, formState?.values?.imageUrl]);
+  }, [imagePinData, formState?.values?.imageUrl]);
 
   return (
     <form>
-      <Stack spacing={4}>
-        <FormControl>
-          <Stack spacing={2}>
-            <Input
-              localForm={localForm}
-              name='name'
-              label='Name'
-              placeholder='Hat name'
-            />
-            <Textarea
-              localForm={localForm}
-              name='description'
-              label='Description'
-              placeholder='Hat description'
-            />
+      <FormControl>
+        <Stack spacing={4}>
+          <Input
+            localForm={localForm}
+            name='name'
+            label='Hat Name'
+            placeholder='Hat name'
+          />
+          <Textarea
+            localForm={localForm}
+            name='description'
+            label='Description'
+            placeholder='Add a brief description (or a link to one) for this hat'
+          />
 
-            <Switch
-              isChecked={customImage}
-              onChange={() => setCustomImage(!customImage)}
-            >
-              Custom image
-            </Switch>
-            {!customImage && (
-              <Textarea
-                localForm={localForm}
-                name='imageUrl'
-                label='Image'
-                placeholder='ipfs://QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg'
-              />
-            )}
-            {customImage && (
-              <DropZone
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                isFullWidth
-                image={image}
-              />
-            )}
-            {isTopHat(hatData) && (
-              <>
-                <Text fontSize='sm' color='blue.500' pt={3}>
-                  <Icon as={FaInfoCircle} mr={1} />
-                  Bind one or more guild.xyz to this hat. Remember to click the
-                  checkmark to add the guild.
-                </Text>
-                <Flex alignItems='center'>
-                  <InputGroup>
-                    <InputLeftElement>
-                      <Icon as={FaHouseUser} ml={2} />
-                    </InputLeftElement>
-                    <ChakraInput
-                      w='calc(100% - 1rem)'
-                      textOverflow='ellipsis'
-                      type='guild'
-                      placeholder='Guild name (e.g. hats-protocol)'
-                      value={newGuild}
-                      onChange={(e) => setNewGuild(e.target.value)}
-                    />
-                    {isResolved ? (
+          <Box>
+            <Text fontSize='sm' fontWeight='medium' mb={2}>
+              {' '}
+              IMAGE
+            </Text>
+            <DropZone
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              isFocused={isFocused}
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
+              isFullWidth
+              image={image}
+            />
+          </Box>
+          {isTopHat(hatData) && (
+            <>
+              <Text fontSize='sm' color='blue.500' pt={3}>
+                <Icon as={FaInfoCircle} mr={1} />
+                Bind one or more guild.xyz to this hat. Remember to click the
+                checkmark to add the guild.
+              </Text>
+              <Flex alignItems='center'>
+                <InputGroup>
+                  <InputLeftElement>
+                    <Icon as={FaHouseUser} ml={2} />
+                  </InputLeftElement>
+                  <ChakraInput
+                    w='calc(100% - 1rem)'
+                    textOverflow='ellipsis'
+                    type='guild'
+                    placeholder='Guild name (e.g. hats-protocol)'
+                    value={newGuild}
+                    onChange={(e) => setNewGuild(e.target.value)}
+                  />
+                  {isResolved ? (
+                    <InputRightElement right='2rem'>
+                      <FaCheck color='green' />
+                    </InputRightElement>
+                  ) : (
+                    isResolvingGuild && (
                       <InputRightElement right='2rem'>
-                        <FaCheck color='green' />
+                        <Spinner size='sm' />
                       </InputRightElement>
-                    ) : (
-                      isResolvingGuild && (
-                        <InputRightElement right='2rem'>
-                          <Spinner size='sm' />
-                        </InputRightElement>
-                      )
-                    )}
-                  </InputGroup>
-                  <Tooltip
-                    label={!newGuild ? 'Please input a guild name' : ''}
-                    shouldWrapChildren
-                  >
+                    )
+                  )}
+                </InputGroup>
+                <Tooltip
+                  label={!newGuild ? 'Please input a guild name' : ''}
+                  shouldWrapChildren
+                >
+                  <IconButton
+                    isDisabled={!newGuild}
+                    onClick={handleAddGuild}
+                    icon={<FaCheck />}
+                    aria-label='Add'
+                    height={9}
+                    w={16}
+                  />
+                </Tooltip>
+              </Flex>
+              {guilds.map((guild: string, index: number) => (
+                <Box key={guild}>
+                  <Flex align='center' w='full' justifyContent='space-between'>
+                    <ChakraInput value={guild} readOnly w='calc(100% - 5rem)' />
                     <IconButton
-                      isDisabled={!newGuild}
-                      onClick={handleAddGuild}
-                      icon={<FaCheck />}
-                      aria-label='Add'
+                      type='button'
+                      onClick={() => handleRemoveGuild(index)}
+                      icon={<FaTrash />}
+                      aria-label='Remove'
                       height={9}
                       w={16}
                     />
-                  </Tooltip>
-                </Flex>
-                {guilds.map((guild: string, index: number) => (
-                  <Box key={guild}>
-                    <Flex
-                      align='center'
-                      w='full'
-                      justifyContent='space-between'
-                    >
-                      <ChakraInput
-                        value={guild}
-                        readOnly
-                        w='calc(100% - 5rem)'
-                      />
-                      <IconButton
-                        type='button'
-                        onClick={() => handleRemoveGuild(index)}
-                        icon={<FaTrash />}
-                        aria-label='Remove'
-                        height={9}
-                        w={16}
-                      />
-                    </Flex>
-                  </Box>
-                ))}
-              </>
-            )}
-          </Stack>
-        </FormControl>
-      </Stack>
+                  </Flex>
+                </Box>
+              ))}
+            </>
+          )}
+        </Stack>
+      </FormControl>
     </form>
   );
 };

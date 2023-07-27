@@ -46,7 +46,7 @@ const Input = ({
         {label && (
           <FormLabel>
             <HStack>
-              <Text>{label}</Text>
+              <Text fontSize='sm'>{label.toUpperCase()}</Text>
               {info && (
                 <Tooltip shouldWrapChildren label={info}>
                   <FaRegQuestionCircle />
