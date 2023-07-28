@@ -85,6 +85,24 @@ export type DetailsObject = {
   guilds: string[];
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
+  revocations: DetailsItem[];
+  deactivations: DetailsItem[];
   name: string;
   description: string;
+};
+
+export type HatDetails = {
+  name?: string;
+  description?: string;
+  responsibilities?: DetailsItem[];
+  authorities?: DetailsItem[];
+  guilds?: string[];
+  eligibility?: {
+    manual?: boolean;
+    criteria?: DetailsItem[];
+  };
+  toggle?: {
+    manual?: boolean;
+    criteria?: DetailsItem[];
+  };
 };

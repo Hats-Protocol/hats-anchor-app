@@ -18,14 +18,24 @@ import TopMenu from './TopMenu';
 
 const initialState = {
   hatData: undefined,
-  name: '',
-  description: '',
-  guilds: [],
-  authorities: [],
+  hatDetails: {
+    name: '',
+    description: '',
+    guilds: [],
+    authorities: [],
+    eligibility: {
+      manual: true,
+      criteria: [],
+    },
+    toggle: {
+      manual: true,
+      criteria: [],
+    },
+    responsibilities: [],
+  },
   isCurrentWearer: false,
   wearerTopHats: [],
   isAdminUser: false,
-  responsibilities: [],
   activeStatus: STATUS.INACTIVE,
   mutableStatus: MUTABILITY.IMMUTABLE,
 };
@@ -34,22 +44,17 @@ function reducer(state: any, action: { type: any; payload: any }) {
   switch (action.type) {
     case 'SET_HAT_DATA':
       return { ...state, hatData: action.payload };
-    case 'SET_NAME':
-      return { ...state, name: action.payload };
-    case 'SET_DESCRIPTION':
-      return { ...state, description: action.payload };
-    case 'SET_GUILDS':
-      return { ...state, guilds: action.payload };
-    case 'SET_AUTHORITIES':
-      return { ...state, authorities: action.payload };
+    case 'SET_HAT_DETAILS':
+      return {
+        ...state,
+        hatDetails: { ...state.hatDetails, ...action.payload },
+      };
     case 'SET_IS_CURRENT_WEARER':
       return { ...state, isCurrentWearer: action.payload };
     case 'SET_WEARER_TOP_HATS':
       return { ...state, wearerTopHats: action.payload };
     case 'SET_IS_ADMIN_USER':
       return { ...state, isAdminUser: action.payload };
-    case 'SET_RESPONSIBILITIES':
-      return { ...state, responsibilities: action.payload };
     case 'SET_ACTIVE_STATUS':
       return { ...state, activeStatus: action.payload };
     case 'SET_MUTABLE_STATUS':
@@ -77,20 +82,16 @@ const SelectedHatDrawer = ({
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     hatData,
-    name,
-    description,
-    guilds,
-    authorities,
     isCurrentWearer,
     wearerTopHats,
     isAdminUser,
-    responsibilities,
     activeStatus,
     mutableStatus,
+    hatDetails,
   } = state;
 
   const { hatRoles } = useHatGuilds({
-    guildNames: guilds,
+    guildNames: hatDetails?.guilds,
     hatId: hatData?.id,
   });
 
@@ -129,31 +130,19 @@ const SelectedHatDrawer = ({
 
       if (data) {
         dispatch({ type: 'SET_HAT_DATA', payload: data });
-        const { status, mutable, details, detailsObject } = data;
-
-        let detailName = details;
-        if (detailsObject?.type === '1.0') {
-          detailName = detailsObject?.data?.name;
-        }
-        dispatch({ type: 'SET_NAME', payload: detailName });
+        const { status, mutable, detailsObject } = data;
 
         if (detailsObject?.type === '1.0') {
-          dispatch({
-            type: 'SET_DESCRIPTION',
-            payload: detailsObject?.data?.description,
-          });
-          dispatch({
-            type: 'SET_GUILDS',
-            payload: detailsObject?.data?.guilds,
-          });
-          dispatch({
-            type: 'SET_AUTHORITIES',
-            payload: detailsObject?.data?.authorities,
-          });
-          dispatch({
-            type: 'SET_RESPONSIBILITIES',
-            payload: detailsObject?.data?.responsibilities,
-          });
+          const newDetails = {
+            name: detailsObject?.data?.name,
+            description: detailsObject?.data?.description,
+            guilds: detailsObject?.data?.guilds,
+            authorities: detailsObject?.data?.authorities,
+            responsibilities: detailsObject?.data?.responsibilities,
+            eligibility: detailsObject?.data?.eligibility,
+            toggle: detailsObject?.data?.toggle,
+          };
+          dispatch({ type: 'SET_HAT_DETAILS', payload: newDetails });
         }
 
         dispatch({
@@ -224,11 +213,8 @@ const SelectedHatDrawer = ({
           <MainContent
             chainId={chainId}
             hatData={hatData}
+            hatDetails={hatDetails}
             isEligible={!!isEligible}
-            name={name}
-            description={description}
-            responsibilities={responsibilities}
-            authorities={authorities}
             hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
@@ -244,11 +230,7 @@ const SelectedHatDrawer = ({
           <EditMode
             chainId={chainId}
             hatData={hatData}
-            name={name}
-            description={description}
-            guilds={guilds}
-            authorities={authorities}
-            responsibilities={responsibilities}
+            hatDetails={hatDetails}
           />
         )}
 

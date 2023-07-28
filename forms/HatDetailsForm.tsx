@@ -27,6 +27,7 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import { isTopHat } from '@/lib/hats';
 import { DetailsItem } from '@/types';
+import { TRIGGER_OPTIONS } from '@/constants';
 
 const HatDetailsForm = ({
   localForm,
@@ -38,6 +39,8 @@ const HatDetailsForm = ({
   setNewDetailsData,
   responsibilities,
   authorities,
+  revocations,
+  deactivations,
 }: {
   localForm: any;
   hatData: any;
@@ -53,6 +56,8 @@ const HatDetailsForm = ({
   setNewDetailsData: (data: any) => void;
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
+  revocations: DetailsItem[];
+  deactivations: DetailsItem[];
 }) => {
   const [image, setImage] = useState<any>();
   const { formState, watch } = localForm;
@@ -76,10 +81,26 @@ const HatDetailsForm = ({
   const description = useDebounce(
     watch('description', defaultValues?.description || ''),
   );
+  const isEligibilityManual = watch('isEligibilityManual');
+  const isToggleManual = watch('isToggleManual');
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
-    data: { name, description, guilds, responsibilities, authorities },
+    data: {
+      name,
+      description,
+      guilds,
+      responsibilities,
+      authorities,
+      eligibility: {
+        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: revocations,
+      },
+      deactivations: {
+        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: deactivations,
+      },
+    },
   });
 
   useEffect(() => {
@@ -90,8 +111,27 @@ const HatDetailsForm = ({
       guilds,
       responsibilities,
       authorities,
+      eligibility: {
+        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: revocations,
+      },
+      deactivations: {
+        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: deactivations,
+      },
     });
-  }, [detailsCID, name, description, guilds, responsibilities, authorities]);
+  }, [
+    detailsCID,
+    name,
+    description,
+    guilds,
+    responsibilities,
+    authorities,
+    revocations,
+    deactivations,
+    isEligibilityManual,
+    isToggleManual,
+  ]);
 
   const {
     acceptedFiles,

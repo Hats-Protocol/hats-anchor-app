@@ -5,7 +5,7 @@ import { FaKey, FaRegListAlt } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
-import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
+import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
 import HatDeactivationReactivationForm from '@/forms/HatDeactivationReactivationForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
 import HatRevocationForm from '@/forms/HatRevocationForm';
@@ -14,20 +14,18 @@ import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { DetailsItem, DetailsObject, IHat } from '@/types';
+import { DetailsItem, DetailsObject, HatDetails, IHat } from '@/types';
 
-const EditMode = ({
-  hatData,
-  chainId,
-  name,
-  description,
-  guilds,
-  responsibilities: initialResponsibilities,
-  authorities: initialAuthorities,
-}: EditModeProps) => {
-  const [newImageURI, setNewImageURI] = useState('');
-  const [newDetails, setNewDetailsURI] = useState('');
-  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
+const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
+  const {
+    name,
+    description,
+    guilds,
+    responsibilities: initialResponsibilities,
+    authorities: initialAuthorities,
+    eligibility: initialEligibility,
+    toggle: initialToggle,
+  } = hatDetails;
 
   const localForm = useForm({
     mode: 'onChange',
@@ -37,6 +35,14 @@ const EditMode = ({
       toggle: hatData?.toggle,
       mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
       imageUrl: hatData?.imageUrl || '',
+      isEligibilityManual:
+        initialEligibility?.manual || initialEligibility?.manual === undefined
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      isToggleManual:
+        initialToggle?.manual || initialToggle?.manual === undefined
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
       name,
       description,
     },
@@ -47,6 +53,20 @@ const EditMode = ({
     watch,
     formState: { dirtyFields },
   } = localForm;
+
+  const [newImageURI, setNewImageURI] = useState('');
+  const [newDetails, setNewDetailsURI] = useState('');
+  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
+  const [responsibilities, setResponsibilities] = useState(
+    initialResponsibilities || [],
+  );
+  const [authorities, setAuthorities] = useState(initialAuthorities || []);
+  const [revocations, setRevocations] = useState(
+    initialEligibility?.criteria || [],
+  );
+  const [deactivations, setDeactivations] = useState(
+    initialToggle?.criteria || [],
+  );
 
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
@@ -86,9 +106,6 @@ const EditMode = ({
     imageUrl,
   });
 
-  const [responsibilities, setResponsibilities] = useState(
-    initialResponsibilities || [],
-  );
   const handleAddResponsibility = ({ link, label }: DetailsItem) => {
     setResponsibilities([...responsibilities, { link, label }]);
   };
@@ -97,14 +114,28 @@ const EditMode = ({
     setResponsibilities(responsibilities.filter((__, i) => i !== index));
   };
 
-  const [authorities, setAuthorities] = useState(initialAuthorities || []);
-
   const handleAddAuthority = ({ link, label }: DetailsItem) => {
     setAuthorities([...authorities, { link, label }]);
   };
 
   const handleRemoveAuthority = (index: number) => {
     setAuthorities(authorities.filter((__, i) => i !== index));
+  };
+
+  const handleAddRevocation = ({ link, label }: DetailsItem) => {
+    setRevocations([...revocations, { link, label }]);
+  };
+
+  const handleRemoveRevocation = (index: number) => {
+    setRevocations(revocations.filter((__, i) => i !== index));
+  };
+
+  const handleAddDeactivation = ({ link, label }: DetailsItem) => {
+    setDeactivations([...deactivations, { link, label }]);
+  };
+
+  const handleRemoveDeactivation = (index: number) => {
+    setDeactivations(deactivations.filter((__, i) => i !== index));
   };
 
   if (!hatData) return null;
@@ -139,6 +170,8 @@ const EditMode = ({
               setNewDetailsData={setNewDetailsData}
               responsibilities={responsibilities}
               authorities={authorities}
+              revocations={revocations}
+              deactivations={deactivations}
               defaultValues={{
                 name,
                 description,
@@ -193,6 +226,10 @@ const EditMode = ({
               hatData={hatData}
               eligibility={eligibility}
               eligibilityResolvedAddress={eligibilityResolvedAddress}
+              revocations={revocations}
+              setRevocations={setRevocations}
+              handleAddRevocation={handleAddRevocation}
+              handleRemoveRevocation={handleRemoveRevocation}
             />
           </Stack>
         </Accordion>
@@ -207,6 +244,10 @@ const EditMode = ({
               hatData={hatData}
               toggle={toggle}
               toggleResolvedAddress={toggleResolvedAddress}
+              deactivations={deactivations}
+              setDeactivations={setDeactivations}
+              handleAddDeactivation={handleAddDeactivation}
+              handleRemoveDeactivation={handleRemoveDeactivation}
             />
           </Stack>
         </Accordion>
@@ -244,9 +285,5 @@ export default EditMode;
 interface EditModeProps {
   hatData: IHat;
   chainId: number;
-  name: string;
-  description: string;
-  guilds: string[];
-  responsibilities: DetailsItem[];
-  authorities: DetailsItem[];
+  hatDetails: HatDetails;
 }
