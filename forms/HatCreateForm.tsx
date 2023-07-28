@@ -31,6 +31,7 @@ import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
+import RadioBox from '@/components/atoms/RadioBox';
 
 const HatCreateForm = ({
   defaultAdmin,
@@ -173,6 +174,11 @@ const HatCreateForm = ({
   //   fileTypes: 'PNG, JPG, GIF up to 2MB',
   // };
 
+  const MUTABILITY_OPTIONS = [
+    { value: MUTABILITY.MUTABLE, label: MUTABILITY.MUTABLE },
+    { value: MUTABILITY.IMMUTABLE, label: MUTABILITY.IMMUTABLE },
+  ];
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={6}>
@@ -224,20 +230,11 @@ const HatCreateForm = ({
           localForm={localForm}
         />
         <FormControl isRequired>
-          <FormLabel>Mutability</FormLabel>
-          <Controller
-            control={localForm.control}
+          <RadioBox
             name='mutable'
-            render={({ field: { onChange, value } }) => (
-              <RadioGroup onChange={onChange} value={value}>
-                <HStack spacing='24px'>
-                  <Radio value={MUTABILITY.MUTABLE}>{MUTABILITY.MUTABLE}</Radio>
-                  <Radio value={MUTABILITY.IMMUTABLE}>
-                    {MUTABILITY.IMMUTABLE}
-                  </Radio>
-                </HStack>
-              </RadioGroup>
-            )}
+            label='Mutability'
+            localForm={localForm}
+            options={MUTABILITY_OPTIONS}
           />
           <FormHelperText>
             Whether or not this Hat should be able to be modified by its Admin.

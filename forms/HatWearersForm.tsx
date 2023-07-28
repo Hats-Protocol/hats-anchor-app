@@ -1,10 +1,18 @@
-import { Box, HStack, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
-import { Controller } from 'react-hook-form';
+import { Box, Stack, Text } from '@chakra-ui/react';
 
 import Input from '@/components/atoms/Input';
+import RadioBox from '@/components/atoms/RadioBox';
 import { MUTABILITY } from '@/constants';
 import { isTopHatOrMutable } from '@/lib/hats';
 import { IHat } from '@/types';
+
+const MUTABILITY_OPTIONS = [
+  { value: MUTABILITY.MUTABLE, label: 'Editable' },
+  {
+    value: MUTABILITY.IMMUTABLE,
+    label: 'Not Editable (cannot be reversed)',
+  },
+];
 
 const HatWearersForm = ({
   hatData,
@@ -25,31 +33,18 @@ const HatWearersForm = ({
         />
 
         <Box>
-          <Text fontSize='sm' fontWeight='medium'>
+          <Text fontSize='sm' fontWeight='medium' mb={2}>
             EDITABLE
           </Text>
-          <Text mb={4} color='blackAlpha.700'>
-            Should it be possible for an admin to make changes to this Hat?
-          </Text>
-          <Controller
-            control={localForm.control}
+          <RadioBox
             name='mutable'
-            render={({ field }) => (
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              <RadioGroup {...field} isDisabled={!isTopHatOrMutable(hatData)}>
-                <HStack spacing={4}>
-                  <Radio value={MUTABILITY.MUTABLE}>
-                    <Text fontSize='sm'>Editable</Text>
-                  </Radio>
-                  <Radio value={MUTABILITY.IMMUTABLE}>
-                    <Text fontSize='sm'>Not Editable (cannot be reversed)</Text>
-                  </Radio>
-                </HStack>
-              </RadioGroup>
-            )}
+            label='Should it be possible for an admin to make changes to this Hat?'
+            localForm={localForm}
+            options={MUTABILITY_OPTIONS}
+            tooltip='Choose whether the Hat should be editable or not'
           />
           {localForm.watch('mutable') === MUTABILITY.IMMUTABLE && (
-            <Text color='red.500' mt={4}>
+            <Text color='red.500' mt={3}>
               Beware: This will make the Hat immutable. No one can ever change
               it. This can not be undone.
             </Text>

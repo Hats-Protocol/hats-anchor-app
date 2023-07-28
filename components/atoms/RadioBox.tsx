@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
-  Box,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -9,85 +7,54 @@ import {
   FormLabel,
   HStack,
   Icon,
+  Radio,
+  RadioGroup,
   Stack,
+  Text,
   Tooltip,
-  useRadio,
-  useRadioGroup,
-  useStyleConfig,
-  VStack,
 } from '@chakra-ui/react';
-import { ReactNode, useEffect } from 'react';
-import { useController, UseFormReturn } from 'react-hook-form';
+import { Controller, UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
-const RadioCard = ({
-  children,
-  variant = 'outline',
-  size,
-  value,
-  ...props
-}: {
-  children: ReactNode;
-  variant?: string;
-  size?: string;
+interface RadioOption {
   value: string;
-}) => {
-  const styles = useStyleConfig('RadioBox', { variant, size });
-  const { getInputProps } = useRadio({ ...props });
+  label: string;
+}
 
-  const input = getInputProps();
-
-  return (
-    <Box as='label'>
-      <input {...input} value={value} type='radio' />
-      <Box __css={styles}>{children}</Box>
-    </Box>
-  );
-};
+interface RadioBoxProps {
+  name: string;
+  label?: string;
+  localForm: UseFormReturn<any>;
+  options?: RadioOption[];
+  isRequired?: boolean;
+  helperText?: string;
+  tooltip?: string;
+}
 
 const RadioBox = ({
   name,
   label,
   localForm,
   options,
-  stack,
   isRequired,
-  size,
   helperText,
-  defaultValue,
   tooltip,
 }: RadioBoxProps) => {
   if (!localForm) return null;
-  const { control, setValue } = localForm;
-  const {
-    field,
-    formState: { errors },
-  } = useController({
-    control,
-    name,
-    // rules: { required: { value: true, message: "Required field" } }
-  });
-  const { getRootProps, getRadioProps } = useRadioGroup({
-    name,
-    onChange: field.onChange,
-    value: field.value,
-  });
 
-  useEffect(() => {
-    if (defaultValue) {
-      setValue(name, defaultValue);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { control } = localForm;
 
-  const group = getRootProps();
-  const error = errors[name] && errors[name]?.message;
+  const error = localForm.formState.errors[name]?.message;
 
   return (
-    <FormControl isRequired={isRequired} isInvalid={!!errors[name]}>
+    <FormControl isRequired={isRequired} isInvalid={!!error}>
       <Stack>
         <HStack align='center'>
-          {label && <FormLabel m='0'>{label}</FormLabel>}
+          {label && (
+            <FormLabel m='0' color='blackAlpha.700' fontWeight={400}>
+              {label}
+            </FormLabel>
+          )}
           {tooltip && (
             <Tooltip
               label={tooltip}
@@ -108,29 +75,22 @@ const RadioBox = ({
             </Tooltip>
           )}
         </HStack>
-        {stack === 'vertical' ? (
-          <VStack {...group} alignItems='inherit'>
-            {options?.map((v) => {
-              const radio = getRadioProps({ value: v });
-              return (
-                <RadioCard key={v} size={size} {...radio} value={v}>
-                  {v}
-                </RadioCard>
-              );
-            })}
-          </VStack>
-        ) : (
-          <HStack {...group}>
-            {options?.map((v) => {
-              const radio = getRadioProps({ value: v });
-              return (
-                <RadioCard key={v} size={size} {...radio} value={v}>
-                  {v}
-                </RadioCard>
-              );
-            })}
-          </HStack>
-        )}
+
+        <Controller
+          control={control}
+          name={name}
+          render={({ field }) => (
+            <RadioGroup {...field}>
+              <HStack spacing={4}>
+                {options?.map((option) => (
+                  <Radio key={option.value} value={option.value}>
+                    <Text fontSize='sm'>{option.label}</Text>
+                  </Radio>
+                ))}
+              </HStack>
+            </RadioGroup>
+          )}
+        />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
         {typeof error === 'string' && (
           <FormErrorMessage>{error}</FormErrorMessage>
@@ -141,16 +101,3 @@ const RadioBox = ({
 };
 
 export default RadioBox;
-
-interface RadioBoxProps {
-  name: string;
-  label?: string;
-  localForm: UseFormReturn<any>;
-  options?: string[];
-  stack?: string;
-  isRequired?: boolean;
-  size?: string;
-  helperText?: string;
-  defaultValue?: string;
-  tooltip?: string;
-}
