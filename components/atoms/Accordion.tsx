@@ -26,7 +26,7 @@ const CustomAccordion = ({
   };
 
   return (
-    <Accordion defaultIndex={[0]} allowMultiple border='transparent'>
+    <Accordion defaultIndex={[]} allowMultiple border='transparent'>
       <AccordionItem>
         <AccordionButton onClick={handleToggle} px={0}>
           <Flex flex='1' alignItems='center'>

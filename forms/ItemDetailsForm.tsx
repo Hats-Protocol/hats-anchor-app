@@ -1,23 +1,10 @@
-import {
-  Box,
-  Button,
-  HStack,
-  IconButton,
-  Input as ChakraInput,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, HStack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { IconType } from 'react-icons';
-import { FaEllipsisV, FaPlus } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 
-import Modal from '@/components/atoms/Modal';
+import LabelWithLink from '@/components/LabelWithLink';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { validateURL } from '@/lib/general';
 import { DetailsItem } from '@/types';
 
 interface ItemDetailsFormProps {
@@ -66,6 +53,12 @@ const ItemDetailsForm = ({
     });
   };
 
+  const onChangeLabel = (e: any, index: number) => {
+    const newArr = [...items];
+    newArr[index].label = e.target.value;
+    setItems(newArr);
+  };
+
   return (
     <>
       <HStack alignItems='center' ml={-6}>
@@ -73,78 +66,20 @@ const ItemDetailsForm = ({
         <Text fontSize='sm'>{title}</Text>
       </HStack>
       {items.map((item, index) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <Stack key={title + index}>
-          <HStack alignItems='center' justifyContent='space-between'>
-            <ChakraInput
-              value={item.label}
-              onChange={(e) => {
-                const newArr = [...items];
-                newArr[index].label = e.target.value;
-                setItems(newArr);
-              }}
-              placeholder='Label'
-            />
-
-            <Menu isLazy>
-              <MenuButton
-                as={IconButton}
-                aria-label='Options'
-                icon={<FaEllipsisV />}
-                variant='outline'
-              />
-              <MenuList>
-                <MenuItem onClick={() => handleEdit(index)}>Edit Link</MenuItem>
-                <MenuItem onClick={() => handleRemoveItem(index)}>
-                  Delete
-                </MenuItem>
-              </MenuList>
-            </Menu>
-
-            <Modal
-              name={`editLabel-${title}`}
-              title={`Edit ${title.toLowerCase()} Link`}
-              localOverlay={localOverlay}
-            >
-              <Stack>
-                <ChakraInput
-                  value={inputLink}
-                  onChange={(e) => {
-                    setInputLink(e.target.value);
-                    setIsLinkValid(validateURL(e.target.value));
-                  }}
-                  placeholder='https://example.com'
-                />
-                <HStack justifyContent='end'>
-                  <Button
-                    colorScheme='blue'
-                    mr={3}
-                    onClick={handleSave}
-                    isDisabled={!isLinkValid}
-                  >
-                    Ok
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    onClick={() =>
-                      setModals?.({
-                        [`editLabel-${title}`]: false,
-                      })
-                    }
-                  >
-                    Cancel
-                  </Button>
-                </HStack>
-              </Stack>
-            </Modal>
-          </HStack>
-
-          {items[index]?.link && (
-            <Text fontSize='sm' color='gray.500'>
-              {items[index]?.link}
-            </Text>
-          )}
-        </Stack>
+        <LabelWithLink
+          // eslint-disable-next-line react/no-array-index-key
+          key={title + index}
+          item={item}
+          title={title}
+          handleRemoveItem={() => handleRemoveItem(index)}
+          onChangeLabel={(e) => onChangeLabel(e, index)}
+          handleEdit={() => handleEdit(index)}
+          handleSave={handleSave}
+          inputLink={inputLink}
+          setInputLink={setInputLink}
+          isLinkValid={isLinkValid}
+          setIsLinkValid={setIsLinkValid}
+        />
       ))}
 
       <Box mb={2}>

@@ -6,8 +6,9 @@ import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, ZERO_ADDRESS } from '@/constants';
-import HatAdminsForm from '@/forms/HatAdminsForm';
+import HatDeactivationReactivationForm from '@/forms/HatDeactivationReactivationForm';
 import HatDetailsForm from '@/forms/HatDetailsForm';
+import HatRevocationForm from '@/forms/HatRevocationForm';
 import HatWearersForm from '@/forms/HatWearersForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
@@ -182,17 +183,29 @@ const EditMode = ({
           </Stack>
         </Accordion>
 
-        <Accordion title='Wearers & Administrators'>
+        <Accordion
+          title='Revocation'
+          subtitle='The people or logic that determine when a wearer should have a hat.'
+        >
           <Stack spacing={4}>
-            <Text>
-              The people and contracts that control and wear this Hat.
-            </Text>
-            <HatAdminsForm
+            <HatRevocationForm
               localForm={localForm}
               hatData={hatData}
               eligibility={eligibility}
-              toggle={toggle}
               eligibilityResolvedAddress={eligibilityResolvedAddress}
+            />
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Deactivation & Reactivation'
+          subtitle='The people or logic that control whether or not this hat is active.'
+        >
+          <Stack spacing={4}>
+            <HatDeactivationReactivationForm
+              localForm={localForm}
+              hatData={hatData}
+              toggle={toggle}
               toggleResolvedAddress={toggleResolvedAddress}
             />
           </Stack>
