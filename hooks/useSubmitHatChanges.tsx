@@ -51,13 +51,12 @@ const useSubmitHatChanges = ({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newDetails,
         });
-        console.log('newDetails', newDetails);
 
         const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
           _.get(hatData, 'admin.id'),
         )}`;
 
-        const lol = await pinJson(
+        await pinJson(
           {
             type: '1.0',
             data: newDetailsData,
@@ -66,7 +65,6 @@ const useSubmitHatChanges = ({
             name: detailsName,
           },
         );
-        console.log('lol', lol.data.IpfsHash);
 
         calls.push(callData);
       } catch (error: unknown) {
@@ -80,8 +78,6 @@ const useSubmitHatChanges = ({
         return;
       }
     }
-
-    return;
 
     if (
       dirtyFields.imageUrl ||

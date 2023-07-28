@@ -21,6 +21,7 @@ interface HatDeactivationReactivationFormProps {
   handleRemoveDeactivation: (index: number) => void;
 }
 
+// should be combined with HatRevocationForm
 const HatDeactivationReactivationForm = ({
   hatData,
   localForm,
