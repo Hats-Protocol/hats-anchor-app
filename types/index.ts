@@ -92,7 +92,7 @@ export type DetailsObject = {
 };
 
 export type HatDetails = {
-  name?: string;
+  name: string;
   description?: string;
   responsibilities?: DetailsItem[];
   authorities?: DetailsItem[];
