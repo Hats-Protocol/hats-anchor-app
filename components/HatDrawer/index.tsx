@@ -133,7 +133,7 @@ const SelectedHatDrawer = ({
         const { status, mutable, detailsObject } = data;
 
         if (detailsObject?.type === '1.0') {
-          const newDetails = {
+          const details = {
             name: detailsObject?.data?.name,
             description: detailsObject?.data?.description,
             guilds: detailsObject?.data?.guilds,
@@ -142,7 +142,7 @@ const SelectedHatDrawer = ({
             eligibility: detailsObject?.data?.eligibility,
             toggle: detailsObject?.data?.toggle,
           };
-          dispatch({ type: 'SET_HAT_DETAILS', payload: newDetails });
+          dispatch({ type: 'SET_HAT_DETAILS', payload: details });
         }
 
         dispatch({
