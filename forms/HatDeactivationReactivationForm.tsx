@@ -1,6 +1,8 @@
 import { Stack } from '@chakra-ui/react';
 
 import AddressInput from '@/components/AddressInput';
+import RadioBox from '@/components/atoms/RadioBox';
+import { TRIGGER_OPTIONS } from '@/constants';
 import { isTopHatOrMutable } from '@/lib/hats';
 
 const HatDeactivationReactivationForm = ({
@@ -17,9 +19,24 @@ const HatDeactivationReactivationForm = ({
   const showToggleResolvedAddress =
     toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
+  const options = [
+    { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
+    {
+      value: TRIGGER_OPTIONS.AUTOMATICALLY,
+      label: TRIGGER_OPTIONS.AUTOMATICALLY,
+    },
+  ];
+
   return (
     <form>
       <Stack spacing={6}>
+        <RadioBox
+          name='deactivation'
+          label='Hat Deactivation'
+          subLabel='How should hat deactivation and reactivation be handled?'
+          localForm={localForm}
+          options={options}
+        />
         <AddressInput
           name='toggle'
           label='TOGGLE'

@@ -16,6 +16,11 @@ export const MUTABILITY = {
   IMMUTABLE: 'Immutable',
 };
 
+export const TRIGGER_OPTIONS = {
+  MANUALLY: 'Manually',
+  AUTOMATICALLY: 'Automatically',
+};
+
 const CONFIG: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;

@@ -29,6 +29,7 @@ interface RadioBoxProps {
   isRequired?: boolean;
   helperText?: string;
   tooltip?: string;
+  subLabel?: string;
 }
 
 const RadioBox = ({
@@ -39,6 +40,7 @@ const RadioBox = ({
   isRequired,
   helperText,
   tooltip,
+  subLabel,
 }: RadioBoxProps) => {
   if (!localForm) return null;
 
@@ -52,7 +54,7 @@ const RadioBox = ({
         <HStack align='center'>
           {label && (
             <FormLabel m='0' color='blackAlpha.700' fontWeight={400}>
-              {label}
+              {label.toUpperCase()}
             </FormLabel>
           )}
           {tooltip && (
@@ -75,6 +77,12 @@ const RadioBox = ({
             </Tooltip>
           )}
         </HStack>
+
+        {subLabel && (
+          <Text fontSize='sm' color='blackAlpha.700'>
+            {subLabel}
+          </Text>
+        )}
 
         <Controller
           control={control}
