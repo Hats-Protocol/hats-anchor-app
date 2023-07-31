@@ -18,7 +18,7 @@ const useHatBurn = ({
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
-  const currentlyWearing = _.findKey(wearers, ['id', address]);
+  const currentlyWearing = _.findKey(wearers, ['id', _.toLower(address)]);
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'renounceHat',
     args: [hatId],
