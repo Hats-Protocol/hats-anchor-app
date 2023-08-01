@@ -12,12 +12,14 @@ import { useEffect, useRef, useState } from 'react';
  * @returns The CID, prefixed with "ipfs://"
  */
 const useCid = (data: object) => {
+  const [currentData, setCurrentData] = useState<object>();
   const [cid, setCid] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useDeepCompareEffect(() => {
+  useEffect(() => {
     async function calcCid() {
       setLoading(true);
+      setCurrentData(data);
       const bytes = json.encode(data);
       const hash = await sha256.digest(bytes);
       const localCid = CID.create(1, raw?.code, hash);
@@ -25,30 +27,12 @@ const useCid = (data: object) => {
       setLoading(false);
     }
 
-    calcCid();
-  }, [data]);
+    if (!_.isEqual(currentData, data)) {
+      calcCid();
+    }
+  }, [data, currentData]);
 
   return { cid, loading };
 };
-
-function useDeepCompareEffect(callback: any, dependencies: any) {
-  const firstRenderRef = useRef(true);
-  const dependenciesRef = useRef(dependencies);
-
-  if (!_.isEqual(dependencies, dependenciesRef.current)) {
-    dependenciesRef.current = dependencies;
-  }
-
-  useEffect(() => {
-    if (firstRenderRef.current) {
-      firstRenderRef.current = false;
-      return;
-    }
-
-    // eslint-disable-next-line consistent-return
-    return callback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dependenciesRef.current]);
-}
 
 export default useCid;

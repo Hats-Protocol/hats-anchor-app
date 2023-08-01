@@ -126,7 +126,11 @@ const HatDetailsForm = ({
     type: '1.0',
     data: { name, description, guilds, responsibilities, authorities },
   });
-  console.log('detailsCID', detailsCID);
+  console.log(
+    'detailsCID',
+    { name, description, guilds, responsibilities, authorities },
+    detailsCID,
+  );
 
   const {
     acceptedFiles,

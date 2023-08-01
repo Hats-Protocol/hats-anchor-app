@@ -38,6 +38,9 @@ const useHatContractWrite = ({
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const [hash, setHash] = useState<`0x${string}`>();
+  if (functionName === 'changeHatDetails') {
+    console.log(functionName, args);
+  }
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
