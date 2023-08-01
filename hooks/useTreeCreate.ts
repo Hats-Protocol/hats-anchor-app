@@ -1,5 +1,5 @@
 import router from 'next/router';
-import { isAddress } from 'viem';
+import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -22,7 +22,7 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
-  function handleSuccess(transactionData: any) {
+  function handleSuccess(transactionData: TransactionReceipt) {
     const data = transactionData?.logs[0]?.data;
     const treeId = treeCreateEventIdToTreeId(data);
     if (!treeId) return;

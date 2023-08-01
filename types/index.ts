@@ -88,3 +88,14 @@ export type DetailsObject = {
   name: string;
   description: string;
 };
+
+export type ImageFile = {
+  path: string;
+  preview: string;
+  lastModified: number;
+  lastModifiedDate: Date;
+  name: string;
+  size: number;
+  type: string;
+  webkitRelativePath: string;
+};
