@@ -105,7 +105,7 @@ const HatBasicsForm = ({
         manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
         criteria: revocations,
       },
-      deactivations: {
+      toggle: {
         manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
         criteria: deactivations,
       },
@@ -124,7 +124,7 @@ const HatBasicsForm = ({
         manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
         criteria: revocations,
       },
-      deactivations: {
+      toggle: {
         manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
         criteria: deactivations,
       },
