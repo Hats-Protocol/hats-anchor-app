@@ -69,7 +69,7 @@ const useSubmitHatChanges = ({
         calls.push(callData);
       } catch (error: unknown) {
         toast.error({
-          title: 'Error occured',
+          title: 'Error occurred',
           description:
             error instanceof Error
               ? error.message
@@ -92,7 +92,7 @@ const useSubmitHatChanges = ({
         calls.push(callData);
       } catch (error: unknown) {
         toast.error({
-          title: 'Error occured',
+          title: 'Error occurred',
           description:
             error instanceof Error
               ? error.message
@@ -112,7 +112,7 @@ const useSubmitHatChanges = ({
         calls.push(callData);
       } catch (error: unknown) {
         toast.error({
-          title: 'Error occured',
+          title: 'Error occurred',
           description:
             error instanceof Error
               ? error.message
@@ -132,7 +132,7 @@ const useSubmitHatChanges = ({
         calls.push(callData);
       } catch (error: unknown) {
         toast.error({
-          title: 'Error occured',
+          title: 'Error occurred',
           description:
             error instanceof Error
               ? error.message
@@ -152,7 +152,7 @@ const useSubmitHatChanges = ({
         calls.push(callData);
       } catch (error: unknown) {
         toast.error({
-          title: 'Error occured',
+          title: 'Error occurred',
           description:
             error instanceof Error
               ? error.message
@@ -171,7 +171,7 @@ const useSubmitHatChanges = ({
         calls.push(callData);
       } catch (error: unknown) {
         toast.error({
-          title: 'Error occured',
+          title: 'Error occurred',
           description:
             error instanceof Error
               ? error.message

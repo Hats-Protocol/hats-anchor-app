@@ -30,7 +30,14 @@ const MainContent = ({
 }: MainContentProps) => {
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
-  const { name, description, responsibilities, authorities } = hatDetails;
+  const {
+    name,
+    description,
+    responsibilities,
+    authorities,
+    toggle,
+    eligibility,
+  } = hatDetails;
 
   useEffect(() => {
     const check = async () => {
@@ -85,6 +92,16 @@ const MainContent = ({
 
       <DetailList title='Responsibilities' details={responsibilities} />
       <DetailList title='Authorities' details={authorities} />
+
+      {toggle?.criteria?.length && (
+        <DetailList title='Toggle Criteria' details={toggle.criteria} />
+      )}
+      {eligibility?.criteria?.length && (
+        <DetailList
+          title='Eligibility Criteria'
+          details={eligibility.criteria}
+        />
+      )}
 
       <StatusCard
         statusName='Eligibility'
