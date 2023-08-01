@@ -7,9 +7,11 @@ import { IHat } from '@/types';
 const useHatDetails = ({
   hatId,
   chainId,
+  initialData,
 }: {
   hatId: string | undefined;
   chainId: number;
+  initialData: IHat | null;
 }): {
   data: IHat | undefined | null;
   isLoading: boolean;
@@ -20,7 +22,8 @@ const useHatDetails = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', hexId, chainId],
     queryFn: () => fetchHatDetails(hexId, chainId),
-    enabled: !!hexId,
+    enabled: !!hexId && !!chainId,
+    initialData,
   });
 
   return { data, isLoading, error };

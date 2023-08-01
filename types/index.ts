@@ -47,7 +47,7 @@ export interface IHat {
   active?: boolean;
 }
 
-interface ITreeEvent extends IHatEvent {
+export interface ITreeEvent extends IHatEvent {
   hat: Partial<IHat>;
 }
 
