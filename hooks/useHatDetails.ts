@@ -11,7 +11,7 @@ const useHatDetails = ({
 }: {
   hatId: string | undefined;
   chainId: number;
-  initialData: IHat | null;
+  initialData?: IHat | null;
 }): {
   data: IHat | undefined | null;
   isLoading: boolean;
