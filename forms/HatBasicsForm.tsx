@@ -280,12 +280,10 @@ const HatBasicsForm = ({
           />
 
           <Box>
-            <Text fontSize='sm' fontWeight='medium' mb={2}>
-              EDITABLE
-            </Text>
             <RadioBox
               name='mutable'
-              label='Should it be possible for an admin to make changes to this Hat?'
+              label='EDITABLE'
+              subLabel='Should it be possible for an admin to make changes to this Hat?'
               localForm={localForm}
               options={MUTABILITY_OPTIONS}
               tooltip='Choose whether the Hat should be editable or not'

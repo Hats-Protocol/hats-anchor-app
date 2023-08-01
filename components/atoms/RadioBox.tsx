@@ -53,8 +53,8 @@ const RadioBox = ({
       <Stack>
         <HStack align='center'>
           {label && (
-            <FormLabel m='0' color='blackAlpha.700' fontWeight={400}>
-              {label.toUpperCase()}
+            <FormLabel m='0' fontSize='sm'>
+              {label}
             </FormLabel>
           )}
           {tooltip && (
@@ -72,7 +72,7 @@ const RadioBox = ({
                 align='center'
                 justify='center'
               >
-                <Icon as={AiOutlineInfoCircle} w='12px' h='12px' />
+                <Icon as={AiOutlineInfoCircle} w={4} h={4} />
               </Flex>
             </Tooltip>
           )}
