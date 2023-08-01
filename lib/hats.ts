@@ -260,7 +260,7 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 export const hatIdToHex = (hatId: string | null) => {
-  if (!hatId) return '';
+  if (!hatId || hatId === '0x') return '';
   return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
 };
 

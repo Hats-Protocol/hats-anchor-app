@@ -15,7 +15,7 @@ import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
-const HatCard = ({ hat }: HatCardProps) => {
+const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 
@@ -65,7 +65,7 @@ const HatCard = ({ hat }: HatCardProps) => {
   );
 };
 
-export default HatCard;
+export default DashboardHatCard;
 
 interface HatCardProps {
   hat: IHat;

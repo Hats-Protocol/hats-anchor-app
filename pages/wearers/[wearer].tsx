@@ -22,8 +22,8 @@ import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
-import CoreHat from '@/components/CoreHat';
 import Layout from '@/components/Layout';
+import CoreHat from '@/components/WearerHatCard';
 import useControllerList from '@/hooks/useControllerList';
 import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
