@@ -22,7 +22,7 @@ interface HatDeactivationReactivationFormProps {
 }
 
 // should be combined with HatRevocationForm
-const HatDeactivationReactivationForm = ({
+const HatDeactivationsForm = ({
   hatData,
   localForm,
   toggle,
@@ -137,4 +137,4 @@ const HatDeactivationReactivationForm = ({
   );
 };
 
-export default HatDeactivationReactivationForm;
+export default HatDeactivationsForm;

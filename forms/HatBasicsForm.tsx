@@ -25,11 +25,20 @@ import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
-import { isTopHat } from '@/lib/hats';
+import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
-import { TRIGGER_OPTIONS } from '@/constants';
+import { MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
+import RadioBox from '@/components/atoms/RadioBox';
 
-const HatDetailsForm = ({
+const MUTABILITY_OPTIONS = [
+  { value: MUTABILITY.MUTABLE, label: 'Editable' },
+  {
+    value: MUTABILITY.IMMUTABLE,
+    label: 'Not Editable (cannot be reversed)',
+  },
+];
+
+const HatBasicsForm = ({
   localForm,
   hatData,
   chainId,
@@ -262,10 +271,36 @@ const HatDetailsForm = ({
               ))}
             </>
           )}
+          <Input
+            name='maxSupply'
+            label='MAX WEARERS'
+            placeholder='10'
+            isDisabled={!isTopHatOrMutable(hatData)}
+            localForm={localForm}
+          />
+
+          <Box>
+            <Text fontSize='sm' fontWeight='medium' mb={2}>
+              EDITABLE
+            </Text>
+            <RadioBox
+              name='mutable'
+              label='Should it be possible for an admin to make changes to this Hat?'
+              localForm={localForm}
+              options={MUTABILITY_OPTIONS}
+              tooltip='Choose whether the Hat should be editable or not'
+            />
+            {localForm.watch('mutable') === MUTABILITY.IMMUTABLE && (
+              <Text color='red.500' mt={3}>
+                Beware: This will make the Hat immutable. No one can ever change
+                it. This can not be undone.
+              </Text>
+            )}
+          </Box>
         </Stack>
       </FormControl>
     </form>
   );
 };
 
-export default HatDetailsForm;
+export default HatBasicsForm;

@@ -6,10 +6,9 @@ import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
-import HatDeactivationReactivationForm from '@/forms/HatDeactivationReactivationForm';
-import HatDetailsForm from '@/forms/HatDetailsForm';
+import HatBasicsForm from '@/forms/HatBasicsForm';
+import HatDeactivationsForm from '@/forms/HatDeactivationsForm';
 import HatRevocationForm from '@/forms/HatRevocationForm';
-import HatWearersForm from '@/forms/HatWearersForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
@@ -161,7 +160,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
           subtitle='The fundamentals of the hat, including name, image, and supply.'
         >
           <Stack spacing={4}>
-            <HatDetailsForm
+            <HatBasicsForm
               localForm={localForm}
               hatData={hatData}
               chainId={chainId}
@@ -178,7 +177,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
                 guilds,
               }}
             />
-            <HatWearersForm localForm={localForm} hatData={hatData} />
           </Stack>
         </Accordion>
 
@@ -239,7 +237,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
           subtitle='The people or logic that control whether or not this hat is active.'
         >
           <Stack spacing={4}>
-            <HatDeactivationReactivationForm
+            <HatDeactivationsForm
               localForm={localForm}
               hatData={hatData}
               toggle={toggle}
@@ -251,6 +249,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
             />
           </Stack>
         </Accordion>
+
         <Flex justifyContent='flex-end'>
           <Button
             colorScheme='blue'
