@@ -32,6 +32,8 @@ const HatDeactivationsForm = ({
   handleAddDeactivation,
   handleRemoveDeactivation,
 }: HatDeactivationReactivationFormProps) => {
+  const { watch } = localForm;
+  const isToggleManual = watch('isToggleManual');
   const showToggleResolvedAddress =
     toggleResolvedAddress && toggleResolvedAddress !== toggle;
 
@@ -90,13 +92,21 @@ const HatDeactivationsForm = ({
         />
         <AddressInput
           name='toggle'
-          label='TOGGLE'
+          label={`ACTIVATION ${
+            isToggleManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'
+          }`}
           docsLink='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats'
           localForm={localForm}
           showResolvedAddress={Boolean(showToggleResolvedAddress)}
           isDisabled={!isTopHatOrMutable(hatData)}
           resolvedAddress={String(toggleResolvedAddress)}
         />
+        <Stack>
+          <Text>ACTIVATION REQUIREMENTS (optional)</Text>
+          <Text fontWeight={400} color='blackAlpha.700'>
+            A written description of the logic in the Accountability Module.
+          </Text>
+        </Stack>
         {deactivations.map((item, index) => (
           <LabelWithLink
             // eslint-disable-next-line react/no-array-index-key
@@ -113,13 +123,6 @@ const HatDeactivationsForm = ({
             setIsLinkValid={setIsLinkValid}
           />
         ))}
-        <Stack>
-          <Text>ACTIVATION REQUIREMENTS (optional)</Text>
-          <Text fontWeight={400} color='blackAlpha.700'>
-            A written description of the logic in the Accountability Module.
-          </Text>
-        </Stack>
-
         <Box mb={2}>
           <Button
             onClick={() => {

@@ -54,7 +54,7 @@ const RadioBox = ({
         <HStack align='center'>
           {label && (
             <FormLabel m='0' fontSize='sm'>
-              {label}
+              {label.toUpperCase()}
             </FormLabel>
           )}
           {tooltip && (

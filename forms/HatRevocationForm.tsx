@@ -31,6 +31,8 @@ const HatRevocationForm = ({
   handleRemoveRevocation,
   setRevocations,
 }: HatRevocationFormProps) => {
+  const { watch } = localForm;
+  const isEligibilityManual = watch('isEligibilityManual');
   const showEligibilityResolvedAddress =
     eligibilityResolvedAddress && eligibilityResolvedAddress !== eligibility;
 
@@ -89,13 +91,23 @@ const HatRevocationForm = ({
         />
         <AddressInput
           name='eligibility'
-          label='ELIGIBILITY'
+          label={`ACCOUNTABILITY ${
+            isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
+              ? 'ADDRESS'
+              : 'MODULE'
+          }`}
           docsLink='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
           localForm={localForm}
           showResolvedAddress={Boolean(showEligibilityResolvedAddress)}
           isDisabled={!isTopHatOrMutable(hatData)}
           resolvedAddress={String(eligibilityResolvedAddress)}
         />
+        <Stack>
+          <Text>ELIGIBILITY REQUIREMENTS (optional)</Text>
+          <Text fontWeight={400} color='blackAlpha.700'>
+            A written description of the logic in the Accountability Module.
+          </Text>
+        </Stack>
         {revocations.map((item, index) => (
           <LabelWithLink
             // eslint-disable-next-line react/no-array-index-key
@@ -112,12 +124,6 @@ const HatRevocationForm = ({
             setIsLinkValid={setIsLinkValid}
           />
         ))}
-        <Stack>
-          <Text>ELIGIBILITY REQUIREMENTS (optional)</Text>
-          <Text fontWeight={400} color='blackAlpha.700'>
-            A written description of the logic in the Accountability Module.
-          </Text>
-        </Stack>
         <Box mb={2}>
           <Button
             onClick={() => {
