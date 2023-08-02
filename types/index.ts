@@ -23,11 +23,6 @@ export interface IHat {
   status: boolean;
   createdAt: string;
   details: string;
-  detailsObject?: {
-    type: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any;
-  };
   maxSupply: string;
   eligibility: `0x${string}`;
   toggle: `0x${string}`;
@@ -39,6 +34,11 @@ export interface IHat {
   events: IHatEvent[];
   wearers: any[]; // (`0x${string}` | IHatWearer)[];
   admin: IHat;
+  detailsObject?: {
+    type: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
+  };
   name?: string;
   parentId?: string | null;
   treeId?: string;
