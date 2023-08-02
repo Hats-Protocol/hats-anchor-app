@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchHatDetails } from '@/gql/helpers';
-import { hatIdToHex } from '@/lib/hats';
+import { hatIdToHex, prettyIdToId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const useHatDetails = ({
@@ -17,7 +17,7 @@ const useHatDetails = ({
   isLoading: boolean;
   error: unknown | null;
 } => {
-  const hexId = hatId && hatIdToHex(hatId);
+  const hexId = hatId && hatIdToHex(prettyIdToId(hatId));
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', hexId, chainId],

@@ -6,7 +6,7 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
 import { IHat, ITree } from '@/types';
 
-const TreeCard = ({
+const TreeListCard = ({
   tree,
   topHat,
   topHatImage,
@@ -63,4 +63,4 @@ const TreeCard = ({
   );
 };
 
-export default TreeCard;
+export default TreeListCard;

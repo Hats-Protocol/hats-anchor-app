@@ -7,7 +7,7 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { IHat } from '@/types';
 
-const CoreHat = ({ hat }: { hat: IHat }) => {
+const WearerHatCard = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
 
@@ -78,4 +78,4 @@ const CoreHat = ({ hat }: { hat: IHat }) => {
   );
 };
 
-export default CoreHat;
+export default WearerHatCard;
