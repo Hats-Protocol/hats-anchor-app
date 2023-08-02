@@ -9,7 +9,7 @@ import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatDetails from '@/hooks/useHatDetails';
-import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatUnlinkForm = ({
   parentOfTrees,
@@ -33,7 +33,7 @@ const HatUnlinkForm = ({
   );
 
   const { data: topHatData } = useHatDetails({
-    hatId: prettyIdToId(topHatPrettyId),
+    hatId: topHatPrettyId,
     chainId,
   });
 
