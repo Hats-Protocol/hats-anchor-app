@@ -51,10 +51,10 @@ const Modal = ({
       <ModalContent
         // background={props.bgColor ? props.bgColor : 'gray.800'}
         minWidth='20vw'
-        // paddingY={8}
+        padding={4}
       >
         <ModalHeader>
-          <Heading size='lg'>{title}</Heading>
+          <Heading fontSize='24px'>{title}</Heading>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>{content || children}</ModalBody>

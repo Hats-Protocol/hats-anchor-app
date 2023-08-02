@@ -47,7 +47,7 @@ export interface IHat {
   active?: boolean;
 }
 
-interface ITreeEvent extends IHatEvent {
+export interface ITreeEvent extends IHatEvent {
   hat: Partial<IHat>;
 }
 
@@ -105,4 +105,15 @@ export type HatDetails = {
     manual?: boolean;
     criteria?: DetailsItem[];
   };
+};
+
+export type ImageFile = {
+  path: string;
+  preview: string;
+  lastModified: number;
+  lastModifiedDate: Date;
+  name: string;
+  size: number;
+  type: string;
+  webkitRelativePath: string;
 };

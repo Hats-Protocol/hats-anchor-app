@@ -121,15 +121,17 @@ const WearerDetail = ({
               <Heading size='lg' fontWeight={500}>
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
-              <Skeleton isLoaded={!!_.get(firstCreated, 'createdAt')}>
-                <Text>
-                  Hat wearer since:{' '}
-                  {_.get(firstCreated, 'createdAt') &&
-                    format(
-                      Number(_.get(firstCreated, 'createdAt')) * 1000,
-                      'MMMM yyyy',
-                    )}
-                </Text>
+              <Skeleton isLoaded={!wearerLoading}>
+                {!!_.get(firstCreated, 'createdAt') && (
+                  <Text>
+                    Hat wearer since:{' '}
+                    {_.get(firstCreated, 'createdAt') &&
+                      format(
+                        Number(_.get(firstCreated, 'createdAt')) * 1000,
+                        'MMMM yyyy',
+                      )}
+                  </Text>
+                )}
               </Skeleton>
             </Stack>
           </HStack>
