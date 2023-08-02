@@ -41,7 +41,7 @@ const CustomAccordion = ({
             {subtitle}
           </Text>
         )}
-        <AccordionPanel pl={7} mr={0} pr={0}>
+        <AccordionPanel pl={7} mr={0} pr={0} mt={8}>
           {children}
         </AccordionPanel>
       </AccordionItem>

@@ -7,8 +7,7 @@ import { useEnsAddress } from 'wagmi';
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
 import HatBasicsForm from '@/forms/HatBasicsForm';
-import HatDeactivationsForm from '@/forms/HatDeactivationsForm';
-import HatRevocationForm from '@/forms/HatRevocationForm';
+import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
@@ -219,15 +218,21 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
           subtitle='The people or logic that determine when a wearer should have a hat.'
         >
           <Stack spacing={4}>
-            <HatRevocationForm
+            <HatManagementForm
               localForm={localForm}
               hatData={hatData}
-              eligibility={eligibility}
-              eligibilityResolvedAddress={eligibilityResolvedAddress}
-              revocations={revocations}
-              setRevocations={setRevocations}
-              handleAddRevocation={handleAddRevocation}
-              handleRemoveRevocation={handleRemoveRevocation}
+              action={eligibility}
+              actionResolvedAddress={eligibilityResolvedAddress}
+              items={revocations}
+              setItems={setRevocations}
+              handleAddItem={handleAddRevocation}
+              handleRemoveItem={handleRemoveRevocation}
+              title='eligibility'
+              radioBoxConfig={{
+                name: 'isEligibilityManual',
+                label: 'Hat Revocation',
+                subLabel: 'How should toggle from wearers be handled?',
+              }}
             />
           </Stack>
         </Accordion>
@@ -237,15 +242,22 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
           subtitle='The people or logic that control whether or not this hat is active.'
         >
           <Stack spacing={4}>
-            <HatDeactivationsForm
+            <HatManagementForm
               localForm={localForm}
               hatData={hatData}
-              toggle={toggle}
-              toggleResolvedAddress={toggleResolvedAddress}
-              deactivations={deactivations}
-              setDeactivations={setDeactivations}
-              handleAddDeactivation={handleAddDeactivation}
-              handleRemoveDeactivation={handleRemoveDeactivation}
+              action={toggle}
+              actionResolvedAddress={toggleResolvedAddress}
+              items={deactivations}
+              handleAddItem={handleAddDeactivation}
+              handleRemoveItem={handleRemoveDeactivation}
+              setItems={setDeactivations}
+              title='toggle'
+              radioBoxConfig={{
+                name: 'isToggleManual',
+                label: 'Hat Deactivation',
+                subLabel:
+                  'How should deactivation and reactivation be handled?',
+              }}
             />
           </Stack>
         </Accordion>
