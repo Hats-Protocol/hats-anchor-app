@@ -29,6 +29,7 @@ import {
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
+import { GetStaticPropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
@@ -52,7 +53,9 @@ import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
+import useHatDetails from '@/hooks/useHatDetails';
 import useImageURIs from '@/hooks/useImageURIs';
+import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
 import {
@@ -75,9 +78,9 @@ interface TreeDetailsProps {
   treeId: string;
   chainId: number;
   topHatId: string;
-  treeData: ITree;
+  initialTreeData: ITree;
   linkedHats: IHat[];
-  hatData: IHat;
+  initialHatData: IHat;
 }
 
 interface IControls {
@@ -130,9 +133,9 @@ const TreeDetails = ({
   treeId,
   chainId,
   topHatId,
-  treeData,
+  initialTreeData,
   linkedHats,
-  hatData,
+  initialHatData,
 }: TreeDetailsProps) => {
   const router = useRouter();
   const { hatId } = router.query;
@@ -154,6 +157,16 @@ const TreeDetails = ({
   );
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
 
+  const { data: hatData } = useHatDetails({
+    hatId: selectedHatId,
+    chainId,
+    initialData: initialHatData,
+  });
+  const { data: treeData } = useTreeDetails({
+    treeId,
+    chainId,
+    initialData: initialTreeData,
+  });
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -250,7 +263,7 @@ const TreeDetails = ({
     );
   }
 
-  const fullHatData: any[] = _.map(hatsData, (hat: IHat, index: number) => ({
+  const fullHatData: IHat[] = _.map(hatsData, (hat: IHat, index: number) => ({
     ...hatsWithImageData?.[index],
     ...hat,
   }));
@@ -432,7 +445,7 @@ const TreeDetails = ({
                             chainId={chainId}
                             events={events?.slice(0, 5)}
                           />
-                          {events?.length > 4 && (
+                          {_.gt(_.size(events), 4) && (
                             <>
                               <Divider my={2} />
                               <Button
@@ -486,8 +499,17 @@ const TreeDetails = ({
   );
 };
 
-export const getStaticProps = async (context: any) => {
-  const { treeId, chainId } = context.params;
+export const getStaticProps = async (context: GetStaticPropsContext) => {
+  const treeIdParam = _.get(context, 'params.treeId');
+  const chainIdParam = _.get(context, 'params.chainId');
+  const treeId = _.isArray(treeIdParam) ? _.first(treeIdParam) : treeIdParam;
+  const chainId = _.isArray(chainIdParam)
+    ? _.toNumber(_.first(chainIdParam))
+    : _.toNumber(chainIdParam);
+  if (!treeId || !chainId) {
+    return { props: {} };
+  }
+
   const treeHex = decimalToTreeId(treeId);
   const prettyHatId = ipToPrettyId(treeId);
   const hatIdHex = prettyIdToId(prettyHatId);
@@ -521,9 +543,9 @@ export const getStaticProps = async (context: any) => {
       treeId: treeHex || null,
       chainId: _.toNumber(chainId),
       topHatId: hatIdHex || null,
-      treeData: treeData || null,
+      initialTreeData: treeData || null,
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
-      hatData: { ...hatData, chainId } || null,
+      initialHatData: { ...hatData, chainId } || null,
     },
     revalidate: 5,
   };

@@ -12,7 +12,7 @@ export async function toTreeStructure({
   hatsImages,
   chainId,
 }: {
-  treeData: ITree;
+  treeData: ITree | null | undefined;
   hatsImages: IHat[] | undefined;
   chainId: number;
 }): Promise<{
@@ -323,7 +323,7 @@ export const isAdmin = (
   return !!includesAny(wearerHatIds, hatIds);
 };
 
-export const isTopHat = (hatData: IHat) =>
+export const isTopHat = (hatData: IHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.prettyId') === _.get(hatData, 'prettyId');
 

@@ -318,7 +318,11 @@ const TopMenu = ({
       </HStack>
 
       <Suspense fallback={<Suspender />}>
-        <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
+        <Modal
+          name='createHat'
+          title='Create a New Hat'
+          localOverlay={localOverlay}
+        >
           <HatCreateForm
             defaultAdmin={hatData.prettyId}
             treeId={hatData.tree.id}

@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { TransactionReceipt } from 'viem';
 import {
   useContractWrite,
   usePrepareContractWrite,
@@ -20,7 +21,7 @@ interface ContractInteractionProps {
   queryKeys?: (string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
-  handleSuccess?: (data: any) => void;
+  handleSuccess?: (data: TransactionReceipt) => void;
 }
 
 const useHatContractWrite = ({
@@ -30,7 +31,7 @@ const useHatContractWrite = ({
   onSuccessToastData,
   onErrorToastData,
   queryKeys = [],
-  transactionTimeout = 4000,
+  transactionTimeout = 500,
   enabled,
   handleSuccess,
 }: ContractInteractionProps) => {
@@ -61,14 +62,6 @@ const useHatContractWrite = ({
         hash: data.hash,
         toastData: onSuccessToastData,
       });
-
-      setTimeout(() => {
-        queryKeys.forEach((key) =>
-          queryClient.invalidateQueries({
-            queryKey: key,
-          }),
-        );
-      }, transactionTimeout);
     },
     onError: (error) => {
       if (error.name === 'UserRejectedRequestError') {
@@ -89,7 +82,16 @@ const useHatContractWrite = ({
 
   const { isLoading } = useWaitForTransaction({
     hash,
-    onSuccess: handleSuccess,
+    onSuccess: (data) => {
+      handleSuccess?.(data);
+      setTimeout(() => {
+        queryKeys.forEach((key) =>
+          queryClient.invalidateQueries({
+            queryKey: key,
+          }),
+        );
+      }, transactionTimeout);
+    },
   });
 
   return { writeAsync, isLoading, prepareError, writeError };
