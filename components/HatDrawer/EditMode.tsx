@@ -166,6 +166,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
               setNewImageURI={setNewImageURI}
               setNewDetailsURI={setNewDetailsURI}
               setNewDetailsData={setNewDetailsData}
+              newDetailsData={newDetailsData}
               responsibilities={responsibilities}
               authorities={authorities}
               revocations={revocations}

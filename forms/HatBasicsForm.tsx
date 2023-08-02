@@ -58,6 +58,7 @@ const HatBasicsForm = ({
   defaultValues,
   setNewDetailsURI,
   setNewDetailsData,
+  newDetailsData,
   responsibilities,
   authorities,
   revocations,
@@ -75,6 +76,7 @@ const HatBasicsForm = ({
   setNewImageURI: (uri: string) => void;
   setNewDetailsURI: (uri: string) => void;
   setNewDetailsData: (data: any) => void;
+  newDetailsData: any;
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
   revocations: DetailsItem[];
@@ -107,25 +109,10 @@ const HatBasicsForm = ({
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
     type: '1.0',
-    data: {
-      name,
-      description,
-      guilds,
-      responsibilities,
-      authorities,
-      eligibility: {
-        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: revocations,
-      },
-      toggle: {
-        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: deactivations,
-      },
-    },
+    data: newDetailsData,
   });
 
   useEffect(() => {
-    setNewDetailsURI(detailsCID);
     setNewDetailsData({
       name,
       description,
@@ -142,7 +129,6 @@ const HatBasicsForm = ({
       },
     });
   }, [
-    detailsCID,
     name,
     description,
     guilds,
@@ -153,6 +139,10 @@ const HatBasicsForm = ({
     isEligibilityManual,
     isToggleManual,
   ]);
+
+  useEffect(() => {
+    setNewDetailsURI(detailsCID);
+  }, [detailsCID]);
 
   const {
     acceptedFiles,
