@@ -107,7 +107,7 @@ const HatBasicsForm = ({
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
     setNewImageURI(hatImageURI);
-  }, [imagePinData, formState.values.imageUrl, setNewImageURI]);
+  }, [imagePinData, formState?.values?.imageUrl, setNewImageURI]);
 
   return (
     <form>
