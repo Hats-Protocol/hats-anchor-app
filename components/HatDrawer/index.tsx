@@ -7,6 +7,8 @@ import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatDetails from '@/hooks/useHatDetails';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
 import { HierarchyObject, IHat } from '@/types';
@@ -124,38 +126,45 @@ const SelectedHatDrawer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
 
+  const { data: hatDetailsObject } = useHatDetailsField(hatData?.details);
+
   useEffect(() => {
     if (selectedHatId) {
-      const data = _.find(hatsData, ['prettyId', selectedHatId]);
+      const data = _.find(hatsData, { prettyId: selectedHatId });
+      dispatch({ type: 'SET_HAT_DATA', payload: data });
 
-      if (data) {
-        dispatch({ type: 'SET_HAT_DATA', payload: data });
-        const { status, mutable, detailsObject } = data;
-
-        if (detailsObject?.type === '1.0') {
-          const details = {
-            name: detailsObject?.data?.name,
-            description: detailsObject?.data?.description,
-            guilds: detailsObject?.data?.guilds,
-            authorities: detailsObject?.data?.authorities,
-            responsibilities: detailsObject?.data?.responsibilities,
-            eligibility: detailsObject?.data?.eligibility,
-            toggle: detailsObject?.data?.toggle,
-          };
-          dispatch({ type: 'SET_HAT_DETAILS', payload: details });
-        }
-
-        dispatch({
-          type: 'SET_ACTIVE_STATUS',
-          payload: status ? STATUS.ACTIVE : STATUS.INACTIVE,
-        });
-        dispatch({
-          type: 'SET_MUTABLE_STATUS',
-          payload: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-        });
+      if (hatDetailsObject) {
+        const {
+          name: localName,
+          description,
+          guilds,
+          authorities,
+          responsibilities,
+          eligibility,
+          toggle,
+        } = hatDetailsObject;
+        const details = {
+          name: localName,
+          description,
+          guilds,
+          authorities,
+          responsibilities,
+          eligibility,
+          toggle,
+        };
+        dispatch({ type: 'SET_HAT_DETAILS', payload: details });
       }
+
+      dispatch({
+        type: 'SET_ACTIVE_STATUS',
+        payload: hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE,
+      });
+      dispatch({
+        type: 'SET_MUTABLE_STATUS',
+        payload: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      });
     }
-  }, [selectedHatId, hatsData]);
+  }, [hatData, selectedHatId, hatsData, hatDetailsObject]);
 
   const { data: isEligible } = useHatCheckEligibility({
     wearer: address || '',
@@ -231,6 +240,7 @@ const SelectedHatDrawer = ({
             chainId={chainId}
             hatData={hatData}
             hatDetails={hatDetails}
+            setEditMode={setEditMode}
           />
         )}
 

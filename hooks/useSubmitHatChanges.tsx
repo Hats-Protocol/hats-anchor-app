@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import useToast from '@/hooks/useToast';
-import { decimalId, prettyIdToIp } from '@/lib/hats';
+import { decimalId, hatIdToHex, prettyIdToIp, toTreeId } from '@/lib/hats';
 import { calculateCid, pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
+import { QueryClient } from '@tanstack/react-query';
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 
 type UseSubmitHatChangesProps = {
   hatData: IHat;
@@ -39,12 +41,24 @@ const useSubmitHatChanges = ({
   const account = useAccount();
   const hatsClient = createHatsClient(chainId);
   const toast = useToast();
+  const queryClient = new QueryClient();
 
   const onSubmit = async () => {
     const calls = [];
 
-    const newCid = await calculateCid(newDetailsData);
-    console.log('newCid', newCid);
+    const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
+      _.get(hatData, 'admin.id'),
+    )}`;
+    const newCidResult = await pinJson(
+      {
+        type: '1.0',
+        data: newDetailsData,
+      },
+      {
+        name: detailsName,
+      },
+    );
+    const newCid = `ipfs://${newCidResult}`;
 
     if (hatData.details !== newCid) {
       try {
@@ -52,21 +66,6 @@ const useSubmitHatChanges = ({
           hatId: decimalId(hatData?.id) as unknown as bigint,
           newDetails: newCid,
         });
-
-        const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
-          _.get(hatData, 'admin.id'),
-        )}`;
-
-        console.log('newDetailsData', newDetailsData);
-        await pinJson(
-          {
-            type: '1.0',
-            data: newDetailsData,
-          },
-          {
-            name: detailsName,
-          },
-        );
 
         calls.push(callData);
       } catch (error: unknown) {
@@ -190,6 +189,21 @@ const useSubmitHatChanges = ({
           account: account.address as `0x${string}`,
           calls,
         });
+        const hatQueryKey = ['hatDetails', hatIdToHex(hatData?.id), chainId];
+        const treeId = toTreeId(hatData?.id);
+
+        console.log('invalidateQuery', hatQueryKey, [
+          'treeDetails',
+          treeId,
+          chainId,
+        ]);
+        queryClient.invalidateQueries([
+          hatQueryKey,
+          ['treeDetails', treeId, chainId],
+          ['hatDetailsField', newCid],
+        ]);
+
+        queryClient.setQueryData(['hatDetailsField', newCid], newDetailsData);
         setIsLoading(false);
 
         toast.success({

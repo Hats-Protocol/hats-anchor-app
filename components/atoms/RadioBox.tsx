@@ -90,7 +90,7 @@ const RadioBox = ({
           control={control}
           name={name}
           render={({ field }) => (
-            <RadioGroup {...field} isDisabled={isDisabled}>
+            <RadioGroup isDisabled={isDisabled} {...field}>
               <HStack spacing={4}>
                 {options?.map((option) => (
                   <Radio key={option.value} value={option.value}>

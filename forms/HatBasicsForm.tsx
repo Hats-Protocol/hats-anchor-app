@@ -11,7 +11,7 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   FaChartBar,
   FaHouseUser,
@@ -30,7 +30,7 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import { MUTABILITY } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { isMutable, isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import { isMutable, isTopHat } from '@/lib/hats';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },

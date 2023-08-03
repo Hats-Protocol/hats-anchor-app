@@ -14,7 +14,12 @@ import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { DetailsObject, HatDetails, IHat } from '@/types';
 
-const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
+const EditMode = ({
+  hatData,
+  chainId,
+  hatDetails,
+  setEditMode,
+}: EditModeProps) => {
   const {
     name: initialName,
     description: initialDescription,
@@ -137,9 +142,12 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
     isToggleManual,
   ]);
 
-  if (!hatData) return null;
+  const submitAndResetForm = async () => {
+    await onSubmit();
+    setEditMode(false);
+  };
 
-  console.log('lol');
+  if (!hatData) return null;
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -247,7 +255,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
         <Flex justifyContent='flex-end'>
           <Button
             colorScheme='blue'
-            onClick={handleSubmit(onSubmit)}
+            onClick={handleSubmit(submitAndResetForm)}
             isLoading={
               isLoadingEligibilityResolvedAddress ||
               isLoadingToggleResolvedAddress ||
@@ -268,4 +276,5 @@ interface EditModeProps {
   hatData: IHat;
   chainId: number;
   hatDetails: HatDetails;
+  setEditMode: (mode: boolean) => void;
 }

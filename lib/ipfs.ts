@@ -1,5 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import axios from 'axios';
+import _ from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
@@ -34,9 +35,8 @@ export const pinJson = async (data: object, metadata: object) => {
   };
 
   const res = await axios(config);
-  // console.log('pinned:', { ...data }, 'cid:', res.cid);
 
-  return res;
+  return _.get(res, 'data.IpfsHash');
 };
 
 export const pinImage = async ({
