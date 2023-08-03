@@ -7,8 +7,9 @@ import { decimalId, hatIdToHex, prettyIdToIp, toTreeId } from '@/lib/hats';
 import { calculateCid, pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
-import { QueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import useTreeDetails from './useTreeDetails';
 
 type UseSubmitHatChangesProps = {
   hatData: IHat;
@@ -41,7 +42,7 @@ const useSubmitHatChanges = ({
   const account = useAccount();
   const hatsClient = createHatsClient(chainId);
   const toast = useToast();
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const onSubmit = async () => {
     const calls = [];
@@ -189,28 +190,33 @@ const useSubmitHatChanges = ({
           account: account.address as `0x${string}`,
           calls,
         });
+
         const hatQueryKey = ['hatDetails', hatIdToHex(hatData?.id), chainId];
         const treeId = toTreeId(hatData?.id);
+        const treeQueryKey = ['treeDetails', treeId, chainId];
 
         console.log('invalidateQuery', hatQueryKey, [
           'treeDetails',
           treeId,
           chainId,
         ]);
-        queryClient.invalidateQueries([
-          hatQueryKey,
-          ['treeDetails', treeId, chainId],
-          ['hatDetailsField', newCid],
-        ]);
 
         queryClient.setQueryData(['hatDetailsField', newCid], newDetailsData);
+
+        console.log('start invalidate');
+        queryClient.invalidateQueries(hatQueryKey);
+        queryClient.invalidateQueries(treeQueryKey);
+        queryClient.invalidateQueries(['hatDetailsField', newCid]);
+        console.log('end invalidate');
         setIsLoading(false);
 
         toast.success({
           title: 'Transaction successful',
           description: 'Hat was successfully updated',
         });
+        return true;
       } catch (error: unknown) {
+        console.log(error);
         toast.error({
           title: 'Error occurred!',
           description:
@@ -220,6 +226,7 @@ const useSubmitHatChanges = ({
         });
 
         setIsLoading(false);
+        return false;
       }
     }
   };

@@ -8,6 +8,7 @@ import { ImageFile } from '@/types';
 const baseStyle = {
   display: 'flex',
   flexDirection: 'column',
+  flexGrow: 'grow',
   alignItems: 'center',
   justifyContent: 'center',
   padding: '20px',

@@ -58,7 +58,7 @@ const useHatDetailsField = (detailsField?: string) => {
   const detailsData = data?.data?.data;
 
   let schemaType;
-  if (!!data && data.headers['content-type'] === 'application/json') {
+  if (!!data && data.headers?.['content-type'] === 'application/json') {
     const schemaTypeField = data.data.type;
     // schema validation
     switch (schemaTypeField) {
