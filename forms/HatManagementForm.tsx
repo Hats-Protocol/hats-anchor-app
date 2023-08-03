@@ -9,7 +9,7 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { isTopHatOrMutable } from '@/lib/hats';
+import { isMutable, isTopHatOrMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 interface HatManagementFormProps {
@@ -105,7 +105,7 @@ const HatManagementForm = ({
             docsLink={`https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/${title}-requirements-for-wearers`}
             localForm={localForm}
             showResolvedAddress={Boolean(showActionResolvedAddress)}
-            isDisabled={!isTopHatOrMutable(hatData)}
+            isDisabled={!isMutable(hatData)}
             resolvedAddress={String(actionResolvedAddress)}
           />
         </FormRowWrapper>
@@ -121,7 +121,6 @@ const HatManagementForm = ({
         {fields.map((field, index) => (
           <LabelWithLink
             key={field.id}
-            index={index}
             localForm={localForm}
             title={title}
             handleRemoveItem={() => remove(index)}
@@ -138,11 +137,11 @@ const HatManagementForm = ({
         <Box mb={2}>
           <Button
             onClick={() => append({ link: '', label: '' })}
-            isDisabled={items.some((item: DetailsItem) => item.label === '')}
+            isDisabled={items?.some((item: DetailsItem) => item.label === '')}
             gap={2}
           >
             <FaPlus />
-            Add {fields.length ? 'another' : 'a'} Requirement
+            Add {items?.length ? 'another' : 'a'} Requirement
           </Button>
         </Box>
       </Stack>

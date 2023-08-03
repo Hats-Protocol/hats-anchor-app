@@ -12,14 +12,13 @@ import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { DetailsItem, DetailsObject, HatDetails, IHat } from '@/types';
-import useCid from '@/hooks/useCid';
+import { DetailsObject, HatDetails, IHat } from '@/types';
 
 const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
   const {
     name: initialName,
     description: initialDescription,
-    guilds,
+    guilds: initialGuilds,
     responsibilities: initialResponsibilities,
     authorities: initialAuthorities,
     eligibility: initialEligibility,
@@ -48,6 +47,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
       description: initialDescription,
       authorities: initialAuthorities,
       responsibilities: initialResponsibilities,
+      guilds: initialGuilds,
     },
   });
 
@@ -58,7 +58,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
   } = localForm;
 
   const [newImageURI, setNewImageURI] = useState('');
-  const [newDetails, setNewDetailsURI] = useState('');
   const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
 
   const eligibility = useDebounce(
@@ -88,7 +87,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
     hatData,
     chainId,
     newImageURI,
-    newDetails,
     dirtyFields,
     newDetailsData,
     maxSupply,
@@ -109,11 +107,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
   const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
   const responsibilities = useDebounce(watch('responsibilities'));
   const authorities = useDebounce(watch('authorities'));
-
-  const { cid: detailsCID } = useCid({
-    type: '1.0',
-    data: newDetailsData,
-  });
+  const guilds = useDebounce(watch('guilds'));
 
   useEffect(() => {
     setNewDetailsData({
@@ -143,11 +137,9 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
     isToggleManual,
   ]);
 
-  useEffect(() => {
-    setNewDetailsURI(detailsCID);
-  }, [detailsCID]);
-
   if (!hatData) return null;
+
+  console.log('lol');
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -175,9 +167,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
               hatData={hatData}
               chainId={chainId}
               setNewImageURI={setNewImageURI}
-              defaultValues={{
-                guilds,
-              }}
             />
           </Stack>
         </Accordion>
@@ -263,17 +252,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
               isLoadingEligibilityResolvedAddress ||
               isLoadingToggleResolvedAddress ||
               isLoading
-            }
-            isDisabled={
-              hatData.levelAtLocalTree === 0 ||
-              (!dirtyFields.maxSupply &&
-                !dirtyFields.mutable &&
-                !dirtyFields.eligibility &&
-                !dirtyFields.toggle &&
-                !dirtyFields.imageUrl &&
-                (!newImageURI || imageUrl === newImageURI) &&
-                hatData.details === newDetails) ||
-              maxSupply < 0
             }
           >
             Submit

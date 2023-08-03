@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi';
 
 import useToast from '@/hooks/useToast';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
-import { pinJson } from '@/lib/ipfs';
+import { calculateCid, pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
 
@@ -12,7 +12,6 @@ type UseSubmitHatChangesProps = {
   hatData: IHat;
   chainId: number;
   newImageURI: string;
-  newDetails: string;
   dirtyFields: any;
   newDetailsData: any;
   maxSupply: number;
@@ -27,7 +26,6 @@ const useSubmitHatChanges = ({
   hatData,
   chainId,
   newImageURI,
-  newDetails,
   dirtyFields,
   newDetailsData,
   maxSupply,
@@ -45,17 +43,21 @@ const useSubmitHatChanges = ({
   const onSubmit = async () => {
     const calls = [];
 
-    if (hatData.details !== newDetails) {
+    const newCid = await calculateCid(newDetailsData);
+    console.log('newCid', newCid);
+
+    if (hatData.details !== newCid) {
       try {
         const callData = hatsClient.changeHatDetailsCallData({
           hatId: decimalId(hatData?.id) as unknown as bigint,
-          newDetails,
+          newDetails: newCid,
         });
 
         const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
           _.get(hatData, 'admin.id'),
         )}`;
 
+        console.log('newDetailsData', newDetailsData);
         await pinJson(
           {
             type: '1.0',

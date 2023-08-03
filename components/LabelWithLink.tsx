@@ -14,7 +14,6 @@ import LinkInput from '@/components/LinkInput';
 import { useOverlay } from '@/contexts/OverlayContext';
 
 interface LabelWithLinkProps {
-  index: number;
   localForm: any;
   title: string;
   handleRemoveItem: () => void;
@@ -29,7 +28,6 @@ interface LabelWithLinkProps {
 }
 
 const LabelWithLink = ({
-  index,
   localForm,
   title,
   handleRemoveItem,

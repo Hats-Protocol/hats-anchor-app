@@ -66,7 +66,6 @@ const ItemDetailsForm = ({
       {fields.map((field, index) => (
         <LabelWithLink
           key={field.id}
-          index={index}
           localForm={localForm}
           title={title}
           handleRemoveItem={() => remove(index)}
@@ -84,11 +83,11 @@ const ItemDetailsForm = ({
       <Box mb={2}>
         <Button
           onClick={() => append({ link: '', label: '' })}
-          isDisabled={items.some((item: DetailsItem) => item.label === '')}
+          isDisabled={items?.some((item: DetailsItem) => item.label === '')}
           gap={2}
         >
           <FaPlus />
-          Add {fields.length ? 'another' : 'a'} {label}
+          Add {items?.length ? 'another' : 'a'} {label}
         </Button>
       </Box>
     </>

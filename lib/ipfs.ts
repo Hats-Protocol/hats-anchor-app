@@ -1,4 +1,9 @@
+/* eslint-disable import/no-unresolved */
 import axios from 'axios';
+import { CID } from 'multiformats/cid';
+import * as json from 'multiformats/codecs/json';
+import * as raw from 'multiformats/codecs/raw';
+import { sha256 } from 'multiformats/hashes/sha2';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
@@ -77,4 +82,11 @@ export const unpinImage = async (cid: string) => {
   const res = await axios(config);
   // console.log('upnin res:', res);
   return res;
+};
+
+export const calculateCid = async (data: object): Promise<string> => {
+  const bytes = json.encode(data);
+  const hash = await sha256.digest(bytes);
+  const localCid = CID.create(1, raw.code, hash);
+  return `ipfs://${localCid.toString()}`;
 };

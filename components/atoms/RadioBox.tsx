@@ -30,6 +30,7 @@ interface RadioBoxProps {
   helperText?: string;
   tooltip?: string;
   subLabel?: string;
+  isDisabled?: boolean;
 }
 
 const RadioBox = ({
@@ -41,6 +42,7 @@ const RadioBox = ({
   helperText,
   tooltip,
   subLabel,
+  isDisabled,
 }: RadioBoxProps) => {
   if (!localForm) return null;
 
@@ -88,7 +90,7 @@ const RadioBox = ({
           control={control}
           name={name}
           render={({ field }) => (
-            <RadioGroup {...field}>
+            <RadioGroup {...field} isDisabled={isDisabled}>
               <HStack spacing={4}>
                 {options?.map((option) => (
                   <Radio key={option.value} value={option.value}>

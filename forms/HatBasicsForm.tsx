@@ -1,29 +1,23 @@
 import {
   Box,
-  Flex,
+  Button,
   FormControl,
-  Icon,
+  HStack,
   IconButton,
   Image,
-  Input as ChakraInput,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Spinner,
   Stack,
   Text,
-  Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useFieldArray } from 'react-hook-form';
 import {
   FaChartBar,
-  FaCheck,
   FaHouseUser,
   FaImage,
-  FaInfoCircle,
   FaParagraph,
+  FaPlus,
   FaRegEdit,
   FaTrash,
 } from 'react-icons/fa';
@@ -34,9 +28,9 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { MUTABILITY } from '@/constants';
+import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import useResolveGuild from '@/hooks/useResolvedGuild';
-import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import { isMutable, isTopHat, isTopHatOrMutable } from '@/lib/hats';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },
@@ -51,33 +45,23 @@ const HatBasicsForm = ({
   hatData,
   chainId,
   setNewImageURI,
-  defaultValues,
 }: {
   localForm: any;
   hatData: any;
   chainId: number;
-  defaultValues: {
-    guilds?: string[];
-  };
   setNewImageURI: (uri: string) => void;
 }) => {
   const [image, setImage] = useState<any>();
   const { formState } = localForm;
-  const [guilds, setGuilds] = useState(defaultValues.guilds || []);
-  const [newGuild, setNewGuild] = useState('');
 
-  const { isResolved, isLoading: isResolvingGuild } = useResolveGuild({
-    guildName: newGuild,
+  const { watch, control } = localForm;
+
+  const { append, fields, remove } = useFieldArray({
+    control,
+    name: 'guilds',
   });
 
-  const handleAddGuild = () => {
-    setGuilds([...guilds, newGuild]);
-    setNewGuild('');
-  };
-
-  const handleRemoveGuild = (index: number) => {
-    setGuilds(guilds.filter((__: any, i: number) => i !== index));
-  };
+  const guilds = useDebounce(watch('guilds'));
 
   const {
     acceptedFiles,
@@ -153,75 +137,37 @@ const HatBasicsForm = ({
           {isTopHat(hatData) && (
             <FormRowWrapper>
               <FaHouseUser />
-              <>
-                <Text fontSize='sm' color='blue.500' pt={3}>
-                  <Icon as={FaInfoCircle} mr={1} />
-                  Bind one or more guild.xyz to this hat. Remember to click the
-                  checkmark to add the guild.
-                </Text>
-                <Flex alignItems='center'>
-                  <InputGroup>
-                    <InputLeftElement>
-                      <Icon as={FaHouseUser} ml={2} />
-                    </InputLeftElement>
-                    <ChakraInput
-                      w='calc(100% - 1rem)'
-                      textOverflow='ellipsis'
-                      type='guild'
+              <Stack w='full'>
+                <Text fontSize='sm'>GUILDS</Text>
+                {fields.map((field, index) => (
+                  <HStack key={field.id}>
+                    <Input
+                      name={`guilds.${index}`}
+                      localForm={localForm}
                       placeholder='Guild name (e.g. hats-protocol)'
-                      value={newGuild}
-                      onChange={(e) => setNewGuild(e.target.value)}
+                      isDisabled={index !== fields.length - 1}
                     />
-                    {isResolved ? (
-                      <InputRightElement right='2rem'>
-                        <FaCheck color='green' />
-                      </InputRightElement>
-                    ) : (
-                      isResolvingGuild && (
-                        <InputRightElement right='2rem'>
-                          <Spinner size='sm' />
-                        </InputRightElement>
-                      )
-                    )}
-                  </InputGroup>
-                  <Tooltip
-                    label={!newGuild ? 'Please input a guild name' : ''}
-                    shouldWrapChildren
-                  >
                     <IconButton
-                      isDisabled={!newGuild}
-                      onClick={handleAddGuild}
-                      icon={<FaCheck />}
-                      aria-label='Add'
+                      type='button'
+                      onClick={() => remove(index)}
+                      icon={<FaTrash />}
+                      aria-label='Remove'
                       height={9}
                       w={16}
                     />
-                  </Tooltip>
-                </Flex>
-                {guilds.map((guild: string, index: number) => (
-                  <Box key={guild}>
-                    <Flex
-                      align='center'
-                      w='full'
-                      justifyContent='space-between'
-                    >
-                      <ChakraInput
-                        value={guild}
-                        readOnly
-                        w='calc(100% - 5rem)'
-                      />
-                      <IconButton
-                        type='button'
-                        onClick={() => handleRemoveGuild(index)}
-                        icon={<FaTrash />}
-                        aria-label='Remove'
-                        height={9}
-                        w={16}
-                      />
-                    </Flex>
-                  </Box>
+                  </HStack>
                 ))}
-              </>
+                <Box mb={2}>
+                  <Button
+                    onClick={() => append('')}
+                    isDisabled={guilds?.some((item: string) => item === '')}
+                    gap={2}
+                  >
+                    <FaPlus />
+                    Add {guilds?.length ? 'another' : 'a'} Guild
+                  </Button>
+                </Box>
+              </Stack>
             </FormRowWrapper>
           )}
 
@@ -231,7 +177,7 @@ const HatBasicsForm = ({
               name='maxSupply'
               label='MAX WEARERS'
               placeholder='10'
-              isDisabled={!isTopHatOrMutable(hatData)}
+              isDisabled={!isMutable(hatData)}
               localForm={localForm}
             />
           </FormRowWrapper>
@@ -242,6 +188,7 @@ const HatBasicsForm = ({
               <RadioBox
                 name='mutable'
                 label='EDITABLE'
+                isDisabled={!isMutable(hatData)}
                 subLabel='Should it be possible for an admin to make changes to this Hat?'
                 localForm={localForm}
                 options={MUTABILITY_OPTIONS}

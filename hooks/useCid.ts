@@ -1,8 +1,6 @@
 /* eslint-disable import/no-unresolved */
-import { CID } from 'multiformats/cid';
-import * as json from 'multiformats/codecs/json';
-import * as raw from 'multiformats/codecs/raw';
-import { sha256 } from 'multiformats/hashes/sha2';
+import { calculateCid } from '@/lib/ipfs';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 /**
@@ -11,21 +9,24 @@ import { useEffect, useState } from 'react';
  * @returns The CID, prefixed with "ipfs://"
  */
 const useCid = (data: object) => {
+  const [currentData, setCurrentData] = useState<object>();
   const [cid, setCid] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function calcCid() {
       setLoading(true);
-      const bytes = json.encode(data);
-      const hash = await sha256.digest(bytes);
-      const localCid = CID.create(1, raw?.code, hash);
-      setCid(`ipfs://${localCid.toString()}`);
+      setCurrentData(data);
+      const cid = await calculateCid(data);
+
+      setCid(cid);
       setLoading(false);
     }
 
-    calcCid();
-  }, [data]);
+    if (!_.isEqual(data, currentData)) {
+      calcCid();
+    }
+  }, [data, currentData]);
 
   return { cid, loading };
 };
