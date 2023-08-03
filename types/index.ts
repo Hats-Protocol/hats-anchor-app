@@ -82,11 +82,17 @@ export interface HatRole {
 }
 
 export type DetailsObject = {
-  guilds: string[];
+  guilds?: string[];
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
-  revocations: DetailsItem[];
-  deactivations: DetailsItem[];
+  eligibility: {
+    manual: boolean;
+    criteria: DetailsItem[];
+  };
+  toggle: {
+    manual: boolean;
+    criteria: DetailsItem[];
+  };
   name: string;
   description: string;
 };

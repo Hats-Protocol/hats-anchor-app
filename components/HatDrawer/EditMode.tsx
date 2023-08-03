@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
@@ -13,11 +13,12 @@ import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { DetailsItem, DetailsObject, HatDetails, IHat } from '@/types';
+import useCid from '@/hooks/useCid';
 
 const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
   const {
-    name,
-    description,
+    name: initialName,
+    description: initialDescription,
     guilds,
     responsibilities: initialResponsibilities,
     authorities: initialAuthorities,
@@ -43,8 +44,8 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
           : TRIGGER_OPTIONS.AUTOMATICALLY,
       revocationsCriteria: initialEligibility?.criteria || [],
       deactivationsCriteria: initialToggle?.criteria || [],
-      name,
-      description,
+      name: initialName,
+      description: initialDescription,
       authorities: initialAuthorities,
       responsibilities: initialResponsibilities,
     },
@@ -98,6 +99,54 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
     imageUrl,
   });
 
+  const name = useDebounce(watch('name', initialName || ''));
+  const description = useDebounce(
+    watch('description', initialDescription || ''),
+  );
+  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
+  const isToggleManual = useDebounce(watch('isToggleManual'));
+  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
+  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
+  const responsibilities = useDebounce(watch('responsibilities'));
+  const authorities = useDebounce(watch('authorities'));
+
+  const { cid: detailsCID } = useCid({
+    type: '1.0',
+    data: newDetailsData,
+  });
+
+  useEffect(() => {
+    setNewDetailsData({
+      name,
+      description,
+      guilds,
+      responsibilities,
+      authorities,
+      eligibility: {
+        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: revocationsCriteria,
+      },
+      toggle: {
+        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: deactivationsCriteria,
+      },
+    });
+  }, [
+    name,
+    description,
+    guilds,
+    responsibilities,
+    authorities,
+    revocationsCriteria,
+    deactivationsCriteria,
+    isEligibilityManual,
+    isToggleManual,
+  ]);
+
+  useEffect(() => {
+    setNewDetailsURI(detailsCID);
+  }, [detailsCID]);
+
   if (!hatData) return null;
 
   return (
@@ -126,13 +175,7 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
               hatData={hatData}
               chainId={chainId}
               setNewImageURI={setNewImageURI}
-              setNewDetailsURI={setNewDetailsURI}
-              setNewDetailsData={setNewDetailsData}
-              newDetailsData={newDetailsData}
               defaultValues={{
-                name,
-                description,
-                imageUrl,
                 guilds,
               }}
             />

@@ -1,10 +1,11 @@
 import {
   Box,
-  Input as ChakraInput,
   Flex,
   FormControl,
   Icon,
   IconButton,
+  Image,
+  Input as ChakraInput,
   InputGroup,
   InputLeftElement,
   InputRightElement,
@@ -12,8 +13,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  HStack,
-  Image,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -31,16 +30,13 @@ import {
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
+import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
-import useCid from '@/hooks/useCid';
-import useDebounce from '@/hooks/useDebounce';
+import FormRowWrapper from '@/components/FormRowWrapper';
+import { MUTABILITY } from '@/constants';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useResolveGuild from '@/hooks/useResolvedGuild';
 import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
-import { DetailsItem } from '@/types';
-import { MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
-import RadioBox from '@/components/atoms/RadioBox';
-import FormRowWrapper from '@/components/FormRowWrapper';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },
@@ -56,26 +52,17 @@ const HatBasicsForm = ({
   chainId,
   setNewImageURI,
   defaultValues,
-  setNewDetailsURI,
-  setNewDetailsData,
-  newDetailsData,
 }: {
   localForm: any;
   hatData: any;
   chainId: number;
   defaultValues: {
-    name?: string;
-    description?: string;
-    imageUrl?: string;
     guilds?: string[];
   };
   setNewImageURI: (uri: string) => void;
-  setNewDetailsURI: (uri: string) => void;
-  setNewDetailsData: (data: any) => void;
-  newDetailsData: any;
 }) => {
   const [image, setImage] = useState<any>();
-  const { formState, watch } = localForm;
+  const { formState } = localForm;
   const [guilds, setGuilds] = useState(defaultValues.guilds || []);
   const [newGuild, setNewGuild] = useState('');
 
@@ -91,54 +78,6 @@ const HatBasicsForm = ({
   const handleRemoveGuild = (index: number) => {
     setGuilds(guilds.filter((__: any, i: number) => i !== index));
   };
-
-  const name = useDebounce(watch('name', defaultValues?.name || ''));
-  const description = useDebounce(
-    watch('description', defaultValues?.description || ''),
-  );
-  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
-  const isToggleManual = useDebounce(watch('isToggleManual'));
-  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
-  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
-  const responsibilities = useDebounce(watch('responsibilities'));
-  const authorities = useDebounce(watch('authorities'));
-
-  const { cid: detailsCID } = useCid({
-    type: '1.0',
-    data: newDetailsData,
-  });
-
-  useEffect(() => {
-    setNewDetailsData({
-      name,
-      description,
-      guilds,
-      responsibilities,
-      authorities,
-      eligibility: {
-        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: revocationsCriteria,
-      },
-      toggle: {
-        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: deactivationsCriteria,
-      },
-    });
-  }, [
-    name,
-    description,
-    guilds,
-    responsibilities,
-    authorities,
-    revocationsCriteria,
-    deactivationsCriteria,
-    isEligibilityManual,
-    isToggleManual,
-  ]);
-
-  useEffect(() => {
-    setNewDetailsURI(detailsCID);
-  }, [detailsCID]);
 
   const {
     acceptedFiles,
@@ -158,11 +97,7 @@ const HatBasicsForm = ({
     },
   });
 
-  const {
-    data: imagePinData,
-    isLoading: imagePinLoading,
-    // error: imagePinError,
-  } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: { name: `image_${_.toString(chainId)}_tophat` },
@@ -172,7 +107,7 @@ const HatBasicsForm = ({
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
     setNewImageURI(hatImageURI);
-  }, [imagePinData, formState?.values?.imageUrl]);
+  }, [imagePinData, formState.values.imageUrl, setNewImageURI]);
 
   return (
     <form>
