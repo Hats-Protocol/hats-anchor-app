@@ -35,14 +35,14 @@ const HatManagementForm = ({
   formName,
   radioBoxConfig,
 }: HatManagementFormProps) => {
-  const { watch, control, register, setValue, getValues } = localForm;
+  const { watch, control, setValue, getValues } = localForm;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
   });
 
-  const criteria = watch(formName);
+  const items = watch(formName);
 
   const isActionManual = watch(radioBoxConfig.name);
   const showActionResolvedAddress =
@@ -138,7 +138,7 @@ const HatManagementForm = ({
         <Box mb={2}>
           <Button
             onClick={() => append({ link: '', label: '' })}
-            isDisabled={criteria.some((crit: DetailsItem) => crit.label === '')}
+            isDisabled={items.some((item: DetailsItem) => item.label === '')}
             gap={2}
           >
             <FaPlus />

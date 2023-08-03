@@ -1,27 +1,24 @@
 import { Box, Button, HStack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
+import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { FaPlus } from 'react-icons/fa';
 
-import LabelWithLinkTemp from '@/components/LabelWithLinkTemp';
+import LabelWithLink from '@/components/LabelWithLink';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { DetailsItem } from '@/types';
 
 interface ItemDetailsFormProps {
-  items: DetailsItem[];
-  setItems: (items: DetailsItem[]) => void;
-  handleAddItem: (item: DetailsItem) => void;
-  handleRemoveItem: (index: number) => void;
+  localForm: any;
+  formName: string;
   title: string;
   Icon: IconType;
   label: string;
 }
 
 const ItemDetailsForm = ({
-  items,
-  setItems,
-  handleAddItem,
-  handleRemoveItem,
+  localForm,
+  formName,
   title,
   Icon,
   label,
@@ -32,8 +29,17 @@ const ItemDetailsForm = ({
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
+  const { watch, control, setValue, getValues } = localForm;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: formName,
+  });
+  const items = watch(formName);
+
   const handleEdit = (index: number) => {
-    setInputLink(items[index].link);
+    const itemsArray = getValues(formName);
+    setInputLink(itemsArray[index].link);
     setCurrentItemIndex(index);
     setModals?.({
       [`editLabel-${title}`]: true,
@@ -42,9 +48,7 @@ const ItemDetailsForm = ({
 
   const handleSave = () => {
     if (isLinkValid) {
-      const newArr = [...items];
-      newArr[currentItemIndex].link = inputLink;
-      setItems(newArr);
+      setValue(`${formName}.${currentItemIndex}.link`, inputLink);
       setInputLink('');
       setCurrentItemIndex(0);
     }
@@ -53,45 +57,38 @@ const ItemDetailsForm = ({
     });
   };
 
-  const onChangeLabel = (e: any, index: number) => {
-    const newArr = [...items];
-    newArr[index].label = e.target.value;
-    setItems(newArr);
-  };
-
   return (
     <>
       <HStack alignItems='center' ml={-6}>
         {Icon && <Icon />}
         <Text fontSize='sm'>{title}</Text>
       </HStack>
-      {items.map((item, index) => (
-        <LabelWithLinkTemp
-          // eslint-disable-next-line react/no-array-index-key
-          key={title + index}
-          item={item}
+      {fields.map((field, index) => (
+        <LabelWithLink
+          key={field.id}
+          index={index}
+          localForm={localForm}
           title={title}
-          handleRemoveItem={() => handleRemoveItem(index)}
-          onChangeLabel={(e) => onChangeLabel(e, index)}
+          handleRemoveItem={() => remove(index)}
           handleEdit={() => handleEdit(index)}
           handleSave={handleSave}
           inputLink={inputLink}
           setInputLink={setInputLink}
           isLinkValid={isLinkValid}
           setIsLinkValid={setIsLinkValid}
+          labelName={`${formName}.${index}.label`}
+          linkName={`${formName}.${index}.link`}
         />
       ))}
 
       <Box mb={2}>
         <Button
-          onClick={() => {
-            handleAddItem({ link: '', label: '' });
-          }}
-          isDisabled={items.some((item) => item.label === '')}
+          onClick={() => append({ link: '', label: '' })}
+          isDisabled={items.some((item: DetailsItem) => item.label === '')}
           gap={2}
         >
           <FaPlus />
-          Add a {label}
+          Add {fields.length ? 'another' : 'a'} {label}
         </Button>
       </Box>
     </>

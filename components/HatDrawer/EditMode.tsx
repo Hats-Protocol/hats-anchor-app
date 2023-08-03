@@ -45,6 +45,8 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
       deactivationsCriteria: initialToggle?.criteria || [],
       name,
       description,
+      authorities: initialAuthorities,
+      responsibilities: initialResponsibilities,
     },
   });
 
@@ -57,16 +59,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
   const [newImageURI, setNewImageURI] = useState('');
   const [newDetails, setNewDetailsURI] = useState('');
   const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
-  const [responsibilities, setResponsibilities] = useState(
-    initialResponsibilities || [],
-  );
-  const [authorities, setAuthorities] = useState(initialAuthorities || []);
-  const [revocations, setRevocations] = useState(
-    initialEligibility?.criteria || [],
-  );
-  const [deactivations, setDeactivations] = useState(
-    initialToggle?.criteria || [],
-  );
 
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
@@ -106,22 +98,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
     imageUrl,
   });
 
-  const handleAddResponsibility = ({ link, label }: DetailsItem) => {
-    setResponsibilities([...responsibilities, { link, label }]);
-  };
-
-  const handleRemoveResponsibility = (index: number) => {
-    setResponsibilities(responsibilities.filter((__, i) => i !== index));
-  };
-
-  const handleAddAuthority = ({ link, label }: DetailsItem) => {
-    setAuthorities([...authorities, { link, label }]);
-  };
-
-  const handleRemoveAuthority = (index: number) => {
-    setAuthorities(authorities.filter((__, i) => i !== index));
-  };
-
   if (!hatData) return null;
 
   return (
@@ -153,11 +129,10 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
               setNewDetailsURI={setNewDetailsURI}
               setNewDetailsData={setNewDetailsData}
               newDetailsData={newDetailsData}
-              responsibilities={responsibilities}
-              authorities={authorities}
               defaultValues={{
                 name,
                 description,
+                imageUrl,
                 guilds,
               }}
             />
@@ -170,10 +145,8 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
         >
           <Stack spacing={4}>
             <ItemDetailsForm
-              items={authorities}
-              setItems={setAuthorities}
-              handleAddItem={handleAddAuthority}
-              handleRemoveItem={handleRemoveAuthority}
+              localForm={localForm}
+              formName='authorities'
               title='PERMISSIONS'
               label='Permission'
               Icon={FaKey}
@@ -187,10 +160,8 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
         >
           <Stack spacing={4}>
             <ItemDetailsForm
-              items={responsibilities}
-              setItems={setResponsibilities}
-              handleAddItem={handleAddResponsibility}
-              handleRemoveItem={handleRemoveResponsibility}
+              localForm={localForm}
+              formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
               Icon={FaRegListAlt}

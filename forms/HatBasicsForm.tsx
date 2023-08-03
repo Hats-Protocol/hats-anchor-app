@@ -59,8 +59,6 @@ const HatBasicsForm = ({
   setNewDetailsURI,
   setNewDetailsData,
   newDetailsData,
-  responsibilities,
-  authorities,
 }: {
   localForm: any;
   hatData: any;
@@ -75,8 +73,6 @@ const HatBasicsForm = ({
   setNewDetailsURI: (uri: string) => void;
   setNewDetailsData: (data: any) => void;
   newDetailsData: any;
-  responsibilities: DetailsItem[];
-  authorities: DetailsItem[];
 }) => {
   const [image, setImage] = useState<any>();
   const { formState, watch } = localForm;
@@ -100,10 +96,12 @@ const HatBasicsForm = ({
   const description = useDebounce(
     watch('description', defaultValues?.description || ''),
   );
-  const isEligibilityManual = watch('isEligibilityManual');
-  const isToggleManual = watch('isToggleManual');
-  const revocationsCriteria = watch('revocationsCriteria');
-  const deactivationsCriteria = watch('deactivationsCriteria');
+  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
+  const isToggleManual = useDebounce(watch('isToggleManual'));
+  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
+  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
+  const responsibilities = useDebounce(watch('responsibilities'));
+  const authorities = useDebounce(watch('authorities'));
 
   const { cid: detailsCID } = useCid({
     type: '1.0',
