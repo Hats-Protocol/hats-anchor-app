@@ -8,57 +8,57 @@ import {
 } from '@chakra-ui/react';
 import { FaLink, FaRegTrashAlt } from 'react-icons/fa';
 
-import Input from '@/components/atoms/Input';
 import Modal from '@/components/atoms/Modal';
 import LinkInput from '@/components/LinkInput';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { DetailsItem } from '@/types';
 
 interface LabelWithLinkProps {
-  index: number;
-  localForm: any;
+  item: DetailsItem;
   title: string;
   handleRemoveItem: () => void;
+  onChangeLabel: (e: any) => void;
   handleEdit: () => void;
   handleSave: () => void;
   inputLink: string;
   setInputLink: (inputLink: string) => void;
   isLinkValid: boolean;
   setIsLinkValid: (isLinkValid: boolean) => void;
-  labelName: string;
-  linkName: string;
 }
 
-const LabelWithLink = ({
-  index,
-  localForm,
+const LabelWithLinkTemp = ({
+  item,
   title,
   handleRemoveItem,
+  onChangeLabel,
   handleEdit,
   handleSave,
   inputLink,
   setInputLink,
   isLinkValid,
   setIsLinkValid,
-  labelName,
-  linkName,
 }: LabelWithLinkProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { watch } = localForm;
-  const linkValue = watch(linkName);
 
   return (
     <Stack>
       <HStack alignItems='center' justifyContent='space-between'>
-        <Input name={labelName} localForm={localForm} placeholder='Label' />
+        <ChakraInput
+          value={item.label}
+          onChange={onChangeLabel}
+          placeholder='Label'
+        />
+
         <Button leftIcon={<FaLink />} onClick={handleEdit} px={10}>
-          {linkValue ? 'Edit' : 'Add'} Link
+          {item.link ? 'Edit' : 'Add'} Link
         </Button>
         <IconButton
           onClick={handleRemoveItem}
           icon={<FaRegTrashAlt />}
           aria-label='Remove'
         />
+
         <Modal
           name={`editLabel-${title}`}
           title={`Edit ${title.toLowerCase()} Link`}
@@ -76,13 +76,13 @@ const LabelWithLink = ({
         </Modal>
       </HStack>
 
-      {linkValue && (
+      {item.link && (
         <Text fontSize='sm' color='gray.500'>
-          {linkValue}
+          {item.link}
         </Text>
       )}
     </Stack>
   );
 };
 
-export default LabelWithLink;
+export default LabelWithLinkTemp;

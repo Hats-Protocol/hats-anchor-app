@@ -41,6 +41,8 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
         initialToggle?.manual || initialToggle?.manual === undefined
           ? TRIGGER_OPTIONS.MANUALLY
           : TRIGGER_OPTIONS.AUTOMATICALLY,
+      revocationsCriteria: initialEligibility?.criteria || [],
+      deactivationsCriteria: initialToggle?.criteria || [],
       name,
       description,
     },
@@ -120,22 +122,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
     setAuthorities(authorities.filter((__, i) => i !== index));
   };
 
-  const handleAddRevocation = ({ link, label }: DetailsItem) => {
-    setRevocations([...revocations, { link, label }]);
-  };
-
-  const handleRemoveRevocation = (index: number) => {
-    setRevocations(revocations.filter((__, i) => i !== index));
-  };
-
-  const handleAddDeactivation = ({ link, label }: DetailsItem) => {
-    setDeactivations([...deactivations, { link, label }]);
-  };
-
-  const handleRemoveDeactivation = (index: number) => {
-    setDeactivations(deactivations.filter((__, i) => i !== index));
-  };
-
   if (!hatData) return null;
 
   return (
@@ -169,8 +155,6 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
               newDetailsData={newDetailsData}
               responsibilities={responsibilities}
               authorities={authorities}
-              revocations={revocations}
-              deactivations={deactivations}
               defaultValues={{
                 name,
                 description,
@@ -222,13 +206,10 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
             <HatManagementForm
               localForm={localForm}
               hatData={hatData}
-              action={eligibility}
+              address={eligibility}
               actionResolvedAddress={eligibilityResolvedAddress}
-              items={revocations}
-              setItems={setRevocations}
-              handleAddItem={handleAddRevocation}
-              handleRemoveItem={handleRemoveRevocation}
               title='eligibility'
+              formName='revocationsCriteria'
               radioBoxConfig={{
                 name: 'isEligibilityManual',
                 label: 'Hat Revocation',
@@ -246,13 +227,10 @@ const EditMode = ({ hatData, chainId, hatDetails }: EditModeProps) => {
             <HatManagementForm
               localForm={localForm}
               hatData={hatData}
-              action={toggle}
+              address={toggle}
               actionResolvedAddress={toggleResolvedAddress}
-              items={deactivations}
-              handleAddItem={handleAddDeactivation}
-              handleRemoveItem={handleRemoveDeactivation}
-              setItems={setDeactivations}
               title='toggle'
+              formName='deactivationsCriteria'
               radioBoxConfig={{
                 name: 'isToggleManual',
                 label: 'Hat Deactivation',

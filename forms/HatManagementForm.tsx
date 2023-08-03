@@ -1,5 +1,6 @@
 import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
+import { useFieldArray } from 'react-hook-form';
 import { FaPlus, FaRegEdit, FaRegListAlt, FaShieldAlt } from 'react-icons/fa';
 
 import AddressInput from '@/components/AddressInput';
@@ -14,13 +15,10 @@ import { DetailsItem } from '@/types';
 interface HatManagementFormProps {
   hatData: any;
   localForm: any;
-  action: string; // eligibility or toggle
+  address: string; // eligibility or toggle
   actionResolvedAddress?: `0x${string}` | null;
-  items: DetailsItem[];
-  handleAddItem: (item: DetailsItem) => void;
-  handleRemoveItem: (index: number) => void;
-  setItems: (items: DetailsItem[]) => void;
   title: string;
+  formName: string;
   radioBoxConfig: {
     name: string;
     label: string;
@@ -31,21 +29,24 @@ interface HatManagementFormProps {
 const HatManagementForm = ({
   hatData,
   localForm,
-  action,
+  address,
   actionResolvedAddress,
-  items,
-  handleAddItem,
-  handleRemoveItem,
-  setItems,
   title,
+  formName,
   radioBoxConfig,
 }: HatManagementFormProps) => {
-  const { watch } = localForm;
-  const isActionManual = watch(
-    `is${action.charAt(0).toUpperCase() + action.slice(1)}Manual`,
-  );
+  const { watch, control, register, setValue, getValues } = localForm;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: formName,
+  });
+
+  const criteria = watch(formName);
+
+  const isActionManual = watch(radioBoxConfig.name);
   const showActionResolvedAddress =
-    actionResolvedAddress && actionResolvedAddress !== action;
+    actionResolvedAddress && actionResolvedAddress !== address;
 
   const options = [
     { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
@@ -62,7 +63,8 @@ const HatManagementForm = ({
   const { setModals } = localOverlay;
 
   const handleEdit = (index: number) => {
-    setInputLink(items[index].link);
+    const itemsArray = getValues(formName);
+    setInputLink(itemsArray[index].link);
     setCurrentItemIndex(index);
     setModals?.({
       [`editLabel-${title}`]: true,
@@ -71,21 +73,13 @@ const HatManagementForm = ({
 
   const handleSave = () => {
     if (isLinkValid) {
-      const newArr = [...items];
-      newArr[currentItemIndex].link = inputLink;
-      setItems(newArr);
+      setValue(`${formName}.${currentItemIndex}.link`, inputLink);
       setInputLink('');
       setCurrentItemIndex(0);
     }
     setModals?.({
       [`editLabel-${title}`]: false,
     });
-  };
-
-  const onChangeLabel = (e: any, index: number) => {
-    const newArr = [...items];
-    newArr[index].label = e.target.value;
-    setItems(newArr);
   };
 
   return (
@@ -118,38 +112,37 @@ const HatManagementForm = ({
         <FormRowWrapper>
           <FaRegListAlt />
           <Stack>
-            <Text>{action.toUpperCase()} REQUIREMENTS (optional)</Text>
+            <Text>{address.toUpperCase()} REQUIREMENTS (optional)</Text>
             <Text fontWeight={400} color='blackAlpha.700'>
               A written description of the logic in the Accountability Module.
             </Text>
           </Stack>
         </FormRowWrapper>
-        {items.map((item, index) => (
+        {fields.map((field, index) => (
           <LabelWithLink
-            // eslint-disable-next-line react/no-array-index-key
-            key={title + index}
-            item={item}
+            key={field.id}
+            index={index}
+            localForm={localForm}
             title={title}
-            handleRemoveItem={() => handleRemoveItem(index)}
-            onChangeLabel={(e) => onChangeLabel(e, index)}
+            handleRemoveItem={() => remove(index)}
             handleEdit={() => handleEdit(index)}
             handleSave={handleSave}
             inputLink={inputLink}
             setInputLink={setInputLink}
             isLinkValid={isLinkValid}
             setIsLinkValid={setIsLinkValid}
+            labelName={`${formName}.${index}.label`}
+            linkName={`${formName}.${index}.link`}
           />
         ))}
         <Box mb={2}>
           <Button
-            onClick={() => {
-              handleAddItem({ link: '', label: '' });
-            }}
-            isDisabled={items.some((item) => item.label === '')}
+            onClick={() => append({ link: '', label: '' })}
+            isDisabled={criteria.some((crit: DetailsItem) => crit.label === '')}
             gap={2}
           >
             <FaPlus />
-            Add {items.length ? 'another' : 'a'} Requirement
+            Add {fields.length ? 'another' : 'a'} Requirement
           </Button>
         </Box>
       </Stack>

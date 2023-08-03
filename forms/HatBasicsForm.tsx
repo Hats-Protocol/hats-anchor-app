@@ -61,8 +61,6 @@ const HatBasicsForm = ({
   newDetailsData,
   responsibilities,
   authorities,
-  revocations,
-  deactivations,
 }: {
   localForm: any;
   hatData: any;
@@ -79,8 +77,6 @@ const HatBasicsForm = ({
   newDetailsData: any;
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
-  revocations: DetailsItem[];
-  deactivations: DetailsItem[];
 }) => {
   const [image, setImage] = useState<any>();
   const { formState, watch } = localForm;
@@ -106,8 +102,10 @@ const HatBasicsForm = ({
   );
   const isEligibilityManual = watch('isEligibilityManual');
   const isToggleManual = watch('isToggleManual');
+  const revocationsCriteria = watch('revocationsCriteria');
+  const deactivationsCriteria = watch('deactivationsCriteria');
 
-  const { cid: detailsCID, loading: detailsCidLoading } = useCid({
+  const { cid: detailsCID } = useCid({
     type: '1.0',
     data: newDetailsData,
   });
@@ -121,11 +119,11 @@ const HatBasicsForm = ({
       authorities,
       eligibility: {
         manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: revocations,
+        criteria: revocationsCriteria,
       },
       toggle: {
         manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: deactivations,
+        criteria: deactivationsCriteria,
       },
     });
   }, [
@@ -134,8 +132,8 @@ const HatBasicsForm = ({
     guilds,
     responsibilities,
     authorities,
-    revocations,
-    deactivations,
+    revocationsCriteria,
+    deactivationsCriteria,
     isEligibilityManual,
     isToggleManual,
   ]);

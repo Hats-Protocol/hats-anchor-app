@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { IconType } from 'react-icons';
 import { FaPlus } from 'react-icons/fa';
 
-import LabelWithLink from '@/components/LabelWithLink';
+import LabelWithLinkTemp from '@/components/LabelWithLinkTemp';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { DetailsItem } from '@/types';
 
@@ -66,7 +66,7 @@ const ItemDetailsForm = ({
         <Text fontSize='sm'>{title}</Text>
       </HStack>
       {items.map((item, index) => (
-        <LabelWithLink
+        <LabelWithLinkTemp
           // eslint-disable-next-line react/no-array-index-key
           key={title + index}
           item={item}
