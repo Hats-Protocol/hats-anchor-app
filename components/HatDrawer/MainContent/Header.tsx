@@ -25,7 +25,7 @@ const Header = ({
   levelAtLocalTree,
 }: {
   name: string;
-  description: string;
+  description?: string;
   mutableStatus: string;
   activeStatus: string;
   isCurrentWearer: boolean;
@@ -62,7 +62,7 @@ const Header = ({
               />
             </HStack>
           </HStack>
-          <Text opacity={0.6}>{description}</Text>
+          {description && <Text opacity={0.6}>{description}</Text>}
         </Stack>
       </Flex>
       <HStack>

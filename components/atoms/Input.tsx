@@ -46,8 +46,8 @@ const Input = ({
         {label && (
           <FormLabel>
             <HStack>
-              <Text>
-                {label}
+              <Text fontSize='sm'>
+                {label.toUpperCase()}
                 {options?.required && '*'}
               </Text>
               {info && (

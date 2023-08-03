@@ -82,11 +82,35 @@ export interface HatRole {
 }
 
 export type DetailsObject = {
-  guilds: string[];
+  guilds?: string[];
   responsibilities: DetailsItem[];
   authorities: DetailsItem[];
+  eligibility: {
+    manual: boolean;
+    criteria: DetailsItem[];
+  };
+  toggle: {
+    manual: boolean;
+    criteria: DetailsItem[];
+  };
   name: string;
   description: string;
+};
+
+export type HatDetails = {
+  name: string;
+  description?: string;
+  responsibilities?: DetailsItem[];
+  authorities?: DetailsItem[];
+  guilds?: string[];
+  eligibility?: {
+    manual?: boolean;
+    criteria?: DetailsItem[];
+  };
+  toggle?: {
+    manual?: boolean;
+    criteria?: DetailsItem[];
+  };
 };
 
 export type ImageFile = {

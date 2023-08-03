@@ -4,6 +4,9 @@ import { fetchHatDetails } from '@/gql/helpers';
 import { hatIdToHex, prettyIdToId } from '@/lib/hats';
 import { IHat } from '@/types';
 
+const ZERO_HEX =
+  '0x0000000000000000000000000000000000000000000000000000000000000000';
+
 const useHatDetails = ({
   hatId,
   chainId,
@@ -22,7 +25,7 @@ const useHatDetails = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', hexId, chainId],
     queryFn: () => fetchHatDetails(hexId, chainId),
-    enabled: !!hexId && !!chainId,
+    enabled: !!hexId && hexId !== ZERO_HEX && !!chainId,
     initialData,
   });
 
