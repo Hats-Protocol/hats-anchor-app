@@ -143,8 +143,12 @@ const EditMode = ({
   ]);
 
   const submitAndResetForm = async () => {
-    await onSubmit();
-    setEditMode(false);
+    const result = await onSubmit();
+    if (result) {
+      setTimeout(() => {
+        setEditMode(false);
+      }, 500);
+    }
   };
 
   if (!hatData) return null;

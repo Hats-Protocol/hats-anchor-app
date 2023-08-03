@@ -11,7 +11,7 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import {
   FaChartBar,
   FaHouseUser,
@@ -118,7 +118,7 @@ const HatBasicsForm = ({
 
           <FormRowWrapper>
             <FaImage />
-            <Box>
+            <Box w='100%'>
               <Text fontSize='sm' fontWeight='medium' mb={2}>
                 {' '}
                 IMAGE
