@@ -146,11 +146,17 @@ const Home = () => {
             </Box>
           </Flex>
         ) : (
-          <Heading size='md' fontWeight={500}>
-            Welcome to Hats Protocol! Please connect your wallet to get started.
-          </Heading>
+          <Stack>
+            <Text fontSize={24} fontWeight={500}>
+              Welcome to Hats Protocol! 🧢
+            </Text>
+            <Text fontSize={18}>
+              Please connect your wallet to get started.
+            </Text>
+          </Stack>
         )}
-        {wearerAddress ? (
+
+        {wearerAddress && (
           <Stack
             spacing={4}
             py={8}
@@ -184,20 +190,21 @@ const Home = () => {
               </SimpleGrid>
             )}
           </Stack>
-        ) : (
-          <Flex>
-            <Heading size='md' fontWeight={500}>
-              Connect to see your hats
-            </Heading>
-          </Flex>
         )}
 
-        <HStack>
+        <HStack alignItems='start' spacing={12}>
           <Stack spacing={12} flex={1}>
-            <Stack spacing={4}>
-              <Heading as='h1' size='md' fontWeight={500}>
+            <Stack
+              spacing={4}
+              py={8}
+              px={9}
+              borderRadius='8px'
+              border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
+              background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+            >
+              <Text fontSize={24} fontWeight={500}>
                 Explore featured trees
-              </Heading>
+              </Text>
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTrees, (tree, i) => (
                   <Suspense key={i} fallback={<Suspender />}>
@@ -207,10 +214,17 @@ const Home = () => {
               </SimpleGrid>
             </Stack>
 
-            <Stack spacing={4}>
-              <Heading as='h1' size='md' fontWeight={500}>
-                Jump right in with a forkable Hat Tree template
-              </Heading>
+            <Stack
+              spacing={4}
+              py={8}
+              px={9}
+              borderRadius='8px'
+              border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
+              background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+            >
+              <Text fontSize={24} fontWeight={500}>
+                Jump right in with a forkable template
+              </Text>
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTemplates, (tree, i) => (
                   <FeaturedTreeCard key={i} treeData={tree} />
@@ -219,10 +233,17 @@ const Home = () => {
             </Stack>
           </Stack>
 
-          <Stack spacing={4}>
-            <Heading as='h1' size='md' fontWeight={500}>
-              Read more about how to get started with Hats
-            </Heading>
+          <Stack
+            spacing={4}
+            py={8}
+            px={9}
+            borderRadius='8px'
+            border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
+            background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+          >
+            <Text fontSize={24} fontWeight={500}>
+              Learn more about how Hats
+            </Text>
             {_.map(featuredDocumentation, (docsLink, i) => (
               <FeaturedDocsCard key={i} docsData={docsLink} />
             ))}
