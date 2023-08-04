@@ -1,9 +1,7 @@
 import { Box, HStack, Icon, Image, Text } from '@chakra-ui/react';
 import { GrTextAlignLeft } from 'react-icons/gr';
 
-import { chainsMap } from '@/lib/web3';
-
-import ChakraNextLink from './ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 
 const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
   const { url, name, image, description } = docsData;
