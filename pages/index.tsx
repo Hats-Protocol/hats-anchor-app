@@ -31,19 +31,28 @@ const featuredDocumentation = [
     url: 'https://docs.hatsprotocol.xyz/',
     name: 'For Hat Wearers',
     description: 'So your DAO gave you a Hat, now what?',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreiaq4gg3wr6cbm4cekrn7bkbew5g6qqn7lmtuv2zqic6llisx24haq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    icon: 'hat',
   },
   {
     url: 'https://docs.hatsprotocol.xyz/getting-started-with-hats',
     name: 'For Governors',
-    description: 'Getting started with Hats',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreiaq4gg3wr6cbm4cekrn7bkbew5g6qqn7lmtuv2zqic6llisx24haq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    description:
+      'Everything you need to know to get started structuring your organization with hats',
+    icon: 'check-square',
   },
   {
     url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
     name: 'For Chad Hats Dev',
-    description: 'Protocol & SDK Documentation: building on top of Hats',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreiaq4gg3wr6cbm4cekrn7bkbew5g6qqn7lmtuv2zqic6llisx24haq?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    description:
+      'Protocol and SDK documentation for building on top of the open-source protocol',
+    icon: 'code',
+  },
+  {
+    url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
+    name: 'Get in touch!',
+    description:
+      'Stuck on tree design, deployment, or custom contract development? We’re here to help.',
+    icon: 'people',
   },
 ];
 
@@ -237,12 +246,13 @@ const Home = () => {
             spacing={4}
             py={8}
             px={9}
+            maxW={500}
             borderRadius='8px'
             border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
             background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
           >
             <Text fontSize={24} fontWeight={500}>
-              Learn more about how Hats
+              Learn more about Hats
             </Text>
             {_.map(featuredDocumentation, (docsLink, i) => (
               <FeaturedDocsCard key={i} docsData={docsLink} />

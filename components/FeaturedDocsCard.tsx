@@ -1,35 +1,32 @@
-import { Box, HStack, Icon, Image, Text } from '@chakra-ui/react';
-import { GrTextAlignLeft } from 'react-icons/gr';
+import { HStack, Image, Stack, Text } from '@chakra-ui/react';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 
 const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
-  const { url, name, image, description } = docsData;
+  const { url, name, icon, description } = docsData;
 
   return (
     <ChakraNextLink href={url} _hover={{}} isExternal>
-      <Box border='1px solid' bg='white' maxW='400px'>
-        <Box bg='gray.100'>
-          <Image
-            src={image}
-            alt={`${name} featured image`}
-            minH='150px'
-            w='100%'
-            fit='cover'
-          />
-        </Box>
-        <Box borderY='1px solid' p={1} px={2}>
+      <HStack
+        alignItems='start'
+        p={5}
+        spacing={6}
+        borderRadius={6}
+        border='1px solid var(--gray-600, #4A5568)'
+        background='var(--white-alpha-700, rgba(255, 255, 255, 0.64))'
+        boxShadow='0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
+      >
+        <Image
+          src={`/icons/${icon}.svg`}
+          alt={`${name} featured icon`}
+          fit='cover'
+          w={8}
+        />
+        <Stack>
           <Text fontWeight={600}>{name}</Text>
-        </Box>
-        <Box p={1} px={2}>
-          <HStack>
-            <Icon as={GrTextAlignLeft} h='13px' />
-            <Text fontSize='sm' noOfLines={1}>
-              {description}
-            </Text>
-          </HStack>
-        </Box>
-      </Box>
+          <Text fontSize='sm'>{description}</Text>
+        </Stack>
+      </HStack>
     </ChakraNextLink>
   );
 };
@@ -39,7 +36,7 @@ export default FeaturedDocsCard;
 interface FeatureDocsCardProps {
   docsData: {
     url: string;
-    image: string;
+    icon: string;
     name: string;
     description: string;
   };
