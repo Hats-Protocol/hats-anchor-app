@@ -6,7 +6,7 @@ import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { DetailsItem, HatRole, IHat } from '@/types';
+import { HatDetails, HatRole, IHat } from '@/types';
 
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
@@ -18,21 +18,26 @@ const MainContent = ({
   chainId,
   hatData,
   isEligible,
-  name,
-  description,
   hatRoles,
   mutableStatus,
   activeStatus,
   setModals,
   localOverlay,
   isAdminUser,
-  responsibilities,
-  authorities,
+  hatDetails,
   isCurrentWearer,
   linkRequestFromTree,
 }: MainContentProps) => {
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
+  const {
+    name,
+    description,
+    responsibilities,
+    authorities,
+    toggle,
+    eligibility,
+  } = hatDetails;
 
   useEffect(() => {
     const check = async () => {
@@ -88,6 +93,16 @@ const MainContent = ({
       <DetailList title='Responsibilities' details={responsibilities} />
       <DetailList title='Authorities' details={authorities} />
 
+      {toggle?.criteria?.length && (
+        <DetailList title='Toggle Criteria' details={toggle.criteria} />
+      )}
+      {eligibility?.criteria?.length && (
+        <DetailList
+          title='Eligibility Criteria'
+          details={eligibility.criteria}
+        />
+      )}
+
       <StatusCard
         statusName='Eligibility'
         statusData={hatData.eligibility}
@@ -130,15 +145,12 @@ interface MainContentProps {
   chainId: number;
   hatData: IHat;
   isEligible: boolean;
-  name: string;
-  description: string;
   hatRoles: HatRole[];
   mutableStatus: string;
   activeStatus: string;
   isCurrentWearer: boolean;
   isAdminUser: boolean;
-  responsibilities: DetailsItem[];
-  authorities: DetailsItem[];
+  hatDetails: HatDetails;
   linkRequestFromTree: any[];
   setModals: any;
   localOverlay: any;

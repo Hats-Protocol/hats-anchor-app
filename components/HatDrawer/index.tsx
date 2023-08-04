@@ -7,6 +7,8 @@ import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useHatDetails from '@/hooks/useHatDetails';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
 import { HierarchyObject, IHat } from '@/types';
@@ -18,14 +20,24 @@ import TopMenu from './TopMenu';
 
 const initialState = {
   hatData: undefined,
-  name: '',
-  description: '',
-  guilds: [],
-  authorities: [],
+  hatDetails: {
+    name: '',
+    description: '',
+    guilds: [],
+    authorities: [],
+    eligibility: {
+      manual: true,
+      criteria: [],
+    },
+    toggle: {
+      manual: true,
+      criteria: [],
+    },
+    responsibilities: [],
+  },
   isCurrentWearer: false,
   wearerTopHats: [],
   isAdminUser: false,
-  responsibilities: [],
   activeStatus: STATUS.INACTIVE,
   mutableStatus: MUTABILITY.IMMUTABLE,
 };
@@ -34,22 +46,17 @@ function reducer(state: any, action: { type: any; payload: any }) {
   switch (action.type) {
     case 'SET_HAT_DATA':
       return { ...state, hatData: action.payload };
-    case 'SET_NAME':
-      return { ...state, name: action.payload };
-    case 'SET_DESCRIPTION':
-      return { ...state, description: action.payload };
-    case 'SET_GUILDS':
-      return { ...state, guilds: action.payload };
-    case 'SET_AUTHORITIES':
-      return { ...state, authorities: action.payload };
+    case 'SET_HAT_DETAILS':
+      return {
+        ...state,
+        hatDetails: { ...state.hatDetails, ...action.payload },
+      };
     case 'SET_IS_CURRENT_WEARER':
       return { ...state, isCurrentWearer: action.payload };
     case 'SET_WEARER_TOP_HATS':
       return { ...state, wearerTopHats: action.payload };
     case 'SET_IS_ADMIN_USER':
       return { ...state, isAdminUser: action.payload };
-    case 'SET_RESPONSIBILITIES':
-      return { ...state, responsibilities: action.payload };
     case 'SET_ACTIVE_STATUS':
       return { ...state, activeStatus: action.payload };
     case 'SET_MUTABLE_STATUS':
@@ -77,20 +84,16 @@ const SelectedHatDrawer = ({
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     hatData,
-    name,
-    description,
-    guilds,
-    authorities,
     isCurrentWearer,
     wearerTopHats,
     isAdminUser,
-    responsibilities,
     activeStatus,
     mutableStatus,
+    hatDetails,
   } = state;
 
   const { hatRoles } = useHatGuilds({
-    guildNames: guilds,
+    guildNames: hatDetails?.guilds,
     hatId: hatData?.id,
   });
 
@@ -123,50 +126,45 @@ const SelectedHatDrawer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
 
+  const { data: hatDetailsObject } = useHatDetailsField(hatData?.details);
+
   useEffect(() => {
     if (selectedHatId) {
-      const data = _.find(hatsData, ['prettyId', selectedHatId]);
+      const data = _.find(hatsData, { prettyId: selectedHatId });
+      dispatch({ type: 'SET_HAT_DATA', payload: data });
 
-      if (data) {
-        dispatch({ type: 'SET_HAT_DATA', payload: data });
-        const { status, mutable, details, detailsObject } = data;
-
-        let detailName = details;
-        if (detailsObject?.type === '1.0') {
-          detailName = detailsObject?.data?.name;
-        }
-        dispatch({ type: 'SET_NAME', payload: detailName });
-
-        if (detailsObject?.type === '1.0') {
-          dispatch({
-            type: 'SET_DESCRIPTION',
-            payload: detailsObject?.data?.description,
-          });
-          dispatch({
-            type: 'SET_GUILDS',
-            payload: detailsObject?.data?.guilds,
-          });
-          dispatch({
-            type: 'SET_AUTHORITIES',
-            payload: detailsObject?.data?.authorities,
-          });
-          dispatch({
-            type: 'SET_RESPONSIBILITIES',
-            payload: detailsObject?.data?.responsibilities,
-          });
-        }
-
-        dispatch({
-          type: 'SET_ACTIVE_STATUS',
-          payload: status ? STATUS.ACTIVE : STATUS.INACTIVE,
-        });
-        dispatch({
-          type: 'SET_MUTABLE_STATUS',
-          payload: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-        });
+      if (hatDetailsObject) {
+        const {
+          name: localName,
+          description,
+          guilds,
+          authorities,
+          responsibilities,
+          eligibility,
+          toggle,
+        } = hatDetailsObject;
+        const details = {
+          name: localName,
+          description,
+          guilds,
+          authorities,
+          responsibilities,
+          eligibility,
+          toggle,
+        };
+        dispatch({ type: 'SET_HAT_DETAILS', payload: details });
       }
+
+      dispatch({
+        type: 'SET_ACTIVE_STATUS',
+        payload: hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE,
+      });
+      dispatch({
+        type: 'SET_MUTABLE_STATUS',
+        payload: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      });
     }
-  }, [selectedHatId, hatsData]);
+  }, [hatData, selectedHatId, hatsData, hatDetailsObject]);
 
   const { data: isEligible } = useHatCheckEligibility({
     wearer: address || '',
@@ -224,11 +222,8 @@ const SelectedHatDrawer = ({
           <MainContent
             chainId={chainId}
             hatData={hatData}
+            hatDetails={hatDetails}
             isEligible={!!isEligible}
-            name={name}
-            description={description}
-            responsibilities={responsibilities}
-            authorities={authorities}
             hatRoles={hatRoles}
             mutableStatus={mutableStatus}
             activeStatus={activeStatus}
@@ -244,13 +239,8 @@ const SelectedHatDrawer = ({
           <EditMode
             chainId={chainId}
             hatData={hatData}
-            name={name}
-            description={description}
-            imageUrl={hatData?.imageUri}
-            guilds={guilds}
-            authorities={authorities}
-            responsibilities={responsibilities}
-            isAdminUser={isAdminUser}
+            hatDetails={hatDetails}
+            setEditMode={setEditMode}
           />
         )}
 

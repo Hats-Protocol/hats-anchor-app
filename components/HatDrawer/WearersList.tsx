@@ -41,7 +41,8 @@ const WearersList = ({
 }: WearersListProps) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
-  const [changeStatusWearer, setChangeStatusWearer] = useState('');
+  const [changeStatusWearer, setChangeStatusWearer] =
+    useState<`0x${string} | undefined`>();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const [ensNames, setEnsNames] = useState<{
     [key: string]: string;

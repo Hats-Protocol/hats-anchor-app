@@ -12,7 +12,7 @@ export async function toTreeStructure({
   hatsImages,
   chainId,
 }: {
-  treeData: ITree;
+  treeData: ITree | null | undefined;
   hatsImages: IHat[] | undefined;
   chainId: number;
 }): Promise<{
@@ -260,7 +260,7 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 export const hatIdToHex = (hatId: string | null) => {
-  if (!hatId) return '';
+  if (!hatId || hatId === '0x') return '';
   return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
 };
 
@@ -323,7 +323,7 @@ export const isAdmin = (
   return !!includesAny(wearerHatIds, hatIds);
 };
 
-export const isTopHat = (hatData: IHat) =>
+export const isTopHat = (hatData: IHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.prettyId') === _.get(hatData, 'prettyId');
 

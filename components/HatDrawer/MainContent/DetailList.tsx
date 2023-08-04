@@ -18,7 +18,7 @@ const DetailList = ({
   details,
 }: {
   title: string;
-  details: DetailsItem[];
+  details?: DetailsItem[];
 }) => (
   <Stack>
     <Heading size='sm' fontWeight='medium' textTransform='uppercase'>

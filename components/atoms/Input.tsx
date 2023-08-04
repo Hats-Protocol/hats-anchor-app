@@ -46,7 +46,10 @@ const Input = ({
         {label && (
           <FormLabel>
             <HStack>
-              <Text>{label}</Text>
+              <Text fontSize='sm'>
+                {label.toUpperCase()}
+                {options?.required && '*'}
+              </Text>
               {info && (
                 <Tooltip shouldWrapChildren label={info}>
                   <FaRegQuestionCircle />
@@ -75,7 +78,12 @@ interface InputProps extends ChakraInputProps {
   info?: string;
   tip?: string | ReactNode;
   type?: string;
-  options?: object;
+  options?: {
+    required?: boolean;
+    pattern?: RegExp;
+    min?: number;
+    max?: number;
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;

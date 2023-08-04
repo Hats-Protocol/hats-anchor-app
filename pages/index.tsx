@@ -26,7 +26,7 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { orderedChains } from '@/lib/web3';
 
 const FeaturedTreeCard = dynamic(() => import('@/components/FeaturedTreeCard'));
-const HatCard = dynamic(() => import('@/components/HatCard'));
+const DashboardHatCard = dynamic(() => import('@/components/DashboardHatCard'));
 
 // todo use our ipfs gateway
 const featuredTrees = [
@@ -139,7 +139,7 @@ const Home = () => {
                   </ChakraNextLink>
                   {_.map(sortedHats, (hat, i) => (
                     <Suspense fallback={<Suspender />} key={i}>
-                      <HatCard hat={hat} key={i} />
+                      <DashboardHatCard hat={hat} key={i} />
                     </Suspense>
                   ))}
                 </SimpleGrid>

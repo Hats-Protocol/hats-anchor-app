@@ -3,9 +3,12 @@
 import { Box, Flex, Stack } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
+import { ImageFile } from '@/types';
+
 const baseStyle = {
   display: 'flex',
   flexDirection: 'column',
+  flexGrow: 'grow',
   alignItems: 'center',
   justifyContent: 'center',
   padding: '20px',
@@ -132,5 +135,5 @@ interface DropZoneProps {
   isDragAccept?: boolean;
   isDragReject?: boolean;
   isFullWidth?: boolean;
-  image?: any;
+  image?: ImageFile;
 }

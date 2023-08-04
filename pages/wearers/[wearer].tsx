@@ -22,8 +22,8 @@ import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
-import CoreHat from '@/components/CoreHat';
 import Layout from '@/components/Layout';
+import CoreHat from '@/components/WearerHatCard';
 import useControllerList from '@/hooks/useControllerList';
 import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -121,15 +121,17 @@ const WearerDetail = ({
               <Heading size='lg' fontWeight={500}>
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
-              <Skeleton isLoaded={!!_.get(firstCreated, 'createdAt')}>
-                <Text>
-                  Hat wearer since:{' '}
-                  {_.get(firstCreated, 'createdAt') &&
-                    format(
-                      Number(_.get(firstCreated, 'createdAt')) * 1000,
-                      'MMMM yyyy',
-                    )}
-                </Text>
+              <Skeleton isLoaded={!wearerLoading}>
+                {!!_.get(firstCreated, 'createdAt') && (
+                  <Text>
+                    Hat wearer since:{' '}
+                    {_.get(firstCreated, 'createdAt') &&
+                      format(
+                        Number(_.get(firstCreated, 'createdAt')) * 1000,
+                        'MMMM yyyy',
+                      )}
+                  </Text>
+                )}
               </Skeleton>
             </Stack>
           </HStack>

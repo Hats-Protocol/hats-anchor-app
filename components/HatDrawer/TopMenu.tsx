@@ -28,7 +28,7 @@ import { FiChevronsRight } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
-import CONFIG, { MUTABILITY, STATUS } from '@/constants';
+import CONFIG, { MUTABILITY } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import HatCreateForm from '@/forms/HatCreateForm';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -318,7 +318,11 @@ const TopMenu = ({
       </HStack>
 
       <Suspense fallback={<Suspender />}>
-        <Modal name='createHat' title='Create Hat' localOverlay={localOverlay}>
+        <Modal
+          name='createHat'
+          title='Create a New Hat'
+          localOverlay={localOverlay}
+        >
           <HatCreateForm
             defaultAdmin={hatData.prettyId}
             treeId={hatData.tree.id}

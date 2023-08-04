@@ -58,7 +58,7 @@ const useHatDetailsField = (detailsField?: string) => {
   const detailsData = data?.data?.data;
 
   let schemaType;
-  if (!!data && data.headers['content-type'] === 'application/json') {
+  if (!!data && data.headers?.['content-type'] === 'application/json') {
     const schemaTypeField = data.data.type;
     // schema validation
     switch (schemaTypeField) {
@@ -68,7 +68,9 @@ const useHatDetailsField = (detailsField?: string) => {
           _.includes(_.keys(detailsData), 'description') ||
           _.includes(_.keys(detailsData), 'guilds') ||
           _.includes(_.keys(detailsData), 'responsibilities') ||
-          _.includes(_.keys(detailsData), 'authorities')
+          _.includes(_.keys(detailsData), 'authorities') ||
+          _.includes(_.keys(detailsData), 'eligibility') ||
+          _.includes(_.keys(detailsData), 'toggle')
         ) {
           schemaType = schemaTypeField;
         }
