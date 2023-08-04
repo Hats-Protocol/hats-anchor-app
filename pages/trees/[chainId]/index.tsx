@@ -7,7 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import Layout from '@/components/Layout';
 import NetworkFilter from '@/components/NetworkFilter';
-import TreeCard from '@/components/TreeCard';
+import TreeCard from '@/components/TreeListCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
@@ -105,7 +105,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.get(context, 'params.chainId');
 
   try {
-    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 1, 40);
+    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
 
     return {
       props: {
@@ -121,6 +121,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
         chainId: 1,
         trees: [],
       },
+      revalidate: 30,
     };
   }
 };

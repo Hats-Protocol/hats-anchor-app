@@ -1,34 +1,157 @@
-import {
-  Box,
-  Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { FaKey, FaRegListAlt } from 'react-icons/fa';
+import { useEnsAddress } from 'wagmi';
 
-import CustomAccordion from '@/components/CustomAccordion';
-import { Authority } from '@/forms/AuthorityDetailsForm';
-import HatDetailsForm from '@/forms/HatDetailsForm';
-import HatWearersAndAdminsForm from '@/forms/HatWearersAndAdminsForm';
-import { Responsibility } from '@/forms/ResponsibilityDetailsForm';
+import Accordion from '@/components/atoms/Accordion';
+import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
+import HatBasicsForm from '@/forms/HatBasicsForm';
+import HatManagementForm from '@/forms/HatManagementForm';
+import ItemDetailsForm from '@/forms/ItemDetailsForm';
+import useDebounce from '@/hooks/useDebounce';
+import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { IHat } from '@/types';
+import { DetailsObject, HatDetails, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
   chainId,
-  name,
-  description,
-  guilds,
-  imageUrl,
-  responsibilities,
-  authorities,
+  hatDetails,
+  setEditMode,
 }: EditModeProps) => {
+  const {
+    name: initialName,
+    description: initialDescription,
+    guilds: initialGuilds,
+    responsibilities: initialResponsibilities,
+    authorities: initialAuthorities,
+    eligibility: initialEligibility,
+    toggle: initialToggle,
+  } = hatDetails;
+
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      maxSupply: hatData?.maxSupply,
+      eligibility: hatData?.eligibility,
+      toggle: hatData?.toggle,
+      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      imageUrl: hatData?.imageUrl || '',
+      isEligibilityManual:
+        initialEligibility?.manual || initialEligibility?.manual === undefined
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      isToggleManual:
+        initialToggle?.manual || initialToggle?.manual === undefined
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      revocationsCriteria: initialEligibility?.criteria || [],
+      deactivationsCriteria: initialToggle?.criteria || [],
+      name: initialName,
+      description: initialDescription,
+      authorities: initialAuthorities,
+      responsibilities: initialResponsibilities,
+      guilds: initialGuilds,
+    },
+  });
+
+  const {
+    handleSubmit,
+    watch,
+    formState: { dirtyFields },
+  } = localForm;
+
+  const [newImageURI, setNewImageURI] = useState('');
+  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
+
+  const eligibility = useDebounce(
+    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  );
+  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
+  const imageUrl = useDebounce(watch('imageUrl', hatData?.imageUrl || ''));
+
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  const { onSubmit, isLoading } = useSubmitHatChanges({
+    hatData,
+    chainId,
+    newImageURI,
+    dirtyFields,
+    newDetailsData,
+    maxSupply,
+    eligibility,
+    toggle,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+    imageUrl,
+  });
+
+  const name = useDebounce(watch('name', initialName || ''));
+  const description = useDebounce(
+    watch('description', initialDescription || ''),
+  );
+  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
+  const isToggleManual = useDebounce(watch('isToggleManual'));
+  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
+  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
+  const responsibilities = useDebounce(watch('responsibilities'));
+  const authorities = useDebounce(watch('authorities'));
+  const guilds = useDebounce(watch('guilds'));
+
+  useEffect(() => {
+    setNewDetailsData({
+      name,
+      description,
+      guilds,
+      responsibilities,
+      authorities,
+      eligibility: {
+        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: revocationsCriteria,
+      },
+      toggle: {
+        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+        criteria: deactivationsCriteria,
+      },
+    });
+  }, [
+    name,
+    description,
+    guilds,
+    responsibilities,
+    authorities,
+    revocationsCriteria,
+    deactivationsCriteria,
+    isEligibilityManual,
+    isToggleManual,
+  ]);
+
+  const submitAndResetForm = async () => {
+    const result = await onSubmit();
+    if (result) {
+      setTimeout(() => {
+        setEditMode(false);
+      }, 500);
+    }
+  };
+
   if (!hatData) return null;
-  console.log('hatData', hatData);
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -43,52 +166,109 @@ const EditMode = ({
       >
         <Stack>
           <Text>{prettyIdToIp(idToPrettyId(hatData?.id))}</Text>
-          <Text>{name}</Text>
-          <Text>{description}</Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
-        <CustomAccordion title='Hat Details'>
+        <Accordion
+          title='Hat Basics'
+          subtitle='The fundamentals of the hat, including name, image, and supply.'
+        >
           <Stack spacing={4}>
-            <Text>Describe the role that this Hat symbolizes.</Text>
-            <Tabs>
-              <TabList>
-                <Tab>Basic</Tab>
-              </TabList>
-
-              <TabPanels>
-                <TabPanel px={0}>
-                  <HatDetailsForm
-                    hatData={hatData}
-                    chainId={chainId}
-                    defaultValues={{
-                      name,
-                      description,
-                      imageUrl,
-                      guilds,
-                      responsibilities,
-                      authorities,
-                    }}
-                  />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Stack>
-        </CustomAccordion>
-
-        <CustomAccordion title='Wearers & Administrators'>
-          <Stack spacing={4}>
-            <Text>
-              The people and contracts that control and wear this Hat.
-            </Text>
-            <HatWearersAndAdminsForm
-              defaultAdmin={hatData.admin?.prettyId}
-              chainId={chainId}
+            <HatBasicsForm
+              localForm={localForm}
               hatData={hatData}
-              levelAtLocalTree={hatData.levelAtLocalTree}
+              chainId={chainId}
+              setNewImageURI={setNewImageURI}
             />
           </Stack>
-        </CustomAccordion>
+        </Accordion>
+
+        <Accordion
+          title='Powers'
+          subtitle='Permissions and rights that are controlled by wearers of this hat.'
+        >
+          <Stack spacing={4}>
+            <ItemDetailsForm
+              localForm={localForm}
+              formName='authorities'
+              title='PERMISSIONS'
+              label='Permission'
+              Icon={FaKey}
+            />
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Responsibilities'
+          subtitle='Specific work that wearers of this hat will be held accountable for.'
+        >
+          <Stack spacing={4}>
+            <ItemDetailsForm
+              localForm={localForm}
+              formName='responsibilities'
+              title='RESPONSIBILITIES'
+              label='Responsibility'
+              Icon={FaRegListAlt}
+            />
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Revocation'
+          subtitle='The people or logic that determine when a wearer should have a hat.'
+        >
+          <Stack spacing={4}>
+            <HatManagementForm
+              localForm={localForm}
+              hatData={hatData}
+              address={eligibility}
+              actionResolvedAddress={eligibilityResolvedAddress}
+              title='eligibility'
+              formName='revocationsCriteria'
+              radioBoxConfig={{
+                name: 'isEligibilityManual',
+                label: 'Hat Revocation',
+                subLabel: 'How should toggle from wearers be handled?',
+              }}
+            />
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Deactivation & Reactivation'
+          subtitle='The people or logic that control whether or not this hat is active.'
+        >
+          <Stack spacing={4}>
+            <HatManagementForm
+              localForm={localForm}
+              hatData={hatData}
+              address={toggle}
+              actionResolvedAddress={toggleResolvedAddress}
+              title='toggle'
+              formName='deactivationsCriteria'
+              radioBoxConfig={{
+                name: 'isToggleManual',
+                label: 'Hat Deactivation',
+                subLabel:
+                  'How should deactivation and reactivation be handled?',
+              }}
+            />
+          </Stack>
+        </Accordion>
+
+        <Flex justifyContent='flex-end'>
+          <Button
+            colorScheme='blue'
+            onClick={handleSubmit(submitAndResetForm)}
+            isLoading={
+              isLoadingEligibilityResolvedAddress ||
+              isLoadingToggleResolvedAddress ||
+              isLoading
+            }
+          >
+            Submit
+          </Button>
+        </Flex>
       </Stack>
     </Box>
   );
@@ -99,10 +279,6 @@ export default EditMode;
 interface EditModeProps {
   hatData: IHat;
   chainId: number;
-  name: string;
-  description: string;
-  guilds: string[];
-  imageUrl: string;
-  responsibilities: Responsibility[];
-  authorities: Authority[];
+  hatDetails: HatDetails;
+  setEditMode: (mode: boolean) => void;
 }

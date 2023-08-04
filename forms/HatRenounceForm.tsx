@@ -6,14 +6,17 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import { decimalId } from '@/lib/hats';
+import { IHat } from '@/types';
 
-const HatRenounceForm = ({ hatData }: { hatData: any }) => {
+// TODO is this used?
+const HatRenounceForm = ({ hatData }: { hatData: IHat }) => {
   const { closeModals } = useOverlay();
   const chainId = useChainId();
   const { writeAsync: renounceHat } = useHatBurn({
     hatsAddress: CONFIG.hatsAddress,
     chainId,
     hatId: decimalId(_.get(hatData, 'id')),
+    wearers: _.get(hatData, 'wearers'),
   });
 
   const handleRenounceHat = async () => {

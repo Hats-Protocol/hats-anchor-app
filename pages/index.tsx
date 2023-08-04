@@ -12,14 +12,15 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { Suspense } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
 
-// import CONFIG from '@/constants';
-import ChakraNextLink from '@/components/ChakraNextLink';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import Suspender from '@/components/atoms/Suspender';
+import DashboardHatCard from '@/components/DashboardHatCard';
 import FeaturedDocsCard from '@/components/FeaturedDocsCard';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
-import HatCard from '@/components/HatCard';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -101,6 +102,7 @@ const Home = () => {
 
   const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
+    chainId: 'all',
   });
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
@@ -161,7 +163,9 @@ const Home = () => {
             </Heading>
             <SimpleGrid columns={3} spacing={6}>
               {_.map(featuredTrees, (tree, i) => (
-                <FeaturedTreeCard key={i} treeData={tree} />
+                <Suspense key={i} fallback={<Suspender />}>
+                  <FeaturedTreeCard treeData={tree} />
+                </Suspense>
               ))}
             </SimpleGrid>
           </Stack>
@@ -211,7 +215,9 @@ const Home = () => {
                     </Card>
                   </ChakraNextLink>
                   {_.map(sortedHats, (hat, i) => (
-                    <HatCard hat={hat} key={i} />
+                    <Suspense fallback={<Suspender />} key={i}>
+                      <DashboardHatCard hat={hat} key={i} />
+                    </Suspense>
                   ))}
                 </SimpleGrid>
               )}

@@ -1,6 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 
-import RadioBox from '@/components/RadioBox';
+import RadioBox from '@/components/atoms/RadioBox';
 
 const theme = extendTheme({
   colors: {},

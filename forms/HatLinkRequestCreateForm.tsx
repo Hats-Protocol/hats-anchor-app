@@ -1,11 +1,12 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { useChainId } from 'wagmi';
 
-import Select from '@/components/Select';
+import Select from '@/components/atoms/Select';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import useHatLinkRequestCreate from '@/hooks/useHatLinkRequestCreate';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 
 const HatLinkRequestCreateForm = ({
@@ -17,6 +18,7 @@ const HatLinkRequestCreateForm = ({
   wearerTopHats: string[];
   chainId: number;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
@@ -31,10 +33,26 @@ const HatLinkRequestCreateForm = ({
     CONFIG.debounce,
   );
 
-  const { writeAsync, isLoading } = useHatLinkRequestCreate({
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'requestLinkTopHatToTree',
+    args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
     chainId,
-    newAdmin,
-    topHatDomain,
+    onSuccessToastData: {
+      title: 'Successfully Requested to Link!',
+      description: `Successfully requested to link top hat ${prettyIdToIp(
+        topHatDomain,
+      )} to ${prettyIdToIp(newAdmin)}`,
+    },
+    queryKeys: [
+      ['hatDetails', prettyIdToId(newAdmin)],
+      ['hatDetails', prettyIdToId(topHatDomain)],
+      ['treeDetails', topHatDomain],
+      ['treeDetails', prettyIdToId(newAdmin)],
+    ],
+    enabled:
+      Boolean(topHatDomain) &&
+      Boolean(newAdmin) &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -67,7 +85,7 @@ const HatLinkRequestCreateForm = ({
         </Select>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || isLoading}>
+          <Button type='submit' isDisabled={!writeAsync} isLoading={isLoading}>
             Request
           </Button>
         </Flex>

@@ -7,27 +7,41 @@ import { IHat } from '@/types';
 
 const chains = _.keys(chainsList);
 
+const fetchWearerDetailsForChain = async (
+  address: string | undefined,
+  chainId: number,
+) => {
+  if (!address) return [];
+  const data: { currentHats: IHat[] } = await fetchWearerDetails(
+    address,
+    chainId,
+  );
+
+  return data.currentHats;
+};
+
+const fetchWearerDetailsForAllChains = async (address: string | undefined) => {
+  if (!address) return [];
+  const promises = _.map(chains, (cId: string) =>
+    fetchWearerDetails(address, Number(cId)),
+  );
+
+  const data: { currentHats: IHat[] }[] = await Promise.all(promises);
+
+  return _.flatten(_.map(data, 'currentHats'));
+};
+
 const useWearerDetails = ({
   wearerAddress,
   chainId,
   initialData,
 }: UseWearerDetailsProps) => {
-  const fetchWearerDetailsForAllChains = async (
-    address: string | undefined,
-  ) => {
-    if (!address) return [];
-    const promises = _.map(chains, (cId: string) =>
-      fetchWearerDetails(address, Number(cId)),
-    );
-
-    const data: { currentHats: IHat[] }[] = await Promise.all(promises);
-
-    return _.flatten(_.map(data, 'currentHats'));
-  };
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ['wearerDetails', wearerAddress],
-    queryFn: () => fetchWearerDetailsForAllChains(wearerAddress),
+    queryKey: ['wearerDetails', wearerAddress, chainId || 'all'],
+    queryFn: () =>
+      chainId && chainId !== 'all'
+        ? fetchWearerDetailsForChain(wearerAddress, chainId)
+        : fetchWearerDetailsForAllChains(wearerAddress),
     enabled: !!wearerAddress,
     initialData,
   });
@@ -40,5 +54,5 @@ export default useWearerDetails;
 interface UseWearerDetailsProps {
   wearerAddress: `0x${string}` | undefined;
   initialData?: IHat[];
-  chainId?: number;
+  chainId?: number | 'all';
 }

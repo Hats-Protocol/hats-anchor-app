@@ -10,12 +10,13 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
+import { isAddress } from 'viem';
+import { useChainId, useEnsName } from 'wagmi';
 
-import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import useHatWearerStatusSet from '@/hooks/useHatWearerStatusUpdate';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { formatAddress } from '@/lib/general';
-import { prettyIdToId } from '@/lib/hats';
+import { prettyIdToId, toTreeId } from '@/lib/hats';
 
 const HatWearerStatusForm = ({
   prettyId,
@@ -25,21 +26,39 @@ const HatWearerStatusForm = ({
 }: {
   prettyId: string;
   chainId: number;
-  wearer: string;
+  wearer: `0x${string}` | undefined;
+  // TODO is there a reason for this to be passed from above?
   eligibility: string;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
-
+  const hatId = prettyIdToId(prettyId);
   const standing = useDebounce(watch('standing', 'Good Standing'));
 
-  const { writeAsync, isLoading } = useHatWearerStatusSet({
-    hatsAddress: CONFIG.hatsAddress,
-    hatId: prettyIdToId(prettyId),
+  const { data: wearerName } = useEnsName({
+    address: wearer,
+    chainId: 1,
+  });
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'setHatWearerStatus',
+    args: [
+      hatId,
+      wearer,
+      eligibility === 'Not Eligible',
+      standing === 'Good Standing',
+    ],
     chainId,
-    wearer,
-    eligibility: eligibility === 'Eligible',
-    standing: standing === 'Good Standing',
+    onSuccessToastData: {
+      title: 'Wearer Status Updated',
+      description: 'Successfully updated hat',
+    },
+    queryKeys: [
+      ['hatDetails', hatId],
+      ['treeDetails', toTreeId(hatId)],
+    ],
+    enabled: !!wearer && isAddress(wearer) && chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -50,14 +69,15 @@ const HatWearerStatusForm = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={8}>
         <Text>
-          Are you sure? The revoked Hats will loose all permissions instantly.
+          Are you sure? The revoked Hats will lose all permissions instantly.
         </Text>
 
         <VStack alignItems='start'>
           <Text fontSize='sm'>REVOKING HAT OF:</Text>
           <HStack>
             <FaRegUserCircle />
-            <Text>{formatAddress(wearer)}</Text>
+            <Text>{wearerName || formatAddress(wearer)}</Text>
+            {wearerName && <Text fontSize='sm'>({formatAddress(wearer)})</Text>}
           </HStack>
         </VStack>
 

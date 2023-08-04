@@ -1,13 +1,15 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { isAddress } from 'viem';
+import { useChainId } from 'wagmi';
 
-import Select from '@/components/Select';
+import Select from '@/components/atoms/Select';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatDetails from '@/hooks/useHatDetails';
-import useHatUnlinkTree from '@/hooks/useHatUnlinkTree';
-import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { prettyIdToIp } from '@/lib/hats';
 
 const HatUnlinkForm = ({
   parentOfTrees,
@@ -16,6 +18,7 @@ const HatUnlinkForm = ({
   parentOfTrees: string[];
   chainId: number;
 }) => {
+  const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -30,14 +33,28 @@ const HatUnlinkForm = ({
   );
 
   const { data: topHatData } = useHatDetails({
-    hatId: prettyIdToId(topHatPrettyId),
+    hatId: topHatPrettyId,
     chainId,
   });
 
-  const { writeAsync, isLoading } = useHatUnlinkTree({
-    topHatPrettyId,
-    wearer: topHatData?.wearers?.[0]?.id || '0x',
+  const wearer = topHatData?.wearers?.[0]?.id || '0x';
+
+  const { writeAsync, isLoading } = useHatContractWrite({
+    functionName: 'unlinkTopHatFromTree',
+    args: [topHatPrettyId, wearer],
     chainId,
+    onSuccessToastData: {
+      title: `Top Hat Unlinked!`,
+      description: `Successfully unlinked top hat #${prettyIdToIp(
+        topHatPrettyId,
+      )}`,
+    },
+    queryKeys: [['topHat', topHatPrettyId]],
+    enabled:
+      Boolean(topHatPrettyId) &&
+      Boolean(wearer) &&
+      isAddress(wearer) &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

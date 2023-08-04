@@ -5,7 +5,6 @@ import { Box } from '@chakra-ui/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import CommandPalette from '@/components/CommandPalette';
 import Navbar from '@/components/Navbar';
 
 const Layout = ({ children }: { children: ReactNode }) => {
@@ -45,13 +44,13 @@ const Layout = ({ children }: { children: ReactNode }) => {
     <Box>
       <Box
         backgroundImage='/bg-topography.svg'
+        backgroundRepeat='repeat'
         position='fixed'
         h='100%'
         w='100%'
         zIndex={-1}
       />
       <Navbar />
-      <CommandPalette />
       <Box h='100vh' w='100vw'>
         {children}
       </Box>

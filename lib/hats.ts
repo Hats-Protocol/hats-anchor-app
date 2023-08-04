@@ -2,22 +2,22 @@
 import _ from 'lodash';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { fetchHatsDetails, fetchManyWearerDetails } from '@/gql/helpers';
+import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HierarchyObject, IHat, IHatData, InputObject, ITree } from '@/types';
+import { HierarchyObject, IHat, InputObject, ITree } from '@/types';
 
 export async function toTreeStructure({
   treeData,
   hatsImages,
   chainId,
 }: {
-  treeData: ITree;
+  treeData: ITree | null | undefined;
   hatsImages: IHat[] | undefined;
   chainId: number;
 }): Promise<{
   tree: IHat[];
-  hats: IHatData[];
+  hats: IHat[];
   hierarchy: HierarchyObject[];
 }> {
   if (!treeData || !hatsImages)
@@ -33,7 +33,7 @@ export async function toTreeStructure({
   );
 
   // needs to be optimised
-  let hatsData = await fetchHatsDetails(hatIds, chainId);
+  let hatsData = await fetchManyHatDetails(hatIds, chainId);
   const detailsFields = hatsData.map((hat: IHat) => hat.details);
   const details = await fetchMultipleHatsDetails(detailsFields);
   hatsData = _.map(hatsData, (hat: IHat, index: number) => {
@@ -227,6 +227,7 @@ export function prettyIdToIp(id: string | undefined) {
   return domains.join('.');
 }
 
+// unused
 export function treeCreateEventIdToTreeId(id: string) {
   if (!id) return undefined;
   const hexString = id.slice(0, 10);
@@ -259,7 +260,7 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 export const hatIdToHex = (hatId: string | null) => {
-  if (!hatId) return undefined;
+  if (!hatId || hatId === '0x') return '';
   return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
 };
 
@@ -307,26 +308,22 @@ export const isAdmin = (
   const treeId = hatId.slice(0, 10);
   // separate children IDs
   const children = hatId.slice(11);
-  const parentHats = _.split(children, '.');
-  // remove the current hat Id
-  if (!current) {
-    parentHats.pop();
-  }
+  const hats = _.split(children, '.');
 
-  // map all hatIds for the lineage
-  const hatIds = _.map(
-    parentHats,
-    (__, i) => `${treeId}.${_.join(parentHats.slice(0, i + 1), '.')}`,
-  );
-  // include the treeId
-  hatIds.push(treeId);
+  if (!current) hats.pop();
+
+  // map all parent hatIds for the lineage
+  const hatIds = hats.map((__, i) => {
+    const joinedParentHats = hats.slice(0, i).join('.');
+    return `${treeId}${i > 0 ? `.${joinedParentHats}` : ''}`;
+  });
 
   if (!wearerHatIds) return false;
-  // check if any of the wearer hats' IDs are admin hat IDs
+  // check if any of the wearer hats' IDs are admin of any parent hat IDs
   return !!includesAny(wearerHatIds, hatIds);
 };
 
-export const isTopHat = (hatData: IHat) =>
+export const isTopHat = (hatData: IHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.prettyId') === _.get(hatData, 'prettyId');
 
@@ -335,9 +332,11 @@ export const isMutable = (hatData: IHat) => _.get(hatData, 'mutable');
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
+// unused
 export const isMutableNotTopHat = (hatData: IHat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
+// unused
 export const descendantsOf = (
   prettyHatId: string,
   tree: ITree,
@@ -363,6 +362,7 @@ export const descendantsOf = (
   return directChildren;
 };
 
+// same as toTreeId???
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);

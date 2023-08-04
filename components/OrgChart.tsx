@@ -66,9 +66,9 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .nodeHeight(() => (selectedOption !== 'title' ? 110 : 70))
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick((nodeId: string) => {
-            onSelectHat(nodeId);
-            centerChart(chart, nodeId);
+          .onNodeClick((node: IHat) => {
+            onSelectHat(node?.id);
+            centerChart(chart, node?.id);
           })
           // .linkUpdate(() => {
           //   d3.select(this).attr('stroke', () => '#718096');
@@ -152,7 +152,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               wearersColor = '#FFFFF0';
               wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
-              wearerAccent = `of ${maxSupply}`;
+              wearerAccent = `out of ${maxSupply}`;
             }
             if (_.size(wearers) === 1) {
               wearerContent =
@@ -359,6 +359,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                     overflow: hidden;
                   ">
                   <img
+                    loading="lazy"
                     src="${imageUrl ?? '/icon.jpeg'}"
                     style="
                       background: white;
