@@ -122,109 +122,113 @@ const Home = () => {
         opacity={0.07}
         zIndex={-1}
       />
-      <Flex py='150px' mx={20}>
-        <Stack spacing={12}>
-          {wearerAddress ? (
-            <Flex justifyContent='space-between'>
-              <Stack>
-                <Text fontSize={24} fontWeight={500}>
-                  gm {ensName || formatAddress(wearerAddress)} 👋
-                </Text>
-                <Text fontSize={18}>
-                  Here&apos;s what&apos;s happening with your Hats
-                </Text>
-              </Stack>
+      <Stack spacing={12} px={20} py={120}>
+        {wearerAddress ? (
+          <Flex justifyContent='space-between'>
+            <Stack>
+              <Text fontSize={24} fontWeight={500}>
+                gm {ensName || formatAddress(wearerAddress)} 👋
+              </Text>
+              <Text fontSize={18}>
+                Here&apos;s what&apos;s happening with your Hats
+              </Text>
+            </Stack>
 
-              <Box>
-                <ChakraNextLink href='/trees/new'>
-                  <Button colorScheme='blue' py={6} px={8}>
-                    <BsDiagram3 />
-                    <Text fontSize={18} fontWeight={500} noOfLines={1} ml={3}>
-                      Create a new {CONFIG.tree}
-                    </Text>
-                  </Button>
-                </ChakraNextLink>
-              </Box>
-            </Flex>
-          ) : (
+            <Box>
+              <ChakraNextLink href='/trees/new'>
+                <Button colorScheme='blue' py={6} px={8}>
+                  <BsDiagram3 />
+                  <Text fontSize={18} fontWeight={500} noOfLines={1} ml={3}>
+                    Create a new {CONFIG.tree}
+                  </Text>
+                </Button>
+              </ChakraNextLink>
+            </Box>
+          </Flex>
+        ) : (
+          <Heading size='md' fontWeight={500}>
+            Welcome to Hats Protocol! Please connect your wallet to get started.
+          </Heading>
+        )}
+        {wearerAddress ? (
+          <Stack
+            spacing={4}
+            py={8}
+            px={9}
+            borderRadius='8px'
+            border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
+            background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+          >
+            <Text fontSize={24} fontWeight={500}>
+              Your Hats
+            </Text>
+            {imagesLoading || detailsLoading ? (
+              <Flex justify='center' align='center' pt={10}>
+                <Spinner />
+              </Flex>
+            ) : (
+              <SimpleGrid
+                columns={{
+                  base: 1,
+                  sm: 2,
+                  md: 3,
+                  lg: 4,
+                }}
+                spacing={6}
+              >
+                {_.map(sortedHats, (hat, i) => (
+                  <Suspense fallback={<Suspender />} key={i}>
+                    <DashboardHatCard hat={hat} key={i} />
+                  </Suspense>
+                ))}
+              </SimpleGrid>
+            )}
+          </Stack>
+        ) : (
+          <Flex>
             <Heading size='md' fontWeight={500}>
-              Welcome to Hats Protocol! Please connect your wallet to get
-              started.
+              Connect to see your hats
             </Heading>
-          )}
-          {wearerAddress ? (
+          </Flex>
+        )}
+
+        <HStack>
+          <Stack spacing={12} flex={1}>
             <Stack spacing={4}>
               <Heading as='h1' size='md' fontWeight={500}>
-                Your Hats
+                Explore featured trees
               </Heading>
-              {imagesLoading || detailsLoading ? (
-                <Flex justify='center' align='center' pt={10}>
-                  <Spinner />
-                </Flex>
-              ) : (
-                <SimpleGrid
-                  columns={{
-                    base: 1,
-                    sm: 2,
-                    md: 3,
-                    lg: 4,
-                  }}
-                  spacing={6}
-                >
-                  {_.map(sortedHats, (hat, i) => (
-                    <Suspense fallback={<Suspender />} key={i}>
-                      <DashboardHatCard hat={hat} key={i} />
-                    </Suspense>
-                  ))}
-                </SimpleGrid>
-              )}
-            </Stack>
-          ) : (
-            <Flex>
-              <Heading size='md' fontWeight={500}>
-                Connect to see your hats
-              </Heading>
-            </Flex>
-          )}
-
-          <HStack>
-            <Stack spacing={12} flex={1}>
-              <Stack spacing={4}>
-                <Heading as='h1' size='md' fontWeight={500}>
-                  Explore featured trees
-                </Heading>
-                <SimpleGrid columns={3} spacing={6}>
-                  {_.map(featuredTrees, (tree, i) => (
-                    <Suspense key={i} fallback={<Suspender />}>
-                      <FeaturedTreeCard treeData={tree} />
-                    </Suspense>
-                  ))}
-                </SimpleGrid>
-              </Stack>
-
-              <Stack spacing={4}>
-                <Heading as='h1' size='md' fontWeight={500}>
-                  Jump right in with a forkable Hat Tree template
-                </Heading>
-                <SimpleGrid columns={3} spacing={6}>
-                  {_.map(featuredTemplates, (tree, i) => (
-                    <FeaturedTreeCard key={i} treeData={tree} />
-                  ))}
-                </SimpleGrid>
-              </Stack>
+              <SimpleGrid columns={3} spacing={6}>
+                {_.map(featuredTrees, (tree, i) => (
+                  <Suspense key={i} fallback={<Suspender />}>
+                    <FeaturedTreeCard treeData={tree} />
+                  </Suspense>
+                ))}
+              </SimpleGrid>
             </Stack>
 
             <Stack spacing={4}>
               <Heading as='h1' size='md' fontWeight={500}>
-                Read more about how to get started with Hats
+                Jump right in with a forkable Hat Tree template
               </Heading>
-              {_.map(featuredDocumentation, (docsLink, i) => (
-                <FeaturedDocsCard key={i} docsData={docsLink} />
-              ))}
+              <SimpleGrid columns={3} spacing={6}>
+                {_.map(featuredTemplates, (tree, i) => (
+                  <FeaturedTreeCard key={i} treeData={tree} />
+                ))}
+              </SimpleGrid>
             </Stack>
-          </HStack>
-        </Stack>
-      </Flex>
+          </Stack>
+
+          <Stack spacing={4}>
+            <Heading as='h1' size='md' fontWeight={500}>
+              Read more about how to get started with Hats
+            </Heading>
+            {_.map(featuredDocumentation, (docsLink, i) => (
+              <FeaturedDocsCard key={i} docsData={docsLink} />
+            ))}
+          </Stack>
+        </HStack>
+      </Stack>
     </Layout>
   );
 };
