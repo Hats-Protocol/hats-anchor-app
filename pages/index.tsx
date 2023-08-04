@@ -126,13 +126,14 @@ const Home = () => {
         <Stack spacing={12}>
           {wearerAddress ? (
             <Heading size='md' fontWeight={500}>
-                Hey, {ensName || formatAddress(wearerAddress)}!
-                Here's what's happening with your Hats
+              Hey, {ensName || formatAddress(wearerAddress)}! Here&apos;s
+              what&apos;s happening with your Hats
             </Heading>
-            ) : (
-              <Heading size='md' fontWeight={500}>
-                Welcome to Hats Protocol! Please connect your wallet to get started.
-              </Heading>
+          ) : (
+            <Heading size='md' fontWeight={500}>
+              Welcome to Hats Protocol! Please connect your wallet to get
+              started.
+            </Heading>
           )}
           <Stack spacing={4} me='auto'>
             <Heading as='h1' size='md' fontWeight={500}>
