@@ -1,11 +1,9 @@
 import {
   Box,
-  Card,
-  CardBody,
+  Button,
   Flex,
   Heading,
   HStack,
-  Icon,
   SimpleGrid,
   Spinner,
   Stack,
@@ -13,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { Suspense } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { BsDiagram3 } from 'react-icons/bs';
 import { useAccount, useEnsName } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -127,93 +125,52 @@ const Home = () => {
       <Flex py='150px' mx={20}>
         <Stack spacing={12}>
           {wearerAddress ? (
-            <Heading size='md' fontWeight={500}>
-              Hey, {ensName || formatAddress(wearerAddress)}! Here&apos;s
-              what&apos;s happening with your Hats
-            </Heading>
+            <Flex justifyContent='space-between'>
+              <Stack>
+                <Text fontSize={24} fontWeight={500}>
+                  gm {ensName || formatAddress(wearerAddress)} 👋
+                </Text>
+                <Text fontSize={18}>
+                  Here&apos;s what&apos;s happening with your Hats
+                </Text>
+              </Stack>
+
+              <Box>
+                <ChakraNextLink href='/trees/new'>
+                  <Button colorScheme='blue' py={6} px={8}>
+                    <BsDiagram3 />
+                    <Text fontSize={18} fontWeight={500} noOfLines={1} ml={3}>
+                      Create a new {CONFIG.tree}
+                    </Text>
+                  </Button>
+                </ChakraNextLink>
+              </Box>
+            </Flex>
           ) : (
             <Heading size='md' fontWeight={500}>
               Welcome to Hats Protocol! Please connect your wallet to get
               started.
             </Heading>
           )}
-          <Stack spacing={4} me='auto'>
-            <Heading as='h1' size='md' fontWeight={500}>
-              Read more about how to get started with Hats
-            </Heading>
-            <SimpleGrid columns={3} spacing={6}>
-              {_.map(featuredDocumentation, (docsLink, i) => (
-                <FeaturedDocsCard key={i} docsData={docsLink} />
-              ))}
-            </SimpleGrid>
-          </Stack>
-          <Stack spacing={4} me='auto'>
-            <Heading as='h1' size='md' fontWeight={500}>
-              Jump right in with a forkable Hat Tree template
-            </Heading>
-            <SimpleGrid columns={3} spacing={6}>
-              {_.map(featuredTemplates, (tree, i) => (
-                <FeaturedTreeCard key={i} treeData={tree} />
-              ))}
-            </SimpleGrid>
-          </Stack>
-          <Stack spacing={4} me='auto'>
-            <Heading as='h1' size='md' fontWeight={500}>
-              Explore featured trees
-            </Heading>
-            <SimpleGrid columns={3} spacing={6}>
-              {_.map(featuredTrees, (tree, i) => (
-                <Suspense key={i} fallback={<Suspender />}>
-                  <FeaturedTreeCard treeData={tree} />
-                </Suspense>
-              ))}
-            </SimpleGrid>
-          </Stack>
           {wearerAddress ? (
             <Stack spacing={4}>
               <Heading as='h1' size='md' fontWeight={500}>
-                My Hats
+                Your Hats
               </Heading>
               {imagesLoading || detailsLoading ? (
                 <Flex justify='center' align='center' pt={10}>
                   <Spinner />
                 </Flex>
               ) : (
-                <SimpleGrid columns={3} spacing={6}>
-                  {/* New Tree Card first */}
-                  <ChakraNextLink href='/trees/new'>
-                    <Card h='100px' overflow='hidden'>
-                      <CardBody p={4}>
-                        <HStack>
-                          <Flex
-                            border='3px solid'
-                            borderColor='gray.200'
-                            borderRadius={4}
-                            h='72px'
-                            w='72px'
-                            align='center'
-                            justify='center'
-                            bg='blue.400'
-                          >
-                            <Icon as={FaPlus} w={6} h={6} />
-                          </Flex>
-                          <Stack spacing={1}>
-                            <Heading
-                              as='h1'
-                              size='md'
-                              fontWeight={500}
-                              noOfLines={1}
-                            >
-                              Create a new {CONFIG.tree}
-                            </Heading>
-                            <Text fontSize='sm'>
-                              Set up a new Hats {CONFIG.tree}
-                            </Text>
-                          </Stack>
-                        </HStack>
-                      </CardBody>
-                    </Card>
-                  </ChakraNextLink>
+                <SimpleGrid
+                  columns={{
+                    base: 1,
+                    sm: 2,
+                    md: 3,
+                    lg: 4,
+                  }}
+                  spacing={6}
+                >
                   {_.map(sortedHats, (hat, i) => (
                     <Suspense fallback={<Suspender />} key={i}>
                       <DashboardHatCard hat={hat} key={i} />
@@ -229,6 +186,43 @@ const Home = () => {
               </Heading>
             </Flex>
           )}
+
+          <HStack>
+            <Stack spacing={12} flex={1}>
+              <Stack spacing={4}>
+                <Heading as='h1' size='md' fontWeight={500}>
+                  Explore featured trees
+                </Heading>
+                <SimpleGrid columns={3} spacing={6}>
+                  {_.map(featuredTrees, (tree, i) => (
+                    <Suspense key={i} fallback={<Suspender />}>
+                      <FeaturedTreeCard treeData={tree} />
+                    </Suspense>
+                  ))}
+                </SimpleGrid>
+              </Stack>
+
+              <Stack spacing={4}>
+                <Heading as='h1' size='md' fontWeight={500}>
+                  Jump right in with a forkable Hat Tree template
+                </Heading>
+                <SimpleGrid columns={3} spacing={6}>
+                  {_.map(featuredTemplates, (tree, i) => (
+                    <FeaturedTreeCard key={i} treeData={tree} />
+                  ))}
+                </SimpleGrid>
+              </Stack>
+            </Stack>
+
+            <Stack spacing={4}>
+              <Heading as='h1' size='md' fontWeight={500}>
+                Read more about how to get started with Hats
+              </Heading>
+              {_.map(featuredDocumentation, (docsLink, i) => (
+                <FeaturedDocsCard key={i} docsData={docsLink} />
+              ))}
+            </Stack>
+          </HStack>
         </Stack>
       </Flex>
     </Layout>
