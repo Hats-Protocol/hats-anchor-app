@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
-import { IHat } from '@/types';
+import { IHat, ITree } from '@/types';
 
 import client from './client';
 import {
@@ -20,7 +20,7 @@ import {
 export const fetchTreeDetails = async (
   treeId: string | null,
   chainId: number,
-) => {
+): Promise<ITree | null> => {
   const result = await client(chainId).request(GET_TREE, { id: treeId });
 
   return _.get(result, 'tree', null);

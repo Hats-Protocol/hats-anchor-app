@@ -513,8 +513,19 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const treeHex = decimalToTreeId(treeId);
   const prettyHatId = ipToPrettyId(treeId);
   const hatIdHex = prettyIdToId(prettyHatId);
-  const treeData = await fetchTreeDetails(treeHex, Number(chainId));
-  const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
+
+  const promises = [
+    fetchTreeDetails(treeHex, Number(chainId)),
+    fetchHatDetails(hatIdHex, Number(chainId)),
+  ];
+
+  const data: any[] = await Promise.all(promises);
+  const treeData: ITree | null | undefined = _.first(data);
+  const hatData: IHat | null | undefined = _.nth(data, 1);
+
+  if (!treeData || !hatData) {
+    return { props: {} };
+  }
 
   const { linkedToHat, parentOfTrees } = treeData || {
     linkedToHat: { id: null },
