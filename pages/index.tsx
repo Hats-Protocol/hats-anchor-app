@@ -9,7 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
@@ -21,10 +21,18 @@ import FeaturedDocsCard from '@/components/FeaturedDocsCard';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
+import {
+  fetchHatDetails,
+  fetchManyHatDetails,
+  fetchTreeDetails,
+} from '@/gql/helpers';
+import { fetchTreesById } from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
+import { ipToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { orderedChains } from '@/lib/web3';
+import { ITree } from '@/types';
 
 const featuredDocumentation = [
   {
@@ -90,6 +98,8 @@ const featuredTrees = [
     name: 'Cabin DAO',
     description: 'A DAO for the Cabin community',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    avatar:
+      'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeibwy623bvifnke6zzisrdw4hpqjy2juhd7lgnrjk6liqpewls2x7q?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
   },
   {
     chainId: 100,
@@ -97,6 +107,8 @@ const featuredTrees = [
     name: 'The DIA',
     description: 'A DAO for decentralized curation of intel',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    avatar:
+      'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreicy6iz67k4nutvxs7gtviuxt255k6w2ofxouxi54wrfm5thecg6x4?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
   },
   {
     chainId: 10,
@@ -104,11 +116,14 @@ const featuredTrees = [
     name: 'DemoDAO',
     description: 'An exquisite DAO for demo purposes',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    avatar:
+      'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeif7ahzj4tpjglisecg5fqi4a7p5wp7ke2xbr6wg5pefa5l3zt5ulq/?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
   },
 ];
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
+  const [hatsAndWearers, setHatsAndWearers] = useState<any>([]);
 
   const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
@@ -123,6 +138,46 @@ const Home = () => {
   });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+
+  const fetchFeaturedTrees = async () => {
+    const trees1 = await fetchTreesById(
+      [ipToPrettyId('2'), ipToPrettyId('3')],
+      3,
+    );
+    const tree2 = await fetchTreeDetails(ipToPrettyId('72'), 100);
+
+    const trees = (trees1 || []).concat(tree2 || []) as ITree[];
+    const hatsOfTrees = trees.map((tree) => ({
+      treeId: prettyIdToIp(tree.id),
+      hats: tree.hats.length,
+    }));
+
+    const hats1 = await fetchManyHatDetails(
+      [prettyIdToId(ipToPrettyId('2')), prettyIdToId(ipToPrettyId('3'))],
+      3,
+    );
+    const hat2 = await fetchHatDetails(prettyIdToId(ipToPrettyId('72')), 100);
+    const hats = (hats1 || []).concat(hat2 || []);
+
+    const wearers = hats.map((hat) => ({
+      treeId: prettyIdToIp(hat.prettyId),
+      wearers: hat.wearers.length,
+    }));
+
+    const data = _.map(hatsOfTrees, (tree) => {
+      const hat = _.find(wearers, { treeId: tree.treeId });
+      return {
+        ...tree,
+        ...hat,
+      };
+    });
+
+    setHatsAndWearers(data);
+  };
+
+  useEffect(() => {
+    fetchFeaturedTrees();
+  }, []);
 
   return (
     <Layout>
@@ -232,7 +287,12 @@ const Home = () => {
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTrees, (tree, i) => (
                   <Suspense key={i} fallback={<Suspender />}>
-                    <FeaturedTreeCard treeData={tree} />
+                    <FeaturedTreeCard
+                      treeData={tree}
+                      hatsAndWearers={hatsAndWearers.find(
+                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
+                      )}
+                    />
                   </Suspense>
                 ))}
               </SimpleGrid>

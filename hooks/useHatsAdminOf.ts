@@ -9,7 +9,7 @@ import { IHat, ITree } from '@/types';
 
 const chains = _.keys(chainsList);
 
-const fetchTreesById = async (treeIds: string[], chainId: number) => {
+export const fetchTreesById = async (treeIds: string[], chainId: number) => {
   const result = await client(chainId).request(GET_TREES_BY_ID, {
     ids: treeIds,
   });
