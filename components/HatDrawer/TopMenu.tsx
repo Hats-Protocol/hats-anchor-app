@@ -334,10 +334,10 @@ const TopMenu = ({
           localOverlay={localOverlay}
         >
           <HatLinkRequestCreateForm
-            newAdmin={hatData.prettyId}
+            newAdmin={hatData.id}
             wearerTopHats={_.filter(
               wearerTopHats,
-              (hat) => hat !== hatData.admin?.prettyId,
+              (hat) => hat !== hatData.admin?.id,
             )}
             chainId={chainId}
           />

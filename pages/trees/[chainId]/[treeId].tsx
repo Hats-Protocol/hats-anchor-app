@@ -57,9 +57,7 @@ import {
   decimalId,
   decimalToTreeId,
   ipToHatId,
-  ipToPrettyId,
   isTopHat,
-  prettyIdToId,
   toTreeStructure,
 } from '@/lib/hats';
 import { chainsMap, explorerUrl } from '@/lib/web3';
@@ -472,8 +470,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   }
 
   const treeHex = decimalToTreeId(treeId);
-  const prettyHatId = ipToPrettyId(treeId);
-  const hatIdHex = prettyIdToId(prettyHatId);
+  const hatIdHex = ipToHatId(treeId);
 
   const promises = [
     fetchTreeDetails(treeHex, Number(chainId)),
@@ -500,10 +497,9 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   if (parentOfTrees) {
     _.forEach(parentOfTrees, (tree: Partial<ITree>) => {
       linkedHats.push({
-        id: prettyIdToId(tree.id),
+        id: tree.id,
         admin: {
-          id: tree.linkedToHat?.prettyId,
-          prettyId: tree.linkedToHat?.prettyId,
+          id: tree.linkedToHat?.id,
         },
         tree: tree.id,
       });

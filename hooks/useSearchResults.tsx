@@ -18,6 +18,9 @@ const keyIcons: { [key: string]: string } = {
   hats: 'UserPlusIcon',
 };
 
+// TODO refactor without prettyId
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processForCommandPalette = (key: string, record: any) => {
   const parts = _.split(_.get(record, 'id'), '.');
   const treeId = prettyIdToIp(idToPrettyId(_.first(parts)));
@@ -87,11 +90,11 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
     );
   };
 
-  const { status, error, data, isLoading } = useQuery(
-    ['searchResults', localSearch],
-    searchQueryResult,
-    { enabled: !!localSearch },
-  );
+  const { status, error, data, isLoading } = useQuery({
+    queryKey: ['searchResults', localSearch],
+    queryFn: searchQueryResult,
+    enabled: !!localSearch,
+  });
 
   return { status, error, data, isLoading };
 };

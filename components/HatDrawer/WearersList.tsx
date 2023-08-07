@@ -34,7 +34,6 @@ const WearersList = ({
   hatId,
   wearers,
   maxSupply,
-  prettyId,
   setModals,
   localOverlay,
   isAdminUser,
@@ -208,7 +207,7 @@ const WearersList = ({
           size='3xl'
         >
           <HatWearerStatusForm
-            prettyId={prettyId}
+            hatId={hatId}
             chainId={chainId}
             wearer={changeStatusWearer}
             eligibility='Not Eligible'
@@ -224,7 +223,6 @@ const WearersList = ({
         >
           <HatTransferForm
             hatId={hatId}
-            prettyId={prettyId}
             chainId={chainId}
             currentWearerAddress={wearerToTransferFrom}
           />
@@ -257,7 +255,6 @@ interface WearersListProps {
   hatId: string;
   wearers: IHatWearer[];
   maxSupply: number;
-  prettyId: string;
   setModals: (m: object) => void;
   localOverlay: any;
   isAdminUser: boolean;

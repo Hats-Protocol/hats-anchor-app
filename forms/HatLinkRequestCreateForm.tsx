@@ -1,4 +1,5 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
@@ -7,7 +8,7 @@ import Select from '@/components/atoms/Select';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
+import { decimalId } from '@/lib/hats';
 
 const HatLinkRequestCreateForm = ({
   newAdmin,
@@ -22,7 +23,7 @@ const HatLinkRequestCreateForm = ({
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
-      newAdmin: decimalId(prettyIdToId(newAdmin)),
+      newAdmin: decimalId(newAdmin),
       topHatDomain: wearerTopHats[0],
     },
   });
@@ -35,19 +36,19 @@ const HatLinkRequestCreateForm = ({
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'requestLinkTopHatToTree',
-    args: [topHatDomain, decimalId(prettyIdToId(newAdmin))],
+    args: [topHatDomain, newAdmin],
     chainId,
     onSuccessToastData: {
       title: 'Successfully Requested to Link!',
-      description: `Successfully requested to link top hat ${prettyIdToIp(
-        topHatDomain,
-      )} to ${prettyIdToIp(newAdmin)}`,
+      description: `Successfully requested to link top hat ${hatIdDecimalToIp(
+        BigInt(topHatDomain),
+      )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
-      ['hatDetails', prettyIdToId(newAdmin)],
-      ['hatDetails', prettyIdToId(topHatDomain)],
-      ['treeDetails', topHatDomain],
-      ['treeDetails', prettyIdToId(newAdmin)],
+      ['hatDetails', newAdmin, chainId],
+      ['hatDetails', topHatDomain, chainId],
+      ['treeDetails', topHatDomain, chainId],
+      ['treeDetails', newAdmin, chainId],
     ],
     enabled:
       Boolean(topHatDomain) &&
@@ -70,7 +71,7 @@ const HatLinkRequestCreateForm = ({
           <Text fontWeight={500} mr={2}>
             New Admin:
           </Text>
-          <Text>ID {prettyIdToIp(newAdmin)}</Text>
+          <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>
         </Flex>
         <Select
           label='Enter domain of the Top Hat to be linked'
@@ -79,7 +80,7 @@ const HatLinkRequestCreateForm = ({
         >
           {_.map(wearerTopHats, (hat) => (
             <option value={hat} key={hat}>
-              {prettyIdToIp(hat)}
+              {hatIdDecimalToIp(BigInt(hat))}
             </option>
           ))}
         </Select>

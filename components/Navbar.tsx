@@ -11,23 +11,24 @@ import {
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
+// import { FaSearch } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
 import CONFIG from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
+// import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
 import { ipToHatId } from '@/lib/hats';
 
+// TODO reimplement search
 const Navbar = () => {
-  const localOverlay = useOverlay();
-  const { setCommandPallet: setOpen } = localOverlay;
+  // const localOverlay = useOverlay();
+  // const { setCommandPallet: setOpen } = localOverlay;
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();

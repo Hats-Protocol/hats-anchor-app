@@ -28,7 +28,6 @@ const Trees = ({
     });
 
   const trees = _.flatten(_.get(data, 'pages'));
-  console.log(trees);
 
   const topHats = useMemo(() => {
     return mapWithChainId(
