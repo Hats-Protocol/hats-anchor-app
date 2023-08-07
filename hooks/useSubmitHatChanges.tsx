@@ -4,12 +4,10 @@ import { useAccount } from 'wagmi';
 
 import useToast from '@/hooks/useToast';
 import { decimalId, hatIdToHex, prettyIdToIp, toTreeId } from '@/lib/hats';
-import { calculateCid, pinJson } from '@/lib/ipfs';
+import { pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import useTreeDetails from './useTreeDetails';
 
 type UseSubmitHatChangesProps = {
   hatData: IHat;

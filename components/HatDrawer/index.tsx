@@ -7,7 +7,6 @@ import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
-import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
@@ -72,7 +71,6 @@ const SelectedHatDrawer = ({
   chainId,
   hatsData,
   onClose,
-  hierarchyData,
   editMode,
   setEditMode,
   linkRequestFromTree,
@@ -104,7 +102,7 @@ const SelectedHatDrawer = ({
 
   useEffect(() => {
     if (wearer) {
-      const currentWearerHats = _.map(wearer, 'prettyId');
+      const currentWearerHats = _.map(wearer, 'id');
       dispatch({
         type: 'SET_IS_CURRENT_WEARER',
         payload: _.includes(currentWearerHats, selectedHatId),
@@ -112,9 +110,9 @@ const SelectedHatDrawer = ({
       const topHats = _.map(
         _.filter(
           wearer,
-          (hat: IHat) => isTopHat(hat) && hat?.prettyId !== hatData?.prettyId,
+          (hat: IHat) => isTopHat(hat) && hat?.id !== hatData?.id,
         ),
-        'prettyId',
+        'id',
       );
 
       dispatch({ type: 'SET_WEARER_TOP_HATS', payload: topHats });
@@ -130,8 +128,9 @@ const SelectedHatDrawer = ({
 
   useEffect(() => {
     if (selectedHatId) {
-      const data = _.find(hatsData, { prettyId: selectedHatId });
+      const data = _.find(hatsData, { id: selectedHatId });
       dispatch({ type: 'SET_HAT_DATA', payload: data });
+      console.log(data);
 
       if (hatDetailsObject) {
         const {
@@ -173,6 +172,7 @@ const SelectedHatDrawer = ({
   });
 
   if (!hatData) return null;
+  console.log(hatDetails);
 
   return (
     <Box
@@ -244,11 +244,11 @@ const SelectedHatDrawer = ({
           />
         )}
 
-        {hatsData?.length > 1 && (
+        {_.isEmpty(hatsData) && (
           <BottomMenu
+            hatsData={hatsData}
             selectedHatId={selectedHatId}
             setSelectedHatId={setSelectedHatId}
-            hierarchyData={hierarchyData}
           />
         )}
       </Box>
@@ -262,10 +262,9 @@ interface SelectedHatDrawerProps {
   selectedHatId?: string;
   setSelectedHatId: (id?: string) => void;
   chainId: number;
-  hatsData: IHat[];
+  hatsData: IHat[] | undefined;
   linkRequestFromTree: any;
   onClose: () => void;
-  hierarchyData: HierarchyObject[];
   editMode: boolean;
   setEditMode: (value: boolean) => void;
 }

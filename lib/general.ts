@@ -72,8 +72,10 @@ export async function isImageUrl(url: string | unknown) {
   return false;
 }
 
-export const mapWithChainId = (array: object[] | null, chainId: number) =>
-  _.map(array, (obj: object) => ({ ...obj, chainId }));
+export const mapWithChainId = (
+  array: object[] | null,
+  chainId: number,
+): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
 
 export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
 

@@ -66,7 +66,7 @@ const MainContent = ({
       pos='relative'
     >
       <Header
-        name={name}
+        name={name || hatData?.details}
         description={description}
         mutableStatus={mutableStatus}
         activeStatus={activeStatus}

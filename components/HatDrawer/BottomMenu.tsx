@@ -1,4 +1,6 @@
 import { Box, Button, Flex, HStack } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import {
   FaRegArrowAltCircleDown,
@@ -7,19 +9,32 @@ import {
   FaRegArrowAltCircleUp,
 } from 'react-icons/fa';
 
-import { prettyIdToIp } from '@/lib/hats';
-import { HierarchyObject } from '@/types';
+import { createHierarchy } from '@/lib/hats';
+import { HierarchyObject, IHat } from '@/types';
 
 const BottomMenu = ({
+  hatsData,
   selectedHatId,
   setSelectedHatId,
-  hierarchyData,
 }: BottomMenuProps) => {
   const [currentHat, setCurrentHat] = useState<any>({});
+  const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>();
 
   useEffect(() => {
-    if (selectedHatId) {
-      const hat = hierarchyData.find((h) => h.id === selectedHatId);
+    if (hatsData) {
+      const parentsAndIds = hatsData.map((hat: IHat) => ({
+        id: hat.id,
+        parentId: hat.admin.id,
+      }));
+
+      const hierarchy = createHierarchy(parentsAndIds);
+      setHierarchyData(hierarchy);
+    }
+  }, [hatsData]);
+
+  useEffect(() => {
+    if (selectedHatId && hierarchyData) {
+      const hat = _.find(hierarchyData, ['id', selectedHatId]);
       if (hat) setCurrentHat(hat);
     }
   }, [selectedHatId, hierarchyData]);
@@ -45,7 +60,7 @@ const BottomMenu = ({
             gap={1}
           >
             <FaRegArrowAltCircleLeft />
-            {prettyIdToIp(currentHat?.leftSibling)}
+            {hatIdDecimalToIp(BigInt(currentHat?.leftSibling))}
           </Button>
         ) : (
           <Box w={16} />
@@ -59,7 +74,7 @@ const BottomMenu = ({
               gap={1}
             >
               <FaRegArrowAltCircleUp />
-              {prettyIdToIp(currentHat?.parentId)}
+              {hatIdDecimalToIp(BigInt(currentHat?.parentId))}
             </Button>
           ) : (
             <Box w={16} />
@@ -71,7 +86,7 @@ const BottomMenu = ({
               onClick={() => setSelectedHatId(currentHat?.firstChild)}
               gap={1}
             >
-              {prettyIdToIp(currentHat?.firstChild)}
+              {hatIdDecimalToIp(BigInt(currentHat?.firstChild))}
               <FaRegArrowAltCircleDown />
             </Button>
           ) : (
@@ -85,7 +100,7 @@ const BottomMenu = ({
             onClick={() => setSelectedHatId(currentHat?.rightSibling)}
             gap={1}
           >
-            {prettyIdToIp(currentHat?.rightSibling)}
+            {hatIdDecimalToIp(BigInt(currentHat?.rightSibling))}
             <FaRegArrowAltCircleRight />
           </Button>
         ) : (
@@ -99,7 +114,7 @@ const BottomMenu = ({
 export default BottomMenu;
 
 interface BottomMenuProps {
+  hatsData: IHat[] | undefined;
   selectedHatId?: string;
   setSelectedHatId: (id: string) => void;
-  hierarchyData: HierarchyObject[];
 }

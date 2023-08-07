@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 export interface IHatEvent {
   id: string;
   timestamp: string;
@@ -25,19 +27,22 @@ export interface IHat {
   details: string;
   maxSupply: string;
   eligibility: `0x${string}`;
+  extendedEligibility: IHatWearer;
   toggle: `0x${string}`;
+  extendedToggle: IHatWearer;
   mutable: boolean;
   imageUri: string;
   imageUrl?: string;
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: any[]; // (`0x${string}` | IHatWearer)[];
+  wearers: IHatWearer[]; // (`0x${string}` | IHatWearer)[];
+  extendedWearers: IHatWearer[];
   admin: IHat;
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any;
+    data: HatDetails;
   };
   name?: string;
   parentId?: string | null;
@@ -81,22 +86,6 @@ export interface HatRole {
   requirements: (string | null)[];
 }
 
-export type DetailsObject = {
-  guilds?: string[];
-  responsibilities: DetailsItem[];
-  authorities: DetailsItem[];
-  eligibility: {
-    manual: boolean;
-    criteria: DetailsItem[];
-  };
-  toggle: {
-    manual: boolean;
-    criteria: DetailsItem[];
-  };
-  name: string;
-  description: string;
-};
-
 export type HatDetails = {
   name: string;
   description?: string;
@@ -123,3 +112,9 @@ export type ImageFile = {
   type: string;
   webkitRelativePath: string;
 };
+
+export interface IControls {
+  label: string;
+  value: string;
+  icon: ReactNode;
+}

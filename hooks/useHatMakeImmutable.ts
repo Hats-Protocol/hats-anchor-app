@@ -1,8 +1,9 @@
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useChainId } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { decimalId, idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
+import { decimalId, toTreeId } from '@/lib/hats';
 
 const useHatMakeImmutable = ({
   hatsAddress,
@@ -19,8 +20,8 @@ const useHatMakeImmutable = ({
     chainId: Number(chainId),
     onSuccessToastData: {
       title: 'Hat Updated!',
-      description: `Successfully made hat #${prettyIdToIp(
-        idToPrettyId(hatId),
+      description: `Successfully made hat #${hatIdDecimalToIp(
+        BigInt(hatId),
       )} immutable`,
     },
     queryKeys: [

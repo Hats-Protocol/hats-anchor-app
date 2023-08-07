@@ -12,7 +12,7 @@ import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { DetailsObject, HatDetails, IHat } from '@/types';
+import { HatDetails, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -63,7 +63,7 @@ const EditMode = ({
   } = localForm;
 
   const [newImageURI, setNewImageURI] = useState('');
-  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
+  const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),

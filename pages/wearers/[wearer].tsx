@@ -176,7 +176,7 @@ const WearerDetail = ({
                         chainId: Number(chainId),
                       }),
                       (hat: IHat) => (
-                        <CoreHat hat={hat} key={`${chainId}-${hat.prettyId}`} />
+                        <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
                       ),
                     )}
                   </SimpleGrid>

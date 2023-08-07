@@ -37,7 +37,7 @@ const CONFIG: {
   ipfsGateway: 'https://indigo-selective-coral-505.mypinata.cloud/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
-  banner: true,
+  banner: false,
 
   // terminology
   hat: 'hat',

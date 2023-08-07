@@ -11,6 +11,7 @@ import TreeCard from '@/components/TreeListCard';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
+import { mapWithChainId } from '@/lib/general';
 import { IHat, ITree } from '@/types';
 
 const Trees = ({
@@ -25,14 +26,19 @@ const Trees = ({
       chainId,
       initialData,
     });
+
   const trees = _.flatten(_.get(data, 'pages'));
+  console.log(trees);
 
   const topHats = useMemo(() => {
-    return _.map(_.flatten(_.get(data, 'pages')), 'hats[0]');
-  }, [data]);
+    return mapWithChainId(
+      _.map(_.flatten(_.get(data, 'pages')), 'hats[0]'),
+      chainId,
+    );
+  }, [data, chainId]);
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(_.map(topHats, (h) => ({ ...h, chainId })));
+    useImageURIs(topHats);
 
   return (
     <Layout>
