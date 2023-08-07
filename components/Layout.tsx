@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Box } from '@chakra-ui/react';
+import { Box, Image, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
@@ -12,6 +12,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   useEffect(() => {
     if (isAutoConnecting) return;
@@ -50,10 +51,36 @@ const Layout = ({ children }: { children: ReactNode }) => {
         w='100%'
         zIndex={-1}
       />
-      <Navbar />
-      <Box h='100vh' w='100vw'>
-        {children}
-      </Box>
+      {isMobile ? (
+        <Stack
+          textAlign='center'
+          h='100vh'
+          justifyContent='center'
+          px={10}
+          alignItems='center'
+          spacing={4}
+        >
+          <Image src='/icons/hats.svg' alt='Hat' h={150} w={150} mb={4} />
+          <Text fontWeight={600} fontSize={20}>
+            Hello, Hat Wearer 🧢
+          </Text>
+          <Text fontWeight={500} fontSize={20}>
+            The Hats App is not currently optimized for mobile usage.
+          </Text>
+          <Text fontWeight={500} fontSize={20}>
+            Please visit{' '}
+            <a href='https://app.hatsprotocol.xyz'>app.hatsprotocol.xyz</a> from
+            a desktop device.
+          </Text>
+        </Stack>
+      ) : (
+        <>
+          <Navbar />
+          <Box h='100vh' w='100vw'>
+            {children}
+          </Box>
+        </>
+      )}
     </Box>
   );
 };
