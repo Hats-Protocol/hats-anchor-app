@@ -48,7 +48,7 @@ const featuredDocumentation = [
     icon: 'code',
   },
   {
-    url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
+    url: 'mailto:support@hatsprotocol.xyz',
     name: 'Get in touch!',
     description:
       'Stuck on tree design, deployment, or custom contract development? We’re here to help.',
@@ -58,24 +58,27 @@ const featuredDocumentation = [
 
 const featuredTemplates = [
   {
-    chainId: 10,
-    id: 2,
-    name: 'Cabin DAO',
-    description: 'A DAO for the Cabin community',
+    chainId: 5,
+    id: 54,
+    name: 'Elected Roles',
+    description:
+      'Delegate roles and authorities automatically based on election results',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
-    chainId: 100,
-    id: 72,
-    name: 'The DIA',
-    description: 'A DAO for decentralized curation of intel',
+    chainId: 5,
+    id: 55,
+    name: 'DAO-controlled Multisig & Signers',
+    description:
+      'Give and revoke multisig signing authority based on Hat ownerships',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
-    chainId: 10,
-    id: 3,
-    name: 'DemoDAO',
-    description: 'An exquisite DAO for demo purposes',
+    chainId: 5,
+    id: 56,
+    name: 'Permissionless Contribution Levels',
+    description:
+      'Members can level up and claim new authorities as they increase their reputation in your org',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
 ];
