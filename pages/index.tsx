@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Flex,
-  Heading,
   HStack,
   SimpleGrid,
   Spinner,
@@ -12,6 +11,7 @@ import {
 import _ from 'lodash';
 import { Suspense } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
+import { FaArrowRight } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -177,9 +177,21 @@ const Home = () => {
             border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
             background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
           >
-            <Text fontSize={24} fontWeight={500}>
-              Your Hats
-            </Text>
+            <Flex justifyContent='space-between' alignItems='center'>
+              <Text fontSize={24} fontWeight={500}>
+                Your Hats
+              </Text>
+              {sortedHats.length > 8 && (
+                <ChakraNextLink
+                  as={ChakraNextLink}
+                  href={`/wearers/${wearerAddress}`}
+                >
+                  <HStack alignItems='center'>
+                    <Text>View All of Your Hats</Text> <FaArrowRight />
+                  </HStack>
+                </ChakraNextLink>
+              )}
+            </Flex>
             {imagesLoading || detailsLoading ? (
               <Flex justify='center' align='center' pt={10}>
                 <Spinner />
@@ -194,7 +206,7 @@ const Home = () => {
                 }}
                 spacing={6}
               >
-                {_.map(sortedHats, (hat, i) => (
+                {_.map(sortedHats.slice(0, 8), (hat, i) => (
                   <Suspense fallback={<Suspender />} key={i}>
                     <DashboardHatCard hat={hat} key={i} />
                   </Suspense>
