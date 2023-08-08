@@ -78,6 +78,7 @@ const Input = ({
             {...register(name, options)}
             {...props}
             borderColor={isDirty ? 'cyan.500' : undefined}
+            background='white'
           />
           {isDirty && (
             <InputRightElement>
