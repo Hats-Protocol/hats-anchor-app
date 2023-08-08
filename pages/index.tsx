@@ -19,6 +19,7 @@ import Suspender from '@/components/atoms/Suspender';
 import DashboardHatCard from '@/components/DashboardHatCard';
 import FeaturedDocsCard from '@/components/FeaturedDocsCard';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
+import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import {
@@ -34,7 +35,7 @@ import { ipToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { orderedChains } from '@/lib/web3';
 import { ITree } from '@/types';
 
-const featuredDocumentation = [
+const forkableTemplates = [
   {
     url: 'https://docs.hatsprotocol.xyz/',
     name: 'For Hat Wearers',
@@ -311,7 +312,7 @@ const Home = () => {
               </Text>
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTemplates, (tree, i) => (
-                  <FeaturedTreeCard key={i} treeData={tree} />
+                  <ForkableTemplateCard key={i} treeData={tree} />
                 ))}
               </SimpleGrid>
             </Stack>
@@ -321,7 +322,7 @@ const Home = () => {
             spacing={4}
             py={8}
             px={9}
-            maxW={500}
+            maxW={427}
             borderRadius='8px'
             border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
             background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
@@ -329,7 +330,7 @@ const Home = () => {
             <Text fontSize={24} fontWeight={500}>
               Learn more about Hats
             </Text>
-            {_.map(featuredDocumentation, (docsLink, i) => (
+            {_.map(forkableTemplates, (docsLink, i) => (
               <FeaturedDocsCard key={i} docsData={docsLink} />
             ))}
           </Stack>
