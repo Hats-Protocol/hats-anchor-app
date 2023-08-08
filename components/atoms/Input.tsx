@@ -3,6 +3,7 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  IconButton,
   Input as ChakraInput,
   InputGroup,
   InputProps as ChakraInputProps,
@@ -11,9 +12,11 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
+import { GrUndo } from 'react-icons/gr';
 
 /**
  * Primary Input component for React Hook Form
@@ -38,7 +41,17 @@ const Input = ({
   ...props
 }: InputProps) => {
   if (!localForm) return null;
-  const { register } = localForm;
+  const {
+    register,
+    resetField,
+    formState: { dirtyFields, defaultValues },
+  } = localForm;
+
+  const isDirty = _.get(dirtyFields, name);
+
+  const onReset = () => {
+    if (defaultValues) resetField(name, { keepDirty: false });
+  };
 
   return (
     <FormControl {...props}>
@@ -60,7 +73,23 @@ const Input = ({
         )}
         {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
         <InputGroup {...props}>
-          <ChakraInput type={type} {...register(name, options)} {...props} />
+          <ChakraInput
+            type={type}
+            {...register(name, options)}
+            {...props}
+            borderColor={isDirty ? 'cyan.500' : undefined}
+          />
+          {isDirty && (
+            <InputRightElement>
+              <IconButton
+                icon={<GrUndo />}
+                aria-label='Reset'
+                onClick={onReset}
+                size='xs'
+                colorScheme='cyan'
+              />
+            </InputRightElement>
+          )}
           {rightElement && (
             <InputRightElement>{rightElement}</InputRightElement>
           )}
