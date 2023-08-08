@@ -25,8 +25,8 @@ const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
           w='full'
           h='full'
         >
-          <Text fontWeight={500}>{name}</Text>
-          <Text fontWeight={500} fontSize='sm'>
+          <Text fontWeight='semibold'>{name}</Text>
+          <Text fontWeight='medium' fontSize='sm'>
             {description}
           </Text>
         </Stack>

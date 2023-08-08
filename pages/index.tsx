@@ -193,7 +193,7 @@ const Home = () => {
         {wearerAddress ? (
           <Flex justifyContent='space-between'>
             <Stack>
-              <Text fontSize={24} fontWeight={500}>
+              <Text fontSize={24} fontWeight='medium'>
                 gm {ensName || formatAddress(wearerAddress)} 👋
               </Text>
               <Text fontSize={18}>
@@ -205,7 +205,7 @@ const Home = () => {
               <ChakraNextLink href='/trees/new'>
                 <Button colorScheme='blue' py={6} px={8}>
                   <BsDiagram3 />
-                  <Text fontSize={18} fontWeight={500} noOfLines={1} ml={3}>
+                  <Text fontSize={18} fontWeight='medium' noOfLines={1} ml={3}>
                     Create a new {CONFIG.tree}
                   </Text>
                 </Button>
@@ -214,7 +214,7 @@ const Home = () => {
           </Flex>
         ) : (
           <Stack>
-            <Text fontSize={24} fontWeight={500}>
+            <Text fontSize={24} fontWeight='medium'>
               Welcome to Hats Protocol! 🧢
             </Text>
             <Text fontSize={18}>
@@ -229,11 +229,12 @@ const Home = () => {
             py={8}
             px={9}
             borderRadius='8px'
-            border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
-            background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+            border='1px'
+            borderColor='blackAlpha.300'
+            background='whiteAlpha.600'
           >
             <Flex justifyContent='space-between' alignItems='center'>
-              <Text fontSize={24} fontWeight={500}>
+              <Text fontSize={24} fontWeight='medium'>
                 Your Hats
               </Text>
               {sortedHats.length > 8 && (
@@ -278,10 +279,11 @@ const Home = () => {
               py={8}
               px={9}
               borderRadius='8px'
-              border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
-              background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+              border='1px'
+              borderColor='blackAlpha.300'
+              background='whiteAlpha.600'
             >
-              <Text fontSize={24} fontWeight={500}>
+              <Text fontSize={24} fontWeight='medium'>
                 Explore featured trees
               </Text>
               <SimpleGrid columns={3} spacing={6}>
@@ -304,10 +306,11 @@ const Home = () => {
               py={8}
               px={9}
               borderRadius='8px'
-              border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
-              background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+              border='1px'
+              borderColor='blackAlpha.300'
+              background='whiteAlpha.600'
             >
-              <Text fontSize={24} fontWeight={500}>
+              <Text fontSize={24} fontWeight='medium'>
                 Jump right in with a forkable template
               </Text>
               <SimpleGrid columns={3} spacing={6}>
@@ -324,10 +327,11 @@ const Home = () => {
             px={9}
             maxW={427}
             borderRadius='8px'
-            border='1px solid var(--black-alpha-300, rgba(0, 0, 0, 0.16))'
-            background='var(--white-alpha-600, rgba(255, 255, 255, 0.48))'
+            border='1px'
+            borderColor='blackAlpha.300'
+            background='whiteAlpha.600'
           >
-            <Text fontSize={24} fontWeight={500}>
+            <Text fontSize={24} fontWeight='medium'>
               Learn more about Hats
             </Text>
             {_.map(forkableTemplates, (docsLink, i) => (

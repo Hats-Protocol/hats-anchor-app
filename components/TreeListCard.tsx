@@ -51,7 +51,7 @@ const TreeListCard = ({
               borderColor='gray.200'
             />
             <Stack spacing={1} maxW='110px'>
-              <Text fontWeight={700} noOfLines={2}>
+              <Text fontWeight='bold' noOfLines={2}>
                 {hatName}
               </Text>
               <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>

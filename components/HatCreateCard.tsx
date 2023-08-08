@@ -29,7 +29,7 @@ const HatCreateCard = ({
       w='200px'
       border='1px solid'
       borderRadius='4px'
-      boxShadow='0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
+      boxShadow='md'
     >
       <Flex>
         <Box
@@ -45,7 +45,7 @@ const HatCreateCard = ({
         />
         <Box p={1}>
           <Text fontSize='sm'>{nextChild}</Text>
-          <Heading size='sm' noOfLines={2} fontWeight={500}>
+          <Heading size='sm' noOfLines={2} fontWeight='medium'>
             {name || 'Enter name below'}
           </Heading>
         </Box>

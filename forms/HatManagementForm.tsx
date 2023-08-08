@@ -113,7 +113,7 @@ const HatManagementForm = ({
           <FaRegListAlt />
           <Stack>
             <Text>{address.toUpperCase()} REQUIREMENTS (optional)</Text>
-            <Text fontWeight={400} color='blackAlpha.700'>
+            <Text color='blackAlpha.700'>
               A written description of the logic in the Accountability Module.
             </Text>
           </Stack>

@@ -322,7 +322,7 @@ const TreeDetails = ({
             <Box>
               {/* <Button
                 mr={3}
-                fontWeight={500}
+                fontWeight='medium'
                 border='1px solid #0987A0'
                 background='#C4F1F9'
                 color='#065666'
@@ -349,7 +349,7 @@ const TreeDetails = ({
                       />
                     }
                     rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
-                    fontWeight={500}
+                    fontWeight='medium'
                     border='1px solid #2D3748'
                     color={isOpen ? 'blue.500' : '#2D3748'}
                   >
@@ -401,7 +401,7 @@ const TreeDetails = ({
                     isExternal
                   >
                     <HStack spacing={1}>
-                      <Text fontWeight={500}>{chain?.name}</Text>
+                      <Text fontWeight='medium'>{chain?.name}</Text>
                       <IconButton
                         aria-label='Explorer contract address'
                         icon={<Icon as={FiExternalLink} />}
@@ -417,7 +417,7 @@ const TreeDetails = ({
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
                       <Text>Last event: </Text>
-                      <Text mr={2} fontWeight={500}>
+                      <Text mr={2} fontWeight='medium'>
                         {events?.[0]?.timestamp &&
                           formatDistanceToNow(
                             new Date(Number(events[0]?.timestamp) * 1000),

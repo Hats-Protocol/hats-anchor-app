@@ -46,7 +46,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
               borderColor='gray.600'
             />
             <Stack maxW='75%'>
-              <Heading as='h1' size='md' fontWeight={500} noOfLines={1}>
+              <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
                 {hatName}
               </Heading>
               <HStack>

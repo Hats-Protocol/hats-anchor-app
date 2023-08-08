@@ -11,18 +11,24 @@ const FeaturedTreeCard = ({
 
   return (
     <ChakraNextLink href={`/trees/${chainId}/${id}`} _hover={{}}>
-      <Box
+      <Stack
         bg='white'
         maxW='400px'
         borderRadius={6}
-        border='1px solid var(--gray-600, #4A5568)'
+        border='1px'
+        borderColor='gray.600'
+        h='full'
+        justifyItems='space-between'
+        spacing={0}
       >
-        <Box bg='gray.100' borderTopRadius={6}>
+        <Box bg='gray.100' borderTopRadius={6} flex='1'>
           <Image
             loading='lazy'
             src={image}
             alt={`${name} featured image`}
-            w='100%'
+            w='full'
+            maxH='150px'
+            h='full'
             fit='cover'
             borderTopRadius={6}
           />
@@ -46,8 +52,8 @@ const FeaturedTreeCard = ({
             mt={-14}
             borderRadius={4}
           />
-          <HStack justifyContent='space-between' w='full'>
-            <Text fontWeight={500} fontSize={18}>
+          <HStack justifyContent='space-between' w='full' h='full'>
+            <Text fontWeight='medium' fontSize={18}>
               {name}
             </Text>
 
@@ -63,7 +69,7 @@ const FeaturedTreeCard = ({
             </Stack>
           </HStack>
         </HStack>
-      </Box>
+      </Stack>
     </ChakraNextLink>
   );
 };

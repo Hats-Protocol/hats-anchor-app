@@ -61,7 +61,7 @@ const WearerHatCard = ({ hat }: { hat: IHat }) => {
           bg='white'
         >
           <Flex justify='space-between'>
-            <Text fontSize='xs' mr={2} fontWeight={600}>
+            <Text fontSize='xs' mr={2} fontWeight='semibold'>
               {topHatName}
             </Text>
             <Text fontSize='xs' color='gray.500'>

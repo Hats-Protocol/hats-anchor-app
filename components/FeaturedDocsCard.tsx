@@ -12,9 +12,10 @@ const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
         p={5}
         spacing={6}
         borderRadius={6}
-        border='1px solid var(--gray-600, #4A5568)'
-        background='var(--white-alpha-700, rgba(255, 255, 255, 0.64))'
-        boxShadow='0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
+        border='1px'
+        borderColor='gray.600'
+        background='whiteAlpha.700'
+        boxShadow='md'
       >
         <Image
           src={`/icons/${icon}.svg`}
@@ -23,7 +24,7 @@ const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
           w={8}
         />
         <Stack>
-          <Text fontWeight={600}>{name}</Text>
+          <Text fontWeight='semibold'>{name}</Text>
           <Text fontSize='sm'>{description}</Text>
         </Stack>
       </HStack>

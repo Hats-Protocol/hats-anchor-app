@@ -154,7 +154,7 @@ const HatRelinkForm = ({
           the Top Hat now that it will be a child hat.
         </Text>
         <Flex>
-          <Text fontWeight={500} mr={2}>
+          <Text fontWeight='medium' mr={2}>
             Hat to be relinked:
           </Text>
           <Text>ID {prettyIdToIp(hatData?.prettyId)}</Text>

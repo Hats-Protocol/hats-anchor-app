@@ -152,7 +152,7 @@ const HatCreateForm = ({
             placeholder='Hat name'
           />
           <Stack>
-            <Text fontWeight={600}>Image</Text>
+            <Text fontWeight='semibold'>Image</Text>
             <Text fontSize='sm' color='gray.600'>
               If not customized, image will default to the admin's image.
             </Text>
