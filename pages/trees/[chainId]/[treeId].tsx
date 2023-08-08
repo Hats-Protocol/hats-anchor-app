@@ -25,6 +25,7 @@ import {
   Stack,
   Text,
   useDisclosure,
+  useMediaQuery,
   VStack,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
@@ -156,6 +157,10 @@ const TreeDetails = ({
     'wearers',
   );
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
+  const [isMobile] = useMediaQuery('(max-width: 767px)', {
+    ssr: true,
+    fallback: false,
+  });
 
   const { data: hatData } = useHatDetails({
     hatId: selectedHatId,
@@ -180,6 +185,8 @@ const TreeDetails = ({
 
   const handleSelectHat = useCallback(
     (id: string) => {
+      if (isMobile) return;
+
       setSelectedHatId(id);
 
       const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
@@ -192,7 +199,7 @@ const TreeDetails = ({
 
       onOpenShade();
     },
-    [onOpenShade, router],
+    [isMobile, onOpenShade, router],
   );
 
   useEffect(() => {
