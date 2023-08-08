@@ -140,7 +140,6 @@ const Home = () => {
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
-  // awkward way to get hats and wearers for featured trees, but there's no singular call for multiple trees
   const fetchFeaturedTrees = async () => {
     const ids = _.map(featuredTrees, (tree) => ipToPrettyId(String(tree.id)));
 
