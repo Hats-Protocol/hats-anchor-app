@@ -33,7 +33,7 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { ipToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { orderedChains } from '@/lib/web3';
-import { ITree } from '@/types';
+import { IHat, ITree } from '@/types';
 
 const forkableTemplates = [
   {
@@ -140,38 +140,38 @@ const Home = () => {
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
+  // awkward way to get hats and wearers for featured trees, but there's no singular call for multiple trees
   const fetchFeaturedTrees = async () => {
-    const trees1 = await fetchTreesById(
-      [ipToPrettyId('2'), ipToPrettyId('3')],
-      3,
-    );
-    const tree2 = await fetchTreeDetails(ipToPrettyId('72'), 100);
+    const ids = _.map(featuredTrees, (tree) => ipToPrettyId(String(tree.id)));
 
-    const trees = (trees1 || []).concat(tree2 || []) as ITree[];
-    const hatsOfTrees = trees.map((tree) => ({
+    const [trees1, tree3] = await Promise.all([
+      fetchTreesById([ids[0], ids[2]], 3),
+      fetchTreeDetails(ids[1], 100),
+    ]);
+
+    const trees = [...(trees1 || [])].concat(tree3 || []) as ITree[];
+
+    const [hats1, hat3] = await Promise.all([
+      fetchManyHatDetails([prettyIdToId(ids[0]), prettyIdToId(ids[2])], 3),
+      fetchHatDetails(prettyIdToId(ids[1]), 100),
+    ]);
+
+    const hats = [...(hats1 || [])].concat(hat3 || []) as IHat[];
+
+    const hatsOfTrees = _.map(trees, (tree) => ({
       treeId: prettyIdToIp(tree.id),
       hats: tree.hats.length,
     }));
 
-    const hats1 = await fetchManyHatDetails(
-      [prettyIdToId(ipToPrettyId('2')), prettyIdToId(ipToPrettyId('3'))],
-      3,
-    );
-    const hat2 = await fetchHatDetails(prettyIdToId(ipToPrettyId('72')), 100);
-    const hats = (hats1 || []).concat(hat2 || []);
-
-    const wearers = hats.map((hat) => ({
+    const wearers = _.map(hats, (hat) => ({
       treeId: prettyIdToIp(hat.prettyId),
-      wearers: hat.wearers.length,
+      wearers: Number(hat.wearers.length),
     }));
 
-    const data = _.map(hatsOfTrees, (tree) => {
-      const hat = _.find(wearers, { treeId: tree.treeId });
-      return {
-        ...tree,
-        ...hat,
-      };
-    });
+    const data = _.map(hatsOfTrees, (tree) => ({
+      ...tree,
+      ..._.find(wearers, { treeId: tree.treeId }),
+    }));
 
     setHatsAndWearers(data);
   };
@@ -290,7 +290,8 @@ const Home = () => {
                   <Suspense key={i} fallback={<Suspender />}>
                     <FeaturedTreeCard
                       treeData={tree}
-                      hatsAndWearers={hatsAndWearers.find(
+                      hatsAndWearers={_.find(
+                        hatsAndWearers,
                         (h: { treeId: string }) => Number(h.treeId) === tree.id,
                       )}
                     />

@@ -1,4 +1,4 @@
-import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react';
+import { Box, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -52,13 +52,13 @@ const FeaturedTreeCard = ({
             </Text>
 
             <Stack>
-              <HStack>
-                <Image src='/icons/hat.svg' alt='Hat' />
-                <Text fontWeight={600}>{hatsAndWearers?.hats}</Text>
+              <HStack spacing='5px'>
+                <Image src='/icons/hat.svg' alt='Hat' w={3} h={3} />
+                <Text fontSize='xs'>{hatsAndWearers?.hats}</Text>
               </HStack>
-              <HStack>
-                <BsPeopleFill />
-                <Text fontSize='sm'>{hatsAndWearers?.wearers}</Text>
+              <HStack spacing='5px'>
+                <Icon as={BsPeopleFill} w={3} h={3} />
+                <Text fontSize='xs'>{hatsAndWearers?.wearers}</Text>
               </HStack>
             </Stack>
           </HStack>
@@ -82,6 +82,6 @@ interface FeatureTreeCardProps {
   hatsAndWearers: {
     treeId: number;
     hats: number;
-    wearers: number;
+    wearers?: number;
   };
 }
