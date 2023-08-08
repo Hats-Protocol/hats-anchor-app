@@ -1,12 +1,14 @@
 /* eslint-disable no-plusplus */
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import { ZERO_ADDRESS } from '@/constants';
 import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HierarchyObject, IHat, InputObject, ITree } from '@/types';
+import { HierarchyObject, IControls, IHat, InputObject, ITree } from '@/types';
 
+// todo use query hook
 export async function toTreeStructure({
   treeData,
   hatsImages,
@@ -15,13 +17,8 @@ export async function toTreeStructure({
   treeData: ITree | null | undefined;
   hatsImages: IHat[] | undefined;
   chainId: number;
-}): Promise<{
-  tree: IHat[];
-  hats: IHat[];
-  hierarchy: HierarchyObject[];
-}> {
-  if (!treeData || !hatsImages)
-    return Promise.resolve({ tree: [], hats: [], hierarchy: [] });
+}): Promise<IHat[]> {
+  if (!treeData || !hatsImages) return Promise.resolve([]);
   const hatsArray: IHat[] = [];
 
   const hatIds: string[] = _.uniq(
@@ -57,65 +54,61 @@ export async function toTreeStructure({
   );
   const wAndCInfo = await fetchManyWearerDetails(wAndCs, chainId);
 
-  const parentsAndIds = hatsData.map((hat: IHat) => ({
-    id: hat.prettyId,
-    parentId: hat.admin.prettyId,
-  }));
-
-  const hierarchy = createHierarchy(parentsAndIds);
-
   treeData?.hats?.forEach(async (hat: IHat) => {
-    let parentId: string | null = hat.admin?.prettyId;
-    if (hat.admin?.prettyId === hat.prettyId) {
+    let parentId: string | null = hat.admin?.id;
+    if (hat.admin?.id === hat.id) {
       parentId = null;
     }
 
     const {
-      prettyId,
       id,
       tree: { id: treeId },
     } = hat;
 
     const currentHat = _.find(hatsData, { id });
+    if (!currentHat) return;
 
     hatsArray.push({
       ...currentHat,
-      id: prettyId,
-      name: prettyIdToIp(prettyId),
+      id,
+      name: hatIdDecimalToIp(BigInt(id)),
       parentId,
       treeId,
       isLinked: false,
       url: `/trees/${chainId}/${decimalId(treeId)}`,
-      wearers: extendWearers(currentHat.wearers, wAndCInfo),
-      eligibility: extendControllers(currentHat.eligibility, wAndCInfo),
-      toggle: extendControllers(currentHat.toggle, wAndCInfo),
+      extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
+      extendedEligibility: extendControllers(currentHat.eligibility, wAndCInfo),
+      extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
     });
   });
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
     const {
-      prettyId,
       id,
       tree: { id: treeId },
       imageUrl,
     } = treeData.linkedToHat;
 
     const currentHat = _.find(hatsData, { id });
-
-    hatsArray.push({
-      ...currentHat,
-      id: prettyId,
-      name: prettyIdToIp(prettyId),
-      parentId: null,
-      imageUrl,
-      treeId,
-      isLinked: true,
-      url: `/trees/${chainId}/${decimalId(treeId)}`,
-      wearers: extendWearers(currentHat.wearers, wAndCInfo),
-      eligibility: extendControllers(currentHat.eligibility, wAndCInfo),
-      toggle: extendControllers(currentHat.toggle, wAndCInfo),
-    });
+    if (currentHat) {
+      hatsArray.push({
+        ...currentHat,
+        id,
+        name: hatIdDecimalToIp(BigInt(id)),
+        parentId: null,
+        imageUrl,
+        treeId,
+        isLinked: true,
+        url: `/trees/${chainId}/${decimalId(treeId)}`,
+        extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
+        extendedEligibility: extendControllers(
+          currentHat.eligibility,
+          wAndCInfo,
+        ),
+        extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
+      });
+    }
   }
 
   // If the tree has parentOfTrees, add them to the hatsArray with the linkedToHat as their parent
@@ -123,30 +116,33 @@ export async function toTreeStructure({
     treeData.parentOfTrees.forEach((childTree: ITree) => {
       if (!childTree.linkedToHat) return;
       const {
-        linkedToHat: { prettyId },
+        linkedToHat: { id },
         id: treeId,
       } = childTree;
-      const id = prettyIdToId(prettyId);
 
       if (!id) return;
       const currentHat = _.find(hatsData, { id });
+      if (!currentHat) return;
 
       hatsArray.push({
         ...currentHat,
         id: treeId,
-        name: decimalId(treeId),
-        parentId: idToPrettyId(id),
+        name: hatIdDecimalToIp(BigInt(treeId)),
+        parentId: id,
         treeId,
         isLinked: true,
         url: `/trees/${chainId}/${decimalId(treeId)}`,
-        wearers: extendWearers(currentHat.wearers, wAndCInfo),
-        eligibility: extendControllers(currentHat.eligibility, wAndCInfo),
-        toggle: extendControllers(currentHat.toggle, wAndCInfo),
+        extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
+        extendedEligibility: extendControllers(
+          currentHat.eligibility,
+          wAndCInfo,
+        ),
+        extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
       });
     });
   }
 
-  return Promise.resolve({ tree: hatsArray, hats: hatsData, hierarchy });
+  return Promise.resolve(hatsArray);
 }
 
 export function createHierarchy(data: InputObject[]): HierarchyObject[] {
@@ -227,7 +223,6 @@ export function prettyIdToIp(id: string | undefined) {
   return domains.join('.');
 }
 
-// unused
 export function treeCreateEventIdToTreeId(id: string) {
   if (!id) return undefined;
   const hexString = id.slice(0, 10);
@@ -259,6 +254,12 @@ export function ipToPrettyId(id: string | undefined) {
   return _.join([treeId, ...children], '.');
 }
 
+// HACK UNTIL FUNCTION AVAILABLE IN SDK
+export function ipToHatId(id: string) {
+  return prettyIdToId(ipToPrettyId(id));
+}
+
+// expects fullId
 export const hatIdToHex = (hatId: string | null) => {
   if (!hatId || hatId === '0x') return '';
   return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
@@ -295,8 +296,8 @@ const includesAny = (arr: any[], target: any[]) =>
   target.some((v) => arr.includes(v));
 
 /**
- * @param hatId should be a `prettyId`
- * @param wearerHatIds should be an array of `prettyId`s worn by the wearer
+ * @param hatId should be a `hatId`
+ * @param wearerHatIds should be an array of `hatId`s worn by the wearer
  * @param current default `false`, include wearing current hatId
  */
 export const isAdmin = (
@@ -307,15 +308,17 @@ export const isAdmin = (
   if (!hatId) return false;
   const treeId = hatId.slice(0, 10);
   // separate children IDs
-  const children = hatId.slice(11);
-  const hats = _.split(children, '.');
+  const children = hatId.slice(10);
+  const hats = children.match(/.{1,4}/g); // _.split(children, '.');
+
+  if (!hats) return false;
 
   if (!current) hats.pop();
 
   // map all parent hatIds for the lineage
   const hatIds = hats.map((__, i) => {
-    const joinedParentHats = hats.slice(0, i).join('.');
-    return `${treeId}${i > 0 ? `.${joinedParentHats}` : ''}`;
+    const joinedParentHats = hats.slice(0, i).join('');
+    return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
   });
 
   if (!wearerHatIds) return false;
@@ -325,46 +328,62 @@ export const isAdmin = (
 
 export const isTopHat = (hatData: IHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
-  _.get(hatData, 'admin.prettyId') === _.get(hatData, 'prettyId');
+  _.get(hatData, 'admin.id') === _.get(hatData, 'id');
 
 export const isMutable = (hatData: IHat) => _.get(hatData, 'mutable');
 
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
-// unused
-export const isMutableNotTopHat = (hatData: IHat) =>
-  isMutable(hatData) && !isTopHat(hatData);
-
-// unused
-export const descendantsOf = (
-  prettyHatId: string,
-  tree: ITree,
-  onlyChildren = false,
-) => {
-  if (!prettyHatId || !tree) return false;
-  // exclude current hat
-  const hats = _.filter(_.get(tree, 'hats'), (h) => h.prettyId !== prettyHatId);
-
-  // remaining descendants in the tree
-  const allDescendants = _.filter(hats, (h) =>
-    _.includes(_.get(h, 'prettyId'), prettyHatId),
-  );
-
-  if (!onlyChildren) return allDescendants;
-
-  const directChildren = _.filter(allDescendants, (h) => {
-    const currentHatLength = _.size(prettyHatId);
-    const parentHatLength = _.size(_.get(h, 'prettyId'));
-    // better way to calculate this?
-    return _.eq(_.subtract(parentHatLength, currentHatLength), 5);
-  });
-  return directChildren;
-};
-
-// same as toTreeId???
+// same as toTreeId??? similar but used to get full ID (for top hat ID)
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);
   return prettyHatId.slice(0, 10).padEnd(66, '0');
+};
+
+const checkNodeDetails = (node: IHat, type: string) =>
+  node?.detailsObject?.data &&
+  _.includes(_.keys(node.detailsObject.data), type);
+
+export const checkPermissionsResponsibilities = (
+  orgChartTree: IHat[],
+  controls: IControls[],
+) => {
+  const hasPermissions = !_.isEmpty(
+    _.filter(orgChartTree, (node: IHat) =>
+      checkNodeDetails(node, 'permissions'),
+    ),
+  );
+  const hasResponsibilities = !_.isEmpty(
+    _.filter(orgChartTree, (node: IHat) =>
+      checkNodeDetails(node, 'responsibilities'),
+    ),
+  );
+
+  if (!hasPermissions) {
+    _.remove(controls, (control: IControls) => control.value === 'permissions');
+  }
+  if (!hasResponsibilities) {
+    _.remove(
+      controls,
+      (control: IControls) => control.value === 'responsibilities',
+    );
+  }
+
+  return controls;
+};
+
+export const nextChildId = (admin: string | undefined, children: IHat[]) => {
+  if (!admin) return '1';
+  const decimalAdmin = hatIdDecimalToIp(BigInt(admin));
+  let nextChild = `${decimalAdmin}.1`;
+  if (!_.isEmpty(children)) {
+    // can we get away from prettyId here?
+    const lastChildId = _.toNumber(
+      _.nth(_.split(_.get(_.last(children), 'prettyId'), '.'), 1),
+    );
+    nextChild = `${decimalAdmin}.${lastChildId + 1}`;
+  }
+  return nextChild;
 };

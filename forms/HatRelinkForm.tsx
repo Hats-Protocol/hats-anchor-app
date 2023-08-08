@@ -28,6 +28,8 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 
+// TODO refactor without prettyId
+
 const HatRelinkForm = ({
   chainId,
   hatData,

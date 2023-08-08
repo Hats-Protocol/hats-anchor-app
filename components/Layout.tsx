@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Box, Image, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
@@ -12,7 +12,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
-  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   useEffect(() => {
     if (isAutoConnecting) return;
@@ -51,7 +51,14 @@ const Layout = ({ children }: { children: ReactNode }) => {
         w='100%'
         zIndex={-1}
       />
-      {isMobile ? (
+      {!upTo780 ? (
+        <>
+          <Navbar />
+          <Box h='100vh' w='100vw'>
+            {children}
+          </Box>
+        </>
+      ) : (
         <Stack
           textAlign='center'
           h='100vh'
@@ -73,13 +80,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
             a desktop device.
           </Text>
         </Stack>
-      ) : (
-        <>
-          <Navbar />
-          <Box h='100vh' w='100vw'>
-            {children}
-          </Box>
-        </>
       )}
     </Box>
   );

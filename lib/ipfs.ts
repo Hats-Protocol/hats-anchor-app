@@ -1,4 +1,4 @@
-/* eslint-disable import/no-unresolved */
+/* eslint-disable */
 import axios from 'axios';
 import _ from 'lodash';
 import { CID } from 'multiformats/cid';

@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
-import { IHat } from '@/types';
+import { IHat, ITree } from '@/types';
 
 import client from './client';
 import {
@@ -20,7 +20,7 @@ import {
 export const fetchTreeDetails = async (
   treeId: string | null,
   chainId: number,
-) => {
+): Promise<ITree | null> => {
   const result = await client(chainId).request(GET_TREE, { id: treeId });
 
   return _.get(result, 'tree', null);
@@ -68,7 +68,7 @@ export const fetchHatDetails = async (
 export const fetchManyHatDetails = async (
   hatIds: string[],
   chainId: number,
-): Promise<any[]> => {
+): Promise<IHat[]> => {
   const result = await client(chainId).request(GET_HATS_BY_IDS, {
     ids: hatIds,
   });
@@ -94,6 +94,7 @@ export const fetchManyWearerDetails = async (
     ];
   });
   const data = await Promise.all(_.flatten(promises)).catch((err) => {
+    // eslint-disable-next-line no-console
     console.log(err);
     return [];
   });
@@ -106,13 +107,6 @@ export const fetchManyWearerDetails = async (
       ensName: data[index * 2 + 1],
     };
   });
-};
-
-export const fetchAllTreesByIds = async (treeIds: any[], chainId: number) => {
-  const promises = treeIds.map((treeId) => fetchHatDetails(treeId, chainId));
-  const treeDetails = await Promise.all(promises);
-
-  return treeDetails.filter((tree) => tree !== null);
 };
 
 export const fetchWearerDetails = async (

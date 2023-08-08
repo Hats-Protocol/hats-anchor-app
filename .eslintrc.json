@@ -5,23 +5,27 @@
     "prettier",
     "babel",
     "import",
-    "simple-import-sort"
+    "simple-import-sort",
+    "@tanstack/query"
   ],
   "parserOptions": {
     "ecmaVersion": 2023
   },
   "extends": [
     "airbnb",
+    "plugin:@tanstack/eslint-plugin-query/recommended",
     "next/core-web-vitals",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
+    // gen
     "no-use-before-define": "off",
     "no-unused-vars": "off",
+    // ts
     "@typescript-eslint/no-unused-vars": ["warn"],
     "@typescript-eslint/no-explicit-any": ["warn"],
-    "babel/no-unused-expressions": "error",
+    // react
     "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],
     "react/function-component-definition": [
       2,
@@ -29,6 +33,7 @@
     ],
     "react/require-default-props": "off",
     "react/destructuring-assignment": "off",
+    // import
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -41,6 +46,7 @@
     ],
     "import/no-cycle": "off", // `multiformats` breaking [2, { "ignoreExternal": true }],
 
+    // import sort
     // increase the severity of rules so they are auto-fixable
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",

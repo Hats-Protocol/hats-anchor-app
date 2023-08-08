@@ -323,10 +323,7 @@ const TopMenu = ({
           title='Create a New Hat'
           localOverlay={localOverlay}
         >
-          <HatCreateForm
-            defaultAdmin={hatData.prettyId}
-            treeId={hatData.tree.id}
-          />
+          <HatCreateForm defaultAdmin={hatData.id} treeId={hatData.tree.id} />
         </Modal>
       </Suspense>
 
@@ -337,10 +334,10 @@ const TopMenu = ({
           localOverlay={localOverlay}
         >
           <HatLinkRequestCreateForm
-            newAdmin={hatData.prettyId}
+            newAdmin={hatData.id}
             wearerTopHats={_.filter(
               wearerTopHats,
-              (hat) => hat !== hatData.admin?.prettyId,
+              (hat) => hat !== hatData.admin?.id,
             )}
             chainId={chainId}
           />

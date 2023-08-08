@@ -1,4 +1,5 @@
 import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
@@ -11,8 +12,7 @@ import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
-import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { DetailsObject, HatDetails, IHat } from '@/types';
+import { HatDetails, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -63,7 +63,7 @@ const EditMode = ({
   } = localForm;
 
   const [newImageURI, setNewImageURI] = useState('');
-  const [newDetailsData, setNewDetailsData] = useState<DetailsObject>();
+  const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
@@ -165,7 +165,7 @@ const EditMode = ({
         height='100%'
       >
         <Stack>
-          <Text>{prettyIdToIp(idToPrettyId(hatData?.id))}</Text>
+          <Text>{hatIdDecimalToIp(BigInt(hatData?.id))}</Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 

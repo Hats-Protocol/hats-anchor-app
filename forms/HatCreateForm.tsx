@@ -22,11 +22,12 @@ import { FALLBACK_ADDRESS, MUTABILITY, ZERO_ADDRESS } from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import HatCreateCard from '@/components/HatCreateCard';
 import NumberInput from '@/components/atoms/NumberInput';
+import useTreeDetails from '@/hooks/useTreeDetails';
+import { nextChildId, toTreeId } from '@/lib/hats';
 
 const HatCreateForm = ({
   defaultAdmin,
@@ -74,7 +75,13 @@ const HatCreateForm = ({
   const name = useDebounce(watch('name', ''));
   const maxSupply = useDebounce(watch('maxSupply', 1));
 
-  const decimalAdmin = prettyIdToIp(defaultAdmin);
+  const { data: tree } = useTreeDetails({
+    treeId: toTreeId(defaultAdmin),
+    chainId,
+  });
+
+  const children = _.filter(tree?.hats, ['admin.id', defaultAdmin]);
+  const nextChild = nextChildId(defaultAdmin, children);
 
   const {
     data: imagePinData,
@@ -83,7 +90,7 @@ const HatCreateForm = ({
   } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: false,
-    metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
+    metadata: { name: `image_${_.toString(chainId)}_${nextChild}` },
   });
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
@@ -94,7 +101,7 @@ const HatCreateForm = ({
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'createHat',
     args: [
-      prettyIdToId(defaultAdmin) || ZERO_ADDRESS, // not a valid fallback? throw instead?
+      defaultAdmin || ZERO_ADDRESS, // not a valid fallback? throw instead?
       detailsCID || '',
       maxSupply || '1',
       FALLBACK_ADDRESS,
@@ -116,7 +123,7 @@ const HatCreateForm = ({
     // TODO handle pin error
     await pinJson(
       { type: '1.0', data: { name } },
-      { name: `details_${_.toString(chainId)}_${decimalAdmin}` },
+      { name: `details_${_.toString(chainId)}_${nextChild}` },
     );
   };
 
@@ -134,16 +141,13 @@ const HatCreateForm = ({
       <Flex my={10} justify='center'>
         <HatCreateCard
           name={name}
-          adminId={defaultAdmin}
+          nextChild={nextChild}
           supply={maxSupply}
           image={image}
-          chainId={chainId}
         />
       </Flex>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={6}>
-          {/* <Text>Admin: {prettyIdToIp(defaultAdmin)}</Text> */}
-
           <Input
             localForm={localForm}
             name='name'

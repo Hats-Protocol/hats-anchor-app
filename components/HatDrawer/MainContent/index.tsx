@@ -66,13 +66,12 @@ const MainContent = ({
       pos='relative'
     >
       <Header
-        name={name}
+        name={name || hatData?.details}
         description={description}
         mutableStatus={mutableStatus}
         activeStatus={activeStatus}
         isCurrentWearer={isCurrentWearer}
         hatId={hatData.id}
-        prettyId={hatData.prettyId}
         levelAtLocalTree={hatData.levelAtLocalTree}
       />
 
@@ -84,7 +83,6 @@ const MainContent = ({
         hatId={hatData.id}
         wearers={hatData.wearers}
         maxSupply={_.toNumber(hatData.maxSupply)}
-        prettyId={hatData.prettyId}
         isAdminUser={isAdminUser}
       />
 

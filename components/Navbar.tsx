@@ -11,23 +11,24 @@ import {
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
+// import { FaSearch } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
 import CONFIG from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
+// import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
-import { ipToPrettyId, prettyIdToId } from '@/lib/hats';
+import { ipToHatId } from '@/lib/hats';
 
+// TODO reimplement search
 const Navbar = () => {
-  const localOverlay = useOverlay();
-  const { setCommandPallet: setOpen } = localOverlay;
+  // const localOverlay = useOverlay();
+  // const { setCommandPallet: setOpen } = localOverlay;
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
@@ -43,15 +44,12 @@ const Navbar = () => {
         chainId = Number(path[1]);
         setCurrentChain(chainId);
       }
-      const topHatId = ipToPrettyId(_.split(path[2], '?')[0]);
+      const topHatId = ipToHatId(_.split(path[2], '?')[0]);
 
       if (!topHatId || topHatId === '0x') {
         return;
       }
-      const topHat = await fetchHatDetails(
-        prettyIdToId(topHatId),
-        Number(chainId),
-      );
+      const topHat = await fetchHatDetails(topHatId, Number(chainId));
 
       if (!topHat) {
         return;

@@ -16,15 +16,15 @@ import { useChainId, useEnsName } from 'wagmi';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { formatAddress } from '@/lib/general';
-import { prettyIdToId, toTreeId } from '@/lib/hats';
+import { toTreeId } from '@/lib/hats';
 
 const HatWearerStatusForm = ({
-  prettyId,
+  hatId,
   chainId,
   wearer,
   eligibility,
 }: {
-  prettyId: string;
+  hatId: string;
   chainId: number;
   wearer: `0x${string}` | undefined;
   // TODO is there a reason for this to be passed from above?
@@ -33,7 +33,6 @@ const HatWearerStatusForm = ({
   const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
-  const hatId = prettyIdToId(prettyId);
   const standing = useDebounce(watch('standing', 'Good Standing'));
 
   const { data: wearerName } = useEnsName({
