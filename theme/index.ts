@@ -6,6 +6,26 @@ const theme = extendTheme({
   colors: {},
   components: {
     RadioBox,
+    Input: {
+      variants: {
+        filled: {
+          field: {
+            bg: 'white',
+            border: '1px',
+            borderColor: 'gray.200',
+          },
+        },
+      },
+    },
+    Textarea: {
+      variants: {
+        filled: {
+          bg: 'white',
+          border: '1px',
+          borderColor: 'gray.200',
+        },
+      },
+    },
   },
   fonts: {},
 });

@@ -88,7 +88,7 @@ const Textarea = ({
               {...props}
               {...register(name)}
               borderColor={isDirty ? 'cyan.500' : undefined}
-              background='white'
+              variant='filled'
             />
             {isDirty && (
               <InputRightElement>
