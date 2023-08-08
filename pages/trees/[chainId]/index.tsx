@@ -1,5 +1,5 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
-import { InfiniteData } from '@tanstack/react-query';
+// import { InfiniteData } from '@tanstack/react-query';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
@@ -8,23 +8,23 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '@/components/Layout';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeListCard';
-import { fetchPaginatedTrees } from '@/gql/helpers';
+// import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { mapWithChainId } from '@/lib/general';
 import { IHat, ITree } from '@/types';
 
 const Trees = ({
-  trees: initialData,
+  // trees: initialData,
   chainId,
 }: {
-  trees: InfiniteData<ITree[]>;
+  // trees: InfiniteData<ITree[]>;
   chainId: number;
 }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,
-      initialData,
+      // initialData,
     });
 
   const trees = _.flatten(_.get(data, 'pages'));
@@ -110,12 +110,13 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.get(context, 'params.chainId');
 
   try {
-    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
+    // const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
+    // console.log(trees);
 
     return {
       props: {
         chainId,
-        trees,
+        trees: [],
       },
     };
   } catch (error) {

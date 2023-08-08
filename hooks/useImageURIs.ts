@@ -60,7 +60,6 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
 
     try {
       return _.map(hats, (hat, i) => {
-        // console.log(imagesData?.[i]?.result);
         return {
           ...hat,
           imageUrl: isValidImages[i]

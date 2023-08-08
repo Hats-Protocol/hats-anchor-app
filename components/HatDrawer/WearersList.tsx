@@ -256,6 +256,7 @@ interface WearersListProps {
   wearers: IHatWearer[];
   maxSupply: number;
   setModals: (m: object) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localOverlay: any;
   isAdminUser: boolean;
 }

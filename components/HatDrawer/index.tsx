@@ -10,7 +10,7 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
-import { HierarchyObject, IHat } from '@/types';
+import { IHat } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -41,7 +41,11 @@ const initialState = {
   mutableStatus: MUTABILITY.IMMUTABLE,
 };
 
-function reducer(state: any, action: { type: any; payload: any }) {
+function reducer(
+  state: typeof initialState,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  action: { type: string; payload: any },
+) {
   switch (action.type) {
     case 'SET_HAT_DATA':
       return { ...state, hatData: action.payload };
@@ -118,7 +122,7 @@ const SelectedHatDrawer = ({
       dispatch({ type: 'SET_WEARER_TOP_HATS', payload: topHats });
       dispatch({
         type: 'SET_IS_ADMIN_USER',
-        payload: isAdmin(currentWearerHats, selectedHatId, true),
+        payload: isAdmin(currentWearerHats, selectedHatId),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,7 +134,6 @@ const SelectedHatDrawer = ({
     if (selectedHatId) {
       const data = _.find(hatsData, { id: selectedHatId });
       dispatch({ type: 'SET_HAT_DATA', payload: data });
-      console.log(data);
 
       if (hatDetailsObject) {
         const {
@@ -172,7 +175,6 @@ const SelectedHatDrawer = ({
   });
 
   if (!hatData) return null;
-  console.log(hatDetails);
 
   return (
     <Box
@@ -263,6 +265,7 @@ interface SelectedHatDrawerProps {
   setSelectedHatId: (id?: string) => void;
   chainId: number;
   hatsData: IHat[] | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   linkRequestFromTree: any;
   onClose: () => void;
   editMode: boolean;

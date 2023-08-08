@@ -477,6 +477,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     fetchHatDetails(hatIdHex, Number(chainId)),
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any[] = await Promise.all(promises);
   const treeData: ITree | null | undefined = _.first(data);
   const hatData: IHat | null | undefined = _.nth(data, 1);

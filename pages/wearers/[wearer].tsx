@@ -167,7 +167,7 @@ const WearerDetail = ({
           ) : (
             <Stack>
               {_.map(localOrderedChains, (chainId) => (
-                <Stack mt={4} spacing={4}>
+                <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
                   <SimpleGrid columns={4} gap={5} key={chainId}>

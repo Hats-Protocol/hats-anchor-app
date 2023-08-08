@@ -54,6 +54,7 @@ const useHatDetailsField = (detailsField?: string) => {
     queryKey: ['hatDetailsField', detailsField],
     queryFn: () => fetchDetailsIpfs(detailsField),
     enabled: !!detailsField && isIpfs,
+    staleTime: 30 * 60 * 1000, // 30 minutes
   });
   const detailsData = data?.data?.data;
 

@@ -195,19 +195,11 @@ const useSubmitHatChanges = ({
         const treeId = toTreeId(hatData?.id);
         const treeQueryKey = ['treeDetails', treeId, chainId];
 
-        console.log('invalidateQuery', hatQueryKey, [
-          'treeDetails',
-          treeId,
-          chainId,
-        ]);
-
         queryClient.setQueryData(['hatDetailsField', newCid], newDetailsData);
 
-        console.log('start invalidate');
         queryClient.invalidateQueries(hatQueryKey);
         queryClient.invalidateQueries(treeQueryKey);
         queryClient.invalidateQueries(['hatDetailsField', newCid]);
-        console.log('end invalidate');
         setIsLoading(false);
 
         toast.success({

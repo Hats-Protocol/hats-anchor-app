@@ -296,8 +296,8 @@ const includesAny = (arr: any[], target: any[]) =>
   target.some((v) => arr.includes(v));
 
 /**
- * @param hatId should be a `prettyId`
- * @param wearerHatIds should be an array of `prettyId`s worn by the wearer
+ * @param hatId should be a `hatId`
+ * @param wearerHatIds should be an array of `hatId`s worn by the wearer
  * @param current default `false`, include wearing current hatId
  */
 export const isAdmin = (
@@ -308,15 +308,17 @@ export const isAdmin = (
   if (!hatId) return false;
   const treeId = hatId.slice(0, 10);
   // separate children IDs
-  const children = hatId.slice(11);
-  const hats = _.split(children, '.');
+  const children = hatId.slice(10);
+  const hats = children.match(/.{1,4}/g); // _.split(children, '.');
+
+  if (!hats) return false;
 
   if (!current) hats.pop();
 
   // map all parent hatIds for the lineage
   const hatIds = hats.map((__, i) => {
-    const joinedParentHats = hats.slice(0, i).join('.');
-    return `${treeId}${i > 0 ? `.${joinedParentHats}` : ''}`;
+    const joinedParentHats = hats.slice(0, i).join('');
+    return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
   });
 
   if (!wearerHatIds) return false;
@@ -326,7 +328,7 @@ export const isAdmin = (
 
 export const isTopHat = (hatData: IHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
-  _.get(hatData, 'admin.prettyId') === _.get(hatData, 'prettyId');
+  _.get(hatData, 'admin.id') === _.get(hatData, 'id');
 
 export const isMutable = (hatData: IHat) => _.get(hatData, 'mutable');
 

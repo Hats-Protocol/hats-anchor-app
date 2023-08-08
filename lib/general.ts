@@ -75,6 +75,7 @@ export async function isImageUrl(url: string | unknown) {
 export const mapWithChainId = (
   array: object[] | null,
   chainId: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
 
 export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
