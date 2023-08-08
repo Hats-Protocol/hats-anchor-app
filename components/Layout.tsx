@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Box, Image, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
@@ -12,7 +12,10 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
-  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+  const [isMobile] = useMediaQuery('(max-width: 767px)', {
+    ssr: true,
+    fallback: false,
+  });
 
   useEffect(() => {
     if (isAutoConnecting) return;
