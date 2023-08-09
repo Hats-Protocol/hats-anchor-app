@@ -68,7 +68,7 @@ const HatLinkRequestCreateForm = ({
           are wearing. You will lose admin control of this Top Hat!
         </Text>
         <Flex>
-          <Text fontWeight={500} mr={2}>
+          <Text fontWeight='medium' mr={2}>
             New Admin:
           </Text>
           <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>

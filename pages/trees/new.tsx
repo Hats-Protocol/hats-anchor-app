@@ -114,13 +114,13 @@ const NewTree = () => {
       />
 
       <Flex pt={125} direction='column' align='center'>
-        <Heading size='lg' fontWeight={500}>
+        <Heading size='lg' fontWeight='medium'>
           New {_.capitalize(CONFIG.tree)}
         </Heading>
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>
           <Stack mt={10} spacing={6}>
             <Stack>
-              <Text fontWeight={600}>{_.toUpper('Top Hat Image')}</Text>
+              <Text fontWeight='semibold'>{_.toUpper('Top Hat Image')}</Text>
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
@@ -181,7 +181,7 @@ const NewTree = () => {
             )}
 
             <Stack>
-              <Text fontWeight={600}>{_.toUpper('Network')}</Text>
+              <Text fontWeight='semibold'>{_.toUpper('Network')}</Text>
               <Text>
                 This Tree will be minted on{' '}
                 {_.capitalize(chainsMap(chainId).name)}

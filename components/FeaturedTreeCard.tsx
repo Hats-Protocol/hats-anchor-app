@@ -1,41 +1,75 @@
-import { Box, HStack, Icon, Image, Text } from '@chakra-ui/react';
-import { GrTextAlignLeft } from 'react-icons/gr';
+import { Box, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
+import { BsPeopleFill } from 'react-icons/bs';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import { chainsMap } from '@/lib/web3';
 
-const FeaturedTreeCard = ({ treeData }: FeatureTreeCardProps) => {
-  const { id, name, chainId, image, description } = treeData;
-  const chainName = chainsMap(chainId).name;
+const FeaturedTreeCard = ({
+  treeData,
+  hatsAndWearers,
+}: FeatureTreeCardProps) => {
+  const { id, name, chainId, image, avatar } = treeData;
 
   return (
     <ChakraNextLink href={`/trees/${chainId}/${id}`} _hover={{}}>
-      <Box border='1px solid' bg='white' maxW='400px'>
-        <Box bg='gray.100'>
+      <Stack
+        bg='white'
+        maxW='400px'
+        borderRadius={6}
+        border='1px'
+        borderColor='gray.600'
+        h='full'
+        justifyItems='space-between'
+        spacing={0}
+      >
+        <Box bg='gray.100' borderTopRadius={6} flex='1'>
           <Image
             loading='lazy'
             src={image}
             alt={`${name} featured image`}
-            minH='250px'
-            w='100%'
+            w='full'
+            maxH='150px'
+            h='full'
             fit='cover'
+            borderTopRadius={6}
           />
         </Box>
-        <Box borderY='1px solid' p={1} px={2}>
-          <Text fontSize='xs' fontWeight={600}>
-            {chainName} #{id}
-          </Text>
-          <Text fontWeight={600}>{name}</Text>
-        </Box>
-        <Box p={1} px={2}>
-          <HStack>
-            <Icon as={GrTextAlignLeft} h='13px' />
-            <Text fontSize='sm' noOfLines={1}>
-              {description}
+        <HStack
+          px={4}
+          py={2}
+          zIndex={1}
+          position='relative'
+          boxShadow='0px -1px 4px rgba(0, 0, 0, 0.14)'
+          w='full'
+        >
+          <Image
+            loading='lazy'
+            src={avatar}
+            alt={`${name} featured avatar`}
+            w={12}
+            h={12}
+            display='inline-block'
+            mr={2}
+            mt={-14}
+            borderRadius={4}
+          />
+          <HStack justifyContent='space-between' w='full' h='full'>
+            <Text fontWeight='medium' fontSize={18}>
+              {name}
             </Text>
+
+            <Stack>
+              <HStack spacing='5px'>
+                <Image src='/icons/hat.svg' alt='Hat' w={3} h={3} />
+                <Text fontSize='xs'>{hatsAndWearers?.hats}</Text>
+              </HStack>
+              <HStack spacing='5px'>
+                <Icon as={BsPeopleFill} w={3} h={3} />
+                <Text fontSize='xs'>{hatsAndWearers?.wearers}</Text>
+              </HStack>
+            </Stack>
           </HStack>
-        </Box>
-      </Box>
+        </HStack>
+      </Stack>
     </ChakraNextLink>
   );
 };
@@ -49,5 +83,11 @@ interface FeatureTreeCardProps {
     image: string;
     name: string;
     description: string;
+    avatar: string;
+  };
+  hatsAndWearers: {
+    treeId: number;
+    hats: number;
+    wearers?: number;
   };
 }

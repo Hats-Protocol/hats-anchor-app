@@ -41,7 +41,7 @@ const Header = ({
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
             <Tooltip label={name} aria-label='A tooltip'>
-              <Text fontSize={24} isTruncated fontWeight={600}>
+              <Text fontSize={24} isTruncated fontWeight='semibold'>
                 {name}
               </Text>
             </Tooltip>

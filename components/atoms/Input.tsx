@@ -48,6 +48,7 @@ const Input = ({
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
+  const hasDefaultValue = defaultValues && !_.isEmpty(defaultValues[name]);
 
   const onReset = () => {
     if (defaultValues) resetField(name, { keepDirty: false });
@@ -80,7 +81,7 @@ const Input = ({
             borderColor={isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
-          {isDirty && (
+          {isDirty && hasDefaultValue && (
             <InputRightElement>
               <IconButton
                 icon={<GrUndo />}

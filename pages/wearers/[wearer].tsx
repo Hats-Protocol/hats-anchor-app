@@ -118,7 +118,7 @@ const WearerDetail = ({
           <HStack spacing={6}>
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
-              <Heading size='lg' fontWeight={500}>
+              <Heading size='lg' fontWeight='medium'>
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
               <Skeleton isLoaded={!wearerLoading}>
@@ -153,7 +153,7 @@ const WearerDetail = ({
 
         <Stack width='100%' justify='left' padding={6} spacing={4}>
           <Stack>
-            <Heading size='lg' fontWeight={500}>
+            <Heading size='lg' fontWeight='medium'>
               Wearer of
             </Heading>
             <Divider borderColor='black' />

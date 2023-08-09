@@ -9,53 +9,55 @@ const HatCreateCard = ({
   supply,
   nextChild,
   image,
-}: HatCreateCardProps) => (
-  <Flex
-    direction='column'
-    w='200px'
-    border='1px solid'
-    borderRadius='4px'
-    boxShadow='0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
-  >
-    <Flex>
-      <Box
-        bgImage={image?.preview || '/icon.jpeg'}
-        bgSize='contain'
-        top='-1px'
-        left='-1px'
-        position='relative'
-        borderTopLeftRadius='4px'
-        minW='70px'
-        h='70px'
-        border='1px solid'
-      />
-      <Box p={1}>
-        <Text fontSize='sm'>{nextChild}</Text>
-        <Heading size='sm' noOfLines={2} fontWeight={500}>
-          {name || 'Enter name below'}
-        </Heading>
-      </Box>
-    </Flex>
+}: HatCreateCardProps) => {
+  return (
     <Flex
-      justify='space-between'
-      borderTop='1px solid'
-      position='relative'
-      top='-2px'
-      p={1}
-      px={2}
+      direction='column'
+      w='200px'
+      border='1px solid'
+      borderRadius='4px'
+      boxShadow='md'
     >
-      <HStack>
-        <Image src='/icons/wearers.svg' alt='wearer icon' />
-        <Text>No Wearers</Text>
-      </HStack>
-      <HStack spacing={1}>
-        <Text>0</Text>
-        <Text>of</Text>
-        <Text>{supply || 'N'}</Text>
-      </HStack>
+      <Flex>
+        <Box
+          bgImage={image?.preview || '/icon.jpeg'}
+          bgSize='contain'
+          top='-1px'
+          left='-1px'
+          position='relative'
+          borderTopLeftRadius='4px'
+          minW='70px'
+          h='70px'
+          border='1px solid'
+        />
+        <Box p={1}>
+          <Text fontSize='sm'>{nextChild}</Text>
+          <Heading size='sm' noOfLines={2} fontWeight='medium'>
+            {name || 'Enter name below'}
+          </Heading>
+        </Box>
+      </Flex>
+      <Flex
+        justify='space-between'
+        borderTop='1px solid'
+        position='relative'
+        top='-2px'
+        p={1}
+        px={2}
+      >
+        <HStack>
+          <Image src='/icons/wearers.svg' alt='wearer icon' />
+          <Text>No Wearers</Text>
+        </HStack>
+        <HStack spacing={1}>
+          <Text>0</Text>
+          <Text>of</Text>
+          <Text>{supply || 'N'}</Text>
+        </HStack>
+      </Flex>
     </Flex>
-  </Flex>
-);
+  );
+};
 
 export default HatCreateCard;
 

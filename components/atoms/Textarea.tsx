@@ -16,6 +16,7 @@ import {
   TextareaProps as ChakraTextareaProps,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { GrUndo } from 'react-icons/gr';
@@ -39,6 +40,7 @@ const Textarea = ({
   } = localForm;
 
   const isDirty = dirtyFields[name];
+  const hasDefaultValue = defaultValues && !_.isEmpty(defaultValues[name]);
 
   const onReset = () => {
     if (defaultValues) resetField(name, { keepDirty: false });
@@ -90,7 +92,7 @@ const Textarea = ({
               borderColor={isDirty ? 'cyan.500' : undefined}
               variant='filled'
             />
-            {isDirty && (
+            {isDirty && hasDefaultValue && (
               <InputRightElement>
                 <IconButton
                   icon={<GrUndo />}

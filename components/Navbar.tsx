@@ -142,7 +142,7 @@ const Navbar = () => {
           align='center'
         >
           <HStack spacing={1}>
-            <Text fontWeight={700}>Announcement:</Text>
+            <Text fontWeight='bold'>Announcement:</Text>
             <Text textAlign='center'>
               We’re excited to share the brand new Hats App v2.0! 🎉
             </Text>

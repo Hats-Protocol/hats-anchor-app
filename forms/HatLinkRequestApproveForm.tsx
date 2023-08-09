@@ -178,13 +178,13 @@ const HatLinkRequestApproveForm = ({
           the Top Hat now that it will be a child hat.
         </Text>
         <Flex>
-          <Text fontWeight={500} mr={2}>
+          <Text fontWeight='medium' mr={2}>
             New Admin:
           </Text>
           <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>
         </Flex>
         <Flex>
-          <Text fontWeight={500} mr={2}>
+          <Text fontWeight='medium' mr={2}>
             Domain of the Top Hat to be linked:
           </Text>
           <Text>ID {hatIdDecimalToIp(BigInt(topHatDomain))}</Text>

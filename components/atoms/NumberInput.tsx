@@ -5,7 +5,10 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
+  IconButton,
+  InputGroup,
   InputProps as ChakraInputProps,
+  InputRightElement,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput as ChakraNumberInput,
@@ -13,6 +16,7 @@ import {
   NumberInputStepper,
   Stack,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import React from 'react';
 import {
   Controller,
@@ -20,6 +24,7 @@ import {
   RegisterOptions,
   UseFormReturn,
 } from 'react-hook-form';
+import { GrUndo } from 'react-icons/gr';
 
 export interface CustomNumberInputProps {
   customValidations?: RegisterOptions;
@@ -56,10 +61,17 @@ const NumberInput = ({
 
   const {
     control,
-    formState: { errors },
+    resetField,
+    formState: { errors, dirtyFields, defaultValues },
   } = localForm;
 
   const error = name && errors[name] && errors[name]?.message;
+
+  const isDirty = _.get(dirtyFields, name);
+
+  const onReset = () => {
+    if (defaultValues) resetField(name, { keepDirty: false });
+  };
 
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errors[name]}>
@@ -76,19 +88,35 @@ const NumberInput = ({
           name={name}
           rules={customValidations}
           render={({ field: { ref, ...restField } }) => (
-            <ChakraNumberInput
-              variant={variant}
-              step={step}
-              min={options?.min || 1}
-              max={options?.max}
-              {...restField}
-            >
-              <NumberInputField ref={ref} name={restField.name} />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </ChakraNumberInput>
+            <InputGroup>
+              <ChakraNumberInput
+                variant={variant}
+                step={step}
+                min={options?.min || 1}
+                max={options?.max}
+                {...restField}
+              >
+                <NumberInputField ref={ref} name={restField.name} />
+                {isDirty &&
+                  defaultValues &&
+                  // not triple equals because default value is a number and restField.value is a string
+                  defaultValues[name] != restField.value && (
+                    <InputRightElement mr={6}>
+                      <IconButton
+                        icon={<GrUndo />}
+                        aria-label='Reset'
+                        onClick={onReset}
+                        size='xs'
+                        colorScheme='cyan'
+                      />
+                    </InputRightElement>
+                  )}
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </ChakraNumberInput>
+            </InputGroup>
           )}
         />
       </Stack>
