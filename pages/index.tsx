@@ -3,11 +3,13 @@ import {
   Button,
   Card,
   Flex,
+  Grid,
   HStack,
   SimpleGrid,
   Spinner,
   Stack,
   Text,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { Suspense } from 'react';
@@ -36,6 +38,8 @@ import { orderedChains } from '@/lib/web3';
 const Home = () => {
   const { address: wearerAddress } = useAccount();
   const hatsAndWearers = useFeaturedTrees(featuredTrees);
+
+  const [isSmallerScreen] = useMediaQuery('(max-width: 1700px)');
 
   const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
@@ -136,7 +140,11 @@ const Home = () => {
           </Card>
         )}
 
-        <HStack alignItems='start' spacing={10}>
+        <Flex
+          alignItems='start'
+          gap={10}
+          direction={isSmallerScreen ? 'column' : 'row'}
+        >
           <Stack spacing={10} flex={1}>
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Text fontSize={24} fontWeight='medium'>
@@ -169,17 +177,31 @@ const Home = () => {
             </Card>
           </Stack>
 
-          <Card py={8} px={9} background='whiteAlpha.600' gap={4} maxW={427}>
+          <Card
+            py={8}
+            px={9}
+            background='whiteAlpha.600'
+            gap={4}
+            maxW={isSmallerScreen ? '100%' : '427px'}
+          >
             <Text fontSize={24} fontWeight='medium'>
               Learn more about Hats
             </Text>
-            <Stack spacing={6}>
-              {_.map(learnMore, (docsLink, i) => (
-                <LearnMoreCard key={i} docsData={docsLink} />
-              ))}
-            </Stack>
+            {isSmallerScreen ? (
+              <Grid templateColumns='repeat(2, 1fr)' gap={6}>
+                {_.map(learnMore, (docsLink, i) => (
+                  <LearnMoreCard key={i} docsData={docsLink} />
+                ))}
+              </Grid>
+            ) : (
+              <Stack spacing={6}>
+                {_.map(learnMore, (docsLink, i) => (
+                  <LearnMoreCard key={i} docsData={docsLink} />
+                ))}
+              </Stack>
+            )}
           </Card>
-        </HStack>
+        </Flex>
       </Stack>
     </Layout>
   );

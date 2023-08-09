@@ -16,6 +16,7 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
         borderColor='gray.600'
         background='whiteAlpha.700'
         boxShadow='md'
+        h='full'
       >
         <Image
           src={`/icons/${icon}.svg`}
