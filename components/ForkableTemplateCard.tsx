@@ -30,7 +30,7 @@ const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
             {description}
           </Text>
         </Stack>
-        <Box bg='#EDF1F7' borderTopRadius={6}>
+        <Box bg='#EDF1F7' borderTopRadius={6} mr={1}>
           <Image
             loading='lazy'
             src={image}
@@ -38,8 +38,7 @@ const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
             w='100%'
             maxW={200}
             fit='cover'
-            borderTopRadius={6}
-            mr={1}
+            borderTopRadius={6}            
           />
         </Box>
       </HStack>
