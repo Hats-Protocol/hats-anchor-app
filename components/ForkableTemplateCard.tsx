@@ -39,6 +39,7 @@ const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
             maxW={200}
             fit='cover'
             borderTopRadius={6}
+            mr={1}
           />
         </Box>
       </HStack>
