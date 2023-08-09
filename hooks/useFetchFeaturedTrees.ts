@@ -25,8 +25,8 @@ const useFeaturedTrees = (featuredTrees: any) => {
         fetchHatDetails(prettyIdToId(ids[1]), 100),
       ]);
 
-      const trees = [...(trees1 || [])].concat(tree3 || []) as ITree[];
-      const hats = [...(hats1 || [])].concat(hat3 || []) as IHat[];
+      const trees = [...(trees1 || []), ...[tree3]] as ITree[];
+      const hats = [...(hats1 || []), ...[hat3]] as IHat[];
 
       const hatsOfTrees = _.map(trees, (tree) => ({
         treeId: prettyIdToIp(tree.id),
