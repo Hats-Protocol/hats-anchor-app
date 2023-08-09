@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Card,
   Flex,
   HStack,
   SimpleGrid,
@@ -9,7 +10,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
@@ -17,114 +18,24 @@ import { useAccount, useEnsName } from 'wagmi';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Suspender from '@/components/atoms/Suspender';
 import DashboardHatCard from '@/components/DashboardHatCard';
-import FeaturedDocsCard from '@/components/FeaturedDocsCard';
 import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
-import CONFIG from '@/constants';
-import {
-  fetchHatDetails,
-  fetchManyHatDetails,
-  fetchTreeDetails,
-} from '@/gql/helpers';
-import { fetchTreesById } from '@/hooks/useHatsAdminOf';
+import LearnMoreCard from '@/components/LearnMoreCard';
+import CONFIG, {
+  featuredTemplates,
+  featuredTrees,
+  learnMore,
+} from '@/constants';
+import useFeaturedTrees from '@/hooks/useFetchFeaturedTrees';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
-import { ipToPrettyId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { orderedChains } from '@/lib/web3';
-import { IHat, ITree } from '@/types';
-
-const forkableTemplates = [
-  {
-    url: 'https://docs.hatsprotocol.xyz/',
-    name: 'For Hat Wearers',
-    description: 'So your DAO gave you a Hat, now what?',
-    icon: 'hat',
-  },
-  {
-    url: 'https://docs.hatsprotocol.xyz/getting-started-with-hats',
-    name: 'For Governors',
-    description:
-      'Everything you need to know to get started structuring your organization with hats',
-    icon: 'check-square',
-  },
-  {
-    url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
-    name: 'For Chad Hats Dev',
-    description:
-      'Protocol and SDK documentation for building on top of the open-source protocol',
-    icon: 'code',
-  },
-  {
-    url: 'mailto:support@hatsprotocol.xyz',
-    name: 'Get in touch!',
-    description:
-      'Stuck on tree design, deployment, or custom contract development? We’re here to help.',
-    icon: 'people',
-  },
-];
-
-const featuredTemplates = [
-  {
-    chainId: 5,
-    id: 54,
-    name: 'Elected Roles',
-    description:
-      'Delegate roles and authorities automatically based on election results',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
-  },
-  {
-    chainId: 5,
-    id: 55,
-    name: 'DAO-controlled Multisig & Signers',
-    description:
-      'Give and revoke multisig signing authority based on Hat ownerships',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
-  },
-  {
-    chainId: 5,
-    id: 56,
-    name: 'Permissionless Contribution Levels',
-    description:
-      'Members can level up and claim new authorities as they increase their reputation in your org',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
-  },
-];
-
-const featuredTrees = [
-  {
-    chainId: 10,
-    id: 2,
-    name: 'Cabin DAO',
-    description: 'A DAO for the Cabin community',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
-    avatar:
-      'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeibwy623bvifnke6zzisrdw4hpqjy2juhd7lgnrjk6liqpewls2x7q?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
-  },
-  {
-    chainId: 100,
-    id: 72,
-    name: 'The DIA',
-    description: 'A DAO for decentralized curation of intel',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
-    avatar:
-      'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreicy6iz67k4nutvxs7gtviuxt255k6w2ofxouxi54wrfm5thecg6x4?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
-  },
-  {
-    chainId: 10,
-    id: 3,
-    name: 'DemoDAO',
-    description: 'An exquisite DAO for demo purposes',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
-    avatar:
-      'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeif7ahzj4tpjglisecg5fqi4a7p5wp7ke2xbr6wg5pefa5l3zt5ulq/?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
-  },
-];
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
-  const [hatsAndWearers, setHatsAndWearers] = useState<any>([]);
+  const hatsAndWearers = useFeaturedTrees(featuredTrees);
 
   const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
     wearerAddress,
@@ -139,45 +50,6 @@ const Home = () => {
   });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
-
-  const fetchFeaturedTrees = async () => {
-    const ids = _.map(featuredTrees, (tree) => ipToPrettyId(String(tree.id)));
-
-    const [trees1, tree3] = await Promise.all([
-      fetchTreesById([ids[0], ids[2]], 3),
-      fetchTreeDetails(ids[1], 100),
-    ]);
-
-    const trees = [...(trees1 || [])].concat(tree3 || []) as ITree[];
-
-    const [hats1, hat3] = await Promise.all([
-      fetchManyHatDetails([prettyIdToId(ids[0]), prettyIdToId(ids[2])], 3),
-      fetchHatDetails(prettyIdToId(ids[1]), 100),
-    ]);
-
-    const hats = [...(hats1 || [])].concat(hat3 || []) as IHat[];
-
-    const hatsOfTrees = _.map(trees, (tree) => ({
-      treeId: prettyIdToIp(tree.id),
-      hats: tree.hats.length,
-    }));
-
-    const wearers = _.map(hats, (hat) => ({
-      treeId: prettyIdToIp(hat.prettyId),
-      wearers: Number(hat.wearers.length),
-    }));
-
-    const data = _.map(hatsOfTrees, (tree) => ({
-      ...tree,
-      ..._.find(wearers, { treeId: tree.treeId }),
-    }));
-
-    setHatsAndWearers(data);
-  };
-
-  useEffect(() => {
-    fetchFeaturedTrees();
-  }, []);
 
   return (
     <Layout>
@@ -224,15 +96,7 @@ const Home = () => {
         )}
 
         {wearerAddress && (
-          <Stack
-            spacing={4}
-            py={8}
-            px={9}
-            borderRadius='8px'
-            border='1px'
-            borderColor='blackAlpha.300'
-            background='whiteAlpha.600'
-          >
+          <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
             <Flex justifyContent='space-between' alignItems='center'>
               <Text fontSize={24} fontWeight='medium'>
                 Your Hats
@@ -269,20 +133,12 @@ const Home = () => {
                 ))}
               </SimpleGrid>
             )}
-          </Stack>
+          </Card>
         )}
 
         <HStack alignItems='start' spacing={12}>
           <Stack spacing={12} flex={1}>
-            <Stack
-              spacing={4}
-              py={8}
-              px={9}
-              borderRadius='8px'
-              border='1px'
-              borderColor='blackAlpha.300'
-              background='whiteAlpha.600'
-            >
+            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Text fontSize={24} fontWeight='medium'>
                 Explore featured trees
               </Text>
@@ -299,17 +155,9 @@ const Home = () => {
                   </Suspense>
                 ))}
               </SimpleGrid>
-            </Stack>
+            </Card>
 
-            <Stack
-              spacing={4}
-              py={8}
-              px={9}
-              borderRadius='8px'
-              border='1px'
-              borderColor='blackAlpha.300'
-              background='whiteAlpha.600'
-            >
+            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Text fontSize={24} fontWeight='medium'>
                 Jump right in with a forkable template
               </Text>
@@ -318,26 +166,17 @@ const Home = () => {
                   <ForkableTemplateCard key={i} treeData={tree} />
                 ))}
               </SimpleGrid>
-            </Stack>
+            </Card>
           </Stack>
 
-          <Stack
-            spacing={4}
-            py={8}
-            px={9}
-            maxW={427}
-            borderRadius='8px'
-            border='1px'
-            borderColor='blackAlpha.300'
-            background='whiteAlpha.600'
-          >
+          <Card py={8} px={9} background='whiteAlpha.600' gap={4} maxW={427}>
             <Text fontSize={24} fontWeight='medium'>
               Learn more about Hats
             </Text>
-            {_.map(forkableTemplates, (docsLink, i) => (
-              <FeaturedDocsCard key={i} docsData={docsLink} />
+            {_.map(learnMore, (docsLink, i) => (
+              <LearnMoreCard key={i} docsData={docsLink} />
             ))}
-          </Stack>
+          </Card>
         </HStack>
       </Stack>
     </Layout>

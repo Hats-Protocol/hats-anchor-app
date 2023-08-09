@@ -2,7 +2,7 @@ import { HStack, Image, Stack, Text } from '@chakra-ui/react';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 
-const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
+const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
   const { url, name, icon, description } = docsData;
 
   return (
@@ -32,7 +32,7 @@ const FeaturedDocsCard = ({ docsData }: FeatureDocsCardProps) => {
   );
 };
 
-export default FeaturedDocsCard;
+export default LearnMoreCard;
 
 interface FeatureDocsCardProps {
   docsData: {

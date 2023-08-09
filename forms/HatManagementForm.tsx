@@ -9,7 +9,7 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { isMutable, isTopHatOrMutable } from '@/lib/hats';
+import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 interface HatManagementFormProps {
