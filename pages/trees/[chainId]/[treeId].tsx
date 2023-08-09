@@ -35,9 +35,10 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
-import { BsToggles } from 'react-icons/bs';
+import { BsPencil, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
+import { IoCloseCircleOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -234,6 +235,11 @@ const TreeDetails = ({
     initialControls,
   );
 
+  const toggleEditMode = () => {
+    setEditMode(!editMode);
+    setSelectedOption(editMode ? 'wearers' : 'title');
+  };
+
   return (
     <>
       <NextSeo
@@ -248,7 +254,7 @@ const TreeDetails = ({
           setEditMode(false);
           setSelectedHatId(undefined);
         }}
-        isOpen={isOpenShade}
+        isOpen={!!orgChartTree && isOpenShade}
       >
         <DrawerContent
           background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
@@ -272,9 +278,9 @@ const TreeDetails = ({
         </DrawerContent>
       </Drawer>
 
-      <Layout>
+      <Layout editMode={editMode}>
         <Box
-          bg='gray.100'
+          bg='whiteAlpha.700'
           px={5}
           py={3}
           mb={5}
@@ -285,17 +291,23 @@ const TreeDetails = ({
         >
           <Flex justify='space-between' align='center'>
             <Box>
-              {/* <Button
+              <Button
                 mr={3}
                 fontWeight='medium'
                 border='1px solid #0987A0'
                 background='#C4F1F9'
                 color='#065666'
-                leftIcon={isEditMode ? <Close /> : <Edit color='#065666' />}
-                onClick={() => setIsEditMode(!isEditMode)}
+                leftIcon={
+                  editMode ? (
+                    <Icon as={IoCloseCircleOutline} />
+                  ) : (
+                    <Icon as={BsPencil} color='#065666' />
+                  )
+                }
+                onClick={toggleEditMode}
               >
-                {isEditMode ? 'Leave Edit Mode' : 'Edit Tree'}
-              </Button> */}
+                {editMode ? 'Leave Edit Mode' : 'Edit Mode'}
+              </Button>
               {/* <Button colorScheme="teal" mr={3}>
                 Table View
               </Button> */}
@@ -315,8 +327,10 @@ const TreeDetails = ({
                     }
                     rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                     fontWeight='medium'
-                    border='1px solid #2D3748'
+                    border='1px solid'
+                    borderColor='gray.700'
                     color={isOpen ? 'blue.500' : '#2D3748'}
+                    bgColor='whiteAlpha.900'
                   >
                     View Controls
                   </Button>

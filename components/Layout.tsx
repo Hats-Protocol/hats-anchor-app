@@ -8,7 +8,7 @@ import { useAccount, useConfig, useConnect } from 'wagmi';
 
 const Navbar = dynamic(() => import('@/components/Navbar'));
 
-const Layout = ({ children }: { children: ReactNode }) => {
+const Layout = ({ editMode, children }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
@@ -45,6 +45,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <Box>
       <Box
+        bgColor={editMode ? 'cyan.100' : 'gray.100'}
         backgroundImage='/bg-topography.svg'
         backgroundRepeat='repeat'
         position='fixed'
@@ -87,3 +88,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
 };
 
 export default Layout;
+
+interface LayoutProps {
+  editMode?: boolean;
+  children: ReactNode;
+}
