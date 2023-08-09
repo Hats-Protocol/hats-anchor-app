@@ -45,19 +45,19 @@ const FeaturedTreeCard = ({
             loading='lazy'
             src={avatar}
             alt={`${name} featured avatar`}
-            w={12}
-            h={12}
+            w={14}
+            h={14}
             display='inline-block'
-            mr={2}
-            mt={-14}
+            mr={3}
+            mt={-8}
             borderRadius={4}
           />
-          <HStack justifyContent='space-between' w='full' h='full'>
+          <HStack justifyContent='space-between' w='full' h='full' mb={1}>
             <Text fontWeight='medium' fontSize={18}>
               {name}
             </Text>
 
-            <Stack align='flex-end'>
+            <Stack align='flex-end' spacing='0.2rem'>
               <HStack spacing='5px'>
                 <Image src='/icons/hat.svg' alt='Hat' w={3} h={3} />
                 <Text fontSize='xs'>{hatsAndWearers?.hats}</Text>
