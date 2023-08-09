@@ -2,27 +2,14 @@ import { Box, Flex, Heading, HStack, Image, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
 
-import useTreeDetails from '@/hooks/useTreeDetails';
-import { prettyIdToIp, toTreeId } from '@/lib/hats';
 import { ImageFile } from '@/types';
 
 const HatCreateCard = ({
   name,
   supply,
-  adminId,
+  nextChild,
   image,
-  chainId,
 }: HatCreateCardProps) => {
-  let nextChild = `${prettyIdToIp(adminId)}.1`;
-  const { data: tree } = useTreeDetails({ treeId: toTreeId(adminId), chainId });
-  const children = _.filter(tree?.hats, ['admin.prettyId', adminId]);
-  if (!_.isEmpty(children)) {
-    const lastChildId = _.toNumber(
-      _.nth(_.split(_.get(_.last(children), 'prettyId'), '.'), 1),
-    );
-    nextChild = `${prettyIdToIp(adminId)}.${lastChildId + 1}`;
-  }
-
   return (
     <Flex
       direction='column'
@@ -77,7 +64,6 @@ export default HatCreateCard;
 interface HatCreateCardProps {
   name: string;
   supply: number;
-  adminId: string | undefined;
+  nextChild: string | undefined;
   image: ImageFile;
-  chainId: number;
 }

@@ -3,13 +3,12 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import useToast from '@/hooks/useToast';
-import { decimalId, hatIdToHex, prettyIdToIp, toTreeId } from '@/lib/hats';
-import { calculateCid, pinJson } from '@/lib/ipfs';
+import { decimalId, hatIdToHex, toTreeId } from '@/lib/hats';
+import { pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import useTreeDetails from './useTreeDetails';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 
 type UseSubmitHatChangesProps = {
   hatData: IHat;
@@ -47,8 +46,8 @@ const useSubmitHatChanges = ({
   const onSubmit = async () => {
     const calls = [];
 
-    const detailsName = `details_${_.toString(chainId)}_${prettyIdToIp(
-      _.get(hatData, 'admin.id'),
+    const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
+      BigInt(_.get(hatData, 'id')),
     )}`;
     const newCidResult = await pinJson(
       {
@@ -191,23 +190,16 @@ const useSubmitHatChanges = ({
           calls,
         });
 
-        const hatQueryKey = ['hatDetails', hatIdToHex(hatData?.id), chainId];
+        // TODO handle optimistic image update
+        const hatQueryKey = ['hatDetails', hatData?.id, chainId];
         const treeId = toTreeId(hatData?.id);
         const treeQueryKey = ['treeDetails', treeId, chainId];
 
-        console.log('invalidateQuery', hatQueryKey, [
-          'treeDetails',
-          treeId,
-          chainId,
-        ]);
-
         queryClient.setQueryData(['hatDetailsField', newCid], newDetailsData);
 
-        console.log('start invalidate');
         queryClient.invalidateQueries(hatQueryKey);
         queryClient.invalidateQueries(treeQueryKey);
         queryClient.invalidateQueries(['hatDetailsField', newCid]);
-        console.log('end invalidate');
         setIsLoading(false);
 
         toast.success({

@@ -25,14 +25,9 @@ import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import {
-  decimalId,
-  idToPrettyId,
-  prettyIdToId,
-  prettyIdToIp,
-  toTreeId,
-} from '@/lib/hats';
+import { decimalId, toTreeId } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 
 const HatLinkRequestApproveForm = ({
   topHatDomain,
@@ -52,7 +47,7 @@ const HatLinkRequestApproveForm = ({
       name: '',
       details: '',
       topHatDomain,
-      newAdmin: decimalId(prettyIdToId(newAdmin)),
+      newAdmin: decimalId(newAdmin),
       eligibility: ZERO_ADDRESS,
       toggle: ZERO_ADDRESS,
       description: '',
@@ -94,7 +89,7 @@ const HatLinkRequestApproveForm = ({
   const toggle = useDebounce(watch('toggle', FALLBACK_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
-  const decimalAdmin = prettyIdToIp(topHatDomain);
+  const decimalAdmin = topHatDomain;
 
   const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
@@ -130,7 +125,7 @@ const HatLinkRequestApproveForm = ({
     functionName: 'approveLinkTopHatToTree',
     args: [
       topHatDomain,
-      decimalId(prettyIdToId(newAdmin)),
+      decimalId(newAdmin),
       eligibilityAddress,
       toggleAddress,
       newDetails && customDetails ? detailsCID : details,
@@ -143,15 +138,15 @@ const HatLinkRequestApproveForm = ({
     chainId,
     onSuccessToastData: {
       title: 'Link Request Approved!',
-      description: `Successfully linked top hat ${prettyIdToIp(
-        topHatDomain,
-      )} to ${prettyIdToIp(idToPrettyId(newAdmin))}`,
+      description: `Successfully linked top hat ${hatIdDecimalToIp(
+        BigInt(topHatDomain),
+      )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
-      ['hatDetails', prettyIdToId(newAdmin)],
-      ['hatDetails', prettyIdToId(topHatDomain)],
-      ['treeDetails', topHatDomain],
-      ['treeDetails', toTreeId(newAdmin)],
+      ['hatDetails', newAdmin, chainId],
+      ['hatDetails', topHatDomain, chainId],
+      ['treeDetails', topHatDomain, chainId],
+      ['treeDetails', toTreeId(newAdmin), chainId],
     ],
     enabled:
       Boolean(topHatDomain) &&
@@ -186,13 +181,13 @@ const HatLinkRequestApproveForm = ({
           <Text fontWeight='medium' mr={2}>
             New Admin:
           </Text>
-          <Text>ID {prettyIdToIp(newAdmin)}</Text>
+          <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>
         </Flex>
         <Flex>
           <Text fontWeight='medium' mr={2}>
             Domain of the Top Hat to be linked:
           </Text>
-          <Text>ID {prettyIdToIp(topHatDomain)}</Text>
+          <Text>ID {hatIdDecimalToIp(BigInt(topHatDomain))}</Text>
         </Flex>
         <FormControl>
           <Stack>

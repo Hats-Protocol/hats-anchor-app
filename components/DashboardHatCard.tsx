@@ -7,11 +7,11 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
@@ -27,8 +27,8 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
   return (
     <ChakraNextLink
       href={`trees/${hat.chainId}/${Number(
-        getTreeId(hat.prettyId),
-      )}?hatId=${prettyIdToIp(hat.prettyId)}`}
+        hatIdToTreeId(BigInt(hat.id)),
+      )}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`}
     >
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>
@@ -51,7 +51,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
               </Heading>
               <HStack>
                 <Text fontSize='xs'>
-                  Tree ID: {Number(getTreeId(hat.prettyId))}
+                  Tree ID: {Number(hatIdToTreeId(BigInt(hat.id)))}
                 </Text>
                 <Text fontSize='xs'>
                   Chain ID: {chainsMap(hat.chainId).name}

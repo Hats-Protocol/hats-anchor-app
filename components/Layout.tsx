@@ -12,10 +12,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
-  const [isMobile] = useMediaQuery('(max-width: 767px)', {
-    ssr: true,
-    fallback: false,
-  });
+  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   useEffect(() => {
     if (isAutoConnecting) return;
@@ -54,7 +51,14 @@ const Layout = ({ children }: { children: ReactNode }) => {
         w='100%'
         zIndex={-1}
       />
-      {isMobile ? (
+      {!upTo780 ? (
+        <>
+          <Navbar />
+          <Box h='100vh' w='100vw'>
+            {children}
+          </Box>
+        </>
+      ) : (
         <Stack
           textAlign='center'
           h='100vh'
@@ -76,13 +80,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
             a desktop device.
           </Text>
         </Stack>
-      ) : (
-        <>
-          <Navbar />
-          <Box h='100vh' w='100vw'>
-            {children}
-          </Box>
-        </>
       )}
     </Box>
   );

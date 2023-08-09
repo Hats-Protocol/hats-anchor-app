@@ -16,16 +16,13 @@ const usePaginatedTreeList = ({
     isFetchingNextPage,
     error,
   } = useInfiniteQuery({
-    queryKey: ['treeList', chainId],
-    getNextPageParam: (
-      returnData: Partial<ITree>[],
-      allPages: Partial<ITree>[][],
-    ) => {
+    queryKey: ['treeList', chainId, perPage],
+    getNextPageParam: (returnData: any, allPages: any) => {
       return returnData.length === perPage ? allPages.length : undefined;
     },
     queryFn: ({ pageParam = 0 }) =>
       fetchPaginatedTrees(chainId, pageParam, perPage),
-    initialData,
+    initialData: () => initialData,
   });
 
   return {

@@ -1,10 +1,11 @@
 import { Box, Card, Flex, Text } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { getTreeId, prettyIdToIp } from '@/lib/hats';
+import { getTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const WearerHatCard = ({ hat }: { hat: IHat }) => {
@@ -33,8 +34,8 @@ const WearerHatCard = ({ hat }: { hat: IHat }) => {
   return (
     <ChakraNextLink
       href={`/trees/${_.get(hat, 'chainId')}/${Number(
-        getTreeId(_.get(hat, 'prettyId')),
-      )}?hatId=${prettyIdToIp(_.get(hat, 'prettyId'))}`}
+        hatIdToTreeId(BigInt(_.get(hat, 'id'))),
+      )}?hatId=${hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}`}
     >
       <Card
         key={_.get(hat, 'id')}
@@ -65,7 +66,7 @@ const WearerHatCard = ({ hat }: { hat: IHat }) => {
               {topHatName}
             </Text>
             <Text fontSize='xs' color='gray.500'>
-              {prettyIdToIp(_.get(hat, 'prettyId'))}
+              {hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}
             </Text>
           </Flex>
 

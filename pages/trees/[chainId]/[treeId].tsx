@@ -28,20 +28,14 @@ import {
   useMediaQuery,
   VStack,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import {
-  lazy,
-  ReactNode,
-  Suspense,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
@@ -60,16 +54,15 @@ import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
 import {
+  checkPermissionsResponsibilities,
   decimalId,
   decimalToTreeId,
-  ipToPrettyId,
+  ipToHatId,
   isTopHat,
-  prettyIdToId,
-  prettyIdToIp,
   toTreeStructure,
 } from '@/lib/hats';
 import { chainsMap, explorerUrl } from '@/lib/web3';
-import { HierarchyObject, IHat, ITree } from '@/types';
+import { IControls, IHat, ITree } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
@@ -84,13 +77,7 @@ interface TreeDetailsProps {
   initialHatData: IHat;
 }
 
-interface IControls {
-  label: string;
-  value: string;
-  icon: ReactNode;
-}
-
-const controls: IControls[] = [
+const initialControls: IControls[] = [
   {
     label: 'Title Only',
     value: 'title',
@@ -148,10 +135,8 @@ const TreeDetails = ({
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
-  const [hatsData, setHatsData] = useState<IHat[] | undefined>(undefined);
-  const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>([]);
   const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
-    ipToPrettyId(String(hatId)) || topHatId,
+    ipToHatId(String(hatId)) || topHatId,
   );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
@@ -189,7 +174,10 @@ const TreeDetails = ({
 
       setSelectedHatId(id);
 
-      const updatedQuery = { ...router.query, hatId: prettyIdToIp(id) };
+      const updatedQuery = {
+        ...router.query,
+        hatId: hatIdDecimalToIp(BigInt(id)),
+      };
       const updatedUrl = {
         pathname: router.pathname,
         query: updatedQuery,
@@ -203,18 +191,19 @@ const TreeDetails = ({
   );
 
   useEffect(() => {
-    if (hatId && hatsData) {
-      handleSelectHat(ipToPrettyId(String(hatId)));
+    if (hatId && orgChartTree) {
+      handleSelectHat(ipToHatId(String(hatId)));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hatId, hatsData]);
+  }, [hatId, orgChartTree]);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
-  const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${prettyIdToIp(
-    _.get(hatData, 'prettyId'),
+  const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
+    BigInt(_.get(hatData, 'id', '0')),
   )}`;
-  const currentHats = _.map(_.filter(wearerHats, { chainId }), 'prettyId');
+  // todo move to org chart
+  const currentHats = _.map(_.filter(wearerHats, { chainId }), 'id');
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
     useImageURIs(initialHats, chainId);
 
@@ -228,14 +217,12 @@ const TreeDetails = ({
       );
     }
     const fetchTreeAndSetState = async () => {
-      const { tree, hats, hierarchy } = await toTreeStructure({
+      const tree = await toTreeStructure({
         treeData,
         hatsImages: hatsWithImageData,
         chainId,
       });
-      setHatsData(hats);
       setOrgChartTree(tree);
-      setHierarchyData(hierarchy);
     };
 
     if (treeData && !imagesDataLoading) {
@@ -243,37 +230,10 @@ const TreeDetails = ({
     }
   }, [treeData, linkedHats, hatsWithImageData, imagesDataLoading, chainId]);
 
-  const hasPermissions = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) => {
-      return (
-        typeof node.details !== 'string' &&
-        _.includes(_.keys(node.details), 'permissions')
-      );
-    }),
+  const controls = checkPermissionsResponsibilities(
+    orgChartTree,
+    initialControls,
   );
-  const hasResponsibilities = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) => {
-      return (
-        typeof node.details !== 'string' &&
-        _.includes(_.keys(node.details), 'responsibilities')
-      );
-    }),
-  );
-
-  if (!hasPermissions) {
-    _.remove(controls, (control: IControls) => control.value === 'permissions');
-  }
-  if (!hasResponsibilities) {
-    _.remove(
-      controls,
-      (control: IControls) => control.value === 'responsibilities',
-    );
-  }
-
-  const fullHatData: IHat[] = _.map(hatsData, (hat: IHat, index: number) => ({
-    ...hatsWithImageData?.[index],
-    ...hat,
-  }));
 
   return (
     <>
@@ -302,8 +262,7 @@ const TreeDetails = ({
                 chainId={chainId}
                 selectedHatId={selectedHatId}
                 setSelectedHatId={setSelectedHatId}
-                hatsData={fullHatData}
-                hierarchyData={hierarchyData}
+                hatsData={orgChartTree}
                 linkRequestFromTree={linkRequestFromTree}
                 onClose={onCloseShade}
                 editMode={editMode}
@@ -518,10 +477,21 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   }
 
   const treeHex = decimalToTreeId(treeId);
-  const prettyHatId = ipToPrettyId(treeId);
-  const hatIdHex = prettyIdToId(prettyHatId);
-  const treeData = await fetchTreeDetails(treeHex, Number(chainId));
-  const hatData = await fetchHatDetails(hatIdHex, Number(chainId));
+  const hatIdHex = ipToHatId(treeId);
+
+  const promises = [
+    fetchTreeDetails(treeHex, Number(chainId)),
+    fetchHatDetails(hatIdHex, Number(chainId)),
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any[] = await Promise.all(promises);
+  const treeData: ITree | null | undefined = _.first(data);
+  const hatData: IHat | null | undefined = _.nth(data, 1);
+
+  if (!treeData || !hatData) {
+    return { props: {} };
+  }
 
   const { linkedToHat, parentOfTrees } = treeData || {
     linkedToHat: { id: null },
@@ -535,10 +505,9 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   if (parentOfTrees) {
     _.forEach(parentOfTrees, (tree: Partial<ITree>) => {
       linkedHats.push({
-        id: prettyIdToId(tree.id),
+        id: tree.id,
         admin: {
-          id: tree.linkedToHat?.prettyId,
-          prettyId: tree.linkedToHat?.prettyId,
+          id: tree.linkedToHat?.id,
         },
         tree: tree.id,
       });

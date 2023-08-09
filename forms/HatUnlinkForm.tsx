@@ -11,6 +11,8 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatDetails from '@/hooks/useHatDetails';
 import { prettyIdToIp } from '@/lib/hats';
 
+// TODO refactor without prettyId
+
 const HatUnlinkForm = ({
   parentOfTrees,
   chainId,
