@@ -63,28 +63,28 @@ export const learnMore = [
   {
     url: 'https://docs.hatsprotocol.xyz/',
     name: 'For Hat Wearers',
-    description: 'So your DAO gave you a Hat, now what?',
+    description: 'So your organization gave you a Hat. Now what?',
     icon: 'hat',
   },
   {
     url: 'https://docs.hatsprotocol.xyz/getting-started-with-hats',
     name: 'For Governors',
     description:
-      'Everything you need to know to get started structuring your organization with hats',
+      'Everything you need to know to start structuring your organization with hats',
     icon: 'check-square',
   },
   {
     url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
-    name: 'For Chad Hats Dev',
+    name: 'For Developers',
     description:
-      'Protocol and SDK documentation for building on top of the open-source protocol',
+      'Protocol and SDK docs for building on top of the open-source protocol',
     icon: 'code',
   },
   {
     url: 'mailto:support@hatsprotocol.xyz',
     name: 'Get in touch!',
     description:
-      'Stuck on tree design, deployment, or custom contract development? We’re here to help.',
+      'Stuck on tree design, deployment, or custom development? We can help.',
     icon: 'people',
   },
 ];
