@@ -57,15 +57,16 @@ export async function toTreeStructure({
   const wAndCInfo = await fetchManyWearerDetails(wAndCs, chainId);
 
   treeData?.hats?.forEach(async (hat: IHat) => {
-    let parentId: string | null = hat.admin?.id;
+    let parentId: string | undefined = hat.admin?.id;
     if (hat.admin?.id === hat.id) {
-      parentId = null;
+      parentId = undefined;
     }
 
-    const {
-      id,
-      tree: { id: treeId },
-    } = hat;
+    const { id, tree } = hat;
+    let treeId;
+    if (tree) {
+      treeId = tree.id;
+    }
 
     const currentHat = _.find(hatsData, { id });
     if (!currentHat) return;
@@ -87,11 +88,11 @@ export async function toTreeStructure({
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
-    const {
-      id,
-      tree: { id: treeId },
-      imageUrl,
-    } = treeData.linkedToHat;
+    const { id, tree, imageUrl } = treeData.linkedToHat;
+    let treeId;
+    if (tree) {
+      treeId = tree.id;
+    }
 
     const currentHat = _.find(hatsData, { id });
     if (currentHat) {
@@ -146,21 +147,20 @@ export async function toTreeStructure({
       });
     });
   }
-  console.log(hatsArray);
 
   if (!editMode) return Promise.resolve(hatsArray);
 
-  const siblingArrays: any[] = [];
-  const addChildHats: any[] = [];
+  const siblingArrays: IHat[][] = [];
+  const addChildHats: IHat[] = [];
   // get sibling rows
   _.map(hatsArray, (hat: IHat) => {
-    const siblings = _.filter(hatsArray, { parentId: hat.id });
+    const siblings: IHat[] = _.filter(hatsArray, { parentId: hat.id });
     if (siblings.length > 0) {
       siblingArrays.push(siblings);
     }
   });
   // add new hat (button) for each sibling row
-  const parentsToRemove: any[] = [];
+  const parentsToRemove: IHat[] = [];
   siblingArrays.forEach((siblings) => {
     const sibling: IHat | undefined = _.last(siblings);
     if (!sibling) return;
@@ -169,6 +169,7 @@ export async function toTreeStructure({
     const newChildId = _.toNumber(_.last(nameSplit)) + 1;
     const addChildHat = {
       ...defaultHat,
+      chainId,
       type: 'new',
       id: prettyIdToId(ipToPrettyId(`${parentId}.${newChildId}`)),
       parentId: sibling.parentId,
@@ -186,6 +187,7 @@ export async function toTreeStructure({
     const newChildId = `${child.name}.1`;
     const newChild = {
       ...defaultHat,
+      chainId,
       type: 'new',
       id: prettyIdToId(ipToPrettyId(newChildId)),
       parentId: child.id,
@@ -195,7 +197,6 @@ export async function toTreeStructure({
     addChildHats.push(newChild);
   });
   const withNewHats = _.concat(hatsArray, addChildHats);
-  console.log(withNewHats);
 
   return Promise.resolve(withNewHats);
 }

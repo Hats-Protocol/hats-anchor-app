@@ -20,25 +20,25 @@ export interface IHatWearer {
 export interface IHat {
   id: string;
   chainId: number;
-  prettyId: string;
-  tree: ITree;
+  prettyId?: string;
+  tree?: Partial<ITree>;
   status: boolean;
-  createdAt: string;
+  createdAt?: string;
   details: string;
   maxSupply: string;
   eligibility: `0x${string}`;
-  extendedEligibility: IHatWearer;
+  extendedEligibility?: IHatWearer;
   toggle: `0x${string}`;
-  extendedToggle: IHatWearer;
+  extendedToggle?: IHatWearer;
   mutable: boolean;
-  imageUri: string;
+  imageUri?: string;
   imageUrl?: string;
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
   wearers: IHatWearer[]; // (`0x${string}` | IHatWearer)[];
-  extendedWearers: IHatWearer[];
-  admin: IHat;
+  extendedWearers?: IHatWearer[];
+  admin?: Partial<IHat>;
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,6 +50,7 @@ export interface IHat {
   isLinked?: boolean;
   url?: string;
   active?: boolean;
+  type?: string;
 }
 
 export interface ITreeEvent extends IHatEvent {
