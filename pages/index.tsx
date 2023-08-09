@@ -61,7 +61,7 @@ const Home = () => {
         opacity={0.07}
         zIndex={-1}
       />
-      <Stack spacing={12} px={20} py={120}>
+      <Stack spacing={10} px={20} py={120}>
         {wearerAddress ? (
           <Flex justifyContent='space-between'>
             <Stack>
@@ -136,8 +136,8 @@ const Home = () => {
           </Card>
         )}
 
-        <HStack alignItems='start' spacing={12}>
-          <Stack spacing={12} flex={1}>
+        <HStack alignItems='start' spacing={10}>
+          <Stack spacing={10} flex={1}>
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Text fontSize={24} fontWeight='medium'>
                 Explore featured trees
@@ -173,9 +173,11 @@ const Home = () => {
             <Text fontSize={24} fontWeight='medium'>
               Learn more about Hats
             </Text>
-            {_.map(learnMore, (docsLink, i) => (
-              <LearnMoreCard key={i} docsData={docsLink} />
-            ))}
+            <Stack spacing={6}>
+              {_.map(learnMore, (docsLink, i) => (
+                <LearnMoreCard key={i} docsData={docsLink} />
+              ))}
+            </Stack>
           </Card>
         </HStack>
       </Stack>

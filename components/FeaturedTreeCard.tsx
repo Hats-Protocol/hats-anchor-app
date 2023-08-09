@@ -35,7 +35,7 @@ const FeaturedTreeCard = ({
         </Box>
         <HStack
           px={4}
-          py={4}
+          py={2}
           zIndex={1}
           position='relative'
           boxShadow='0px -1px 4px rgba(0, 0, 0, 0.14)'

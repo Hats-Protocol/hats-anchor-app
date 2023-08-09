@@ -6,6 +6,7 @@ import {
   HStack,
   Stack,
   Text,
+  Image,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
@@ -33,8 +34,8 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>
           <HStack spacing={4}>
-            <Box
-              bgImage={
+            <Image
+              src={
                 _.get(hat, 'imageUrl') ? _.get(hat, 'imageUrl') : '/icon.jpeg'
               }
               bgSize='cover'
