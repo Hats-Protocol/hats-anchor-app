@@ -221,6 +221,7 @@ const TreeDetails = ({
         treeData,
         hatsImages: hatsWithImageData,
         chainId,
+        editMode,
       });
       setOrgChartTree(tree);
     };
@@ -228,7 +229,14 @@ const TreeDetails = ({
     if (treeData && !imagesDataLoading) {
       fetchTreeAndSetState();
     }
-  }, [treeData, linkedHats, hatsWithImageData, imagesDataLoading, chainId]);
+  }, [
+    treeData,
+    linkedHats,
+    hatsWithImageData,
+    imagesDataLoading,
+    chainId,
+    editMode,
+  ]);
 
   const controls = checkPermissionsResponsibilities(
     orgChartTree,
@@ -237,6 +245,11 @@ const TreeDetails = ({
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
+    setSelectedHatId(undefined);
+    const updatedQuery = _.omit(router.query, 'hatId');
+    router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
+      shallow: true,
+    });
     setSelectedOption(editMode ? 'wearers' : 'title');
   };
 
@@ -251,7 +264,7 @@ const TreeDetails = ({
         placement='right'
         onClose={() => {
           onCloseShade();
-          setEditMode(false);
+          // setEditMode(false);
           setSelectedHatId(undefined);
         }}
         isOpen={!!orgChartTree && isOpenShade}

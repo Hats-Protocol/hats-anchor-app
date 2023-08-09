@@ -63,8 +63,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           // @ts-ignore
           .neighbourMargin(() => 40)
           // set node sizes
-          .nodeHeight(() => (selectedOption !== 'title' ? 110 : 70))
-          .nodeWidth(() => 220)
+          .nodeHeight((d: any) => {
+            if (d.data.type === 'new') {
+              return 40;
+            }
+            if (selectedOption !== 'title') {
+              return 110;
+            }
+            return 70;
+          })
+          .nodeWidth((d: any) => (d.data.type === 'new' ? 70 : 220))
           // node click handler
           .onNodeClick((node: IHat) => {
             onSelectHat(node?.id);
@@ -119,6 +127,21 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             ](node.children)}  </div>`;
           })
           .nodeContent((d: any) => {
+            if (d.data.type === 'new') {
+              return `
+                <div style='
+                  width: 70px;
+                  height: 40px;
+                  padding-left: 1px;
+                  padding-right: 1px;
+                  background-color: white;
+                  border: 1px solid gray;'
+                >
+                  Test new
+                </div>
+              `;
+            }
+
             const isInWearerHats = wearerHats.includes(d.data.id);
 
             const {
@@ -423,6 +446,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               </div>
             </div>`;
           })
+          .compact(false)
           .render()
           .expandAll();
 
