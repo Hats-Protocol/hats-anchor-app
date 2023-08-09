@@ -57,7 +57,7 @@ const FeaturedTreeCard = ({
               {name}
             </Text>
 
-            <Stack>
+            <Stack align='flex-end'>
               <HStack spacing='5px'>
                 <Image src='/icons/hat.svg' alt='Hat' w={3} h={3} />
                 <Text fontSize='xs'>{hatsAndWearers?.hats}</Text>

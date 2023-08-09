@@ -18,30 +18,33 @@ const useFeaturedTrees = (featuredTrees: any) => {
     const fetchFeaturedTrees = async () => {
       const ids = _.map(featuredTrees, (tree) => ipToPrettyId(String(tree.id)));
 
-      const [trees1, tree3, hats1, hat3] = await Promise.all([
-        fetchTreesById([ids[0], ids[2]], 3),
+      const [trees1, tree3] = await Promise.all([
+        fetchTreesById([ids[0], ids[2]], 10),
         fetchTreeDetails(ids[1], 100),
-        fetchManyHatDetails([prettyIdToId(ids[0]), prettyIdToId(ids[2])], 3),
-        fetchHatDetails(prettyIdToId(ids[1]), 100),
+        // fetchManyHatDetails([prettyIdToId(ids[0]), prettyIdToId(ids[2])], 10),
+        // fetchHatDetails(prettyIdToId(ids[1]), 100),
       ]);
 
       const trees = [...(trees1 || []), ...[tree3]] as ITree[];
-      const hats = [...(hats1 || []), ...[hat3]] as IHat[];
+      // const hats = [...(hats1 || []), ...[hat3]] as IHat[];
 
-      const hatsOfTrees = _.map(trees, (tree) => ({
+      const data = _.map(trees, (tree) => ({
         treeId: prettyIdToIp(tree.id),
         hats: tree.hats.length,
+        wearers: _.sum(_.map(tree.hats, (hat) => hat.wearers.length)),
       }));
 
-      const wearers = _.map(hats, (hat) => ({
-        treeId: prettyIdToIp(hat.prettyId),
-        wearers: Number(hat.wearers.length),
-      }));
+      // const wearers = _.map(hats, (hat) => ({
+      //   treeId: prettyIdToIp(hat.prettyId),
+      //   wearers: Number(hat.wearers.length),
+      // }));
+      // console.log('wearers', wearers);
 
-      const data = _.map(hatsOfTrees, (tree) => ({
-        ...tree,
-        ..._.find(wearers, { treeId: tree.treeId }),
-      }));
+      // const data = _.map(hatsOfTrees, (tree) => ({
+      //   ...tree,
+      //   ..._.find(wearers, { treeId: tree.treeId }),
+      // }));
+      // console.log(data);
 
       setHatsAndWearers(data);
     };
