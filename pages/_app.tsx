@@ -5,6 +5,7 @@ import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Analytics } from '@vercel/analytics/react';
 import { DefaultSeo } from 'next-seo';
 import { WagmiConfig } from 'wagmi';
 
@@ -35,6 +36,7 @@ function MyApp({ Component, pageProps }: { Component: any; pageProps: any }) {
           <RainbowKitProvider chains={chains}>
             <QueryClientProvider client={queryClient}>
               <ReactQueryDevtools initialIsOpen={false} />
+              <Analytics />
               <OverlayContextProvider>
                 <Component {...pageProps} />
               </OverlayContextProvider>

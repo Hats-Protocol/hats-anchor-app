@@ -1,4 +1,5 @@
 import { Box, Heading, Stack } from '@chakra-ui/react';
+import { is } from 'date-fns/locale';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
@@ -41,13 +42,13 @@ const MainContent = ({
 
   useEffect(() => {
     const check = async () => {
-      const isEligibility = await checkAddressIsContract(
-        hatData?.eligibility,
-        chainId,
-      );
-      const isToggle = await checkAddressIsContract(hatData?.toggle, chainId);
-      setIsEligibilityAContract(isEligibility);
-      setIsToggleAContract(isToggle);
+      const checkPromises = [
+        await checkAddressIsContract(hatData?.eligibility, chainId),
+        await checkAddressIsContract(hatData?.toggle, chainId),
+      ];
+      const data: unknown[] = await Promise.all(checkPromises);
+      setIsEligibilityAContract(_.first(data) as boolean);
+      setIsToggleAContract(_.nth(data, 1) as boolean);
     };
     check();
   }, [chainId, hatData]);
