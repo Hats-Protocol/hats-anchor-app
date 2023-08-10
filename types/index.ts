@@ -70,15 +70,15 @@ export interface ITree {
 
 export type HierarchyObject = {
   id: string;
-  parentId: string | null;
-  firstChild: string | null;
-  leftSibling: string | null;
-  rightSibling: string | null;
+  parentId: string | null | undefined;
+  firstChild: string | null | undefined;
+  leftSibling: string | null | undefined;
+  rightSibling: string | null | undefined;
 };
 
 export type InputObject = {
   id: string;
-  parentId: string;
+  parentId: string | undefined;
 };
 
 export interface HatRole {

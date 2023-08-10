@@ -21,13 +21,14 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
   const adminOfHats = async () => {
     if (!hats) return {};
     // determine the trees to fetch for each network based on the currently worn hats
-    const networkTrees: { [key: string]: { trees: string[] } } = {};
+    const networkTrees: { [key: string]: { trees: (string | undefined)[] } } =
+      {};
     _.forEach(chains, (cId: string) => {
       networkTrees[cId] = {
         trees: _.uniq(
           _.map(
             _.filter(hats, (h) => h.chainId === _.toNumber(cId)),
-            (h) => h.tree.id,
+            (h) => h.tree?.id,
           ),
         ),
       };
@@ -37,9 +38,10 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
     const networkChains = _.keys(networksWithTrees);
 
     // fetch the trees for each network
-    const promises = _.map(networksWithTrees, (v, k) =>
-      fetchTreesById(v.trees, _.toNumber(k)),
-    );
+    const promises = _.map(networksWithTrees, (v, k) => {
+      const trees = _.filter(v.trees, (t) => t !== undefined) as string[];
+      return fetchTreesById(trees, _.toNumber(k));
+    });
     const data: unknown[] = await Promise.all(promises);
     console.log(data);
 

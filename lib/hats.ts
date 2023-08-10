@@ -204,7 +204,8 @@ export async function toTreeStructure({
 export function createHierarchy(data: InputObject[]): HierarchyObject[] {
   // Sort by parentId and id
   data.sort(
-    (a, b) => a.parentId.localeCompare(b.parentId) || a.id.localeCompare(b.id),
+    (a, b) =>
+      a.parentId?.localeCompare(b?.parentId || '') || a.id.localeCompare(b.id),
   );
 
   // Create initial hierarchy objects
@@ -233,7 +234,7 @@ export function createHierarchy(data: InputObject[]): HierarchyObject[] {
         // Sibling is a right sibling if its id is bigger and current right sibling is null or its id is bigger than the sibling
         if (
           current.rightSibling === null ||
-          siblings[j].id < current.rightSibling
+          siblings[j].id < (current.rightSibling || 0)
         ) {
           current.rightSibling = siblings[j].id;
         }
