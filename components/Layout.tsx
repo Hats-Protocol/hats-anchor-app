@@ -2,10 +2,11 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import Navbar from '@/components/Navbar';
+const Navbar = dynamic(() => import('@/components/Navbar'));
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
