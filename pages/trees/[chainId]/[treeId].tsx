@@ -34,7 +34,7 @@ import { GetStaticPropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { BsPencil, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
