@@ -1,11 +1,4 @@
-import {
-  Button,
-  HStack,
-  IconButton,
-  Input as ChakraInput,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
 import { FaLink, FaRegTrashAlt } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';

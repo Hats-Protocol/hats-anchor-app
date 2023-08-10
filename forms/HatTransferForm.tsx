@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { isAddress } from 'viem';
@@ -17,18 +18,16 @@ import Input from '@/components/atoms/Input';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
+import { toTreeId } from '@/lib/hats';
 
 const HatTransferForm = ({
   chainId,
   currentWearerAddress,
   hatId,
-  prettyId,
 }: {
   chainId: number;
   currentWearerAddress: string;
   hatId: string;
-  prettyId: string | undefined;
 }) => {
   const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
@@ -48,12 +47,12 @@ const HatTransferForm = ({
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'transferHat',
-    args: [decimalId(hatId), currentWearerAddress, newWearerAddress],
+    args: [hatId, currentWearerAddress, newWearerAddress],
     chainId,
     onSuccessToastData: {
       title: `Top Hat Transferred!`,
-      description: `Successfully transferred top hat #${prettyIdToIp(
-        prettyId,
+      description: `Successfully transferred top hat #${hatIdDecimalToIp(
+        BigInt(hatId),
       )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
     },
     queryKeys: [
@@ -84,7 +83,7 @@ const HatTransferForm = ({
         <Stack>
           <Text>Tree Domain</Text>
           <Heading size='md' fontFamily='mono'>
-            #{prettyIdToIp(prettyId)}
+            #{hatIdDecimalToIp(BigInt(hatId))}
           </Heading>
         </Stack>
         <HStack>

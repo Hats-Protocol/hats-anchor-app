@@ -15,7 +15,7 @@ import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 
-import CONFIG from '@/constants';
+import CONFIG, { ZERO_ID } from '@/constants';
 import { formatAddress } from '@/lib/general';
 import { IHat, IHatWearer } from '@/types';
 
@@ -427,7 +427,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           .expandAll();
 
         if (initialLoad) {
-          if (selectedHatId && selectedHatId !== '0x') {
+          if (selectedHatId && selectedHatId !== ZERO_ID) {
             centerChart(chart, selectedHatId);
           } else {
             chart.fit();

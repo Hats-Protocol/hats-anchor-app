@@ -118,7 +118,7 @@ const WearerDetail = ({
           <HStack spacing={6}>
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
-              <Heading size='lg' fontWeight={500}>
+              <Heading size='lg' fontWeight='medium'>
                 {ensName || formatAddress(wearerAddress)}
               </Heading>
               <Skeleton isLoaded={!wearerLoading}>
@@ -153,7 +153,7 @@ const WearerDetail = ({
 
         <Stack width='100%' justify='left' padding={6} spacing={4}>
           <Stack>
-            <Heading size='lg' fontWeight={500}>
+            <Heading size='lg' fontWeight='medium'>
               Wearer of
             </Heading>
             <Divider borderColor='black' />
@@ -167,7 +167,7 @@ const WearerDetail = ({
           ) : (
             <Stack>
               {_.map(localOrderedChains, (chainId) => (
-                <Stack mt={4} spacing={4}>
+                <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
                   <SimpleGrid columns={4} gap={5} key={chainId}>
@@ -176,7 +176,7 @@ const WearerDetail = ({
                         chainId: Number(chainId),
                       }),
                       (hat: IHat) => (
-                        <CoreHat hat={hat} key={`${chainId}-${hat.prettyId}`} />
+                        <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
                       ),
                     )}
                   </SimpleGrid>

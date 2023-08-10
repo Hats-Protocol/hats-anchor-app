@@ -28,6 +28,8 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 
+// TODO refactor without prettyId
+
 const HatRelinkForm = ({
   chainId,
   hatData,
@@ -154,7 +156,7 @@ const HatRelinkForm = ({
           the Top Hat now that it will be a child hat.
         </Text>
         <Flex>
-          <Text fontWeight={500} mr={2}>
+          <Text fontWeight='medium' mr={2}>
             Hat to be relinked:
           </Text>
           <Text>ID {prettyIdToIp(hatData?.prettyId)}</Text>

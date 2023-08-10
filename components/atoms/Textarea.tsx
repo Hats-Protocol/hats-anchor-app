@@ -7,14 +7,19 @@ import {
   FormLabel,
   HStack,
   Icon,
+  IconButton,
+  InputGroup,
+  InputRightElement,
   Stack,
   Text,
   Textarea as ChakraTextarea,
   TextareaProps as ChakraTextareaProps,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
+import { GrUndo } from 'react-icons/gr';
 
 /**
  * Primary UI component for Textarea Input
@@ -30,8 +35,16 @@ const Textarea = ({
 }: TextareaProps) => {
   const {
     register,
-    formState: { errors },
+    resetField,
+    formState: { errors, dirtyFields, defaultValues },
   } = localForm;
+
+  const isDirty = dirtyFields[name];
+  const hasDefaultValue = defaultValues && !_.isEmpty(defaultValues[name]);
+
+  const onReset = () => {
+    if (defaultValues) resetField(name, { keepDirty: false });
+  };
 
   const error = errors[name] && errors[name]?.message;
 
@@ -71,7 +84,27 @@ const Textarea = ({
           )}
         </HStack>
 
-        <ChakraTextarea {...props} {...register(name)} />
+        <HStack>
+          <InputGroup>
+            <ChakraTextarea
+              {...props}
+              {...register(name)}
+              borderColor={isDirty ? 'cyan.500' : undefined}
+              variant='filled'
+            />
+            {isDirty && hasDefaultValue && (
+              <InputRightElement>
+                <IconButton
+                  icon={<GrUndo />}
+                  aria-label='Reset'
+                  onClick={onReset}
+                  size='xs'
+                  colorScheme='cyan'
+                />
+              </InputRightElement>
+            )}
+          </InputGroup>
+        </HStack>
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
         {typeof error === 'string' && (
           <FormErrorMessage>Error Message</FormErrorMessage>

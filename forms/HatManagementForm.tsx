@@ -9,7 +9,7 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { isMutable, isTopHatOrMutable } from '@/lib/hats';
+import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 interface HatManagementFormProps {
@@ -113,7 +113,7 @@ const HatManagementForm = ({
           <FaRegListAlt />
           <Stack>
             <Text>{address.toUpperCase()} REQUIREMENTS (optional)</Text>
-            <Text fontWeight={400} color='blackAlpha.700'>
+            <Text color='blackAlpha.700'>
               A written description of the logic in the Accountability Module.
             </Text>
           </Stack>

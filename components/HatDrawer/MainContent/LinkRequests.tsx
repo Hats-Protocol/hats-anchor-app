@@ -1,9 +1,9 @@
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useState } from 'react';
 
 import Modal from '@/components/atoms/Modal';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
-import { prettyIdToIp } from '@/lib/hats';
 
 const LinkRequests = ({
   linkRequestFromTree,
@@ -28,8 +28,7 @@ const LinkRequests = ({
   };
 
   return linkRequestFromTree?.some(
-    (linkRequest) =>
-      linkRequest.requestedLinkToHat?.prettyId === hatData.prettyId,
+    (linkRequest) => linkRequest.requestedLinkToHat?.id === hatData.id,
   ) ? (
     <Stack wrap='wrap'>
       <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
@@ -43,12 +42,12 @@ const LinkRequests = ({
               onClick={() =>
                 handleOpenLinkRequestApproveModal(
                   linkRequest.id,
-                  linkRequest.requestedLinkToHat.prettyId,
+                  linkRequest.requestedLinkToHat.id,
                 )
               }
               key={linkRequest.id}
             >
-              Link Request to {prettyIdToIp(linkRequest.id)}
+              Link Request to {hatIdDecimalToIp(BigInt(linkRequest.id))}
             </Button>
           ))}
         </HStack>

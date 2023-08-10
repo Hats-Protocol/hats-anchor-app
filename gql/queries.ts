@@ -114,6 +114,9 @@ export const TREE_DETAILS_FRAGMENT = gql`
         id
         prettyId
       }
+      wearers {
+        id
+      }
     }
     childOfTree {
       id

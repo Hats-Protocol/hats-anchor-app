@@ -2,34 +2,21 @@ import { Box, Flex, Heading, HStack, Image, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
 
-import useTreeDetails from '@/hooks/useTreeDetails';
-import { prettyIdToIp, toTreeId } from '@/lib/hats';
 import { ImageFile } from '@/types';
 
 const HatCreateCard = ({
   name,
   supply,
-  adminId,
+  nextChild,
   image,
-  chainId,
 }: HatCreateCardProps) => {
-  let nextChild = `${prettyIdToIp(adminId)}.1`;
-  const { data: tree } = useTreeDetails({ treeId: toTreeId(adminId), chainId });
-  const children = _.filter(tree?.hats, ['admin.prettyId', adminId]);
-  if (!_.isEmpty(children)) {
-    const lastChildId = _.toNumber(
-      _.nth(_.split(_.get(_.last(children), 'prettyId'), '.'), 1),
-    );
-    nextChild = `${prettyIdToIp(adminId)}.${lastChildId + 1}`;
-  }
-
   return (
     <Flex
       direction='column'
       w='200px'
       border='1px solid'
       borderRadius='4px'
-      boxShadow='0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
+      boxShadow='md'
     >
       <Flex>
         <Box
@@ -45,7 +32,7 @@ const HatCreateCard = ({
         />
         <Box p={1}>
           <Text fontSize='sm'>{nextChild}</Text>
-          <Heading size='sm' noOfLines={2} fontWeight={500}>
+          <Heading size='sm' noOfLines={2} fontWeight='medium'>
             {name || 'Enter name below'}
           </Heading>
         </Box>
@@ -77,7 +64,6 @@ export default HatCreateCard;
 interface HatCreateCardProps {
   name: string;
   supply: number;
-  adminId: string | undefined;
+  nextChild: string | undefined;
   image: ImageFile;
-  chainId: number;
 }

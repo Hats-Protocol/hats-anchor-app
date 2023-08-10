@@ -6,12 +6,13 @@ import {
   HStack,
   Stack,
   Text,
+  Image,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { getTreeId, prettyIdToIp } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
@@ -27,14 +28,14 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
   return (
     <ChakraNextLink
       href={`trees/${hat.chainId}/${Number(
-        getTreeId(hat.prettyId),
-      )}?hatId=${prettyIdToIp(hat.prettyId)}`}
+        hatIdToTreeId(BigInt(hat.id)),
+      )}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`}
     >
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>
           <HStack spacing={4}>
-            <Box
-              bgImage={
+            <Image
+              src={
                 _.get(hat, 'imageUrl') ? _.get(hat, 'imageUrl') : '/icon.jpeg'
               }
               bgSize='cover'
@@ -46,12 +47,12 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
               borderColor='gray.600'
             />
             <Stack maxW='75%'>
-              <Heading as='h1' size='md' fontWeight={500} noOfLines={1}>
+              <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
                 {hatName}
               </Heading>
               <HStack>
                 <Text fontSize='xs'>
-                  Tree ID: {Number(getTreeId(hat.prettyId))}
+                  Tree ID: {Number(hatIdToTreeId(BigInt(hat.id)))}
                 </Text>
                 <Text fontSize='xs'>
                   Chain ID: {chainsMap(hat.chainId).name}

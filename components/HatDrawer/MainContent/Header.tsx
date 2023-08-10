@@ -8,11 +8,12 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { FaCopy } from 'react-icons/fa';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import useToast from '@/hooks/useToast';
-import { decimalId, prettyIdToIp } from '@/lib/hats';
+import { decimalId } from '@/lib/hats';
 
 const Header = ({
   name,
@@ -21,7 +22,6 @@ const Header = ({
   activeStatus,
   isCurrentWearer,
   hatId,
-  prettyId,
   levelAtLocalTree,
 }: {
   name: string;
@@ -30,7 +30,6 @@ const Header = ({
   activeStatus: string;
   isCurrentWearer: boolean;
   hatId: string;
-  prettyId: string;
   levelAtLocalTree: number;
 }) => {
   const toast = useToast();
@@ -42,13 +41,13 @@ const Header = ({
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
             <Tooltip label={name} aria-label='A tooltip'>
-              <Text fontSize={24} isTruncated fontWeight={600}>
+              <Text fontSize={24} isTruncated fontWeight='semibold'>
                 {name}
               </Text>
             </Tooltip>
             <HStack>
               <Text whiteSpace='nowrap'>Hat ID:</Text>
-              <Text color='blue.500'>{prettyIdToIp(prettyId)}</Text>
+              <Text color='blue.500'>{hatIdDecimalToIp(BigInt(hatId))}</Text>
               <Icon
                 as={FaCopy}
                 color='blue.500'

@@ -345,7 +345,7 @@ const HatWearerForm = ({
               <Text
                 fontSize='sm'
                 textTransform='uppercase'
-                fontWeight={500}
+                fontWeight='medium'
                 mt={6}
               >
                 Upload CSV
