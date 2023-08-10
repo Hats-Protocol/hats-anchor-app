@@ -71,15 +71,6 @@ const HatDrawer = dynamic(() => import('@/components/HatDrawer'), {
 });
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
-interface TreeDetailsProps {
-  treeId: string;
-  chainId: number;
-  topHatId: string;
-  initialTreeData: ITree;
-  linkedHats: IHat[];
-  initialHatData: IHat;
-}
-
 const initialControls: IControls[] = [
   {
     label: 'Title Only',
@@ -126,7 +117,7 @@ const TreeDetails = ({
   topHatId,
   initialTreeData,
   linkedHats,
-  initialHatData,
+  topHatData,
 }: TreeDetailsProps) => {
   const router = useRouter();
   const { hatId } = router.query;
@@ -147,16 +138,12 @@ const TreeDetails = ({
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
-  const { data: hatData } = useHatDetails({
-    hatId: selectedHatId,
-    chainId,
-    initialData: initialHatData,
-  });
   const { data: treeData } = useTreeDetails({
     treeId,
     chainId,
     initialData: initialTreeData,
   });
+  const selectedHat = _.find(treeData?.hats, { id: selectedHatId });
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -199,8 +186,8 @@ const TreeDetails = ({
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
-  const title = `${isTopHat(hatData) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
-    BigInt(_.get(hatData, 'id', '0')),
+  const title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
+    BigInt(_.get(selectedHat, 'id', '0')),
   )}`;
   // todo move to org chart
   const currentHats = _.map(_.filter(wearerHats, { chainId }), 'id');
@@ -291,7 +278,7 @@ const TreeDetails = ({
         </DrawerContent>
       </Drawer>
 
-      <Layout editMode={editMode}>
+      <Layout editMode={editMode} hatData={topHatData}>
         <Box
           bg='whiteAlpha.700'
           px={5}
@@ -503,19 +490,11 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   }
 
   const treeHex = decimalToTreeId(treeId);
-  const hatIdHex = ipToHatId(treeId);
 
-  const promises = [
-    fetchTreeDetails(treeHex, Number(chainId)),
-    fetchHatDetails(hatIdHex, Number(chainId)),
-  ];
+  const treeData = await fetchTreeDetails(treeHex, Number(chainId));
+  const topHatData: IHat | null | undefined = _.first(treeData?.hats);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const data: any[] = await Promise.all(promises);
-  const treeData: ITree | null | undefined = _.first(data);
-  const hatData: IHat | null | undefined = _.nth(data, 1);
-
-  if (!treeData || !hatData) {
+  if (!treeData) {
     return { props: {} };
   }
 
@@ -544,10 +523,10 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     props: {
       treeId: treeHex || null,
       chainId: _.toNumber(chainId),
-      topHatId: hatIdHex || null,
+      topHatId: topHatData?.id || null,
       initialTreeData: treeData || null,
       linkedHats: mapWithChainId(linkedHats, chainId) || null,
-      initialHatData: { ...hatData, chainId } || null,
+      topHatData: { ...topHatData, chainId } || null,
     },
     revalidate: 5,
   };
@@ -561,3 +540,12 @@ export const getStaticPaths = async () => {
 };
 
 export default TreeDetails;
+
+interface TreeDetailsProps {
+  treeId: string;
+  chainId: number;
+  topHatId: string;
+  initialTreeData: ITree;
+  linkedHats: IHat[];
+  topHatData: IHat;
+}

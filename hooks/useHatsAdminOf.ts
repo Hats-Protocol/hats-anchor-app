@@ -43,7 +43,6 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
       return fetchTreesById(trees, _.toNumber(k));
     });
     const data: unknown[] = await Promise.all(promises);
-    console.log(data);
 
     // consolidate the associated hats for each tree
     const test = _.map(data, (arr: ITree[], i) =>
@@ -56,14 +55,12 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
         ),
       ),
     );
-    console.log(test);
+
     // TODO add another lookup for linked trees/hats
-    console.log('worn hats', _.map(hats, 'id'));
     // filter out the hats that the user is not an admin of
     const filteredAdminHats = _.filter(_.flatten(test), (h: IHat) =>
       isAdmin(_.map(hats, 'id'), h.id),
     );
-    console.log(filteredAdminHats);
 
     return filteredAdminHats;
   };

@@ -6,9 +6,11 @@ import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
+import { IHat } from '@/types';
+
 const Navbar = dynamic(() => import('@/components/Navbar'));
 
-const Layout = ({ editMode, children }: LayoutProps) => {
+const Layout = ({ editMode, hatData, children }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
@@ -55,7 +57,7 @@ const Layout = ({ editMode, children }: LayoutProps) => {
       />
       {!upTo780 ? (
         <>
-          <Navbar />
+          <Navbar hatData={hatData} />
           <Box h='100vh' w='100vw'>
             {children}
           </Box>
@@ -91,5 +93,6 @@ export default Layout;
 
 interface LayoutProps {
   editMode?: boolean;
+  hatData?: IHat;
   children: ReactNode;
 }

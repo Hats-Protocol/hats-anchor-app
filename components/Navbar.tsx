@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 // import { FaSearch } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
@@ -18,55 +17,22 @@ import { useAccount } from 'wagmi';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
 import CONFIG from '@/constants';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 // import { useOverlay } from '@/contexts/OverlayContext';
-import { fetchHatDetails } from '@/gql/helpers';
-import { fetchDetailsIpfs } from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
-import { ipToHatId } from '@/lib/hats';
+import { IHat } from '@/types';
 
 // TODO reimplement search
-const Navbar = () => {
+const Navbar = ({ hatData }: { hatData?: IHat }) => {
   // const localOverlay = useOverlay();
   // const { setCommandPallet: setOpen } = localOverlay;
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
-  const [currentChain, setCurrentChain] = useState<number | undefined>();
-  const [currentTopHatName, setCurrentTopHatName] = useState<
-    string | undefined
-  >();
 
-  useEffect(() => {
-    const getTopHatDetails = async () => {
-      let chainId = 1;
-      if (path.includes(CONFIG.trees)) {
-        chainId = Number(path[1]);
-        setCurrentChain(chainId);
-      }
-      const topHatId = ipToHatId(_.split(path[2], '?')[0]);
-
-      if (!topHatId || topHatId === '0x') {
-        return;
-      }
-      const topHat = await fetchHatDetails(topHatId, Number(chainId));
-
-      if (!topHat) {
-        return;
-      }
-      if (topHat && topHat.details?.startsWith('ipfs://')) {
-        const details = await fetchDetailsIpfs(_.get(topHat, 'details'));
-        const name = _.get(details, 'name');
-        setCurrentTopHatName(name);
-      } else {
-        setCurrentTopHatName(_.get(topHat, 'details'));
-      }
-    };
-
-    if (!currentTopHatName && path) {
-      getTopHatDetails();
-    }
-  }, [path, currentTopHatName]);
+  const { data: hatDetails } = useHatDetailsField(hatData?.details);
+  const tabName = hatDetails?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
 
@@ -89,7 +55,7 @@ const Navbar = () => {
           <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
         </ChakraNextLink>
         <HStack spacing={5}>
-          <ChakraNextLink href={`/${CONFIG.trees}/${currentChain || 1}`}>
+          <ChakraNextLink href={`/${CONFIG.trees}/${hatData?.chainId || 1}`}>
             <Button
               h='75px'
               minW='125px'
@@ -99,15 +65,15 @@ const Navbar = () => {
               _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
               isActive={_.includes(path, CONFIG.trees)}
             >
-              {!currentTopHatName ? (
+              {!tabName ? (
                 <Text fontSize='lg'>{_.capitalize(CONFIG.trees)}</Text>
               ) : (
                 <Stack align='start' w='90%' mx={2}>
                   <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
                   <Text fontSize='lg' color='gray.500' isTruncated maxW='170px'>
-                    {containsUpperCase(currentTopHatName)
-                      ? currentTopHatName
-                      : _.capitalize(currentTopHatName)}
+                    {containsUpperCase(tabName)
+                      ? tabName
+                      : _.capitalize(tabName)}
                   </Text>
                 </Stack>
               )}
