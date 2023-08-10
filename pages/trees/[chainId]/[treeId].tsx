@@ -25,7 +25,6 @@ import {
   Stack,
   Text,
   useDisclosure,
-  useMediaQuery,
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -48,6 +47,7 @@ import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
+import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
 import useHatDetails from '@/hooks/useHatDetails';
 import useImageURIs from '@/hooks/useImageURIs';
 import useTreeDetails from '@/hooks/useTreeDetails';
@@ -64,8 +64,10 @@ import {
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { IControls, IHat, ITree } from '@/types';
 
-const Modal = lazy(() => import('@/components/atoms/Modal'));
-const HatDrawer = dynamic(() => import('@/components/HatDrawer'));
+const Modal = dynamic(() => import('@/components/atoms/Modal'));
+const HatDrawer = dynamic(() => import('@/components/HatDrawer'), {
+  ssr: false,
+});
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 interface TreeDetailsProps {
@@ -142,10 +144,7 @@ const TreeDetails = ({
     'wearers',
   );
   const [showInactiveHats, setInactiveHats] = useState<boolean>(true);
-  const [isMobile] = useMediaQuery('(max-width: 767px)', {
-    ssr: true,
-    fallback: false,
-  });
+  const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const { data: hatData } = useHatDetails({
     hatId: selectedHatId,
