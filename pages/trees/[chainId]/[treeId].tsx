@@ -69,6 +69,9 @@ const Modal = dynamic(() => import('@/components/atoms/Modal'));
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'), {
   ssr: false,
 });
+const TreeDrawer = dynamic(() => import('@/components/TreeDrawer'), {
+  ssr: false,
+});
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
 
 interface TreeDetailsProps {
@@ -294,7 +297,13 @@ const TreeDetails = ({
           width='650px'
         >
           <DrawerBody pt={0}>
-            <Suspense fallback={<Suspender />}>nothing here yet</Suspense>
+            <Suspense fallback={<Suspender />}>
+              <TreeDrawer
+                editMode={editTreeMode}
+                setEditMode={setEditTreeMode}
+                onClose={onCloseTreeDrawer}
+              />
+            </Suspense>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
