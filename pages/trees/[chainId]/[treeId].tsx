@@ -63,6 +63,7 @@ import {
 } from '@/lib/hats';
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { IControls, IHat, ITree } from '@/types';
+import { GrClose, GrEdit } from 'react-icons/gr';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'));
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'), {
@@ -134,7 +135,8 @@ const TreeDetails = ({
   const { setModals } = localOverlay;
 
   const chain = chainsMap(chainId);
-  const [editMode, setEditMode] = useState(false);
+  const [editHatMode, setEditHatMode] = useState(false);
+  const [editTreeMode, setEditTreeMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
@@ -162,9 +164,15 @@ const TreeDetails = ({
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
   const {
-    onOpen: onOpenShade,
-    onClose: onCloseShade,
-    isOpen: isOpenShade,
+    onOpen: onOpenHatDrawer,
+    onClose: onCloseHatDrawer,
+    isOpen: isOpenHatDrawer,
+  } = useDisclosure();
+
+  const {
+    onOpen: onOpenTreeDrawer,
+    onClose: onCloseTreeDrawer,
+    isOpen: isOpenTreeDrawer,
   } = useDisclosure();
 
   const handleSelectHat = useCallback(
@@ -184,9 +192,9 @@ const TreeDetails = ({
 
       router.push(updatedUrl, undefined, { shallow: true });
 
-      onOpenShade();
+      onOpenHatDrawer();
     },
-    [isMobile, onOpenShade, router],
+    [isMobile, onOpenHatDrawer, router],
   );
 
   useEffect(() => {
@@ -244,14 +252,14 @@ const TreeDetails = ({
       <Drawer
         placement='right'
         onClose={() => {
-          onCloseShade();
-          setEditMode(false);
+          onCloseHatDrawer();
+          setEditHatMode(false);
           setSelectedHatId(undefined);
         }}
-        isOpen={isOpenShade}
+        isOpen={isOpenHatDrawer}
       >
         <DrawerContent
-          background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
+          background={editHatMode ? 'cyan.50' : 'whiteAlpha.900'}
           maxW='43%'
           width='650px'
         >
@@ -263,11 +271,30 @@ const TreeDetails = ({
                 setSelectedHatId={setSelectedHatId}
                 hatsData={orgChartTree}
                 linkRequestFromTree={linkRequestFromTree}
-                onClose={onCloseShade}
-                editMode={editMode}
-                setEditMode={setEditMode}
+                onClose={onCloseHatDrawer}
+                editMode={editHatMode}
+                setEditMode={setEditHatMode}
               />
             </Suspense>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer
+        placement='right'
+        onClose={() => {
+          onCloseTreeDrawer();
+          setEditTreeMode(false);
+        }}
+        isOpen={isOpenTreeDrawer}
+      >
+        <DrawerContent
+          background={editTreeMode ? 'cyan.50' : 'whiteAlpha.900'}
+          maxW='43%'
+          width='650px'
+        >
+          <DrawerBody pt={0}>
+            <Suspense fallback={<Suspender />}>nothing here yet</Suspense>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -285,20 +312,25 @@ const TreeDetails = ({
         >
           <Flex justify='space-between' align='center'>
             <Box>
-              {/* <Button
+              <Button
                 mr={3}
                 fontWeight='medium'
                 border='1px solid #0987A0'
                 background='#C4F1F9'
                 color='#065666'
-                leftIcon={isEditMode ? <Close /> : <Edit color='#065666' />}
-                onClick={() => setIsEditMode(!isEditMode)}
+                leftIcon={
+                  editTreeMode ? <GrClose /> : <GrEdit color='#065666' />
+                }
+                onClick={() => {
+                  setEditTreeMode(!editTreeMode);
+                  onOpenTreeDrawer();
+                }}
               >
-                {isEditMode ? 'Leave Edit Mode' : 'Edit Tree'}
-              </Button> */}
-              {/* <Button colorScheme="teal" mr={3}>
+                {editTreeMode ? 'Leave Edit Mode' : 'Edit Tree'}
+              </Button>
+              <Button colorScheme='teal' mr={3}>
                 Table View
-              </Button> */}
+              </Button>
               <Popover
                 isOpen={isOpen}
                 onOpen={onOpen}
