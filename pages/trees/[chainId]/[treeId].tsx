@@ -219,6 +219,7 @@ const TreeDetails = ({
 
   useEffect(() => {
     if (treeData && linkedHats) {
+      console.log('treeData', treeData);
       setInitialHats(
         _.filter(
           _.concat(_.get(treeData, 'hats'), linkedHats),
@@ -232,6 +233,7 @@ const TreeDetails = ({
         hatsImages: hatsWithImageData,
         chainId,
       });
+      console.log('tree', tree);
       setOrgChartTree(tree);
     };
 
@@ -302,6 +304,7 @@ const TreeDetails = ({
                 editMode={editTreeMode}
                 setEditMode={setEditTreeMode}
                 onClose={onCloseTreeDrawer}
+                tree={orgChartTree}
               />
             </Suspense>
           </DrawerBody>

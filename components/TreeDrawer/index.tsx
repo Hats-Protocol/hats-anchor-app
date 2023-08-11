@@ -3,8 +3,14 @@ import _ from 'lodash';
 
 import TopMenu from './TopMenu';
 import MainContent from './MainContent';
+import { IHat } from '@/types';
 
-const TreeDrawer = ({ editMode, setEditMode, onClose }: TreeDrawerProps) => {
+const TreeDrawer = ({
+  editMode,
+  setEditMode,
+  onClose,
+  tree,
+}: TreeDrawerProps) => {
   return (
     <Box
       w='full'
@@ -20,7 +26,7 @@ const TreeDrawer = ({ editMode, setEditMode, onClose }: TreeDrawerProps) => {
         setEditMode={setEditMode}
         onClose={onClose}
       />
-      <MainContent />
+      <MainContent tree={tree} />
     </Box>
   );
 };
@@ -31,4 +37,5 @@ interface TreeDrawerProps {
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   onClose: () => void;
+  tree: IHat[];
 }
