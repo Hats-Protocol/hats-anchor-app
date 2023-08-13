@@ -336,6 +336,7 @@ const TreeDetails = ({
                 onClick={() => {
                   setEditTreeMode(!editTreeMode);
                   onOpenTreeDrawer();
+                  onCloseHatDrawer();
                 }}
               >
                 {editTreeMode ? 'Leave Edit Mode' : 'Edit Tree'}

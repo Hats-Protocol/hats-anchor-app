@@ -1,8 +1,8 @@
-import { Button, Flex, IconButton } from '@chakra-ui/react';
-import { FiSave, FiShare2, FiStopCircle } from 'react-icons/fi';
-import { FaCross, FaSave, FaStopCircle } from 'react-icons/fa';
-import { IoEnterSharp, IoExitOutline } from 'react-icons/io5';
-import { BsStopBtn, BsX, BsXCircle, BsXSquare } from 'react-icons/bs';
+import { Button, Flex, HStack } from '@chakra-ui/react';
+import { FiSave, FiShare2 } from 'react-icons/fi';
+import { FaSave } from 'react-icons/fa';
+import { IoExitOutline } from 'react-icons/io5';
+import { BsXSquare } from 'react-icons/bs';
 
 const TopMenu = ({ editMode, setEditMode, onClose }: TopMenuProps) => {
   const handleShareDraft = () => {};
@@ -37,22 +37,20 @@ const TopMenu = ({ editMode, setEditMode, onClose }: TopMenuProps) => {
         {editMode ? 'Cancel' : 'Edit'}
       </Button>
 
-      <Flex>
+      <HStack spacing={3}>
         <Button
           leftIcon={<FiShare2 />}
           colorScheme='gray'
           variant='outline'
           onClick={handleShareDraft}
-          mr={2}
         >
           Share Draft
         </Button>
         <Button
           leftIcon={<FiSave />}
-          colorScheme='teal'
+          colorScheme='twitter'
           variant='solid'
           onClick={handleSave}
-          mr={2}
         >
           Save
         </Button>
@@ -64,7 +62,7 @@ const TopMenu = ({ editMode, setEditMode, onClose }: TopMenuProps) => {
         >
           Deploy
         </Button>
-      </Flex>
+      </HStack>
     </Flex>
   );
 };

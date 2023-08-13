@@ -24,7 +24,7 @@ import {
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
-import { FiChevronsRight } from 'react-icons/fi';
+import { FiSave } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
@@ -38,6 +38,8 @@ import useToast from '@/hooks/useToast';
 import { isSameAddress } from '@/lib/general';
 import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
+import { IoExitOutline } from 'react-icons/io5';
+import { BsArrowLeft } from 'react-icons/bs';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatLinkRequestCreateForm = lazy(
@@ -105,6 +107,10 @@ const TopMenu = ({
   const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
+  const handleSave = () => {};
+
+  const handleDeploy = () => {};
+
   if (!hatData) return null;
 
   return (
@@ -121,39 +127,27 @@ const TopMenu = ({
       top={0}
       zIndex={16}
     >
-      <Button
-        variant='outline'
-        onClick={() => {
-          onClose();
-          setSelectedHatId(undefined);
-        }}
-      >
-        <HStack>
-          <Icon as={FiChevronsRight} />
-          <Text>Collapse</Text>
-        </HStack>
-      </Button>
-      <HStack>
-        {isAdminUser && chainId === currentNetworkId && (
-          <Tooltip
-            label={!isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
-            shouldWrapChildren
+      {isAdminUser && chainId === currentNetworkId && (
+        <Tooltip
+          label={!isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
+          shouldWrapChildren
+        >
+          <Button
+            variant='outline'
+            background='cyan.100'
+            color='cyan.700'
+            borderColor='cyan.700'
+            onClick={() => setEditMode(!editMode)}
+            isDisabled={!isTopHatOrMutable(hatData)}
+            leftIcon={<BsArrowLeft />}
           >
-            <Button
-              variant='outline'
-              background='cyan.100'
-              color='cyan.700'
-              borderColor='cyan.700'
-              onClick={() => setEditMode(!editMode)}
-              isDisabled={!isTopHatOrMutable(hatData)}
-            >
-              <HStack>
-                <Icon as={FaEdit} />
-                <Text>{editMode ? 'Exit' : 'Edit'}</Text>
-              </HStack>
-            </Button>
-          </Tooltip>
-        )}
+            <Text>
+              {editMode ? hatData.detailsObject?.data?.name || 'Exit' : 'Edit'}
+            </Text>
+          </Button>
+        </Tooltip>
+      )}
+      <HStack spacing={3}>
         <Menu isLazy>
           <MenuButton as={Button} variant='outline'>
             <HStack>
@@ -315,6 +309,27 @@ const TopMenu = ({
             </MenuItem>
           </MenuList>
         </Menu>
+
+        {editMode && (
+          <>
+            <Button
+              leftIcon={<FiSave />}
+              colorScheme='twitter'
+              variant='solid'
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+            <Button
+              leftIcon={<IoExitOutline />}
+              colorScheme='blue'
+              variant='solid'
+              onClick={handleDeploy}
+            >
+              Deploy
+            </Button>
+          </>
+        )}
       </HStack>
 
       <Suspense fallback={<Suspender />}>
