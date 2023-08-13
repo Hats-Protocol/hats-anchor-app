@@ -7,6 +7,7 @@ import {
   Box,
   Stack,
   Text,
+  Heading,
 } from '@chakra-ui/react';
 import { IHat } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,13 +27,13 @@ const MainContent = ({ tree }: MainContentProps) => {
       pos='relative'
     >
       <Stack>
-        <Text>
+        <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
           {tree[0]?.detailsObject?.data?.name || tree[0]?.name || 'No Hats'}
-        </Text>
-        <Text>
+        </Heading>
+        <Text color='blackAlpha.700'>
           {tree[0]?.detailsObject?.data?.description || 'No Description'}
         </Text>
-        <Text>
+        <Text color='blackAlpha.600'>
           Created{' '}
           {events?.[events.length - 1]?.timestamp &&
             formatDistanceToNow(
@@ -48,7 +49,9 @@ const MainContent = ({ tree }: MainContentProps) => {
         </Text>
       </Stack>
       <Stack>
-        <Text>Drafted Changes</Text>
+        <Text color='blackAlpha.800' fontSize='xl' fontWeight='medium'>
+          Drafted Changes
+        </Text>
         <Text>
           Propose changes to any hat. Deploy changes to the Hats you control.
         </Text>
@@ -57,7 +60,7 @@ const MainContent = ({ tree }: MainContentProps) => {
         {tree.map((hat) => (
           <AccordionItem key={hat.id}>
             <h2>
-              <AccordionButton>
+              <AccordionButton px={0}>
                 <Box flex='1' textAlign='left'>
                   {hat?.detailsObject?.data?.name || hat.name}
                 </Box>
