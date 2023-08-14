@@ -16,6 +16,7 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   return res;
 };
 
+// todo refactor promise.all
 export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
   const details = await detailsFields.reduce<Promise<any[]>>(
     async (accPromise, detailsField) => {

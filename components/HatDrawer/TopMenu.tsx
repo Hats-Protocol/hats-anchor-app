@@ -317,7 +317,7 @@ const TopMenu = ({
         </Menu>
       </HStack>
 
-      <Suspense fallback={<Suspender />}>
+      {/* <Suspense fallback={<Suspender />}>
         <Modal
           name='createHat'
           title='Create a New Hat'
@@ -325,7 +325,7 @@ const TopMenu = ({
         >
           <HatCreateForm defaultAdmin={hatData.id} treeId={hatData.tree.id} />
         </Modal>
-      </Suspense>
+      </Suspense> */}
 
       <Suspense fallback={<Suspender />}>
         <Modal

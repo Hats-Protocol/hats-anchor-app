@@ -1,10 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { ZERO_ID } from '@/constants';
 import { fetchHatDetails } from '@/gql/helpers';
 import { IHat } from '@/types';
-
-const ZERO_HEX =
-  '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 const useHatDetails = ({
   hatId,
@@ -22,7 +20,7 @@ const useHatDetails = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', hatId, chainId],
     queryFn: () => fetchHatDetails(hatId, chainId),
-    enabled: !!hatId && hatId !== ZERO_HEX && !!chainId,
+    enabled: !!hatId && hatId !== ZERO_ID && !!chainId,
     initialData,
   });
 

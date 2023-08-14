@@ -63,8 +63,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           // @ts-ignore
           .neighbourMargin(() => 40)
           // set node sizes
-          .nodeHeight(() => (selectedOption !== 'title' ? 110 : 70))
-          .nodeWidth(() => 220)
+          .nodeHeight((d: any) => {
+            if (d.data.type === 'new') {
+              return 40;
+            }
+            if (selectedOption !== 'title') {
+              return 110;
+            }
+            return 70;
+          })
+          .nodeWidth((d: any) => (d.data.type === 'new' ? 140 : 220))
           // node click handler
           .onNodeClick((node: IHat) => {
             onSelectHat(node?.id);
@@ -119,6 +127,30 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             ](node.children)}  </div>`;
           })
           .nodeContent((d: any) => {
+            if (d.data.type === 'new') {
+              return `
+                <div style='
+                  display: flex;
+                  align-items: center;
+                  width: fit-content;
+                  height: 40px;
+                  padding-left: 14px;
+                  padding-right: 14px;
+                  background-color: #C4F1F9;
+                  border: 1px solid #2D3748;
+                  border-radius: 6px;
+                  font-size: 14px;
+                  font-weight: 500;
+                  font-family: "Inter";
+                  margin: 0 auto;'
+                >
+                  <img src="/icons/plus-square.svg" alt="new" style='margin-right: 6px; height: 14px;' />
+
+                  Add ${d.data.name}
+                </div>
+              `;
+            }
+
             const isInWearerHats = wearerHats.includes(d.data.id);
 
             const {
@@ -423,6 +455,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               </div>
             </div>`;
           })
+          .compact(false)
           .render()
           .expandAll();
 

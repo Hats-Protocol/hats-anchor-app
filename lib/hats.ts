@@ -2,7 +2,7 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
-import { ZERO_ADDRESS } from '@/constants';
+import { defaultHat, ZERO_ADDRESS } from '@/constants';
 import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
@@ -13,13 +13,15 @@ export async function toTreeStructure({
   treeData,
   hatsImages,
   chainId,
+  editMode,
 }: {
   treeData: ITree | null | undefined;
   hatsImages: IHat[] | undefined;
   chainId: number;
+  editMode: boolean;
 }): Promise<IHat[]> {
   if (!treeData || !hatsImages) return Promise.resolve([]);
-  const hatsArray: IHat[] = [];
+  const hatsArray: any[] = [];
 
   const hatIds: string[] = _.uniq(
     _.concat(
@@ -55,21 +57,23 @@ export async function toTreeStructure({
   const wAndCInfo = await fetchManyWearerDetails(wAndCs, chainId);
 
   treeData?.hats?.forEach(async (hat: IHat) => {
-    let parentId: string | null = hat.admin?.id;
+    let parentId: string | undefined = hat.admin?.id;
     if (hat.admin?.id === hat.id) {
-      parentId = null;
+      parentId = undefined;
     }
 
-    const {
-      id,
-      tree: { id: treeId },
-    } = hat;
+    const { id, tree } = hat;
+    let treeId;
+    if (tree) {
+      treeId = tree.id;
+    }
 
     const currentHat = _.find(hatsData, { id });
     if (!currentHat) return;
 
     hatsArray.push({
       ...currentHat,
+      type: 'hat',
       id,
       name: hatIdDecimalToIp(BigInt(id)),
       parentId,
@@ -84,16 +88,17 @@ export async function toTreeStructure({
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
-    const {
-      id,
-      tree: { id: treeId },
-      imageUrl,
-    } = treeData.linkedToHat;
+    const { id, tree, imageUrl } = treeData.linkedToHat;
+    let treeId;
+    if (tree) {
+      treeId = tree.id;
+    }
 
     const currentHat = _.find(hatsData, { id });
     if (currentHat) {
       hatsArray.push({
         ...currentHat,
+        type: 'hat',
         id,
         name: hatIdDecimalToIp(BigInt(id)),
         parentId: null,
@@ -126,6 +131,7 @@ export async function toTreeStructure({
 
       hatsArray.push({
         ...currentHat,
+        type: 'hat',
         id: treeId,
         name: hatIdDecimalToIp(BigInt(treeId)),
         parentId: id,
@@ -142,13 +148,64 @@ export async function toTreeStructure({
     });
   }
 
-  return Promise.resolve(hatsArray);
+  if (!editMode) return Promise.resolve(hatsArray);
+
+  const siblingArrays: IHat[][] = [];
+  const addChildHats: IHat[] = [];
+  // get sibling rows
+  _.map(hatsArray, (hat: IHat) => {
+    const siblings: IHat[] = _.filter(hatsArray, { parentId: hat.id });
+    if (siblings.length > 0) {
+      siblingArrays.push(siblings);
+    }
+  });
+  // add new hat (button) for each sibling row
+  const parentsToRemove: IHat[] = [];
+  siblingArrays.forEach((siblings) => {
+    const sibling: IHat | undefined = _.last(siblings);
+    if (!sibling) return;
+    const nameSplit = _.split(sibling.name, '.');
+    const parentId = _.dropRight(nameSplit, 1).join('.');
+    const newChildId = _.toNumber(_.last(nameSplit)) + 1;
+    const addChildHat = {
+      ...defaultHat,
+      chainId,
+      type: 'new',
+      id: prettyIdToId(ipToPrettyId(`${parentId}.${newChildId}`)),
+      parentId: sibling.parentId,
+      name: `${parentId}.${newChildId}`,
+      details: 'Create new child hat here',
+    };
+    addChildHats.push(addChildHat);
+    const parent = _.find(hatsArray, { id: sibling.parentId });
+    if (!parent) return;
+    parentsToRemove.push(parent);
+  });
+  // add new hat (button) for each hat without children
+  const childrenToAdd = _.difference(hatsArray, parentsToRemove);
+  _.forEach(childrenToAdd, (child) => {
+    const newChildId = `${child.name}.1`;
+    const newChild = {
+      ...defaultHat,
+      chainId,
+      type: 'new',
+      id: prettyIdToId(ipToPrettyId(newChildId)),
+      parentId: child.id,
+      name: newChildId,
+      details: 'Create new child hat here',
+    };
+    addChildHats.push(newChild);
+  });
+  const withNewHats = _.concat(hatsArray, addChildHats);
+
+  return Promise.resolve(withNewHats);
 }
 
 export function createHierarchy(data: InputObject[]): HierarchyObject[] {
   // Sort by parentId and id
   data.sort(
-    (a, b) => a.parentId.localeCompare(b.parentId) || a.id.localeCompare(b.id),
+    (a, b) =>
+      a.parentId?.localeCompare(b?.parentId || '') || a.id.localeCompare(b.id),
   );
 
   // Create initial hierarchy objects
@@ -177,7 +234,7 @@ export function createHierarchy(data: InputObject[]): HierarchyObject[] {
         // Sibling is a right sibling if its id is bigger and current right sibling is null or its id is bigger than the sibling
         if (
           current.rightSibling === null ||
-          siblings[j].id < current.rightSibling
+          siblings[j].id < (current.rightSibling || 0)
         ) {
           current.rightSibling = siblings[j].id;
         }
