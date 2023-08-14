@@ -35,6 +35,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import { AiOutlineDoubleLeft } from 'react-icons/ai';
 import { BsPencil, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
@@ -45,11 +46,10 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Suspender from '@/components/atoms/Suspender';
 import EventHistory from '@/components/EventHistory';
 import Layout from '@/components/Layout';
-import CONFIG from '@/constants';
+import CONFIG, { ZERO_ID } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
+import { fetchTreeDetails } from '@/gql/helpers';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
-import useHatDetails from '@/hooks/useHatDetails';
 import useImageURIs from '@/hooks/useImageURIs';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -130,7 +130,7 @@ const TreeDetails = ({
   const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
-    ipToHatId(String(hatId)) || topHatId,
+    ipToHatId(String(hatId)) !== ZERO_ID ? ipToHatId(String(hatId)) : topHatId,
   );
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
@@ -143,7 +143,7 @@ const TreeDetails = ({
     chainId,
     initialData: initialTreeData,
   });
-  const selectedHat = _.find(treeData?.hats, { id: selectedHatId });
+  const selectedHat = _.find(treeData?.hats, { id: selectedHatId || topHatId });
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -279,17 +279,19 @@ const TreeDetails = ({
       </Drawer>
 
       <Layout editMode={editMode} hatData={topHatData}>
-        <Box
+        <Flex
           bg='whiteAlpha.700'
-          px={5}
-          py={3}
+          align='center'
+          justify='space-between'
+          px={3}
           mb={5}
           position='absolute'
           top='75px'
-          w='full'
+          height='70px'
+          w='100%'
           zIndex={4}
         >
-          <Flex justify='space-between' align='center'>
+          <Flex justify='space-between' align='center' w='100%'>
             <Box>
               <Button
                 mr={3}
@@ -368,83 +370,99 @@ const TreeDetails = ({
                 </PopoverContent>
               </Popover>
             </Box>
-            <VStack align='center' alignItems='flex-end' spacing={1}>
-              <Skeleton isLoaded={!!chain && !!orgChartTree}>
-                <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
-                  <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
+            {editMode ? (
+              <Button
+                variant='outline'
+                bg='whiteAlpha.900'
+                borderColor='gray.700'
+                leftIcon={<Icon as={AiOutlineDoubleLeft} />}
+              >
+                Draft Changes List
+              </Button>
+            ) : (
+              <VStack align='center' alignItems='flex-end' spacing={1}>
+                <Skeleton isLoaded={!!chain && !!orgChartTree}>
+                  <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
+                    <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
-                  <ChakraNextLink
-                    href={`${explorerUrl(chainId)}/address/${
-                      CONFIG.hatsAddress
-                    }`}
-                    isExternal
-                  >
-                    <HStack spacing={1}>
-                      <Text fontWeight='medium'>{chain?.name}</Text>
-                      <IconButton
-                        aria-label='Explorer contract address'
-                        icon={<Icon as={FiExternalLink} />}
-                        size='xs'
-                        variant='ghost'
-                      />
-                    </HStack>
-                  </ChakraNextLink>
-                </Flex>
-              </Skeleton>
-              <Skeleton isLoaded={!!_.get(_.first(events), 'timestamp')}>
-                <Popover trigger='hover'>
-                  <PopoverTrigger>
-                    <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
-                      <Text>Last event: </Text>
-                      <Text mr={2} fontWeight='medium'>
-                        {events?.[0]?.timestamp &&
-                          formatDistanceToNow(
-                            new Date(Number(events[0]?.timestamp) * 1000),
-                          )}{' '}
-                        ago
-                      </Text>
-                      <Image src='/icons/ago.svg' alt='History icon' />
-                    </Flex>
-                  </PopoverTrigger>
-                  <PopoverContent width='400px' mr={4}>
-                    <PopoverArrow />
-                    <PopoverCloseButton />
-                    <PopoverBody>
-                      <Stack>
-                        <Box>
-                          <Heading
-                            size='sm'
-                            fontWeight='medium'
-                            textTransform='uppercase'
-                            mb={1}
-                          >
-                            Event history
-                          </Heading>
-                          <EventHistory
-                            chainId={chainId}
-                            events={events?.slice(0, 5)}
-                          />
-                          {_.gt(_.size(events), 4) && (
-                            <>
-                              <Divider my={2} />
-                              <Button
-                                onClick={() => setModals?.({ events: true })}
-                                variant='link'
-                                colorScheme='blue'
-                              >
-                                View Full History
-                              </Button>
-                            </>
-                          )}
-                        </Box>
-                      </Stack>
-                    </PopoverBody>
-                  </PopoverContent>
-                </Popover>
-              </Skeleton>
-            </VStack>
+                    <ChakraNextLink
+                      href={`${explorerUrl(chainId)}/address/${
+                        CONFIG.hatsAddress
+                      }`}
+                      isExternal
+                    >
+                      <HStack spacing={1}>
+                        <Text fontWeight='medium'>{chain?.name}</Text>
+                        <IconButton
+                          aria-label='Explorer contract address'
+                          icon={<Icon as={FiExternalLink} />}
+                          size='xs'
+                          variant='ghost'
+                        />
+                      </HStack>
+                    </ChakraNextLink>
+                  </Flex>
+                </Skeleton>
+                <Skeleton isLoaded={!!_.get(_.first(events), 'timestamp')}>
+                  <Popover trigger='hover'>
+                    <PopoverTrigger>
+                      <Flex
+                        align='center'
+                        gap={1}
+                        fontSize='sm'
+                        cursor='pointer'
+                      >
+                        <Text>Last event: </Text>
+                        <Text mr={2} fontWeight='medium'>
+                          {events?.[0]?.timestamp &&
+                            formatDistanceToNow(
+                              new Date(Number(events[0]?.timestamp) * 1000),
+                            )}{' '}
+                          ago
+                        </Text>
+                        <Image src='/icons/ago.svg' alt='History icon' />
+                      </Flex>
+                    </PopoverTrigger>
+                    <PopoverContent width='400px' mr={4}>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverBody>
+                        <Stack>
+                          <Box>
+                            <Heading
+                              size='sm'
+                              fontWeight='medium'
+                              textTransform='uppercase'
+                              mb={1}
+                            >
+                              Event history
+                            </Heading>
+                            <EventHistory
+                              chainId={chainId}
+                              events={events?.slice(0, 5)}
+                            />
+                            {_.gt(_.size(events), 4) && (
+                              <>
+                                <Divider my={2} />
+                                <Button
+                                  onClick={() => setModals?.({ events: true })}
+                                  variant='link'
+                                  colorScheme='blue'
+                                >
+                                  View Full History
+                                </Button>
+                              </>
+                            )}
+                          </Box>
+                        </Stack>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </Skeleton>
+              </VStack>
+            )}
           </Flex>
-        </Box>
+        </Flex>
 
         {!_.isEmpty(orgChartTree) ? (
           <Suspense fallback={<Suspender />}>
