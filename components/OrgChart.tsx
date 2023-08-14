@@ -72,7 +72,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             }
             return 70;
           })
-          .nodeWidth((d: any) => (d.data.type === 'new' ? 70 : 220))
+          .nodeWidth((d: any) => (d.data.type === 'new' ? 140 : 220))
           // node click handler
           .onNodeClick((node: IHat) => {
             onSelectHat(node?.id);
@@ -130,14 +130,23 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             if (d.data.type === 'new') {
               return `
                 <div style='
-                  width: 70px;
+                  display: flex;
+                  align-items: center;
+                  width: fit-content;
                   height: 40px;
-                  padding-left: 1px;
-                  padding-right: 1px;
-                  background-color: white;
-                  border: 1px solid gray;'
+                  padding-left: 14px;
+                  padding-right: 14px;
+                  background-color: #C4F1F9;
+                  border: 1px solid #2D3748;
+                  border-radius: 6px;
+                  font-size: 14px;
+                  font-weight: 500;
+                  font-family: "Inter";
+                  margin: 0 auto;'
                 >
-                  Test new
+                  <img src="/icons/plus-square.svg" alt="new" style='margin-right: 6px; height: 14px;' />
+
+                  Add ${d.data.name}
                 </div>
               `;
             }
