@@ -151,6 +151,24 @@ const EditMode = ({
     }
   };
 
+  const hatBasicsFields = [
+    { name: 'name', label: 'Name' },
+    { name: 'description', label: 'Description' },
+    { name: 'image', label: 'Image' },
+    { name: 'guilds', label: 'Guilds' },
+    { name: 'maxSupply', label: 'Max Supply' },
+    { name: 'mutable', label: 'Editable' },
+  ];
+
+  // will have to adapt if the fields will be stored in local storage
+  const getDirtyFieldsForAccordion = (
+    fieldsArray: { name: string; label: string }[],
+  ) => {
+    return fieldsArray
+      .filter((field) => dirtyFields[field.name as keyof typeof dirtyFields])
+      .map((field) => field.label);
+  };
+
   if (!hatData) return null;
 
   return (
@@ -172,6 +190,7 @@ const EditMode = ({
         <Accordion
           title='Hat Basics'
           subtitle='The fundamentals of the hat, including name, image, and supply.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(hatBasicsFields)}
         >
           <Stack spacing={4}>
             <HatBasicsForm

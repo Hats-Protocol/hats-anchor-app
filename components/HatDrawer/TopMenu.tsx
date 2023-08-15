@@ -139,7 +139,7 @@ const TopMenu = ({
             borderColor='cyan.700'
             onClick={() => setEditMode(!editMode)}
             isDisabled={!isTopHatOrMutable(hatData)}
-            leftIcon={<BsArrowLeft />}
+            leftIcon={editMode ? <BsArrowLeft /> : <FaEdit />}
           >
             <Text>
               {editMode ? hatData.detailsObject?.data?.name || 'Exit' : 'Edit'}
