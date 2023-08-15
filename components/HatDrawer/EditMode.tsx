@@ -82,8 +82,17 @@ const EditMode = ({
   const allFormData = watch();
 
   useEffect(() => {
+    const dirtyFieldKeys = getDirtyFields();
+    const dirtyFormData = dirtyFieldKeys.reduce(
+      (acc: typeof allFormData, key) => {
+        acc[key] = allFormData[key];
+        return acc;
+      },
+      {},
+    );
+
     const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
-    localStorage.setItem(localStorageKey, JSON.stringify(allFormData));
+    localStorage.setItem(localStorageKey, JSON.stringify(dirtyFormData));
   }, [allFormData, hatData?.id, chainId]);
 
   const [newImageURI, setNewImageURI] = useState('');
