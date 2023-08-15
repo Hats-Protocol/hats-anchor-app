@@ -45,7 +45,7 @@ const HatWearerStatusForm = ({
     args: [
       hatId,
       wearer,
-      eligibility === 'Not Eligible',
+      eligibility === 'Eligible',
       standing === 'Good Standing',
     ],
     chainId,
