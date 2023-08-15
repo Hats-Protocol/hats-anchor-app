@@ -13,6 +13,7 @@ import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { HatDetails, IHat } from '@/types';
+import { generateLocalStorageKey } from '@/lib/general';
 
 const EditMode = ({
   hatData,
@@ -30,30 +31,46 @@ const EditMode = ({
     toggle: initialToggle,
   } = hatDetails;
 
+  const defaultFormValues = {
+    maxSupply: hatData?.maxSupply,
+    eligibility: hatData?.eligibility,
+    toggle: hatData?.toggle,
+    mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+    imageUrl: hatData?.imageUrl || '',
+    isEligibilityManual:
+      initialEligibility?.manual || initialEligibility?.manual === undefined
+        ? TRIGGER_OPTIONS.MANUALLY
+        : TRIGGER_OPTIONS.AUTOMATICALLY,
+    isToggleManual:
+      initialToggle?.manual || initialToggle?.manual === undefined
+        ? TRIGGER_OPTIONS.MANUALLY
+        : TRIGGER_OPTIONS.AUTOMATICALLY,
+    revocationsCriteria: initialEligibility?.criteria || [],
+    deactivationsCriteria: initialToggle?.criteria || [],
+    name: initialName,
+    description: initialDescription,
+    authorities: initialAuthorities,
+    responsibilities: initialResponsibilities,
+    guilds: initialGuilds,
+  };
+
+  const initialFormValues = () => {
+    const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
+    const storedValues = localStorage.getItem(localStorageKey);
+
+    if (storedValues) {
+      return {
+        ...defaultFormValues,
+        ...JSON.parse(storedValues),
+      };
+    }
+
+    return defaultFormValues;
+  };
+
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: {
-      maxSupply: hatData?.maxSupply,
-      eligibility: hatData?.eligibility,
-      toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-      imageUrl: hatData?.imageUrl || '',
-      isEligibilityManual:
-        initialEligibility?.manual || initialEligibility?.manual === undefined
-          ? TRIGGER_OPTIONS.MANUALLY
-          : TRIGGER_OPTIONS.AUTOMATICALLY,
-      isToggleManual:
-        initialToggle?.manual || initialToggle?.manual === undefined
-          ? TRIGGER_OPTIONS.MANUALLY
-          : TRIGGER_OPTIONS.AUTOMATICALLY,
-      revocationsCriteria: initialEligibility?.criteria || [],
-      deactivationsCriteria: initialToggle?.criteria || [],
-      name: initialName,
-      description: initialDescription,
-      authorities: initialAuthorities,
-      responsibilities: initialResponsibilities,
-      guilds: initialGuilds,
-    },
+    defaultValues: initialFormValues(),
   });
 
   const {
@@ -61,6 +78,13 @@ const EditMode = ({
     watch,
     formState: { dirtyFields },
   } = localForm;
+
+  const allFormData = watch();
+
+  useEffect(() => {
+    const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
+    localStorage.setItem(localStorageKey, JSON.stringify(allFormData));
+  }, [allFormData, hatData?.id, chainId]);
 
   const [newImageURI, setNewImageURI] = useState('');
   const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
@@ -151,21 +175,35 @@ const EditMode = ({
     }
   };
 
-  const hatBasicsFields = [
+  const hatBasicsFields: {
+    name: keyof typeof defaultFormValues;
+    label: string;
+  }[] = [
     { name: 'name', label: 'Name' },
     { name: 'description', label: 'Description' },
-    { name: 'image', label: 'Image' },
+    { name: 'imageUrl', label: 'Image' },
     { name: 'guilds', label: 'Guilds' },
     { name: 'maxSupply', label: 'Max Supply' },
     { name: 'mutable', label: 'Editable' },
   ];
 
-  // will have to adapt if the fields will be stored in local storage
+  const getDirtyFields = () => {
+    return (
+      Object.keys(defaultFormValues) as Array<keyof typeof defaultFormValues>
+    ).filter(
+      (key) =>
+        JSON.stringify(defaultFormValues[key]) !==
+        JSON.stringify(allFormData[key]),
+    );
+  };
+
   const getDirtyFieldsForAccordion = (
-    fieldsArray: { name: string; label: string }[],
+    fieldsArray: { name: keyof typeof defaultFormValues; label: string }[],
   ) => {
+    const dirtyFields = getDirtyFields();
+
     return fieldsArray
-      .filter((field) => dirtyFields[field.name as keyof typeof dirtyFields])
+      .filter((field) => dirtyFields.includes(field.name))
       .map((field) => field.label);
   };
 
