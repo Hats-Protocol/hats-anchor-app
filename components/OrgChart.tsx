@@ -9,7 +9,7 @@ import {
   IconButton,
   Spinner,
 } from '@chakra-ui/react';
-// import * as d3 from 'd3';
+import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
@@ -78,11 +78,10 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             onSelectHat(node?.id);
             centerChart(chart, node?.id);
           })
-          // .linkUpdate(() => {
-          //   d3.select(this).attr('stroke', () => '#718096');
-          //   d3.select(this).attr('stroke-width', () => '1');
-          //   // handle linked links?
-          // })
+          .linkUpdate(function test(this: any) {
+            d3.select(this).attr('stroke', '#718096');
+            // handle linked links?
+          })
           .buttonContent(({ node, state }: { node: any; state: any }) => {
             const icons: { [key: string]: (d: any) => string } = {
               left: (d: any) =>
@@ -159,11 +158,11 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               details,
               detailsObject,
               isLinked,
-              wearers,
+              extendedWearers: wearers,
               maxSupply,
               currentSupply,
-              eligibility,
-              toggle,
+              extendedEligibility: eligibility,
+              extendedToggle: toggle,
               levelAtLocalTree,
             } = d.data;
 
