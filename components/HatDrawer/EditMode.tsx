@@ -12,7 +12,7 @@ import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
-import { HatDetails, IHat } from '@/types';
+import { HatDetails, IHat, FormData, FieldItem } from '@/types';
 import { generateLocalStorageKey } from '@/lib/general';
 
 const EditMode = ({
@@ -79,17 +79,16 @@ const EditMode = ({
     formState: { dirtyFields },
   } = localForm;
 
-  const allFormData = watch();
+  const allFormData: FormData = watch();
 
   useEffect(() => {
     const dirtyFieldKeys = getDirtyFields();
-    const dirtyFormData = dirtyFieldKeys.reduce(
-      (acc: typeof allFormData, key) => {
-        acc[key] = allFormData[key];
-        return acc;
-      },
-      {},
-    );
+
+    const dirtyFormData = dirtyFieldKeys.reduce((acc: FormData, key) => {
+      (acc[key as keyof FormData] as string | number | string[]) =
+        allFormData[key as keyof FormData];
+      return acc;
+    }, {} as FormData);
 
     const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
     localStorage.setItem(localStorageKey, JSON.stringify(dirtyFormData));
@@ -184,31 +183,15 @@ const EditMode = ({
     }
   };
 
-  const hatBasicsFields: {
-    name: keyof typeof defaultFormValues;
-    label: string;
-  }[] = [
-    { name: 'name', label: 'Name' },
-    { name: 'description', label: 'Description' },
-    { name: 'imageUrl', label: 'Image' },
-    { name: 'guilds', label: 'Guilds' },
-    { name: 'maxSupply', label: 'Max Supply' },
-    { name: 'mutable', label: 'Editable' },
-  ];
-
   const getDirtyFields = () => {
-    return (
-      Object.keys(defaultFormValues) as Array<keyof typeof defaultFormValues>
-    ).filter(
+    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
       (key) =>
         JSON.stringify(defaultFormValues[key]) !==
         JSON.stringify(allFormData[key]),
     );
   };
 
-  const getDirtyFieldsForAccordion = (
-    fieldsArray: { name: keyof typeof defaultFormValues; label: string }[],
-  ) => {
+  const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
     const dirtyFields = getDirtyFields();
 
     return fieldsArray
@@ -252,6 +235,7 @@ const EditMode = ({
         <Accordion
           title='Powers'
           subtitle='Permissions and rights that are controlled by wearers of this hat.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(powersFields)}
         >
           <Stack spacing={4}>
             <ItemDetailsForm
@@ -267,6 +251,7 @@ const EditMode = ({
         <Accordion
           title='Responsibilities'
           subtitle='Specific work that wearers of this hat will be held accountable for.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(responsibilitiesFields)}
         >
           <Stack spacing={4}>
             <ItemDetailsForm
@@ -282,6 +267,7 @@ const EditMode = ({
         <Accordion
           title='Revocation'
           subtitle='The people or logic that determine when a wearer should have a hat.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(revocationFields)}
         >
           <Stack spacing={4}>
             <HatManagementForm
@@ -303,6 +289,7 @@ const EditMode = ({
         <Accordion
           title='Deactivation & Reactivation'
           subtitle='The people or logic that control whether or not this hat is active.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(deactivationFields)}
         >
           <Stack spacing={4}>
             <HatManagementForm
@@ -341,6 +328,33 @@ const EditMode = ({
 };
 
 export default EditMode;
+
+const hatBasicsFields: FieldItem[] = [
+  { name: 'name', label: 'Name' },
+  { name: 'description', label: 'Description' },
+  { name: 'imageUrl', label: 'Image' },
+  { name: 'guilds', label: 'Guilds' },
+  { name: 'maxSupply', label: 'Max Supply' },
+  { name: 'mutable', label: 'Editable' },
+];
+
+const powersFields: FieldItem[] = [
+  { name: 'authorities', label: 'Authorities' },
+];
+
+const responsibilitiesFields: FieldItem[] = [
+  { name: 'responsibilities', label: 'Responsibilities' },
+];
+
+const revocationFields: FieldItem[] = [
+  { name: 'eligibility', label: 'Eligibility' },
+  { name: 'revocationsCriteria', label: 'Revocation Criteria' },
+];
+
+const deactivationFields: FieldItem[] = [
+  { name: 'toggle', label: 'Toggle' },
+  { name: 'deactivationsCriteria', label: 'Deactivation Criteria' },
+];
 
 interface EditModeProps {
   hatData: IHat;
