@@ -17,6 +17,7 @@ import { FaMinus, FaPlus } from 'react-icons/fa';
 
 import CONFIG, { ZERO_ID } from '@/constants';
 import { formatAddress } from '@/lib/general';
+import { ipToPrettyId, prettyIdToId } from '@/lib/hats';
 import { IHat, IHatWearer } from '@/types';
 
 interface OrgChartComponentProps {
@@ -103,8 +104,13 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   `test-click-${data.data.name}`,
                 )
               ) {
+                // ! add node to org chart & center
+                // ! select hat is default hat properties
+                // onSelectHat(prettyIdToId(ipToPrettyId(data.data?.nextChildId)));
                 console.log('clicked', data.data.name);
               } else {
+                centerChart(chart, data.data?.id);
+                onSelectHat(data.data?.id);
                 console.log('rest of node', data.data.name);
               }
             });
@@ -523,8 +529,6 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     initialLoad,
     editMode,
   ]);
-
-  //
 
   return isLoading ? (
     <Flex
