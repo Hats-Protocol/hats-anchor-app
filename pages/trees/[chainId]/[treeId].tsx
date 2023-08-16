@@ -256,6 +256,7 @@ const TreeDetails = ({
   };
 
   const addChild = useCallback((hat: IHat) => {
+    // set updated tree array
     setOrgChartTree((prev) => {
       const newTree = _.cloneDeep(prev);
       const newHat = {
@@ -265,6 +266,7 @@ const TreeDetails = ({
       newTree.push(newHat);
       return newTree;
     });
+    // update query param to open drawer
     const updatedQuery = {
       ...router.query,
       hatId: hatIdDecimalToIp(BigInt(hat.id)),
