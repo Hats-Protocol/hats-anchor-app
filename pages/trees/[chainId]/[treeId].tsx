@@ -259,6 +259,7 @@ const TreeDetails = ({
         onClose={() => {
           onCloseHatDrawer();
           setEditHatMode(false);
+          setEditTreeMode(false);
           setSelectedHatId(undefined);
         }}
         isOpen={isOpenHatDrawer}
@@ -304,6 +305,11 @@ const TreeDetails = ({
                 setEditMode={setEditTreeMode}
                 onClose={onCloseTreeDrawer}
                 tree={orgChartTree}
+                handleHatClick={(hatId: string) => {
+                  onCloseTreeDrawer();
+                  onOpenHatDrawer();
+                  setSelectedHatId(hatId);
+                }}
               />
             </Suspense>
           </DrawerBody>

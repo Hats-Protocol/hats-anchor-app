@@ -1,19 +1,23 @@
-import {
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  Box,
-  Stack,
-  Text,
-  Heading,
-} from '@chakra-ui/react';
+import { Box, Stack, Text, Heading, HStack, Button } from '@chakra-ui/react';
 import { IHat } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { generateLocalStorageKey } from '@/lib/general';
+import { prettyIdToIp, idToPrettyId } from '@/lib/hats';
+import _ from 'lodash';
+import { BsChevronRight } from 'react-icons/bs';
 
-const MainContent = ({ tree }: MainContentProps) => {
+const MainContent = ({ tree, handleHatClick }: MainContentProps) => {
   const { events } = tree[0];
+
+  function getProposedChangesCount(hatId: string, chainId: number) {
+    const localStorageKey = generateLocalStorageKey(hatId, chainId);
+    const storedData = localStorage.getItem(localStorageKey);
+    if (!storedData) {
+      return 0;
+    }
+    const parsedData = JSON.parse(storedData);
+    return Object.keys(parsedData).length;
+  }
 
   return (
     <Stack
@@ -56,21 +60,58 @@ const MainContent = ({ tree }: MainContentProps) => {
           Propose changes to any hat. Deploy changes to the Hats you control.
         </Text>
       </Stack>
-      <Accordion allowMultiple>
+      <Box>
         {tree.map((hat) => (
-          <AccordionItem key={hat.id}>
-            <h2>
-              <AccordionButton px={0}>
-                <Box flex='1' textAlign='left'>
-                  {hat?.detailsObject?.data?.name || hat.name}
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>Content for {hat.name}</AccordionPanel>
-          </AccordionItem>
+          <Box
+            borderBottom='1px solid'
+            borderColor='gray.300'
+            w='full'
+            key={hat.id}
+          >
+            <Button
+              w='full'
+              justifyContent='space-between'
+              h={10}
+              alignItems='center'
+              variant={'ghost'}
+              borderRadius={0}
+              isDisabled={!hat.mutable}
+              onClick={() => handleHatClick(hat.id)}
+            >
+              {prettyIdToIp(idToPrettyId(hat.id))}{' '}
+              {hat?.detailsObject?.data?.name || hat.name}
+              <HStack>
+                {getProposedChangesCount(hat.id, hat.chainId) && (
+                  <Text
+                    borderColor='cyan.600'
+                    borderWidth={1}
+                    borderRadius={2}
+                    px={1}
+                    color='cyan.600'
+                    fontSize='sm'
+                  >
+                    {getProposedChangesCount(hat.id, hat.chainId)} CHANGES
+                  </Text>
+                )}
+                {!hat.mutable && (
+                  <Text
+                    borderColor='gray.600'
+                    borderWidth={1}
+                    borderRadius={2}
+                    px={1}
+                    color='gray.600'
+                    fontSize='sm'
+                  >
+                    IMMUTABLE
+                  </Text>
+                )}
+
+                <BsChevronRight />
+              </HStack>
+            </Button>
+          </Box>
         ))}
-      </Accordion>
+      </Box>
     </Stack>
   );
 };
@@ -79,4 +120,5 @@ export default MainContent;
 
 interface MainContentProps {
   tree: IHat[];
+  handleHatClick: (hatId: string) => void;
 }
