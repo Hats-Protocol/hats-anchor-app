@@ -36,7 +36,7 @@ const EditMode = ({
     eligibility: hatData?.eligibility,
     toggle: hatData?.toggle,
     mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    imageUrl: hatData?.imageUrl || '',
+    imageUrl: hatData?.imageUrl ?? '',
     isEligibilityManual:
       initialEligibility?.manual || initialEligibility?.manual === undefined
         ? TRIGGER_OPTIONS.MANUALLY
@@ -45,13 +45,13 @@ const EditMode = ({
       initialToggle?.manual || initialToggle?.manual === undefined
         ? TRIGGER_OPTIONS.MANUALLY
         : TRIGGER_OPTIONS.AUTOMATICALLY,
-    revocationsCriteria: initialEligibility?.criteria || [],
-    deactivationsCriteria: initialToggle?.criteria || [],
+    revocationsCriteria: initialEligibility?.criteria ?? [],
+    deactivationsCriteria: initialToggle?.criteria ?? [],
     name: initialName,
     description: initialDescription,
-    authorities: initialAuthorities,
-    responsibilities: initialResponsibilities,
-    guilds: initialGuilds,
+    authorities: initialAuthorities ?? [],
+    responsibilities: initialResponsibilities ?? [],
+    guilds: initialGuilds ?? [],
   };
 
   const initialFormValues = () => {
