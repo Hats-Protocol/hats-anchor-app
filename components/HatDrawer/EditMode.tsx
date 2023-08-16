@@ -20,6 +20,7 @@ const EditMode = ({
   chainId,
   hatDetails,
   setEditMode,
+  updateUnsavedData,
 }: EditModeProps) => {
   const {
     name: initialName,
@@ -90,8 +91,7 @@ const EditMode = ({
       return acc;
     }, {} as FormData);
 
-    const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
-    localStorage.setItem(localStorageKey, JSON.stringify(dirtyFormData));
+    updateUnsavedData(dirtyFormData);
   }, [allFormData, hatData?.id, chainId]);
 
   const [newImageURI, setNewImageURI] = useState('');
@@ -361,4 +361,5 @@ interface EditModeProps {
   chainId: number;
   hatDetails: HatDetails;
   setEditMode: (mode: boolean) => void;
+  updateUnsavedData: (data: FormData) => void;
 }

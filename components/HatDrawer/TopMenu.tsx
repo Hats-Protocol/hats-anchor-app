@@ -48,7 +48,6 @@ const HatLinkRequestCreateForm = lazy(
 
 const TopMenu = ({
   chainId,
-  onClose,
   mutableStatus,
   hatData,
   editMode,
@@ -56,8 +55,8 @@ const TopMenu = ({
   isCurrentWearer,
   localOverlay,
   wearerTopHats,
-  setSelectedHatId,
   isAdminUser,
+  onSave,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -106,8 +105,6 @@ const TopMenu = ({
 
   const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
-
-  const handleSave = () => {};
 
   const handleDeploy = () => {};
 
@@ -316,7 +313,7 @@ const TopMenu = ({
               leftIcon={<FiSave />}
               colorScheme='twitter'
               variant='solid'
-              onClick={handleSave}
+              onClick={onSave}
             >
               Save
             </Button>
@@ -368,12 +365,11 @@ interface TopMenuProps {
   mutableStatus: string;
   hatData: IHat;
   chainId: number;
-  onClose: () => void;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
   isCurrentWearer: boolean;
   localOverlay: IOverlayContext;
   wearerTopHats: string[];
-  setSelectedHatId: (hatId?: string) => void;
+  onSave: () => void;
 }

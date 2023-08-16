@@ -1,6 +1,6 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
@@ -10,7 +10,9 @@ import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isAdmin, isTopHat } from '@/lib/hats';
-import { IHat } from '@/types';
+import { IHat, FormData } from '@/types';
+import { generateLocalStorageKey } from '@/lib/general';
+import useToast from '@/hooks/useToast';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -74,13 +76,13 @@ const SelectedHatDrawer = ({
   setSelectedHatId,
   chainId,
   hatsData,
-  onClose,
   editMode,
   setEditMode,
   linkRequestFromTree,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+  const toast = useToast();
 
   const { address } = useAccount();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -174,6 +176,21 @@ const SelectedHatDrawer = ({
     hatId: hatData?.id,
   });
 
+  const [unsavedData, setUnsavedData] = useState<FormData | null>(null);
+
+  const handleSave = () => {
+    if (unsavedData) {
+      const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
+      localStorage.setItem(localStorageKey, JSON.stringify(unsavedData));
+      setUnsavedData(null);
+
+      toast.success({
+        title: 'Saved',
+        description: 'Your changes have been saved.',
+      });
+    }
+  };
+
   if (!hatData) return null;
 
   return (
@@ -207,7 +224,6 @@ const SelectedHatDrawer = ({
 
         <TopMenu
           chainId={chainId}
-          onClose={onClose}
           mutableStatus={mutableStatus}
           hatData={hatData}
           editMode={editMode}
@@ -216,7 +232,7 @@ const SelectedHatDrawer = ({
           isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
-          setSelectedHatId={setSelectedHatId}
+          onSave={handleSave}
         />
 
         {!editMode && (
@@ -242,6 +258,7 @@ const SelectedHatDrawer = ({
             hatData={hatData}
             hatDetails={hatDetails}
             setEditMode={setEditMode}
+            updateUnsavedData={(data: FormData) => setUnsavedData(data)}
           />
         )}
 
@@ -266,7 +283,6 @@ interface SelectedHatDrawerProps {
   hatsData: IHat[] | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   linkRequestFromTree: any;
-  onClose: () => void;
   editMode: boolean;
   setEditMode: (value: boolean) => void;
 }

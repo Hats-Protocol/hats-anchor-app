@@ -276,7 +276,6 @@ const TreeDetails = ({
                 setSelectedHatId={setSelectedHatId}
                 hatsData={orgChartTree}
                 linkRequestFromTree={linkRequestFromTree}
-                onClose={onCloseHatDrawer}
                 editMode={editHatMode}
                 setEditMode={setEditHatMode}
               />
