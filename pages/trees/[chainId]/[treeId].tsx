@@ -309,6 +309,7 @@ const TreeDetails = ({
                   onCloseTreeDrawer();
                   onOpenHatDrawer();
                   setSelectedHatId(hatId);
+                  setEditHatMode(true);
                 }}
               />
             </Suspense>
