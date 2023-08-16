@@ -17,6 +17,7 @@ const defaultHat = {
   wearers: [],
   admin: undefined,
   imageUrl: '',
+  details: '',
   detailsObject: undefined,
   isLinked: false,
 };

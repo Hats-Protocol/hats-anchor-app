@@ -27,7 +27,10 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
@@ -46,7 +49,7 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Suspender from '@/components/atoms/Suspender';
 import EventHistory from '@/components/EventHistory';
 import Layout from '@/components/Layout';
-import CONFIG, { ZERO_ID } from '@/constants';
+import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { fetchTreeDetails } from '@/gql/helpers';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
@@ -153,11 +156,24 @@ const TreeDetails = ({
     onOpen: onOpenShade,
     onClose: onCloseShade,
     isOpen: isOpenShade,
-  } = useDisclosure();
+  } = useDisclosure({
+    onClose: () => {
+      // remove query param for adding children
+      router.push(
+        { pathname: router.pathname, query: _.omit(router.query, 'hatId') },
+        undefined,
+        {
+          shallow: true,
+        },
+      );
+    },
+  });
 
   const handleSelectHat = useCallback(
     (id: string) => {
       if (isMobile) return;
+      const allIds = orgChartTree?.map((hat: IHat) => hat.id);
+      if (!_.includes(allIds, id)) return;
 
       setSelectedHatId(id);
 
@@ -174,7 +190,7 @@ const TreeDetails = ({
 
       onOpenShade();
     },
-    [isMobile, onOpenShade, router],
+    [orgChartTree, isMobile, onOpenShade, router],
   );
 
   useEffect(() => {
@@ -238,6 +254,25 @@ const TreeDetails = ({
     });
     setSelectedOption(editMode ? 'wearers' : 'title');
   };
+
+  const addChild = useCallback((hat: IHat) => {
+    setOrgChartTree((prev) => {
+      const newTree = _.cloneDeep(prev);
+      const newHat = {
+        ...defaultHat,
+        ...hat,
+      };
+      newTree.push(newHat);
+      return newTree;
+    });
+    const updatedQuery = {
+      ...router.query,
+      hatId: hatIdDecimalToIp(BigInt(hat.id)),
+    };
+    router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
+      shallow: true,
+    });
+  }, []);
 
   return (
     <>
@@ -326,12 +361,10 @@ const TreeDetails = ({
                         color={isOpen ? 'blue.500' : '#2D3748'}
                       />
                     }
+                    variant='filled'
                     rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                     fontWeight='medium'
-                    border='1px solid'
-                    borderColor='gray.700'
                     color={isOpen ? 'blue.500' : '#2D3748'}
-                    bgColor='whiteAlpha.900'
                   >
                     View Controls
                   </Button>
@@ -475,6 +508,7 @@ const TreeDetails = ({
               selectedHatId={selectedHatId}
               onSelectHat={handleSelectHat}
               editMode={editMode}
+              addChild={addChild}
             />
           </Suspense>
         ) : (

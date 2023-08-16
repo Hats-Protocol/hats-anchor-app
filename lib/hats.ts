@@ -8,7 +8,7 @@ import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
 import { HierarchyObject, IControls, IHat, InputObject, ITree } from '@/types';
 
-const calculateNextChildId = (id: string, hatsData: IHat[]) => {
+export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
   const lessTop = _.filter(children, (child) => child.id !== id);
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
@@ -80,7 +80,6 @@ export async function toTreeStructure({
       id,
       name: hatIdDecimalToIp(BigInt(id)),
       parentId,
-      nextChildId: calculateNextChildId(id, hatsData),
       treeId,
       isLinked: false,
       url: `/trees/${chainId}/${decimalId(treeId)}`,
@@ -381,18 +380,4 @@ export const checkPermissionsResponsibilities = (
   }
 
   return controls;
-};
-
-export const nextChildId = (admin: string | undefined, children: IHat[]) => {
-  if (!admin) return '1';
-  const decimalAdmin = hatIdDecimalToIp(BigInt(admin));
-  let nextChild = `${decimalAdmin}.1`;
-  if (!_.isEmpty(children)) {
-    // can we get away from prettyId here?
-    const lastChildId = _.toNumber(
-      _.nth(_.split(_.get(_.last(children), 'prettyId'), '.'), 1),
-    );
-    nextChild = `${decimalAdmin}.${lastChildId + 1}`;
-  }
-  return nextChild;
 };

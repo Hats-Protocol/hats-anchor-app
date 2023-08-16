@@ -15,9 +15,9 @@ import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 
-import CONFIG, { ZERO_ID } from '@/constants';
+import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
 import { formatAddress } from '@/lib/general';
-import { ipToPrettyId, prettyIdToId } from '@/lib/hats';
+import { calculateNextChildId, ipToPrettyId, prettyIdToId } from '@/lib/hats';
 import { IHat, IHatWearer } from '@/types';
 
 interface OrgChartComponentProps {
@@ -30,6 +30,7 @@ interface OrgChartComponentProps {
   selectedOption?: string;
   showInactiveHats: boolean;
   editMode: boolean;
+  addChild: (hat: IHat) => void;
 }
 
 function checkParentElementForClass(e: any, name: string) {
@@ -57,6 +58,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   selectedOption,
   showInactiveHats,
   editMode,
+  addChild,
 }) => {
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -104,14 +106,36 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   `test-click-${data.data.name}`,
                 )
               ) {
-                // ! add node to org chart & center
-                // ! select hat is default hat properties
-                // onSelectHat(prettyIdToId(ipToPrettyId(data.data?.nextChildId)));
-                console.log('clicked', data.data.name);
+                const nextChildId = calculateNextChildId(
+                  data.data.id,
+                  filteredTree,
+                );
+                const newId = prettyIdToId(ipToPrettyId(nextChildId));
+
+                addChild({
+                  ...defaultHat,
+                  chainId,
+                  id: newId,
+                  admin: {
+                    id: data.data.id,
+                  },
+                  imageUrl: '/icon.jpeg',
+                  parentId: data.data.id,
+                  name: nextChildId,
+                  detailsObject: {
+                    type: '1.0',
+                    data: {
+                      name: 'New Hat',
+                    },
+                  },
+                });
+                // wait to center. node doesn't exist right away
+                setTimeout(() => {
+                  centerChart(chart, newId);
+                }, 100);
               } else {
                 centerChart(chart, data.data?.id);
                 onSelectHat(data.data?.id);
-                console.log('rest of node', data.data.name);
               }
             });
           })
@@ -177,8 +201,9 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               extendedEligibility: eligibility,
               extendedToggle: toggle,
               levelAtLocalTree,
-              nextChildId,
             } = d.data;
+
+            const nextChildId = calculateNextChildId(d.data.id, filteredTree);
 
             let detailsName = details;
             if (detailsObject?.type === '1.0') {
@@ -528,6 +553,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     selectedOption,
     initialLoad,
     editMode,
+    addChild,
   ]);
 
   return isLoading ? (
