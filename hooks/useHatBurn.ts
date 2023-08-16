@@ -14,7 +14,7 @@ const useHatBurn = ({
   hatsAddress?: `0x${string}`;
   chainId: number;
   hatId: string | null;
-  wearers: IHatWearer[];
+  wearers: IHatWearer[] | undefined;
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();

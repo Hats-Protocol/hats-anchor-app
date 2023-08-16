@@ -30,7 +30,6 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY } from '@/constants';
 import { IOverlayContext } from '@/contexts/OverlayContext';
-import HatCreateForm from '@/forms/HatCreateForm';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
@@ -316,16 +315,6 @@ const TopMenu = ({
           </MenuList>
         </Menu>
       </HStack>
-
-      {/* <Suspense fallback={<Suspender />}>
-        <Modal
-          name='createHat'
-          title='Create a New Hat'
-          localOverlay={localOverlay}
-        >
-          <HatCreateForm defaultAdmin={hatData.id} treeId={hatData.tree.id} />
-        </Modal>
-      </Suspense> */}
 
       <Suspense fallback={<Suspender />}>
         <Modal
