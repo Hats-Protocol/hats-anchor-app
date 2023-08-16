@@ -27,7 +27,6 @@ const WearerRow = ({
   wearer,
   isAdminUser,
   address,
-  ensNames,
   setModals,
   setChangeStatusWearer,
   setWearerToTransferFrom,
@@ -88,7 +87,9 @@ const WearerRow = ({
           <FaUser />
         )}
 
-        <Text>{ensNames[wearer.id] || formatAddress(_.get(wearer, 'id'))}</Text>
+        <Text>
+          {_.get(wearer, 'ensName') || formatAddress(_.get(wearer, 'id'))}
+        </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
         <ChakraNextLink href={`/wearers/${wearer.id}`}>
@@ -169,12 +170,9 @@ const WearerRow = ({
 export default WearerRow;
 
 interface WearerRowProps {
-  wearer: { id: string };
+  wearer: IHatWearer;
   isAdminUser: boolean;
   address?: string;
-  ensNames: {
-    [key: string]: string;
-  };
   setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
@@ -182,5 +180,5 @@ interface WearerRowProps {
   hatId: string;
   chainId: number;
   currentNetworkId: number;
-  wearers: IHatWearer[];
+  wearers: IHatWearer[] | undefined;
 }

@@ -208,7 +208,6 @@ const TreeDetails = ({
         treeData,
         hatsImages: hatsWithImageData,
         chainId,
-        editMode,
       });
       setOrgChartTree(tree);
     };
@@ -475,6 +474,7 @@ const TreeDetails = ({
               chainId={chainId}
               selectedHatId={selectedHatId}
               onSelectHat={handleSelectHat}
+              editMode={editMode}
             />
           </Suspense>
         ) : (

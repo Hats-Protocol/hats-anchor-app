@@ -30,16 +30,14 @@ export const checkAddressIsContract = async (
 };
 
 export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) => {
-  if (_.gt(_.size(wearers), 1)) {
-    return wearers;
-  }
+  // ! why was this here?
+  // if (_.gt(_.size(wearers), 1)) {
+  //   return wearers;
+  // }
 
   return _.map(wearers, (wearer: IHatWearer) => {
-    const wearerInfo = _.find(wearersInfo, { id: wearer.id });
-    return {
-      ...wearer,
-      ...wearerInfo,
-    };
+    const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
+    return wearerInfo;
   });
 };
 

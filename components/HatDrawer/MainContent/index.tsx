@@ -82,7 +82,7 @@ const MainContent = ({
         setModals={setModals}
         localOverlay={localOverlay}
         hatId={hatData.id}
-        wearers={hatData.wearers}
+        wearers={hatData.extendedWearers}
         maxSupply={_.toNumber(hatData.maxSupply)}
         isAdminUser={isAdminUser}
       />

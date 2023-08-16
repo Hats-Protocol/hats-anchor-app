@@ -93,6 +93,7 @@ const SelectedHatDrawer = ({
     mutableStatus,
     hatDetails,
   } = state;
+  // console.log(hatData);
 
   const { hatRoles } = useHatGuilds({
     guildNames: hatDetails?.guilds,
