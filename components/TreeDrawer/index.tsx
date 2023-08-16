@@ -10,6 +10,7 @@ const TreeDrawer = ({
   setEditMode,
   onClose,
   tree,
+  chainId,
   handleHatClick,
 }: TreeDrawerProps) => {
   return (
@@ -26,6 +27,8 @@ const TreeDrawer = ({
         editMode={editMode}
         setEditMode={setEditMode}
         onClose={onClose}
+        chainId={chainId}
+        tree={tree}
       />
       <MainContent tree={tree} handleHatClick={handleHatClick} />
     </Box>
@@ -39,5 +42,6 @@ interface TreeDrawerProps {
   setEditMode: (editMode: boolean) => void;
   onClose: () => void;
   tree: IHat[];
+  chainId: number;
   handleHatClick: (hatId: string) => void;
 }

@@ -305,6 +305,7 @@ const TreeDetails = ({
                 setEditMode={setEditTreeMode}
                 onClose={onCloseTreeDrawer}
                 tree={orgChartTree}
+                chainId={chainId}
                 handleHatClick={(hatId: string) => {
                   onCloseTreeDrawer();
                   onOpenHatDrawer();
