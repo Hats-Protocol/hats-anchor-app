@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { isEqual } from 'lodash';
+import _, { isEqual } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
@@ -32,6 +32,8 @@ const EditMode = ({
     eligibility: initialEligibility,
     toggle: initialToggle,
   } = hatDetails;
+  // console.log(hatDetails);
+  // console.log(hatData);
 
   const defaultFormValues = useMemo<FormData>(
     () => ({
@@ -74,37 +76,40 @@ const EditMode = ({
     ],
   );
 
-  const initialFormValues = () => {
-    const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
-    const storedValues = localStorage.getItem(localStorageKey);
-    if (storedValues) {
-      return {
-        ...defaultFormValues,
-        ...JSON.parse(storedValues),
-      };
-    }
-
-    return defaultFormValues;
-  };
-
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: {
-      ...initialFormValues(),
-      name: initialName,
-      description: initialDescription,
-    },
   });
 
   const {
     handleSubmit,
     watch,
     formState: { dirtyFields },
+    reset,
   } = localForm;
 
-  const allFormData: FormData = watch();
+  useEffect(() => {
+    // eslint-disable-next-line consistent-return
+    const initialFormValues = () => {
+      const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
+      const storedValues = localStorage.getItem(localStorageKey);
+      if (storedValues) {
+        return {
+          ...defaultFormValues,
+          ...JSON.parse(storedValues),
+        };
+      }
 
-  const prevAllFormData = useRef<FormData>(allFormData);
+      reset(defaultFormValues);
+    };
+
+    if (hatData?.id && chainId && defaultFormValues) {
+      initialFormValues();
+    }
+  }, [chainId, defaultFormValues, hatData?.id, reset]);
+
+  const allFormData = watch();
+
+  const prevAllFormData = useRef<any>(allFormData);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -125,14 +130,14 @@ const EditMode = ({
   useEffect(() => {
     if (!isEqual(prevAllFormData.current, allFormData)) {
       const dirtyFieldKeys = getDirtyFields();
-      const dirtyFormData = dirtyFieldKeys.reduce((acc: FormData, key) => {
-        (acc[key as keyof FormData] as
-          | DetailsItem[]
-          | string
-          | string[]
-          | undefined) = allFormData[key as keyof FormData];
-        return acc;
-      }, {} as FormData);
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: FormData, key: keyof FormData) => {
+          (acc[key] as DetailsItem[] | string | string[] | undefined) =
+            allFormData[key];
+          return acc;
+        },
+        {} as FormData,
+      );
 
       updateUnsavedData(dirtyFormData);
       prevAllFormData.current = allFormData;
@@ -140,8 +145,19 @@ const EditMode = ({
   }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
 
   const [newImageURI, setNewImageURI] = useState('');
-  const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
+  // const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
+  const name = useDebounce(allFormData.name);
+  console.log('debouncedName', name);
+  const description = watch('description');
+  console.log('debouncedDescription', description);
+  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
+  const isToggleManual = useDebounce(watch('isToggleManual'));
+  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
+  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
+  const responsibilities = useDebounce(watch('responsibilities'));
+  const authorities = useDebounce(watch('authorities'));
+  const guilds = useDebounce(watch('guilds'));
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
   );
@@ -165,34 +181,8 @@ const EditMode = ({
     chainId: 1,
   });
 
-  const { onSubmit, isLoading } = useSubmitHatChanges({
-    hatData,
-    chainId,
-    newImageURI,
-    dirtyFields,
-    newDetailsData,
-    maxSupply,
-    eligibility,
-    toggle,
-    eligibilityResolvedAddress,
-    toggleResolvedAddress,
-    imageUrl,
-  });
-
-  const name = useDebounce(watch('name', initialName || ''));
-  const description = useDebounce(
-    watch('description', initialDescription || ''),
-  );
-  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
-  const isToggleManual = useDebounce(watch('isToggleManual'));
-  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
-  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
-  const responsibilities = useDebounce(watch('responsibilities'));
-  const authorities = useDebounce(watch('authorities'));
-  const guilds = useDebounce(watch('guilds'));
-
-  useEffect(() => {
-    setNewDetailsData({
+  const newDetailsData = useMemo(() => {
+    return {
       name,
       description,
       guilds,
@@ -206,7 +196,7 @@ const EditMode = ({
         manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
         criteria: deactivationsCriteria,
       },
-    });
+    };
   }, [
     name,
     description,
@@ -218,6 +208,20 @@ const EditMode = ({
     isEligibilityManual,
     isToggleManual,
   ]);
+
+  const { onSubmit, isLoading } = useSubmitHatChanges({
+    hatData,
+    chainId,
+    newImageURI,
+    dirtyFields,
+    newDetailsData,
+    maxSupply,
+    eligibility,
+    toggle,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+    imageUrl,
+  });
 
   const submitAndResetForm = async () => {
     const result = await onSubmit();
