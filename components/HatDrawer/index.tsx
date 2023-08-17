@@ -227,7 +227,6 @@ const SelectedHatDrawer = ({
           editMode={editMode}
           setEditMode={setEditMode}
           isAdminUser={isAdminUser}
-          isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
           onSave={handleSave}
