@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { lazy, Suspense } from 'react';
+import { BsArrowLeft } from 'react-icons/bs';
 import {
   FaCopy,
   FaDoorOpen,
@@ -25,6 +26,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiSave } from 'react-icons/fi';
+import { IoExitOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
@@ -37,8 +39,6 @@ import useToast from '@/hooks/useToast';
 import { isSameAddress } from '@/lib/general';
 import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
-import { IoExitOutline } from 'react-icons/io5';
-import { BsArrowLeft } from 'react-icons/bs';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatLinkRequestCreateForm = lazy(
@@ -56,6 +56,7 @@ const TopMenu = ({
   wearerTopHats,
   isAdminUser,
   onSave,
+  onExitEditMode,
 }: TopMenuProps) => {
   const { setModals } = localOverlay;
   const { address } = useAccount();
@@ -133,8 +134,13 @@ const TopMenu = ({
             background='cyan.100'
             color='cyan.700'
             borderColor='cyan.700'
-            onClick={() => setEditMode(!editMode)}
-            isDisabled={!isTopHatOrMutable(hatData)}
+            onClick={() => {
+              if (editMode) {
+                onExitEditMode();
+              } else {
+                setEditMode(true);
+              }
+            }}
             leftIcon={editMode ? <BsArrowLeft /> : <FaEdit />}
           >
             <Text>
@@ -361,4 +367,5 @@ interface TopMenuProps {
   localOverlay: IOverlayContext;
   wearerTopHats: string[];
   onSave: () => void;
+  onExitEditMode: () => void;
 }

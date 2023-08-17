@@ -8,11 +8,11 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { isAdmin, isTopHat } from '@/lib/hats';
-import { IHat, FormData } from '@/types';
-import { generateLocalStorageKey } from '@/lib/general';
 import useToast from '@/hooks/useToast';
+import useWearerDetails from '@/hooks/useWearerDetails';
+import { generateLocalStorageKey } from '@/lib/general';
+import { isAdmin, isTopHat } from '@/lib/hats';
+import { FormData, IHat } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -79,6 +79,7 @@ const SelectedHatDrawer = ({
   editMode,
   setEditMode,
   linkRequestFromTree,
+  onExitEditMode,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -234,6 +235,7 @@ const SelectedHatDrawer = ({
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
           onSave={handleSave}
+          onExitEditMode={onExitEditMode}
         />
 
         {!editMode && (
@@ -286,4 +288,5 @@ interface SelectedHatDrawerProps {
   linkRequestFromTree: any;
   editMode: boolean;
   setEditMode: (value: boolean) => void;
+  onExitEditMode: () => void;
 }

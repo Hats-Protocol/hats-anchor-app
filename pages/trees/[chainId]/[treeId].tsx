@@ -294,7 +294,6 @@ const TreeDetails = ({
         placement='right'
         onClose={() => {
           onCloseHatDrawer();
-          // setEditMode(false);
           setSelectedHatId(undefined);
         }}
         isOpen={!!orgChartTree && isOpenHatDrawer}
@@ -314,6 +313,11 @@ const TreeDetails = ({
                 linkRequestFromTree={linkRequestFromTree}
                 editMode={editMode}
                 setEditMode={setEditMode}
+                onExitEditMode={() => {
+                  onCloseHatDrawer();
+                  onOpenTreeDrawer();
+                  setSelectedHatId(undefined);
+                }}
               />
             </Suspense>
           </DrawerBody>
