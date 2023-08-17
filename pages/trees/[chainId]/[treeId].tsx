@@ -146,7 +146,7 @@ const TreeDetails = ({
     chainId,
     initialData: initialTreeData,
   });
-  const selectedHat = _.find(treeData?.hats, { id: selectedHatId || topHatId });
+  const selectedHat = _.find(orgChartTree, { id: selectedHatId || topHatId });
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -287,6 +287,13 @@ const TreeDetails = ({
     });
   }, []);
 
+  useEffect(() => {
+    const routerHatId = _.get(router, 'query.hatId');
+    if (selectedHatId && !routerHatId && selectedHat) {
+      onOpenHatDrawer();
+    }
+  }, [selectedHatId, selectedHat, router, onOpenHatDrawer]);
+
   return (
     <>
       <NextSeo
@@ -308,22 +315,20 @@ const TreeDetails = ({
           width='650px'
         >
           <DrawerBody pt={0}>
-            <Suspense fallback={<Suspender />}>
-              <HatDrawer
-                chainId={chainId}
-                selectedHatId={selectedHatId}
-                setSelectedHatId={setSelectedHatId}
-                hatsData={orgChartTree}
-                linkRequestFromTree={linkRequestFromTree}
-                editMode={editMode}
-                setEditMode={setEditMode}
-                onExitEditMode={() => {
-                  onCloseHatDrawer();
-                  onOpenTreeDrawer();
-                  // setSelectedHatId(undefined);
-                }}
-              />
-            </Suspense>
+            <HatDrawer
+              chainId={chainId}
+              selectedHatId={selectedHatId}
+              setSelectedHatId={setSelectedHatId}
+              hatsData={orgChartTree}
+              linkRequestFromTree={linkRequestFromTree}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              onExitEditMode={() => {
+                onCloseHatDrawer();
+                onOpenTreeDrawer();
+                // setSelectedHatId(undefined);
+              }}
+            />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

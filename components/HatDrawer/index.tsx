@@ -7,7 +7,6 @@ import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { generateLocalStorageKey } from '@/lib/general';
@@ -96,7 +95,6 @@ const SelectedHatDrawer = ({
     mutableStatus,
     hatDetails,
   } = state;
-  // console.log(hatData);
 
   const { hatRoles } = useHatGuilds({
     guildNames: hatDetails?.guilds,
@@ -132,14 +130,12 @@ const SelectedHatDrawer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
 
-  const { data: hatDetailsObject } = useHatDetailsField(hatData?.details);
-
   useEffect(() => {
     if (selectedHatId) {
       const data = _.find(hatsData, { id: selectedHatId });
       dispatch({ type: 'SET_HAT_DATA', payload: data });
 
-      if (hatDetailsObject) {
+      if (data?.detailsObject?.data) {
         const {
           name: localName,
           description,
@@ -148,7 +144,7 @@ const SelectedHatDrawer = ({
           responsibilities,
           eligibility,
           toggle,
-        } = hatDetailsObject;
+        } = data.detailsObject.data;
         const details = {
           name: localName,
           description,
@@ -170,7 +166,7 @@ const SelectedHatDrawer = ({
         payload: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
       });
     }
-  }, [hatData, selectedHatId, hatsData, hatDetailsObject]);
+  }, [hatData, selectedHatId, hatsData]);
 
   const { data: isEligible } = useHatCheckEligibility({
     wearer: address || '',
