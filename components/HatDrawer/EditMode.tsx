@@ -52,8 +52,8 @@ const EditMode = ({
           : TRIGGER_OPTIONS.AUTOMATICALLY,
       revocationsCriteria: initialEligibility?.criteria ?? [],
       deactivationsCriteria: initialToggle?.criteria ?? [],
-      name: initialName,
-      description: initialDescription,
+      name: initialName || '',
+      description: initialDescription || '',
       authorities: initialAuthorities ?? [],
       responsibilities: initialResponsibilities ?? [],
       guilds: initialGuilds ?? [],
@@ -150,10 +150,8 @@ const EditMode = ({
   const [newImageURI, setNewImageURI] = useState('');
   // const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
-  const name = useDebounce(allFormData.name);
-  console.log('debouncedName', name);
-  const description = watch('description');
-  console.log('debouncedDescription', description);
+  const name = useDebounce(watch('name'));
+  const description = useDebounce(watch('description'));
   const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
   const isToggleManual = useDebounce(watch('isToggleManual'));
   const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
@@ -345,7 +343,7 @@ const EditMode = ({
           </Stack>
         </Accordion>
 
-        <Flex justifyContent='flex-end'>
+        {/* <Flex justifyContent='flex-end'>
           <Button
             colorScheme='blue'
             onClick={handleSubmit(submitAndResetForm)}
@@ -357,7 +355,7 @@ const EditMode = ({
           >
             Submit
           </Button>
-        </Flex>
+        </Flex> */}
       </Stack>
     </Box>
   );
