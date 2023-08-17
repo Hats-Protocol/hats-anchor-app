@@ -22,6 +22,8 @@ const EditMode = ({
   setEditMode,
   updateUnsavedData,
 }: EditModeProps) => {
+  console.log(hatData);
+  console.log(hatDetails);
   const {
     name: initialName,
     description: initialDescription,

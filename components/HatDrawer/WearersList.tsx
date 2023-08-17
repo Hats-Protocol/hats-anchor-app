@@ -17,7 +17,6 @@ import { FaPlus, FaSearch } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
-import { checkENSNames } from '@/lib/contract';
 import { isSameAddress } from '@/lib/general';
 import { IHatWearer } from '@/types';
 
@@ -43,34 +42,22 @@ const WearersList = ({
   const [changeStatusWearer, setChangeStatusWearer] =
     useState<`0x${string} | undefined`>();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
-  const [ensNames, setEnsNames] = useState<{
-    [key: string]: string;
-  }>({}); // { '0x123...': 'myname.eth' }
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filterWearers = (localWearers: IHatWearer[]) => {
-    if (!searchTerm) return wearers;
+  const filterWearers = (localWearers: IHatWearer[] | undefined) => {
+    if (!searchTerm || !localWearers) return wearers;
 
     return _.filter(localWearers, (wearer) => {
       const idSearch = wearer.id
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      const ensSearch = ensNames[wearer.id]
-        ? ensNames[wearer.id].toLowerCase().includes(searchTerm.toLowerCase())
-        : false;
+      const ensSearch = wearer.ensName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
       return idSearch || ensSearch;
     });
   };
-
-  useEffect(() => {
-    const fetchENSNames = async () => {
-      const localEnsNames = await checkENSNames(wearers);
-      setEnsNames(localEnsNames);
-    };
-
-    fetchENSNames();
-  }, [wearers, chainId]);
 
   useEffect(() => {
     if (address) {
@@ -82,8 +69,8 @@ const WearersList = ({
     }
   }, [address, wearers]);
 
-  const filteredWearers = filterWearers(wearers);
-  const maxWearersReached = wearers?.length >= maxSupply;
+  const filteredWearers = _.slice(filterWearers(wearers), 0, 6) as IHatWearer[];
+  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
   return (
     <>
@@ -100,7 +87,7 @@ const WearersList = ({
           </Flex>
         </Flex>
 
-        {wearers?.length > 5 && (
+        {_.gt(_.size(wearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -114,13 +101,12 @@ const WearersList = ({
           </InputGroup>
         )}
         {/* Wearers list */}
-        {_.slice(filteredWearers, 0, 6).map((wearer: { id: string }) => (
+        {filteredWearers.map((wearer: IHatWearer) => (
           <WearerRow
             key={wearer.id}
             wearer={wearer}
             isAdminUser={isAdminUser}
             address={address}
-            ensNames={ensNames}
             setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
@@ -163,7 +149,7 @@ const WearersList = ({
               </Button>
             </Tooltip>
           )}
-          {wearers?.length > 6 && (
+          {_.gt(_.size(wearers), 6) && (
             <Text
               onClick={() => setModals({ hatWearers: true })}
               cursor='pointer'
@@ -179,13 +165,12 @@ const WearersList = ({
 
       <Modal name='hatWearers' title='Hat Wearers' localOverlay={localOverlay}>
         <Flex direction='column' gap={4}>
-          {wearers?.map((wearer: { id: string }) => (
+          {wearers?.map((wearer: IHatWearer) => (
             <WearerRow
               key={wearer.id}
               wearer={wearer}
               isAdminUser={isAdminUser}
               address={address}
-              ensNames={ensNames}
               setModals={setModals}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
@@ -253,7 +238,7 @@ interface WearersListProps {
   chainId: number;
   hatName: string;
   hatId: string;
-  wearers: IHatWearer[];
+  wearers: IHatWearer[] | undefined;
   maxSupply: number;
   setModals: (m: object) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

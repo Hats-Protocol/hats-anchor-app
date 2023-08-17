@@ -24,7 +24,7 @@ const BottomMenu = ({
     if (hatsData) {
       const parentsAndIds = hatsData.map((hat: IHat) => ({
         id: hat.id,
-        parentId: hat.admin.id,
+        parentId: hat.admin?.id,
       }));
 
       const hierarchy = createHierarchy(parentsAndIds);

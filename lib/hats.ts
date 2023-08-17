@@ -8,6 +8,12 @@ import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
 import { HierarchyObject, IControls, IHat, InputObject, ITree } from '@/types';
 
+export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
+  const children = _.filter(hatsData, ['admin.id', id]);
+  const lessTop = _.filter(children, (child) => child.id !== id);
+  return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
+};
+
 // todo use query hook
 export async function toTreeStructure({
   treeData,
@@ -19,7 +25,7 @@ export async function toTreeStructure({
   chainId: number;
 }): Promise<IHat[]> {
   if (!treeData || !hatsImages) return Promise.resolve([]);
-  const hatsArray: IHat[] = [];
+  const hatsArray: any[] = [];
 
   const hatIds: string[] = _.uniq(
     _.concat(
@@ -55,15 +61,16 @@ export async function toTreeStructure({
   const wAndCInfo = await fetchManyWearerDetails(wAndCs, chainId);
 
   treeData?.hats?.forEach(async (hat: IHat) => {
-    let parentId: string | null = hat.admin?.id;
+    let parentId: string | undefined = hat.admin?.id;
     if (hat.admin?.id === hat.id) {
-      parentId = null;
+      parentId = undefined;
     }
 
-    const {
-      id,
-      tree: { id: treeId },
-    } = hat;
+    const { id, tree } = hat;
+    let treeId;
+    if (tree) {
+      treeId = tree.id;
+    }
 
     const currentHat = _.find(hatsData, { id });
     if (!currentHat) return;
@@ -84,11 +91,11 @@ export async function toTreeStructure({
 
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   if (treeData?.linkedToHat) {
-    const {
-      id,
-      tree: { id: treeId },
-      imageUrl,
-    } = treeData.linkedToHat;
+    const { id, tree, imageUrl } = treeData.linkedToHat;
+    let treeId;
+    if (tree) {
+      treeId = tree.id;
+    }
 
     const currentHat = _.find(hatsData, { id });
     if (currentHat) {
@@ -148,7 +155,8 @@ export async function toTreeStructure({
 export function createHierarchy(data: InputObject[]): HierarchyObject[] {
   // Sort by parentId and id
   data.sort(
-    (a, b) => a.parentId.localeCompare(b.parentId) || a.id.localeCompare(b.id),
+    (a, b) =>
+      a.parentId?.localeCompare(b?.parentId || '') || a.id.localeCompare(b.id),
   );
 
   // Create initial hierarchy objects
@@ -177,7 +185,7 @@ export function createHierarchy(data: InputObject[]): HierarchyObject[] {
         // Sibling is a right sibling if its id is bigger and current right sibling is null or its id is bigger than the sibling
         if (
           current.rightSibling === null ||
-          siblings[j].id < current.rightSibling
+          siblings[j].id < (current.rightSibling || 0)
         ) {
           current.rightSibling = siblings[j].id;
         }
@@ -372,18 +380,4 @@ export const checkPermissionsResponsibilities = (
   }
 
   return controls;
-};
-
-export const nextChildId = (admin: string | undefined, children: IHat[]) => {
-  if (!admin) return '1';
-  const decimalAdmin = hatIdDecimalToIp(BigInt(admin));
-  let nextChild = `${decimalAdmin}.1`;
-  if (!_.isEmpty(children)) {
-    // can we get away from prettyId here?
-    const lastChildId = _.toNumber(
-      _.nth(_.split(_.get(_.last(children), 'prettyId'), '.'), 1),
-    );
-    nextChild = `${decimalAdmin}.${lastChildId + 1}`;
-  }
-  return nextChild;
 };

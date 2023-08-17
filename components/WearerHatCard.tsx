@@ -8,6 +8,7 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
+// todo optimize top hat fetch
 const WearerHatCard = ({ hat }: { hat: IHat }) => {
   const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
     useHatDetailsField(_.get(hat, 'details'));
