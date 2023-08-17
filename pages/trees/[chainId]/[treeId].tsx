@@ -462,6 +462,7 @@ const TreeDetails = ({
                 bg='whiteAlpha.900'
                 borderColor='gray.700'
                 leftIcon={<Icon as={AiOutlineDoubleLeft} />}
+                onClick={onOpenTreeDrawer}
               >
                 Draft Changes List
               </Button>

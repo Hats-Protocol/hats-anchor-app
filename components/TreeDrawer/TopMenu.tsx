@@ -11,11 +11,14 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 
+import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
 
 const TopMenu = ({
@@ -26,10 +29,23 @@ const TopMenu = ({
   treeId,
 }: TopMenuProps) => {
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+  const toast = useToast();
 
   const handleImport = () => {};
 
-  const handleExport = () => {};
+  const handleExport = () => {
+    const treeId = treeIdHexToDecimal(_.get(_.first(tree), 'treeId') || '0');
+    const fileData = JSON.stringify({ name: 'test', description: 'testing' });
+    const blob = new Blob([fileData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `chain-${chainId}-tree-${treeId}.json`;
+    link.href = url;
+    link.click();
+    toast.success({
+      title: `Exported tree #${treeId} to your desktop`,
+    });
+  };
 
   const handleDeploy = () => {};
 
