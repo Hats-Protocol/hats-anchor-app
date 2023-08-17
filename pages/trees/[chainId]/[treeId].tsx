@@ -27,10 +27,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
@@ -67,7 +64,6 @@ import {
 } from '@/lib/hats';
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { IControls, IHat, ITree } from '@/types';
-import { GrClose, GrEdit } from 'react-icons/gr';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'));
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'), {
@@ -222,7 +218,6 @@ const TreeDetails = ({
 
   useEffect(() => {
     if (treeData && linkedHats) {
-      console.log('treeData', treeData);
       setInitialHats(
         _.filter(
           _.concat(_.get(treeData, 'hats'), linkedHats),
@@ -236,7 +231,6 @@ const TreeDetails = ({
         hatsImages: hatsWithImageData,
         chainId,
       });
-      console.log('tree', tree);
       setOrgChartTree(tree);
     };
 
@@ -259,6 +253,7 @@ const TreeDetails = ({
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
+    onOpenTreeDrawer();
     setSelectedHatId(undefined);
     const updatedQuery = _.omit(router.query, 'hatId');
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
@@ -345,10 +340,10 @@ const TreeDetails = ({
                 onClose={onCloseTreeDrawer}
                 tree={orgChartTree}
                 chainId={chainId}
-                handleHatClick={(hatId: string) => {
+                handleHatClick={(id: string) => {
                   onCloseTreeDrawer();
                   onOpenHatDrawer();
-                  setSelectedHatId(hatId);
+                  setSelectedHatId(id);
                   setEditMode(true);
                 }}
               />
