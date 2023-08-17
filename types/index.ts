@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 
 export interface IHatEvent {
   id: string;
@@ -122,19 +121,19 @@ export interface IControls {
 }
 
 export type FormData = {
-  maxSupply: number;
+  maxSupply: string;
   eligibility: string;
   toggle: string;
   mutable: string;
   imageUrl: string;
   isEligibilityManual: string;
   isToggleManual: string;
-  revocationsCriteria: string[];
-  deactivationsCriteria: string[];
+  revocationsCriteria: DetailsItem[];
+  deactivationsCriteria: DetailsItem[];
   name: string;
-  description: string;
-  authorities: string[];
-  responsibilities: string[];
+  description?: string;
+  authorities: DetailsItem[];
+  responsibilities: DetailsItem[];
   guilds: string[];
 };
 

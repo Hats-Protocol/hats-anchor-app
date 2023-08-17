@@ -11,12 +11,13 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FiSave, FiShare2 } from 'react-icons/fi';
-import { FaSave } from 'react-icons/fa';
-import { IoExitOutline } from 'react-icons/io5';
 import { BsXSquare } from 'react-icons/bs';
-import { IHat } from '@/types';
+import { FaSave } from 'react-icons/fa';
+import { FiSave, FiShare2 } from 'react-icons/fi';
+import { IoExitOutline } from 'react-icons/io5';
+
 import { generateLocalStorageKey } from '@/lib/general';
+import { IHat } from '@/types';
 
 const TopMenu = ({
   editMode,

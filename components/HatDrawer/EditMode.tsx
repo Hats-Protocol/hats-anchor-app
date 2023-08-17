@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useEffect, useState } from 'react';
+import { isEqual } from 'lodash';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
 import { useEnsAddress } from 'wagmi';
@@ -12,8 +13,8 @@ import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
-import { HatDetails, IHat, FormData, FieldItem } from '@/types';
 import { generateLocalStorageKey } from '@/lib/general';
+import { DetailsItem, FieldItem, FormData, HatDetails, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
@@ -22,8 +23,6 @@ const EditMode = ({
   setEditMode,
   updateUnsavedData,
 }: EditModeProps) => {
-  console.log(hatData);
-  console.log(hatDetails);
   const {
     name: initialName,
     description: initialDescription,
@@ -34,33 +33,50 @@ const EditMode = ({
     toggle: initialToggle,
   } = hatDetails;
 
-  const defaultFormValues = {
-    maxSupply: hatData?.maxSupply,
-    eligibility: hatData?.eligibility,
-    toggle: hatData?.toggle,
-    mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    imageUrl: hatData?.imageUrl ?? '',
-    isEligibilityManual:
-      initialEligibility?.manual || initialEligibility?.manual === undefined
-        ? TRIGGER_OPTIONS.MANUALLY
-        : TRIGGER_OPTIONS.AUTOMATICALLY,
-    isToggleManual:
-      initialToggle?.manual || initialToggle?.manual === undefined
-        ? TRIGGER_OPTIONS.MANUALLY
-        : TRIGGER_OPTIONS.AUTOMATICALLY,
-    revocationsCriteria: initialEligibility?.criteria ?? [],
-    deactivationsCriteria: initialToggle?.criteria ?? [],
-    name: initialName,
-    description: initialDescription,
-    authorities: initialAuthorities ?? [],
-    responsibilities: initialResponsibilities ?? [],
-    guilds: initialGuilds ?? [],
-  };
+  const defaultFormValues = useMemo<FormData>(
+    () => ({
+      maxSupply: hatData?.maxSupply,
+      eligibility: hatData?.eligibility,
+      toggle: hatData?.toggle,
+      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      imageUrl: hatData?.imageUrl ?? '',
+      isEligibilityManual:
+        initialEligibility?.manual || initialEligibility?.manual === undefined
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      isToggleManual:
+        initialToggle?.manual || initialToggle?.manual === undefined
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      revocationsCriteria: initialEligibility?.criteria ?? [],
+      deactivationsCriteria: initialToggle?.criteria ?? [],
+      name: initialName,
+      description: initialDescription,
+      authorities: initialAuthorities ?? [],
+      responsibilities: initialResponsibilities ?? [],
+      guilds: initialGuilds ?? [],
+    }),
+    [
+      hatData?.maxSupply,
+      hatData?.eligibility,
+      hatData?.toggle,
+      hatData?.mutable,
+      hatData?.imageUrl,
+      initialEligibility?.manual,
+      initialEligibility?.criteria,
+      initialToggle?.manual,
+      initialToggle?.criteria,
+      initialName,
+      initialDescription,
+      initialAuthorities,
+      initialResponsibilities,
+      initialGuilds,
+    ],
+  );
 
   const initialFormValues = () => {
     const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
     const storedValues = localStorage.getItem(localStorageKey);
-
     if (storedValues) {
       return {
         ...defaultFormValues,
@@ -73,7 +89,11 @@ const EditMode = ({
 
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: initialFormValues(),
+    defaultValues: {
+      ...initialFormValues(),
+      name: initialName,
+      description: initialDescription,
+    },
   });
 
   const {
@@ -84,17 +104,40 @@ const EditMode = ({
 
   const allFormData: FormData = watch();
 
+  const prevAllFormData = useRef<FormData>(allFormData);
+
+  const getDirtyFields = useCallback(() => {
+    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
+      (key) =>
+        JSON.stringify(defaultFormValues[key]) !==
+        JSON.stringify(allFormData[key]),
+    );
+  }, [allFormData, defaultFormValues]);
+
+  const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
+    const fields = getDirtyFields();
+
+    return fieldsArray
+      .filter((field) => fields.includes(field.name))
+      .map((field) => field.label);
+  };
+
   useEffect(() => {
-    const dirtyFieldKeys = getDirtyFields();
+    if (!isEqual(prevAllFormData.current, allFormData)) {
+      const dirtyFieldKeys = getDirtyFields();
+      const dirtyFormData = dirtyFieldKeys.reduce((acc: FormData, key) => {
+        (acc[key as keyof FormData] as
+          | DetailsItem[]
+          | string
+          | string[]
+          | undefined) = allFormData[key as keyof FormData];
+        return acc;
+      }, {} as FormData);
 
-    const dirtyFormData = dirtyFieldKeys.reduce((acc: FormData, key) => {
-      (acc[key as keyof FormData] as string | number | string[]) =
-        allFormData[key as keyof FormData];
-      return acc;
-    }, {} as FormData);
-
-    updateUnsavedData(dirtyFormData);
-  }, [allFormData, hatData?.id, chainId]);
+      updateUnsavedData(dirtyFormData);
+      prevAllFormData.current = allFormData;
+    }
+  }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
 
   const [newImageURI, setNewImageURI] = useState('');
   const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
@@ -183,22 +226,6 @@ const EditMode = ({
         setEditMode(false);
       }, 500);
     }
-  };
-
-  const getDirtyFields = () => {
-    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
-      (key) =>
-        JSON.stringify(defaultFormValues[key]) !==
-        JSON.stringify(allFormData[key]),
-    );
-  };
-
-  const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
-    const dirtyFields = getDirtyFields();
-
-    return fieldsArray
-      .filter((field) => dirtyFields.includes(field.name))
-      .map((field) => field.label);
   };
 
   if (!hatData) return null;

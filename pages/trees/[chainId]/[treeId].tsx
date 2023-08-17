@@ -252,8 +252,12 @@ const TreeDetails = ({
   );
 
   const toggleEditMode = () => {
+    if (!editMode) {
+      onOpenTreeDrawer();
+    } else {
+      onCloseTreeDrawer();
+    }
     setEditMode(!editMode);
-    onOpenTreeDrawer();
     setSelectedHatId(undefined);
     const updatedQuery = _.omit(router.query, 'hatId');
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
@@ -316,7 +320,7 @@ const TreeDetails = ({
                 onExitEditMode={() => {
                   onCloseHatDrawer();
                   onOpenTreeDrawer();
-                  setSelectedHatId(undefined);
+                  // setSelectedHatId(undefined);
                 }}
               />
             </Suspense>
