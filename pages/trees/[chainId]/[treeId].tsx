@@ -289,10 +289,10 @@ const TreeDetails = ({
 
   useEffect(() => {
     const routerHatId = _.get(router, 'query.hatId');
-    if (selectedHatId && !routerHatId && selectedHat) {
+    if (selectedHatId && !routerHatId && selectedHat && !editMode) {
       onOpenHatDrawer();
     }
-  }, [selectedHatId, selectedHat, router, onOpenHatDrawer]);
+  }, [selectedHatId, selectedHat, router, onOpenHatDrawer, editMode]);
 
   return (
     <>

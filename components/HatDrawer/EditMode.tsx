@@ -89,17 +89,19 @@ const EditMode = ({
 
   useEffect(() => {
     // eslint-disable-next-line consistent-return
+    let formValues = defaultFormValues;
     const initialFormValues = () => {
       const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
       const storedValues = localStorage.getItem(localStorageKey);
+      console.log(storedValues);
       if (storedValues) {
-        return {
+        formValues = {
           ...defaultFormValues,
           ...JSON.parse(storedValues),
         };
       }
 
-      reset(defaultFormValues);
+      reset(formValues);
     };
 
     if (hatData?.id && chainId && defaultFormValues) {
@@ -108,6 +110,7 @@ const EditMode = ({
   }, [chainId, defaultFormValues, hatData?.id, reset]);
 
   const allFormData = watch();
+  console.log(allFormData);
 
   const prevAllFormData = useRef<any>(allFormData);
 
