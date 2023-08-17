@@ -194,12 +194,13 @@ const HatBasicsForm = ({
                 options={MUTABILITY_OPTIONS}
                 tooltip='Choose whether the Hat should be editable or not'
               />
-              {localForm.watch('mutable') === MUTABILITY.IMMUTABLE && (
-                <Text color='red.500' mt={3}>
-                  Beware: This will make the Hat immutable. No one can ever
-                  change it. This can not be undone.
-                </Text>
-              )}
+              {localForm.watch('mutable') === MUTABILITY.IMMUTABLE &&
+                !isTopHat(hatData) && (
+                  <Text color='red.500' fontSize='sm' mt={3}>
+                    Beware: This will make the Hat immutable. No one can ever
+                    change it. This can not be undone.
+                  </Text>
+                )}
             </Box>
           </FormRowWrapper>
         </Stack>
