@@ -90,18 +90,18 @@ const initialControls: IControls[] = [
     value: 'wearers',
     icon: <Image src='/icons/wearers.svg' alt='Wearers Icon' />,
   },
-  {
-    label: 'Permissions',
-    value: 'permissions',
-    icon: <Image src='/icons/permissions.svg' alt='Permissions Icon' />,
-  },
-  {
-    label: 'Responsibilities',
-    value: 'responsibilities',
-    icon: (
-      <Image src='/icons/responsibilities.svg' alt='Responsibilities Icon' />
-    ),
-  },
+  // {
+  //   label: 'Permissions',
+  //   value: 'permissions',
+  //   icon: <Image src='/icons/permissions.svg' alt='Permissions Icon' />,
+  // },
+  // {
+  //   label: 'Responsibilities',
+  //   value: 'responsibilities',
+  //   icon: (
+  //     <Image src='/icons/responsibilities.svg' alt='Responsibilities Icon' />
+  //   ),
+  // },
   {
     label: 'Eligibility',
     value: 'eligibility',
@@ -240,10 +240,10 @@ const TreeDetails = ({
     editMode,
   ]);
 
-  const controls = checkPermissionsResponsibilities(
-    orgChartTree,
-    initialControls,
-  );
+  // const controls = checkPermissionsResponsibilities(
+  //   orgChartTree,
+  //   initialControls,
+  // );
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
@@ -380,7 +380,7 @@ const TreeDetails = ({
                       w='100%'
                     >
                       <Stack direction='column' spacing={3}>
-                        {controls.map((control: IControls) => (
+                        {initialControls.map((control: IControls) => (
                           <Radio value={control.value} key={control.value}>
                             <HStack>
                               {control.icon}
