@@ -12,7 +12,7 @@ export function decodeUri(uri: string) {
   return decoded;
 }
 
-export const formatAddress = (address: string | undefined) =>
+export const formatAddress = (address: string | null | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
 export const isSameAddress = (address1?: string, address2?: string) => {

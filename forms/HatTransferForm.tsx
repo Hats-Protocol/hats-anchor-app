@@ -9,6 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { isAddress } from 'viem';
@@ -18,6 +19,7 @@ import Input from '@/components/atoms/Input';
 import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
+import { formatAddress } from '@/lib/general';
 import { toTreeId } from '@/lib/hats';
 
 const HatTransferForm = ({
@@ -45,15 +47,19 @@ const HatTransferForm = ({
 
   const newWearerAddress = newWearerResolvedAddress ?? newWearer;
 
+  const isTopHat = !_.includes(hatIdDecimalToIp(BigInt(hatId)), '.');
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'transferHat',
     args: [hatId, currentWearerAddress, newWearerAddress],
     chainId,
     onSuccessToastData: {
-      title: `Top Hat Transferred!`,
-      description: `Successfully transferred top hat #${hatIdDecimalToIp(
-        BigInt(hatId),
-      )} from ${currentWearerAddress} to ${newWearerResolvedAddress}`,
+      title: `${isTopHat ? 'Top ' : ''}Hat Transferred!`,
+      description: `Successfully transferred ${
+        isTopHat ? 'top ' : ''
+      }hat #${hatIdDecimalToIp(BigInt(hatId))} from ${formatAddress(
+        currentWearerAddress,
+      )} to ${formatAddress(newWearerResolvedAddress)}`,
     },
     queryKeys: [
       ['hatDetails', hatId],
@@ -77,9 +83,7 @@ const HatTransferForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Text>
-          Transfer admin rights over the selected Hat to another address.
-        </Text>
+        <Text>Transfer the selected Hat to another address.</Text>
         <Stack>
           <Text>Tree Domain</Text>
           <Heading size='md' fontFamily='mono'>
