@@ -1,8 +1,9 @@
 import {
+  Box,
   Button,
   Flex,
   HStack,
-  Modal,
+  Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
@@ -13,13 +14,19 @@ import {
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 
+import { useOverlay } from '@/contexts/OverlayContext';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
+
+import DropZone from '../atoms/DropZone';
+import Modal from '../atoms/Modal';
 
 const TopMenu = ({
   editMode,
@@ -28,10 +35,36 @@ const TopMenu = ({
   chainId,
   treeId,
 }: TopMenuProps) => {
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const toast = useToast();
+  const [treeFile, setTreeFile] = useState<any>();
+  console.log(treeFile);
 
-  const handleImport = () => {};
+  const {
+    acceptedFiles,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: { json: ['.json'] },
+    onDrop: (a) => {
+      const reader = new FileReader();
+      // eslint-disable-next-line func-names
+      reader.onload = function (e: any) {
+        const contents = e.target?.result;
+        setTreeFile(JSON.parse(contents));
+      };
+      reader.readAsText(a[0]);
+    },
+  });
+
+  const handleImport = () => {
+    setModals?.({ importFile: true });
+  };
 
   const handleExport = () => {
     const treeId = treeIdHexToDecimal(_.get(_.first(tree), 'treeId') || '0');
@@ -111,7 +144,20 @@ const TopMenu = ({
         </Button>
       </HStack>
 
-      <Modal isOpen={isOpen} onClose={closeModal}>
+      <Modal
+        name='importFile'
+        title='Import a Tree File'
+        localOverlay={localOverlay}
+      >
+        <Box>
+          <DropZone
+            getRootProps={getRootProps}
+            getInputProps={getInputProps}
+            isFullWidth
+          />
+        </Box>
+      </Modal>
+      <ChakraModal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Reset Changes</ModalHeader>
@@ -128,7 +174,7 @@ const TopMenu = ({
             </Button>
           </ModalFooter>
         </ModalContent>
-      </Modal>
+      </ChakraModal>
     </Flex>
   );
 };
