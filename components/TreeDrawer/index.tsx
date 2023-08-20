@@ -1,9 +1,10 @@
 import { Box } from '@chakra-ui/react';
 import _ from 'lodash';
 
-import TopMenu from './TopMenu';
-import MainContent from './MainContent';
 import { IHat } from '@/types';
+
+import MainContent from './MainContent';
+import TopMenu from './TopMenu';
 
 const TreeDrawer = ({
   editMode,
@@ -12,6 +13,7 @@ const TreeDrawer = ({
   tree,
   chainId,
   handleHatClick,
+  treeId,
 }: TreeDrawerProps) => {
   return (
     <Box
@@ -28,9 +30,13 @@ const TreeDrawer = ({
         setEditMode={setEditMode}
         onClose={onClose}
         chainId={chainId}
-        tree={tree}
+        treeId={treeId}
       />
-      <MainContent tree={tree} handleHatClick={handleHatClick} />
+      <MainContent
+        tree={tree}
+        handleHatClick={handleHatClick}
+        treeId={treeId}
+      />
     </Box>
   );
 };
@@ -44,4 +50,5 @@ interface TreeDrawerProps {
   tree: IHat[];
   chainId: number;
   handleHatClick: (hatId: string) => void;
+  treeId: string;
 }

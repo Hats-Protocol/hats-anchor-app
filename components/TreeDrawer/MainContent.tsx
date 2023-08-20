@@ -1,22 +1,40 @@
-import { Box, Stack, Text, Heading, HStack, Button } from '@chakra-ui/react';
-import { IHat } from '@/types';
+import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { generateLocalStorageKey } from '@/lib/general';
-import { prettyIdToIp, idToPrettyId } from '@/lib/hats';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
-const MainContent = ({ tree, handleHatClick }: MainContentProps) => {
+import { generateLocalStorageKey } from '@/lib/general';
+import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { FormData, IHat } from '@/types';
+
+const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
   const { events } = tree[0];
 
-  function getProposedChangesCount(hatId: string, chainId: number) {
-    const localStorageKey = generateLocalStorageKey(hatId, chainId);
-    const storedData = localStorage.getItem(localStorageKey);
-    if (!storedData) {
+  function getProposedChangesCount(hatId: string, chainId: number): number {
+    const localStorageKey = generateLocalStorageKey(chainId, treeId);
+    const storedDataString = localStorage.getItem(localStorageKey);
+
+    if (!storedDataString) {
       return 0;
     }
-    const parsedData = JSON.parse(storedData);
-    return Object.keys(parsedData).length;
+
+    try {
+      const storedHats = JSON.parse(storedDataString);
+      const matchingHat = storedHats.find((hat: FormData) => hat.id === hatId);
+
+      if (
+        matchingHat &&
+        typeof matchingHat === 'object' &&
+        matchingHat !== null
+      ) {
+        // Subtracting 1 from the count to exclude the "id" key itself
+        return Object.keys(matchingHat).length - 1;
+      }
+    } catch (err) {
+      console.error('Failed to parse stored values from localStorage.', err);
+    }
+
+    return 0;
   }
 
   return (
@@ -73,7 +91,7 @@ const MainContent = ({ tree, handleHatClick }: MainContentProps) => {
               justifyContent='space-between'
               h={10}
               alignItems='center'
-              variant={'ghost'}
+              variant='ghost'
               borderRadius={0}
               isDisabled={!hat.mutable}
               onClick={() => handleHatClick(hat.id)}
@@ -121,4 +139,5 @@ export default MainContent;
 interface MainContentProps {
   tree: IHat[];
   handleHatClick: (hatId: string) => void;
+  treeId: string;
 }

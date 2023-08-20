@@ -135,6 +135,7 @@ export type FormData = {
   authorities: DetailsItem[];
   responsibilities: DetailsItem[];
   guilds: string[];
+  id?: string;
 };
 
 export type FieldItem = { name: keyof FormData; label: string };

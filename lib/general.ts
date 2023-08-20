@@ -86,9 +86,5 @@ export const validateURL = (textVal: string) => {
   return urlRegex.test(textVal);
 };
 
-export const generateLocalStorageKey = (
-  hatId: string | number,
-  chainId: number,
-): string => {
-  return `hat-${hatId}-chain-${chainId}`;
-};
+export const generateLocalStorageKey = (chainId: number, treeId: string) =>
+  `hatData-${chainId}-${treeId}`;

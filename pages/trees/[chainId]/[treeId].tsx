@@ -359,6 +359,7 @@ const TreeDetails = ({
                   setSelectedHatId(id);
                   setEditMode(true);
                 }}
+                treeId={treeId}
               />
             </Suspense>
           </DrawerBody>

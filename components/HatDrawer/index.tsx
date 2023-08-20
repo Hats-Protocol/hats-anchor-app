@@ -178,8 +178,22 @@ const SelectedHatDrawer = ({
 
   const handleSave = () => {
     if (unsavedData) {
-      const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
-      localStorage.setItem(localStorageKey, JSON.stringify(unsavedData));
+      const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
+
+      const storedHats = JSON.parse(
+        localStorage.getItem(localStorageKey) || '[]',
+      );
+
+      const updatedHats = storedHats.map((hat: FormData) =>
+        hat.id === hatData.id ? { id: hatData.id, ...unsavedData } : hat,
+      );
+
+      if (!updatedHats.find((hat: FormData) => hat.id === hatData.id)) {
+        updatedHats.push({ id: hatData.id, ...unsavedData });
+      }
+
+      localStorage.setItem(localStorageKey, JSON.stringify(updatedHats));
+
       setUnsavedData(null);
 
       toast.success({
@@ -257,6 +271,7 @@ const SelectedHatDrawer = ({
             hatDetails={hatDetails}
             setEditMode={setEditMode}
             updateUnsavedData={(data: FormData) => setUnsavedData(data)}
+            treeId={hatData?.treeId}
           />
         )}
 

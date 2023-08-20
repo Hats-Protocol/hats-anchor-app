@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _, { isEqual } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -22,6 +22,7 @@ const EditMode = ({
   hatDetails,
   setEditMode,
   updateUnsavedData,
+  treeId,
 }: EditModeProps) => {
   const {
     name: initialName,
@@ -32,8 +33,6 @@ const EditMode = ({
     eligibility: initialEligibility,
     toggle: initialToggle,
   } = hatDetails;
-  // console.log(hatDetails);
-  // console.log(hatData);
 
   const defaultFormValues = useMemo<FormData>(
     () => ({
@@ -81,7 +80,6 @@ const EditMode = ({
   });
 
   const {
-    handleSubmit,
     watch,
     formState: { dirtyFields },
     reset,
@@ -90,15 +88,31 @@ const EditMode = ({
   useEffect(() => {
     // eslint-disable-next-line consistent-return
     let formValues = defaultFormValues;
+
     const initialFormValues = () => {
-      const localStorageKey = generateLocalStorageKey(hatData?.id, chainId);
-      const storedValues = localStorage.getItem(localStorageKey);
-      console.log(storedValues);
-      if (storedValues) {
-        formValues = {
-          ...defaultFormValues,
-          ...JSON.parse(storedValues),
-        };
+      const localStorageKey = generateLocalStorageKey(chainId, treeId);
+      const storedValuesString = localStorage.getItem(localStorageKey);
+
+      if (storedValuesString) {
+        try {
+          const storedHats = JSON.parse(storedValuesString);
+
+          const matchingHat = storedHats.find(
+            (hat: FormData) => hat.id === hatData?.id,
+          );
+
+          if (matchingHat) {
+            formValues = {
+              ...defaultFormValues,
+              ...matchingHat,
+            };
+          }
+        } catch (err) {
+          console.error(
+            'Failed to parse stored values from localStorage.',
+            err,
+          );
+        }
       }
 
       reset(formValues);
@@ -110,7 +124,6 @@ const EditMode = ({
   }, [chainId, defaultFormValues, hatData?.id, reset]);
 
   const allFormData = watch();
-  console.log(allFormData);
 
   const prevAllFormData = useRef<any>(allFormData);
 
@@ -166,18 +179,12 @@ const EditMode = ({
   const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
   const imageUrl = useDebounce(watch('imageUrl', hatData?.imageUrl || ''));
 
-  const {
-    data: eligibilityResolvedAddress,
-    isLoading: isLoadingEligibilityResolvedAddress,
-  } = useEnsAddress({
+  const { data: eligibilityResolvedAddress } = useEnsAddress({
     name: eligibility,
     chainId: 1,
   });
 
-  const {
-    data: toggleResolvedAddress,
-    isLoading: isLoadingToggleResolvedAddress,
-  } = useEnsAddress({
+  const { data: toggleResolvedAddress } = useEnsAddress({
     name: toggle,
     chainId: 1,
   });
@@ -396,4 +403,5 @@ interface EditModeProps {
   hatDetails: HatDetails;
   setEditMode: (mode: boolean) => void;
   updateUnsavedData: (data: FormData) => void;
+  treeId: string;
 }

@@ -17,14 +17,13 @@ import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 
 import { generateLocalStorageKey } from '@/lib/general';
-import { IHat } from '@/types';
 
 const TopMenu = ({
   editMode,
   setEditMode,
   onClose,
   chainId,
-  tree,
+  treeId,
 }: TopMenuProps) => {
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
 
@@ -39,10 +38,8 @@ const TopMenu = ({
   };
 
   const confirmReset = () => {
-    tree.forEach((hat) => {
-      const localStorageKey = generateLocalStorageKey(hat.id, chainId);
-      localStorage.removeItem(localStorageKey);
-    });
+    const localStorageKey = generateLocalStorageKey(chainId, treeId);
+    localStorage.removeItem(localStorageKey);
     closeModal();
     setEditMode(false);
     onClose();
@@ -127,5 +124,5 @@ interface TopMenuProps {
   setEditMode: (editMode: boolean) => void;
   onClose: () => void;
   chainId: number;
-  tree: IHat[];
+  treeId: string;
 }
