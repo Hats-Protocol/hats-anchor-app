@@ -78,7 +78,7 @@ const SelectedHatDrawer = ({
   editMode,
   setEditMode,
   linkRequestFromTree,
-  onExitEditMode,
+  returnToList,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -176,7 +176,7 @@ const SelectedHatDrawer = ({
 
   const [unsavedData, setUnsavedData] = useState<FormData | null>(null);
 
-  const handleSave = () => {
+  const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
       const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
 
@@ -196,10 +196,12 @@ const SelectedHatDrawer = ({
 
       setUnsavedData(null);
 
-      toast.success({
-        title: 'Saved',
-        description: 'Your changes have been saved.',
-      });
+      if (sendToast) {
+        toast.success({
+          title: 'Saved',
+          description: 'Your changes have been saved.',
+        });
+      }
     }
   };
 
@@ -239,12 +241,11 @@ const SelectedHatDrawer = ({
           mutableStatus={mutableStatus}
           hatData={hatData}
           editMode={editMode}
-          setEditMode={setEditMode}
           isAdminUser={isAdminUser}
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
           onSave={handleSave}
-          onExitEditMode={onExitEditMode}
+          returnToList={returnToList}
         />
 
         {!editMode && (
@@ -298,5 +299,5 @@ interface SelectedHatDrawerProps {
   linkRequestFromTree: any;
   editMode: boolean;
   setEditMode: (value: boolean) => void;
-  onExitEditMode: () => void;
+  returnToList: () => void;
 }

@@ -1,19 +1,19 @@
 import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
 import { generateLocalStorageKey } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { FormData, IHat } from '@/types';
 
-const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
+const MainContent = ({
+  tree,
+  handleHatClick,
+  storedDataString,
+}: MainContentProps) => {
   const { events } = tree[0];
 
-  function getProposedChangesCount(hatId: string, chainId: number): number {
-    const localStorageKey = generateLocalStorageKey(chainId, treeId);
-    const storedDataString = localStorage.getItem(localStorageKey);
-
+  function getProposedChangesCount(hatId: string): number {
     if (!storedDataString) {
       return 0;
     }
@@ -99,7 +99,7 @@ const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
               {prettyIdToIp(idToPrettyId(hat.id))}{' '}
               {hat?.detailsObject?.data?.name || hat.name}
               <HStack>
-                {getProposedChangesCount(hat.id, hat.chainId) && (
+                {getProposedChangesCount(hat.id) && (
                   <Text
                     borderColor='cyan.600'
                     borderWidth={1}
@@ -108,7 +108,8 @@ const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
                     color='cyan.600'
                     fontSize='sm'
                   >
-                    {getProposedChangesCount(hat.id, hat.chainId)} CHANGES
+                    {getProposedChangesCount(hat.id)} CHANGE
+                    {getProposedChangesCount(hat.id) > 1 ? 'S' : ''}
                   </Text>
                 )}
                 {!hat.mutable && (
@@ -139,5 +140,5 @@ export default MainContent;
 interface MainContentProps {
   tree: IHat[];
   handleHatClick: (hatId: string) => void;
-  treeId: string;
+  storedDataString: string;
 }

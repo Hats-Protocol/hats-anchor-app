@@ -1,3 +1,4 @@
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 // unused
@@ -86,5 +87,7 @@ export const validateURL = (textVal: string) => {
   return urlRegex.test(textVal);
 };
 
-export const generateLocalStorageKey = (chainId: number, treeId: string) =>
-  `hatData-${chainId}-${treeId}`;
+export const generateLocalStorageKey = (chainId: number, treeId: string) => {
+  const decimalTreeId = treeIdHexToDecimal(treeId);
+  return `treeData-${chainId}-${decimalTreeId}`;
+};

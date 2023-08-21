@@ -14,6 +14,7 @@ import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import { useChainId } from 'wagmi';
 
 import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
 import useToast from '@/hooks/useToast';
@@ -66,6 +67,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   editMode,
   addChild,
 }) => {
+  const userChain = useChainId();
   const toast = useToast();
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -564,6 +566,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     initialLoad,
     editMode,
     addChild,
+    userChain,
   ]);
 
   return isLoading ? (
@@ -587,6 +590,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
       <Button
         variant='outline'
         position='absolute'
+        bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
         bottom={4}
         left={4}
         onClick={() => {
@@ -601,12 +605,14 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
         <IconButton
           icon={<Icon as={FaMinus} />}
           variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
           aria-label='zoom out'
           onClick={() => chart?.zoomOut()}
         />
         <IconButton
           icon={<Icon as={FaPlus} />}
           variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
           aria-label='zoom in'
           onClick={() => chart?.zoomIn()}
         />

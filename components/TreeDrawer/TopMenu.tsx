@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   HStack,
   Modal as ChakraModal,
   ModalBody,
@@ -10,11 +11,12 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
+  Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
@@ -22,6 +24,7 @@ import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 
 import { useOverlay } from '@/contexts/OverlayContext';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
 
@@ -34,13 +37,14 @@ const TopMenu = ({
   onClose,
   chainId,
   treeId,
+  storedDataString,
+  setStoredDataString,
 }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const toast = useToast();
-  const [treeFile, setTreeFile] = useState<any>();
-  console.log(treeFile);
+  const decimalTreeId = treeIdHexToDecimal(treeId);
 
   const {
     acceptedFiles,
@@ -56,7 +60,8 @@ const TopMenu = ({
       // eslint-disable-next-line func-names
       reader.onload = function (e: any) {
         const contents = e.target?.result;
-        setTreeFile(JSON.parse(contents));
+        setStoredDataString(contents);
+        setModals?.({});
       };
       reader.readAsText(a[0]);
     },
@@ -67,16 +72,16 @@ const TopMenu = ({
   };
 
   const handleExport = () => {
-    const treeId = treeIdHexToDecimal(_.get(_.first(tree), 'treeId') || '0');
-    const fileData = JSON.stringify({ name: 'test', description: 'testing' });
+    const fileData = storedDataString;
     const blob = new Blob([fileData], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = `chain-${chainId}-tree-${treeId}.json`;
+    // todo add unix timestamp
+    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
     link.href = url;
     link.click();
     toast.success({
-      title: `Exported tree #${treeId} to your desktop`,
+      title: `Exported tree #${decimalTreeId} to your desktop`,
     });
   };
 
@@ -93,6 +98,10 @@ const TopMenu = ({
     setEditMode(false);
     onClose();
   };
+
+  // useEffect(() => {
+
+  // })
 
   return (
     <Flex
@@ -146,16 +155,28 @@ const TopMenu = ({
 
       <Modal
         name='importFile'
-        title='Import a Tree File'
+        title='Import Draft Tree Changes'
         localOverlay={localOverlay}
       >
-        <Box>
-          <DropZone
-            getRootProps={getRootProps}
-            getInputProps={getInputProps}
-            isFullWidth
-          />
-        </Box>
+        <Stack spacing={4}>
+          <Text>Upload a Draft Hat Tree to continue editing or deployment</Text>
+          <Text>
+            Any local changes in your workspace will be overwritten and cannot
+            be restored. Make sure to export these changes before importing.
+          </Text>
+          <Stack>
+            <Heading size='xs'>UPLOAD JSON FILE</Heading>
+            <Text>
+              Add a JSON file exported by you or someone else in your
+              organization
+            </Text>
+            <DropZone
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              isFullWidth
+            />
+          </Stack>
+        </Stack>
       </Modal>
       <ChakraModal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
@@ -187,4 +208,6 @@ interface TopMenuProps {
   onClose: () => void;
   chainId: number;
   treeId: string;
+  storedDataString: string;
+  setStoredDataString: (v: string) => void;
 }

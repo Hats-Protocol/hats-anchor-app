@@ -251,6 +251,11 @@ const TreeDetails = ({
   //   initialControls,
   // );
 
+  const returnToList = () => {
+    onOpenTreeDrawer();
+    onCloseHatDrawer();
+  };
+
   const toggleEditMode = () => {
     if (!editMode) {
       onOpenTreeDrawer();
@@ -290,6 +295,7 @@ const TreeDetails = ({
   useEffect(() => {
     const routerHatId = _.get(router, 'query.hatId');
     if (selectedHatId && !routerHatId && selectedHat && !editMode) {
+      console.log('here?');
       onOpenHatDrawer();
     }
   }, [selectedHatId, selectedHat, router, onOpenHatDrawer, editMode]);
@@ -323,11 +329,7 @@ const TreeDetails = ({
               linkRequestFromTree={linkRequestFromTree}
               editMode={editMode}
               setEditMode={setEditMode}
-              onExitEditMode={() => {
-                onCloseHatDrawer();
-                onOpenTreeDrawer();
-                // setSelectedHatId(undefined);
-              }}
+              returnToList={returnToList}
             />
           </DrawerBody>
         </DrawerContent>
