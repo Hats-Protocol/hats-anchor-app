@@ -52,9 +52,9 @@ const HatBasicsForm = ({
   setNewImageURI: (uri: string) => void;
 }) => {
   const [image, setImage] = useState<any>();
-  const { formState } = localForm;
 
-  const { watch, control } = localForm;
+  const { watch, control, formState } = localForm;
+  console.log('formState', formState.defaultValues);
 
   const { append, fields, remove } = useFieldArray({
     control,

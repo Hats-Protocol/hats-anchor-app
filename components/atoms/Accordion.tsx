@@ -13,10 +13,12 @@ import { FaRegMinusSquare, FaRegPlusSquare } from 'react-icons/fa';
 const CustomAccordion = ({
   title,
   subtitle,
+  dirtyFieldsList,
   children,
 }: {
   title: string;
   subtitle?: string;
+  dirtyFieldsList?: string[];
   children: React.ReactNode;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +41,14 @@ const CustomAccordion = ({
         {subtitle && (
           <Text fontSize='sm' ml={7} color='gray.500'>
             {subtitle}
+          </Text>
+        )}
+        {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
+          <Text fontSize='sm' ml={7} color='cyan.900' mt={4}>
+            <Text fontWeight='medium'>Edits:</Text>
+            {dirtyFieldsList?.map((field) => (
+              <Text key={field}>- {field} changed</Text>
+            ))}
           </Text>
         )}
         <AccordionPanel pl={7} mr={0} pr={0} mt={8}>

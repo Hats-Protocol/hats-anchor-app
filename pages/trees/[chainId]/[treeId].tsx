@@ -27,10 +27,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
@@ -70,6 +67,9 @@ import { IControls, IHat, ITree } from '@/types';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'));
 const HatDrawer = dynamic(() => import('@/components/HatDrawer'), {
+  ssr: false,
+});
+const TreeDrawer = dynamic(() => import('@/components/TreeDrawer'), {
   ssr: false,
 });
 const OrgChart = dynamic(() => import('@/components/OrgChart'), { ssr: false });
@@ -146,16 +146,16 @@ const TreeDetails = ({
     chainId,
     initialData: initialTreeData,
   });
-  const selectedHat = _.find(treeData?.hats, { id: selectedHatId || topHatId });
+  const selectedHat = _.find(orgChartTree, { id: selectedHatId || topHatId });
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
   const { onOpen, onClose, isOpen } = useDisclosure();
   const {
-    onOpen: onOpenShade,
-    onClose: onCloseShade,
-    isOpen: isOpenShade,
+    onOpen: onOpenHatDrawer,
+    onClose: onCloseHatDrawer,
+    isOpen: isOpenHatDrawer,
   } = useDisclosure({
     onClose: () => {
       // remove query param for adding children
@@ -168,6 +168,12 @@ const TreeDetails = ({
       );
     },
   });
+
+  const {
+    onOpen: onOpenTreeDrawer,
+    onClose: onCloseTreeDrawer,
+    isOpen: isOpenTreeDrawer,
+  } = useDisclosure();
 
   const handleSelectHat = useCallback(
     (id: string) => {
@@ -188,9 +194,9 @@ const TreeDetails = ({
 
       router.push(updatedUrl, undefined, { shallow: true });
 
-      onOpenShade();
+      onOpenHatDrawer();
     },
-    [orgChartTree, isMobile, onOpenShade, router],
+    [orgChartTree, isMobile, onOpenHatDrawer, router],
   );
 
   useEffect(() => {
@@ -246,6 +252,11 @@ const TreeDetails = ({
   // );
 
   const toggleEditMode = () => {
+    if (!editMode) {
+      onOpenTreeDrawer();
+    } else {
+      onCloseTreeDrawer();
+    }
     setEditMode(!editMode);
     setSelectedHatId(undefined);
     const updatedQuery = _.omit(router.query, 'hatId');
@@ -276,6 +287,13 @@ const TreeDetails = ({
     });
   }, []);
 
+  useEffect(() => {
+    const routerHatId = _.get(router, 'query.hatId');
+    if (selectedHatId && !routerHatId && selectedHat && !editMode) {
+      onOpenHatDrawer();
+    }
+  }, [selectedHatId, selectedHat, router, onOpenHatDrawer, editMode]);
+
   return (
     <>
       <NextSeo
@@ -286,11 +304,41 @@ const TreeDetails = ({
       <Drawer
         placement='right'
         onClose={() => {
-          onCloseShade();
-          // setEditMode(false);
+          onCloseHatDrawer();
           setSelectedHatId(undefined);
         }}
-        isOpen={!!orgChartTree && isOpenShade}
+        isOpen={!!orgChartTree && isOpenHatDrawer}
+      >
+        <DrawerContent
+          background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
+          maxW='43%'
+          width='650px'
+        >
+          <DrawerBody pt={0}>
+            <HatDrawer
+              chainId={chainId}
+              selectedHatId={selectedHatId}
+              setSelectedHatId={setSelectedHatId}
+              hatsData={orgChartTree}
+              linkRequestFromTree={linkRequestFromTree}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              onExitEditMode={() => {
+                onCloseHatDrawer();
+                onOpenTreeDrawer();
+                // setSelectedHatId(undefined);
+              }}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer
+        placement='right'
+        onClose={() => {
+          onCloseTreeDrawer();
+        }}
+        isOpen={isOpenTreeDrawer}
       >
         <DrawerContent
           background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
@@ -299,15 +347,19 @@ const TreeDetails = ({
         >
           <DrawerBody pt={0}>
             <Suspense fallback={<Suspender />}>
-              <HatDrawer
-                chainId={chainId}
-                selectedHatId={selectedHatId}
-                setSelectedHatId={setSelectedHatId}
-                hatsData={orgChartTree}
-                linkRequestFromTree={linkRequestFromTree}
-                onClose={onCloseShade}
+              <TreeDrawer
                 editMode={editMode}
                 setEditMode={setEditMode}
+                onClose={onCloseTreeDrawer}
+                tree={orgChartTree}
+                chainId={chainId}
+                handleHatClick={(id: string) => {
+                  onCloseTreeDrawer();
+                  onOpenHatDrawer();
+                  setSelectedHatId(id);
+                  setEditMode(true);
+                }}
+                treeId={treeId}
               />
             </Suspense>
           </DrawerBody>
@@ -344,7 +396,7 @@ const TreeDetails = ({
                 }
                 onClick={toggleEditMode}
               >
-                {editMode ? 'Leave Edit Mode' : 'Edit Mode'}
+                {editMode ? 'Leave Edit Mode' : 'Edit Tree'}
               </Button>
               {/* <Button colorScheme="teal" mr={3}>
                 Table View

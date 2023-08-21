@@ -85,3 +85,6 @@ export const validateURL = (textVal: string) => {
     /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
   return urlRegex.test(textVal);
 };
+
+export const generateLocalStorageKey = (chainId: number, treeId: string) =>
+  `hatData-${chainId}-${treeId}`;

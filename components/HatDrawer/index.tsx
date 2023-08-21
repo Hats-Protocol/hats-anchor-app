@@ -1,16 +1,17 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
+import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { generateLocalStorageKey } from '@/lib/general';
 import { isAdmin, isTopHat } from '@/lib/hats';
-import { IHat } from '@/types';
+import { FormData, IHat } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -74,13 +75,14 @@ const SelectedHatDrawer = ({
   setSelectedHatId,
   chainId,
   hatsData,
-  onClose,
   editMode,
   setEditMode,
   linkRequestFromTree,
+  onExitEditMode,
 }: SelectedHatDrawerProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+  const toast = useToast();
 
   const { address } = useAccount();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -93,7 +95,6 @@ const SelectedHatDrawer = ({
     mutableStatus,
     hatDetails,
   } = state;
-  // console.log(hatData);
 
   const { hatRoles } = useHatGuilds({
     guildNames: hatDetails?.guilds,
@@ -129,14 +130,12 @@ const SelectedHatDrawer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wearer, chainId]);
 
-  const { data: hatDetailsObject } = useHatDetailsField(hatData?.details);
-
   useEffect(() => {
     if (selectedHatId) {
       const data = _.find(hatsData, { id: selectedHatId });
       dispatch({ type: 'SET_HAT_DATA', payload: data });
 
-      if (hatDetailsObject) {
+      if (data?.detailsObject?.data) {
         const {
           name: localName,
           description,
@@ -145,7 +144,7 @@ const SelectedHatDrawer = ({
           responsibilities,
           eligibility,
           toggle,
-        } = hatDetailsObject;
+        } = data.detailsObject.data;
         const details = {
           name: localName,
           description,
@@ -167,7 +166,7 @@ const SelectedHatDrawer = ({
         payload: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
       });
     }
-  }, [hatData, selectedHatId, hatsData, hatDetailsObject]);
+  }, [hatData, selectedHatId, hatsData]);
 
   const { data: isEligible } = useHatCheckEligibility({
     wearer: address || '',
@@ -175,12 +174,40 @@ const SelectedHatDrawer = ({
     hatId: hatData?.id,
   });
 
+  const [unsavedData, setUnsavedData] = useState<FormData | null>(null);
+
+  const handleSave = () => {
+    if (unsavedData) {
+      const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
+
+      const storedHats = JSON.parse(
+        localStorage.getItem(localStorageKey) || '[]',
+      );
+
+      const updatedHats = storedHats.map((hat: FormData) =>
+        hat.id === hatData.id ? { id: hatData.id, ...unsavedData } : hat,
+      );
+
+      if (!updatedHats.find((hat: FormData) => hat.id === hatData.id)) {
+        updatedHats.push({ id: hatData.id, ...unsavedData });
+      }
+
+      localStorage.setItem(localStorageKey, JSON.stringify(updatedHats));
+
+      setUnsavedData(null);
+
+      toast.success({
+        title: 'Saved',
+        description: 'Your changes have been saved.',
+      });
+    }
+  };
+
   if (!hatData) return null;
 
   return (
     <Box
       w='full'
-      transition='width 0.5s' // Add transition
       h='100%'
       borderLeft='1px solid'
       borderColor='gray.200'
@@ -209,16 +236,15 @@ const SelectedHatDrawer = ({
 
         <TopMenu
           chainId={chainId}
-          onClose={onClose}
           mutableStatus={mutableStatus}
           hatData={hatData}
           editMode={editMode}
           setEditMode={setEditMode}
           isAdminUser={isAdminUser}
-          isCurrentWearer={isCurrentWearer}
           localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
-          setSelectedHatId={setSelectedHatId}
+          onSave={handleSave}
+          onExitEditMode={onExitEditMode}
         />
 
         {!editMode && (
@@ -244,6 +270,8 @@ const SelectedHatDrawer = ({
             hatData={hatData}
             hatDetails={hatDetails}
             setEditMode={setEditMode}
+            updateUnsavedData={(data: FormData) => setUnsavedData(data)}
+            treeId={hatData?.treeId}
           />
         )}
 
@@ -268,7 +296,7 @@ interface SelectedHatDrawerProps {
   hatsData: IHat[] | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   linkRequestFromTree: any;
-  onClose: () => void;
   editMode: boolean;
   setEditMode: (value: boolean) => void;
+  onExitEditMode: () => void;
 }
