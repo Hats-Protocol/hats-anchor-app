@@ -194,8 +194,8 @@ const EditMode = ({
       name,
       description,
       guilds,
-      responsibilities,
-      authorities,
+      responsibilities: _.reject(responsibilities, ['label', '']),
+      authorities: _.reject(authorities, ['label', '']),
       eligibility: {
         manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
         criteria: revocationsCriteria,
