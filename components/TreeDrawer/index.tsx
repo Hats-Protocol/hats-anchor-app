@@ -17,10 +17,11 @@ const TreeDrawer = ({
   treeId,
 }: TreeDrawerProps) => {
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  const [storedDataString, setStoredDataString] = useLocalStorage<string>(
+  const [storedData, setStoredData] = useLocalStorage<Partial<IHat>[]>(
     localStorageKey,
-    '[]',
+    [],
   );
+  console.log(storedData);
 
   return (
     <Box
@@ -38,13 +39,13 @@ const TreeDrawer = ({
         onClose={onClose}
         chainId={chainId}
         treeId={treeId}
-        storedDataString={storedDataString}
-        setStoredDataString={setStoredDataString}
+        storedData={storedData}
+        setStoredData={setStoredData}
       />
       <MainContent
         tree={tree}
         handleHatClick={handleHatClick}
-        storedDataString={storedDataString}
+        storedData={storedData}
       />
     </Box>
   );

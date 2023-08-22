@@ -1,6 +1,6 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _, { isEqual } from 'lodash';
+import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
@@ -12,6 +12,7 @@ import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
 import { generateLocalStorageKey } from '@/lib/general';
 import { DetailsItem, FieldItem, FormData, HatDetails, IHat } from '@/types';
@@ -33,6 +34,9 @@ const EditMode = ({
     eligibility: initialEligibility,
     toggle: initialToggle,
   } = hatDetails;
+
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
 
   const defaultFormValues = useMemo<FormData>(
     () => ({
@@ -90,29 +94,13 @@ const EditMode = ({
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      const localStorageKey = generateLocalStorageKey(chainId, treeId);
-      const storedValuesString = localStorage.getItem(localStorageKey);
+      const matchingHat = _.find(storedData, ['id', hatData?.id]);
 
-      if (storedValuesString) {
-        try {
-          const storedHats = JSON.parse(storedValuesString);
-
-          const matchingHat = storedHats.find(
-            (hat: FormData) => hat.id === hatData?.id,
-          );
-
-          if (matchingHat) {
-            formValues = {
-              ...defaultFormValues,
-              ...matchingHat,
-            };
-          }
-        } catch (err) {
-          console.error(
-            'Failed to parse stored values from localStorage.',
-            err,
-          );
-        }
+      if (matchingHat) {
+        formValues = {
+          ...defaultFormValues,
+          ...matchingHat,
+        };
       }
 
       reset(formValues);
@@ -121,7 +109,7 @@ const EditMode = ({
     if (hatData?.id && chainId && defaultFormValues) {
       initialFormValues();
     }
-  }, [chainId, defaultFormValues, hatData?.id, reset]);
+  }, [chainId, defaultFormValues, storedData, hatData?.id, reset]);
 
   const allFormData = watch();
 
@@ -144,7 +132,7 @@ const EditMode = ({
   };
 
   useEffect(() => {
-    if (!isEqual(prevAllFormData.current, allFormData)) {
+    if (!_.isEqual(prevAllFormData.current, allFormData)) {
       const dirtyFieldKeys = getDirtyFields();
       const dirtyFormData = dirtyFieldKeys.reduce(
         (acc: FormData, key: keyof FormData) => {
