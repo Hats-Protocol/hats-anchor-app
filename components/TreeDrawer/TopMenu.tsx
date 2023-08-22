@@ -48,6 +48,7 @@ const TopMenu = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     // todo add unix timestamp so don't get (1) on subsequent downloads
+    // update file name validation also, based on this ^
     link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
     link.href = url;
     link.click();
@@ -59,7 +60,12 @@ const TopMenu = ({
   const handleDeploy = () => {};
 
   const promptForReset = () => {
-    onOpen();
+    if (storedDataString !== '[]') {
+      onOpen();
+    } else {
+      setEditMode(!editMode);
+      onClose();
+    }
   };
 
   const confirmReset = () => {

@@ -83,7 +83,7 @@ const ImportTreeForm = ({
     reader.onload = function readFile(e: ProgressEvent<FileReader>) {
       const contents = e.target?.result;
       setStoredDataString(contents as string);
-      // setModals?.({});
+      setModals?.({});
     };
     reader.readAsText(treeFile);
   };
