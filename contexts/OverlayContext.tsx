@@ -17,7 +17,7 @@ const defaults = {
 };
 
 export interface IOverlayContext {
-  modals?: object;
+  modals?: { [key: string]: boolean };
   setModals?: (m: object) => void;
   closeModals?: () => void;
   commandPallet?: boolean;

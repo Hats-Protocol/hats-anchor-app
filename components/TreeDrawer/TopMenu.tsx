@@ -2,7 +2,7 @@ import {
   Button,
   Flex,
   HStack,
-  Modal,
+  Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
@@ -11,11 +11,16 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 
+import Modal from '@/components/atoms/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
+import ImportTreeForm from '@/forms/ImportTreeForm';
+import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
 
 const TopMenu = ({
@@ -24,12 +29,32 @@ const TopMenu = ({
   onClose,
   chainId,
   treeId,
+  storedDataString,
+  setStoredDataString,
 }: TopMenuProps) => {
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+  const toast = useToast();
+  const decimalTreeId = treeIdHexToDecimal(treeId);
 
-  const handleImport = () => {};
+  const openImportModal = () => {
+    setModals?.({ importFile: true });
+  };
 
-  const handleExport = () => {};
+  const handleExport = () => {
+    const fileData = storedDataString;
+    const blob = new Blob([fileData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    // todo add unix timestamp so don't get (1) on subsequent downloads
+    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
+    link.href = url;
+    link.click();
+    toast.success({
+      title: `Exported tree #${decimalTreeId} to your desktop`,
+    });
+  };
 
   const handleDeploy = () => {};
 
@@ -73,7 +98,7 @@ const TopMenu = ({
           leftIcon={<FiShare2 />}
           colorScheme='gray'
           variant='outline'
-          onClick={handleImport}
+          onClick={openImportModal}
         >
           Import
         </Button>
@@ -95,7 +120,18 @@ const TopMenu = ({
         </Button>
       </HStack>
 
-      <Modal isOpen={isOpen} onClose={closeModal}>
+      <Modal
+        name='importFile'
+        title='Import Draft Tree Changes'
+        localOverlay={localOverlay}
+      >
+        <ImportTreeForm
+          treeId={treeId}
+          chainId={chainId}
+          setStoredDataString={setStoredDataString}
+        />
+      </Modal>
+      <ChakraModal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Reset Changes</ModalHeader>
@@ -112,7 +148,7 @@ const TopMenu = ({
             </Button>
           </ModalFooter>
         </ModalContent>
-      </Modal>
+      </ChakraModal>
     </Flex>
   );
 };
@@ -125,4 +161,6 @@ interface TopMenuProps {
   onClose: () => void;
   chainId: number;
   treeId: string;
+  storedDataString: string;
+  setStoredDataString: (v: string) => void;
 }

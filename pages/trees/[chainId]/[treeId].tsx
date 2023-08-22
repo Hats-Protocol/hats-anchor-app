@@ -55,7 +55,7 @@ import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
 import {
-  checkPermissionsResponsibilities,
+  // checkPermissionsResponsibilities,
   decimalId,
   decimalToTreeId,
   ipToHatId,
@@ -251,6 +251,11 @@ const TreeDetails = ({
   //   initialControls,
   // );
 
+  const returnToList = () => {
+    onOpenTreeDrawer();
+    onCloseHatDrawer();
+  };
+
   const toggleEditMode = () => {
     if (!editMode) {
       onOpenTreeDrawer();
@@ -285,6 +290,8 @@ const TreeDetails = ({
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
     });
+    // run only on load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -323,11 +330,7 @@ const TreeDetails = ({
               linkRequestFromTree={linkRequestFromTree}
               editMode={editMode}
               setEditMode={setEditMode}
-              onExitEditMode={() => {
-                onCloseHatDrawer();
-                onOpenTreeDrawer();
-                // setSelectedHatId(undefined);
-              }}
+              returnToList={returnToList}
             />
           </DrawerBody>
         </DrawerContent>
@@ -462,6 +465,7 @@ const TreeDetails = ({
                 bg='whiteAlpha.900'
                 borderColor='gray.700'
                 leftIcon={<Icon as={AiOutlineDoubleLeft} />}
+                onClick={onOpenTreeDrawer}
               >
                 Draft Changes List
               </Button>

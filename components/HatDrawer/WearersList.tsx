@@ -17,6 +17,7 @@ import { FaPlus, FaSearch } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
+import { IOverlayContext } from '@/contexts/OverlayContext';
 import { isSameAddress } from '@/lib/general';
 import { IHatWearer } from '@/types';
 
@@ -33,12 +34,12 @@ const WearersList = ({
   hatId,
   wearers,
   maxSupply,
-  setModals,
   localOverlay,
   isAdminUser,
 }: WearersListProps) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
+  const { setModals } = localOverlay;
   const [changeStatusWearer, setChangeStatusWearer] =
     useState<`0x${string} | undefined`>();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
@@ -136,7 +137,7 @@ const WearersList = ({
                 variant='unstyled'
                 isDisabled={maxWearersReached || chainId !== currentNetworkId}
                 onClick={() =>
-                  !maxWearersReached ? setModals({ newWearer: true }) : {}
+                  !maxWearersReached ? setModals?.({ newWearer: true }) : {}
                 }
               >
                 <HStack
@@ -151,7 +152,7 @@ const WearersList = ({
           )}
           {_.gt(_.size(wearers), 6) && (
             <Text
-              onClick={() => setModals({ hatWearers: true })}
+              onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'
               _hover={{
                 textDecor: 'underline',
@@ -240,8 +241,6 @@ interface WearersListProps {
   hatId: string;
   wearers: IHatWearer[] | undefined;
   maxSupply: number;
-  setModals: (m: object) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localOverlay: any;
+  localOverlay: IOverlayContext;
   isAdminUser: boolean;
 }
