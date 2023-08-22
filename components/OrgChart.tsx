@@ -567,6 +567,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     editMode,
     addChild,
     userChain,
+    toast,
   ]);
 
   return isLoading ? (

@@ -12,6 +12,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
@@ -22,6 +23,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
+import { IHat } from '@/types';
 
 const TopMenu = ({
   editMode,
@@ -29,8 +31,8 @@ const TopMenu = ({
   onClose,
   chainId,
   treeId,
-  storedDataString,
-  setStoredDataString,
+  storedData,
+  setStoredData,
 }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -43,11 +45,13 @@ const TopMenu = ({
   };
 
   const handleExport = () => {
-    const fileData = storedDataString;
-    const blob = new Blob([fileData], { type: 'text/plain' });
+    const fileData = JSON.stringify(storedData);
+    console.log(fileData);
+    const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     // todo add unix timestamp so don't get (1) on subsequent downloads
+    // update file name validation also, based on this ^
     link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
     link.href = url;
     link.click();
@@ -59,7 +63,12 @@ const TopMenu = ({
   const handleDeploy = () => {};
 
   const promptForReset = () => {
-    onOpen();
+    if (!_.isEmpty(storedData)) {
+      onOpen();
+    } else {
+      setEditMode(!editMode);
+      onClose();
+    }
   };
 
   const confirmReset = () => {
@@ -128,7 +137,7 @@ const TopMenu = ({
         <ImportTreeForm
           treeId={treeId}
           chainId={chainId}
-          setStoredDataString={setStoredDataString}
+          setStoredData={setStoredData}
         />
       </Modal>
       <ChakraModal isOpen={isOpen} onClose={closeModal}>
@@ -161,6 +170,6 @@ interface TopMenuProps {
   onClose: () => void;
   chainId: number;
   treeId: string;
-  storedDataString: string;
-  setStoredDataString: (v: string) => void;
+  storedData: Partial<IHat>[];
+  setStoredData: (v: any) => void;
 }

@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi';
 import { MUTABILITY, STATUS } from '@/constants';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { generateLocalStorageKey } from '@/lib/general';
@@ -92,6 +93,11 @@ const SelectedHatDrawer = ({
     mutableStatus,
     hatDetails,
   } = state;
+  const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
+  const [storedData, setStoredData] = useLocalStorage<any[]>(
+    localStorageKey,
+    [],
+  );
 
   const { hatRoles } = useHatGuilds({
     guildNames: hatDetails?.guilds,
@@ -175,13 +181,7 @@ const SelectedHatDrawer = ({
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
-      const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
-
-      const storedHats = JSON.parse(
-        localStorage.getItem(localStorageKey) || '[]',
-      );
-
-      const updatedHats = storedHats.map((hat: FormData) =>
+      const updatedHats = storedData.map((hat: FormData) =>
         hat.id === hatData.id ? { id: hatData.id, ...unsavedData } : hat,
       );
 
@@ -189,7 +189,7 @@ const SelectedHatDrawer = ({
         updatedHats.push({ id: hatData.id, ...unsavedData });
       }
 
-      localStorage.setItem(localStorageKey, JSON.stringify(updatedHats));
+      setStoredData(updatedHats);
 
       setUnsavedData(null);
 

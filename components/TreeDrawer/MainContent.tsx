@@ -1,37 +1,24 @@
 import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
+import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { FormData, IHat } from '@/types';
+import { IHat } from '@/types';
 
 const MainContent = ({
   tree,
   handleHatClick,
-  storedDataString,
+  storedData,
 }: MainContentProps) => {
   const { events } = tree[0];
 
   function getProposedChangesCount(hatId: string): number {
-    if (!storedDataString) {
-      return 0;
-    }
+    const matchingHat = _.find(storedData, ['id', hatId]);
 
-    try {
-      const storedHats = JSON.parse(storedDataString);
-      const matchingHat = storedHats.find((hat: FormData) => hat.id === hatId);
-
-      if (
-        matchingHat &&
-        typeof matchingHat === 'object' &&
-        matchingHat !== null
-      ) {
-        // Subtracting 1 from the count to exclude the "id" key itself
-        return Object.keys(matchingHat).length - 1;
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to parse stored values from localStorage.', err);
+    if (matchingHat) {
+      // Subtracting 1 from the count to exclude the "id" key itself
+      return _.size(_.keys(_.omit(matchingHat, 'id'))) || 0;
     }
 
     return 0;
@@ -140,5 +127,5 @@ export default MainContent;
 interface MainContentProps {
   tree: IHat[];
   handleHatClick: (hatId: string) => void;
-  storedDataString: string;
+  storedData: Partial<IHat>[];
 }
