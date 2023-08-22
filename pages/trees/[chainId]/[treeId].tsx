@@ -290,12 +290,13 @@ const TreeDetails = ({
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
     });
+    // run only on load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const routerHatId = _.get(router, 'query.hatId');
     if (selectedHatId && !routerHatId && selectedHat && !editMode) {
-      console.log('here?');
       onOpenHatDrawer();
     }
   }, [selectedHatId, selectedHat, router, onOpenHatDrawer, editMode]);
