@@ -1051,10 +1051,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hatsprotocol/sdk-v1-core@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-core/-/sdk-v1-core-0.3.1.tgz#ac893c85b8605b36b0785109ba2804627d240019"
-  integrity sha512-2t5uP58woeLYcTnbxdaooWs1zOLLZzli0Rb21C4jKcb+vhCetzK1C+nyWx84tkjKMgfUfDPaJ58zLv0M/V8gLg==
+"@hatsprotocol/sdk-v1-core@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-core/-/sdk-v1-core-0.3.2.tgz#f74627737b3b05fe4ebbd88a89ddce1f3e44e679"
+  integrity sha512-zqllymDON+GxoKCVq+wEh9FN+ceeugf7U2nBM481cAvkR06l0lUbTe1DC2dryxMBFjlQYSJPTpR49AxPw2JQQQ==
   dependencies:
     graphql "^16.6.0"
     graphql-request "^6.1.0"
