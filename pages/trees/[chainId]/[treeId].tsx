@@ -55,7 +55,7 @@ import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
 import {
-  checkPermissionsResponsibilities,
+  // checkPermissionsResponsibilities,
   decimalId,
   decimalToTreeId,
   ipToHatId,

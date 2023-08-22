@@ -30,7 +30,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY } from '@/constants';
-import { IOverlayContext } from '@/contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
@@ -49,12 +49,12 @@ const TopMenu = ({
   mutableStatus,
   hatData,
   editMode,
-  localOverlay,
   wearerTopHats,
   isAdminUser,
   onSave,
   returnToList,
 }: TopMenuProps) => {
+  const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
   const currentNetworkId = useChainId();
@@ -324,9 +324,7 @@ interface TopMenuProps {
   hatData: IHat;
   chainId: number;
   editMode: boolean;
-  // setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
-  localOverlay: IOverlayContext;
   wearerTopHats: string[];
   onSave: (v?: boolean) => void;
   returnToList: () => void;

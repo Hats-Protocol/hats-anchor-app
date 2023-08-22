@@ -2,7 +2,6 @@ import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { BsChevronRight } from 'react-icons/bs';
 
-import { generateLocalStorageKey } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { FormData, IHat } from '@/types';
 
@@ -31,6 +30,7 @@ const MainContent = ({
         return Object.keys(matchingHat).length - 1;
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to parse stored values from localStorage.', err);
     }
 

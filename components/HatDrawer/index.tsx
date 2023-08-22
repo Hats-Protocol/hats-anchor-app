@@ -4,7 +4,6 @@ import { useEffect, useReducer, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useToast from '@/hooks/useToast';
@@ -80,8 +79,6 @@ const SelectedHatDrawer = ({
   linkRequestFromTree,
   returnToList,
 }: SelectedHatDrawerProps) => {
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
   const toast = useToast();
 
   const { address } = useAccount();
@@ -242,7 +239,6 @@ const SelectedHatDrawer = ({
           hatData={hatData}
           editMode={editMode}
           isAdminUser={isAdminUser}
-          localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
           onSave={handleSave}
           returnToList={returnToList}
@@ -260,8 +256,6 @@ const SelectedHatDrawer = ({
             isAdminUser={isAdminUser}
             isCurrentWearer={isCurrentWearer}
             linkRequestFromTree={linkRequestFromTree}
-            setModals={setModals}
-            localOverlay={localOverlay}
           />
         )}
 

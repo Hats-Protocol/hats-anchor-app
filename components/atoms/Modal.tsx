@@ -10,6 +10,8 @@ import {
 } from '@chakra-ui/react';
 import React, { ReactNode } from 'react';
 
+import { IOverlayContext } from '@/contexts/OverlayContext';
+
 /**
  * Modal component, wraps Chakra's default Modal
  * @param {string} name name of modal
@@ -33,18 +35,26 @@ const Modal = ({
   children,
 }: ModalProps) => {
   let modals;
-  let closeModals;
+  let closeModals: (() => void) | undefined;
   if (localOverlay) {
     modals = localOverlay.modals;
     closeModals = localOverlay.closeModals;
   }
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      closeModals?.();
+    }
+  };
+
   // TODO flexible heading size
 
   return (
     <ChakraModal
-      isOpen={isOpen || modals?.[name]}
-      onClose={onClose || closeModals}
+      isOpen={isOpen || modals?.[name] || false}
+      onClose={handleClose}
       size={size}
     >
       <ModalOverlay />
@@ -73,6 +83,6 @@ interface ModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   size?: string;
-  localOverlay: any;
+  localOverlay: IOverlayContext;
   children: ReactNode;
 }
