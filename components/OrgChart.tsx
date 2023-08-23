@@ -14,10 +14,17 @@ import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import { useChainId } from 'wagmi';
 
 import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
+import useToast from '@/hooks/useToast';
 import { formatAddress } from '@/lib/general';
-import { calculateNextChildId, ipToPrettyId, prettyIdToId } from '@/lib/hats';
+import {
+  calculateNextChildId,
+  ipToPrettyId,
+  isTopHatOrMutable,
+  prettyIdToId,
+} from '@/lib/hats';
 import { IHat, IHatWearer } from '@/types';
 
 interface OrgChartComponentProps {
@@ -60,6 +67,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   editMode,
   addChild,
 }) => {
+  const userChain = useChainId();
+  const toast = useToast();
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
@@ -133,6 +142,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                 setTimeout(() => {
                   centerChart(chart, newId);
                 }, 100);
+              } else if (!isTopHatOrMutable(data.data)) {
+                toast.error({ title: 'This hat is immutable' });
               } else {
                 centerChart(chart, data.data?.id);
                 onSelectHat(data.data?.id);
@@ -494,8 +505,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                     : ''
                 }
                 ${
-                  editMode &&
-                  `<div style="
+                  editMode
+                    ? `<div style="
                     margin-top: 68px;
                     width: 100%;
                     height: 40px;
@@ -522,6 +533,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                       </div>
                     </div>
                   </div>`
+                    : ''
                 }
               </div>
             </div>`;
@@ -554,6 +566,8 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     initialLoad,
     editMode,
     addChild,
+    userChain,
+    toast,
   ]);
 
   return isLoading ? (
@@ -577,6 +591,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
       <Button
         variant='outline'
         position='absolute'
+        bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
         bottom={4}
         left={4}
         onClick={() => {
@@ -591,12 +606,14 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
         <IconButton
           icon={<Icon as={FaMinus} />}
           variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
           aria-label='zoom out'
           onClick={() => chart?.zoomOut()}
         />
         <IconButton
           icon={<Icon as={FaPlus} />}
           variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
           aria-label='zoom in'
           onClick={() => chart?.zoomIn()}
         />

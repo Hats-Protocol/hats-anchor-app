@@ -1,6 +1,6 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _, { isEqual } from 'lodash';
+import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
@@ -12,7 +12,8 @@ import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
-import { getStoredHatsChanges } from '@/lib/general';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { generateLocalStorageKey } from '@/lib/general';
 import { DetailsItem, FieldItem, FormData, HatDetails, IHat } from '@/types';
 
 const EditMode = ({
@@ -31,6 +32,9 @@ const EditMode = ({
     eligibility: initialEligibility,
     toggle: initialToggle,
   } = hatDetails;
+
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
 
   const defaultFormValues = useMemo<FormData>(
     () => ({
@@ -83,14 +87,7 @@ const EditMode = ({
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      const storedHats = getStoredHatsChanges({
-        chainId,
-        treeId,
-      });
-
-      const matchingHat = storedHats.find(
-        (hat: FormData) => hat.id === hatData?.id,
-      );
+      const matchingHat = _.find(storedData, ['id', hatData?.id]);
 
       if (matchingHat) {
         formValues = {
@@ -105,7 +102,8 @@ const EditMode = ({
     if (hatData?.id && chainId && defaultFormValues) {
       initialFormValues();
     }
-  }, [chainId, defaultFormValues, hatData?.id, reset, treeId]);
+  }, [chainId, defaultFormValues, storedData, hatData?.id, reset]);
+
   const allFormData = watch();
 
   const prevAllFormData = useRef<any>(allFormData);
@@ -126,6 +124,23 @@ const EditMode = ({
       .map((field) => field.label);
   };
 
+  useEffect(() => {
+    if (!_.isEqual(prevAllFormData.current, allFormData)) {
+      const dirtyFieldKeys = getDirtyFields();
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: FormData, key: keyof FormData) => {
+          (acc[key] as DetailsItem[] | string | string[] | undefined) =
+            allFormData[key];
+          return acc;
+        },
+        {} as FormData,
+      );
+
+      updateUnsavedData(dirtyFormData);
+      prevAllFormData.current = allFormData;
+    }
+  }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
+
   const [newImageURI, setNewImageURI] = useState('');
   // const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
@@ -143,38 +158,6 @@ const EditMode = ({
     name: toggle,
     chainId: 1,
   });
-
-  useEffect(() => {
-    if (!isEqual(prevAllFormData.current, allFormData)) {
-      const dirtyFieldKeys = getDirtyFields();
-
-      const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: FormData, key: keyof FormData) => {
-          if (key === 'eligibility') {
-            acc[key] = eligibilityResolvedAddress || allFormData[key];
-          } else if (key === 'toggle') {
-            acc[key] = toggleResolvedAddress || allFormData[key];
-          } else {
-            (acc[key] as DetailsItem[] | string | string[] | undefined) =
-              allFormData[key];
-          }
-          return acc;
-        },
-        {} as FormData,
-      );
-
-      updateUnsavedData(dirtyFormData);
-      prevAllFormData.current = allFormData;
-    }
-  }, [
-    allFormData,
-    hatData.id,
-    chainId,
-    getDirtyFields,
-    updateUnsavedData,
-    eligibilityResolvedAddress,
-    toggleResolvedAddress,
-  ]);
 
   if (!hatData) return null;
 

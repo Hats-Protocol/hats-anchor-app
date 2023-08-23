@@ -4,9 +4,9 @@ import { useEffect, useReducer, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { generateLocalStorageKey } from '@/lib/general';
@@ -78,10 +78,8 @@ const SelectedHatDrawer = ({
   editMode,
   setEditMode,
   linkRequestFromTree,
-  onExitEditMode,
+  returnToList,
 }: SelectedHatDrawerProps) => {
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
   const toast = useToast();
 
   const { address } = useAccount();
@@ -95,6 +93,11 @@ const SelectedHatDrawer = ({
     mutableStatus,
     hatDetails,
   } = state;
+  const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
+  const [storedData, setStoredData] = useLocalStorage<any[]>(
+    localStorageKey,
+    [],
+  );
 
   const { hatRoles } = useHatGuilds({
     guildNames: hatDetails?.guilds,
@@ -176,15 +179,9 @@ const SelectedHatDrawer = ({
 
   const [unsavedData, setUnsavedData] = useState<FormData | null>(null);
 
-  const handleSave = () => {
+  const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
-      const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
-
-      const storedHats = JSON.parse(
-        localStorage.getItem(localStorageKey) || '[]',
-      );
-
-      const updatedHats = storedHats.map((hat: FormData) =>
+      const updatedHats = storedData.map((hat: FormData) =>
         hat.id === hatData.id ? { id: hatData.id, ...unsavedData } : hat,
       );
 
@@ -192,14 +189,16 @@ const SelectedHatDrawer = ({
         updatedHats.push({ id: hatData.id, ...unsavedData });
       }
 
-      localStorage.setItem(localStorageKey, JSON.stringify(updatedHats));
+      setStoredData(updatedHats);
 
       setUnsavedData(null);
 
-      toast.success({
-        title: 'Saved',
-        description: 'Your changes have been saved.',
-      });
+      if (sendToast) {
+        toast.success({
+          title: 'Saved',
+          description: 'Your changes have been saved.',
+        });
+      }
     }
   };
 
@@ -239,12 +238,10 @@ const SelectedHatDrawer = ({
           mutableStatus={mutableStatus}
           hatData={hatData}
           editMode={editMode}
-          setEditMode={setEditMode}
           isAdminUser={isAdminUser}
-          localOverlay={localOverlay}
           wearerTopHats={wearerTopHats}
           onSave={handleSave}
-          onExitEditMode={onExitEditMode}
+          returnToList={returnToList}
         />
 
         {!editMode && (
@@ -259,8 +256,6 @@ const SelectedHatDrawer = ({
             isAdminUser={isAdminUser}
             isCurrentWearer={isCurrentWearer}
             linkRequestFromTree={linkRequestFromTree}
-            setModals={setModals}
-            localOverlay={localOverlay}
           />
         )}
 
@@ -297,5 +292,5 @@ interface SelectedHatDrawerProps {
   linkRequestFromTree: any;
   editMode: boolean;
   setEditMode: (value: boolean) => void;
-  onExitEditMode: () => void;
+  returnToList: () => void;
 }

@@ -12,13 +12,13 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { lazy, Suspense } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import {
   FaCopy,
   FaDoorOpen,
-  FaEdit,
   FaEllipsisV,
   FaExclamationCircle,
   FaLink,
@@ -26,18 +26,17 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiSave } from 'react-icons/fi';
-import { IoExitOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY } from '@/constants';
-import { IOverlayContext } from '@/contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
+import { decimalId, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
@@ -50,13 +49,12 @@ const TopMenu = ({
   mutableStatus,
   hatData,
   editMode,
-  setEditMode,
-  localOverlay,
   wearerTopHats,
   isAdminUser,
   onSave,
-  onExitEditMode,
+  returnToList,
 }: TopMenuProps) => {
+  const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
   const currentNetworkId = useChainId();
@@ -105,7 +103,14 @@ const TopMenu = ({
   const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
-  const handleDeploy = () => {};
+  const handleReturnToList = () => {
+    onSave(false);
+    returnToList();
+  };
+
+  const handleSave = () => {
+    onSave();
+  };
 
   if (!hatData) return null;
 
@@ -117,37 +122,21 @@ const TopMenu = ({
       h='75px'
       bg='whiteAlpha.900'
       align='center'
-      justify='space-between'
+      justify={editMode ? 'space-between' : 'flex-end'}
       px={4}
       position='absolute'
       top={0}
       zIndex={16}
     >
-      {isAdminUser && chainId === currentNetworkId && (
-        <Tooltip
-          label={!isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
-          shouldWrapChildren
-        >
-          <Button
-            variant='outline'
-            background='cyan.100'
-            color='cyan.700'
-            borderColor='cyan.700'
-            onClick={() => {
-              if (editMode) {
-                onExitEditMode();
-              } else {
-                setEditMode(true);
-              }
-            }}
-            leftIcon={editMode ? <BsArrowLeft /> : <FaEdit />}
-          >
-            <Text>
-              {editMode ? hatData.detailsObject?.data?.name || 'Exit' : 'Edit'}
-            </Text>
-          </Button>
-        </Tooltip>
+      {editMode && (
+        <Button onClick={handleReturnToList} variant='outline'>
+          <HStack>
+            <Icon as={BsArrowLeft} />
+            <Text>{hatIdDecimalToIp(BigInt(hatData.id))}</Text>
+          </HStack>
+        </Button>
       )}
+
       <HStack spacing={3}>
         {!editMode && (
           <Menu isLazy>
@@ -297,24 +286,14 @@ const TopMenu = ({
         )}
 
         {editMode && (
-          <>
-            <Button
-              leftIcon={<FiSave />}
-              colorScheme='twitter'
-              variant='solid'
-              onClick={onSave}
-            >
-              Save
-            </Button>
-            <Button
-              leftIcon={<IoExitOutline />}
-              colorScheme='blue'
-              variant='solid'
-              onClick={handleDeploy}
-            >
-              Deploy
-            </Button>
-          </>
+          <Button
+            leftIcon={<FiSave />}
+            colorScheme='twitter'
+            variant='solid'
+            onClick={handleSave}
+          >
+            Save
+          </Button>
         )}
       </HStack>
 
@@ -345,10 +324,8 @@ interface TopMenuProps {
   hatData: IHat;
   chainId: number;
   editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
   isAdminUser: boolean;
-  localOverlay: IOverlayContext;
   wearerTopHats: string[];
-  onSave: () => void;
-  onExitEditMode: () => void;
+  onSave: (v?: boolean) => void;
+  returnToList: () => void;
 }

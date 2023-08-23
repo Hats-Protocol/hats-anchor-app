@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react';
-import _ from 'lodash';
 
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { generateLocalStorageKey } from '@/lib/general';
 import { IHat } from '@/types';
 
 import BottomMenu from './BottomMenu';
@@ -16,6 +17,13 @@ const TreeDrawer = ({
   handleHatClick,
   treeId,
 }: TreeDrawerProps) => {
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const [storedData, setStoredData] = useLocalStorage<Partial<IHat>[]>(
+    localStorageKey,
+    [],
+  );
+  console.log(storedData);
+
   return (
     <Box
       w='full'
@@ -32,11 +40,13 @@ const TreeDrawer = ({
         onClose={onClose}
         chainId={chainId}
         treeId={treeId}
+        storedData={storedData}
+        setStoredData={setStoredData}
       />
       <MainContent
         tree={tree}
         handleHatClick={handleHatClick}
-        treeId={treeId}
+        storedData={storedData}
       />
       <BottomMenu chainId={chainId} treeId={treeId} />
     </Box>

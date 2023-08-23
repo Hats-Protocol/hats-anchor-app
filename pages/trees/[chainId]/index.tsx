@@ -24,7 +24,6 @@ const Trees = ({
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,
-      // initialData,
     });
 
   const trees = _.flatten(_.get(data, 'pages'));

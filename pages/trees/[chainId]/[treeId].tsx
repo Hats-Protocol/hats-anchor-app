@@ -55,7 +55,7 @@ import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { mapWithChainId } from '@/lib/general';
 import {
-  checkPermissionsResponsibilities,
+  // checkPermissionsResponsibilities,
   decimalId,
   decimalToTreeId,
   ipToHatId,
@@ -90,18 +90,18 @@ const initialControls: IControls[] = [
     value: 'wearers',
     icon: <Image src='/icons/wearers.svg' alt='Wearers Icon' />,
   },
-  {
-    label: 'Permissions',
-    value: 'permissions',
-    icon: <Image src='/icons/permissions.svg' alt='Permissions Icon' />,
-  },
-  {
-    label: 'Responsibilities',
-    value: 'responsibilities',
-    icon: (
-      <Image src='/icons/responsibilities.svg' alt='Responsibilities Icon' />
-    ),
-  },
+  // {
+  //   label: 'Permissions',
+  //   value: 'permissions',
+  //   icon: <Image src='/icons/permissions.svg' alt='Permissions Icon' />,
+  // },
+  // {
+  //   label: 'Responsibilities',
+  //   value: 'responsibilities',
+  //   icon: (
+  //     <Image src='/icons/responsibilities.svg' alt='Responsibilities Icon' />
+  //   ),
+  // },
   {
     label: 'Eligibility',
     value: 'eligibility',
@@ -246,10 +246,15 @@ const TreeDetails = ({
     editMode,
   ]);
 
-  const controls = checkPermissionsResponsibilities(
-    orgChartTree,
-    initialControls,
-  );
+  // const controls = checkPermissionsResponsibilities(
+  //   orgChartTree,
+  //   initialControls,
+  // );
+
+  const returnToList = () => {
+    onOpenTreeDrawer();
+    onCloseHatDrawer();
+  };
 
   const toggleEditMode = () => {
     if (!editMode) {
@@ -285,6 +290,8 @@ const TreeDetails = ({
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
     });
+    // run only on load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -323,11 +330,7 @@ const TreeDetails = ({
               linkRequestFromTree={linkRequestFromTree}
               editMode={editMode}
               setEditMode={setEditMode}
-              onExitEditMode={() => {
-                onCloseHatDrawer();
-                onOpenTreeDrawer();
-                // setSelectedHatId(undefined);
-              }}
+              returnToList={returnToList}
             />
           </DrawerBody>
         </DrawerContent>
@@ -432,7 +435,7 @@ const TreeDetails = ({
                       w='100%'
                     >
                       <Stack direction='column' spacing={3}>
-                        {controls.map((control: IControls) => (
+                        {initialControls.map((control: IControls) => (
                           <Radio value={control.value} key={control.value}>
                             <HStack>
                               {control.icon}
@@ -462,6 +465,7 @@ const TreeDetails = ({
                 bg='whiteAlpha.900'
                 borderColor='gray.700'
                 leftIcon={<Icon as={AiOutlineDoubleLeft} />}
+                onClick={onOpenTreeDrawer}
               >
                 Draft Changes List
               </Button>

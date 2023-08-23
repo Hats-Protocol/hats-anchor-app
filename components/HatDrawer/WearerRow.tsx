@@ -36,29 +36,29 @@ const WearerRow = ({
   currentNetworkId,
   wearers,
 }: WearerRowProps) => {
+  const toast = useToast();
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
-    onSuccessToastData: {
-      title: 'Success',
-      description: `${wearer.id} is eligible to receive the hat.`,
-    },
     enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    handleSuccess: (data) => {
+      if (!_.isEmpty(data.logs)) {
+        toast.info({
+          title: `The status of ${formatAddress(
+            wearer.id,
+          )} was successfully updated.`,
+        });
+      } else {
+        toast.info({
+          title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
+        });
+      }
+    },
   });
-  const toast = useToast();
 
   const testEligibility = async () => {
-    const updated = await writeAsync?.();
-    if (updated) {
-      toast.info({
-        title: `The status of ${wearer.id} was successfully updated.`,
-      });
-    } else {
-      toast.info({
-        title: `The status of ${wearer.id} was not updated.`,
-      });
-    }
+    writeAsync?.();
   };
 
   const { writeAsync: renounceHat } = useHatBurn({

@@ -17,7 +17,7 @@ const defaults = {
 };
 
 export interface IOverlayContext {
-  modals?: object;
+  modals?: { [key: string]: boolean };
   setModals?: (m: object) => void;
   closeModals?: () => void;
   commandPallet?: boolean;
@@ -30,7 +30,7 @@ export interface IOverlayContext {
     sendToast = true,
   }: {
     hash: `0x${string}`;
-    toastData: object;
+    toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
@@ -94,7 +94,7 @@ export const OverlayContextProvider = ({
       sendToast = true,
     }: {
       hash: `0x${string}`;
-      toastData: object;
+      toastData: object | undefined;
       redirect?: string | null;
       clearModals?: boolean;
       sendToast?: boolean;
@@ -102,7 +102,7 @@ export const OverlayContextProvider = ({
       const data = await waitForTransaction({ hash });
 
       if (data) {
-        if (sendToast) {
+        if (sendToast && toastData) {
           toast.success({
             title: _.get(toastData, 'title', 'Transaction successful'),
             description: _.get(toastData, 'description'),

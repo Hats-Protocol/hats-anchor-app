@@ -1,26 +1,24 @@
 import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
+import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
-import { getStoredHatsChanges } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { FormData, IHat } from '@/types';
+import { IHat } from '@/types';
 
-const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
+const MainContent = ({
+  tree,
+  handleHatClick,
+  storedData,
+}: MainContentProps) => {
   const { events } = tree[0];
 
-  function getProposedChangesCount(hatId: string, chainId: number): number {
-    const storedHats = getStoredHatsChanges({ chainId, treeId });
+  function getProposedChangesCount(hatId: string): number {
+    const matchingHat = _.find(storedData, ['id', hatId]);
 
-    const matchingHat = storedHats.find((hat: FormData) => hat.id === hatId);
-
-    if (
-      matchingHat &&
-      typeof matchingHat === 'object' &&
-      matchingHat !== null
-    ) {
+    if (matchingHat) {
       // Subtracting 1 from the count to exclude the "id" key itself
-      return Object.keys(matchingHat).length - 1;
+      return _.size(_.keys(_.omit(matchingHat, 'id'))) || 0;
     }
 
     return 0;
@@ -88,7 +86,7 @@ const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
               {prettyIdToIp(idToPrettyId(hat.id))}{' '}
               {hat?.detailsObject?.data?.name || hat.name}
               <HStack>
-                {getProposedChangesCount(hat.id, hat.chainId) && (
+                {getProposedChangesCount(hat.id) && (
                   <Text
                     borderColor='cyan.600'
                     borderWidth={1}
@@ -97,7 +95,8 @@ const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
                     color='cyan.600'
                     fontSize='sm'
                   >
-                    {getProposedChangesCount(hat.id, hat.chainId)} CHANGES
+                    {getProposedChangesCount(hat.id)} CHANGE
+                    {getProposedChangesCount(hat.id) > 1 ? 'S' : ''}
                   </Text>
                 )}
                 {!hat.mutable && (
@@ -128,5 +127,5 @@ export default MainContent;
 interface MainContentProps {
   tree: IHat[];
   handleHatClick: (hatId: string) => void;
-  treeId: string;
+  storedData: Partial<IHat>[];
 }

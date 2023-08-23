@@ -1,11 +1,11 @@
 import { Box, Heading, Stack } from '@chakra-ui/react';
-import { is } from 'date-fns/locale';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import { STATUS } from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { checkAddressIsContract } from '@/lib/contract';
 import { HatDetails, HatRole, IHat } from '@/types';
 
@@ -22,13 +22,13 @@ const MainContent = ({
   hatRoles,
   mutableStatus,
   activeStatus,
-  setModals,
-  localOverlay,
   isAdminUser,
   hatDetails,
   isCurrentWearer,
   linkRequestFromTree,
 }: MainContentProps) => {
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
   const {
@@ -79,7 +79,6 @@ const MainContent = ({
       <WearersList
         hatName={name}
         chainId={chainId}
-        setModals={setModals}
         localOverlay={localOverlay}
         hatId={hatData.id}
         wearers={hatData.extendedWearers}
@@ -151,6 +150,4 @@ interface MainContentProps {
   isAdminUser: boolean;
   hatDetails: HatDetails;
   linkRequestFromTree: any[];
-  setModals: any;
-  localOverlay: any;
 }
