@@ -5,6 +5,7 @@ import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
+import { Hex } from 'viem';
 import {
   createPublicClient,
   createWalletClient,
@@ -38,7 +39,7 @@ export const networkImages: { [key: number]: string } = {
 const gnosisContract = {
   contracts: {
     multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11' as `0x${string}`,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11' as Hex,
       blockCreated: 21022491,
     },
   },

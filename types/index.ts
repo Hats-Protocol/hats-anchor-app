@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Hex } from 'viem';
 
 export interface IHatEvent {
   id: string;
@@ -12,7 +13,7 @@ export type DetailsItem = {
 };
 
 export interface IHatWearer {
-  id: `0x${string}`;
+  id: Hex;
   isContract?: boolean;
   ensName?: string | null;
 }
@@ -26,9 +27,9 @@ export interface IHat {
   createdAt?: string;
   details: string;
   maxSupply: string;
-  eligibility: `0x${string}`;
+  eligibility: Hex;
   extendedEligibility?: IHatWearer;
-  toggle: `0x${string}`;
+  toggle: Hex;
   extendedToggle?: IHatWearer;
   mutable: boolean;
   imageUri?: string;
@@ -36,7 +37,7 @@ export interface IHat {
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: IHatWearer[]; // (`0x${string}` | IHatWearer)[];
+  wearers: IHatWearer[]; // (Hex | IHatWearer)[];
   extendedWearers?: IHatWearer[];
   admin?: Partial<IHat>;
   detailsObject?: {

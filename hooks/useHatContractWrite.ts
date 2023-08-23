@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { TransactionReceipt } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 import {
   useContractWrite,
   usePrepareContractWrite,
@@ -38,7 +38,7 @@ const useHatContractWrite = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
-  const [hash, setHash] = useState<`0x${string}`>();
+  const [hash, setHash] = useState<Hex>();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,

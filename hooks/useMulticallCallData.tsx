@@ -5,7 +5,7 @@ import useToast from '@/hooks/useToast';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
-import { generateLocalStorageKey, getStoredHatsChanges } from '@/lib/general';
+import { generateLocalStorageKey } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { FormDataDetails } from '@/types';
@@ -200,7 +200,6 @@ const useMulticallCallData = ({
           previousResolvedDataRef.current = data;
         }
       } catch (error) {
-        console.error('Error:', error);
         toast.error({
           title: `Error processing changes for Tree ID: ${treeId}`,
           description:

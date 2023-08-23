@@ -91,17 +91,3 @@ export const generateLocalStorageKey = (chainId: number, treeId: string) => {
   const decimalTreeId = treeIdHexToDecimal(treeId);
   return `treeData-${chainId}-${decimalTreeId}`;
 };
-
-export const getStoredHatsChanges = ({
-  chainId,
-  treeId,
-}: {
-  chainId: number;
-  treeId?: string;
-}) => {
-  if (!treeId) {
-    return [];
-  }
-  const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  return JSON.parse(localStorage.getItem(localStorageKey) || '[]');
-};

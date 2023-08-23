@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 import {
   useChainId,
   useContractWrite,
@@ -27,7 +28,7 @@ const useHatStatusCheck = ({
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
-  const [hash, setHash] = useState<`0x${string}`>();
+  const [hash, setHash] = useState<Hex>();
   const [toggleIsContract, setToggleIsContract] = useState(false);
   const [testingToggle, setTestingToggle] = useState(false);
 
