@@ -4,6 +4,7 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import { generateLocalStorageKey } from '@/lib/general';
 import { IHat } from '@/types';
 
+import BottomMenu from './BottomMenu';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
@@ -21,7 +22,6 @@ const TreeDrawer = ({
     localStorageKey,
     [],
   );
-  console.log(storedData);
 
   return (
     <Box
@@ -47,6 +47,7 @@ const TreeDrawer = ({
         handleHatClick={handleHatClick}
         storedData={storedData}
       />
+      <BottomMenu chainId={chainId} treeId={treeId} />
     </Box>
   );
 };

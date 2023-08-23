@@ -329,7 +329,6 @@ const TreeDetails = ({
               hatsData={orgChartTree}
               linkRequestFromTree={linkRequestFromTree}
               editMode={editMode}
-              setEditMode={setEditMode}
               returnToList={returnToList}
             />
           </DrawerBody>

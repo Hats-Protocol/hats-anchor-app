@@ -1,3 +1,5 @@
+import { Hex } from 'viem';
+
 import defaultHat from './defaultHat';
 import { featuredTemplates, featuredTrees, learnMore } from './landingContent';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS, ZERO_ID } from './misc';
@@ -35,7 +37,7 @@ export const TRIGGER_OPTIONS = {
 const CONFIG: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
-  hatsAddress: `0x${string}`;
+  hatsAddress: Hex;
 } = {
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
   emojis: '🧢🎩👒',

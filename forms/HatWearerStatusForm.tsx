@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
-import { isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsName } from 'wagmi';
 
 import useDebounce from '@/hooks/useDebounce';
@@ -26,7 +26,7 @@ const HatWearerStatusForm = ({
 }: {
   hatId: string;
   chainId: number;
-  wearer: `0x${string}` | undefined;
+  wearer: Hex | undefined;
   // TODO is there a reason for this to be passed from above?
   eligibility: string;
 }) => {

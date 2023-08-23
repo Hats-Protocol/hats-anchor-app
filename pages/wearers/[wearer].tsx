@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import Layout from '@/components/Layout';
@@ -35,7 +36,7 @@ import { IHat } from '@/types';
 const WearerDetail = ({
   wearerAddress,
 }: {
-  wearerAddress: `0x${string}`;
+  wearerAddress: Hex;
   // initialData: IHat[] | undefined;
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();

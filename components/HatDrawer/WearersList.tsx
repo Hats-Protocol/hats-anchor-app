@@ -14,6 +14,7 @@ import {
 import _ from 'lodash';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { FaPlus, FaSearch } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
@@ -40,8 +41,9 @@ const WearersList = ({
   const currentNetworkId = useChainId();
   const { address } = useAccount();
   const { setModals } = localOverlay;
-  const [changeStatusWearer, setChangeStatusWearer] =
-    useState<`0x${string} | undefined`>();
+  const [changeStatusWearer, setChangeStatusWearer] = useState<
+    Hex | undefined
+  >();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 

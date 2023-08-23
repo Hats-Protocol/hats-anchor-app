@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 import { fetchWearerDetails } from '@/gql/helpers';
 import { chainsList } from '@/lib/web3';
@@ -52,7 +53,7 @@ const useWearerDetails = ({
 export default useWearerDetails;
 
 interface UseWearerDetailsProps {
-  wearerAddress: `0x${string}` | undefined;
+  wearerAddress: Hex | undefined;
   initialData?: IHat[];
   chainId?: number | 'all';
 }

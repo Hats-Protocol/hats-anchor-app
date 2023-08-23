@@ -2,6 +2,7 @@ import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FaPlus, FaRegEdit, FaRegListAlt, FaShieldAlt } from 'react-icons/fa';
+import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
 import RadioBox from '@/components/atoms/RadioBox';
@@ -16,7 +17,7 @@ interface HatManagementFormProps {
   hatData: any;
   localForm: any;
   address: string; // eligibility or toggle
-  actionResolvedAddress?: `0x${string}` | null;
+  actionResolvedAddress?: Hex | null;
   title: string;
   formName: string;
   radioBoxConfig: {

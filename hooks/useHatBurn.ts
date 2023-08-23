@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -11,7 +12,7 @@ const useHatBurn = ({
   hatId,
   wearers,
 }: {
-  hatsAddress?: `0x${string}`;
+  hatsAddress?: Hex;
   chainId: number;
   hatId: string | null;
   wearers: IHatWearer[] | undefined;

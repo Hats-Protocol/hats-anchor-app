@@ -2,7 +2,7 @@ import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { TransactionReceipt } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 
 import useToast from '@/hooks/useToast';
 
@@ -29,7 +29,7 @@ export interface IOverlayContext {
     clearModals = true,
     sendToast = true,
   }: {
-    hash: `0x${string}`;
+    hash: Hex;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
@@ -93,7 +93,7 @@ export const OverlayContextProvider = ({
       clearModals = true,
       sendToast = true,
     }: {
-      hash: `0x${string}`;
+      hash: Hex;
       toastData: object | undefined;
       redirect?: string | null;
       clearModals?: boolean;

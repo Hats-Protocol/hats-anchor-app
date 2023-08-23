@@ -1,15 +1,12 @@
 import _ from 'lodash';
-import { createPublicClient, custom, http } from 'viem';
+import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
 import { IHatWearer } from '@/types';
 
 import { chainsMap } from './web3';
 
-export const checkAddressIsContract = async (
-  address: `0x${string}`,
-  chainId: number,
-) => {
+export const checkAddressIsContract = async (address: Hex, chainId: number) => {
   if (address === ZERO_ADDRESS) {
     return false;
   }
@@ -42,7 +39,7 @@ export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) => {
 };
 
 export const extendControllers = (
-  controller: `0x${string}`,
+  controller: Hex,
   controllersInfo: object[],
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: controller });

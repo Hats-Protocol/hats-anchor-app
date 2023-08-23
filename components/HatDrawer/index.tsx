@@ -76,7 +76,6 @@ const SelectedHatDrawer = ({
   chainId,
   hatsData,
   editMode,
-  setEditMode,
   linkRequestFromTree,
   returnToList,
 }: SelectedHatDrawerProps) => {
@@ -264,7 +263,6 @@ const SelectedHatDrawer = ({
             chainId={chainId}
             hatData={hatData}
             hatDetails={hatDetails}
-            setEditMode={setEditMode}
             updateUnsavedData={(data: FormData) => setUnsavedData(data)}
             treeId={hatData?.treeId}
           />
@@ -292,6 +290,5 @@ interface SelectedHatDrawerProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   linkRequestFromTree: any;
   editMode: boolean;
-  setEditMode: (value: boolean) => void;
   returnToList: () => void;
 }

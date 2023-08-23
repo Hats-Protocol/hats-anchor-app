@@ -12,7 +12,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
@@ -23,6 +22,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
+import { editHasUpdates } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const TopMenu = ({
@@ -46,7 +46,6 @@ const TopMenu = ({
 
   const handleExport = () => {
     const fileData = JSON.stringify(storedData);
-    console.log(fileData);
     const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -63,7 +62,7 @@ const TopMenu = ({
   const handleDeploy = () => {};
 
   const promptForReset = () => {
-    if (!_.isEmpty(storedData)) {
+    if (editHasUpdates(storedData)) {
       onOpen();
     } else {
       setEditMode(!editMode);
@@ -115,6 +114,7 @@ const TopMenu = ({
           leftIcon={<FiSave />}
           colorScheme='twitter'
           variant='solid'
+          isDisabled={!editHasUpdates(storedData)}
           onClick={handleExport}
         >
           Export

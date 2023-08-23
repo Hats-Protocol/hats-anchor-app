@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Hex } from 'viem';
 
 export interface IHatEvent {
   id: string;
@@ -12,7 +13,7 @@ export type DetailsItem = {
 };
 
 export interface IHatWearer {
-  id: `0x${string}`;
+  id: Hex;
   isContract?: boolean;
   ensName?: string | null;
 }
@@ -26,9 +27,9 @@ export interface IHat {
   createdAt?: string;
   details: string;
   maxSupply: string;
-  eligibility: `0x${string}`;
+  eligibility: Hex;
   extendedEligibility?: IHatWearer;
-  toggle: `0x${string}`;
+  toggle: Hex;
   extendedToggle?: IHatWearer;
   mutable: boolean;
   imageUri?: string;
@@ -36,7 +37,7 @@ export interface IHat {
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: IHatWearer[]; // (`0x${string}` | IHatWearer)[];
+  wearers: IHatWearer[]; // (Hex | IHatWearer)[];
   extendedWearers?: IHatWearer[];
   admin?: Partial<IHat>;
   detailsObject?: {
@@ -120,22 +121,25 @@ export interface IControls {
   icon: ReactNode;
 }
 
-export type FormData = {
+export type FormData = FormDataDetails & {
   maxSupply: string;
   eligibility: string;
   toggle: string;
   mutable: string;
   imageUrl: string;
+  id?: string;
+};
+
+export type FormDataDetails = {
+  name: string;
+  description: string;
+  guilds: string[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
   isEligibilityManual: string;
   isToggleManual: string;
   revocationsCriteria: DetailsItem[];
   deactivationsCriteria: DetailsItem[];
-  name: string;
-  description?: string;
-  authorities: DetailsItem[];
-  responsibilities: DetailsItem[];
-  guilds: string[];
-  id?: string;
 };
 
 export type FieldItem = { name: keyof FormData; label: string };
