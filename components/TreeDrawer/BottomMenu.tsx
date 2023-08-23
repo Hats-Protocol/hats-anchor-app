@@ -33,7 +33,7 @@ const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
         borderColor='gray.200'
         bg='cyan.50'
       >
-        <Accordion defaultIndex={[0]} allowToggle w='full' mt='-1px'>
+        <Accordion allowToggle w='full' mt='-1px'>
           <AccordionItem>
             <AccordionButton px={8} py={4}>
               <Box flex='1' textAlign='left'>
