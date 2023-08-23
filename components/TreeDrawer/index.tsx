@@ -22,7 +22,6 @@ const TreeDrawer = ({
     localStorageKey,
     [],
   );
-  console.log(storedData);
 
   return (
     <Box

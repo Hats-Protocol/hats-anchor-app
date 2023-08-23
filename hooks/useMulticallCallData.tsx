@@ -5,15 +5,16 @@ import useToast from '@/hooks/useToast';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
-import { getStoredHatsChanges } from '@/lib/general';
+import { generateLocalStorageKey, getStoredHatsChanges } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { FormDataDetails } from '@/types';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import { Hex } from 'viem';
 
 type useMulticallCallDataProps = {
   chainId: number;
-  treeId?: string;
+  treeId: string;
 };
 
 const hasDetailsChanged = ({
@@ -49,15 +50,14 @@ const useMulticallCallData = ({
   const hatsClient = createHatsClient(chainId);
   const toast = useToast();
   const previousResolvedDataRef = useRef<any>(null);
-  const allStoredHatsChanges = getStoredHatsChanges({
-    chainId,
-    treeId,
-  });
+
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
 
   const computeMulticallData = async () => {
     const calls = [] as Hex[];
 
-    for (let change of allStoredHatsChanges) {
+    for (let change of storedData) {
       const {
         maxSupply,
         eligibility,
@@ -183,13 +183,12 @@ const useMulticallCallData = ({
       }
     }
 
-    console.log('calls', calls);
-    return await hatsClient.multicallCallData([...calls]);
+    return hatsClient.multicallCallData([...calls]);
   };
 
   const multicallData = useMemo(() => {
     return computeMulticallData();
-  }, [allStoredHatsChanges]);
+  }, [storedData]);
 
   useEffect(() => {
     const resolveData = async () => {

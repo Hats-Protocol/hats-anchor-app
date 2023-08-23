@@ -90,5 +90,5 @@ export default BottomMenu;
 
 interface BottomMenuProps {
   chainId: number;
-  treeId?: string;
+  treeId: string;
 }

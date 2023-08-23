@@ -46,7 +46,6 @@ const TopMenu = ({
 
   const handleExport = () => {
     const fileData = JSON.stringify(storedData);
-    console.log(fileData);
     const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

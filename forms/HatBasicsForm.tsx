@@ -54,7 +54,6 @@ const HatBasicsForm = ({
   const [image, setImage] = useState<any>();
 
   const { watch, control, formState } = localForm;
-  console.log('formState', formState.defaultValues);
 
   const { append, fields, remove } = useFieldArray({
     control,
