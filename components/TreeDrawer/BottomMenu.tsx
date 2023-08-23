@@ -15,13 +15,21 @@ import {
 } from '@chakra-ui/react';
 import { FiCopy } from 'react-icons/fi';
 
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
+import { generateLocalStorageKey } from '@/lib/general';
+import { editHasUpdates } from '@/lib/hats';
 
 const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
   const { resolvedData, isLoading } = useMulticallCallData({ chainId, treeId });
   const callData = resolvedData ? resolvedData.callData : null;
   const toast = useToast();
+
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
+
+  const hasUpdates = editHasUpdates(storedData);
 
   const { onCopy: copyCallData } = useClipboard(callData || '');
 
@@ -34,7 +42,7 @@ const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
         bg='cyan.50'
       >
         <Accordion allowToggle w='full' mt='-1px'>
-          <AccordionItem>
+          <AccordionItem isDisabled={!hasUpdates}>
             <AccordionButton px={8} py={4}>
               <Box flex='1' textAlign='left'>
                 Executable hex code

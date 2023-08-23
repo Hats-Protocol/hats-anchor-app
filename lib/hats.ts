@@ -381,3 +381,8 @@ export const checkPermissionsResponsibilities = (
 
   return controls;
 };
+
+export const editHasUpdates = (storedData: any[]) =>
+  !_.isEmpty(
+    _.reject(storedData, (data) => _.isEmpty(_.reject(_.keys(data), 'id'))),
+  );

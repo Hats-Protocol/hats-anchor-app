@@ -12,7 +12,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
@@ -23,6 +22,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
+import { editHasUpdates } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const TopMenu = ({
@@ -62,7 +62,7 @@ const TopMenu = ({
   const handleDeploy = () => {};
 
   const promptForReset = () => {
-    if (!_.isEmpty(storedData)) {
+    if (editHasUpdates(storedData)) {
       onOpen();
     } else {
       setEditMode(!editMode);
