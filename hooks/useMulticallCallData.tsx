@@ -31,13 +31,13 @@ const hasDetailsChanged = ({
   return (
     name ||
     description ||
-    guilds.length > 0 ||
-    responsibilities.length > 0 ||
-    authorities.length > 0 ||
+    guilds?.length > 0 ||
+    responsibilities?.length > 0 ||
+    authorities?.length > 0 ||
     isEligibilityManual ||
-    revocationsCriteria.length > 0 ||
+    revocationsCriteria?.length > 0 ||
     isToggleManual ||
-    deactivationsCriteria.length > 0
+    deactivationsCriteria?.length > 0
   );
 };
 
@@ -97,8 +97,8 @@ const useMulticallCallData = ({
           name,
           description,
           guilds,
-          responsibilities,
-          authorities,
+          responsibilities: _.reject(responsibilities, ['label', '']),
+          authorities: _.reject(authorities, ['label', '']),
           eligibility: {
             manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
             criteria: revocationsCriteria,
