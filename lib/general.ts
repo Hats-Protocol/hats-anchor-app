@@ -88,3 +88,17 @@ export const validateURL = (textVal: string) => {
 
 export const generateLocalStorageKey = (chainId: number, treeId: string) =>
   `hatData-${chainId}-${treeId}`;
+
+export const getStoredHatsChanges = ({
+  chainId,
+  treeId,
+}: {
+  chainId: number;
+  treeId?: string;
+}) => {
+  if (!treeId) {
+    return [];
+  }
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  return JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+};

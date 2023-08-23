@@ -120,22 +120,25 @@ export interface IControls {
   icon: ReactNode;
 }
 
-export type FormData = {
+export type FormData = FormDataDetails & {
   maxSupply: string;
   eligibility: string;
   toggle: string;
   mutable: string;
   imageUrl: string;
+  id?: string;
+};
+
+export type FormDataDetails = {
+  name: string;
+  description: string;
+  guilds: string[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
   isEligibilityManual: string;
   isToggleManual: string;
   revocationsCriteria: DetailsItem[];
   deactivationsCriteria: DetailsItem[];
-  name: string;
-  description?: string;
-  authorities: DetailsItem[];
-  responsibilities: DetailsItem[];
-  guilds: string[];
-  id?: string;
 };
 
 export type FieldItem = { name: keyof FormData; label: string };

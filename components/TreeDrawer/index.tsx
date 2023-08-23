@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import { IHat } from '@/types';
 
+import BottomMenu from './BottomMenu';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
@@ -37,6 +38,7 @@ const TreeDrawer = ({
         handleHatClick={handleHatClick}
         treeId={treeId}
       />
+      <BottomMenu chainId={chainId} treeId={treeId} />
     </Box>
   );
 };

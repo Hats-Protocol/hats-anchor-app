@@ -1,9 +1,8 @@
 import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
-import { generateLocalStorageKey } from '@/lib/general';
+import { getStoredHatsChanges } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { FormData, IHat } from '@/types';
 
@@ -11,27 +10,17 @@ const MainContent = ({ tree, handleHatClick, treeId }: MainContentProps) => {
   const { events } = tree[0];
 
   function getProposedChangesCount(hatId: string, chainId: number): number {
-    const localStorageKey = generateLocalStorageKey(chainId, treeId);
-    const storedDataString = localStorage.getItem(localStorageKey);
+    const storedHats = getStoredHatsChanges({ chainId, treeId });
 
-    if (!storedDataString) {
-      return 0;
-    }
+    const matchingHat = storedHats.find((hat: FormData) => hat.id === hatId);
 
-    try {
-      const storedHats = JSON.parse(storedDataString);
-      const matchingHat = storedHats.find((hat: FormData) => hat.id === hatId);
-
-      if (
-        matchingHat &&
-        typeof matchingHat === 'object' &&
-        matchingHat !== null
-      ) {
-        // Subtracting 1 from the count to exclude the "id" key itself
-        return Object.keys(matchingHat).length - 1;
-      }
-    } catch (err) {
-      console.error('Failed to parse stored values from localStorage.', err);
+    if (
+      matchingHat &&
+      typeof matchingHat === 'object' &&
+      matchingHat !== null
+    ) {
+      // Subtracting 1 from the count to exclude the "id" key itself
+      return Object.keys(matchingHat).length - 1;
     }
 
     return 0;

@@ -12,15 +12,13 @@ import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
-import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
-import { generateLocalStorageKey } from '@/lib/general';
+import { getStoredHatsChanges } from '@/lib/general';
 import { DetailsItem, FieldItem, FormData, HatDetails, IHat } from '@/types';
 
 const EditMode = ({
   hatData,
   chainId,
   hatDetails,
-  setEditMode,
   updateUnsavedData,
   treeId,
 }: EditModeProps) => {
@@ -79,40 +77,26 @@ const EditMode = ({
     mode: 'onChange',
   });
 
-  const {
-    watch,
-    formState: { dirtyFields },
-    reset,
-  } = localForm;
+  const { watch, reset } = localForm;
 
   useEffect(() => {
-    // eslint-disable-next-line consistent-return
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      const localStorageKey = generateLocalStorageKey(chainId, treeId);
-      const storedValuesString = localStorage.getItem(localStorageKey);
+      const storedHats = getStoredHatsChanges({
+        chainId,
+        treeId,
+      });
 
-      if (storedValuesString) {
-        try {
-          const storedHats = JSON.parse(storedValuesString);
+      const matchingHat = storedHats.find(
+        (hat: FormData) => hat.id === hatData?.id,
+      );
 
-          const matchingHat = storedHats.find(
-            (hat: FormData) => hat.id === hatData?.id,
-          );
-
-          if (matchingHat) {
-            formValues = {
-              ...defaultFormValues,
-              ...matchingHat,
-            };
-          }
-        } catch (err) {
-          console.error(
-            'Failed to parse stored values from localStorage.',
-            err,
-          );
-        }
+      if (matchingHat) {
+        formValues = {
+          ...defaultFormValues,
+          ...matchingHat,
+        };
       }
 
       reset(formValues);
@@ -121,8 +105,7 @@ const EditMode = ({
     if (hatData?.id && chainId && defaultFormValues) {
       initialFormValues();
     }
-  }, [chainId, defaultFormValues, hatData?.id, reset]);
-
+  }, [chainId, defaultFormValues, hatData?.id, reset, treeId]);
   const allFormData = watch();
 
   const prevAllFormData = useRef<any>(allFormData);
@@ -143,41 +126,13 @@ const EditMode = ({
       .map((field) => field.label);
   };
 
-  useEffect(() => {
-    if (!isEqual(prevAllFormData.current, allFormData)) {
-      const dirtyFieldKeys = getDirtyFields();
-      const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: FormData, key: keyof FormData) => {
-          (acc[key] as DetailsItem[] | string | string[] | undefined) =
-            allFormData[key];
-          return acc;
-        },
-        {} as FormData,
-      );
-
-      updateUnsavedData(dirtyFormData);
-      prevAllFormData.current = allFormData;
-    }
-  }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
-
   const [newImageURI, setNewImageURI] = useState('');
   // const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
-  const name = useDebounce(watch('name'));
-  const description = useDebounce(watch('description'));
-  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
-  const isToggleManual = useDebounce(watch('isToggleManual'));
-  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
-  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
-  const responsibilities = useDebounce(watch('responsibilities'));
-  const authorities = useDebounce(watch('authorities'));
-  const guilds = useDebounce(watch('guilds'));
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
   );
   const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
-  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
-  const imageUrl = useDebounce(watch('imageUrl', hatData?.imageUrl || ''));
 
   const { data: eligibilityResolvedAddress } = useEnsAddress({
     name: eligibility,
@@ -189,56 +144,37 @@ const EditMode = ({
     chainId: 1,
   });
 
-  const newDetailsData = useMemo(() => {
-    return {
-      name,
-      description,
-      guilds,
-      responsibilities,
-      authorities,
-      eligibility: {
-        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: revocationsCriteria,
-      },
-      toggle: {
-        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: deactivationsCriteria,
-      },
-    };
-  }, [
-    name,
-    description,
-    guilds,
-    responsibilities,
-    authorities,
-    revocationsCriteria,
-    deactivationsCriteria,
-    isEligibilityManual,
-    isToggleManual,
-  ]);
+  useEffect(() => {
+    if (!isEqual(prevAllFormData.current, allFormData)) {
+      const dirtyFieldKeys = getDirtyFields();
 
-  const { onSubmit, isLoading } = useSubmitHatChanges({
-    hatData,
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: FormData, key: keyof FormData) => {
+          if (key === 'eligibility') {
+            acc[key] = eligibilityResolvedAddress || allFormData[key];
+          } else if (key === 'toggle') {
+            acc[key] = toggleResolvedAddress || allFormData[key];
+          } else {
+            (acc[key] as DetailsItem[] | string | string[] | undefined) =
+              allFormData[key];
+          }
+          return acc;
+        },
+        {} as FormData,
+      );
+
+      updateUnsavedData(dirtyFormData);
+      prevAllFormData.current = allFormData;
+    }
+  }, [
+    allFormData,
+    hatData.id,
     chainId,
-    newImageURI,
-    dirtyFields,
-    newDetailsData,
-    maxSupply,
-    eligibility,
-    toggle,
+    getDirtyFields,
+    updateUnsavedData,
     eligibilityResolvedAddress,
     toggleResolvedAddress,
-    imageUrl,
-  });
-
-  const submitAndResetForm = async () => {
-    const result = await onSubmit();
-    if (result) {
-      setTimeout(() => {
-        setEditMode(false);
-      }, 500);
-    }
-  };
+  ]);
 
   if (!hatData) return null;
 
@@ -401,7 +337,6 @@ interface EditModeProps {
   hatData: IHat;
   chainId: number;
   hatDetails: HatDetails;
-  setEditMode: (mode: boolean) => void;
   updateUnsavedData: (data: FormData) => void;
   treeId: string;
 }

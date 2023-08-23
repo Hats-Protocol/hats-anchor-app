@@ -269,7 +269,6 @@ const SelectedHatDrawer = ({
             chainId={chainId}
             hatData={hatData}
             hatDetails={hatDetails}
-            setEditMode={setEditMode}
             updateUnsavedData={(data: FormData) => setUnsavedData(data)}
             treeId={hatData?.treeId}
           />
