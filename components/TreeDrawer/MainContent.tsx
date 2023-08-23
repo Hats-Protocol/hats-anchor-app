@@ -3,7 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
-import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { idToPrettyId, isTopHatOrMutable, prettyIdToIp } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const MainContent = ({
@@ -80,7 +80,7 @@ const MainContent = ({
               alignItems='center'
               variant='ghost'
               borderRadius={0}
-              isDisabled={!hat.mutable}
+              isDisabled={!isTopHatOrMutable(hat)}
               onClick={() => handleHatClick(hat.id)}
             >
               {prettyIdToIp(idToPrettyId(hat.id))}{' '}
@@ -99,7 +99,7 @@ const MainContent = ({
                     {getProposedChangesCount(hat.id) > 1 ? 'S' : ''}
                   </Text>
                 )}
-                {!hat.mutable && (
+                {!isTopHatOrMutable(hat) && (
                   <Text
                     borderColor='gray.600'
                     borderWidth={1}

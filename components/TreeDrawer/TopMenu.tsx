@@ -114,6 +114,7 @@ const TopMenu = ({
           leftIcon={<FiSave />}
           colorScheme='twitter'
           variant='solid'
+          isDisabled={!editHasUpdates(storedData)}
           onClick={handleExport}
         >
           Export
