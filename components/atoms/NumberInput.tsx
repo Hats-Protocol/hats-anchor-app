@@ -97,20 +97,17 @@ const NumberInput = ({
                 {...restField}
               >
                 <NumberInputField ref={ref} name={restField.name} />
-                {isDirty &&
-                  defaultValues &&
-                  // not triple equals because default value is a number and restField.value is a string
-                  defaultValues[name] != restField.value && (
-                    <InputRightElement mr={6}>
-                      <IconButton
-                        icon={<GrUndo />}
-                        aria-label='Reset'
-                        onClick={onReset}
-                        size='xs'
-                        colorScheme='cyan'
-                      />
-                    </InputRightElement>
-                  )}
+                {isDirty && (
+                  <InputRightElement mr={6}>
+                    <IconButton
+                      icon={<GrUndo />}
+                      aria-label='Reset'
+                      onClick={onReset}
+                      size='xs'
+                      colorScheme='cyan'
+                    />
+                  </InputRightElement>
+                )}
                 <NumberInputStepper>
                   <NumberIncrementStepper />
                   <NumberDecrementStepper />
