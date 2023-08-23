@@ -77,12 +77,9 @@ const MainContent = ({
       />
 
       <WearersList
-        hatName={name}
+        hatData={hatData}
         chainId={chainId}
         localOverlay={localOverlay}
-        hatId={hatData.id}
-        wearers={hatData.extendedWearers}
-        maxSupply={_.toNumber(hatData.maxSupply)}
         isAdminUser={isAdminUser}
       />
 

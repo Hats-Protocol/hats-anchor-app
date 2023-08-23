@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -20,7 +21,7 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import { IOverlayContext } from '@/contexts/OverlayContext';
 import { isSameAddress } from '@/lib/general';
-import { IHatWearer } from '@/types';
+import { IHat, IHatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
 
@@ -31,10 +32,7 @@ const HatWearerStatusForm = lazy(() => import('@/forms/HatWearerStatusForm'));
 
 const WearersList = ({
   chainId,
-  hatName,
-  hatId,
-  wearers,
-  maxSupply,
+  hatData,
   localOverlay,
   isAdminUser,
 }: WearersListProps) => {
@@ -46,6 +44,11 @@ const WearersList = ({
   >();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const localForm = useForm({
+    mode: 'onBlur',
+  });
+
+  const { extendedWearers: wearers, maxSupply, id: hatId } = hatData;
 
   const filterWearers = (localWearers: IHatWearer[] | undefined) => {
     if (!searchTerm || !localWearers) return wearers;
@@ -224,11 +227,9 @@ const WearersList = ({
           localOverlay={localOverlay}
         >
           <HatWearerForm
-            hatName={hatName}
-            hatId={hatId}
+            hatData={hatData}
             chainId={chainId}
-            currentWearers={_.map(wearers, 'id')}
-            maxSupply={maxSupply}
+            localForm={localForm}
           />
         </Modal>
       </Suspense>
@@ -239,10 +240,7 @@ const WearersList = ({
 export default WearersList;
 interface WearersListProps {
   chainId: number;
-  hatName: string;
-  hatId: string;
-  wearers: IHatWearer[] | undefined;
-  maxSupply: number;
+  hatData: IHat;
   localOverlay: IOverlayContext;
   isAdminUser: boolean;
 }

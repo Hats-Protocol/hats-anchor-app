@@ -171,17 +171,6 @@ const HatBasicsForm = ({
           )}
 
           <FormRowWrapper>
-            <FaChartBar />
-            <Input
-              name='maxSupply'
-              label='MAX WEARERS'
-              placeholder='10'
-              isDisabled={!isMutable(hatData)}
-              localForm={localForm}
-            />
-          </FormRowWrapper>
-
-          <FormRowWrapper>
             <FaRegEdit />
             <Box>
               <RadioBox

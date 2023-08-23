@@ -10,10 +10,12 @@ import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
+import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { generateLocalStorageKey } from '@/lib/general';
+import { isTopHat } from '@/lib/hats';
 import { DetailsItem, FieldItem, FormData, HatDetails, IHat } from '@/types';
 
 const EditMode = ({
@@ -58,6 +60,7 @@ const EditMode = ({
       authorities: initialAuthorities ?? [],
       responsibilities: initialResponsibilities ?? [],
       guilds: initialGuilds ?? [],
+      wearers: [],
     }),
     [
       hatData?.maxSupply,
@@ -88,6 +91,7 @@ const EditMode = ({
 
     const initialFormValues = () => {
       const matchingHat = _.find(storedData, ['id', hatData?.id]);
+      console.log(matchingHat);
 
       if (matchingHat) {
         formValues = {
@@ -96,10 +100,10 @@ const EditMode = ({
         };
       }
 
-      reset(formValues);
+      reset({ ...formValues, prepped: true });
     };
 
-    if (hatData?.id && chainId && defaultFormValues) {
+    if (hatData?.id && chainId && defaultFormValues && storedData) {
       initialFormValues();
     }
   }, [chainId, defaultFormValues, storedData, hatData?.id, reset]);
@@ -191,6 +195,22 @@ const EditMode = ({
             />
           </Stack>
         </Accordion>
+
+        {!isTopHat(hatData) && (
+          <Accordion
+            title='Wearers'
+            subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(wearerFields)}
+          >
+            <Stack spacing={4}>
+              <HatWearerForm
+                localForm={localForm}
+                hatData={hatData}
+                chainId={chainId}
+              />
+            </Stack>
+          </Accordion>
+        )}
 
         <Accordion
           title='Powers'
@@ -294,8 +314,12 @@ const hatBasicsFields: FieldItem[] = [
   { name: 'description', label: 'Description' },
   { name: 'imageUrl', label: 'Image' },
   { name: 'guilds', label: 'Guilds' },
-  { name: 'maxSupply', label: 'Max Supply' },
   { name: 'mutable', label: 'Editable' },
+];
+
+const wearerFields: FieldItem[] = [
+  { name: 'maxSupply', label: 'Max Supply' },
+  { name: 'wearers', label: 'Wearers' },
 ];
 
 const powersFields: FieldItem[] = [
