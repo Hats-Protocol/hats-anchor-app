@@ -165,7 +165,11 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
 
   const handleAddWearer = () => {
     const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
-    if (!address) return;
+    if (
+      !address ||
+      _.includes(currentWearerList, _.toLower(currentResolvedAddress))
+    )
+      return;
     const newLocalWearers = localWearers;
     newLocalWearers.push({
       address,
@@ -300,7 +304,12 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
                 type='address'
                 placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                 value={currentInput}
-                isInvalid={currentResolvedAddress && !isInGoodStanding}
+                isInvalid={
+                  (currentResolvedAddress && !isInGoodStanding) ||
+                  currentWearerList.includes(
+                    currentResolvedAddress?.toLowerCase(),
+                  )
+                }
                 onChange={(e) => {
                   setCurrentInput(e.target.value?.toLowerCase() ?? '');
                 }}
@@ -320,6 +329,18 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
               </Text>
             )}
 
+            {_.includes(
+              currentWearerList,
+              _.toLower(currentResolvedAddress),
+            ) && (
+              <HStack align='center' spacing={1}>
+                <Icon as={FaInfoCircle} mr={1} color='red.500' />
+                <Text fontSize='sm' color='red.500'>
+                  This address is already wearing this hat
+                </Text>
+              </HStack>
+            )}
+
             {ensResolvedAddress && (
               <Text fontSize='sm' color='gray.500' textAlign='left' w='full'>
                 {ensResolvedAddress}
@@ -330,7 +351,7 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
           {typeof isEligible === 'boolean' && !isEligible && (
             <Text fontSize='sm' color='red.500'>
               <Icon as={FaInfoCircle} mr={1} />
-              This address is not eligible to mint a Hat
+              This address is not eligible to wear this Hat
             </Text>
           )}
 
@@ -343,7 +364,11 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
                   isLoadingIsEligible ||
                   isLoadingMintHat ||
                   isLoadingBatchMintHats ||
-                  !isInGoodStanding
+                  !isInGoodStanding ||
+                  _.includes(
+                    currentWearerList,
+                    _.toLower(currentResolvedAddress),
+                  )
                 }
                 onClick={handleAddWearer}
                 aria-label='Add Another Wallet'

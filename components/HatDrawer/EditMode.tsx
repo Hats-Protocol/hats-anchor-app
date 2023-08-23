@@ -91,7 +91,6 @@ const EditMode = ({
 
     const initialFormValues = () => {
       const matchingHat = _.find(storedData, ['id', hatData?.id]);
-      console.log(matchingHat);
 
       if (matchingHat) {
         formValues = {

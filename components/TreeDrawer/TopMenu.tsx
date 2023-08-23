@@ -10,20 +10,28 @@ import {
   ModalHeader,
   ModalOverlay,
   useDisclosure,
+  Tooltip,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
+import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
+import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
+import hatsAbi from '@/contracts/Hats.json';
 import ImportTreeForm from '@/forms/ImportTreeForm';
+import useHatContractWrite from '@/hooks/useHatContractWrite';
+import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
 import { editHasUpdates } from '@/lib/hats';
+import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
+import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 
 const TopMenu = ({
   editMode,
@@ -33,12 +41,14 @@ const TopMenu = ({
   treeId,
   storedData,
   setStoredData,
+  wearingTopHat,
 }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const toast = useToast();
   const decimalTreeId = treeIdHexToDecimal(treeId);
+  const { onSubmit } = useMulticallCallManyHats({ chainId, treeId });
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
@@ -59,7 +69,9 @@ const TopMenu = ({
     });
   };
 
-  const handleDeploy = () => {};
+  const handleDeploy = async () => {
+    await onSubmit();
+  };
 
   const promptForReset = () => {
     if (editHasUpdates(storedData)) {
@@ -119,14 +131,22 @@ const TopMenu = ({
         >
           Export
         </Button>
-        <Button
-          leftIcon={<IoExitOutline />}
-          colorScheme='blue'
-          variant='solid'
-          onClick={handleDeploy}
+        <Tooltip
+          label={
+            !wearingTopHat &&
+            'Only top hat can deploy directly currently. Submit the transaction data to your DAO'
+          }
         >
-          Deploy
-        </Button>
+          <Button
+            leftIcon={<IoExitOutline />}
+            colorScheme='blue'
+            variant='solid'
+            isDisabled={!wearingTopHat || !editHasUpdates(storedData)}
+            onClick={handleDeploy}
+          >
+            Deploy
+          </Button>
+        </Tooltip>
       </HStack>
 
       <Modal
@@ -172,4 +192,5 @@ interface TopMenuProps {
   treeId: string;
   storedData: Partial<IHat>[];
   setStoredData: (v: any) => void;
+  wearingTopHat: boolean;
 }

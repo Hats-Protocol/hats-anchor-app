@@ -1,4 +1,6 @@
 import { Box } from '@chakra-ui/react';
+import _ from 'lodash';
+import { useAccount } from 'wagmi';
 
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { generateLocalStorageKey } from '@/lib/general';
@@ -17,11 +19,19 @@ const TreeDrawer = ({
   handleHatClick,
   treeId,
 }: TreeDrawerProps) => {
+  const { address } = useAccount();
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<Partial<IHat>[]>(
     localStorageKey,
     [],
   );
+
+  const topHat: IHat | undefined = _.find(tree, ['levelAtLocalTree', 0]);
+  const wearingTopHat = _.includes(
+    _.map(topHat?.wearers, 'id'),
+    _.toLower(address),
+  );
+  console.log(wearingTopHat);
 
   return (
     <Box
@@ -41,6 +51,7 @@ const TreeDrawer = ({
         treeId={treeId}
         storedData={storedData}
         setStoredData={setStoredData}
+        wearingTopHat={wearingTopHat}
       />
       <MainContent
         tree={tree}
