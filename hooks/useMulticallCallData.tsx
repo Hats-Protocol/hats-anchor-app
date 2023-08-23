@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import useToast from '@/hooks/useToast';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -9,6 +9,7 @@ import { getStoredHatsChanges } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { FormDataDetails } from '@/types';
+import { Hex } from 'viem';
 
 type useMulticallCallDataProps = {
   chainId: number;
@@ -43,15 +44,18 @@ const useMulticallCallData = ({
   chainId,
   treeId,
 }: useMulticallCallDataProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [resolvedData, setResolvedData] = useState<any>(null);
   const hatsClient = createHatsClient(chainId);
   const toast = useToast();
+  const previousResolvedDataRef = useRef<any>(null);
   const allStoredHatsChanges = getStoredHatsChanges({
     chainId,
     treeId,
   });
 
   const computeMulticallData = async () => {
-    const calls = [];
+    const calls = [] as Hex[];
 
     for (let change of allStoredHatsChanges) {
       const {
@@ -113,80 +117,107 @@ const useMulticallCallData = ({
           { name: detailsName },
         )}`;
 
-        if (newCid) {
-          calls.push(
-            hatsClient.changeHatDetailsCallData({
-              hatId: decimalId(id) as unknown as bigint,
-              newDetails: newCid,
-            }),
-          );
+        const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newDetails: newCid,
+        });
+
+        if (changeHatDetailsData && changeHatDetailsData.callData) {
+          calls.push(changeHatDetailsData.callData);
         }
       }
 
       if (maxSupply) {
-        calls.push(
-          hatsClient.changeHatMaxSupplyCallData({
-            hatId: decimalId(id) as unknown as bigint,
-            newMaxSupply: parseInt(maxSupply, 10),
-          }),
-        );
+        const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newMaxSupply: parseInt(maxSupply, 10),
+        });
+
+        if (changeHatMaxSupplyData && changeHatMaxSupplyData.callData) {
+          calls.push(changeHatMaxSupplyData.callData);
+        }
       }
 
       if (eligibility) {
-        calls.push(
+        const changeHatEligibilityData =
           hatsClient.changeHatEligibilityCallData({
             hatId: decimalId(id) as unknown as bigint,
             newEligibility: eligibility,
-          }),
-        );
+          });
+
+        if (changeHatEligibilityData && changeHatEligibilityData.callData) {
+          calls.push(changeHatEligibilityData.callData);
+        }
       }
 
       if (toggle) {
-        calls.push(
-          hatsClient.changeHatToggleCallData({
-            hatId: decimalId(id) as unknown as bigint,
-            newToggle: toggle,
-          }),
-        );
+        const changeHatToggleData = hatsClient.changeHatToggleCallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newToggle: toggle,
+        });
+
+        if (changeHatToggleData && changeHatToggleData.callData) {
+          calls.push(changeHatToggleData.callData);
+        }
       }
 
       if (mutable) {
-        calls.push(
-          hatsClient.makeHatImmutableCallData({
-            hatId: decimalId(id) as unknown as bigint,
-          }),
-        );
+        const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
+          hatId: decimalId(id) as unknown as bigint,
+        });
+
+        if (makeHatImmutableData && makeHatImmutableData.callData) {
+          calls.push(makeHatImmutableData.callData);
+        }
       }
 
       if (imageUrl) {
-        calls.push(
-          hatsClient.changeHatImageURICallData({
-            hatId: decimalId(id) as unknown as bigint,
-            newImageURI: imageUrl,
-          }),
-        );
+        const changeHatImageURIData = hatsClient.changeHatImageURICallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newImageURI: imageUrl,
+        });
+
+        if (changeHatImageURIData && changeHatImageURIData.callData) {
+          calls.push(changeHatImageURIData.callData);
+        }
       }
     }
 
-    return hatsClient.multicallCallData(calls);
+    console.log('calls', calls);
+    return await hatsClient.multicallCallData([...calls]);
   };
 
-  const multicallData = useMemo(computeMulticallData, [allStoredHatsChanges]);
+  const multicallData = useMemo(() => {
+    return computeMulticallData();
+  }, [allStoredHatsChanges]);
 
-  const onSubmit = async () => {
-    try {
-      return multicallData; // return the memoized multicall data
-    } catch (error: unknown) {
-      toast.error({
-        title: `Error processing changes for Tree ID: ${treeId}`,
-        description:
-          error instanceof Error ? error.message : 'An unknown error occurred',
-      });
-      return;
-    }
-  };
+  useEffect(() => {
+    const resolveData = async () => {
+      try {
+        const data = await multicallData;
 
-  return { onSubmit, multicallData };
+        if (!_.isEqual(data, previousResolvedDataRef.current)) {
+          setResolvedData(data);
+          previousResolvedDataRef.current = data;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        toast.error({
+          title: `Error processing changes for Tree ID: ${treeId}`,
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    resolveData();
+  }, [multicallData, toast, treeId]);
+
+  return { resolvedData, isLoading };
 };
 
 export default useMulticallCallData;

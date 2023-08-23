@@ -1,35 +1,86 @@
-import { Box, Flex } from '@chakra-ui/react';
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Input,
+  Spinner,
+  Text,
+  useClipboard,
+} from '@chakra-ui/react';
+import { FiCopy } from 'react-icons/fi';
 
 import useMulticallCallData from '@/hooks/useMulticallCallData';
+import useToast from '@/hooks/useToast';
 
 const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
-  const { onSubmit, multicallData } = useMulticallCallData({ chainId, treeId });
+  const { resolvedData, isLoading } = useMulticallCallData({ chainId, treeId });
+  const callData = resolvedData ? resolvedData.callData : null;
+  const toast = useToast();
 
-  console.log('multicallData', multicallData);
+  const { onCopy: copyCallData } = useClipboard(callData || '');
 
   return (
-    <Box
-      w='100%'
-      position='absolute'
-      bottom={0}
-      zIndex={14}
-      bg='whiteAlpha.900'
-    >
+    <Box w='100%' position='absolute' bottom={0} zIndex={14}>
       <Flex
         justify='space-between'
-        p={4}
         borderTop='1px solid'
         borderColor='gray.200'
+        bg='cyan.50'
       >
-        <Box
-          as='button'
-          color='gray.500'
-          fontWeight='bold'
-          fontSize='sm'
-          onClick={() => onSubmit()}
-        >
-          Get Data
-        </Box>
+        <Accordion defaultIndex={[0]} allowToggle w='full' mt='-1px'>
+          <AccordionItem>
+            <AccordionButton px={8} py={4}>
+              <Box flex='1' textAlign='left'>
+                Executable hex code
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+
+            <AccordionPanel pb={8} px={8}>
+              <Box>
+                <Text mb={2} color='blackAlpha.700'>
+                  Copy this into the Data field of a transaction builder to
+                  deploy the tree from a contract (such as a multisig or DAO).
+                </Text>
+
+                <HStack>
+                  <Input
+                    value={isLoading ? '' : callData}
+                    background='white'
+                    color='blackAlpha.600'
+                    isReadOnly
+                    placeholder='Loading...'
+                  />
+                  {isLoading ? (
+                    <Spinner size='sm' marginLeft={2} />
+                  ) : (
+                    <Button
+                      leftIcon={<FiCopy />}
+                      onClick={() => {
+                        copyCallData();
+                        toast.info({
+                          title: 'Successfully copied hex code to clipboard',
+                        });
+                      }}
+                      ml={2}
+                      isDisabled={!callData}
+                      variant='outline'
+                      borderColor='gray.300'
+                    >
+                      Copy
+                    </Button>
+                  )}
+                </HStack>
+              </Box>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </Flex>
     </Box>
   );
