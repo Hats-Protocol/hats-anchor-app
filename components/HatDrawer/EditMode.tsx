@@ -147,11 +147,9 @@ const EditMode = ({
   }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
 
   useEffect(() => {
-    // If newImageURI has changed and is not the same as the previous one
     if (newImageURI && newImageURI !== hatData?.imageUri) {
       const dirtyFieldKeys = getDirtyFields();
 
-      // Check if newImageURI is not already in the dirty fields
       if (!dirtyFieldKeys.includes('newImageUri')) {
         dirtyFieldKeys.push('newImageUri');
       }
