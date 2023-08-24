@@ -47,7 +47,7 @@ const useMulticallCallManyHats = ({
   chainId,
   treeId,
 }: useMulticallCallManyHatsProps) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
   const hatsClient = createHatsClient(chainId);
   const toast = useToast();

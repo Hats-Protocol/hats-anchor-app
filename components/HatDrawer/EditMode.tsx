@@ -206,6 +206,7 @@ const EditMode = ({
                 localForm={localForm}
                 hatData={hatData}
                 chainId={chainId}
+                setUnsavedData={updateUnsavedData}
               />
             </Stack>
           </Accordion>

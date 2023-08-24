@@ -31,7 +31,6 @@ const TreeDrawer = ({
     _.map(topHat?.wearers, 'id'),
     _.toLower(address),
   );
-  console.log(wearingTopHat);
 
   return (
     <Box

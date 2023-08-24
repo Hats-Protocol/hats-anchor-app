@@ -48,7 +48,7 @@ const TopMenu = ({
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const toast = useToast();
   const decimalTreeId = treeIdHexToDecimal(treeId);
-  const { onSubmit } = useMulticallCallManyHats({ chainId, treeId });
+  const { onSubmit, isLoading } = useMulticallCallManyHats({ chainId, treeId });
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
@@ -71,6 +71,8 @@ const TopMenu = ({
 
   const handleDeploy = async () => {
     await onSubmit();
+    setEditMode(false);
+    onClose();
   };
 
   const promptForReset = () => {
@@ -141,7 +143,9 @@ const TopMenu = ({
             leftIcon={<IoExitOutline />}
             colorScheme='blue'
             variant='solid'
-            isDisabled={!wearingTopHat || !editHasUpdates(storedData)}
+            isDisabled={
+              !wearingTopHat || !editHasUpdates(storedData) || isLoading
+            }
             onClick={handleDeploy}
           >
             Deploy

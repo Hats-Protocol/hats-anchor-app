@@ -49,7 +49,12 @@ interface FormWearer {
   ens: string;
 }
 
-const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
+const HatWearerForm = ({
+  chainId,
+  hatData,
+  localForm,
+  setUnsavedData,
+}: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
 
   const { handleSubmit, setValue, watch } = localForm;
@@ -176,6 +181,10 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
       ens: isEnsAddress ? currentInput : '',
     });
     setValue('wearers', newLocalWearers);
+    setUnsavedData((prevState: any) => ({
+      ...prevState,
+      wearers: newLocalWearers,
+    }));
     setCurrentInput('');
   };
 
@@ -192,6 +201,10 @@ const HatWearerForm = ({ chainId, hatData, localForm }: HatWearerFormProps) => {
       (__, i) => _.toNumber(i) !== index,
     );
     setValue('wearers', updateWearers);
+    setUnsavedData((prevState: any) => ({
+      ...prevState,
+      wearers: updateWearers,
+    }));
   };
   const { isOpen, onToggle } = useDisclosure();
 
@@ -459,4 +472,5 @@ interface HatWearerFormProps {
   hatData: IHat;
   chainId: number;
   localForm: UseFormReturn;
+  setUnsavedData: (data: any) => void;
 }
