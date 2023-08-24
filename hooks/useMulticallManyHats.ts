@@ -84,16 +84,6 @@ const useMulticallCallManyHats = ({
         wearers,
       } = hat;
 
-      const existingDetails = _.get(
-        _.find(tree, ['id', hatId]),
-        'detailsObject.data',
-      );
-      console.log(existingDetails);
-
-      const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
-        BigInt(hatId),
-      )}`;
-
       if (
         hasDetailsChanged({
           name,
@@ -107,6 +97,13 @@ const useMulticallCallManyHats = ({
           deactivationsCriteria,
         })
       ) {
+        const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
+          BigInt(hatId),
+        )}`;
+        const existingDetails = _.get(
+          _.find(tree, ['id', hatId]),
+          'detailsObject.data',
+        );
         const updatedDetails = {
           name,
           description,
