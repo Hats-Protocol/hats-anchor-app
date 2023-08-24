@@ -55,7 +55,6 @@ const TopMenu = ({
   returnToList,
   isLoading,
 }: TopMenuProps) => {
-  console.log('isLoading', isLoading);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { address } = useAccount();
