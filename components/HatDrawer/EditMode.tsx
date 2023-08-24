@@ -127,6 +127,8 @@ const EditMode = ({
       .map((field) => field.label);
   };
 
+  const [newImageURI, setNewImageURI] = useState('');
+
   useEffect(() => {
     if (!_.isEqual(prevAllFormData.current, allFormData)) {
       const dirtyFieldKeys = getDirtyFields();
@@ -144,8 +146,31 @@ const EditMode = ({
     }
   }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
 
-  const [newImageURI, setNewImageURI] = useState('');
-  // const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
+  useEffect(() => {
+    // If newImageURI has changed and is not the same as the previous one
+    if (newImageURI && newImageURI !== hatData?.imageUri) {
+      const dirtyFieldKeys = getDirtyFields();
+
+      // Check if newImageURI is not already in the dirty fields
+      if (!dirtyFieldKeys.includes('newImageUri')) {
+        dirtyFieldKeys.push('newImageUri');
+      }
+
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: FormData, key: keyof FormData) => {
+          if (key === 'newImageUri') {
+            acc.imageUrl = newImageURI;
+          } else {
+            acc[key] = allFormData[key];
+          }
+          return acc;
+        },
+        {} as FormData,
+      );
+
+      updateUnsavedData(dirtyFormData);
+    }
+  }, [newImageURI]);
 
   const eligibility = useDebounce(
     watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
