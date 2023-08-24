@@ -22,8 +22,10 @@ const EditMode = ({
   hatData,
   chainId,
   hatDetails,
+  unsavedData,
   updateUnsavedData,
   treeId,
+  setIsLoading,
 }: EditModeProps) => {
   const {
     name: initialName,
@@ -127,6 +129,52 @@ const EditMode = ({
       .map((field) => field.label);
   };
 
+  const [newImageURI, setNewImageURI] = useState('');
+
+  const eligibility = useDebounce(
+    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  );
+  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  useEffect(() => {
+    if (isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress) {
+      setIsLoading(true);
+    } else setIsLoading(false);
+  }, [
+    isLoadingEligibilityResolvedAddress,
+    isLoadingToggleResolvedAddress,
+    setIsLoading,
+  ]);
+
+  useEffect(() => {
+    if (toggleResolvedAddress !== unsavedData?.toggle) {
+      updateUnsavedData({
+        toggle: toggleResolvedAddress || allFormData.toggle,
+      } as FormData);
+    }
+    if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
+      updateUnsavedData({
+        eligibility: eligibilityResolvedAddress || allFormData.eligibility,
+      } as FormData);
+    }
+  }, [eligibilityResolvedAddress, toggleResolvedAddress]);
+
   useEffect(() => {
     if (!_.isEqual(prevAllFormData.current, allFormData)) {
       const dirtyFieldKeys = getDirtyFields();
@@ -144,23 +192,29 @@ const EditMode = ({
     }
   }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
 
-  const [newImageURI, setNewImageURI] = useState('');
-  // const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
+  useEffect(() => {
+    if (newImageURI && newImageURI !== hatData?.imageUri) {
+      const dirtyFieldKeys = getDirtyFields();
 
-  const eligibility = useDebounce(
-    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
-  );
-  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+      if (!dirtyFieldKeys.includes('newImageUri')) {
+        dirtyFieldKeys.push('newImageUri');
+      }
 
-  const { data: eligibilityResolvedAddress } = useEnsAddress({
-    name: eligibility,
-    chainId: 1,
-  });
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: FormData, key: keyof FormData) => {
+          if (key === 'newImageUri') {
+            acc.imageUrl = newImageURI;
+          } else {
+            acc[key] = allFormData[key];
+          }
+          return acc;
+        },
+        {} as FormData,
+      );
 
-  const { data: toggleResolvedAddress } = useEnsAddress({
-    name: toggle,
-    chainId: 1,
-  });
+      updateUnsavedData(dirtyFormData);
+    }
+  }, [newImageURI]);
 
   if (!hatData) return null;
 
@@ -345,5 +399,7 @@ interface EditModeProps {
   chainId: number;
   hatDetails: HatDetails;
   updateUnsavedData: (data: FormData) => void;
+  unsavedData: FormData | null;
   treeId: string;
+  setIsLoading: (isLoading: boolean) => void;
 }

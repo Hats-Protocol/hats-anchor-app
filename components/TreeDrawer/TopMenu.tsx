@@ -32,6 +32,7 @@ import { editHasUpdates } from '@/lib/hats';
 import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
+import useTreeDetails from '@/hooks/useTreeDetails';
 
 const TopMenu = ({
   editMode,
@@ -42,13 +43,18 @@ const TopMenu = ({
   storedData,
   setStoredData,
   wearingTopHat,
+  tree,
 }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const toast = useToast();
   const decimalTreeId = treeIdHexToDecimal(treeId);
-  const { onSubmit, isLoading } = useMulticallCallManyHats({ chainId, treeId });
+  const { onSubmit, isLoading } = useMulticallCallManyHats({
+    chainId,
+    treeId,
+    tree,
+  });
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
@@ -197,4 +203,5 @@ interface TopMenuProps {
   storedData: Partial<IHat>[];
   setStoredData: (v: any) => void;
   wearingTopHat: boolean;
+  tree: IHat[];
 }

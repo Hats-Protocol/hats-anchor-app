@@ -80,6 +80,7 @@ const SelectedHatDrawer = ({
   returnToList,
 }: SelectedHatDrawerProps) => {
   const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { address } = useAccount();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -241,6 +242,7 @@ const SelectedHatDrawer = ({
           wearerTopHats={wearerTopHats}
           onSave={handleSave}
           returnToList={returnToList}
+          isLoading={isLoading}
         />
 
         {!editMode && (
@@ -263,8 +265,10 @@ const SelectedHatDrawer = ({
             chainId={chainId}
             hatData={hatData}
             hatDetails={hatDetails}
-            updateUnsavedData={(data: FormData) => setUnsavedData(data)}
+            updateUnsavedData={setUnsavedData}
+            unsavedData={unsavedData}
             treeId={hatData?.treeId}
+            setIsLoading={setIsLoading}
           />
         )}
 

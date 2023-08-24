@@ -13,7 +13,6 @@ import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray } from 'react-hook-form';
 import {
-  FaChartBar,
   FaHouseUser,
   FaImage,
   FaParagraph,
@@ -30,6 +29,7 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import { MUTABILITY } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+import { formatImageUrl } from '@/lib/general';
 import { isMutable, isTopHat } from '@/lib/hats';
 
 const MUTABILITY_OPTIONS = [
@@ -79,6 +79,8 @@ const HatBasicsForm = ({
       );
     },
   });
+
+  const imageUrl = formatImageUrl(formState?.defaultValues?.imageUrl);
 
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
@@ -130,6 +132,7 @@ const HatBasicsForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={image}
+                imageUrl={imageUrl}
               />
             </Box>
           </FormRowWrapper>

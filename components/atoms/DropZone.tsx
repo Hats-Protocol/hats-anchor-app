@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
-import { Box, Flex, Stack } from '@chakra-ui/react';
+import { Box, Flex, Image, Input, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
 import { ImageFile } from '@/types';
@@ -48,6 +48,7 @@ const DropZone = ({
   isDragReject,
   isFullWidth,
   image,
+  imageUrl,
 }: DropZoneProps) => {
   const style = useMemo(
     () => ({
@@ -70,31 +71,7 @@ const DropZone = ({
     width: 100,
     height: 100,
     padding: 4,
-    // boxSizing: 'border-box',
   };
-
-  const img = {
-    display: 'block',
-    width: 'auto',
-    height: '100%',
-  };
-
-  const thumbs =
-    image !== undefined ? (
-      <Box style={thumb} key={image.name}>
-        <Flex minWidth={0} overflow='hidden'>
-          <img
-            src={image.preview}
-            style={img}
-            // Revoke data uri after image is loaded
-            onLoad={() => {
-              URL.revokeObjectURL(image.preview);
-            }}
-            alt='Uploaded item from user'
-          />
-        </Flex>
-      </Box>
-    ) : null;
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -109,17 +86,32 @@ const DropZone = ({
   return (
     <Stack spacing={2} w='full'>
       <Flex gap={3}>
-        <div {...getRootProps({ style })}>
-          <input {...getInputProps()} />
-          {image !== undefined ? (
-            <p>
-              Image uploaded! For another image, drag n drop, or click to select
-            </p>
-          ) : (
-            <p>Drag n drop, or click to select</p>
-          )}
-        </div>
-        {thumbs && <Flex wrap='wrap'>{thumbs}</Flex>}
+        <Box {...getRootProps({ style })}>
+          <Input {...getInputProps()} display='none' />{' '}
+          <Text>
+            {image
+              ? 'Image uploaded! For another image, drag n drop, or click to select'
+              : 'Drag n drop, or click to select'}
+          </Text>
+        </Box>
+        {(image || imageUrl) && (
+          <Flex wrap='wrap'>
+            <Box style={thumb}>
+              <Flex minWidth={0} overflow='hidden'>
+                <Image
+                  src={image?.preview ?? imageUrl}
+                  display='block'
+                  width='auto'
+                  height='100%'
+                  onLoad={() => {
+                    if (image) URL.revokeObjectURL(image.preview);
+                  }}
+                  alt='Uploaded item from user'
+                />
+              </Flex>
+            </Box>
+          </Flex>
+        )}
       </Flex>
     </Stack>
   );
@@ -136,4 +128,5 @@ interface DropZoneProps {
   isDragReject?: boolean;
   isFullWidth?: boolean;
   image?: ImageFile;
+  imageUrl?: string;
 }

@@ -141,6 +141,7 @@ export type FormDataDetails = {
   isToggleManual: string;
   revocationsCriteria: DetailsItem[];
   deactivationsCriteria: DetailsItem[];
+  newImageUri?: string;
 };
 
 export type FieldItem = { name: keyof FormData; label: string };

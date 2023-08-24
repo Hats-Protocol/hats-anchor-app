@@ -53,6 +53,7 @@ const TopMenu = ({
   isAdminUser,
   onSave,
   returnToList,
+  isLoading,
 }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -291,6 +292,7 @@ const TopMenu = ({
             colorScheme='twitter'
             variant='solid'
             onClick={handleSave}
+            isLoading={isLoading}
           >
             Save
           </Button>
@@ -328,4 +330,5 @@ interface TopMenuProps {
   wearerTopHats: string[];
   onSave: (v?: boolean) => void;
   returnToList: () => void;
+  isLoading: boolean;
 }
