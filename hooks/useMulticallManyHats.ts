@@ -9,7 +9,7 @@ import { createHatsClient } from '@/lib/web3';
 import { generateLocalStorageKey } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { TRIGGER_OPTIONS } from '@/constants';
-import { FormDataDetails } from '@/types';
+import { FormDataDetails, IHat } from '@/types';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -17,6 +17,7 @@ import { useAccount } from 'wagmi';
 type useMulticallCallManyHatsProps = {
   chainId: number;
   treeId: string;
+  tree: IHat[];
 };
 
 const hasDetailsChanged = ({
@@ -46,6 +47,7 @@ const hasDetailsChanged = ({
 const useMulticallCallManyHats = ({
   chainId,
   treeId,
+  tree,
 }: useMulticallCallManyHatsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
@@ -62,7 +64,7 @@ const useMulticallCallManyHats = ({
   const onSubmit = async () => {
     const calls = [] as any[];
 
-    for (let change of storedData) {
+    for (let hat of storedData) {
       const {
         maxSupply,
         eligibility,
@@ -78,12 +80,18 @@ const useMulticallCallManyHats = ({
         guilds,
         responsibilities,
         authorities,
-        id,
+        id: hatId,
         wearers,
-      } = change;
+      } = hat;
+
+      const existingDetails = _.get(
+        _.find(tree, ['id', hatId]),
+        'detailsObject.data',
+      );
+      console.log(existingDetails);
 
       const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
-        BigInt(id),
+        BigInt(hatId),
       )}`;
 
       if (
@@ -99,21 +107,22 @@ const useMulticallCallManyHats = ({
           deactivationsCriteria,
         })
       ) {
-        const newDetailsData = {
+        const updatedDetails = {
           name,
           description,
-          guilds,
+          guilds: guilds || [],
           responsibilities: _.reject(responsibilities, ['label', '']),
           authorities: _.reject(authorities, ['label', '']),
           eligibility: {
             manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-            criteria: revocationsCriteria,
+            criteria: revocationsCriteria || [],
           },
           toggle: {
             manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-            criteria: deactivationsCriteria,
+            criteria: deactivationsCriteria || [],
           },
         };
+        const newDetailsData = _.merge(existingDetails, updatedDetails);
 
         const newCid = `ipfs://${await pinJson(
           {
@@ -124,7 +133,7 @@ const useMulticallCallManyHats = ({
         )}`;
 
         const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
-          hatId: decimalId(id) as unknown as bigint,
+          hatId: decimalId(hatId) as unknown as bigint,
           newDetails: newCid,
         });
 
@@ -135,7 +144,7 @@ const useMulticallCallManyHats = ({
 
       if (maxSupply) {
         const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
-          hatId: decimalId(id) as unknown as bigint,
+          hatId: decimalId(hatId) as unknown as bigint,
           newMaxSupply: parseInt(maxSupply, 10),
         });
 
@@ -149,7 +158,7 @@ const useMulticallCallManyHats = ({
           const wearerAddress = _.get(_.first(wearers), 'address');
           if (wearerAddress) {
             const mintHatWearersData = hatsClient.mintHatCallData({
-              hatId: decimalId(id) as unknown as bigint,
+              hatId: decimalId(hatId) as unknown as bigint,
               wearer: wearerAddress,
             });
 
@@ -160,7 +169,7 @@ const useMulticallCallManyHats = ({
         } else {
           const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
             hatIds: Array(_.size(wearers)).fill(
-              decimalId(id),
+              decimalId(hatId),
             ) as unknown as bigint[],
             wearers: _.map(wearers, 'address'),
           });
@@ -174,7 +183,7 @@ const useMulticallCallManyHats = ({
       if (eligibility) {
         const changeHatEligibilityData =
           hatsClient.changeHatEligibilityCallData({
-            hatId: decimalId(id) as unknown as bigint,
+            hatId: decimalId(hatId) as unknown as bigint,
             newEligibility: eligibility,
           });
 
@@ -185,7 +194,7 @@ const useMulticallCallManyHats = ({
 
       if (toggle) {
         const changeHatToggleData = hatsClient.changeHatToggleCallData({
-          hatId: decimalId(id) as unknown as bigint,
+          hatId: decimalId(hatId) as unknown as bigint,
           newToggle: toggle,
         });
 
@@ -196,7 +205,7 @@ const useMulticallCallManyHats = ({
 
       if (mutable) {
         const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
-          hatId: decimalId(id) as unknown as bigint,
+          hatId: decimalId(hatId) as unknown as bigint,
         });
 
         if (makeHatImmutableData) {
@@ -206,7 +215,7 @@ const useMulticallCallManyHats = ({
 
       if (imageUrl) {
         const changeHatImageURIData = hatsClient.changeHatImageURICallData({
-          hatId: decimalId(id) as unknown as bigint,
+          hatId: decimalId(hatId) as unknown as bigint,
           newImageURI: imageUrl,
         });
 

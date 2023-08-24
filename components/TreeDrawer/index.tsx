@@ -51,6 +51,7 @@ const TreeDrawer = ({
         storedData={storedData}
         setStoredData={setStoredData}
         wearingTopHat={wearingTopHat}
+        tree={tree}
       />
       <MainContent
         tree={tree}
