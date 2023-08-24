@@ -1,6 +1,6 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
@@ -22,8 +22,10 @@ const EditMode = ({
   hatData,
   chainId,
   hatDetails,
+  unsavedData,
   updateUnsavedData,
   treeId,
+  setIsLoading,
 }: EditModeProps) => {
   const {
     name: initialName,
@@ -129,6 +131,50 @@ const EditMode = ({
 
   const [newImageURI, setNewImageURI] = useState('');
 
+  const eligibility = useDebounce(
+    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  );
+  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+
+  const {
+    data: eligibilityResolvedAddress,
+    isLoading: isLoadingEligibilityResolvedAddress,
+  } = useEnsAddress({
+    name: eligibility,
+    chainId: 1,
+  });
+
+  const {
+    data: toggleResolvedAddress,
+    isLoading: isLoadingToggleResolvedAddress,
+  } = useEnsAddress({
+    name: toggle,
+    chainId: 1,
+  });
+
+  useEffect(() => {
+    if (isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress) {
+      setIsLoading(true);
+    } else setIsLoading(false);
+  }, [
+    isLoadingEligibilityResolvedAddress,
+    isLoadingToggleResolvedAddress,
+    setIsLoading,
+  ]);
+
+  useEffect(() => {
+    if (toggleResolvedAddress !== unsavedData?.toggle) {
+      updateUnsavedData({
+        toggle: toggleResolvedAddress || allFormData.toggle,
+      } as FormData);
+    }
+    if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
+      updateUnsavedData({
+        eligibility: eligibilityResolvedAddress || allFormData.eligibility,
+      } as FormData);
+    }
+  }, [eligibilityResolvedAddress, toggleResolvedAddress]);
+
   useEffect(() => {
     if (!_.isEqual(prevAllFormData.current, allFormData)) {
       const dirtyFieldKeys = getDirtyFields();
@@ -169,21 +215,6 @@ const EditMode = ({
       updateUnsavedData(dirtyFormData);
     }
   }, [newImageURI]);
-
-  const eligibility = useDebounce(
-    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
-  );
-  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
-
-  const { data: eligibilityResolvedAddress } = useEnsAddress({
-    name: eligibility,
-    chainId: 1,
-  });
-
-  const { data: toggleResolvedAddress } = useEnsAddress({
-    name: toggle,
-    chainId: 1,
-  });
 
   if (!hatData) return null;
 
@@ -368,5 +399,7 @@ interface EditModeProps {
   chainId: number;
   hatDetails: HatDetails;
   updateUnsavedData: (data: FormData) => void;
+  unsavedData: FormData | null;
   treeId: string;
+  setIsLoading: (isLoading: boolean) => void;
 }

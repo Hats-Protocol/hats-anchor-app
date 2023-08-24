@@ -182,6 +182,7 @@ const useMulticallCallData = ({
         }
       }
     }
+    console.log('calls', calls);
 
     return hatsClient.multicallCallData([...calls]);
   };
