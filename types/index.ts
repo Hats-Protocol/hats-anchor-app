@@ -128,6 +128,7 @@ export type FormData = FormDataDetails & {
   mutable: string;
   imageUrl: string;
   id?: string;
+  wearers: string[];
 };
 
 export type FormDataDetails = {

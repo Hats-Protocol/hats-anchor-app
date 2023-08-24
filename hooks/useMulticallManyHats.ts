@@ -1,0 +1,258 @@
+import _ from 'lodash';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+
+import useToast from '@/hooks/useToast';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { pinJson } from '@/lib/ipfs';
+import { createHatsClient } from '@/lib/web3';
+import { generateLocalStorageKey } from '@/lib/general';
+import { decimalId } from '@/lib/hats';
+import { TRIGGER_OPTIONS } from '@/constants';
+import { FormDataDetails } from '@/types';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
+
+type useMulticallCallManyHatsProps = {
+  chainId: number;
+  treeId: string;
+};
+
+const hasDetailsChanged = ({
+  name,
+  description,
+  guilds,
+  responsibilities,
+  authorities,
+  isEligibilityManual,
+  revocationsCriteria,
+  isToggleManual,
+  deactivationsCriteria,
+}: FormDataDetails) => {
+  return (
+    name ||
+    description ||
+    guilds?.length > 0 ||
+    responsibilities?.length > 0 ||
+    authorities?.length > 0 ||
+    isEligibilityManual ||
+    revocationsCriteria?.length > 0 ||
+    isToggleManual ||
+    deactivationsCriteria?.length > 0
+  );
+};
+
+const useMulticallCallManyHats = ({
+  chainId,
+  treeId,
+}: useMulticallCallManyHatsProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { address } = useAccount();
+  const hatsClient = createHatsClient(chainId);
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const [storedData, setStoredData] = useLocalStorage<any[]>(
+    localStorageKey,
+    [],
+  );
+
+  const onSubmit = async () => {
+    const calls = [] as any[];
+
+    for (let change of storedData) {
+      const {
+        maxSupply,
+        eligibility,
+        toggle,
+        mutable,
+        imageUrl,
+        isEligibilityManual,
+        isToggleManual,
+        revocationsCriteria,
+        deactivationsCriteria,
+        name,
+        description,
+        guilds,
+        responsibilities,
+        authorities,
+        id,
+        wearers,
+      } = change;
+
+      const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
+        BigInt(id),
+      )}`;
+
+      if (
+        hasDetailsChanged({
+          name,
+          description,
+          guilds,
+          responsibilities,
+          authorities,
+          isEligibilityManual,
+          revocationsCriteria,
+          isToggleManual,
+          deactivationsCriteria,
+        })
+      ) {
+        const newDetailsData = {
+          name,
+          description,
+          guilds,
+          responsibilities: _.reject(responsibilities, ['label', '']),
+          authorities: _.reject(authorities, ['label', '']),
+          eligibility: {
+            manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+            criteria: revocationsCriteria,
+          },
+          toggle: {
+            manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+            criteria: deactivationsCriteria,
+          },
+        };
+
+        const newCid = `ipfs://${await pinJson(
+          {
+            type: '1.0',
+            data: newDetailsData,
+          },
+          { name: detailsName },
+        )}`;
+
+        const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newDetails: newCid,
+        });
+
+        if (changeHatDetailsData) {
+          calls.push(changeHatDetailsData);
+        }
+      }
+
+      if (maxSupply) {
+        const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newMaxSupply: parseInt(maxSupply, 10),
+        });
+
+        if (changeHatMaxSupplyData) {
+          calls.push(changeHatMaxSupplyData);
+        }
+      }
+
+      if (wearers) {
+        if (_.eq(_.size(wearers), 1)) {
+          const wearerAddress = _.get(_.first(wearers), 'address');
+          if (wearerAddress) {
+            const mintHatWearersData = hatsClient.mintHatCallData({
+              hatId: decimalId(id) as unknown as bigint,
+              wearer: wearerAddress,
+            });
+
+            if (mintHatWearersData) {
+              calls.push(mintHatWearersData);
+            }
+          }
+        } else {
+          const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
+            hatIds: Array(_.size(wearers)).fill(
+              decimalId(id),
+            ) as unknown as bigint[],
+            wearers: _.map(wearers, 'address'),
+          });
+
+          if (batchMintHatWearersData) {
+            calls.push(batchMintHatWearersData);
+          }
+        }
+      }
+
+      if (eligibility) {
+        const changeHatEligibilityData =
+          hatsClient.changeHatEligibilityCallData({
+            hatId: decimalId(id) as unknown as bigint,
+            newEligibility: eligibility,
+          });
+
+        if (changeHatEligibilityData) {
+          calls.push(changeHatEligibilityData);
+        }
+      }
+
+      if (toggle) {
+        const changeHatToggleData = hatsClient.changeHatToggleCallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newToggle: toggle,
+        });
+
+        if (changeHatToggleData) {
+          calls.push(changeHatToggleData);
+        }
+      }
+
+      if (mutable) {
+        const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
+          hatId: decimalId(id) as unknown as bigint,
+        });
+
+        if (makeHatImmutableData) {
+          calls.push(makeHatImmutableData);
+        }
+      }
+
+      if (imageUrl) {
+        const changeHatImageURIData = hatsClient.changeHatImageURICallData({
+          hatId: decimalId(id) as unknown as bigint,
+          newImageURI: imageUrl,
+        });
+
+        if (changeHatImageURIData) {
+          calls.push(changeHatImageURIData);
+        }
+      }
+    }
+
+    if (calls.length > 0) {
+      setIsLoading(true);
+      try {
+        await hatsClient.multicall({
+          account: address as Hex,
+          calls,
+        });
+
+        // TODO handle optimistic image update
+        const treeQueryKey = ['treeDetails', treeId, chainId];
+
+        queryClient.invalidateQueries(treeQueryKey);
+        setIsLoading(false);
+        setStoredData([]);
+
+        toast.success({
+          title: 'Transaction successful',
+          description: 'Hats were successfully updated',
+        });
+        return true;
+      } catch (error: unknown) {
+        console.log(error);
+        toast.error({
+          title: 'Error occurred!',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
+
+        setIsLoading(false);
+        return false;
+      }
+    }
+  };
+
+  return { onSubmit, isLoading };
+};
+
+export default useMulticallCallManyHats;

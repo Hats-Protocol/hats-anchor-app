@@ -1,9 +1,10 @@
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { hatIdToHex } from '@/lib/hats';
+// import { hatIdToHex } from '@/lib/hats';
 import { IHatWearer } from '@/types';
 
 const useHatBurn = ({
@@ -29,8 +30,8 @@ const useHatBurn = ({
       description: 'Successfully removed hat',
     },
     queryKeys: [
-      ['hatDetails', hatIdToHex(hatId)],
-      ['treeDetails', hatIdToHex(hatId)],
+      ['hatDetails', hatId || '', chainId],
+      ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId],
     ],
     enabled:
       Boolean(hatsAddress) &&

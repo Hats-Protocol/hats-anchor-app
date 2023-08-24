@@ -40,7 +40,6 @@ const Textarea = ({
   } = localForm;
 
   const isDirty = dirtyFields[name];
-  const hasDefaultValue = defaultValues && !_.isEmpty(defaultValues[name]);
 
   const onReset = () => {
     if (defaultValues) resetField(name, { keepDirty: false });
@@ -92,7 +91,7 @@ const Textarea = ({
               borderColor={isDirty ? 'cyan.500' : undefined}
               variant='filled'
             />
-            {isDirty && hasDefaultValue && (
+            {isDirty && (
               <InputRightElement>
                 <IconButton
                   icon={<GrUndo />}

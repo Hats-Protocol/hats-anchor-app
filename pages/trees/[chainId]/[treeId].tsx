@@ -417,6 +417,7 @@ const TreeDetails = ({
                         color={isOpen ? 'blue.500' : '#2D3748'}
                       />
                     }
+                    isDisabled={editMode}
                     variant='filled'
                     rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                     fontWeight='medium'
