@@ -1,5 +1,7 @@
+import CONFIG from '@/constants';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { PINATA_GATEWAY_TOKEN } from './ipfs';
 
 // unused
 export function parseUri(uri: string) {
@@ -42,6 +44,25 @@ async function fetchWithTimeout(resource: any, options: any = {}) {
   return response;
 }
 
+export const mapWithChainId = (
+  array: object[] | null,
+  chainId: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
+
+export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
+
+export const validateURL = (textVal: string) => {
+  const urlRegex =
+    /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
+  return urlRegex.test(textVal);
+};
+
+export const generateLocalStorageKey = (chainId: number, treeId: string) => {
+  const decimalTreeId = treeIdHexToDecimal(treeId);
+  return `treeData-${chainId}-${decimalTreeId}`;
+};
+
 /**
  * checks if a url links to an image
  */
@@ -73,21 +94,22 @@ export async function isImageUrl(url: string | unknown) {
   return false;
 }
 
-export const mapWithChainId = (
-  array: object[] | null,
-  chainId: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
+export const formatImageUrl = (url?: string) => {
+  if (_.startsWith(url, 'https://')) {
+    return url;
+  }
+  if (_.startsWith(url, 'ipfs://')) {
+    return `${CONFIG.ipfsGateway}${url?.slice(
+      7,
+    )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+  }
+  if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
+    const ipfsHash = url?.slice(21);
+    const ipfsHashSplit = ipfsHash?.split('?')[0];
+    const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
+    const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
+    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+  }
 
-export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
-
-export const validateURL = (textVal: string) => {
-  const urlRegex =
-    /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
-  return urlRegex.test(textVal);
-};
-
-export const generateLocalStorageKey = (chainId: number, treeId: string) => {
-  const decimalTreeId = treeIdHexToDecimal(treeId);
-  return `treeData-${chainId}-${decimalTreeId}`;
+  return undefined;
 };
