@@ -181,7 +181,7 @@ const HatWearerForm = ({
       ens: isEnsAddress ? currentInput : '',
     });
     setValue('wearers', newLocalWearers);
-    setUnsavedData((prevState: any) => ({
+    setUnsavedData?.((prevState: any) => ({
       ...prevState,
       wearers: newLocalWearers,
     }));
@@ -201,7 +201,7 @@ const HatWearerForm = ({
       (__, i) => _.toNumber(i) !== index,
     );
     setValue('wearers', updateWearers);
-    setUnsavedData((prevState: any) => ({
+    setUnsavedData?.((prevState: any) => ({
       ...prevState,
       wearers: updateWearers,
     }));
@@ -472,5 +472,5 @@ interface HatWearerFormProps {
   hatData: IHat;
   chainId: number;
   localForm: UseFormReturn;
-  setUnsavedData: (data: any) => void;
+  setUnsavedData?: (data: any) => void;
 }
