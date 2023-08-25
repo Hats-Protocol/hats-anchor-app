@@ -9,30 +9,23 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
   Tooltip,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
-import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
-import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import hatsAbi from '@/contracts/Hats.json';
 import ImportTreeForm from '@/forms/ImportTreeForm';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useMulticallCallData from '@/hooks/useMulticallCallData';
+import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
 import { editHasUpdates } from '@/lib/hats';
-import { createHatsClient } from '@/lib/web3';
 import { IHat } from '@/types';
-import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
-import useTreeDetails from '@/hooks/useTreeDetails';
 
 const TopMenu = ({
   editMode,
@@ -76,9 +69,11 @@ const TopMenu = ({
   };
 
   const handleDeploy = async () => {
-    await onSubmit();
-    setEditMode(false);
-    onClose();
+    const result = await onSubmit();
+    if (result) {
+      setEditMode(false);
+      onClose();
+    }
   };
 
   const promptForReset = () => {

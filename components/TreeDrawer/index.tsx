@@ -58,7 +58,7 @@ const TreeDrawer = ({
         handleHatClick={handleHatClick}
         storedData={storedData}
       />
-      <BottomMenu chainId={chainId} treeId={treeId} />
+      <BottomMenu chainId={chainId} treeId={treeId} tree={tree} />
     </Box>
   );
 };

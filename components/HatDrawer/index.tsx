@@ -1,6 +1,7 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useReducer, useState } from 'react';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { MUTABILITY, STATUS } from '@/constants';
@@ -74,6 +75,7 @@ const SelectedHatDrawer = ({
   selectedHatId,
   setSelectedHatId,
   chainId,
+  treeId,
   hatsData,
   editMode,
   linkRequestFromTree,
@@ -81,6 +83,7 @@ const SelectedHatDrawer = ({
 }: SelectedHatDrawerProps) => {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  console.log(hatsData);
 
   const { address } = useAccount();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -93,7 +96,7 @@ const SelectedHatDrawer = ({
     mutableStatus,
     hatDetails,
   } = state;
-  const localStorageKey = generateLocalStorageKey(chainId, hatData?.treeId);
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<any[]>(
     localStorageKey,
     [],
@@ -136,6 +139,7 @@ const SelectedHatDrawer = ({
   useEffect(() => {
     if (selectedHatId) {
       const data = _.find(hatsData, { id: selectedHatId });
+      console.log(data);
       dispatch({ type: 'SET_HAT_DATA', payload: data });
 
       if (data?.detailsObject?.data) {
@@ -190,7 +194,6 @@ const SelectedHatDrawer = ({
       }
 
       setStoredData(updatedHats);
-
       setUnsavedData(null);
 
       if (sendToast) {
@@ -267,7 +270,7 @@ const SelectedHatDrawer = ({
             hatDetails={hatDetails}
             updateUnsavedData={setUnsavedData}
             unsavedData={unsavedData}
-            treeId={hatData?.treeId}
+            treeId={treeId}
             setIsLoading={setIsLoading}
           />
         )}
@@ -290,6 +293,7 @@ interface SelectedHatDrawerProps {
   selectedHatId?: string;
   setSelectedHatId: (id?: string) => void;
   chainId: number;
+  treeId: Hex;
   hatsData: IHat[] | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   linkRequestFromTree: any;

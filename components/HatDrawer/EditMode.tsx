@@ -36,9 +36,11 @@ const EditMode = ({
     eligibility: initialEligibility,
     toggle: initialToggle,
   } = hatDetails;
+  // console.log(hatDetails);
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
+  // console.log(storedData);
 
   const defaultFormValues = useMemo<FormData>(
     () => ({
@@ -81,6 +83,7 @@ const EditMode = ({
       initialGuilds,
     ],
   );
+  // console.log(defaultFormValues);
 
   const localForm = useForm({
     mode: 'onChange',
@@ -93,6 +96,7 @@ const EditMode = ({
 
     const initialFormValues = () => {
       const matchingHat = _.find(storedData, ['id', hatData?.id]);
+      // console.log(matchingHat);
 
       if (matchingHat) {
         formValues = {
@@ -101,7 +105,8 @@ const EditMode = ({
         };
       }
 
-      reset({ ...formValues, prepped: true });
+      // console.log(formValues);
+      reset(formValues);
     };
 
     if (hatData?.id && chainId && defaultFormValues && storedData) {
@@ -112,6 +117,7 @@ const EditMode = ({
   const allFormData = watch();
 
   const prevAllFormData = useRef<any>(allFormData);
+  console.log(prevAllFormData.current);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -120,6 +126,7 @@ const EditMode = ({
         JSON.stringify(allFormData[key]),
     );
   }, [allFormData, defaultFormValues]);
+  // console.log(getDirtyFields());
 
   const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
     const fields = getDirtyFields();
@@ -177,6 +184,7 @@ const EditMode = ({
 
   useEffect(() => {
     if (!_.isEqual(prevAllFormData.current, allFormData)) {
+      console.log('dirty');
       const dirtyFieldKeys = getDirtyFields();
       const dirtyFormData = dirtyFieldKeys.reduce(
         (acc: FormData, key: keyof FormData) => {

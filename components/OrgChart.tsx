@@ -14,20 +14,18 @@ import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
 import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
-import { formatAddress } from '@/lib/general';
-import {
-  calculateNextChildId,
-  ipToPrettyId,
-  isTopHatOrMutable,
-  prettyIdToId,
-} from '@/lib/hats';
+import { formatAddress, generateLocalStorageKey } from '@/lib/general';
+import { calculateNextChildId, ipToHatId, isTopHatOrMutable } from '@/lib/hats';
 import { IHat, IHatWearer } from '@/types';
 
 interface OrgChartComponentProps {
+  treeId: Hex;
   tree: IHat[] | null;
   isLoading: boolean;
   chainId: number;
@@ -56,6 +54,7 @@ function checkParentElementForClass(e: any, name: string) {
 }
 
 const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
+  treeId,
   tree,
   isLoading,
   chainId,
@@ -72,6 +71,12 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  // console.log(localStorageKey);
+  const [storedData, setStorageData] = useLocalStorage<any[]>(
+    localStorageKey,
+    [],
+  );
 
   useLayoutEffect(() => {
     const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.status));
@@ -119,9 +124,9 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   data.data.id,
                   filteredTree,
                 );
-                const newId = prettyIdToId(ipToPrettyId(nextChildId));
+                const newId = ipToHatId(nextChildId);
 
-                addChild({
+                const newHat = {
                   ...defaultHat,
                   chainId,
                   id: newId,
@@ -137,7 +142,16 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                       name: 'New Hat',
                     },
                   },
-                });
+                };
+
+                addChild(newHat);
+                const newDetails = _.get(newHat, 'detailsObject.data');
+                const onlyNeededKeys = {
+                  id: newHat.id,
+                  ...newDetails,
+                };
+                const removeCurrentId = _.reject(storedData, ['id', newId]);
+                setStorageData([...removeCurrentId, onlyNeededKeys]);
                 // wait to center. node doesn't exist right away
                 setTimeout(() => {
                   centerChart(chart, newId);

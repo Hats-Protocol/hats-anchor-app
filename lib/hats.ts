@@ -6,7 +6,15 @@ import { ZERO_ADDRESS } from '@/constants';
 import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HierarchyObject, IControls, IHat, InputObject, ITree } from '@/types';
+import {
+  FormDataDetails,
+  HierarchyObject,
+  IControls,
+  IHat,
+  InputObject,
+  ITree,
+} from '@/types';
+import { pinJson } from './ipfs';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -386,3 +394,41 @@ export const editHasUpdates = (storedData: any[]) =>
   !_.isEmpty(
     _.reject(storedData, (data) => _.isEmpty(_.keys(_.omit(data, 'id')))),
   );
+
+interface handleDetailsPinProps {
+  chainId: number;
+  hatId: string;
+  newDetails: Partial<FormDataDetails>;
+  existingDetails?: Partial<FormDataDetails> | {};
+}
+
+export const handleDetailsPin = async ({
+  chainId,
+  hatId,
+  newDetails,
+  existingDetails = {},
+}: handleDetailsPinProps) => {
+  const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
+    BigInt(hatId),
+  )}`;
+  const newDetailsData = _.merge(existingDetails, newDetails);
+
+  const cid = `ipfs://${await pinJson(
+    {
+      type: '1.0',
+      data: newDetailsData,
+    },
+    { name: detailsName },
+  )}`;
+  return cid;
+};
+
+export const getDefaultAdminId = (hatId: string) => {
+  const currentIpId = hatIdDecimalToIp(BigInt(hatId));
+  const splitIpId = _.split(currentIpId, '.');
+  const defaultAdminId = _.join(
+    _.concat(_.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1))),
+    '.',
+  );
+  return ipToHatId(defaultAdminId);
+};

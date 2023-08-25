@@ -1,4 +1,5 @@
-import { Box, Button, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FaPlus, FaRegEdit, FaRegListAlt, FaShieldAlt } from 'react-icons/fa';
@@ -8,8 +9,9 @@ import AddressInput from '@/components/AddressInput';
 import RadioBox from '@/components/atoms/RadioBox';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
-import { TRIGGER_OPTIONS } from '@/constants';
+import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { formatAddress } from '@/lib/general';
 import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
@@ -110,41 +112,58 @@ const HatManagementForm = ({
             resolvedAddress={String(actionResolvedAddress)}
           />
         </FormRowWrapper>
-        <FormRowWrapper>
-          <FaRegListAlt />
-          <Stack>
-            <Text>{address.toUpperCase()} REQUIREMENTS (optional)</Text>
-            <Text color='blackAlpha.700'>
-              A written description of the logic in the Accountability Module.
-            </Text>
-          </Stack>
-        </FormRowWrapper>
-        {fields.map((field, index) => (
-          <LabelWithLink
-            key={field.id}
-            localForm={localForm}
-            title={title}
-            handleRemoveItem={() => remove(index)}
-            handleEdit={() => handleEdit(index)}
-            handleSave={handleSave}
-            inputLink={inputLink}
-            setInputLink={setInputLink}
-            isLinkValid={isLinkValid}
-            setIsLinkValid={setIsLinkValid}
-            labelName={`${formName}.${index}.label`}
-            linkName={`${formName}.${index}.link`}
-          />
-        ))}
-        <Box mb={2}>
-          <Button
-            onClick={() => append({ link: '', label: '' })}
-            isDisabled={items?.some((item: DetailsItem) => item.label === '')}
-            gap={2}
-          >
-            <FaPlus />
-            Add {items?.length ? 'another' : 'a'} Requirement
-          </Button>
-        </Box>
+        {address !== FALLBACK_ADDRESS && (
+          <>
+            <FormRowWrapper>
+              <Stack>
+                <HStack>
+                  {' '}
+                  <FaRegListAlt />
+                  <Text>
+                    {address.includes('.eth')
+                      ? _.toUpper(address)
+                      : formatAddress(address)}{' '}
+                    REQUIREMENTS (optional)
+                  </Text>
+                </HStack>
+
+                <Text color='blackAlpha.700'>
+                  A written description of the logic in the Accountability
+                  Module.
+                </Text>
+              </Stack>
+            </FormRowWrapper>
+            {fields.map((field, index) => (
+              <LabelWithLink
+                key={field.id}
+                localForm={localForm}
+                title={title}
+                handleRemoveItem={() => remove(index)}
+                handleEdit={() => handleEdit(index)}
+                handleSave={handleSave}
+                inputLink={inputLink}
+                setInputLink={setInputLink}
+                isLinkValid={isLinkValid}
+                setIsLinkValid={setIsLinkValid}
+                labelName={`${formName}.${index}.label`}
+                linkName={`${formName}.${index}.link`}
+              />
+            ))}
+
+            <Box mb={2}>
+              <Button
+                onClick={() => append({ link: '', label: '' })}
+                isDisabled={items?.some(
+                  (item: DetailsItem) => item.label === '',
+                )}
+                gap={2}
+              >
+                <FaPlus />
+                Add {items?.length ? 'another' : 'a'} Requirement
+              </Button>
+            </Box>
+          </>
+        )}
       </Stack>
     </form>
   );

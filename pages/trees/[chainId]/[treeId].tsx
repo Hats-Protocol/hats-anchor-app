@@ -40,6 +40,7 @@ import { BsPencil, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -131,6 +132,7 @@ const TreeDetails = ({
   const chain = chainsMap(chainId);
   const [editMode, setEditMode] = useState(false);
   const [orgChartTree, setOrgChartTree] = useState<IHat[]>([]);
+  const [existingTree, setExistingTree] = useState<IHat[]>([]);
   const [initialHats, setInitialHats] = useState<IHat[] | undefined>(undefined);
   const [selectedHatId, setSelectedHatId] = useState<string | undefined>(
     ipToHatId(String(hatId)) !== ZERO_ID ? ipToHatId(String(hatId)) : topHatId,
@@ -205,6 +207,7 @@ const TreeDetails = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hatId, orgChartTree]);
+  console.log(orgChartTree);
 
   const events = _.get(treeData, 'events');
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
@@ -225,6 +228,7 @@ const TreeDetails = ({
         ) as IHat[],
       );
     }
+    console.log('running tree build');
     const fetchTreeAndSetState = async () => {
       const tree = await toTreeStructure({
         treeData,
@@ -232,6 +236,7 @@ const TreeDetails = ({
         chainId,
       });
       setOrgChartTree(tree);
+      setExistingTree(tree);
     };
 
     if (treeData && !imagesDataLoading) {
@@ -264,6 +269,7 @@ const TreeDetails = ({
     }
     setEditMode(!editMode);
     setSelectedHatId(undefined);
+    //! check storedData to add any draft children
     const updatedQuery = _.omit(router.query, 'hatId');
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
@@ -324,9 +330,10 @@ const TreeDetails = ({
           <DrawerBody pt={0}>
             <HatDrawer
               chainId={chainId}
+              treeId={treeId}
               selectedHatId={selectedHatId}
               setSelectedHatId={setSelectedHatId}
-              hatsData={orgChartTree}
+              hatsData={existingTree}
               linkRequestFromTree={linkRequestFromTree}
               editMode={editMode}
               returnToList={returnToList}
@@ -557,6 +564,7 @@ const TreeDetails = ({
         {!_.isEmpty(orgChartTree) ? (
           <Suspense fallback={<Suspender />}>
             <OrgChart
+              treeId={treeId}
               tree={orgChartTree}
               selectedOption={selectedOption}
               showInactiveHats={showInactiveHats}
@@ -652,7 +660,7 @@ export const getStaticPaths = async () => {
 export default TreeDetails;
 
 interface TreeDetailsProps {
-  treeId: string;
+  treeId: Hex;
   chainId: number;
   topHatId: string;
   initialTreeData: ITree;

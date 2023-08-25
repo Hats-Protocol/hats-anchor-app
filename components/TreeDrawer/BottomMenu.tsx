@@ -20,9 +20,14 @@ import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
 import { editHasUpdates } from '@/lib/hats';
+import { IHat } from '@/types';
 
-const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
-  const { resolvedData, isLoading } = useMulticallCallData({ chainId, treeId });
+const BottomMenu = ({ chainId, treeId, tree }: BottomMenuProps) => {
+  const { resolvedData, isLoading } = useMulticallCallData({
+    chainId,
+    treeId,
+    tree,
+  });
   const callData = resolvedData ? resolvedData.callData : null;
   const toast = useToast();
 
@@ -99,4 +104,5 @@ export default BottomMenu;
 interface BottomMenuProps {
   chainId: number;
   treeId: string;
+  tree: IHat[];
 }
