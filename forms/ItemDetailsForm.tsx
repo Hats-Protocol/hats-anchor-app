@@ -3,6 +3,7 @@ import {
   Button,
   HStack,
   Icon as IconWrapper,
+  Stack,
   Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -66,7 +67,7 @@ const ItemDetailsForm = ({
   };
 
   return (
-    <>
+    <Stack>
       <Box>
         <HStack alignItems='center' ml={-6}>
           {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
@@ -105,7 +106,7 @@ const ItemDetailsForm = ({
           Add {items?.length ? 'another' : 'a'} {label}
         </Button>
       </Box>
-    </>
+    </Stack>
   );
 };
 

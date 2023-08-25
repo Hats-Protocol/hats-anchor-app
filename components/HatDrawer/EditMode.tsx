@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaKey, FaRegListAlt } from 'react-icons/fa';
+import { BsKey, BsListUl } from 'react-icons/bs';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
@@ -319,7 +319,7 @@ const EditMode = ({
               title='PERMISSIONS'
               subtitle='Things this Hat allows its Wearer to do.'
               label='Permission'
-              Icon={FaKey}
+              Icon={BsKey}
             />
           </Stack>
         </Accordion>
@@ -337,7 +337,8 @@ const EditMode = ({
               formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
-              Icon={FaRegListAlt}
+              subtitle='Tasks and responsibilities associated with this Hat.'
+              Icon={BsListUl}
             />
           </Stack>
         </Accordion>
@@ -357,7 +358,7 @@ const EditMode = ({
               radioBoxConfig={{
                 name: 'isEligibilityManual',
                 label: 'Hat Revocation',
-                subLabel: 'How should toggle from wearers be handled?',
+                subLabel: 'How should revocation from wearers be handled?',
               }}
               inputConfig={{
                 label: 'ACCOUNTABILITY',
