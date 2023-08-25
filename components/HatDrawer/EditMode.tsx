@@ -4,29 +4,27 @@ import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
-import useLocalStorage from '@/hooks/useLocalStorage';
-import { generateLocalStorageKey } from '@/lib/general';
 import { isTopHat } from '@/lib/hats';
-import { DetailsItem, FieldItem, FormData, HatDetails, IHat } from '@/types';
+import { DetailsItem, FieldItem, FormData } from '@/types';
 
 const EditMode = ({
-  hatData,
-  chainId,
-  hatDetails,
   unsavedData,
   updateUnsavedData,
-  treeId,
   setIsLoading,
 }: EditModeProps) => {
+  const { chainId, storedData, selectedHat, selectedHatDetails } =
+    useTreeForm();
   const {
     name: initialName,
     description: initialDescription,
@@ -35,20 +33,33 @@ const EditMode = ({
     authorities: initialAuthorities,
     eligibility: initialEligibility,
     toggle: initialToggle,
-  } = hatDetails;
-  // console.log(hatDetails);
-
-  const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
-  // console.log(storedData);
+  } = _.pick(selectedHatDetails, [
+    'name',
+    'description',
+    'guilds',
+    'responsibilities',
+    'authorities',
+    'eligibility',
+    'toggle',
+  ]);
+  const { maxSupply, eligibility, toggle, mutable, imageUrl, imageUri } =
+    _.pick(selectedHat, [
+      'maxSupply',
+      'eligibility',
+      'toggle',
+      'mutable',
+      'imageUrl',
+      'imageUri',
+    ]);
 
   const defaultFormValues = useMemo<FormData>(
     () => ({
-      maxSupply: hatData?.maxSupply,
-      eligibility: hatData?.eligibility,
-      toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-      imageUrl: hatData?.imageUrl ?? '',
+      id: selectedHat?.id || '0x',
+      maxSupply,
+      eligibility,
+      toggle,
+      mutable: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      imageUrl: imageUrl ?? '',
       isEligibilityManual:
         initialEligibility?.manual || initialEligibility?.manual === undefined
           ? TRIGGER_OPTIONS.MANUALLY
@@ -67,15 +78,14 @@ const EditMode = ({
       wearers: [],
     }),
     [
-      hatData?.maxSupply,
-      hatData?.eligibility,
-      hatData?.toggle,
-      hatData?.mutable,
-      hatData?.imageUrl,
-      initialEligibility?.manual,
-      initialEligibility?.criteria,
-      initialToggle?.manual,
-      initialToggle?.criteria,
+      selectedHat?.id,
+      maxSupply,
+      eligibility,
+      toggle,
+      mutable,
+      imageUrl,
+      initialEligibility,
+      initialToggle,
       initialName,
       initialDescription,
       initialAuthorities,
@@ -95,7 +105,7 @@ const EditMode = ({
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      const matchingHat = _.find(storedData, ['id', hatData?.id]);
+      const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
       // console.log(matchingHat);
 
       if (matchingHat) {
@@ -109,15 +119,15 @@ const EditMode = ({
       reset(formValues);
     };
 
-    if (hatData?.id && chainId && defaultFormValues && storedData) {
+    if (selectedHat?.id && chainId && defaultFormValues && storedData) {
       initialFormValues();
     }
-  }, [chainId, defaultFormValues, storedData, hatData?.id, reset]);
+  }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
 
   const allFormData = watch();
 
   const prevAllFormData = useRef<any>(allFormData);
-  console.log(prevAllFormData.current);
+  // console.log(prevAllFormData.current);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -138,16 +148,18 @@ const EditMode = ({
 
   const [newImageURI, setNewImageURI] = useState('');
 
-  const eligibility = useDebounce(
-    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  const eligibilityFormValue = useDebounce<Hex>(
+    watch('eligibility', eligibility || ZERO_ADDRESS),
   );
-  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
+  const toggleFormValue = useDebounce<Hex>(
+    watch('toggle', toggle || ZERO_ADDRESS),
+  );
 
   const {
     data: eligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
-    name: eligibility,
+    name: eligibilityFormValue,
     chainId: 1,
   });
 
@@ -155,7 +167,7 @@ const EditMode = ({
     data: toggleResolvedAddress,
     isLoading: isLoadingToggleResolvedAddress,
   } = useEnsAddress({
-    name: toggle,
+    name: toggleFormValue,
     chainId: 1,
   });
 
@@ -184,7 +196,7 @@ const EditMode = ({
 
   useEffect(() => {
     if (!_.isEqual(prevAllFormData.current, allFormData)) {
-      console.log('dirty');
+      // console.log('dirty');
       const dirtyFieldKeys = getDirtyFields();
       const dirtyFormData = dirtyFieldKeys.reduce(
         (acc: FormData, key: keyof FormData) => {
@@ -198,10 +210,10 @@ const EditMode = ({
       updateUnsavedData(dirtyFormData);
       prevAllFormData.current = allFormData;
     }
-  }, [allFormData, hatData.id, chainId, getDirtyFields, updateUnsavedData]);
+  }, [allFormData, getDirtyFields]);
 
   useEffect(() => {
-    if (newImageURI && newImageURI !== hatData?.imageUri) {
+    if (newImageURI && newImageURI !== imageUri) {
       const dirtyFieldKeys = getDirtyFields();
 
       if (!dirtyFieldKeys.includes('newImageUri')) {
@@ -222,9 +234,9 @@ const EditMode = ({
 
       updateUnsavedData(dirtyFormData);
     }
-  }, [newImageURI]);
+  }, [newImageURI, imageUri]);
 
-  if (!hatData) return null;
+  if (!selectedHat) return null;
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -238,7 +250,9 @@ const EditMode = ({
         height='100%'
       >
         <Stack>
-          <Text>{hatIdDecimalToIp(BigInt(hatData?.id))}</Text>
+          <Text>
+            {selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))}
+          </Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
@@ -250,14 +264,12 @@ const EditMode = ({
           <Stack spacing={4}>
             <HatBasicsForm
               localForm={localForm}
-              hatData={hatData}
-              chainId={chainId}
               setNewImageURI={setNewImageURI}
             />
           </Stack>
         </Accordion>
 
-        {!isTopHat(hatData) && (
+        {!isTopHat(selectedHat) && (
           <Accordion
             title='Wearers'
             subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
@@ -266,8 +278,6 @@ const EditMode = ({
             <Stack spacing={4}>
               <HatWearerForm
                 localForm={localForm}
-                hatData={hatData}
-                chainId={chainId}
                 setUnsavedData={updateUnsavedData}
               />
             </Stack>
@@ -314,7 +324,6 @@ const EditMode = ({
           <Stack spacing={4}>
             <HatManagementForm
               localForm={localForm}
-              hatData={hatData}
               address={eligibility}
               actionResolvedAddress={eligibilityResolvedAddress}
               title='eligibility'
@@ -336,7 +345,6 @@ const EditMode = ({
           <Stack spacing={4}>
             <HatManagementForm
               localForm={localForm}
-              hatData={hatData}
               address={toggle}
               actionResolvedAddress={toggleResolvedAddress}
               title='toggle'
@@ -403,11 +411,7 @@ const deactivationFields: FieldItem[] = [
 ];
 
 interface EditModeProps {
-  hatData: IHat;
-  chainId: number;
-  hatDetails: HatDetails;
   updateUnsavedData: (data: FormData) => void;
   unsavedData: FormData | null;
-  treeId: string;
   setIsLoading: (isLoading: boolean) => void;
 }

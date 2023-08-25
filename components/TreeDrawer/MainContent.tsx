@@ -1,28 +1,47 @@
-import { Box, Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Button,
+  Heading,
+  HStack,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
+import { Hex } from 'viem';
 
-import { idToPrettyId, isTopHatOrMutable, prettyIdToIp } from '@/lib/hats';
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import {
+  getProposedChangesCount,
+  idToPrettyId,
+  isTopHatOrMutable,
+  prettyIdToIp,
+} from '@/lib/hats';
 import { IHat } from '@/types';
 
-const MainContent = ({
-  tree,
-  handleHatClick,
-  storedData,
-}: MainContentProps) => {
-  const { events } = tree[0];
+const isDraft = (hatId: string, onchainHats: IHat[]) =>
+  !_.includes(_.map(onchainHats, 'id'), hatId);
 
-  function getProposedChangesCount(hatId: string): number {
-    const matchingHat = _.find(storedData, ['id', hatId]);
+const MainContent = () => {
+  const {
+    topHat,
+    onchainHats,
+    orgChartTree,
+    storedData,
+    // setEditMode,
+    setSelectedHatId,
+    treeDisclosure,
+    hatDisclosure,
+    treeEvents,
+  } = useTreeForm();
+  const lastEvent = _.last(treeEvents);
 
-    if (matchingHat) {
-      // Subtracting 1 from the count to exclude the "id" key itself
-      return _.size(_.keys(_.omit(matchingHat, 'id'))) || 0;
-    }
+  const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
+  const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
 
-    return 0;
-  }
+  if (!onchainHats || !orgChartTree) return null;
 
   return (
     <Stack
@@ -37,22 +56,25 @@ const MainContent = ({
     >
       <Stack>
         <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-          {tree[0]?.detailsObject?.data?.name || tree[0]?.name || 'No Hats'}
+          {topHat?.detailsObject?.data?.name || topHat?.name || 'No Hats'}
         </Heading>
-        <Text color='blackAlpha.700'>
-          {tree[0]?.detailsObject?.data?.description || 'No Description'}
-        </Text>
+        {topHat?.detailsObject?.data?.description && (
+          <Text color='blackAlpha.700'>
+            {topHat?.detailsObject?.data?.description || 'No Description'}
+          </Text>
+        )}
+
         <Text color='blackAlpha.600'>
           Created{' '}
-          {events?.[events.length - 1]?.timestamp &&
+          {_.get(_.first(treeEvents), 'timestamp') &&
             formatDistanceToNow(
-              new Date(Number(events[0]?.timestamp) * 1000),
+              new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000),
             )}{' '}
           ago. Last edited{' '}
           {/* maybe we're looking for the last change in the tree, not the top hat? */}
-          {events?.[events.length - 1]?.timestamp &&
+          {_.get(lastEvent, 'timestamp') &&
             formatDistanceToNow(
-              new Date(Number(events[events.length - 1]?.timestamp) * 1000),
+              new Date(Number(_.get(lastEvent, 'timestamp')) * 1000),
             )}{' '}
           ago.
         </Text>
@@ -66,57 +88,63 @@ const MainContent = ({
         </Text>
       </Stack>
       <Box>
-        {tree.map((hat) => (
-          <Box
-            borderBottom='1px solid'
-            borderColor='gray.300'
-            w='full'
-            key={hat.id}
-          >
-            <Button
-              w='full'
-              justifyContent='space-between'
-              h={10}
-              alignItems='center'
-              variant='ghost'
-              borderRadius={0}
-              isDisabled={!isTopHatOrMutable(hat)}
-              onClick={() => handleHatClick(hat.id)}
-            >
-              {prettyIdToIp(idToPrettyId(hat.id))}{' '}
-              {hat?.detailsObject?.data?.name || hat.name}
-              <HStack>
-                {getProposedChangesCount(hat.id) && (
-                  <Text
-                    borderColor='cyan.600'
-                    borderWidth={1}
-                    borderRadius={2}
-                    px={1}
-                    color='cyan.600'
-                    fontSize='sm'
-                  >
-                    {getProposedChangesCount(hat.id)} CHANGE
-                    {getProposedChangesCount(hat.id) > 1 ? 'S' : ''}
-                  </Text>
-                )}
-                {!isTopHatOrMutable(hat) && (
-                  <Text
-                    borderColor='gray.600'
-                    borderWidth={1}
-                    borderRadius={2}
-                    px={1}
-                    color='gray.600'
-                    fontSize='sm'
-                  >
-                    IMMUTABLE
-                  </Text>
-                )}
+        {_.map(orgChartTree, (hat) => {
+          const draft = isDraft(hat.id, onchainHats);
+          const changes = getProposedChangesCount(hat.id, storedData);
 
-                <BsChevronRight />
-              </HStack>
-            </Button>
-          </Box>
-        ))}
+          const handleHatClick = () => {
+            onCloseTreeDrawer?.();
+            onOpenHatDrawer?.();
+            setSelectedHatId?.(hat.id);
+            // setEditMode?.(false);
+          };
+
+          return (
+            <Box
+              borderBottom='1px solid'
+              borderColor='gray.300'
+              w='full'
+              key={hat.id}
+            >
+              <Button
+                w='full'
+                justifyContent='space-between'
+                h={10}
+                alignItems='center'
+                variant='ghost'
+                borderRadius={0}
+                isDisabled={!isTopHatOrMutable(hat)}
+                onClick={handleHatClick}
+              >
+                <HStack>
+                  <Text>{prettyIdToIp(idToPrettyId(hat.id))}</Text>
+                  <Text>{hat?.detailsObject?.data?.name || hat.name}</Text>
+                </HStack>
+                <HStack>
+                  {draft ? (
+                    <Badge colorScheme='green' fontSize='sm' variant='outline'>
+                      NEW!
+                    </Badge>
+                  ) : (
+                    changes && (
+                      <Badge colorScheme='cyan' fontSize='sm' variant='outline'>
+                        {changes} CHANGE
+                        {_.gt(changes, 1) ? 'S' : ''}
+                      </Badge>
+                    )
+                  )}
+                  {!isTopHatOrMutable(hat) && (
+                    <Badge colorScheme='gray' fontSize='sm' variant='outline'>
+                      IMMUTABLE
+                    </Badge>
+                  )}
+
+                  <BsChevronRight />
+                </HStack>
+              </Button>
+            </Box>
+          );
+        })}
       </Box>
     </Stack>
   );
@@ -125,7 +153,5 @@ const MainContent = ({
 export default MainContent;
 
 interface MainContentProps {
-  tree: IHat[];
-  handleHatClick: (hatId: string) => void;
-  storedData: Partial<IHat>[];
+  handleHatClick: (hatId: Hex) => void;
 }

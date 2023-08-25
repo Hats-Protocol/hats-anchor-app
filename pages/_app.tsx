@@ -26,26 +26,29 @@ const queryClient = new QueryClient({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MyApp({ Component, pageProps }: { Component: any; pageProps: any }) {
-  return (
-    <>
-      <DefaultSeo {...SEO} />
+const MyApp = ({ Component, pageProps }: AppProps) => (
+  <>
+    <DefaultSeo {...SEO} />
 
-      <ChakraBaseProvider theme={theme}>
-        <WagmiConfig config={wagmiConfig}>
-          <RainbowKitProvider chains={chains}>
-            <QueryClientProvider client={queryClient}>
-              <ReactQueryDevtools initialIsOpen={false} />
-              <Analytics />
-              <OverlayContextProvider>
-                <Component {...pageProps} />
-              </OverlayContextProvider>
-            </QueryClientProvider>
-          </RainbowKitProvider>
-        </WagmiConfig>
-      </ChakraBaseProvider>
-    </>
-  );
-}
+    <ChakraBaseProvider theme={theme}>
+      <WagmiConfig config={wagmiConfig}>
+        <RainbowKitProvider chains={chains}>
+          <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <Analytics />
+            <OverlayContextProvider>
+              <Component {...pageProps} />
+            </OverlayContextProvider>
+          </QueryClientProvider>
+        </RainbowKitProvider>
+      </WagmiConfig>
+    </ChakraBaseProvider>
+  </>
+);
 
 export default MyApp;
+
+interface AppProps {
+  Component: any;
+  pageProps: any;
+}

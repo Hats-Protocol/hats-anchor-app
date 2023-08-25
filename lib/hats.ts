@@ -2,7 +2,7 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
-import { ZERO_ADDRESS } from '@/constants';
+import { MUTABILITY, STATUS, ZERO_ADDRESS } from '@/constants';
 import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
 import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
@@ -13,8 +13,11 @@ import {
   IHat,
   InputObject,
   ITree,
+  FormData,
 } from '@/types';
 import { pinJson } from './ipfs';
+import { defaultHat } from '@/constants';
+import { Hex } from 'viem';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -22,7 +25,6 @@ export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
 };
 
-// todo use query hook
 export async function toTreeStructure({
   treeData,
   hatsImages,
@@ -212,14 +214,14 @@ export function createHierarchy(data: InputObject[]): HierarchyObject[] {
   return hierarchyObjects;
 }
 
-export function prettyIdToId(id: string | undefined) {
-  if (!id) return '';
-  return id?.replaceAll('.', '').padEnd(66, '0');
+export function prettyIdToId(id: string | undefined): Hex {
+  if (!id) return '0x';
+  return id?.replaceAll('.', '').padEnd(66, '0') as Hex;
 }
 
-export function idToPrettyId(id: string | undefined) {
-  if (!id) return '';
-  const treeId = id?.slice(0, 10);
+export function idToPrettyId(id: Hex | undefined): string {
+  if (!id) return '0x';
+  const treeId = id?.slice(0, 10) as Hex;
   if (id.length === 10) return treeId;
   const children = id?.slice(10);
   const childArray = children?.match(/.{1,4}/g);
@@ -271,7 +273,8 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 // HACK UNTIL FUNCTION AVAILABLE IN SDK
-export function ipToHatId(id: string) {
+export function ipToHatId(id: string | undefined): Hex {
+  if (!id) return '0x';
   return prettyIdToId(ipToPrettyId(id));
 }
 
@@ -346,7 +349,7 @@ export const isTopHat = (hatData: IHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.id') === _.get(hatData, 'id');
 
-export const isMutable = (hatData: IHat) => _.get(hatData, 'mutable');
+export const isMutable = (hatData?: IHat) => _.get(hatData, 'mutable');
 
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
@@ -390,10 +393,29 @@ export const checkPermissionsResponsibilities = (
   return controls;
 };
 
-export const editHasUpdates = (storedData: any[]) =>
+const unchangedKeys = ['id', 'parentId'];
+
+export const editHasUpdates = (storedData: any[] | undefined) =>
   !_.isEmpty(
-    _.reject(storedData, (data) => _.isEmpty(_.keys(_.omit(data, 'id')))),
+    _.reject(storedData, (data) =>
+      _.isEmpty(_.keys(_.omit(data, _.concat(unchangedKeys, ['name'])))),
+    ),
   );
+
+export function getProposedChangesCount(
+  hatId: string,
+  data: FormData[] | undefined,
+): number {
+  if (!data) return 0;
+  const matchingHat = _.find(data, ['id', hatId]);
+
+  if (matchingHat) {
+    // Subtracting 1 from the count to exclude the "id" key itself
+    return _.size(_.keys(_.omit(matchingHat, unchangedKeys))) || 0;
+  }
+
+  return 0;
+}
 
 interface handleDetailsPinProps {
   chainId: number;
@@ -431,4 +453,31 @@ export const getDefaultAdminId = (hatId: string) => {
     '.',
   );
   return ipToHatId(defaultAdminId);
+};
+
+export const translateDrafts = ({
+  chainId,
+  treeId,
+  drafts,
+}: {
+  chainId: number;
+  treeId: Hex;
+  drafts: FormData[];
+}): IHat[] => {
+  const extendDrafts = _.map(drafts, (hat) => ({
+    chainId,
+    ...defaultHat,
+    ...hat,
+  }));
+
+  return _.map(extendDrafts, (hat) => ({
+    ...hat,
+    mutable: hat.mutable === MUTABILITY.MUTABLE,
+    wearers: _.map(hat.wearers, (wearer) => ({
+      id: wearer,
+    })),
+    tree: {
+      id: treeId,
+    },
+  }));
 };

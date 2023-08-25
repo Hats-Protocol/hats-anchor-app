@@ -3,12 +3,14 @@ import { Hex } from 'viem';
 import defaultHat from './defaultHat';
 import { featuredTemplates, featuredTrees, learnMore } from './landingContent';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS, ZERO_ID } from './misc';
+import { initialControls } from './treeControls';
 
 export {
   defaultHat,
   FALLBACK_ADDRESS,
   featuredTemplates,
   featuredTrees,
+  initialControls,
   learnMore,
   ZERO_ADDRESS,
   ZERO_ID,

@@ -38,6 +38,7 @@ const Input = ({
   options,
   localForm,
   rightElement,
+  isDisabled,
   ...props
 }: InputProps) => {
   if (!localForm) return null;
@@ -54,7 +55,7 @@ const Input = ({
   };
 
   return (
-    <FormControl {...props}>
+    <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
         {label && (
           <FormLabel>

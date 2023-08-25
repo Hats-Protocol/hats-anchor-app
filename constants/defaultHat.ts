@@ -1,3 +1,5 @@
+import { Hex } from 'viem';
+
 import { FALLBACK_ADDRESS } from './misc';
 
 const defaultHat = {
@@ -12,7 +14,7 @@ const defaultHat = {
   currentSupply: '0',
   events: [],
   tree: {
-    id: '0x00000001',
+    id: '0x00000001' as Hex,
   },
   wearers: [],
   admin: undefined,

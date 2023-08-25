@@ -14,9 +14,9 @@ import { createHatsClient } from '@/lib/web3';
 import { FormDataDetails, IHat } from '@/types';
 
 type useMulticallCallManyHatsProps = {
-  chainId: number;
-  treeId: string;
-  tree: IHat[];
+  chainId?: number;
+  treeId?: string;
+  onchainHats?: IHat[];
 };
 
 const hasDetailsChanged = ({
@@ -46,7 +46,7 @@ const hasDetailsChanged = ({
 const useMulticallCallManyHats = ({
   chainId,
   treeId,
-  tree,
+  onchainHats,
 }: useMulticallCallManyHatsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
@@ -61,6 +61,8 @@ const useMulticallCallManyHats = ({
   );
 
   const onSubmit = async () => {
+    if (!chainId || !treeId || !address || !hatsClient) return undefined;
+
     const calls = [] as any[];
 
     for (const hat of storedData) {
@@ -99,7 +101,7 @@ const useMulticallCallManyHats = ({
         },
       };
 
-      if (!_.includes(_.map(tree, 'id'), hatId)) {
+      if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
         // eslint-disable-next-line no-await-in-loop
         const details = await handleDetailsPin({
           chainId,
@@ -134,7 +136,7 @@ const useMulticallCallManyHats = ({
         })
       ) {
         const existingDetails = _.get(
-          _.find(tree, ['id', hatId]),
+          _.find(onchainHats, ['id', hatId]),
           'detailsObject.data',
         );
         // eslint-disable-next-line no-await-in-loop

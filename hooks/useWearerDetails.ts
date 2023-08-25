@@ -32,6 +32,8 @@ const fetchWearerDetailsForAllChains = async (address: string | undefined) => {
   return _.flatten(_.map(data, 'currentHats'));
 };
 
+// ? separate useWearerDetailsForAllChains ?
+
 const useWearerDetails = ({
   wearerAddress,
   chainId,
@@ -43,7 +45,7 @@ const useWearerDetails = ({
       chainId && chainId !== 'all'
         ? fetchWearerDetailsForChain(wearerAddress, chainId)
         : fetchWearerDetailsForAllChains(wearerAddress),
-    enabled: !!wearerAddress,
+    enabled: !!wearerAddress && !!chainId,
     initialData,
   });
 
@@ -55,5 +57,5 @@ export default useWearerDetails;
 interface UseWearerDetailsProps {
   wearerAddress: Hex | undefined;
   initialData?: IHat[];
-  chainId?: number | 'all';
+  chainId?: number | 'all' | undefined;
 }

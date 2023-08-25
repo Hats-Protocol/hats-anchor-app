@@ -1,12 +1,11 @@
 import {
-  Box,
   Card,
   CardBody,
   Heading,
   HStack,
+  Image,
   Stack,
   Text,
-  Image,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';

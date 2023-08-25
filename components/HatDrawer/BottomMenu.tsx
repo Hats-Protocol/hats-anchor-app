@@ -9,20 +9,20 @@ import {
   FaRegArrowAltCircleUp,
 } from 'react-icons/fa';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHierarchy } from '@/lib/hats';
 import { HierarchyObject, IHat } from '@/types';
 
-const BottomMenu = ({
-  hatsData,
-  selectedHatId,
-  setSelectedHatId,
-}: BottomMenuProps) => {
+const BottomMenu = () => {
+  const { orgChartTree, selectedHat, setSelectedHatId } = useTreeForm();
+
   const [currentHat, setCurrentHat] = useState<any>({});
   const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>();
 
+  // TODO calculate hierarchy data for only current hat
   useEffect(() => {
-    if (hatsData) {
-      const parentsAndIds = hatsData.map((hat: IHat) => ({
+    if (orgChartTree) {
+      const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({
         id: hat.id,
         parentId: hat.admin?.id,
       }));
@@ -30,14 +30,14 @@ const BottomMenu = ({
       const hierarchy = createHierarchy(parentsAndIds);
       setHierarchyData(hierarchy);
     }
-  }, [hatsData]);
+  }, [orgChartTree]);
 
   useEffect(() => {
-    if (selectedHatId && hierarchyData) {
-      const hat = _.find(hierarchyData, ['id', selectedHatId]);
+    if (selectedHat?.id && hierarchyData) {
+      const hat = _.find(hierarchyData, ['id', selectedHat?.id]);
       if (hat) setCurrentHat(hat);
     }
-  }, [selectedHatId, hierarchyData]);
+  }, [selectedHat, hierarchyData]);
 
   return (
     <Box
@@ -56,7 +56,7 @@ const BottomMenu = ({
         {currentHat?.leftSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId(currentHat?.leftSibling)}
+            onClick={() => setSelectedHatId?.(currentHat?.leftSibling)}
             gap={1}
           >
             <FaRegArrowAltCircleLeft />
@@ -70,7 +70,7 @@ const BottomMenu = ({
           {currentHat?.parentId ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId(currentHat?.parentId)}
+              onClick={() => setSelectedHatId?.(currentHat?.parentId)}
               gap={1}
             >
               <FaRegArrowAltCircleUp />
@@ -83,7 +83,7 @@ const BottomMenu = ({
           {currentHat?.firstChild ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId(currentHat?.firstChild)}
+              onClick={() => setSelectedHatId?.(currentHat?.firstChild)}
               gap={1}
             >
               {hatIdDecimalToIp(BigInt(currentHat?.firstChild))}
@@ -97,7 +97,7 @@ const BottomMenu = ({
         {currentHat?.rightSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId(currentHat?.rightSibling)}
+            onClick={() => setSelectedHatId?.(currentHat?.rightSibling)}
             gap={1}
           >
             {hatIdDecimalToIp(BigInt(currentHat?.rightSibling))}
@@ -112,9 +112,3 @@ const BottomMenu = ({
 };
 
 export default BottomMenu;
-
-interface BottomMenuProps {
-  hatsData: IHat[] | undefined;
-  selectedHatId?: string;
-  setSelectedHatId: (id: string) => void;
-}

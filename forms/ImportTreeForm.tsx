@@ -9,20 +9,26 @@ import {
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
 import { BsBoxArrowInUpRight } from 'react-icons/bs';
 
 import DropZone from '@/components/atoms/DropZone';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 
-const reader = new FileReader();
+interface validateTreeImportProps {
+  file: File;
+  treeId?: string;
+  chainId?: number;
+}
 
-const validateTreeImport = (
-  file: File,
-  treeId: string,
-  chainId: number,
-): FileError | null => {
+const validateTreeImport = ({
+  file,
+  treeId,
+  chainId,
+}: validateTreeImportProps): FileError | null => {
+  if (!treeId || !chainId) return null;
   const fileName = file.name;
   const splitFileName = _.split(fileName, '-');
   const fileChainId = _.toNumber(_.nth(splitFileName, 1));
@@ -49,14 +55,16 @@ const validateTreeImport = (
   return null;
 };
 
-const ImportTreeForm = ({
-  treeId,
-  chainId,
-  setStoredData,
-}: ImportTreeFormProps) => {
+const ImportTreeForm = () => {
   const { setModals } = useOverlay();
+  const { treeId, chainId, setStoredData } = useTreeForm();
   const [validImport, setValidImport] = useState(true);
   const [treeFile, setTreeFile] = useState<File | undefined>();
+  const [fileReader, setFileReader] = useState<FileReader | undefined>();
+
+  useEffect(() => {
+    setFileReader(new FileReader());
+  }, []);
 
   const { getRootProps, getInputProps, fileRejections } = useDropzone({
     accept: { 'application/json': ['.json'] },
@@ -75,19 +83,19 @@ const ImportTreeForm = ({
     onDropRejected: () => {
       setValidImport(false);
     },
-    validator: (file) => validateTreeImport(file, treeId, chainId),
+    validator: (file) => validateTreeImport({ file, treeId, chainId }),
   });
 
   const handleImport = () => {
-    if (!treeFile) return;
-    reader.onload = function readFile(e: ProgressEvent<FileReader>) {
+    if (!treeFile || !fileReader) return;
+    fileReader.onload = function readFile(e: ProgressEvent<FileReader>) {
       const contents = e.target?.result;
       // parsed so we don't double stringify
       const parsedData = JSON.parse(contents as string);
-      setStoredData(parsedData);
+      setStoredData?.(parsedData);
       setModals?.({});
     };
-    reader.readAsText(treeFile);
+    fileReader.readAsText(treeFile);
   };
 
   const handleCancel = () => {
@@ -146,9 +154,3 @@ const ImportTreeForm = ({
 };
 
 export default ImportTreeForm;
-
-interface ImportTreeFormProps {
-  treeId: string;
-  chainId: number;
-  setStoredData: (v: any) => void;
-}

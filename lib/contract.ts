@@ -6,8 +6,11 @@ import { IHatWearer } from '@/types';
 
 import { chainsMap } from './web3';
 
-export const checkAddressIsContract = async (address: Hex, chainId: number) => {
-  if (address === ZERO_ADDRESS) {
+export const checkAddressIsContract = async (
+  address?: Hex,
+  chainId?: number,
+) => {
+  if (!address || address === ZERO_ADDRESS || !chainId) {
     return false;
   }
 

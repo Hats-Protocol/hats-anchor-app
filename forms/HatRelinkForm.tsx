@@ -21,12 +21,13 @@ import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import Textarea from '@/components/atoms/Textarea';
-import CONFIG, { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
+import { Hex } from 'viem';
 
 // TODO refactor without prettyId
 
@@ -53,11 +54,6 @@ const HatRelinkForm = ({
   });
   const { handleSubmit, watch } = localForm;
 
-  const newAdmin = useDebounce(
-    watch('newAdmin', parentTreeHats[0]),
-    CONFIG.debounce,
-  );
-
   const [eligibilityChecked, setEligibilityChecked] = useState(false);
   const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
@@ -82,9 +78,10 @@ const HatRelinkForm = ({
     },
   });
 
+  const newAdmin = useDebounce<Hex>(watch('newAdmin', parentTreeHats[0]));
   const description = useDebounce(watch('description', ''));
-  const eligibility = useDebounce(watch('eligibility', ZERO_ADDRESS));
-  const toggle = useDebounce(watch('toggle', ZERO_ADDRESS));
+  const eligibility = useDebounce<Hex>(watch('eligibility', ZERO_ADDRESS));
+  const toggle = useDebounce<Hex>(watch('toggle', ZERO_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = prettyIdToIp(hatData.prettyId);

@@ -27,6 +27,7 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { MUTABILITY } from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl } from '@/lib/general';
@@ -42,25 +43,22 @@ const MUTABILITY_OPTIONS = [
 
 const HatBasicsForm = ({
   localForm,
-  hatData,
-  chainId,
   setNewImageURI,
 }: {
   localForm: any;
-  hatData: any;
-  chainId: number;
   setNewImageURI: (uri: string) => void;
 }) => {
-  const [image, setImage] = useState<any>();
-
   const { watch, control, formState } = localForm;
+
+  const { chainId, selectedHat } = useTreeForm();
+  const [image, setImage] = useState<any>();
 
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'guilds',
   });
 
-  const guilds = useDebounce(watch('guilds'));
+  const guilds = useDebounce<string[]>(watch('guilds'));
 
   const {
     acceptedFiles,
@@ -85,7 +83,7 @@ const HatBasicsForm = ({
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
-    metadata: { name: `image_${_.toString(chainId)}_tophat` },
+    metadata: { name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}` },
   });
 
   useEffect(() => {
@@ -136,7 +134,7 @@ const HatBasicsForm = ({
               />
             </Box>
           </FormRowWrapper>
-          {isTopHat(hatData) && (
+          {isTopHat(selectedHat) && (
             <FormRowWrapper>
               <FaHouseUser />
               <Stack w='full'>
@@ -162,7 +160,7 @@ const HatBasicsForm = ({
                 <Box mb={2}>
                   <Button
                     onClick={() => append('')}
-                    isDisabled={guilds?.some((item: string) => item === '')}
+                    isDisabled={_.some(guilds, (item: string) => item === '')}
                     gap={2}
                   >
                     <FaPlus />
@@ -179,14 +177,14 @@ const HatBasicsForm = ({
               <RadioBox
                 name='mutable'
                 label='EDITABLE'
-                isDisabled={!isMutable(hatData)}
+                isDisabled={!isMutable(selectedHat)}
                 subLabel='Should it be possible for an admin to make changes to this Hat?'
                 localForm={localForm}
                 options={MUTABILITY_OPTIONS}
                 tooltip='Choose whether the Hat should be editable or not'
               />
               {localForm.watch('mutable') === MUTABILITY.IMMUTABLE &&
-                !isTopHat(hatData) && (
+                !isTopHat(selectedHat) && (
                   <Text color='red.500' fontSize='sm' mt={3}>
                     Beware: This will make the Hat immutable. No one can ever
                     change it. This can not be undone.

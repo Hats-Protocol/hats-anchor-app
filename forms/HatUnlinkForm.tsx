@@ -1,11 +1,10 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
 import Select from '@/components/atoms/Select';
-import CONFIG from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatDetails from '@/hooks/useHatDetails';
@@ -17,7 +16,7 @@ const HatUnlinkForm = ({
   parentOfTrees,
   chainId,
 }: {
-  parentOfTrees: string[];
+  parentOfTrees: Hex[];
   chainId: number;
 }) => {
   const currentNetworkId = useChainId();
@@ -29,9 +28,8 @@ const HatUnlinkForm = ({
   });
   const { handleSubmit, watch } = localForm;
 
-  const topHatPrettyId = useDebounce(
+  const topHatPrettyId = useDebounce<Hex>(
     watch('topHatPrettyId', parentOfTrees[0]),
-    CONFIG.debounce,
   );
 
   const { data: topHatData } = useHatDetails({

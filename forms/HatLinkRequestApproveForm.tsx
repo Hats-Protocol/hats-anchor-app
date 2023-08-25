@@ -28,19 +28,19 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, toTreeId } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import { ImageFile } from '@/types';
 
 const HatLinkRequestApproveForm = ({
   topHatDomain,
   newAdmin,
-  chainId,
-  hatData,
 }: {
   topHatDomain: string;
   newAdmin: string;
-  chainId: number;
-  hatData: any;
 }) => {
   const currentNetworkId = useChainId();
+  const { chainId, selectedHat } = useTreeForm();
+
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -62,7 +62,7 @@ const HatLinkRequestApproveForm = ({
   const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
   const [newImage, setNewImage] = useState(false);
-  const [image, setImage] = useState(hatData.imageUrl);
+  const [image, setImage] = useState<ImageFile | undefined>();
 
   const {
     acceptedFiles,
@@ -77,7 +77,7 @@ const HatLinkRequestApproveForm = ({
       setImage(
         Object.assign(droppedFiles[0], {
           preview: URL.createObjectURL(droppedFiles[0]),
-        }),
+        } as ImageFile),
       );
     },
   });
@@ -85,8 +85,10 @@ const HatLinkRequestApproveForm = ({
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
   const details = useDebounce(watch('details', ''));
-  const eligibility = useDebounce(watch('eligibility', FALLBACK_ADDRESS));
-  const toggle = useDebounce(watch('toggle', FALLBACK_ADDRESS));
+  const eligibility = useDebounce<string>(
+    watch('eligibility', FALLBACK_ADDRESS),
+  );
+  const toggle = useDebounce<string>(watch('toggle', FALLBACK_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = topHatDomain;
@@ -106,8 +108,9 @@ const HatLinkRequestApproveForm = ({
     data: eligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
-    name: eligibility,
+    name: eligibility || '0x',
     chainId: 1,
+    enabled: !!eligibility,
   });
 
   const {
@@ -116,6 +119,7 @@ const HatLinkRequestApproveForm = ({
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
+    enabled: !!toggle,
   });
 
   const eligibilityAddress =
@@ -143,14 +147,15 @@ const HatLinkRequestApproveForm = ({
       )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
-      ['hatDetails', newAdmin, chainId],
-      ['hatDetails', topHatDomain, chainId],
-      ['treeDetails', topHatDomain, chainId],
-      ['treeDetails', toTreeId(newAdmin), chainId],
+      ['hatDetails', newAdmin, chainId || 1],
+      ['hatDetails', topHatDomain, chainId || 1],
+      ['treeDetails', topHatDomain, chainId || 1],
+      ['treeDetails', toTreeId(newAdmin), chainId || 1],
     ],
     enabled:
       Boolean(topHatDomain) &&
       Boolean(newAdmin) &&
+      !!chainId &&
       chainId === currentNetworkId,
   });
 
@@ -270,6 +275,7 @@ const HatLinkRequestApproveForm = ({
                       isDragAccept={isDragAccept}
                       isDragReject={isDragReject}
                       image={image}
+                      imageUrl={selectedHat?.imageUrl}
                     />
                   )}
                 </Stack>

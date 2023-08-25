@@ -34,7 +34,7 @@ export const networkImages: { [key: number]: string } = {
   42161: '/chains/arbitrum.svg',
 };
 
-// todo check if this got fixed, submit issue if not (should be fixed)
+// TODO check if this got fixed, submit issue if not (should be fixed)
 // gnosis chain object from wagmi doesn't include multicall contract details. This is a temporary fix
 const gnosisContract = {
   contracts: {
@@ -65,9 +65,10 @@ export const chainsList: { [key: number]: Chain } = {
 export const chainsMap = (chainId: number) =>
   chainsList[chainId] || chainsList[5];
 
-export const explorerUrl = (chainId: number) =>
-  chainsMap(chainId)?.blockExplorers?.etherscan.url ||
-  chainsMap(chainId)?.blockExplorers?.default.url;
+export const explorerUrl = (chainId?: number) =>
+  chainId &&
+  (chainsMap(chainId)?.blockExplorers?.etherscan.url ||
+    chainsMap(chainId)?.blockExplorers?.default.url);
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
@@ -85,7 +86,8 @@ export const wagmiConfig = createConfig({
   publicClient,
 });
 
-export function createHatsClient(chainId: number) {
+export function createHatsClient(chainId: number | undefined) {
+  if (!chainId) return undefined;
   const chain = chainsMap(chainId);
 
   const publicClientHats = createPublicClient({

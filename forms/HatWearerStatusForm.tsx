@@ -13,19 +13,16 @@ import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsName } from 'wagmi';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { formatAddress } from '@/lib/general';
 import { toTreeId } from '@/lib/hats';
 
 const HatWearerStatusForm = ({
-  hatId,
-  chainId,
   wearer,
   eligibility,
 }: {
-  hatId: string;
-  chainId: number;
   wearer: Hex | undefined;
   // TODO is there a reason for this to be passed from above?
   eligibility: string;
@@ -33,7 +30,10 @@ const HatWearerStatusForm = ({
   const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
-  const standing = useDebounce(watch('standing', 'Good Standing'));
+  const { chainId, selectedHat } = useTreeForm();
+
+  const hatId = selectedHat?.id;
+  const standing = useDebounce<string>(watch('standing', 'Good Standing'));
 
   const { data: wearerName } = useEnsName({
     address: wearer,
@@ -54,10 +54,11 @@ const HatWearerStatusForm = ({
       description: 'Successfully updated hat',
     },
     queryKeys: [
-      ['hatDetails', hatId],
+      ['hatDetails', hatId || 'none'],
       ['treeDetails', toTreeId(hatId)],
     ],
-    enabled: !!wearer && isAddress(wearer) && chainId === currentNetworkId,
+    enabled:
+      !!wearer && !!hatId && isAddress(wearer) && chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

@@ -11,9 +11,12 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
+import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
@@ -26,17 +29,18 @@ import TooltipWrapper from './TooltipWrapper';
 const WearerRow = ({
   wearer,
   isAdminUser,
-  address,
-  setModals,
   setChangeStatusWearer,
   setWearerToTransferFrom,
-  isSameChain,
-  hatId,
-  chainId,
-  currentNetworkId,
-  wearers,
 }: WearerRowProps) => {
   const toast = useToast();
+  const currentNetworkId = useChainId();
+  const { setModals } = useOverlay();
+  const { address } = useAccount();
+  const { chainId, selectedHat } = useTreeForm();
+
+  const hatId = selectedHat?.id;
+  const isSameChain = chainId === currentNetworkId;
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
@@ -61,12 +65,7 @@ const WearerRow = ({
     writeAsync?.();
   };
 
-  const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId,
-    wearers,
-  });
+  const { writeAsync: renounceHat } = useHatBurn();
 
   const handleRenounceHat = async () => {
     await renounceHat?.();
@@ -108,7 +107,7 @@ const WearerRow = ({
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
-                  setModals({ transferHat: true });
+                  setModals?.({ transferHat: true });
                   setWearerToTransferFrom(wearer.id);
                 }}
               >
@@ -136,7 +135,7 @@ const WearerRow = ({
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
-                  setModals({ hatWearerStatus: true });
+                  setModals?.({ hatWearerStatus: true });
                   setChangeStatusWearer(wearer.id);
                 }}
               >
@@ -172,13 +171,6 @@ export default WearerRow;
 interface WearerRowProps {
   wearer: IHatWearer;
   isAdminUser: boolean;
-  address?: string;
-  setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
-  isSameChain: boolean;
-  hatId: string;
-  chainId: number;
-  currentNetworkId: number;
-  wearers: IHatWearer[] | undefined;
 }

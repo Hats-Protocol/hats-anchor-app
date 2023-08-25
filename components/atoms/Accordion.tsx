@@ -3,6 +3,7 @@ import {
   AccordionButton,
   AccordionItem,
   AccordionPanel,
+  Box,
   Flex,
   Heading,
   Text,
@@ -44,12 +45,12 @@ const CustomAccordion = ({
           </Text>
         )}
         {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
-          <Text fontSize='sm' ml={7} color='cyan.900' mt={4}>
+          <Box fontSize='sm' ml={7} color='cyan.900' mt={4}>
             <Text fontWeight='medium'>Edits:</Text>
             {dirtyFieldsList?.map((field) => (
               <Text key={field}>- {field} changed</Text>
             ))}
-          </Text>
+          </Box>
         )}
         <AccordionPanel pl={7} mr={0} pr={0} mt={8}>
           {children}

@@ -3,38 +3,40 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, toTreeId } from '@/lib/hats';
 
 const useHatMakeImmutable = ({
-  hatsAddress,
-  chainId,
-  hatId,
   levelAtLocalTree,
   isAdminUser,
   mutable,
 }: UseHatMakeImmutableProps) => {
   const currentNetworkId = useChainId();
+  const { chainId, selectedHat } = useTreeForm();
+  const selectedHatId = selectedHat?.id || 'none';
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',
-    args: [decimalId(hatId)],
+    args: [decimalId(selectedHatId)],
     chainId: Number(chainId),
     onSuccessToastData: {
       title: 'Hat Updated!',
-      description: `Successfully made hat #${hatIdDecimalToIp(
-        BigInt(hatId),
-      )} immutable`,
+      description:
+        selectedHatId &&
+        `Successfully made hat #${hatIdDecimalToIp(
+          BigInt(selectedHatId),
+        )} immutable`,
     },
     queryKeys: [
-      ['hatDetails', hatId],
-      ['treeDetails', toTreeId(hatId)],
+      ['hatDetails', selectedHatId],
+      ['treeDetails', toTreeId(selectedHatId)],
     ],
     enabled:
-      Boolean(hatsAddress) &&
-      Boolean(decimalId(hatId)) &&
-      mutable &&
+      !!selectedHatId &&
+      Boolean(decimalId(selectedHatId)) &&
+      !!mutable &&
       _.gt(levelAtLocalTree, 0) &&
-      isAdminUser &&
+      !!isAdminUser &&
       chainId === currentNetworkId,
   });
 
@@ -44,10 +46,7 @@ const useHatMakeImmutable = ({
 export default useHatMakeImmutable;
 
 interface UseHatMakeImmutableProps {
-  hatsAddress?: Hex;
-  chainId: number;
-  hatId: string;
-  levelAtLocalTree: number;
-  isAdminUser: boolean;
-  mutable: boolean;
+  levelAtLocalTree?: number;
+  isAdminUser?: boolean;
+  mutable?: boolean;
 }

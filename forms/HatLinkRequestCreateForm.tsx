@@ -2,10 +2,11 @@ import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
 import Select from '@/components/atoms/Select';
-import CONFIG from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId } from '@/lib/hats';
@@ -13,13 +14,12 @@ import { decimalId } from '@/lib/hats';
 const HatLinkRequestCreateForm = ({
   newAdmin,
   wearerTopHats,
-  chainId,
 }: {
   newAdmin: string;
-  wearerTopHats: string[];
-  chainId: number;
+  wearerTopHats: Hex[];
 }) => {
   const currentNetworkId = useChainId();
+  const { chainId } = useTreeForm();
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
@@ -29,9 +29,8 @@ const HatLinkRequestCreateForm = ({
   });
   const { handleSubmit, watch } = localForm;
 
-  const topHatDomain = useDebounce(
+  const topHatDomain = useDebounce<Hex>(
     watch('topHatDomain', wearerTopHats[0]),
-    CONFIG.debounce,
   );
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -45,14 +44,15 @@ const HatLinkRequestCreateForm = ({
       )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
-      ['hatDetails', newAdmin, chainId],
-      ['hatDetails', topHatDomain, chainId],
-      ['treeDetails', topHatDomain, chainId],
-      ['treeDetails', newAdmin, chainId],
+      ['hatDetails', newAdmin, chainId || 1],
+      ['hatDetails', topHatDomain, chainId || 1],
+      ['treeDetails', topHatDomain, chainId || 1],
+      ['treeDetails', newAdmin, chainId || 1],
     ],
     enabled:
       Boolean(topHatDomain) &&
       Boolean(newAdmin) &&
+      !!chainId &&
       chainId === currentNetworkId,
   });
 

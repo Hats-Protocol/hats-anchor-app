@@ -58,7 +58,11 @@ export const validateURL = (textVal: string) => {
   return urlRegex.test(textVal);
 };
 
-export const generateLocalStorageKey = (chainId: number, treeId: string) => {
+export const generateLocalStorageKey = (
+  chainId: number | undefined,
+  treeId: string | undefined,
+) => {
+  if (!chainId || !treeId) return 'not found';
   const decimalTreeId = treeIdHexToDecimal(treeId);
   return `treeData-${chainId}-${decimalTreeId}`;
 };

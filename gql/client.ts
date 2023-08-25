@@ -1,6 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
 
-// TODO need mainnet subgraph
 const subgraphUrl = (chainId: number) => {
   const clients: { [key: number]: string } = {
     1: 'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1-ethereum',

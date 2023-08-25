@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { FaPlus, FaRegEdit, FaRegListAlt, FaShieldAlt } from 'react-icons/fa';
 import { Hex } from 'viem';
 
@@ -11,14 +11,14 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { formatAddress } from '@/lib/general';
 import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 interface HatManagementFormProps {
-  hatData: any;
-  localForm: any;
-  address: string; // eligibility or toggle
+  localForm: UseFormReturn;
+  address: Hex | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
   title: string;
   formName: string;
@@ -30,7 +30,6 @@ interface HatManagementFormProps {
 }
 
 const HatManagementForm = ({
-  hatData,
   localForm,
   address,
   actionResolvedAddress,
@@ -39,6 +38,7 @@ const HatManagementForm = ({
   radioBoxConfig,
 }: HatManagementFormProps) => {
   const { watch, control, setValue, getValues } = localForm;
+  const { selectedHat } = useTreeForm();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -108,7 +108,7 @@ const HatManagementForm = ({
             docsLink={`https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/${title}-requirements-for-wearers`}
             localForm={localForm}
             showResolvedAddress={Boolean(showActionResolvedAddress)}
-            isDisabled={!isMutable(hatData)}
+            isDisabled={!isMutable(selectedHat)}
             resolvedAddress={String(actionResolvedAddress)}
           />
         </FormRowWrapper>
@@ -120,7 +120,7 @@ const HatManagementForm = ({
                   {' '}
                   <FaRegListAlt />
                   <Text>
-                    {address.includes('.eth')
+                    {address?.includes('.eth')
                       ? _.toUpper(address)
                       : formatAddress(address)}{' '}
                     REQUIREMENTS (optional)

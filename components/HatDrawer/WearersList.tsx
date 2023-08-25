@@ -15,13 +15,16 @@ import _ from 'lodash';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaPlus, FaSearch } from 'react-icons/fa';
-import { Hex } from 'viem';
+import { fallback, Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
-import { IOverlayContext } from '@/contexts/OverlayContext';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { IHat, IHatWearer } from '@/types';
+import { isAdmin } from '@/lib/hats';
+import { IHatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
 
@@ -30,15 +33,28 @@ const HatTransferForm = lazy(() => import('@/forms/HatTransferForm'));
 const HatWearerForm = lazy(() => import('@/forms/HatWearerForm'));
 const HatWearerStatusForm = lazy(() => import('@/forms/HatWearerStatusForm'));
 
-const WearersList = ({
-  chainId,
-  hatData,
-  localOverlay,
-  isAdminUser,
-}: WearersListProps) => {
+const filterWearers = (
+  searchTerm: string,
+  wearers: IHatWearer[] | undefined,
+) => {
+  if (!searchTerm || !wearers) return wearers;
+
+  return _.filter(wearers, (wearer) => {
+    const idSearch = wearer.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const ensSearch = wearer.ensName
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    return idSearch || ensSearch;
+  });
+};
+
+const WearersList = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
+  const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+  const { chainId, selectedHat } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -48,22 +64,16 @@ const WearersList = ({
     mode: 'onBlur',
   });
 
-  const { extendedWearers: wearers, maxSupply, id: hatId } = hatData;
+  const wearers = _.get(selectedHat, 'extendedWearers', []);
+  const maxSupply = _.get(selectedHat, 'maxSupply', 0);
 
-  const filterWearers = (localWearers: IHatWearer[] | undefined) => {
-    if (!searchTerm || !localWearers) return wearers;
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const currentWearerHats = _.map(wearer, 'id');
 
-    return _.filter(localWearers, (wearer) => {
-      const idSearch = wearer.id
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const ensSearch = wearer.ensName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-      return idSearch || ensSearch;
-    });
-  };
+  const isAdminUser = isAdmin(currentWearerHats, selectedHat?.id);
 
   useEffect(() => {
     if (address) {
@@ -75,7 +85,11 @@ const WearersList = ({
     }
   }, [address, wearers]);
 
-  const filteredWearers = _.slice(filterWearers(wearers), 0, 6) as IHatWearer[];
+  const filteredWearers = _.slice(
+    filterWearers(searchTerm, wearers),
+    0,
+    6,
+  ) as IHatWearer[];
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
   return (
@@ -107,20 +121,13 @@ const WearersList = ({
           </InputGroup>
         )}
         {/* Wearers list */}
-        {filteredWearers.map((wearer: IHatWearer) => (
+        {filteredWearers.map((w: IHatWearer) => (
           <WearerRow
-            key={wearer.id}
-            wearer={wearer}
+            key={w.id}
+            wearer={w}
             isAdminUser={isAdminUser}
-            address={address}
-            setModals={setModals}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
-            isSameChain={chainId === currentNetworkId}
-            hatId={hatId}
-            chainId={chainId}
-            currentNetworkId={currentNetworkId}
-            wearers={wearers}
           />
         ))}
 
@@ -169,26 +176,25 @@ const WearersList = ({
         </Flex>
       </Stack>
 
-      <Modal name='hatWearers' title='Hat Wearers' localOverlay={localOverlay}>
-        <Flex direction='column' gap={4}>
-          {wearers?.map((wearer: IHatWearer) => (
-            <WearerRow
-              key={wearer.id}
-              wearer={wearer}
-              isAdminUser={isAdminUser}
-              address={address}
-              setModals={setModals}
-              setChangeStatusWearer={setChangeStatusWearer}
-              setWearerToTransferFrom={setWearerToTransferFrom}
-              isSameChain={chainId === currentNetworkId}
-              hatId={hatId}
-              chainId={chainId}
-              currentNetworkId={currentNetworkId}
-              wearers={wearers}
-            />
-          ))}
-        </Flex>
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='hatWearers'
+          title='Hat Wearers'
+          localOverlay={localOverlay}
+        >
+          <Flex direction='column' gap={4}>
+            {wearers?.map((w: IHatWearer) => (
+              <WearerRow
+                key={w.id}
+                wearer={w}
+                isAdminUser={isAdminUser}
+                setChangeStatusWearer={setChangeStatusWearer}
+                setWearerToTransferFrom={setWearerToTransferFrom}
+              />
+            ))}
+          </Flex>
+        </Modal>
+      </Suspense>
 
       <Suspense fallback={<Suspender />}>
         <Modal
@@ -198,8 +204,6 @@ const WearersList = ({
           size='3xl'
         >
           <HatWearerStatusForm
-            hatId={hatId}
-            chainId={chainId}
             wearer={changeStatusWearer}
             eligibility='Not Eligible'
           />
@@ -212,11 +216,7 @@ const WearersList = ({
           title='Transfer Hat to New Address'
           localOverlay={localOverlay}
         >
-          <HatTransferForm
-            hatId={hatId}
-            chainId={chainId}
-            currentWearerAddress={wearerToTransferFrom}
-          />
+          <HatTransferForm currentWearerAddress={wearerToTransferFrom} />
         </Modal>
       </Suspense>
 
@@ -226,11 +226,7 @@ const WearersList = ({
           title='Add a Wearer by minting a Hat token'
           localOverlay={localOverlay}
         >
-          <HatWearerForm
-            hatData={hatData}
-            chainId={chainId}
-            localForm={localForm}
-          />
+          <HatWearerForm localForm={localForm} />
         </Modal>
       </Suspense>
     </>
@@ -238,9 +234,3 @@ const WearersList = ({
 };
 
 export default WearersList;
-interface WearersListProps {
-  chainId: number;
-  hatData: IHat;
-  localOverlay: IOverlayContext;
-  isAdminUser: boolean;
-}

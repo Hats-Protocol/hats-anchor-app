@@ -13,13 +13,16 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
 import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
+import { useAccount } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
@@ -27,27 +30,30 @@ import { generateLocalStorageKey } from '@/lib/general';
 import { editHasUpdates } from '@/lib/hats';
 import { IHat } from '@/types';
 
-const TopMenu = ({
-  editMode,
-  setEditMode,
-  onClose,
-  chainId,
-  treeId,
-  storedData,
-  setStoredData,
-  wearingTopHat,
-  tree,
-}: TopMenuProps) => {
+const TopMenu = () => {
+  const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+  const {
+    chainId,
+    treeId,
+    topHat,
+    onchainHats,
+    editMode,
+    setEditMode,
+    storedData,
+    treeDisclosure,
+  } = useTreeForm();
   const toast = useToast();
-  const decimalTreeId = treeIdHexToDecimal(treeId);
+  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const { onSubmit, isLoading } = useMulticallCallManyHats({
     chainId,
     treeId,
-    tree,
+    onchainHats,
   });
+
+  const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
@@ -58,7 +64,7 @@ const TopMenu = ({
     const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    // todo add unix timestamp so don't get (1) on subsequent downloads
+    // TODO add unix timestamp so don't get (1) on subsequent downloads
     // update file name validation also, based on this ^
     link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
     link.href = url;
@@ -71,8 +77,8 @@ const TopMenu = ({
   const handleDeploy = async () => {
     const result = await onSubmit();
     if (result) {
-      setEditMode(false);
-      onClose();
+      setEditMode?.(false);
+      onCloseTreeDrawer?.();
     }
   };
 
@@ -80,8 +86,8 @@ const TopMenu = ({
     if (editHasUpdates(storedData)) {
       onOpen();
     } else {
-      setEditMode(!editMode);
-      onClose();
+      setEditMode?.(!editMode);
+      onCloseTreeDrawer?.();
     }
   };
 
@@ -89,9 +95,14 @@ const TopMenu = ({
     const localStorageKey = generateLocalStorageKey(chainId, treeId);
     localStorage.removeItem(localStorageKey);
     closeModal();
-    setEditMode(false);
-    onClose();
+    setEditMode?.(false);
+    onCloseTreeDrawer?.();
   };
+
+  const wearingTopHat = _.includes(
+    _.map(topHat?.wearers, 'id'),
+    _.toLower(address),
+  );
 
   return (
     <Flex
@@ -159,11 +170,7 @@ const TopMenu = ({
         title='Import Draft Tree Changes'
         localOverlay={localOverlay}
       >
-        <ImportTreeForm
-          treeId={treeId}
-          chainId={chainId}
-          setStoredData={setStoredData}
-        />
+        <ImportTreeForm />
       </Modal>
       <ChakraModal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
@@ -190,13 +197,5 @@ const TopMenu = ({
 export default TopMenu;
 
 interface TopMenuProps {
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
   onClose: () => void;
-  chainId: number;
-  treeId: string;
-  storedData: Partial<IHat>[];
-  setStoredData: (v: any) => void;
-  wearingTopHat: boolean;
-  tree: IHat[];
 }
