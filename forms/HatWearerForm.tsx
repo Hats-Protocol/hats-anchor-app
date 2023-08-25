@@ -23,8 +23,8 @@ import Papa from 'papaparse';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
+import { BsBarChart } from 'react-icons/bs';
 import {
-  FaChartBar,
   FaCheck,
   FaInfoCircle,
   FaRegQuestionCircle,
@@ -244,10 +244,11 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       <Stack spacing={4}>
         {editMode && (
           <FormRowWrapper>
-            <Icon as={FaChartBar} boxSize={4} mt='2px' />
+            <Icon as={BsBarChart} boxSize={4} mt='2px' />
             <Input
               name='maxSupply'
               label='MAX WEARERS'
+              subLabel='Total number of addresses that can wear this Hat at the same time.'
               placeholder='10'
               isDisabled={!isMutable(selectedHat)}
               localForm={localForm}

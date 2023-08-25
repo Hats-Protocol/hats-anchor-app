@@ -61,7 +61,7 @@ const Input = ({
       <Stack spacing={1} w='100%'>
         <Box>
           {label && (
-            <FormLabel>
+            <FormLabel mb={0}>
               <HStack>
                 <Text fontSize='sm'>
                   {label.toUpperCase()}
