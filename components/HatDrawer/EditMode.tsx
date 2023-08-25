@@ -273,7 +273,7 @@ const EditMode = ({
         height='100%'
       >
         <Stack>
-          <Text>
+          <Text fontSize={32} fontWeight='medium'>
             {selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))}
           </Text>
           <Text>All changes are local until you deploy to chain.</Text>
@@ -317,6 +317,7 @@ const EditMode = ({
               localForm={localForm}
               formName='authorities'
               title='PERMISSIONS'
+              subtitle='Things this Hat allows its Wearer to do.'
               label='Permission'
               Icon={FaKey}
             />
@@ -358,13 +359,24 @@ const EditMode = ({
                 label: 'Hat Revocation',
                 subLabel: 'How should toggle from wearers be handled?',
               }}
+              inputConfig={{
+                label: 'ACCOUNTABILITY',
+                description:
+                  'The address of the smart contract containing the logic about when a wearer should and should not have this hat.',
+              }}
+              criteriaConfig={{
+                label: 'QUALIFICATIONS',
+                description:
+                  'A written description of the logic in the Accountability Contract',
+                addButtonLabel: 'Qualification',
+              }}
             />
           </Stack>
         </Accordion>
 
         <Accordion
           title='Deactivation & Reactivation'
-          subtitle='The people or logic that control whether or not this hat is active.'
+          subtitle='The people and contracts that control this Hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
         >
           <Stack spacing={4}>
@@ -378,7 +390,18 @@ const EditMode = ({
                 name: 'isToggleManual',
                 label: 'Hat Deactivation',
                 subLabel:
-                  'How should deactivation and reactivation be handled?',
+                  'How should hat deactivation and reactivation be handled?',
+              }}
+              inputConfig={{
+                label: 'DEACTIVATOR',
+                description:
+                  'The address of the person or group that can manually deactivate and reactive this hat',
+              }}
+              criteriaConfig={{
+                label: 'QUALIFICATIONS',
+                description:
+                  'List any criteria that should be considered in the process of deactivating or reactivating this hat',
+                addButtonLabel: 'Criterion',
               }}
             />
           </Stack>

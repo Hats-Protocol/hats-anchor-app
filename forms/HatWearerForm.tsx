@@ -244,7 +244,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       <Stack spacing={4}>
         {editMode && (
           <FormRowWrapper>
-            <FaChartBar />
+            <Icon as={FaChartBar} boxSize={4} mt='2px' />
             <Input
               name='maxSupply'
               label='MAX WEARERS'

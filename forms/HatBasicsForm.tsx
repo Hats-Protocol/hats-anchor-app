@@ -3,6 +3,7 @@ import {
   Button,
   FormControl,
   HStack,
+  Icon,
   IconButton,
   Image,
   Stack,
@@ -96,9 +97,9 @@ const HatBasicsForm = ({
   return (
     <form>
       <FormControl>
-        <Stack spacing={4}>
+        <Stack spacing={8}>
           <FormRowWrapper>
-            <Image src='/icons/hat.svg' alt='Hat' />
+            <Image src='/icons/hat.svg' alt='Hat' boxSize={4} mt='2px' />
             <Input
               localForm={localForm}
               name='name'
@@ -107,7 +108,7 @@ const HatBasicsForm = ({
             />
           </FormRowWrapper>
           <FormRowWrapper>
-            <FaParagraph />
+            <Icon as={FaParagraph} boxSize={4} mt='2px' />
             <Textarea
               localForm={localForm}
               name='description'
@@ -117,7 +118,7 @@ const HatBasicsForm = ({
           </FormRowWrapper>
 
           <FormRowWrapper>
-            <FaImage />
+            <Icon as={FaImage} boxSize={4} mt='2px' />
             <Box w='100%'>
               <Text fontSize='sm' fontWeight='medium' mb={2}>
                 {' '}
@@ -173,7 +174,7 @@ const HatBasicsForm = ({
           )}
 
           <FormRowWrapper>
-            <FaRegEdit />
+            <Icon as={FaRegEdit} boxSize={4} mt='2px' />
             <Box>
               <RadioBox
                 name='mutable'

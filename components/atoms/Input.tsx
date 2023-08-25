@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
+  Box,
   FormControl,
   FormLabel,
   HStack,
@@ -31,6 +32,7 @@ import { GrUndo } from 'react-icons/gr';
  */
 const Input = ({
   label,
+  subLabel,
   name,
   info,
   tip,
@@ -57,21 +59,24 @@ const Input = ({
   return (
     <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
-        {label && (
-          <FormLabel>
-            <HStack>
-              <Text fontSize='sm'>
-                {label.toUpperCase()}
-                {options?.required && '*'}
-              </Text>
-              {info && (
-                <Tooltip shouldWrapChildren label={info}>
-                  <FaRegQuestionCircle />
-                </Tooltip>
-              )}
-            </HStack>
-          </FormLabel>
-        )}
+        <Box>
+          {label && (
+            <FormLabel>
+              <HStack>
+                <Text fontSize='sm'>
+                  {label.toUpperCase()}
+                  {options?.required && '*'}
+                </Text>
+                {info && (
+                  <Tooltip shouldWrapChildren label={info}>
+                    <FaRegQuestionCircle />
+                  </Tooltip>
+                )}
+              </HStack>
+            </FormLabel>
+          )}
+          {subLabel && <Text color='blackAlpha.700'>{subLabel}</Text>}
+        </Box>
         {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
         <InputGroup {...props}>
           <ChakraInput
@@ -105,6 +110,7 @@ export default Input;
 
 interface InputProps extends ChakraInputProps {
   label?: string;
+  subLabel?: string;
   name: string;
   info?: string;
   tip?: string | ReactNode;

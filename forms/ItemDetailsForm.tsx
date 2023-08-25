@@ -1,8 +1,14 @@
-import { Box, Button, HStack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  HStack,
+  Icon as IconWrapper,
+  Text,
+} from '@chakra-ui/react';
 import { useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
-import { FaPlus } from 'react-icons/fa';
+import { BsPlusCircle } from 'react-icons/bs';
 
 import LabelWithLink from '@/components/LabelWithLink';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -12,6 +18,7 @@ interface ItemDetailsFormProps {
   localForm: any;
   formName: string;
   title: string;
+  subtitle?: string;
   Icon: IconType;
   label: string;
 }
@@ -21,6 +28,7 @@ const ItemDetailsForm = ({
   formName,
   title,
   Icon,
+  subtitle,
   label,
 }: ItemDetailsFormProps) => {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -59,10 +67,15 @@ const ItemDetailsForm = ({
 
   return (
     <>
-      <HStack alignItems='center' ml={-6}>
-        {Icon && <Icon />}
-        <Text fontSize='sm'>{title}</Text>
-      </HStack>
+      <Box>
+        <HStack alignItems='center' ml={-6}>
+          {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
+          <Text fontSize='sm' color='blackAlpha.800' fontWeight='medium'>
+            {title}
+          </Text>
+        </HStack>
+        <Text color='blackAlpha.700'>{subtitle}</Text>
+      </Box>
       {fields.map((field, index) => (
         <LabelWithLink
           key={field.id}
@@ -85,8 +98,10 @@ const ItemDetailsForm = ({
           onClick={() => append({ link: '', label: '' })}
           isDisabled={items?.some((item: DetailsItem) => item.label === '')}
           gap={2}
+          variant='outline'
+          borderColor='blackAlpha.300'
         >
-          <FaPlus />
+          <BsPlusCircle />
           Add {items?.length ? 'another' : 'a'} {label}
         </Button>
       </Box>
