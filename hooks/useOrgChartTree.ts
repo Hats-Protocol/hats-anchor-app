@@ -1,13 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
-import { toTreeStructure } from '@/lib/hats';
+import { toTreeStructure } from '@/lib/tree';
 import { IHat, ITree } from '@/types';
 
 const useOrgChartTree = ({
   treeData,
   chainId,
   hatsWithImageData,
+  initialHatIds,
 }: UseOrgChartTreeProps) => {
   const fetchTree = async () => {
     if (!treeData || !chainId || !hatsWithImageData) return undefined;
@@ -16,6 +18,7 @@ const useOrgChartTree = ({
       treeData,
       hatsImages: hatsWithImageData,
       chainId,
+      initialHatIds,
     });
 
     return tree;
@@ -41,4 +44,5 @@ interface UseOrgChartTreeProps {
   treeData: ITree | null | undefined;
   chainId: number;
   hatsWithImageData: IHat[] | undefined;
+  initialHatIds: Hex[];
 }

@@ -37,7 +37,7 @@ export interface IHat {
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: IHatWearer[]; // (Hex | IHatWearer)[];
+  wearers: IHatWearer[];
   extendedWearers?: IHatWearer[];
   admin?: Partial<IHat>;
   detailsObject?: {
@@ -45,9 +45,9 @@ export interface IHat {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: HatDetails;
   };
-  name?: string;
-  parentId?: string | null;
-  treeId?: string;
+  name: string;
+  parentId: Hex | undefined;
+  treeId?: Hex;
   isLinked?: boolean;
   url?: string;
   active?: boolean;

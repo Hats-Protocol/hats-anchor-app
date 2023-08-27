@@ -10,7 +10,6 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
-import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import {
@@ -149,7 +148,3 @@ const MainContent = () => {
 };
 
 export default MainContent;
-
-interface MainContentProps {
-  handleHatClick: (hatId: Hex) => void;
-}

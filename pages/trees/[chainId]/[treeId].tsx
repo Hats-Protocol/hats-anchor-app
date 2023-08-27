@@ -6,17 +6,15 @@ import { Hex } from 'viem';
 import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
 import { fetchTreeDetails } from '@/gql/helpers';
-import { mapWithChainId } from '@/lib/general';
 import { decimalToTreeId } from '@/lib/hats';
-import { IHat, ITree } from '@/types';
+import { ITree } from '@/types';
 
 const TreeDetails = ({
   treeId,
   chainId,
   initialTreeData,
-}: // initialHats,
-// linkedHats,
-TreeDetailsProps) => {
+  initialHatIds,
+}: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
   if (_.isArray(hatId)) {
@@ -29,6 +27,7 @@ TreeDetailsProps) => {
       chainId={chainId}
       initialHatId={hatId}
       initialTreeData={initialTreeData}
+      initialHatIds={initialHatIds}
     >
       <TreePage />
     </TreeFormContextProvider>
@@ -59,34 +58,19 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     'parentOfTrees',
   ]);
 
-  const linkedHats = [];
-  if (linkedToHat) {
-    linkedHats.push({ id: linkedToHat });
-  }
-  if (parentOfTrees) {
-    _.forEach(parentOfTrees, (tree: Partial<ITree>) => {
-      linkedHats.push({
-        id: tree.id,
-        admin: {
-          id: tree.linkedToHat?.id,
-        },
-        tree: tree.id,
-      });
-    });
-  }
+  const linkedHats = [linkedToHat?.id];
+  const parentOfHats = _.map(parentOfTrees, 'id');
 
-  const extendedLinkedHats = mapWithChainId(linkedHats, chainId);
+  const initialHatIds = _.compact(
+    _.concat(_.map(_.get(treeData, 'hats'), 'id'), linkedHats, parentOfHats),
+  );
 
   return {
     props: {
       treeId: treeHex || null,
       chainId: _.toNumber(chainId),
       initialTreeData: treeData || null,
-      initialHats: _.filter(
-        _.concat(_.get(treeData, 'hats'), extendedLinkedHats),
-        (x) => x,
-      ) as IHat[],
-      linkedHats: extendedLinkedHats || null,
+      initialHatIds: initialHatIds || null,
     },
     revalidate: 5,
   };
@@ -105,6 +89,5 @@ interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
   initialTreeData: ITree;
-  // initialHats: Partial<IHat>[];
-  // linkedHats: IHat[];
+  initialHatIds: Hex[];
 }

@@ -34,15 +34,20 @@ export const checkAddressIsContract = async (
   return false;
 };
 
-export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) =>
-  _.map(wearers, (wearer: IHatWearer) => {
-    const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
-    return wearerInfo;
-  });
+export const extendWearers = (
+  wearers: IHatWearer[],
+  wearersInfo: IHatWearer[] | undefined,
+): IHatWearer[] =>
+  _.compact(
+    _.map(wearers, (wearer: IHatWearer) => {
+      const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
+      return wearerInfo as IHatWearer | undefined;
+    }),
+  );
 
 export const extendControllers = (
   controller: Hex,
-  controllersInfo: object[],
+  controllersInfo: IHatWearer[] | undefined,
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: controller });
 

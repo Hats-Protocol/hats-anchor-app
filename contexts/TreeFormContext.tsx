@@ -99,12 +99,14 @@ export const TreeFormContextProvider = ({
   chainId,
   initialHatId,
   initialTreeData,
+  initialHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
   initialHatId: string | undefined;
   initialTreeData: ITree;
+  initialHatIds: Hex[];
   children: ReactNode;
 }) => {
   const onchainTree = useRef(initialTreeData);
@@ -160,10 +162,11 @@ export const TreeFormContextProvider = ({
     treeData,
     chainId,
     hatsWithImageData,
+    initialHatIds,
   });
 
   // top hat
-  const topHat: IHat | null | undefined = useMemo(
+  const topHat: IHat | undefined = useMemo(
     () => _.first(orgChartTree),
     [orgChartTree],
   );
@@ -261,19 +264,22 @@ export const TreeFormContextProvider = ({
     });
   }, []);
 
-  const importHats = useCallback((hats: Partial<FormData>[]) => {
-    setStoredData?.(hats);
-    const draftHats = _.reject(
-      hats,
-      (hat) =>
-        _.includes(_.map(onchainHats, 'id'), hat.id) ||
-        _.isEmpty(_.reject(hat, ['id', 'parentId'])),
-    );
-    if (!_.isEmpty(draftHats)) {
-      const drafts = translateDrafts({ chainId, treeId, drafts: draftHats });
-      setOrgChartHats(_.concat(onchainHats, drafts));
-    }
-  }, []);
+  const importHats = useCallback(
+    (hats: Partial<FormData>[]) => {
+      setStoredData?.(hats);
+      const draftHats = _.reject(
+        hats,
+        (hat) =>
+          _.includes(_.map(onchainHats, 'id'), hat.id) ||
+          _.isEmpty(_.reject(hat, ['id', 'parentId'])),
+      );
+      if (!_.isEmpty(draftHats)) {
+        const drafts = translateDrafts({ chainId, treeId, drafts: draftHats });
+        setOrgChartHats(_.concat(onchainHats, drafts));
+      }
+    },
+    [chainId, treeId, onchainHats, setStoredData],
+  );
 
   const resetTree = useCallback(() => {
     setOrgChartHats(onchainHats);

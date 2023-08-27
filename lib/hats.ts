@@ -1,178 +1,22 @@
 /* eslint-disable no-plusplus */
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _, { map } from 'lodash';
+import _ from 'lodash';
+import { Hex } from 'viem';
 
-import { MUTABILITY, STATUS, ZERO_ADDRESS } from '@/constants';
-import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
-import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
-import { extendControllers, extendWearers } from '@/lib/contract';
+import { defaultHat, MUTABILITY } from '@/constants';
 import {
-  FormDataDetails,
+  FormData,
   HierarchyObject,
   IControls,
   IHat,
   InputObject,
-  ITree,
-  FormData,
 } from '@/types';
-import { pinJson } from './ipfs';
-import { defaultHat } from '@/constants';
-import { Hex } from 'viem';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
   const lessTop = _.filter(children, (child) => child.id !== id);
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
 };
-
-export async function toTreeStructure({
-  treeData,
-  hatsImages,
-  chainId,
-}: {
-  treeData: ITree | null | undefined;
-  hatsImages: IHat[] | undefined;
-  chainId: number;
-}): Promise<IHat[]> {
-  if (!treeData || !hatsImages) return Promise.resolve([]);
-  const hatsArray: any[] = [];
-
-  const hatIds: string[] = _.uniq(
-    _.concat(
-      _.map(treeData?.hats, 'id'),
-      treeData.linkedToHat?.id ? [treeData.linkedToHat?.id] : [],
-      _.map(treeData?.parentOfTrees, (t) => prettyIdToId(t.id)),
-    ),
-  );
-
-  // needs to be optimised
-  let hatsData = await fetchManyHatDetails(hatIds, chainId);
-  const detailsFields = hatsData.map((hat: IHat) => hat.details);
-  const details = await fetchMultipleHatsDetails(detailsFields);
-  hatsData = _.map(hatsData, (hat: IHat, index: number) => {
-    const imageUrl = _.find(hatsImages, ['id', hat.id])?.imageUrl;
-    return {
-      ...hat,
-      imageUrl,
-      detailsObject: details[index],
-    };
-  });
-
-  const wAndCs = _.uniq(
-    _.filter(
-      _.concat(
-        _.map(_.flatten(hatsData.map((hat: IHat) => hat.wearers)), 'id'),
-        _.map(_.flatten(hatsData.map((hat: IHat) => hat.toggle)), 'id'),
-        _.map(_.flatten(hatsData.map((hat: IHat) => hat.eligibility)), 'id'),
-      ),
-      (d) => d !== ZERO_ADDRESS && d !== undefined,
-    ),
-  );
-  const wAndCInfo = await fetchManyWearerDetails(wAndCs, chainId);
-
-  hatsData?.forEach(async (hat: IHat) => {
-    let parentId: string | undefined = hat.admin?.id;
-    if (hat.admin?.id === hat.id) {
-      parentId = undefined;
-    }
-
-    const { id, tree } = hat;
-    let treeId;
-    if (tree) {
-      treeId = tree.id;
-    }
-
-    const currentHat = _.find(hatsData, { id });
-    if (!currentHat) return;
-
-    hatsArray.push({
-      ...currentHat,
-      id,
-      name: hatIdDecimalToIp(BigInt(id)),
-      parentId,
-      treeId,
-      isLinked: false,
-      url: `/trees/${chainId}/${decimalId(treeId)}`,
-      extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
-      extendedEligibility: extendControllers(currentHat.eligibility, wAndCInfo),
-      extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
-    });
-  });
-
-  // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
-  if (treeData?.linkedToHat) {
-    const { id, tree, imageUrl } = treeData.linkedToHat;
-    let treeId;
-    if (tree) {
-      treeId = tree.id;
-    }
-
-    const currentHat = _.find(hatsData, { id });
-    if (currentHat) {
-      hatsArray.push({
-        ...currentHat,
-        id,
-        name: hatIdDecimalToIp(BigInt(id)),
-        parentId: null,
-        imageUrl,
-        treeId,
-        isLinked: true,
-        url: `/trees/${chainId}/${decimalId(treeId)}`,
-        extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
-        extendedEligibility: extendControllers(
-          currentHat.eligibility,
-          wAndCInfo,
-        ),
-        extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
-      });
-    }
-  }
-
-  // If the tree has parentOfTrees, add them to the hatsArray with the linkedToHat as their parent
-  if (treeData?.parentOfTrees) {
-    treeData.parentOfTrees.forEach((childTree: ITree) => {
-      if (!childTree.linkedToHat) return;
-      const {
-        linkedToHat: { id },
-        id: treeId,
-      } = childTree;
-
-      if (!id) return;
-      const currentHat = _.find(hatsData, { id });
-      if (!currentHat) return;
-
-      hatsArray.push({
-        ...currentHat,
-        id: treeId,
-        name: hatIdDecimalToIp(BigInt(treeId)),
-        parentId: id,
-        treeId,
-        isLinked: true,
-        url: `/trees/${chainId}/${decimalId(treeId)}`,
-        extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
-        extendedEligibility: extendControllers(
-          currentHat.eligibility,
-          wAndCInfo,
-        ),
-        extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
-      });
-    });
-  }
-
-  const draftHats = _.filter(hatsImages, (hat) =>
-    _.includes(
-      _.difference(_.map(hatsImages, 'id'), _.map(hatsArray, 'id')),
-      hat.id,
-    ),
-  );
-
-  let hatsArrayWithDrafts = undefined;
-  if (!_.isEmpty(draftHats)) {
-    hatsArrayWithDrafts = _.concat(hatsArray, draftHats);
-  }
-
-  return Promise.resolve(hatsArrayWithDrafts || hatsArray);
-}
 
 export function createHierarchy(data: InputObject[]): HierarchyObject[] {
   // Sort by parentId and id
@@ -407,7 +251,7 @@ export const checkPermissionsResponsibilities = (
 
 const unchangedKeys = ['id', 'parentId'];
 
-export const editHasUpdates = (storedData: any[] | undefined) =>
+export const editHasUpdates = (storedData: FormData[] | undefined) =>
   !_.isEmpty(
     _.reject(storedData, (data) =>
       _.isEmpty(_.keys(_.omit(data, _.concat(unchangedKeys, ['name'])))),
@@ -428,34 +272,6 @@ export function getProposedChangesCount(
 
   return 0;
 }
-
-interface handleDetailsPinProps {
-  chainId: number;
-  hatId: string;
-  newDetails: Partial<FormDataDetails>;
-  existingDetails?: Partial<FormDataDetails> | {};
-}
-
-export const handleDetailsPin = async ({
-  chainId,
-  hatId,
-  newDetails,
-  existingDetails = {},
-}: handleDetailsPinProps) => {
-  const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
-    BigInt(hatId),
-  )}`;
-  const newDetailsData = _.merge(existingDetails, newDetails);
-
-  const cid = `ipfs://${await pinJson(
-    {
-      type: '1.0',
-      data: newDetailsData,
-    },
-    { name: detailsName },
-  )}`;
-  return cid;
-};
 
 export const getDefaultAdminId = (hatId: string) => {
   const currentIpId = hatIdDecimalToIp(BigInt(hatId));
