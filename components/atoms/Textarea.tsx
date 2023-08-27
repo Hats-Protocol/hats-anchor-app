@@ -16,7 +16,6 @@ import {
   TextareaProps as ChakraTextareaProps,
   Tooltip,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { GrUndo } from 'react-icons/gr';

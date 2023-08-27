@@ -1,6 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';

@@ -40,7 +40,7 @@ const useWearerDetails = ({
   initialData,
 }: UseWearerDetailsProps) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['wearerDetails', wearerAddress, chainId || 'all'],
+    queryKey: ['wearerDetails', wearerAddress, { chainId }],
     queryFn: () =>
       chainId && chainId !== 'all'
         ? fetchWearerDetailsForChain(wearerAddress, chainId)

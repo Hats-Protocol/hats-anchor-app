@@ -13,6 +13,7 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -21,13 +22,12 @@ import useToast from '@/hooks/useToast';
 import { editHasUpdates } from '@/lib/hats';
 
 const BottomMenu = () => {
-  const { chainId, treeId, onchainHats, storedData } = useTreeForm();
-  const { resolvedData, isLoading } = useMulticallCallData({
-    chainId,
-    treeId,
-    onchainHats,
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { storedData } = useTreeForm();
+  const { data, isLoading } = useMulticallCallData({
+    isExpanded,
   });
-  const callData = resolvedData ? resolvedData.callData : null;
+  const callData = data ? data?.callData : null;
   const toast = useToast();
 
   const hasUpdates = editHasUpdates(storedData);
@@ -44,50 +44,62 @@ const BottomMenu = () => {
       >
         <Accordion allowToggle w='full' mt='-1px'>
           <AccordionItem isDisabled={!hasUpdates}>
-            <AccordionButton px={8} py={4}>
-              <Box flex='1' textAlign='left'>
-                Executable hex code
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
+            {({ isExpanded: localIsExpanded }) => {
+              setIsExpanded(localIsExpanded);
 
-            <AccordionPanel pb={8} px={8}>
-              <Box>
-                <Text mb={2} color='blackAlpha.700'>
-                  Copy this into the Data field of a transaction builder to
-                  deploy the tree from a contract (such as a multisig or DAO).
-                </Text>
+              return (
+                <>
+                  <AccordionButton px={8} py={4}>
+                    <Box flex='1' textAlign='left'>
+                      Executable hex code
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
 
-                <HStack>
-                  <Input
-                    value={isLoading ? '' : callData}
-                    background='white'
-                    color='blackAlpha.600'
-                    isReadOnly
-                    placeholder='Loading...'
-                  />
-                  {isLoading ? (
-                    <Spinner size='sm' marginLeft={2} />
-                  ) : (
-                    <Button
-                      leftIcon={<FiCopy />}
-                      onClick={() => {
-                        copyCallData();
-                        toast.info({
-                          title: 'Successfully copied hex code to clipboard',
-                        });
-                      }}
-                      ml={2}
-                      isDisabled={!callData}
-                      variant='outline'
-                      borderColor='gray.300'
-                    >
-                      Copy
-                    </Button>
-                  )}
-                </HStack>
-              </Box>
-            </AccordionPanel>
+                  <AccordionPanel pb={8} px={8}>
+                    <Box>
+                      <Text mb={2} color='blackAlpha.700'>
+                        Copy this into the Data field of a transaction builder
+                        to deploy the tree from a contract (such as a multisig
+                        or DAO).
+                      </Text>
+
+                      {!isLoading ? (
+                        <HStack>
+                          <Input
+                            value={isLoading ? '' : callData || ''}
+                            background='white'
+                            color='blackAlpha.600'
+                            isReadOnly
+                            placeholder='Loading...'
+                          />
+                          <Button
+                            leftIcon={<FiCopy />}
+                            onClick={() => {
+                              copyCallData();
+                              toast.info({
+                                title:
+                                  'Successfully copied hex code to clipboard',
+                              });
+                            }}
+                            ml={2}
+                            isDisabled={!callData}
+                            variant='outline'
+                            borderColor='gray.300'
+                          >
+                            Copy
+                          </Button>
+                        </HStack>
+                      ) : (
+                        <Flex justify='center' align='center'>
+                          <Spinner />
+                        </Flex>
+                      )}
+                    </Box>
+                  </AccordionPanel>
+                </>
+              );
+            }}
           </AccordionItem>
         </Accordion>
       </Flex>

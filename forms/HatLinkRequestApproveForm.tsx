@@ -10,6 +10,7 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -21,14 +22,13 @@ import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, toTreeId } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from '@/contexts/TreeFormContext';
 import { ImageFile } from '@/types';
 
 const HatLinkRequestApproveForm = ({
@@ -133,6 +133,7 @@ const HatLinkRequestApproveForm = ({
       eligibilityAddress,
       toggleAddress,
       newDetails && customDetails ? detailsCID : details,
+      // eslint-disable-next-line no-nested-ternary
       newImage && customImage
         ? imagePinData !== undefined
           ? `ipfs://${imagePinData}`

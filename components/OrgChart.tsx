@@ -105,13 +105,13 @@ const OrgChartComponent: React.FC = () => {
           // @ts-ignore
           .neighbourMargin(() => 40)
           // set node sizes
-          .nodeHeight((d: any) => {
+          .nodeHeight(() => {
             if (editMode || selectedOption !== 'title') {
               return 110;
             }
             return 70;
           })
-          .nodeWidth((d: any) => 220)
+          .nodeWidth(() => 220)
           // node click handler
           .onNodeClick(function test(node: IHat) {
             if (!editMode) {

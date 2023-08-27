@@ -98,7 +98,7 @@ interface handleDetailsPinProps {
   chainId: number;
   hatId: string;
   newDetails: Partial<FormDataDetails>;
-  existingDetails?: Partial<FormDataDetails> | {};
+  existingDetails?: Partial<FormDataDetails> | object;
 }
 
 export const handleDetailsPin = async ({

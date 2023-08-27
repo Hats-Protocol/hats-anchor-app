@@ -43,7 +43,6 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { FormData, IHat } from '@/types';
 
 interface FormWearer {
   address: string;
