@@ -1,14 +1,27 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { FaKey, FaRegListAlt } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
-import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
+import {
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+  ZERO_ADDRESS,
+} from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
@@ -18,12 +31,31 @@ import useDebounce from '@/hooks/useDebounce';
 import { isTopHat } from '@/lib/hats';
 import { DetailsItem, FieldItem, FormData } from '@/types';
 
+const emptyFormValues = {
+  id: '0x' as Hex,
+  maxSupply: '1',
+  eligibility: FALLBACK_ADDRESS,
+  toggle: FALLBACK_ADDRESS,
+  mutable: MUTABILITY.MUTABLE,
+  imageUrl: '',
+  isEligibilityManual: TRIGGER_OPTIONS.MANUALLY,
+  isToggleManual: TRIGGER_OPTIONS.MANUALLY,
+  revocationsCriteria: [],
+  deactivationsCriteria: [],
+  name: '',
+  description: '',
+  authorities: [],
+  responsibilities: [],
+  guilds: [],
+  wearers: [],
+};
+
 const EditMode = ({
   unsavedData,
-  updateUnsavedData,
+  setUnsavedData,
   setIsLoading,
 }: EditModeProps) => {
-  const { chainId, storedData, selectedHat, selectedHatDetails } =
+  const { chainId, storedData, selectedHat, onchainHats, selectedHatDetails } =
     useTreeForm();
   const {
     name: initialName,
@@ -52,8 +84,14 @@ const EditMode = ({
       'imageUri',
     ]);
 
-  const defaultFormValues = useMemo<FormData>(
-    () => ({
+  const defaultFormValues = useMemo<FormData>(() => {
+    const draft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
+
+    if (draft) {
+      return emptyFormValues;
+    }
+
+    return {
       id: selectedHat?.id || '0x',
       maxSupply,
       eligibility,
@@ -76,24 +114,23 @@ const EditMode = ({
       responsibilities: initialResponsibilities ?? [],
       guilds: initialGuilds ?? [],
       wearers: [],
-    }),
-    [
-      selectedHat?.id,
-      maxSupply,
-      eligibility,
-      toggle,
-      mutable,
-      imageUrl,
-      initialEligibility,
-      initialToggle,
-      initialName,
-      initialDescription,
-      initialAuthorities,
-      initialResponsibilities,
-      initialGuilds,
-    ],
-  );
-  // console.log(defaultFormValues);
+    };
+  }, [
+    selectedHat?.id,
+    onchainHats,
+    maxSupply,
+    eligibility,
+    toggle,
+    mutable,
+    imageUrl,
+    initialEligibility,
+    initialToggle,
+    initialName,
+    initialDescription,
+    initialAuthorities,
+    initialResponsibilities,
+    initialGuilds,
+  ]);
 
   const localForm = useForm({
     mode: 'onChange',
@@ -106,7 +143,6 @@ const EditMode = ({
 
     const initialFormValues = () => {
       const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
-      // console.log(matchingHat);
 
       if (matchingHat) {
         formValues = {
@@ -115,7 +151,6 @@ const EditMode = ({
         };
       }
 
-      // console.log(formValues);
       reset(formValues);
     };
 
@@ -127,16 +162,14 @@ const EditMode = ({
   const allFormData = watch();
 
   const prevAllFormData = useRef<any>(allFormData);
-  // console.log(prevAllFormData.current);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
       (key) =>
         JSON.stringify(defaultFormValues[key]) !==
-        JSON.stringify(allFormData[key]),
+          JSON.stringify(allFormData[key]) || allFormData[key] === 'New Hat',
     );
   }, [allFormData, defaultFormValues]);
-  // console.log(getDirtyFields());
 
   const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
     const fields = getDirtyFields();
@@ -182,32 +215,35 @@ const EditMode = ({
   ]);
 
   useEffect(() => {
+    const updatedControllers: Partial<FormData> = {};
     if (toggleResolvedAddress !== unsavedData?.toggle) {
-      updateUnsavedData({
-        toggle: toggleResolvedAddress || allFormData.toggle,
-      } as FormData);
+      updatedControllers.toggle = toggleResolvedAddress || allFormData.toggle;
     }
     if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
-      updateUnsavedData({
-        eligibility: eligibilityResolvedAddress || allFormData.eligibility,
-      } as FormData);
+      updatedControllers.eligibility =
+        eligibilityResolvedAddress || allFormData.eligibility;
     }
+
+    if (!_.isEmpty(_.keys(updatedControllers)))
+      setUnsavedData((prev: Partial<FormData> | undefined) => ({
+        ...prev,
+        ...updatedControllers,
+      }));
   }, [eligibilityResolvedAddress, toggleResolvedAddress]);
 
   useEffect(() => {
     if (!_.isEqual(prevAllFormData.current, allFormData)) {
-      // console.log('dirty');
       const dirtyFieldKeys = getDirtyFields();
       const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: FormData, key: keyof FormData) => {
+        (acc: Partial<FormData>, key: keyof FormData) => {
           (acc[key] as DetailsItem[] | string | string[] | undefined) =
             allFormData[key];
           return acc;
         },
-        {} as FormData,
+        {} as Partial<FormData>,
       );
 
-      updateUnsavedData(dirtyFormData);
+      setUnsavedData(dirtyFormData);
       prevAllFormData.current = allFormData;
     }
   }, [allFormData, getDirtyFields]);
@@ -232,7 +268,7 @@ const EditMode = ({
         {} as FormData,
       );
 
-      updateUnsavedData(dirtyFormData);
+      setUnsavedData(dirtyFormData);
     }
   }, [newImageURI, imageUri]);
 
@@ -278,7 +314,7 @@ const EditMode = ({
             <Stack spacing={4}>
               <HatWearerForm
                 localForm={localForm}
-                setUnsavedData={updateUnsavedData}
+                setUnsavedData={setUnsavedData}
               />
             </Stack>
           </Accordion>
@@ -411,7 +447,7 @@ const deactivationFields: FieldItem[] = [
 ];
 
 interface EditModeProps {
-  updateUnsavedData: (data: FormData) => void;
-  unsavedData: FormData | null;
+  setUnsavedData: Dispatch<SetStateAction<Partial<FormData> | undefined>>;
+  unsavedData: Partial<FormData> | undefined;
   setIsLoading: (isLoading: boolean) => void;
 }

@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import _, { map } from 'lodash';
 
 import { MUTABILITY, STATUS, ZERO_ADDRESS } from '@/constants';
 import { fetchManyHatDetails, fetchManyWearerDetails } from '@/gql/helpers';
@@ -70,7 +70,7 @@ export async function toTreeStructure({
   );
   const wAndCInfo = await fetchManyWearerDetails(wAndCs, chainId);
 
-  treeData?.hats?.forEach(async (hat: IHat) => {
+  hatsData?.forEach(async (hat: IHat) => {
     let parentId: string | undefined = hat.admin?.id;
     if (hat.admin?.id === hat.id) {
       parentId = undefined;
@@ -159,7 +159,19 @@ export async function toTreeStructure({
     });
   }
 
-  return Promise.resolve(hatsArray);
+  const draftHats = _.filter(hatsImages, (hat) =>
+    _.includes(
+      _.difference(_.map(hatsImages, 'id'), _.map(hatsArray, 'id')),
+      hat.id,
+    ),
+  );
+
+  let hatsArrayWithDrafts = undefined;
+  if (!_.isEmpty(draftHats)) {
+    hatsArrayWithDrafts = _.concat(hatsArray, draftHats);
+  }
+
+  return Promise.resolve(hatsArrayWithDrafts || hatsArray);
 }
 
 export function createHierarchy(data: InputObject[]): HierarchyObject[] {
@@ -404,7 +416,7 @@ export const editHasUpdates = (storedData: any[] | undefined) =>
 
 export function getProposedChangesCount(
   hatId: string,
-  data: FormData[] | undefined,
+  data: Partial<FormData>[] | undefined,
 ): number {
   if (!data) return 0;
   const matchingHat = _.find(data, ['id', hatId]);
@@ -455,6 +467,19 @@ export const getDefaultAdminId = (hatId: string) => {
   return ipToHatId(defaultAdminId);
 };
 
+const calculateParentId = (hatId: Hex) => {
+  if (!hatId) return undefined;
+  const ipId = hatIdDecimalToIp(BigInt(hatId));
+  const splitIpId = _.split(ipId, '.');
+  const parentId = _.join(
+    _.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1)),
+    '.',
+  );
+  const parentHex = prettyIdToId(ipToPrettyId(parentId));
+
+  return parentHex;
+};
+
 export const translateDrafts = ({
   chainId,
   treeId,
@@ -462,22 +487,33 @@ export const translateDrafts = ({
 }: {
   chainId: number;
   treeId: Hex;
-  drafts: FormData[];
+  drafts: Partial<FormData>[];
 }): IHat[] => {
-  const extendDrafts = _.map(drafts, (hat) => ({
-    chainId,
-    ...defaultHat,
-    ...hat,
-  }));
+  const extendDrafts = _.map(drafts, (hat) => {
+    if (!hat.id) return undefined;
+    return {
+      ...hat,
+      ...defaultHat,
+      chainId,
+      name: hatIdDecimalToIp(BigInt(hat.id)),
+      detailsObject: {
+        type: '1.0',
+        data: {
+          name: hat.name || 'New Hat',
+        },
+      },
+      parentId: calculateParentId(hat.id),
+      mutable: _.has(hat, 'mutable')
+        ? hat.mutable === MUTABILITY.MUTABLE
+        : true,
+      wearers: _.map(hat.wearers, (wearer) => ({
+        id: wearer,
+      })),
+      tree: {
+        id: treeId,
+      },
+    };
+  });
 
-  return _.map(extendDrafts, (hat) => ({
-    ...hat,
-    mutable: hat.mutable === MUTABILITY.MUTABLE,
-    wearers: _.map(hat.wearers, (wearer) => ({
-      id: wearer,
-    })),
-    tree: {
-      id: treeId,
-    },
-  }));
+  return _.filter(extendDrafts, (x) => x) as IHat[];
 };

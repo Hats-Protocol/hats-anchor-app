@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { FormData } from '@/types';
+import { FormData, IHat } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -18,24 +18,24 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
   const selectedHatId = selectedHat?.id;
 
-  const [unsavedData, setUnsavedData] = useState<FormData | null>(null);
+  const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
+    undefined,
+  );
 
   const handleSave = (sendToast: boolean = true) => {
-    console.log(unsavedData);
     if (unsavedData) {
-      const updatedHats = _.map(storedData, (hat: FormData) =>
+      const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
         hat.id === selectedHat?.id
           ? { ...unsavedData, id: selectedHat?.id }
           : hat,
       );
-      console.log(updatedHats);
 
       if (!_.find(updatedHats, ['id', selectedHat?.id])) {
         updatedHats.push({ ...unsavedData, id: selectedHat?.id || '0x' });
       }
 
       setStoredData?.(updatedHats);
-      setUnsavedData(null);
+      setUnsavedData(undefined);
 
       if (sendToast) {
         toast.success({
@@ -91,7 +91,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
         {editMode && (
           <EditMode
-            updateUnsavedData={setUnsavedData}
+            setUnsavedData={setUnsavedData}
             unsavedData={unsavedData}
             setIsLoading={setIsLoading}
           />

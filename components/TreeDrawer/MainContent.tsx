@@ -30,7 +30,6 @@ const MainContent = () => {
     onchainHats,
     orgChartTree,
     storedData,
-    // setEditMode,
     setSelectedHatId,
     treeDisclosure,
     hatDisclosure,

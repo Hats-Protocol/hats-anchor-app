@@ -19,27 +19,25 @@ export const checkAddressIsContract = async (
     transport: custom((window as any).ethereum) || http(),
   });
 
-  const bytecode = await publicClient.getBytecode({
-    address,
-  });
+  try {
+    const bytecode = await publicClient.getBytecode({
+      address,
+    });
 
-  if (bytecode) {
-    return true;
+    if (bytecode) {
+      return true;
+    }
+  } catch (err) {
+    return false;
   }
   return false;
 };
 
-export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) => {
-  // ! why was this here?
-  // if (_.gt(_.size(wearers), 1)) {
-  //   return wearers;
-  // }
-
-  return _.map(wearers, (wearer: IHatWearer) => {
+export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) =>
+  _.map(wearers, (wearer: IHatWearer) => {
     const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
     return wearerInfo;
   });
-};
 
 export const extendControllers = (
   controller: Hex,

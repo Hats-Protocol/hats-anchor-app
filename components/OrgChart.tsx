@@ -120,7 +120,6 @@ const OrgChartComponent: React.FC = () => {
             }
           })
           .nodeUpdate(function test(this: any) {
-            console.log(editMode);
             if (!editMode || !chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
               if (
@@ -161,7 +160,6 @@ const OrgChartComponent: React.FC = () => {
                   ...defaultFormData,
                   ...newDetails,
                 };
-                console.log(onlyNeededKeys);
                 const removeCurrentId = _.reject(storedData, ['id', newId]);
                 setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys));
                 // wait to center. node doesn't exist right away
@@ -169,7 +167,6 @@ const OrgChartComponent: React.FC = () => {
                   centerChart(chart, newId);
                 }, 100);
               } else if (!isTopHatOrMutable(data.data) && editMode) {
-                console.log('editMode', editMode);
                 toast.error({ title: 'This hat is immutable' });
               } else {
                 centerChart(chart, data.data?.id);
@@ -594,6 +591,8 @@ const OrgChartComponent: React.FC = () => {
     editMode,
     userChain,
     toast,
+    addHat,
+    setStoredData,
   ]);
 
   return isLoading ? (

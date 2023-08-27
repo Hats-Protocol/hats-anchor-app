@@ -37,8 +37,8 @@ export interface ITreeFormContext {
   treeEvents: IHatEvent[] | undefined;
   isLoading: boolean;
   // local storage
-  storedData: FormData[] | undefined;
-  setStoredData: ((v: FormData[]) => void) | undefined;
+  storedData: Partial<FormData>[] | undefined;
+  setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
   // controls
   editMode: boolean;
   setEditMode: ((v: boolean) => void) | undefined;
@@ -119,7 +119,7 @@ export const TreeFormContextProvider = ({
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  const [storedData, setStoredData] = useLocalStorage<FormData[]>(
+  const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
     localStorageKey,
     [],
   );
@@ -152,7 +152,7 @@ export const TreeFormContextProvider = ({
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
     useImageURIs(orgChartHats, chainId);
 
-  const { data: orgChartTree } = useOrgChartTree({
+  const { orgChartTree } = useOrgChartTree({
     treeData,
     chainId,
     hatsWithImageData,
@@ -210,24 +210,19 @@ export const TreeFormContextProvider = ({
 
   const toggleEditMode = useCallback(() => {
     if (!editMode) {
-      console.log('storedData', storedData);
       const draftHats = _.reject(
         storedData,
         (hat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
-          !hat.parentId ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      console.log('draftHats', draftHats);
       if (!_.isEmpty(draftHats)) {
         const drafts = translateDrafts({ chainId, treeId, drafts: draftHats });
         setOrgChartHats(_.concat(onchainHats, drafts));
-        console.log('setOrgChartTree with drafts');
         onOpenTreeDrawer();
       }
     } else {
       onCloseTreeDrawer();
-      console.log('here - reset to exit edit mode');
       setOrgChartHats(onchainHats);
     }
     setEditMode(!editMode);
@@ -242,7 +237,6 @@ export const TreeFormContextProvider = ({
 
   const addHat = useCallback((hat: IHat) => {
     // set updated tree array
-    console.log('addChild');
     const newHat = {
       ...defaultHat,
       ...hat,
