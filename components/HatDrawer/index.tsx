@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { FormData, IHat } from '@/types';
+import { FormData } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';

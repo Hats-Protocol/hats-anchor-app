@@ -95,7 +95,6 @@ const MainContent = () => {
             onCloseTreeDrawer?.();
             onOpenHatDrawer?.();
             setSelectedHatId?.(hat.id);
-            // setEditMode?.(false);
           };
 
           return (

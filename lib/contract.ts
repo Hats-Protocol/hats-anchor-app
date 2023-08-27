@@ -16,6 +16,7 @@ export const checkAddressIsContract = async (
 
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transport: custom((window as any).ethereum) || http(),
   });
 

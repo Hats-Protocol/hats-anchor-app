@@ -26,9 +26,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
-import { generateLocalStorageKey } from '@/lib/general';
 import { editHasUpdates } from '@/lib/hats';
-import { IHat } from '@/types';
 
 const TopMenu = () => {
   const { address } = useAccount();
@@ -44,6 +42,8 @@ const TopMenu = () => {
     setEditMode,
     storedData,
     treeDisclosure,
+    resetTree,
+    setSelectedOption,
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
@@ -53,7 +53,7 @@ const TopMenu = () => {
     onchainHats,
   });
 
-  const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
+  const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
@@ -88,15 +88,13 @@ const TopMenu = () => {
     } else {
       setEditMode?.(!editMode);
       onCloseTreeDrawer?.();
+      setSelectedOption?.('wearers');
     }
   };
 
   const confirmReset = () => {
-    const localStorageKey = generateLocalStorageKey(chainId, treeId);
-    localStorage.removeItem(localStorageKey);
+    resetTree?.();
     closeModal();
-    setEditMode?.(false);
-    onCloseTreeDrawer?.();
   };
 
   const wearingTopHat = _.includes(
@@ -195,7 +193,3 @@ const TopMenu = () => {
 };
 
 export default TopMenu;
-
-interface TopMenuProps {
-  onClose: () => void;
-}

@@ -14,9 +14,9 @@ const TreeDetails = ({
   treeId,
   chainId,
   initialTreeData,
-  initialHats,
-  linkedHats,
-}: TreeDetailsProps) => {
+}: // initialHats,
+// linkedHats,
+TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
   if (_.isArray(hatId)) {
@@ -105,6 +105,6 @@ interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
   initialTreeData: ITree;
-  initialHats: Partial<IHat>[];
-  linkedHats: IHat[];
+  // initialHats: Partial<IHat>[];
+  // linkedHats: IHat[];
 }
