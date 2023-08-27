@@ -85,7 +85,7 @@ const MainContent = () => {
           Propose changes to any hat. Deploy changes to the Hats you control.
         </Text>
       </Stack>
-      <Box>
+      <Box overflow='scroll' height='450px'>
         {_.map(orgChartTree, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);

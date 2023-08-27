@@ -1,6 +1,8 @@
-import CONFIG from '@/constants';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+
+import CONFIG from '@/constants';
+
 import { PINATA_GATEWAY_TOKEN } from './ipfs';
 
 // unused

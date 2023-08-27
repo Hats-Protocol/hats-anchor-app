@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/atoms/DropZone';
@@ -27,7 +28,6 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
-import { Hex } from 'viem';
 
 // TODO refactor without prettyId
 

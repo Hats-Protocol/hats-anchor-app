@@ -14,14 +14,12 @@ const useOrgChartTree = ({
   const fetchTree = async () => {
     if (!treeData || !chainId || !hatsWithImageData) return undefined;
 
-    console.log('build tree');
     const tree = await toTreeStructure({
       treeData,
       hatsImages: hatsWithImageData,
       chainId,
       initialHatIds,
     });
-    console.log(tree);
 
     return tree;
   };
@@ -29,8 +27,7 @@ const useOrgChartTree = ({
   const { data: orgChartTree, isLoading } = useQuery({
     queryKey: [
       'orgChartTree',
-      treeData?.id,
-      chainId,
+      { chainId, treeId: treeData?.id },
       _.map(hatsWithImageData, 'id'),
     ],
     queryFn: fetchTree,

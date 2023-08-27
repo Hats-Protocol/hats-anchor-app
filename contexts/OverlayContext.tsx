@@ -22,7 +22,7 @@ export interface IOverlayContext {
   closeModals?: () => void;
   commandPallet?: boolean;
   setCommandPallet?: (m: boolean) => void;
-  handlePendingTx: ({
+  handlePendingTx?: ({
     hash,
     toastData,
     redirect = null,
@@ -39,12 +39,10 @@ export interface IOverlayContext {
 
 export const OverlayContext = createContext<IOverlayContext>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setModals: (m: object) => console.log('setModals() not implemented'),
-  closeModals: () => console.log('clearModals() not implemented'),
+  setModals: undefined,
+  closeModals: undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handlePendingTx({ hash, toastData, redirect, clearModals, sendToast }) {
-    throw new Error('handlePendingTx() not implemented');
-  },
+  handlePendingTx: undefined,
 });
 
 export const OverlayContextProvider = ({

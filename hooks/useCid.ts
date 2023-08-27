@@ -1,7 +1,8 @@
 /* eslint-disable import/no-unresolved */
-import { calculateCid } from '@/lib/ipfs';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+
+import { calculateCid } from '@/lib/ipfs';
 
 /**
  * Computes the CID of a Json object
@@ -17,9 +18,9 @@ const useCid = (data: object) => {
     async function calcCid() {
       setLoading(true);
       setCurrentData(data);
-      const cid = await calculateCid(data);
+      const localCid = await calculateCid(data);
 
-      setCid(cid);
+      setCid(localCid);
       setLoading(false);
     }
 

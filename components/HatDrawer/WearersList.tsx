@@ -15,7 +15,7 @@ import _ from 'lodash';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaPlus, FaSearch } from 'react-icons/fa';
-import { fallback, Hex } from 'viem';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';

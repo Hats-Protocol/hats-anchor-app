@@ -1,22 +1,18 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-restricted-syntax */
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import useToast from '@/hooks/useToast';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { pinJson } from '@/lib/ipfs';
-import { createHatsClient } from '@/lib/web3';
-import { generateLocalStorageKey } from '@/lib/general';
-import { decimalId, getDefaultAdminId } from '@/lib/hats';
-import { handleDetailsPin } from '@/lib/ipfs';
-import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
-import { FormDataDetails, IHat } from '@/types';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import { Hex } from 'viem';
 
+import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import { decimalId, getDefaultAdminId } from '@/lib/hats';
+import { handleDetailsPin } from '@/lib/ipfs';
+import { createHatsClient } from '@/lib/web3';
+import { FormDataDetails } from '@/types';
+
 type useMulticallCallDataProps = {
-  chainId: number | undefined;
-  treeId: string | undefined;
-  onchainHats: IHat[] | undefined;
+  isExpanded: boolean;
 };
 
 const hasDetailsChanged = ({
@@ -29,39 +25,29 @@ const hasDetailsChanged = ({
   revocationsCriteria,
   isToggleManual,
   deactivationsCriteria,
-}: FormDataDetails) => {
+}: Partial<FormDataDetails>) => {
   return (
     name ||
     description ||
-    guilds?.length > 0 ||
-    responsibilities?.length > 0 ||
-    authorities?.length > 0 ||
+    _.gt(_.size(guilds), 0) ||
+    _.gt(_.size(responsibilities), 0) ||
+    _.gt(_.size(authorities), 0) ||
     isEligibilityManual ||
-    revocationsCriteria?.length > 0 ||
+    _.gt(_.size(revocationsCriteria), 0) ||
     isToggleManual ||
-    deactivationsCriteria?.length > 0
+    _.gt(_.size(deactivationsCriteria), 0)
   );
 };
 
-const useMulticallCallData = ({
-  chainId,
-  treeId,
-  onchainHats,
-}: useMulticallCallDataProps) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [resolvedData, setResolvedData] = useState<any>(null);
+const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
+  const { chainId, treeId, storedData, onchainHats } = useTreeForm();
   const hatsClient = createHatsClient(chainId);
-  const toast = useToast();
-  const previousResolvedDataRef = useRef<any>(null);
-
-  const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
 
   const computeMulticallData = async () => {
-    if (!chainId || !treeId || !hatsClient) return;
+    if (!chainId || !treeId || !hatsClient || !storedData) return undefined;
     const calls = [] as Hex[];
 
-    for (let hat of storedData) {
+    for (const hat of storedData) {
       const {
         maxSupply,
         eligibility,
@@ -80,6 +66,7 @@ const useMulticallCallData = ({
         wearers,
         id: hatId,
       } = hat;
+      if (!hatId) continue;
 
       const detailsData = {
         name,
@@ -98,6 +85,7 @@ const useMulticallCallData = ({
       };
 
       if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
+        // eslint-disable-next-line no-await-in-loop
         const details = await handleDetailsPin({
           chainId,
           hatId,
@@ -106,7 +94,7 @@ const useMulticallCallData = ({
         const newHatData = hatsClient?.createHatCallData({
           admin: BigInt(getDefaultAdminId(hatId)),
           details,
-          maxSupply: maxSupply || 1,
+          maxSupply: _.toNumber(maxSupply) || 1,
           eligibility: eligibility || FALLBACK_ADDRESS,
           toggle: toggle || FALLBACK_ADDRESS,
           mutable: mutable === MUTABILITY.MUTABLE,
@@ -136,6 +124,7 @@ const useMulticallCallData = ({
           'detailsObject.data',
         );
 
+        // eslint-disable-next-line no-await-in-loop
         const newCid = await handleDetailsPin({
           chainId,
           hatId,
@@ -236,39 +225,17 @@ const useMulticallCallData = ({
       }
     }
 
-    return hatsClient?.multicallCallData([...calls]);
+    return Promise.resolve(hatsClient?.multicallCallData([...calls]));
   };
 
-  const multicallData = useMemo(() => {
-    return computeMulticallData();
-  }, [storedData]);
+  const { data, isLoading } = useQuery({
+    queryKey: ['multicallData', { treeId, chainId }, storedData],
+    queryFn: computeMulticallData,
+    enabled:
+      !!treeId && !!chainId && !!hatsClient && !!storedData && isExpanded,
+  });
 
-  useEffect(() => {
-    const resolveData = async () => {
-      try {
-        const data = await multicallData;
-
-        if (!_.isEqual(data, previousResolvedDataRef.current)) {
-          setResolvedData(data);
-          previousResolvedDataRef.current = data;
-        }
-      } catch (error) {
-        toast.error({
-          title: `Error processing changes for Tree ID: ${treeId}`,
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    resolveData();
-  }, [multicallData, toast, treeId]);
-
-  return { resolvedData, isLoading };
+  return { data, isLoading };
 };
 
 export default useMulticallCallData;

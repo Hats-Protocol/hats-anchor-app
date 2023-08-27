@@ -58,7 +58,7 @@ const useHatContractWrite = ({
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      await handlePendingTx({
+      await handlePendingTx?.({
         hash: data.hash,
         toastData: onSuccessToastData,
       });
