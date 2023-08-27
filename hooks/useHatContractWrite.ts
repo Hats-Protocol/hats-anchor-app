@@ -15,7 +15,7 @@ import useToast from '@/hooks/useToast';
 interface ContractInteractionProps {
   functionName: string;
   args: any[];
-  chainId: number;
+  chainId?: number;
   onSuccessToastData?: { title: string; description?: string };
   onErrorToastData?: { title: string; description?: string };
   queryKeys?: (string | number)[][];
@@ -46,7 +46,7 @@ const useHatContractWrite = ({
     abi,
     functionName,
     args,
-    enabled,
+    enabled: enabled && !!chainId,
   });
 
   const { writeAsync, error: writeError } = useContractWrite({

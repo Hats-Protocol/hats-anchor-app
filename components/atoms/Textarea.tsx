@@ -36,13 +36,13 @@ const Textarea = ({
   const {
     register,
     resetField,
-    formState: { errors, dirtyFields, defaultValues },
+    formState: { errors, dirtyFields },
   } = localForm;
 
   const isDirty = dirtyFields[name];
 
   const onReset = () => {
-    if (defaultValues) resetField(name, { keepDirty: false });
+    resetField(name, { keepDirty: false });
   };
 
   const error = errors[name] && errors[name]?.message;

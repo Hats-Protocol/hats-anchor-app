@@ -1,37 +1,33 @@
 import { Hex } from 'viem';
 
 import defaultHat from './defaultHat';
+import {
+  EMPTY_FORM_VALUES,
+  FORM_FIELDS,
+  MODULE_TYPES,
+  MUTABILITY,
+  STATUS,
+  TRIGGER_OPTIONS,
+} from './form';
 import { featuredTemplates, featuredTrees, learnMore } from './landingContent';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS, ZERO_ID } from './misc';
+import { initialControls } from './treeControls';
 
 export {
   defaultHat,
+  EMPTY_FORM_VALUES,
   FALLBACK_ADDRESS,
   featuredTemplates,
   featuredTrees,
+  FORM_FIELDS,
+  initialControls,
   learnMore,
+  MODULE_TYPES,
+  MUTABILITY,
+  STATUS,
+  TRIGGER_OPTIONS,
   ZERO_ADDRESS,
   ZERO_ID,
-};
-
-export const MODULE_TYPES: { [key: string]: string } = {
-  eligibility: 'ELIGIBILITY',
-  toggle: 'TOGGLE',
-};
-
-export const STATUS = {
-  ACTIVE: 'Active',
-  INACTIVE: 'Inactive',
-};
-
-export const MUTABILITY = {
-  MUTABLE: 'Mutable',
-  IMMUTABLE: 'Immutable',
-};
-
-export const TRIGGER_OPTIONS = {
-  MANUALLY: 'Manually',
-  AUTOMATICALLY: 'Automatically',
 };
 
 const CONFIG: {

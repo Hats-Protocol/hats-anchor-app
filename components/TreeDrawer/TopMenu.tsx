@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   HStack,
+  Icon,
   Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
@@ -9,52 +10,50 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
   Tooltip,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { BsXSquare } from 'react-icons/bs';
+import _ from 'lodash';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
-import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
-import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import hatsAbi from '@/contracts/Hats.json';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useMulticallCallData from '@/hooks/useMulticallCallData';
-import useToast from '@/hooks/useToast';
-import { generateLocalStorageKey } from '@/lib/general';
-import { editHasUpdates } from '@/lib/hats';
-import { createHatsClient } from '@/lib/web3';
-import { IHat } from '@/types';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
-import useTreeDetails from '@/hooks/useTreeDetails';
+import useToast from '@/hooks/useToast';
+import { editHasUpdates } from '@/lib/hats';
 
-const TopMenu = ({
-  editMode,
-  setEditMode,
-  onClose,
-  chainId,
-  treeId,
-  storedData,
-  setStoredData,
-  wearingTopHat,
-  tree,
-}: TopMenuProps) => {
+const TopMenu = () => {
+  const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+  const {
+    chainId,
+    treeId,
+    topHat,
+    onchainHats,
+    editMode,
+    setEditMode,
+    storedData,
+    treeDisclosure,
+    resetTree,
+    setSelectedOption,
+  } = useTreeForm();
   const toast = useToast();
-  const decimalTreeId = treeIdHexToDecimal(treeId);
+  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const { onSubmit, isLoading } = useMulticallCallManyHats({
     chainId,
     treeId,
-    tree,
+    onchainHats,
   });
+
+  const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
@@ -65,7 +64,7 @@ const TopMenu = ({
     const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    // todo add unix timestamp so don't get (1) on subsequent downloads
+    // TODO add unix timestamp so don't get (1) on subsequent downloads
     // update file name validation also, based on this ^
     link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
     link.href = url;
@@ -76,27 +75,32 @@ const TopMenu = ({
   };
 
   const handleDeploy = async () => {
-    await onSubmit();
-    setEditMode(false);
-    onClose();
+    const result = await onSubmit();
+    if (result) {
+      setEditMode?.(false);
+      onCloseTreeDrawer?.();
+    }
   };
 
   const promptForReset = () => {
     if (editHasUpdates(storedData)) {
       onOpen();
     } else {
-      setEditMode(!editMode);
-      onClose();
+      setEditMode?.(!editMode);
+      onCloseTreeDrawer?.();
+      setSelectedOption?.('wearers');
     }
   };
 
   const confirmReset = () => {
-    const localStorageKey = generateLocalStorageKey(chainId, treeId);
-    localStorage.removeItem(localStorageKey);
+    resetTree?.();
     closeModal();
-    setEditMode(false);
-    onClose();
   };
+
+  const wearingTopHat = _.includes(
+    _.map(topHat?.wearers, 'id'),
+    _.toLower(address),
+  );
 
   return (
     <Flex
@@ -116,9 +120,9 @@ const TopMenu = ({
         variant='outline'
         colorScheme='gray'
         onClick={promptForReset}
-        leftIcon={editMode ? <BsXSquare /> : <FaSave />}
+        leftIcon={<Icon as={FaSave} />}
       >
-        {editMode ? 'Cancel' : 'Edit'}
+        Cancel
       </Button>
 
       <HStack spacing={3}>
@@ -142,8 +146,10 @@ const TopMenu = ({
         <Tooltip
           label={
             !wearingTopHat &&
-            'Only top hat can deploy directly currently. Submit the transaction data to your DAO'
+            'Only top hat can deploy directly currently. Submit the transaction data to your DAO.'
           }
+          placement='left'
+          hasArrow
         >
           <Button
             leftIcon={<IoExitOutline />}
@@ -164,11 +170,7 @@ const TopMenu = ({
         title='Import Draft Tree Changes'
         localOverlay={localOverlay}
       >
-        <ImportTreeForm
-          treeId={treeId}
-          chainId={chainId}
-          setStoredData={setStoredData}
-        />
+        <ImportTreeForm />
       </Modal>
       <ChakraModal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
@@ -193,15 +195,3 @@ const TopMenu = ({
 };
 
 export default TopMenu;
-
-interface TopMenuProps {
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
-  onClose: () => void;
-  chainId: number;
-  treeId: string;
-  storedData: Partial<IHat>[];
-  setStoredData: (v: any) => void;
-  wearingTopHat: boolean;
-  tree: IHat[];
-}

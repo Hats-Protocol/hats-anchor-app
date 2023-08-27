@@ -2,13 +2,14 @@ import { isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import abi from '@/contracts/Hats.json';
 
-const useWearerIsInGoodStanding = ({
-  wearer,
-  hatId,
-  chainId,
-}: UseWearerIsInGoodStanding) => {
+const useWearerIsInGoodStanding = ({ wearer }: UseWearerIsInGoodStanding) => {
+  const { chainId, selectedHat } = useTreeForm();
+
+  const hatId = selectedHat?.id || 'none';
+
   const { data, isLoading } = useContractRead({
     address: CONFIG.hatsAddress,
     abi,
@@ -25,6 +26,4 @@ export default useWearerIsInGoodStanding;
 
 interface UseWearerIsInGoodStanding {
   wearer: string;
-  hatId: string;
-  chainId: number;
 }

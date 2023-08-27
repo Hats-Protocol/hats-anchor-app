@@ -6,41 +6,48 @@ import { IHatWearer } from '@/types';
 
 import { chainsMap } from './web3';
 
-export const checkAddressIsContract = async (address: Hex, chainId: number) => {
-  if (address === ZERO_ADDRESS) {
+export const checkAddressIsContract = async (
+  address?: Hex,
+  chainId?: number,
+) => {
+  if (!address || address === ZERO_ADDRESS || !chainId) {
     return false;
   }
 
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transport: custom((window as any).ethereum) || http(),
   });
 
-  const bytecode = await publicClient.getBytecode({
-    address,
-  });
+  try {
+    const bytecode = await publicClient.getBytecode({
+      address,
+    });
 
-  if (bytecode) {
-    return true;
+    if (bytecode) {
+      return true;
+    }
+  } catch (err) {
+    return false;
   }
   return false;
 };
 
-export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) => {
-  // ! why was this here?
-  // if (_.gt(_.size(wearers), 1)) {
-  //   return wearers;
-  // }
-
-  return _.map(wearers, (wearer: IHatWearer) => {
-    const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
-    return wearerInfo;
-  });
-};
+export const extendWearers = (
+  wearers: IHatWearer[],
+  wearersInfo: IHatWearer[] | undefined,
+): IHatWearer[] =>
+  _.compact(
+    _.map(wearers, (wearer: IHatWearer) => {
+      const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
+      return wearerInfo as IHatWearer | undefined;
+    }),
+  );
 
 export const extendControllers = (
   controller: Hex,
-  controllersInfo: object[],
+  controllersInfo: IHatWearer[] | undefined,
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: controller });
 

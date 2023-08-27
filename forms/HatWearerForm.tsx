@@ -37,27 +37,24 @@ import { useChainId, useEnsAddress } from 'wagmi';
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import FormRowWrapper from '@/components/FormRowWrapper';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
+import { FormData, IHat } from '@/types';
 
 interface FormWearer {
   address: string;
   ens: string;
 }
 
-const HatWearerForm = ({
-  chainId,
-  hatData,
-  localForm,
-  setUnsavedData,
-}: HatWearerFormProps) => {
+const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
 
   const { handleSubmit, setValue, watch } = localForm;
+  const { chainId, selectedHat } = useTreeForm();
 
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
@@ -66,14 +63,11 @@ const HatWearerForm = ({
   const localWearers: FormWearer[] = watch('wearers', []);
   const editMode = _.gt(_.size(_.keys(watch())), 1);
 
-  const {
-    id: hatId,
-    maxSupply,
-    detailsObject,
-    extendedWearers: currentWearers,
-  } = hatData;
-
-  let hatName = hatData.details;
+  const hatId = _.get(selectedHat, 'id');
+  const maxSupply = _.get(selectedHat, 'maxSupply');
+  const detailsObject = _.get(selectedHat, 'detailsObject');
+  const currentWearers = _.get(selectedHat, 'extendedWearers');
+  let hatName = selectedHat?.details;
   if (detailsObject?.data) {
     hatName = detailsObject.data.name;
   }
@@ -83,8 +77,6 @@ const HatWearerForm = ({
   const { data: isEligible, isLoading: isLoadingIsEligible } =
     useHatCheckEligibility({
       wearer: currentResolvedAddress,
-      hatId,
-      chainId,
     });
 
   const isAddressAlreadyAdded =
@@ -101,8 +93,6 @@ const HatWearerForm = ({
 
   const { data: isInGoodStanding } = useWearerIsInGoodStanding({
     wearer: currentResolvedAddress,
-    hatId,
-    chainId,
   });
 
   useEffect(() => {
@@ -132,7 +122,7 @@ const HatWearerForm = ({
       description: `Successfully minted hats`,
     },
     queryKeys: [
-      ['hatDetails', hatId],
+      ['hatDetails', hatId || 'none'],
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:
@@ -151,7 +141,7 @@ const HatWearerForm = ({
         description: `Successfully minted hat`,
       },
       queryKeys: [
-        ['hatDetails', hatId],
+        ['hatDetails', hatId || 'none'],
         ['treeDetails', toTreeId(hatId)],
       ],
       enabled:
@@ -259,7 +249,7 @@ const HatWearerForm = ({
               name='maxSupply'
               label='MAX WEARERS'
               placeholder='10'
-              isDisabled={!isMutable(hatData)}
+              isDisabled={!isMutable(selectedHat)}
               localForm={localForm}
             />
           </FormRowWrapper>
@@ -271,7 +261,7 @@ const HatWearerForm = ({
           </HStack>
           <Text fontSize='sm' color='blackAlpha.700'>
             Address will receive a {hatName} Hat token on{' '}
-            {chainsMap(chainId).name}
+            {chainId && chainsMap(chainId).name}
           </Text>
         </Stack>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
@@ -469,8 +459,6 @@ const HatWearerForm = ({
 export default HatWearerForm;
 
 interface HatWearerFormProps {
-  hatData: IHat;
-  chainId: number;
-  localForm: UseFormReturn;
+  localForm: UseFormReturn<any>;
   setUnsavedData?: (data: any) => void;
 }

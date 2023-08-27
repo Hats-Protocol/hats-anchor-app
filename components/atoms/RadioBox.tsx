@@ -50,6 +50,8 @@ const RadioBox = ({
 
   const error = localForm.formState.errors[name]?.message;
 
+  // TODO revert?
+
   return (
     <FormControl isRequired={isRequired} isInvalid={!!error}>
       <Stack>

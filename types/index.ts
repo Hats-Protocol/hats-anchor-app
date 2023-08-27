@@ -19,7 +19,7 @@ export interface IHatWearer {
 }
 
 export interface IHat {
-  id: string;
+  id: Hex;
   chainId: number;
   prettyId?: string;
   tree?: Partial<ITree>;
@@ -37,7 +37,7 @@ export interface IHat {
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: IHatWearer[]; // (Hex | IHatWearer)[];
+  wearers: IHatWearer[];
   extendedWearers?: IHatWearer[];
   admin?: Partial<IHat>;
   detailsObject?: {
@@ -45,9 +45,9 @@ export interface IHat {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: HatDetails;
   };
-  name?: string;
-  parentId?: string | null;
-  treeId?: string;
+  name: string;
+  parentId: Hex | undefined;
+  treeId?: Hex;
   isLinked?: boolean;
   url?: string;
   active?: boolean;
@@ -59,7 +59,7 @@ export interface ITreeEvent extends IHatEvent {
 }
 
 export interface ITree {
-  id: string;
+  id: Hex;
   chainId: number;
   hats: IHat[];
   events: ITreeEvent[];
@@ -122,13 +122,14 @@ export interface IControls {
 }
 
 export type FormData = FormDataDetails & {
-  maxSupply: string;
-  eligibility: string;
-  toggle: string;
+  maxSupply?: string;
+  eligibility?: Hex;
+  toggle?: Hex;
   mutable: string;
-  imageUrl: string;
-  id?: string;
-  wearers: string[];
+  imageUrl?: string;
+  id: Hex;
+  wearers: Hex[];
+  parentId?: Hex;
 };
 
 export type FormDataDetails = {

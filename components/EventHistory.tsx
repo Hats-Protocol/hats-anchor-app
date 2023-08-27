@@ -1,25 +1,34 @@
 import { Box, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
+import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { explorerUrl } from '@/lib/web3';
-import { IHatEvent, ITreeEvent } from '@/types';
+import { IHatEvent } from '@/types';
 
 const EventHistory = ({
-  chainId,
-  events,
+  type,
+  count,
 }: {
-  chainId: number;
-  events: IHatEvent[] | ITreeEvent[] | undefined;
+  type: 'tree' | 'hat';
+  count?: number;
 }) => {
+  const { chainId, selectedHat, treeEvents } = useTreeForm();
+
+  let events = type === 'tree' ? treeEvents : selectedHat?.events;
+  if (count) {
+    events = _.take(events, count);
+  }
+
   if (!events) {
     return null;
   }
 
   return (
     <Box>
-      {events?.map((event: IHatEvent) => (
+      {_.map(events, (event: IHatEvent) => (
         <Flex
           key={`${event?.transactionID}-${event?.id}`}
           align='center'
@@ -32,7 +41,9 @@ const EventHistory = ({
 
           <ChakraNextLink
             isExternal
-            href={`${explorerUrl(chainId)}/tx/${event?.transactionID}`}
+            href={`${chainId && explorerUrl(chainId)}/tx/${
+              event?.transactionID
+            }`}
             display='block'
           >
             <HStack spacing={3}>

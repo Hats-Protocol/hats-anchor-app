@@ -4,56 +4,42 @@ import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
-import { STATUS } from '@/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatGuilds from '@/hooks/useGuilds';
 import { checkAddressIsContract } from '@/lib/contract';
-import { HatDetails, HatRole, IHat } from '@/types';
 
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
 import Header from './Header';
-import LinkRequests from './LinkRequests';
+// import LinkRequests from './LinkRequests';
 import StatusCard from './Status';
 
-const MainContent = ({
-  chainId,
-  hatData,
-  isEligible,
-  hatRoles,
-  mutableStatus,
-  activeStatus,
-  isAdminUser,
-  hatDetails,
-  isCurrentWearer,
-  linkRequestFromTree,
-}: MainContentProps) => {
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
+const MainContent = () => {
+  const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
-  const {
-    name,
-    description,
-    responsibilities,
-    authorities,
-    toggle,
-    eligibility,
-  } = hatDetails;
+
+  const { responsibilities, authorities, toggle, eligibility } = _.pick(
+    selectedHatDetails,
+    ['responsibilities', 'authorities', 'toggle', 'eligibility'],
+  );
+
+  const { hatRoles } = useHatGuilds();
 
   useEffect(() => {
     const check = async () => {
       const checkPromises = [
-        await checkAddressIsContract(hatData?.eligibility, chainId),
-        await checkAddressIsContract(hatData?.toggle, chainId),
+        await checkAddressIsContract(selectedHat?.eligibility, chainId),
+        await checkAddressIsContract(selectedHat?.toggle, chainId),
       ];
       const data: unknown[] = await Promise.all(checkPromises);
       setIsEligibilityAContract(_.first(data) as boolean);
       setIsToggleAContract(_.nth(data, 1) as boolean);
     };
     check();
-  }, [chainId, hatData]);
+  }, [chainId, selectedHat]);
 
-  if (!hatData) return null;
+  if (!selectedHat) return null;
 
   return (
     <Stack
@@ -66,69 +52,44 @@ const MainContent = ({
       top={75}
       pos='relative'
     >
-      <Header
-        name={name || hatData?.details}
-        description={description}
-        mutableStatus={mutableStatus}
-        activeStatus={activeStatus}
-        isCurrentWearer={isCurrentWearer}
-        hatId={hatData.id}
-        levelAtLocalTree={hatData.levelAtLocalTree}
-      />
+      <Header />
 
-      <WearersList
-        hatData={hatData}
-        chainId={chainId}
-        localOverlay={localOverlay}
-        isAdminUser={isAdminUser}
-      />
+      <WearersList />
 
       <GuildRoles hatRoles={hatRoles} />
 
       <DetailList title='Responsibilities' details={responsibilities} />
       <DetailList title='Authorities' details={authorities} />
 
-      {toggle?.criteria?.length && (
-        <DetailList title='Toggle Criteria' details={toggle.criteria} />
+      {!_.isEmpty(toggle?.criteria) && (
+        <DetailList title='Toggle Criteria' details={toggle?.criteria} />
       )}
-      {eligibility?.criteria?.length && (
+      {!_.isEmpty(eligibility?.criteria) && (
         <DetailList
           title='Eligibility Criteria'
-          details={eligibility.criteria}
+          details={eligibility?.criteria}
         />
       )}
 
       <StatusCard
-        statusName='Eligibility'
-        statusData={hatData.eligibility}
-        statusCheck={isEligible}
+        status='eligibility'
         isAContract={isEligibilityAContract}
-        chainId={chainId}
         label='Can I wear this hat?'
       />
 
       <StatusCard
-        statusName='Toggle'
-        statusData={hatData.toggle}
-        statusCheck={activeStatus === STATUS.ACTIVE}
+        status='toggle'
         isAContract={isToggleAContract}
-        chainId={chainId}
         label='Is this hat active?'
       />
 
-      <LinkRequests
-        linkRequestFromTree={linkRequestFromTree}
-        hatData={hatData}
-        setModals={setModals}
-        localOverlay={localOverlay}
-        chainId={chainId}
-      />
+      {/* <LinkRequests linkRequestFromTree={linkRequestFromTree} /> */}
 
       <Box>
         <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={1}>
           Event history
         </Heading>
-        <EventHistory chainId={chainId} events={hatData.events} />
+        <EventHistory type='hat' />
       </Box>
     </Stack>
   );
@@ -136,15 +97,6 @@ const MainContent = ({
 
 export default MainContent;
 
-interface MainContentProps {
-  chainId: number;
-  hatData: IHat;
-  isEligible: boolean;
-  hatRoles: HatRole[];
-  mutableStatus: string;
-  activeStatus: string;
-  isCurrentWearer: boolean;
-  isAdminUser: boolean;
-  hatDetails: HatDetails;
-  linkRequestFromTree: any[];
-}
+// interface MainContentProps {
+//   linkRequestFromTree: any[];
+// }

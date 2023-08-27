@@ -30,6 +30,7 @@ import { chainsMap } from '@/lib/web3';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { useChainId } from 'wagmi';
+import { Hex } from 'viem';
 
 const NewTree = () => {
   const [image, setImage] = useState<any>();
@@ -60,9 +61,11 @@ const NewTree = () => {
   const [overrideReceiver, setOverrideReceiver] = useState(false);
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
-  const imageUrl = useDebounce(watch('imageUrl', ''));
-  const receiver = useDebounce(watch('receiver'));
-  const receiverResolvedAddress = useDebounce(watch('receiverResolvedAddress'));
+  const imageUrl = useDebounce<string>(watch('imageUrl', ''));
+  const receiver = useDebounce<string>(watch('receiver'));
+  const receiverResolvedAddress = useDebounce<Hex>(
+    watch('receiverResolvedAddress'),
+  );
 
   const {
     data: imagePinData,
@@ -80,7 +83,6 @@ const NewTree = () => {
   });
 
   const { writeAsync, isLoading } = useTreeCreate({
-    hatsAddress: CONFIG.hatsAddress,
     chainId,
     details: detailsCID,
     imageUrl: image

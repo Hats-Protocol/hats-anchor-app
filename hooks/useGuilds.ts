@@ -1,23 +1,22 @@
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { decimalId } from '@/lib/hats';
 import { HatRole } from '@/types';
 
-const useHatGuilds = ({
-  guildNames,
-  hatId,
-}: {
-  guildNames: string[];
-  hatId?: string;
-}) => {
+const useHatGuilds = () => {
+  const { selectedHat, selectedHatDetails } = useTreeForm();
+
+  const hatId = selectedHat?.id;
+  const guilds = selectedHatDetails?.guilds;
   const [hatRoles, setHatRoles] = useState<HatRole[]>([]);
 
   useEffect(() => {
     const fetchAndProcessGuilds = async () => {
       try {
         const guildData = await Promise.all(
-          _.map(guildNames, async (guildName: string) => {
+          _.map(guilds, async (guildName: string) => {
             const guildResponse = await fetch(
               `https://api.guild.xyz/v1/guild/${guildName}`,
             );
@@ -52,7 +51,7 @@ const useHatGuilds = ({
     };
 
     fetchAndProcessGuilds();
-  }, [guildNames, hatId]);
+  }, [guilds, hatId]);
 
   return { hatRoles };
 };

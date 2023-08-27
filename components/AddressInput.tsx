@@ -17,11 +17,11 @@ type AddressInputProps = {
   resolvedAddress: string;
 };
 
+// only being used in forms/HatManagementForm.tsx currently (not wearer form)
 const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,
   docsLink,
-
   localForm,
   showResolvedAddress,
   isDisabled,

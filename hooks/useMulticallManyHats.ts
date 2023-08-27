@@ -1,23 +1,23 @@
+/* eslint-disable no-restricted-syntax */
+import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-
-import useToast from '@/hooks/useToast';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { pinJson } from '@/lib/ipfs';
-import { createHatsClient } from '@/lib/web3';
-import { generateLocalStorageKey } from '@/lib/general';
-import { decimalId } from '@/lib/hats';
-import { TRIGGER_OPTIONS } from '@/constants';
-import { FormDataDetails, IHat } from '@/types';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import useToast from '@/hooks/useToast';
+import { generateLocalStorageKey } from '@/lib/general';
+import { decimalId, getDefaultAdminId } from '@/lib/hats';
+import { handleDetailsPin } from '@/lib/ipfs';
+import { createHatsClient } from '@/lib/web3';
+import { FormDataDetails, IHat } from '@/types';
+
 type useMulticallCallManyHatsProps = {
-  chainId: number;
-  treeId: string;
-  tree: IHat[];
+  chainId?: number;
+  treeId?: string;
+  onchainHats?: IHat[];
 };
 
 const hasDetailsChanged = ({
@@ -47,7 +47,7 @@ const hasDetailsChanged = ({
 const useMulticallCallManyHats = ({
   chainId,
   treeId,
-  tree,
+  onchainHats,
 }: useMulticallCallManyHatsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
@@ -62,9 +62,11 @@ const useMulticallCallManyHats = ({
   );
 
   const onSubmit = async () => {
+    if (!chainId || !treeId || !address || !hatsClient) return undefined;
+
     const calls = [] as any[];
 
-    for (let hat of storedData) {
+    for (const hat of storedData) {
       const {
         maxSupply,
         eligibility,
@@ -84,15 +86,42 @@ const useMulticallCallManyHats = ({
         wearers,
       } = hat;
 
-      const existingDetails = _.get(
-        _.find(tree, ['id', hatId]),
-        'detailsObject.data',
-      );
-      console.log(existingDetails);
+      const detailsData = {
+        name,
+        description,
+        guilds: guilds || [],
+        responsibilities: _.reject(responsibilities, ['label', '']),
+        authorities: _.reject(authorities, ['label', '']),
+        eligibility: {
+          manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+          criteria: _.reject(revocationsCriteria, ['label', '']) || [],
+        },
+        toggle: {
+          manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+          criteria: _.reject(deactivationsCriteria, ['label', '']) || [],
+        },
+      };
 
-      const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
-        BigInt(hatId),
-      )}`;
+      if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
+        // eslint-disable-next-line no-await-in-loop
+        const details = await handleDetailsPin({
+          chainId,
+          hatId,
+          newDetails: detailsData,
+        });
+        const newHatData = hatsClient.createHatCallData({
+          admin: BigInt(getDefaultAdminId(hatId)),
+          details,
+          maxSupply: maxSupply || 1,
+          eligibility: eligibility || FALLBACK_ADDRESS,
+          toggle: toggle || FALLBACK_ADDRESS,
+          mutable: mutable === MUTABILITY.MUTABLE,
+          imageURI: imageUrl,
+        });
+        calls.push(newHatData);
+        // eslint-disable-next-line no-continue
+        continue;
+      }
 
       if (
         hasDetailsChanged({
@@ -107,30 +136,17 @@ const useMulticallCallManyHats = ({
           deactivationsCriteria,
         })
       ) {
-        const updatedDetails = {
-          name,
-          description,
-          guilds: guilds || [],
-          responsibilities: _.reject(responsibilities, ['label', '']),
-          authorities: _.reject(authorities, ['label', '']),
-          eligibility: {
-            manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-            criteria: revocationsCriteria || [],
-          },
-          toggle: {
-            manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-            criteria: deactivationsCriteria || [],
-          },
-        };
-        const newDetailsData = _.merge(existingDetails, updatedDetails);
-
-        const newCid = `ipfs://${await pinJson(
-          {
-            type: '1.0',
-            data: newDetailsData,
-          },
-          { name: detailsName },
-        )}`;
+        const existingDetails = _.get(
+          _.find(onchainHats, ['id', hatId]),
+          'detailsObject.data',
+        );
+        // eslint-disable-next-line no-await-in-loop
+        const newCid = await handleDetailsPin({
+          chainId,
+          hatId,
+          newDetails: detailsData,
+          existingDetails,
+        });
 
         const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
           hatId: decimalId(hatId) as unknown as bigint,
@@ -259,6 +275,7 @@ const useMulticallCallManyHats = ({
         return false;
       }
     }
+    return false;
   };
 
   return { onSubmit, isLoading };

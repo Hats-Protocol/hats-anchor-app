@@ -31,12 +31,14 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, toTreeId } from '@/lib/hats';
+import { decimalId, isAdmin, isTopHat, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
@@ -44,51 +46,55 @@ const HatLinkRequestCreateForm = lazy(
   () => import('@/forms/HatLinkRequestCreateForm'),
 );
 
-const TopMenu = ({
-  chainId,
-  mutableStatus,
-  hatData,
-  editMode,
-  wearerTopHats,
-  isAdminUser,
-  onSave,
-  returnToList,
-  isLoading,
-}: TopMenuProps) => {
+const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+  const { chainId, editMode, selectedHat } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
+
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+
+  const isAdminUser = isAdmin(_.map(wearer, 'id'), selectedHat?.id);
+
+  const wearerTopHats = _.map(
+    _.filter(
+      wearer,
+      (hat: IHat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
+    ),
+    'id',
+  );
+  const mutableStatus = selectedHat?.mutable ? MUTABILITY.MUTABLE : 'Immutable';
 
   const {
     writeAsync: updateImmutability,
     isLoading: isLoadingUpdateImmutability,
   } = useHatMakeImmutable({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId: hatData.id,
-    levelAtLocalTree: hatData.levelAtLocalTree,
+    levelAtLocalTree: selectedHat?.levelAtLocalTree,
     isAdminUser,
-    mutable: hatData.mutable,
+    mutable: selectedHat?.mutable,
   });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
       functionName: 'setHatStatus',
-      args: [hatData.id, !hatData.status],
+      args: [selectedHat?.id, !selectedHat?.status],
       chainId,
       onSuccessToastData: {
         title: 'Hat Status Updated!',
         description: 'Successfully updated hat',
       },
       queryKeys: [
-        ['hatDetails', hatData.id],
-        ['treeDetails', toTreeId(hatData.id)],
+        ['hatDetails', selectedHat?.id || 'none'],
+        ['treeDetails', toTreeId(selectedHat?.id)],
       ],
       enabled:
-        Boolean(hatData) &&
-        isSameAddress(address, hatData.toggle) &&
+        Boolean(selectedHat) &&
+        isSameAddress(address, selectedHat?.toggle) &&
         chainId === currentNetworkId,
     });
 
@@ -98,10 +104,10 @@ const TopMenu = ({
     toggleIsContract,
   } = useHatStatusCheck({
     chainId,
-    hatData,
+    hatData: selectedHat,
   });
 
-  const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
+  const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   const handleReturnToList = () => {
@@ -113,7 +119,7 @@ const TopMenu = ({
     onSave();
   };
 
-  if (!hatData) return null;
+  if (!selectedHat) return null;
 
   return (
     <Flex
@@ -133,7 +139,7 @@ const TopMenu = ({
         <Button onClick={handleReturnToList} variant='outline'>
           <HStack>
             <Icon as={BsArrowLeft} />
-            <Text>{hatIdDecimalToIp(BigInt(hatData.id))}</Text>
+            <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
           </HStack>
         </Button>
       )}
@@ -173,19 +179,19 @@ const TopMenu = ({
                   </Tooltip>
                 </MenuItem>
               )}
-              {(isAdminUser || isSameAddress(hatData?.toggle, address)) && (
+              {(isAdminUser || isSameAddress(selectedHat?.toggle, address)) && (
                 <MenuItem
                   gap={2}
                   onClick={() => toggleHat?.()}
                   isDisabled={
-                    !isSameAddress(hatData?.toggle, address) ||
+                    !isSameAddress(selectedHat?.toggle, address) ||
                     isLoadingToggleHat ||
                     !toggleHat
                   }
                 >
                   <Tooltip
                     label={
-                      !isSameAddress(hatData?.toggle, address)
+                      !isSameAddress(selectedHat?.toggle, address)
                         ? "Your address doesn't match the hat's toggle address"
                         : ''
                     }
@@ -194,7 +200,7 @@ const TopMenu = ({
                     <HStack>
                       <FaPowerOff />
                       <Text>
-                        {hatData?.status ? 'Deactivate' : 'Activate'} Hat
+                        {selectedHat?.status ? 'Deactivate' : 'Activate'} Hat
                       </Text>
                     </HStack>
                   </Tooltip>
@@ -306,12 +312,11 @@ const TopMenu = ({
           localOverlay={localOverlay}
         >
           <HatLinkRequestCreateForm
-            newAdmin={hatData.id}
+            newAdmin={selectedHat.id}
             wearerTopHats={_.filter(
               wearerTopHats,
-              (hat) => hat !== hatData.admin?.id,
+              (hat) => hat !== selectedHat.admin?.id,
             )}
-            chainId={chainId}
           />
         </Modal>
       </Suspense>
@@ -322,12 +327,6 @@ const TopMenu = ({
 export default TopMenu;
 
 interface TopMenuProps {
-  mutableStatus: string;
-  hatData: IHat;
-  chainId: number;
-  editMode: boolean;
-  isAdminUser: boolean;
-  wearerTopHats: string[];
   onSave: (v?: boolean) => void;
   returnToList: () => void;
   isLoading: boolean;

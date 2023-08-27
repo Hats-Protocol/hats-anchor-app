@@ -1,10 +1,13 @@
 /* eslint-disable */
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
 import _ from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
+
+import { FormDataDetails } from '@/types';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
@@ -89,4 +92,32 @@ export const calculateCid = async (data: object): Promise<string> => {
   const hash = await sha256.digest(bytes);
   const localCid = CID.create(1, raw.code, hash);
   return `ipfs://${localCid.toString()}`;
+};
+
+interface handleDetailsPinProps {
+  chainId: number;
+  hatId: string;
+  newDetails: Partial<FormDataDetails>;
+  existingDetails?: Partial<FormDataDetails> | {};
+}
+
+export const handleDetailsPin = async ({
+  chainId,
+  hatId,
+  newDetails,
+  existingDetails = {},
+}: handleDetailsPinProps) => {
+  const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
+    BigInt(hatId),
+  )}`;
+  const newDetailsData = _.merge(existingDetails, newDetails);
+
+  const cid = `ipfs://${await pinJson(
+    {
+      type: '1.0',
+      data: newDetailsData,
+    },
+    { name: detailsName },
+  )}`;
+  return cid;
 };

@@ -1,5 +1,4 @@
 import { Box, Flex, Heading, HStack, Image, Text } from '@chakra-ui/react';
-import _ from 'lodash';
 import React from 'react';
 
 import { ImageFile } from '@/types';

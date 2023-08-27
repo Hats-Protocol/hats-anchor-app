@@ -21,8 +21,8 @@ const useHatStatusCheck = ({
   hatData,
   chainId,
 }: {
-  hatData: IHat;
-  chainId: number;
+  hatData?: IHat;
+  chainId?: number;
 }) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
@@ -35,7 +35,7 @@ const useHatStatusCheck = ({
   useEffect(() => {
     const testToggle = async () => {
       setTestingToggle(true);
-      const localData = await checkAddressIsContract(hatData.toggle, chainId);
+      const localData = await checkAddressIsContract(hatData?.toggle, chainId);
       setToggleIsContract(localData);
       setTestingToggle(false);
     };
@@ -76,7 +76,7 @@ const useHatStatusCheck = ({
         toast.success({
           title: 'Status Check Completed',
           description: `No change: Hat Status remains ${
-            hatData.status ? STATUS.ACTIVE : STATUS.INACTIVE
+            hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
           }`,
         });
       } else {

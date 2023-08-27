@@ -15,19 +15,20 @@ import {
 } from '@chakra-ui/react';
 import { FiCopy } from 'react-icons/fi';
 
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
-import { generateLocalStorageKey } from '@/lib/general';
 import { editHasUpdates } from '@/lib/hats';
 
-const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
-  const { resolvedData, isLoading } = useMulticallCallData({ chainId, treeId });
+const BottomMenu = () => {
+  const { chainId, treeId, onchainHats, storedData } = useTreeForm();
+  const { resolvedData, isLoading } = useMulticallCallData({
+    chainId,
+    treeId,
+    onchainHats,
+  });
   const callData = resolvedData ? resolvedData.callData : null;
   const toast = useToast();
-
-  const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  const [storedData] = useLocalStorage<any[]>(localStorageKey, []);
 
   const hasUpdates = editHasUpdates(storedData);
 
@@ -95,8 +96,3 @@ const BottomMenu = ({ chainId, treeId }: BottomMenuProps) => {
 };
 
 export default BottomMenu;
-
-interface BottomMenuProps {
-  chainId: number;
-  treeId: string;
-}

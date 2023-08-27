@@ -38,23 +38,24 @@ const Input = ({
   options,
   localForm,
   rightElement,
+  isDisabled,
   ...props
 }: InputProps) => {
   if (!localForm) return null;
   const {
     register,
     resetField,
-    formState: { dirtyFields, defaultValues },
+    formState: { dirtyFields },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
 
   const onReset = () => {
-    if (defaultValues) resetField(name, { keepDirty: false });
+    resetField(name, { keepDirty: false });
   };
 
   return (
-    <FormControl {...props}>
+    <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
         {label && (
           <FormLabel>

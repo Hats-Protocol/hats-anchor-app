@@ -1,4 +1,5 @@
 import { Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
+import { UseFormReturn } from 'react-hook-form';
 import { FaLink, FaRegTrashAlt } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
@@ -7,7 +8,8 @@ import LinkInput from '@/components/LinkInput';
 import { useOverlay } from '@/contexts/OverlayContext';
 
 interface LabelWithLinkProps {
-  localForm: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   title: string;
   handleRemoveItem: () => void;
   handleEdit: () => void;

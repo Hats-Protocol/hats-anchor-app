@@ -1,5 +1,5 @@
 import router from 'next/router';
-import { Hex, isAddress, TransactionReceipt } from 'viem';
+import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -61,7 +61,6 @@ const useTreeCreate = ({
 export default useTreeCreate;
 
 interface UseTreeCreateProps {
-  hatsAddress?: Hex;
   chainId: number;
   details?: string;
   receiver: string;
