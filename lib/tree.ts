@@ -11,20 +11,24 @@ import { IHat, IHatWearer, ITree } from '@/types';
 import { decimalId } from './hats';
 
 const mapHat = (
-  hat: IHat,
+  hat: IHat | undefined,
   chainId: number,
   wAndCInfo: IHatWearer[] | undefined,
-): IHat => ({
-  ...hat,
-  name: hatIdDecimalToIp(BigInt(hat.id)),
-  parentId: hat.admin?.id === hat.id ? undefined : hat.admin?.id,
-  treeId: hat.tree?.id,
-  isLinked: false,
-  url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
-  extendedWearers: extendWearers(hat.wearers, wAndCInfo),
-  extendedEligibility: extendControllers(hat.eligibility, wAndCInfo),
-  extendedToggle: extendControllers(hat.toggle, wAndCInfo),
-});
+): IHat | undefined => {
+  if (!hat) return undefined;
+
+  return {
+    ...hat,
+    name: hatIdDecimalToIp(BigInt(hat.id)),
+    parentId: hat.admin?.id === hat.id ? undefined : hat.admin?.id,
+    treeId: hat.tree?.id,
+    isLinked: false,
+    url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
+    extendedWearers: extendWearers(hat.wearers, wAndCInfo),
+    extendedEligibility: extendControllers(hat.eligibility, wAndCInfo),
+    extendedToggle: extendControllers(hat.toggle, wAndCInfo),
+  };
+};
 
 const mapLinkedHat = (
   hat: IHat | undefined,
@@ -87,8 +91,8 @@ export async function toTreeStructure({
   hatsImages: IHat[] | undefined;
   chainId: number;
   initialHatIds: Hex[];
-}): Promise<IHat[]> {
-  if (!treeData || !hatsImages) return Promise.resolve([]);
+}): Promise<IHat[] | undefined> {
+  if (!treeData || !hatsImages) return Promise.resolve(undefined);
 
   const detailsFields = _.map(hatsImages, 'details');
   const wAndCs = _.uniq(
@@ -112,7 +116,9 @@ export async function toTreeStructure({
     detailsObject: details?.[index],
   }));
 
-  const hats = _.map(hatsData, (hat) => mapHat(hat, chainId, wAndCInfo));
+  const hats = _.map(initialHatIds, (hat) =>
+    mapHat(_.find(hatsData, ['id', hat]), chainId, wAndCInfo),
+  );
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   const linkedHats = _.map([treeData?.linkedToHat || undefined], (hat) =>
     mapLinkedHat(hat, chainId, wAndCInfo),
@@ -126,10 +132,13 @@ export async function toTreeStructure({
     _.includes(_.difference(_.map(hatsImages, 'id'), initialHatIds), hat.id),
   );
 
-  return Promise.resolve(
-    _.reject(
-      _.compact(_.concat(hats, linkedHats, parentOfTrees, draftHats)),
-      (h) => h.levelAtLocalTree !== 0 && !h.parentId, // getting errant extra drafts
-    ),
+  const hatsList = _.orderBy(
+    _.compact(_.concat(hats, linkedHats, parentOfTrees, draftHats)),
+    (h) => {
+      return _.size(_.split(h.name, '.'));
+    },
+    'asc',
   );
+
+  return Promise.resolve(hatsList);
 }
