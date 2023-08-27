@@ -17,7 +17,7 @@ import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 interface HatManagementFormProps {
-  localForm: UseFormReturn;
+  localForm: UseFormReturn<any>;
   address: Hex | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
   title: string;

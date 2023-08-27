@@ -9,7 +9,8 @@ import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
-import { decimalId, getDefaultAdminId, handleDetailsPin } from '@/lib/hats';
+import { decimalId, getDefaultAdminId } from '@/lib/hats';
+import { handleDetailsPin } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { FormDataDetails, IHat } from '@/types';
 

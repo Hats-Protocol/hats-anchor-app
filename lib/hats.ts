@@ -251,10 +251,10 @@ export const checkPermissionsResponsibilities = (
 
 const unchangedKeys = ['id', 'parentId'];
 
-export const editHasUpdates = (storedData: FormData[] | undefined) =>
+export const editHasUpdates = (storedData: Partial<FormData>[] | undefined) =>
   !_.isEmpty(
     _.reject(storedData, (data) =>
-      _.isEmpty(_.keys(_.omit(data, _.concat(unchangedKeys, ['name'])))),
+      _.isEmpty(_.keys(_.omit(data, unchangedKeys))),
     ),
   );
 
@@ -325,6 +325,10 @@ export const translateDrafts = ({
       wearers: _.map(hat.wearers, (wearer) => ({
         id: wearer,
       })),
+      levelAtLocalTree: _.subtract(
+        _.size(_.split(hatIdDecimalToIp(BigInt(hat.id)), '.')),
+        2, // top hat = 0, so subtract 2 to get level
+      ),
       tree: {
         id: treeId,
       },

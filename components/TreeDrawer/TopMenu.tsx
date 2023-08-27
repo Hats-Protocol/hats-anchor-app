@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   HStack,
+  Icon,
   Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
@@ -14,7 +15,6 @@ import {
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { BsXSquare } from 'react-icons/bs';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
@@ -120,9 +120,9 @@ const TopMenu = () => {
         variant='outline'
         colorScheme='gray'
         onClick={promptForReset}
-        leftIcon={editMode ? <BsXSquare /> : <FaSave />}
+        leftIcon={<Icon as={FaSave} />}
       >
-        {editMode ? 'Cancel' : 'Edit'}
+        Cancel
       </Button>
 
       <HStack spacing={3}>
@@ -146,8 +146,10 @@ const TopMenu = () => {
         <Tooltip
           label={
             !wearingTopHat &&
-            'Only top hat can deploy directly currently. Submit the transaction data to your DAO'
+            'Only top hat can deploy directly currently. Submit the transaction data to your DAO.'
           }
+          placement='left'
+          hasArrow
         >
           <Button
             leftIcon={<IoExitOutline />}

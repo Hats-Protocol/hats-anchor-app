@@ -21,8 +21,7 @@ import useToast from '@/hooks/useToast';
 import { editHasUpdates } from '@/lib/hats';
 
 const BottomMenu = () => {
-  const { chainId, treeId, onchainHats, storedData, setStoredData } =
-    useTreeForm();
+  const { chainId, treeId, onchainHats, storedData } = useTreeForm();
   const { resolvedData, isLoading } = useMulticallCallData({
     chainId,
     treeId,

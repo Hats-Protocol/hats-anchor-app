@@ -17,10 +17,11 @@ import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
 import {
+  EMPTY_FORM_VALUES,
   FALLBACK_ADDRESS,
+  FORM_FIELDS,
   MUTABILITY,
   TRIGGER_OPTIONS,
-  ZERO_ADDRESS,
 } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatBasicsForm from '@/forms/HatBasicsForm';
@@ -31,25 +32,6 @@ import useDebounce from '@/hooks/useDebounce';
 import { isTopHat } from '@/lib/hats';
 import { DetailsItem, FieldItem, FormData } from '@/types';
 
-const emptyFormValues = {
-  id: '0x' as Hex,
-  maxSupply: '1',
-  eligibility: FALLBACK_ADDRESS,
-  toggle: FALLBACK_ADDRESS,
-  mutable: MUTABILITY.MUTABLE,
-  imageUrl: '',
-  isEligibilityManual: TRIGGER_OPTIONS.MANUALLY,
-  isToggleManual: TRIGGER_OPTIONS.MANUALLY,
-  revocationsCriteria: [],
-  deactivationsCriteria: [],
-  name: '',
-  description: '',
-  authorities: [],
-  responsibilities: [],
-  guilds: [],
-  wearers: [],
-};
-
 const EditMode = ({
   unsavedData,
   setUnsavedData,
@@ -57,6 +39,7 @@ const EditMode = ({
 }: EditModeProps) => {
   const { chainId, storedData, selectedHat, onchainHats, selectedHatDetails } =
     useTreeForm();
+
   const {
     name: initialName,
     description: initialDescription,
@@ -88,7 +71,7 @@ const EditMode = ({
     const draft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
 
     if (draft) {
-      return emptyFormValues;
+      return EMPTY_FORM_VALUES;
     }
 
     return {
@@ -134,6 +117,7 @@ const EditMode = ({
 
   const localForm = useForm({
     mode: 'onChange',
+    defaultValues: defaultFormValues,
   });
 
   const { watch, reset } = localForm;
@@ -149,6 +133,8 @@ const EditMode = ({
           ...defaultFormValues,
           ...matchingHat,
         };
+        reset(formValues, { keepDefaultValues: true });
+        return;
       }
 
       reset(formValues);
@@ -181,11 +167,11 @@ const EditMode = ({
 
   const [newImageURI, setNewImageURI] = useState('');
 
-  const eligibilityFormValue = useDebounce<Hex>(
-    watch('eligibility', eligibility || ZERO_ADDRESS),
+  const eligibilityFormValue = useDebounce<Hex | undefined>(
+    watch('eligibility', eligibility || FALLBACK_ADDRESS),
   );
-  const toggleFormValue = useDebounce<Hex>(
-    watch('toggle', toggle || ZERO_ADDRESS),
+  const toggleFormValue = useDebounce<Hex | undefined>(
+    watch('toggle', toggle || FALLBACK_ADDRESS),
   );
 
   const {
@@ -261,6 +247,7 @@ const EditMode = ({
           if (key === 'newImageUri') {
             acc.imageUrl = newImageURI;
           } else {
+            if (!acc || key) return acc;
             acc[key] = allFormData[key];
           }
           return acc;
@@ -295,7 +282,7 @@ const EditMode = ({
         <Accordion
           title='Hat Basics'
           subtitle='The fundamentals of the hat, including name, image, and supply.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(hatBasicsFields)}
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
         >
           <Stack spacing={4}>
             <HatBasicsForm
@@ -309,7 +296,7 @@ const EditMode = ({
           <Accordion
             title='Wearers'
             subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
-            dirtyFieldsList={getDirtyFieldsForAccordion(wearerFields)}
+            dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.wearer)}
           >
             <Stack spacing={4}>
               <HatWearerForm
@@ -323,7 +310,7 @@ const EditMode = ({
         <Accordion
           title='Powers'
           subtitle='Permissions and rights that are controlled by wearers of this hat.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(powersFields)}
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
         >
           <Stack spacing={4}>
             <ItemDetailsForm
@@ -339,7 +326,9 @@ const EditMode = ({
         <Accordion
           title='Responsibilities'
           subtitle='Specific work that wearers of this hat will be held accountable for.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(responsibilitiesFields)}
+          dirtyFieldsList={getDirtyFieldsForAccordion(
+            FORM_FIELDS.responsibilities,
+          )}
         >
           <Stack spacing={4}>
             <ItemDetailsForm
@@ -355,7 +344,7 @@ const EditMode = ({
         <Accordion
           title='Revocation'
           subtitle='The people or logic that determine when a wearer should have a hat.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(revocationFields)}
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
         >
           <Stack spacing={4}>
             <HatManagementForm
@@ -376,7 +365,7 @@ const EditMode = ({
         <Accordion
           title='Deactivation & Reactivation'
           subtitle='The people or logic that control whether or not this hat is active.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(deactivationFields)}
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
         >
           <Stack spacing={4}>
             <HatManagementForm
@@ -394,57 +383,12 @@ const EditMode = ({
             />
           </Stack>
         </Accordion>
-
-        {/* <Flex justifyContent='flex-end'>
-          <Button
-            colorScheme='blue'
-            onClick={handleSubmit(submitAndResetForm)}
-            isLoading={
-              isLoadingEligibilityResolvedAddress ||
-              isLoadingToggleResolvedAddress ||
-              isLoading
-            }
-          >
-            Submit
-          </Button>
-        </Flex> */}
       </Stack>
     </Box>
   );
 };
 
 export default EditMode;
-
-const hatBasicsFields: FieldItem[] = [
-  { name: 'name', label: 'Name' },
-  { name: 'description', label: 'Description' },
-  { name: 'imageUrl', label: 'Image' },
-  { name: 'guilds', label: 'Guilds' },
-  { name: 'mutable', label: 'Editable' },
-];
-
-const wearerFields: FieldItem[] = [
-  { name: 'maxSupply', label: 'Max Supply' },
-  { name: 'wearers', label: 'Wearers' },
-];
-
-const powersFields: FieldItem[] = [
-  { name: 'authorities', label: 'Authorities' },
-];
-
-const responsibilitiesFields: FieldItem[] = [
-  { name: 'responsibilities', label: 'Responsibilities' },
-];
-
-const revocationFields: FieldItem[] = [
-  { name: 'eligibility', label: 'Eligibility' },
-  { name: 'revocationsCriteria', label: 'Revocation Criteria' },
-];
-
-const deactivationFields: FieldItem[] = [
-  { name: 'toggle', label: 'Toggle' },
-  { name: 'deactivationsCriteria', label: 'Deactivation Criteria' },
-];
 
 interface EditModeProps {
   setUnsavedData: Dispatch<SetStateAction<Partial<FormData> | undefined>>;

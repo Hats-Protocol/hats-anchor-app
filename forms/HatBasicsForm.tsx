@@ -11,7 +11,7 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   FaHouseUser,
   FaImage,
@@ -45,7 +45,7 @@ const HatBasicsForm = ({
   localForm,
   setNewImageURI,
 }: {
-  localForm: any;
+  localForm: UseFormReturn<any>;
   setNewImageURI: (uri: string) => void;
 }) => {
   const { watch, control, formState } = localForm;
@@ -79,6 +79,7 @@ const HatBasicsForm = ({
   });
 
   const imageUrl = formatImageUrl(formState?.defaultValues?.imageUrl);
+  const currentImageUrl = watch('imageUrl');
 
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
@@ -90,7 +91,7 @@ const HatBasicsForm = ({
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
     setNewImageURI(hatImageURI);
-  }, [imagePinData, formState?.values?.imageUrl, setNewImageURI]);
+  }, [imagePinData, currentImageUrl, setNewImageURI]);
 
   return (
     <form>

@@ -6,7 +6,8 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { pinJson } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { generateLocalStorageKey } from '@/lib/general';
-import { decimalId, getDefaultAdminId, handleDetailsPin } from '@/lib/hats';
+import { decimalId, getDefaultAdminId } from '@/lib/hats';
+import { handleDetailsPin } from '@/lib/ipfs';
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import { FormDataDetails, IHat } from '@/types';
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -79,7 +80,6 @@ const useMulticallCallData = ({
         wearers,
         id: hatId,
       } = hat;
-      // console.log(eligibility, toggle);
 
       const detailsData = {
         name,
@@ -235,7 +235,6 @@ const useMulticallCallData = ({
         }
       }
     }
-    // console.log('calls', calls);
 
     return hatsClient?.multicallCallData([...calls]);
   };

@@ -127,6 +127,9 @@ export async function toTreeStructure({
   );
 
   return Promise.resolve(
-    _.compact(_.concat(hats, linkedHats, parentOfTrees, draftHats)),
+    _.reject(
+      _.compact(_.concat(hats, linkedHats, parentOfTrees, draftHats)),
+      (h) => h.levelAtLocalTree !== 0 && !h.parentId, // getting errant extra drafts
+    ),
   );
 }

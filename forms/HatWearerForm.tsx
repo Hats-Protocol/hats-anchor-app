@@ -43,7 +43,7 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
+import { FormData, IHat } from '@/types';
 
 interface FormWearer {
   address: string;
@@ -459,6 +459,6 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
 export default HatWearerForm;
 
 interface HatWearerFormProps {
-  localForm: UseFormReturn;
+  localForm: UseFormReturn<any>;
   setUnsavedData?: (data: any) => void;
 }

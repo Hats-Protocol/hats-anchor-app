@@ -45,13 +45,13 @@ const Input = ({
   const {
     register,
     resetField,
-    formState: { dirtyFields, defaultValues },
+    formState: { dirtyFields },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
 
   const onReset = () => {
-    if (defaultValues) resetField(name, { keepDirty: false });
+    resetField(name, { keepDirty: false });
   };
 
   return (
