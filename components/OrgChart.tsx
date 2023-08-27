@@ -74,6 +74,7 @@ const OrgChartComponent: React.FC = () => {
     setStoredData,
     addHat,
   } = useTreeForm();
+  // console.log(editMode);
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -88,6 +89,13 @@ const OrgChartComponent: React.FC = () => {
     const filteredTree = orgChartTree?.filter((t) =>
       showInactiveHats ? t : t.status,
     );
+
+    // const handleImmutableToast = () => {
+    //   console.log(editMode);
+    //   if (editMode) {
+    //     toast.error({ title: 'This hat is immutable' });
+    //   }
+    // };
 
     if (filteredTree && d3Container.current) {
       if (chart) {
@@ -166,8 +174,9 @@ const OrgChartComponent: React.FC = () => {
                 setTimeout(() => {
                   centerChart(chart, newId);
                 }, 100);
-              } else if (!isTopHatOrMutable(data.data) && editMode) {
-                toast.error({ title: 'This hat is immutable' });
+              } else if (!isTopHatOrMutable(data.data)) {
+                // retaining old editMode value so inconsistent
+                // handleImmutableToast();
               } else {
                 centerChart(chart, data.data?.id);
                 handleSelectHat?.(data.data?.id);
@@ -490,11 +499,20 @@ const OrgChartComponent: React.FC = () => {
                       top: ${isSelected ? 9 : 10}px;"
                       
                     >
-                      <div style="
-                        font-size: 12px;
-                        color: ${isSelected ? '#248559' : '#08011E'};"
-                      >
-                        ${name}
+                      <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
+                        <div style="
+                          font-size: 12px;
+                          color: ${isSelected ? '#248559' : '#08011E'};"
+                        >
+                          ${name}
+                        </div>
+                        ${
+                          editMode && !isTopHatOrMutable(d.data)
+                            ? `<div style="border: 1px solid #A0AEC0; padding: 1px 3px;">
+                                <div style="font-size: 8px; color: #A0AEC0;">IMMUTABLE</div>
+                              </div>`
+                            : ''
+                        }
                       </div>
                       <div style="
                         display: -webkit-box;
@@ -589,10 +607,10 @@ const OrgChartComponent: React.FC = () => {
     selectedOption,
     initialLoad,
     editMode,
-    userChain,
     toast,
     addHat,
     setStoredData,
+    userChain,
   ]);
 
   return isLoading ? (

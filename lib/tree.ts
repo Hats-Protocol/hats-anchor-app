@@ -19,6 +19,7 @@ const mapHat = (
 
   return {
     ...hat,
+    chainId,
     name: hatIdDecimalToIp(BigInt(hat.id)),
     parentId: hat.admin?.id === hat.id ? undefined : hat.admin?.id,
     treeId: hat.tree?.id,
@@ -39,6 +40,7 @@ const mapLinkedHat = (
 
   return {
     ...hat,
+    chainId,
     name: hatIdDecimalToIp(BigInt(hat.id)),
     parentId: undefined,
     treeId: hat.tree?.id,
@@ -69,6 +71,7 @@ const mapParentTrees = (
   return {
     ...currentHat,
     id: treeId,
+    chainId,
     name: hatIdDecimalToIp(BigInt(treeId)),
     parentId: id,
     treeId,

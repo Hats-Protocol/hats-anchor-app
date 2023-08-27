@@ -27,8 +27,7 @@ const useOrgChartTree = ({
   const { data: orgChartTree, isLoading } = useQuery({
     queryKey: [
       'orgChartTree',
-      treeData?.id,
-      chainId,
+      { chainId, treeId: treeData?.id },
       _.map(hatsWithImageData, 'id'),
     ],
     queryFn: fetchTree,
