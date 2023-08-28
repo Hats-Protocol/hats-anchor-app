@@ -115,7 +115,7 @@ const useMulticallCallManyHats = ({
           maxSupply: maxSupply || 1,
           eligibility: eligibility || FALLBACK_ADDRESS,
           toggle: toggle || FALLBACK_ADDRESS,
-          mutable: mutable === MUTABILITY.MUTABLE,
+          mutable: mutable === MUTABILITY.IMMUTABLE ? false : true,
           imageURI: imageUrl,
         });
         calls.push(newHatData);
@@ -253,6 +253,7 @@ const useMulticallCallManyHats = ({
         const treeQueryKey = ['treeDetails', treeId, chainId];
 
         queryClient.invalidateQueries(treeQueryKey);
+        // todo update org chart hats
         setIsLoading(false);
         setStoredData([]);
 
@@ -263,6 +264,8 @@ const useMulticallCallManyHats = ({
         return true;
       } catch (error: unknown) {
         console.log(error);
+        // catch signature rejection error
+
         toast.error({
           title: 'Error occurred!',
           description:

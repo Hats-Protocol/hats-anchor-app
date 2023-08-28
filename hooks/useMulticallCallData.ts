@@ -97,7 +97,7 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           maxSupply: _.toNumber(maxSupply) || 1,
           eligibility: eligibility || FALLBACK_ADDRESS,
           toggle: toggle || FALLBACK_ADDRESS,
-          mutable: mutable === MUTABILITY.MUTABLE,
+          mutable: mutable === MUTABILITY.IMMUTABLE ? false : true,
           imageURI: imageUrl,
         });
         if (newHatData && newHatData.callData) {
