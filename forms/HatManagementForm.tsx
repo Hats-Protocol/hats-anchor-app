@@ -1,8 +1,9 @@
-import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { FaPlus, FaRegEdit, FaRegListAlt, FaShieldAlt } from 'react-icons/fa';
+import { BsListUl, BsPlusCircle, BsShieldLock } from 'react-icons/bs';
+import { GrEdit } from 'react-icons/gr';
 import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
@@ -12,7 +13,6 @@ import LabelWithLink from '@/components/LabelWithLink';
 import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { formatAddress } from '@/lib/general';
 import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
@@ -27,6 +27,15 @@ interface HatManagementFormProps {
     label: string;
     subLabel: string;
   };
+  inputConfig: {
+    label: string;
+    description: string;
+  };
+  criteriaConfig: {
+    label: string;
+    description: string;
+    addButtonLabel: string;
+  };
 }
 
 const HatManagementForm = ({
@@ -36,6 +45,8 @@ const HatManagementForm = ({
   title,
   formName,
   radioBoxConfig,
+  inputConfig,
+  criteriaConfig,
 }: HatManagementFormProps) => {
   const { watch, control, setValue, getValues } = localForm;
   const { selectedHat } = useTreeForm();
@@ -87,9 +98,9 @@ const HatManagementForm = ({
 
   return (
     <form>
-      <Stack spacing={6}>
+      <Stack spacing={8}>
         <FormRowWrapper>
-          <FaRegEdit />
+          <Icon as={GrEdit} boxSize={4} mt='2px' />
           <RadioBox
             name={radioBoxConfig.name}
             label={radioBoxConfig.label}
@@ -99,12 +110,13 @@ const HatManagementForm = ({
           />
         </FormRowWrapper>
         <FormRowWrapper>
-          <FaShieldAlt />
+          <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <AddressInput
             name={title}
-            label={`ACCOUNTABILITY ${
+            label={`${inputConfig.label} ${
               isActionManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'
             }`}
+            subLabel={inputConfig.description}
             docsLink={`https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/${title}-requirements-for-wearers`}
             localForm={localForm}
             showResolvedAddress={Boolean(showActionResolvedAddress)}
@@ -113,57 +125,48 @@ const HatManagementForm = ({
           />
         </FormRowWrapper>
         {address !== FALLBACK_ADDRESS && (
-          <>
-            <FormRowWrapper>
-              <Stack>
-                <HStack>
-                  {' '}
-                  <FaRegListAlt />
-                  <Text>
-                    {address?.includes('.eth')
-                      ? _.toUpper(address)
-                      : formatAddress(address)}{' '}
-                    REQUIREMENTS (optional)
-                  </Text>
-                </HStack>
-
-                <Text color='blackAlpha.700'>
-                  A written description of the logic in the Accountability
-                  Module.
+          <FormRowWrapper>
+            <Icon as={BsListUl} boxSize={4} mt='3px' />
+            <Stack>
+              <HStack fontSize='sm'>
+                <Text color='blackAlpha.800' fontWeight='medium'>
+                  {criteriaConfig.label}
                 </Text>
-              </Stack>
-            </FormRowWrapper>
-            {fields.map((field, index) => (
-              <LabelWithLink
-                key={field.id}
-                localForm={localForm}
-                title={title}
-                handleRemoveItem={() => remove(index)}
-                handleEdit={() => handleEdit(index)}
-                handleSave={handleSave}
-                inputLink={inputLink}
-                setInputLink={setInputLink}
-                isLinkValid={isLinkValid}
-                setIsLinkValid={setIsLinkValid}
-                labelName={`${formName}.${index}.label`}
-                linkName={`${formName}.${index}.link`}
-              />
-            ))}
-
-            <Box mb={2}>
-              <Button
-                onClick={() => append({ link: '', label: '' })}
-                isDisabled={items?.some(
-                  (item: DetailsItem) => item.label === '',
-                )}
-                gap={2}
-              >
-                <FaPlus />
-                Add {items?.length ? 'another' : 'a'} Requirement
-              </Button>
-            </Box>
-          </>
+                <Text color='blackAlpha.600'>optional</Text>
+              </HStack>
+              <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
+            </Stack>
+          </FormRowWrapper>
         )}
+        {fields.map((field, index) => (
+          <LabelWithLink
+            key={field.id}
+            localForm={localForm}
+            title={title}
+            handleRemoveItem={() => remove(index)}
+            handleEdit={() => handleEdit(index)}
+            handleSave={handleSave}
+            inputLink={inputLink}
+            setInputLink={setInputLink}
+            isLinkValid={isLinkValid}
+            setIsLinkValid={setIsLinkValid}
+            labelName={`${formName}.${index}.label`}
+            linkName={`${formName}.${index}.link`}
+          />
+        ))}
+        <Box mb={2}>
+          <Button
+            onClick={() => append({ link: '', label: '' })}
+            isDisabled={items?.some((item: DetailsItem) => item.label === '')}
+            gap={2}
+            variant='outline'
+            borderColor='blackAlpha.300'
+          >
+            <BsPlusCircle />
+            Add {items?.length ? 'another' : 'a'}{' '}
+            {criteriaConfig.addButtonLabel}
+          </Button>
+        </Box>
       </Stack>
     </form>
   );

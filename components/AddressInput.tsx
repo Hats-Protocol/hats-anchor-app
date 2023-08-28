@@ -10,6 +10,7 @@ import ChakraNextLink from './atoms/ChakraNextLink';
 type AddressInputProps = {
   name: string;
   label: string;
+  subLabel: string;
   docsLink: string;
   localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
@@ -21,6 +22,7 @@ type AddressInputProps = {
 const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,
+  subLabel,
   docsLink,
   localForm,
   showResolvedAddress,
@@ -32,6 +34,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
       <Input
         name={name}
         label={label}
+        subLabel={subLabel}
         tip={
           <Text size='xs' color='gray.500'>
             See{' '}

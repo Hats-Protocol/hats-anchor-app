@@ -28,7 +28,7 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import React from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
-import { BsPencil, BsToggles } from 'react-icons/bs';
+import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
@@ -149,7 +149,7 @@ const TreeMenu = ({
                   onChange={(e) => setShowInactiveHats?.(e.target.checked)}
                 >
                   <HStack>
-                    <Image src='/icons/inactive.svg' alt='inactive icon' />
+                    <Icon as={BsToggle2Off} w={4} h={4} color='gray.500' />
                     <Text>Inactive Hats</Text>
                   </HStack>
                 </Checkbox>

@@ -3,6 +3,7 @@ import {
   Button,
   FormControl,
   HStack,
+  Icon,
   IconButton,
   Image,
   Stack,
@@ -12,14 +13,9 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import {
-  FaHouseUser,
-  FaImage,
-  FaParagraph,
-  FaPlus,
-  FaRegEdit,
-  FaTrash,
-} from 'react-icons/fa';
+import { BsImage, BsTextParagraph } from 'react-icons/bs';
+import { FaHouseUser, FaPlus, FaTrash } from 'react-icons/fa';
+import { GrEdit } from 'react-icons/gr';
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
@@ -96,28 +92,9 @@ const HatBasicsForm = ({
   return (
     <form>
       <FormControl>
-        <Stack spacing={4}>
+        <Stack spacing={8}>
           <FormRowWrapper>
-            <Image src='/icons/hat.svg' alt='Hat' />
-            <Input
-              localForm={localForm}
-              name='name'
-              label='Hat Name'
-              placeholder='Hat name'
-            />
-          </FormRowWrapper>
-          <FormRowWrapper>
-            <FaParagraph />
-            <Textarea
-              localForm={localForm}
-              name='description'
-              label='Description'
-              placeholder='Add a brief description (or a link to one) for this hat'
-            />
-          </FormRowWrapper>
-
-          <FormRowWrapper>
-            <FaImage />
+            <Icon as={BsImage} boxSize={4} mt='2px' />
             <Box w='100%'>
               <Text fontSize='sm' fontWeight='medium' mb={2}>
                 {' '}
@@ -134,6 +111,24 @@ const HatBasicsForm = ({
                 imageUrl={imageUrl}
               />
             </Box>
+          </FormRowWrapper>
+          <FormRowWrapper>
+            <Image src='/icons/hat.svg' alt='Hat' boxSize={4} mt='2px' />
+            <Input
+              localForm={localForm}
+              name='name'
+              label='Hat Name'
+              placeholder='Hat name'
+            />
+          </FormRowWrapper>
+          <FormRowWrapper>
+            <Icon as={BsTextParagraph} boxSize={4} mt='2px' />
+            <Textarea
+              localForm={localForm}
+              name='description'
+              label='Description'
+              placeholder='Add a brief description (or a link to one) for this hat'
+            />
           </FormRowWrapper>
           {isTopHat(selectedHat) && (
             <FormRowWrapper>
@@ -173,7 +168,7 @@ const HatBasicsForm = ({
           )}
 
           <FormRowWrapper>
-            <FaRegEdit />
+            <Icon as={GrEdit} boxSize={4} mt='2px' />
             <Box>
               <RadioBox
                 name='mutable'

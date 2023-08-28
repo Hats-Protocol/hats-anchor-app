@@ -23,8 +23,8 @@ import Papa from 'papaparse';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
+import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import {
-  FaChartBar,
   FaCheck,
   FaInfoCircle,
   FaRegQuestionCircle,
@@ -243,10 +243,11 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       <Stack spacing={4}>
         {editMode && (
           <FormRowWrapper>
-            <FaChartBar />
+            <Icon as={BsBarChart} boxSize={4} mt='2px' />
             <Input
               name='maxSupply'
               label='MAX WEARERS'
+              subLabel='Total number of addresses that can wear this Hat at the same time.'
               placeholder='10'
               isDisabled={!isMutable(selectedHat)}
               localForm={localForm}
@@ -269,7 +270,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
               <Flex align='center' w='full' justifyContent='space-between'>
                 <InputGroup flexGrow={1}>
                   <InputLeftElement>
-                    <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                    <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                   </InputLeftElement>
                   <ChakraInput
                     value={ens !== '' ? ens : address}
@@ -298,7 +299,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
           <Flex w='full' direction='column' gap={1}>
             <InputGroup flexGrow={1}>
               <InputLeftElement>
-                <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
               </InputLeftElement>
               <ChakraInput
                 w='full'
@@ -374,14 +375,16 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                 }
                 onClick={handleAddWearer}
                 aria-label='Add Another Wallet'
+                variant='outline'
+                borderColor='blackAlpha.300'
               >
-                <Image
-                  src='/icons/wearers.svg'
+                <Icon
+                  as={BsPersonBadge}
+                  ml={-1}
+                  mr={3}
                   w={4}
                   h={4}
-                  alt='Wearer'
-                  mr={3}
-                  ml={-1}
+                  color='gray.500'
                 />
                 Add Another Wallet
               </Button>

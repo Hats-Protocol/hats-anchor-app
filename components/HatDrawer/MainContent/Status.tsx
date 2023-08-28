@@ -3,12 +3,12 @@ import {
   Heading,
   HStack,
   Icon,
-  Image,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
@@ -57,13 +57,7 @@ const StatusCard = ({
               {isAContract ? (
                 <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
               ) : (
-                <Image
-                  src='/icons/wearers.svg'
-                  alt='Wearers'
-                  w={4}
-                  h={4}
-                  color='gray.500'
-                />
+                <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
               )}
               <Text color='gray.500' fontSize='sm'>
                 {formatAddress(statusData)}
