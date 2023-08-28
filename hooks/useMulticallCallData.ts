@@ -105,6 +105,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
         if (newHatData && newHatData.callData) {
           calls.push(newHatData.callData);
         }
+        // ! handle new wearers of new hats
+
         continue;
       }
 
@@ -141,6 +143,17 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
 
         if (changeHatDetailsData?.callData) {
           calls.push(changeHatDetailsData.callData);
+        }
+      }
+
+      if (imageUrl) {
+        const changeHatImageURIData = hatsClient?.changeHatImageURICallData({
+          hatId: decimalId(hatId) as unknown as bigint,
+          newImageURI: imageUrl,
+        });
+
+        if (changeHatImageURIData?.callData) {
+          calls.push(changeHatImageURIData.callData);
         }
       }
 
@@ -212,17 +225,6 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
 
         if (makeHatImmutableData?.callData) {
           calls.push(makeHatImmutableData.callData);
-        }
-      }
-
-      if (imageUrl) {
-        const changeHatImageURIData = hatsClient?.changeHatImageURICallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-          newImageURI: imageUrl,
-        });
-
-        if (changeHatImageURIData?.callData) {
-          calls.push(changeHatImageURIData.callData);
         }
       }
     }
