@@ -2,6 +2,7 @@ import {
   Badge,
   Box,
   Button,
+  Flex,
   Heading,
   HStack,
   Stack,
@@ -23,7 +24,7 @@ import { IHat } from '@/types';
 const isDraft = (hatId: string, onchainHats: IHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
 
-const MainContent = () => {
+const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const {
     topHat,
     onchainHats,
@@ -33,6 +34,7 @@ const MainContent = () => {
     treeDisclosure,
     hatDisclosure,
     treeEvents,
+    topHatDetails,
   } = useTreeForm();
   const lastEvent = _.last(treeEvents);
 
@@ -54,11 +56,11 @@ const MainContent = () => {
     >
       <Stack>
         <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-          {topHat?.detailsObject?.data?.name || topHat?.name || 'No Hats'}
+          {topHatDetails?.name || topHat?.name || 'No Hats'}
         </Heading>
-        {topHat?.detailsObject?.data?.description && (
-          <Text color='blackAlpha.700'>
-            {topHat?.detailsObject?.data?.description || 'No Description'}
+        {topHatDetails?.description && (
+          <Text color='blackAlpha.700' noOfLines={2}>
+            {topHatDetails?.description}
           </Text>
         )}
 
@@ -76,6 +78,7 @@ const MainContent = () => {
             )}{' '}
           ago.
         </Text>
+        {!topHatDetails?.description && <Flex h={12} />}
       </Stack>
       <Stack>
         <Text color='blackAlpha.800' fontSize='xl' fontWeight='medium'>
@@ -85,7 +88,12 @@ const MainContent = () => {
           Propose changes to any hat. Deploy changes to the Hats you control.
         </Text>
       </Stack>
-      <Box overflow='scroll' height='450px'>
+      <Box
+        overflow='scroll'
+        height={isExpanded ? '270px' : '400px'}
+        borderY='1px solid'
+        borderColor='gray.200'
+      >
         {_.map(orgChartTree, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
@@ -95,6 +103,8 @@ const MainContent = () => {
             onOpenHatDrawer?.();
             setSelectedHatId?.(hat.id);
           };
+
+          const hatId = prettyIdToIp(idToPrettyId(hat.id));
 
           return (
             <Box
@@ -114,8 +124,13 @@ const MainContent = () => {
                 onClick={handleHatClick}
               >
                 <HStack>
-                  <Text>{prettyIdToIp(idToPrettyId(hat.id))}</Text>
-                  <Text>{hat?.detailsObject?.data?.name || hat.name}</Text>
+                  <Text>{hatId}</Text>
+                  {(hat?.detailsObject?.data?.name || hat.name !== hatId) && (
+                    <Text>
+                      {hat?.detailsObject?.data?.name ||
+                        (hat.name !== hatId ? hat.name : '')}
+                    </Text>
+                  )}
                 </HStack>
                 <HStack>
                   {draft ? (
