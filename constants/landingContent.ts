@@ -2,28 +2,28 @@ export const learnMore = [
   {
     url: 'https://docs.hatsprotocol.xyz/',
     name: 'For Hat Wearers',
-    description: 'So your DAO gave you a Hat, now what?',
+    description: 'So your organization gave you a Hat. Now what?',
     icon: 'hat',
   },
   {
     url: 'https://docs.hatsprotocol.xyz/getting-started-with-hats',
     name: 'For Governors',
     description:
-      'Everything you need to know to get started structuring your organization with hats',
+      'Everything you need to know to start structuring your organization with hats',
     icon: 'check-square',
   },
   {
     url: 'https://docs.hatsprotocol.xyz/for-developers/hats-protocol-overview',
-    name: 'For Chad Hats Dev',
+    name: 'For Developers',
     description:
-      'Protocol and SDK documentation for building on top of the open-source protocol',
+      'Protocol and SDK docs for building on top of the open-source protocol',
     icon: 'code',
   },
   {
     url: 'mailto:support@hatsprotocol.xyz',
     name: 'Get in touch!',
     description:
-      'Stuck on tree design, deployment, or custom contract development? We’re here to help.',
+      'Stuck on tree design, deployment, or custom development? We can help.',
     icon: 'people',
   },
 ];
@@ -35,7 +35,7 @@ export const featuredTemplates = [
     name: 'Elected Roles',
     description:
       'Delegate roles and authorities automatically based on election results',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeibsxnaoo7bsuyp4dm3ce752lf7q2ruvnor4zuqfaerw4kt7dki6h4?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     chainId: 5,
@@ -43,7 +43,7 @@ export const featuredTemplates = [
     name: 'DAO-controlled Multisig & Signers',
     description:
       'Give and revoke multisig signing authority based on Hat ownerships',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeief2r46xuo4whpingntuntm4yoafedrfr7ky5cu4n2ydurgbnnbne?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     chainId: 5,
@@ -51,7 +51,7 @@ export const featuredTemplates = [
     name: 'Permissionless Contribution Levels',
     description:
       'Members can level up and claim new authorities as they increase their reputation in your org',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeifne2l5kflemqffegryh7ameo3mw72jw2j4erky2xmyzmw3uspsei?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
 ];
 
