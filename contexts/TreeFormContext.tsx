@@ -31,6 +31,7 @@ export interface ITreeFormContext {
   // tree
   topHatDetails: HatDetails | undefined;
   selectedHatDetails: HatDetails | undefined;
+  isDraft: boolean;
   orgChartTree: IHat[] | undefined;
   onchainTree: ITree | undefined;
   onchainHats: IHat[] | undefined;
@@ -66,6 +67,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   // tree
   topHatDetails: undefined,
   selectedHatDetails: undefined,
+  isDraft: false,
   orgChartTree: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
@@ -180,6 +182,7 @@ export const TreeFormContextProvider = ({
     () => _.find(orgChartTree, ['id', selectedHatId]),
     [orgChartTree, selectedHatId],
   );
+
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
@@ -188,6 +191,7 @@ export const TreeFormContextProvider = ({
   // existing tree
   const treeEvents = _.get(onchainTree.current, 'events');
   const onchainHats = _.get(onchainTree.current, 'hats');
+  const isDraft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
   // ? const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
   const handleSelectHat = useCallback(
@@ -305,6 +309,7 @@ export const TreeFormContextProvider = ({
       // tree
       topHatDetails,
       selectedHatDetails,
+      isDraft,
       orgChartTree,
       onchainTree: onchainTree.current,
       onchainHats,
@@ -339,6 +344,7 @@ export const TreeFormContextProvider = ({
       // tree
       topHatDetails,
       selectedHatDetails,
+      isDraft,
       orgChartTree,
       onchainTree,
       onchainHats,

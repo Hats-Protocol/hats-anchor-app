@@ -37,7 +37,7 @@ const EditMode = ({
   setUnsavedData,
   setIsLoading,
 }: EditModeProps) => {
-  const { chainId, storedData, selectedHat, onchainHats, selectedHatDetails } =
+  const { chainId, storedData, selectedHat, selectedHatDetails, isDraft } =
     useTreeForm();
 
   const {
@@ -68,9 +68,7 @@ const EditMode = ({
     ]);
 
   const defaultFormValues = useMemo<FormData>(() => {
-    const draft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
-
-    if (draft) {
+    if (isDraft) {
       return EMPTY_FORM_VALUES;
     }
 
@@ -100,7 +98,6 @@ const EditMode = ({
     };
   }, [
     selectedHat?.id,
-    onchainHats,
     maxSupply,
     eligibility,
     toggle,
@@ -113,6 +110,7 @@ const EditMode = ({
     initialAuthorities,
     initialResponsibilities,
     initialGuilds,
+    isDraft,
   ]);
 
   const localForm = useForm({
@@ -274,7 +272,12 @@ const EditMode = ({
       >
         <Stack>
           <Text fontSize={32} fontWeight='medium'>
-            {selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))}
+            {isDraft
+              ? `Add hat ${hatIdDecimalToIp(
+                  BigInt(selectedHat?.id),
+                )} to this tree`
+              : selectedHat?.detailsObject?.data?.name ||
+                (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id)))}
           </Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
