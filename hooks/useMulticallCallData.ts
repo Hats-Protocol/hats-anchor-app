@@ -69,8 +69,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
       if (!hatId) continue;
 
       const detailsData = {
-        name,
-        description,
+        name: name || '',
+        description: description || '',
         guilds: guilds || [],
         responsibilities: _.reject(responsibilities, ['label', '']),
         authorities: _.reject(authorities, ['label', '']),
@@ -91,18 +91,22 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           hatId,
           newDetails: detailsData,
         });
+        console.log(details);
+        console.log(detailsData);
         const newHatData = hatsClient?.createHatCallData({
           admin: BigInt(getDefaultAdminId(hatId)),
           details,
           maxSupply: _.toNumber(maxSupply) || 1,
           eligibility: eligibility || FALLBACK_ADDRESS,
           toggle: toggle || FALLBACK_ADDRESS,
-          mutable: mutable === MUTABILITY.MUTABLE,
+          mutable: mutable === MUTABILITY.IMMUTABLE ? false : true,
           imageURI: imageUrl,
         });
         if (newHatData && newHatData.callData) {
           calls.push(newHatData.callData);
         }
+        // ! handle new wearers of new hats
+
         continue;
       }
 
@@ -139,6 +143,17 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
 
         if (changeHatDetailsData?.callData) {
           calls.push(changeHatDetailsData.callData);
+        }
+      }
+
+      if (imageUrl) {
+        const changeHatImageURIData = hatsClient?.changeHatImageURICallData({
+          hatId: decimalId(hatId) as unknown as bigint,
+          newImageURI: imageUrl,
+        });
+
+        if (changeHatImageURIData?.callData) {
+          calls.push(changeHatImageURIData.callData);
         }
       }
 
@@ -210,17 +225,6 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
 
         if (makeHatImmutableData?.callData) {
           calls.push(makeHatImmutableData.callData);
-        }
-      }
-
-      if (imageUrl) {
-        const changeHatImageURIData = hatsClient?.changeHatImageURICallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-          newImageURI: imageUrl,
-        });
-
-        if (changeHatImageURIData?.callData) {
-          calls.push(changeHatImageURIData.callData);
         }
       }
     }
