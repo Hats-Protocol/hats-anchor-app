@@ -1,28 +1,33 @@
 import {
   Accordion,
   AccordionButton,
-  AccordionIcon,
   AccordionItem,
   AccordionPanel,
   Box,
   Button,
   Flex,
   HStack,
+  Icon,
   Input,
   Spinner,
   Text,
   useClipboard,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
 import { editHasUpdates } from '@/lib/hats';
 
-const BottomMenu = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const BottomMenu = ({
+  isExpanded,
+  setIsExpanded,
+}: {
+  isExpanded: boolean;
+  setIsExpanded: (v: boolean) => void;
+}) => {
   const { storedData } = useTreeForm();
   const { data, isLoading } = useMulticallCallData({
     isExpanded,
@@ -53,7 +58,7 @@ const BottomMenu = () => {
                     <Box flex='1' textAlign='left'>
                       Executable hex code
                     </Box>
-                    <AccordionIcon />
+                    <Icon as={isExpanded ? IoIosArrowDown : IoIosArrowUp} />
                   </AccordionButton>
 
                   <AccordionPanel pb={8} px={8}>
