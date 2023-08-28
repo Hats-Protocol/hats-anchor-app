@@ -87,8 +87,8 @@ const useMulticallCallManyHats = ({
       } = hat;
 
       const detailsData = {
-        name,
-        description,
+        name: name || '',
+        description: description || '',
         guilds: guilds || [],
         responsibilities: _.reject(responsibilities, ['label', '']),
         authorities: _.reject(authorities, ['label', '']),

@@ -69,8 +69,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
       if (!hatId) continue;
 
       const detailsData = {
-        name,
-        description,
+        name: name || '',
+        description: description || '',
         guilds: guilds || [],
         responsibilities: _.reject(responsibilities, ['label', '']),
         authorities: _.reject(authorities, ['label', '']),
@@ -91,6 +91,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           hatId,
           newDetails: detailsData,
         });
+        console.log(details);
+        console.log(detailsData);
         const newHatData = hatsClient?.createHatCallData({
           admin: BigInt(getDefaultAdminId(hatId)),
           details,
