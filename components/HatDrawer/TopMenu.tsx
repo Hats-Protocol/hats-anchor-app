@@ -12,31 +12,33 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { lazy, Suspense } from 'react';
+import { BsArrowLeft } from 'react-icons/bs';
 import {
   FaCopy,
   FaDoorOpen,
-  FaEdit,
   FaEllipsisV,
   FaExclamationCircle,
   FaLink,
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
-import { FiChevronsRight } from 'react-icons/fi';
+import { FiSave } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
 import CONFIG, { MUTABILITY } from '@/constants';
-import { IOverlayContext } from '@/contexts/OverlayContext';
-import HatCreateForm from '@/forms/HatCreateForm';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
 import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, isTopHatOrMutable, toTreeId } from '@/lib/hats';
+import { decimalId, isAdmin, isTopHat, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
@@ -44,52 +46,55 @@ const HatLinkRequestCreateForm = lazy(
   () => import('@/forms/HatLinkRequestCreateForm'),
 );
 
-const TopMenu = ({
-  chainId,
-  onClose,
-  mutableStatus,
-  hatData,
-  editMode,
-  setEditMode,
-  isCurrentWearer,
-  localOverlay,
-  wearerTopHats,
-  setSelectedHatId,
-  isAdminUser,
-}: TopMenuProps) => {
+const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
+  const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+  const { chainId, editMode, selectedHat } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
+
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+
+  const isAdminUser = isAdmin(_.map(wearer, 'id'), selectedHat?.id);
+
+  const wearerTopHats = _.map(
+    _.filter(
+      wearer,
+      (hat: IHat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
+    ),
+    'id',
+  );
+  const mutableStatus = selectedHat?.mutable ? MUTABILITY.MUTABLE : 'Immutable';
 
   const {
     writeAsync: updateImmutability,
     isLoading: isLoadingUpdateImmutability,
   } = useHatMakeImmutable({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId: hatData.id,
-    levelAtLocalTree: hatData.levelAtLocalTree,
+    levelAtLocalTree: selectedHat?.levelAtLocalTree,
     isAdminUser,
-    mutable: hatData.mutable,
+    mutable: selectedHat?.mutable,
   });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
       functionName: 'setHatStatus',
-      args: [hatData.id, !hatData.status],
+      args: [selectedHat?.id, !selectedHat?.status],
       chainId,
       onSuccessToastData: {
         title: 'Hat Status Updated!',
         description: 'Successfully updated hat',
       },
       queryKeys: [
-        ['hatDetails', hatData.id],
-        ['treeDetails', toTreeId(hatData.id)],
+        ['hatDetails', selectedHat?.id || 'none'],
+        ['treeDetails', toTreeId(selectedHat?.id)],
       ],
       enabled:
-        Boolean(hatData) &&
-        isSameAddress(address, hatData.toggle) &&
+        Boolean(selectedHat) &&
+        isSameAddress(address, selectedHat?.toggle) &&
         chainId === currentNetworkId,
     });
 
@@ -99,13 +104,22 @@ const TopMenu = ({
     toggleIsContract,
   } = useHatStatusCheck({
     chainId,
-    hatData,
+    hatData: selectedHat,
   });
 
-  const { onCopy: copyHatId } = useClipboard(decimalId(hatData.id));
+  const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
-  if (!hatData) return null;
+  const handleReturnToList = () => {
+    onSave(false);
+    returnToList();
+  };
+
+  const handleSave = () => {
+    onSave();
+  };
+
+  if (!selectedHat) return null;
 
   return (
     <Flex
@@ -115,217 +129,181 @@ const TopMenu = ({
       h='75px'
       bg='whiteAlpha.900'
       align='center'
-      justify='space-between'
+      justify={editMode ? 'space-between' : 'flex-end'}
       px={4}
       position='absolute'
       top={0}
       zIndex={16}
     >
-      <Button
-        variant='outline'
-        onClick={() => {
-          onClose();
-          setSelectedHatId(undefined);
-        }}
-      >
-        <HStack>
-          <Icon as={FiChevronsRight} />
-          <Text>Collapse</Text>
-        </HStack>
-      </Button>
-      <HStack>
-        {isAdminUser && chainId === currentNetworkId && (
-          <Tooltip
-            label={!isTopHatOrMutable(hatData) ? 'The hat is not mutable' : ''}
-            shouldWrapChildren
-          >
-            <Button
-              variant='outline'
-              background='cyan.100'
-              color='cyan.700'
-              borderColor='cyan.700'
-              onClick={() => setEditMode(!editMode)}
-              isDisabled={!isTopHatOrMutable(hatData)}
-            >
+      {editMode && (
+        <Button onClick={handleReturnToList} variant='outline'>
+          <HStack>
+            <Icon as={BsArrowLeft} />
+            <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
+          </HStack>
+        </Button>
+      )}
+
+      <HStack spacing={3}>
+        {!editMode && (
+          <Menu isLazy>
+            <MenuButton as={Button} variant='outline'>
               <HStack>
-                <Icon as={FaEdit} />
-                <Text>{editMode ? 'Exit' : 'Edit'}</Text>
+                <Icon as={FaEllipsisV} />
+                <Text>More</Text>
               </HStack>
-            </Button>
-          </Tooltip>
+            </MenuButton>
+            <MenuList gap={5}>
+              {isAdminUser && (
+                <MenuItem
+                  gap={2}
+                  onClick={() => updateImmutability?.()}
+                  isDisabled={
+                    mutableStatus === MUTABILITY.IMMUTABLE ||
+                    !updateImmutability ||
+                    isLoadingUpdateImmutability
+                  }
+                >
+                  <Tooltip
+                    label={
+                      !updateImmutability
+                        ? "You don't have permission to make this hat immutable"
+                        : ''
+                    }
+                    shouldWrapChildren
+                  >
+                    <HStack>
+                      <FaLock />
+                      <Text>Make immutable</Text>
+                    </HStack>
+                  </Tooltip>
+                </MenuItem>
+              )}
+              {(isAdminUser || isSameAddress(selectedHat?.toggle, address)) && (
+                <MenuItem
+                  gap={2}
+                  onClick={() => toggleHat?.()}
+                  isDisabled={
+                    !isSameAddress(selectedHat?.toggle, address) ||
+                    isLoadingToggleHat ||
+                    !toggleHat
+                  }
+                >
+                  <Tooltip
+                    label={
+                      !isSameAddress(selectedHat?.toggle, address)
+                        ? "Your address doesn't match the hat's toggle address"
+                        : ''
+                    }
+                    shouldWrapChildren
+                  >
+                    <HStack>
+                      <FaPowerOff />
+                      <Text>
+                        {selectedHat?.status ? 'Deactivate' : 'Activate'} Hat
+                      </Text>
+                    </HStack>
+                  </Tooltip>
+                </MenuItem>
+              )}
+              {address && (
+                <MenuItem
+                  gap={2}
+                  onClick={() => setModals?.({ requestLink: true })}
+                  isDisabled={chainId !== currentNetworkId}
+                >
+                  <Tooltip
+                    label={
+                      chainId !== currentNetworkId
+                        ? "You can't request to link a hat on a different chain"
+                        : ''
+                    }
+                    shouldWrapChildren
+                  >
+                    <HStack>
+                      <FaLink />
+
+                      <Text>Request to link tree here</Text>
+                    </HStack>
+                  </Tooltip>
+                </MenuItem>
+              )}
+              <Tooltip
+                label={!toggleIsContract ? 'The toggle is "humanistic"' : ''}
+                shouldWrapChildren
+              >
+                <MenuItem
+                  gap={2}
+                  onClick={() => checkHatStatus?.()}
+                  isDisabled={
+                    isLoadingCheckHatStatus ||
+                    !checkHatStatus ||
+                    !toggleIsContract
+                  }
+                >
+                  <Tooltip
+                    label={
+                      chainId !== currentNetworkId
+                        ? "You can't test status of a hat on a different chain"
+                        : ''
+                    }
+                    shouldWrapChildren
+                  >
+                    <HStack>
+                      <FaDoorOpen />
+                      <Text>Test Status</Text>
+                    </HStack>
+                  </Tooltip>
+                </MenuItem>
+              </Tooltip>
+              <MenuItem
+                gap={2}
+                onClick={() => {
+                  copyHatId();
+                  toast.info({
+                    title: 'Successfully copied Hat ID to clipboard',
+                  });
+                }}
+              >
+                <FaCopy />
+                Copy Hat ID
+              </MenuItem>
+              <MenuItem
+                gap={2}
+                onClick={() => {
+                  copyContractAddress();
+                  toast.info({
+                    title: 'Successfully copied contract address to clipboard',
+                  });
+                }}
+              >
+                <FaCopy />
+                Copy Contract ID
+              </MenuItem>
+              <MenuItem
+                as={Link}
+                href='mailto:support@hatsprotocol.xyz'
+                gap={2}
+              >
+                <FaExclamationCircle />
+                Report this Hat
+              </MenuItem>
+            </MenuList>
+          </Menu>
         )}
-        <Menu isLazy>
-          <MenuButton as={Button} variant='outline'>
-            <HStack>
-              <Icon as={FaEllipsisV} />
-              <Text>More</Text>
-            </HStack>
-          </MenuButton>
-          <MenuList gap={5}>
-            {isAdminUser && (
-              <MenuItem
-                gap={2}
-                onClick={() => updateImmutability?.()}
-                isDisabled={
-                  mutableStatus === MUTABILITY.IMMUTABLE ||
-                  !updateImmutability ||
-                  isLoadingUpdateImmutability
-                }
-              >
-                <Tooltip
-                  label={
-                    !updateImmutability
-                      ? "You don't have permission to make this hat immutable"
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <HStack>
-                    <FaLock />
-                    <Text>Make immutable</Text>
-                  </HStack>
-                </Tooltip>
-              </MenuItem>
-            )}
-            {(isAdminUser || isSameAddress(hatData?.toggle, address)) && (
-              <MenuItem
-                gap={2}
-                onClick={() => toggleHat?.()}
-                isDisabled={
-                  !isSameAddress(hatData?.toggle, address) ||
-                  isLoadingToggleHat ||
-                  !toggleHat
-                }
-              >
-                <Tooltip
-                  label={
-                    !isSameAddress(hatData?.toggle, address)
-                      ? "Your address doesn't match the hat's toggle address"
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <HStack>
-                    <FaPowerOff />
-                    <Text>
-                      {hatData?.status ? 'Deactivate' : 'Activate'} Hat
-                    </Text>
-                  </HStack>
-                </Tooltip>
-              </MenuItem>
-            )}
-            {(isAdminUser || isCurrentWearer) && (
-              <MenuItem
-                gap={2}
-                onClick={() => setModals?.({ createHat: true })}
-                isDisabled={chainId !== currentNetworkId}
-              >
-                <Tooltip
-                  label={
-                    chainId !== currentNetworkId
-                      ? "You can't create a child hat on a different chain"
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <HStack>
-                    <FaDoorOpen />
-                    <Text>Add Child Hat</Text>
-                  </HStack>
-                </Tooltip>
-              </MenuItem>
-            )}
-            {address && (
-              <MenuItem
-                gap={2}
-                onClick={() => setModals?.({ requestLink: true })}
-                isDisabled={chainId !== currentNetworkId}
-              >
-                <Tooltip
-                  label={
-                    chainId !== currentNetworkId
-                      ? "You can't request to link a hat on a different chain"
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <HStack>
-                    <FaLink />
 
-                    <Text>Request to link tree here</Text>
-                  </HStack>
-                </Tooltip>
-              </MenuItem>
-            )}
-            <Tooltip
-              label={!toggleIsContract ? 'The toggle is "humanistic"' : ''}
-              shouldWrapChildren
-            >
-              <MenuItem
-                gap={2}
-                onClick={() => checkHatStatus?.()}
-                isDisabled={
-                  isLoadingCheckHatStatus ||
-                  !checkHatStatus ||
-                  !toggleIsContract
-                }
-              >
-                <Tooltip
-                  label={
-                    chainId !== currentNetworkId
-                      ? "You can't test status of a hat on a different chain"
-                      : ''
-                  }
-                  shouldWrapChildren
-                >
-                  <HStack>
-                    <FaDoorOpen />
-                    <Text>Test Status</Text>
-                  </HStack>
-                </Tooltip>
-              </MenuItem>
-            </Tooltip>
-            <MenuItem
-              gap={2}
-              onClick={() => {
-                copyHatId();
-                toast.info({
-                  title: 'Successfully copied Hat ID to clipboard',
-                });
-              }}
-            >
-              <FaCopy />
-              Copy Hat ID
-            </MenuItem>
-            <MenuItem
-              gap={2}
-              onClick={() => {
-                copyContractAddress();
-                toast.info({
-                  title: 'Successfully copied contract address to clipboard',
-                });
-              }}
-            >
-              <FaCopy />
-              Copy Contract ID
-            </MenuItem>
-            <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
-              <FaExclamationCircle />
-              Report this Hat
-            </MenuItem>
-          </MenuList>
-        </Menu>
+        {editMode && (
+          <Button
+            leftIcon={<FiSave />}
+            colorScheme='twitter'
+            variant='solid'
+            onClick={handleSave}
+            isLoading={isLoading}
+          >
+            Save
+          </Button>
+        )}
       </HStack>
-
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='createHat'
-          title='Create a New Hat'
-          localOverlay={localOverlay}
-        >
-          <HatCreateForm defaultAdmin={hatData.id} treeId={hatData.tree.id} />
-        </Modal>
-      </Suspense>
 
       <Suspense fallback={<Suspender />}>
         <Modal
@@ -334,12 +312,11 @@ const TopMenu = ({
           localOverlay={localOverlay}
         >
           <HatLinkRequestCreateForm
-            newAdmin={hatData.id}
+            newAdmin={selectedHat.id}
             wearerTopHats={_.filter(
               wearerTopHats,
-              (hat) => hat !== hatData.admin?.id,
+              (hat) => hat !== selectedHat.admin?.id,
             )}
-            chainId={chainId}
           />
         </Modal>
       </Suspense>
@@ -350,15 +327,7 @@ const TopMenu = ({
 export default TopMenu;
 
 interface TopMenuProps {
-  mutableStatus: string;
-  hatData: IHat;
-  chainId: number;
-  onClose: () => void;
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
-  isAdminUser: boolean;
-  isCurrentWearer: boolean;
-  localOverlay: IOverlayContext;
-  wearerTopHats: string[];
-  setSelectedHatId: (hatId?: string) => void;
+  onSave: (v?: boolean) => void;
+  returnToList: () => void;
+  isLoading: boolean;
 }

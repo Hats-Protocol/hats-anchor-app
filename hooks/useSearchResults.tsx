@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 import client from '@/gql/client';
 import { SEARCH_QUERY } from '@/gql/queries';
@@ -23,7 +24,7 @@ const keyIcons: { [key: string]: string } = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processForCommandPalette = (key: string, record: any) => {
   const parts = _.split(_.get(record, 'id'), '.');
-  const treeId = prettyIdToIp(idToPrettyId(_.first(parts)));
+  const treeId = prettyIdToIp(idToPrettyId(_.first(parts) as Hex));
   let href = '#';
   if (key === 'trees') {
     href = `/trees/${_.get(record, 'network.id')}/${prettyIdToIp(

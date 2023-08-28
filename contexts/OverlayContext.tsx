@@ -2,7 +2,7 @@ import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { TransactionReceipt } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 
 import useToast from '@/hooks/useToast';
 
@@ -17,20 +17,20 @@ const defaults = {
 };
 
 export interface IOverlayContext {
-  modals?: object;
+  modals?: { [key: string]: boolean };
   setModals?: (m: object) => void;
   closeModals?: () => void;
   commandPallet?: boolean;
   setCommandPallet?: (m: boolean) => void;
-  handlePendingTx: ({
+  handlePendingTx?: ({
     hash,
     toastData,
     redirect = null,
     clearModals = true,
     sendToast = true,
   }: {
-    hash: `0x${string}`;
-    toastData: object;
+    hash: Hex;
+    toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
@@ -39,12 +39,10 @@ export interface IOverlayContext {
 
 export const OverlayContext = createContext<IOverlayContext>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setModals: (m: object) => console.log('setModals() not implemented'),
-  closeModals: () => console.log('clearModals() not implemented'),
+  setModals: undefined,
+  closeModals: undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handlePendingTx({ hash, toastData, redirect, clearModals, sendToast }) {
-    throw new Error('handlePendingTx() not implemented');
-  },
+  handlePendingTx: undefined,
 });
 
 export const OverlayContextProvider = ({
@@ -93,8 +91,8 @@ export const OverlayContextProvider = ({
       clearModals = true,
       sendToast = true,
     }: {
-      hash: `0x${string}`;
-      toastData: object;
+      hash: Hex;
+      toastData: object | undefined;
       redirect?: string | null;
       clearModals?: boolean;
       sendToast?: boolean;
@@ -102,7 +100,7 @@ export const OverlayContextProvider = ({
       const data = await waitForTransaction({ hash });
 
       if (data) {
-        if (sendToast) {
+        if (sendToast && toastData) {
           toast.success({
             title: _.get(toastData, 'title', 'Transaction successful'),
             description: _.get(toastData, 'description'),

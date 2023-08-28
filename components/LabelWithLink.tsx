@@ -1,5 +1,7 @@
 import { Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
-import { FaLink, FaRegTrashAlt } from 'react-icons/fa';
+import { UseFormReturn } from 'react-hook-form';
+import { BsLink45Deg } from 'react-icons/bs';
+import { FaRegTrashAlt } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
 import Modal from '@/components/atoms/Modal';
@@ -7,7 +9,8 @@ import LinkInput from '@/components/LinkInput';
 import { useOverlay } from '@/contexts/OverlayContext';
 
 interface LabelWithLinkProps {
-  localForm: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   title: string;
   handleRemoveItem: () => void;
   handleEdit: () => void;
@@ -42,13 +45,21 @@ const LabelWithLink = ({
     <Stack>
       <HStack alignItems='center' justifyContent='space-between'>
         <Input name={labelName} localForm={localForm} placeholder='Label' />
-        <Button leftIcon={<FaLink />} onClick={handleEdit} px={10}>
+        <Button
+          leftIcon={<BsLink45Deg />}
+          onClick={handleEdit}
+          px={10}
+          variant='outline'
+          borderColor='blackAlpha.300'
+        >
           {linkValue ? 'Edit' : 'Add'} Link
         </Button>
         <IconButton
           onClick={handleRemoveItem}
           icon={<FaRegTrashAlt />}
           aria-label='Remove'
+          variant='outline'
+          borderColor='blackAlpha.300'
         />
         <Modal
           name={`editLabel-${title}`}

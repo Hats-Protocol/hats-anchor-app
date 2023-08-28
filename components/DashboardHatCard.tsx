@@ -1,12 +1,11 @@
 import {
-  Box,
   Card,
   CardBody,
   Heading,
   HStack,
+  Image,
   Stack,
   Text,
-  Image,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
@@ -45,6 +44,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
               borderRadius={4}
               border='2px solid'
               borderColor='gray.600'
+              alt={`${hatName} image`}
             />
             <Stack maxW='75%'>
               <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>

@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import Layout from '@/components/Layout';
@@ -35,10 +36,11 @@ import { IHat } from '@/types';
 const WearerDetail = ({
   wearerAddress,
 }: {
-  wearerAddress: `0x${string}`;
+  wearerAddress: Hex;
   // initialData: IHat[] | undefined;
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();
+  const [name, setName] = useState<string | undefined>();
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
@@ -63,10 +65,11 @@ const WearerDetail = ({
   });
 
   useEffect(() => {
+    setName(ensName || formatAddress(wearerAddress));
     setBlockie(
       blockies.create({ seed: wearerAddress.toLowerCase() }).toDataURL(),
     );
-  }, [wearerAddress]);
+  }, [ensName, wearerAddress]);
 
   const headlineStats = [
     {
@@ -102,7 +105,7 @@ const WearerDetail = ({
 
   return (
     <Layout>
-      <NextSeo title={`${ensName || formatAddress(wearerAddress)}'s Hats`} />
+      <NextSeo title={`${name}'s Hats`} />
 
       <Box
         w='100%'
@@ -119,7 +122,7 @@ const WearerDetail = ({
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
               <Heading size='lg' fontWeight='medium'>
-                {ensName || formatAddress(wearerAddress)}
+                {name}
               </Heading>
               <Skeleton isLoaded={!wearerLoading}>
                 {!!_.get(firstCreated, 'createdAt') && (

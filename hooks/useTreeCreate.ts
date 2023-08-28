@@ -61,7 +61,6 @@ const useTreeCreate = ({
 export default useTreeCreate;
 
 interface UseTreeCreateProps {
-  hatsAddress?: `0x${string}`;
   chainId: number;
   details?: string;
   receiver: string;

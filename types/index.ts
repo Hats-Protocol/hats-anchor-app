@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Hex } from 'viem';
 
 export interface IHatEvent {
   id: string;
@@ -12,44 +13,45 @@ export type DetailsItem = {
 };
 
 export interface IHatWearer {
-  id: `0x${string}`;
+  id: Hex;
   isContract?: boolean;
   ensName?: string | null;
 }
 
 export interface IHat {
-  id: string;
+  id: Hex;
   chainId: number;
-  prettyId: string;
-  tree: ITree;
+  prettyId?: string;
+  tree?: Partial<ITree>;
   status: boolean;
-  createdAt: string;
+  createdAt?: string;
   details: string;
   maxSupply: string;
-  eligibility: `0x${string}`;
-  extendedEligibility: IHatWearer;
-  toggle: `0x${string}`;
-  extendedToggle: IHatWearer;
+  eligibility: Hex;
+  extendedEligibility?: IHatWearer;
+  toggle: Hex;
+  extendedToggle?: IHatWearer;
   mutable: boolean;
-  imageUri: string;
+  imageUri?: string;
   imageUrl?: string;
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];
-  wearers: IHatWearer[]; // (`0x${string}` | IHatWearer)[];
-  extendedWearers: IHatWearer[];
-  admin: IHat;
+  wearers: IHatWearer[];
+  extendedWearers?: IHatWearer[];
+  admin?: Partial<IHat>;
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: HatDetails;
   };
-  name?: string;
-  parentId?: string | null;
-  treeId?: string;
+  name: string;
+  parentId: Hex | undefined;
+  treeId?: Hex;
   isLinked?: boolean;
   url?: string;
   active?: boolean;
+  type?: string;
 }
 
 export interface ITreeEvent extends IHatEvent {
@@ -57,7 +59,7 @@ export interface ITreeEvent extends IHatEvent {
 }
 
 export interface ITree {
-  id: string;
+  id: Hex;
   chainId: number;
   hats: IHat[];
   events: ITreeEvent[];
@@ -69,15 +71,15 @@ export interface ITree {
 
 export type HierarchyObject = {
   id: string;
-  parentId: string | null;
-  firstChild: string | null;
-  leftSibling: string | null;
-  rightSibling: string | null;
+  parentId: string | null | undefined;
+  firstChild: string | null | undefined;
+  leftSibling: string | null | undefined;
+  rightSibling: string | null | undefined;
 };
 
 export type InputObject = {
   id: string;
-  parentId: string;
+  parentId: string | undefined;
 };
 
 export interface HatRole {
@@ -118,3 +120,29 @@ export interface IControls {
   value: string;
   icon: ReactNode;
 }
+
+export type FormData = FormDataDetails & {
+  maxSupply?: string;
+  eligibility?: Hex;
+  toggle?: Hex;
+  mutable: string;
+  imageUrl?: string;
+  id: Hex;
+  wearers: Hex[];
+  parentId?: Hex;
+};
+
+export type FormDataDetails = {
+  name: string;
+  description: string;
+  guilds: string[];
+  responsibilities: DetailsItem[];
+  authorities: DetailsItem[];
+  isEligibilityManual: string;
+  isToggleManual: string;
+  revocationsCriteria: DetailsItem[];
+  deactivationsCriteria: DetailsItem[];
+  newImageUri?: string;
+};
+
+export type FieldItem = { name: keyof FormData; label: string };

@@ -1,4 +1,9 @@
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+
+import CONFIG from '@/constants';
+
+import { PINATA_GATEWAY_TOKEN } from './ipfs';
 
 // unused
 export function parseUri(uri: string) {
@@ -12,7 +17,7 @@ export function decodeUri(uri: string) {
   return decoded;
 }
 
-export const formatAddress = (address: string | undefined) =>
+export const formatAddress = (address: string | null | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
 export const isSameAddress = (address1?: string, address2?: string) => {
@@ -40,6 +45,29 @@ async function fetchWithTimeout(resource: any, options: any = {}) {
   clearTimeout(id);
   return response;
 }
+
+export const mapWithChainId = (
+  array: object[] | null,
+  chainId: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
+
+export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
+
+export const validateURL = (textVal: string) => {
+  const urlRegex =
+    /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
+  return urlRegex.test(textVal);
+};
+
+export const generateLocalStorageKey = (
+  chainId: number | undefined,
+  treeId: string | undefined,
+) => {
+  if (!chainId || !treeId) return 'not found';
+  const decimalTreeId = treeIdHexToDecimal(treeId);
+  return `treeData-${chainId}-${decimalTreeId}`;
+};
 
 /**
  * checks if a url links to an image
@@ -72,16 +100,22 @@ export async function isImageUrl(url: string | unknown) {
   return false;
 }
 
-export const mapWithChainId = (
-  array: object[] | null,
-  chainId: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
+export const formatImageUrl = (url?: string) => {
+  if (_.startsWith(url, 'https://')) {
+    return url;
+  }
+  if (_.startsWith(url, 'ipfs://')) {
+    return `${CONFIG.ipfsGateway}${url?.slice(
+      7,
+    )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+  }
+  if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
+    const ipfsHash = url?.slice(21);
+    const ipfsHashSplit = ipfsHash?.split('?')[0];
+    const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
+    const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
+    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+  }
 
-export const containsUpperCase = (string: string) => /\p{Lu}/u.test(string);
-
-export const validateURL = (textVal: string) => {
-  const urlRegex =
-    /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
-  return urlRegex.test(textVal);
+  return undefined;
 };

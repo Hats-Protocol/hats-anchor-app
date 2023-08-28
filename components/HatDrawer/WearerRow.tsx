@@ -11,9 +11,11 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
+import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
@@ -26,48 +28,43 @@ import TooltipWrapper from './TooltipWrapper';
 const WearerRow = ({
   wearer,
   isAdminUser,
-  address,
-  ensNames,
-  setModals,
   setChangeStatusWearer,
   setWearerToTransferFrom,
-  isSameChain,
-  hatId,
-  chainId,
-  currentNetworkId,
-  wearers,
 }: WearerRowProps) => {
+  const toast = useToast();
+  const currentNetworkId = useChainId();
+  const { setModals } = useOverlay();
+  const { address } = useAccount();
+  const { chainId, selectedHat } = useTreeForm();
+
+  const hatId = selectedHat?.id;
+  const isSameChain = chainId === currentNetworkId;
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
-    onSuccessToastData: {
-      title: 'Success',
-      description: `${wearer.id} is eligible to receive the hat.`,
-    },
     enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    handleSuccess: (data) => {
+      if (!_.isEmpty(data.logs)) {
+        toast.info({
+          title: `The status of ${formatAddress(
+            wearer.id,
+          )} was successfully updated.`,
+        });
+      } else {
+        toast.info({
+          title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
+        });
+      }
+    },
   });
-  const toast = useToast();
 
   const testEligibility = async () => {
-    const updated = await writeAsync?.();
-    if (updated) {
-      toast.info({
-        title: `The status of ${wearer.id} was successfully updated.`,
-      });
-    } else {
-      toast.info({
-        title: `The status of ${wearer.id} was not updated.`,
-      });
-    }
+    writeAsync?.();
   };
 
-  const { writeAsync: renounceHat } = useHatBurn({
-    hatsAddress: CONFIG.hatsAddress,
-    chainId,
-    hatId,
-    wearers,
-  });
+  const { writeAsync: renounceHat } = useHatBurn();
 
   const handleRenounceHat = async () => {
     await renounceHat?.();
@@ -88,7 +85,9 @@ const WearerRow = ({
           <FaUser />
         )}
 
-        <Text>{ensNames[wearer.id] || formatAddress(_.get(wearer, 'id'))}</Text>
+        <Text>
+          {_.get(wearer, 'ensName') || formatAddress(_.get(wearer, 'id'))}
+        </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
         <ChakraNextLink href={`/wearers/${wearer.id}`}>
@@ -107,7 +106,7 @@ const WearerRow = ({
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
-                  setModals({ transferHat: true });
+                  setModals?.({ transferHat: true });
                   setWearerToTransferFrom(wearer.id);
                 }}
               >
@@ -135,7 +134,7 @@ const WearerRow = ({
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
-                  setModals({ hatWearerStatus: true });
+                  setModals?.({ hatWearerStatus: true });
                   setChangeStatusWearer(wearer.id);
                 }}
               >
@@ -169,18 +168,8 @@ const WearerRow = ({
 export default WearerRow;
 
 interface WearerRowProps {
-  wearer: { id: string };
+  wearer: IHatWearer;
   isAdminUser: boolean;
-  address?: string;
-  ensNames: {
-    [key: string]: string;
-  };
-  setModals: any;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
-  isSameChain: boolean;
-  hatId: string;
-  chainId: number;
-  currentNetworkId: number;
-  wearers: IHatWearer[];
 }

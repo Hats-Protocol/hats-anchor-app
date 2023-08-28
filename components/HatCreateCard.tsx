@@ -1,6 +1,6 @@
-import { Box, Flex, Heading, HStack, Image, Text } from '@chakra-ui/react';
-import _ from 'lodash';
+import { Box, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
 import React from 'react';
+import { BsPersonBadge } from 'react-icons/bs';
 
 import { ImageFile } from '@/types';
 
@@ -46,7 +46,7 @@ const HatCreateCard = ({
         px={2}
       >
         <HStack>
-          <Image src='/icons/wearers.svg' alt='wearer icon' />
+          <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
           <Text>No Wearers</Text>
         </HStack>
         <HStack spacing={1}>

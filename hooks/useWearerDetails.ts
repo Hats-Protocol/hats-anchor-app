@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 import { fetchWearerDetails } from '@/gql/helpers';
 import { chainsList } from '@/lib/web3';
@@ -31,18 +32,20 @@ const fetchWearerDetailsForAllChains = async (address: string | undefined) => {
   return _.flatten(_.map(data, 'currentHats'));
 };
 
+// ? separate useWearerDetailsForAllChains ?
+
 const useWearerDetails = ({
   wearerAddress,
   chainId,
   initialData,
 }: UseWearerDetailsProps) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['wearerDetails', wearerAddress, chainId || 'all'],
+    queryKey: ['wearerDetails', wearerAddress, { chainId }],
     queryFn: () =>
       chainId && chainId !== 'all'
         ? fetchWearerDetailsForChain(wearerAddress, chainId)
         : fetchWearerDetailsForAllChains(wearerAddress),
-    enabled: !!wearerAddress,
+    enabled: !!wearerAddress && !!chainId,
     initialData,
   });
 
@@ -52,7 +55,7 @@ const useWearerDetails = ({
 export default useWearerDetails;
 
 interface UseWearerDetailsProps {
-  wearerAddress: `0x${string}` | undefined;
+  wearerAddress: Hex | undefined;
   initialData?: IHat[];
-  chainId?: number | 'all';
+  chainId?: number | 'all' | undefined;
 }

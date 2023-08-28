@@ -1,9 +1,10 @@
 import { fetchEnsName } from '@wagmi/core';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
-import { IHat, ITree } from '@/types';
+import { IHat, IHatWearer, ITree } from '@/types';
 
 import client from './client';
 import {
@@ -80,11 +81,11 @@ export const fetchManyHatDetails = async (
 };
 
 export const fetchManyWearerDetails = async (
-  wearerIds: `0x${string}`[],
+  wearerIds: Hex[],
   chainId: number,
-) => {
+): Promise<IHatWearer[]> => {
   // two promises per address
-  const promises = wearerIds.map((wearerId: `0x${string}`) => {
+  const promises = wearerIds.map((wearerId: Hex) => {
     return [
       checkAddressIsContract(wearerId, chainId),
       fetchEnsName({
@@ -103,14 +104,14 @@ export const fetchManyWearerDetails = async (
   return _.map(wearerIds, (wearerId, index) => {
     return {
       id: wearerId,
-      isContract: data[index * 2],
-      ensName: data[index * 2 + 1],
+      isContract: data[index * 2] as boolean,
+      ensName: data[index * 2 + 1] as string,
     };
   });
 };
 
 export const fetchWearerDetails = async (
-  address: `0x${string}` | string | undefined,
+  address: Hex | string | undefined,
   chainId: number,
 ) => {
   const result = await client(chainId).request(GET_WEARER_DETAILS, {

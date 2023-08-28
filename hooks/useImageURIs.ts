@@ -5,8 +5,7 @@ import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
-import { isImageUrl } from '@/lib/general';
-import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
+import { formatImageUrl, isImageUrl } from '@/lib/general';
 import { IHat } from '@/types';
 
 /**
@@ -31,26 +30,6 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
     contracts: calls,
     enabled: !!hats && !_.isEmpty(hats),
   });
-
-  const formatImageUrl = (url?: string) => {
-    if (_.startsWith(url, 'https://')) {
-      return url;
-    }
-    if (_.startsWith(url, 'ipfs://')) {
-      return `${CONFIG.ipfsGateway}${url?.slice(
-        7,
-      )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
-    }
-    if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
-      const ipfsHash = url?.slice(21);
-      const ipfsHashSplit = ipfsHash?.split('?')[0];
-      const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
-      const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
-      return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
-    }
-
-    return undefined;
-  };
 
   const checkImagesForHats = async () => {
     const promises = _.map(imagesData, (imageData: { result: string }) => {

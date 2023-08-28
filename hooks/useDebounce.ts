@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 
-function useDebounce(value: any, delay?: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+import CONFIG from '@/constants';
+
+function useDebounce<T>(value: T, delay?: number) {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+    const timer = setTimeout(
+      () => setDebouncedValue(value),
+      delay || CONFIG.debounce,
+    );
 
     return () => {
       clearTimeout(timer);

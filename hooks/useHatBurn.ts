@@ -1,24 +1,19 @@
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useAccount, useChainId } from 'wagmi';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { hatIdToHex } from '@/lib/hats';
-import { IHatWearer } from '@/types';
 
-const useHatBurn = ({
-  hatsAddress,
-  chainId,
-  hatId,
-  wearers,
-}: {
-  hatsAddress?: `0x${string}`;
-  chainId: number;
-  hatId: string | null;
-  wearers: IHatWearer[];
-}) => {
+const useHatBurn = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
+  const { selectedHat, chainId } = useTreeForm();
+
+  const hatId = selectedHat?.id || 'none';
+  const wearers = selectedHat?.wearers || [];
   const currentlyWearing = _.findKey(wearers, ['id', _.toLower(address)]);
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'renounceHat',
     args: [hatId],
@@ -28,14 +23,11 @@ const useHatBurn = ({
       description: 'Successfully removed hat',
     },
     queryKeys: [
-      ['hatDetails', hatIdToHex(hatId)],
-      ['treeDetails', hatIdToHex(hatId)],
+      ['hatDetails', hatId || '', chainId || ''],
+      ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId || ''],
     ],
     enabled:
-      Boolean(hatsAddress) &&
-      Boolean(hatId) &&
-      chainId === currentNetworkId &&
-      !!currentlyWearing,
+      Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,
   });
 
   return { writeAsync, isLoading };

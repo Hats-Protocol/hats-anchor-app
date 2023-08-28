@@ -1,22 +1,25 @@
-import { Box, Button, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useState } from 'react';
-import { useFieldArray } from 'react-hook-form';
-import { FaPlus, FaRegEdit, FaRegListAlt, FaShieldAlt } from 'react-icons/fa';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { BsListUl, BsPlusCircle, BsShieldLock } from 'react-icons/bs';
+import { GrEdit } from 'react-icons/gr';
+import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
 import RadioBox from '@/components/atoms/RadioBox';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
-import { TRIGGER_OPTIONS } from '@/constants';
+import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { isMutable } from '@/lib/hats';
 import { DetailsItem } from '@/types';
 
 interface HatManagementFormProps {
-  hatData: any;
-  localForm: any;
-  address: string; // eligibility or toggle
-  actionResolvedAddress?: `0x${string}` | null;
+  localForm: UseFormReturn<any>;
+  address: Hex | undefined; // eligibility or toggle
+  actionResolvedAddress?: Hex | null;
   title: string;
   formName: string;
   radioBoxConfig: {
@@ -24,18 +27,29 @@ interface HatManagementFormProps {
     label: string;
     subLabel: string;
   };
+  inputConfig: {
+    label: string;
+    description: string;
+  };
+  criteriaConfig: {
+    label: string;
+    description: string;
+    addButtonLabel: string;
+  };
 }
 
 const HatManagementForm = ({
-  hatData,
   localForm,
   address,
   actionResolvedAddress,
   title,
   formName,
   radioBoxConfig,
+  inputConfig,
+  criteriaConfig,
 }: HatManagementFormProps) => {
   const { watch, control, setValue, getValues } = localForm;
+  const { selectedHat } = useTreeForm();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -84,9 +98,9 @@ const HatManagementForm = ({
 
   return (
     <form>
-      <Stack spacing={6}>
+      <Stack spacing={8}>
         <FormRowWrapper>
-          <FaRegEdit />
+          <Icon as={GrEdit} boxSize={4} mt='2px' />
           <RadioBox
             name={radioBoxConfig.name}
             label={radioBoxConfig.label}
@@ -96,28 +110,34 @@ const HatManagementForm = ({
           />
         </FormRowWrapper>
         <FormRowWrapper>
-          <FaShieldAlt />
+          <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <AddressInput
             name={title}
-            label={`ACCOUNTABILITY ${
+            label={`${inputConfig.label} ${
               isActionManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'
             }`}
+            subLabel={inputConfig.description}
             docsLink={`https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/${title}-requirements-for-wearers`}
             localForm={localForm}
             showResolvedAddress={Boolean(showActionResolvedAddress)}
-            isDisabled={!isMutable(hatData)}
+            isDisabled={!isMutable(selectedHat)}
             resolvedAddress={String(actionResolvedAddress)}
           />
         </FormRowWrapper>
-        <FormRowWrapper>
-          <FaRegListAlt />
-          <Stack>
-            <Text>{address.toUpperCase()} REQUIREMENTS (optional)</Text>
-            <Text color='blackAlpha.700'>
-              A written description of the logic in the Accountability Module.
-            </Text>
-          </Stack>
-        </FormRowWrapper>
+        {address !== FALLBACK_ADDRESS && (
+          <FormRowWrapper>
+            <Icon as={BsListUl} boxSize={4} mt='3px' />
+            <Stack>
+              <HStack fontSize='sm'>
+                <Text color='blackAlpha.800' fontWeight='medium'>
+                  {criteriaConfig.label}
+                </Text>
+                <Text color='blackAlpha.600'>optional</Text>
+              </HStack>
+              <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
+            </Stack>
+          </FormRowWrapper>
+        )}
         {fields.map((field, index) => (
           <LabelWithLink
             key={field.id}
@@ -139,9 +159,12 @@ const HatManagementForm = ({
             onClick={() => append({ link: '', label: '' })}
             isDisabled={items?.some((item: DetailsItem) => item.label === '')}
             gap={2}
+            variant='outline'
+            borderColor='blackAlpha.300'
           >
-            <FaPlus />
-            Add {items?.length ? 'another' : 'a'} Requirement
+            <BsPlusCircle />
+            Add {items?.length ? 'another' : 'a'}{' '}
+            {criteriaConfig.addButtonLabel}
           </Button>
         </Box>
       </Stack>

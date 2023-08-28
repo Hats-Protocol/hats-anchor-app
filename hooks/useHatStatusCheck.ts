@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 import {
   useChainId,
   useContractWrite,
@@ -20,21 +21,21 @@ const useHatStatusCheck = ({
   hatData,
   chainId,
 }: {
-  hatData: IHat;
-  chainId: number;
+  hatData?: IHat;
+  chainId?: number;
 }) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
-  const [hash, setHash] = useState<`0x${string}`>();
+  const [hash, setHash] = useState<Hex>();
   const [toggleIsContract, setToggleIsContract] = useState(false);
   const [testingToggle, setTestingToggle] = useState(false);
 
   useEffect(() => {
     const testToggle = async () => {
       setTestingToggle(true);
-      const localData = await checkAddressIsContract(hatData.toggle, chainId);
+      const localData = await checkAddressIsContract(hatData?.toggle, chainId);
       setToggleIsContract(localData);
       setTestingToggle(false);
     };
@@ -63,26 +64,32 @@ const useHatStatusCheck = ({
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      const { logs } = await handlePendingTx({
-        hash: _.get(data, 'hash'),
-        toastData: {
-          title: 'Transaction Confirmed',
-          description: 'Checking Hat Status...',
-        },
-      });
+      const { logs } = _.pick(
+        await handlePendingTx?.({
+          hash: _.get(data, 'hash'),
+          toastData: {
+            title: 'Transaction Confirmed',
+            description: 'Checking Hat Status...',
+          },
+        }),
+        ['logs'],
+      );
 
       if (logs?.length === 0) {
         toast.success({
           title: 'Status Check Completed',
           description: `No change: Hat Status remains ${
-            hatData.status ? STATUS.ACTIVE : STATUS.INACTIVE
+            hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
           }`,
         });
       } else {
+        const logData = _.get(_.first(logs), 'data');
         toast.success({
           title: 'Status Check Completed',
           description: `Hat Status Changed to ${
-            logs[0].data.slice(-1) === '1' ? STATUS.ACTIVE : STATUS.INACTIVE
+            _.first(_.slice(logData, -1, _.size(logData))) === '1'
+              ? STATUS.ACTIVE
+              : STATUS.INACTIVE
           }`,
         });
 

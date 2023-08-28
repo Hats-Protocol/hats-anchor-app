@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { createPublicClient, custom, http } from 'viem';
+import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
 import { IHatWearer } from '@/types';
@@ -7,45 +7,47 @@ import { IHatWearer } from '@/types';
 import { chainsMap } from './web3';
 
 export const checkAddressIsContract = async (
-  address: `0x${string}`,
-  chainId: number,
+  address?: Hex,
+  chainId?: number,
 ) => {
-  if (address === ZERO_ADDRESS) {
+  if (!address || address === ZERO_ADDRESS || !chainId) {
     return false;
   }
 
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transport: custom((window as any).ethereum) || http(),
   });
 
-  const bytecode = await publicClient.getBytecode({
-    address,
-  });
+  try {
+    const bytecode = await publicClient.getBytecode({
+      address,
+    });
 
-  if (bytecode) {
-    return true;
+    if (bytecode) {
+      return true;
+    }
+  } catch (err) {
+    return false;
   }
   return false;
 };
 
-export const extendWearers = (wearers: IHatWearer[], wearersInfo: object[]) => {
-  if (_.gt(_.size(wearers), 1)) {
-    return wearers;
-  }
-
-  return _.map(wearers, (wearer: IHatWearer) => {
-    const wearerInfo = _.find(wearersInfo, { id: wearer.id });
-    return {
-      ...wearer,
-      ...wearerInfo,
-    };
-  });
-};
+export const extendWearers = (
+  wearers: IHatWearer[],
+  wearersInfo: IHatWearer[] | undefined,
+): IHatWearer[] =>
+  _.compact(
+    _.map(wearers, (wearer: IHatWearer) => {
+      const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
+      return wearerInfo as IHatWearer | undefined;
+    }),
+  );
 
 export const extendControllers = (
-  controller: `0x${string}`,
-  controllersInfo: object[],
+  controller: Hex,
+  controllersInfo: IHatWearer[] | undefined,
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: controller });
 

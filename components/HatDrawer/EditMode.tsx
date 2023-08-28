@@ -1,25 +1,45 @@
-import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useEffect, useState } from 'react';
+import _ from 'lodash';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
-import { FaKey, FaRegListAlt } from 'react-icons/fa';
+import { BsKey, BsListUl } from 'react-icons/bs';
+import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
-import { MUTABILITY, TRIGGER_OPTIONS, ZERO_ADDRESS } from '@/constants';
+import {
+  EMPTY_FORM_VALUES,
+  FALLBACK_ADDRESS,
+  FORM_FIELDS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
+import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
-import useSubmitHatChanges from '@/hooks/useSubmitHatChanges';
-import { HatDetails, IHat } from '@/types';
+import { isTopHat } from '@/lib/hats';
+import { DetailsItem, FieldItem, FormData } from '@/types';
 
 const EditMode = ({
-  hatData,
-  chainId,
-  hatDetails,
-  setEditMode,
+  unsavedData,
+  setUnsavedData,
+  setIsLoading,
 }: EditModeProps) => {
+  const { chainId, storedData, selectedHat, onchainHats, selectedHatDetails } =
+    useTreeForm();
+
   const {
     name: initialName,
     description: initialDescription,
@@ -28,16 +48,39 @@ const EditMode = ({
     authorities: initialAuthorities,
     eligibility: initialEligibility,
     toggle: initialToggle,
-  } = hatDetails;
+  } = _.pick(selectedHatDetails, [
+    'name',
+    'description',
+    'guilds',
+    'responsibilities',
+    'authorities',
+    'eligibility',
+    'toggle',
+  ]);
+  const { maxSupply, eligibility, toggle, mutable, imageUrl, imageUri } =
+    _.pick(selectedHat, [
+      'maxSupply',
+      'eligibility',
+      'toggle',
+      'mutable',
+      'imageUrl',
+      'imageUri',
+    ]);
 
-  const localForm = useForm({
-    mode: 'onChange',
-    defaultValues: {
-      maxSupply: hatData?.maxSupply,
-      eligibility: hatData?.eligibility,
-      toggle: hatData?.toggle,
-      mutable: hatData?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-      imageUrl: hatData?.imageUrl || '',
+  const defaultFormValues = useMemo<FormData>(() => {
+    const draft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
+
+    if (draft) {
+      return EMPTY_FORM_VALUES;
+    }
+
+    return {
+      id: selectedHat?.id || '0x',
+      maxSupply,
+      eligibility,
+      toggle,
+      mutable: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      imageUrl: imageUrl ?? '',
       isEligibilityManual:
         initialEligibility?.manual || initialEligibility?.manual === undefined
           ? TRIGGER_OPTIONS.MANUALLY
@@ -46,37 +89,96 @@ const EditMode = ({
         initialToggle?.manual || initialToggle?.manual === undefined
           ? TRIGGER_OPTIONS.MANUALLY
           : TRIGGER_OPTIONS.AUTOMATICALLY,
-      revocationsCriteria: initialEligibility?.criteria || [],
-      deactivationsCriteria: initialToggle?.criteria || [],
-      name: initialName,
-      description: initialDescription,
-      authorities: initialAuthorities,
-      responsibilities: initialResponsibilities,
-      guilds: initialGuilds,
-    },
+      revocationsCriteria: initialEligibility?.criteria ?? [],
+      deactivationsCriteria: initialToggle?.criteria ?? [],
+      name: initialName || '',
+      description: initialDescription || '',
+      authorities: initialAuthorities ?? [],
+      responsibilities: initialResponsibilities ?? [],
+      guilds: initialGuilds ?? [],
+      wearers: [],
+    };
+  }, [
+    selectedHat?.id,
+    onchainHats,
+    maxSupply,
+    eligibility,
+    toggle,
+    mutable,
+    imageUrl,
+    initialEligibility,
+    initialToggle,
+    initialName,
+    initialDescription,
+    initialAuthorities,
+    initialResponsibilities,
+    initialGuilds,
+  ]);
+
+  const localForm = useForm({
+    mode: 'onChange',
+    defaultValues: defaultFormValues,
   });
 
-  const {
-    handleSubmit,
-    watch,
-    formState: { dirtyFields },
-  } = localForm;
+  const { watch, reset } = localForm;
+
+  useEffect(() => {
+    let formValues = defaultFormValues;
+
+    const initialFormValues = () => {
+      const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
+
+      if (matchingHat) {
+        formValues = {
+          ...defaultFormValues,
+          ...matchingHat,
+        };
+        reset(formValues, { keepDefaultValues: true });
+        return;
+      }
+
+      reset(formValues);
+    };
+
+    if (selectedHat?.id && chainId && defaultFormValues && storedData) {
+      initialFormValues();
+    }
+  }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
+
+  const allFormData = watch();
+
+  const prevAllFormData = useRef<any>(allFormData);
+
+  const getDirtyFields = useCallback(() => {
+    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
+      (key) =>
+        JSON.stringify(defaultFormValues[key]) !==
+          JSON.stringify(allFormData[key]) || allFormData[key] === 'New Hat',
+    );
+  }, [allFormData, defaultFormValues]);
+
+  const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
+    const fields = getDirtyFields();
+
+    return fieldsArray
+      .filter((field) => fields.includes(field.name))
+      .map((field) => field.label);
+  };
 
   const [newImageURI, setNewImageURI] = useState('');
-  const [newDetailsData, setNewDetailsData] = useState<HatDetails>();
 
-  const eligibility = useDebounce(
-    watch('eligibility', hatData?.eligibility || ZERO_ADDRESS),
+  const eligibilityFormValue = useDebounce<Hex | undefined>(
+    watch('eligibility', eligibility || FALLBACK_ADDRESS),
   );
-  const toggle = useDebounce(watch('toggle', hatData?.toggle || ZERO_ADDRESS));
-  const maxSupply = useDebounce(watch('maxSupply', hatData?.maxSupply ?? 0));
-  const imageUrl = useDebounce(watch('imageUrl', hatData?.imageUrl || ''));
+  const toggleFormValue = useDebounce<Hex | undefined>(
+    watch('toggle', toggle || FALLBACK_ADDRESS),
+  );
 
   const {
     data: eligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
-    name: eligibility,
+    name: eligibilityFormValue,
     chainId: 1,
   });
 
@@ -84,74 +186,80 @@ const EditMode = ({
     data: toggleResolvedAddress,
     isLoading: isLoadingToggleResolvedAddress,
   } = useEnsAddress({
-    name: toggle,
+    name: toggleFormValue,
     chainId: 1,
   });
 
-  const { onSubmit, isLoading } = useSubmitHatChanges({
-    hatData,
-    chainId,
-    newImageURI,
-    dirtyFields,
-    newDetailsData,
-    maxSupply,
-    eligibility,
-    toggle,
-    eligibilityResolvedAddress,
-    toggleResolvedAddress,
-    imageUrl,
-  });
-
-  const name = useDebounce(watch('name', initialName || ''));
-  const description = useDebounce(
-    watch('description', initialDescription || ''),
-  );
-  const isEligibilityManual = useDebounce(watch('isEligibilityManual'));
-  const isToggleManual = useDebounce(watch('isToggleManual'));
-  const revocationsCriteria = useDebounce(watch('revocationsCriteria'));
-  const deactivationsCriteria = useDebounce(watch('deactivationsCriteria'));
-  const responsibilities = useDebounce(watch('responsibilities'));
-  const authorities = useDebounce(watch('authorities'));
-  const guilds = useDebounce(watch('guilds'));
-
   useEffect(() => {
-    setNewDetailsData({
-      name,
-      description,
-      guilds,
-      responsibilities,
-      authorities,
-      eligibility: {
-        manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: revocationsCriteria,
-      },
-      toggle: {
-        manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-        criteria: deactivationsCriteria,
-      },
-    });
+    if (isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress) {
+      setIsLoading(true);
+    } else setIsLoading(false);
   }, [
-    name,
-    description,
-    guilds,
-    responsibilities,
-    authorities,
-    revocationsCriteria,
-    deactivationsCriteria,
-    isEligibilityManual,
-    isToggleManual,
+    isLoadingEligibilityResolvedAddress,
+    isLoadingToggleResolvedAddress,
+    setIsLoading,
   ]);
 
-  const submitAndResetForm = async () => {
-    const result = await onSubmit();
-    if (result) {
-      setTimeout(() => {
-        setEditMode(false);
-      }, 500);
+  useEffect(() => {
+    const updatedControllers: Partial<FormData> = {};
+    if (toggleResolvedAddress !== unsavedData?.toggle) {
+      updatedControllers.toggle = toggleResolvedAddress || allFormData.toggle;
     }
-  };
+    if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
+      updatedControllers.eligibility =
+        eligibilityResolvedAddress || allFormData.eligibility;
+    }
 
-  if (!hatData) return null;
+    if (!_.isEmpty(_.keys(updatedControllers)))
+      setUnsavedData((prev: Partial<FormData> | undefined) => ({
+        ...prev,
+        ...updatedControllers,
+      }));
+  }, [eligibilityResolvedAddress, toggleResolvedAddress]);
+
+  useEffect(() => {
+    if (!_.isEqual(prevAllFormData.current, allFormData)) {
+      const dirtyFieldKeys = getDirtyFields();
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: Partial<FormData>, key: keyof FormData) => {
+          (acc[key] as DetailsItem[] | string | string[] | undefined) =
+            allFormData[key];
+          return acc;
+        },
+        {} as Partial<FormData>,
+      );
+
+      setUnsavedData(dirtyFormData);
+      prevAllFormData.current = allFormData;
+    }
+  }, [allFormData, getDirtyFields]);
+
+  useEffect(() => {
+    if (newImageURI && newImageURI !== imageUri) {
+      const dirtyFieldKeys = getDirtyFields();
+
+      if (!dirtyFieldKeys.includes('newImageUri')) {
+        dirtyFieldKeys.push('newImageUri');
+      }
+
+      const dirtyFormData = dirtyFieldKeys.reduce(
+        (acc: FormData, key: keyof FormData) => {
+          if (key === 'newImageUri') {
+            acc.imageUrl = newImageURI;
+          } else {
+            if (!acc || key) return acc;
+            acc[key] = allFormData[key];
+          }
+          return acc;
+        },
+        {} as FormData,
+      );
+
+      setUnsavedData(dirtyFormData);
+    }
+  }, [newImageURI, imageUri]);
+
+  if (!selectedHat) return null;
 
   return (
     <Box w='100%' overflow='scroll' height='100%'>
@@ -165,35 +273,53 @@ const EditMode = ({
         height='100%'
       >
         <Stack>
-          <Text>{hatIdDecimalToIp(BigInt(hatData?.id))}</Text>
+          <Text fontSize={32} fontWeight='medium'>
+            {selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))}
+          </Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
         <Accordion
           title='Hat Basics'
           subtitle='The fundamentals of the hat, including name, image, and supply.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
         >
           <Stack spacing={4}>
             <HatBasicsForm
               localForm={localForm}
-              hatData={hatData}
-              chainId={chainId}
               setNewImageURI={setNewImageURI}
             />
           </Stack>
         </Accordion>
 
+        {!isTopHat(selectedHat) && (
+          <Accordion
+            title='Wearers'
+            subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.wearer)}
+          >
+            <Stack spacing={4}>
+              <HatWearerForm
+                localForm={localForm}
+                setUnsavedData={setUnsavedData}
+              />
+            </Stack>
+          </Accordion>
+        )}
+
         <Accordion
           title='Powers'
           subtitle='Permissions and rights that are controlled by wearers of this hat.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
         >
           <Stack spacing={4}>
             <ItemDetailsForm
               localForm={localForm}
               formName='authorities'
               title='PERMISSIONS'
+              subtitle='Things this Hat allows its Wearer to do.'
               label='Permission'
-              Icon={FaKey}
+              Icon={BsKey}
             />
           </Stack>
         </Accordion>
@@ -201,6 +327,9 @@ const EditMode = ({
         <Accordion
           title='Responsibilities'
           subtitle='Specific work that wearers of this hat will be held accountable for.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(
+            FORM_FIELDS.responsibilities,
+          )}
         >
           <Stack spacing={4}>
             <ItemDetailsForm
@@ -208,7 +337,8 @@ const EditMode = ({
               formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
-              Icon={FaRegListAlt}
+              subtitle='Tasks and responsibilities associated with this Hat.'
+              Icon={BsListUl}
             />
           </Stack>
         </Accordion>
@@ -216,11 +346,11 @@ const EditMode = ({
         <Accordion
           title='Revocation'
           subtitle='The people or logic that determine when a wearer should have a hat.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
         >
           <Stack spacing={4}>
             <HatManagementForm
               localForm={localForm}
-              hatData={hatData}
               address={eligibility}
               actionResolvedAddress={eligibilityResolvedAddress}
               title='eligibility'
@@ -228,7 +358,18 @@ const EditMode = ({
               radioBoxConfig={{
                 name: 'isEligibilityManual',
                 label: 'Hat Revocation',
-                subLabel: 'How should toggle from wearers be handled?',
+                subLabel: 'How should revocation from wearers be handled?',
+              }}
+              inputConfig={{
+                label: 'ACCOUNTABILITY',
+                description:
+                  'The address of the smart contract containing the logic about when a wearer should and should not have this hat.',
+              }}
+              criteriaConfig={{
+                label: 'QUALIFICATIONS',
+                description:
+                  'A written description of the logic in the Accountability Contract',
+                addButtonLabel: 'Qualification',
               }}
             />
           </Stack>
@@ -236,12 +377,12 @@ const EditMode = ({
 
         <Accordion
           title='Deactivation & Reactivation'
-          subtitle='The people or logic that control whether or not this hat is active.'
+          subtitle='The people and contracts that control this Hat.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
         >
           <Stack spacing={4}>
             <HatManagementForm
               localForm={localForm}
-              hatData={hatData}
               address={toggle}
               actionResolvedAddress={toggleResolvedAddress}
               title='toggle'
@@ -250,25 +391,22 @@ const EditMode = ({
                 name: 'isToggleManual',
                 label: 'Hat Deactivation',
                 subLabel:
-                  'How should deactivation and reactivation be handled?',
+                  'How should hat deactivation and reactivation be handled?',
+              }}
+              inputConfig={{
+                label: 'DEACTIVATOR',
+                description:
+                  'The address of the person or group that can manually deactivate and reactive this hat',
+              }}
+              criteriaConfig={{
+                label: 'QUALIFICATIONS',
+                description:
+                  'List any criteria that should be considered in the process of deactivating or reactivating this hat',
+                addButtonLabel: 'Criterion',
               }}
             />
           </Stack>
         </Accordion>
-
-        <Flex justifyContent='flex-end'>
-          <Button
-            colorScheme='blue'
-            onClick={handleSubmit(submitAndResetForm)}
-            isLoading={
-              isLoadingEligibilityResolvedAddress ||
-              isLoadingToggleResolvedAddress ||
-              isLoading
-            }
-          >
-            Submit
-          </Button>
-        </Flex>
       </Stack>
     </Box>
   );
@@ -277,8 +415,7 @@ const EditMode = ({
 export default EditMode;
 
 interface EditModeProps {
-  hatData: IHat;
-  chainId: number;
-  hatDetails: HatDetails;
-  setEditMode: (mode: boolean) => void;
+  setUnsavedData: Dispatch<SetStateAction<Partial<FormData> | undefined>>;
+  unsavedData: Partial<FormData> | undefined;
+  setIsLoading: (isLoading: boolean) => void;
 }

@@ -3,21 +3,19 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useState } from 'react';
 
 import Modal from '@/components/atoms/Modal';
+import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 
 const LinkRequests = ({
   linkRequestFromTree,
-  hatData,
-  setModals,
-  localOverlay,
-  chainId,
 }: {
   linkRequestFromTree: any[];
-  hatData: any;
-  setModals?: any;
-  localOverlay?: any;
-  chainId: number;
 }) => {
+  const localOverlay = useOverlay();
+  const { setModals } = localOverlay;
+  const { selectedHat } = useTreeForm();
+
   const [linkFrom, setLinkFrom] = useState('');
   const [linkTo, setLinkTo] = useState('');
 
@@ -28,7 +26,7 @@ const LinkRequests = ({
   };
 
   return linkRequestFromTree?.some(
-    (linkRequest) => linkRequest.requestedLinkToHat?.id === hatData.id,
+    (linkRequest) => linkRequest.requestedLinkToHat?.id === selectedHat?.id,
   ) ? (
     <Stack wrap='wrap'>
       <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
@@ -58,12 +56,7 @@ const LinkRequests = ({
         title='Approve Link Request'
         localOverlay={localOverlay}
       >
-        <HatLinkRequestApproveForm
-          topHatDomain={linkFrom}
-          newAdmin={linkTo}
-          hatData={hatData}
-          chainId={chainId}
-        />
+        <HatLinkRequestApproveForm topHatDomain={linkFrom} newAdmin={linkTo} />
       </Modal>
     </Stack>
   ) : null;

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { TransactionReceipt } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 import {
   useContractWrite,
   usePrepareContractWrite,
@@ -15,8 +15,8 @@ import useToast from '@/hooks/useToast';
 interface ContractInteractionProps {
   functionName: string;
   args: any[];
-  chainId: number;
-  onSuccessToastData: { title: string; description?: string };
+  chainId?: number;
+  onSuccessToastData?: { title: string; description?: string };
   onErrorToastData?: { title: string; description?: string };
   queryKeys?: (string | number)[][];
   transactionTimeout?: number;
@@ -38,7 +38,7 @@ const useHatContractWrite = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
-  const [hash, setHash] = useState<`0x${string}`>();
+  const [hash, setHash] = useState<Hex>();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
@@ -46,7 +46,7 @@ const useHatContractWrite = ({
     abi,
     functionName,
     args,
-    enabled,
+    enabled: enabled && !!chainId,
   });
 
   const { writeAsync, error: writeError } = useContractWrite({
@@ -58,7 +58,7 @@ const useHatContractWrite = ({
         description: 'Waiting for your transaction to be accepted...',
       });
 
-      await handlePendingTx({
+      await handlePendingTx?.({
         hash: data.hash,
         toastData: onSuccessToastData,
       });

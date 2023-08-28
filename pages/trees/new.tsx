@@ -4,8 +4,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  HStack,
   Heading,
+  HStack,
   Icon,
   Spinner,
   Stack,
@@ -14,12 +14,16 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { Hex } from 'viem';
+import { useChainId } from 'wagmi';
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
-import Layout from '@/components/Layout';
 import Textarea from '@/components/atoms/Textarea';
+import Layout from '@/components/Layout';
 import CONFIG from '@/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
@@ -27,9 +31,6 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useTreeCreate from '@/hooks/useTreeCreate';
 import { pinJson } from '@/lib/ipfs';
 import { chainsMap } from '@/lib/web3';
-import { useDropzone } from 'react-dropzone';
-import { useForm } from 'react-hook-form';
-import { useChainId } from 'wagmi';
 
 const NewTree = () => {
   const [image, setImage] = useState<any>();
@@ -60,9 +61,11 @@ const NewTree = () => {
   const [overrideReceiver, setOverrideReceiver] = useState(false);
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
-  const imageUrl = useDebounce(watch('imageUrl', ''));
-  const receiver = useDebounce(watch('receiver'));
-  const receiverResolvedAddress = useDebounce(watch('receiverResolvedAddress'));
+  const imageUrl = useDebounce<string>(watch('imageUrl', ''));
+  const receiver = useDebounce<string>(watch('receiver'));
+  const receiverResolvedAddress = useDebounce<Hex>(
+    watch('receiverResolvedAddress'),
+  );
 
   const {
     data: imagePinData,
@@ -80,9 +83,9 @@ const NewTree = () => {
   });
 
   const { writeAsync, isLoading } = useTreeCreate({
-    hatsAddress: CONFIG.hatsAddress,
     chainId,
     details: detailsCID,
+    // eslint-disable-next-line no-nested-ternary
     imageUrl: image
       ? imagePinData !== undefined
         ? `ipfs://${imagePinData}`
@@ -97,7 +100,7 @@ const NewTree = () => {
     if (detailsCID) {
       await pinJson(
         { type: '1.0', data: { name, description } },
-        { name: `details_${_.toString(chainId)}_tophat` },
+        { name: `details_${_.toString(chainId)}_topHat` },
       );
     }
   };

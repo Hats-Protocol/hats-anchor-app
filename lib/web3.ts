@@ -5,6 +5,7 @@ import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
+import { Hex } from 'viem';
 import {
   createPublicClient,
   createWalletClient,
@@ -33,12 +34,12 @@ export const networkImages: { [key: number]: string } = {
   42161: '/chains/arbitrum.svg',
 };
 
-// todo check if this got fixed, submit issue if not (should be fixed)
+// TODO check if this got fixed, submit issue if not (should be fixed)
 // gnosis chain object from wagmi doesn't include multicall contract details. This is a temporary fix
 const gnosisContract = {
   contracts: {
     multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11' as `0x${string}`,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11' as Hex,
       blockCreated: 21022491,
     },
   },
@@ -64,9 +65,10 @@ export const chainsList: { [key: number]: Chain } = {
 export const chainsMap = (chainId: number) =>
   chainsList[chainId] || chainsList[5];
 
-export const explorerUrl = (chainId: number) =>
-  chainsMap(chainId)?.blockExplorers?.etherscan.url ||
-  chainsMap(chainId)?.blockExplorers?.default.url;
+export const explorerUrl = (chainId?: number) =>
+  chainId &&
+  (chainsMap(chainId)?.blockExplorers?.etherscan.url ||
+    chainsMap(chainId)?.blockExplorers?.default.url);
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
@@ -84,7 +86,8 @@ export const wagmiConfig = createConfig({
   publicClient,
 });
 
-export function createHatsClient(chainId: number) {
+export function createHatsClient(chainId: number | undefined) {
+  if (!chainId) return undefined;
   const chain = chainsMap(chainId);
 
   const publicClientHats = createPublicClient({

@@ -9,43 +9,93 @@ import {
   IconButton,
   Spinner,
 } from '@chakra-ui/react';
-// import * as d3 from 'd3';
+import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG, { ZERO_ID } from '@/constants';
+import CONFIG, {
+  defaultHat,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+  ZERO_ID,
+} from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import useToast from '@/hooks/useToast';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
+import { calculateNextChildId, ipToHatId, isTopHatOrMutable } from '@/lib/hats';
 import { IHat, IHatWearer } from '@/types';
 
-interface OrgChartComponentProps {
-  tree: IHat[] | null;
-  isLoading: boolean;
-  chainId: number;
-  wearerHats: string[];
-  onSelectHat: (node: string) => void;
-  selectedHatId?: string;
-  selectedOption?: string;
-  showInactiveHats: boolean;
+function checkParentElementForClass(e: any, name: string) {
+  let element = e.srcElement;
+  let n = 0;
+  while (element) {
+    if (n > 4) break;
+    const classArray = _.split(element.classList.value, ' ');
+    if (classArray && _.includes(classArray, name)) {
+      return true;
+    }
+    element = element.parentNode;
+    n += 1;
+  }
+  return false;
 }
 
-const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
-  tree,
-  isLoading,
-  chainId,
-  wearerHats,
-  onSelectHat,
-  selectedHatId,
-  selectedOption,
-  showInactiveHats,
-}) => {
+const defaultFormData = {
+  description: '',
+  mutable: MUTABILITY.MUTABLE,
+  guilds: [],
+  responsibilities: [],
+  authorities: [],
+  isEligibilityManual: TRIGGER_OPTIONS.MANUALLY,
+  isToggleManual: TRIGGER_OPTIONS.MANUALLY,
+  revocationsCriteria: [],
+  deactivationsCriteria: [],
+  wearers: [],
+};
+
+const OrgChartComponent: React.FC = () => {
+  const userChain = useChainId();
+  const toast = useToast();
+  const { address } = useAccount();
+  const {
+    chainId,
+    editMode,
+    orgChartTree,
+    showInactiveHats,
+    selectedOption,
+    selectedHat,
+    handleSelectHat,
+    isLoading,
+    storedData,
+    setStoredData,
+    addHat,
+  } = useTreeForm();
+  // console.log(editMode);
+
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  const { data: wearerHats } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
 
   useLayoutEffect(() => {
-    const filteredTree = tree?.filter((t) => (showInactiveHats ? t : t.status));
+    if (_.isEmpty(orgChartTree)) return;
+    const filteredTree = orgChartTree?.filter((t) =>
+      showInactiveHats ? t : t.status,
+    );
+
+    // const handleImmutableToast = () => {
+    //   console.log(editMode);
+    //   if (editMode) {
+    //     toast.error({ title: 'This hat is immutable' });
+    //   }
+    // };
 
     if (filteredTree && d3Container.current) {
       if (chart) {
@@ -63,55 +113,117 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
           // @ts-ignore
           .neighbourMargin(() => 40)
           // set node sizes
-          .nodeHeight(() => (selectedOption !== 'title' ? 110 : 70))
+          .nodeHeight(() => {
+            if (editMode || selectedOption !== 'title') {
+              return 110;
+            }
+            return 70;
+          })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick((node: IHat) => {
-            onSelectHat(node?.id);
-            centerChart(chart, node?.id);
+          .onNodeClick(function test(node: IHat) {
+            if (!editMode) {
+              handleSelectHat?.(node?.id);
+              centerChart(chart, node?.id);
+            }
           })
-          // .linkUpdate(() => {
-          //   d3.select(this).attr('stroke', () => '#718096');
-          //   d3.select(this).attr('stroke-width', () => '1');
-          //   // handle linked links?
-          // })
+          .nodeUpdate(function test(this: any) {
+            if (!editMode || !chainId) return;
+            d3.select(this).on('click.node-update', (event: any, data: any) => {
+              if (
+                checkParentElementForClass(
+                  event,
+                  `test-click-${data.data.name}`,
+                )
+              ) {
+                const nextChildId = calculateNextChildId(
+                  data.data.id,
+                  filteredTree,
+                );
+                const newId = ipToHatId(nextChildId);
+
+                const newHat = {
+                  ...defaultHat,
+                  chainId,
+                  id: newId,
+                  admin: {
+                    id: data.data.id,
+                  },
+                  imageUrl: '/icon.jpeg',
+                  parentId: data.data.id,
+                  name: nextChildId,
+                  detailsObject: {
+                    type: '1.0',
+                    data: {
+                      name: 'New Hat',
+                    },
+                  },
+                };
+
+                addHat?.(newHat);
+                const newDetails = _.get(newHat, 'detailsObject.data');
+                const onlyNeededKeys = {
+                  id: newHat.id,
+                  parentId: data.data.id,
+                  ...defaultFormData,
+                  ...newDetails,
+                };
+                const removeCurrentId = _.reject(storedData, ['id', newId]);
+                setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys));
+                // wait to center. node doesn't exist right away
+                setTimeout(() => {
+                  centerChart(chart, newId);
+                }, 100);
+              } else if (!isTopHatOrMutable(data.data)) {
+                // retaining old editMode value so inconsistent
+                // handleImmutableToast();
+              } else {
+                centerChart(chart, data.data?.id);
+                handleSelectHat?.(data.data?.id);
+              }
+            });
+          })
+          .linkUpdate(function test(this: any) {
+            d3.select(this).attr('stroke', '#718096');
+            // handle linked links?
+          })
           .buttonContent(({ node, state }: { node: any; state: any }) => {
             const icons: { [key: string]: (d: any) => string } = {
               left: (d: any) =>
                 d
                   ? `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14.283 3.50094L6.51 11.4749C6.37348 11.615 6.29707 11.8029 6.29707 11.9984C6.29707 12.194 6.37348 12.3819 6.51 12.5219L14.283 20.4989C14.3466 20.5643 14.4226 20.6162 14.5066 20.6516C14.5906 20.6871 14.6808 20.7053 14.772 20.7053C14.8632 20.7053 14.9534 20.6871 15.0374 20.6516C15.1214 20.6162 15.1974 20.5643 15.261 20.4989C15.3918 20.365 15.4651 20.1852 15.4651 19.9979C15.4651 19.8107 15.3918 19.6309 15.261 19.4969L7.9515 11.9984L15.261 4.50144C15.3914 4.36756 15.4643 4.18807 15.4643 4.00119C15.4643 3.81431 15.3914 3.63482 15.261 3.50094C15.1974 3.43563 15.1214 3.38371 15.0374 3.34827C14.9534 3.31282 14.8632 3.29456 14.772 3.29456C14.6808 3.29456 14.5906 3.31282 14.5066 3.34827C14.4226 3.38371 14.3466 3.43563 14.283 3.50094V3.50094Z" fill="#716E7B" stroke="#716E7B"/>
-                  </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging} </span></div>`
+                  </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging}</span></div>`
                   : `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M7.989 3.49944C7.85817 3.63339 7.78492 3.8132 7.78492 4.00044C7.78492 4.18768 7.85817 4.36749 7.989 4.50144L15.2985 11.9999L7.989 19.4969C7.85817 19.6309 7.78492 19.8107 7.78492 19.9979C7.78492 20.1852 7.85817 20.365 7.989 20.4989C8.05259 20.5643 8.12863 20.6162 8.21261 20.6516C8.2966 20.6871 8.38684 20.7053 8.478 20.7053C8.56916 20.7053 8.6594 20.6871 8.74338 20.6516C8.82737 20.6162 8.90341 20.5643 8.967 20.4989L16.74 12.5234C16.8765 12.3834 16.9529 12.1955 16.9529 11.9999C16.9529 11.8044 16.8765 11.6165 16.74 11.4764L8.967 3.50094C8.90341 3.43563 8.82737 3.38371 8.74338 3.34827C8.6594 3.31282 8.56916 3.29456 8.478 3.29456C8.38684 3.29456 8.2966 3.31282 8.21261 3.34827C8.12863 3.38371 8.05259 3.43563 7.989 3.50094V3.49944Z" fill="#716E7B" stroke="#716E7B"/>
-                      </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging} </span></div>`,
+                      </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging}</span></div>`,
               bottom: (d: any) =>
                 d
                   ? `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19.497 7.98903L12 15.297L4.503 7.98903C4.36905 7.85819 4.18924 7.78495 4.002 7.78495C3.81476 7.78495 3.63495 7.85819 3.501 7.98903C3.43614 8.05257 3.38462 8.12842 3.34944 8.21213C3.31427 8.29584 3.29615 8.38573 3.29615 8.47653C3.29615 8.56733 3.31427 8.65721 3.34944 8.74092C3.38462 8.82463 3.43614 8.90048 3.501 8.96403L11.4765 16.74C11.6166 16.8765 11.8044 16.953 12 16.953C12.1956 16.953 12.3834 16.8765 12.5235 16.74L20.499 8.96553C20.5643 8.90193 20.6162 8.8259 20.6517 8.74191C20.6871 8.65792 20.7054 8.56769 20.7054 8.47653C20.7054 8.38537 20.6871 8.29513 20.6517 8.21114C20.6162 8.12715 20.5643 8.05112 20.499 7.98753C20.3651 7.85669 20.1852 7.78345 19.998 7.78345C19.8108 7.78345 19.6309 7.85669 19.497 7.98753V7.98903Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg></span><span style="margin-left:1px;color:#716E7B" >${node.data._directSubordinatesPaging} </span></div>
+                    </svg></span><span style="margin-left:1px;color:#716E7B">${node.data._directSubordinatesPaging}</span></div>
                   `
                   : `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.457 8.07005L3.49199 16.4296C3.35903 16.569 3.28485 16.7543 3.28485 16.9471C3.28485 17.1398 3.35903 17.3251 3.49199 17.4646L3.50099 17.4736C3.56545 17.5414 3.64304 17.5954 3.72904 17.6324C3.81504 17.6693 3.90765 17.6883 4.00124 17.6883C4.09483 17.6883 4.18745 17.6693 4.27344 17.6324C4.35944 17.5954 4.43703 17.5414 4.50149 17.4736L12.0015 9.60155L19.4985 17.4736C19.563 17.5414 19.6405 17.5954 19.7265 17.6324C19.8125 17.6693 19.9052 17.6883 19.9987 17.6883C20.0923 17.6883 20.1849 17.6693 20.2709 17.6324C20.3569 17.5954 20.4345 17.5414 20.499 17.4736L20.508 17.4646C20.641 17.3251 20.7151 17.1398 20.7151 16.9471C20.7151 16.7543 20.641 16.569 20.508 16.4296L12.543 8.07005C12.4729 7.99653 12.3887 7.93801 12.2954 7.89801C12.202 7.85802 12.1015 7.8374 12 7.8374C11.8984 7.8374 11.798 7.85802 11.7046 7.89801C11.6113 7.93801 11.527 7.99653 11.457 8.07005Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg></span><span style="margin-left:1px;color:#716E7B" >${node.data._directSubordinatesPaging} </span></div>
+                    </svg></span><span style="margin-left:1px;color:#716E7B">${node.data._directSubordinatesPaging}</span></div>
                 `,
               right: (d: any) =>
                 d
                   ? `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7.989 3.49944C7.85817 3.63339 7.78492 3.8132 7.78492 4.00044C7.78492 4.18768 7.85817 4.36749 7.989 4.50144L15.2985 11.9999L7.989 19.4969C7.85817 19.6309 7.78492 19.8107 7.78492 19.9979C7.78492 20.1852 7.85817 20.365 7.989 20.4989C8.05259 20.5643 8.12863 20.6162 8.21261 20.6516C8.2966 20.6871 8.38684 20.7053 8.478 20.7053C8.56916 20.7053 8.6594 20.6871 8.74338 20.6516C8.82737 20.6162 8.90341 20.5643 8.967 20.4989L16.74 12.5234C16.8765 12.3834 16.9529 12.1955 16.9529 11.9999C16.9529 11.8044 16.8765 11.6165 16.74 11.4764L8.967 3.50094C8.90341 3.43563 8.82737 3.38371 8.74338 3.34827C8.6594 3.31282 8.56916 3.29456 8.478 3.29456C8.38684 3.29456 8.2966 3.31282 8.21261 3.34827C8.12863 3.38371 8.05259 3.43563 7.989 3.50094V3.49944Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging} </span></div>`
+                    </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging}</span></div>`
                   : `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M14.283 3.50094L6.51 11.4749C6.37348 11.615 6.29707 11.8029 6.29707 11.9984C6.29707 12.194 6.37348 12.3819 6.51 12.5219L14.283 20.4989C14.3466 20.5643 14.4226 20.6162 14.5066 20.6516C14.5906 20.6871 14.6808 20.7053 14.772 20.7053C14.8632 20.7053 14.9534 20.6871 15.0374 20.6516C15.1214 20.6162 15.1974 20.5643 15.261 20.4989C15.3918 20.365 15.4651 20.1852 15.4651 19.9979C15.4651 19.8107 15.3918 19.6309 15.261 19.4969L7.9515 11.9984L15.261 4.50144C15.3914 4.36756 15.4643 4.18807 15.4643 4.00119C15.4643 3.81431 15.3914 3.63482 15.261 3.50094C15.1974 3.43563 15.1214 3.38371 15.0374 3.34827C14.9534 3.31282 14.8632 3.29456 14.772 3.29456C14.6808 3.29456 14.5906 3.31282 14.5066 3.34827C14.4226 3.38371 14.3466 3.43563 14.283 3.50094V3.50094Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging} </span></div>`,
+                    </svg></span><span style="color:#716E7B">${node.data._directSubordinatesPaging}</span></div>`,
               top: (d: any) =>
                 d
                   ? `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.457 8.07005L3.49199 16.4296C3.35903 16.569 3.28485 16.7543 3.28485 16.9471C3.28485 17.1398 3.35903 17.3251 3.49199 17.4646L3.50099 17.4736C3.56545 17.5414 3.64304 17.5954 3.72904 17.6324C3.81504 17.6693 3.90765 17.6883 4.00124 17.6883C4.09483 17.6883 4.18745 17.6693 4.27344 17.6324C4.35944 17.5954 4.43703 17.5414 4.50149 17.4736L12.0015 9.60155L19.4985 17.4736C19.563 17.5414 19.6405 17.5954 19.7265 17.6324C19.8125 17.6693 19.9052 17.6883 19.9987 17.6883C20.0923 17.6883 20.1849 17.6693 20.2709 17.6324C20.3569 17.5954 20.4345 17.5414 20.499 17.4736L20.508 17.4646C20.641 17.3251 20.7151 17.1398 20.7151 16.9471C20.7151 16.7543 20.641 16.569 20.508 16.4296L12.543 8.07005C12.4729 7.99653 12.3887 7.93801 12.2954 7.89801C12.202 7.85802 12.1015 7.8374 12 7.8374C11.8984 7.8374 11.798 7.85802 11.7046 7.89801C11.6113 7.93801 11.527 7.99653 11.457 8.07005Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg></span><span style="margin-left:1px;color:#716E7B">${node.data._directSubordinatesPaging} </span></div>
+                    </svg></span><span style="margin-left:1px;color:#716E7B">${node.data._directSubordinatesPaging}</span></div>
                     `
                   : `<div style="display:flex;"><span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19.497 7.98903L12 15.297L4.503 7.98903C4.36905 7.85819 4.18924 7.78495 4.002 7.78495C3.81476 7.78495 3.63495 7.85819 3.501 7.98903C3.43614 8.05257 3.38462 8.12842 3.34944 8.21213C3.31427 8.29584 3.29615 8.38573 3.29615 8.47653C3.29615 8.56733 3.31427 8.65721 3.34944 8.74092C3.38462 8.82463 3.43614 8.90048 3.501 8.96403L11.4765 16.74C11.6166 16.8765 11.8044 16.953 12 16.953C12.1956 16.953 12.3834 16.8765 12.5235 16.74L20.499 8.96553C20.5643 8.90193 20.6162 8.8259 20.6517 8.74191C20.6871 8.65792 20.7054 8.56769 20.7054 8.47653C20.7054 8.38537 20.6871 8.29513 20.6517 8.21114C20.6162 8.12715 20.5643 8.05112 20.499 7.98753C20.3651 7.85669 20.1852 7.78345 19.998 7.78345C19.8108 7.78345 19.6309 7.85669 19.497 7.98753V7.98903Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg></span><span style="margin-left:1px;color:#716E7B">${node.data._directSubordinatesPaging} </span></div>
+                    </svg></span><span style="margin-left:1px;color:#716E7B">${node.data._directSubordinatesPaging}</span></div>
                 `,
             };
             return `<div style="border:1px solid #E4E2E9;border-radius:3px;padding:3px;font-size:9px;margin:auto auto;background-color:white"> ${icons[
@@ -119,7 +231,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
             ](node.children)}  </div>`;
           })
           .nodeContent((d: any) => {
-            const isInWearerHats = wearerHats.includes(d.data.id);
+            const isInWearerHats = _.includes(wearerHats, d.data.id);
 
             const {
               imageUrl,
@@ -127,20 +239,22 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
               details,
               detailsObject,
               isLinked,
-              wearers,
+              extendedWearers: wearers,
               maxSupply,
               currentSupply,
-              eligibility,
-              toggle,
+              extendedEligibility: eligibility,
+              extendedToggle: toggle,
               levelAtLocalTree,
             } = d.data;
+
+            const nextChildId = calculateNextChildId(d.data.id, filteredTree);
 
             let detailsName = details;
             if (detailsObject?.type === '1.0') {
               detailsName = detailsObject?.data?.name;
             }
 
-            const isSelected = selectedHatId === d.id;
+            const isSelected = selectedHat?.id === d.id;
 
             let wearersColor = '#FFFFFF';
             const wearer: IHatWearer | undefined = _.first(wearers);
@@ -360,7 +474,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                   ">
                   <img
                     loading="lazy"
-                    src="${imageUrl ?? '/icon.jpeg'}"
+                    src="${imageUrl !== '' ? imageUrl : '/icon.jpeg'}"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '72px'};
@@ -385,24 +499,33 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                       top: ${isSelected ? 9 : 10}px;"
                       
                     >
-                      <div style="
-                        font-size: 12px;
-                        color: ${isSelected ? '#248559' : '#08011E'};"
-                      >
-                        ${name}
-                      </div>
+                      <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                         <div style="
-                          display: -webkit-box;
-                          font-size: 16px;
-                          overflow: hidden;
-                          color: #08011E;
-                          font-weight: 500;
-                          width: 120px;
-                          -webkit-line-clamp: 2;
-                          -webkit-box-orient: vertical;"
+                          font-size: 12px;
+                          color: ${isSelected ? '#248559' : '#08011E'};"
                         >
-                          ${detailsName}
+                          ${name}
                         </div>
+                        ${
+                          editMode && !isTopHatOrMutable(d.data)
+                            ? `<div style="border: 1px solid #A0AEC0; padding: 1px 3px;">
+                                <div style="font-size: 8px; color: #A0AEC0;">IMMUTABLE</div>
+                              </div>`
+                            : ''
+                        }
+                      </div>
+                      <div style="
+                        display: -webkit-box;
+                        font-size: 16px;
+                        overflow: hidden;
+                        color: #08011E;
+                        font-weight: 500;
+                        width: 120px;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;"
+                      >
+                        ${detailsName}
+                      </div>
                     </div>
                     ${
                       isInWearerHats
@@ -418,17 +541,52 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
                     }
                   </div>
                 </div>
-                  
-                  ${selectedOption !== 'title' ? selectedOptionContent() : ''}
+                ${
+                  selectedOption !== 'title' && !editMode
+                    ? selectedOptionContent()
+                    : ''
+                }
+                ${
+                  editMode
+                    ? `<div style="
+                    margin-top: 68px;
+                    width: 100%;
+                    height: 40px;
+                    border-top: 1px solid #4A5568;
+                    background-color: #C4F1F9;
+                    padding: 10px;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+                  "
+                    class="test-click-${name}">
+                    <div style="
+                      display: flex;
+                      width: 100%;
+                      justify-content: flex-end;
+                      flex-direction: row;
+                      gap: 4px;
+                      font-size: 14px;
+                    ">
+                      Create Hat ${nextChildId}
+                      <div style="background: white;">
+                        <img src="/icons/plus-square.svg" alt="add" />
+                      </div>
+                    </div>
+                  </div>`
+                    : ''
+                }
               </div>
             </div>`;
           })
+          .compact(false)
           .render()
           .expandAll();
 
         if (initialLoad) {
-          if (selectedHatId && selectedHatId !== ZERO_ID) {
-            centerChart(chart, selectedHatId);
+          if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
+            centerChart(chart, selectedHat.id);
           } else {
             chart.fit();
           }
@@ -439,15 +597,20 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
     }
   }, [
     chart,
-    tree,
-    isLoading,
+    orgChartTree,
     chainId,
-    onSelectHat,
-    selectedHatId,
+    handleSelectHat,
+    selectedHat,
+    storedData,
     wearerHats,
     showInactiveHats,
     selectedOption,
     initialLoad,
+    editMode,
+    toast,
+    addHat,
+    setStoredData,
+    userChain,
   ]);
 
   return isLoading ? (
@@ -471,6 +634,7 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
       <Button
         variant='outline'
         position='absolute'
+        bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
         bottom={4}
         left={4}
         onClick={() => {
@@ -485,12 +649,14 @@ const OrgChartComponent: React.FC<OrgChartComponentProps> = ({
         <IconButton
           icon={<Icon as={FaMinus} />}
           variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
           aria-label='zoom out'
           onClick={() => chart?.zoomOut()}
         />
         <IconButton
           icon={<Icon as={FaPlus} />}
           variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
           aria-label='zoom in'
           onClick={() => chart?.zoomIn()}
         />

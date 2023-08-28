@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
+  Box,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -50,41 +51,41 @@ const RadioBox = ({
 
   const error = localForm.formState.errors[name]?.message;
 
+  // TODO revert?
+
   return (
     <FormControl isRequired={isRequired} isInvalid={!!error}>
       <Stack>
-        <HStack align='center'>
-          {label && (
-            <FormLabel m='0' fontSize='sm'>
-              {label.toUpperCase()}
-            </FormLabel>
-          )}
-          {tooltip && (
-            <Tooltip
-              label={tooltip}
-              shouldWrapChildren
-              hasArrow
-              placement='end'
-            >
-              <Flex
-                h='24px'
-                w='24px'
-                bg='primary.500'
-                borderRadius='full'
-                align='center'
-                justify='center'
+        <Box>
+          <HStack align='center'>
+            {label && (
+              <FormLabel m='0' fontSize='sm'>
+                {label.toUpperCase()}
+              </FormLabel>
+            )}
+            {tooltip && (
+              <Tooltip
+                label={tooltip}
+                shouldWrapChildren
+                hasArrow
+                placement='end'
               >
-                <Icon as={AiOutlineInfoCircle} w={4} h={4} />
-              </Flex>
-            </Tooltip>
-          )}
-        </HStack>
+                <Flex
+                  h='24px'
+                  w='24px'
+                  bg='primary.500'
+                  borderRadius='full'
+                  align='center'
+                  justify='center'
+                >
+                  <Icon as={AiOutlineInfoCircle} w={4} h={4} />
+                </Flex>
+              </Tooltip>
+            )}
+          </HStack>
 
-        {subLabel && (
-          <Text fontSize='sm' color='blackAlpha.700'>
-            {subLabel}
-          </Text>
-        )}
+          {subLabel && <Text color='blackAlpha.700'>{subLabel}</Text>}
+        </Box>
 
         <Controller
           control={control}

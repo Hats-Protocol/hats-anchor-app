@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import {
   Box,
   Button,
@@ -9,7 +8,7 @@ import {
   Icon,
   IconButton,
   Image,
-  Input,
+  Input as ChakraInput,
   InputGroup,
   InputLeftElement,
   InputRightElement,
@@ -23,7 +22,8 @@ import _ from 'lodash';
 import Papa from 'papaparse';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useForm } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
+import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import {
   FaCheck,
   FaInfoCircle,
@@ -35,50 +35,63 @@ import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '@/components/atoms/DropZone';
+import Input from '@/components/atoms/Input';
+import FormRowWrapper from '@/components/FormRowWrapper';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useHatIsInGoodStanding from '@/hooks/useHatIsInGoodStanding';
-import { decimalId, toTreeId } from '@/lib/hats';
+import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
+import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
-const HatWearerForm = ({
-  hatId,
-  chainId,
-  currentWearers,
-  maxSupply,
-  hatName,
-}: HatWearerFormProps) => {
+interface FormWearer {
+  address: string;
+  ens: string;
+}
+
+const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
-  const localForm = useForm({ mode: 'onBlur' });
-  const { handleSubmit } = localForm;
-  const [wearers, setWearers] = useState<any[]>([]);
+
+  const { handleSubmit, setValue, watch } = localForm;
+  const { chainId, selectedHat } = useTreeForm();
+
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<any>();
-  const [newWearers, setNewWearers] = useState<any[]>([]);
+
+  const localWearers: FormWearer[] = watch('wearers', []);
+  const editMode = _.gt(_.size(_.keys(watch())), 1);
+
+  const hatId = _.get(selectedHat, 'id');
+  const maxSupply = _.get(selectedHat, 'maxSupply');
+  const detailsObject = _.get(selectedHat, 'detailsObject');
+  const currentWearers = _.get(selectedHat, 'extendedWearers');
+  let hatName = selectedHat?.details;
+  if (detailsObject?.data) {
+    hatName = detailsObject.data.name;
+  }
+
+  const currentWearerList = _.map(currentWearers, 'id');
 
   const { data: isEligible, isLoading: isLoadingIsEligible } =
     useHatCheckEligibility({
       wearer: currentResolvedAddress,
-      hatId,
-      chainId,
     });
 
   const isAddressAlreadyAdded =
-    wearers.some(
-      (wearer) =>
+    localWearers?.some(
+      (wearer: FormWearer) =>
         wearer.address === currentInput || wearer.ens === currentInput,
-    ) || currentWearers.includes(currentResolvedAddress?.toLowerCase());
+    ) || currentWearers?.includes(currentResolvedAddress?.toLowerCase());
 
   const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
-    name: currentInput.includes('.eth') ? currentInput : null,
+    name: currentInput,
     chainId: 1,
+    enabled: currentInput.includes('.eth'),
   });
 
-  const { data: isInGoodStanding } = useHatIsInGoodStanding({
+  const { data: isInGoodStanding } = useWearerIsInGoodStanding({
     wearer: currentResolvedAddress,
-    hatId,
-    chainId,
   });
 
   useEffect(() => {
@@ -93,55 +106,51 @@ const HatWearerForm = ({
     );
   }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
-  useEffect(() => {
-    const newW = wearers
-      .map((wearer) => wearer.address)
-      .concat(currentResolvedAddress ? [currentResolvedAddress] : []);
-    setNewWearers(newW);
-  }, [currentResolvedAddress, wearers]);
-
   const {
     writeAsync: writeAsyncBatchMintHats,
     isLoading: isLoadingBatchMintHats,
   } = useHatContractWrite({
     functionName: 'batchMintHats',
-    args: [new Array(wearers.length + 1).fill(decimalId(hatId)), newWearers],
+    args: [
+      new Array(localWearers.length).fill(decimalId(hatId)),
+      _.map(localWearers, 'address'),
+    ],
     chainId,
     onSuccessToastData: {
       title: `Hats Minted!`,
       description: `Successfully minted hats`,
     },
     queryKeys: [
-      ['hatDetails', hatId],
+      ['hatDetails', hatId || 'none'],
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:
       Boolean(decimalId(hatId)) &&
-      !_.isEmpty(wearers) &&
-      newWearers.every((wearer) => isAddress(wearer)),
+      !_.isEmpty(localWearers) &&
+      chainId === currentNetworkId,
   });
 
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [decimalId(hatId), currentResolvedAddress],
+      args: [decimalId(hatId), _.get(_.first(localWearers), 'address')],
       chainId,
       onSuccessToastData: {
         title: `Hat Minted!`,
         description: `Successfully minted hat`,
       },
       queryKeys: [
-        ['hatDetails', hatId],
+        ['hatDetails', hatId || 'none'],
         ['treeDetails', toTreeId(hatId)],
       ],
       enabled:
         Boolean(decimalId(hatId)) &&
-        isAddress(currentResolvedAddress) &&
+        _.eq(_.size(localWearers), 1) &&
         chainId === currentNetworkId,
     });
 
   const onSubmit = async () => {
-    if (wearers.length === 0) {
+    if (_.eq(_.size(localWearers), 1)) {
       await writeAsyncMintHat?.();
     } else {
       await writeAsyncBatchMintHats?.();
@@ -150,27 +159,47 @@ const HatWearerForm = ({
 
   const handleAddWearer = () => {
     const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
-    setWearers((prevWearers) => [
-      ...prevWearers,
-      { address, ens: isEnsAddress && currentInput },
-    ]);
+    if (
+      !address ||
+      _.includes(currentWearerList, _.toLower(currentResolvedAddress))
+    )
+      return;
+    const newLocalWearers = localWearers;
+    newLocalWearers.push({
+      address,
+      ens: isEnsAddress ? currentInput : '',
+    });
+    setValue('wearers', newLocalWearers);
+    setUnsavedData?.((prevState: any) => ({
+      ...prevState,
+      wearers: newLocalWearers,
+    }));
     setCurrentInput('');
   };
 
   const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
   const wouldExceedMaxSupply =
-    currentWearers.length + wearers.length + 1 > maxSupply;
+    _.size(currentWearerList) + _.size(localWearers) + 1 >
+    _.toNumber(maxSupply);
   const canAddWearer =
     isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
   const handleRemoveWearer = (index: number) => {
-    setWearers(_.filter(wearers, (__, i) => i !== index));
+    const updateWearers = _.filter(
+      localWearers,
+      (__, i) => _.toNumber(i) !== index,
+    );
+    setValue('wearers', updateWearers);
+    setUnsavedData?.((prevState: any) => ({
+      ...prevState,
+      wearers: updateWearers,
+    }));
   };
   const { isOpen, onToggle } = useDisclosure();
 
   const { getRootProps, getInputProps, isDragAccept, isDragReject } =
     useDropzone({
-      accept: { '.csv': [] },
+      accept: { 'text/csv': ['.csv'] },
       onDrop: (droppedFiles) => {
         const file = droppedFiles[0];
         if (!file) return;
@@ -179,13 +208,15 @@ const HatWearerForm = ({
             const csvAddresses = _.take(
               _.differenceWith(
                 _.filter(_.flatten(results.data), isAddress),
-                wearers,
+                localWearers,
                 (csvAddress: any, wearer: any) => csvAddress === wearer.address,
               ),
-              maxSupply - currentWearers.length - wearers.length,
+              _.toNumber(maxSupply) -
+                _.size(currentWearerList) -
+                _.size(localWearers),
             );
-            setWearers([
-              ...wearers,
+            setValue('wearers', [
+              ...localWearers,
               ...csvAddresses.map((address: any) => ({ address })),
             ]);
           },
@@ -210,6 +241,19 @@ const HatWearerForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
+        {editMode && (
+          <FormRowWrapper>
+            <Icon as={BsBarChart} boxSize={4} mt='2px' />
+            <Input
+              name='maxSupply'
+              label='MAX WEARERS'
+              subLabel='Total number of addresses that can wear this Hat at the same time.'
+              placeholder='10'
+              isDisabled={!isMutable(selectedHat)}
+              localForm={localForm}
+            />
+          </FormRowWrapper>
+        )}
         <Stack gap={0}>
           <HStack>
             <Text fontSize='sm'>WEARER ADDRESS</Text>
@@ -217,19 +261,19 @@ const HatWearerForm = ({
           </HStack>
           <Text fontSize='sm' color='blackAlpha.700'>
             Address will receive a {hatName} Hat token on{' '}
-            {chainsMap(chainId).name}
+            {chainId && chainsMap(chainId).name}
           </Text>
         </Stack>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
-          {wearers.map(({ address, ens }, index) => (
+          {localWearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
               <Flex align='center' w='full' justifyContent='space-between'>
                 <InputGroup flexGrow={1}>
                   <InputLeftElement>
-                    <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                    <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                   </InputLeftElement>
-                  <Input
-                    value={ens || address}
+                  <ChakraInput
+                    value={ens !== '' ? ens : address}
                     readOnly
                     w='calc(100% - 2rem)'
                   />
@@ -255,18 +299,24 @@ const HatWearerForm = ({
           <Flex w='full' direction='column' gap={1}>
             <InputGroup flexGrow={1}>
               <InputLeftElement>
-                <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
               </InputLeftElement>
-              <Input
+              <ChakraInput
                 w='full'
                 textOverflow='ellipsis'
                 type='address'
                 placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
                 value={currentInput}
-                isInvalid={currentResolvedAddress && !isInGoodStanding}
-                onChange={(e) =>
-                  setCurrentInput(e.target.value?.toLowerCase() ?? '')
+                isInvalid={
+                  (currentResolvedAddress && !isInGoodStanding) ||
+                  currentWearerList.includes(
+                    currentResolvedAddress?.toLowerCase(),
+                  )
                 }
+                onChange={(e) => {
+                  setCurrentInput(e.target.value?.toLowerCase() ?? '');
+                }}
+                onBlur={handleAddWearer}
               />
               {ensResolvedAddress && (
                 <InputRightElement right='1rem'>
@@ -282,6 +332,18 @@ const HatWearerForm = ({
               </Text>
             )}
 
+            {_.includes(
+              currentWearerList,
+              _.toLower(currentResolvedAddress),
+            ) && (
+              <HStack align='center' spacing={1}>
+                <Icon as={FaInfoCircle} mr={1} color='red.500' />
+                <Text fontSize='sm' color='red.500'>
+                  This address is already wearing this hat
+                </Text>
+              </HStack>
+            )}
+
             {ensResolvedAddress && (
               <Text fontSize='sm' color='gray.500' textAlign='left' w='full'>
                 {ensResolvedAddress}
@@ -292,7 +354,7 @@ const HatWearerForm = ({
           {typeof isEligible === 'boolean' && !isEligible && (
             <Text fontSize='sm' color='red.500'>
               <Icon as={FaInfoCircle} mr={1} />
-              This address is not eligible to mint a Hat
+              This address is not eligible to wear this Hat
             </Text>
           )}
 
@@ -305,18 +367,24 @@ const HatWearerForm = ({
                   isLoadingIsEligible ||
                   isLoadingMintHat ||
                   isLoadingBatchMintHats ||
-                  !isInGoodStanding
+                  !isInGoodStanding ||
+                  _.includes(
+                    currentWearerList,
+                    _.toLower(currentResolvedAddress),
+                  )
                 }
                 onClick={handleAddWearer}
                 aria-label='Add Another Wallet'
+                variant='outline'
+                borderColor='blackAlpha.300'
               >
-                <Image
-                  src='/icons/wearers.svg'
+                <Icon
+                  as={BsPersonBadge}
+                  ml={-1}
+                  mr={3}
                   w={4}
                   h={4}
-                  alt='Wearer'
-                  mr={3}
-                  ml={-1}
+                  color='gray.500'
                 />
                 Add Another Wallet
               </Button>
@@ -366,23 +434,25 @@ const HatWearerForm = ({
           </Collapse>
         </VStack>
 
-        <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isLoading={isLoadingMintHat || isLoadingBatchMintHats}
-            colorScheme='blue'
-            isDisabled={
-              (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
-              !isInGoodStanding ||
-              isLoadingIsEligible ||
-              isLoadingMintHat ||
-              isLoadingBatchMintHats
-            }
-          >
-            <Image src='/icons/mint.svg' w={4} h={4} alt='Mint' mr={2} /> Mint
-            Hat{wearers.length > 0 && 's'}
-          </Button>
-        </Flex>
+        {!editMode && (
+          <Flex justify='flex-end'>
+            <Button
+              type='submit'
+              isLoading={isLoadingMintHat || isLoadingBatchMintHats}
+              colorScheme='blue'
+              isDisabled={
+                (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
+                (isAddress(currentResolvedAddress) && !isInGoodStanding) ||
+                isLoadingIsEligible ||
+                isLoadingMintHat ||
+                isLoadingBatchMintHats
+              }
+            >
+              <Image src='/icons/mint.svg' w={4} h={4} alt='Mint' mr={2} /> Mint
+              Hat{localWearers.length > 0 && 's'}
+            </Button>
+          </Flex>
+        )}
       </Stack>
     </form>
   );
@@ -391,9 +461,6 @@ const HatWearerForm = ({
 export default HatWearerForm;
 
 interface HatWearerFormProps {
-  hatId: string;
-  chainId: number;
-  currentWearers: string[];
-  maxSupply: number;
-  hatName: string;
+  localForm: UseFormReturn<any>;
+  setUnsavedData?: (data: any) => void;
 }
