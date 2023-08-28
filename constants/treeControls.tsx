@@ -1,5 +1,11 @@
 /* eslint-disable import/prefer-default-export */
-import { Image } from '@chakra-ui/react';
+import { Icon } from '@chakra-ui/react';
+import {
+  BsFileFont,
+  BsPersonBadge,
+  BsShieldLock,
+  BsToggles2,
+} from 'react-icons/bs';
 
 import { IControls } from '@/types';
 
@@ -7,7 +13,7 @@ export const initialControls: IControls[] = [
   {
     label: 'Title Only',
     value: 'title',
-    icon: <Image src='/icons/title.svg' alt='Title Icon' />,
+    icon: <Icon as={BsFileFont} w={4} h={4} color='gray.500' />,
   },
   // {
   //   label: 'Stats',
@@ -17,7 +23,7 @@ export const initialControls: IControls[] = [
   {
     label: 'Wearers',
     value: 'wearers',
-    icon: <Image src='/icons/wearers.svg' alt='Wearers Icon' />,
+    icon: <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />,
   },
   // {
   //   label: 'Permissions',
@@ -34,11 +40,11 @@ export const initialControls: IControls[] = [
   {
     label: 'Eligibility',
     value: 'eligibility',
-    icon: <Image src='/icons/eligibility.svg' alt='Eligibility Icon' />,
+    icon: <Icon as={BsShieldLock} w={4} h={4} color='gray.500' />,
   },
   {
     label: 'Toggle',
     value: 'toggle',
-    icon: <Image src='/icons/toggle.svg' alt='Toggle icon' />,
+    icon: <Icon as={BsToggles2} w={4} h={4} color='gray.500' />,
   },
 ];

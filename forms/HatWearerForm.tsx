@@ -23,7 +23,7 @@ import Papa from 'papaparse';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
-import { BsBarChart } from 'react-icons/bs';
+import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import {
   FaCheck,
   FaInfoCircle,
@@ -43,7 +43,6 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { FormData, IHat } from '@/types';
 
 interface FormWearer {
   address: string;
@@ -271,7 +270,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
               <Flex align='center' w='full' justifyContent='space-between'>
                 <InputGroup flexGrow={1}>
                   <InputLeftElement>
-                    <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                    <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                   </InputLeftElement>
                   <ChakraInput
                     value={ens !== '' ? ens : address}
@@ -300,7 +299,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
           <Flex w='full' direction='column' gap={1}>
             <InputGroup flexGrow={1}>
               <InputLeftElement>
-                <Image src='/icons/wearers.svg' w={4} h={4} alt='Wearer' />
+                <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
               </InputLeftElement>
               <ChakraInput
                 w='full'
@@ -376,14 +375,16 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                 }
                 onClick={handleAddWearer}
                 aria-label='Add Another Wallet'
+                variant='outline'
+                borderColor='blackAlpha.300'
               >
-                <Image
-                  src='/icons/wearers.svg'
+                <Icon
+                  as={BsPersonBadge}
+                  ml={-1}
+                  mr={3}
                   w={4}
                   h={4}
-                  alt='Wearer'
-                  mr={3}
-                  ml={-1}
+                  color='gray.500'
                 />
                 Add Another Wallet
               </Button>
