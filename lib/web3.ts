@@ -63,7 +63,7 @@ export const chainsList: { [key: number]: Chain } = {
 };
 
 export const chainsMap = (chainId?: number) =>
-  chainsList[chainId] || chainsList[5];
+  chainId ? chainsList[chainId] : chainsList[5];
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
