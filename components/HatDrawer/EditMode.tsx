@@ -317,7 +317,7 @@ const EditMode = ({
               localForm={localForm}
               formName='authorities'
               title='PERMISSIONS'
-              subtitle='Things this Hat allows its Wearer to do.'
+              subtitle='Actions this hat enables its wearer to take.'
               label='Permission'
               Icon={BsKey}
             />
@@ -337,14 +337,14 @@ const EditMode = ({
               formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
-              subtitle='Tasks and responsibilities associated with this Hat.'
+              subtitle='Tasks and responsibilities associated with this hat.'
               Icon={BsListUl}
             />
           </Stack>
         </Accordion>
 
         <Accordion
-          title='Revocation'
+          title='Revocation & Eligibility'
           subtitle='The people or logic that determine when a wearer should have a hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
         >

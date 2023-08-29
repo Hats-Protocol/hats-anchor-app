@@ -179,7 +179,7 @@ const HatLinkRequestApproveForm = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={6}>
         <Text>
-          Link this Top Hat to your tree by making the selected Hat its new
+          Link this Top Hat to your tree by making the selected hat its new
           admin. Optionally update details, image, eligibility, and toggle of
           the Top Hat now that it will be a child hat.
         </Text>
