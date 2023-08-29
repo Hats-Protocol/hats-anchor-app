@@ -75,8 +75,8 @@ export const featuredTrees = [
       'https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafkreicy6iz67k4nutvxs7gtviuxt255k6w2ofxouxi54wrfm5thecg6x4?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt',
   },
   {
-    chainId: 10,
-    id: 3,
+    chainId: 5,
+    id: 6,
     name: 'DemoDAO',
     description: 'An exquisite DAO for demo purposes',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmWaiWKkRQtZQ5MuNHgYgwk48ubicyf7Ph8f6ZRUuUKmik?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
