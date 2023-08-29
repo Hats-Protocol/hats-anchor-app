@@ -9,35 +9,16 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import { decimalId, getDefaultAdminId } from '@/lib/hats';
 import { handleDetailsPin } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
-import { FormDataDetails } from '@/types';
+import { hasDetailsChanged } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {
   isExpanded: boolean;
 };
 
-const hasDetailsChanged = ({
-  name,
-  description,
-  guilds,
-  responsibilities,
-  authorities,
-  isEligibilityManual,
-  revocationsCriteria,
-  isToggleManual,
-  deactivationsCriteria,
-}: Partial<FormDataDetails>) => {
-  return (
-    name ||
-    description ||
-    _.gt(_.size(guilds), 0) ||
-    _.gt(_.size(responsibilities), 0) ||
-    _.gt(_.size(authorities), 0) ||
-    isEligibilityManual ||
-    _.gt(_.size(revocationsCriteria), 0) ||
-    isToggleManual ||
-    _.gt(_.size(deactivationsCriteria), 0)
-  );
-};
+interface CallData {
+  functionName: string;
+  callData: Hex;
+}
 
 const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
   const { chainId, treeId, storedData, onchainHats } = useTreeForm();
@@ -45,7 +26,7 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
 
   const computeMulticallData = async () => {
     if (!chainId || !treeId || !hatsClient || !storedData) return undefined;
-    const calls = [] as Hex[];
+    const calls = [] as CallData[];
 
     for (const hat of storedData) {
       const {
@@ -91,8 +72,7 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           hatId,
           newDetails: detailsData,
         });
-        console.log(details);
-        console.log(detailsData);
+
         const newHatData = hatsClient?.createHatCallData({
           admin: BigInt(getDefaultAdminId(hatId)),
           details,
@@ -102,10 +82,34 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           mutable: mutable === MUTABILITY.IMMUTABLE ? false : true,
           imageURI: imageUrl,
         });
-        if (newHatData && newHatData.callData) {
-          calls.push(newHatData.callData);
+        if (newHatData) {
+          calls.push(newHatData);
         }
-        // ! handle new wearers of new hats
+
+        if (_.eq(_.size(wearers), 1)) {
+          const wearerAddress = _.get(_.first(wearers), 'address');
+          if (wearerAddress) {
+            const mintHatWearersData = hatsClient.mintHatCallData({
+              hatId: decimalId(hatId) as unknown as bigint,
+              wearer: wearerAddress,
+            });
+
+            if (mintHatWearersData) {
+              calls.push(mintHatWearersData);
+            }
+          }
+        } else {
+          const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
+            hatIds: Array(_.size(wearers)).fill(
+              decimalId(hatId),
+            ) as unknown as bigint[],
+            wearers: _.map(wearers, 'address'),
+          });
+
+          if (batchMintHatWearersData) {
+            calls.push(batchMintHatWearersData);
+          }
+        }
 
         continue;
       }
@@ -141,8 +145,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           newDetails: newCid,
         });
 
-        if (changeHatDetailsData?.callData) {
-          calls.push(changeHatDetailsData.callData);
+        if (changeHatDetailsData) {
+          calls.push(changeHatDetailsData);
         }
       }
 
@@ -152,8 +156,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           newImageURI: imageUrl,
         });
 
-        if (changeHatImageURIData?.callData) {
-          calls.push(changeHatImageURIData.callData);
+        if (changeHatImageURIData) {
+          calls.push(changeHatImageURIData);
         }
       }
 
@@ -163,8 +167,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           newMaxSupply: parseInt(maxSupply, 10),
         });
 
-        if (changeHatMaxSupplyData?.callData) {
-          calls.push(changeHatMaxSupplyData.callData);
+        if (changeHatMaxSupplyData) {
+          calls.push(changeHatMaxSupplyData);
         }
       }
 
@@ -177,8 +181,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
               wearer: wearerAddress,
             });
 
-            if (mintHatWearersData?.callData) {
-              calls.push(mintHatWearersData.callData);
+            if (mintHatWearersData) {
+              calls.push(mintHatWearersData);
             }
           }
         } else {
@@ -189,8 +193,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
             wearers: _.map(wearers, 'address'),
           });
 
-          if (batchMintHatWearersData?.callData) {
-            calls.push(batchMintHatWearersData.callData);
+          if (batchMintHatWearersData) {
+            calls.push(batchMintHatWearersData);
           }
         }
       }
@@ -202,8 +206,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
             newEligibility: eligibility,
           });
 
-        if (changeHatEligibilityData?.callData) {
-          calls.push(changeHatEligibilityData.callData);
+        if (changeHatEligibilityData) {
+          calls.push(changeHatEligibilityData);
         }
       }
 
@@ -213,8 +217,8 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           newToggle: toggle,
         });
 
-        if (changeHatToggleData?.callData) {
-          calls.push(changeHatToggleData.callData);
+        if (changeHatToggleData) {
+          calls.push(changeHatToggleData);
         }
       }
 
@@ -223,13 +227,15 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
           hatId: decimalId(hatId) as unknown as bigint,
         });
 
-        if (makeHatImmutableData?.callData) {
-          calls.push(makeHatImmutableData.callData);
+        if (makeHatImmutableData) {
+          calls.push(makeHatImmutableData);
         }
       }
     }
 
-    return Promise.resolve(hatsClient?.multicallCallData([...calls]));
+    return Promise.resolve(
+      hatsClient?.multicallCallData(_.map(calls, 'callData')),
+    );
   };
 
   const { data, isLoading } = useQuery({
