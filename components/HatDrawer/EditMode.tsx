@@ -344,7 +344,7 @@ const EditMode = ({
         </Accordion>
 
         <Accordion
-          title='Revocation'
+          title='Revocation & Eligibility'
           subtitle='The people or logic that determine when a wearer should have a hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
         >
