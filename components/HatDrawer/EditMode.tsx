@@ -32,6 +32,8 @@ import useDebounce from '@/hooks/useDebounce';
 import { isTopHat } from '@/lib/hats';
 import { DetailsItem, FieldItem, FormData } from '@/types';
 
+import ChakraNextLink from '../atoms/ChakraNextLink';
+
 const EditMode = ({
   unsavedData,
   setUnsavedData,
@@ -308,23 +310,6 @@ const EditMode = ({
         )}
 
         <Accordion
-          title='Powers'
-          subtitle='Permissions and rights that are controlled by wearers of this hat.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
-        >
-          <Stack spacing={4}>
-            <ItemDetailsForm
-              localForm={localForm}
-              formName='authorities'
-              title='PERMISSIONS'
-              subtitle='Actions this hat enables its wearer to take.'
-              label='Permission'
-              Icon={BsKey}
-            />
-          </Stack>
-        </Accordion>
-
-        <Accordion
           title='Responsibilities'
           subtitle='Specific work that wearers of this hat will be held accountable for.'
           dirtyFieldsList={getDirtyFieldsForAccordion(
@@ -339,6 +324,23 @@ const EditMode = ({
               label='Responsibility'
               subtitle='Tasks and responsibilities associated with this hat.'
               Icon={BsListUl}
+            />
+          </Stack>
+        </Accordion>
+
+        <Accordion
+          title='Powers'
+          subtitle='Permissions and rights that are controlled by wearers of this hat.'
+          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
+        >
+          <Stack spacing={4}>
+            <ItemDetailsForm
+              localForm={localForm}
+              formName='authorities'
+              title='PERMISSIONS'
+              subtitle='Actions this hat enables its wearer to take.'
+              label='Permission'
+              Icon={BsKey}
             />
           </Stack>
         </Accordion>
@@ -362,8 +364,24 @@ const EditMode = ({
               }}
               inputConfig={{
                 label: 'ACCOUNTABILITY',
-                description:
-                  'The address of the smart contract containing the logic about when a wearer should and should not have this hat.',
+                description: [
+                  <Text key='manual'>
+                    The address of the person or group that can manually revoke
+                    this hat from specific wearers. More details in the{' '}
+                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'>
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>,
+                  <Text key='automatic'>
+                    The address of the smart contract containing the logic about
+                    when a wearer should have this hat. More details in the{' '}
+                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'>
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>,
+                ],
               }}
               criteriaConfig={{
                 label: 'QUALIFICATIONS',
@@ -395,8 +413,24 @@ const EditMode = ({
               }}
               inputConfig={{
                 label: 'DEACTIVATOR',
-                description:
-                  'The address of the person or group that can manually deactivate and reactive this hat',
+                description: [
+                  <Text key='manual'>
+                    The address of the person or group that can manually
+                    deactivate and reactive this hat. More details in the{' '}
+                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'>
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>,
+                  <Text key='automatic'>
+                    The address of the smart contract containing the logic about
+                    when this hat should be active. More details in the{' '}
+                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'>
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>,
+                ],
               }}
               criteriaConfig={{
                 label: 'QUALIFICATIONS',

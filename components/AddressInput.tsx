@@ -1,17 +1,15 @@
 import { Box, FormControl, Text } from '@chakra-ui/react';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
 
-import ChakraNextLink from './atoms/ChakraNextLink';
-
 type AddressInputProps = {
   name: string;
   label: string;
-  subLabel: string;
-  docsLink: string;
+  subLabel: string | ReactNode;
+  // docsLink?: string;
   localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
   isDisabled: boolean;
@@ -23,7 +21,6 @@ const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,
   subLabel,
-  docsLink,
   localForm,
   showResolvedAddress,
   isDisabled,
@@ -35,15 +32,6 @@ const AddressInput: React.FC<AddressInputProps> = ({
         name={name}
         label={label}
         subLabel={subLabel}
-        tip={
-          <Text size='xs' color='gray.500'>
-            See{' '}
-            <ChakraNextLink href={docsLink} decoration isExternal>
-              docs.hatsprotocol.xyz
-            </ChakraNextLink>{' '}
-            for details
-          </Text>
-        }
         placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
         rightElement={showResolvedAddress && <FaCheck color='green' />}
         localForm={localForm}
