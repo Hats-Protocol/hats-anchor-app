@@ -259,8 +259,8 @@ const OrgChartComponent: React.FC = () => {
             let wearersColor = '#FFFFFF';
             const wearer: IHatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
-            let wearerAccent: string | null = null;
-            let wearerIcon: string | null = null;
+            let wearerAccent: string = `0 of ${maxSupply}`;
+            let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
