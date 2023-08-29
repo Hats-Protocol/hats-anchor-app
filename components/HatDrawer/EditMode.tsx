@@ -317,7 +317,7 @@ const EditMode = ({
               localForm={localForm}
               formName='authorities'
               title='PERMISSIONS'
-              subtitle='Things this Hat allows its Wearer to do.'
+              subtitle='Actions this hat enables its wearer to take.'
               label='Permission'
               Icon={BsKey}
             />
@@ -337,7 +337,7 @@ const EditMode = ({
               formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
-              subtitle='Tasks and responsibilities associated with this Hat.'
+              subtitle='Tasks and responsibilities associated with this hat.'
               Icon={BsListUl}
             />
           </Stack>
