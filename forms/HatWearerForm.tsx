@@ -256,7 +256,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
         )}
         <Stack gap={0}>
           <HStack>
-            <Text fontSize='sm'>WEARER ADDRESS</Text>
+            <Text fontSize='sm'>NEW WEARER ADDRESS</Text>
           </HStack>
           <Text fontSize='sm' color='blackAlpha.700'>
             This address will receive a {hatName} hat token on{' '}
