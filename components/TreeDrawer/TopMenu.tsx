@@ -37,7 +37,6 @@ const TopMenu = () => {
     chainId,
     treeId,
     topHat,
-    onchainHats,
     editMode,
     setEditMode,
     storedData,
@@ -47,11 +46,7 @@ const TopMenu = () => {
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
-  const { onSubmit, isLoading } = useMulticallCallManyHats({
-    chainId,
-    treeId,
-    onchainHats,
-  });
+  const { onSubmit, isLoading } = useMulticallCallManyHats();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
