@@ -162,7 +162,7 @@ const includesAny = (arr: any[], target: any[]) =>
  * @param wearerHatIds should be an array of `hatId`s worn by the wearer
  * @param current default `false`, include wearing current hatId
  */
-export const isAdmin = (
+export const isWearer = (
   wearerHatIds: string[],
   hatId?: string,
   current = false,
