@@ -1,8 +1,8 @@
 export const learnMore = [
   {
-    url: 'https://docs.hatsprotocol.xyz/',
+    url: 'https://docs.hatsprotocol.xyz/using-hats/essentials-for-hat-wearers',
     name: 'For Hat Wearers',
-    description: 'So your organization gave you a Hat. Now what?',
+    description: 'So your organization gave you a hat. Now what?',
     icon: 'hat',
   },
   {
@@ -20,7 +20,7 @@ export const learnMore = [
     icon: 'code',
   },
   {
-    url: 'mailto:support@hatsprotocol.xyz',
+    url: 'https://hatsprotocol.typeform.com/getintouch',
     name: 'Get in touch!',
     description:
       'Stuck on tree design, deployment, or custom development? We can help.',
@@ -42,7 +42,7 @@ export const featuredTemplates = [
     id: 55,
     name: 'DAO-controlled Multisig & Signers',
     description:
-      'Give and revoke multisig signing authority based on Hat ownerships',
+      'Give and revoke multisig signing authority based on having a hat',
     image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeief2r46xuo4whpingntuntm4yoafedrfr7ky5cu4n2ydurgbnnbne?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
