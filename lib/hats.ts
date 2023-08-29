@@ -28,24 +28,30 @@ export function createHierarchy(
       : currentHat.parentId) as Hex,
   };
 
-  const siblings = _.filter(data, { parentId: currentHat.parentId });
+  const siblings =
+    currentHat.parentId !== currentHat.id
+      ? _.filter(
+          data,
+          (hat) =>
+            hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
+        )
+      : [];
 
-  const leftSiblings = _.filter(
-    siblings,
-    (sibling) => sibling.id < currentHat.id,
-  );
-  const rightSiblings = _.filter(
-    siblings,
-    (sibling) => sibling.id > currentHat.id,
-  );
-
+  const sortedSiblings = _.sortBy(siblings, (sibling) => BigInt(sibling.id));
+  const currentHatIndex = _.findIndex(sortedSiblings, { id: currentHat.id });
+  const leftSiblings = _.slice(sortedSiblings, 0, currentHatIndex);
+  const rightSiblings = _.slice(sortedSiblings, currentHatIndex + 1);
   currentHierarchy.leftSibling = _.last(leftSiblings)?.id as Hex;
   currentHierarchy.rightSibling = _.first(rightSiblings)?.id as Hex;
 
-  const children = _.filter(
-    data,
-    (item) => item.parentId === currentHatId && item.id !== currentHatId,
+  const children = _.sortBy(
+    _.filter(
+      data,
+      (item) => item.parentId === currentHatId && item.id !== currentHatId,
+    ),
+    'id',
   );
+
   currentHierarchy.firstChild = _.first(children)?.id as Hex;
 
   return currentHierarchy;
@@ -91,7 +97,7 @@ export const toTreeId = (id: string | undefined) => {
       .toString(16)
       .padStart(8, '0')}`;
   } catch (e) {
-    // console.log(e);
+    //
     return '0x';
   }
 };
