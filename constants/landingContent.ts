@@ -43,7 +43,7 @@ export const featuredTemplates = [
     name: 'DAO-controlled Multisig & Signers',
     description:
       'Give and revoke multisig signing authority based on having a hat',
-    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeia5ibibllkrtqaxangdgqcw47ub7upyonbgbumdfyydqhlwnvzsy4?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
+    image: `https://indigo-selective-coral-505.mypinata.cloud/ipfs/bafybeief2r46xuo4whpingntuntm4yoafedrfr7ky5cu4n2ydurgbnnbne?pinataGatewayToken=M-iEBglWoUCZWJYsihe1IRrngs7HIGeIr3s5lObVw96hv7GTuCw1QrlmnNtwvuXt`,
   },
   {
     chainId: 5,
