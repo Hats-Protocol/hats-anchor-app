@@ -18,7 +18,7 @@ import _ from 'lodash';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -27,9 +27,11 @@ import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
 import { editHasUpdates } from '@/lib/hats';
+import { chainsMap } from '@/lib/web3';
 
 const TopMenu = () => {
   const { address } = useAccount();
+  const currentChain = useChainId();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
@@ -37,7 +39,6 @@ const TopMenu = () => {
     chainId,
     treeId,
     topHat,
-    onchainHats,
     editMode,
     setEditMode,
     storedData,
@@ -47,11 +48,7 @@ const TopMenu = () => {
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
-  const { onSubmit, isLoading } = useMulticallCallManyHats({
-    chainId,
-    treeId,
-    onchainHats,
-  });
+  const { onSubmit, isLoading } = useMulticallCallManyHats();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
@@ -145,8 +142,10 @@ const TopMenu = () => {
         </Button>
         <Tooltip
           label={
-            !wearingTopHat &&
-            'Only top hat can deploy directly currently. Submit the transaction data to your DAO.'
+            chainId !== currentChain
+              ? `Must be on ${chainsMap(chainId).name} to deploy`
+              : !wearingTopHat &&
+                'Only top hat can deploy directly currently. Submit the transaction data to your DAO.'
           }
           placement='left'
           hasArrow
@@ -156,7 +155,10 @@ const TopMenu = () => {
             colorScheme='blue'
             variant='solid'
             isDisabled={
-              !wearingTopHat || !editHasUpdates(storedData) || isLoading
+              !wearingTopHat ||
+              !editHasUpdates(storedData) ||
+              isLoading ||
+              currentChain !== chainId
             }
             onClick={handleDeploy}
           >

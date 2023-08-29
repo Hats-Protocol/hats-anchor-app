@@ -75,7 +75,11 @@ const Input = ({
               </HStack>
             </FormLabel>
           )}
-          {subLabel && <Text color='blackAlpha.700'>{subLabel}</Text>}
+          {typeof subLabel !== 'string' ? (
+            subLabel
+          ) : (
+            <Text color='blackAlpha.700'>{subLabel}</Text>
+          )}
         </Box>
         {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
         <InputGroup {...props}>
@@ -110,7 +114,7 @@ export default Input;
 
 interface InputProps extends ChakraInputProps {
   label?: string;
-  subLabel?: string;
+  subLabel?: string | ReactNode;
   name: string;
   info?: string;
   tip?: string | ReactNode;
