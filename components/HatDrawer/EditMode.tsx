@@ -368,7 +368,10 @@ const EditMode = ({
                   <Text key='manual'>
                     The address of the person or group that can manually revoke
                     this hat from specific wearers. More details in the{' '}
-                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'>
+                    <ChakraNextLink
+                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .
@@ -376,7 +379,10 @@ const EditMode = ({
                   <Text key='automatic'>
                     The address of the smart contract containing the logic about
                     when a wearer should have this hat. More details in the{' '}
-                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'>
+                    <ChakraNextLink
+                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .
@@ -417,7 +423,10 @@ const EditMode = ({
                   <Text key='manual'>
                     The address of the person or group that can manually
                     deactivate and reactive this hat. More details in the{' '}
-                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'>
+                    <ChakraNextLink
+                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .
@@ -425,7 +434,10 @@ const EditMode = ({
                   <Text key='automatic'>
                     The address of the smart contract containing the logic about
                     when this hat should be active. More details in the{' '}
-                    <ChakraNextLink href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'>
+                    <ChakraNextLink
+                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .
