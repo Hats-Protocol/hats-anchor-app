@@ -11,11 +11,11 @@ import {
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHierarchy } from '@/lib/hats';
-import { HierarchyObject, IHat } from '@/types';
+import { Hierarchy, IHat } from '@/types';
 
 const BottomMenu = () => {
   const { orgChartTree, selectedHat, setSelectedHatId } = useTreeForm();
-  const [hierarchy, setHierarchy] = useState<HierarchyObject>();
+  const [hierarchy, setHierarchy] = useState<Hierarchy>();
 
   useEffect(() => {
     if (orgChartTree) {

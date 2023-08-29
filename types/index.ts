@@ -69,7 +69,7 @@ export interface ITree {
   linkRequestFromTree: string | null;
 }
 
-export type HierarchyObject = {
+export type Hierarchy = {
   id: string;
   parentId?: Hex;
   firstChild?: Hex;

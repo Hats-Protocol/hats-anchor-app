@@ -4,13 +4,7 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { defaultHat, MUTABILITY } from '@/constants';
-import {
-  FormData,
-  HierarchyObject,
-  IControls,
-  IHat,
-  InputObject,
-} from '@/types';
+import { FormData, Hierarchy, IControls, IHat, InputObject } from '@/types';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -21,13 +15,13 @@ export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
 export function createHierarchy(
   data: InputObject[],
   currentHatId?: Hex,
-): HierarchyObject {
-  if (!currentHatId) return {} as HierarchyObject;
+): Hierarchy {
+  if (!currentHatId) return {} as Hierarchy;
 
   const currentHat = _.find(data, { id: currentHatId });
-  if (!currentHat) return {} as HierarchyObject;
+  if (!currentHat) return {} as Hierarchy;
 
-  const currentHierarchy: HierarchyObject = {
+  const currentHierarchy: Hierarchy = {
     id: currentHat.id,
     parentId: (currentHat.id === currentHat.parentId
       ? null
