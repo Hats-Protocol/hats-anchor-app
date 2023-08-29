@@ -14,13 +14,11 @@ import TopMenu from './TopMenu';
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const { selectedHat, editMode, storedData, setStoredData } = useTreeForm();
-
-  const selectedHatId = selectedHat?.id;
-
   const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
     undefined,
   );
+  const { selectedHat, editMode, storedData, setStoredData } = useTreeForm();
+  const selectedHatId = selectedHat?.id;
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {

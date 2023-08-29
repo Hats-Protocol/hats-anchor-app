@@ -71,17 +71,21 @@ const MainContent = () => {
         />
       )}
 
-      <StatusCard
-        status='eligibility'
-        isAContract={isEligibilityAContract}
-        label='Can I wear this hat?'
-      />
+      {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
+        <StatusCard
+          status='eligibility'
+          isAContract={isEligibilityAContract}
+          label='Can I wear this hat?'
+        />
+      )}
 
-      <StatusCard
-        status='toggle'
-        isAContract={isToggleAContract}
-        label='Is this hat active?'
-      />
+      {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
+        <StatusCard
+          status='toggle'
+          isAContract={isToggleAContract}
+          label='Is this hat active?'
+        />
+      )}
 
       {/* <LinkRequests linkRequestFromTree={linkRequestFromTree} /> */}
 
