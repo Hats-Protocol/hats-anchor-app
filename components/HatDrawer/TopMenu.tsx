@@ -200,7 +200,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
                     <HStack>
                       <FaPowerOff />
                       <Text>
-                        {selectedHat?.status ? 'Deactivate' : 'Activate'} Hat
+                        {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
                       </Text>
                     </HStack>
                   </Tooltip>
@@ -251,7 +251,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
                   >
                     <HStack>
                       <FaDoorOpen />
-                      <Text>Test Status</Text>
+                      <Text>Test hat status</Text>
                     </HStack>
                   </Tooltip>
                 </MenuItem>
@@ -266,7 +266,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
                 }}
               >
                 <FaCopy />
-                Copy Hat ID
+                Copy hat ID
               </MenuItem>
               <MenuItem
                 gap={2}
@@ -278,7 +278,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
                 }}
               >
                 <FaCopy />
-                Copy Contract ID
+                Copy contract ID
               </MenuItem>
               <MenuItem
                 as={Link}
@@ -286,7 +286,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
                 gap={2}
               >
                 <FaExclamationCircle />
-                Report this Hat
+                Report this hat
               </MenuItem>
             </MenuList>
           </Menu>
