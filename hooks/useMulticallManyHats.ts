@@ -3,13 +3,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import useToast from '@/hooks/useToast';
 import { decimalId, getDefaultAdminId } from '@/lib/hats';
 import { handleDetailsPin } from '@/lib/ipfs';
-import { createHatsClient } from '@/lib/web3';
+import { chainsMap, createHatsClient } from '@/lib/web3';
 import { FormDataDetails, IHat } from '@/types';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
@@ -45,6 +45,7 @@ interface CallData {
 const useMulticallCallManyHats = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
+  const currentChain = useChainId();
   const {
     chainId,
     treeId,
@@ -61,6 +62,14 @@ const useMulticallCallManyHats = () => {
   const onSubmit = async () => {
     if (!chainId || !treeId || !address || !hatsClient || !storedData)
       return undefined;
+
+    if (currentChain !== chainId) {
+      toast.error({
+        title: 'Wrong Chain',
+        description: `Please change to ${chainsMap(chainId)?.name}`,
+      });
+      return;
+    }
 
     const calls = [] as CallData[];
 
