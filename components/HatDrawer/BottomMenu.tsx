@@ -15,11 +15,8 @@ import { HierarchyObject, IHat } from '@/types';
 
 const BottomMenu = () => {
   const { orgChartTree, selectedHat, setSelectedHatId } = useTreeForm();
+  const [hierarchy, setHierarchy] = useState<HierarchyObject>();
 
-  const [currentHat, setCurrentHat] = useState<any>({});
-  const [hierarchyData, setHierarchyData] = useState<HierarchyObject[]>();
-
-  // TODO calculate hierarchy data for only current hat
   useEffect(() => {
     if (orgChartTree) {
       const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({
@@ -27,17 +24,10 @@ const BottomMenu = () => {
         parentId: hat.admin?.id,
       }));
 
-      const hierarchy = createHierarchy(parentsAndIds);
-      setHierarchyData(hierarchy);
+      const hierarchyData = createHierarchy(parentsAndIds, selectedHat?.id);
+      setHierarchy(hierarchyData);
     }
-  }, [orgChartTree]);
-
-  useEffect(() => {
-    if (selectedHat?.id && hierarchyData) {
-      const hat = _.find(hierarchyData, ['id', selectedHat?.id]);
-      if (hat) setCurrentHat(hat);
-    }
-  }, [selectedHat, hierarchyData]);
+  }, [orgChartTree, selectedHat?.id]);
 
   return (
     <Box
@@ -53,40 +43,40 @@ const BottomMenu = () => {
         borderTop='1px solid'
         borderColor='gray.200'
       >
-        {currentHat?.leftSibling ? (
+        {hierarchy?.leftSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId?.(currentHat?.leftSibling)}
+            onClick={() => setSelectedHatId?.(hierarchy?.leftSibling)}
             gap={1}
           >
             <FaRegArrowAltCircleLeft />
-            {hatIdDecimalToIp(BigInt(currentHat?.leftSibling))}
+            {hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}
           </Button>
         ) : (
           <Box w={16} />
         )}
 
         <HStack>
-          {currentHat?.parentId ? (
+          {hierarchy?.parentId ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId?.(currentHat?.parentId)}
+              onClick={() => setSelectedHatId?.(hierarchy?.parentId)}
               gap={1}
             >
               <FaRegArrowAltCircleUp />
-              {hatIdDecimalToIp(BigInt(currentHat?.parentId))}
+              {hatIdDecimalToIp(BigInt(hierarchy?.parentId))}
             </Button>
           ) : (
             <Box w={16} />
           )}
 
-          {currentHat?.firstChild ? (
+          {hierarchy?.firstChild ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId?.(currentHat?.firstChild)}
+              onClick={() => setSelectedHatId?.(hierarchy?.firstChild)}
               gap={1}
             >
-              {hatIdDecimalToIp(BigInt(currentHat?.firstChild))}
+              {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
               <FaRegArrowAltCircleDown />
             </Button>
           ) : (
@@ -94,13 +84,13 @@ const BottomMenu = () => {
           )}
         </HStack>
 
-        {currentHat?.rightSibling ? (
+        {hierarchy?.rightSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId?.(currentHat?.rightSibling)}
+            onClick={() => setSelectedHatId?.(hierarchy?.rightSibling)}
             gap={1}
           >
-            {hatIdDecimalToIp(BigInt(currentHat?.rightSibling))}
+            {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}
             <FaRegArrowAltCircleRight />
           </Button>
         ) : (

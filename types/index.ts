@@ -71,10 +71,10 @@ export interface ITree {
 
 export type HierarchyObject = {
   id: string;
-  parentId: string | null | undefined;
-  firstChild: string | null | undefined;
-  leftSibling: string | null | undefined;
-  rightSibling: string | null | undefined;
+  parentId?: Hex;
+  firstChild?: Hex;
+  leftSibling?: Hex;
+  rightSibling?: Hex;
 };
 
 export type InputObject = {

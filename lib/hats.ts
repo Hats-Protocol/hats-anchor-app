@@ -18,56 +18,43 @@ export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
 };
 
-export function createHierarchy(data: InputObject[]): HierarchyObject[] {
-  // Sort by parentId and id
-  data.sort(
-    (a, b) =>
-      a.parentId?.localeCompare(b?.parentId || '') || a.id.localeCompare(b.id),
+export function createHierarchy(
+  data: InputObject[],
+  currentHatId?: Hex,
+): HierarchyObject {
+  if (!currentHatId) return {} as HierarchyObject;
+
+  const currentHat = _.find(data, { id: currentHatId });
+  if (!currentHat) return {} as HierarchyObject;
+
+  const currentHierarchy: HierarchyObject = {
+    id: currentHat.id,
+    parentId: (currentHat.id === currentHat.parentId
+      ? null
+      : currentHat.parentId) as Hex,
+  };
+
+  const siblings = _.filter(data, { parentId: currentHat.parentId });
+
+  const leftSiblings = _.filter(
+    siblings,
+    (sibling) => sibling.id < currentHat.id,
+  );
+  const rightSiblings = _.filter(
+    siblings,
+    (sibling) => sibling.id > currentHat.id,
   );
 
-  // Create initial hierarchy objects
-  const hierarchyObjects: HierarchyObject[] = data.map((obj) => ({
-    id: obj.id,
-    parentId: obj.id === obj.parentId ? null : obj.parentId,
-    firstChild: null,
-    leftSibling: null,
-    rightSibling: null,
-  }));
+  currentHierarchy.leftSibling = _.last(leftSiblings)?.id as Hex;
+  currentHierarchy.rightSibling = _.first(rightSiblings)?.id as Hex;
 
-  // Add firstChild, leftSibling, rightSibling
-  for (let i = 0; i < hierarchyObjects.length; i++) {
-    const current = hierarchyObjects[i];
+  const children = _.filter(
+    data,
+    (item) => item.parentId === currentHatId && item.id !== currentHatId,
+  );
+  currentHierarchy.firstChild = _.first(children)?.id as Hex;
 
-    // Find siblings and first child
-    const siblings = hierarchyObjects.filter(
-      (node) => node.parentId === current.parentId,
-    );
-
-    for (let j = 0; j < siblings.length; j++) {
-      if (current.id > siblings[j].id) {
-        // Sibling is a left sibling if its id is smaller
-        current.leftSibling = siblings[j].id;
-      } else if (current.id < siblings[j].id) {
-        // Sibling is a right sibling if its id is bigger and current right sibling is null or its id is bigger than the sibling
-        if (
-          current.rightSibling === null ||
-          siblings[j].id < (current.rightSibling || 0)
-        ) {
-          current.rightSibling = siblings[j].id;
-        }
-      }
-    }
-
-    // Find first child
-    const children = hierarchyObjects.filter(
-      (node) => node.parentId === current.id,
-    );
-    if (children.length > 0) {
-      current.firstChild = children[0].id;
-    }
-  }
-
-  return hierarchyObjects;
+  return currentHierarchy;
 }
 
 export function prettyIdToId(id: string | undefined): Hex {

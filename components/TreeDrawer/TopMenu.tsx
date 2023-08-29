@@ -52,6 +52,7 @@ const TopMenu = () => {
     treeId,
     onchainHats,
   });
+  console.log('onchainHats', onchainHats);
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
