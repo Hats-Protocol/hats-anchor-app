@@ -126,6 +126,7 @@ export const TreeFormContextProvider = ({
   const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
     _.get(initialTreeData, 'hats'),
   );
+  console.log('orgChartHats', orgChartHats);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);

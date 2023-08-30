@@ -9,7 +9,7 @@ import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { generateLocalStorageKey } from '@/lib/general';
-import { decimalId, getDefaultAdminId } from '@/lib/hats';
+import { decimalId, getDefaultAdminId, toTreeId } from '@/lib/hats';
 import { handleDetailsPin } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { FormDataDetails, IHat } from '@/types';
@@ -277,6 +277,28 @@ const useMulticallCallManyHats = ({
         const treeQueryKey = ['treeDetails', treeId, chainId];
 
         queryClient.invalidateQueries(treeQueryKey);
+
+        for (const hat of storedData) {
+          const hatId = _.get(hat, 'id');
+          const hatDetailsField = _.get(hat, 'details');
+
+          queryClient.invalidateQueries({
+            queryKey: ['hatDetailsField', hatDetailsField],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: ['hatDetails', hatId, chainId],
+          });
+        }
+
+        queryClient.invalidateQueries({
+          queryKey: [
+            'orgChartTree',
+            { chainId, treeId },
+            _.map(onchainHats, 'id'),
+          ],
+        });
+
         setIsLoading(false);
         patchTree?.(proposedChanges);
         setStoredData([]);
