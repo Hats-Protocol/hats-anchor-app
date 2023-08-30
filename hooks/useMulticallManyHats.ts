@@ -13,6 +13,7 @@ import { decimalId, getDefaultAdminId } from '@/lib/hats';
 import { handleDetailsPin } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 import { FormDataDetails, IHat } from '@/types';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 
 type useMulticallCallManyHatsProps = {
   chainId?: number;
@@ -54,6 +55,7 @@ const useMulticallCallManyHats = ({
   const hatsClient = createHatsClient(chainId);
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { patchTree } = useTreeForm();
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<any[]>(
@@ -65,6 +67,7 @@ const useMulticallCallManyHats = ({
     if (!chainId || !treeId || !address || !hatsClient) return undefined;
 
     const calls = [] as any[];
+    const proposedChanges = [] as any[];
 
     for (const hat of storedData) {
       const {
@@ -85,6 +88,10 @@ const useMulticallCallManyHats = ({
         id: hatId,
         wearers,
       } = hat;
+
+      const hatChanges = {
+        id: hatId,
+      } as any;
 
       const detailsData = {
         name,
@@ -109,7 +116,7 @@ const useMulticallCallManyHats = ({
           hatId,
           newDetails: detailsData,
         });
-        const newHatData = hatsClient.createHatCallData({
+        const newHat = {
           admin: BigInt(getDefaultAdminId(hatId)),
           details,
           maxSupply: maxSupply || 1,
@@ -117,8 +124,15 @@ const useMulticallCallManyHats = ({
           toggle: toggle || FALLBACK_ADDRESS,
           mutable: mutable === MUTABILITY.MUTABLE,
           imageURI: imageUrl,
-        });
+        };
+        const newHatData = hatsClient.createHatCallData(newHat);
+
         calls.push(newHatData);
+        proposedChanges.push({
+          id: hatId,
+          chainId,
+          newHat,
+        });
         // eslint-disable-next-line no-continue
         continue;
       }
@@ -155,6 +169,7 @@ const useMulticallCallManyHats = ({
 
         if (changeHatDetailsData) {
           calls.push(changeHatDetailsData);
+          hatChanges.details = newCid;
         }
       }
 
@@ -166,6 +181,7 @@ const useMulticallCallManyHats = ({
 
         if (changeHatMaxSupplyData) {
           calls.push(changeHatMaxSupplyData);
+          hatChanges.newMaxSupply = parseInt(maxSupply, 10);
         }
       }
 
@@ -180,6 +196,7 @@ const useMulticallCallManyHats = ({
 
             if (mintHatWearersData) {
               calls.push(mintHatWearersData);
+              hatChanges.wearer = wearerAddress;
             }
           }
         } else {
@@ -192,6 +209,7 @@ const useMulticallCallManyHats = ({
 
           if (batchMintHatWearersData) {
             calls.push(batchMintHatWearersData);
+            hatChanges.wearers = _.map(wearers, 'address');
           }
         }
       }
@@ -205,6 +223,7 @@ const useMulticallCallManyHats = ({
 
         if (changeHatEligibilityData) {
           calls.push(changeHatEligibilityData);
+          hatChanges.eligibility = eligibility;
         }
       }
 
@@ -216,6 +235,7 @@ const useMulticallCallManyHats = ({
 
         if (changeHatToggleData) {
           calls.push(changeHatToggleData);
+          hatChanges.toggle = toggle;
         }
       }
 
@@ -226,6 +246,7 @@ const useMulticallCallManyHats = ({
 
         if (makeHatImmutableData) {
           calls.push(makeHatImmutableData);
+          hatChanges.mutable = false;
         }
       }
 
@@ -237,8 +258,11 @@ const useMulticallCallManyHats = ({
 
         if (changeHatImageURIData) {
           calls.push(changeHatImageURIData);
+          hatChanges.imageUrl = imageUrl;
         }
       }
+
+      proposedChanges.push(hatChanges);
     }
 
     if (calls.length > 0) {
@@ -254,6 +278,7 @@ const useMulticallCallManyHats = ({
 
         queryClient.invalidateQueries(treeQueryKey);
         setIsLoading(false);
+        patchTree?.(proposedChanges);
         setStoredData([]);
 
         toast.success({

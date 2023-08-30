@@ -58,6 +58,7 @@ export interface ITreeFormContext {
   // disclosures
   hatDisclosure: UseDisclosureReturn | undefined;
   treeDisclosure: UseDisclosureReturn | undefined;
+  patchTree: ((proposedHats: IHat[]) => void) | undefined;
 }
 
 export const TreeFormContext = createContext<ITreeFormContext>({
@@ -94,6 +95,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   // disclosures
   hatDisclosure: undefined,
   treeDisclosure: undefined,
+  patchTree: undefined,
 });
 
 export const TreeFormContextProvider = ({
@@ -294,6 +296,30 @@ export const TreeFormContextProvider = ({
     onCloseTreeDrawer();
   }, [onchainHats, setStoredData, onCloseTreeDrawer]);
 
+  const patchTree = useCallback((proposedHats: IHat[]) => {
+    setOrgChartHats((prevHats) => {
+      if (!prevHats) return [];
+
+      const proposedHatsMap = proposedHats.reduce<{ [id: string]: IHat }>(
+        (acc, hat) => {
+          acc[hat.id] = hat;
+          return acc;
+        },
+        {},
+      );
+
+      return prevHats.map((existingHat) => {
+        if (proposedHatsMap[existingHat.id]) {
+          return {
+            ...existingHat,
+            ...proposedHatsMap[existingHat.id],
+          };
+        }
+        return existingHat;
+      });
+    });
+  }, []);
+
   useEffect(() => {
     if (initialHatId && orgChartTree) {
       handleSelectHat(ipToHatId(String(initialHatId)));
@@ -336,6 +362,7 @@ export const TreeFormContextProvider = ({
       // disclosures
       hatDisclosure,
       treeDisclosure,
+      patchTree,
     }),
     [
       chainId,
@@ -371,6 +398,7 @@ export const TreeFormContextProvider = ({
       // disclosures
       hatDisclosure,
       treeDisclosure,
+      patchTree,
     ],
   );
 
