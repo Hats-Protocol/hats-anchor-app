@@ -85,8 +85,8 @@ interface FeatureTreeCardProps {
     description: string;
     avatar: string;
   };
-  hatsAndWearers: {
-    treeId: number;
+  hatsAndWearers?: {
+    treeId?: string;
     hats: number;
     wearers?: number;
   };
