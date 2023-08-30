@@ -275,28 +275,22 @@ const useMulticallCallManyHats = ({
 
         // TODO handle optimistic image update
         const treeQueryKey = ['treeDetails', treeId, chainId];
-
+        const orgChartTreeQueryKey = [
+          'orgChartTree',
+          { chainId, treeId },
+          _.map(onchainHats, 'id'),
+        ];
+        queryClient.invalidateQueries(orgChartTreeQueryKey);
         queryClient.invalidateQueries(treeQueryKey);
 
-        for (const hat of storedData) {
+        _.forEach(storedData, (hat) => {
           const hatId = _.get(hat, 'id');
           const hatDetailsField = _.get(hat, 'details');
 
-          queryClient.invalidateQueries({
-            queryKey: ['hatDetailsField', hatDetailsField],
-          });
-
-          queryClient.invalidateQueries({
-            queryKey: ['hatDetails', hatId, chainId],
-          });
-        }
-
-        queryClient.invalidateQueries({
-          queryKey: [
-            'orgChartTree',
-            { chainId, treeId },
-            _.map(onchainHats, 'id'),
-          ],
+          if (hatId && hatDetailsField) {
+            queryClient.invalidateQueries(['hatDetailsField', hatDetailsField]);
+            queryClient.invalidateQueries(['hatDetails', hatId, chainId]);
+          }
         });
 
         setIsLoading(false);
