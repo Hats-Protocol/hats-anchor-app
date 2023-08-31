@@ -368,7 +368,8 @@ export const processHatForCalls = async (
   chainId?: number,
   hatsClient?: any,
 ) => {
-  const calls = [] as Hex[];
+  const calls = [];
+  const proposedChanges = [] as any[];
 
   const {
     maxSupply,
@@ -389,7 +390,11 @@ export const processHatForCalls = async (
     id: hatId,
   } = hat;
 
-  if (!hatId || !chainId) return [];
+  const hatChanges = {
+    id: hatId,
+  } as any;
+
+  if (!hat.id || !chainId) return { calls: [], proposedChanges: [] };
 
   const detailsData = {
     name,
@@ -413,7 +418,7 @@ export const processHatForCalls = async (
       hatId,
       newDetails: detailsData,
     });
-    const newHatData = hatsClient?.createHatCallData({
+    const newHat = hatsClient?.createHatCallData({
       admin: BigInt(getDefaultAdminId(hatId)),
       details,
       maxSupply: _.toNumber(maxSupply) || 1,
@@ -422,8 +427,13 @@ export const processHatForCalls = async (
       mutable: mutable === MUTABILITY.MUTABLE,
       imageURI: imageUrl,
     });
-    if (newHatData && newHatData.callData) {
-      calls.push(newHatData.callData);
+    if (newHat && newHat.callData) {
+      calls.push(newHat.callData);
+      proposedChanges.push({
+        id: hatId,
+        chainId,
+        newHat,
+      });
     }
   } else {
     if (
@@ -456,8 +466,9 @@ export const processHatForCalls = async (
         newDetails: newCid,
       });
 
-      if (changeHatDetailsData?.callData) {
-        calls.push(changeHatDetailsData.callData);
+      if (changeHatDetailsData) {
+        calls.push(changeHatDetailsData);
+        hatChanges.details = newCid;
       }
     }
 
@@ -467,8 +478,9 @@ export const processHatForCalls = async (
         newMaxSupply: parseInt(maxSupply, 10),
       });
 
-      if (changeHatMaxSupplyData?.callData) {
-        calls.push(changeHatMaxSupplyData.callData);
+      if (changeHatMaxSupplyData) {
+        calls.push(changeHatMaxSupplyData);
+        hatChanges.newMaxSupply = parseInt(maxSupply, 10);
       }
     }
 
@@ -481,8 +493,9 @@ export const processHatForCalls = async (
             wearer: wearerAddress,
           });
 
-          if (mintHatWearersData?.callData) {
-            calls.push(mintHatWearersData.callData);
+          if (mintHatWearersData) {
+            calls.push(mintHatWearersData);
+            hatChanges.wearer = wearerAddress;
           }
         }
       } else {
@@ -493,8 +506,9 @@ export const processHatForCalls = async (
           wearers: _.map(wearers, 'address'),
         });
 
-        if (batchMintHatWearersData?.callData) {
-          calls.push(batchMintHatWearersData.callData);
+        if (batchMintHatWearersData) {
+          calls.push(batchMintHatWearersData);
+          hatChanges.wearers = _.map(wearers, 'address');
         }
       }
     }
@@ -507,8 +521,9 @@ export const processHatForCalls = async (
         },
       );
 
-      if (changeHatEligibilityData?.callData) {
-        calls.push(changeHatEligibilityData.callData);
+      if (changeHatEligibilityData) {
+        calls.push(changeHatEligibilityData);
+        hatChanges.eligibility = eligibility;
       }
     }
 
@@ -518,8 +533,9 @@ export const processHatForCalls = async (
         newToggle: toggle,
       });
 
-      if (changeHatToggleData?.callData) {
-        calls.push(changeHatToggleData.callData);
+      if (changeHatToggleData) {
+        calls.push(changeHatToggleData);
+        hatChanges.toggle = toggle;
       }
     }
 
@@ -528,8 +544,9 @@ export const processHatForCalls = async (
         hatId: decimalId(hatId) as unknown as bigint,
       });
 
-      if (makeHatImmutableData?.callData) {
-        calls.push(makeHatImmutableData.callData);
+      if (makeHatImmutableData) {
+        calls.push(makeHatImmutableData);
+        hatChanges.mutable = false;
       }
     }
 
@@ -539,11 +556,13 @@ export const processHatForCalls = async (
         newImageURI: imageUrl,
       });
 
-      if (changeHatImageURIData?.callData) {
-        calls.push(changeHatImageURIData.callData);
+      if (changeHatImageURIData) {
+        calls.push(changeHatImageURIData);
+        hatChanges.imageUrl = imageUrl;
       }
     }
+    proposedChanges.push(hatChanges);
   }
 
-  return calls;
+  return { calls, proposedChanges };
 };

@@ -23,7 +23,9 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
     );
     const allCalls = await Promise.all(allCallsPromises);
 
-    return Promise.resolve(hatsClient?.multicallCallData(_.flatten(allCalls)));
+    const calls = _.flatten(_.map(allCalls, (item) => item.calls) || []);
+
+    return Promise.resolve(hatsClient?.multicallCallData(calls));
   };
 
   const { data, isLoading } = useQuery({
