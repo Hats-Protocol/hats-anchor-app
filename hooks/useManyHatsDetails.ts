@@ -22,8 +22,9 @@ const useManyHatDetails = ({
     })),
   });
   console.log(hatsDetails);
+  const returnData = _.compact(_.map(hatsDetails, 'data'));
 
-  return mapWithChainId(_.compact(_.map(hatsDetails, 'data')), chainId);
+  return chainId ? mapWithChainId(returnData, chainId) : returnData;
 };
 
 export default useManyHatDetails;
