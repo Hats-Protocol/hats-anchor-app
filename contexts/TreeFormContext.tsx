@@ -182,6 +182,7 @@ export const TreeFormContextProvider = ({
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
   });
+  console.log(hatDetails);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,

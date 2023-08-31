@@ -2,6 +2,7 @@ import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
 
 import { fetchHatDetails } from '@/gql/helpers';
+import { mapWithChainId } from '@/lib/general';
 import { IHat } from '@/types';
 
 const useManyHatDetails = ({
@@ -11,6 +12,7 @@ const useManyHatDetails = ({
   hats: Partial<IHat>[] | undefined;
   initialHats?: IHat[];
 }): IHat[] => {
+  const chainId = _.get(_.first(hats), 'chainId');
   const hatsDetails = useQueries({
     queries: _.map(hats, (hat) => ({
       queryKey: ['hatDetails', hat.id, hat.chainId],
@@ -19,8 +21,9 @@ const useManyHatDetails = ({
       initialData: _.find(initialHats, ['id', hat.id]),
     })),
   });
+  console.log(hatsDetails);
 
-  return _.compact(_.map(hatsDetails, 'data'));
+  return mapWithChainId(_.compact(_.map(hatsDetails, 'data')), chainId);
 };
 
 export default useManyHatDetails;

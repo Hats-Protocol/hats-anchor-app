@@ -132,7 +132,6 @@ const useMulticallCallManyHats = () => {
               [],
         },
       };
-      console.log(detailsData);
 
       if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
         // eslint-disable-next-line no-await-in-loop

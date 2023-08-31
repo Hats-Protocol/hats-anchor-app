@@ -16,6 +16,7 @@ import { IHat } from '@/types';
  */
 const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
   const calls: any = _.map(hats, (hat) => {
+    console.log(hat.chainId);
     return {
       address: CONFIG.hatsAddress,
       chainId: hat?.chainId,
