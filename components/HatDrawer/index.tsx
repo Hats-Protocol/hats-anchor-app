@@ -63,7 +63,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         {/* Hat Image */}
         <Image
           loading='lazy'
-          src={_.get(selectedHat, 'imageUrl', '/icon.jpeg')}
+          src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
           alt='hat image'
           position='absolute'
           background='white'
