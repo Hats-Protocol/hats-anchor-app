@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
 import { Abi } from 'viem';
 import { useContractReads } from 'wagmi';
@@ -15,11 +15,11 @@ import { IHat } from '@/types';
  * @param {IHat[]} hats Array of Hats
  * @param {number} chainId Chain ID -- optional if not nested on hat object
  */
-const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
+const useImageURIs = (hats: IHat[] | undefined) => {
   const calls: any = _.map(hats, (hat) => {
     return {
       address: CONFIG.hatsAddress,
-      chainId: hat?.chainId || chainId,
+      chainId: hat?.chainId,
       abi: abi as Abi,
       functionName: 'getImageURIForHat',
       args: [hat?.id || hat],
@@ -31,39 +31,51 @@ const useImageURIs = (hats: IHat[] | undefined, chainId?: number) => {
     enabled: !!hats && !_.isEmpty(hats),
   });
 
-  const checkImagesForHats = async () => {
-    const promises = _.map(imagesData, (imageData: { result: string }) => {
-      return isImageUrl(formatImageUrl(imageData?.result));
-    });
-    const isValidImages = await Promise.all(promises);
+  const checkImageForHat = async (img: string) => {
+    const i = _.findIndex(hats, ['imageUri', img]);
+    const isValidImage = await isImageUrl(formatImageUrl(img));
 
-    try {
-      return _.map(hats, (hat, i) => {
-        return {
-          ...hat,
-          imageUrl: isValidImages[i]
-            ? formatImageUrl(imagesData?.[i]?.result as string)
-            : undefined,
-        };
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      return hats;
+    let imageUrl = null;
+    if (isValidImage && i) {
+      imageUrl = formatImageUrl(imagesData?.[i]?.result as string);
     }
+    return imageUrl;
   };
 
   const enabled = !_.isEmpty(hats) && !!imagesData;
 
-  const { data, isLoading, fetchStatus } = useQuery({
-    queryKey: ['imageUrls', _.map(hats, 'id')],
-    queryFn: checkImagesForHats,
-    enabled,
+  const uniqueImageUris = _.compact(_.uniq(_.map(hats, 'imageUri')));
+
+  const imageQueries = useQueries({
+    queries: _.map(uniqueImageUris, (img) => ({
+      queryKey: ['imageUrl', img],
+      queryFn: () => checkImageForHat(img),
+      enabled: enabled && !!img && img !== '',
+      timeout: 5000,
+    })),
   });
 
+  const imageUrls = _.map(imageQueries, 'data');
+  const isLoaded = _.every(imageQueries, ['isLoading', false]);
+
+  let mergeWithHats;
+  if (isLoaded) {
+    mergeWithHats = _.map(hats, (hat, i) => {
+      const imageIndex = _.findIndex(
+        uniqueImageUris,
+        (img) => img === (_.get(_.nth(imagesData, i), 'result') as string),
+      );
+
+      return {
+        ...hat,
+        imageUrl: imageUrls[imageIndex],
+      };
+    });
+  }
+
   return {
-    data,
-    isLoading: (isLoading && fetchStatus !== 'idle') || imagesLoading,
+    data: mergeWithHats || undefined,
+    isLoading: !isLoaded || imagesLoading,
   };
 };
 

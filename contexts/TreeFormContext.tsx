@@ -18,8 +18,11 @@ import { defaultHat } from '@/constants';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
 import useImageURIs from '@/hooks/useImageURIs';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import useManyHatDetails from '@/hooks/useManyHatsDetails';
+import useManyHatsDetailsField from '@/hooks/useManyHatsDetailsField';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useTreeDetails from '@/hooks/useTreeDetails';
+import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
 import { generateLocalStorageKey } from '@/lib/general';
 import { ipToHatId, translateDrafts } from '@/lib/hats';
 import { FormData, HatDetails, IHat, IHatEvent, ITree } from '@/types';
@@ -94,6 +97,9 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   treeDisclosure: undefined,
 });
 
+// cascade of hats to get the org chart type
+// orgChartHats -> useManyHatDetails -> useImageURIs -> useOrgChartTree
+
 export const TreeFormContextProvider = ({
   treeId,
   chainId,
@@ -155,8 +161,26 @@ export const TreeFormContextProvider = ({
     initialData: initialTreeData,
   });
 
+  const hatDetails = useManyHatDetails({
+    hats: _.map(orgChartHats, ({ id: hatId }) => ({
+      id: hatId,
+      chainId,
+    })),
+    initialHats: _.get(initialTreeData, 'hats'),
+  });
+
+  const hatsWithDetailsField = useManyHatsDetailsField({
+    hats: hatDetails,
+  });
+  // console.log(hatsWithDetailsField);
+
+  const wAndCData = useWearersControllersDetails({
+    hats: hatsWithDetailsField,
+  });
+  console.log(wAndCData);
+
   const { data: hatsWithImageData, isLoading: imagesDataLoading } =
-    useImageURIs(orgChartHats, chainId);
+    useImageURIs(hatDetails);
 
   const { orgChartTree } = useOrgChartTree({
     treeData,

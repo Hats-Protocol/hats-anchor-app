@@ -33,7 +33,7 @@ export interface IHat {
   extendedToggle?: IHatWearer;
   mutable: boolean;
   imageUri?: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];

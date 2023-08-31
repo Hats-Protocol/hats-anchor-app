@@ -474,13 +474,18 @@ const OrgChartComponent: React.FC = () => {
                   ">
                   <img
                     loading="lazy"
-                    src="${imageUrl !== '' ? imageUrl : '/icon.jpeg'}"
+                    src="${
+                      imageUrl !== '' && imageUrl !== null
+                        ? imageUrl
+                        : '/icon.jpeg'
+                    }"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '72px'};
                       height: ${isSelected ? '78.5px' : '72px'};
                       left: ${isSelected ? -4 : -1}px;
-                      top: ${isSelected ? -4 : -1}px;"
+                      top: ${isSelected ? -4 : -1}px;
+                      opacity: ${imageUrl === null ? 0.5 : 1};"
                   />
                   </div>
                   <div style="
