@@ -16,16 +16,6 @@ const useOrgChartTree = ({
   initialHatIds,
   chainId,
 }: UseOrgChartTreeProps) => {
-  console.log(
-    !!treeData?.id,
-    !!chainId,
-    !!hatsData,
-    !!detailsData,
-    !!wearersAndControllers,
-    !!imagesData,
-    imagesLoaded,
-    detailsLoaded,
-  );
   const fetchTree = async () => {
     if (
       !chainId ||
@@ -46,7 +36,6 @@ const useOrgChartTree = ({
       chainId,
       initialHatIds,
     });
-    console.log(tree);
 
     return tree;
   };

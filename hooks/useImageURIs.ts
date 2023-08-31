@@ -29,6 +29,7 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
     contracts: calls,
     enabled: !!hats && !_.isEmpty(hats),
   });
+  console.log('image hook - uris', imagesData);
 
   const uniqueImageUris = _.compact(
     _.uniq(_.map(imagesData, 'result')),
@@ -44,7 +45,7 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
     return imageUrl;
   };
 
-  const enabled = !_.isEmpty(hats) && !!imagesData;
+  const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
 
   const imageQueries = useQueries({
     queries: _.map(uniqueImageUris, (img) => ({
@@ -54,7 +55,11 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
       timeout: 5000,
     })),
   });
-  console.log(_.every(imageQueries, ['isLoading', false]), imageQueries);
+  console.log(
+    'image hook - results',
+    _.every(imageQueries, ['isLoading', false]),
+    imageQueries,
+  );
 
   const imageUrls = _.map(imageQueries, 'data');
   const isLoaded = _.every(imageQueries, ['isLoading', false]);
