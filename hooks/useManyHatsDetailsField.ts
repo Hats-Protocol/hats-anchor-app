@@ -32,7 +32,7 @@ const useManyHatsDetailsField = ({ hats }: { hats: IHat[] }) => {
   });
 
   return _.map(hats, (hat, i) => ({
-    ...hat,
+    id: hat?.details,
     detailsObject: detailsFields[i]?.data?.data,
   }));
 };

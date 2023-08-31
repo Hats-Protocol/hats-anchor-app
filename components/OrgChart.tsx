@@ -149,6 +149,7 @@ const OrgChartComponent: React.FC = () => {
                   admin: {
                     id: data.data.id,
                   },
+                  imageUri: '',
                   imageUrl: '/icon.jpeg',
                   parentId: data.data.id,
                   name: nextChildId,

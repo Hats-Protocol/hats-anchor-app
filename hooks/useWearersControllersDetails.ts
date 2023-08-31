@@ -50,11 +50,10 @@ const useWearersControllersDetails = ({ hats }: { hats: IHat[] }) => {
     queries: _.map(wAndCs, (w) => ({
       queryKey: ['wearerAndControllerDetails', w, chainId],
       queryFn: () => fetchWearerAndControllerDetails(w, chainId),
-      enabled: !!w && isAddress(w),
+      enabled: !!w && isAddress(w) && !!chainId,
     })),
   });
 
-  // ! combine info with hats' wearers and controllers
   return _.compact(_.map(wearerAndControllerDetails, 'data'));
 };
 

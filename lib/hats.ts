@@ -137,7 +137,6 @@ export function ipToHatId(id: string | undefined): Hex {
 // expects fullId
 export const hatIdToHex = (hatId: string | null) => {
   if (!hatId || hatId === '0x') return '';
-  console.log(hatIdToHex);
   return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
 };
 
@@ -319,6 +318,7 @@ export const translateDrafts = ({
           name: hat.name || 'New Hat',
         },
       },
+      imageUri: '',
       parentId: calculateParentId(hat.id),
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE

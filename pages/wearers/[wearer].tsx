@@ -49,7 +49,7 @@ const WearerDetail = ({
   const firstCreated = _.minBy(currentHats, 'createdAt');
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(currentHats);
+    useImageURIs({ hats: currentHats });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({

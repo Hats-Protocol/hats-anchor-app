@@ -47,7 +47,7 @@ const Home = () => {
   });
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(currentHats);
+    useImageURIs({ hats: currentHats });
 
   const sortedHats = _.sortBy(currentHatsWithImagesData, (hat) => {
     return _.indexOf(orderedChains, hat.chainId);

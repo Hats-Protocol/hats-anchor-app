@@ -13,9 +13,8 @@ import { IHat } from '@/types';
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
  * for every url, checks if valid. If not, sets the image url to undefined.
  * @param {IHat[]} hats Array of Hats
- * @param {number} chainId Chain ID -- optional if not nested on hat object
  */
-const useImageURIs = (hats: IHat[] | undefined) => {
+const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
   const calls: any = _.map(hats, (hat) => {
     return {
       address: CONFIG.hatsAddress,
@@ -31,20 +30,21 @@ const useImageURIs = (hats: IHat[] | undefined) => {
     enabled: !!hats && !_.isEmpty(hats),
   });
 
+  const uniqueImageUris = _.compact(
+    _.uniq(_.map(imagesData, 'result')),
+  ) as string[];
+
   const checkImageForHat = async (img: string) => {
-    const i = _.findIndex(hats, ['imageUri', img]);
     const isValidImage = await isImageUrl(formatImageUrl(img));
 
     let imageUrl = null;
-    if (isValidImage && i) {
-      imageUrl = formatImageUrl(imagesData?.[i]?.result as string);
+    if (isValidImage) {
+      imageUrl = formatImageUrl(img);
     }
     return imageUrl;
   };
 
   const enabled = !_.isEmpty(hats) && !!imagesData;
-
-  const uniqueImageUris = _.compact(_.uniq(_.map(hats, 'imageUri')));
 
   const imageQueries = useQueries({
     queries: _.map(uniqueImageUris, (img) => ({
@@ -58,9 +58,9 @@ const useImageURIs = (hats: IHat[] | undefined) => {
   const imageUrls = _.map(imageQueries, 'data');
   const isLoaded = _.every(imageQueries, ['isLoading', false]);
 
-  let mergeWithHats;
+  let mergedWithHats;
   if (isLoaded) {
-    mergeWithHats = _.map(hats, (hat, i) => {
+    mergedWithHats = _.map(hats, (hat, i) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,
         (img) => img === (_.get(_.nth(imagesData, i), 'result') as string),
@@ -74,8 +74,8 @@ const useImageURIs = (hats: IHat[] | undefined) => {
   }
 
   return {
-    data: mergeWithHats || undefined,
-    isLoading: !isLoaded || imagesLoading,
+    data: mergedWithHats || undefined,
+    isLoading: !isLoaded || imagesLoading || !mergedWithHats,
   };
 };
 

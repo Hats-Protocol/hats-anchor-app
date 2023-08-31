@@ -97,8 +97,13 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   treeDisclosure: undefined,
 });
 
-// cascade of hats to get the org chart type
-// orgChartHats -> useManyHatDetails -> useImageURIs -> useOrgChartTree
+// cascade of hats data to get the org chart type
+// orgChartHats
+//    -> useManyHatDetails (initialData: initialTreeData.hats)
+//       -> useManyHatsDetailsField
+//       -> useWearersControllersDetails
+//       -> useImageURIs
+//          -> useOrgChartTree (all pass to)
 
 export const TreeFormContextProvider = ({
   treeId,
@@ -169,23 +174,26 @@ export const TreeFormContextProvider = ({
     initialHats: _.get(initialTreeData, 'hats'),
   });
 
-  const hatsWithDetailsField = useManyHatsDetailsField({
+  const detailsFields = useManyHatsDetailsField({
     hats: hatDetails,
   });
-  // console.log(hatsWithDetailsField);
 
-  const wAndCData = useWearersControllersDetails({
-    hats: hatsWithDetailsField,
+  const wearersAndControllers = useWearersControllersDetails({
+    hats: hatDetails,
   });
-  console.log(wAndCData);
 
-  const { data: hatsWithImageData, isLoading: imagesDataLoading } =
-    useImageURIs(hatDetails);
+  const { data: imagesData, isLoading: imagesDataLoading } = useImageURIs({
+    hats: hatDetails,
+  });
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
     chainId,
-    hatsWithImageData,
+    hatsData: hatDetails,
+    detailsData: detailsFields,
+    wearersAndControllers,
+    imagesData,
+    imagesLoaded: !imagesDataLoading,
     initialHatIds,
   });
 
