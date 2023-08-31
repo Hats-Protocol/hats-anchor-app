@@ -12,9 +12,20 @@ const useOrgChartTree = ({
   wearersAndControllers,
   imagesData,
   imagesLoaded,
+  detailsLoaded,
   initialHatIds,
   chainId,
 }: UseOrgChartTreeProps) => {
+  console.log(
+    !!treeData?.id,
+    !!chainId,
+    !!hatsData,
+    !!detailsData,
+    !!wearersAndControllers,
+    !!imagesData,
+    imagesLoaded,
+    detailsLoaded,
+  );
   const fetchTree = async () => {
     if (
       !chainId ||
@@ -35,6 +46,7 @@ const useOrgChartTree = ({
       chainId,
       initialHatIds,
     });
+    console.log(tree);
 
     return tree;
   };
@@ -53,7 +65,8 @@ const useOrgChartTree = ({
       !!detailsData &&
       !!wearersAndControllers &&
       !!imagesData &&
-      imagesLoaded,
+      imagesLoaded &&
+      detailsLoaded,
   });
 
   return { orgChartTree, isLoading };
@@ -70,6 +83,7 @@ interface UseOrgChartTreeProps {
   wearersAndControllers: IHatWearer[] | undefined;
   imagesData: IHat[] | undefined;
   imagesLoaded: boolean;
+  detailsLoaded: boolean;
   initialHatIds: Hex[];
   chainId: number;
 }

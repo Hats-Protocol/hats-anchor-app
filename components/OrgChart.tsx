@@ -247,6 +247,7 @@ const OrgChartComponent: React.FC = () => {
               extendedToggle: toggle,
               levelAtLocalTree,
             } = d.data;
+            // console.log(imageUrl);
 
             const nextChildId = calculateNextChildId(d.data.id, filteredTree);
 

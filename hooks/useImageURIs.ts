@@ -54,12 +54,13 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
       timeout: 5000,
     })),
   });
+  console.log(_.every(imageQueries, ['isLoading', false]), imageQueries);
 
   const imageUrls = _.map(imageQueries, 'data');
   const isLoaded = _.every(imageQueries, ['isLoading', false]);
 
   let mergedWithHats;
-  if (isLoaded) {
+  if (!imagesLoading && isLoaded) {
     mergedWithHats = _.map(hats, (hat, i) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,

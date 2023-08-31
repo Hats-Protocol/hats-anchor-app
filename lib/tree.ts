@@ -110,6 +110,7 @@ export async function toTreeStructure({
   ) {
     return Promise.resolve(undefined);
   }
+  console.log(imagesData);
 
   const mergedHatsData = _.map(hatsData, (hat) => {
     const details = _.find(detailsData, ['id', hat.details]);
@@ -121,7 +122,6 @@ export async function toTreeStructure({
       imageUrl: image?.imageUrl,
     };
   });
-  console.log(mergedHatsData);
 
   const hats = _.map(initialHatIds, (hat) =>
     mapHat(_.find(mergedHatsData, ['id', hat]), chainId, wearersAndControllers),

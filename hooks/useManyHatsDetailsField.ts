@@ -23,18 +23,27 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
 };
 
 const useManyHatsDetailsField = ({ hats }: { hats: IHat[] }) => {
+  const filteredDetails = _.reject(
+    hats,
+    (hat) => !_.startsWith(_.get(hat, 'details'), 'ipfs://'),
+  );
+
   const detailsFields = useQueries({
-    queries: _.map(hats, (hat) => ({
+    queries: _.map(filteredDetails, (hat) => ({
       queryKey: ['hatDetailsField', hat?.details],
       queryFn: () => fetchDetailsIpfs(hat?.details),
-      enabled: !!hat?.details && hat?.details?.startsWith('ipfs://'),
+      enabled: !!hat?.details,
     })),
   });
+  console.log(detailsFields);
 
-  return _.map(hats, (hat, i) => ({
-    id: hat?.details,
-    detailsObject: detailsFields[i]?.data?.data,
-  }));
+  return {
+    data: _.map(hats, (hat, i) => ({
+      id: hat?.details,
+      detailsObject: detailsFields[i]?.data?.data,
+    })),
+    isLoading: _.some(detailsFields, 'isLoading'),
+  };
 };
 
 export default useManyHatsDetailsField;
