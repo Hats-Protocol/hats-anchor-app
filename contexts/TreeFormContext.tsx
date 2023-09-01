@@ -21,8 +21,15 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import { generateLocalStorageKey } from '@/lib/general';
-import { ipToHatId, translateDrafts } from '@/lib/hats';
-import { FormData, HatDetails, IHat, IHatEvent, ITree } from '@/types';
+import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
+import {
+  FormData,
+  HatDetails,
+  Hierarchy,
+  IHat,
+  IHatEvent,
+  ITree,
+} from '@/types';
 
 export interface ITreeFormContext {
   chainId: number | undefined;
@@ -59,6 +66,7 @@ export interface ITreeFormContext {
   hatDisclosure: UseDisclosureReturn | undefined;
   treeDisclosure: UseDisclosureReturn | undefined;
   patchTree: ((proposedHats: IHat[]) => void) | undefined;
+  hierarchy: Hierarchy | undefined;
 }
 
 export const TreeFormContext = createContext<ITreeFormContext>({
@@ -96,6 +104,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   hatDisclosure: undefined,
   treeDisclosure: undefined,
   patchTree: undefined,
+  hierarchy: undefined,
 });
 
 export const TreeFormContextProvider = ({
@@ -126,7 +135,6 @@ export const TreeFormContextProvider = ({
   const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
     _.get(initialTreeData, 'hats'),
   );
-  console.log('orgChartHats', orgChartHats);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
@@ -321,6 +329,14 @@ export const TreeFormContextProvider = ({
     });
   }, []);
 
+  const hierarchy = useMemo(() => {
+    const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({
+      id: hat.id,
+      parentId: hat.admin?.id,
+    }));
+    return createHierarchy(parentsAndIds, selectedHat?.id);
+  }, [orgChartTree, selectedHat]);
+
   useEffect(() => {
     if (initialHatId && orgChartTree) {
       handleSelectHat(ipToHatId(String(initialHatId)));
@@ -364,6 +380,7 @@ export const TreeFormContextProvider = ({
       hatDisclosure,
       treeDisclosure,
       patchTree,
+      hierarchy,
     }),
     [
       chainId,
@@ -400,6 +417,7 @@ export const TreeFormContextProvider = ({
       hatDisclosure,
       treeDisclosure,
       patchTree,
+      hierarchy,
     ],
   );
 
