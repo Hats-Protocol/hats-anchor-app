@@ -276,7 +276,7 @@ const HatLinkRequestApproveForm = ({
                       isDragAccept={isDragAccept}
                       isDragReject={isDragReject}
                       image={image}
-                      imageUrl={selectedHat?.imageUrl}
+                      imageUrl={selectedHat?.imageUrl || '/icon.jpeg'}
                     />
                   )}
                 </Stack>

@@ -42,7 +42,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam);
 
-  if (!treeId || !chainId) {
+  if (!treeId || treeId === 'undefined' || !chainId) {
     return { props: {} };
   }
 

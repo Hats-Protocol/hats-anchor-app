@@ -14,7 +14,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { decimalId, isTopHat } from '@/lib/hats';
+import { decimalId, isTopHat, prettyIdToId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
 import Suspender from './atoms/Suspender';
@@ -71,9 +71,15 @@ const TreePage = () => {
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
-  const title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
-    BigInt(_.get(selectedHat, 'id', '0')),
-  )}`;
+
+  let title = `Tree #${hatIdDecimalToIp(
+    BigInt(prettyIdToId(treeId) || '0'),
+  )} on ${chain.name}`;
+  if (selectedHat) {
+    title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
+      BigInt(_.get(selectedHat, 'id')),
+    )} on ${chain.name}`;
+  }
 
   return (
     <>

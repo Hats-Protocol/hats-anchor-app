@@ -57,6 +57,7 @@ export const fetchHatDetails = async (
   chainId: number,
 ): Promise<IHat | null> => {
   if (!hatId) return null;
+  console.log(chainId);
 
   const result = await client(chainId).request(GET_HAT, { id: hatId });
 

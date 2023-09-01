@@ -2,9 +2,9 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
-import { fetchManyWearerDetails } from '@/gql/helpers';
-import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
+// import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+// import { fetchManyWearerDetails } from '@/gql/helpers';
+// import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
 import { IHat, IHatWearer, ITree } from '@/types';
 
@@ -86,53 +86,57 @@ const mapParentTrees = (
 // eslint-disable-next-line import/prefer-default-export
 export async function toTreeStructure({
   treeData,
-  hatsImages,
+  hatsData,
+  detailsData,
+  wearersAndControllers,
+  imagesData,
   chainId,
   initialHatIds,
 }: {
   treeData: ITree | null | undefined;
-  hatsImages: IHat[] | undefined;
+  hatsData: IHat[] | undefined;
+  detailsData: { id: string; detailsObject: { type: string; data: any } }[];
+  wearersAndControllers: IHatWearer[] | undefined;
+  imagesData: IHat[] | undefined;
   chainId: number;
   initialHatIds: Hex[];
 }): Promise<IHat[] | undefined> {
-  if (!treeData || !hatsImages) return Promise.resolve(undefined);
+  if (
+    !treeData ||
+    !hatsData ||
+    !detailsData ||
+    !wearersAndControllers ||
+    !imagesData
+  ) {
+    return Promise.resolve(undefined);
+  }
+  // console.log('', imagesData);
 
-  const detailsFields = _.map(hatsImages, 'details');
-  const wAndCs = _.uniq(
-    _.compact(
-      _.reject(
-        _.concat(
-          _.map(_.flatten(_.map(hatsImages, 'wearers')), 'id'),
-          _.map(_.flatten(_.map(hatsImages, 'toggle')), 'id'),
-          _.map(_.flatten(_.map(hatsImages, 'eligibility')), 'id'),
-        ),
-        ZERO_ADDRESS || FALLBACK_ADDRESS,
-      ),
-    ),
-  );
-  const [details, wAndCInfo] = await Promise.all([
-    fetchMultipleHatsDetails(detailsFields),
-    fetchManyWearerDetails(wAndCs, chainId),
-  ]);
-  const hatsData = _.map(hatsImages, (hat: IHat, index: number) => ({
-    ...hat,
-    detailsObject: details?.[index],
-  }));
+  const mergedHatsData = _.map(hatsData, (hat) => {
+    const details = _.find(detailsData, ['id', hat.details]);
+    const image = _.find(imagesData, ['id', hat.id]);
+    // console.log(image);
+    return {
+      ...hat,
+      detailsObject: details?.detailsObject,
+      imageUrl: image?.imageUrl,
+    };
+  });
 
   const hats = _.map(initialHatIds, (hat) =>
-    mapHat(_.find(hatsData, ['id', hat]), chainId, wAndCInfo),
+    mapHat(_.find(mergedHatsData, ['id', hat]), chainId, wearersAndControllers),
   );
   // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
   const linkedHats = _.map([treeData?.linkedToHat || undefined], (hat) =>
-    mapLinkedHat(hat, chainId, wAndCInfo),
+    mapLinkedHat(hat, chainId, wearersAndControllers),
   );
   // If the tree has parentOfTrees, add them to the hatsArray with the linkedToHat as their parent
   const parentOfTrees = _.map(treeData?.parentOfTrees, (tree) =>
-    mapParentTrees(tree, chainId, hatsData, wAndCInfo),
+    mapParentTrees(tree, chainId, hatsData, wearersAndControllers),
   );
   // If the user has draft hats that are not in the tree, add them to the hatsArray
-  const draftHats = _.filter(hatsImages, (hat) =>
-    _.includes(_.difference(_.map(hatsImages, 'id'), initialHatIds), hat.id),
+  const draftHats = _.filter(hatsData, (hat) =>
+    _.includes(_.difference(_.map(hatsData, 'id'), initialHatIds), hat.id),
   );
 
   const hatsList = _.orderBy(

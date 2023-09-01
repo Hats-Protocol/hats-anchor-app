@@ -149,6 +149,7 @@ const OrgChartComponent: React.FC = () => {
                   admin: {
                     id: data.data.id,
                   },
+                  imageUri: '',
                   imageUrl: '/icon.jpeg',
                   parentId: data.data.id,
                   name: nextChildId,
@@ -246,6 +247,7 @@ const OrgChartComponent: React.FC = () => {
               extendedToggle: toggle,
               levelAtLocalTree,
             } = d.data;
+            // console.log(imageUrl);
 
             const nextChildId = calculateNextChildId(d.data.id, filteredTree);
 
@@ -474,13 +476,18 @@ const OrgChartComponent: React.FC = () => {
                   ">
                   <img
                     loading="lazy"
-                    src="${imageUrl !== '' ? imageUrl : '/icon.jpeg'}"
+                    src="${
+                      imageUrl !== '' && imageUrl !== null
+                        ? imageUrl
+                        : '/icon.jpeg'
+                    }"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '72px'};
                       height: ${isSelected ? '78.5px' : '72px'};
                       left: ${isSelected ? -4 : -1}px;
-                      top: ${isSelected ? -4 : -1}px;"
+                      top: ${isSelected ? -4 : -1}px;
+                      opacity: ${imageUrl === null ? 0.5 : 1};"
                   />
                   </div>
                   <div style="

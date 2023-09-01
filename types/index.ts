@@ -32,8 +32,8 @@ export interface IHat {
   toggle: Hex;
   extendedToggle?: IHatWearer;
   mutable: boolean;
-  imageUri?: string;
-  imageUrl?: string;
+  imageUri: string;
+  imageUrl?: string | null;
   levelAtLocalTree: number;
   currentSupply: string;
   events: IHatEvent[];

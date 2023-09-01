@@ -34,9 +34,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
         <CardBody p={4}>
           <HStack spacing={4}>
             <Image
-              src={
-                _.get(hat, 'imageUrl') ? _.get(hat, 'imageUrl') : '/icon.jpeg'
-              }
+              src={_.get(hat, 'imageUrl') || '/icon.jpeg'}
               bgSize='cover'
               bgPosition='center'
               h='72px'
