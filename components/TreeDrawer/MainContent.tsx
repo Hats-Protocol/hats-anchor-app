@@ -120,7 +120,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 alignItems='center'
                 variant='ghost'
                 borderRadius={0}
-                isDisabled={!isTopHatOrMutable(hat)}
                 onClick={handleHatClick}
               >
                 <HStack>

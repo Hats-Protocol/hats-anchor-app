@@ -56,6 +56,7 @@ const useMulticallCallManyHats = () => {
   } = useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { patchTree } = useTreeForm();
 
   const hatsClient = createHatsClient(chainId);
 
@@ -63,6 +64,8 @@ const useMulticallCallManyHats = () => {
     if (!chainId || !treeId || !address || !hatsClient || !storedData)
       return undefined;
 
+    const calls = [] as CallData[];
+    const proposedChanges = [] as any[];
     if (currentChain !== chainId) {
       toast.error({
         title: 'Wrong Chain',
@@ -70,8 +73,6 @@ const useMulticallCallManyHats = () => {
       });
       return;
     }
-
-    const calls = [] as CallData[];
 
     for (const hat of storedData) {
       const {
@@ -93,6 +94,9 @@ const useMulticallCallManyHats = () => {
         wearers,
       } = hat;
 
+      const hatChanges = {
+        id: hatId,
+      } as any;
       if (!hatId) continue;
 
       let currentHat;
@@ -141,7 +145,7 @@ const useMulticallCallManyHats = () => {
           hatId,
           newDetails: detailsData,
         });
-        const newHatData = hatsClient.createHatCallData({
+        const newHat = {
           admin: BigInt(getDefaultAdminId(hatId)),
           details,
           maxSupply: _.toNumber(maxSupply) || 1,
@@ -149,8 +153,15 @@ const useMulticallCallManyHats = () => {
           toggle: toggle || FALLBACK_ADDRESS,
           mutable: mutable === MUTABILITY.IMMUTABLE ? false : true,
           imageURI: imageUrl,
-        });
+        };
+        const newHatData = hatsClient.createHatCallData(newHat);
+
         calls.push(newHatData);
+        proposedChanges.push({
+          id: hatId,
+          chainId,
+          newHat,
+        });
 
         if (_.eq(_.size(wearers), 1)) {
           const wearerAddress = _.get(_.first(wearers), 'address');
@@ -208,6 +219,7 @@ const useMulticallCallManyHats = () => {
 
         if (changeHatDetailsData) {
           calls.push(changeHatDetailsData);
+          hatChanges.details = newCid;
         }
       }
 
@@ -219,6 +231,7 @@ const useMulticallCallManyHats = () => {
 
         if (changeHatMaxSupplyData) {
           calls.push(changeHatMaxSupplyData);
+          hatChanges.newMaxSupply = parseInt(maxSupply, 10);
         }
       }
 
@@ -233,6 +246,7 @@ const useMulticallCallManyHats = () => {
 
             if (mintHatWearersData) {
               calls.push(mintHatWearersData);
+              hatChanges.wearer = wearerAddress;
             }
           }
         } else {
@@ -245,6 +259,7 @@ const useMulticallCallManyHats = () => {
 
           if (batchMintHatWearersData) {
             calls.push(batchMintHatWearersData);
+            hatChanges.wearers = _.map(wearers, 'address');
           }
         }
       }
@@ -258,6 +273,7 @@ const useMulticallCallManyHats = () => {
 
         if (changeHatEligibilityData) {
           calls.push(changeHatEligibilityData);
+          hatChanges.eligibility = eligibility;
         }
       }
 
@@ -269,6 +285,7 @@ const useMulticallCallManyHats = () => {
 
         if (changeHatToggleData) {
           calls.push(changeHatToggleData);
+          hatChanges.toggle = toggle;
         }
       }
 
@@ -279,6 +296,7 @@ const useMulticallCallManyHats = () => {
 
         if (makeHatImmutableData) {
           calls.push(makeHatImmutableData);
+          hatChanges.mutable = false;
         }
       }
 
@@ -290,8 +308,11 @@ const useMulticallCallManyHats = () => {
 
         if (changeHatImageURIData) {
           calls.push(changeHatImageURIData);
+          hatChanges.imageUrl = imageUrl;
         }
       }
+
+      proposedChanges.push(hatChanges);
     }
     console.log(calls);
 
@@ -305,10 +326,26 @@ const useMulticallCallManyHats = () => {
 
         // TODO handle optimistic image update
         const treeQueryKey = ['treeDetails', treeId, chainId];
-
+        const orgChartTreeQueryKey = [
+          'orgChartTree',
+          { chainId, treeId },
+          _.map(onchainHats, 'id'),
+        ];
+        queryClient.invalidateQueries(orgChartTreeQueryKey);
         queryClient.invalidateQueries(treeQueryKey);
-        // todo update org chart hats
+
+        _.forEach(storedData, (hat) => {
+          const hatId = _.get(hat, 'id');
+          const hatDetailsField = _.get(hat, 'details');
+
+          if (hatId && hatDetailsField) {
+            queryClient.invalidateQueries(['hatDetailsField', hatDetailsField]);
+            queryClient.invalidateQueries(['hatDetails', hatId, chainId]);
+          }
+        });
+
         setIsLoading(false);
+        patchTree?.(proposedChanges);
         setStoredData?.([]);
 
         toast.success({

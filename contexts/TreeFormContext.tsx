@@ -21,8 +21,15 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import { generateLocalStorageKey } from '@/lib/general';
-import { ipToHatId, translateDrafts } from '@/lib/hats';
-import { FormData, HatDetails, IHat, IHatEvent, ITree } from '@/types';
+import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
+import {
+  FormData,
+  HatDetails,
+  Hierarchy,
+  IHat,
+  IHatEvent,
+  ITree,
+} from '@/types';
 
 export interface ITreeFormContext {
   chainId: number | undefined;
@@ -31,6 +38,7 @@ export interface ITreeFormContext {
   // tree
   topHatDetails: HatDetails | undefined;
   selectedHatDetails: HatDetails | undefined;
+  isDraft: boolean;
   orgChartTree: IHat[] | undefined;
   onchainTree: ITree | undefined;
   onchainHats: IHat[] | undefined;
@@ -57,6 +65,8 @@ export interface ITreeFormContext {
   // disclosures
   hatDisclosure: UseDisclosureReturn | undefined;
   treeDisclosure: UseDisclosureReturn | undefined;
+  patchTree: ((proposedHats: IHat[]) => void) | undefined;
+  hierarchy: Hierarchy | undefined;
 }
 
 export const TreeFormContext = createContext<ITreeFormContext>({
@@ -66,6 +76,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   // tree
   topHatDetails: undefined,
   selectedHatDetails: undefined,
+  isDraft: false,
   orgChartTree: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
@@ -92,6 +103,8 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   // disclosures
   hatDisclosure: undefined,
   treeDisclosure: undefined,
+  patchTree: undefined,
+  hierarchy: undefined,
 });
 
 export const TreeFormContextProvider = ({
@@ -180,6 +193,7 @@ export const TreeFormContextProvider = ({
     () => _.find(orgChartTree, ['id', selectedHatId]),
     [orgChartTree, selectedHatId],
   );
+
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
@@ -188,6 +202,7 @@ export const TreeFormContextProvider = ({
   // existing tree
   const treeEvents = _.get(onchainTree.current, 'events');
   const onchainHats = _.get(onchainTree.current, 'hats');
+  const isDraft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
   // ? const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
   const handleSelectHat = useCallback(
@@ -290,6 +305,38 @@ export const TreeFormContextProvider = ({
     onCloseTreeDrawer();
   }, [onchainHats, setStoredData, onCloseTreeDrawer]);
 
+  const patchTree = useCallback((proposedHats: IHat[]) => {
+    setOrgChartHats((prevHats) => {
+      if (!prevHats) return [];
+
+      const proposedHatsMap = proposedHats.reduce<{ [id: string]: IHat }>(
+        (acc, hat) => {
+          acc[hat.id] = hat;
+          return acc;
+        },
+        {},
+      );
+
+      return prevHats.map((existingHat) => {
+        if (proposedHatsMap[existingHat.id]) {
+          return {
+            ...existingHat,
+            ...proposedHatsMap[existingHat.id],
+          };
+        }
+        return existingHat;
+      });
+    });
+  }, []);
+
+  const hierarchy = useMemo(() => {
+    const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({
+      id: hat.id,
+      parentId: hat.admin?.id,
+    }));
+    return createHierarchy(parentsAndIds, selectedHat?.id);
+  }, [orgChartTree, selectedHat]);
+
   useEffect(() => {
     if (initialHatId && orgChartTree) {
       handleSelectHat(ipToHatId(String(initialHatId)));
@@ -305,6 +352,7 @@ export const TreeFormContextProvider = ({
       // tree
       topHatDetails,
       selectedHatDetails,
+      isDraft,
       orgChartTree,
       onchainTree: onchainTree.current,
       onchainHats,
@@ -331,6 +379,8 @@ export const TreeFormContextProvider = ({
       // disclosures
       hatDisclosure,
       treeDisclosure,
+      patchTree,
+      hierarchy,
     }),
     [
       chainId,
@@ -339,6 +389,7 @@ export const TreeFormContextProvider = ({
       // tree
       topHatDetails,
       selectedHatDetails,
+      isDraft,
       orgChartTree,
       onchainTree,
       onchainHats,
@@ -365,6 +416,8 @@ export const TreeFormContextProvider = ({
       // disclosures
       hatDisclosure,
       treeDisclosure,
+      patchTree,
+      hierarchy,
     ],
   );
 

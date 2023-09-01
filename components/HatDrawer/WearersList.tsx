@@ -23,7 +23,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { isAdmin } from '@/lib/hats';
+import { isWearer, prettyIdToId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
@@ -54,7 +54,7 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, treeId } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -73,7 +73,8 @@ const WearersList = () => {
   });
   const currentWearerHats = _.map(wearer, 'id');
 
-  const isAdminUser = isAdmin(currentWearerHats, selectedHat?.id);
+  const isAdminUser = isWearer(currentWearerHats, selectedHat?.id);
+  const isAdminOfTopHat = isWearer(currentWearerHats, prettyIdToId(treeId));
 
   useEffect(() => {
     if (address) {
@@ -132,7 +133,7 @@ const WearersList = () => {
         ))}
 
         <Flex justify='space-between' color='blue.500'>
-          {isAdminUser && (
+          {isAdminOfTopHat && (
             <Tooltip
               label={
                 maxWearersReached

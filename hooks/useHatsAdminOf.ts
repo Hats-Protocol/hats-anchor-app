@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import client from '@/gql/client';
 import { GET_TREES_BY_ID } from '@/gql/queries';
-import { isAdmin } from '@/lib/hats';
+import { isWearer } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
 import { IHat, ITree } from '@/types';
 
@@ -59,7 +59,7 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
     // TODO add another lookup for linked trees/hats
     // filter out the hats that the user is not an admin of
     const filteredAdminHats = _.filter(_.flatten(test), (h: IHat) =>
-      isAdmin(_.map(hats, 'id'), h.id),
+      isWearer(_.map(hats, 'id'), h.id),
     );
 
     return filteredAdminHats;

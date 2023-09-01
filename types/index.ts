@@ -69,12 +69,12 @@ export interface ITree {
   linkRequestFromTree: string | null;
 }
 
-export type HierarchyObject = {
+export type Hierarchy = {
   id: string;
-  parentId: string | null | undefined;
-  firstChild: string | null | undefined;
-  leftSibling: string | null | undefined;
-  rightSibling: string | null | undefined;
+  parentId?: Hex;
+  firstChild?: Hex;
+  leftSibling?: Hex;
+  rightSibling?: Hex;
 };
 
 export type InputObject = {
