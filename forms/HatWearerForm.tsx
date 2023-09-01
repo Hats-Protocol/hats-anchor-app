@@ -247,7 +247,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
             <Input
               name='maxSupply'
               label='MAX WEARERS'
-              subLabel='Total number of addresses that can wear this Hat at the same time.'
+              subLabel='Total number of addresses that can wear this hat at the same time.'
               placeholder='10'
               isDisabled={!isMutable(selectedHat)}
               localForm={localForm}
@@ -256,11 +256,10 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
         )}
         <Stack gap={0}>
           <HStack>
-            <Text fontSize='sm'>WEARER ADDRESS</Text>
-            <FaRegQuestionCircle />
+            <Text fontSize='sm'>NEW WEARER ADDRESS</Text>
           </HStack>
           <Text fontSize='sm' color='blackAlpha.700'>
-            Address will receive a {hatName} Hat token on{' '}
+            This address will receive a {hatName} hat token on{' '}
             {chainId && chainsMap(chainId).name}
           </Text>
         </Stack>
@@ -354,7 +353,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
           {typeof isEligible === 'boolean' && !isEligible && (
             <Text fontSize='sm' color='red.500'>
               <Icon as={FaInfoCircle} mr={1} />
-              This address is not eligible to wear this Hat
+              This address is not eligible to wear this hat
             </Text>
           )}
 

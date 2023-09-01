@@ -62,8 +62,8 @@ export const chainsList: { [key: number]: Chain } = {
   // 11155111: sepolia,
 };
 
-export const chainsMap = (chainId: number) =>
-  chainsList[chainId] || chainsList[5];
+export const chainsMap = (chainId?: number) =>
+  chainId ? chainsList[chainId] : chainsList[5];
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&

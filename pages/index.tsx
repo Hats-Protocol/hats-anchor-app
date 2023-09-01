@@ -73,7 +73,7 @@ const Home = () => {
                 gm {ensName || formatAddress(wearerAddress)} 👋
               </Text>
               <Text fontSize={18}>
-                Here&apos;s what&apos;s happening with your Hats
+                Here&apos;s what&apos;s happening with your hats
               </Text>
             </Stack>
 
@@ -103,7 +103,7 @@ const Home = () => {
           <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
             <Flex justifyContent='space-between' alignItems='center'>
               <Text fontSize={24} fontWeight='medium'>
-                Your Hats
+                Your hats
               </Text>
               {sortedHats.length > 8 && (
                 <ChakraNextLink
@@ -111,7 +111,7 @@ const Home = () => {
                   href={`/wearers/${wearerAddress}`}
                 >
                   <HStack alignItems='center'>
-                    <Text>View All of Your Hats</Text> <FaArrowRight />
+                    <Text>View all of your hats</Text> <FaArrowRight />
                   </HStack>
                 </ChakraNextLink>
               )}

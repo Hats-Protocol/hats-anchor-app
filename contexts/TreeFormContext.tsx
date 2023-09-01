@@ -253,7 +253,7 @@ export const TreeFormContextProvider = ({
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
     });
-    setSelectedOption(editMode ? 'wearers' : 'title');
+    setSelectedOption('wearers');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
 

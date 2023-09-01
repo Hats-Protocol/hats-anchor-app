@@ -64,7 +64,7 @@ const HatLinkRequestCreateForm = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
         <Text>
-          Ask the Wearer of this Hat to become the admin of a Top Hat that you
+          Ask the wearer of this hat to become the admin of a Top Hat that you
           are wearing. You will lose admin control of this Top Hat!
         </Text>
         <Flex>

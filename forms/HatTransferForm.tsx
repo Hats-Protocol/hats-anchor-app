@@ -84,7 +84,7 @@ const HatTransferForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Text>Transfer the selected Hat to another address.</Text>
+        <Text>Transfer the selected hat to another address.</Text>
         <Stack>
           <Text>Tree Domain</Text>
           {hatId && (
@@ -94,7 +94,7 @@ const HatTransferForm = ({
           )}
         </Stack>
         <HStack>
-          <Text>Address of the current Wearer: </Text>
+          <Text>Current wearer address: </Text>
           <Code>{currentWearerAddress}</Code>
         </HStack>
         <Box>
