@@ -3,42 +3,36 @@ import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
-import { generateLocalStorageKey } from '@/lib/general';
 import { processHatForCalls } from '@/lib/hats';
-import { createHatsClient } from '@/lib/web3';
-import { IHat } from '@/types';
+import { chainsMap, createHatsClient } from '@/lib/web3';
 
-type useMulticallCallManyHatsProps = {
-  chainId?: number;
-  treeId?: string;
-  onchainHats?: IHat[];
-};
-
-const useMulticallCallManyHats = ({
-  chainId,
-  treeId,
-  onchainHats,
-}: useMulticallCallManyHatsProps) => {
+const useMulticallCallManyHats = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
-  const hatsClient = createHatsClient(chainId);
+  const currentChain = useChainId();
+  const { chainId, treeId, storedData, onchainHats, setStoredData } =
+    useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { patchTree } = useTreeForm();
 
-  const localStorageKey = generateLocalStorageKey(chainId, treeId);
-  const [storedData, setStoredData] = useLocalStorage<any[]>(
-    localStorageKey,
-    [],
-  );
+  const hatsClient = createHatsClient(chainId);
 
   const onSubmit = async () => {
-    if (!chainId || !treeId || !address || !hatsClient) return undefined;
+    if (!chainId || !treeId || !address || !hatsClient || !storedData)
+      return undefined;
+
+    if (currentChain !== chainId) {
+      toast.error({
+        title: 'Wrong Chain',
+        description: `Please change to ${chainsMap(chainId)?.name}`,
+      });
+      return undefined;
+    }
 
     const allCallsPromises = _.map(storedData, (hat) =>
       processHatForCalls(hat, onchainHats, chainId, hatsClient),
@@ -80,7 +74,7 @@ const useMulticallCallManyHats = ({
 
         setIsLoading(false);
         patchTree?.(proposedChanges);
-        setStoredData([]);
+        setStoredData?.([]);
 
         toast.success({
           title: 'Transaction successful',
@@ -89,6 +83,8 @@ const useMulticallCallManyHats = ({
         return true;
       } catch (error: unknown) {
         console.log(error);
+        // catch signature rejection error
+
         toast.error({
           title: 'Error occurred!',
           description:

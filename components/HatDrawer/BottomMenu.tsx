@@ -1,7 +1,5 @@
 import { Box, Button, Flex, HStack } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
-import { useEffect, useState } from 'react';
 import {
   FaRegArrowAltCircleDown,
   FaRegArrowAltCircleLeft,
@@ -10,24 +8,9 @@ import {
 } from 'react-icons/fa';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { createHierarchy } from '@/lib/hats';
-import { Hierarchy, IHat } from '@/types';
 
 const BottomMenu = () => {
-  const { orgChartTree, selectedHat, setSelectedHatId } = useTreeForm();
-  const [hierarchy, setHierarchy] = useState<Hierarchy>();
-
-  useEffect(() => {
-    if (orgChartTree) {
-      const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({
-        id: hat.id,
-        parentId: hat.admin?.id,
-      }));
-
-      const hierarchyData = createHierarchy(parentsAndIds, selectedHat?.id);
-      setHierarchy(hierarchyData);
-    }
-  }, [orgChartTree, selectedHat?.id]);
+  const { setSelectedHatId, hierarchy } = useTreeForm();
 
   return (
     <Box

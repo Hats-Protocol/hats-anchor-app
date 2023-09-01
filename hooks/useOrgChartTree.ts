@@ -3,20 +3,36 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { toTreeStructure } from '@/lib/tree';
-import { IHat, ITree } from '@/types';
+import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
 
 const useOrgChartTree = ({
   treeData,
-  chainId,
-  hatsWithImageData,
+  hatsData,
+  detailsData,
+  wearersAndControllers,
+  imagesData,
+  imagesLoaded,
+  detailsLoaded,
   initialHatIds,
+  chainId,
 }: UseOrgChartTreeProps) => {
   const fetchTree = async () => {
-    if (!treeData || !chainId || !hatsWithImageData) return undefined;
+    if (
+      !chainId ||
+      !hatsData ||
+      !detailsData ||
+      !wearersAndControllers ||
+      !imagesData
+    ) {
+      return undefined;
+    }
 
     const tree = await toTreeStructure({
       treeData,
-      hatsImages: hatsWithImageData,
+      hatsData,
+      detailsData,
+      wearersAndControllers,
+      imagesData,
       chainId,
       initialHatIds,
     });
@@ -28,10 +44,18 @@ const useOrgChartTree = ({
     queryKey: [
       'orgChartTree',
       { chainId, treeId: treeData?.id },
-      _.map(hatsWithImageData, 'id'),
+      _.map(hatsData, 'id'),
     ],
     queryFn: fetchTree,
-    enabled: !!treeData?.id && !!chainId && !!hatsWithImageData,
+    enabled:
+      !!treeData?.id &&
+      !!chainId &&
+      !!hatsData &&
+      !!detailsData &&
+      !!wearersAndControllers &&
+      !!imagesData &&
+      imagesLoaded &&
+      detailsLoaded,
   });
 
   return { orgChartTree, isLoading };
@@ -41,7 +65,14 @@ export default useOrgChartTree;
 
 interface UseOrgChartTreeProps {
   treeData: ITree | null | undefined;
-  chainId: number;
-  hatsWithImageData: IHat[] | undefined;
+  hatsData: IHat[] | undefined;
+  detailsData:
+    | { id: string; detailsObject: { type: string; data: HatDetails } }[]
+    | undefined;
+  wearersAndControllers: IHatWearer[] | undefined;
+  imagesData: IHat[] | undefined;
+  imagesLoaded: boolean;
+  detailsLoaded: boolean;
   initialHatIds: Hex[];
+  chainId: number;
 }

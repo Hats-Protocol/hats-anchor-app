@@ -318,6 +318,7 @@ export const translateDrafts = ({
           name: hat.name || 'New Hat',
         },
       },
+      imageUri: '',
       parentId: calculateParentId(hat.id),
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE

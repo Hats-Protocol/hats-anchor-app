@@ -1,6 +1,5 @@
 import { Box, Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
-import _ from 'lodash';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { BsListUl, BsPlusCircle, BsShieldLock } from 'react-icons/bs';
 import { GrEdit } from 'react-icons/gr';
@@ -29,7 +28,7 @@ interface HatManagementFormProps {
   };
   inputConfig: {
     label: string;
-    description: string;
+    description: ReactNode[];
   };
   criteriaConfig: {
     label: string;
@@ -116,8 +115,11 @@ const HatManagementForm = ({
             label={`${inputConfig.label} ${
               isActionManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'
             }`}
-            subLabel={inputConfig.description}
-            docsLink={`https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/${title}-requirements-for-wearers`}
+            subLabel={
+              isActionManual === TRIGGER_OPTIONS.MANUALLY
+                ? inputConfig.description[0]
+                : inputConfig.description[1]
+            }
             localForm={localForm}
             showResolvedAddress={Boolean(showActionResolvedAddress)}
             isDisabled={!isMutable(selectedHat)}

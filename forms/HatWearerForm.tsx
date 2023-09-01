@@ -24,13 +24,7 @@ import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
-import {
-  FaCheck,
-  FaInfoCircle,
-  FaRegQuestionCircle,
-  FaRegTrashAlt,
-  FaUpload,
-} from 'react-icons/fa';
+import { FaCheck, FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -157,11 +151,18 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     }
   };
 
+  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
+  const wouldExceedMaxSupply =
+    _.size(currentWearerList) + _.size(localWearers) + 1 >
+    _.toNumber(maxSupply);
+  const canAddWearer = !isAddressAlreadyAdded && !wouldExceedMaxSupply;
+
   const handleAddWearer = () => {
     const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
     if (
       !address ||
-      _.includes(currentWearerList, _.toLower(currentResolvedAddress))
+      _.includes(currentWearerList, _.toLower(currentResolvedAddress)) ||
+      !canAddWearer
     )
       return;
     const newLocalWearers = localWearers;
@@ -176,13 +177,6 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     }));
     setCurrentInput('');
   };
-
-  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
-  const wouldExceedMaxSupply =
-    _.size(currentWearerList) + _.size(localWearers) + 1 >
-    _.toNumber(maxSupply);
-  const canAddWearer =
-    isNewWearerAddress && !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
   const handleRemoveWearer = (index: number) => {
     const updateWearers = _.filter(
@@ -230,12 +224,12 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
 
   let toolTip = '';
 
-  if (!isNewWearerAddress) {
-    toolTip = 'Please input a valid address';
+  if (wouldExceedMaxSupply) {
+    toolTip = 'Would exceed max supply';
   } else if (isAddressAlreadyAdded) {
     toolTip = 'Address already added';
-  } else if (wouldExceedMaxSupply) {
-    toolTip = 'Would exceed max supply';
+  } else if (!isNewWearerAddress) {
+    toolTip = 'Please input a valid address';
   }
 
   return (
@@ -247,7 +241,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
             <Input
               name='maxSupply'
               label='MAX WEARERS'
-              subLabel='Total number of addresses that can wear this Hat at the same time.'
+              subLabel='Total number of addresses that can wear this hat at the same time.'
               placeholder='10'
               isDisabled={!isMutable(selectedHat)}
               localForm={localForm}
@@ -256,11 +250,10 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
         )}
         <Stack gap={0}>
           <HStack>
-            <Text fontSize='sm'>WEARER ADDRESS</Text>
-            <FaRegQuestionCircle />
+            <Text fontSize='sm'>NEW WEARER ADDRESS</Text>
           </HStack>
           <Text fontSize='sm' color='blackAlpha.700'>
-            Address will receive a {hatName} Hat token on{' '}
+            This address will receive a {hatName} hat token on{' '}
             {chainId && chainsMap(chainId).name}
           </Text>
         </Stack>
@@ -313,6 +306,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                     currentResolvedAddress?.toLowerCase(),
                   )
                 }
+                isDisabled={!canAddWearer}
                 onChange={(e) => {
                   setCurrentInput(e.target.value?.toLowerCase() ?? '');
                 }}
@@ -354,7 +348,13 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
           {typeof isEligible === 'boolean' && !isEligible && (
             <Text fontSize='sm' color='red.500'>
               <Icon as={FaInfoCircle} mr={1} />
-              This address is not eligible to wear this Hat
+              This address is not eligible to wear this hat
+            </Text>
+          )}
+
+          {wouldExceedMaxSupply && (
+            <Text fontSize='sm' color='yellow.500'>
+              Max supply reached
             </Text>
           )}
 

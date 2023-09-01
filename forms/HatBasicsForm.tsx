@@ -174,16 +174,16 @@ const HatBasicsForm = ({
                 name='mutable'
                 label='EDITABLE'
                 isDisabled={!isMutable(selectedHat)}
-                subLabel='Should it be possible for an admin to make changes to this Hat?'
+                subLabel='Should it be possible for an admin to make changes to this hat?'
                 localForm={localForm}
                 options={MUTABILITY_OPTIONS}
-                tooltip='Choose whether the Hat should be editable or not'
+                tooltip='Choose whether the hat should be editable or not'
               />
               {localForm.watch('mutable') === MUTABILITY.IMMUTABLE &&
                 !isTopHat(selectedHat) && (
                   <Text color='red.500' fontSize='sm' mt={3}>
-                    Beware: This will make the Hat immutable. No one can ever
-                    change it. This can not be undone.
+                    Warning: This will make the hat immutable. It can never be
+                    changed again. This cannot be undone.
                   </Text>
                 )}
             </Box>

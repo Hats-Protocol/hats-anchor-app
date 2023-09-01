@@ -84,7 +84,6 @@ const OrgChartComponent: React.FC = () => {
     chainId,
   });
 
-  console.log('orgChartTree', orgChartTree);
   useLayoutEffect(() => {
     if (_.isEmpty(orgChartTree)) return;
     const filteredTree = orgChartTree?.filter((t) =>
@@ -150,6 +149,7 @@ const OrgChartComponent: React.FC = () => {
                   admin: {
                     id: data.data.id,
                   },
+                  imageUri: '',
                   imageUrl: '/icon.jpeg',
                   parentId: data.data.id,
                   name: nextChildId,
@@ -247,6 +247,7 @@ const OrgChartComponent: React.FC = () => {
               extendedToggle: toggle,
               levelAtLocalTree,
             } = d.data;
+            // console.log(imageUrl);
 
             const nextChildId = calculateNextChildId(d.data.id, filteredTree);
 
@@ -260,8 +261,8 @@ const OrgChartComponent: React.FC = () => {
             let wearersColor = '#FFFFFF';
             const wearer: IHatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
-            let wearerAccent: string | null = null;
-            let wearerIcon: string | null = null;
+            let wearerAccent: string = `0 of ${maxSupply}`;
+            let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
@@ -475,13 +476,18 @@ const OrgChartComponent: React.FC = () => {
                   ">
                   <img
                     loading="lazy"
-                    src="${imageUrl !== '' ? imageUrl : '/icon.jpeg'}"
+                    src="${
+                      imageUrl !== '' && imageUrl !== null
+                        ? imageUrl
+                        : '/icon.jpeg'
+                    }"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '72px'};
                       height: ${isSelected ? '78.5px' : '72px'};
                       left: ${isSelected ? -4 : -1}px;
-                      top: ${isSelected ? -4 : -1}px;"
+                      top: ${isSelected ? -4 : -1}px;
+                      opacity: ${imageUrl === null ? 0.5 : 1};"
                   />
                   </div>
                   <div style="

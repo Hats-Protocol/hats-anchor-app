@@ -24,12 +24,10 @@ import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import LearnMoreCard from '@/components/LearnMoreCard';
-import CONFIG, {
-  featuredTemplates,
-  featuredTrees,
-  learnMore,
-} from '@/constants';
-import useFeaturedTrees from '@/hooks/useFetchFeaturedTrees';
+import CONFIG, { learnMore } from '@/constants';
+import useFeaturedTemplates from '@/hooks/useFeaturedTemplates';
+import useFeaturedTrees from '@/hooks/useFeaturedTrees';
+import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
@@ -37,7 +35,9 @@ import { orderedChains } from '@/lib/web3';
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
-  const hatsAndWearers = useFeaturedTrees(featuredTrees);
+  const { data: featuredTemplates } = useFeaturedTemplates();
+  const { data: featuredTrees } = useFeaturedTrees();
+  const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
 
   const [isSmallerScreen] = useMediaQuery('(max-width: 1700px)');
 
@@ -47,7 +47,7 @@ const Home = () => {
   });
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(currentHats);
+    useImageURIs({ hats: currentHats });
 
   const sortedHats = _.sortBy(currentHatsWithImagesData, (hat) => {
     return _.indexOf(orderedChains, hat.chainId);
@@ -73,7 +73,7 @@ const Home = () => {
                 gm {ensName || formatAddress(wearerAddress)} 👋
               </Text>
               <Text fontSize={18}>
-                Here&apos;s what&apos;s happening with your Hats
+                Here&apos;s what&apos;s happening with your hats
               </Text>
             </Stack>
 
@@ -103,7 +103,7 @@ const Home = () => {
           <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
             <Flex justifyContent='space-between' alignItems='center'>
               <Text fontSize={24} fontWeight='medium'>
-                Your Hats
+                Your hats
               </Text>
               {sortedHats.length > 8 && (
                 <ChakraNextLink
@@ -111,7 +111,7 @@ const Home = () => {
                   href={`/wearers/${wearerAddress}`}
                 >
                   <HStack alignItems='center'>
-                    <Text>View All of Your Hats</Text> <FaArrowRight />
+                    <Text>View all of your hats</Text> <FaArrowRight />
                   </HStack>
                 </ChakraNextLink>
               )}

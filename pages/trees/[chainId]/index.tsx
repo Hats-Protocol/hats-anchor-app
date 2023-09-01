@@ -28,7 +28,7 @@ const Trees = ({
 
   const trees = _.flatten(_.get(data, 'pages'));
 
-  const topHats = useMemo(() => {
+  const topHats: IHat[] = useMemo(() => {
     return mapWithChainId(
       _.map(_.flatten(_.get(data, 'pages')), 'hats[0]'),
       chainId,
@@ -36,7 +36,7 @@ const Trees = ({
   }, [data, chainId]);
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(topHats);
+    useImageURIs({ hats: topHats });
 
   return (
     <Layout>
