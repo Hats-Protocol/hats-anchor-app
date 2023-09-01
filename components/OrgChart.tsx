@@ -84,7 +84,6 @@ const OrgChartComponent: React.FC = () => {
     chainId,
   });
 
-  console.log('orgChartTree', orgChartTree);
   useLayoutEffect(() => {
     if (_.isEmpty(orgChartTree)) return;
     const filteredTree = orgChartTree?.filter((t) =>
