@@ -21,7 +21,7 @@ const useManyHatDetails = ({
       initialData: _.find(initialHats, ['id', hat.id]),
     })),
   });
-  console.log(hatsDetails);
+
   const returnData = _.compact(_.map(hatsDetails, 'data'));
 
   return chainId ? mapWithChainId(returnData, chainId) : returnData;
