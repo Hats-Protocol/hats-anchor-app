@@ -24,6 +24,7 @@ const ToastBase = ({
     id,
     duration: duration ?? 5000,
     position: 'top-right',
+    isClosable,
     ...props,
     render: () => (
       <Toast
@@ -56,7 +57,7 @@ const useCustomToast = () => {
         status: 'success',
         closeToast,
         iconName: 'crown',
-        isClosable: props.isClosable ?? false,
+        isClosable: props.isClosable ?? true,
         toast,
       });
     },
@@ -66,7 +67,7 @@ const useCustomToast = () => {
         status: 'error',
         closeToast,
         iconName: 'alert',
-        isClosable: props.isClosable ?? false,
+        isClosable: props.isClosable ?? true,
         toast,
       });
     },
@@ -76,7 +77,7 @@ const useCustomToast = () => {
         status: 'warning',
         closeToast,
         iconName: 'warning',
-        isClosable: props.isClosable ?? false,
+        isClosable: props.isClosable ?? true,
         toast,
       });
     },
@@ -86,7 +87,7 @@ const useCustomToast = () => {
         status: 'loading',
         closeToast,
         iconName: 'bell',
-        isClosable: props.isClosable ?? false,
+        isClosable: props.isClosable ?? true,
         toast,
       });
     },
