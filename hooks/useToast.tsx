@@ -1,17 +1,20 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { Toast, useToast as useChakraToast } from '@chakra-ui/react';
+import { ToastId, useToast as useChakraToast } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRef } from 'react';
+
+import Toast from '@/components/atoms/Toast';
 
 const ToastBase = ({
   toast,
   title,
   description,
   // iconName,
-  status,
+  status = 'success',
   id,
   duration,
-  // closeToast,
+  closeToast,
+  isClosable = true,
   ...props // gets the rest of the original Chakra Toast props (such as isClosable)
 }: ToastBaseProps) => {
   return toast({
@@ -28,7 +31,8 @@ const ToastBase = ({
         description={description}
         // icon={<Icon as={iconName}
         status={status}
-        // closeToast={closeToast}
+        closeToast={closeToast}
+        isClosable={isClosable}
         {...props}
       />
     ),
@@ -37,7 +41,7 @@ const ToastBase = ({
 
 const useCustomToast = () => {
   const toast = useChakraToast();
-  const toastIdRef = useRef(null);
+  const toastIdRef = useRef<ToastId | null>(null);
 
   function closeToast() {
     if (toastIdRef.current) {
@@ -51,6 +55,7 @@ const useCustomToast = () => {
         ...props,
         status: 'success',
         closeToast,
+        iconName: 'crown',
         isClosable: props.isClosable ?? false,
         toast,
       });
@@ -60,6 +65,7 @@ const useCustomToast = () => {
         ...props,
         status: 'error',
         closeToast,
+        iconName: 'alert',
         isClosable: props.isClosable ?? false,
         toast,
       });
@@ -69,6 +75,7 @@ const useCustomToast = () => {
         ...props,
         status: 'warning',
         closeToast,
+        iconName: 'warning',
         isClosable: props.isClosable ?? false,
         toast,
       });
@@ -78,6 +85,7 @@ const useCustomToast = () => {
         ...props,
         status: 'loading',
         closeToast,
+        iconName: 'bell',
         isClosable: props.isClosable ?? false,
         toast,
       });
@@ -87,6 +95,7 @@ const useCustomToast = () => {
         ...props,
         status: 'info',
         closeToast,
+        iconName: 'rocket',
         isClosable: props.isClosable ?? false,
         toast,
       });
@@ -100,8 +109,8 @@ interface ToastBaseProps {
   toast: any;
   title: string;
   description?: string;
-  // iconName: string;
-  status: 'success' | 'error' | 'warning' | 'loading' | 'info' | undefined;
+  iconName?: string;
+  status: 'success' | 'error' | 'warning' | 'loading' | 'info';
   id?: string;
   duration?: number;
   closeToast: () => void;
@@ -112,7 +121,7 @@ interface ToastProps {
   title: string;
   description?: string;
   // icon: React.ReactNode;
-  status?: 'success' | 'error' | 'warning' | 'loading' | 'info' | undefined;
+  status?: 'success' | 'error' | 'warning' | 'loading' | 'info';
   closeToast?: () => void;
   isClosable?: boolean;
 }

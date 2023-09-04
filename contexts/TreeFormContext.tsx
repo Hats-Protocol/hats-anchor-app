@@ -195,12 +195,10 @@ export const TreeFormContextProvider = ({
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
   });
-  console.log(hatDetails);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,
   });
-  console.log('context - images', imagesData, imagesLoading);
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
@@ -213,7 +211,6 @@ export const TreeFormContextProvider = ({
     detailsLoaded: !detailsLoading,
     initialHatIds,
   });
-  console.log('context - tree', orgChartTree);
 
   // top hat
   const topHat: IHat | undefined = useMemo(

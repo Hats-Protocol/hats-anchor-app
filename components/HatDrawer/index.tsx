@@ -39,6 +39,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         toast.success({
           title: 'Saved',
           description: 'Your changes have been saved.',
+          isClosable: true,
         });
       }
     }

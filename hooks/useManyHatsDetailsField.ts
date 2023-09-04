@@ -35,7 +35,6 @@ const useManyHatsDetailsField = ({ hats }: { hats: IHat[] }) => {
       enabled: !!hat?.details,
     })),
   });
-  console.log(detailsFields);
 
   return {
     data: _.map(hats, (hat, i) => ({

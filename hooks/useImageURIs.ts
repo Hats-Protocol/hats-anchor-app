@@ -16,7 +16,6 @@ import { IHat } from '@/types';
  */
 const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
   const calls: any = _.map(hats, (hat) => {
-    console.log(hat.chainId);
     return {
       address: CONFIG.hatsAddress,
       chainId: hat?.chainId,
@@ -30,7 +29,6 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
     contracts: calls,
     enabled: !!hats && !_.isEmpty(hats),
   });
-  console.log('image hook - uris', imagesData);
 
   const uniqueImageUris = _.compact(
     _.uniq(_.map(imagesData, 'result')),
@@ -56,11 +54,6 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
       timeout: 5000,
     })),
   });
-  console.log(
-    'image hook - results',
-    _.every(imageQueries, ['isLoading', false]),
-    imageQueries,
-  );
 
   const imageUrls = _.map(imageQueries, 'data');
   const isLoaded = _.every(imageQueries, ['isLoading', false]);

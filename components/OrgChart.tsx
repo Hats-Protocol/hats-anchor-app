@@ -74,7 +74,6 @@ const OrgChartComponent: React.FC = () => {
     setStoredData,
     addHat,
   } = useTreeForm();
-  // console.log(editMode);
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -89,13 +88,6 @@ const OrgChartComponent: React.FC = () => {
     const filteredTree = orgChartTree?.filter((t) =>
       showInactiveHats ? t : t.status,
     );
-
-    // const handleImmutableToast = () => {
-    //   console.log(editMode);
-    //   if (editMode) {
-    //     toast.error({ title: 'This hat is immutable' });
-    //   }
-    // };
 
     if (filteredTree && d3Container.current) {
       if (chart) {
@@ -247,7 +239,6 @@ const OrgChartComponent: React.FC = () => {
               extendedToggle: toggle,
               levelAtLocalTree,
             } = d.data;
-            // console.log(imageUrl);
 
             const nextChildId = calculateNextChildId(d.data.id, filteredTree);
 
