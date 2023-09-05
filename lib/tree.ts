@@ -2,9 +2,6 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-// import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
-// import { fetchManyWearerDetails } from '@/gql/helpers';
-// import { fetchMultipleHatsDetails } from '@/hooks/useHatDetailsField';
 import { extendControllers, extendWearers } from '@/lib/contract';
 import { IHat, IHatWearer, ITree } from '@/types';
 
@@ -90,6 +87,7 @@ export async function toTreeStructure({
   detailsData,
   wearersAndControllers,
   imagesData,
+  draftHats,
   chainId,
   initialHatIds,
 }: {
@@ -98,6 +96,7 @@ export async function toTreeStructure({
   detailsData: { id: string; detailsObject: { type: string; data: any } }[];
   wearersAndControllers: IHatWearer[] | undefined;
   imagesData: IHat[] | undefined;
+  draftHats: IHat[] | undefined;
   chainId: number;
   initialHatIds: Hex[];
 }): Promise<IHat[] | undefined> {
@@ -110,14 +109,19 @@ export async function toTreeStructure({
   ) {
     return Promise.resolve(undefined);
   }
-  // console.log('', imagesData);
+  const onlyOnchainHats = _.filter(hatsData, (hat) =>
+    _.includes(initialHatIds, hat?.id),
+  );
 
-  const mergedHatsData = _.map(hatsData, (hat) => {
+  const mergedHatsData = _.map(onlyOnchainHats, (hat) => {
+    const fullHat = _.find(hatsData, ['id', hat.id]);
     const details = _.find(detailsData, ['id', hat.details]);
     const image = _.find(imagesData, ['id', hat.id]);
-    // console.log(image);
+
+    if (!fullHat) return undefined;
+
     return {
-      ...hat,
+      ...fullHat,
       detailsObject: details?.detailsObject,
       imageUrl: image?.imageUrl,
     };
@@ -133,10 +137,6 @@ export async function toTreeStructure({
   // If the tree has parentOfTrees, add them to the hatsArray with the linkedToHat as their parent
   const parentOfTrees = _.map(treeData?.parentOfTrees, (tree) =>
     mapParentTrees(tree, chainId, hatsData, wearersAndControllers),
-  );
-  // If the user has draft hats that are not in the tree, add them to the hatsArray
-  const draftHats = _.filter(hatsData, (hat) =>
-    _.includes(_.difference(_.map(hatsData, 'id'), initialHatIds), hat.id),
   );
 
   const hatsList = _.orderBy(

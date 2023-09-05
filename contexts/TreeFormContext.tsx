@@ -173,6 +173,20 @@ export const TreeFormContextProvider = ({
   const { onOpen: onOpenTreeDrawer, onClose: onCloseTreeDrawer } =
     treeDisclosure;
 
+  const treeEvents = _.get(onchainTree.current, 'events');
+  const onchainHats = _.get(onchainTree.current, 'hats');
+
+  const draftHats = useMemo(
+    () =>
+      _.reject(
+        orgChartHats,
+        (hat) =>
+          _.includes(_.map(onchainHats, 'id'), hat.id) ||
+          _.isEmpty(_.reject(hat, ['id', 'parentId'])),
+      ),
+    [onchainHats, orgChartHats],
+  );
+
   const { data: treeData } = useTreeDetails({
     treeId,
     chainId,
@@ -190,17 +204,17 @@ export const TreeFormContextProvider = ({
   const { data: detailsFields, isLoading: detailsLoading } =
     useManyHatsDetailsField({
       hats: hatDetails,
+      onchainHats,
     });
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
   });
-  console.log(hatDetails);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,
+    onchainHats,
   });
-  console.log('context - images', imagesData, imagesLoading);
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
@@ -209,11 +223,12 @@ export const TreeFormContextProvider = ({
     detailsData: detailsFields,
     wearersAndControllers,
     imagesData,
+    draftHats,
     imagesLoaded: !imagesLoading,
     detailsLoaded: !detailsLoading,
     initialHatIds,
   });
-  console.log('context - tree', orgChartTree);
+  console.log('orgChartTree', orgChartTree);
 
   // top hat
   const topHat: IHat | undefined = useMemo(
@@ -237,8 +252,6 @@ export const TreeFormContextProvider = ({
   );
 
   // existing tree
-  const treeEvents = _.get(onchainTree.current, 'events');
-  const onchainHats = _.get(onchainTree.current, 'hats');
   const isDraft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
   // ? const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
@@ -269,14 +282,18 @@ export const TreeFormContextProvider = ({
 
   const toggleEditMode = useCallback(() => {
     if (!editMode) {
-      const draftHats = _.reject(
+      const localDraftHats = _.reject(
         storedData,
         (hat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      if (!_.isEmpty(draftHats)) {
-        const drafts = translateDrafts({ chainId, treeId, drafts: draftHats });
+      if (!_.isEmpty(localDraftHats)) {
+        const drafts = translateDrafts({
+          chainId,
+          treeId,
+          drafts: localDraftHats,
+        });
         setOrgChartHats(_.concat(onchainHats, drafts));
       }
       onOpenTreeDrawer();
@@ -319,14 +336,18 @@ export const TreeFormContextProvider = ({
   const importHats = useCallback(
     (hats: Partial<FormData>[]) => {
       setStoredData?.(hats);
-      const draftHats = _.reject(
+      const localDraftHats = _.reject(
         hats,
         (hat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      if (!_.isEmpty(draftHats)) {
-        const drafts = translateDrafts({ chainId, treeId, drafts: draftHats });
+      if (!_.isEmpty(localDraftHats)) {
+        const drafts = translateDrafts({
+          chainId,
+          treeId,
+          drafts: localDraftHats,
+        });
         setOrgChartHats(_.concat(onchainHats, drafts));
       }
     },

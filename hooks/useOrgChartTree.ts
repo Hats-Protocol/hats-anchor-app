@@ -11,6 +11,7 @@ const useOrgChartTree = ({
   detailsData,
   wearersAndControllers,
   imagesData,
+  draftHats,
   imagesLoaded,
   detailsLoaded,
   initialHatIds,
@@ -33,6 +34,7 @@ const useOrgChartTree = ({
       detailsData,
       wearersAndControllers,
       imagesData,
+      draftHats,
       chainId,
       initialHatIds,
     });
@@ -71,6 +73,7 @@ interface UseOrgChartTreeProps {
     | undefined;
   wearersAndControllers: IHatWearer[] | undefined;
   imagesData: IHat[] | undefined;
+  draftHats: IHat[] | undefined;
   imagesLoaded: boolean;
   detailsLoaded: boolean;
   initialHatIds: Hex[];

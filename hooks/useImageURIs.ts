@@ -14,9 +14,21 @@ import { IHat } from '@/types';
  * for every url, checks if valid. If not, sets the image url to undefined.
  * @param {IHat[]} hats Array of Hats
  */
-const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
-  const calls: any = _.map(hats, (hat) => {
-    console.log(hat.chainId);
+const useImageURIs = ({
+  hats,
+  onchainHats,
+}: {
+  hats: IHat[] | undefined;
+  onchainHats?: IHat[];
+}) => {
+  let onlyOnchainHats = hats;
+  if (onchainHats) {
+    onlyOnchainHats = _.filter(hats, (hat) =>
+      _.includes(_.map(onchainHats, 'id'), hat?.id),
+    );
+  }
+
+  const calls: any = _.map(onlyOnchainHats, (hat) => {
     return {
       address: CONFIG.hatsAddress,
       chainId: hat?.chainId,
@@ -30,7 +42,6 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
     contracts: calls,
     enabled: !!hats && !_.isEmpty(hats),
   });
-  console.log('image hook - uris', imagesData);
 
   const uniqueImageUris = _.compact(
     _.uniq(_.map(imagesData, 'result')),
@@ -56,18 +67,13 @@ const useImageURIs = ({ hats }: { hats: IHat[] | undefined }) => {
       timeout: 5000,
     })),
   });
-  console.log(
-    'image hook - results',
-    _.every(imageQueries, ['isLoading', false]),
-    imageQueries,
-  );
 
   const imageUrls = _.map(imageQueries, 'data');
   const isLoaded = _.every(imageQueries, ['isLoading', false]);
 
   let mergedWithHats;
   if (!imagesLoading && isLoaded) {
-    mergedWithHats = _.map(hats, (hat, i) => {
+    mergedWithHats = _.map(onlyOnchainHats, (hat, i) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,
         (img) => img === (_.get(_.nth(imagesData, i), 'result') as string),
