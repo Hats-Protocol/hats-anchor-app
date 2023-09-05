@@ -1,5 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { ToastId, useToast as useChakraToast } from '@chakra-ui/react';
+import {
+  CreateToastFnReturn,
+  ToastId,
+  useToast as useChakraToast,
+} from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRef } from 'react';
 
@@ -107,7 +111,7 @@ const useCustomToast = () => {
 export default useCustomToast;
 
 interface ToastBaseProps {
-  toast: any;
+  toast: CreateToastFnReturn;
   title: string;
   description?: string;
   iconName?: string;
