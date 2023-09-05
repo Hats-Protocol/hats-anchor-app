@@ -42,7 +42,6 @@ const useImageURIs = ({
     contracts: calls,
     enabled: !!hats && !_.isEmpty(hats),
   });
-  console.log(imagesData);
 
   const uniqueImageUris = _.compact(
     _.uniq(_.map(imagesData, 'result')),
