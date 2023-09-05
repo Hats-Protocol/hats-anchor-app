@@ -19,11 +19,14 @@ const useImageURIs = ({
   onchainHats,
 }: {
   hats: IHat[] | undefined;
-  onchainHats: IHat[];
+  onchainHats?: IHat[];
 }) => {
-  const onlyOnchainHats = _.filter(hats, (hat) =>
-    _.includes(_.map(onchainHats, 'id'), hat?.id),
-  );
+  let onlyOnchainHats = hats;
+  if (onchainHats) {
+    onlyOnchainHats = _.filter(hats, (hat) =>
+      _.includes(_.map(onchainHats, 'id'), hat?.id),
+    );
+  }
 
   const calls: any = _.map(onlyOnchainHats, (hat) => {
     return {
