@@ -22,9 +22,19 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   }
 };
 
-const useManyHatsDetailsField = ({ hats }: { hats: IHat[] }) => {
+const useManyHatsDetailsField = ({
+  hats,
+  onchainHats,
+}: {
+  hats: IHat[];
+  onchainHats: IHat[];
+}) => {
+  const onlyOnchainHats = _.filter(hats, (hat) =>
+    _.includes(_.map(onchainHats, 'id'), hat?.id),
+  );
+
   const filteredDetails = _.reject(
-    hats,
+    onlyOnchainHats,
     (hat) => !_.startsWith(_.get(hat, 'details'), 'ipfs://'),
   );
 
@@ -37,7 +47,7 @@ const useManyHatsDetailsField = ({ hats }: { hats: IHat[] }) => {
   });
 
   return {
-    data: _.map(hats, (hat, i) => ({
+    data: _.map(onlyOnchainHats, (hat, i) => ({
       id: hat?.details,
       detailsObject: detailsFields[i]?.data?.data,
     })),

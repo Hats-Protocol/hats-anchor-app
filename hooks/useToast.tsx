@@ -22,7 +22,7 @@ const ToastBase = ({
     description,
     status,
     id,
-    duration: duration ?? 5000,
+    duration: duration ?? 3000,
     position: 'top-right',
     isClosable,
     ...props,
@@ -124,5 +124,6 @@ interface ToastProps {
   // icon: React.ReactNode;
   status?: 'success' | 'error' | 'warning' | 'loading' | 'info';
   closeToast?: () => void;
+  duration?: number;
   isClosable?: boolean;
 }
