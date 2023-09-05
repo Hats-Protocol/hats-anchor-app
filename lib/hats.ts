@@ -567,3 +567,17 @@ export const processHatForCalls = async (
 
   return { calls, proposedChanges };
 };
+
+export const isAncestor = (
+  hatId?: string,
+  potentialAncestorId?: string,
+  tree?: IHat[],
+) => {
+  let currentParentId = hatId;
+  while (currentParentId) {
+    if (currentParentId === potentialAncestorId) return true;
+    const hat = _.find(tree, { id: currentParentId });
+    currentParentId = (hat as IHat)?.parentId;
+  }
+  return false;
+};
