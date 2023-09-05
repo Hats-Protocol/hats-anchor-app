@@ -146,7 +146,6 @@ export const TreeFormContextProvider = ({
   const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
     _.get(initialTreeData, 'hats'),
   );
-  console.log('orgChartHats', orgChartHats);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
@@ -187,7 +186,6 @@ export const TreeFormContextProvider = ({
       ),
     [onchainHats, orgChartHats],
   );
-  console.log(draftHats);
 
   const { data: treeData } = useTreeDetails({
     treeId,
@@ -208,7 +206,6 @@ export const TreeFormContextProvider = ({
       hats: hatDetails,
       onchainHats,
     });
-  console.log('detailsFields', detailsFields);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
@@ -218,7 +215,6 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     onchainHats,
   });
-  console.log('imagesData', imagesData);
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
