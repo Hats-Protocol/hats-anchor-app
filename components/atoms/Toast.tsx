@@ -42,7 +42,7 @@ const icons: {
 
 const bgValues = {
   success: {
-    bg: 'blue.500',
+    bg: 'green.500',
     bgImage: '',
     displayBorder: 'block',
   },

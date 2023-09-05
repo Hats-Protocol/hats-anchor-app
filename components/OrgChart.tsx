@@ -158,7 +158,6 @@ const OrgChartComponent: React.FC = () => {
                 const onlyNeededKeys = {
                   id: newHat.id,
                   parentId: data.data.id,
-                  ...defaultFormData,
                   ...newDetails,
                 };
                 const removeCurrentId = _.reject(storedData, ['id', newId]);
