@@ -27,11 +27,14 @@ const useManyHatsDetailsField = ({
   onchainHats,
 }: {
   hats: IHat[];
-  onchainHats: IHat[];
+  onchainHats?: IHat[];
 }) => {
-  const onlyOnchainHats = _.filter(hats, (hat) =>
-    _.includes(_.map(onchainHats, 'id'), hat?.id),
-  );
+  let onlyOnchainHats = hats;
+  if (onchainHats) {
+    onlyOnchainHats = _.filter(hats, (hat) =>
+      _.includes(_.map(onchainHats, 'id'), hat?.id),
+    );
+  }
 
   const filteredDetails = _.reject(
     onlyOnchainHats,
