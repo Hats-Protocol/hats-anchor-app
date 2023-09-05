@@ -30,6 +30,7 @@ const WearerRow = ({
   isAdminUser,
   setChangeStatusWearer,
   setWearerToTransferFrom,
+  isTopHat,
 }: WearerRowProps) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
@@ -119,7 +120,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {isSameAddress(wearer.id, address) && (
+            {isSameAddress(wearer.id, address) && !isTopHat && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
                 <TooltipWrapper
                   isSameChain={isSameChain}
@@ -172,4 +173,5 @@ interface WearerRowProps {
   isAdminUser: boolean;
   setChangeStatusWearer: any;
   setWearerToTransferFrom: (w: string) => void;
+  isTopHat: boolean;
 }

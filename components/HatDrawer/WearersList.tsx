@@ -23,7 +23,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { isWearer, prettyIdToId } from '@/lib/hats';
+import { isTopHat, isWearer, prettyIdToId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
@@ -129,6 +129,7 @@ const WearersList = () => {
             isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
+            isTopHat={isTopHat(selectedHat)}
           />
         ))}
 
@@ -191,6 +192,7 @@ const WearersList = () => {
                 isAdminUser={isAdminUser}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
+                isTopHat={isTopHat(selectedHat)}
               />
             ))}
           </Flex>
