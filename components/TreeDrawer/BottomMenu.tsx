@@ -10,6 +10,7 @@ import {
   Icon,
   Input,
   Spinner,
+  Stack,
   Text,
   useClipboard,
 } from '@chakra-ui/react';
@@ -65,15 +66,39 @@ const BottomMenu = ({
                   </AccordionButton>
 
                   <AccordionPanel pb={8} px={8}>
-                    <Box>
-                      <Text mb={2} color='blackAlpha.700'>
+                    <Stack>
+                      <Text color='blackAlpha.700'>Hats contract address</Text>
+                      <HStack spacing={4}>
+                        <Input
+                          value={CONFIG.hatsAddress}
+                          background='white'
+                          color='blackAlpha.600'
+                          isReadOnly
+                          placeholder='Loading...'
+                        />
+                        <Button
+                          leftIcon={<FiCopy />}
+                          onClick={() => {
+                            copyContractAddress();
+                            toast.info({
+                              title:
+                                'Successfully copied contract address to clipboard',
+                            });
+                          }}
+                          variant='outline'
+                          borderColor='gray.300'
+                        >
+                          Copy
+                        </Button>
+                      </HStack>
+                      <Text color='blackAlpha.700'>
                         Copy this into the Data field of a transaction builder
                         to deploy the tree from a contract (such as a multisig
                         or DAO).
                       </Text>
 
                       {!isLoading ? (
-                        <HStack>
+                        <HStack spacing={4}>
                           <Input
                             value={isLoading ? '' : callData || ''}
                             background='white'
@@ -90,25 +115,11 @@ const BottomMenu = ({
                                   'Successfully copied hex code to clipboard',
                               });
                             }}
-                            ml={2}
                             isDisabled={!callData}
                             variant='outline'
                             borderColor='gray.300'
                           >
                             Copy
-                          </Button>
-                          <Button
-                            gap={2}
-                            onClick={() => {
-                              copyContractAddress();
-                              toast.info({
-                                title:
-                                  'Successfully copied contract address to clipboard',
-                              });
-                            }}
-                          >
-                            <FiCopy />
-                            Contract ID
                           </Button>
                         </HStack>
                       ) : (
@@ -116,7 +127,7 @@ const BottomMenu = ({
                           <Spinner />
                         </Flex>
                       )}
-                    </Box>
+                    </Stack>
                   </AccordionPanel>
                 </>
               );
