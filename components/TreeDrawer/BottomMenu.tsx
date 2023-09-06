@@ -16,7 +16,7 @@ import {
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
-// import CONFIG from '@/constants';
+import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
@@ -33,13 +33,14 @@ const BottomMenu = ({
   const { data, isLoading } = useMulticallCallData({
     isExpanded,
   });
+  console.log('data', data);
   const callData = data ? data?.callData : null;
   const toast = useToast();
 
   const hasUpdates = editHasUpdates(storedData);
 
   const { onCopy: copyCallData } = useClipboard(callData || '');
-  // const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
@@ -96,7 +97,7 @@ const BottomMenu = ({
                           >
                             Copy
                           </Button>
-                          {/* <Button
+                          <Button
                             gap={2}
                             onClick={() => {
                               copyContractAddress();
@@ -108,7 +109,7 @@ const BottomMenu = ({
                           >
                             <FiCopy />
                             Contract ID
-                          </Button> */}
+                          </Button>
                         </HStack>
                       ) : (
                         <Flex justify='center' align='center'>
