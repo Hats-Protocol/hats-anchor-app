@@ -420,7 +420,7 @@ export const processHatForCalls = async (
       hatId,
       newDetails: detailsData,
     });
-    const newHat = hatsClient?.createHatCallData({
+    const newHat = hatsClient.createHatCallData({
       admin: BigInt(getDefaultAdminId(hatId)),
       details,
       maxSupply: _.toNumber(maxSupply) || 1,
@@ -463,7 +463,7 @@ export const processHatForCalls = async (
         existingDetails,
       });
 
-      const changeHatDetailsData = hatsClient?.changeHatDetailsCallData({
+      const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
         hatId: decimalId(hatId) as unknown as bigint,
         newDetails: newCid,
       });
@@ -475,7 +475,7 @@ export const processHatForCalls = async (
     }
 
     if (maxSupply) {
-      const changeHatMaxSupplyData = hatsClient?.changeHatMaxSupplyCallData({
+      const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
         hatId: decimalId(hatId) as unknown as bigint,
         newMaxSupply: parseInt(maxSupply, 10),
       });
@@ -490,7 +490,7 @@ export const processHatForCalls = async (
       if (_.eq(_.size(wearers), 1)) {
         const wearerAddress = _.get(_.first(wearers), 'address');
         if (wearerAddress) {
-          const mintHatWearersData = hatsClient?.mintHatCallData({
+          const mintHatWearersData = hatsClient.mintHatCallData({
             hatId: decimalId(hatId) as unknown as bigint,
             wearer: wearerAddress,
           });
@@ -501,7 +501,7 @@ export const processHatForCalls = async (
           }
         }
       } else {
-        const batchMintHatWearersData = hatsClient?.batchMintHatsCallData({
+        const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
           hatIds: Array(_.size(wearers)).fill(
             decimalId(hatId),
           ) as unknown as bigint[],
@@ -517,12 +517,10 @@ export const processHatForCalls = async (
     }
 
     if (eligibility) {
-      const changeHatEligibilityData = hatsClient?.changeHatEligibilityCallData(
-        {
-          hatId: decimalId(hatId) as unknown as bigint,
-          newEligibility: eligibility,
-        },
-      );
+      const changeHatEligibilityData = hatsClient.changeHatEligibilityCallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+        newEligibility: eligibility,
+      });
 
       if (changeHatEligibilityData) {
         calls.push(changeHatEligibilityData);
@@ -531,7 +529,7 @@ export const processHatForCalls = async (
     }
 
     if (toggle) {
-      const changeHatToggleData = hatsClient?.changeHatToggleCallData({
+      const changeHatToggleData = hatsClient.changeHatToggleCallData({
         hatId: decimalId(hatId) as unknown as bigint,
         newToggle: toggle,
       });
@@ -543,7 +541,7 @@ export const processHatForCalls = async (
     }
 
     if (mutable) {
-      const makeHatImmutableData = hatsClient?.makeHatImmutableCallData({
+      const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
         hatId: decimalId(hatId) as unknown as bigint,
       });
 
@@ -554,7 +552,7 @@ export const processHatForCalls = async (
     }
 
     if (imageUrl) {
-      const changeHatImageURIData = hatsClient?.changeHatImageURICallData({
+      const changeHatImageURIData = hatsClient.changeHatImageURICallData({
         hatId: decimalId(hatId) as unknown as bigint,
         newImageURI: imageUrl,
       });

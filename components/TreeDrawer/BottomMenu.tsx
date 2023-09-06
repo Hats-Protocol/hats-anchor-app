@@ -34,7 +34,6 @@ const BottomMenu = ({
   const { data, isLoading } = useMulticallCallData({
     isExpanded,
   });
-  console.log('data', data);
   const callData = data ? data?.callData : null;
   const toast = useToast();
 

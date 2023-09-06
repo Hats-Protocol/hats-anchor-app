@@ -9,7 +9,7 @@ import Select from '@/components/atoms/Select';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { decimalId } from '@/lib/hats';
+import { decimalId, idToPrettyId, prettyIdToId } from '@/lib/hats';
 
 const HatLinkRequestCreateForm = ({
   newAdmin,
@@ -35,7 +35,7 @@ const HatLinkRequestCreateForm = ({
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'requestLinkTopHatToTree',
-    args: [topHatDomain, newAdmin],
+    args: [idToPrettyId(topHatDomain), decimalId(prettyIdToId(newAdmin))],
     chainId,
     onSuccessToastData: {
       title: 'Successfully Requested to Link!',
@@ -57,7 +57,12 @@ const HatLinkRequestCreateForm = ({
   });
 
   const onSubmit = async () => {
-    await writeAsync?.();
+    try {
+      await writeAsync?.();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
   return (
