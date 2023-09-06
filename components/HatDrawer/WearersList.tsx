@@ -71,6 +71,7 @@ const WearersList = () => {
     wearers,
     selectedHat,
   });
+  console.log('eligibleWearers', eligibleWearers);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -83,20 +84,20 @@ const WearersList = () => {
 
   const sortWearers = useCallback(() => {
     if (address) {
-      eligibleWearers?.sort((w1, w2) => {
+      wearers?.sort((w1, w2) => {
         if (isSameAddress(w1.id, address)) return -1;
         if (isSameAddress(w2.id, address)) return 1;
         return 0;
       });
     }
-  }, [address, eligibleWearers]);
+  }, [address, wearers]);
 
   useEffect(() => {
     sortWearers();
   }, [sortWearers]);
 
   const filteredWearers = _.slice(
-    filterWearers(searchTerm, eligibleWearers),
+    filterWearers(searchTerm, wearers),
     0,
     6,
   ) as IHatWearer[];
@@ -110,12 +111,12 @@ const WearersList = () => {
             Hat Wearers
           </Heading>
           <Flex gap={1}>
-            <Text>{eligibleWearers?.length}</Text>
+            <Text>{wearers?.length}</Text>
             <Text color='gray.400'>of {maxSupply}</Text>
           </Flex>
         </Flex>
 
-        {_.gt(_.size(eligibleWearers), 5) && (
+        {_.gt(_.size(wearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -133,6 +134,7 @@ const WearersList = () => {
           <WearerRow
             key={w.id}
             wearer={w}
+            isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
             isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
@@ -171,7 +173,7 @@ const WearersList = () => {
               </Button>
             </Tooltip>
           )}
-          {_.gt(_.size(eligibleWearers), 6) && (
+          {_.gt(_.size(wearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'
@@ -179,7 +181,7 @@ const WearersList = () => {
                 textDecor: 'underline',
               }}
             >
-              Show all {eligibleWearers?.length} wearers
+              Show all {wearers?.length} wearers
             </Text>
           )}
         </Flex>
@@ -192,10 +194,11 @@ const WearersList = () => {
           localOverlay={localOverlay}
         >
           <Flex direction='column' gap={4}>
-            {eligibleWearers?.map((w: IHatWearer) => (
+            {wearers?.map((w: IHatWearer) => (
               <WearerRow
                 key={w.id}
                 wearer={w}
+                isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
                 isAdminUser={isAdminUser}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}

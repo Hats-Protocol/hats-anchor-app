@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import {
+  Badge,
   Flex,
   IconButton,
   Image,
@@ -11,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -31,6 +33,7 @@ const WearerRow = ({
   setChangeStatusWearer,
   setWearerToTransferFrom,
   isTopHat,
+  isEligible,
 }: WearerRowProps) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
@@ -91,6 +94,11 @@ const WearerRow = ({
         </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
+        {!isEligible && (
+          <Badge colorScheme='gray' fontSize='sm' variant='outline'>
+            INELIGIBLE
+          </Badge>
+        )}
         <ChakraNextLink href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
         </ChakraNextLink>
@@ -171,7 +179,8 @@ export default WearerRow;
 interface WearerRowProps {
   wearer: IHatWearer;
   isAdminUser: boolean;
-  setChangeStatusWearer: any;
+  setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
   isTopHat: boolean;
+  isEligible: boolean;
 }
