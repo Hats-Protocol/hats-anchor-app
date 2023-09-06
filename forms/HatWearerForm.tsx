@@ -248,15 +248,23 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
             />
           </FormRowWrapper>
         )}
-        <Stack gap={0}>
-          <HStack>
-            <Text fontSize='sm'>NEW WEARER ADDRESS</Text>
-          </HStack>
-          <Text fontSize='sm' color='blackAlpha.700'>
-            This address will receive a {hatName} hat token on{' '}
-            {chainId && chainsMap(chainId).name}
-          </Text>
-        </Stack>
+        <Flex justify='space-between' align='flex-end'>
+          <Stack gap={0}>
+            <HStack>
+              <Text fontSize='sm'>NEW WEARER ADDRESS</Text>
+            </HStack>
+            <Text fontSize='sm' color='blackAlpha.700'>
+              This address will receive a {hatName} hat token on{' '}
+              {chainId && chainsMap(chainId).name}
+            </Text>
+          </Stack>
+          {!editMode && (
+            <Text fontSize='sm' color='blackAlpha.700'>
+              {_.size(currentWearerList) + _.size(localWearers)} of {maxSupply}{' '}
+              wearers
+            </Text>
+          )}
+        </Flex>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
           {localWearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
