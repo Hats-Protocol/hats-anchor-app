@@ -18,7 +18,6 @@ const useWearersEligibilityCheck = ({
   useEffect(() => {
     const fetchEligibility = async () => {
       if (wearerIds.length && hatId && chainId) {
-        // Create the contracts array for the multicall
         const contracts = wearerIds.map((wearer) => ({
           address: CONFIG.hatsAddress,
           abi,

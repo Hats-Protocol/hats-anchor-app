@@ -16,6 +16,7 @@ import {
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
+// import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
@@ -38,6 +39,7 @@ const BottomMenu = ({
   const hasUpdates = editHasUpdates(storedData);
 
   const { onCopy: copyCallData } = useClipboard(callData || '');
+  // const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
@@ -56,7 +58,7 @@ const BottomMenu = ({
                 <>
                   <AccordionButton px={8} py={4}>
                     <Box flex='1' textAlign='left'>
-                      Executable hex code
+                      Transaction Call Data
                     </Box>
                     <Icon as={isExpanded ? IoIosArrowDown : IoIosArrowUp} />
                   </AccordionButton>
@@ -94,6 +96,19 @@ const BottomMenu = ({
                           >
                             Copy
                           </Button>
+                          {/* <Button
+                            gap={2}
+                            onClick={() => {
+                              copyContractAddress();
+                              toast.info({
+                                title:
+                                  'Successfully copied contract address to clipboard',
+                              });
+                            }}
+                          >
+                            <FiCopy />
+                            Contract ID
+                          </Button> */}
                         </HStack>
                       ) : (
                         <Flex justify='center' align='center'>
