@@ -395,7 +395,8 @@ export const processHatForCalls = async (
     id: hatId,
   } as any;
 
-  if (!hat.id || !chainId) return { calls: [], proposedChanges: [] };
+  if (!hat.id || !chainId || !hatsClient)
+    return { calls: [], proposedChanges: [] };
 
   const detailsData = {
     name,
@@ -429,7 +430,7 @@ export const processHatForCalls = async (
       imageURI: imageUrl,
     });
     if (newHat && newHat.callData) {
-      calls.push(newHat.callData);
+      calls.push(newHat);
       proposedChanges.push({
         id: hatId,
         chainId,
@@ -507,6 +508,7 @@ export const processHatForCalls = async (
           wearers: _.map(wearers, 'address'),
         });
 
+        console.log('batchMintHatWearersData', batchMintHatWearersData);
         if (batchMintHatWearersData) {
           calls.push(batchMintHatWearersData);
           hatChanges.wearers = _.map(wearers, 'address');
