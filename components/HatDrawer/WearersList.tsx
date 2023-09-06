@@ -12,7 +12,14 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
@@ -22,8 +29,10 @@ import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { isSameAddress } from '@/lib/general';
 import { isTopHat, isWearer, prettyIdToId } from '@/lib/hats';
+import { filterWearers, getEligibleWearers } from '@/lib/wearers';
 import { IHatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
@@ -32,22 +41,6 @@ const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatTransferForm = lazy(() => import('@/forms/HatTransferForm'));
 const HatWearerForm = lazy(() => import('@/forms/HatWearerForm'));
 const HatWearerStatusForm = lazy(() => import('@/forms/HatWearerStatusForm'));
-
-const filterWearers = (
-  searchTerm: string,
-  wearers: IHatWearer[] | undefined,
-) => {
-  if (!searchTerm || !wearers) return wearers;
-
-  return _.filter(wearers, (wearer) => {
-    const idSearch = wearer.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const ensSearch = wearer.ensName
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-
-    return idSearch || ensSearch;
-  });
-};
 
 const WearersList = () => {
   const currentNetworkId = useChainId();
@@ -64,30 +57,46 @@ const WearersList = () => {
     mode: 'onBlur',
   });
 
-  const wearers = _.get(selectedHat, 'extendedWearers', []);
   const maxSupply = _.get(selectedHat, 'maxSupply', 0);
+  const wearers = useMemo(() => {
+    return _.get(selectedHat, 'extendedWearers', []);
+  }, [selectedHat]);
+  const wearerIds = useMemo(() => wearers.map(({ id }) => id), [wearers]);
+  const { data: wearersEligibility } = useWearersEligibilityCheck({
+    wearerIds,
+  });
+
+  const eligibleWearers = getEligibleWearers({
+    wearersEligibility,
+    wearers,
+    selectedHat,
+  });
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
-  const currentWearerHats = _.map(wearer, 'id');
 
+  const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearer(currentWearerHats, selectedHat?.id);
   const isAdminOfTopHat = isWearer(currentWearerHats, prettyIdToId(treeId));
 
-  useEffect(() => {
+  const sortWearers = useCallback(() => {
     if (address) {
-      wearers?.sort((w1, w2) => {
+      eligibleWearers?.sort((w1, w2) => {
         if (isSameAddress(w1.id, address)) return -1;
         if (isSameAddress(w2.id, address)) return 1;
         return 0;
       });
     }
-  }, [address, wearers]);
+  }, [address, eligibleWearers]);
+
+  useEffect(() => {
+    sortWearers();
+  }, [sortWearers]);
 
   const filteredWearers = _.slice(
-    filterWearers(searchTerm, wearers),
+    filterWearers(searchTerm, eligibleWearers),
     0,
     6,
   ) as IHatWearer[];
@@ -95,20 +104,18 @@ const WearersList = () => {
 
   return (
     <>
-      {/* Main Details */}
-
       <Stack spacing={4}>
         <Flex justify='space-between'>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Hat Wearers
           </Heading>
           <Flex gap={1}>
-            <Text>{wearers?.length}</Text>
+            <Text>{eligibleWearers?.length}</Text>
             <Text color='gray.400'>of {maxSupply}</Text>
           </Flex>
         </Flex>
 
-        {_.gt(_.size(wearers), 5) && (
+        {_.gt(_.size(eligibleWearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -164,7 +171,7 @@ const WearersList = () => {
               </Button>
             </Tooltip>
           )}
-          {_.gt(_.size(wearers), 6) && (
+          {_.gt(_.size(eligibleWearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'
@@ -172,7 +179,7 @@ const WearersList = () => {
                 textDecor: 'underline',
               }}
             >
-              Show all {wearers?.length} wearers
+              Show all {eligibleWearers?.length} wearers
             </Text>
           )}
         </Flex>
@@ -185,7 +192,7 @@ const WearersList = () => {
           localOverlay={localOverlay}
         >
           <Flex direction='column' gap={4}>
-            {wearers?.map((w: IHatWearer) => (
+            {eligibleWearers?.map((w: IHatWearer) => (
               <WearerRow
                 key={w.id}
                 wearer={w}
