@@ -1,21 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import client from '@/gql/client';
-import { GET_TREES_BY_ID } from '@/gql/queries';
+import { fetchTreesById } from '@/gql/helpers';
 import { isWearer } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
 import { IHat, ITree } from '@/types';
 
 const chains = _.keys(chainsList);
-
-export const fetchTreesById = async (treeIds: string[], chainId: number) => {
-  const result = await client(chainId).request(GET_TREES_BY_ID, {
-    ids: treeIds,
-  });
-
-  return _.get(result, 'trees', null);
-};
 
 const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
   const adminOfHats = async () => {
