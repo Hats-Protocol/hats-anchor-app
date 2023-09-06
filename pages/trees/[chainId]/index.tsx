@@ -58,7 +58,13 @@ const Trees = ({
               </Flex>
             }
           >
-            <SimpleGrid gap={8} justifyContent='center' columns={4}>
+            <SimpleGrid
+              gap={8}
+              justifyContent='center'
+              columns={4}
+              maxW='1200px'
+              mx='auto'
+            >
               {_.map(trees, (tree: ITree) => {
                 const topHat = _.find(
                   topHats,
