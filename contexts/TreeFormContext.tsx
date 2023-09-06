@@ -173,6 +173,7 @@ export const TreeFormContextProvider = ({
   const { onOpen: onOpenTreeDrawer, onClose: onCloseTreeDrawer } =
     treeDisclosure;
 
+  // existing tree
   const treeEvents = _.get(onchainTree.current, 'events');
   const onchainHats = _.get(onchainTree.current, 'hats');
 
@@ -228,7 +229,6 @@ export const TreeFormContextProvider = ({
     detailsLoaded: !detailsLoading,
     initialHatIds,
   });
-  console.log('orgChartTree', orgChartTree);
 
   // top hat
   const topHat: IHat | undefined = useMemo(
@@ -245,15 +245,14 @@ export const TreeFormContextProvider = ({
     () => _.find(orgChartTree, ['id', selectedHatId]),
     [orgChartTree, selectedHatId],
   );
-
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
   );
-
-  // existing tree
-  const isDraft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
-  // ? const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
+  const isDraft = useMemo(
+    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
+    [onchainHats, selectedHat],
+  );
 
   const handleSelectHat = useCallback(
     (id: Hex) => {

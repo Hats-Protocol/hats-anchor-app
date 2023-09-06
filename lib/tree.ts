@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { IHat, IHatWearer, ITree } from '@/types';
+import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
 
 import { decimalId } from './hats';
 
@@ -93,7 +93,10 @@ export async function toTreeStructure({
 }: {
   treeData: ITree | null | undefined;
   hatsData: IHat[] | undefined;
-  detailsData: { id: string; detailsObject: { type: string; data: any } }[];
+  detailsData: {
+    id: string;
+    detailsObject: { type: string; data: HatDetails };
+  }[];
   wearersAndControllers: IHatWearer[] | undefined;
   imagesData: IHat[] | undefined;
   draftHats: IHat[] | undefined;

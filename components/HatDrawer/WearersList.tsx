@@ -71,7 +71,6 @@ const WearersList = () => {
     wearers,
     selectedHat,
   });
-  console.log('eligibleWearers', eligibleWearers);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,

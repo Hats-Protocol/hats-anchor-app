@@ -21,6 +21,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
@@ -44,11 +45,20 @@ const WearerRow = ({
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
 
+  const { data: wearerIsEligible } = useWearerEligibilityCheck({
+    wearer: wearer.id,
+  });
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
-    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    enabled:
+      Boolean(hatId) &&
+      Boolean(wearer) &&
+      wearerIsEligible !== undefined &&
+      !wearerIsEligible &&
+      chainId === currentNetworkId,
     handleSuccess: (data) => {
       if (!_.isEmpty(data.logs)) {
         toast.info({

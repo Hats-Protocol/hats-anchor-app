@@ -21,8 +21,10 @@ const fetchWearerAndControllerDetails = async (
   ]).catch((err) => {
     // eslint-disable-next-line no-console
     console.log(err);
-    return [];
+    return undefined;
   });
+
+  if (!data) return undefined;
 
   return {
     id: wearer,
@@ -53,6 +55,10 @@ const useWearersControllersDetails = ({ hats }: { hats: IHat[] }) => {
       enabled: !!w && isAddress(w) && !!chainId,
     })),
   });
+  const isLoaded = _.every(wearerAndControllerDetails, 'isSuccess');
+
+  if (!isLoaded || !_.eq(_.size(wearerAndControllerDetails), _.size(wAndCs)))
+    return undefined;
 
   return _.compact(_.map(wearerAndControllerDetails, 'data'));
 };

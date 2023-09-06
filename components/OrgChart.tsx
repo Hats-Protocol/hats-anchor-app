@@ -16,12 +16,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG, {
-  defaultHat,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-  ZERO_ID,
-} from '@/constants';
+import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -43,19 +38,6 @@ function checkParentElementForClass(e: any, name: string) {
   }
   return false;
 }
-
-const defaultFormData = {
-  description: '',
-  mutable: MUTABILITY.MUTABLE,
-  guilds: [],
-  responsibilities: [],
-  authorities: [],
-  isEligibilityManual: TRIGGER_OPTIONS.MANUALLY,
-  isToggleManual: TRIGGER_OPTIONS.MANUALLY,
-  revocationsCriteria: [],
-  deactivationsCriteria: [],
-  wearers: [],
-};
 
 const OrgChartComponent: React.FC = () => {
   const userChain = useChainId();
