@@ -14,8 +14,14 @@ const useMulticallCallManyHats = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
   const currentChain = useChainId();
-  const { chainId, treeId, storedData, onchainHats, setStoredData } =
-    useTreeForm();
+  const {
+    chainId,
+    treeId,
+    storedData,
+    onchainHats,
+    orgChartTree,
+    setStoredData,
+  } = useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { patchTree } = useTreeForm();
@@ -34,8 +40,12 @@ const useMulticallCallManyHats = () => {
       return undefined;
     }
 
+    const onlyOnchainHats = _.filter(orgChartTree, (hat) =>
+      _.includes(_.map(onchainHats, 'id'), hat.id),
+    );
+
     const allCallsPromises = _.map(storedData, (hat) =>
-      processHatForCalls(hat, onchainHats, chainId, hatsClient),
+      processHatForCalls(hat, onlyOnchainHats, chainId, hatsClient),
     );
     const allCalls = await Promise.all(allCallsPromises);
 
@@ -43,6 +53,8 @@ const useMulticallCallManyHats = () => {
     const proposedChanges = _.flatten(
       _.map(allCalls, 'proposedChanges'),
     ) as any[];
+
+    console.log(proposedChanges);
 
     if (calls.length > 0) {
       setIsLoading(true);
