@@ -5,9 +5,9 @@ import { Hex } from 'viem';
 
 import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
-import { fetchTreeDetails } from '@/gql/helpers';
-import { decimalToTreeId } from '@/lib/hats';
-import { ITree } from '@/types';
+import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
+import { decimalToTreeId, prettyIdToId } from '@/lib/hats';
+import { IHat, ITree } from '@/types';
 
 const TreeDetails = ({
   treeId,
@@ -58,8 +58,30 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     'parentOfTrees',
   ]);
 
+  let fetchedParentOfTrees = [] as IHat[];
+
+  if (parentOfTrees) {
+    const promises = parentOfTrees.map((parentTree) =>
+      fetchHatDetails(prettyIdToId(parentTree?.id), chainId),
+    );
+
+    const hats = await Promise.all(promises);
+    fetchedParentOfTrees = hats.filter(
+      (hat) => hat !== null && hat !== undefined,
+    ) as IHat[];
+  }
+
+  treeData.parentOfHats = fetchedParentOfTrees;
+
+  const fetchedLinkedHat = await fetchHatDetails(
+    prettyIdToId(linkedToHat?.id),
+    chainId,
+  );
+
+  treeData.linkedToHat = fetchedLinkedHat;
+
   const linkedHats = [linkedToHat?.id];
-  const parentOfHats = _.map(parentOfTrees, 'id');
+  const parentOfHats = _.map(fetchedParentOfTrees, 'id');
 
   const initialHatIds = _.compact(
     _.concat(_.map(_.get(treeData, 'hats'), 'id'), linkedHats, parentOfHats),

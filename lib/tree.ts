@@ -5,7 +5,7 @@ import { Hex } from 'viem';
 import { extendControllers, extendWearers } from '@/lib/contract';
 import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
 
-import { decimalId } from './hats';
+import { decimalId, idToPrettyId } from './hats';
 
 const mapHat = (
   hat: IHat | undefined,
@@ -25,58 +25,6 @@ const mapHat = (
     extendedWearers: extendWearers(hat.wearers, wAndCInfo),
     extendedEligibility: extendControllers(hat.eligibility, wAndCInfo),
     extendedToggle: extendControllers(hat.toggle, wAndCInfo),
-  };
-};
-
-const mapLinkedHat = (
-  hat: IHat | undefined,
-  chainId: number,
-  wAndCInfo: IHatWearer[] | undefined,
-): IHat | undefined => {
-  if (!hat) return undefined;
-
-  return {
-    ...hat,
-    chainId,
-    name: hatIdDecimalToIp(BigInt(hat.id)),
-    parentId: undefined,
-    treeId: hat.tree?.id,
-    isLinked: true,
-    url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
-    extendedWearers: extendWearers(hat.wearers, wAndCInfo),
-    extendedEligibility: extendControllers(hat.eligibility, wAndCInfo),
-    extendedToggle: extendControllers(hat.toggle, wAndCInfo),
-  };
-};
-
-const mapParentTrees = (
-  tree: ITree | undefined,
-  chainId: number,
-  hatsData: IHat[],
-  wAndCInfo: IHatWearer[] | undefined,
-): IHat | undefined => {
-  if (!tree?.linkedToHat) return undefined;
-  const {
-    linkedToHat: { id },
-    id: treeId,
-  } = tree;
-
-  if (!id) return undefined;
-  const currentHat = _.find(hatsData, { id });
-  if (!currentHat) return undefined;
-
-  return {
-    ...currentHat,
-    id: treeId,
-    chainId,
-    name: hatIdDecimalToIp(BigInt(treeId)),
-    parentId: id,
-    treeId,
-    isLinked: true,
-    url: `/trees/${chainId}/${decimalId(treeId)}`,
-    extendedWearers: extendWearers(currentHat.wearers, wAndCInfo),
-    extendedEligibility: extendControllers(currentHat.eligibility, wAndCInfo),
-    extendedToggle: extendControllers(currentHat.toggle, wAndCInfo),
   };
 };
 
@@ -133,22 +81,47 @@ export async function toTreeStructure({
   const hats = _.map(initialHatIds, (hat) =>
     mapHat(_.find(mergedHatsData, ['id', hat]), chainId, wearersAndControllers),
   );
-  // If the tree is linkedToHat, add it to the hatsArray with the childOfTree id as its parent
-  const linkedHats = _.map([treeData?.linkedToHat || undefined], (hat) =>
-    mapLinkedHat(hat, chainId, wearersAndControllers),
-  );
-  // If the tree has parentOfTrees, add them to the hatsArray with the linkedToHat as their parent
-  const parentOfTrees = _.map(treeData?.parentOfTrees, (tree) =>
-    mapParentTrees(tree, chainId, hatsData, wearersAndControllers),
-  );
 
   const hatsList = _.orderBy(
-    _.compact(_.concat(hats, linkedHats, parentOfTrees, draftHats)),
+    _.compact(_.concat(hats, draftHats)),
     (h) => {
       return _.size(_.split(h.name, '.'));
     },
     'asc',
   );
+  const updatedHatsList = hatsList.map((hat) =>
+    updateHatProperties(hat, treeData.parentOfTrees, treeData.linkedToHat),
+  );
 
-  return Promise.resolve(hatsList);
+  return Promise.resolve(updatedHatsList);
 }
+
+const isHatInParentOfTrees = (
+  hat: IHat,
+  parentOfTrees: IHat[] | undefined,
+): boolean => {
+  return !!_.find(parentOfTrees, { id: idToPrettyId(hat.id) });
+};
+
+const isLinkedToHatFunc = (hat: IHat, linkedToHat: IHat | null): boolean => {
+  return hat.id === linkedToHat?.id;
+};
+
+const updateHatProperties = (
+  hat: IHat,
+  parentOfTrees: IHat[] | undefined,
+  linkedToHat: IHat | null,
+): IHat => {
+  const updatedHat = { ...hat };
+
+  if (isHatInParentOfTrees(hat, parentOfTrees)) {
+    updatedHat.isLinked = true;
+  }
+
+  if (isLinkedToHatFunc(hat, linkedToHat)) {
+    updatedHat.isLinked = true;
+    updatedHat.parentId = undefined;
+  }
+
+  return updatedHat;
+};

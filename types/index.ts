@@ -59,12 +59,13 @@ export interface ITreeEvent extends IHatEvent {
 }
 
 export interface ITree {
+  parentOfHats?: IHat[];
   id: Hex;
   chainId: number;
   hats: IHat[];
   events: ITreeEvent[];
   childOfTree: string | null;
-  parentOfTrees: ITree[];
+  parentOfTrees?: IHat[];
   linkedToHat: IHat | null;
   linkRequestFromTree: LinkRequest[];
 }

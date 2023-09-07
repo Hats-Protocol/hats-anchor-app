@@ -147,8 +147,12 @@ export const TreeFormContextProvider = ({
     'wearers',
   );
   const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
-    _.get(initialTreeData, 'hats'),
+    _.get(initialTreeData, 'hats').concat(
+      _.get(initialTreeData, 'parentOfHats') || [],
+      _.get(initialTreeData, 'linkedToHat') || [],
+    ),
   );
+  console.log('orgChartHats', orgChartHats);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
@@ -178,7 +182,10 @@ export const TreeFormContextProvider = ({
 
   // existing tree
   const treeEvents = _.get(onchainTree.current, 'events');
-  const onchainHats = _.get(onchainTree.current, 'hats');
+  const onchainHats = _.get(onchainTree.current, 'hats').concat(
+    _.get(initialTreeData, 'parentOfHats') || [],
+    _.get(initialTreeData, 'linkedToHat') || [],
+  );
 
   const draftHats = useMemo(
     () =>
