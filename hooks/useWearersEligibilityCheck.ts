@@ -1,6 +1,6 @@
-import { multicall } from '@wagmi/core';
+import { useQueries } from '@tanstack/react-query';
+import { readContract } from '@wagmi/core';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -12,40 +12,30 @@ const useWearersEligibilityCheck = ({
   const { chainId, selectedHat } = useTreeForm();
   const hatId = selectedHat?.id || 'none';
 
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const eligibilityQueries = useQueries({
+    queries: wearerIds.map((wearer) => ({
+      queryKey: ['wearerEligibility', wearer, hatId, chainId],
+      queryFn: async () => {
+        if (hatId && chainId) {
+          const eligibility = await readContract({
+            address: CONFIG.hatsAddress,
+            abi,
+            functionName: 'isEligible',
+            args: [wearer, hatId],
+            chainId,
+          });
 
-  useEffect(() => {
-    const fetchEligibility = async () => {
-      if (wearerIds.length && hatId && chainId) {
-        const contracts = wearerIds.map((wearer) => ({
-          address: CONFIG.hatsAddress,
-          abi,
-          functionName: 'isEligible',
-          args: [wearer, hatId],
-        }));
+          return eligibility ? { address: wearer, isEligible: true } : null;
+        }
+        return null;
+      },
+      enabled: !!wearer && hatId !== 'none' && !!chainId,
+    })),
+  });
 
-        const eligibilities = await multicall({ contracts, chainId } as any);
+  const data = _(eligibilityQueries).map('data').compact().value();
 
-        const formattedResults = _.chain(eligibilities)
-          .map((eligibility, index) => {
-            return {
-              address: wearerIds[index],
-              isEligible: _.get(eligibility, 'result', null),
-            };
-          })
-          .filter('isEligible')
-          .value();
-
-        setData(formattedResults as any);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    fetchEligibility();
-  }, [wearerIds, hatId, chainId]);
+  const isLoading = eligibilityQueries.some((query) => query.isLoading);
 
   return { data, isLoading };
 };
