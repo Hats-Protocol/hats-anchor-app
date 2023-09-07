@@ -21,6 +21,7 @@ export interface ITree {
   events: ITreeEvent[];
   childOfTree: string | null;
   parentOfTrees: ITree[];
+  parentOfHats?: IHat[];
   linkedToHat: IHat | null;
   linkRequestFromTree: LinkRequest[];
 }
