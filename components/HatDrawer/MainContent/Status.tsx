@@ -36,7 +36,7 @@ const StatusCard = ({
   ]);
 
   const { data: isEligible } = useWearerEligibilityCheck({
-    wearer: address || '',
+    wearer: address,
   });
 
   const { data: isActive } = useHatStatus();

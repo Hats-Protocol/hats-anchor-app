@@ -16,7 +16,7 @@ import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
-import {
+import CONFIG, {
   EMPTY_FORM_VALUES,
   FALLBACK_ADDRESS,
   FORM_FIELDS,
@@ -147,7 +147,7 @@ const EditMode = ({
 
   const allFormData = watch();
 
-  const prevAllFormData = useRef<any>(allFormData);
+  const prevAllFormData = useRef<FormData>(allFormData);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -346,7 +346,19 @@ const EditMode = ({
                 localForm={localForm}
                 formName='authorities'
                 title='PERMISSIONS'
-                subtitle='Actions this hat enables its wearer to take.'
+                subtitle={
+                  <Text>
+                    Actions this hat enables its wearer to take. More details in
+                    the{' '}
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.authorities}
+                      decoration
+                    >
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>
+                }
                 label='Permission'
                 Icon={BsKey}
               />
@@ -379,7 +391,7 @@ const EditMode = ({
                       The address of the person or group that can manually
                       revoke this hat from specific wearers. More details in the{' '}
                       <ChakraNextLink
-                        href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
+                        href={CONFIG.docsLinks.eligibility}
                         decoration
                       >
                         docs
@@ -391,7 +403,7 @@ const EditMode = ({
                       about when a wearer should have this hat. More details in
                       the{' '}
                       <ChakraNextLink
-                        href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
+                        href={CONFIG.docsLinks.eligibility}
                         decoration
                       >
                         docs
@@ -438,10 +450,7 @@ const EditMode = ({
                     <Text key='manual'>
                       The address of the person or group that can manually
                       deactivate and reactive this hat. More details in the{' '}
-                      <ChakraNextLink
-                        href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'
-                        decoration
-                      >
+                      <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
                         docs
                       </ChakraNextLink>
                       .
@@ -449,10 +458,7 @@ const EditMode = ({
                     <Text key='automatic'>
                       The address of the smart contract containing the logic
                       about when this hat should be active. More details in the{' '}
-                      <ChakraNextLink
-                        href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'
-                        decoration
-                      >
+                      <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
                         docs
                       </ChakraNextLink>
                       .

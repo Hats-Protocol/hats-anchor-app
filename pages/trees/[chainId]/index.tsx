@@ -8,22 +8,23 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '@/components/Layout';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeListCard';
-// import { fetchPaginatedTrees } from '@/gql/helpers';
+import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { mapWithChainId } from '@/lib/general';
 import { IHat, ITree } from '@/types';
 
 const Trees = ({
-  // trees: initialData,
+  trees: initialTrees,
   chainId,
 }: {
-  // trees: InfiniteData<ITree[]>;
+  trees: ITree[];
   chainId: number;
 }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,
+      initialData: initialTrees,
     });
 
   const trees = _.flatten(_.get(data, 'pages'));
@@ -57,7 +58,13 @@ const Trees = ({
               </Flex>
             }
           >
-            <SimpleGrid gap={8} justifyContent='center' columns={4}>
+            <SimpleGrid
+              gap={8}
+              justifyContent='center'
+              columns={4}
+              maxW='1200px'
+              mx='auto'
+            >
               {_.map(trees, (tree: ITree) => {
                 const topHat = _.find(
                   topHats,
@@ -109,14 +116,14 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.get(context, 'params.chainId');
 
   try {
-    // const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
-    // console.log(trees);
+    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
 
     return {
       props: {
         chainId,
-        trees: [],
+        trees,
       },
+      revalidate: 30,
     };
   } catch (error) {
     // eslint-disable-next-line no-console
