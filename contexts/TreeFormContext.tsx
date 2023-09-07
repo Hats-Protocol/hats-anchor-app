@@ -32,6 +32,7 @@ import {
   IHat,
   IHatEvent,
   ITree,
+  LinkRequest,
 } from '@/types';
 
 export interface ITreeFormContext {
@@ -47,6 +48,7 @@ export interface ITreeFormContext {
   onchainHats: IHat[] | undefined;
   treeEvents: IHatEvent[] | undefined;
   isLoading: boolean;
+  linkRequestFromTree: LinkRequest[] | undefined;
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
@@ -85,6 +87,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   onchainHats: undefined,
   treeEvents: undefined,
   isLoading: true,
+  linkRequestFromTree: undefined,
   // local storage
   storedData: undefined,
   setStoredData: undefined,
@@ -254,6 +257,9 @@ export const TreeFormContextProvider = ({
     [onchainHats, selectedHat],
   );
 
+  // existing tree
+  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
+
   const handleSelectHat = useCallback(
     (id: Hex) => {
       if (isMobile) return;
@@ -415,6 +421,7 @@ export const TreeFormContextProvider = ({
       onchainHats,
       treeEvents,
       isLoading: imagesLoading || detailsLoading,
+      linkRequestFromTree,
       // local storage
       storedData,
       setStoredData,
@@ -453,6 +460,7 @@ export const TreeFormContextProvider = ({
       treeEvents,
       imagesLoading,
       detailsLoading,
+      linkRequestFromTree,
       // local storage
       storedData,
       setStoredData,

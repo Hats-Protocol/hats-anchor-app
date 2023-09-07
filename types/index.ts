@@ -66,7 +66,7 @@ export interface ITree {
   childOfTree: string | null;
   parentOfTrees: ITree[];
   linkedToHat: IHat | null;
-  linkRequestFromTree: string | null;
+  linkRequestFromTree: LinkRequest[];
 }
 
 export type Hierarchy = {
@@ -146,3 +146,11 @@ export type FormDataDetails = {
 };
 
 export type FieldItem = { name: keyof FormData; label: string };
+
+export type LinkRequest = {
+  id: Hex;
+  requestedLinkToHat: {
+    id: Hex;
+    prettyId: Hex;
+  };
+};

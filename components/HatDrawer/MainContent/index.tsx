@@ -11,7 +11,7 @@ import { checkAddressIsContract } from '@/lib/contract';
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
 import Header from './Header';
-// import LinkRequests from './LinkRequests';
+import LinkRequests from './LinkRequests';
 import StatusCard from './Status';
 
 const MainContent = () => {
@@ -87,7 +87,7 @@ const MainContent = () => {
         />
       )}
 
-      {/* <LinkRequests linkRequestFromTree={linkRequestFromTree} /> */}
+      <LinkRequests />
 
       <Box>
         <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={1}>

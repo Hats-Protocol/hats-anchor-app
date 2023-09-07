@@ -82,11 +82,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           isLoading={isLoading}
         />
 
-        {!editMode && (
-          <MainContent
-          // linkRequestFromTree={linkRequestFromTree}
-          />
-        )}
+        {!editMode && <MainContent />}
 
         {editMode && (
           <EditMode
