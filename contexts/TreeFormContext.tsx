@@ -32,6 +32,7 @@ import {
   IHat,
   IHatEvent,
   ITree,
+  LinkRequest,
 } from '@/types';
 
 export interface ITreeFormContext {
@@ -47,6 +48,7 @@ export interface ITreeFormContext {
   onchainHats: IHat[] | undefined;
   treeEvents: IHatEvent[] | undefined;
   isLoading: boolean;
+  linkRequestFromTree: LinkRequest[] | undefined;
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
@@ -85,6 +87,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   onchainHats: undefined,
   treeEvents: undefined,
   isLoading: true,
+  linkRequestFromTree: undefined,
   // local storage
   storedData: undefined,
   setStoredData: undefined,
@@ -144,8 +147,12 @@ export const TreeFormContextProvider = ({
     'wearers',
   );
   const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
-    _.get(initialTreeData, 'hats'),
+    _.get(initialTreeData, 'hats').concat(
+      _.get(initialTreeData, 'parentOfHats') || [],
+      _.get(initialTreeData, 'linkedToHat') || [],
+    ),
   );
+  console.log('orgChartHats', orgChartHats);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
@@ -173,8 +180,12 @@ export const TreeFormContextProvider = ({
   const { onOpen: onOpenTreeDrawer, onClose: onCloseTreeDrawer } =
     treeDisclosure;
 
+  // existing tree
   const treeEvents = _.get(onchainTree.current, 'events');
-  const onchainHats = _.get(onchainTree.current, 'hats');
+  const onchainHats = _.get(onchainTree.current, 'hats').concat(
+    _.get(initialTreeData, 'parentOfHats') || [],
+    _.get(initialTreeData, 'linkedToHat') || [],
+  );
 
   const draftHats = useMemo(
     () =>
@@ -228,7 +239,6 @@ export const TreeFormContextProvider = ({
     detailsLoaded: !detailsLoading,
     initialHatIds,
   });
-  console.log('orgChartTree', orgChartTree);
 
   // top hat
   const topHat: IHat | undefined = useMemo(
@@ -245,15 +255,17 @@ export const TreeFormContextProvider = ({
     () => _.find(orgChartTree, ['id', selectedHatId]),
     [orgChartTree, selectedHatId],
   );
-
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
   );
+  const isDraft = useMemo(
+    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
+    [onchainHats, selectedHat],
+  );
 
   // existing tree
-  const isDraft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
-  // ? const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
+  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
   const handleSelectHat = useCallback(
     (id: Hex) => {
@@ -416,6 +428,7 @@ export const TreeFormContextProvider = ({
       onchainHats,
       treeEvents,
       isLoading: imagesLoading || detailsLoading,
+      linkRequestFromTree,
       // local storage
       storedData,
       setStoredData,
@@ -454,6 +467,7 @@ export const TreeFormContextProvider = ({
       treeEvents,
       imagesLoading,
       detailsLoading,
+      linkRequestFromTree,
       // local storage
       storedData,
       setStoredData,

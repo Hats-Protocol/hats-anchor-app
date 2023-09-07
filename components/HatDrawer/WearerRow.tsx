@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import {
+  Badge,
   Flex,
   IconButton,
   Image,
@@ -11,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -19,6 +21,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
@@ -30,6 +33,8 @@ const WearerRow = ({
   isAdminUser,
   setChangeStatusWearer,
   setWearerToTransferFrom,
+  isTopHat,
+  isEligible,
 }: WearerRowProps) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
@@ -40,11 +45,20 @@ const WearerRow = ({
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
 
+  const { data: wearerIsEligible } = useWearerEligibilityCheck({
+    wearer: wearer.id,
+  });
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
-    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    enabled:
+      Boolean(hatId) &&
+      Boolean(wearer) &&
+      wearerIsEligible !== undefined &&
+      !wearerIsEligible &&
+      chainId === currentNetworkId,
     handleSuccess: (data) => {
       if (!_.isEmpty(data.logs)) {
         toast.info({
@@ -90,6 +104,11 @@ const WearerRow = ({
         </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
+        {!isEligible && (
+          <Badge colorScheme='gray' fontSize='sm' variant='outline'>
+            INELIGIBLE
+          </Badge>
+        )}
         <ChakraNextLink href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
         </ChakraNextLink>
@@ -119,7 +138,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {isSameAddress(wearer.id, address) && (
+            {isSameAddress(wearer.id, address) && !isTopHat && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
                 <TooltipWrapper
                   isSameChain={isSameChain}
@@ -170,6 +189,8 @@ export default WearerRow;
 interface WearerRowProps {
   wearer: IHatWearer;
   isAdminUser: boolean;
-  setChangeStatusWearer: any;
+  setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
+  isTopHat: boolean;
+  isEligible: boolean;
 }

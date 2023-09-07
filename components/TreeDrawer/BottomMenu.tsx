@@ -10,12 +10,14 @@ import {
   Icon,
   Input,
   Spinner,
+  Stack,
   Text,
   useClipboard,
 } from '@chakra-ui/react';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
+import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
@@ -38,6 +40,7 @@ const BottomMenu = ({
   const hasUpdates = editHasUpdates(storedData);
 
   const { onCopy: copyCallData } = useClipboard(callData || '');
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
@@ -56,21 +59,45 @@ const BottomMenu = ({
                 <>
                   <AccordionButton px={8} py={4}>
                     <Box flex='1' textAlign='left'>
-                      Executable hex code
+                      Transaction Call Data
                     </Box>
                     <Icon as={isExpanded ? IoIosArrowDown : IoIosArrowUp} />
                   </AccordionButton>
 
                   <AccordionPanel pb={8} px={8}>
-                    <Box>
-                      <Text mb={2} color='blackAlpha.700'>
+                    <Stack>
+                      <Text color='blackAlpha.700'>Hats contract address</Text>
+                      <HStack spacing={4}>
+                        <Input
+                          value={CONFIG.hatsAddress}
+                          background='white'
+                          color='blackAlpha.600'
+                          isReadOnly
+                          placeholder='Loading...'
+                        />
+                        <Button
+                          leftIcon={<FiCopy />}
+                          onClick={() => {
+                            copyContractAddress();
+                            toast.info({
+                              title:
+                                'Successfully copied contract address to clipboard',
+                            });
+                          }}
+                          variant='outline'
+                          borderColor='gray.300'
+                        >
+                          Copy
+                        </Button>
+                      </HStack>
+                      <Text color='blackAlpha.700'>
                         Copy this into the Data field of a transaction builder
                         to deploy the tree from a contract (such as a multisig
                         or DAO).
                       </Text>
 
                       {!isLoading ? (
-                        <HStack>
+                        <HStack spacing={4}>
                           <Input
                             value={isLoading ? '' : callData || ''}
                             background='white'
@@ -87,7 +114,6 @@ const BottomMenu = ({
                                   'Successfully copied hex code to clipboard',
                               });
                             }}
-                            ml={2}
                             isDisabled={!callData}
                             variant='outline'
                             borderColor='gray.300'
@@ -100,7 +126,7 @@ const BottomMenu = ({
                           <Spinner />
                         </Flex>
                       )}
-                    </Box>
+                    </Stack>
                   </AccordionPanel>
                 </>
               );

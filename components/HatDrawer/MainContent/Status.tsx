@@ -14,8 +14,8 @@ import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatStatus from '@/hooks/useHatStatus';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress } from '@/lib/general';
 import { explorerUrl } from '@/lib/web3';
 
@@ -35,7 +35,7 @@ const StatusCard = ({
     'toggle',
   ]);
 
-  const { data: isEligible } = useHatCheckEligibility({
+  const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address || '',
   });
 

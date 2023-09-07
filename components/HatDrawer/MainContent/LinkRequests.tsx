@@ -6,15 +6,12 @@ import Modal from '@/components/atoms/Modal';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
+import { prettyIdToIp } from '@/lib/hats';
 
-const LinkRequests = ({
-  linkRequestFromTree,
-}: {
-  linkRequestFromTree: any[];
-}) => {
+const LinkRequests = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { selectedHat } = useTreeForm();
+  const { selectedHat, linkRequestFromTree } = useTreeForm();
 
   const [linkFrom, setLinkFrom] = useState('');
   const [linkTo, setLinkTo] = useState('');
@@ -45,7 +42,7 @@ const LinkRequests = ({
               }
               key={linkRequest.id}
             >
-              Link Request to {hatIdDecimalToIp(BigInt(linkRequest.id))}
+              Link Request to {prettyIdToIp(linkRequest.id)}
             </Button>
           ))}
         </HStack>

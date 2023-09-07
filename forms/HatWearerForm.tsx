@@ -32,8 +32,8 @@ import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatCheckEligibility from '@/hooks/useHatCheckEligibility';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
@@ -68,7 +68,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentWearerList = _.map(currentWearers, 'id');
 
   const { data: isEligible, isLoading: isLoadingIsEligible } =
-    useHatCheckEligibility({
+    useWearerEligibilityCheck({
       wearer: currentResolvedAddress,
     });
 

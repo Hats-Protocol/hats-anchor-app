@@ -64,7 +64,10 @@ const useHatContractWrite = ({
       });
     },
     onError: (error) => {
-      if (error.name === 'UserRejectedRequestError') {
+      if (
+        error.name === 'TransactionExecutionError' &&
+        error.message.includes('User rejected the request')
+      ) {
         toast.error({
           title: 'Signature rejected!',
           description: 'Please accept the transaction in your wallet',

@@ -4,7 +4,9 @@ import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import abi from '@/contracts/Hats.json';
 
-const useHatCheckEligibility = ({ wearer }: UseHatCheckEligibilityProps) => {
+const useWearerEligibilityCheck = ({
+  wearer,
+}: useWearerEligibilityCheckProps) => {
   const { chainId, selectedHat } = useTreeForm();
 
   const hatId = selectedHat?.id || 'none';
@@ -21,8 +23,8 @@ const useHatCheckEligibility = ({ wearer }: UseHatCheckEligibilityProps) => {
   return { data, isLoading };
 };
 
-export default useHatCheckEligibility;
+export default useWearerEligibilityCheck;
 
-interface UseHatCheckEligibilityProps {
+interface useWearerEligibilityCheckProps {
   wearer: string;
 }
