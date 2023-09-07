@@ -105,6 +105,14 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           };
 
           const hatId = prettyIdToIp(idToPrettyId(hat.id));
+          // get hat name for list display
+          let displayName = _.get(hat, 'detailsObject.data.name');
+          if (!displayName && !_.startsWith(hat.details, 'ipfs://')) {
+            displayName = hat.details;
+          }
+          if (!displayName && hat.name !== hatId) {
+            displayName = hat.name;
+          }
 
           return (
             <Box
@@ -124,10 +132,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
               >
                 <HStack>
                   <Text>{hatId}</Text>
-                  {(hat?.detailsObject?.data?.name || hat.name !== hatId) && (
-                    <Text>
-                      {hat?.detailsObject?.data?.name ||
-                        (hat.name !== hatId ? hat.name : '')}
+                  {displayName && (
+                    <Text maxW={hat.mutable ? '300px' : '200px'} isTruncated>
+                      {displayName}
                     </Text>
                   )}
                 </HStack>
