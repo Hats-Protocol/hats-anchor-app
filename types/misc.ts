@@ -1,0 +1,32 @@
+import { ReactNode } from 'react';
+import { Hex } from 'viem';
+
+export type ImageFile = {
+  path: string;
+  preview: string;
+  lastModified: number;
+  lastModifiedDate: Date;
+  name: string;
+  size: number;
+  type: string;
+  webkitRelativePath: string;
+};
+
+export type Hierarchy = {
+  id: string;
+  parentId?: Hex;
+  firstChild?: Hex;
+  leftSibling?: Hex;
+  rightSibling?: Hex;
+};
+
+export type InputObject = {
+  id: string;
+  parentId: string | undefined;
+};
+
+export interface IControls {
+  label: string;
+  value: string;
+  icon: ReactNode;
+}
