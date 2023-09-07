@@ -1,3 +1,4 @@
+import { Hex } from 'viem';
 import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
@@ -26,5 +27,5 @@ const useWearerEligibilityCheck = ({
 export default useWearerEligibilityCheck;
 
 interface useWearerEligibilityCheckProps {
-  wearer: string;
+  wearer: Hex | undefined;
 }
