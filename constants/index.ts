@@ -65,6 +65,16 @@ const CONFIG: {
   toggles: 'toggles',
   wearer: 'wearer',
   wearers: 'wearers',
+
+  // docs
+  docsLinks: {
+    authorities:
+      'https://docs.hatsprotocol.xyz/hats-integrations/hat-gated-authorities',
+    eligibility:
+      'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers',
+    toggle:
+      'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers',
+  },
 };
 
 export default CONFIG;
