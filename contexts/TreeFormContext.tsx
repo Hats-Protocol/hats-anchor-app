@@ -1,5 +1,6 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
 import router from 'next/router';
 import {
@@ -24,7 +25,12 @@ import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
 import { generateLocalStorageKey } from '@/lib/general';
-import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
+import {
+  checkImageForHat,
+  createHierarchy,
+  ipToHatId,
+  translateDrafts,
+} from '@/lib/hats';
 import {
   FormData,
   HatDetails,
@@ -52,6 +58,10 @@ export interface ITreeFormContext {
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
+  newImageUrls: {
+    id: `0x${string}` | undefined;
+    newImageUrl: void | undefined;
+  }[];
   // controls
   editMode: boolean;
   setEditMode: ((v: boolean) => void) | undefined;
@@ -91,6 +101,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   // local storage
   storedData: undefined,
   setStoredData: undefined,
+  newImageUrls: [],
   // controls
   editMode: false,
   setEditMode: undefined,
@@ -263,6 +274,32 @@ export const TreeFormContextProvider = ({
     [onchainHats, selectedHat],
   );
 
+  // Filtering storedData to get hats with imageUrl
+  const hatsWithImage = useMemo(() => {
+    return (storedData || []).filter((hat) => Boolean(hat.imageUrl));
+  }, [storedData]);
+
+  // Creating queries for each hat with imageUrl
+  const queries = useMemo(() => {
+    return hatsWithImage.map((hat) => ({
+      queryKey: ['newImageURI', hat.imageUrl],
+      queryFn: () => {
+        if (hat.imageUrl) checkImageForHat(hat.imageUrl);
+      },
+      enabled: Boolean(hat.imageUrl),
+    }));
+  }, [hatsWithImage]);
+
+  const results = useQueries({ queries });
+
+  // Mapping the results to get the desired array of objects with id and newImageUrl
+  const newImageUrls = useMemo(() => {
+    return results.map((result, index) => ({
+      id: hatsWithImage[index].id,
+      newImageUrl: result.data,
+    }));
+  }, [results, hatsWithImage]);
+
   // existing tree
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
@@ -431,6 +468,7 @@ export const TreeFormContextProvider = ({
       // local storage
       storedData,
       setStoredData,
+      newImageUrls,
       // controls
       editMode,
       setEditMode,
@@ -470,6 +508,7 @@ export const TreeFormContextProvider = ({
       // local storage
       storedData,
       setStoredData,
+      newImageUrls,
       // controls
       editMode,
       setEditMode,
