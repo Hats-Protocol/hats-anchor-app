@@ -50,7 +50,7 @@ const TreeMenu = ({
   const { setModals } = useOverlay();
   const {
     chainId,
-    orgChartTree,
+    treeToDisplay,
     treeEvents,
     editMode,
     setSelectedOption,
@@ -66,7 +66,7 @@ const TreeMenu = ({
   const chain = chainsMap(chainId);
 
   // const controls = checkPermissionsResponsibilities(
-  //   orgChartTree,
+  //   treeToDisplay,
   //   initialControls,
   // );
 
@@ -98,7 +98,7 @@ const TreeMenu = ({
                 <Icon as={BsPencil} color='#065666' />
               )
             }
-            isDisabled={!orgChartTree}
+            isDisabled={!treeToDisplay}
             onClick={toggleEditMode}
           >
             {editMode ? 'Leave Edit Mode' : 'Edit Tree'}
@@ -169,7 +169,7 @@ const TreeMenu = ({
           </Button>
         ) : (
           <VStack align='center' alignItems='flex-end' spacing={1}>
-            <Skeleton isLoaded={!!chain && !!orgChartTree}>
+            <Skeleton isLoaded={!!chain && !!treeToDisplay}>
               <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
                 <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 

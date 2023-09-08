@@ -30,7 +30,7 @@ import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
-import { DetailsItem, FieldItem, FormData } from '@/types';
+import { DetailsItem, DirtyFormData, FieldItem, FormData } from '@/types';
 
 import ChakraNextLink from '../atoms/ChakraNextLink';
 
@@ -39,8 +39,14 @@ const EditMode = ({
   setUnsavedData,
   setIsLoading,
 }: EditModeProps) => {
-  const { chainId, storedData, selectedHat, selectedHatDetails, isDraft } =
-    useTreeForm();
+  const {
+    chainId,
+    storedData,
+    selectedHat,
+    selectedHatDetails,
+    isDraft,
+    treeToDisplay,
+  } = useTreeForm();
 
   const {
     name: initialName,
@@ -243,21 +249,22 @@ const EditMode = ({
       }
 
       const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: FormData, key: keyof FormData) => {
+        (acc: DirtyFormData, key: keyof FormData) => {
           if (key === 'newImageUri') {
             acc.imageUrl = newImageURI;
           } else {
-            if (!acc || key) return acc;
-            acc[key] = allFormData[key];
+            acc[key as string] = allFormData[key];
           }
           return acc;
         },
-        {} as FormData,
+        {},
       );
 
       setUnsavedData(dirtyFormData);
     }
   }, [newImageURI, imageUri]);
+
+  const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
 
   if (!selectedHat) return null;
 
@@ -274,12 +281,13 @@ const EditMode = ({
       >
         <Stack>
           <Text fontSize={32} fontWeight='medium'>
-            {isDraft
-              ? `Add hat ${hatIdDecimalToIp(
-                  BigInt(selectedHat?.id),
-                )} to this tree`
-              : selectedHat?.detailsObject?.data?.name ||
-                (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id)))}
+            {newName ||
+              (isDraft
+                ? `Add hat ${hatIdDecimalToIp(
+                    BigInt(selectedHat?.id),
+                  )} to this tree`
+                : selectedHat?.detailsObject?.data?.name ||
+                  (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
           </Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>

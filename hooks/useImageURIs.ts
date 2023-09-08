@@ -5,7 +5,7 @@ import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
-import { formatImageUrl, isImageUrl } from '@/lib/general';
+import { checkImageForHat } from '@/lib/hats';
 import { IHat } from '@/types';
 
 /**
@@ -46,16 +46,6 @@ const useImageURIs = ({
   const uniqueImageUris = _.compact(
     _.uniq(_.map(imagesData, 'result')),
   ) as string[];
-
-  const checkImageForHat = async (img: string) => {
-    const isValidImage = await isImageUrl(formatImageUrl(img));
-
-    let imageUrl = null;
-    if (isValidImage) {
-      imageUrl = formatImageUrl(img);
-    }
-    return imageUrl;
-  };
 
   const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
 

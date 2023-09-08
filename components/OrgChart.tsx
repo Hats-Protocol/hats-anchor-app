@@ -46,7 +46,7 @@ const OrgChartComponent: React.FC = () => {
   const {
     chainId,
     editMode,
-    orgChartTree,
+    treeToDisplay,
     showInactiveHats,
     selectedOption,
     selectedHat,
@@ -55,6 +55,7 @@ const OrgChartComponent: React.FC = () => {
     storedData,
     setStoredData,
     addHat,
+    newImageUrls,
   } = useTreeForm();
 
   const d3Container = useRef(null);
@@ -66,16 +67,13 @@ const OrgChartComponent: React.FC = () => {
   });
 
   useLayoutEffect(() => {
-    if (_.isEmpty(orgChartTree)) return;
-    const filteredTree = orgChartTree?.filter((t) =>
-      showInactiveHats ? t : t.status,
-    );
+    if (_.isEmpty(treeToDisplay)) return;
 
-    if (filteredTree && d3Container.current) {
+    if (treeToDisplay && d3Container.current) {
       if (chart) {
         chart
           .container(d3Container.current)
-          .data(filteredTree ?? [])
+          .data(treeToDisplay ?? [])
           // set dims of the chart window
           .svgHeight(window.innerHeight - 150)
           .svgWidth(window.innerWidth)
@@ -112,7 +110,7 @@ const OrgChartComponent: React.FC = () => {
               ) {
                 const nextChildId = calculateNextChildId(
                   data.data.id,
-                  filteredTree,
+                  treeToDisplay,
                 );
                 const newId = ipToHatId(nextChildId);
 
@@ -219,9 +217,11 @@ const OrgChartComponent: React.FC = () => {
               extendedEligibility: eligibility,
               extendedToggle: toggle,
               levelAtLocalTree,
+              newImageUrl,
+              newName,
             } = d.data;
 
-            const nextChildId = calculateNextChildId(d.data.id, filteredTree);
+            const nextChildId = calculateNextChildId(d.data.id, treeToDisplay);
 
             let detailsName = details;
             if (detailsObject?.type === '1.0') {
@@ -449,9 +449,10 @@ const OrgChartComponent: React.FC = () => {
                   <img
                     loading="lazy"
                     src="${
-                      imageUrl !== '' && imageUrl !== null
+                      newImageUrl ||
+                      (imageUrl !== '' && imageUrl !== null
                         ? imageUrl
-                        : '/icon.jpeg'
+                        : '/icon.jpeg')
                     }"
                     style="
                       background: white;
@@ -503,7 +504,7 @@ const OrgChartComponent: React.FC = () => {
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;"
                       >
-                        ${detailsName}
+                        ${newName || detailsName}
                       </div>
                     </div>
                     ${
@@ -576,7 +577,6 @@ const OrgChartComponent: React.FC = () => {
     }
   }, [
     chart,
-    orgChartTree,
     chainId,
     handleSelectHat,
     selectedHat,
@@ -590,6 +590,8 @@ const OrgChartComponent: React.FC = () => {
     addHat,
     setStoredData,
     userChain,
+    newImageUrls,
+    treeToDisplay,
   ]);
 
   return isLoading ? (

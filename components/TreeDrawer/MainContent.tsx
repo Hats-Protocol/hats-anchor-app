@@ -28,7 +28,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const {
     topHat,
     onchainHats,
-    orgChartTree,
+    treeToDisplay,
     storedData,
     setSelectedHatId,
     treeDisclosure,
@@ -41,7 +41,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
 
-  if (!onchainHats || !orgChartTree) return null;
+  if (!onchainHats || !treeToDisplay) return null;
 
   return (
     <Stack
@@ -94,7 +94,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         borderY='1px solid'
         borderColor='gray.200'
       >
-        {_.map(orgChartTree, (hat) => {
+        {_.map(treeToDisplay, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
 
@@ -106,7 +106,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
           const hatId = prettyIdToIp(idToPrettyId(hat.id));
           // get hat name for list display
-          let displayName = _.get(hat, 'detailsObject.data.name');
+          let displayName =
+            _.get(hat, 'newName') || _.get(hat, 'detailsObject.data.name');
           if (!displayName && !_.startsWith(hat.details, 'ipfs://')) {
             displayName = hat.details;
           }

@@ -17,7 +17,12 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
     undefined,
   );
-  const { selectedHat, editMode, storedData, setStoredData } = useTreeForm();
+  const { selectedHat, editMode, storedData, setStoredData, newImageUrls } =
+    useTreeForm();
+  const newImageUrl = _.find(newImageUrls, [
+    'id',
+    selectedHat?.id,
+  ])?.newImageUrl;
   const selectedHatId = selectedHat?.id;
 
   const handleSave = (sendToast: boolean = true) => {
@@ -62,7 +67,11 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         {/* Hat Image */}
         <Image
           loading='lazy'
-          src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+          src={
+            (editMode && newImageUrl) ||
+            _.get(selectedHat, 'imageUrl') ||
+            '/icon.jpeg'
+          }
           alt='hat image'
           position='absolute'
           background='white'

@@ -19,6 +19,7 @@ import {
 } from '@/types';
 import { handleDetailsPin } from './ipfs';
 import { createHatsClient } from './web3';
+import { formatImageUrl, isImageUrl } from './general';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -223,16 +224,16 @@ const checkNodeDetails = (node: IHat, type: string) =>
   _.includes(_.keys(node.detailsObject.data), type);
 
 export const checkPermissionsResponsibilities = (
-  orgChartTree: IHat[],
+  treeToDisplay: IHat[],
   controls: IControls[],
 ) => {
   const hasPermissions = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) =>
+    _.filter(treeToDisplay, (node: IHat) =>
       checkNodeDetails(node, 'permissions'),
     ),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) =>
+    _.filter(treeToDisplay, (node: IHat) =>
       checkNodeDetails(node, 'responsibilities'),
     ),
   );
@@ -391,6 +392,7 @@ export const processHatForCalls = async (
     wearers,
     id: hatId,
   } = hat;
+  console.log(hat);
 
   const hatChanges = {
     id: hatId,
@@ -421,21 +423,25 @@ export const processHatForCalls = async (
       hatId,
       newDetails: detailsData,
     });
-    const newHat = hatsClient.createHatCallData({
+
+    const newHat = {
       admin: BigInt(getDefaultAdminId(hatId)),
       details,
       maxSupply: _.toNumber(maxSupply) || 1,
       eligibility: eligibility || FALLBACK_ADDRESS,
       toggle: toggle || FALLBACK_ADDRESS,
-      mutable: mutable === MUTABILITY.MUTABLE,
+      mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
       imageURI: imageUrl,
-    });
-    if (newHat && newHat.callData) {
-      calls.push(newHat);
+    };
+
+    const newHatData = hatsClient.createHatCallData(newHat);
+
+    if (newHatData && newHatData.callData) {
+      calls.push(newHatData);
       proposedChanges.push({
         id: hatId,
         chainId,
-        newHat,
+        ...newHat,
       });
     }
   } else {
@@ -509,7 +515,6 @@ export const processHatForCalls = async (
           wearers: _.map(wearers, 'address'),
         });
 
-        console.log('batchMintHatWearersData', batchMintHatWearersData);
         if (batchMintHatWearersData) {
           calls.push(batchMintHatWearersData);
           hatChanges.wearers = _.map(wearers, 'address');
@@ -581,4 +586,12 @@ export const isAncestor = (
     currentParentId = (hat as IHat)?.parentId;
   }
   return false;
+};
+
+export const checkImageForHat = async (img?: string) => {
+  const isValidImage = await isImageUrl(formatImageUrl(img));
+
+  if (isValidImage) {
+    return formatImageUrl(img);
+  }
 };

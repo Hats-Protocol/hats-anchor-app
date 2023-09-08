@@ -36,7 +36,7 @@ const TreePage = () => {
     chainId,
     treeId,
     selectedHat,
-    orgChartTree,
+    treeToDisplay,
     setSelectedHatId,
     editMode,
     topHat,
@@ -93,7 +93,7 @@ const TreePage = () => {
           onCloseHatDrawer?.();
           setSelectedHatId?.(undefined);
         }}
-        isOpen={!!orgChartTree && !!isOpenHatDrawer}
+        isOpen={!!treeToDisplay && !!isOpenHatDrawer}
       >
         <DrawerContent
           background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
@@ -130,7 +130,7 @@ const TreePage = () => {
 
       <Layout editMode={editMode} hatData={topHat}>
         <TreeMenu treeDisclosure={treeDisclosure} />
-        {!_.isEmpty(orgChartTree) ? (
+        {!_.isEmpty(treeToDisplay) ? (
           <Suspense fallback={<Suspender />}>
             <OrgChart />
           </Suspense>
