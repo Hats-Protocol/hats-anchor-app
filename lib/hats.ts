@@ -392,6 +392,7 @@ export const processHatForCalls = async (
     wearers,
     id: hatId,
   } = hat;
+  console.log(hat);
 
   const hatChanges = {
     id: hatId,
@@ -428,7 +429,7 @@ export const processHatForCalls = async (
       maxSupply: _.toNumber(maxSupply) || 1,
       eligibility: eligibility || FALLBACK_ADDRESS,
       toggle: toggle || FALLBACK_ADDRESS,
-      mutable: mutable === MUTABILITY.MUTABLE,
+      mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
       imageURI: imageUrl,
     });
     if (newHat && newHat.callData) {
