@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -27,7 +28,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl } from '@/lib/general';
-import { isMutable, isTopHat } from '@/lib/hats';
+import { checkImageForHat, isMutable, isTopHat } from '@/lib/hats';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },
@@ -46,12 +47,23 @@ const HatBasicsForm = ({
 }) => {
   const { watch, control, formState } = localForm;
 
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, storedData } = useTreeForm();
   const [image, setImage] = useState<any>();
 
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'guilds',
+  });
+
+  const newImageURI = storedData?.filter((hat) => hat.id === selectedHat?.id)[0]
+    ?.imageUrl;
+
+  const { data: newImageUrl } = useQuery({
+    queryKey: ['newImageURI', newImageURI],
+    queryFn: () => {
+      if (newImageURI) checkImageForHat(newImageURI);
+    },
+    enabled: !!newImageURI,
   });
 
   const guilds = useDebounce<string[]>(watch('guilds'));
@@ -108,7 +120,7 @@ const HatBasicsForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={image}
-                imageUrl={imageUrl}
+                imageUrl={newImageUrl || imageUrl}
               />
             </Box>
           </FormRowWrapper>

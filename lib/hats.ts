@@ -19,6 +19,7 @@ import {
 } from '@/types';
 import { handleDetailsPin } from './ipfs';
 import { createHatsClient } from './web3';
+import { formatImageUrl, isImageUrl } from './general';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -553,6 +554,7 @@ export const processHatForCalls = async (
     }
 
     if (imageUrl) {
+      console.log('imageUrl', imageUrl);
       const changeHatImageURIData = hatsClient.changeHatImageURICallData({
         hatId: decimalId(hatId) as unknown as bigint,
         newImageURI: imageUrl,
@@ -581,4 +583,15 @@ export const isAncestor = (
     currentParentId = (hat as IHat)?.parentId;
   }
   return false;
+};
+
+export const checkImageForHat = async (img: string) => {
+  const isValidImage = await isImageUrl(formatImageUrl(img));
+  console.log('isValidImage', isValidImage);
+
+  let imageUrl = null;
+  if (isValidImage) {
+    imageUrl = formatImageUrl(img);
+  }
+  return imageUrl;
 };

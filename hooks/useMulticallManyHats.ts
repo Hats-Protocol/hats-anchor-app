@@ -158,6 +158,7 @@ const useMulticallCallManyHats = () => {
     writeAsync,
     prepareError,
     writeError,
+    proposedChanges,
     isLoading: isLoading || txLoading,
   };
 };
