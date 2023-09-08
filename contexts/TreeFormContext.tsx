@@ -60,7 +60,7 @@ export interface ITreeFormContext {
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
   newImageUrls: {
     id: `0x${string}` | undefined;
-    newImageUrl: void | undefined;
+    newImageUrl: string | null | undefined;
   }[];
   // controls
   editMode: boolean;
@@ -278,15 +278,17 @@ export const TreeFormContextProvider = ({
     return (storedData || []).filter((hat) => Boolean(hat.imageUrl));
   }, [storedData]);
 
-  const queries = useMemo(() => {
-    return storedHatsWithImage.map((hat) => ({
-      queryKey: ['newImageURI', hat.imageUrl],
-      queryFn: () => {
-        if (hat.imageUrl) checkImageForHat(hat.imageUrl);
-      },
-      enabled: Boolean(hat.imageUrl),
-    }));
-  }, [storedHatsWithImage]);
+  const queries = storedHatsWithImage.map((hat) => ({
+    queryKey: ['newImageURI', hat.imageUrl],
+    queryFn: async () => {
+      if (hat.imageUrl) {
+        return checkImageForHat(hat.imageUrl);
+      }
+      return undefined;
+    },
+    enabled: true,
+    timeout: 5000,
+  }));
 
   const results = useQueries({ queries });
 
