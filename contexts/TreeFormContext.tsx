@@ -256,12 +256,7 @@ export const TreeFormContextProvider = ({
 
   const queries = storedHatsWithImage.map((hat) => ({
     queryKey: ['newImageURI', hat.imageUrl],
-    queryFn: async () => {
-      if (hat.imageUrl) {
-        return checkImageForHat(hat.imageUrl);
-      }
-      return undefined;
-    },
+    queryFn: () => checkImageForHat(hat?.imageUrl),
     enabled: true,
     timeout: 5000,
   }));

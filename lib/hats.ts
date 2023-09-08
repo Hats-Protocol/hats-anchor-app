@@ -585,12 +585,10 @@ export const isAncestor = (
   return false;
 };
 
-export const checkImageForHat = async (img: string) => {
+export const checkImageForHat = async (img?: string) => {
   const isValidImage = await isImageUrl(formatImageUrl(img));
 
-  let imageUrl = null;
   if (isValidImage) {
-    imageUrl = formatImageUrl(img);
+    return formatImageUrl(img);
   }
-  return imageUrl;
 };
