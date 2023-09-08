@@ -31,7 +31,7 @@ const useMulticallCallManyHats = () => {
     treeId,
     storedData,
     onchainHats,
-    orgChartTree,
+    treeToDisplay,
     setStoredData,
   } = useTreeForm();
   const toast = useToast();
@@ -41,7 +41,7 @@ const useMulticallCallManyHats = () => {
 
   useEffect(() => {
     const prepareMulticallData = async () => {
-      const onlyOnchainHats = _.filter(orgChartTree, (hat) =>
+      const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
         _.includes(_.map(onchainHats, 'id'), hat.id),
       );
 
@@ -73,7 +73,7 @@ const useMulticallCallManyHats = () => {
     address,
     storedData,
     onchainHats,
-    orgChartTree,
+    treeToDisplay,
   ]);
 
   const { config, error: prepareError } = usePrepareContractWrite({

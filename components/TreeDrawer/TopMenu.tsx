@@ -47,7 +47,7 @@ const TopMenu = () => {
     treeDisclosure,
     resetTree,
     setSelectedOption,
-    orgChartTree,
+    treeToDisplay,
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
@@ -102,7 +102,7 @@ const TopMenu = () => {
 
   const isAdminOfAllHatsWithChanges = useMemo(() => {
     const hatsWithChanges = _.map(storedData, ({ id }) => {
-      const foundHat = _.find(orgChartTree, { id });
+      const foundHat = _.find(treeToDisplay, { id });
       return {
         id: foundHat?.id,
         adminId: foundHat?.admin?.id,
@@ -112,7 +112,7 @@ const TopMenu = () => {
     const hasAdminOverAllHats = _.some(hatsWithChanges, (hat) => {
       return _.every(
         hatsWithChanges,
-        (h) => h.id === hat.id || isAncestor(hat.id, h.id, orgChartTree),
+        (h) => h.id === hat.id || isAncestor(hat.id, h.id, treeToDisplay),
       );
     });
 
@@ -129,7 +129,7 @@ const TopMenu = () => {
 
     let currentParentId = commonParent;
     while (currentParentId) {
-      const hat = _.find(orgChartTree, { id: currentParentId });
+      const hat = _.find(treeToDisplay, { id: currentParentId });
       if (isWearer(_.map(wearer, 'id'), (hat as IHat)?.id)) {
         return true;
       }
@@ -137,7 +137,7 @@ const TopMenu = () => {
     }
 
     return false;
-  }, [storedData, orgChartTree, wearer]);
+  }, [storedData, treeToDisplay, wearer]);
 
   const getDeployTooltipLabel = useMemo(() => {
     if (!storedData?.length) {

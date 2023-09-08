@@ -46,7 +46,7 @@ const OrgChartComponent: React.FC = () => {
   const {
     chainId,
     editMode,
-    orgChartTree,
+    treeToDisplay,
     showInactiveHats,
     selectedOption,
     selectedHat,
@@ -67,22 +67,7 @@ const OrgChartComponent: React.FC = () => {
   });
 
   useLayoutEffect(() => {
-    if (_.isEmpty(orgChartTree)) return;
-    const filteredTree = orgChartTree?.filter((t) =>
-      showInactiveHats ? t : t.status,
-    );
-
-    const updatedTree = _.map(filteredTree, (hat) => {
-      const newImageUrl = _.find(newImageUrls, ['id', hat.id])?.newImageUrl;
-      const newName = _.find(storedData, ['id', hat.id])?.name;
-      return {
-        ...hat,
-        newName,
-        newImageUrl,
-      };
-    });
-
-    const treeToDisplay = editMode ? updatedTree : filteredTree;
+    if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
       if (chart) {
@@ -592,7 +577,6 @@ const OrgChartComponent: React.FC = () => {
     }
   }, [
     chart,
-    orgChartTree,
     chainId,
     handleSelectHat,
     selectedHat,
@@ -607,6 +591,7 @@ const OrgChartComponent: React.FC = () => {
     setStoredData,
     userChain,
     newImageUrls,
+    treeToDisplay,
   ]);
 
   return isLoading ? (

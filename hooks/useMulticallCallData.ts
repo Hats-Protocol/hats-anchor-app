@@ -12,14 +12,14 @@ type useMulticallCallDataProps = {
 };
 
 const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
-  const { chainId, treeId, storedData, onchainHats, orgChartTree } =
+  const { chainId, treeId, storedData, onchainHats, treeToDisplay } =
     useTreeForm();
   const hatsClient = createHatsClient(chainId);
 
   const computeMulticallData = async () => {
     if (!chainId || !treeId || !storedData) return undefined;
 
-    const onlyOnchainHats = _.filter(orgChartTree, (hat) =>
+    const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
       _.includes(_.map(onchainHats, 'id'), hat.id),
     );
 

@@ -49,7 +49,7 @@ export interface ITreeFormContext {
   topHatDetails: HatDetails | undefined;
   selectedHatDetails: HatDetails | undefined;
   isDraft: boolean;
-  orgChartTree: IHat[] | undefined;
+  treeToDisplay: IHat[] | undefined;
   onchainTree: ITree | undefined;
   onchainHats: IHat[] | undefined;
   treeEvents: IHatEvent[] | undefined;
@@ -92,7 +92,7 @@ export const TreeFormContext = createContext<ITreeFormContext>({
   topHatDetails: undefined,
   selectedHatDetails: undefined,
   isDraft: false,
-  orgChartTree: undefined,
+  treeToDisplay: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
   treeEvents: undefined,
@@ -250,30 +250,6 @@ export const TreeFormContextProvider = ({
     initialHatIds,
   });
 
-  // top hat
-  const topHat: IHat | undefined = useMemo(
-    () => _.first(orgChartTree),
-    [orgChartTree],
-  );
-  const topHatDetails = useMemo(
-    () => _.get(topHat, 'detailsObject.data'),
-    [topHat],
-  );
-
-  // selected hat
-  const selectedHat = useMemo(
-    () => _.find(orgChartTree, ['id', selectedHatId]),
-    [orgChartTree, selectedHatId],
-  );
-  const selectedHatDetails = useMemo(
-    () => _.get(selectedHat, 'detailsObject.data'),
-    [selectedHat],
-  );
-  const isDraft = useMemo(
-    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
-    [onchainHats, selectedHat],
-  );
-
   const storedHatsWithImage = useMemo(() => {
     return (storedData || []).filter((hat) => Boolean(hat.imageUrl));
   }, [storedData]);
@@ -298,6 +274,50 @@ export const TreeFormContextProvider = ({
       newImageUrl: result.data,
     }));
   }, [results, storedHatsWithImage]);
+
+  const filteredTree = useMemo(() => {
+    return orgChartTree?.filter((t) => (showInactiveHats ? t : t.status));
+  }, [orgChartTree, showInactiveHats]);
+
+  const updatedTree = useMemo(() => {
+    return _.map(filteredTree, (hat) => {
+      const newImageUrl = _.find(newImageUrls, ['id', hat.id])?.newImageUrl;
+      const newName = _.find(storedData, ['id', hat.id])?.name;
+      return {
+        ...hat,
+        newName,
+        newImageUrl,
+      };
+    });
+  }, [filteredTree, newImageUrls, storedData]);
+
+  const treeToDisplay = useMemo(() => {
+    return editMode ? updatedTree : filteredTree;
+  }, [editMode, updatedTree, filteredTree]);
+
+  // top hat
+  const topHat: IHat | undefined = useMemo(
+    () => _.first(orgChartTree),
+    [orgChartTree],
+  );
+  const topHatDetails = useMemo(
+    () => _.get(topHat, 'detailsObject.data'),
+    [topHat],
+  );
+
+  // selected hat
+  const selectedHat = useMemo(
+    () => _.find(orgChartTree, ['id', selectedHatId]),
+    [orgChartTree, selectedHatId],
+  );
+  const selectedHatDetails = useMemo(
+    () => _.get(selectedHat, 'detailsObject.data'),
+    [selectedHat],
+  );
+  const isDraft = useMemo(
+    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
+    [onchainHats, selectedHat],
+  );
 
   // existing tree
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
@@ -458,7 +478,7 @@ export const TreeFormContextProvider = ({
       topHatDetails,
       selectedHatDetails,
       isDraft,
-      orgChartTree,
+      treeToDisplay,
       onchainTree: onchainTree.current,
       onchainHats,
       treeEvents,
@@ -497,7 +517,7 @@ export const TreeFormContextProvider = ({
       topHatDetails,
       selectedHatDetails,
       isDraft,
-      orgChartTree,
+      treeToDisplay,
       onchainTree,
       onchainHats,
       treeEvents,

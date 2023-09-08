@@ -224,16 +224,16 @@ const checkNodeDetails = (node: IHat, type: string) =>
   _.includes(_.keys(node.detailsObject.data), type);
 
 export const checkPermissionsResponsibilities = (
-  orgChartTree: IHat[],
+  treeToDisplay: IHat[],
   controls: IControls[],
 ) => {
   const hasPermissions = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) =>
+    _.filter(treeToDisplay, (node: IHat) =>
       checkNodeDetails(node, 'permissions'),
     ),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) =>
+    _.filter(treeToDisplay, (node: IHat) =>
       checkNodeDetails(node, 'responsibilities'),
     ),
   );
