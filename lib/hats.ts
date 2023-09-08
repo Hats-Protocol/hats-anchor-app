@@ -510,7 +510,6 @@ export const processHatForCalls = async (
           wearers: _.map(wearers, 'address'),
         });
 
-        console.log('batchMintHatWearersData', batchMintHatWearersData);
         if (batchMintHatWearersData) {
           calls.push(batchMintHatWearersData);
           hatChanges.wearers = _.map(wearers, 'address');
@@ -554,7 +553,6 @@ export const processHatForCalls = async (
     }
 
     if (imageUrl) {
-      console.log('imageUrl', imageUrl);
       const changeHatImageURIData = hatsClient.changeHatImageURICallData({
         hatId: decimalId(hatId) as unknown as bigint,
         newImageURI: imageUrl,

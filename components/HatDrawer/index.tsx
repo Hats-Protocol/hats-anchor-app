@@ -27,8 +27,6 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
-      console.log('unsavedData', unsavedData);
-      console.log('storedData', storedData);
       const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
         hat.id === selectedHat?.id
           ? { ...unsavedData, id: selectedHat?.id }
@@ -38,7 +36,6 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
       if (!_.find(updatedHats, ['id', selectedHat?.id])) {
         updatedHats.push({ ...unsavedData, id: selectedHat?.id || '0x' });
       }
-      console.log('updatedHats', updatedHats);
 
       setStoredData?.(updatedHats);
       setUnsavedData(undefined);
