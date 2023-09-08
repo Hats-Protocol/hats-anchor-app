@@ -39,8 +39,15 @@ const EditMode = ({
   setUnsavedData,
   setIsLoading,
 }: EditModeProps) => {
-  const { chainId, storedData, selectedHat, selectedHatDetails, isDraft } =
-    useTreeForm();
+  const {
+    chainId,
+    storedData,
+    selectedHat,
+    selectedHatDetails,
+    isDraft,
+    treeToDisplay,
+  } = useTreeForm();
+  console.log('selectedHat', selectedHat);
 
   const {
     name: initialName,
@@ -259,6 +266,8 @@ const EditMode = ({
     }
   }, [newImageURI, imageUri]);
 
+  const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
+
   if (!selectedHat) return null;
 
   return (
@@ -274,12 +283,13 @@ const EditMode = ({
       >
         <Stack>
           <Text fontSize={32} fontWeight='medium'>
-            {isDraft
-              ? `Add hat ${hatIdDecimalToIp(
-                  BigInt(selectedHat?.id),
-                )} to this tree`
-              : selectedHat?.detailsObject?.data?.name ||
-                (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id)))}
+            {newName ||
+              (isDraft
+                ? `Add hat ${hatIdDecimalToIp(
+                    BigInt(selectedHat?.id),
+                  )} to this tree`
+                : selectedHat?.detailsObject?.data?.name ||
+                  (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
           </Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>

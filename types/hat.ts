@@ -75,4 +75,6 @@ export interface IHat {
   url?: string;
   active?: boolean;
   type?: string;
+  newName?: string;
+  newImage?: string;
 }
