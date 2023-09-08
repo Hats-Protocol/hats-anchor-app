@@ -274,31 +274,28 @@ export const TreeFormContextProvider = ({
     [onchainHats, selectedHat],
   );
 
-  // Filtering storedData to get hats with imageUrl
-  const hatsWithImage = useMemo(() => {
+  const storedHatsWithImage = useMemo(() => {
     return (storedData || []).filter((hat) => Boolean(hat.imageUrl));
   }, [storedData]);
 
-  // Creating queries for each hat with imageUrl
   const queries = useMemo(() => {
-    return hatsWithImage.map((hat) => ({
+    return storedHatsWithImage.map((hat) => ({
       queryKey: ['newImageURI', hat.imageUrl],
       queryFn: () => {
         if (hat.imageUrl) checkImageForHat(hat.imageUrl);
       },
       enabled: Boolean(hat.imageUrl),
     }));
-  }, [hatsWithImage]);
+  }, [storedHatsWithImage]);
 
   const results = useQueries({ queries });
 
-  // Mapping the results to get the desired array of objects with id and newImageUrl
   const newImageUrls = useMemo(() => {
     return results.map((result, index) => ({
-      id: hatsWithImage[index].id,
+      id: storedHatsWithImage[index].id,
       newImageUrl: result.data,
     }));
-  }, [results, hatsWithImage]);
+  }, [results, storedHatsWithImage]);
 
   // existing tree
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
