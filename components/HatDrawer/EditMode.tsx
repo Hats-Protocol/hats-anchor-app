@@ -47,7 +47,6 @@ const EditMode = ({
     isDraft,
     treeToDisplay,
   } = useTreeForm();
-  console.log('selectedHat', selectedHat);
 
   const {
     name: initialName,
