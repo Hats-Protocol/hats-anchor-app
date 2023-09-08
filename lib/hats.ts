@@ -18,6 +18,7 @@ import {
   InputObject,
 } from '@/types';
 import { handleDetailsPin } from './ipfs';
+import { createHatsClient } from './web3';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -367,8 +368,8 @@ export const processHatForCalls = async (
   hat: any,
   onchainHats?: IHat[],
   chainId?: number,
-  hatsClient?: any,
 ) => {
+  const hatsClient = createHatsClient(chainId);
   const calls = [];
   const proposedChanges = [] as any[];
 

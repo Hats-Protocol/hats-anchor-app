@@ -14,7 +14,7 @@ import useToast from '@/hooks/useToast';
 
 interface ContractInteractionProps {
   functionName: string;
-  args: any[];
+  args: unknown[];
   chainId?: number;
   onSuccessToastData?: { title: string; description?: string };
   onErrorToastData?: { title: string; description?: string };

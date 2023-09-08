@@ -328,7 +328,19 @@ const EditMode = ({
                 formName='responsibilities'
                 title='RESPONSIBILITIES'
                 label='Responsibility'
-                subtitle='Tasks and responsibilities associated with this hat.'
+                subtitle={
+                  <Text>
+                    Tasks and responsibilities associated with this hat. More
+                    details in the{' '}
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.authorities}
+                      decoration
+                    >
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>
+                }
                 Icon={BsListUl}
               />
             </Stack>

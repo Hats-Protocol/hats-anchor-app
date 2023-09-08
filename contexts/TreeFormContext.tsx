@@ -152,7 +152,6 @@ export const TreeFormContextProvider = ({
       _.get(initialTreeData, 'linkedToHat') || [],
     ),
   );
-  console.log('orgChartHats', orgChartHats);
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);

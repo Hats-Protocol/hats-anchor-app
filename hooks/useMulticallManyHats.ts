@@ -1,58 +1,133 @@
 /* eslint-disable no-restricted-syntax */
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import {
+  useAccount,
+  useChainId,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
+import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { processHatForCalls } from '@/lib/hats';
-import { chainsMap, createHatsClient } from '@/lib/web3';
+import { IHat } from '@/types';
 
 const useMulticallCallManyHats = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [calls, setCalls] = useState<unknown[]>();
+  const [proposedChanges, setProposedChanges] = useState<IHat[]>();
+  const [hash, setHash] = useState<Hex>();
+
   const { address } = useAccount();
   const currentChain = useChainId();
-  const { chainId, treeId, storedData, onchainHats, setStoredData } =
-    useTreeForm();
+  const {
+    chainId,
+    treeId,
+    storedData,
+    onchainHats,
+    orgChartTree,
+    setStoredData,
+  } = useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { handlePendingTx } = useOverlay();
   const { patchTree } = useTreeForm();
 
-  const hatsClient = createHatsClient(chainId);
+  useEffect(() => {
+    const prepareMulticallData = async () => {
+      const onlyOnchainHats = _.filter(orgChartTree, (hat) =>
+        _.includes(_.map(onchainHats, 'id'), hat.id),
+      );
 
-  const onSubmit = async () => {
-    if (!chainId || !treeId || !address || !hatsClient || !storedData)
-      return undefined;
+      const allCallsPromises = _.map(storedData, (hat) =>
+        processHatForCalls(hat, onlyOnchainHats, chainId),
+      );
+      const allCalls = await Promise.all(allCallsPromises);
 
-    if (currentChain !== chainId) {
-      toast.error({
-        title: 'Wrong Chain',
-        description: `Please change to ${chainsMap(chainId)?.name}`,
+      const localCalls = _.flatten(_.map(allCalls, 'calls')) as unknown[];
+      const localProposedChanges = _.flatten(
+        _.map(allCalls, 'proposedChanges'),
+      ) as IHat[];
+      setCalls(localCalls);
+      setProposedChanges(localProposedChanges);
+    };
+
+    if (
+      !!chainId &&
+      chainId === currentChain &&
+      !!treeId &&
+      !!address &&
+      !!storedData
+    )
+      prepareMulticallData();
+  }, [
+    chainId,
+    currentChain,
+    treeId,
+    address,
+    storedData,
+    onchainHats,
+    orgChartTree,
+  ]);
+
+  const { config, error: prepareError } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
+    chainId: Number(chainId),
+    abi,
+    functionName: 'multicall',
+    args: [_.map(calls, 'callData')],
+    enabled: !_.isEmpty(calls) && !!chainId,
+  });
+
+  const {
+    writeAsync,
+    isLoading,
+    error: writeError,
+  } = useContractWrite({
+    ...config,
+    onSuccess: async (data) => {
+      setHash(data.hash);
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
       });
-      return undefined;
-    }
 
-    const allCallsPromises = _.map(storedData, (hat) =>
-      processHatForCalls(hat, onchainHats, chainId, hatsClient),
-    );
-    const allCalls = await Promise.all(allCallsPromises);
-
-    const calls = _.flatten(_.map(allCalls, 'calls')) as any[];
-    const proposedChanges = _.flatten(
-      _.map(allCalls, 'proposedChanges'),
-    ) as any[];
-
-    if (calls.length > 0) {
-      setIsLoading(true);
-      try {
-        await hatsClient.multicall({
-          account: address as Hex,
-          calls,
+      await handlePendingTx?.({
+        hash: data.hash,
+        toastData: {
+          title: 'Transaction successful',
+          description: 'Hats were successfully updated',
+        },
+      });
+    },
+    onError: (error) => {
+      if (
+        error.name === 'TransactionExecutionError' &&
+        error.message.includes('User rejected the request')
+      ) {
+        toast.error({
+          title: 'Signature rejected!',
+          description: 'Please accept the transaction in your wallet',
         });
+      } else {
+        toast.error({
+          title: 'Error occurred!',
+          description: 'An error occurred while processing the transaction.',
+        });
+      }
+    },
+  });
 
-        // TODO handle optimistic image update
+  const { isLoading: txLoading } = useWaitForTransaction({
+    hash,
+    onSuccess: () => {
+      setTimeout(() => {
         const treeQueryKey = ['treeDetails', treeId, chainId];
         const orgChartTreeQueryKey = [
           'orgChartTree',
@@ -71,36 +146,20 @@ const useMulticallCallManyHats = () => {
             queryClient.invalidateQueries(['hatDetails', hatId, chainId]);
           }
         });
-
-        setIsLoading(false);
-        patchTree?.(proposedChanges);
+        if (proposedChanges) {
+          patchTree?.(proposedChanges);
+        }
         setStoredData?.([]);
+      }, 500);
+    },
+  });
 
-        toast.success({
-          title: 'Transaction successful',
-          description: 'Hats were successfully updated',
-        });
-        return true;
-      } catch (error: unknown) {
-        console.log(error);
-        // catch signature rejection error
-
-        toast.error({
-          title: 'Error occurred!',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-
-        setIsLoading(false);
-        return false;
-      }
-    }
-    return false;
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading: isLoading || txLoading,
   };
-
-  return { onSubmit, isLoading };
 };
 
 export default useMulticallCallManyHats;

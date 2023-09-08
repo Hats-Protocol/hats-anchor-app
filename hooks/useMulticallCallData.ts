@@ -12,14 +12,19 @@ type useMulticallCallDataProps = {
 };
 
 const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
-  const { chainId, treeId, storedData, onchainHats } = useTreeForm();
+  const { chainId, treeId, storedData, onchainHats, orgChartTree } =
+    useTreeForm();
   const hatsClient = createHatsClient(chainId);
 
   const computeMulticallData = async () => {
-    if (!chainId || !treeId || !hatsClient || !storedData) return undefined;
+    if (!chainId || !treeId || !storedData) return undefined;
+
+    const onlyOnchainHats = _.filter(orgChartTree, (hat) =>
+      _.includes(_.map(onchainHats, 'id'), hat.id),
+    );
 
     const allCallsPromises = _.map(storedData, (hat) =>
-      processHatForCalls(hat, onchainHats, chainId, hatsClient),
+      processHatForCalls(hat, onlyOnchainHats, chainId),
     );
     const allCalls = await Promise.all(allCallsPromises);
 
@@ -28,7 +33,7 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
       (call) => call.callData,
     );
 
-    return Promise.resolve(hatsClient.multicallCallData(calls));
+    return Promise.resolve(hatsClient?.multicallCallData(calls));
   };
 
   const { data, isLoading } = useQuery({

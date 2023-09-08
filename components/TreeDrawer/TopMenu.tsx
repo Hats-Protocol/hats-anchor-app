@@ -51,7 +51,7 @@ const TopMenu = () => {
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
-  const { onSubmit, isLoading } = useMulticallCallManyHats();
+  const { writeAsync, isLoading } = useMulticallCallManyHats();
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -78,7 +78,7 @@ const TopMenu = () => {
   };
 
   const handleDeploy = async () => {
-    const result = await onSubmit();
+    const result = await writeAsync?.();
     if (result) {
       setEditMode?.(false);
       onCloseTreeDrawer?.();

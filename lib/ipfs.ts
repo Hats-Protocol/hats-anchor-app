@@ -105,15 +105,18 @@ export const handleDetailsPin = async ({
   chainId,
   hatId,
   newDetails,
+  existingDetails,
 }: handleDetailsPinProps) => {
   const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
 
+  const newDetailsData = _.merge(existingDetails, newDetails);
+
   const cid = `ipfs://${await pinJson(
     {
       type: '1.0',
-      data: newDetails,
+      data: newDetailsData,
     },
     { name: detailsName },
   )}`;

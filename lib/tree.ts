@@ -98,7 +98,7 @@ export async function toTreeStructure({
 
 const isHatInParentOfTrees = (
   hat: IHat,
-  parentOfTrees: IHat[] | undefined,
+  parentOfTrees: ITree[] | undefined,
 ): boolean => {
   return !!_.find(parentOfTrees, { id: idToPrettyId(hat.id) });
 };
@@ -109,7 +109,7 @@ const isLinkedToHatFunc = (hat: IHat, linkedToHat: IHat | null): boolean => {
 
 const updateHatProperties = (
   hat: IHat,
-  parentOfTrees: IHat[] | undefined,
+  parentOfTrees: ITree[] | undefined,
   linkedToHat: IHat | null,
 ): IHat => {
   const updatedHat = { ...hat };

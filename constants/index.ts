@@ -68,6 +68,8 @@ const CONFIG: {
 
   // docs
   docsLinks: {
+    responsibilities:
+      'https://docs.hatsprotocol.xyz/using-hats/setting-hat-properties',
     authorities:
       'https://docs.hatsprotocol.xyz/hats-integrations/hat-gated-authorities',
     eligibility:
