@@ -423,7 +423,8 @@ export const processHatForCalls = async (
       hatId,
       newDetails: detailsData,
     });
-    const newHat = hatsClient.createHatCallData({
+
+    const newHat = {
       admin: BigInt(getDefaultAdminId(hatId)),
       details,
       maxSupply: _.toNumber(maxSupply) || 1,
@@ -431,13 +432,16 @@ export const processHatForCalls = async (
       toggle: toggle || FALLBACK_ADDRESS,
       mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
       imageURI: imageUrl,
-    });
-    if (newHat && newHat.callData) {
-      calls.push(newHat);
+    };
+
+    const newHatData = hatsClient.createHatCallData(newHat);
+
+    if (newHatData && newHatData.callData) {
+      calls.push(newHatData);
       proposedChanges.push({
         id: hatId,
         chainId,
-        newHat,
+        ...newHat,
       });
     }
   } else {
