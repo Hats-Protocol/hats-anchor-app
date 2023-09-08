@@ -111,7 +111,7 @@ export const handleDetailsPin = async ({
     BigInt(hatId),
   )}`;
 
-  const newDetailsData = _.merge(existingDetails, newDetails);
+  const newDetailsData = _.merge({}, existingDetails, newDetails);
 
   const cid = `ipfs://${await pinJson(
     {
