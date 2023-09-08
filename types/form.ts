@@ -27,3 +27,8 @@ export type FormDataDetails = {
   deactivationsCriteria: DetailsItem[];
   newImageUri?: string;
 };
+
+export type DirtyFormData = {
+  imageUrl?: string;
+  [key: string]: string | string[] | DetailsItem[] | undefined;
+};

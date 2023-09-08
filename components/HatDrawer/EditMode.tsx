@@ -30,7 +30,7 @@ import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
-import { DetailsItem, FieldItem, FormData } from '@/types';
+import { DetailsItem, DirtyFormData, FieldItem, FormData } from '@/types';
 
 import ChakraNextLink from '../atoms/ChakraNextLink';
 
@@ -249,16 +249,15 @@ const EditMode = ({
       }
 
       const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: FormData, key: keyof FormData) => {
+        (acc: DirtyFormData, key: keyof FormData) => {
           if (key === 'newImageUri') {
             acc.imageUrl = newImageURI;
           } else {
-            if (!acc || key) return acc;
-            acc[key] = allFormData[key];
+            acc[key as string] = allFormData[key];
           }
           return acc;
         },
-        {} as FormData,
+        {},
       );
 
       setUnsavedData(dirtyFormData);
