@@ -1,12 +1,20 @@
 import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
-import { Abi } from 'viem';
+import { Abi, Hex, Narrow } from 'viem';
 import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 import { checkImageForHat } from '@/lib/hats';
 import { IHat } from '@/types';
+
+interface ContractCall {
+  address: Hex;
+  chainId: number;
+  abi: Abi;
+  functionName: string;
+  args: Narrow<readonly unknown[] | undefined>;
+}
 
 /**
  * returns an object, mapping from hat id to image url.
@@ -28,7 +36,7 @@ const useImageURIs = ({
     );
   }
 
-  const calls: any = _.map(onlyOnchainHats, (hat) => {
+  const calls: ContractCall[] = _.map(onlyOnchainHats, (hat) => {
     return {
       address: CONFIG.hatsAddress,
       chainId: hat?.chainId,

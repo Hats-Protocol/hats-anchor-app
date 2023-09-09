@@ -8,6 +8,7 @@ import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
 
 import { FormDataDetails } from '@/types';
+import CONFIG from '@/constants';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
@@ -121,4 +122,16 @@ export const handleDetailsPin = async ({
     { name: detailsName },
   )}`;
   return cid;
+};
+
+export const ipfsUrl = (hash: string) =>
+  `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+
+export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
+  if (!detailsField) return null;
+  const url = ipfsUrl(detailsField?.slice(7));
+
+  // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
+  const res = await axios.get(url, { timeout: 5000 });
+  return res;
 };

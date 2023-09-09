@@ -46,7 +46,8 @@ const useOrgChartTree = ({
     queryKey: [
       'orgChartTree',
       { chainId, treeId: treeData?.id },
-      _.map(hatsData, 'id'),
+      _.map(hatsData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+      _.map(draftHats, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
     ],
     queryFn: fetchTree,
     enabled:

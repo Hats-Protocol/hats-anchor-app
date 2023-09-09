@@ -43,27 +43,27 @@ const icons: {
 const bgValues = {
   success: {
     bg: 'green.500',
-    bgImage: '',
+    imageBg: '',
     displayBorder: 'block',
   },
   error: {
     bg: 'red.500',
-    bgImage: '',
+    imageBg: '',
     displayBorder: 'none',
   },
   info: {
     bg: 'blue.500',
-    bgImage: 'whiteAlpha.700',
+    imageBg: 'whiteAlpha.700',
     displayBorder: 'block',
   },
   warning: {
     bg: 'blue.500',
-    bgImage: 'whiteAlpha.700',
+    imageBg: 'whiteAlpha.700',
     displayBorder: 'block',
   },
   loading: {
     bg: 'blue.500',
-    bgImage: 'whiteAlpha.700',
+    imageBg: 'whiteAlpha.700',
     displayBorder: 'block',
   },
 };
@@ -131,7 +131,7 @@ const Toast: React.FC<ToastProps> = ({
         left='-2px'
         width='104%'
         height='104%'
-        bgImage={bgValues[status].bgImage}
+        bgColor={bgValues[status].imageBg}
         filter='blur(10px)'
         position='absolute'
         zIndex={-1}

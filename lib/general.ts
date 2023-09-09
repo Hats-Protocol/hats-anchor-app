@@ -47,7 +47,7 @@ async function fetchWithTimeout(resource: any, options: any = {}) {
 }
 
 export const mapWithChainId = (
-  array: object[] | null,
+  array: object[] | undefined,
   chainId: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
