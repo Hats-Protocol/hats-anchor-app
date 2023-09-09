@@ -69,18 +69,18 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     fetchedParentOfTrees = hats.filter(
       (hat) => hat !== null && hat !== undefined,
     ) as IHat[];
+    treeData.parentOfHats = fetchedParentOfTrees;
   }
 
-  treeData.parentOfHats = fetchedParentOfTrees;
+  if (linkedToHat) {
+    const fetchedLinkedHat = await fetchHatDetails(
+      prettyIdToId(linkedToHat?.id),
+      chainId,
+    );
+    treeData.linkedToHat = fetchedLinkedHat;
+  }
 
-  const fetchedLinkedHat = await fetchHatDetails(
-    prettyIdToId(linkedToHat?.id),
-    chainId,
-  );
-
-  treeData.linkedToHat = fetchedLinkedHat;
-
-  const linkedHats = [linkedToHat?.id];
+  const linkedHats = linkedToHat ? [linkedToHat?.id] : [];
   const parentOfHats = _.map(fetchedParentOfTrees, 'id');
 
   const initialHatIds = _.compact(
