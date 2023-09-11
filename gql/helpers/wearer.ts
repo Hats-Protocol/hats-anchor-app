@@ -4,11 +4,11 @@ import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
+import { chainsList } from '@/lib/web3';
 import { IHat, IHatWearer } from '@/types';
 
 import client from '../client';
 import { GET_ALL_WEARERS, GET_WEARER_DETAILS } from '../queries';
-import { chainsList } from '@/lib/web3';
 
 const chains = _.keys(chainsList);
 

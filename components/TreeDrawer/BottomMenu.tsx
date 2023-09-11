@@ -53,7 +53,9 @@ const BottomMenu = ({
         <Accordion allowToggle w='full' mt='-1px'>
           <AccordionItem isDisabled={!hasUpdates}>
             {({ isExpanded: localIsExpanded }) => {
-              setIsExpanded(localIsExpanded);
+              if (hasUpdates) {
+                setIsExpanded(localIsExpanded);
+              }
 
               return (
                 <>

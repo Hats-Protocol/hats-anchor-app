@@ -2,13 +2,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { Hex } from 'viem';
 import {
   useAccount,
   useChainId,
   useContractWrite,
   usePrepareContractWrite,
-  useWaitForTransaction,
 } from 'wagmi';
 
 import CONFIG from '@/constants';
@@ -22,7 +20,6 @@ import { IHat } from '@/types';
 const useMulticallCallManyHats = () => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<IHat[]>();
-  const [hash, setHash] = useState<Hex>();
 
   const { address } = useAccount();
   const currentChain = useChainId();
@@ -85,6 +82,40 @@ const useMulticallCallManyHats = () => {
     enabled: !_.isEmpty(calls) && !!chainId,
   });
 
+  const onSuccess = async () => {
+    const treeQueryKey = ['treeDetails', treeId, chainId];
+    const orgChartTreeQueryKey = [
+      'orgChartTree',
+      { chainId, treeId },
+      _.map(treeToDisplay, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+    ];
+    queryClient.setQueryData(orgChartTreeQueryKey, undefined);
+    queryClient.invalidateQueries(treeQueryKey);
+    queryClient.setQueryData(treeQueryKey, undefined);
+
+    _.forEach(storedData, (hat) => {
+      const hatId = _.get(hat, 'id');
+      const hatDetailsField = _.get(hat, 'details');
+
+      if (hatId || hatDetailsField) {
+        queryClient.invalidateQueries([
+          'hatDetailsField',
+          _.get(hat, 'details'),
+        ]);
+        queryClient.invalidateQueries([
+          'hatDetails',
+          _.pick(hat, ['id', 'chainId', 'details', 'imageUri']),
+        ]);
+        queryClient.invalidateQueries(['imageUrl', _.get(hat, 'imageUri')]);
+      }
+    });
+
+    if (proposedChanges) {
+      patchTree?.(proposedChanges);
+    }
+    setStoredData?.([]);
+  };
+
   const {
     writeAsync,
     isLoading,
@@ -92,7 +123,6 @@ const useMulticallCallManyHats = () => {
   } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
-      setHash(data.hash);
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -104,6 +134,7 @@ const useMulticallCallManyHats = () => {
           title: 'Transaction successful',
           description: 'Hats were successfully updated',
         },
+        onSuccess,
       });
     },
     onError: (error) => {
@@ -124,41 +155,12 @@ const useMulticallCallManyHats = () => {
     },
   });
 
-  const { isLoading: txLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: () => {
-      setTimeout(() => {
-        const treeQueryKey = ['treeDetails', treeId, chainId];
-        const orgChartTreeQueryKey = [
-          'orgChartTree',
-          { chainId, treeId },
-          _.map(onchainHats, 'id'),
-        ];
-        queryClient.invalidateQueries(orgChartTreeQueryKey);
-        queryClient.invalidateQueries(treeQueryKey);
-
-        _.forEach(storedData, (hat) => {
-          const hatId = _.get(hat, 'id');
-          const hatDetailsField = _.get(hat, 'details');
-
-          if (hatId && hatDetailsField) {
-            queryClient.invalidateQueries(['hatDetailsField', hatDetailsField]);
-            queryClient.invalidateQueries(['hatDetails', hatId, chainId]);
-          }
-        });
-        if (proposedChanges) {
-          patchTree?.(proposedChanges);
-        }
-        setStoredData?.([]);
-      }, 500);
-    },
-  });
-
   return {
     writeAsync,
     prepareError,
     writeError,
-    isLoading: isLoading || txLoading,
+    isLoading,
+    proposedChanges,
   };
 };
 

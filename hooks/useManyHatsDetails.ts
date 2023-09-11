@@ -14,12 +14,16 @@ const useManyHatDetails = ({
 }): IHat[] => {
   const chainId = _.get(_.first(hats), 'chainId');
   const hatsDetails = useQueries({
-    queries: _.map(hats, (hat) => ({
-      queryKey: ['hatDetails', hat.id, hat.chainId],
-      queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
-      enabled: !!hat.id && !!hat.chainId,
-      initialData: _.find(initialHats, ['id', hat.id]),
-    })),
+    queries: _.map(hats, (hat) => {
+      const hatDetails = _.pick(hat, ['id', 'chainId', 'details', 'imageUri']);
+
+      return {
+        queryKey: ['hatDetails', hatDetails],
+        queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
+        enabled: !!hat.id && !!hat.chainId && !!hat.details && !!hat.imageUri,
+        initialData: _.find(initialHats, ['id', hat.id]),
+      };
+    }),
   });
 
   const returnData = _.compact(_.map(hatsDetails, 'data'));

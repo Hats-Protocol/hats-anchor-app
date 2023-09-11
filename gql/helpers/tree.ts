@@ -30,7 +30,7 @@ export const fetchAllTreeIds = async (chainId: number) => {
 export const fetchAllTrees = async (chainId: number) => {
   const result = await client(chainId).request(GET_ALL_TREES);
 
-  return mapWithChainId(_.get(result, 'trees', null), chainId);
+  return mapWithChainId(_.get(result, 'trees'), chainId);
 };
 
 export const fetchPaginatedTrees = async (
@@ -43,7 +43,7 @@ export const fetchPaginatedTrees = async (
     first: perPage,
   });
 
-  return mapWithChainId(_.get(result, 'trees', null), chainId);
+  return mapWithChainId(_.get(result, 'trees'), chainId);
 };
 
 export const fetchTreesById = async (treeIds: string[], chainId: number) => {

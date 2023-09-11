@@ -1,20 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import _ from 'lodash';
 
-import CONFIG from '@/constants';
-import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
-
-export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
-  if (!detailsField) return null;
-  const url = `${CONFIG.ipfsGateway}${detailsField?.slice(
-    7,
-  )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
-
-  // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
-  const res = await axios.get(url, { timeout: 5000 });
-  return res;
-};
+import { fetchDetailsIpfs } from '@/lib/ipfs';
 
 // TODO refactor promise.all
 export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {

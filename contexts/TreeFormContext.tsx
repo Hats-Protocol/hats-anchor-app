@@ -24,7 +24,7 @@ import useManyHatsDetailsField from '@/hooks/useManyHatsDetailsField';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
-import { generateLocalStorageKey } from '@/lib/general';
+import { generateLocalStorageKey, mapWithChainId } from '@/lib/general';
 import {
   checkImageForHat,
   createHierarchy,
@@ -191,10 +191,18 @@ export const TreeFormContextProvider = ({
     treeDisclosure;
 
   // existing tree
-  const treeEvents = _.get(onchainTree.current, 'events');
-  const onchainHats = _.get(onchainTree.current, 'hats').concat(
-    _.get(initialTreeData, 'parentOfHats') || [],
-    _.get(initialTreeData, 'linkedToHat') || [],
+  const { data: treeData } = useTreeDetails({
+    treeId,
+    chainId,
+    initialData: initialTreeData,
+  });
+  const treeEvents = _.get(treeData, 'events');
+  const onchainHats = _.compact(
+    _.concat(
+      _.get(treeData, 'hats'),
+      _.get(initialTreeData, 'parentOfHats') || [],
+      _.get(initialTreeData, 'linkedToHat') || [],
+    ),
   );
 
   const draftHats = useMemo(
@@ -208,18 +216,9 @@ export const TreeFormContextProvider = ({
     [onchainHats, orgChartHats],
   );
 
-  const { data: treeData } = useTreeDetails({
-    treeId,
-    chainId,
-    initialData: initialTreeData,
-  });
-
   const hatDetails = useManyHatDetails({
-    hats: _.map(orgChartHats, ({ id: hatId }) => ({
-      id: hatId,
-      chainId,
-    })),
-    initialHats: _.get(initialTreeData, 'hats'),
+    hats: mapWithChainId(orgChartHats, chainId),
+    initialHats: onchainHats,
   });
 
   const { data: detailsFields, isLoading: detailsLoading } =
@@ -247,7 +246,7 @@ export const TreeFormContextProvider = ({
     draftHats,
     imagesLoaded: !imagesLoading,
     detailsLoaded: !detailsLoading,
-    initialHatIds,
+    initialHatIds: _.map(onchainHats, 'id'),
   });
 
   const storedHatsWithImage = useMemo(() => {
@@ -429,19 +428,12 @@ export const TreeFormContextProvider = ({
     setOrgChartHats((prevHats) => {
       if (!prevHats) return [];
 
-      const proposedHatsMap = proposedHats.reduce<{ [id: string]: IHat }>(
-        (acc, hat) => {
-          acc[hat.id] = hat;
-          return acc;
-        },
-        {},
-      );
-
-      return prevHats.map((existingHat) => {
-        if (proposedHatsMap[existingHat.id]) {
+      return _.map(prevHats, (existingHat) => {
+        const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
+        if (proposedHat) {
           return {
             ...existingHat,
-            ...proposedHatsMap[existingHat.id],
+            ...proposedHat,
           };
         }
         return existingHat;

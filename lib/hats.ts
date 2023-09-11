@@ -17,7 +17,7 @@ import {
   IHat,
   InputObject,
 } from '@/types';
-import { handleDetailsPin } from './ipfs';
+import { handleDetailsPin, ipfsUrl } from './ipfs';
 import { createHatsClient } from './web3';
 import { formatImageUrl, isImageUrl } from './general';
 
@@ -366,7 +366,7 @@ const hasDetailsChanged = ({
 };
 
 export const processHatForCalls = async (
-  hat: any,
+  hat: Partial<FormData>,
   onchainHats?: IHat[],
   chainId?: number,
 ) => {
@@ -392,13 +392,12 @@ export const processHatForCalls = async (
     wearers,
     id: hatId,
   } = hat;
-  console.log(hat);
 
   const hatChanges = {
     id: hatId,
   } as any;
 
-  if (!hat.id || !chainId || !hatsClient)
+  if (!hatId || !chainId || !hatsClient)
     return { calls: [], proposedChanges: [] };
 
   const detailsData = {
@@ -439,9 +438,18 @@ export const processHatForCalls = async (
     if (newHatData && newHatData.callData) {
       calls.push(newHatData);
       proposedChanges.push({
-        id: hatId,
-        chainId,
         ...newHat,
+        id: hatId,
+        admin: {
+          id: getDefaultAdminId(hatId),
+        },
+        detailsObject: {
+          type: '1.0',
+          data: detailsData,
+        },
+        chainId,
+        imageUri: imageUrl,
+        imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
       });
     }
   } else {
