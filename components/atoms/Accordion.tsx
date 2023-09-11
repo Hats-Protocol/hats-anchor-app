@@ -61,7 +61,7 @@ const CustomAccordion = ({
             ))}
           </Box>
         )}
-        <AccordionPanel pl={7} mr={0} pr={0} mt={8}>
+        <AccordionPanel pl={7} mr={0} pr={0} mt={8} pb={0}>
           {children}
         </AccordionPanel>
       </AccordionItem>

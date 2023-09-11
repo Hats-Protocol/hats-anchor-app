@@ -1,5 +1,6 @@
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
@@ -109,4 +110,28 @@ export function createHatsClient(chainId: number | undefined) {
   });
 
   return hatsClient;
+}
+
+export function createHatsModulesClient(chainId: number | undefined) {
+  if (!chainId) return undefined;
+  const chain = chainsMap(chainId);
+
+  const walletClientHats = createWalletClient({
+    chain,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    transport: custom(window.ethereum),
+  });
+
+  const publicClientHats = createPublicClient({
+    chain,
+    transport: http(),
+  });
+
+  const hatsModulesClient = new HatsModulesClient({
+    publicClient: publicClientHats,
+    walletClient: walletClientHats,
+  });
+
+  return hatsModulesClient;
 }
