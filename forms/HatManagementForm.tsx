@@ -33,7 +33,6 @@ interface HatManagementFormProps {
   criteriaConfig: {
     label: string;
     description: string;
-    addButtonLabel: string;
   };
 }
 
@@ -126,36 +125,38 @@ const HatManagementForm = ({
             resolvedAddress={String(actionResolvedAddress)}
           />
         </FormRowWrapper>
-        {address !== FALLBACK_ADDRESS && (
-          <FormRowWrapper>
-            <Icon as={BsListUl} boxSize={4} mt='3px' />
-            <Stack>
-              <HStack fontSize='sm'>
-                <Text color='blackAlpha.800' fontWeight='medium'>
-                  {criteriaConfig.label}
-                </Text>
-                <Text color='blackAlpha.600'>optional</Text>
-              </HStack>
-              <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
-            </Stack>
-          </FormRowWrapper>
-        )}
-        {fields.map((field, index) => (
-          <LabelWithLink
-            key={field.id}
-            localForm={localForm}
-            title={title}
-            handleRemoveItem={() => remove(index)}
-            handleEdit={() => handleEdit(index)}
-            handleSave={handleSave}
-            inputLink={inputLink}
-            setInputLink={setInputLink}
-            isLinkValid={isLinkValid}
-            setIsLinkValid={setIsLinkValid}
-            labelName={`${formName}.${index}.label`}
-            linkName={`${formName}.${index}.link`}
-          />
-        ))}
+        <Stack>
+          {address !== FALLBACK_ADDRESS && (
+            <FormRowWrapper>
+              <Icon as={BsListUl} boxSize={4} mt='3px' />
+              <Stack>
+                <HStack fontSize='sm'>
+                  <Text color='blackAlpha.800' fontWeight='medium'>
+                    {criteriaConfig.label}
+                  </Text>
+                  <Text color='blackAlpha.600'>optional</Text>
+                </HStack>
+                <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
+              </Stack>
+            </FormRowWrapper>
+          )}
+          {fields.map((field, index) => (
+            <LabelWithLink
+              key={field.id}
+              localForm={localForm}
+              title={title}
+              handleRemoveItem={() => remove(index)}
+              handleEdit={() => handleEdit(index)}
+              handleSave={handleSave}
+              inputLink={inputLink}
+              setInputLink={setInputLink}
+              isLinkValid={isLinkValid}
+              setIsLinkValid={setIsLinkValid}
+              labelName={`${formName}.${index}.label`}
+              linkName={`${formName}.${index}.link`}
+            />
+          ))}
+        </Stack>
         <Box mb={2}>
           <Button
             onClick={() => append({ link: '', label: '' })}
@@ -165,8 +166,7 @@ const HatManagementForm = ({
             borderColor='blackAlpha.300'
           >
             <BsPlusCircle />
-            Add {items?.length ? 'another' : 'a'}{' '}
-            {criteriaConfig.addButtonLabel}
+            Add {items?.length ? 'another' : 'a'} Requirement
           </Button>
         </Box>
       </Stack>

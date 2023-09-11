@@ -433,10 +433,9 @@ const EditMode = ({
                   ],
                 }}
                 criteriaConfig={{
-                  label: 'QUALIFICATIONS',
+                  label: 'ACTIVATION REQUIREMENTS',
                   description:
                     'A written description of the logic in the Accountability Contract',
-                  addButtonLabel: 'Qualification',
                 }}
               />
             </Stack>
@@ -486,10 +485,9 @@ const EditMode = ({
                   ],
                 }}
                 criteriaConfig={{
-                  label: 'QUALIFICATIONS',
+                  label: 'ACTIVATION REQUIREMENTS',
                   description:
                     'List any criteria that should be considered in the process of deactivating or reactivating this hat',
-                  addButtonLabel: 'Criterion',
                 }}
               />
             </Stack>

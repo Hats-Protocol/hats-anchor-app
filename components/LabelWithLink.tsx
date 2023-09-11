@@ -48,17 +48,18 @@ const LabelWithLink = ({
         <Button
           leftIcon={<BsLink45Deg />}
           onClick={handleEdit}
-          px={10}
+          px={8}
           variant='outline'
+          fontWeight='normal'
           borderColor='blackAlpha.300'
         >
-          {linkValue ? 'Edit' : 'Add'} Link
+          {linkValue ? 'Edit' : 'Add'} a Link
         </Button>
         <IconButton
           onClick={handleRemoveItem}
           icon={<FaRegTrashAlt />}
           aria-label='Remove'
-          variant='outline'
+          variant='ghost'
           borderColor='blackAlpha.300'
         />
         <Modal
