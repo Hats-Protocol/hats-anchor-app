@@ -10,7 +10,14 @@ import { HatDetails } from '@/types';
  * @returns If data is on ipfs and is compatible with a known schema, then returns the schema type with the data. Otherwise, just the fetched data.
  * If not ipfs, returns undefined.
  */
-const useHatDetailsField = (detailsField?: string) => {
+const useHatDetailsField = (
+  detailsField?: string,
+): {
+  data: HatDetails | undefined;
+  isLoading: boolean;
+  error: Error;
+  schemaType: string;
+} => {
   // currently uses this prefix as an indicator for ipfs data
   const isIpfs = detailsField?.startsWith('ipfs://');
 
@@ -24,6 +31,7 @@ const useHatDetailsField = (detailsField?: string) => {
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
   const detailsData: HatDetails | undefined = _.get(data, 'data.data.data');
+  console.log(detailsData);
 
   let schemaType;
   if (!!data && data.headers?.['content-type'] === 'application/json') {
@@ -48,7 +56,7 @@ const useHatDetailsField = (detailsField?: string) => {
     }
   }
 
-  return { data: detailsData, isLoading, error, schemaType };
+  return { data: detailsData, isLoading, error: error as Error, schemaType };
 };
 
 export default useHatDetailsField;
