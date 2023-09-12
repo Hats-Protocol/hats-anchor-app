@@ -4855,6 +4855,13 @@ merge2@^1.3.0, merge2@^1.4.1:
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.4.1.tgz#4368892f885e907455a6fd7dc55c0c9d404990ae"
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
 
+merkle-json@^2.1.0, merkle-json@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/merkle-json/-/merkle-json-2.6.0.tgz#0791e56bee88803255a254198297b99bed649ff3"
+  integrity sha512-sJM+SNINn3/5GzFyY8MMCj+647UbDVcZv3wcynX1vv9Vhnm1gWGI5ZPOA+EYm3iInITyQHKnmcpYKqZkeY+iAQ==
+  dependencies:
+    merkle-json "^2.1.0"
+
 micromark-core-commonmark@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/micromark-core-commonmark/-/micromark-core-commonmark-1.1.0.tgz#1386628df59946b2d39fb2edfd10f3e8e0a75bb8"

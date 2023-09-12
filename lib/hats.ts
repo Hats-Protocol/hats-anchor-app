@@ -212,6 +212,9 @@ export const isMutable = (hatData?: IHat) => _.get(hatData, 'mutable');
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
+export const isMutableNotTopHat = (hatData: IHat) =>
+  isMutable(hatData) && !isTopHat(hatData);
+
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
@@ -437,6 +440,7 @@ export const processHatForCalls = async (
 
     if (newHatData && newHatData.callData) {
       calls.push(newHatData);
+      console.log('new image url', imageUrl);
       proposedChanges.push({
         ...newHat,
         id: hatId,
@@ -573,7 +577,7 @@ export const processHatForCalls = async (
 
       if (changeHatImageURIData) {
         calls.push(changeHatImageURIData);
-        hatChanges.imageUrl = imageUrl;
+        hatChanges.imageUri = imageUrl;
       }
     }
     proposedChanges.push(hatChanges);

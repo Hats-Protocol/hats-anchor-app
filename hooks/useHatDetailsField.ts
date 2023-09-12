@@ -2,31 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
 import { fetchDetailsIpfs } from '@/lib/ipfs';
-
-// TODO refactor promise.all
-export const fetchMultipleHatsDetails = async (detailsFields: string[]) => {
-  const details = await detailsFields.reduce<Promise<any[]>>(
-    async (accPromise, detailsField) => {
-      const acc = await accPromise;
-      if (detailsField?.startsWith('ipfs://')) {
-        try {
-          const res = await fetchDetailsIpfs(detailsField);
-          acc.push(res?.data);
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(e);
-          acc.push({});
-        }
-      } else {
-        acc.push(detailsField);
-      }
-      return acc;
-    },
-    Promise.resolve([]),
-  );
-
-  return details;
-};
+import { HatDetails } from '@/types';
 
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
@@ -40,11 +16,14 @@ const useHatDetailsField = (detailsField?: string) => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetailsField', detailsField],
-    queryFn: () => fetchDetailsIpfs(detailsField),
+    queryFn: async () => {
+      const result = await fetchDetailsIpfs(detailsField);
+      return result;
+    },
     enabled: !!detailsField && isIpfs,
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
-  const detailsData = data?.data?.data;
+  const detailsData: HatDetails | undefined = _.get(data, 'data.data.data');
 
   let schemaType;
   if (!!data && data.headers?.['content-type'] === 'application/json') {

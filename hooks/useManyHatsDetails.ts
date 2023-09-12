@@ -11,11 +11,17 @@ const useManyHatDetails = ({
 }: {
   hats: Partial<IHat>[] | undefined;
   initialHats?: IHat[];
-}): IHat[] => {
-  const chainId = _.get(_.first(hats), 'chainId');
+}): { data: IHat[] | undefined; isLoading: boolean } => {
+  const onlyOnchainHats = _.filter(hats, (hat) =>
+    _.includes(_.map(initialHats, 'id'), hat.id),
+  );
+  // console.log(onlyOnchainHats);
+
+  const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
   const hatsDetails = useQueries({
-    queries: _.map(hats, (hat) => {
-      const hatDetails = _.pick(hat, ['id', 'chainId', 'details', 'imageUri']);
+    queries: _.map(onlyOnchainHats, (hat) => {
+      const hatDetails = _.pick(hat, ['id', 'chainId']);
+      // console.log(hatDetails);
 
       return {
         queryKey: ['hatDetails', hatDetails],
@@ -25,10 +31,19 @@ const useManyHatDetails = ({
       };
     }),
   });
+  // console.log(hatsDetails);
 
-  const returnData = _.compact(_.map(hatsDetails, 'data'));
+  const isLoading = _.some(hatsDetails, ['isLoading', true]);
 
-  return chainId ? mapWithChainId(returnData, chainId) : returnData;
+  let returnData = _.compact(_.map(hatsDetails, 'data'));
+  if (chainId) {
+    returnData = mapWithChainId(returnData, chainId);
+  }
+
+  return {
+    data: !isLoading ? returnData : undefined,
+    isLoading,
+  };
 };
 
 export default useManyHatDetails;
