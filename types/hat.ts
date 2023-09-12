@@ -80,3 +80,16 @@ export interface IHat {
 }
 
 export type Module = 'eligibility' | 'toggle';
+
+export type ModuleCreationArg = {
+  name: string;
+  description: string;
+  type: string;
+  example: string | string[];
+  displayType: 'hat' | 'default' | 'timestamp' | 'seconds';
+};
+
+export type ModuleCreationArgs = {
+  immutable: ModuleCreationArg[];
+  mutable: ModuleCreationArg[];
+};

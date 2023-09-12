@@ -9,14 +9,17 @@ import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
-import { Module } from '@/types';
+import { Module, ModuleCreationArg } from '@/types';
 
+import DatePicker from '../atoms/DatePicker';
+import Input from '../atoms/Input';
 import FormRowWrapper from '../FormRowWrapper';
 
 const MainContent = ({ title }: { title: Module }) => {
   const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
   const { modules } = useHatsModules();
   const [selectedModuleDetails, setSelectedModuleDetails] = useState<any>(null);
+  const [selectedModuleArgs, setSelectedModuleArgs] = useState<any>(null);
   const localForm = useForm({
     mode: 'onBlur',
   });
@@ -44,6 +47,13 @@ const MainContent = ({ title }: { title: Module }) => {
 
   useEffect(() => {
     setSelectedModuleDetails(selectedModule || null);
+    setSelectedModuleArgs(
+      (selectedModule?.creationArgs && [
+        ...selectedModule.creationArgs.immutable,
+        ...selectedModule.creationArgs.mutable,
+      ]) ||
+        null,
+    );
   }, [selectedModule]);
 
   console.log('modulesToDisplay', modulesToDisplay);
@@ -85,6 +95,8 @@ const MainContent = ({ title }: { title: Module }) => {
                 label='Module Type'
                 subLabel='The category of prewritten module to connect to this hat.'
                 name='module'
+                defaultValue={undefined}
+                placeholder='Select a module type'
                 localForm={localForm}
               >
                 {_.map(modulesToDisplay, ({ name, id }) => (
@@ -108,6 +120,59 @@ const MainContent = ({ title }: { title: Module }) => {
               </Stack>
             </FormRowWrapper>
           )}
+          {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
+            <FormRowWrapper key={arg.name}>
+              <Icon as={BsTextLeft} boxSize={4} mt={1} />
+              {arg.displayType === 'default' && (
+                <Input
+                  name={arg.name}
+                  label={arg.name}
+                  subLabel={arg.description}
+                  placeholder={
+                    Array.isArray(arg.example)
+                      ? arg.example.join(', ')
+                      : arg.example
+                  }
+                  localForm={localForm}
+                />
+              )}
+              {arg.displayType === 'hat' && (
+                <Input
+                  name={arg.name}
+                  label={arg.name}
+                  subLabel={arg.description}
+                  placeholder={
+                    Array.isArray(arg.example)
+                      ? arg.example.join(', ')
+                      : arg.example
+                  }
+                  localForm={localForm}
+                />
+              )}
+              {arg.displayType === 'timestamp' && (
+                <DatePicker
+                  name={arg.name}
+                  label={arg.name}
+                  subLabel={arg.description}
+                  localForm={localForm}
+                />
+              )}
+              {arg.displayType === 'seconds' && (
+                <Input
+                  name={arg.name}
+                  label={arg.name}
+                  type='number'
+                  subLabel={arg.description}
+                  placeholder={
+                    Array.isArray(arg.example)
+                      ? arg.example.join(', ')
+                      : arg.example
+                  }
+                  localForm={localForm}
+                />
+              )}
+            </FormRowWrapper>
+          ))}
         </Stack>
       </Accordion>
     </Stack>

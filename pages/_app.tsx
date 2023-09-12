@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import '../public/style.css';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
