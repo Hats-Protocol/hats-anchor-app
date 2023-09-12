@@ -1,7 +1,9 @@
 import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
+import { m } from 'framer-motion';
 import _ from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { BsPuzzle } from 'react-icons/bs';
+import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 
 import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
@@ -13,17 +15,39 @@ import FormRowWrapper from '../FormRowWrapper';
 
 const MainContent = ({ title }: { title: Module }) => {
   const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
+  const { modules } = useHatsModules();
+  const [selectedModuleDetails, setSelectedModuleDetails] = useState<any>(null);
   const localForm = useForm({
     mode: 'onBlur',
   });
-  const { handleSubmit } = localForm;
+  const { handleSubmit, watch } = localForm;
 
   const onSubmit = (data: any) => {
     console.log(data);
   };
 
-  const { modules } = useHatsModules();
-  const modulesToDisplay = _.pickBy(modules, ({ type }) => type[title]);
+  const modulesToDisplay = useMemo(() => {
+    return _.map(
+      _.pickBy(modules, ({ type }) => type[title]),
+      (value, key) => ({
+        id: key,
+        ...value,
+      }),
+    );
+  }, [modules, title]);
+
+  const selectedModuleId = watch('module', '');
+
+  const selectedModule = useMemo(() => {
+    return _.find(modulesToDisplay, ['id', selectedModuleId]);
+  }, [modulesToDisplay, selectedModuleId]);
+
+  useEffect(() => {
+    setSelectedModuleDetails(selectedModule || null);
+  }, [selectedModule]);
+
+  console.log('modulesToDisplay', modulesToDisplay);
+  console.log('selectedModuleDetails', selectedModuleDetails);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -53,23 +77,38 @@ const MainContent = ({ title }: { title: Module }) => {
         title='Module Basics'
         subtitle='The fundamentals of the module, including type and details.'
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormRowWrapper>
-            <Icon as={BsPuzzle} boxSize={4} mt={1} />
-            <Select
-              label='Module Type'
-              subLabel='The category of prewritten module to connect to this hat.'
-              name='module'
-              localForm={localForm}
-            >
-              {_.map(modulesToDisplay, ({ name }) => (
-                <option value={name} key={name}>
-                  {name}
-                </option>
-              ))}
-            </Select>
-          </FormRowWrapper>
-        </form>
+        <Stack spacing={12}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FormRowWrapper>
+              <Icon as={BsPuzzle} boxSize={4} mt={1} />
+              <Select
+                label='Module Type'
+                subLabel='The category of prewritten module to connect to this hat.'
+                name='module'
+                localForm={localForm}
+              >
+                {_.map(modulesToDisplay, ({ name, id }) => (
+                  <option value={id} key={name}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
+            </FormRowWrapper>
+          </form>
+          {selectedModuleDetails && (
+            <FormRowWrapper>
+              <Icon as={BsTextLeft} boxSize={4} mt={1} />
+              <Stack spacing={3}>
+                <Text fontSize='sm' fontWeight='medium'>
+                  MODULE TYPE DETAILS
+                </Text>
+                {selectedModuleDetails.details.map((detail: any) => (
+                  <Text key={detail}>{detail}</Text>
+                ))}
+              </Stack>
+            </FormRowWrapper>
+          )}
+        </Stack>
       </Accordion>
     </Stack>
   );
