@@ -12,6 +12,7 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
+import Markdown from '@/components/atoms/Markdown';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import {
   getProposedChangesCount,
@@ -59,9 +60,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           {topHatDetails?.name || topHat?.name || 'No Hats'}
         </Heading>
         {topHatDetails?.description && (
-          <Text color='blackAlpha.700' noOfLines={2}>
-            {topHatDetails?.description}
-          </Text>
+          <Markdown>{topHatDetails?.description}</Markdown>
         )}
 
         <Text color='blackAlpha.600'>
