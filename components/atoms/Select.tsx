@@ -2,10 +2,15 @@
 import {
   FormControl,
   FormLabel,
+  HStack,
   Select as ChakraSelect,
+  Stack,
+  Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { FaRegQuestionCircle } from 'react-icons/fa';
 
 /**
  * Primary Select component for React Hook Form
@@ -24,6 +29,8 @@ const Select = ({
   options,
   localForm,
   children,
+  subLabel,
+  info,
   ...props
 }: SelectProps) => {
   if (!localForm) return null;
@@ -31,10 +38,31 @@ const Select = ({
 
   return (
     <FormControl {...props}>
-      {label && <FormLabel>{label}</FormLabel>}
-      <ChakraSelect {...register(name, options)} {...props}>
-        {children}
-      </ChakraSelect>
+      <Stack spacing={1} w='100%'>
+        {label && (
+          <FormLabel mb={0}>
+            <HStack>
+              <Text fontSize='sm'>
+                {label.toUpperCase()}
+                {options?.required && '*'}
+              </Text>
+              {info && (
+                <Tooltip shouldWrapChildren label={info}>
+                  <FaRegQuestionCircle />
+                </Tooltip>
+              )}
+            </HStack>
+          </FormLabel>
+        )}
+        {typeof subLabel !== 'string' ? (
+          subLabel
+        ) : (
+          <Text color='blackAlpha.700'>{subLabel}</Text>
+        )}
+        <ChakraSelect {...register(name, options)} {...props}>
+          {children}
+        </ChakraSelect>
+      </Stack>
     </FormControl>
   );
 };
@@ -44,10 +72,17 @@ export default Select;
 interface SelectProps {
   label?: string;
   name: string;
-  options?: object;
+  options?: {
+    required?: boolean;
+    pattern?: RegExp;
+    min?: number;
+    max?: number;
+  };
   localForm: UseFormReturn<any>;
   placeholder?: string;
   defaultValue?: string | number;
   isDisabled?: boolean;
   children: ReactNode;
+  subLabel?: string | ReactNode;
+  info?: string;
 }

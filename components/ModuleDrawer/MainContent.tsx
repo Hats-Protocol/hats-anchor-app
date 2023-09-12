@@ -1,13 +1,17 @@
-import { Heading, Stack, Text } from '@chakra-ui/react';
+import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { BsPuzzle } from 'react-icons/bs';
 
 import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
+import { Module } from '@/types';
 
-const MainContent = () => {
+import FormRowWrapper from '../FormRowWrapper';
+
+const MainContent = ({ title }: { title: Module }) => {
   const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
   const localForm = useForm({
     mode: 'onBlur',
@@ -19,7 +23,7 @@ const MainContent = () => {
   };
 
   const { modules } = useHatsModules();
-  console.log('modules', modules);
+  const modulesToDisplay = _.pickBy(modules, ({ type }) => type[title]);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -50,17 +54,21 @@ const MainContent = () => {
         subtitle='The fundamentals of the module, including type and details.'
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Select
-            label='Select new Admin Hat'
-            name='newAdmin'
-            localForm={localForm}
-          >
-            {_.map(modules, ({ name }) => (
-              <option value={name} key={name}>
-                {name}
-              </option>
-            ))}
-          </Select>
+          <FormRowWrapper>
+            <Icon as={BsPuzzle} boxSize={4} mt={1} />
+            <Select
+              label='Module Type'
+              subLabel='The category of prewritten module to connect to this hat.'
+              name='module'
+              localForm={localForm}
+            >
+              {_.map(modulesToDisplay, ({ name }) => (
+                <option value={name} key={name}>
+                  {name}
+                </option>
+              ))}
+            </Select>
+          </FormRowWrapper>
         </form>
       </Accordion>
     </Stack>

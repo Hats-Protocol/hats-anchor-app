@@ -31,13 +31,13 @@ import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { isMutable } from '@/lib/hats';
-import { DetailsItem } from '@/types';
+import { DetailsItem, Module } from '@/types';
 
 interface HatManagementFormProps {
   localForm: UseFormReturn<any>;
   address: Hex | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
-  title: string;
+  title: Module;
   formName: string;
   radioBoxConfig: {
     name: string;
@@ -222,7 +222,10 @@ const HatManagementForm = ({
         <DrawerContent background='cyan.50' maxW='43%' width='650px'>
           <DrawerBody pt={0}>
             <Suspense fallback={<Suspender />}>
-              <ModuleDrawer onCloseModuleDrawer={onCloseModuleDrawer} />
+              <ModuleDrawer
+                onCloseModuleDrawer={onCloseModuleDrawer}
+                title={title}
+              />
             </Suspense>
           </DrawerBody>
         </DrawerContent>
