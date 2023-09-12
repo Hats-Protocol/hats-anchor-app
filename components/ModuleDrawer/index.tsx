@@ -1,12 +1,16 @@
 import { Box } from '@chakra-ui/react';
 
+import { Module } from '@/types';
+
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
 const ModuleDrawer = ({
   onCloseModuleDrawer,
+  title,
 }: {
   onCloseModuleDrawer: () => void;
+  title: Module;
 }) => {
   return (
     <Box
@@ -19,7 +23,7 @@ const ModuleDrawer = ({
       zIndex={12}
     >
       <TopMenu onCloseModuleDrawer={onCloseModuleDrawer} />
-      <MainContent />
+      <MainContent title={title} />
     </Box>
   );
 };

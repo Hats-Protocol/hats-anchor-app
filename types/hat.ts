@@ -78,3 +78,5 @@ export interface IHat {
   newName?: string;
   newImage?: string;
 }
+
+export type Module = 'eligibility' | 'toggle';
