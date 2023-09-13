@@ -1,11 +1,13 @@
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { Abi, Hex, Narrow } from 'viem';
+import { useMemo } from 'react';
+import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 import { useContractReads } from 'wagmi';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 import { checkImageForHat } from '@/lib/hats';
+import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
 interface ContractCall {
@@ -29,31 +31,52 @@ const useImageURIs = ({
   hats: IHat[] | undefined;
   onchainHats?: IHat[];
 }) => {
-  let onlyOnchainHats = hats;
-  if (onchainHats) {
-    onlyOnchainHats = _.filter(hats, (hat) =>
-      _.includes(_.map(onchainHats, 'id'), hat?.id),
-    );
-  }
+  const onlyOnchainHats = useMemo(() => {
+    if (onchainHats) {
+      return _.filter(hats, (hat) =>
+        _.includes(_.map(onchainHats, 'id'), hat?.id),
+      );
+    }
+    return hats;
+  }, [hats, onchainHats]);
 
-  const calls: ContractCall[] = _.map(onlyOnchainHats, (hat) => {
-    return {
-      address: CONFIG.hatsAddress,
-      chainId: hat?.chainId,
-      abi: abi as Abi,
-      functionName: 'getImageURIForHat',
-      args: [hat?.id || hat],
-    };
+  const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
+
+  const calls: ContractCall[] = useMemo(() => {
+    return _.map(onlyOnchainHats, (hat) => {
+      return {
+        address: CONFIG.hatsAddress,
+        chainId: hat?.chainId,
+        abi: abi as Abi,
+        functionName: 'getImageURIForHat',
+        args: [hat?.id || hat],
+      };
+    });
+  }, [onlyOnchainHats]);
+
+  const { data: imagesData, isLoading: imagesLoading } = useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: ['imageURIs', _.map(onlyOnchainHats, 'id'), chainId],
+    queryFn: () => {
+      const client = createPublicClient({
+        chain: chainsMap(chainId),
+        transport: http(),
+      });
+
+      return client.multicall({ contracts: calls });
+    },
+    enabled: !!calls && !_.isEmpty(calls),
   });
 
-  const { data: imagesData, isLoading: imagesLoading } = useContractReads({
-    contracts: calls,
-    enabled: !!hats && !_.isEmpty(hats),
-  });
+  // const { data: imagesData, isLoading: imagesLoading } = useContractReads({
+  //   contracts: calls,
+  //   enabled: !!hats && !_.isEmpty(hats),
+  // });
+  // console.log('call result', imagesData);
 
-  const uniqueImageUris = _.compact(
-    _.uniq(_.map(imagesData, 'result')),
-  ) as string[];
+  const uniqueImageUris = useMemo(() => {
+    return _.compact(_.uniq(_.map(imagesData, 'result'))) as string[];
+  }, [imagesData]);
 
   const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
 
@@ -67,11 +90,12 @@ const useImageURIs = ({
   });
 
   const imageUrls = _.map(imageQueries, 'data');
+  // console.log(imageUrls);
   const isLoaded = _.every(imageQueries, ['isLoading', false]);
 
-  let mergedWithHats;
-  if (!imagesLoading && isLoaded) {
-    mergedWithHats = _.map(onlyOnchainHats, (hat, i) => {
+  const mergedWithHats = useMemo(() => {
+    if (imagesLoading || !isLoaded) return undefined;
+    return _.map(onlyOnchainHats, (hat, i) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,
         (img) => img === (_.get(_.nth(imagesData, i), 'result') as string),
@@ -82,7 +106,14 @@ const useImageURIs = ({
         imageUrl: imageUrls[imageIndex],
       };
     });
-  }
+  }, [
+    onlyOnchainHats,
+    uniqueImageUris,
+    imagesData,
+    imageUrls,
+    imagesLoading,
+    isLoaded,
+  ]);
 
   return {
     data: mergedWithHats || undefined,

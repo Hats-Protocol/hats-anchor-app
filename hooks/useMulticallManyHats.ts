@@ -79,7 +79,7 @@ const useMulticallCallManyHats = () => {
     abi,
     functionName: 'multicall',
     args: [_.map(calls, 'callData')],
-    enabled: !_.isEmpty(calls) && !!chainId,
+    enabled: !_.isEmpty(calls) && !!chainId && chainId === currentChain,
   });
 
   const onSuccess = async () => {
@@ -89,24 +89,46 @@ const useMulticallCallManyHats = () => {
       { chainId, treeId },
       _.map(treeToDisplay, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
     ];
+
+    // * set all queries to undefined to force a refetch, not ideal but working
     queryClient.setQueryData(orgChartTreeQueryKey, undefined);
-    queryClient.invalidateQueries(treeQueryKey);
     queryClient.setQueryData(treeQueryKey, undefined);
+
+    queryClient.invalidateQueries({ queryKey: treeQueryKey });
+    queryClient.invalidateQueries({ queryKey: orgChartTreeQueryKey });
+
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: treeQueryKey });
+      queryClient.invalidateQueries({ queryKey: orgChartTreeQueryKey });
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetailsField'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetails'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['imageURIs'],
+      });
+    }, 1000);
 
     _.forEach(storedData, (hat) => {
       const hatId = _.get(hat, 'id');
       const hatDetailsField = _.get(hat, 'details');
 
       if (hatId || hatDetailsField) {
-        queryClient.invalidateQueries([
-          'hatDetailsField',
-          _.get(hat, 'details'),
-        ]);
-        queryClient.invalidateQueries([
-          'hatDetails',
-          _.pick(hat, ['id', 'chainId', 'details', 'imageUri']),
-        ]);
-        queryClient.invalidateQueries(['imageUrl', _.get(hat, 'imageUri')]);
+        // clear query data
+        queryClient.setQueryData(
+          ['hatDetails', _.pick(hat, ['id', 'chainId'])],
+          undefined,
+        );
+        queryClient.setQueryData(
+          ['hatDetailsField', _.get(hat, 'details')],
+          undefined,
+        );
+        // queryClient.setQueryData(
+        //   ['imageUrl', _.get(hat, 'imageUri')],
+        //   undefined,
+        // );
       }
     });
 

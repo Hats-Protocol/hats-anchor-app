@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 
+import { hash } from '@/lib/general';
 import { toTreeStructure } from '@/lib/tree';
 import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
 
@@ -17,6 +19,20 @@ const useOrgChartTree = ({
   initialHatIds,
   chainId,
 }: UseOrgChartTreeProps) => {
+  const [detailsHashes, setDetailsHashes] = useState<string[]>();
+
+  useEffect(() => {
+    const handleDetailsHashes = async () => {
+      const promiseHashes = _.map(detailsData, (d) => hash(JSON.stringify(d)));
+      const result = await Promise.all(promiseHashes).then((hashes) => hashes);
+      setDetailsHashes(result);
+    };
+
+    if (!_.isEmpty(detailsData) && !detailsHashes) {
+      handleDetailsHashes();
+    }
+  }, [detailsData, detailsHashes]);
+
   const fetchTree = async () => {
     if (
       !chainId ||
@@ -41,12 +57,20 @@ const useOrgChartTree = ({
 
     return tree;
   };
+  // console.log(
+  //   'useOrgChartTree',
+  //   _.find(imagesData, [
+  //     'id',
+  //     '0x0000000100030000000000000000000000000000000000000000000000000000',
+  //   ]),
+  // );
 
   const { data: orgChartTree, isLoading } = useQuery({
     queryKey: [
       'orgChartTree',
       { chainId, treeId: treeData?.id },
-      _.map(hatsData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+      detailsHashes,
+      _.map(imagesData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
       _.map(draftHats, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
     ],
     queryFn: fetchTree,

@@ -101,7 +101,7 @@ const useCustomToast = () => {
         status: 'info',
         closeToast,
         iconName: 'rocket',
-        isClosable: props.isClosable ?? false,
+        isClosable: props.isClosable ?? true,
         toast,
       });
     },

@@ -33,7 +33,11 @@ const fetchWearerAndControllerDetails = async (
   };
 };
 
-const useWearersControllersDetails = ({ hats }: { hats: IHat[] }) => {
+const useWearersControllersDetails = ({
+  hats,
+}: {
+  hats: IHat[] | undefined;
+}) => {
   const chainId = _.get(_.first(hats), 'chainId');
   const wAndCs = _.uniq(
     _.compact(

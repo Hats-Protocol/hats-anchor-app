@@ -146,9 +146,6 @@ const OrgChartComponent: React.FC = () => {
                 setTimeout(() => {
                   centerChart(chart, newId);
                 }, 100);
-              } else if (!isTopHatOrMutable(data.data)) {
-                // retaining old editMode value so inconsistent
-                // handleImmutableToast();
               } else {
                 centerChart(chart, data.data?.id);
                 handleSelectHat?.(data.data?.id);
@@ -203,7 +200,10 @@ const OrgChartComponent: React.FC = () => {
             ](node.children)}  </div>`;
           })
           .nodeContent((d: any) => {
-            const isInWearerHats = _.includes(wearerHats, d.data.id);
+            const isInWearerHats = _.includes(
+              _.map(wearerHats, 'id'),
+              d.data.id,
+            );
 
             const {
               imageUrl,
@@ -482,7 +482,7 @@ const OrgChartComponent: React.FC = () => {
                       <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                         <div style="
                           font-size: 12px;
-                          color: ${isSelected ? '#248559' : '#08011E'};"
+                          color: #08011E;"
                         >
                           ${name}
                         </div>

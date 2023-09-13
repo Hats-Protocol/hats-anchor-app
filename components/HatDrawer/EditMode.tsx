@@ -29,7 +29,7 @@ import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
-import { isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
 import { DetailsItem, DirtyFormData, FieldItem, FormData } from '@/types';
 
 import ChakraNextLink from '../atoms/ChakraNextLink';
@@ -386,7 +386,7 @@ const EditMode = ({
           </Accordion>
         )}
 
-        {isTopHatOrMutable(selectedHat) && (
+        {isMutableNotTopHat(selectedHat) && (
           <Accordion
             title='Revocation & Eligibility'
             subtitle='The people or logic that determine when a wearer should have a hat.'
@@ -443,7 +443,7 @@ const EditMode = ({
           </Accordion>
         )}
 
-        {isTopHatOrMutable(selectedHat) && (
+        {isMutableNotTopHat(selectedHat) && (
           <Accordion
             title='Deactivation & Reactivation'
             subtitle='The people and contracts that control this Hat.'
