@@ -9,6 +9,7 @@ import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
+import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { Module, ModuleCreationArg } from '@/types';
 
 import DatePicker from '../atoms/DatePicker';
@@ -137,17 +138,18 @@ const MainContent = ({ title }: { title: Module }) => {
                 />
               )}
               {arg.displayType === 'hat' && (
-                <Input
+                <Select
                   name={arg.name}
                   label={arg.name}
                   subLabel={arg.description}
-                  placeholder={
-                    Array.isArray(arg.example)
-                      ? arg.example.join(', ')
-                      : arg.example
-                  }
                   localForm={localForm}
-                />
+                >
+                  {_.map(onchainHats, ({ id, prettyId }) => (
+                    <option value={decimalId(id)} key={id}>
+                      {prettyIdToIp(prettyId)}
+                    </option>
+                  ))}
+                </Select>
               )}
               {arg.displayType === 'timestamp' && (
                 <DatePicker
