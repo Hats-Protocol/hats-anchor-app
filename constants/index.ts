@@ -41,8 +41,7 @@ const CONFIG: {
   protocolVersion: '1.0',
   shortName: 'Hats',
   url: 'https://app.hatsprotocol.xyz',
-  logoUrl:
-    'https://indigo-selective-coral-505.mypinata.cloud/ipfs/QmbQy4vsu4aAHuQwpHoHUsEURtiYKEbhv7ouumBXiierp9?filename=hats%20hat.jpg',
+  logoUrl: 'https://app.hatsprotocol.xyz/img/favicon-512.png',
   ipfsGateway: 'https://indigo-selective-coral-505.mypinata.cloud/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
