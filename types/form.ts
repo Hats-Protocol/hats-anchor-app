@@ -4,6 +4,11 @@ import { DetailsItem } from './hat';
 
 export type FieldItem = { name: keyof FormData; label: string };
 
+export interface FormWearer {
+  address: string;
+  ens: string;
+}
+
 export type FormData = FormDataDetails & {
   maxSupply?: string;
   eligibility?: Hex;
@@ -11,7 +16,7 @@ export type FormData = FormDataDetails & {
   mutable: string;
   imageUrl?: string;
   id: Hex;
-  wearers: Hex[];
+  wearers: FormWearer[];
   parentId?: Hex;
 };
 

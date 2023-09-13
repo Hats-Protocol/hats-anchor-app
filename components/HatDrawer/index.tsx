@@ -24,9 +24,11 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     selectedHat?.id,
   ])?.newImageUrl;
   const selectedHatId = selectedHat?.id;
+  console.log('unsavedData', unsavedData);
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
+      console.log('current storedData', storedData);
       const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
         hat.id === selectedHat?.id
           ? { ...unsavedData, id: selectedHat?.id }
@@ -36,6 +38,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
       if (!_.find(updatedHats, ['id', selectedHat?.id])) {
         updatedHats.push({ ...unsavedData, id: selectedHat?.id || '0x' });
       }
+      console.log('updatedHats to store', updatedHats);
 
       setStoredData?.(updatedHats);
       setUnsavedData(undefined);

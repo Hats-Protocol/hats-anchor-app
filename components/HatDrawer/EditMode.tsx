@@ -47,6 +47,7 @@ const EditMode = ({
     isDraft,
     treeToDisplay,
   } = useTreeForm();
+  console.log('edit mode - storedData', storedData);
 
   const {
     name: initialName,
@@ -234,6 +235,7 @@ const EditMode = ({
         },
         {} as Partial<FormData>,
       );
+      console.log('updating saved data', dirtyFormData);
 
       setUnsavedData(dirtyFormData);
       prevAllFormData.current = allFormData;
