@@ -30,8 +30,11 @@ const useHatDetailsField = (
     enabled: !!detailsField && isIpfs,
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
-  const detailsData: HatDetails | undefined = _.get(data, 'data.data.data');
-  console.log(detailsData);
+  const detailsData: HatDetails | undefined = _.get(
+    data,
+    'data.data.data',
+    _.get(data, 'data.data'),
+  );
 
   let schemaType;
   if (!!data && data.headers?.['content-type'] === 'application/json') {
