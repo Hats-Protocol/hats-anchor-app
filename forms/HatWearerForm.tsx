@@ -157,7 +157,9 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const canAddWearer = !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
   const handleAddWearer = () => {
-    const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
+    const address = isCurrentInputAddress
+      ? (currentInput as Hex)
+      : (ensResolvedAddress as Hex);
     if (
       !address ||
       _.includes(currentWearerList, _.toLower(currentResolvedAddress)) ||

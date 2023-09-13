@@ -328,9 +328,6 @@ export const translateDrafts = ({
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE
         : true,
-      wearers: _.map(hat.wearers, (wearer) => ({
-        id: wearer,
-      })),
       levelAtLocalTree: _.subtract(
         _.size(_.split(hatIdDecimalToIp(BigInt(hat.id)), '.')),
         2, // top hat = 0, so subtract 2 to get level

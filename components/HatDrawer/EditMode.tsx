@@ -30,7 +30,13 @@ import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
-import { DetailsItem, DirtyFormData, FieldItem, FormData } from '@/types';
+import {
+  DetailsItem,
+  DirtyFormData,
+  FieldItem,
+  FormData,
+  FormWearer,
+} from '@/types';
 
 import ChakraNextLink from '../atoms/ChakraNextLink';
 
@@ -229,8 +235,12 @@ const EditMode = ({
       const dirtyFieldKeys = getDirtyFields();
       const dirtyFormData = dirtyFieldKeys.reduce(
         (acc: Partial<FormData>, key: keyof FormData) => {
-          (acc[key] as DetailsItem[] | string | string[] | undefined) =
-            allFormData[key];
+          (acc[key] as
+            | DetailsItem[]
+            | FormWearer[]
+            | string
+            | string[]
+            | undefined) = allFormData[key];
           return acc;
         },
         {} as Partial<FormData>,

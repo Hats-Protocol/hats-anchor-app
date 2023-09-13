@@ -5,7 +5,7 @@ import { DetailsItem } from './hat';
 export type FieldItem = { name: keyof FormData; label: string };
 
 export interface FormWearer {
-  address: string;
+  address: Hex;
   ens: string;
 }
 
@@ -35,5 +35,5 @@ export type FormDataDetails = {
 
 export type DirtyFormData = {
   imageUrl?: string;
-  [key: string]: string | string[] | DetailsItem[] | undefined;
+  [key: string]: string | string[] | DetailsItem[] | FormWearer[] | undefined;
 };
