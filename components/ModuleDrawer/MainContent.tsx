@@ -1,9 +1,8 @@
 import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
-import { m } from 'framer-motion';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
+import { BsPersonAdd, BsPuzzle, BsTextLeft } from 'react-icons/bs';
 
 import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
@@ -14,6 +13,7 @@ import { Module, ModuleCreationArg } from '@/types';
 
 import DatePicker from '../atoms/DatePicker';
 import Input from '../atoms/Input';
+import RadioBox from '../atoms/RadioBox';
 import FormRowWrapper from '../FormRowWrapper';
 
 const MainContent = ({ title }: { title: Module }) => {
@@ -176,6 +176,31 @@ const MainContent = ({ title }: { title: Module }) => {
             </FormRowWrapper>
           ))}
         </Stack>
+      </Accordion>
+
+      <Accordion
+        title='Claims Hatter Contract'
+        subtitle='Make this hat claimable by deploying a new hatter contract.'
+      >
+        <FormRowWrapper>
+          <Icon as={BsPersonAdd} boxSize={4} mt={1} />
+          <RadioBox
+            name='claimable'
+            label='Hat ClaimIng'
+            subLabel='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
+            localForm={localForm}
+            options={[
+              {
+                label: 'Yes',
+                value: 'Yes',
+              },
+              {
+                label: 'No — admin mint only',
+                value: 'No',
+              },
+            ]}
+          />
+        </FormRowWrapper>
       </Accordion>
     </Stack>
   );

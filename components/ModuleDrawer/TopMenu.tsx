@@ -1,6 +1,5 @@
 import { Button, Flex, HStack, Icon } from '@chakra-ui/react';
-import { BsXSquare } from 'react-icons/bs';
-import { FiMoreVertical, FiSave } from 'react-icons/fi';
+import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 
 const TopMenu = ({
   onCloseModuleDrawer,
@@ -23,6 +22,7 @@ const TopMenu = ({
     >
       <Button
         variant='outline'
+        borderColor='gray.300'
         colorScheme='gray'
         onClick={onCloseModuleDrawer}
         leftIcon={<Icon as={BsXSquare} />}
@@ -32,17 +32,7 @@ const TopMenu = ({
 
       <HStack spacing={3}>
         <Button
-          leftIcon={<FiMoreVertical />}
-          colorScheme='gray'
-          variant='outline'
-          onClick={() => {
-            console.log('more');
-          }}
-        >
-          More
-        </Button>
-        <Button
-          leftIcon={<FiSave />}
+          leftIcon={<BsBoxArrowRight />}
           colorScheme='twitter'
           variant='solid'
           onClick={() => {
@@ -50,7 +40,7 @@ const TopMenu = ({
             onCloseModuleDrawer();
           }}
         >
-          Save Changes
+          Deploy & Return
         </Button>
       </HStack>
     </Flex>
