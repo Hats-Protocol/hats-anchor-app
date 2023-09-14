@@ -63,8 +63,6 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     hatName = detailsObject.data.name;
   }
 
-  console.log('form wearers', localWearers);
-
   const currentWearerList = _.map(currentWearers, 'id');
 
   const { data: isEligible, isLoading: isLoadingIsEligible } =
