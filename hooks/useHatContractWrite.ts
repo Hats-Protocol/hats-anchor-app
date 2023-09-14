@@ -14,7 +14,7 @@ import useToast from '@/hooks/useToast';
 
 interface ContractInteractionProps {
   functionName: string;
-  args: any[];
+  args: unknown[];
   chainId?: number;
   onSuccessToastData?: { title: string; description?: string };
   onErrorToastData?: { title: string; description?: string };
@@ -64,7 +64,10 @@ const useHatContractWrite = ({
       });
     },
     onError: (error) => {
-      if (error.name === 'UserRejectedRequestError') {
+      if (
+        error.name === 'TransactionExecutionError' &&
+        error.message.includes('User rejected the request')
+      ) {
         toast.error({
           title: 'Signature rejected!',
           description: 'Please accept the transaction in your wallet',

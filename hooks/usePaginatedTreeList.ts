@@ -1,4 +1,5 @@
-import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import _ from 'lodash';
 
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import { ITree } from '@/types';
@@ -17,12 +18,15 @@ const usePaginatedTreeList = ({
     error,
   } = useInfiniteQuery({
     queryKey: ['treeList', chainId, perPage],
-    getNextPageParam: (returnData: any, allPages: any) => {
-      return returnData.length === perPage ? allPages.length : undefined;
+    getNextPageParam: (
+      returnData: ITree[] | undefined,
+      allPages: (ITree[] | undefined)[],
+    ) => {
+      return _.eq(_.size(returnData), perPage) ? _.size(allPages) : undefined;
     },
     queryFn: ({ pageParam = 0 }) =>
       fetchPaginatedTrees(chainId, pageParam, perPage),
-    initialData: () => initialData,
+    initialData: { pages: [initialData], pageParams: [0] },
   });
 
   return {
@@ -40,5 +44,5 @@ export default usePaginatedTreeList;
 interface UsePaginatedTreeListProps {
   chainId: number;
   perPage?: number;
-  initialData?: InfiniteData<ITree[]>;
+  initialData?: ITree[];
 }

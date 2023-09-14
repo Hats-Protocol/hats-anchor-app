@@ -1,21 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import client from '@/gql/client';
-import { GET_TREES_BY_ID } from '@/gql/queries';
-import { isAdmin } from '@/lib/hats';
+import { fetchTreesById } from '@/gql/helpers';
+import { isWearer } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
 import { IHat, ITree } from '@/types';
 
 const chains = _.keys(chainsList);
-
-export const fetchTreesById = async (treeIds: string[], chainId: number) => {
-  const result = await client(chainId).request(GET_TREES_BY_ID, {
-    ids: treeIds,
-  });
-
-  return _.get(result, 'trees', null);
-};
 
 const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
   const adminOfHats = async () => {
@@ -59,7 +50,7 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
     // TODO add another lookup for linked trees/hats
     // filter out the hats that the user is not an admin of
     const filteredAdminHats = _.filter(_.flatten(test), (h: IHat) =>
-      isAdmin(_.map(hats, 'id'), h.id),
+      isWearer(_.map(hats, 'id'), h.id),
     );
 
     return filteredAdminHats;

@@ -11,7 +11,7 @@ import { checkAddressIsContract } from '@/lib/contract';
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
 import Header from './Header';
-// import LinkRequests from './LinkRequests';
+import LinkRequests from './LinkRequests';
 import StatusCard from './Status';
 
 const MainContent = () => {
@@ -71,19 +71,23 @@ const MainContent = () => {
         />
       )}
 
-      <StatusCard
-        status='eligibility'
-        isAContract={isEligibilityAContract}
-        label='Can I wear this hat?'
-      />
+      {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
+        <StatusCard
+          status='eligibility'
+          isAContract={isEligibilityAContract}
+          label='Can I wear this hat?'
+        />
+      )}
 
-      <StatusCard
-        status='toggle'
-        isAContract={isToggleAContract}
-        label='Is this hat active?'
-      />
+      {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
+        <StatusCard
+          status='toggle'
+          isAContract={isToggleAContract}
+          label='Is this hat active?'
+        />
+      )}
 
-      {/* <LinkRequests linkRequestFromTree={linkRequestFromTree} /> */}
+      <LinkRequests />
 
       <Box>
         <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={1}>

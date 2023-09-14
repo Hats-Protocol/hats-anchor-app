@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { FaSave } from 'react-icons/fa';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
@@ -26,8 +27,10 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
-import { editHasUpdates } from '@/lib/hats';
+import useWearerDetails from '@/hooks/useWearerDetails';
+import { editHasUpdates, isAncestor, isWearer } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
+import { IHat } from '@/types';
 
 const TopMenu = () => {
   const { address } = useAccount();
@@ -38,18 +41,21 @@ const TopMenu = () => {
   const {
     chainId,
     treeId,
-    topHat,
     editMode,
     setEditMode,
     storedData,
     treeDisclosure,
     resetTree,
     setSelectedOption,
+    treeToDisplay,
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
-  const { onSubmit, isLoading } = useMulticallCallManyHats();
-
+  const { writeAsync, isLoading } = useMulticallCallManyHats();
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
   const openImportModal = () => {
@@ -72,7 +78,7 @@ const TopMenu = () => {
   };
 
   const handleDeploy = async () => {
-    const result = await onSubmit();
+    const result = await writeAsync?.();
     if (result) {
       setEditMode?.(false);
       onCloseTreeDrawer?.();
@@ -94,9 +100,63 @@ const TopMenu = () => {
     closeModal();
   };
 
-  const wearingTopHat = _.includes(
-    _.map(topHat?.wearers, 'id'),
-    _.toLower(address),
+  const isAdminOfAllHatsWithChanges = useMemo(() => {
+    const hatsWithChanges = _.map(storedData, ({ id }) => {
+      const foundHat = _.find(treeToDisplay, { id });
+      return {
+        id: foundHat?.id,
+        adminId: foundHat?.admin?.id,
+      };
+    });
+
+    const hasAdminOverAllHats = _.some(hatsWithChanges, (hat) => {
+      return _.every(
+        hatsWithChanges,
+        (h) => h.id === hat.id || isAncestor(hat.id, h.id, treeToDisplay),
+      );
+    });
+
+    if (hasAdminOverAllHats) {
+      return true;
+    }
+
+    const parentIdsOfHatsWithChanges = _.map(hatsWithChanges, 'adminId');
+    const commonParent = _.head(_.intersection(...parentIdsOfHatsWithChanges));
+
+    if (isWearer(_.map(wearer, 'id'), commonParent)) {
+      return true;
+    }
+
+    let currentParentId = commonParent;
+    while (currentParentId) {
+      const hat = _.find(treeToDisplay, { id: currentParentId });
+      if (isWearer(_.map(wearer, 'id'), (hat as IHat)?.id)) {
+        return true;
+      }
+      currentParentId = (hat as IHat)?.parentId;
+    }
+
+    return false;
+  }, [storedData, treeToDisplay, wearer]);
+
+  const getDeployTooltipLabel = useMemo(() => {
+    if (!storedData?.length) {
+      return 'No changes have been made.';
+    }
+    if (chainId !== currentChain) {
+      return `Must be on ${chainsMap(chainId).name} to deploy`;
+    }
+    if (!isAdminOfAllHatsWithChanges) {
+      return 'You must be the admin of all hats with changes to deploy';
+    }
+    return '';
+  }, [chainId, currentChain, isAdminOfAllHatsWithChanges, storedData]);
+
+  const isDeployDisabled = useMemo(
+    () =>
+      (!editHasUpdates(storedData) || isLoading || currentChain !== chainId) &&
+      !isAdminOfAllHatsWithChanges,
+    [storedData, isLoading, currentChain, chainId, isAdminOfAllHatsWithChanges],
   );
 
   return (
@@ -141,12 +201,7 @@ const TopMenu = () => {
           Export
         </Button>
         <Tooltip
-          label={
-            chainId !== currentChain
-              ? `Must be on ${chainsMap(chainId).name} to deploy`
-              : !wearingTopHat &&
-                'Only top hat can deploy directly currently. Submit the transaction data to your DAO.'
-          }
+          label={isDeployDisabled ? getDeployTooltipLabel : ''}
           placement='left'
           hasArrow
         >
@@ -154,12 +209,7 @@ const TopMenu = () => {
             leftIcon={<IoExitOutline />}
             colorScheme='blue'
             variant='solid'
-            isDisabled={
-              !wearingTopHat ||
-              !editHasUpdates(storedData) ||
-              isLoading ||
-              currentChain !== chainId
-            }
+            isDisabled={isDeployDisabled}
             onClick={handleDeploy}
           >
             Deploy

@@ -28,12 +28,14 @@ export interface IOverlayContext {
     redirect = null,
     clearModals = true,
     sendToast = true,
+    onSuccess,
   }: {
     hash: Hex;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
+    onSuccess?: () => void;
   }) => Promise<TransactionReceipt>;
 }
 
@@ -90,12 +92,14 @@ export const OverlayContextProvider = ({
       redirect = null,
       clearModals = true,
       sendToast = true,
+      onSuccess,
     }: {
       hash: Hex;
       toastData: object | undefined;
       redirect?: string | null;
       clearModals?: boolean;
       sendToast?: boolean;
+      onSuccess?: () => void;
     }): Promise<TransactionReceipt> => {
       const data = await waitForTransaction({ hash });
 
@@ -105,6 +109,10 @@ export const OverlayContextProvider = ({
             title: _.get(toastData, 'title', 'Transaction successful'),
             description: _.get(toastData, 'description'),
           });
+        }
+
+        if (onSuccess) {
+          onSuccess();
         }
 
         if (clearModals) {

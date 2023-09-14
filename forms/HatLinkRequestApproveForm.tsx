@@ -27,7 +27,7 @@ import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { decimalId, toTreeId } from '@/lib/hats';
+import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { ImageFile } from '@/types';
 
@@ -193,7 +193,7 @@ const HatLinkRequestApproveForm = ({
           <Text fontWeight='medium' mr={2}>
             Domain of the Top Hat to be linked:
           </Text>
-          <Text>ID {hatIdDecimalToIp(BigInt(topHatDomain))}</Text>
+          <Text>ID {prettyIdToIp(topHatDomain)}</Text>
         </Flex>
         <FormControl>
           <Stack>
@@ -276,7 +276,7 @@ const HatLinkRequestApproveForm = ({
                       isDragAccept={isDragAccept}
                       isDragReject={isDragReject}
                       image={image}
-                      imageUrl={selectedHat?.imageUrl}
+                      imageUrl={selectedHat?.imageUrl || '/icon.jpeg'}
                     />
                   )}
                 </Stack>

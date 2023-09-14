@@ -14,13 +14,16 @@ import TopMenu from './TopMenu';
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const { selectedHat, editMode, storedData, setStoredData } = useTreeForm();
-
-  const selectedHatId = selectedHat?.id;
-
   const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
     undefined,
   );
+  const { selectedHat, editMode, storedData, setStoredData, newImageUrls } =
+    useTreeForm();
+  const newImageUrl = _.find(newImageUrls, [
+    'id',
+    selectedHat?.id,
+  ])?.newImageUrl;
+  const selectedHatId = selectedHat?.id;
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
@@ -41,6 +44,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         toast.success({
           title: 'Saved',
           description: 'Your changes have been saved.',
+          duration: 1500,
         });
       }
     }
@@ -63,7 +67,11 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         {/* Hat Image */}
         <Image
           loading='lazy'
-          src={_.get(selectedHat, 'imageUrl', '/icon.jpeg')}
+          src={
+            (editMode && newImageUrl) ||
+            _.get(selectedHat, 'imageUrl') ||
+            '/icon.jpeg'
+          }
           alt='hat image'
           position='absolute'
           background='white'
@@ -83,11 +91,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           isLoading={isLoading}
         />
 
-        {!editMode && (
-          <MainContent
-          // linkRequestFromTree={linkRequestFromTree}
-          />
-        )}
+        {!editMode && <MainContent />}
 
         {editMode && (
           <EditMode

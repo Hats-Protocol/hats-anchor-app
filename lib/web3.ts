@@ -5,13 +5,13 @@ import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { publicProvider } from '@wagmi/core/providers/public';
 import _ from 'lodash';
-import { Hex } from 'viem';
 import {
   createPublicClient,
   createWalletClient,
   custom,
+  Hex,
   http,
-} from 'viem-hats-client';
+} from 'viem';
 import { Chain, configureChains, createConfig } from 'wagmi';
 import {
   arbitrum,

@@ -1,4 +1,4 @@
-import { isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
@@ -16,7 +16,7 @@ const useWearerIsInGoodStanding = ({ wearer }: UseWearerIsInGoodStanding) => {
     chainId,
     functionName: 'isInGoodStanding',
     args: [wearer, hatId],
-    enabled: Boolean(wearer) && isAddress(wearer) && Boolean(hatId),
+    enabled: wearer && isAddress(wearer) && Boolean(hatId),
   });
 
   return { data, isLoading };
@@ -25,5 +25,5 @@ const useWearerIsInGoodStanding = ({ wearer }: UseWearerIsInGoodStanding) => {
 export default useWearerIsInGoodStanding;
 
 interface UseWearerIsInGoodStanding {
-  wearer: string;
+  wearer: Hex | undefined;
 }

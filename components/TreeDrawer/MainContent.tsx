@@ -12,6 +12,7 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
+import Markdown from '@/components/atoms/Markdown';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import {
   getProposedChangesCount,
@@ -28,7 +29,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const {
     topHat,
     onchainHats,
-    orgChartTree,
+    treeToDisplay,
     storedData,
     setSelectedHatId,
     treeDisclosure,
@@ -41,7 +42,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
 
-  if (!onchainHats || !orgChartTree) return null;
+  if (!onchainHats || !treeToDisplay) return null;
 
   return (
     <Stack
@@ -59,9 +60,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           {topHatDetails?.name || topHat?.name || 'No Hats'}
         </Heading>
         {topHatDetails?.description && (
-          <Text color='blackAlpha.700' noOfLines={2}>
-            {topHatDetails?.description}
-          </Text>
+          <Markdown>{topHatDetails?.description}</Markdown>
         )}
 
         <Text color='blackAlpha.600'>
@@ -94,7 +93,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         borderY='1px solid'
         borderColor='gray.200'
       >
-        {_.map(orgChartTree, (hat) => {
+        {_.map(treeToDisplay, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
 
@@ -105,6 +104,15 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           };
 
           const hatId = prettyIdToIp(idToPrettyId(hat.id));
+          // get hat name for list display
+          let displayName =
+            _.get(hat, 'newName') || _.get(hat, 'detailsObject.data.name');
+          if (!displayName && !_.startsWith(hat.details, 'ipfs://')) {
+            displayName = hat.details;
+          }
+          if (!displayName && hat.name !== hatId) {
+            displayName = hat.name;
+          }
 
           return (
             <Box
@@ -120,15 +128,13 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 alignItems='center'
                 variant='ghost'
                 borderRadius={0}
-                isDisabled={!isTopHatOrMutable(hat)}
                 onClick={handleHatClick}
               >
                 <HStack>
                   <Text>{hatId}</Text>
-                  {(hat?.detailsObject?.data?.name || hat.name !== hatId) && (
-                    <Text>
-                      {hat?.detailsObject?.data?.name ||
-                        (hat.name !== hatId ? hat.name : '')}
+                  {displayName && (
+                    <Text maxW={hat.mutable ? '300px' : '200px'} isTruncated>
+                      {displayName}
                     </Text>
                   )}
                 </HStack>

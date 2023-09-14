@@ -1,49 +1,26 @@
 /* eslint-disable no-restricted-syntax */
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useState } from 'react';
-import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useEffect, useState } from 'react';
+import {
+  useAccount,
+  useChainId,
+  useContractWrite,
+  usePrepareContractWrite,
+} from 'wagmi';
 
-import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
-import useToast from '@/hooks/useToast';
-import { decimalId, getDefaultAdminId } from '@/lib/hats';
-import { handleDetailsPin } from '@/lib/ipfs';
-import { chainsMap, createHatsClient } from '@/lib/web3';
-import { FormDataDetails, IHat } from '@/types';
+import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-
-export const hasDetailsChanged = ({
-  name,
-  description,
-  guilds,
-  responsibilities,
-  authorities,
-  isEligibilityManual,
-  revocationsCriteria,
-  isToggleManual,
-  deactivationsCriteria,
-}: Partial<FormDataDetails>) => {
-  return (
-    name ||
-    description ||
-    !_.isEmpty(guilds) ||
-    !_.isEmpty(responsibilities) ||
-    !_.isEmpty(authorities) ||
-    isEligibilityManual ||
-    !_.isEmpty(revocationsCriteria) ||
-    isToggleManual ||
-    !_.isEmpty(deactivationsCriteria)
-  );
-};
-
-interface CallData {
-  functionName: string;
-  callData: Hex;
-}
+import abi from '@/contracts/Hats.json';
+import useToast from '@/hooks/useToast';
+import { processHatForCalls } from '@/lib/hats';
+import { IHat } from '@/types';
 
 const useMulticallCallManyHats = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [calls, setCalls] = useState<unknown[]>();
+  const [proposedChanges, setProposedChanges] = useState<IHat[]>();
+
   const { address } = useAccount();
   const currentChain = useChainId();
   const {
@@ -51,291 +28,162 @@ const useMulticallCallManyHats = () => {
     treeId,
     storedData,
     onchainHats,
-    orgChartTree,
+    treeToDisplay,
     setStoredData,
   } = useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { handlePendingTx } = useOverlay();
+  const { patchTree } = useTreeForm();
 
-  const hatsClient = createHatsClient(chainId);
+  useEffect(() => {
+    const prepareMulticallData = async () => {
+      const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
+        _.includes(_.map(onchainHats, 'id'), hat.id),
+      );
 
-  const onSubmit = async () => {
-    if (!chainId || !treeId || !address || !hatsClient || !storedData)
-      return undefined;
+      const allCallsPromises = _.map(storedData, (hat) =>
+        processHatForCalls(hat, onlyOnchainHats, chainId),
+      );
+      const allCalls = await Promise.all(allCallsPromises);
 
-    if (currentChain !== chainId) {
-      toast.error({
-        title: 'Wrong Chain',
-        description: `Please change to ${chainsMap(chainId)?.name}`,
+      const localCalls = _.flatten(_.map(allCalls, 'calls')) as unknown[];
+      const localProposedChanges = _.flatten(
+        _.map(allCalls, 'proposedChanges'),
+      ) as IHat[];
+      setCalls(localCalls);
+      setProposedChanges(localProposedChanges);
+    };
+
+    if (
+      !!chainId &&
+      chainId === currentChain &&
+      !!treeId &&
+      !!address &&
+      !!storedData
+    )
+      prepareMulticallData();
+  }, [
+    chainId,
+    currentChain,
+    treeId,
+    address,
+    storedData,
+    onchainHats,
+    treeToDisplay,
+  ]);
+
+  const { config, error: prepareError } = usePrepareContractWrite({
+    address: CONFIG.hatsAddress,
+    chainId: Number(chainId),
+    abi,
+    functionName: 'multicall',
+    args: [_.map(calls, 'callData')],
+    enabled: !_.isEmpty(calls) && !!chainId && chainId === currentChain,
+  });
+
+  const onSuccess = async () => {
+    const treeQueryKey = ['treeDetails', treeId, chainId];
+    const orgChartTreeQueryKey = [
+      'orgChartTree',
+      { chainId, treeId },
+      _.map(treeToDisplay, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+    ];
+
+    // * set all queries to undefined to force a refetch, not ideal but working
+    queryClient.setQueryData(orgChartTreeQueryKey, undefined);
+    queryClient.setQueryData(treeQueryKey, undefined);
+
+    queryClient.invalidateQueries({ queryKey: treeQueryKey });
+    queryClient.invalidateQueries({ queryKey: orgChartTreeQueryKey });
+
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: treeQueryKey });
+      queryClient.invalidateQueries({ queryKey: orgChartTreeQueryKey });
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetailsField'],
       });
-      return;
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetails'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['imageURIs'],
+      });
+    }, 1000);
+
+    _.forEach(storedData, (hat) => {
+      const hatId = _.get(hat, 'id');
+      const hatDetailsField = _.get(hat, 'details');
+
+      if (hatId || hatDetailsField) {
+        // clear query data
+        queryClient.setQueryData(
+          ['hatDetails', _.pick(hat, ['id', 'chainId'])],
+          undefined,
+        );
+        queryClient.setQueryData(
+          ['hatDetailsField', _.get(hat, 'details')],
+          undefined,
+        );
+        // queryClient.setQueryData(
+        //   ['imageUrl', _.get(hat, 'imageUri')],
+        //   undefined,
+        // );
+      }
+    });
+
+    if (proposedChanges) {
+      patchTree?.(proposedChanges);
     }
-
-    const calls = [] as CallData[];
-
-    for (const hat of storedData) {
-      const {
-        maxSupply,
-        eligibility,
-        toggle,
-        mutable,
-        imageUrl,
-        isEligibilityManual,
-        isToggleManual,
-        revocationsCriteria,
-        deactivationsCriteria,
-        name,
-        description,
-        guilds,
-        responsibilities,
-        authorities,
-        id: hatId,
-        wearers,
-      } = hat;
-
-      if (!hatId) continue;
-
-      let currentHat;
-      if (_.includes(_.map(onchainHats, 'id'), hatId)) {
-        currentHat = _.find(orgChartTree, ['id', hatId]);
-      }
-      const currentHatDetails = _.get(currentHat, 'detailsObject.data');
-
-      const detailsData = {
-        name: name || currentHatDetails?.name || '',
-        description: description || currentHatDetails?.description || '',
-        guilds: guilds || currentHatDetails?.guilds || [],
-        responsibilities: responsibilities
-          ? _.reject(responsibilities, ['label', ''])
-          : _.reject(currentHatDetails?.responsibilities, ['label', '']),
-        authorities: authorities
-          ? _.reject(authorities, ['label', ''])
-          : _.reject(currentHatDetails?.authorities, ['label', '']),
-        eligibility: {
-          manual: isToggleManual
-            ? isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
-            : currentHatDetails?.eligibility?.manual,
-          criteria: revocationsCriteria
-            ? _.reject(revocationsCriteria, ['label', ''])
-            : _.reject(currentHatDetails?.eligibility?.criteria, [
-                'label',
-                '',
-              ]) || [],
-        },
-        toggle: {
-          manual: isToggleManual
-            ? isToggleManual === TRIGGER_OPTIONS.MANUALLY
-            : currentHatDetails?.toggle?.manual,
-          criteria: deactivationsCriteria
-            ? _.reject(deactivationsCriteria, ['label', ''])
-            : _.reject(currentHatDetails?.toggle?.criteria, ['label', '']) ||
-              [],
-        },
-      };
-      console.log(detailsData);
-
-      if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
-        // eslint-disable-next-line no-await-in-loop
-        const details = await handleDetailsPin({
-          chainId,
-          hatId,
-          newDetails: detailsData,
-        });
-        const newHatData = hatsClient.createHatCallData({
-          admin: BigInt(getDefaultAdminId(hatId)),
-          details,
-          maxSupply: _.toNumber(maxSupply) || 1,
-          eligibility: eligibility || FALLBACK_ADDRESS,
-          toggle: toggle || FALLBACK_ADDRESS,
-          mutable: mutable === MUTABILITY.IMMUTABLE ? false : true,
-          imageURI: imageUrl,
-        });
-        calls.push(newHatData);
-
-        if (_.eq(_.size(wearers), 1)) {
-          const wearerAddress = _.get(_.first(wearers), 'address');
-          if (wearerAddress) {
-            const mintHatWearersData = hatsClient.mintHatCallData({
-              hatId: decimalId(hatId) as unknown as bigint,
-              wearer: wearerAddress,
-            });
-
-            if (mintHatWearersData) {
-              calls.push(mintHatWearersData);
-            }
-          }
-        } else {
-          const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
-            hatIds: Array(_.size(wearers)).fill(
-              decimalId(hatId),
-            ) as unknown as bigint[],
-            wearers: _.map(wearers, 'address'),
-          });
-
-          if (batchMintHatWearersData) {
-            calls.push(batchMintHatWearersData);
-          }
-        }
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-
-      if (
-        hasDetailsChanged({
-          name,
-          description,
-          guilds,
-          responsibilities,
-          authorities,
-          isEligibilityManual,
-          revocationsCriteria,
-          isToggleManual,
-          deactivationsCriteria,
-        })
-      ) {
-        // eslint-disable-next-line no-await-in-loop
-        const newCid = await handleDetailsPin({
-          chainId,
-          hatId,
-          newDetails: detailsData,
-        });
-        console.log(hatId, newCid);
-
-        const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-          newDetails: newCid,
-        });
-
-        if (changeHatDetailsData) {
-          calls.push(changeHatDetailsData);
-        }
-      }
-
-      if (maxSupply) {
-        const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-          newMaxSupply: parseInt(maxSupply, 10),
-        });
-
-        if (changeHatMaxSupplyData) {
-          calls.push(changeHatMaxSupplyData);
-        }
-      }
-
-      if (wearers) {
-        if (_.eq(_.size(wearers), 1)) {
-          const wearerAddress = _.get(_.first(wearers), 'address');
-          if (wearerAddress) {
-            const mintHatWearersData = hatsClient.mintHatCallData({
-              hatId: decimalId(hatId) as unknown as bigint,
-              wearer: wearerAddress,
-            });
-
-            if (mintHatWearersData) {
-              calls.push(mintHatWearersData);
-            }
-          }
-        } else {
-          const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
-            hatIds: Array(_.size(wearers)).fill(
-              decimalId(hatId),
-            ) as unknown as bigint[],
-            wearers: _.map(wearers, 'address'),
-          });
-
-          if (batchMintHatWearersData) {
-            calls.push(batchMintHatWearersData);
-          }
-        }
-      }
-
-      if (eligibility) {
-        const changeHatEligibilityData =
-          hatsClient.changeHatEligibilityCallData({
-            hatId: decimalId(hatId) as unknown as bigint,
-            newEligibility: eligibility,
-          });
-
-        if (changeHatEligibilityData) {
-          calls.push(changeHatEligibilityData);
-        }
-      }
-
-      if (toggle) {
-        const changeHatToggleData = hatsClient.changeHatToggleCallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-          newToggle: toggle,
-        });
-
-        if (changeHatToggleData) {
-          calls.push(changeHatToggleData);
-        }
-      }
-
-      if (mutable) {
-        const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-        });
-
-        if (makeHatImmutableData) {
-          calls.push(makeHatImmutableData);
-        }
-      }
-
-      if (imageUrl) {
-        const changeHatImageURIData = hatsClient.changeHatImageURICallData({
-          hatId: decimalId(hatId) as unknown as bigint,
-          newImageURI: imageUrl,
-        });
-
-        if (changeHatImageURIData) {
-          calls.push(changeHatImageURIData);
-        }
-      }
-    }
-    console.log(calls);
-
-    if (calls.length > 0) {
-      setIsLoading(true);
-      try {
-        await hatsClient.multicall({
-          account: address as Hex,
-          calls,
-        });
-
-        // TODO handle optimistic image update
-        const treeQueryKey = ['treeDetails', treeId, chainId];
-
-        queryClient.invalidateQueries(treeQueryKey);
-        // todo update org chart hats
-        setIsLoading(false);
-        setStoredData?.([]);
-
-        toast.success({
-          title: 'Transaction successful',
-          description: 'Hats were successfully updated',
-        });
-        return true;
-      } catch (error: unknown) {
-        console.log(error);
-        // catch signature rejection error
-
-        toast.error({
-          title: 'Error occurred!',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-
-        setIsLoading(false);
-        return false;
-      }
-    }
-    return false;
+    setStoredData?.([]);
   };
 
-  return { onSubmit, isLoading };
+  const {
+    writeAsync,
+    isLoading,
+    error: writeError,
+  } = useContractWrite({
+    ...config,
+    onSuccess: async (data) => {
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
+      });
+
+      await handlePendingTx?.({
+        hash: data.hash,
+        toastData: {
+          title: 'Transaction successful',
+          description: 'Hats were successfully updated',
+        },
+        onSuccess,
+      });
+    },
+    onError: (error) => {
+      if (
+        error.name === 'TransactionExecutionError' &&
+        error.message.includes('User rejected the request')
+      ) {
+        toast.error({
+          title: 'Signature rejected!',
+          description: 'Please accept the transaction in your wallet',
+        });
+      } else {
+        toast.error({
+          title: 'Error occurred!',
+          description: 'An error occurred while processing the transaction.',
+        });
+      }
+    },
+  });
+
+  return {
+    writeAsync,
+    prepareError,
+    writeError,
+    isLoading,
+    proposedChanges,
+  };
 };
 
 export default useMulticallCallManyHats;

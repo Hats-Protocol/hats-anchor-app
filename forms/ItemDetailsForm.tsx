@@ -6,8 +6,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useFieldArray } from 'react-hook-form';
+import { ReactNode, useState } from 'react';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle } from 'react-icons/bs';
 
@@ -16,10 +16,11 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { DetailsItem } from '@/types';
 
 interface ItemDetailsFormProps {
-  localForm: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   formName: string;
   title: string;
-  subtitle?: string;
+  subtitle?: string | ReactNode;
   Icon: IconType;
   label: string;
 }
@@ -75,7 +76,11 @@ const ItemDetailsForm = ({
             {title}
           </Text>
         </HStack>
-        <Text color='blackAlpha.700'>{subtitle}</Text>
+        {subtitle && typeof subtitle !== 'string' ? (
+          subtitle
+        ) : (
+          <Text color='blackAlpha.700'>{subtitle}</Text>
+        )}
       </Box>
       {fields.map((field, index) => (
         <LabelWithLink

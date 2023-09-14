@@ -42,8 +42,8 @@ const SeoConfig = {
     images: [
       {
         url: CONFIG.logoUrl,
-        width: 600,
-        height: 600,
+        width: 500,
+        height: 500,
         alt: 'Hats Protocol',
       },
     ],
@@ -54,6 +54,7 @@ const SeoConfig = {
     handle: '@hatsprotocol',
     site: '@hatsprotocol',
     cardType: 'summary',
+    image: CONFIG.logoUrl,
   },
   additionalLinkTags,
   // additionalMetaTags,

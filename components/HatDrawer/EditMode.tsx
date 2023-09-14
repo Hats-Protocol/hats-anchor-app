@@ -16,7 +16,7 @@ import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
-import {
+import CONFIG, {
   EMPTY_FORM_VALUES,
   FALLBACK_ADDRESS,
   FORM_FIELDS,
@@ -29,8 +29,14 @@ import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
-import { isTopHat } from '@/lib/hats';
-import { DetailsItem, FieldItem, FormData } from '@/types';
+import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import {
+  DetailsItem,
+  DirtyFormData,
+  FieldItem,
+  FormData,
+  FormWearer,
+} from '@/types';
 
 import ChakraNextLink from '../atoms/ChakraNextLink';
 
@@ -39,8 +45,14 @@ const EditMode = ({
   setUnsavedData,
   setIsLoading,
 }: EditModeProps) => {
-  const { chainId, storedData, selectedHat, onchainHats, selectedHatDetails } =
-    useTreeForm();
+  const {
+    chainId,
+    storedData,
+    selectedHat,
+    selectedHatDetails,
+    isDraft,
+    treeToDisplay,
+  } = useTreeForm();
 
   const {
     name: initialName,
@@ -70,9 +82,7 @@ const EditMode = ({
     ]);
 
   const defaultFormValues = useMemo<FormData>(() => {
-    const draft = !_.includes(_.map(onchainHats, 'id'), selectedHat?.id);
-
-    if (draft) {
+    if (isDraft) {
       return EMPTY_FORM_VALUES;
     }
 
@@ -102,7 +112,6 @@ const EditMode = ({
     };
   }, [
     selectedHat?.id,
-    onchainHats,
     maxSupply,
     eligibility,
     toggle,
@@ -115,6 +124,7 @@ const EditMode = ({
     initialAuthorities,
     initialResponsibilities,
     initialGuilds,
+    isDraft,
   ]);
 
   const localForm = useForm({
@@ -149,7 +159,7 @@ const EditMode = ({
 
   const allFormData = watch();
 
-  const prevAllFormData = useRef<any>(allFormData);
+  const prevAllFormData = useRef<FormData>(allFormData);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -224,8 +234,12 @@ const EditMode = ({
       const dirtyFieldKeys = getDirtyFields();
       const dirtyFormData = dirtyFieldKeys.reduce(
         (acc: Partial<FormData>, key: keyof FormData) => {
-          (acc[key] as DetailsItem[] | string | string[] | undefined) =
-            allFormData[key];
+          (acc[key] as
+            | DetailsItem[]
+            | FormWearer[]
+            | string
+            | string[]
+            | undefined) = allFormData[key];
           return acc;
         },
         {} as Partial<FormData>,
@@ -245,21 +259,22 @@ const EditMode = ({
       }
 
       const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: FormData, key: keyof FormData) => {
+        (acc: DirtyFormData, key: keyof FormData) => {
           if (key === 'newImageUri') {
             acc.imageUrl = newImageURI;
           } else {
-            if (!acc || key) return acc;
-            acc[key] = allFormData[key];
+            acc[key as string] = allFormData[key];
           }
           return acc;
         },
-        {} as FormData,
+        {},
       );
 
       setUnsavedData(dirtyFormData);
     }
   }, [newImageURI, imageUri]);
+
+  const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
 
   if (!selectedHat) return null;
 
@@ -276,23 +291,31 @@ const EditMode = ({
       >
         <Stack>
           <Text fontSize={32} fontWeight='medium'>
-            {selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))}
+            {newName ||
+              (isDraft
+                ? `Add hat ${hatIdDecimalToIp(
+                    BigInt(selectedHat?.id),
+                  )} to this tree`
+                : selectedHat?.detailsObject?.data?.name ||
+                  (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
           </Text>
           <Text>All changes are local until you deploy to chain.</Text>
         </Stack>
 
-        <Accordion
-          title='Hat Basics'
-          subtitle='The fundamentals of the hat, including name, image, and supply.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
-        >
-          <Stack spacing={4}>
-            <HatBasicsForm
-              localForm={localForm}
-              setNewImageURI={setNewImageURI}
-            />
-          </Stack>
-        </Accordion>
+        {isTopHatOrMutable(selectedHat) && (
+          <Accordion
+            title='Hat Basics'
+            subtitle='The fundamentals of the hat, including name, image, and supply.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
+          >
+            <Stack spacing={4}>
+              <HatBasicsForm
+                localForm={localForm}
+                setNewImageURI={setNewImageURI}
+              />
+            </Stack>
+          </Accordion>
+        )}
 
         {!isTopHat(selectedHat) && (
           <Accordion
@@ -309,150 +332,179 @@ const EditMode = ({
           </Accordion>
         )}
 
-        <Accordion
-          title='Responsibilities'
-          subtitle='Specific work that wearers of this hat will be held accountable for.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(
-            FORM_FIELDS.responsibilities,
-          )}
-        >
-          <Stack spacing={4}>
-            <ItemDetailsForm
-              localForm={localForm}
-              formName='responsibilities'
-              title='RESPONSIBILITIES'
-              label='Responsibility'
-              subtitle='Tasks and responsibilities associated with this hat.'
-              Icon={BsListUl}
-            />
-          </Stack>
-        </Accordion>
+        {isTopHatOrMutable(selectedHat) && (
+          <Accordion
+            title='Responsibilities'
+            subtitle='Specific work that wearers of this hat will be held accountable for.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(
+              FORM_FIELDS.responsibilities,
+            )}
+          >
+            <Stack spacing={4}>
+              <ItemDetailsForm
+                localForm={localForm}
+                formName='responsibilities'
+                title='RESPONSIBILITIES'
+                label='Responsibility'
+                subtitle={
+                  <Text>
+                    Tasks and responsibilities associated with this hat. More
+                    details in the{' '}
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.authorities}
+                      decoration
+                    >
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>
+                }
+                Icon={BsListUl}
+              />
+            </Stack>
+          </Accordion>
+        )}
 
-        <Accordion
-          title='Powers'
-          subtitle='Permissions and rights that are controlled by wearers of this hat.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
-        >
-          <Stack spacing={4}>
-            <ItemDetailsForm
-              localForm={localForm}
-              formName='authorities'
-              title='PERMISSIONS'
-              subtitle='Actions this hat enables its wearer to take.'
-              label='Permission'
-              Icon={BsKey}
-            />
-          </Stack>
-        </Accordion>
+        {isTopHatOrMutable(selectedHat) && (
+          <Accordion
+            title='Powers'
+            subtitle='Permissions and rights that are controlled by wearers of this hat.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
+          >
+            <Stack spacing={4}>
+              <ItemDetailsForm
+                localForm={localForm}
+                formName='authorities'
+                title='PERMISSIONS'
+                subtitle={
+                  <Text>
+                    Actions this hat enables its wearer to take. More details in
+                    the{' '}
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.authorities}
+                      decoration
+                    >
+                      docs
+                    </ChakraNextLink>
+                    .
+                  </Text>
+                }
+                label='Permission'
+                Icon={BsKey}
+              />
+            </Stack>
+          </Accordion>
+        )}
 
-        <Accordion
-          title='Revocation & Eligibility'
-          subtitle='The people or logic that determine when a wearer should have a hat.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
-        >
-          <Stack spacing={4}>
-            <HatManagementForm
-              localForm={localForm}
-              address={eligibility}
-              actionResolvedAddress={eligibilityResolvedAddress}
-              title='eligibility'
-              formName='revocationsCriteria'
-              radioBoxConfig={{
-                name: 'isEligibilityManual',
-                label: 'Hat Revocation',
-                subLabel: 'How should revocation from wearers be handled?',
-              }}
-              inputConfig={{
-                label: 'ACCOUNTABILITY',
-                description: [
-                  <Text key='manual'>
-                    The address of the person or group that can manually revoke
-                    this hat from specific wearers. More details in the{' '}
-                    <ChakraNextLink
-                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
-                      decoration
-                    >
-                      docs
-                    </ChakraNextLink>
-                    .
-                  </Text>,
-                  <Text key='automatic'>
-                    The address of the smart contract containing the logic about
-                    when a wearer should have this hat. More details in the{' '}
-                    <ChakraNextLink
-                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers'
-                      decoration
-                    >
-                      docs
-                    </ChakraNextLink>
-                    .
-                  </Text>,
-                ],
-              }}
-              criteriaConfig={{
-                label: 'QUALIFICATIONS',
-                description:
-                  'A written description of the logic in the Accountability Contract',
-                addButtonLabel: 'Qualification',
-              }}
-            />
-          </Stack>
-        </Accordion>
+        {isMutableNotTopHat(selectedHat) && (
+          <Accordion
+            title='Revocation & Eligibility'
+            subtitle='The people or logic that determine when a wearer should have a hat.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
+          >
+            <Stack spacing={4}>
+              <HatManagementForm
+                localForm={localForm}
+                address={eligibility}
+                actionResolvedAddress={eligibilityResolvedAddress}
+                title='eligibility'
+                formName='revocationsCriteria'
+                radioBoxConfig={{
+                  name: 'isEligibilityManual',
+                  label: 'Hat Revocation',
+                  subLabel: 'How should revocation from wearers be handled?',
+                }}
+                inputConfig={{
+                  label: 'ACCOUNTABILITY',
+                  description: [
+                    <Text key='manual'>
+                      The address of the person or group that can manually
+                      revoke this hat from specific wearers. More details in the{' '}
+                      <ChakraNextLink
+                        href={CONFIG.docsLinks.eligibility}
+                        decoration
+                      >
+                        docs
+                      </ChakraNextLink>
+                      .
+                    </Text>,
+                    <Text key='automatic'>
+                      The address of the smart contract containing the logic
+                      about when a wearer should have this hat. More details in
+                      the{' '}
+                      <ChakraNextLink
+                        href={CONFIG.docsLinks.eligibility}
+                        decoration
+                      >
+                        docs
+                      </ChakraNextLink>
+                      .
+                    </Text>,
+                  ],
+                }}
+                criteriaConfig={{
+                  label: 'QUALIFICATIONS',
+                  description:
+                    'A written description of the logic in the Accountability Contract',
+                  addButtonLabel: 'Qualification',
+                }}
+              />
+            </Stack>
+          </Accordion>
+        )}
 
-        <Accordion
-          title='Deactivation & Reactivation'
-          subtitle='The people and contracts that control this Hat.'
-          dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
-        >
-          <Stack spacing={4}>
-            <HatManagementForm
-              localForm={localForm}
-              address={toggle}
-              actionResolvedAddress={toggleResolvedAddress}
-              title='toggle'
-              formName='deactivationsCriteria'
-              radioBoxConfig={{
-                name: 'isToggleManual',
-                label: 'Hat Deactivation',
-                subLabel:
-                  'How should hat deactivation and reactivation be handled?',
-              }}
-              inputConfig={{
-                label: 'DEACTIVATOR',
-                description: [
-                  <Text key='manual'>
-                    The address of the person or group that can manually
-                    deactivate and reactive this hat. More details in the{' '}
-                    <ChakraNextLink
-                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'
-                      decoration
-                    >
-                      docs
-                    </ChakraNextLink>
-                    .
-                  </Text>,
-                  <Text key='automatic'>
-                    The address of the smart contract containing the logic about
-                    when this hat should be active. More details in the{' '}
-                    <ChakraNextLink
-                      href='https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers'
-                      decoration
-                    >
-                      docs
-                    </ChakraNextLink>
-                    .
-                  </Text>,
-                ],
-              }}
-              criteriaConfig={{
-                label: 'QUALIFICATIONS',
-                description:
-                  'List any criteria that should be considered in the process of deactivating or reactivating this hat',
-                addButtonLabel: 'Criterion',
-              }}
-            />
-          </Stack>
-        </Accordion>
+        {isMutableNotTopHat(selectedHat) && (
+          <Accordion
+            title='Deactivation & Reactivation'
+            subtitle='The people and contracts that control this Hat.'
+            dirtyFieldsList={getDirtyFieldsForAccordion(
+              FORM_FIELDS.deactivation,
+            )}
+          >
+            <Stack spacing={4}>
+              <HatManagementForm
+                localForm={localForm}
+                address={toggle}
+                actionResolvedAddress={toggleResolvedAddress}
+                title='toggle'
+                formName='deactivationsCriteria'
+                radioBoxConfig={{
+                  name: 'isToggleManual',
+                  label: 'Hat Deactivation',
+                  subLabel:
+                    'How should hat deactivation and reactivation be handled?',
+                }}
+                inputConfig={{
+                  label: 'DEACTIVATOR',
+                  description: [
+                    <Text key='manual'>
+                      The address of the person or group that can manually
+                      deactivate and reactive this hat. More details in the{' '}
+                      <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
+                        docs
+                      </ChakraNextLink>
+                      .
+                    </Text>,
+                    <Text key='automatic'>
+                      The address of the smart contract containing the logic
+                      about when this hat should be active. More details in the{' '}
+                      <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
+                        docs
+                      </ChakraNextLink>
+                      .
+                    </Text>,
+                  ],
+                }}
+                criteriaConfig={{
+                  label: 'QUALIFICATIONS',
+                  description:
+                    'List any criteria that should be considered in the process of deactivating or reactivating this hat',
+                  addButtonLabel: 'Criterion',
+                }}
+              />
+            </Stack>
+          </Accordion>
+        )}
       </Stack>
     </Box>
   );

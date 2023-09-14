@@ -16,12 +16,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG, {
-  defaultHat,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-  ZERO_ID,
-} from '@/constants';
+import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -44,19 +39,6 @@ function checkParentElementForClass(e: any, name: string) {
   return false;
 }
 
-const defaultFormData = {
-  description: '',
-  mutable: MUTABILITY.MUTABLE,
-  guilds: [],
-  responsibilities: [],
-  authorities: [],
-  isEligibilityManual: TRIGGER_OPTIONS.MANUALLY,
-  isToggleManual: TRIGGER_OPTIONS.MANUALLY,
-  revocationsCriteria: [],
-  deactivationsCriteria: [],
-  wearers: [],
-};
-
 const OrgChartComponent: React.FC = () => {
   const userChain = useChainId();
   const toast = useToast();
@@ -64,7 +46,7 @@ const OrgChartComponent: React.FC = () => {
   const {
     chainId,
     editMode,
-    orgChartTree,
+    treeToDisplay,
     showInactiveHats,
     selectedOption,
     selectedHat,
@@ -73,8 +55,8 @@ const OrgChartComponent: React.FC = () => {
     storedData,
     setStoredData,
     addHat,
+    newImageUrls,
   } = useTreeForm();
-  // console.log(editMode);
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -85,23 +67,13 @@ const OrgChartComponent: React.FC = () => {
   });
 
   useLayoutEffect(() => {
-    if (_.isEmpty(orgChartTree)) return;
-    const filteredTree = orgChartTree?.filter((t) =>
-      showInactiveHats ? t : t.status,
-    );
+    if (_.isEmpty(treeToDisplay)) return;
 
-    // const handleImmutableToast = () => {
-    //   console.log(editMode);
-    //   if (editMode) {
-    //     toast.error({ title: 'This hat is immutable' });
-    //   }
-    // };
-
-    if (filteredTree && d3Container.current) {
+    if (treeToDisplay && d3Container.current) {
       if (chart) {
         chart
           .container(d3Container.current)
-          .data(filteredTree ?? [])
+          .data(treeToDisplay ?? [])
           // set dims of the chart window
           .svgHeight(window.innerHeight - 150)
           .svgWidth(window.innerWidth)
@@ -138,7 +110,7 @@ const OrgChartComponent: React.FC = () => {
               ) {
                 const nextChildId = calculateNextChildId(
                   data.data.id,
-                  filteredTree,
+                  treeToDisplay,
                 );
                 const newId = ipToHatId(nextChildId);
 
@@ -149,6 +121,7 @@ const OrgChartComponent: React.FC = () => {
                   admin: {
                     id: data.data.id,
                   },
+                  imageUri: '',
                   imageUrl: '/icon.jpeg',
                   parentId: data.data.id,
                   name: nextChildId,
@@ -165,7 +138,6 @@ const OrgChartComponent: React.FC = () => {
                 const onlyNeededKeys = {
                   id: newHat.id,
                   parentId: data.data.id,
-                  ...defaultFormData,
                   ...newDetails,
                 };
                 const removeCurrentId = _.reject(storedData, ['id', newId]);
@@ -174,9 +146,6 @@ const OrgChartComponent: React.FC = () => {
                 setTimeout(() => {
                   centerChart(chart, newId);
                 }, 100);
-              } else if (!isTopHatOrMutable(data.data)) {
-                // retaining old editMode value so inconsistent
-                // handleImmutableToast();
               } else {
                 centerChart(chart, data.data?.id);
                 handleSelectHat?.(data.data?.id);
@@ -231,7 +200,10 @@ const OrgChartComponent: React.FC = () => {
             ](node.children)}  </div>`;
           })
           .nodeContent((d: any) => {
-            const isInWearerHats = _.includes(wearerHats, d.data.id);
+            const isInWearerHats = _.includes(
+              _.map(wearerHats, 'id'),
+              d.data.id,
+            );
 
             const {
               imageUrl,
@@ -245,9 +217,11 @@ const OrgChartComponent: React.FC = () => {
               extendedEligibility: eligibility,
               extendedToggle: toggle,
               levelAtLocalTree,
+              newImageUrl,
+              newName,
             } = d.data;
 
-            const nextChildId = calculateNextChildId(d.data.id, filteredTree);
+            const nextChildId = calculateNextChildId(d.data.id, treeToDisplay);
 
             let detailsName = details;
             if (detailsObject?.type === '1.0') {
@@ -474,13 +448,19 @@ const OrgChartComponent: React.FC = () => {
                   ">
                   <img
                     loading="lazy"
-                    src="${imageUrl !== '' ? imageUrl : '/icon.jpeg'}"
+                    src="${
+                      newImageUrl ||
+                      (imageUrl !== '' && imageUrl !== null
+                        ? imageUrl
+                        : '/icon.jpeg')
+                    }"
                     style="
                       background: white;
                       width: ${isSelected ? '78.5px' : '72px'};
                       height: ${isSelected ? '78.5px' : '72px'};
                       left: ${isSelected ? -4 : -1}px;
-                      top: ${isSelected ? -4 : -1}px;"
+                      top: ${isSelected ? -4 : -1}px;
+                      opacity: ${imageUrl === null ? 0.5 : 1};"
                   />
                   </div>
                   <div style="
@@ -502,7 +482,7 @@ const OrgChartComponent: React.FC = () => {
                       <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                         <div style="
                           font-size: 12px;
-                          color: ${isSelected ? '#248559' : '#08011E'};"
+                          color: #08011E;"
                         >
                           ${name}
                         </div>
@@ -524,7 +504,7 @@ const OrgChartComponent: React.FC = () => {
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;"
                       >
-                        ${detailsName}
+                        ${newName || detailsName}
                       </div>
                     </div>
                     ${
@@ -597,7 +577,6 @@ const OrgChartComponent: React.FC = () => {
     }
   }, [
     chart,
-    orgChartTree,
     chainId,
     handleSelectHat,
     selectedHat,
@@ -611,6 +590,8 @@ const OrgChartComponent: React.FC = () => {
     addHat,
     setStoredData,
     userChain,
+    newImageUrls,
+    treeToDisplay,
   ]);
 
   return isLoading ? (

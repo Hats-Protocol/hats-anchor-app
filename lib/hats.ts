@@ -3,14 +3,23 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { defaultHat, MUTABILITY } from '@/constants';
+import {
+  defaultHat,
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@/constants';
 import {
   FormData,
-  HierarchyObject,
+  FormDataDetails,
+  Hierarchy,
   IControls,
   IHat,
   InputObject,
 } from '@/types';
+import { handleDetailsPin, ipfsUrl } from './ipfs';
+import { createHatsClient } from './web3';
+import { formatImageUrl, isImageUrl } from './general';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   const children = _.filter(hatsData, ['admin.id', id]);
@@ -18,56 +27,49 @@ export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
 };
 
-export function createHierarchy(data: InputObject[]): HierarchyObject[] {
-  // Sort by parentId and id
-  data.sort(
-    (a, b) =>
-      a.parentId?.localeCompare(b?.parentId || '') || a.id.localeCompare(b.id),
+export function createHierarchy(
+  data: InputObject[],
+  currentHatId?: Hex,
+): Hierarchy {
+  if (!currentHatId) return {} as Hierarchy;
+
+  const currentHat = _.find(data, { id: currentHatId });
+  if (!currentHat) return {} as Hierarchy;
+
+  const currentHierarchy: Hierarchy = {
+    id: currentHat.id,
+    parentId: (currentHat.id === currentHat.parentId
+      ? null
+      : currentHat.parentId) as Hex,
+  };
+
+  const siblings =
+    currentHat.parentId !== currentHat.id
+      ? _.filter(
+          data,
+          (hat) =>
+            hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
+        )
+      : [];
+
+  const sortedSiblings = _.sortBy(siblings, (sibling) => BigInt(sibling.id));
+  const currentHatIndex = _.findIndex(sortedSiblings, { id: currentHat.id });
+  const leftSiblings = _.slice(sortedSiblings, 0, currentHatIndex);
+  const rightSiblings = _.slice(sortedSiblings, currentHatIndex + 1);
+  currentHierarchy.leftSibling = _.last(leftSiblings)?.id as Hex;
+  currentHierarchy.rightSibling = _.first(rightSiblings)?.id as Hex;
+
+  const children = _.sortBy(
+    _.filter(
+      data,
+      (item) => item.parentId === currentHatId && item.id !== currentHatId,
+    ),
+    'id',
   );
 
-  // Create initial hierarchy objects
-  const hierarchyObjects: HierarchyObject[] = data.map((obj) => ({
-    id: obj.id,
-    parentId: obj.id === obj.parentId ? null : obj.parentId,
-    firstChild: null,
-    leftSibling: null,
-    rightSibling: null,
-  }));
+  currentHierarchy.firstChild = _.first(children)?.id as Hex;
 
-  // Add firstChild, leftSibling, rightSibling
-  for (let i = 0; i < hierarchyObjects.length; i++) {
-    const current = hierarchyObjects[i];
-
-    // Find siblings and first child
-    const siblings = hierarchyObjects.filter(
-      (node) => node.parentId === current.parentId,
-    );
-
-    for (let j = 0; j < siblings.length; j++) {
-      if (current.id > siblings[j].id) {
-        // Sibling is a left sibling if its id is smaller
-        current.leftSibling = siblings[j].id;
-      } else if (current.id < siblings[j].id) {
-        // Sibling is a right sibling if its id is bigger and current right sibling is null or its id is bigger than the sibling
-        if (
-          current.rightSibling === null ||
-          siblings[j].id < (current.rightSibling || 0)
-        ) {
-          current.rightSibling = siblings[j].id;
-        }
-      }
-    }
-
-    // Find first child
-    const children = hierarchyObjects.filter(
-      (node) => node.parentId === current.id,
-    );
-    if (children.length > 0) {
-      current.firstChild = children[0].id;
-    }
-  }
-
-  return hierarchyObjects;
+  return currentHierarchy;
 }
 
 export function prettyIdToId(id: string | undefined): Hex {
@@ -110,7 +112,7 @@ export const toTreeId = (id: string | undefined) => {
       .toString(16)
       .padStart(8, '0')}`;
   } catch (e) {
-    // console.log(e);
+    //
     return '0x';
   }
 };
@@ -175,7 +177,7 @@ const includesAny = (arr: any[], target: any[]) =>
  * @param wearerHatIds should be an array of `hatId`s worn by the wearer
  * @param current default `false`, include wearing current hatId
  */
-export const isAdmin = (
+export const isWearer = (
   wearerHatIds: string[],
   hatId?: string,
   current = false,
@@ -210,6 +212,9 @@ export const isMutable = (hatData?: IHat) => _.get(hatData, 'mutable');
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
+export const isMutableNotTopHat = (hatData: IHat) =>
+  isMutable(hatData) && !isTopHat(hatData);
+
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
@@ -222,16 +227,16 @@ const checkNodeDetails = (node: IHat, type: string) =>
   _.includes(_.keys(node.detailsObject.data), type);
 
 export const checkPermissionsResponsibilities = (
-  orgChartTree: IHat[],
+  treeToDisplay: IHat[],
   controls: IControls[],
 ) => {
   const hasPermissions = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) =>
+    _.filter(treeToDisplay, (node: IHat) =>
       checkNodeDetails(node, 'permissions'),
     ),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(orgChartTree, (node: IHat) =>
+    _.filter(treeToDisplay, (node: IHat) =>
       checkNodeDetails(node, 'responsibilities'),
     ),
   );
@@ -318,13 +323,11 @@ export const translateDrafts = ({
           name: hat.name || 'New Hat',
         },
       },
+      imageUri: '',
       parentId: calculateParentId(hat.id),
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE
         : true,
-      wearers: _.map(hat.wearers, (wearer) => ({
-        id: wearer,
-      })),
       levelAtLocalTree: _.subtract(
         _.size(_.split(hatIdDecimalToIp(BigInt(hat.id)), '.')),
         2, // top hat = 0, so subtract 2 to get level
@@ -336,4 +339,268 @@ export const translateDrafts = ({
   });
 
   return _.filter(extendDrafts, (x) => x) as IHat[];
+};
+
+const hasDetailsChanged = ({
+  name,
+  description,
+  guilds,
+  responsibilities,
+  authorities,
+  isEligibilityManual,
+  revocationsCriteria,
+  isToggleManual,
+  deactivationsCriteria,
+}: Partial<FormDataDetails>) => {
+  return (
+    name ||
+    description ||
+    _.gt(_.size(guilds), 0) ||
+    _.gt(_.size(responsibilities), 0) ||
+    _.gt(_.size(authorities), 0) ||
+    isEligibilityManual ||
+    _.gt(_.size(revocationsCriteria), 0) ||
+    isToggleManual ||
+    _.gt(_.size(deactivationsCriteria), 0)
+  );
+};
+
+export const processHatForCalls = async (
+  hat: Partial<FormData>,
+  onchainHats?: IHat[],
+  chainId?: number,
+) => {
+  const hatsClient = createHatsClient(chainId);
+  const calls = [];
+  const proposedChanges = [] as any[];
+
+  const {
+    maxSupply,
+    eligibility,
+    toggle,
+    mutable,
+    imageUrl,
+    isEligibilityManual,
+    isToggleManual,
+    revocationsCriteria,
+    deactivationsCriteria,
+    name,
+    description,
+    guilds,
+    responsibilities,
+    authorities,
+    wearers,
+    id: hatId,
+  } = hat;
+
+  const hatChanges = {
+    id: hatId,
+  } as any;
+
+  if (!hatId || !chainId || !hatsClient)
+    return { calls: [], proposedChanges: [] };
+
+  const detailsData = {
+    name,
+    description,
+    guilds: guilds || [],
+    responsibilities: _.reject(responsibilities, ['label', '']),
+    authorities: _.reject(authorities, ['label', '']),
+    eligibility: {
+      manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+      criteria: _.reject(revocationsCriteria, ['label', '']) || [],
+    },
+    toggle: {
+      manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+      criteria: _.reject(deactivationsCriteria, ['label', '']) || [],
+    },
+  };
+
+  if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
+    const details = await handleDetailsPin({
+      chainId,
+      hatId,
+      newDetails: detailsData,
+    });
+
+    const newHat = {
+      admin: BigInt(getDefaultAdminId(hatId)),
+      details,
+      maxSupply: _.toNumber(maxSupply) || 1,
+      eligibility: eligibility || FALLBACK_ADDRESS,
+      toggle: toggle || FALLBACK_ADDRESS,
+      mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
+      imageURI: imageUrl,
+    };
+
+    const newHatData = hatsClient.createHatCallData(newHat);
+
+    if (newHatData && newHatData.callData) {
+      calls.push(newHatData);
+      console.log('new image url', imageUrl);
+      proposedChanges.push({
+        ...newHat,
+        id: hatId,
+        admin: {
+          id: getDefaultAdminId(hatId),
+        },
+        detailsObject: {
+          type: '1.0',
+          data: detailsData,
+        },
+        chainId,
+        imageUri: imageUrl,
+        imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
+      });
+    }
+  } else {
+    if (
+      hasDetailsChanged({
+        name,
+        description,
+        guilds,
+        responsibilities,
+        authorities,
+        isEligibilityManual,
+        revocationsCriteria,
+        isToggleManual,
+        deactivationsCriteria,
+      })
+    ) {
+      const existingDetails = _.get(
+        _.find(onchainHats, ['id', hatId]),
+        'detailsObject.data',
+      );
+
+      const newCid = await handleDetailsPin({
+        chainId,
+        hatId,
+        newDetails: detailsData,
+        existingDetails,
+      });
+
+      const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+        newDetails: newCid,
+      });
+
+      if (changeHatDetailsData) {
+        calls.push(changeHatDetailsData);
+        hatChanges.details = newCid;
+      }
+    }
+
+    if (maxSupply) {
+      const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+        newMaxSupply: parseInt(maxSupply, 10),
+      });
+
+      if (changeHatMaxSupplyData) {
+        calls.push(changeHatMaxSupplyData);
+        hatChanges.newMaxSupply = parseInt(maxSupply, 10);
+      }
+    }
+
+    if (wearers) {
+      if (_.eq(_.size(wearers), 1)) {
+        const wearerAddress = _.get(_.first(wearers), 'address');
+        if (wearerAddress) {
+          const mintHatWearersData = hatsClient.mintHatCallData({
+            hatId: decimalId(hatId) as unknown as bigint,
+            wearer: wearerAddress,
+          });
+
+          if (mintHatWearersData) {
+            calls.push(mintHatWearersData);
+            hatChanges.wearer = wearerAddress;
+          }
+        }
+      } else {
+        const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
+          hatIds: Array(_.size(wearers)).fill(
+            decimalId(hatId),
+          ) as unknown as bigint[],
+          wearers: _.map(wearers, 'address'),
+        });
+
+        if (batchMintHatWearersData) {
+          calls.push(batchMintHatWearersData);
+          hatChanges.wearers = _.map(wearers, 'address');
+        }
+      }
+    }
+
+    if (eligibility) {
+      const changeHatEligibilityData = hatsClient.changeHatEligibilityCallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+        newEligibility: eligibility,
+      });
+
+      if (changeHatEligibilityData) {
+        calls.push(changeHatEligibilityData);
+        hatChanges.eligibility = eligibility;
+      }
+    }
+
+    if (toggle) {
+      const changeHatToggleData = hatsClient.changeHatToggleCallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+        newToggle: toggle,
+      });
+
+      if (changeHatToggleData) {
+        calls.push(changeHatToggleData);
+        hatChanges.toggle = toggle;
+      }
+    }
+
+    if (mutable) {
+      const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+      });
+
+      if (makeHatImmutableData) {
+        calls.push(makeHatImmutableData);
+        hatChanges.mutable = false;
+      }
+    }
+
+    if (imageUrl) {
+      const changeHatImageURIData = hatsClient.changeHatImageURICallData({
+        hatId: decimalId(hatId) as unknown as bigint,
+        newImageURI: imageUrl,
+      });
+
+      if (changeHatImageURIData) {
+        calls.push(changeHatImageURIData);
+        hatChanges.imageUri = imageUrl;
+      }
+    }
+    proposedChanges.push(hatChanges);
+  }
+
+  return { calls, proposedChanges };
+};
+
+export const isAncestor = (
+  hatId?: string,
+  potentialAncestorId?: string,
+  tree?: IHat[],
+) => {
+  let currentParentId = hatId;
+  while (currentParentId) {
+    if (currentParentId === potentialAncestorId) return true;
+    const hat = _.find(tree, { id: currentParentId });
+    currentParentId = (hat as IHat)?.parentId;
+  }
+  return false;
+};
+
+export const checkImageForHat = async (img?: string) => {
+  const isValidImage = await isImageUrl(formatImageUrl(img));
+
+  if (isValidImage) {
+    return formatImageUrl(img);
+  }
 };

@@ -46,7 +46,12 @@ const HatBasicsForm = ({
 }) => {
   const { watch, control, formState } = localForm;
 
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, newImageUrls } = useTreeForm();
+  const newImageUrl = _.find(newImageUrls, [
+    'id',
+    selectedHat?.id,
+  ])?.newImageUrl;
+
   const [image, setImage] = useState<any>();
 
   const { append, fields, remove } = useFieldArray({
@@ -108,7 +113,7 @@ const HatBasicsForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={image}
-                imageUrl={imageUrl}
+                imageUrl={newImageUrl || imageUrl}
               />
             </Box>
           </FormRowWrapper>

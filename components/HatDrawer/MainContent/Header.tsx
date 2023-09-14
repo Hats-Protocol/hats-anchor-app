@@ -1,5 +1,6 @@
 import {
   Badge,
+  Box,
   Flex,
   HStack,
   Icon,
@@ -13,6 +14,7 @@ import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
+import Markdown from '@/components/atoms/Markdown';
 import { MUTABILITY, STATUS } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
@@ -72,7 +74,11 @@ const Header = () => {
               </HStack>
             )}
           </HStack>
-          {description && <Text opacity={0.6}>{description}</Text>}
+          {description && (
+            <Box opacity={0.6}>
+              <Markdown>{description}</Markdown>
+            </Box>
+          )}
         </Stack>
       </Flex>
       <HStack>

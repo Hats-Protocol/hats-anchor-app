@@ -24,12 +24,10 @@ import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import LearnMoreCard from '@/components/LearnMoreCard';
-import CONFIG, {
-  featuredTemplates,
-  featuredTrees,
-  learnMore,
-} from '@/constants';
-import useFeaturedTrees from '@/hooks/useFetchFeaturedTrees';
+import CONFIG, { learnMore } from '@/constants';
+import useFeaturedTemplates from '@/hooks/useFeaturedTemplates';
+import useFeaturedTrees from '@/hooks/useFeaturedTrees';
+import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
@@ -37,7 +35,9 @@ import { orderedChains } from '@/lib/web3';
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
-  const hatsAndWearers = useFeaturedTrees(featuredTrees);
+  const { data: featuredTemplates } = useFeaturedTemplates();
+  const { data: featuredTrees } = useFeaturedTrees();
+  const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
 
   const [isSmallerScreen] = useMediaQuery('(max-width: 1700px)');
 
@@ -46,12 +46,12 @@ const Home = () => {
     chainId: 'all',
   });
 
-  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs(currentHats);
-
-  const sortedHats = _.sortBy(currentHatsWithImagesData, (hat) => {
+  const sortedHats = _.sortBy(currentHats, (hat) => {
     return _.indexOf(orderedChains, hat.chainId);
   });
+
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs({ hats: sortedHats.splice(0, 8) });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
@@ -130,7 +130,7 @@ const Home = () => {
                 }}
                 spacing={6}
               >
-                {_.map(sortedHats.slice(0, 8), (hat, i) => (
+                {_.map(currentHatsWithImagesData, (hat, i) => (
                   <Suspense fallback={<Suspender />} key={i}>
                     <DashboardHatCard hat={hat} key={i} />
                   </Suspense>
