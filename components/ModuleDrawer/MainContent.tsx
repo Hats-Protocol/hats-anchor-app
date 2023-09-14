@@ -1,7 +1,6 @@
 import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { BsPersonAdd, BsPuzzle, BsTextLeft } from 'react-icons/bs';
 
 import Accordion from '@/components/atoms/Accordion';
@@ -16,14 +15,20 @@ import Input from '../atoms/Input';
 import RadioBox from '../atoms/RadioBox';
 import FormRowWrapper from '../FormRowWrapper';
 
-const MainContent = ({ title }: { title: Module }) => {
+const MainContent = ({
+  localForm,
+  title,
+  selectedModuleArgs,
+  setSelectedModuleArgs,
+}: {
+  localForm: any;
+  title: Module;
+  selectedModuleArgs: ModuleCreationArg[];
+  setSelectedModuleArgs: (args: ModuleCreationArg[]) => void;
+}) => {
   const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
   const { modules } = useHatsModules();
   const [selectedModuleDetails, setSelectedModuleDetails] = useState<any>(null);
-  const [selectedModuleArgs, setSelectedModuleArgs] = useState<any>(null);
-  const localForm = useForm({
-    mode: 'onBlur',
-  });
   const { handleSubmit, watch } = localForm;
 
   const onSubmit = (data: any) => {
@@ -40,11 +45,11 @@ const MainContent = ({ title }: { title: Module }) => {
     );
   }, [modules, title]);
 
-  const selectedModuleId = watch('module', '');
+  const selectedModuleType = watch('moduleType', '');
 
   const selectedModule = useMemo(() => {
-    return _.find(modulesToDisplay, ['id', selectedModuleId]);
-  }, [modulesToDisplay, selectedModuleId]);
+    return _.find(modulesToDisplay, ['id', selectedModuleType]);
+  }, [modulesToDisplay, selectedModuleType]);
 
   useEffect(() => {
     setSelectedModuleDetails(selectedModule || null);
@@ -56,9 +61,6 @@ const MainContent = ({ title }: { title: Module }) => {
         null,
     );
   }, [selectedModule]);
-
-  console.log('modulesToDisplay', modulesToDisplay);
-  console.log('selectedModuleDetails', selectedModuleDetails);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -95,7 +97,7 @@ const MainContent = ({ title }: { title: Module }) => {
               <Select
                 label='Module Type'
                 subLabel='The category of prewritten module to connect to this hat.'
-                name='module'
+                name='moduleType'
                 defaultValue={undefined}
                 placeholder='Select a module type'
                 localForm={localForm}
@@ -143,6 +145,8 @@ const MainContent = ({ title }: { title: Module }) => {
                   label={arg.name}
                   subLabel={arg.description}
                   localForm={localForm}
+                  placeholder='Select a hat'
+                  defaultValue={undefined}
                 >
                   {_.map(onchainHats, ({ id, prettyId }) => (
                     <option value={decimalId(id)} key={id}>
