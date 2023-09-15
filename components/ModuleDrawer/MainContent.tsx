@@ -7,6 +7,7 @@ import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
+import { transformAndVerify } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
 import { Module, ModuleCreationArg } from '@/types';
 
@@ -18,18 +19,18 @@ import FormRowWrapper from '../FormRowWrapper';
 const MainContent = ({
   localForm,
   title,
-  selectedModuleArgs,
-  setSelectedModuleArgs,
 }: {
   localForm: any;
   title: Module;
-  selectedModuleArgs: ModuleCreationArg[];
-  setSelectedModuleArgs: (args: ModuleCreationArg[]) => void;
 }) => {
   const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
   const { modules } = useHatsModules();
   const [selectedModuleDetails, setSelectedModuleDetails] = useState<any>(null);
   const { handleSubmit, watch } = localForm;
+
+  const [selectedModuleArgs, setSelectedModuleArgs] = useState<
+    ModuleCreationArg[]
+  >([]);
 
   const onSubmit = (data: any) => {
     console.log(data);
@@ -136,6 +137,15 @@ const MainContent = ({
                       ? arg.example.join(', ')
                       : arg.example
                   }
+                  options={{
+                    required: true,
+                    validate: (value) => {
+                      if (transformAndVerify(value, arg.type)) {
+                        return true;
+                      }
+                      return 'This is not a valid input!';
+                    },
+                  }}
                   localForm={localForm}
                 />
               )}
@@ -147,6 +157,15 @@ const MainContent = ({
                   localForm={localForm}
                   placeholder='Select a hat'
                   defaultValue={undefined}
+                  options={{
+                    required: true,
+                    validate: (value) => {
+                      if (transformAndVerify(value, arg.type)) {
+                        return true;
+                      }
+                      return 'This is not a valid option!';
+                    },
+                  }}
                 >
                   {_.map(onchainHats, ({ id, prettyId }) => (
                     <option value={decimalId(id)} key={id}>
@@ -174,6 +193,15 @@ const MainContent = ({
                       ? arg.example.join(', ')
                       : arg.example
                   }
+                  options={{
+                    required: true,
+                    validate: (value) => {
+                      if (transformAndVerify(value, arg.type)) {
+                        return true;
+                      }
+                      return 'This is not a valid input!';
+                    },
+                  }}
                   localForm={localForm}
                 />
               )}

@@ -59,7 +59,10 @@ const Select = ({
         ) : (
           <Text color='blackAlpha.700'>{subLabel}</Text>
         )}
-        <ChakraSelect {...register(name, options)} {...props}>
+        <ChakraSelect
+          {...register(name, { ...options, validate: options?.validate })}
+          {...props}
+        >
           {children}
         </ChakraSelect>
       </Stack>
@@ -77,6 +80,7 @@ interface SelectProps {
     pattern?: RegExp;
     min?: number;
     max?: number;
+    validate?: (value: any) => boolean | string;
   };
   localForm: UseFormReturn<any>;
   placeholder?: string;

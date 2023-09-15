@@ -1,5 +1,6 @@
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { verify, solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 
 import CONFIG from '@/constants';
 
@@ -118,4 +119,49 @@ export const formatImageUrl = (url?: string) => {
   }
 
   return undefined;
+};
+
+export const transformAndVerify = (
+  input: unknown,
+  solidityType: string,
+): boolean => {
+  const tsType = solidityToTypescriptType(solidityType);
+
+  let transformedInput: unknown;
+
+  switch (tsType) {
+    case 'number':
+      transformedInput = Number(input);
+      break;
+    case 'bigint':
+      if (typeof input === 'string' || typeof input === 'number') {
+        transformedInput = BigInt(input);
+      }
+      break;
+    case 'string':
+      transformedInput = String(input);
+      break;
+    case 'boolean':
+      transformedInput = Boolean(input);
+      break;
+    case 'number[]':
+      transformedInput = (input as string).split(',').map(Number);
+      break;
+    case 'bigint[]':
+      transformedInput = (input as string)
+        .split(',')
+        .map((num) => BigInt(num.trim()));
+      break;
+    case 'string[]':
+      transformedInput = (input as string).split(',');
+      break;
+    case 'boolean[]':
+      transformedInput = (input as string).split(',').map(Boolean);
+      break;
+    case 'unknown':
+    default:
+      return false;
+  }
+
+  return verify(transformedInput, solidityType);
 };

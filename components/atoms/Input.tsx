@@ -85,7 +85,7 @@ const Input = ({
         <InputGroup {...props}>
           <ChakraInput
             type={type}
-            {...register(name, options)}
+            {...register(name, { ...options, validate: options?.validate })}
             {...props}
             borderColor={isDirty ? 'cyan.500' : undefined}
             variant='filled'
@@ -124,6 +124,7 @@ interface InputProps extends ChakraInputProps {
     pattern?: RegExp;
     min?: number;
     max?: number;
+    validate?: (value: any) => boolean | string;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;

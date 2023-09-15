@@ -84,7 +84,16 @@ export type Module = 'eligibility' | 'toggle';
 export type ModuleCreationArg = {
   name: string;
   description: string;
-  type: string;
+  type:
+    | 'number'
+    | 'bigint'
+    | 'string'
+    | 'boolean'
+    | 'number[]'
+    | 'bigint[]'
+    | 'string[]'
+    | 'boolean[]'
+    | 'unknown';
   example: string | string[];
   displayType: 'hat' | 'default' | 'timestamp' | 'seconds';
 };
