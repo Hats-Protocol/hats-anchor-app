@@ -57,13 +57,6 @@ const useOrgChartTree = ({
 
     return tree;
   };
-  // console.log(
-  //   'useOrgChartTree',
-  //   _.find(imagesData, [
-  //     'id',
-  //     '0x0000000100030000000000000000000000000000000000000000000000000000',
-  //   ]),
-  // );
 
   const { data: orgChartTree, isLoading } = useQuery({
     queryKey: [
@@ -83,6 +76,7 @@ const useOrgChartTree = ({
       !!imagesData &&
       imagesLoaded &&
       detailsLoaded,
+    refetchOnWindowFocus: true,
   });
 
   return { orgChartTree, isLoading };

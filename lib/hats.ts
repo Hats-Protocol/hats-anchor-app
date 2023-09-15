@@ -453,6 +453,36 @@ export const processHatForCalls = async (
         imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
       });
     }
+    console.log(wearers);
+
+    if (wearers) {
+      if (_.eq(_.size(wearers), 1)) {
+        const wearerAddress = _.get(_.first(wearers), 'address');
+        if (wearerAddress) {
+          const mintHatWearersData = hatsClient.mintHatCallData({
+            hatId: decimalId(hatId) as unknown as bigint,
+            wearer: wearerAddress,
+          });
+
+          if (mintHatWearersData) {
+            calls.push(mintHatWearersData);
+            hatChanges.wearer = wearerAddress;
+          }
+        }
+      } else {
+        const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
+          hatIds: Array(_.size(wearers)).fill(
+            decimalId(hatId),
+          ) as unknown as bigint[],
+          wearers: _.map(wearers, 'address'),
+        });
+
+        if (batchMintHatWearersData) {
+          calls.push(batchMintHatWearersData);
+          hatChanges.wearers = _.map(wearers, 'address');
+        }
+      }
+    }
   } else {
     if (
       hasDetailsChanged({
@@ -501,6 +531,7 @@ export const processHatForCalls = async (
         hatChanges.newMaxSupply = parseInt(maxSupply, 10);
       }
     }
+    console.log(wearers);
 
     if (wearers) {
       if (_.eq(_.size(wearers), 1)) {

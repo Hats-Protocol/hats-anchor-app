@@ -33,10 +33,11 @@ const useWearersEligibilityCheck = ({
     })),
   });
 
-  const isLoading = eligibilityQueries.some((query) => query.isLoading);
+  const isLoading = _.some(eligibilityQueries, 'isLoading');
 
-  const data =
-    !isLoading && _(eligibilityQueries).map('data').compact().value();
+  const data = !isLoading
+    ? _.compact(_.map(eligibilityQueries, 'data'))
+    : undefined;
 
   return { data, isLoading };
 };

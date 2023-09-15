@@ -1,6 +1,6 @@
 import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import {
   BsBarChartLine,
   BsPersonAdd,
@@ -19,7 +19,7 @@ import {
   idToPrettyId,
   prettyIdToIp,
 } from '@/lib/hats';
-import { ModuleCreationArg, ModuleKind } from '@/types';
+import { ModuleCreationArg, ModuleDetails, ModuleKind } from '@/types';
 
 import DatePicker from '../atoms/DatePicker';
 import Input from '../atoms/Input';
@@ -34,8 +34,8 @@ const MainContent = ({
 }: {
   localForm: any;
   title: ModuleKind;
-  selectedModuleDetails: any;
-  setSelectedModuleDetails: any;
+  selectedModuleDetails: ModuleDetails | undefined;
+  setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
 }) => {
   const { onchainHats, treeToDisplay, topHatDetails, selectedHat } =
     useTreeForm();
@@ -67,7 +67,7 @@ const MainContent = ({
   }, [selectedHat, treeToDisplay]);
 
   useEffect(() => {
-    setSelectedModuleDetails(selectedModule || null);
+    setSelectedModuleDetails?.(selectedModule || undefined);
     setSelectedModuleArgs(
       (selectedModule?.creationArgs && [
         ...selectedModule.creationArgs.immutable,
