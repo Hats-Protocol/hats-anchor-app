@@ -1,7 +1,8 @@
 import { Box } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Module } from '@/types';
+import { Module, SelectedModuleDetails } from '@/types';
 
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
@@ -21,6 +22,10 @@ const ModuleDrawer = ({
     },
   });
 
+  const [selectedModuleDetails, setSelectedModuleDetails] = useState<
+    SelectedModuleDetails | undefined
+  >();
+
   return (
     <Box
       w='full'
@@ -34,8 +39,14 @@ const ModuleDrawer = ({
       <TopMenu
         localForm={localForm}
         onCloseModuleDrawer={onCloseModuleDrawer}
+        selectedModuleDetails={selectedModuleDetails}
       />
-      <MainContent localForm={localForm} title={title} />
+      <MainContent
+        localForm={localForm}
+        title={title}
+        selectedModuleDetails={selectedModuleDetails}
+        setSelectedModuleDetails={setSelectedModuleDetails}
+      />
     </Box>
   );
 };

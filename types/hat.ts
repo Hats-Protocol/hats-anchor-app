@@ -102,3 +102,36 @@ export type ModuleCreationArgs = {
   immutable: ModuleCreationArg[];
   mutable: ModuleCreationArg[];
 };
+
+interface Deployment {
+  chainId: string;
+  block: string;
+}
+
+interface Link {
+  label: string;
+  link: string;
+}
+
+interface Parameter {
+  displayType: string;
+  functionName: string;
+  label: string;
+}
+
+export interface SelectedModuleDetails {
+  abi: any[];
+  creationArgs: ModuleCreationArgs;
+  deployments: Deployment[];
+  details: string[];
+  id: string;
+  implementationAddress: string;
+  links: Link[];
+  name: string;
+  parameters: Parameter[];
+  type: {
+    eligibility: boolean;
+    toggle: boolean;
+    hatter: boolean;
+  };
+}

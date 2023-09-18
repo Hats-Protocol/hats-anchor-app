@@ -19,13 +19,16 @@ import FormRowWrapper from '../FormRowWrapper';
 const MainContent = ({
   localForm,
   title,
+  selectedModuleDetails,
+  setSelectedModuleDetails,
 }: {
   localForm: any;
   title: Module;
+  selectedModuleDetails: any;
+  setSelectedModuleDetails: any;
 }) => {
   const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
   const { modules } = useHatsModules();
-  const [selectedModuleDetails, setSelectedModuleDetails] = useState<any>(null);
   const { handleSubmit, watch } = localForm;
 
   const [selectedModuleArgs, setSelectedModuleArgs] = useState<
@@ -139,12 +142,7 @@ const MainContent = ({
                   }
                   options={{
                     required: true,
-                    validate: (value) => {
-                      if (transformAndVerify(value, arg.type)) {
-                        return true;
-                      }
-                      return 'This is not a valid input!';
-                    },
+                    validate: (value) => transformAndVerify(value, arg.type),
                   }}
                   localForm={localForm}
                 />
@@ -159,12 +157,7 @@ const MainContent = ({
                   defaultValue={undefined}
                   options={{
                     required: true,
-                    validate: (value) => {
-                      if (transformAndVerify(value, arg.type)) {
-                        return true;
-                      }
-                      return 'This is not a valid option!';
-                    },
+                    validate: (value) => transformAndVerify(value, arg.type),
                   }}
                 >
                   {_.map(onchainHats, ({ id, prettyId }) => (
@@ -195,12 +188,7 @@ const MainContent = ({
                   }
                   options={{
                     required: true,
-                    validate: (value) => {
-                      if (transformAndVerify(value, arg.type)) {
-                        return true;
-                      }
-                      return 'This is not a valid input!';
-                    },
+                    validate: (value) => transformAndVerify(value, arg.type),
                   }}
                   localForm={localForm}
                 />

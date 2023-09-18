@@ -47,13 +47,18 @@ const Input = ({
   const {
     register,
     resetField,
-    formState: { dirtyFields },
+    formState: { dirtyFields, errors },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
 
   const onReset = () => {
     resetField(name, { keepDirty: false });
+  };
+
+  const getErrorMessage = () => {
+    const errorMessage = errors[name]?.message;
+    return typeof errorMessage === 'string' ? errorMessage : null;
   };
 
   return (
@@ -105,6 +110,9 @@ const Input = ({
             <InputRightElement>{rightElement}</InputRightElement>
           )}
         </InputGroup>
+        <Text color='red.500' fontSize='xs'>
+          {getErrorMessage()}
+        </Text>
       </Stack>
     </FormControl>
   );

@@ -121,47 +121,46 @@ export const formatImageUrl = (url?: string) => {
   return undefined;
 };
 
-export const transformAndVerify = (
+export const transformInput = (
   input: unknown,
   solidityType: string,
-): boolean => {
+): unknown => {
   const tsType = solidityToTypescriptType(solidityType);
-
-  let transformedInput: unknown;
 
   switch (tsType) {
     case 'number':
-      transformedInput = Number(input);
-      break;
+      return Number(input);
     case 'bigint':
       if (typeof input === 'string' || typeof input === 'number') {
-        transformedInput = BigInt(input);
+        return BigInt(input);
       }
       break;
     case 'string':
-      transformedInput = String(input);
-      break;
+      return String(input);
     case 'boolean':
-      transformedInput = Boolean(input);
-      break;
+      return Boolean(input);
     case 'number[]':
-      transformedInput = (input as string).split(',').map(Number);
-      break;
+      return (input as string).split(',').map(Number);
     case 'bigint[]':
-      transformedInput = (input as string)
-        .split(',')
-        .map((num) => BigInt(num.trim()));
-      break;
+      return (input as string).split(',').map((num) => BigInt(num.trim()));
     case 'string[]':
-      transformedInput = (input as string).split(',');
-      break;
+      return (input as string).split(',');
     case 'boolean[]':
-      transformedInput = (input as string).split(',').map(Boolean);
-      break;
-    case 'unknown':
+      return (input as string).split(',').map(Boolean);
     default:
-      return false;
+      throw new Error(`Invalid Solidity type: ${solidityType}`);
+  }
+};
+
+export const transformAndVerify = (
+  input: unknown,
+  solidityType: string,
+): string | boolean => {
+  const transformedInput = transformInput(input, solidityType);
+
+  if (verify(transformedInput, solidityType)) {
+    return true;
   }
 
-  return verify(transformedInput, solidityType);
+  return 'This is not a valid input!';
 };
