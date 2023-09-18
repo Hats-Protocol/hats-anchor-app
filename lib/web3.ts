@@ -112,7 +112,7 @@ export function createHatsClient(chainId: number | undefined) {
   return hatsClient;
 }
 
-export function createHatsModulesClient(chainId: number | undefined) {
+export async function createHatsModulesClient(chainId: number | undefined) {
   if (!chainId) return undefined;
   const chain = chainsMap(chainId);
 
@@ -132,6 +132,8 @@ export function createHatsModulesClient(chainId: number | undefined) {
     publicClient: publicClientHats,
     walletClient: walletClientHats,
   });
+
+  await hatsModulesClient.prepare();
 
   return hatsModulesClient;
 }
