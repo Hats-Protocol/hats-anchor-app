@@ -118,6 +118,12 @@ const HatManagementForm = ({
     isOpen: isOpenModuleDrawer,
   } = useDisclosure();
 
+  // const {
+  //   onOpen: onOpenClaimsHatterDrawer,
+  //   onClose: onCloseClaimsHatterDrawer,
+  //   isOpen: isOpenClaimsHatterDrawer,
+  // } = useDisclosure();
+
   return (
     <form>
       <Stack spacing={8}>
@@ -166,6 +172,28 @@ const HatManagementForm = ({
             </Box>
           </Stack>
         </FormRowWrapper>
+        {/* <FormRowWrapper>
+          <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
+          <Stack>
+            <Text fontSize='sm' color='gray.500' mt={1}>
+              To enable permissionless claiming of this hat, deploy a claims
+              hatter contract and give that contract an admin hat in this tree.
+            </Text>
+            <Box>
+              {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
+                <Button
+                  leftIcon={<BsFileCode />}
+                  variant='outline'
+                  fontWeight='normal'
+                  borderColor='blackAlpha.300'
+                  onClick={onOpenClaimsHatterDrawer}
+                >
+                  Deploy Claims Hatter
+                </Button>
+              )}
+            </Box>
+          </Stack>
+        </FormRowWrapper> */}
         <Stack>
           {address !== FALLBACK_ADDRESS && (
             <FormRowWrapper>

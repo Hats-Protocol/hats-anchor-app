@@ -6,10 +6,10 @@ import { createHatsModulesClient } from '@/lib/web3';
 const useHatsModules = () => {
   const { chainId } = useTreeForm();
   const [modules, setModules] = useState<any>([]);
-  const hatsClient = createHatsModulesClient(chainId);
 
   useEffect(() => {
     const fetchModules = async () => {
+      const hatsClient = await createHatsModulesClient(chainId);
       if (hatsClient) {
         await hatsClient.prepare();
         const allModules = hatsClient.getAllModules();

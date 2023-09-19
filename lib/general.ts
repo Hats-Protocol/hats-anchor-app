@@ -138,6 +138,9 @@ export const transformInput = (
     case 'string':
       return String(input);
     case 'boolean':
+      if (typeof input === 'string') {
+        return input.toLowerCase() === 'yes';
+      }
       return Boolean(input);
     case 'number[]':
       return (input as string).split(',').map(Number);
@@ -146,7 +149,9 @@ export const transformInput = (
     case 'string[]':
       return (input as string).split(',');
     case 'boolean[]':
-      return (input as string).split(',').map(Boolean);
+      return (input as string)
+        .split(',')
+        .map((str) => str.toLowerCase() === 'yes');
     default:
       throw new Error(`Invalid Solidity type: ${solidityType}`);
   }
@@ -164,3 +169,6 @@ export const transformAndVerify = (
 
   return 'This is not a valid input!';
 };
+
+export const claimsHatterAddress =
+  '0x9b58749ca97f09f9ef0de791e61eec57e2596f7642e041733e2ec9295b8bfd7e';

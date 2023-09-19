@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Module, SelectedModuleDetails } from '@/types';
+import { Module, ModuleDetails } from '@/types';
 
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
@@ -18,12 +18,12 @@ const ModuleDrawer = ({
     mode: 'onBlur',
     defaultValues: {
       moduleType: '',
-      claimable: 'No',
+      'Claimable For': 'No',
     },
   });
 
   const [selectedModuleDetails, setSelectedModuleDetails] = useState<
-    SelectedModuleDetails | undefined
+    ModuleDetails | undefined
   >();
 
   return (

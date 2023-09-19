@@ -1,14 +1,24 @@
 import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { BsPersonAdd, BsPuzzle, BsTextLeft } from 'react-icons/bs';
+import {
+  BsBarChartLine,
+  BsPersonAdd,
+  BsPuzzle,
+  BsTextLeft,
+} from 'react-icons/bs';
 
 import Accordion from '@/components/atoms/Accordion';
 import Select from '@/components/atoms/Select';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';
-import { decimalId, prettyIdToIp } from '@/lib/hats';
+import {
+  decimalId,
+  getAllParents,
+  idToPrettyId,
+  prettyIdToIp,
+} from '@/lib/hats';
 import { Module, ModuleCreationArg } from '@/types';
 
 import DatePicker from '../atoms/DatePicker';
@@ -27,17 +37,16 @@ const MainContent = ({
   selectedModuleDetails: any;
   setSelectedModuleDetails: any;
 }) => {
-  const { onchainHats, treeToDisplay, topHatDetails } = useTreeForm();
+  const { onchainHats, treeToDisplay, topHatDetails, selectedHat } =
+    useTreeForm();
   const { modules } = useHatsModules();
-  const { handleSubmit, watch } = localForm;
+  const { watch } = localForm;
+  const selectedModuleType = watch('moduleType', '');
+  const adminHat = localForm.watch('adminHat');
 
   const [selectedModuleArgs, setSelectedModuleArgs] = useState<
     ModuleCreationArg[]
   >([]);
-
-  const onSubmit = (data: any) => {
-    console.log(data);
-  };
 
   const modulesToDisplay = useMemo(() => {
     return _.map(
@@ -49,11 +58,13 @@ const MainContent = ({
     );
   }, [modules, title]);
 
-  const selectedModuleType = watch('moduleType', '');
-
   const selectedModule = useMemo(() => {
     return _.find(modulesToDisplay, ['id', selectedModuleType]);
   }, [modulesToDisplay, selectedModuleType]);
+
+  const parentHats = useMemo(() => {
+    return getAllParents(selectedHat?.id, treeToDisplay);
+  }, [selectedHat, treeToDisplay]);
 
   useEffect(() => {
     setSelectedModuleDetails(selectedModule || null);
@@ -95,28 +106,26 @@ const MainContent = ({
         subtitle='The fundamentals of the module, including type and details.'
       >
         <Stack spacing={12}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <FormRowWrapper>
-              <Icon as={BsPuzzle} boxSize={4} mt={1} />
-              <Select
-                label='Module Type'
-                subLabel='The category of prewritten module to connect to this hat.'
-                name='moduleType'
-                defaultValue={undefined}
-                placeholder='Select a module type'
-                localForm={localForm}
-              >
-                {_.map(modulesToDisplay, ({ name, id }) => (
-                  <option value={id} key={name}>
-                    {name}
-                  </option>
-                ))}
-              </Select>
-            </FormRowWrapper>
-          </form>
+          <FormRowWrapper>
+            <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+            <Select
+              label='Module Type'
+              subLabel='The category of prewritten module to connect to this hat.'
+              name='moduleType'
+              defaultValue={undefined}
+              placeholder='Select a module type'
+              localForm={localForm}
+            >
+              {_.map(modulesToDisplay, ({ name, id }) => (
+                <option value={id} key={name}>
+                  {name}
+                </option>
+              ))}
+            </Select>
+          </FormRowWrapper>
           {selectedModuleDetails && (
             <FormRowWrapper>
-              <Icon as={BsTextLeft} boxSize={4} mt={1} />
+              <Icon as={BsTextLeft} boxSize={4} mt='2px' />
               <Stack spacing={3}>
                 <Text fontSize='sm' fontWeight='medium'>
                   MODULE TYPE DETAILS
@@ -199,28 +208,83 @@ const MainContent = ({
       </Accordion>
 
       <Accordion
-        title='Claims Hatter Contract'
+        title='Permissionless Claiming'
         subtitle='Make this hat claimable by deploying a new hatter contract.'
       >
-        <FormRowWrapper>
-          <Icon as={BsPersonAdd} boxSize={4} mt={1} />
-          <RadioBox
-            name='claimable'
-            label='Hat ClaimIng'
-            subLabel='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
-            localForm={localForm}
-            options={[
-              {
-                label: 'Yes',
-                value: 'Yes',
-              },
-              {
-                label: 'No — admin mint only',
-                value: 'No',
-              },
-            ]}
-          />
-        </FormRowWrapper>
+        <Stack spacing={12}>
+          <FormRowWrapper>
+            <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
+            <RadioBox
+              name='Claimable For'
+              label='Hat ClaimIng'
+              subLabel='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
+              localForm={localForm}
+              options={[
+                {
+                  label: 'Yes',
+                  value: 'Yes',
+                },
+                {
+                  label: 'No — admin mint only',
+                  value: 'No',
+                },
+              ]}
+            />
+          </FormRowWrapper>
+          <FormRowWrapper>
+            <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+            <Stack>
+              <Select
+                name='adminHat'
+                label='ADMIN HAT'
+                subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                localForm={localForm}
+                placeholder='Select a hat in this tree'
+                defaultValue={undefined}
+                options={{
+                  required: true,
+                }}
+              >
+                {_.map(parentHats, (id) => (
+                  <option value={decimalId(id)} key={id}>
+                    {prettyIdToIp(idToPrettyId(id))}
+                  </option>
+                ))}
+              </Select>
+              {adminHat && (
+                <Text color='blackAlpha.600'>
+                  Potential wearers will be able to claim this hat if they meet
+                  the requirements in new module above.
+                </Text>
+              )}
+            </Stack>
+          </FormRowWrapper>
+          {selectedHat?.wearers === selectedHat?.maxSupply && (
+            <FormRowWrapper>
+              <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
+              <Stack>
+                <RadioBox
+                  name='increment'
+                  label='Increment Max Wearers by 1'
+                  subLabel='The admin hat you selected (2.3 — Builder Custodian) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?'
+                  localForm={localForm}
+                  options={[
+                    {
+                      label: `Yes — increase max wearers from ${
+                        selectedHat?.maxSupply
+                      } to ${Number(selectedHat?.maxSupply) + 1}`,
+                      value: 'Yes',
+                    },
+                    {
+                      label: 'No (cancel deployment)',
+                      value: 'No',
+                    },
+                  ]}
+                />
+              </Stack>
+            </FormRowWrapper>
+          )}
+        </Stack>
       </Accordion>
     </Stack>
   );

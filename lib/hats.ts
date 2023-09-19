@@ -596,6 +596,20 @@ export const isAncestor = (
   return false;
 };
 
+export const getAllParents = (hatId?: Hex, tree?: IHat[]): Hex[] => {
+  const parents: Hex[] = [];
+  if (!hatId || !tree) return parents;
+  let currentHat = tree.find((hat) => hat.id === hatId);
+
+  while (currentHat?.parentId) {
+    const parentId = currentHat.parentId;
+    parents.push(parentId);
+    currentHat = tree.find((hat) => hat.id === parentId);
+  }
+
+  return parents;
+};
+
 export const checkImageForHat = async (img?: string) => {
   const isValidImage = await isImageUrl(formatImageUrl(img));
 

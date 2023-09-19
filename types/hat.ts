@@ -1,3 +1,4 @@
+import { ArgumentTsType } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
 import { ITree } from './tree';
@@ -84,16 +85,7 @@ export type Module = 'eligibility' | 'toggle';
 export type ModuleCreationArg = {
   name: string;
   description: string;
-  type:
-    | 'number'
-    | 'bigint'
-    | 'string'
-    | 'boolean'
-    | 'number[]'
-    | 'bigint[]'
-    | 'string[]'
-    | 'boolean[]'
-    | 'unknown';
+  type: ArgumentTsType;
   example: string | string[];
   displayType: 'hat' | 'default' | 'timestamp' | 'seconds';
 };
@@ -119,7 +111,7 @@ interface Parameter {
   label: string;
 }
 
-export interface SelectedModuleDetails {
+export interface ModuleDetails {
   abi: any[];
   creationArgs: ModuleCreationArgs;
   deployments: Deployment[];

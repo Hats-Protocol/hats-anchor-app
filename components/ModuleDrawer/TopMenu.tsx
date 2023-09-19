@@ -1,8 +1,10 @@
-import { Button, Flex, HStack, Icon } from '@chakra-ui/react';
+import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
+import { useChainId } from 'wagmi';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDeployModule from '@/hooks/useDeployModule';
-import { SelectedModuleDetails } from '@/types';
+import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
@@ -11,12 +13,22 @@ const TopMenu = ({
 }: {
   localForm: any;
   onCloseModuleDrawer: () => void;
-  selectedModuleDetails?: SelectedModuleDetails;
+  selectedModuleDetails?: ModuleDetails;
 }) => {
+  const currentNetworkId = useChainId();
+  const { chainId } = useTreeForm();
+
   const { deployModule } = useDeployModule({
     localForm,
     selectedModuleDetails,
   });
+
+  const { watch } = localForm;
+  const moduleType = watch('moduleType');
+
+  const isChainCorrect = currentNetworkId === chainId;
+  const isButtonDisabled =
+    !localForm?.formState.isValid || !moduleType || !isChainCorrect;
 
   return (
     <Flex
@@ -41,19 +53,24 @@ const TopMenu = ({
         Cancel
       </Button>
 
-      <HStack spacing={3}>
+      <Tooltip
+        label={!isChainCorrect ? 'Please switch to the correct network' : ''}
+        isDisabled={isChainCorrect}
+        hasArrow
+        placement='top'
+      >
         <Button
           leftIcon={<BsBoxArrowRight />}
           colorScheme='twitter'
           variant='solid'
-          isDisabled={!localForm?.formState.isValid}
+          isDisabled={isButtonDisabled}
           onClick={() => {
             deployModule();
           }}
         >
           Deploy & Return
         </Button>
-      </HStack>
+      </Tooltip>
     </Flex>
   );
 };
