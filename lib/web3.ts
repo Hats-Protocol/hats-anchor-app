@@ -112,7 +112,9 @@ export function createHatsClient(chainId: number | undefined) {
   return hatsClient;
 }
 
-export async function createHatsModulesClient(chainId: number | undefined) {
+export async function createHatsModulesClient(
+  chainId: number | undefined,
+): Promise<HatsModulesClient | undefined> {
   if (!chainId) return undefined;
   const chain = chainsMap(chainId);
 
@@ -135,5 +137,5 @@ export async function createHatsModulesClient(chainId: number | undefined) {
 
   await hatsModulesClient.prepare();
 
-  return hatsModulesClient;
+  return hatsModulesClient as HatsModulesClient;
 }

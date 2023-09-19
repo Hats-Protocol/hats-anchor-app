@@ -194,6 +194,7 @@ const NewTree = () => {
             <Flex justify='flex-end'>
               <Button
                 type='submit'
+                colorScheme='blue'
                 isDisabled={!writeAsync}
                 isLoading={isLoading || detailsCidLoading || imagePinLoading}
               >

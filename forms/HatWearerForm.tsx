@@ -43,7 +43,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
 
   const { handleSubmit, setValue, watch } = localForm;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, onchainHats } = useTreeForm();
 
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
@@ -117,6 +117,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     ],
     enabled:
       Boolean(decimalId(hatId)) &&
+      _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
       chainId === currentNetworkId,
   });
@@ -136,6 +137,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       ],
       enabled:
         Boolean(decimalId(hatId)) &&
+        _.includes(_.map(onchainHats, 'id'), hatId) &&
         _.eq(_.size(localWearers), 1) &&
         chainId === currentNetworkId,
     });

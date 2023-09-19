@@ -1,4 +1,5 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
@@ -11,7 +12,7 @@ const TopMenu = ({
   onCloseModuleDrawer,
   selectedModuleDetails,
 }: {
-  localForm: any;
+  localForm: UseFormReturn<any>;
   onCloseModuleDrawer: () => void;
   selectedModuleDetails?: ModuleDetails;
 }) => {

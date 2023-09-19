@@ -1,9 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
+import { UseFormReturn } from 'react-hook-form';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { claimsHatterAddress, transformInput } from '@/lib/general';
+import { claimsHatterId, transformInput } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { ModuleDetails } from '@/types';
@@ -14,7 +15,7 @@ const useDeployModule = ({
   localForm,
   selectedModuleDetails,
 }: {
-  localForm: any;
+  localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
 }) => {
   const toast = useToast();
@@ -29,7 +30,7 @@ const useDeployModule = ({
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
       if (selectedModuleDetails && selectedHat?.id && address && modules) {
-        const claimsHatterModule = modules[claimsHatterAddress];
+        const claimsHatterModule = modules[claimsHatterId];
         const values = getValues();
 
         const immutableArgs = selectedModuleDetails.creationArgs.immutable.map(
@@ -52,7 +53,7 @@ const useDeployModule = ({
 
         return hatsClient?.batchCreateNewInstances({
           account: address,
-          moduleIds: [selectedModuleDetails.id, claimsHatterAddress],
+          moduleIds: [selectedModuleDetails.id, claimsHatterId],
           hatIds: [hatId, BigInt(decimalId(adminHat))],
           immutableArgsArray: [immutableArgs, claimsImmutableArgs],
           mutableArgsArray: [mutableArgs, claimsMutableArgs],

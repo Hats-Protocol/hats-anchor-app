@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import {
   Badge,
   Flex,
@@ -21,7 +20,6 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
@@ -45,19 +43,15 @@ const WearerRow = ({
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
 
-  const { data: wearerIsEligible } = useWearerEligibilityCheck({
-    wearer: wearer.id,
-  });
-
-  const { writeAsync, isLoading } = useHatContractWrite({
+  const { writeAsync: testEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
     enabled:
       Boolean(hatId) &&
       Boolean(wearer) &&
-      wearerIsEligible !== undefined &&
-      !wearerIsEligible &&
+      isEligible !== undefined &&
+      !isEligible &&
       chainId === currentNetworkId,
     handleSuccess: (data) => {
       if (!_.isEmpty(data.logs)) {
@@ -66,16 +60,18 @@ const WearerRow = ({
             wearer.id,
           )} was successfully updated.`,
         });
-      } else {
-        toast.info({
-          title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
-        });
       }
+      // } else {
+      //   this shouldn't happen with disable states
+      //   toast.info({
+      //     title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
+      //   });
+      // }
     },
   });
 
-  const testEligibility = async () => {
-    writeAsync?.();
+  const updateEligibility = async () => {
+    testEligibility?.();
   };
 
   const { writeAsync: renounceHat } = useHatBurn();
@@ -167,14 +163,14 @@ const WearerRow = ({
             )}
 
             <MenuItem
-              isDisabled={!isSameChain || isLoading || !writeAsync}
-              onClick={testEligibility}
+              isDisabled={!isSameChain || isLoading || !testEligibility}
+              onClick={updateEligibility}
             >
               <TooltipWrapper
                 isSameChain={isSameChain}
-                label="You can't test eligibility of a hat on a different chain"
+                label="You can't update eligibility of a hat on a different chain"
               >
-                <Text>Test Eligibility</Text>
+                <Text>Update Eligibility</Text>
               </TooltipWrapper>
             </MenuItem>
           </MenuList>

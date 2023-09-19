@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
+import ModuleDetails from '@/components/ModuleDetails';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import { checkAddressIsContract } from '@/lib/contract';
@@ -61,23 +62,22 @@ const MainContent = () => {
       <DetailList title='Responsibilities' details={responsibilities} />
       <DetailList title='Authorities' details={authorities} />
 
-      {!_.isEmpty(toggle?.criteria) && (
-        <DetailList title='Toggle Criteria' details={toggle?.criteria} />
-      )}
-      {!_.isEmpty(eligibility?.criteria) && (
-        <DetailList
-          title='Eligibility Criteria'
-          details={eligibility?.criteria}
-        />
-      )}
-
-      {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
-        <StatusCard
-          status='eligibility'
-          isAContract={isEligibilityAContract}
-          label='Can I wear this hat?'
-        />
-      )}
+      <Stack spacing={4}>
+        {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
+          <StatusCard
+            status='eligibility'
+            isAContract={isEligibilityAContract}
+            label='Do I meet the requirements to wear this Hat?'
+          />
+        )}
+        <ModuleDetails address={selectedHat.eligibility} chainId={chainId} />
+        {!_.isEmpty(eligibility?.criteria) && (
+          <DetailList
+            title='Eligibility Criteria'
+            details={eligibility?.criteria}
+          />
+        )}
+      </Stack>
 
       {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
         <StatusCard
@@ -85,6 +85,10 @@ const MainContent = () => {
           isAContract={isToggleAContract}
           label='Is this hat active?'
         />
+      )}
+      {/* MODULE DETAILS */}
+      {!_.isEmpty(toggle?.criteria) && (
+        <DetailList title='Toggle Criteria' details={toggle?.criteria} />
       )}
 
       <LinkRequests />

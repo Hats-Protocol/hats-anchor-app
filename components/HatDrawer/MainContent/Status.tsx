@@ -15,6 +15,7 @@ import { useAccount } from 'wagmi';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatStatus from '@/hooks/useHatStatus';
+import useModuleDetails from '@/hooks/useModuleDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress } from '@/lib/general';
 import { explorerUrl } from '@/lib/web3';
@@ -34,14 +35,14 @@ const StatusCard = ({
     'eligibility',
     'toggle',
   ]);
+  const statusData = status === 'eligibility' ? eligibility : toggle;
 
+  const { data: moduleDetails } = useModuleDetails(statusData, chainId);
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
   });
 
   const { data: isActive } = useHatStatus();
-
-  const statusData = status === 'eligibility' ? eligibility : toggle;
 
   let statusCheck = true;
   if (status === 'eligibility') {
@@ -56,11 +57,16 @@ const StatusCard = ({
 
   return (
     <Stack>
-      <HStack justifyContent='space-between'>
+      <Flex justifyContent='space-between'>
         <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
           {_.capitalize(status)}
         </Heading>
-        <Tooltip label={statusData} shouldWrapChildren>
+        <Tooltip
+          label={statusData}
+          placement='left'
+          shouldWrapChildren
+          hasArrow
+        >
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${statusData}`}
             isExternal
@@ -72,12 +78,12 @@ const StatusCard = ({
                 <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
               )}
               <Text color='gray.500' fontSize='sm'>
-                {formatAddress(statusData)}
+                {moduleDetails ? moduleDetails.name : formatAddress(statusData)}
               </Text>
             </HStack>
           </ChakraNextLink>
         </Tooltip>
-      </HStack>
+      </Flex>
       <Flex justifyContent='space-between'>
         <HStack>
           <Text>{label}</Text>

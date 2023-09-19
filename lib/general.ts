@@ -170,7 +170,7 @@ export const transformAndVerify = (
   return 'This is not a valid input!';
 };
 
-export const claimsHatterAddress =
+export const claimsHatterId =
   '0x9b58749ca97f09f9ef0de791e61eec57e2596f7642e041733e2ec9295b8bfd7e';
 
 export async function hash(string: string) {

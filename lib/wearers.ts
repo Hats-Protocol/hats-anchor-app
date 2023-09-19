@@ -1,30 +1,26 @@
 import _ from 'lodash';
 
-import { IHat, IHatWearer } from '@/types';
+import { IHatWearer } from '@/types';
 
-// This function can be moved outside the component, as it does not depend on any component-specific props or state
 export const getEligibleWearers = ({
   wearersEligibility,
   wearers,
-  selectedHat,
 }: {
-  wearersEligibility: any;
+  wearersEligibility: { address: string; isEligible: boolean }[] | undefined;
   wearers: IHatWearer[];
-  selectedHat?: IHat;
-}) => {
+}): IHatWearer[] => {
   const eligibleWearers = wearersEligibility
     ? wearers?.filter((w: { id: string }) =>
         isWearerEligible(w.id, wearersEligibility),
       )
     : wearers;
 
-  return _.get(selectedHat, 'extendedWearers', eligibleWearers);
+  return eligibleWearers;
 };
 
-// Moved the eligibility function outside, for the same reason as above.
 export const isWearerEligible = (
   wearerId: string,
-  wearersEligibility: any[],
+  wearersEligibility: { address: string; isEligible: boolean }[] | undefined,
 ) => {
   const eligibleEntry = _.find(wearersEligibility, { address: wearerId });
   return !!eligibleEntry?.isEligible;
