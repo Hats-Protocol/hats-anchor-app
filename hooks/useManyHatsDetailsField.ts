@@ -6,6 +6,7 @@ import CONFIG from '@/constants';
 import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
 import { IHat } from '@/types';
 
+// TODO combine with lib/ipfs version
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
   const url = `${CONFIG.ipfsGateway}${detailsField?.slice(
@@ -15,7 +16,7 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   try {
     // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
     const res = await axios.get(url, { timeout: 5000 });
-    return Promise.resolve(res);
+    return Promise.resolve({ details: detailsField, data: res });
   } catch (error) {
     console.log(error);
     return null;
@@ -26,7 +27,7 @@ const useManyHatsDetailsField = ({
   hats,
   onchainHats,
 }: {
-  hats: IHat[];
+  hats: IHat[] | undefined;
   onchainHats?: IHat[];
 }) => {
   let onlyOnchainHats = hats;
@@ -51,10 +52,16 @@ const useManyHatsDetailsField = ({
   });
 
   return {
-    data: _.map(onlyOnchainHats, (hat, i) => ({
-      id: hat?.details,
-      detailsObject: detailsFields[i]?.data?.data,
-    })),
+    data: _.map(onlyOnchainHats, (hat) => {
+      const detailsObject = _.find(_.map(detailsFields, 'data'), [
+        'details',
+        hat.details,
+      ]);
+      return {
+        id: hat?.details,
+        detailsObject: detailsObject?.data?.data,
+      };
+    }),
     isLoading: _.some(detailsFields, 'isLoading'),
   };
 };

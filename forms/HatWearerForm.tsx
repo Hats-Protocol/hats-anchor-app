@@ -37,12 +37,7 @@ import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { FormData, IHatWearer } from '@/types';
-
-interface FormWearer {
-  address: string;
-  ens: string;
-}
+import { FormData, FormWearer, IHatWearer } from '@/types';
 
 const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
@@ -160,7 +155,9 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const canAddWearer = !isAddressAlreadyAdded && !wouldExceedMaxSupply;
 
   const handleAddWearer = () => {
-    const address = isCurrentInputAddress ? currentInput : ensResolvedAddress;
+    const address = isCurrentInputAddress
+      ? (currentInput as Hex)
+      : (ensResolvedAddress as Hex);
     if (
       !address ||
       _.includes(currentWearerList, _.toLower(currentResolvedAddress)) ||
@@ -175,7 +172,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     setValue('wearers', newLocalWearers);
     setUnsavedData?.((prevState) => ({
       ...prevState,
-      wearers: _.map(newLocalWearers, 'address') as Hex[],
+      wearers: newLocalWearers,
     }));
     setCurrentInput('');
   };
@@ -188,7 +185,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     setValue('wearers', updateWearers);
     setUnsavedData?.((prevState) => ({
       ...prevState,
-      wearers: _.map(updateWearers, 'address') as Hex[],
+      wearers: updateWearers,
     }));
   };
   const { isOpen, onToggle } = useDisclosure();

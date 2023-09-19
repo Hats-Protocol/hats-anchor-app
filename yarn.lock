@@ -1051,10 +1051,17 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
+<<<<<<< HEAD
 "@hatsprotocol/modules-sdk@^0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@hatsprotocol/modules-sdk/-/modules-sdk-0.9.0.tgz#4785d85f7b56250c03d17c7423586f80775115dc"
   integrity sha512-d8Ox39/6JsRFFmRZa1lg6R1drLaAVXlP4DzryBTs00LUiXpucyACoo+8p1FCNIyST5inEMK2sLNC2ab0nQL0yg==
+=======
+"@hatsprotocol/modules-sdk@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@hatsprotocol/modules-sdk/-/modules-sdk-0.8.0.tgz#6cce5b0bda110f1bb3250fdac40f76f70053b06b"
+  integrity sha512-k8H7iw6JPhrQlr3Re045vqbiQixK54BVDHk+tQLXYnpVprBuQE6iGviMC931pquOEYGshJnOv3rxTPg61xJMIQ==
+>>>>>>> develop
   dependencies:
     abitype "^0.9.6"
     axios "^1.5.0"
@@ -4902,6 +4909,13 @@ merge2@^1.3.0, merge2@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.4.1.tgz#4368892f885e907455a6fd7dc55c0c9d404990ae"
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
+
+merkle-json@^2.1.0, merkle-json@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/merkle-json/-/merkle-json-2.6.0.tgz#0791e56bee88803255a254198297b99bed649ff3"
+  integrity sha512-sJM+SNINn3/5GzFyY8MMCj+647UbDVcZv3wcynX1vv9Vhnm1gWGI5ZPOA+EYm3iInITyQHKnmcpYKqZkeY+iAQ==
+  dependencies:
+    merkle-json "^2.1.0"
 
 micromark-core-commonmark@^1.0.1:
   version "1.1.0"

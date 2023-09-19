@@ -212,6 +212,9 @@ export const isMutable = (hatData?: IHat) => _.get(hatData, 'mutable');
 export const isTopHatOrMutable = (hatData: IHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
+export const isMutableNotTopHat = (hatData: IHat) =>
+  isMutable(hatData) && !isTopHat(hatData);
+
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
 export const getTreeId = (prettyHatId: string | null, full = false) => {
   if (!prettyHatId) return '';
@@ -325,9 +328,6 @@ export const translateDrafts = ({
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE
         : true,
-      wearers: _.map(hat.wearers, (wearer) => ({
-        id: wearer,
-      })),
       levelAtLocalTree: _.subtract(
         _.size(_.split(hatIdDecimalToIp(BigInt(hat.id)), '.')),
         2, // top hat = 0, so subtract 2 to get level
@@ -437,6 +437,7 @@ export const processHatForCalls = async (
 
     if (newHatData && newHatData.callData) {
       calls.push(newHatData);
+      console.log('new image url', imageUrl);
       proposedChanges.push({
         ...newHat,
         id: hatId,
@@ -573,7 +574,7 @@ export const processHatForCalls = async (
 
       if (changeHatImageURIData) {
         calls.push(changeHatImageURIData);
-        hatChanges.imageUrl = imageUrl;
+        hatChanges.imageUri = imageUrl;
       }
     }
     proposedChanges.push(hatChanges);

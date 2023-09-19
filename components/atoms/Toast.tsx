@@ -44,7 +44,7 @@ const bgValues = {
   success: {
     bg: 'green.500',
     imageBg: '',
-    displayBorder: 'block',
+    displayBorder: 'none',
   },
   error: {
     bg: 'red.500',
@@ -54,17 +54,17 @@ const bgValues = {
   info: {
     bg: 'blue.500',
     imageBg: 'whiteAlpha.700',
-    displayBorder: 'block',
+    displayBorder: 'none',
   },
   warning: {
     bg: 'blue.500',
     imageBg: 'whiteAlpha.700',
-    displayBorder: 'block',
+    displayBorder: 'none',
   },
   loading: {
     bg: 'blue.500',
     imageBg: 'whiteAlpha.700',
-    displayBorder: 'block',
+    displayBorder: 'none',
   },
 };
 
@@ -82,8 +82,8 @@ const Toast: React.FC<ToastProps> = ({
     <Flex
       bg={bgValues[status].bg}
       position='relative'
-      borderRadius='sm'
-      padding={2}
+      borderRadius='md'
+      padding={4}
     >
       <HStack spacing={3}>
         {iconName ? (
@@ -97,7 +97,7 @@ const Toast: React.FC<ToastProps> = ({
           icon && <Icon as={icon} width='35px' height='35px' />
         )}
         <Box>
-          <Heading size='md' color='white'>
+          <Heading size='sm' color='white'>
             {title}
           </Heading>
           {description && (

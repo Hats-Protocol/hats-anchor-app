@@ -1,11 +1,12 @@
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { Abi, Hex, Narrow } from 'viem';
-import { useContractReads } from 'wagmi';
+import { useMemo } from 'react';
+import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 
 import CONFIG from '@/constants';
 import abi from '@/contracts/Hats.json';
 import { checkImageForHat } from '@/lib/hats';
+import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
 interface ContractCall {
@@ -15,6 +16,14 @@ interface ContractCall {
   functionName: string;
   args: Narrow<readonly unknown[] | undefined>;
 }
+
+const tempClient = (chainId: number) => {
+  const client = createPublicClient({
+    chain: chainsMap(chainId),
+    transport: http(),
+  });
+  return client;
+};
 
 /**
  * returns an object, mapping from hat id to image url.
@@ -29,31 +38,66 @@ const useImageURIs = ({
   hats: IHat[] | undefined;
   onchainHats?: IHat[];
 }) => {
-  let onlyOnchainHats = hats;
-  if (onchainHats) {
-    onlyOnchainHats = _.filter(hats, (hat) =>
-      _.includes(_.map(onchainHats, 'id'), hat?.id),
-    );
-  }
+  const onlyOnchainHats = useMemo(() => {
+    if (onchainHats) {
+      return _.filter(hats, (hat) =>
+        _.includes(_.map(onchainHats, 'id'), hat?.id),
+      );
+    }
+    return hats;
+  }, [hats, onchainHats]);
 
-  const calls: ContractCall[] = _.map(onlyOnchainHats, (hat) => {
-    return {
-      address: CONFIG.hatsAddress,
-      chainId: hat?.chainId,
-      abi: abi as Abi,
-      functionName: 'getImageURIForHat',
-      args: [hat?.id || hat],
-    };
+  const chainIds = _.uniq(_.map(onlyOnchainHats, 'chainId'));
+
+  const calls: ContractCall[][] = useMemo(() => {
+    return _.map(chainIds, (cId) => {
+      const hatsForChain = _.filter(onlyOnchainHats, ['chainId', cId]);
+      return _.map(hatsForChain, (hat) => {
+        return {
+          address: CONFIG.hatsAddress,
+          chainId: hat?.chainId,
+          abi: abi as Abi,
+          functionName: 'getImageURIForHat',
+          args: [hat?.id || hat],
+        };
+      });
+    });
+  }, [onlyOnchainHats, chainIds]);
+
+  const { data: imagesData, isLoading: imagesLoading } = useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: ['imageURIs', _.map(onlyOnchainHats, 'id'), chainIds],
+    queryFn: () => {
+      const clients = _.map(chainIds, (cId) => tempClient(cId));
+
+      const clientCalls = _.map(calls, (call, i) => {
+        return clients[i].multicall({ contracts: call });
+      });
+
+      return Promise.all(clientCalls);
+    },
+    enabled: !!calls && !_.isEmpty(calls) && !!chainIds && !_.isEmpty(chainIds),
   });
 
-  const { data: imagesData, isLoading: imagesLoading } = useContractReads({
-    contracts: calls,
-    enabled: !!hats && !_.isEmpty(hats),
-  });
+  const hatImageUris = useMemo(() => {
+    const allImageUris = _.map(chainIds, (cId, i) => {
+      const hatsForChain = _.filter(onlyOnchainHats, ['chainId', cId]);
+      const imagesForChain = _.get(imagesData, i);
+      return _.map(hatsForChain, (hat, j) => {
+        return {
+          id: hat?.id || hat,
+          chainId: hat?.chainId,
+          result: _.get(_.get(imagesForChain, j), 'result'),
+        };
+      });
+    });
 
-  const uniqueImageUris = _.compact(
-    _.uniq(_.map(imagesData, 'result')),
-  ) as string[];
+    return _.flatten(allImageUris);
+  }, [imagesData, chainIds, onlyOnchainHats]);
+
+  const uniqueImageUris = useMemo(() => {
+    return _.uniq(_.map(hatImageUris, 'result')) as string[];
+  }, [hatImageUris]);
 
   const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
 
@@ -69,12 +113,12 @@ const useImageURIs = ({
   const imageUrls = _.map(imageQueries, 'data');
   const isLoaded = _.every(imageQueries, ['isLoading', false]);
 
-  let mergedWithHats;
-  if (!imagesLoading && isLoaded) {
-    mergedWithHats = _.map(onlyOnchainHats, (hat, i) => {
+  const mergedWithHats = useMemo(() => {
+    if (imagesLoading || !isLoaded) return undefined;
+    return _.map(_.flatten(onlyOnchainHats), (hat, i) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,
-        (img) => img === (_.get(_.nth(imagesData, i), 'result') as string),
+        (img) => img === _.get(_.nth(hatImageUris, i), 'result'),
       );
 
       return {
@@ -82,7 +126,14 @@ const useImageURIs = ({
         imageUrl: imageUrls[imageIndex],
       };
     });
-  }
+  }, [
+    hatImageUris,
+    onlyOnchainHats,
+    uniqueImageUris,
+    imageUrls,
+    imagesLoading,
+    isLoaded,
+  ]);
 
   return {
     data: mergedWithHats || undefined,

@@ -40,6 +40,7 @@ import {
   ITree,
   LinkRequest,
 } from '@/types';
+import { ipfsUrl } from '@/lib/ipfs';
 
 export interface ITreeFormContext {
   chainId: number | undefined;
@@ -158,7 +159,8 @@ export const TreeFormContextProvider = ({
     'wearers',
   );
   const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
-    _.get(initialTreeData, 'hats').concat(
+    _.concat(
+      _.get(initialTreeData, 'hats'),
       _.get(initialTreeData, 'parentOfHats') || [],
       _.get(initialTreeData, 'linkedToHat') || [],
     ),
@@ -197,13 +199,15 @@ export const TreeFormContextProvider = ({
     initialData: initialTreeData,
   });
   const treeEvents = _.get(treeData, 'events');
-  const onchainHats = _.compact(
-    _.concat(
-      _.get(treeData, 'hats'),
-      _.get(initialTreeData, 'parentOfHats') || [],
-      _.get(initialTreeData, 'linkedToHat') || [],
-    ),
-  );
+  const onchainHats = useMemo(() => {
+    return _.compact(
+      _.concat(
+        _.get(treeData, 'hats'),
+        _.get(initialTreeData, 'parentOfHats') || [],
+        _.get(initialTreeData, 'linkedToHat') || [],
+      ),
+    );
+  }, [treeData, initialTreeData]);
 
   const draftHats = useMemo(
     () =>
@@ -216,7 +220,7 @@ export const TreeFormContextProvider = ({
     [onchainHats, orgChartHats],
   );
 
-  const hatDetails = useManyHatDetails({
+  const { data: hatDetails } = useManyHatDetails({
     hats: mapWithChainId(orgChartHats, chainId),
     initialHats: onchainHats,
   });
@@ -235,6 +239,13 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     onchainHats,
   });
+  // console.log(
+  //   'imageData',
+  //   _.find(imagesData, [
+  //     'id',
+  //     '0x0000000100030000000000000000000000000000000000000000000000000000',
+  //   ]),
+  // );
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
@@ -424,22 +435,36 @@ export const TreeFormContextProvider = ({
     onCloseTreeDrawer();
   }, [onchainHats, setStoredData, onCloseTreeDrawer]);
 
-  const patchTree = useCallback((proposedHats: IHat[]) => {
-    setOrgChartHats((prevHats) => {
-      if (!prevHats) return [];
+  const patchTree = useCallback(
+    (proposedHats: IHat[]) => {
+      setOrgChartHats((prevHats) => {
+        if (!prevHats) return [];
 
-      return _.map(prevHats, (existingHat) => {
-        const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
-        if (proposedHat) {
-          return {
-            ...existingHat,
-            ...proposedHat,
-          };
-        }
-        return existingHat;
+        return _.map(prevHats, (existingHat) => {
+          const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
+          console.log('proposedHat', proposedHat);
+          const newImageUrl = _.find(newImageUrls, ['id', existingHat.id]);
+          console.log('newImageUrl', newImageUrl);
+          const newName = _.find(storedData, ['id', existingHat.id])?.name;
+          console.log('newName', newName);
+          if (proposedHat) {
+            return {
+              ...existingHat,
+              ...proposedHat,
+              imageUri: proposedHat?.imageUri || existingHat.imageUri || '',
+              imageUrl: ipfsUrl(
+                proposedHat?.imageUri?.slice(7) ||
+                  existingHat.imageUri?.slice(7),
+              ),
+              name: newName || existingHat.name,
+            };
+          }
+          return existingHat;
+        });
       });
-    });
-  }, []);
+    },
+    [newImageUrls, storedData],
+  );
 
   const hierarchy = useMemo(() => {
     const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({

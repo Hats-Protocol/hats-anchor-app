@@ -4,6 +4,11 @@ import { DetailsItem } from './hat';
 
 export type FieldItem = { name: keyof FormData; label: string };
 
+export interface FormWearer {
+  address: Hex;
+  ens: string;
+}
+
 export type FormData = FormDataDetails & {
   maxSupply?: string;
   eligibility?: Hex;
@@ -11,7 +16,7 @@ export type FormData = FormDataDetails & {
   mutable: string;
   imageUrl?: string;
   id: Hex;
-  wearers: Hex[];
+  wearers: FormWearer[];
   parentId?: Hex;
 };
 
@@ -30,5 +35,5 @@ export type FormDataDetails = {
 
 export type DirtyFormData = {
   imageUrl?: string;
-  [key: string]: string | string[] | DetailsItem[] | undefined;
+  [key: string]: string | string[] | DetailsItem[] | FormWearer[] | undefined;
 };
