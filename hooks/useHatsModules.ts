@@ -12,7 +12,6 @@ const useHatsModules = () => {
       throw new Error('Unable to initialize hatsClient');
     }
 
-    await hatsClient.prepare();
     return hatsClient.getAllModules();
   };
 

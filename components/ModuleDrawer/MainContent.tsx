@@ -19,7 +19,7 @@ import {
   idToPrettyId,
   prettyIdToIp,
 } from '@/lib/hats';
-import { Module, ModuleCreationArg } from '@/types';
+import { ModuleCreationArg, ModuleKind } from '@/types';
 
 import DatePicker from '../atoms/DatePicker';
 import Input from '../atoms/Input';
@@ -33,7 +33,7 @@ const MainContent = ({
   setSelectedModuleDetails,
 }: {
   localForm: any;
-  title: Module;
+  title: ModuleKind;
   selectedModuleDetails: any;
   setSelectedModuleDetails: any;
 }) => {

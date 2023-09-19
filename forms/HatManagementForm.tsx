@@ -31,13 +31,13 @@ import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { isMutable } from '@/lib/hats';
-import { DetailsItem, Module } from '@/types';
+import { DetailsItem, ModuleKind } from '@/types';
 
 interface HatManagementFormProps {
   localForm: UseFormReturn<any>;
   address: Hex | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
-  title: Module;
+  title: ModuleKind;
   formName: string;
   radioBoxConfig: {
     name: string;

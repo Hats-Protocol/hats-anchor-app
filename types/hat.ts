@@ -1,3 +1,4 @@
+import { Module } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
 import { ITree } from './tree';
@@ -79,7 +80,7 @@ export interface IHat {
   newImage?: string;
 }
 
-export type Module = 'eligibility' | 'toggle';
+export type ModuleKind = 'eligibility' | 'toggle';
 
 export type ModuleCreationArg = {
   name: string;
@@ -94,35 +95,6 @@ export type ModuleCreationArgs = {
   mutable: ModuleCreationArg[];
 };
 
-interface Deployment {
-  chainId: string;
-  block: string;
-}
-
-interface Link {
-  label: string;
-  link: string;
-}
-
-interface Parameter {
-  displayType: string;
-  functionName: string;
-  label: string;
-}
-
-export interface ModuleDetails {
-  abi: any[];
-  creationArgs: ModuleCreationArgs;
-  deployments: Deployment[];
-  details: string[];
+export interface ModuleDetails extends Module {
   id: string;
-  implementationAddress: string;
-  links: Link[];
-  name: string;
-  parameters: Parameter[];
-  type: {
-    eligibility: boolean;
-    toggle: boolean;
-    hatter: boolean;
-  };
 }

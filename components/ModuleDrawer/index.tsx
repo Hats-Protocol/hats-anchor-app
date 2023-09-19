@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Module, ModuleDetails } from '@/types';
+import { ModuleDetails, ModuleKind } from '@/types';
 
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
@@ -12,7 +12,7 @@ const ModuleDrawer = ({
   title,
 }: {
   onCloseModuleDrawer: () => void;
-  title: Module;
+  title: ModuleKind;
 }) => {
   const localForm = useForm({
     mode: 'onBlur',
