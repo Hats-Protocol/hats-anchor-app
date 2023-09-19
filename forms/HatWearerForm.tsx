@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
@@ -43,7 +43,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
 
   const { handleSubmit, setValue, watch } = localForm;
-  const { chainId, selectedHat, onchainHats } = useTreeForm();
+  const { chainId, selectedHat, onchainHats, storedData } = useTreeForm();
 
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
@@ -55,13 +55,24 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const editMode = _.gt(_.size(_.keys(watch())), 1);
 
   const hatId = _.get(selectedHat, 'id');
-  const maxSupply = _.get(selectedHat, 'maxSupply');
   const detailsObject = _.get(selectedHat, 'detailsObject');
   const currentWearers = _.get(selectedHat, 'extendedWearers');
   let hatName = selectedHat?.details;
   if (detailsObject?.data) {
     hatName = detailsObject.data.name;
   }
+
+  const currentMaxSupply = watch('maxSupply');
+  const maxSupply = useMemo(() => {
+    if (currentMaxSupply) {
+      return currentMaxSupply;
+    }
+    const storedHat = _.find(storedData, { id: hatId });
+    if (storedHat) {
+      return _.get(storedHat, 'maxSupply');
+    }
+    return _.get(selectedHat, 'maxSupply');
+  }, [selectedHat, storedData, currentMaxSupply, hatId]);
 
   const currentWearerList = _.map(currentWearers, 'id');
 
@@ -245,6 +256,15 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
               label='MAX WEARERS'
               subLabel='Total number of addresses that can wear this hat at the same time.'
               placeholder='10'
+              options={{
+                validate: {
+                  maxWearers: (v) =>
+                    !_.gt(
+                      _.add(_.size(currentWearerList), _.size(localWearers)),
+                      _.toNumber(v),
+                    ) || 'Max supply exceeded',
+                },
+              }}
               isDisabled={!isMutable(selectedHat)}
               localForm={localForm}
             />

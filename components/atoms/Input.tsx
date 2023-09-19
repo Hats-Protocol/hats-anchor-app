@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
 
@@ -127,13 +127,7 @@ interface InputProps extends ChakraInputProps {
   info?: string;
   tip?: string | ReactNode;
   type?: string;
-  options?: {
-    required?: boolean;
-    pattern?: RegExp;
-    min?: number;
-    max?: number;
-    validate?: (value: any) => boolean | string;
-  };
+  options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;
