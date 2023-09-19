@@ -35,7 +35,6 @@ const useMulticallCallManyHats = () => {
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
   const { patchTree } = useTreeForm();
-  console.log(storedData);
 
   useEffect(() => {
     const prepareMulticallData = async () => {
@@ -73,8 +72,6 @@ const useMulticallCallManyHats = () => {
     onchainHats,
     treeToDisplay,
   ]);
-
-  console.log(calls);
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
