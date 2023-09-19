@@ -1,4 +1,3 @@
-import { ArgumentTsType } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
 import { ITree } from './tree';
@@ -85,9 +84,9 @@ export type Module = 'eligibility' | 'toggle';
 export type ModuleCreationArg = {
   name: string;
   description: string;
-  type: ArgumentTsType;
-  example: string | string[];
-  displayType: 'hat' | 'default' | 'timestamp' | 'seconds';
+  type: string;
+  example: unknown;
+  displayType: string;
 };
 
 export type ModuleCreationArgs = {

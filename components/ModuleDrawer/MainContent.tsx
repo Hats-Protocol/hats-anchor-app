@@ -45,7 +45,7 @@ const MainContent = ({
   const adminHat = localForm.watch('adminHat');
 
   const [selectedModuleArgs, setSelectedModuleArgs] = useState<
-    ModuleCreationArg[]
+    ModuleCreationArg[] | null
   >([]);
 
   const modulesToDisplay = useMemo(() => {
@@ -146,8 +146,8 @@ const MainContent = ({
                   subLabel={arg.description}
                   placeholder={
                     Array.isArray(arg.example)
-                      ? arg.example.join(', ')
-                      : arg.example
+                      ? (arg.example as string[]).join(', ')
+                      : (arg.example as string)
                   }
                   options={{
                     required: true,
@@ -192,8 +192,8 @@ const MainContent = ({
                   subLabel={arg.description}
                   placeholder={
                     Array.isArray(arg.example)
-                      ? arg.example.join(', ')
-                      : arg.example
+                      ? (arg.example as string[]).join(', ')
+                      : (arg.example as string)
                   }
                   options={{
                     required: true,
