@@ -18,7 +18,7 @@ const TopMenu = ({
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
 
-  const { deployModule } = useDeployModule({
+  const { deployModule, isLoading } = useDeployModule({
     localForm,
     selectedModuleDetails,
   });
@@ -64,6 +64,7 @@ const TopMenu = ({
           colorScheme='twitter'
           variant='solid'
           isDisabled={isButtonDisabled}
+          isLoading={isLoading}
           onClick={() => {
             deployModule();
           }}
