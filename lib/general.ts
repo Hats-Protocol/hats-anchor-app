@@ -1,5 +1,6 @@
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { verify, solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 
 import CONFIG from '@/constants';
 
@@ -119,6 +120,58 @@ export const formatImageUrl = (url?: string) => {
 
   return undefined;
 };
+
+export const transformInput = (
+  input: unknown,
+  solidityType: string,
+): unknown => {
+  const tsType = solidityToTypescriptType(solidityType);
+
+  switch (tsType) {
+    case 'number':
+      return Number(input);
+    case 'bigint':
+      if (typeof input === 'string' || typeof input === 'number') {
+        return BigInt(input);
+      }
+      break;
+    case 'string':
+      return String(input);
+    case 'boolean':
+      if (typeof input === 'string') {
+        return input.toLowerCase() === 'yes';
+      }
+      return Boolean(input);
+    case 'number[]':
+      return (input as string).split(',').map(Number);
+    case 'bigint[]':
+      return (input as string).split(',').map((num) => BigInt(num.trim()));
+    case 'string[]':
+      return (input as string).split(',');
+    case 'boolean[]':
+      return (input as string)
+        .split(',')
+        .map((str) => str.toLowerCase() === 'yes');
+    default:
+      throw new Error(`Invalid Solidity type: ${solidityType}`);
+  }
+};
+
+export const transformAndVerify = (
+  input: unknown,
+  solidityType: string,
+): string | boolean => {
+  const transformedInput = transformInput(input, solidityType);
+
+  if (verify(transformedInput, solidityType)) {
+    return true;
+  }
+
+  return 'This is not a valid input!';
+};
+
+export const claimsHatterAddress =
+  '0x9b58749ca97f09f9ef0de791e61eec57e2596f7642e041733e2ec9295b8bfd7e';
 
 export async function hash(string: string) {
   const utf8 = new TextEncoder().encode(string);

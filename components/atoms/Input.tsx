@@ -47,13 +47,18 @@ const Input = ({
   const {
     register,
     resetField,
-    formState: { dirtyFields },
+    formState: { dirtyFields, errors },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
 
   const onReset = () => {
     resetField(name, { keepDirty: false });
+  };
+
+  const getErrorMessage = () => {
+    const errorMessage = errors[name]?.message;
+    return typeof errorMessage === 'string' ? errorMessage : null;
   };
 
   return (
@@ -85,7 +90,7 @@ const Input = ({
         <InputGroup {...props}>
           <ChakraInput
             type={type}
-            {...register(name, options)}
+            {...register(name, { ...options, validate: options?.validate })}
             {...props}
             borderColor={isDirty ? 'cyan.500' : undefined}
             variant='filled'
@@ -105,6 +110,9 @@ const Input = ({
             <InputRightElement>{rightElement}</InputRightElement>
           )}
         </InputGroup>
+        <Text color='red.500' fontSize='xs'>
+          {getErrorMessage()}
+        </Text>
       </Stack>
     </FormControl>
   );
@@ -124,6 +132,7 @@ interface InputProps extends ChakraInputProps {
     pattern?: RegExp;
     min?: number;
     max?: number;
+    validate?: (value: any) => boolean | string;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;

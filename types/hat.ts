@@ -1,3 +1,4 @@
+import { Module } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
 import { ITree } from './tree';
@@ -77,4 +78,23 @@ export interface IHat {
   type?: string;
   newName?: string;
   newImage?: string;
+}
+
+export type ModuleKind = 'eligibility' | 'toggle';
+
+export type ModuleCreationArg = {
+  name: string;
+  description: string;
+  type: string;
+  example: unknown;
+  displayType: string;
+};
+
+export type ModuleCreationArgs = {
+  immutable: ModuleCreationArg[];
+  mutable: ModuleCreationArg[];
+};
+
+export interface ModuleDetails extends Module {
+  id: string;
 }
