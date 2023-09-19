@@ -24,11 +24,12 @@ const useDeployModule = ({
   const { watch, getValues } = localForm;
 
   const adminHat = watch('adminHat');
-  const claimsHatterModule = modules[claimsHatterAddress] as ModuleDetails;
 
   const deployModule = async () => {
     try {
-      if (selectedModuleDetails && selectedHat?.id && address) {
+      if (selectedModuleDetails && selectedHat?.id && address && modules) {
+        const claimsHatterModule = modules[claimsHatterAddress];
+
         const values = getValues();
 
         const immutableArgs = selectedModuleDetails.creationArgs.immutable.map(

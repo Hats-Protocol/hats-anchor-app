@@ -1,26 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 
 const useHatsModules = () => {
   const { chainId } = useTreeForm();
-  const [modules, setModules] = useState<any>([]);
 
-  useEffect(() => {
-    const fetchModules = async () => {
-      const hatsClient = await createHatsModulesClient(chainId);
-      if (hatsClient) {
-        await hatsClient.prepare();
-        const allModules = hatsClient.getAllModules();
-        setModules(allModules);
-      }
-    };
+  const fetchModules = async () => {
+    const hatsClient = await createHatsModulesClient(chainId);
+    if (!hatsClient) {
+      throw new Error('Unable to initialize hatsClient');
+    }
 
-    fetchModules();
-  }, []);
+    await hatsClient.prepare();
+    return hatsClient.getAllModules();
+  };
 
-  return { modules };
+  const {
+    data: modules,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['hatsModules', chainId],
+    queryFn: fetchModules,
+    enabled: !!chainId,
+  });
+
+  return { modules, isLoading, isError, error };
 };
 
 export default useHatsModules;
