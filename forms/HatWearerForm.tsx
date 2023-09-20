@@ -84,7 +84,8 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const isAddressAlreadyAdded =
     localWearers?.some(
       (wearer: FormWearer) =>
-        wearer.address === currentInput || wearer.ens === currentInput,
+        wearer.address === currentInput ||
+        (wearer.ens === currentInput && currentInput !== ''),
     ) ||
     _.includes(_.map(currentWearers, 'id'), _.toLower(currentResolvedAddress));
 
@@ -163,9 +164,8 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
 
   const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
   const wouldExceedMaxSupply =
-    _.size(currentWearerList) + _.size(localWearers) + 1 >
-    _.toNumber(maxSupply);
-  const canAddWearer = !isAddressAlreadyAdded && !wouldExceedMaxSupply;
+    _.size(currentWearerList) + _.size(localWearers) >= _.toNumber(maxSupply);
+  const disableAddWearer = isAddressAlreadyAdded || wouldExceedMaxSupply;
 
   const handleAddWearer = () => {
     const address = isCurrentInputAddress
@@ -174,7 +174,12 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     if (
       !address ||
       _.includes(currentWearerList, _.toLower(currentResolvedAddress)) ||
-      !canAddWearer
+      _.includes(
+        _.map(localWearers, 'address'),
+        _.toLower(currentResolvedAddress),
+      ) ||
+      disableAddWearer ||
+      !isEligible
     )
       return;
     const newLocalWearers = localWearers;
@@ -188,6 +193,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       wearers: newLocalWearers,
     }));
     setCurrentInput('');
+    setCurrentResolvedAddress(undefined);
   };
 
   const handleRemoveWearer = (index: number) => {
@@ -224,7 +230,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
             );
             setValue('wearers', [
               ...localWearers,
-              ...csvAddresses.map((address: unknown) => ({ address })),
+              ...csvAddresses.map((address: unknown) => ({ address, ens: '' })),
             ]);
           },
           error: (error: Error) => {
@@ -335,9 +341,10 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                   _.includes(
                     currentWearerList,
                     _.toLower(currentResolvedAddress),
-                  )
+                  ) ||
+                  isAddressAlreadyAdded
                 }
-                isDisabled={!canAddWearer}
+                isDisabled={wouldExceedMaxSupply}
                 onChange={(e) => {
                   setCurrentInput(_.toLower(e.target.value) ?? '');
                 }}
@@ -357,14 +364,11 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
               </Text>
             )}
 
-            {_.includes(
-              currentWearerList,
-              _.toLower(currentResolvedAddress),
-            ) && (
+            {isAddressAlreadyAdded && (
               <HStack align='center' spacing={1}>
                 <Icon as={FaInfoCircle} mr={1} color='red.500' />
                 <Text fontSize='sm' color='red.500'>
-                  This address is already wearing this hat
+                  This address is already (pending) wearing this hat
                 </Text>
               </HStack>
             )}
@@ -393,7 +397,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
             <Tooltip label={toolTip} shouldWrapChildren>
               <Button
                 isDisabled={
-                  !canAddWearer ||
+                  disableAddWearer ||
                   !isEligible ||
                   isLoadingIsEligible ||
                   isLoadingMintHat ||
