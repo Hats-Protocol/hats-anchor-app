@@ -437,7 +437,6 @@ export const processHatForCalls = async (
 
     if (newHatData && newHatData.callData) {
       calls.push(newHatData);
-      console.log('new image url', imageUrl);
       proposedChanges.push({
         ...newHat,
         id: hatId,
@@ -453,7 +452,6 @@ export const processHatForCalls = async (
         imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
       });
     }
-    console.log(wearers);
 
     if (wearers) {
       if (_.eq(_.size(wearers), 1)) {
