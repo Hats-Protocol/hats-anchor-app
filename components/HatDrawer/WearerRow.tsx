@@ -1,6 +1,7 @@
 import {
   Badge,
   Flex,
+  Icon,
   IconButton,
   Image,
   Menu,
@@ -10,6 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -19,9 +21,10 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
+import useModuleInstance from '@/hooks/useModuleInstance';
 import useToast from '@/hooks/useToast';
 import { formatAddress, isSameAddress } from '@/lib/general';
-import { decimalId } from '@/lib/hats';
+import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
 import { IHatWearer } from '@/types';
 
 import TooltipWrapper from './TooltipWrapper';
@@ -31,7 +34,6 @@ const WearerRow = ({
   isAdminUser,
   setChangeStatusWearer,
   setWearerToTransferFrom,
-  isTopHat,
   isEligible,
 }: WearerRowProps) => {
   const toast = useToast();
@@ -42,6 +44,7 @@ const WearerRow = ({
 
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
+  const isEligibility = selectedHat?.eligibility === _.toLower(address);
 
   const { writeAsync: testEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
@@ -53,6 +56,10 @@ const WearerRow = ({
       isEligible !== undefined &&
       !isEligible &&
       chainId === currentNetworkId,
+    queryKeys: [
+      ['hatDetails', { id: hatId, chainId }],
+      ['treeDetails', toTreeId(hatId)],
+    ],
     handleSuccess: (data) => {
       if (!_.isEmpty(data.logs)) {
         toast.info({
@@ -70,6 +77,12 @@ const WearerRow = ({
     },
   });
 
+  const { data: moduleDetails } = useModuleInstance({
+    chainId,
+    address: wearer.id,
+    enabled: wearer.isContract,
+  });
+
   const updateEligibility = async () => {
     testEligibility?.();
   };
@@ -80,6 +93,13 @@ const WearerRow = ({
     await renounceHat?.();
   };
 
+  let icon = <Icon as={FaUser} color='gray.500' />;
+  if (isSameAddress(wearer.id, address)) {
+    icon = <Image src='/icons/hat.svg' alt='Hat' />;
+  } else if (wearer.isContract) {
+    icon = <Icon as={BsFileCode} color='gray.500' />;
+  }
+
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
       <Flex
@@ -89,14 +109,12 @@ const WearerRow = ({
           isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
         }
       >
-        {isSameAddress(wearer.id, address) ? (
-          <Image src='/icons/hat.svg' alt='Hat' />
-        ) : (
-          <FaUser />
-        )}
+        {icon}
 
         <Text>
-          {_.get(wearer, 'ensName') || formatAddress(_.get(wearer, 'id'))}
+          {_.get(wearer, 'ensName') ||
+            _.get(moduleDetails, 'details.name') ||
+            formatAddress(_.get(wearer, 'id'))}
         </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
@@ -134,7 +152,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {isSameAddress(wearer.id, address) && !isTopHat && (
+            {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
                 <TooltipWrapper
                   isSameChain={isSameChain}
@@ -145,7 +163,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {!isSameAddress(wearer.id, address) && isAdminUser && (
+            {!isSameAddress(wearer.id, address) && isEligibility && (
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
@@ -187,6 +205,5 @@ interface WearerRowProps {
   isAdminUser: boolean;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
-  isTopHat: boolean;
   isEligible: boolean;
 }

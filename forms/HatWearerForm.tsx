@@ -124,7 +124,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       description: `Successfully minted hats`,
     },
     queryKeys: [
-      ['hatDetails', hatId || 'none'],
+      ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:
@@ -144,7 +144,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
         description: `Successfully minted hat`,
       },
       queryKeys: [
-        ['hatDetails', hatId || 'none'],
+        ['hatDetails', { id: hatId, chainId }],
         ['treeDetails', toTreeId(hatId)],
       ],
       enabled:

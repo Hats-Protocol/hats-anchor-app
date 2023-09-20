@@ -1,6 +1,7 @@
 import { Heading, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import {
   BsBarChartLine,
   BsPersonAdd,
@@ -32,7 +33,8 @@ const MainContent = ({
   selectedModuleDetails,
   setSelectedModuleDetails,
 }: {
-  localForm: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
   title: ModuleKind;
   selectedModuleDetails: ModuleDetails | undefined;
   setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
@@ -75,6 +77,7 @@ const MainContent = ({
       ]) ||
         null,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedModule]);
 
   if (!onchainHats || !treeToDisplay) return null;
@@ -130,7 +133,7 @@ const MainContent = ({
                 <Text fontSize='sm' fontWeight='medium'>
                   MODULE TYPE DETAILS
                 </Text>
-                {selectedModuleDetails.details.map((detail: any) => (
+                {selectedModuleDetails.details.map((detail: string) => (
                   <Text key={detail}>{detail}</Text>
                 ))}
               </Stack>
@@ -139,7 +142,10 @@ const MainContent = ({
           {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
             <FormRowWrapper key={arg.name}>
               <Icon as={BsTextLeft} boxSize={4} mt={1} />
-              {arg.displayType === 'default' && (
+              {(arg.displayType === 'default' ||
+                arg.displayType === 'token' ||
+                arg.displayType === 'amountWithDecimals' ||
+                arg.displayType === 'jokerace') && (
                 <Input
                   name={arg.name}
                   label={arg.name}

@@ -8,11 +8,13 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { Hex, isAddress } from 'viem';
-import { useChainId, useEnsName } from 'wagmi';
+import { useAccount, useChainId, useEnsName } from 'wagmi';
 
+import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
@@ -28,6 +30,8 @@ const HatWearerStatusForm = ({
   eligibility: string;
 }) => {
   const currentNetworkId = useChainId();
+  const { address } = useAccount();
+  const { setModals } = useOverlay();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
   const { chainId, selectedHat } = useTreeForm();
@@ -54,11 +58,15 @@ const HatWearerStatusForm = ({
       description: 'Successfully updated hat',
     },
     queryKeys: [
-      ['hatDetails', hatId || 'none'],
-      ['treeDetails', toTreeId(hatId)],
+      ['hatDetails', { id: hatId, chainId }],
+      ['treeDetails', _.toNumber(toTreeId(hatId))],
     ],
     enabled:
-      !!wearer && !!hatId && isAddress(wearer) && chainId === currentNetworkId,
+      !!wearer &&
+      !!hatId &&
+      isAddress(wearer) &&
+      _.toLower(address) === selectedHat.eligibility &&
+      chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -104,10 +112,11 @@ const HatWearerStatusForm = ({
         </RadioGroup>
 
         <Flex justify='flex-end' gap='3'>
-          <Button>Cancel</Button>
+          <Button onClick={() => setModals?.({})}>Cancel</Button>
           <Button
             type='submit'
             isDisabled={!wearer || isLoading || !writeAsync}
+            isLoading={isLoading}
             colorScheme={standing === 'Good Standing' ? 'blue' : 'red'}
           >
             Revoke Hat Token in {standing}

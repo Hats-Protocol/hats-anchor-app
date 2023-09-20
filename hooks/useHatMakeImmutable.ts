@@ -27,7 +27,7 @@ const useHatMakeImmutable = ({
         )} immutable`,
     },
     queryKeys: [
-      ['hatDetails', selectedHatId],
+      ['hatDetails', { id: selectedHatId, chainId }],
       ['treeDetails', toTreeId(selectedHatId)],
     ],
     enabled:

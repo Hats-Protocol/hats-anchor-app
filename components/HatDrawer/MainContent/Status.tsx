@@ -31,13 +31,17 @@ const StatusCard = ({
 }) => {
   const { address } = useAccount();
   const { chainId, selectedHat } = useTreeForm();
-  const { eligibility, toggle } = _.pick(selectedHat, [
-    'eligibility',
-    'toggle',
+  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
+    'extendedEligibility',
+    'extendedToggle',
   ]);
-  const statusData = status === 'eligibility' ? eligibility : toggle;
+  const statusData =
+    status === 'eligibility' ? extendedEligibility : extendedToggle;
 
-  const { data: moduleDetails } = useModuleDetails(statusData, chainId);
+  const { data: moduleDetails } = useModuleDetails(
+    _.get(statusData, 'id'),
+    chainId,
+  );
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
   });
@@ -62,7 +66,7 @@ const StatusCard = ({
           {_.capitalize(status)}
         </Heading>
         <Tooltip
-          label={statusData}
+          label={_.get(statusData, 'id')}
           placement='left'
           shouldWrapChildren
           hasArrow
@@ -78,7 +82,9 @@ const StatusCard = ({
                 <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
               )}
               <Text color='gray.500' fontSize='sm'>
-                {moduleDetails ? moduleDetails.name : formatAddress(statusData)}
+                {moduleDetails
+                  ? moduleDetails.name
+                  : statusData?.ensName || formatAddress(statusData?.id)}
               </Text>
             </HStack>
           </ChakraNextLink>

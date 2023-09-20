@@ -62,7 +62,7 @@ const HatTransferForm = ({
         )} to ${formatAddress(newWearerResolvedAddress)}`,
     },
     queryKeys: [
-      ['hatDetails', hatId || 'none'],
+      ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:

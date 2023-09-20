@@ -95,7 +95,7 @@ const useHatStatusCheck = ({
 
         setTimeout(() => {
           queryClient.invalidateQueries({
-            queryKey: ['hatDetails', _.get(hatData, 'id')],
+            queryKey: ['hatDetails', { id: _.get(hatData, 'id'), chainId }],
           });
           queryClient.invalidateQueries({
             queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],

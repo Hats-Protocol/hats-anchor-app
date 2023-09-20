@@ -18,7 +18,7 @@ const useHatDetails = ({
   error: unknown | null;
 } => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['hatDetails', hatId, chainId],
+    queryKey: ['hatDetails', { id: hatId, chainId }],
     queryFn: () => fetchHatDetails(hatId, chainId),
     enabled: !!hatId && hatId !== ZERO_ID && !!chainId,
     initialData,

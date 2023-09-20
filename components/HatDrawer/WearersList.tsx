@@ -33,7 +33,7 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { isSameAddress } from '@/lib/general';
-import { isTopHat, isWearer } from '@/lib/hats';
+import { isWearer } from '@/lib/hats';
 import { filterWearers, getEligibleWearers } from '@/lib/wearers';
 import { IHatWearer } from '@/types';
 
@@ -155,7 +155,6 @@ const WearersList = () => {
             isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
-            isTopHat={isTopHat(selectedHat)}
           />
         ))}
 
@@ -233,7 +232,6 @@ const WearersList = () => {
                 isAdminUser={isAdminUser}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
-                isTopHat={isTopHat(selectedHat)}
               />
             ))}
           </Flex>

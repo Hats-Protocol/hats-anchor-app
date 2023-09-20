@@ -208,6 +208,7 @@ export const TreeFormContextProvider = ({
       ),
     );
   }, [treeData, initialTreeData]);
+  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
   const draftHats = useMemo(
     () =>
@@ -316,9 +317,6 @@ export const TreeFormContextProvider = ({
     () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
     [onchainHats, selectedHat],
   );
-
-  // existing tree
-  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
   const handleSelectHat = useCallback(
     (id: Hex) => {

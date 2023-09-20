@@ -89,7 +89,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
         description: 'Successfully updated hat',
       },
       queryKeys: [
-        ['hatDetails', selectedHat?.id || 'none'],
+        ['hatDetails', { id: selectedHat?.id, chainId }],
         ['treeDetails', toTreeId(selectedHat?.id)],
       ],
       enabled:

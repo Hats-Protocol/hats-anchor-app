@@ -44,8 +44,8 @@ const HatLinkRequestCreateForm = ({
       )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
-      ['hatDetails', newAdmin, chainId || 1],
-      ['hatDetails', topHatDomain, chainId || 1],
+      ['hatDetails', { id: newAdmin, chainId }],
+      ['hatDetails', { id: topHatDomain, chainId }],
       ['treeDetails', topHatDomain, chainId || 1],
       ['treeDetails', newAdmin, chainId || 1],
     ],
