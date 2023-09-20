@@ -407,11 +407,15 @@ export const processHatForCalls = async (
     responsibilities: _.reject(responsibilities, ['label', '']),
     authorities: _.reject(authorities, ['label', '']),
     eligibility: {
-      manual: isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+      manual: isEligibilityManual
+        ? isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
+        : true,
       criteria: _.reject(revocationsCriteria, ['label', '']) || [],
     },
     toggle: {
-      manual: isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+      manual: isToggleManual
+        ? isToggleManual === TRIGGER_OPTIONS.MANUALLY
+        : true,
       criteria: _.reject(deactivationsCriteria, ['label', '']) || [],
     },
   };
