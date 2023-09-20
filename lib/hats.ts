@@ -533,7 +533,6 @@ export const processHatForCalls = async (
         hatChanges.newMaxSupply = parseInt(maxSupply, 10);
       }
     }
-    console.log(wearers);
 
     if (wearers) {
       if (_.eq(_.size(wearers), 1)) {

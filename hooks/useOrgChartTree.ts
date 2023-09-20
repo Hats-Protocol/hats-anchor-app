@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Hex } from 'viem';
 
-import { hash } from '@/lib/general';
+import { sha256 } from '@/lib/sha256';
 import { toTreeStructure } from '@/lib/tree';
 import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
+
+import useDeepCompareEffect from './useDeepCompareEffect';
 
 const useOrgChartTree = ({
   treeData,
@@ -19,19 +21,24 @@ const useOrgChartTree = ({
   initialHatIds,
   chainId,
 }: UseOrgChartTreeProps) => {
-  const [detailsHashes, setDetailsHashes] = useState<string[]>();
+  const [detailsHashes, setDetailsHashes] = useState<unknown[]>();
+  const [hatsHashes, setHatsHashes] = useState<unknown[]>();
 
-  useEffect(() => {
-    const handleDetailsHashes = async () => {
-      const promiseHashes = _.map(detailsData, (d) => hash(JSON.stringify(d)));
-      const result = await Promise.all(promiseHashes).then((hashes) => hashes);
-      setDetailsHashes(result);
-    };
+  useDeepCompareEffect(() => {
+    setDetailsHashes(
+      _.map(_.reject(detailsData, ['events', 'admin']), (d) =>
+        sha256(JSON.stringify(d)),
+      ),
+    );
+  }, [detailsData]);
 
-    if (!_.isEmpty(detailsData) && !detailsHashes) {
-      handleDetailsHashes();
-    }
-  }, [detailsData, detailsHashes]);
+  useDeepCompareEffect(() => {
+    setHatsHashes(
+      _.map(_.reject(hatsData, ['events', 'admin']), (d) =>
+        sha256(JSON.stringify(d)),
+      ),
+    );
+  }, [hatsData]);
 
   const fetchTree = async () => {
     if (
@@ -62,6 +69,7 @@ const useOrgChartTree = ({
     queryKey: [
       'orgChartTree',
       { chainId, treeId: treeData?.id },
+      hatsHashes,
       detailsHashes,
       _.map(imagesData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
       _.map(draftHats, (h) => _.pick(h, ['id', 'details', 'imageUri'])),

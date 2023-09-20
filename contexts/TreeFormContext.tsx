@@ -239,13 +239,6 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     onchainHats,
   });
-  // console.log(
-  //   'imageData',
-  //   _.find(imagesData, [
-  //     'id',
-  //     '0x0000000100030000000000000000000000000000000000000000000000000000',
-  //   ]),
-  // );
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
@@ -443,10 +436,10 @@ export const TreeFormContextProvider = ({
         return _.map(prevHats, (existingHat) => {
           const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
           console.log('proposedHat', proposedHat);
-          const newImageUrl = _.find(newImageUrls, ['id', existingHat.id]);
-          console.log('newImageUrl', newImageUrl);
+          // wearers is coming in as 'wearer'
+          // const newImageUrl = _.find(newImageUrls, ['id', existingHat.id]);
           const newName = _.find(storedData, ['id', existingHat.id])?.name;
-          console.log('newName', newName);
+
           if (proposedHat) {
             return {
               ...existingHat,

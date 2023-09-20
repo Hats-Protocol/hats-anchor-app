@@ -23,8 +23,9 @@ const useHatBurn = () => {
       description: 'Successfully removed hat',
     },
     queryKeys: [
-      ['hatDetails', hatId || '', chainId || ''],
+      ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId || ''],
+      ['orgChartTree'],
     ],
     enabled:
       Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,

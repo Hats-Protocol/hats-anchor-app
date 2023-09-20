@@ -49,7 +49,9 @@ const ModuleDetails = ({
         <AccordionPanel px={0}>
           <Stack>
             {_.map(moduleDetails.details, (detail) => (
-              <Text fontSize='sm'>{detail}</Text>
+              <Text key={detail} fontSize='sm'>
+                {detail}
+              </Text>
             ))}
           </Stack>
         </AccordionPanel>

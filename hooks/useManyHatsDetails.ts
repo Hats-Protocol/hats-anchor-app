@@ -15,18 +15,16 @@ const useManyHatDetails = ({
   const onlyOnchainHats = _.filter(hats, (hat) =>
     _.includes(_.map(initialHats, 'id'), hat.id),
   );
-  // console.log(onlyOnchainHats);
 
   const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
   const hatsDetails = useQueries({
     queries: _.map(onlyOnchainHats, (hat) => {
       const hatDetails = _.pick(hat, ['id', 'chainId']);
-      // console.log(hatDetails);
 
       return {
         queryKey: ['hatDetails', hatDetails],
         queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
-        enabled: !!hat.id && !!hat.chainId && !!hat.details && !!hat.imageUri,
+        enabled: !!hat.id && !!hat.chainId && !!hat.details,
         initialData: _.find(initialHats, ['id', hat.id]),
       };
     }),
