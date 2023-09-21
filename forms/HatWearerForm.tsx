@@ -43,7 +43,8 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
 
   const { handleSubmit, setValue, watch } = localForm;
-  const { chainId, selectedHat, onchainHats, storedData } = useTreeForm();
+  const { chainId, selectedHat, onchainHats, storedData, hatDisclosure } =
+    useTreeForm();
 
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
@@ -123,6 +124,9 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       title: `Hats Minted!`,
       description: `Successfully minted hats`,
     },
+    handleSuccess: () => {
+      hatDisclosure?.onClose();
+    },
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
@@ -142,6 +146,9 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       onSuccessToastData: {
         title: `Hat Minted!`,
         description: `Successfully minted hat`,
+      },
+      handleSuccess: () => {
+        hatDisclosure?.onClose();
       },
       queryKeys: [
         ['hatDetails', { id: hatId, chainId }],

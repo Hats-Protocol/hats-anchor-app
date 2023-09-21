@@ -61,7 +61,7 @@ const WearerRow = ({
       ['treeDetails', toTreeId(hatId)],
     ],
     handleSuccess: (data) => {
-      if (!_.isEmpty(data.logs)) {
+      if (!_.isEmpty(data?.logs)) {
         toast.info({
           title: `The status of ${formatAddress(
             wearer.id,

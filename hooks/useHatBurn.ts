@@ -8,7 +8,7 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 const useHatBurn = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
-  const { selectedHat, chainId } = useTreeForm();
+  const { selectedHat, chainId, hatDisclosure } = useTreeForm();
 
   const hatId = selectedHat?.id || 'none';
   const wearers = selectedHat?.wearers || [];
@@ -21,6 +21,9 @@ const useHatBurn = () => {
     onSuccessToastData: {
       title: 'Hat removed!',
       description: 'Successfully removed hat',
+    },
+    handleSuccess: () => {
+      hatDisclosure?.onClose();
     },
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
