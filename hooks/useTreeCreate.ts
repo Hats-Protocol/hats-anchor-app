@@ -22,7 +22,8 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
-  function handleSuccess(transactionData: TransactionReceipt) {
+  function handleSuccess(transactionData?: TransactionReceipt) {
+    if (!transactionData) return;
     const data = transactionData?.logs[0]?.data;
     const treeId = treeCreateEventIdToTreeId(data);
     if (!treeId) return;
