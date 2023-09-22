@@ -12,7 +12,6 @@ import {
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { processHatForCalls } from '@/lib/hats';
 import { IHat } from '@/types';
@@ -30,11 +29,11 @@ const useMulticallCallManyHats = () => {
     onchainHats,
     treeToDisplay,
     setStoredData,
+    patchTree,
   } = useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
-  const { patchTree } = useTreeForm();
 
   useEffect(() => {
     const prepareMulticallData = async () => {
@@ -76,7 +75,7 @@ const useMulticallCallManyHats = () => {
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi,
+    abi: CONFIG.hatsAbi,
     functionName: 'multicall',
     args: [_.map(calls, 'callData')],
     enabled: !_.isEmpty(calls) && !!chainId && chainId === currentChain,

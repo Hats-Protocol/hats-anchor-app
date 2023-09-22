@@ -58,7 +58,10 @@ const WearerDetail = ({
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
     useImageURIs({ hats: currentHats });
 
-  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+  const { data: ensName } = useEnsName({
+    address: wearerAddress,
+    chainId: 1,
+  });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName,
     chainId: 1,

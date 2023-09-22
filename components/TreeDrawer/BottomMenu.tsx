@@ -25,10 +25,10 @@ import { editHasUpdates } from '@/lib/hats';
 
 const BottomMenu = ({
   isExpanded,
-  setIsExpanded,
+  setAccordionIndex,
 }: {
   isExpanded: boolean;
-  setIsExpanded: (v: boolean) => void;
+  setAccordionIndex: (index: number[]) => void;
 }) => {
   const { storedData } = useTreeForm();
   const { data, isLoading } = useMulticallCallData({
@@ -50,89 +50,80 @@ const BottomMenu = ({
         borderColor='gray.200'
         bg='cyan.50'
       >
-        <Accordion allowToggle w='full' mt='-1px'>
-          <AccordionItem isDisabled={!hasUpdates}>
-            {({ isExpanded: localIsExpanded }) => {
-              if (hasUpdates) {
-                setIsExpanded(localIsExpanded);
-              }
+        <Accordion allowToggle w='full' mt='-1px' index={isExpanded ? [0] : []}>
+          <AccordionItem
+            isDisabled={!hasUpdates}
+            onClick={() => setAccordionIndex(isExpanded ? [] : [0])}
+          >
+            <AccordionButton px={8} py={4}>
+              <Box flex='1' textAlign='left'>
+                Transaction Call Data
+              </Box>
+              <Icon as={isExpanded ? IoIosArrowDown : IoIosArrowUp} />
+            </AccordionButton>
 
-              return (
-                <>
-                  <AccordionButton px={8} py={4}>
-                    <Box flex='1' textAlign='left'>
-                      Transaction Call Data
-                    </Box>
-                    <Icon as={isExpanded ? IoIosArrowDown : IoIosArrowUp} />
-                  </AccordionButton>
+            <AccordionPanel pb={8} px={8}>
+              <Stack>
+                <Text color='blackAlpha.700'>Hats contract address</Text>
+                <HStack spacing={4}>
+                  <Input
+                    value={CONFIG.hatsAddress}
+                    background='white'
+                    color='blackAlpha.600'
+                    isReadOnly
+                    placeholder='Loading...'
+                  />
+                  <Button
+                    leftIcon={<FiCopy />}
+                    onClick={() => {
+                      copyContractAddress();
+                      toast.info({
+                        title:
+                          'Successfully copied contract address to clipboard',
+                      });
+                    }}
+                    variant='outline'
+                    borderColor='gray.300'
+                  >
+                    Copy
+                  </Button>
+                </HStack>
+                <Text color='blackAlpha.700'>
+                  Copy this into the Data field of a transaction builder to
+                  deploy the tree from a contract (such as a multisig or DAO).
+                </Text>
 
-                  <AccordionPanel pb={8} px={8}>
-                    <Stack>
-                      <Text color='blackAlpha.700'>Hats contract address</Text>
-                      <HStack spacing={4}>
-                        <Input
-                          value={CONFIG.hatsAddress}
-                          background='white'
-                          color='blackAlpha.600'
-                          isReadOnly
-                          placeholder='Loading...'
-                        />
-                        <Button
-                          leftIcon={<FiCopy />}
-                          onClick={() => {
-                            copyContractAddress();
-                            toast.info({
-                              title:
-                                'Successfully copied contract address to clipboard',
-                            });
-                          }}
-                          variant='outline'
-                          borderColor='gray.300'
-                        >
-                          Copy
-                        </Button>
-                      </HStack>
-                      <Text color='blackAlpha.700'>
-                        Copy this into the Data field of a transaction builder
-                        to deploy the tree from a contract (such as a multisig
-                        or DAO).
-                      </Text>
-
-                      {!isLoading ? (
-                        <HStack spacing={4}>
-                          <Input
-                            value={isLoading ? '' : callData || ''}
-                            background='white'
-                            color='blackAlpha.600'
-                            isReadOnly
-                            placeholder='Loading...'
-                          />
-                          <Button
-                            leftIcon={<FiCopy />}
-                            onClick={() => {
-                              copyCallData();
-                              toast.info({
-                                title:
-                                  'Successfully copied hex code to clipboard',
-                              });
-                            }}
-                            isDisabled={!callData}
-                            variant='outline'
-                            borderColor='gray.300'
-                          >
-                            Copy
-                          </Button>
-                        </HStack>
-                      ) : (
-                        <Flex justify='center' align='center'>
-                          <Spinner />
-                        </Flex>
-                      )}
-                    </Stack>
-                  </AccordionPanel>
-                </>
-              );
-            }}
+                {!isLoading ? (
+                  <HStack spacing={4}>
+                    <Input
+                      value={isLoading ? '' : callData || ''}
+                      background='white'
+                      color='blackAlpha.600'
+                      isReadOnly
+                      placeholder='Loading...'
+                    />
+                    <Button
+                      leftIcon={<FiCopy />}
+                      onClick={() => {
+                        copyCallData();
+                        toast.info({
+                          title: 'Successfully copied hex code to clipboard',
+                        });
+                      }}
+                      isDisabled={!callData}
+                      variant='outline'
+                      borderColor='gray.300'
+                    >
+                      Copy
+                    </Button>
+                  </HStack>
+                ) : (
+                  <Flex justify='center' align='center'>
+                    <Spinner />
+                  </Flex>
+                )}
+              </Stack>
+            </AccordionPanel>
           </AccordionItem>
         </Accordion>
       </Flex>

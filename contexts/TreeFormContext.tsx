@@ -215,7 +215,7 @@ export const TreeFormContextProvider = ({
       _.reject(
         orgChartHats,
         (hat) =>
-          _.includes(_.map(onchainHats, 'id'), hat.id) ||
+          _.includes(_.map(onchainHats, 'id'), _.get(hat, 'id')) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       ),
     [onchainHats, orgChartHats],

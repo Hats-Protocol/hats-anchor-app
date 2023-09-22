@@ -1,34 +1,12 @@
 import { Hex } from 'viem';
 
-import defaultHat from './defaultHat';
-import {
-  EMPTY_FORM_VALUES,
-  FORM_FIELDS,
-  MODULE_TYPES,
-  MUTABILITY,
-  STATUS,
-  TRIGGER_OPTIONS,
-} from './form';
-import { featuredTemplates, featuredTrees, learnMore } from './landingContent';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS, ZERO_ID } from './misc';
-import { initialControls } from './treeControls';
+import { HATS_ABI } from '@/contracts/Hats';
 
-export {
-  defaultHat,
-  EMPTY_FORM_VALUES,
-  FALLBACK_ADDRESS,
-  featuredTemplates,
-  featuredTrees,
-  FORM_FIELDS,
-  initialControls,
-  learnMore,
-  MODULE_TYPES,
-  MUTABILITY,
-  STATUS,
-  TRIGGER_OPTIONS,
-  ZERO_ADDRESS,
-  ZERO_ID,
-};
+export { default as defaultHat } from './defaultHat';
+export * from './form';
+export * from './landingContent';
+export * from './misc';
+export * from './treeControls';
 
 const CONFIG: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,6 +14,7 @@ const CONFIG: {
   hatsAddress: Hex;
 } = {
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
+  hatsAbi: HATS_ABI,
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
   protocolVersion: '1.0',

@@ -16,6 +16,7 @@ import { FiCopy } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import { MODULE_TYPES } from '@/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatStatus from '@/hooks/useHatStatus';
 import useModuleDetails from '@/hooks/useModuleDetails';
@@ -40,12 +41,9 @@ const StatusCard = ({
     'extendedToggle',
   ]);
   const statusData =
-    status === 'eligibility' ? extendedEligibility : extendedToggle;
+    status === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
 
-  const { data: moduleDetails } = useModuleDetails(
-    _.get(statusData, 'id'),
-    chainId,
-  );
+  const { data: moduleDetails } = useModuleDetails(status);
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
   });
@@ -56,13 +54,13 @@ const StatusCard = ({
   const toast = useToast();
 
   let statusCheck = true;
-  if (status === 'eligibility') {
-    statusCheck = isEligible as boolean;
-  } else if (status === 'toggle') {
+  if (status === MODULE_TYPES.eligibility) {
+    statusCheck = isEligible;
+  } else if (status === MODULE_TYPES.toggle) {
     if (isAContract) {
-      statusCheck = isActive as boolean;
+      statusCheck = isActive;
     } else {
-      statusCheck = selectedHat?.status as boolean;
+      statusCheck = selectedHat?.status || false;
     }
   }
 
@@ -70,7 +68,7 @@ const StatusCard = ({
     <Stack>
       <Flex justifyContent='space-between'>
         <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-          {_.capitalize(status)}
+          {_.capitalize(_.toString(status))}
         </Heading>
         <Tooltip
           label={_.get(statusData, 'id')}
@@ -93,7 +91,10 @@ const StatusCard = ({
               color='gray.500'
             />
             <ChakraNextLink
-              href={`${explorerUrl(chainId)}/address/${statusData}`}
+              href={`${explorerUrl(chainId)}/address/${_.get(
+                statusData,
+                'id',
+              )}`}
               isExternal
             >
               <HStack>

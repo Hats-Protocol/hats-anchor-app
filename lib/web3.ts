@@ -87,7 +87,9 @@ export const wagmiConfig = createConfig({
   publicClient,
 });
 
-export function createHatsClient(chainId: number | undefined) {
+export function createHatsClient(
+  chainId: number | undefined,
+): HatsClient | undefined {
   if (!chainId) return undefined;
   const chain = chainsMap(chainId);
 

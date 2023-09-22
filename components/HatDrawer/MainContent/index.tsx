@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import ModuleDetails from '@/components/ModuleDetails';
+import { MODULE_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import { checkAddressIsContract } from '@/lib/contract';
@@ -33,9 +34,9 @@ const MainContent = () => {
         await checkAddressIsContract(selectedHat?.eligibility, chainId),
         await checkAddressIsContract(selectedHat?.toggle, chainId),
       ];
-      const data: unknown[] = await Promise.all(checkPromises);
-      setIsEligibilityAContract(_.first(data) as boolean);
-      setIsToggleAContract(_.nth(data, 1) as boolean);
+      const data: boolean[] = await Promise.all(checkPromises);
+      setIsEligibilityAContract(_.first(data) || false);
+      setIsToggleAContract(_.nth(data, 1) || false);
     };
     check();
   }, [chainId, selectedHat]);
@@ -65,12 +66,12 @@ const MainContent = () => {
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
           <StatusCard
-            status='eligibility'
+            status={MODULE_TYPES.eligibility}
             isAContract={isEligibilityAContract}
             label='Do I meet the requirements to wear this Hat?'
           />
         )}
-        <ModuleDetails address={selectedHat.eligibility} chainId={chainId} />
+        <ModuleDetails type={MODULE_TYPES.eligibility} />
         {!_.isEmpty(eligibility?.criteria) && (
           <DetailList
             title='Eligibility Criteria'
@@ -81,7 +82,7 @@ const MainContent = () => {
 
       {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
         <StatusCard
-          status='toggle'
+          status={MODULE_TYPES.toggle}
           isAContract={isToggleAContract}
           label='Is this hat active?'
         />

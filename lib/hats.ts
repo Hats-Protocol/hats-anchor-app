@@ -17,12 +17,15 @@ import {
   IHat,
   InputObject,
 } from '@/types';
-import { handleDetailsPin, ipfsUrl } from './ipfs';
+import { calculateCid, handleDetailsPin, ipfsUrl } from './ipfs';
 import { createHatsClient } from './web3';
 import { formatImageUrl, isImageUrl } from './general';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
-  const children = _.filter(hatsData, ['admin.id', id]);
+  const children = _.filter(
+    hatsData,
+    (h) => h.admin?.id === id || h.parentId === id,
+  );
   const lessTop = _.filter(children, (child) => child.id !== id);
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
 };
@@ -421,11 +424,12 @@ export const processHatForCalls = async (
   };
 
   if (!_.includes(_.map(onchainHats, 'id'), hatId)) {
-    const details = await handleDetailsPin({
-      chainId,
-      hatId,
-      newDetails: detailsData,
-    });
+    // const details = await handleDetailsPin({
+    //   chainId,
+    //   hatId,
+    //   newDetails: detailsData,
+    // });
+    const details = await calculateCid(detailsData);
 
     const newHat = {
       admin: BigInt(getDefaultAdminId(hatId)),
@@ -504,12 +508,15 @@ export const processHatForCalls = async (
         'detailsObject.data',
       );
 
-      const newCid = await handleDetailsPin({
-        chainId,
-        hatId,
-        newDetails: detailsData,
-        existingDetails,
-      });
+      // const newCid = await handleDetailsPin({
+      //   chainId,
+      //   hatId,
+      //   newDetails: detailsData,
+      //   existingDetails,
+      // });
+      const newCid = await calculateCid(
+        _.merge({}, existingDetails, detailsData),
+      );
 
       const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
         hatId: decimalId(hatId) as unknown as bigint,

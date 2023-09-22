@@ -4,7 +4,9 @@ import { FieldItem } from '@/types';
 
 import { FALLBACK_ADDRESS } from './misc';
 
-export const MODULE_TYPES: { [key: string]: string } = {
+export type ModuleTypes = { [key: string]: string };
+
+export const MODULE_TYPES: ModuleTypes = {
   eligibility: 'ELIGIBILITY',
   toggle: 'TOGGLE',
 };

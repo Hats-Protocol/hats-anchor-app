@@ -7,6 +7,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
+import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
 import { WagmiConfig } from 'wagmi';
 
@@ -48,8 +49,3 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
 );
 
 export default MyApp;
-
-interface AppProps {
-  Component: any;
-  pageProps: any;
-}

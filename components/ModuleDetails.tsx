@@ -14,24 +14,17 @@ import {
 import _ from 'lodash';
 import React from 'react';
 import { FiExternalLink } from 'react-icons/fi';
-import { Hex } from 'viem';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDetails from '@/hooks/useModuleDetails';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 import ModuleParameters from './ModuleParameters';
 
-const ModuleDetails = ({
-  address,
-  chainId,
-}: {
-  address: Hex;
-  chainId: number | undefined;
-}) => {
-  const { data: moduleDetails, parameters } = useModuleDetails(
-    address,
-    chainId,
-  );
+const ModuleDetails = ({ type }: { type: string }) => {
+  const { chainId } = useTreeForm();
+
+  const { data: moduleDetails, parameters } = useModuleDetails(type);
 
   if (!moduleDetails) return null;
 

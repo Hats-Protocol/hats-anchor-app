@@ -5,7 +5,6 @@ import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import CONFIG, { STATUS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
 import { decimalId, toTreeId } from '@/lib/hats';
@@ -39,7 +38,7 @@ const useHatStatusCheck = ({
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId,
-    abi,
+    abi: CONFIG.hatsAbi,
     functionName: 'checkHatStatus',
     args: [decimalId(_.get(hatData, 'id'))],
     enabled:

@@ -37,7 +37,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     treeEvents,
     topHatDetails,
   } = useTreeForm();
-  const lastEvent = _.last(treeEvents);
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
@@ -71,9 +70,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             )}{' '}
           ago. Last edited{' '}
           {/* maybe we're looking for the last change in the tree, not the top hat? */}
-          {_.get(lastEvent, 'timestamp') &&
+          {_.get(_.last(treeEvents), 'timestamp') &&
             formatDistanceToNow(
-              new Date(Number(_.get(lastEvent, 'timestamp')) * 1000),
+              new Date(Number(_.get(_.last(treeEvents), 'timestamp')) * 1000),
             )}{' '}
           ago.
         </Text>
@@ -89,7 +88,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       </Stack>
       <Box
         overflow='scroll'
-        height={isExpanded ? '270px' : '400px'}
+        height={isExpanded ? '200px' : '400px'}
         borderY='1px solid'
         borderColor='gray.200'
       >

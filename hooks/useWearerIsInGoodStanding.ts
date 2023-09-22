@@ -3,7 +3,6 @@ import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import abi from '@/contracts/Hats.json';
 
 const useWearerIsInGoodStanding = ({ wearer }: UseWearerIsInGoodStanding) => {
   const { chainId, selectedHat } = useTreeForm();
@@ -12,7 +11,7 @@ const useWearerIsInGoodStanding = ({ wearer }: UseWearerIsInGoodStanding) => {
 
   const { data, isLoading } = useContractRead({
     address: CONFIG.hatsAddress,
-    abi,
+    abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isInGoodStanding',
     args: [wearer, hatId],
