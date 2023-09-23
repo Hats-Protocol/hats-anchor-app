@@ -15,7 +15,7 @@ const useWearerIsInGoodStanding = ({ wearer }: UseWearerIsInGoodStanding) => {
     chainId,
     functionName: 'isInGoodStanding',
     args: [wearer, hatId],
-    enabled: wearer && isAddress(wearer) && Boolean(hatId),
+    enabled: !!wearer && isAddress(wearer) && Boolean(hatId),
   });
 
   return { data, isLoading };

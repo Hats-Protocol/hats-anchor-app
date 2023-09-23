@@ -93,7 +93,8 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
     name: currentInput,
     chainId: 1,
-    enabled: currentInput.includes('.eth'),
+    enabled:
+      !!currentInput && currentInput !== '' && currentInput.includes('.eth'),
   });
 
   const { data: isInGoodStanding } = useWearerIsInGoodStanding({

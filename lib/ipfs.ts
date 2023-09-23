@@ -98,29 +98,23 @@ export const calculateCid = async (data: object): Promise<string> => {
 interface handleDetailsPinProps {
   chainId: number;
   hatId: string;
-  newDetails: Partial<FormDataDetails>;
-  existingDetails?: Partial<FormDataDetails> | object;
+  details: Partial<FormDataDetails>;
 }
 
 export const handleDetailsPin = async ({
   chainId,
   hatId,
-  newDetails,
-  existingDetails,
+  details,
 }: handleDetailsPinProps) => {
   const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
 
-  const newDetailsData = _.merge({}, existingDetails, newDetails);
-
   const cid = `ipfs://${await pinJson(
-    {
-      type: '1.0',
-      data: newDetailsData,
-    },
+    { type: '1.0', data: details },
     { name: detailsName },
   )}`;
+
   return cid;
 };
 

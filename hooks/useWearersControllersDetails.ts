@@ -12,6 +12,7 @@ const fetchWearerAndControllerDetails = async (
   chainId: number | undefined,
 ) => {
   if (!wearer || !chainId) return undefined;
+
   const data = await Promise.all([
     checkAddressIsContract(wearer, chainId),
     fetchEnsName({
@@ -21,15 +22,16 @@ const fetchWearerAndControllerDetails = async (
   ]).catch((err) => {
     // eslint-disable-next-line no-console
     console.log(err);
-    return undefined;
   });
 
   if (!data) return undefined;
 
+  const [isContract, ensName] = data as [boolean, string];
+
   return {
     id: wearer,
-    isContract: data[0] as boolean,
-    ensName: data[1] as string,
+    isContract,
+    ensName: ensName || '',
   };
 };
 

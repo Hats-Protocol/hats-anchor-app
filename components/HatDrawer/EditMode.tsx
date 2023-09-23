@@ -192,6 +192,7 @@ const EditMode = ({
   } = useEnsAddress({
     name: eligibilityFormValue,
     chainId: 1,
+    enabled: !!eligibilityFormValue && eligibilityFormValue.includes('.eth'),
   });
 
   const {
@@ -200,6 +201,7 @@ const EditMode = ({
   } = useEnsAddress({
     name: toggleFormValue,
     chainId: 1,
+    enabled: !!toggleFormValue && toggleFormValue.includes('.eth'),
   });
 
   useEffect(() => {
@@ -215,11 +217,14 @@ const EditMode = ({
   useEffect(() => {
     const updatedControllers: Partial<FormData> = {};
     if (toggleResolvedAddress !== unsavedData?.toggle) {
-      updatedControllers.toggle = toggleResolvedAddress || allFormData.toggle;
+      updatedControllers.toggle = _.toLower(
+        toggleResolvedAddress || allFormData.toggle,
+      ) as Hex;
     }
     if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
-      updatedControllers.eligibility =
-        eligibilityResolvedAddress || allFormData.eligibility;
+      updatedControllers.eligibility = _.toLower(
+        eligibilityResolvedAddress || allFormData.eligibility,
+      ) as Hex;
     }
 
     if (!_.isEmpty(_.keys(updatedControllers)))

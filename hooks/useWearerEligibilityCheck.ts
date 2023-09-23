@@ -1,4 +1,4 @@
-import { Hex } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
@@ -17,7 +17,11 @@ const useWearerEligibilityCheck = ({
     chainId,
     functionName: 'isEligible',
     args: [wearer, hatId],
-    enabled: Boolean(wearer) && Boolean(hatId) && Boolean(chainId),
+    enabled:
+      Boolean(wearer) &&
+      isAddress(wearer || '0x') &&
+      Boolean(hatId) &&
+      Boolean(chainId),
   });
 
   return { data: data as unknown as boolean, isLoading };

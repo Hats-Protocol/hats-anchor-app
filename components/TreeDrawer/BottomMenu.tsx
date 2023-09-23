@@ -51,11 +51,12 @@ const BottomMenu = ({
         bg='cyan.50'
       >
         <Accordion allowToggle w='full' mt='-1px' index={isExpanded ? [0] : []}>
-          <AccordionItem
-            isDisabled={!hasUpdates}
-            onClick={() => setAccordionIndex(isExpanded ? [] : [0])}
-          >
-            <AccordionButton px={8} py={4}>
+          <AccordionItem isDisabled={!hasUpdates}>
+            <AccordionButton
+              px={8}
+              py={4}
+              onClick={() => setAccordionIndex(isExpanded ? [] : [0])}
+            >
               <Box flex='1' textAlign='left'>
                 Transaction Call Data
               </Box>

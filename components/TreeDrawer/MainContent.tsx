@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
@@ -102,7 +103,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             setSelectedHatId?.(hat.id);
           };
 
-          const hatId = prettyIdToIp(idToPrettyId(hat.id));
+          const hatId = hatIdDecimalToIp(BigInt(hat.id));
           // get hat name for list display
           let displayName =
             _.get(hat, 'newName') || _.get(hat, 'detailsObject.data.name');

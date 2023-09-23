@@ -48,11 +48,13 @@ const responsibilitiesFields: FieldItem[] = [
 ];
 
 const revocationFields: FieldItem[] = [
+  { name: 'isEligibilityManual', label: 'Eligibility Type' },
   { name: 'eligibility', label: 'Eligibility' },
   { name: 'revocationsCriteria', label: 'Revocation Criteria' },
 ];
 
 const deactivationFields: FieldItem[] = [
+  { name: 'isToggleManual', label: 'Toggle Type' },
   { name: 'toggle', label: 'Toggle' },
   { name: 'deactivationsCriteria', label: 'Deactivation Criteria' },
 ];
