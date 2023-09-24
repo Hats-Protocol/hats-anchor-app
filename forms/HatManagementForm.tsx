@@ -30,6 +30,7 @@ import ModuleDrawer from '@/components/ModuleDrawer';
 import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatsModules from '@/hooks/useHatsModules';
 import { isMutable } from '@/lib/hats';
 import { DetailsItem, ModuleKind } from '@/types';
 
@@ -66,6 +67,7 @@ const HatManagementForm = ({
 }: HatManagementFormProps) => {
   const { watch, control, setValue, getValues } = localForm;
   const { selectedHat } = useTreeForm();
+  const { modules } = useHatsModules();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -73,8 +75,9 @@ const HatManagementForm = ({
   });
 
   const items = watch(formName);
-
   const isActionManual = watch(radioBoxConfig.name);
+  const moduleAddress = watch(title);
+
   const showActionResolvedAddress =
     actionResolvedAddress && actionResolvedAddress !== address;
 
@@ -157,7 +160,15 @@ const HatManagementForm = ({
               isDisabled={!isMutable(selectedHat)}
               resolvedAddress={String(actionResolvedAddress)}
             />
-            <Box>
+            <HStack spacing={8}>
+              {modules?.[moduleAddress] && (
+                <HStack>
+                  <Icon as={BsFileCode} boxSize={4} color='gray.500' />
+                  <Text color='blackAlpha.700' fontSize='sm'>
+                    {modules[moduleAddress].name}
+                  </Text>
+                </HStack>
+              )}
               {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
                 <Button
                   leftIcon={<BsFileCode />}
@@ -169,7 +180,7 @@ const HatManagementForm = ({
                   Create new Module
                 </Button>
               )}
-            </Box>
+            </HStack>
           </Stack>
         </FormRowWrapper>
         {/* <FormRowWrapper>

@@ -8,7 +8,7 @@ const useModuleInstance = ({
   chainId,
   enabled = true,
 }: {
-  address: Hex;
+  address?: Hex;
   chainId: number | undefined;
   enabled?: boolean;
 }) => {
