@@ -20,8 +20,7 @@ const PermissionlessClaimingForm = ({
 }: {
   localForm: UseFormReturn<any>;
 }) => {
-  const { onchainHats, treeToDisplay, topHatDetails, selectedHat } =
-    useTreeForm();
+  const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
 
   const parentHats = useMemo(() => {

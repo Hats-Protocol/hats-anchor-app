@@ -8,11 +8,13 @@ import {
   Flex,
   Heading,
   HStack,
+  IconButton,
   SimpleGrid,
   Skeleton,
   Spinner,
   Stack,
   Text,
+  useClipboard,
 } from '@chakra-ui/react';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
@@ -20,6 +22,7 @@ import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
+import { FiCopy } from 'react-icons/fi';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -28,6 +31,7 @@ import CoreHat from '@/components/WearerHatCard';
 import useControllerList from '@/hooks/useControllerList';
 import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
+import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { chainsMap, orderedChains } from '@/lib/web3';
@@ -45,6 +49,9 @@ const WearerDetail = ({
     wearerAddress,
     chainId: 'all',
   });
+
+  const toast = useToast();
+  const { onCopy } = useClipboard(wearerAddress);
 
   const firstCreated = _.minBy(currentHats, 'createdAt');
 
@@ -121,9 +128,24 @@ const WearerDetail = ({
           <HStack spacing={6}>
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
-              <Heading size='lg' fontWeight='medium'>
-                {name}
-              </Heading>
+              <HStack>
+                <Heading size='lg' fontWeight='medium'>
+                  {name}
+                </Heading>
+                <IconButton
+                  variant='ghost'
+                  icon={<FiCopy />}
+                  size='sm'
+                  onClick={() => {
+                    onCopy();
+                    toast.info({
+                      title: 'Successfully copied Address to clipboard',
+                    });
+                  }}
+                  aria-label='Copy Address'
+                  color='gray.500'
+                />
+              </HStack>
               <Skeleton isLoaded={!wearerLoading}>
                 {!!_.get(firstCreated, 'createdAt') && (
                   <Text>
