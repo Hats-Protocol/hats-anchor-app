@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
+import { isAddress } from 'viem';
 
 import DatePicker from '@/components/atoms/DatePicker';
 import Input from '@/components/atoms/Input';
@@ -99,7 +100,6 @@ const ModuleDetailsForm = ({
           <Icon as={BsTextLeft} boxSize={4} mt={1} />
           {(arg.displayType === 'default' ||
             arg.displayType === 'token' ||
-            arg.displayType === 'amountWithDecimals' ||
             arg.displayType === 'jokerace') && (
             <Input
               name={arg.name}
@@ -112,7 +112,16 @@ const ModuleDetailsForm = ({
               }
               options={{
                 required: true,
-                validate: (value) => transformAndVerify(value, arg.type),
+                validate: (value) => {
+                  if (
+                    ['token', 'jokerace'].includes(arg.displayType) &&
+                    !isAddress(value)
+                  ) {
+                    return 'Invalid address';
+                  }
+
+                  return transformAndVerify(value, arg.type);
+                },
               }}
               localForm={localForm}
             />
@@ -145,7 +154,8 @@ const ModuleDetailsForm = ({
               localForm={localForm}
             />
           )}
-          {arg.displayType === 'seconds' && (
+          {(arg.displayType === 'seconds' ||
+            arg.displayType === 'amountWithDecimals') && (
             <Input
               name={arg.name}
               label={arg.name}
