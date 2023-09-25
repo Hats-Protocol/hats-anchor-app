@@ -7,8 +7,8 @@ import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
 
-import { FormDataDetails } from '@/types';
 import CONFIG from '@/constants';
+import { FormDataDetails } from '@/types';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 

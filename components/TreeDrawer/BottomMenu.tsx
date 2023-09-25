@@ -23,6 +23,8 @@ import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';
 import { editHasUpdates } from '@/lib/hats';
 
+// ! use Input component
+
 const BottomMenu = ({
   isExpanded,
   setAccordionIndex,

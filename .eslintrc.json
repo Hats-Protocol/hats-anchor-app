@@ -44,6 +44,7 @@
         "tsx": "never"
       }
     ],
+    "import/named": "off", // `multiformats` breaking
     "import/no-cycle": "off", // `multiformats` breaking [2, { "ignoreExternal": true }],
 
     // import sort

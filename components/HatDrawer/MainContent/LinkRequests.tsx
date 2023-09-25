@@ -1,5 +1,4 @@
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useState } from 'react';
 
 import Modal from '@/components/atoms/Modal';

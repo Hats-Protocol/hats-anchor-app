@@ -3,23 +3,9 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import {
-  defaultHat,
-  FALLBACK_ADDRESS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@/constants';
-import {
-  FormData,
-  FormDataDetails,
-  HatDetails,
-  Hierarchy,
-  IControls,
-  IHat,
-  InputObject,
-} from '@/types';
-import { calculateCid, ipfsUrl } from './ipfs';
-import { createHatsClient } from './web3';
+import { defaultHat, MUTABILITY } from '@/constants';
+import { FormData, Hierarchy, IControls, IHat, InputObject } from '@/types';
+
 import { formatImageUrl, isImageUrl } from './general';
 
 export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
@@ -365,7 +351,7 @@ export const getAllParents = (hatId?: Hex, tree?: IHat[]): Hex[] => {
   let currentHat = tree.find((hat) => hat.id === hatId);
 
   while (currentHat?.parentId) {
-    const parentId = currentHat.parentId;
+    const { parentId } = currentHat;
     parents.push(parentId);
     currentHat = tree.find((hat) => hat.id === parentId);
   }
@@ -379,4 +365,5 @@ export const checkImageForHat = async (img?: string) => {
   if (isValidImage) {
     return formatImageUrl(img);
   }
+  return null;
 };
