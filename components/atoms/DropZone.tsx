@@ -99,7 +99,7 @@ const DropZone = ({
             <Box style={thumb}>
               <Flex minWidth={0} overflow='hidden'>
                 <Image
-                  src={image?.preview ?? imageUrl}
+                  src={image?.preview ?? (imageUrl || undefined)}
                   display='block'
                   width='auto'
                   height='100%'
@@ -120,7 +120,9 @@ const DropZone = ({
 export default DropZone;
 
 interface DropZoneProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getRootProps: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getInputProps: any;
   // acceptedFiles?: string[];
   isFocused?: boolean;
@@ -128,5 +130,5 @@ interface DropZoneProps {
   isDragReject?: boolean;
   isFullWidth?: boolean;
   image?: ImageFile;
-  imageUrl?: string;
+  imageUrl?: string | null;
 }

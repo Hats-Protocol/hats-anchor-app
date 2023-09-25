@@ -118,7 +118,7 @@ export const formatImageUrl = (url?: string) => {
     return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
   }
 
-  return undefined;
+  return null;
 };
 
 export const transformInput = (

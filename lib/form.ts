@@ -1,12 +1,13 @@
+/* eslint-disable import/prefer-default-export */
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import { FormData, FormDataDetails, HatDetails, IHat } from '@/types';
 
+import { getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl } from './ipfs';
 import { createHatsClient } from './web3';
-import { getDefaultAdminId } from './hats';
 
 const hasDetailsChanged = (hat: Partial<FormDataDetails>) => {
   const {
@@ -108,7 +109,7 @@ interface ProcessCallForHatProps {
 const emptyReturnData = {
   calls: [],
   hatChanges: {},
-  detailsToPin: {},
+  detailsToPin: undefined,
 };
 
 const processNewDetailsCallForHat = async ({
@@ -343,7 +344,8 @@ const processMutabilityChangeCallForHat = async ({
   const { calls, hatChanges } = returnData;
   const { mutable, id: hatId } = hat;
 
-  if (!hatId || !mutable) return returnData;
+  if (!hatId || (!!mutable && mutable) || mutable === undefined)
+    return returnData;
 
   const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
     hatId: BigInt(hatId),

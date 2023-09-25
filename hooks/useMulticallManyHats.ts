@@ -2,6 +2,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 import {
   useAccount,
   useChainId,
@@ -14,8 +15,8 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { processHatForCalls } from '@/lib/form';
-import { HatDetails, IHat } from '@/types';
 import { handleDetailsPin } from '@/lib/ipfs';
+import { HatDetails, IHat } from '@/types';
 
 const useMulticallCallManyHats = () => {
   const [calls, setCalls] = useState<unknown[]>();
@@ -158,13 +159,17 @@ const useMulticallCallManyHats = () => {
   });
 
   const handleWrite = async () => {
+    // eslint-disable-next-line no-console
+    console.log(calls);
     if (!_.isEmpty(detailsToPin)) {
-      const promises = _.map(detailsToPin, ({ chainId, hatId, details }: any) =>
-        handleDetailsPin({ chainId, hatId, details }),
+      // ? check to see if any objects are already pinned
+      const promises = _.map(
+        _.compact(detailsToPin),
+        ({ chainId: cId, hatId, details }: HatPinDetails) =>
+          handleDetailsPin({ chainId: cId, hatId, details }),
       );
 
       await Promise.all(promises);
-      // console.log(result);
     }
     const result = await writeAsync?.();
     return result;
@@ -178,5 +183,11 @@ const useMulticallCallManyHats = () => {
     proposedChanges,
   };
 };
+
+interface HatPinDetails {
+  chainId: number;
+  hatId: Hex;
+  details: HatDetails;
+}
 
 export default useMulticallCallManyHats;
