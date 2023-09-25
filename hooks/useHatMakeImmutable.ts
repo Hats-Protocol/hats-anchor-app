@@ -6,6 +6,8 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, toTreeId } from '@/lib/hats';
 
+// ! not used w/ edit form
+
 const useHatMakeImmutable = ({
   levelAtLocalTree,
   isAdminUser,
@@ -32,6 +34,7 @@ const useHatMakeImmutable = ({
     ],
     enabled:
       !!selectedHatId &&
+      !!selectedHat?.mutable &&
       Boolean(decimalId(selectedHatId)) &&
       !!mutable &&
       _.gt(levelAtLocalTree, 0) &&

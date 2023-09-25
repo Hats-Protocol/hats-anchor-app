@@ -5,7 +5,6 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 
 interface ContractInteractionProps {
@@ -39,7 +38,7 @@ const useHatContractWrite = ({
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi,
+    abi: CONFIG.hatsAbi,
     functionName,
     args,
     enabled: enabled && !!chainId,

@@ -13,7 +13,6 @@ const TreeDetails = ({
   treeId,
   chainId,
   initialTreeData,
-  initialHatIds,
 }: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
@@ -27,7 +26,7 @@ const TreeDetails = ({
       chainId={chainId}
       initialHatId={hatId}
       initialTreeData={initialTreeData}
-      initialHatIds={initialHatIds}
+      // initialHatIds={initialHatIds}
     >
       <TreePage />
     </TreeFormContextProvider>
@@ -47,6 +46,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   }
 
   const treeHex = decimalToTreeId(treeId);
+  // TODO get less hat data here
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
 
   if (!treeData) {
@@ -111,5 +111,5 @@ interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
   initialTreeData: ITree;
-  initialHatIds: Hex[];
+  // initialHatIds: Hex[];
 }

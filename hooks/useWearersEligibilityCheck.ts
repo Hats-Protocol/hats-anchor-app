@@ -4,7 +4,6 @@ import _ from 'lodash';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import abi from '@/contracts/Hats.json';
 
 const useWearersEligibilityCheck = ({
   wearerIds,
@@ -19,7 +18,7 @@ const useWearersEligibilityCheck = ({
         if (hatId && chainId) {
           const eligibility = await readContract({
             address: CONFIG.hatsAddress,
-            abi,
+            abi: CONFIG.hatsAbi,
             functionName: 'isEligible',
             args: [wearer, hatId],
             chainId,

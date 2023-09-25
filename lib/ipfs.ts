@@ -7,8 +7,8 @@ import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
 
-import { FormDataDetails } from '@/types';
 import CONFIG from '@/constants';
+import { FormDataDetails } from '@/types';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
@@ -84,7 +84,6 @@ export const unpinImage = async (cid: string) => {
   };
 
   const res = await axios(config);
-  // console.log('upnin res:', res);
   return res;
 };
 
@@ -98,29 +97,23 @@ export const calculateCid = async (data: object): Promise<string> => {
 interface handleDetailsPinProps {
   chainId: number;
   hatId: string;
-  newDetails: Partial<FormDataDetails>;
-  existingDetails?: Partial<FormDataDetails> | object;
+  details: Partial<FormDataDetails>;
 }
 
 export const handleDetailsPin = async ({
   chainId,
   hatId,
-  newDetails,
-  existingDetails,
+  details,
 }: handleDetailsPinProps) => {
   const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
 
-  const newDetailsData = _.merge({}, existingDetails, newDetails);
-
   const cid = `ipfs://${await pinJson(
-    {
-      type: '1.0',
-      data: newDetailsData,
-    },
+    { type: '1.0', data: details },
     { name: detailsName },
   )}`;
+
   return cid;
 };
 

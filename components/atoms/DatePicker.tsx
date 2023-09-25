@@ -9,7 +9,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import DatePickerComponent from 'react-datepicker';
 import { Controller, UseFormReturn } from 'react-hook-form';

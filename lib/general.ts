@@ -1,6 +1,6 @@
+import { solidityToTypescriptType, verify } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { verify, solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 
 import CONFIG from '@/constants';
 
@@ -118,7 +118,7 @@ export const formatImageUrl = (url?: string) => {
     return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
   }
 
-  return undefined;
+  return null;
 };
 
 export const transformInput = (
@@ -155,6 +155,7 @@ export const transformInput = (
     default:
       throw new Error(`Invalid Solidity type: ${solidityType}`);
   }
+  return undefined;
 };
 
 export const transformAndVerify = (

@@ -8,18 +8,14 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 
 import Markdown from '@/components/atoms/Markdown';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import {
-  getProposedChangesCount,
-  idToPrettyId,
-  isTopHatOrMutable,
-  prettyIdToIp,
-} from '@/lib/hats';
+import { getProposedChangesCount, isTopHatOrMutable } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const isDraft = (hatId: string, onchainHats: IHat[]) =>
@@ -37,7 +33,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     treeEvents,
     topHatDetails,
   } = useTreeForm();
-  const lastEvent = _.last(treeEvents);
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
@@ -71,9 +66,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             )}{' '}
           ago. Last edited{' '}
           {/* maybe we're looking for the last change in the tree, not the top hat? */}
-          {_.get(lastEvent, 'timestamp') &&
+          {_.get(_.last(treeEvents), 'timestamp') &&
             formatDistanceToNow(
-              new Date(Number(_.get(lastEvent, 'timestamp')) * 1000),
+              new Date(Number(_.get(_.last(treeEvents), 'timestamp')) * 1000),
             )}{' '}
           ago.
         </Text>
@@ -89,7 +84,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       </Stack>
       <Box
         overflow='scroll'
-        height={isExpanded ? '270px' : '400px'}
+        height={isExpanded ? '200px' : '400px'}
         borderY='1px solid'
         borderColor='gray.200'
       >
@@ -103,7 +98,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             setSelectedHatId?.(hat.id);
           };
 
-          const hatId = prettyIdToIp(idToPrettyId(hat.id));
+          const hatId = hatIdDecimalToIp(BigInt(hat.id));
           // get hat name for list display
           let displayName =
             _.get(hat, 'newName') || _.get(hat, 'detailsObject.data.name');

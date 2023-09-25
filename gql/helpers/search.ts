@@ -1,11 +1,13 @@
+/* eslint-disable import/prefer-default-export */
 import _ from 'lodash';
+import { Hex } from 'viem';
 
+import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
-import { ITree, IHat } from '@/types';
+import { IHat, ITree } from '@/types';
+
 import client from '../client';
 import { SEARCH_QUERY } from '../queries';
-import { prettyIdToIp, idToPrettyId } from '@/lib/hats';
-import { Hex } from 'viem';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',

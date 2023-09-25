@@ -20,6 +20,8 @@ export const checkAddressIsContract = async (
     transport: custom((window as any).ethereum) || http(),
   });
 
+  if (!publicClient) return false;
+
   try {
     const bytecode = await publicClient.getBytecode({
       address,

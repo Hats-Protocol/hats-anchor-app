@@ -1,5 +1,4 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
-// import { InfiniteData } from '@tanstack/react-query';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';

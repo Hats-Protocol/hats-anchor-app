@@ -1,11 +1,12 @@
-/* eslint-disable no-continue */
-/* eslint-disable no-restricted-syntax */
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { processHatForCalls } from '@/lib/hats';
+import { processHatForCalls } from '@/lib/form';
+import { handleDetailsPin } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
+
+import { HatPinDetails } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {
   isExpanded: boolean;
@@ -28,10 +29,15 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
     );
     const allCalls = await Promise.all(allCallsPromises);
 
-    const calls = _.map(
-      _.flatten(_.map(allCalls, (item) => item.calls) || []),
-      (call) => call.callData,
+    const calls = _.map(_.flatten(_.map(allCalls, 'calls') || []), 'callData');
+
+    const detailsToPin = _.map(allCalls, 'detailsToPin');
+    const detailsPromises = _.map(
+      detailsToPin,
+      ({ chainId: localChainId, hatId, details }: HatPinDetails) =>
+        handleDetailsPin({ chainId: localChainId, hatId, details }),
     );
+    await Promise.all(detailsPromises);
 
     return Promise.resolve(hatsClient?.multicallCallData(calls));
   };

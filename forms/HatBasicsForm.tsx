@@ -28,6 +28,7 @@ import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl } from '@/lib/general';
 import { isMutable, isTopHat } from '@/lib/hats';
+import { ImageFile } from '@/types';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },
@@ -41,6 +42,7 @@ const HatBasicsForm = ({
   localForm,
   setNewImageURI,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   setNewImageURI: (uri: string) => void;
 }) => {
@@ -52,7 +54,7 @@ const HatBasicsForm = ({
     selectedHat?.id,
   ])?.newImageUrl;
 
-  const [image, setImage] = useState<any>();
+  const [image, setImage] = useState<ImageFile>();
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -74,7 +76,7 @@ const HatBasicsForm = ({
       setImage(
         Object.assign(a[0], {
           preview: URL.createObjectURL(a[0]),
-        }),
+        } as ImageFile),
       );
     },
   });

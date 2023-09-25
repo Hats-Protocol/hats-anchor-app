@@ -80,8 +80,9 @@ interface SelectProps {
     pattern?: RegExp;
     min?: number;
     max?: number;
-    validate?: (value: any) => boolean | string;
+    validate?: (value: object) => boolean | string;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;
   defaultValue?: string | number;

@@ -31,6 +31,7 @@ import {
   ipToHatId,
   translateDrafts,
 } from '@/lib/hats';
+import { ipfsUrl } from '@/lib/ipfs';
 import {
   FormData,
   HatDetails,
@@ -40,7 +41,6 @@ import {
   ITree,
   LinkRequest,
 } from '@/types';
-import { ipfsUrl } from '@/lib/ipfs';
 
 export interface ITreeFormContext {
   chainId: number | undefined;
@@ -138,14 +138,14 @@ export const TreeFormContextProvider = ({
   chainId,
   initialHatId,
   initialTreeData,
-  initialHatIds,
+  // initialHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
   initialHatId: string | undefined;
   initialTreeData: ITree;
-  initialHatIds: Hex[];
+  // initialHatIds: Hex[];
   children: ReactNode;
 }) => {
   const onchainTree = useRef(initialTreeData);
@@ -215,7 +215,7 @@ export const TreeFormContextProvider = ({
       _.reject(
         orgChartHats,
         (hat) =>
-          _.includes(_.map(onchainHats, 'id'), hat.id) ||
+          _.includes(_.map(onchainHats, 'id'), _.get(hat, 'id')) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       ),
     [onchainHats, orgChartHats],
@@ -433,7 +433,6 @@ export const TreeFormContextProvider = ({
 
         return _.map(prevHats, (existingHat) => {
           const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
-          console.log('proposedHat', proposedHat);
           // wearers is coming in as 'wearer'
           // const newImageUrl = _.find(newImageUrls, ['id', existingHat.id]);
           const newName = _.find(storedData, ['id', existingHat.id])?.name;
@@ -454,7 +453,7 @@ export const TreeFormContextProvider = ({
         });
       });
     },
-    [newImageUrls, storedData],
+    [storedData],
   );
 
   const hierarchy = useMemo(() => {
