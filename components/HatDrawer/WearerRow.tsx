@@ -9,6 +9,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
@@ -92,6 +93,8 @@ const WearerRow = ({
   const handleRenounceHat = async () => {
     await renounceHat?.();
   };
+
+  const { onCopy } = useClipboard(wearer.id);
 
   let icon = <Icon as={FaUser} color='gray.500' />;
   if (isSameAddress(wearer.id, address)) {
@@ -190,6 +193,17 @@ const WearerRow = ({
               >
                 <Text>Update Eligibility</Text>
               </TooltipWrapper>
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                onCopy();
+                toast.info({
+                  title: 'Successfully copied Address to clipboard',
+                });
+              }}
+            >
+              <Text>Copy Address</Text>
             </MenuItem>
           </MenuList>
         </Menu>

@@ -16,21 +16,27 @@ const CustomAccordion = ({
   title,
   subtitle,
   dirtyFieldsList,
+  open = false,
   children,
 }: {
   title: string;
   subtitle?: string;
   dirtyFieldsList?: string[];
+  open?: boolean;
   children: React.ReactNode;
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(open);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
 
   return (
-    <Accordion defaultIndex={[]} allowMultiple border='transparent'>
+    <Accordion
+      defaultIndex={open ? [0] : undefined}
+      allowMultiple
+      border='transparent'
+    >
       <AccordionItem>
         <AccordionButton onClick={handleToggle} px={0}>
           <Flex flex='1' alignItems='center'>
