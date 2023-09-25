@@ -171,7 +171,7 @@ export const transformAndVerify = (
 };
 
 export const claimsHatterId =
-  '0x9b58749ca97f09f9ef0de791e61eec57e2596f7642e041733e2ec9295b8bfd7e';
+  '0x1d00ea1a1a17b2a70961fedcb2d9eec031bacabb1c3c7dc1ac16305c4828f61e';
 
 export async function hash(string: string) {
   const utf8 = new TextEncoder().encode(string);

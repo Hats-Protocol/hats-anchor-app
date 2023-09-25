@@ -26,11 +26,16 @@ const useDeployModule = ({
   const { watch, getValues } = localForm;
 
   const adminHat = watch('adminHat');
+  const claimsHatterModule = modules?.[claimsHatterId];
 
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
-      if (selectedModuleDetails && selectedHat?.id && address && modules) {
-        const claimsHatterModule = modules[claimsHatterId];
+      if (
+        selectedModuleDetails &&
+        selectedHat?.id &&
+        address &&
+        claimsHatterModule
+      ) {
         const values = getValues();
 
         const immutableArgs = selectedModuleDetails.creationArgs.immutable.map(
