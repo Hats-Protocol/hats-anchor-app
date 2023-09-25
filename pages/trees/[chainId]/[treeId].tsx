@@ -13,7 +13,6 @@ const TreeDetails = ({
   treeId,
   chainId,
   initialTreeData,
-  initialHatIds,
 }: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
@@ -27,7 +26,7 @@ const TreeDetails = ({
       chainId={chainId}
       initialHatId={hatId}
       initialTreeData={initialTreeData}
-      initialHatIds={initialHatIds}
+      // initialHatIds={initialHatIds}
     >
       <TreePage />
     </TreeFormContextProvider>
@@ -112,5 +111,5 @@ interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
   initialTreeData: ITree;
-  initialHatIds: Hex[];
+  // initialHatIds: Hex[];
 }
