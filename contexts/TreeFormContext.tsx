@@ -31,6 +31,7 @@ import {
   ipToHatId,
   translateDrafts,
 } from '@/lib/hats';
+import { ipfsUrl } from '@/lib/ipfs';
 import {
   FormData,
   HatDetails,
@@ -40,7 +41,6 @@ import {
   ITree,
   LinkRequest,
 } from '@/types';
-import { ipfsUrl } from '@/lib/ipfs';
 
 export interface ITreeFormContext {
   chainId: number | undefined;

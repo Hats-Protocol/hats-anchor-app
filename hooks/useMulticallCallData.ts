@@ -5,8 +5,8 @@ import _ from 'lodash';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { processHatForCalls } from '@/lib/form';
-import { createHatsClient } from '@/lib/web3';
 import { handleDetailsPin } from '@/lib/ipfs';
+import { createHatsClient } from '@/lib/web3';
 
 type useMulticallCallDataProps = {
   isExpanded: boolean;
