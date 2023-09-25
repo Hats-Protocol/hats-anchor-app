@@ -31,9 +31,10 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useTreeCreate from '@/hooks/useTreeCreate';
 import { pinJson } from '@/lib/ipfs';
 import { chainsMap } from '@/lib/web3';
+import { ImageFile } from '@/types';
 
 const NewTree = () => {
-  const [image, setImage] = useState<any>();
+  const [image, setImage] = useState<ImageFile>();
   const {
     acceptedFiles,
     getRootProps,
@@ -47,7 +48,7 @@ const NewTree = () => {
       setImage(
         Object.assign(a[0], {
           preview: URL.createObjectURL(a[0]),
-        }),
+        } as ImageFile),
       );
     },
   });
@@ -73,7 +74,7 @@ const NewTree = () => {
     // error: imagePinError,
   } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
-    enabled: image,
+    enabled: !!image,
     metadata: { name: `image_${_.toString(chainId)}_tophat` },
   });
 

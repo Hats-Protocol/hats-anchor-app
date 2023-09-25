@@ -184,8 +184,9 @@ const useMulticallCallManyHats = () => {
   };
 };
 
-interface HatPinDetails {
+export interface HatPinDetails {
   chainId: number;
+  localChainId?: number;
   hatId: Hex;
   details: HatDetails;
 }

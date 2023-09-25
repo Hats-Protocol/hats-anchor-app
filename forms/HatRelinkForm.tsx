@@ -28,6 +28,7 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
+import { ImageFile } from '@/types';
 
 // TODO refactor without prettyId
 
@@ -58,7 +59,7 @@ const HatRelinkForm = ({
   const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
   const [newImage, setNewImage] = useState(false);
-  const [image, setImage] = useState<any>(hatData.imageUrl);
+  const [image, setImage] = useState<ImageFile>(hatData.imageUrl);
 
   const {
     acceptedFiles,
@@ -73,7 +74,7 @@ const HatRelinkForm = ({
       setImage(
         Object.assign(droppedFiles[0], {
           preview: URL.createObjectURL(droppedFiles[0]),
-        }),
+        } as ImageFile),
       );
     },
   });

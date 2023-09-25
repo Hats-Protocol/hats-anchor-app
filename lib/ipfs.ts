@@ -84,7 +84,6 @@ export const unpinImage = async (cid: string) => {
   };
 
   const res = await axios(config);
-  // console.log('upnin res:', res);
   return res;
 };
 

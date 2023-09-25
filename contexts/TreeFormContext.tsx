@@ -138,14 +138,14 @@ export const TreeFormContextProvider = ({
   chainId,
   initialHatId,
   initialTreeData,
-  initialHatIds,
+  // initialHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
   initialHatId: string | undefined;
   initialTreeData: ITree;
-  initialHatIds: Hex[];
+  // initialHatIds: Hex[];
   children: ReactNode;
 }) => {
   const onchainTree = useRef(initialTreeData);
@@ -433,7 +433,6 @@ export const TreeFormContextProvider = ({
 
         return _.map(prevHats, (existingHat) => {
           const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
-          console.log('proposedHat', proposedHat);
           // wearers is coming in as 'wearer'
           // const newImageUrl = _.find(newImageUrls, ['id', existingHat.id]);
           const newName = _.find(storedData, ['id', existingHat.id])?.name;
@@ -454,7 +453,7 @@ export const TreeFormContextProvider = ({
         });
       });
     },
-    [newImageUrls, storedData],
+    [storedData],
   );
 
   const hierarchy = useMemo(() => {

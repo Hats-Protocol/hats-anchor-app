@@ -232,6 +232,7 @@ const OrgChartComponent: React.FC = () => {
 
             const isSelected = selectedHat?.id === d.id;
 
+            // setup wearers section
             let wearersColor = '#FFFFFF';
             const wearer: IHatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
@@ -246,7 +247,9 @@ const OrgChartComponent: React.FC = () => {
             }
             if (_.size(wearers) === 1) {
               wearerContent =
-                wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
+                !!wearer?.ensName && wearer?.ensName !== ''
+                  ? wearer?.ensName
+                  : formatAddress(_.get(wearer, 'id'));
               wearerAccent = `1 of ${maxSupply}`;
               if (wearer?.isContract) {
                 wearersColor = '#F0FFF4';
@@ -257,13 +260,18 @@ const OrgChartComponent: React.FC = () => {
               }
             }
 
+            // handle wearers overflow with max supply accent
             let wearerContentWidth = '135px';
-            if (maxSupply > 9) {
-              wearerContentWidth = '132px';
+            let wearerAccentWidth = '35px';
+            if (maxSupply > 999) {
+              wearerContentWidth = '115px';
+              wearerAccentWidth = '62px';
             } else if (maxSupply > 99) {
               wearerContentWidth = '115px';
-            } else if (maxSupply > 999) {
-              wearerContentWidth = '110px';
+              wearerAccentWidth = '55px';
+            } else if (maxSupply > 9) {
+              wearerContentWidth = '130px';
+              wearerAccentWidth = '38px';
             }
 
             const selectedOptionContent = () => {
@@ -285,7 +293,7 @@ const OrgChartComponent: React.FC = () => {
                       <div style="
                         display: flex;
                         flex-direction: row;
-                        gap: 4px;
+                        gap: 2px;
                       ">
                         <div style="min-width: 16px;">
                           ${wearerIcon || ''}
@@ -306,11 +314,14 @@ const OrgChartComponent: React.FC = () => {
                       ${
                         wearerAccent
                           ? `<div style="
-                          display: inline-block;
-                          opacity: 0.6;
-                        ">
-                          ${wearerAccent}
-                        </div>`
+                              display: inline-block;
+                              fit-content: contain;
+                              text-align: right;
+                              min-width: ${wearerAccentWidth};
+                              opacity: 0.6;
+                            ">
+                              ${wearerAccent}
+                            </div>`
                           : ''
                       }
                     </div>`;
