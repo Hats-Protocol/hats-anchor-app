@@ -1,7 +1,15 @@
 import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { Hex, TransactionReceipt } from 'viem';
 
 import useToast from '@/hooks/useToast';
@@ -20,8 +28,8 @@ export interface IOverlayContext {
   modals?: { [key: string]: boolean };
   setModals?: (m: object) => void;
   closeModals?: () => void;
-  commandPallet?: boolean;
-  setCommandPallet?: (m: boolean) => void;
+  commandPalette: boolean;
+  setCommandPalette: Dispatch<SetStateAction<boolean>>;
   handlePendingTx?: ({
     hash,
     toastData,
@@ -45,6 +53,8 @@ export const OverlayContext = createContext<IOverlayContext>({
   closeModals: undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePendingTx: undefined,
+  commandPalette: false,
+  setCommandPalette: () => {},
 });
 
 export const OverlayContextProvider = ({
@@ -53,7 +63,7 @@ export const OverlayContextProvider = ({
   children: ReactNode;
 }) => {
   const [modals, setModals] = useState(defaults);
-  const [commandPallet, setCommandPallet] = useState(false);
+  const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
@@ -133,12 +143,12 @@ export const OverlayContextProvider = ({
       modals,
       setModals: showModal,
       closeModals,
-      commandPallet,
-      setCommandPallet,
+      commandPalette,
+      setCommandPalette,
       handlePendingTx,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modals, commandPallet, toast]);
+  }, [modals, commandPalette, toast]);
 
   return (
     <OverlayContext.Provider value={returnValue}>

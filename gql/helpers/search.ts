@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import _ from 'lodash';
+import { IconName } from 'react-cmdk';
 import { Hex } from 'viem';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
@@ -33,7 +34,7 @@ const processForCommandPalette = (key: string, record: any) => {
     children: `${_.get(record, 'network.name')} - #${prettyIdToIp(
       _.get(record, 'prettyId', _.get(record, 'id')),
     )}`,
-    icon: keyIcons[key],
+    icon: keyIcons[key] as IconName,
     href,
   };
 };

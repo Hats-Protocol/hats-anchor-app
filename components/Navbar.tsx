@@ -10,23 +10,22 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-// import { FaSearch } from 'react-icons/fa';
+import { BsSearch } from 'react-icons/bs';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
 import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-// import { useOverlay } from '@/contexts/OverlayContext';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
 import { IHat } from '@/types';
 
-// TODO reimplement search
 const Navbar = ({ hatData }: { hatData?: IHat }) => {
-  // const localOverlay = useOverlay();
-  // const { setCommandPallet: setOpen } = localOverlay;
+  const localOverlay = useOverlay();
+  const { setCommandPalette: setOpen } = localOverlay;
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
@@ -137,12 +136,12 @@ const Navbar = ({ hatData }: { hatData?: IHat }) => {
       )}
 
       <HStack spacing={2}>
-        {/* <IconButton
-          icon={<Icon as={FaSearch} h='25px' w='25px' />}
+        <IconButton
+          icon={<Icon as={BsSearch} h='25px' w='25px' />}
           onClick={() => setOpen?.(true)}
           aria-label='Search'
-          variant='outline'
-        /> */}
+          variant='ghost'
+        />
         <ConnectWallet />
       </HStack>
     </Flex>
