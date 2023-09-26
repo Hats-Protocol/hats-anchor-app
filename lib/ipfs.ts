@@ -1,14 +1,11 @@
-/* eslint-disable */
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
 import _ from 'lodash';
-import { CID } from 'multiformats/cid';
-import * as json from 'multiformats/codecs/json';
-import * as raw from 'multiformats/codecs/raw';
-import { sha256 } from 'multiformats/hashes/sha2';
 
 import CONFIG from '@/constants';
 import { FormDataDetails } from '@/types';
+
+export * from './ipfs-misc';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
@@ -47,7 +44,8 @@ export const pinImage = async ({
   file,
   metadata,
 }: {
-  file: File;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  file: any;
   metadata: object;
 }) => {
   const formData = new FormData();
@@ -85,13 +83,6 @@ export const unpinImage = async (cid: string) => {
 
   const res = await axios(config);
   return res;
-};
-
-export const calculateCid = async (data: object): Promise<string> => {
-  const bytes = json.encode(data);
-  const hash = await sha256.digest(bytes);
-  const localCid = CID.create(1, raw.code, hash);
-  return `ipfs://${localCid.toString()}`;
 };
 
 interface handleDetailsPinProps {

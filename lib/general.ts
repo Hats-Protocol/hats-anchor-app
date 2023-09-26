@@ -6,18 +6,6 @@ import CONFIG from '@/constants';
 
 import { PINATA_GATEWAY_TOKEN } from './ipfs';
 
-// unused
-export function parseUri(uri: string) {
-  const parsed = JSON.parse(uri);
-  return parsed;
-}
-
-// unused
-export function decodeUri(uri: string) {
-  const decoded = Buffer.from(uri.substring(29), 'base64').toString('utf8');
-  return decoded;
-}
-
 export const formatAddress = (address: string | null | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
@@ -26,13 +14,6 @@ export const isSameAddress = (address1?: string, address2?: string) => {
   return address1.toLowerCase() === address2.toLowerCase();
 };
 
-// unused
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const clearNonObjects = (array: any[]) => {
-  return _.filter(array, (item) => typeof item === 'object');
-};
-
-// unused?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchWithTimeout(resource: any, options: any = {}) {
   const { timeout = 8000 } = options;

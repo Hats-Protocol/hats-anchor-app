@@ -44,9 +44,10 @@ const useHatGuilds = () => {
         if (hatId) {
           setHatRoles(roles);
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         // eslint-disable-next-line no-console
-        console.error('Error fetching guilds:', error.message);
+        console.error('Error fetching guilds:', error?.message);
       }
     };
 

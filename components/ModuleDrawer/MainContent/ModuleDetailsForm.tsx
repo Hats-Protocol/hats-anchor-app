@@ -21,6 +21,7 @@ const ModuleDetailsForm = ({
   selectedModuleDetails,
   setSelectedModuleDetails,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   title: ModuleKind;
   selectedModuleDetails: ModuleDetails | undefined;
