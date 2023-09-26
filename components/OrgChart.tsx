@@ -224,12 +224,7 @@ const OrgChartComponent: React.FC = () => {
             } = d.data;
 
             const nextChildId = calculateNextChildId(d.data.id, treeToDisplay);
-
-            let detailsName = details;
-            if (detailsObject?.type === '1.0') {
-              detailsName = detailsObject?.data?.name;
-            }
-
+            const detailsName = detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
 
             // setup wearers section

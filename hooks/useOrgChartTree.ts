@@ -3,9 +3,10 @@ import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
 
+import { DetailsData } from '@/lib/details';
 import { sha256 } from '@/lib/sha256';
 import { toTreeStructure } from '@/lib/tree';
-import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
+import { IHat, IHatWearer, ITree } from '@/types';
 
 import useDeepCompareEffect from './useDeepCompareEffect';
 
@@ -96,9 +97,7 @@ export default useOrgChartTree;
 interface UseOrgChartTreeProps {
   treeData: ITree | null | undefined;
   hatsData: IHat[] | undefined;
-  detailsData:
-    | { id: string; detailsObject: { type: string; data: HatDetails } }[]
-    | undefined;
+  detailsData: { id: string; detailsObject: DetailsData }[] | undefined;
   wearersAndControllers: IHatWearer[] | undefined;
   imagesData: IHat[] | undefined;
   draftHats: IHat[] | undefined;

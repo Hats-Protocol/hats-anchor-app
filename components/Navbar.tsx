@@ -32,7 +32,7 @@ const Navbar = ({ hatData }: { hatData?: IHat }) => {
   const { address } = useAccount();
 
   const { data: hatDetails } = useHatDetailsField(hatData?.details);
-  const tabName = hatDetails?.name || hatData?.details;
+  const tabName = hatDetails?.data?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
 

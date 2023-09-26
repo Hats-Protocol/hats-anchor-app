@@ -15,12 +15,13 @@ const TreeListCard = ({
   topHat: IHat;
   topHatImage: IHat | undefined;
 }) => {
-  const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
-    useHatDetailsField(_.get(topHat, 'details'));
+  const { data: hatDetailsFieldData } = useHatDetailsField(
+    _.get(topHat, 'details'),
+  );
 
   const hatName =
-    schemaTypeDetailsField === '1.0'
-      ? _.get(hatDetailsFieldData, 'name')
+    hatDetailsFieldData?.type === '1.0'
+      ? _.get(hatDetailsFieldData, 'data.name')
       : _.get(topHat, 'details');
 
   return (

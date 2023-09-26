@@ -1,28 +1,11 @@
 import { useQueries } from '@tanstack/react-query';
-import axios from 'axios';
 import _ from 'lodash';
 
-import CONFIG from '@/constants';
-import { PINATA_GATEWAY_TOKEN } from '@/lib/ipfs';
+import { handleNestedDetails } from '@/lib/details';
+import { fetchDetailsIpfs } from '@/lib/ipfs';
 import { IHat } from '@/types';
 
-// TODO combine with lib/ipfs version
-export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
-  if (!detailsField) return null;
-  const url = `${CONFIG.ipfsGateway}${detailsField?.slice(
-    7,
-  )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
-
-  try {
-    // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
-    const res = await axios.get(url, { timeout: 5000 });
-    return Promise.resolve({ details: detailsField, data: res });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
-    return null;
-  }
-};
+// ? should keep fetching strategy inline with `useHatDetailsField.ts`
 
 const useManyHatsDetailsField = ({
   hats,
@@ -53,16 +36,21 @@ const useManyHatsDetailsField = ({
   });
 
   return {
-    data: _.map(onlyOnchainHats, (hat) => {
-      const detailsObject = _.find(_.map(detailsFields, 'data'), [
-        'details',
-        hat.details,
-      ]);
-      return {
-        id: hat?.details,
-        detailsObject: detailsObject?.data?.data,
-      };
-    }),
+    data: _.compact(
+      _.map(onlyOnchainHats, (hat) => {
+        const detailsData =
+          _.find(detailsFields, ['details', hat.details]) ||
+          _.find(_.map(detailsFields, 'data'), ['details', hat.details]);
+
+        const detailsObject = handleNestedDetails(detailsData);
+        if (!detailsObject) return undefined;
+
+        return {
+          id: hat?.details,
+          detailsObject,
+        };
+      }),
+    ),
     isLoading: _.some(detailsFields, 'isLoading'),
   };
 };
