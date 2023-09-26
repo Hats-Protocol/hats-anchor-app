@@ -31,7 +31,7 @@ const nextConfig = {
     return [
       {
         source: '/trees/:chainId/:treeId/:hatId',
-        destination: '/trees/:chainId/:treeId',
+        destination: '/trees/:chainId/:treeId?hatId=:hatId',
         permanent: true,
       },
       {
