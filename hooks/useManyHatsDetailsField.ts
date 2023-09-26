@@ -18,6 +18,7 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
     const res = await axios.get(url, { timeout: 5000 });
     return Promise.resolve({ details: detailsField, data: res });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
     return null;
   }

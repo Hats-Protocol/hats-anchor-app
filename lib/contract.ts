@@ -73,20 +73,20 @@ export const checkENSNames = async (wearers: IHatWearer[]) => {
     return { id: wearer.id, ensName };
   });
 
-  if (ensNamePromises) {
-    const ensNamesList = await Promise.all(ensNamePromises);
+  if (ensNamePromises) return {};
 
-    const newEnsNames = ensNamesList.reduce(
-      (acc: { [key: string]: string }, { id, ensName }) => {
-        if (ensName) {
-          acc[id] = ensName;
-        }
-        return acc;
-      },
-      {},
-    );
-    return newEnsNames;
-  }
+  const ensNamesList: { id: string; ensName: string }[] = await Promise.all(
+    ensNamePromises,
+  );
 
-  return {};
+  const newEnsNames = ensNamesList.reduce(
+    (acc: { [key: string]: string }, { id, ensName }) => {
+      if (ensName) {
+        acc[id] = ensName;
+      }
+      return acc;
+    },
+    {},
+  );
+  return newEnsNames;
 };

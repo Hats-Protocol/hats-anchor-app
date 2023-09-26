@@ -1,5 +1,4 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
-import _ from 'lodash';
 import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
@@ -16,6 +15,7 @@ const MainContent = ({
   selectedModuleDetails,
   setSelectedModuleDetails,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   title: ModuleKind;
   selectedModuleDetails: ModuleDetails | undefined;

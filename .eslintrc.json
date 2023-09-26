@@ -18,6 +18,7 @@
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
+  "ignorePatterns": ["lib/ipfs-misc.ts"], // `multiformats` breaking
   "rules": {
     // gen
     "no-use-before-define": "off",
@@ -46,6 +47,7 @@
     ],
     "import/named": "off", // `multiformats` breaking
     "import/no-cycle": "off", // `multiformats` breaking [2, { "ignoreExternal": true }],
+    "import/export": "off", // `multiformats` breaking
 
     // import sort
     // increase the severity of rules so they are auto-fixable

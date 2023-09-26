@@ -5,6 +5,7 @@ import { fetchTreeDetails, fetchTreesById } from '@/gql/helpers';
 import { ipToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { ITree } from '@/types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {
   const fetchFeaturedTrees = async () => {
     const ids = _.map(featuredTrees, (tree) => ipToPrettyId(String(tree.id)));

@@ -261,7 +261,7 @@ export function getProposedChangesCount(
   const matchingHat = _.find(data, ['id', hatId]);
 
   if (matchingHat) {
-    // Subtracting 1 from the count to exclude the "id" key itself
+    // Subtracting omit keys that aren't changed/counted in changes
     return _.size(_.keys(_.omit(matchingHat, unchangedKeys))) || 0;
   }
 

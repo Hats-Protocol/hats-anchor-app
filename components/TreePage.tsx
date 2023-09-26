@@ -22,7 +22,9 @@ import Layout from './Layout';
 
 const EventHistory = dynamic(() => import('./EventHistory'));
 const HatDrawer = dynamic(() => import('./HatDrawer'));
-const OrgChart = dynamic(() => import('./OrgChart'));
+const OrgChart = dynamic(() => import('./OrgChart'), {
+  loading: () => <Suspender />,
+});
 const TreeDrawer = dynamic(() => import('./TreeDrawer'));
 const TreeMenu = dynamic(() => import('./TreeMenu'));
 
@@ -131,9 +133,7 @@ const TreePage = () => {
       <Layout editMode={editMode} hatData={topHat}>
         <TreeMenu treeDisclosure={treeDisclosure} />
         {!_.isEmpty(treeToDisplay) ? (
-          <Suspense fallback={<Suspender />}>
-            <OrgChart />
-          </Suspense>
+          <OrgChart />
         ) : (
           <Flex justify='center' align='center' w='full' h='full'>
             <Spinner />
@@ -141,16 +141,14 @@ const TreePage = () => {
         )}
       </Layout>
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='events'
-          title='Events'
-          size='2xl'
-          localOverlay={localOverlay}
-        >
-          <EventHistory type='tree' />
-        </Modal>
-      </Suspense>
+      <Modal
+        name='events'
+        title='Events'
+        size='2xl'
+        localOverlay={localOverlay}
+      >
+        <EventHistory type='tree' />
+      </Modal>
     </>
   );
 };

@@ -26,7 +26,7 @@ import {
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
 import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
@@ -61,6 +61,18 @@ const TreeMenu = ({
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
+  const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
+
+  useEffect(() => {
+    setLocalLastTimestamp(
+      `${
+        _.get(_.first(treeEvents), 'timestamp') &&
+        formatDistanceToNow(
+          new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000),
+        )
+      } ago`,
+    );
+  }, [treeEvents]);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -189,17 +201,13 @@ const TreeMenu = ({
                 </ChakraNextLink>
               </Flex>
             </Skeleton>
-            <Skeleton isLoaded={!!_.get(_.first(treeEvents), 'timestamp')}>
+            <Skeleton isLoaded={!!localLastTimestamp}>
               <Popover trigger='hover'>
                 <PopoverTrigger>
                   <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
                     <Text>Last event: </Text>
                     <Text mr={2} fontWeight='medium'>
-                      {treeEvents?.[0]?.timestamp &&
-                        formatDistanceToNow(
-                          new Date(Number(treeEvents[0]?.timestamp) * 1000),
-                        )}{' '}
-                      ago
+                      {localLastTimestamp}
                     </Text>
                     <Image src='/icons/ago.svg' alt='History icon' />
                   </Flex>
