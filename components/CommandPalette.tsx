@@ -19,12 +19,14 @@ import ChakraNextLink from './atoms/ChakraNextLink';
 
 const CommandPaletteInternalLink = ({
   href,
+  setOpen,
   children,
 }: {
   href: string;
+  setOpen: (value: boolean) => void;
   children: React.ReactNode;
 }) => (
-  <ChakraNextLink href={href}>
+  <ChakraNextLink href={href} onClick={() => setOpen(false)}>
     <Flex w='100%' justify='space-between' p={2}>
       {children}
     </Flex>
@@ -134,7 +136,10 @@ const CommandPalette = () => {
                   key={id}
                   index={getItemIndex(filteredItems, id)}
                   renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink href={href ?? ''}>
+                    <CommandPaletteInternalLink
+                      href={href ?? ''}
+                      setOpen={setOpen}
+                    >
                       {children}
                     </CommandPaletteInternalLink>
                   )}
@@ -151,7 +156,10 @@ const CommandPalette = () => {
                   key={id}
                   index={getItemIndex(searchResults, id)}
                   renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink href={href ?? ''}>
+                    <CommandPaletteInternalLink
+                      href={href ?? ''}
+                      setOpen={setOpen}
+                    >
                       {children}
                     </CommandPaletteInternalLink>
                   )}
