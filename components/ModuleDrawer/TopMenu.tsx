@@ -9,19 +9,29 @@ import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
+  updateModuleAddress,
   onCloseModuleDrawer,
   selectedModuleDetails,
 }: {
   localForm: UseFormReturn<any>;
+  updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;
   selectedModuleDetails?: ModuleDetails;
 }) => {
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
 
+  const handleSuccess = () => {
+    if (selectedModuleDetails) {
+      updateModuleAddress(selectedModuleDetails.id);
+    }
+    onCloseModuleDrawer();
+  };
+
   const { deployModule, isLoading } = useDeployModule({
     localForm,
     selectedModuleDetails,
+    onSuccessCallback: handleSuccess,
   });
 
   const { watch } = localForm;

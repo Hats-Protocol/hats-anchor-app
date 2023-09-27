@@ -127,6 +127,10 @@ const HatManagementForm = ({
   //   isOpen: isOpenClaimsHatterDrawer,
   // } = useDisclosure();
 
+  const updateModuleAddress = (value: string) => {
+    localForm.setValue(title, value);
+  };
+
   return (
     <form>
       <Stack spacing={8}>
@@ -263,6 +267,7 @@ const HatManagementForm = ({
             <Suspense fallback={<Suspender />}>
               <ModuleDrawer
                 onCloseModuleDrawer={onCloseModuleDrawer}
+                updateModuleAddress={updateModuleAddress}
                 title={title}
               />
             </Suspense>

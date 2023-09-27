@@ -14,9 +14,11 @@ import useHatsModules from './useHatsModules';
 const useDeployModule = ({
   localForm,
   selectedModuleDetails,
+  onSuccessCallback,
 }: {
   localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
+  onSuccessCallback: () => void;
 }) => {
   const toast = useToast();
   const { chainId, selectedHat } = useTreeForm();
@@ -67,6 +69,8 @@ const useDeployModule = ({
       return null;
     },
     onSuccess: () => {
+      onSuccessCallback();
+
       toast.success({
         title: 'Saved',
         description: `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
