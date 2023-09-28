@@ -74,6 +74,7 @@ const MainContent = () => {
           <DetailList
             title='Eligibility Criteria'
             details={eligibility?.criteria}
+            inline
           />
         )}
       </Stack>
@@ -87,7 +88,7 @@ const MainContent = () => {
       )}
       {/* MODULE DETAILS */}
       {!_.isEmpty(toggle?.criteria) && (
-        <DetailList title='Toggle Criteria' details={toggle?.criteria} />
+        <DetailList title='Toggle Criteria' details={toggle?.criteria} inline />
       )}
 
       <LinkRequests />
