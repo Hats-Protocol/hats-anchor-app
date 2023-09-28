@@ -131,7 +131,6 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
       align='center'
       justify={editMode ? 'space-between' : 'flex-end'}
       px={4}
-      position='absolute'
       top={0}
       zIndex={16}
     >
