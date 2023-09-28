@@ -210,6 +210,18 @@ export const TreeFormContextProvider = ({
   }, [treeData, initialTreeData]);
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
+  useEffect(() => {
+    setOrgChartHats(
+      _.compact(
+        _.concat(
+          _.get(treeData, 'hats'),
+          _.get(treeData, 'parentOfHats', []),
+          _.get(treeData, 'linkedToHat', []),
+        ),
+      ),
+    );
+  }, [treeData]);
+
   const draftHats = useMemo(
     () =>
       _.reject(
