@@ -115,7 +115,7 @@ const WearerDetail = ({
 
   return (
     <Layout>
-      <NextSeo title={`${name}'s Hats`} />
+      <NextSeo title={`${name || formatAddress(wearerAddress)}'s Hats`} />
 
       <Box
         w='100%'

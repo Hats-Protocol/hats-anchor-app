@@ -42,6 +42,7 @@ const TreePage = () => {
     setSelectedHatId,
     editMode,
     topHat,
+    topHatDetails,
     hatDisclosure,
     treeDisclosure,
   } = useTreeForm();

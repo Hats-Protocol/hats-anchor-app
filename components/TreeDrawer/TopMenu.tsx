@@ -28,9 +28,8 @@ import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { editHasUpdates, isAncestor, isWearer } from '@/lib/hats';
+import { editHasUpdates, isWearer } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
 
 const TopMenu = () => {
   const { address } = useAccount();
@@ -109,31 +108,12 @@ const TopMenu = () => {
       };
     });
 
-    const hasAdminOverAllHats = _.some(hatsWithChanges, (hat) => {
-      return _.every(
-        hatsWithChanges,
-        (h) => h.id === hat.id || isAncestor(hat.id, h.id, treeToDisplay),
-      );
-    });
+    const hasAdminOverAllHats = _.every(hatsWithChanges, (h) =>
+      isWearer(_.map(wearer, 'id'), h.id, false),
+    );
 
     if (hasAdminOverAllHats) {
       return true;
-    }
-
-    const parentIdsOfHatsWithChanges = _.map(hatsWithChanges, 'adminId');
-    const commonParent = _.head(_.intersection(...parentIdsOfHatsWithChanges));
-
-    if (isWearer(_.map(wearer, 'id'), commonParent)) {
-      return true;
-    }
-
-    let currentParentId = commonParent;
-    while (currentParentId) {
-      const hat = _.find(treeToDisplay, { id: currentParentId });
-      if (isWearer(_.map(wearer, 'id'), (hat as IHat)?.id)) {
-        return true;
-      }
-      currentParentId = (hat as IHat)?.parentId;
     }
 
     return false;
@@ -154,7 +134,9 @@ const TopMenu = () => {
 
   const isDeployDisabled = useMemo(
     () =>
-      (!editHasUpdates(storedData) || isLoading || currentChain !== chainId) &&
+      !editHasUpdates(storedData) ||
+      isLoading ||
+      currentChain !== chainId ||
       !isAdminOfAllHatsWithChanges,
     [storedData, isLoading, currentChain, chainId, isAdminOfAllHatsWithChanges],
   );

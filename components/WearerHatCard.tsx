@@ -10,26 +10,22 @@ import { IHat } from '@/types';
 
 // TODO optimize top hat fetch
 const WearerHatCard = ({ hat }: { hat: IHat }) => {
-  const { data: hatDetailsFieldData } = useHatDetailsField(
-    _.get(hat, 'details'),
-  );
+  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
   const { data: topHat } = useHatDetails({
     hatId: getTreeId(_.get(hat, 'id'), true),
     chainId: _.get(hat, 'chainId'),
   });
-  const { data: topHatDetailsFieldData } = useHatDetailsField(
-    _.get(topHat, 'details'),
-  );
+  const { data: topHatDetails } = useHatDetailsField(_.get(topHat, 'details'));
 
   const hatName =
-    hatDetailsFieldData?.type === '1.0'
-      ? _.get(hatDetailsFieldData, 'data.name')
+    hatDetails?.type === '1.0'
+      ? _.get(hatDetails, 'data.name')
       : _.get(hat, 'details');
 
   const topHatName =
-    topHatDetailsFieldData?.type === '1.0'
-      ? _.get(topHatDetailsFieldData, 'data.name')
+    topHatDetails?.type === '1.0'
+      ? _.get(topHatDetails, 'data.name')
       : _.get(topHat, 'details');
 
   return (

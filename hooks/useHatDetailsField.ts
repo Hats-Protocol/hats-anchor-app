@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
 
 import { handleNestedDetails } from '@/lib/details';
 import { fetchDetailsIpfs } from '@/lib/ipfs';

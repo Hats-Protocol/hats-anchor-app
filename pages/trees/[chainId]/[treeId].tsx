@@ -46,7 +46,6 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   }
 
   const treeHex = decimalToTreeId(treeId);
-  // TODO get less hat data here
   const treeData = await fetchTreeDetails(treeHex, Number(chainId));
 
   if (!treeData) {

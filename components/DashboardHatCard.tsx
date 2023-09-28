@@ -16,13 +16,11 @@ import { chainsMap } from '@/lib/web3';
 import { IHat } from '@/types';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
-  const { data: hatDetailsFieldData } = useHatDetailsField(
-    _.get(hat, 'details'),
-  );
+  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
   const hatName =
-    _.get(hatDetailsFieldData, 'type') === '1.0'
-      ? _.get(hatDetailsFieldData, 'data.name')
+    _.get(hatDetails, 'type') === '1.0'
+      ? _.get(hatDetails, 'data.name')
       : _.get(hat, 'details');
 
   return (
