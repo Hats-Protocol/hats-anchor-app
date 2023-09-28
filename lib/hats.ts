@@ -164,14 +164,15 @@ const includesAny = (arr: any[], target: any[]) =>
   target.some((v) => arr.includes(v));
 
 /**
- * @param hatId should be a `hatId`
+ * Traverses all ancestry of hat to check for wearers
  * @param wearerHatIds should be an array of `hatId`s worn by the wearer
+ * @param hatId should be a `hatId` that is being checked for admin
  * @param current default `false`, include wearing current hatId
  */
-export const isWearer = (
+export const isWearingAdminHat = (
   wearerHatIds: string[],
   hatId?: string,
-  current = false,
+  includeCurrent = false,
 ) => {
   if (!hatId) return false;
   const treeId = hatId.slice(0, 10);
@@ -181,13 +182,14 @@ export const isWearer = (
 
   if (!hats) return false;
 
-  if (!current) hats.pop();
+  if (!includeCurrent) hats.pop();
 
   // map all parent hatIds for the lineage
   const hatIds = hats.map((__, i) => {
     const joinedParentHats = hats.slice(0, i).join('');
     return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
   });
+  // TODO handle linked trees
 
   if (!wearerHatIds) return false;
   // check if any of the wearer hats' IDs are admin of any parent hat IDs

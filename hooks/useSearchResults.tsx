@@ -18,7 +18,7 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
   const { status, error, data, isLoading } = useQuery({
     queryKey: ['searchResults', localSearch],
     queryFn: () => searchQueryResult(localSearch),
-    enabled: !!localSearch,
+    enabled: !!localSearch && localSearch !== '0x',
   });
 
   return { status, error, data, isLoading };

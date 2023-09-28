@@ -33,7 +33,7 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { isSameAddress } from '@/lib/general';
-import { isWearer } from '@/lib/hats';
+import { isWearingAdminHat } from '@/lib/hats';
 import { filterWearers, getEligibleWearers } from '@/lib/wearers';
 import { IHatWearer } from '@/types';
 
@@ -97,7 +97,11 @@ const WearersList = () => {
   });
 
   const currentWearerHats = _.map(wearer, 'id');
-  const isAdminUser = isWearer(currentWearerHats, selectedHat?.id, true);
+  const isAdminUser = isWearingAdminHat(
+    currentWearerHats,
+    selectedHat?.id,
+    true,
+  );
 
   const sortWearers = useCallback(() => {
     if (address) {

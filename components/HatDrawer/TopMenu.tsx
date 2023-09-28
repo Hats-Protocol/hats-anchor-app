@@ -38,7 +38,7 @@ import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, isTopHat, isWearer, toTreeId } from '@/lib/hats';
+import { decimalId, isTopHat, isWearingAdminHat, toTreeId } from '@/lib/hats';
 import { IHat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
@@ -59,7 +59,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
     chainId,
   });
 
-  const isAdminUser = isWearer(_.map(wearer, 'id'), selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
   const wearerTopHats = _.map(
     _.filter(
