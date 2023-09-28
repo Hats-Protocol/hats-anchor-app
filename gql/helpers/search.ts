@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import _ from 'lodash';
+import { IconName } from 'react-cmdk';
 import { Hex } from 'viem';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
@@ -16,24 +17,33 @@ const keyIcons: { [key: string]: string } = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processForCommandPalette = (key: string, record: any) => {
-  const parts = _.split(_.get(record, 'id'), '.');
-  const treeId = prettyIdToIp(idToPrettyId(_.first(parts) as Hex));
+  const { id, network, prettyId } = record;
+  const { id: networkId, name: networkName } = network || {};
+
+  const parts = id?.split('.');
+  const treeId = parts ? prettyIdToIp(idToPrettyId(parts[0] as Hex)) : '';
+
   let href = '#';
-  if (key === 'trees') {
-    href = `/trees/${_.get(record, 'network.id')}/${prettyIdToIp(
-      _.get(record, 'id'),
-    )}`;
-  }
-  if (key === 'hats') {
-    href = `/trees/${_.get(record, 'network.id')}/${treeId}`;
+  const ip = prettyIdToIp(prettyId || id);
+  const hatIdIp = prettyIdToIp(idToPrettyId(id));
+
+  // eslint-disable-next-line default-case
+  switch (key) {
+    case 'trees':
+      href = `/trees/${networkId}/${ip}`;
+      break;
+    case 'hats':
+      href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
+      break;
   }
 
+  const children = `${networkName} - #${ip}`;
+  const icon = keyIcons[key] as IconName;
+
   return {
-    id: `${key}-${_.get(record, 'id')}-${_.get(record, 'network.id')}`,
-    children: `${_.get(record, 'network.name')} - #${prettyIdToIp(
-      _.get(record, 'prettyId', _.get(record, 'id')),
-    )}`,
-    icon: keyIcons[key],
+    id: `${key}-${id}-${networkId}`,
+    children,
+    icon,
     href,
   };
 };
@@ -70,6 +80,7 @@ export const searchQueryResult = async (search: string) => {
     );
   });
 
+  console.log('allNetworkResults', allNetworkResults);
   return _.mapValues(allNetworkResults, (o, k) =>
     _.map(o, (r) => processForCommandPalette(k, r)),
   );

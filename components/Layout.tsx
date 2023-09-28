@@ -8,6 +8,8 @@ import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import { IHat } from '@/types';
 
+import CommandPalette from './CommandPalette';
+
 const Navbar = dynamic(() => import('@/components/Navbar'));
 
 const Layout = ({ editMode, hatData, children }: LayoutProps) => {
@@ -55,6 +57,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         w='100%'
         zIndex={-1}
       />
+      <CommandPalette />
       {!upTo780 ? (
         <>
           <Navbar hatData={hatData} />
