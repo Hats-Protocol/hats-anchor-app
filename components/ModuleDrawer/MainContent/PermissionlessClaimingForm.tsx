@@ -1,6 +1,6 @@
-import { Icon, Stack, Text } from '@chakra-ui/react';
+import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChartLine, BsPersonAdd, BsPuzzle } from 'react-icons/bs';
 
@@ -20,13 +20,21 @@ const PermissionlessClaimingForm = ({
 }: {
   localForm: UseFormReturn<any>;
 }) => {
-  const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
+  const { onchainHats, treeToDisplay, selectedHat, topHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
   const claimableFor = localForm.watch('Claimable For');
+  const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   const parentHats = useMemo(() => {
-    return getAllParents(selectedHat?.id, treeToDisplay);
-  }, [selectedHat, treeToDisplay]);
+    const parents = getAllParents(selectedHat?.id, treeToDisplay);
+    return _.filter(parents, (parent) => parent !== topHat?.id);
+  }, [selectedHat, treeToDisplay, topHat]);
+
+  useEffect(() => {
+    if (claimableFor === 'Yes') {
+      scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [claimableFor]);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -51,34 +59,38 @@ const PermissionlessClaimingForm = ({
           ]}
         />
       </FormRowWrapper>
-      <FormRowWrapper>
-        <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-        <Stack>
-          <Select
-            name='adminHat'
-            label='ADMIN HAT'
-            subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
-            localForm={localForm}
-            placeholder='Select a hat in this tree'
-            defaultValue={undefined}
-            options={{
-              required: claimableFor === 'Yes',
-            }}
-          >
-            {_.map(parentHats, (id) => (
-              <option value={decimalId(id)} key={id}>
-                {prettyIdToIp(idToPrettyId(id))}
-              </option>
-            ))}
-          </Select>
-          {adminHat && (
-            <Text color='blackAlpha.600'>
-              Potential wearers will be able to claim this hat if they meet the
-              requirements in new module above.
-            </Text>
-          )}
-        </Stack>
-      </FormRowWrapper>
+      {claimableFor === 'Yes' && (
+        <Box ref={scrollTargetRef}>
+          <FormRowWrapper>
+            <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+            <Stack>
+              <Select
+                name='adminHat'
+                label='ADMIN HAT'
+                subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                localForm={localForm}
+                placeholder='Select a hat in this tree'
+                defaultValue={undefined}
+                options={{
+                  required: claimableFor === 'Yes',
+                }}
+              >
+                {_.map(parentHats, (id) => (
+                  <option value={decimalId(id)} key={id}>
+                    {prettyIdToIp(idToPrettyId(id))}
+                  </option>
+                ))}
+              </Select>
+              {adminHat && (
+                <Text color='blackAlpha.600'>
+                  Potential wearers will be able to claim this hat if they meet
+                  the requirements in new module above.
+                </Text>
+              )}
+            </Stack>
+          </FormRowWrapper>
+        </Box>
+      )}
       {selectedHat?.wearers === selectedHat?.maxSupply && (
         <FormRowWrapper>
           <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
