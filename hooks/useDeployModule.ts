@@ -39,6 +39,7 @@ const useDeployModule = ({
         claimsHatterModule
       ) {
         const values = getValues();
+        const claimableFor = values['Claimable For'];
 
         const immutableArgs = selectedModuleDetails.creationArgs.immutable.map(
           ({ name, type }) => transformInput(values[name], type),
@@ -58,6 +59,15 @@ const useDeployModule = ({
           ({ name, type }) => transformInput(values[name], type),
         );
 
+        if (claimableFor === 'No') {
+          return hatsClient?.createNewInstance({
+            account: address,
+            moduleId: selectedModuleDetails.id,
+            hatId,
+            immutableArgs,
+            mutableArgs,
+          });
+        }
         return hatsClient?.batchCreateNewInstances({
           account: address,
           moduleIds: [selectedModuleDetails.id, claimsHatterId],

@@ -22,6 +22,7 @@ const PermissionlessClaimingForm = ({
 }) => {
   const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
+  const claimableFor = localForm.watch('Claimable For');
 
   const parentHats = useMemo(() => {
     return getAllParents(selectedHat?.id, treeToDisplay);
@@ -61,7 +62,7 @@ const PermissionlessClaimingForm = ({
             placeholder='Select a hat in this tree'
             defaultValue={undefined}
             options={{
-              required: true,
+              required: claimableFor === 'Yes',
             }}
           >
             {_.map(parentHats, (id) => (
