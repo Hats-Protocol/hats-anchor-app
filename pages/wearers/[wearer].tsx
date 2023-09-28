@@ -23,7 +23,7 @@ import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
-import { Hex } from 'viem';
+import { createPublicClient, Hex, http } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import Layout from '@/components/Layout';
@@ -39,12 +39,14 @@ import { IHat } from '@/types';
 
 const WearerDetail = ({
   wearerAddress,
+  initialEnsName,
 }: {
   wearerAddress: Hex;
+  initialEnsName?: string;
   // initialData: IHat[] | undefined;
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();
-  const [name, setName] = useState<string | undefined>();
+  const [name, setName] = useState<string | undefined>(initialEnsName);
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
@@ -223,10 +225,19 @@ export const getStaticProps = async (context: GetServerSidePropsContext) => {
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
+  const publicClient = createPublicClient({
+    chain: chainsMap(1),
+    transport: http(),
+  });
+  const initialEnsName = await publicClient.getEnsName({
+    address: wearer as Hex,
+  });
+
   return {
     props: {
       wearerAddress: wearer,
-      // initialData: undefined,
+      initialEnsName: initialEnsName || null,
+      // initialData:  || undefined,
     },
     revalidate: 60,
   };
