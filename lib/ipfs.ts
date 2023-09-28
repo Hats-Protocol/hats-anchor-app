@@ -100,6 +100,7 @@ export const handleDetailsPin = async ({
     BigInt(hatId),
   )}`;
 
+  // TODO handle different details schemas
   const cid = `ipfs://${await pinJson(
     { type: '1.0', data: details },
     { name: detailsName },

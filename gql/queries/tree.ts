@@ -1,13 +1,16 @@
 import { gql } from 'graphql-request';
 
-import { EVENT_DETAILS_FRAGMENT, HAT_DETAILS_FRAGMENT } from './hat';
+import {
+  EVENT_DETAILS_FRAGMENT,
+  HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT,
+} from './hat';
 
 // TODO handle inline sort for events
 export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
   fragment TreeDetailsWithEvents on Tree {
     id
     hats {
-      ...HatDetails
+      ...HatDetailsUnit
     }
     events(orderBy: timestamp, orderDirection: desc, first: 5) {
       ...EventDetails
@@ -42,7 +45,7 @@ export const TREE_DETAILS_FRAGMENT_WITH_EVENTS = gql`
     }
   }
   ${EVENT_DETAILS_FRAGMENT}
-  ${HAT_DETAILS_FRAGMENT}
+  ${HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT}
 `;
 
 export const TREE_DETAILS_FRAGMENT = gql`

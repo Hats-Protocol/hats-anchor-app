@@ -14,7 +14,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { decimalId, isTopHat, prettyIdToId } from '@/lib/hats';
+import { isTopHat, prettyIdToId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
 import Suspender from './atoms/Suspender';
@@ -38,10 +38,12 @@ const TreePage = () => {
     chainId,
     treeId,
     selectedHat,
+    selectedHatDetails,
     treeToDisplay,
     setSelectedHatId,
     editMode,
     topHat,
+    topHatDetails,
     hatDisclosure,
     treeDisclosure,
   } = useTreeForm();
@@ -77,18 +79,21 @@ const TreePage = () => {
   let title = `Tree #${hatIdDecimalToIp(
     BigInt(prettyIdToId(treeId) || '0'),
   )} on ${chain.name}`;
-  if (selectedHat) {
-    title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
-      BigInt(_.get(selectedHat, 'id')),
-    )} on ${chain.name}`;
+  if (!selectedHat && topHatDetails) {
+    title = `${topHatDetails.name} on ${chain.name}`;
+  } else if (selectedHat) {
+    if (selectedHatDetails) {
+      title = `${selectedHatDetails.name} on ${chain.name}`;
+    } else {
+      title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
+        BigInt(_.get(selectedHat, 'id')),
+      )} on ${chain.name}`;
+    }
   }
 
   return (
     <>
-      <NextSeo
-        title={title}
-        description={`Tree #${decimalId(treeId)} on ${chain?.name}`}
-      />
+      <NextSeo title={title} />
       <Drawer
         placement='right'
         onClose={() => {
