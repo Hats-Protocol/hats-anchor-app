@@ -10,7 +10,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ReactNode, Suspense, useState } from 'react';
+import _ from 'lodash';
+import { ReactNode, Suspense, useMemo, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   BsFileCode,
@@ -77,6 +78,15 @@ const HatManagementForm = ({
   const items = watch(formName);
   const isActionManual = watch(radioBoxConfig.name);
   const moduleAddress = watch(title);
+
+  const foundModule = useMemo(
+    () =>
+      _.find(
+        Object.values(modules || {}),
+        (module) => module.implementationAddress === moduleAddress,
+      ),
+    [modules, moduleAddress],
+  );
 
   const showActionResolvedAddress =
     actionResolvedAddress && actionResolvedAddress !== address;
@@ -165,11 +175,11 @@ const HatManagementForm = ({
               resolvedAddress={String(actionResolvedAddress)}
             />
             <HStack spacing={8}>
-              {modules?.[moduleAddress] && (
+              {foundModule && (
                 <HStack>
                   <Icon as={BsFileCode} boxSize={4} color='gray.500' />
                   <Text color='blackAlpha.700' fontSize='sm'>
-                    {modules[moduleAddress].name}
+                    {foundModule.name}
                   </Text>
                 </HStack>
               )}
