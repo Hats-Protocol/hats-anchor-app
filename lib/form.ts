@@ -401,20 +401,20 @@ const processMintingCallForHat = async ({
   returnData,
 }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
-  const { id: hatId, claimsHatterId } = hat;
+  const { id: hatId, claimsHatterAddress } = hat;
 
-  if (!hatId || !hatsClient || !claimsHatterId) return returnData;
+  if (!hatId || !hatsClient || !claimsHatterAddress) return returnData;
 
   const mintHatCallDataResult = hatsClient.mintHatCallData({
     hatId: BigInt(hatId),
-    wearer: claimsHatterId,
+    wearer: claimsHatterAddress,
   });
 
   if (!mintHatCallDataResult) return returnData;
 
   const newHatChanges = {
     ...hatChanges,
-    claimsHatterId,
+    claimsHatterAddress,
   };
 
   return {

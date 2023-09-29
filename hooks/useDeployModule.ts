@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { claimsHatterId, transformInput } from '@/lib/general';
-import { decimalId } from '@/lib/hats';
+import { decimalId, decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { ModuleDetails } from '@/types';
 
@@ -20,7 +20,7 @@ const useDeployModule = ({
 }: {
   localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
-  onSuccessCallback: (hatId?: Hex, deployedClaimsHatterId?: Hex) => void;
+  onSuccessCallback: (hatId?: Hex, claimsHatterAddress?: Hex) => void;
 }) => {
   const toast = useToast();
   const { chainId, selectedHat } = useTreeForm();
@@ -84,12 +84,12 @@ const useDeployModule = ({
       // this logic will have to be adjusted when we will deploy the standalone claims hatter
       // because atm it assumes that the claims hatter is deployed together with the module
       // so it will be the second element in the array
-      let deployedClaimsHatterId: Hex | undefined;
+      let claimsHatterAddress: Hex | undefined;
       if (data && 'newInstances' in data && Array.isArray(data.newInstances)) {
-        [, deployedClaimsHatterId] = data.newInstances;
+        [, claimsHatterAddress] = data.newInstances;
       }
 
-      onSuccessCallback(adminHat, deployedClaimsHatterId);
+      onSuccessCallback(decimalIdToId(adminHat), claimsHatterAddress);
 
       toast.success({
         title: 'Saved',

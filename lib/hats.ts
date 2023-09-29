@@ -138,11 +138,11 @@ export const decimalToTreeId = (treeId: string) => {
   return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
 };
 
-export const decimalIdToId = (decimalId: number | undefined) => {
+export const decimalIdToId = (decimalId: number | string | undefined): Hex => {
   if (!decimalId) return '0x';
+
   try {
-    const bn = decimalId;
-    return `0x${bn.toString(16).slice(2).padStart(64, '0')}`;
+    return `0x${BigInt(decimalId).toString(16).padStart(64, '0')}`;
   } catch (err) {
     return '0x';
   }

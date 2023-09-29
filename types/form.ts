@@ -18,7 +18,7 @@ export type FormData = FormDataDetails & {
   id: Hex;
   wearers: FormWearer[];
   parentId?: Hex;
-  claimsHatterId?: Hex;
+  claimsHatterAddress?: Hex;
 };
 
 export type FormDataDetails = {

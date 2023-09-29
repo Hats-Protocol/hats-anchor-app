@@ -21,20 +21,35 @@ const TopMenu = ({
   selectedModuleDetails?: ModuleDetails;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId, setStoredData, storedData } = useTreeForm();
+  const { chainId, setStoredData, storedData, selectedHat } = useTreeForm();
 
-  const handleSuccess = (hatId?: Hex, claimsHatterId?: Hex) => {
+  const handleSuccess = (hatId?: Hex, claimsHatterAddress?: Hex) => {
     if (selectedModuleDetails) {
-      updateModuleAddress(selectedModuleDetails.id);
+      updateModuleAddress(selectedModuleDetails.implementationAddress);
     }
 
-    if (claimsHatterId) {
-      const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
-        hat.id === hatId ? { ...hat, claimsHatterId } : hat,
-      );
+    if (claimsHatterAddress) {
+      const updatedHats = _.map(storedData, (hat: Partial<FormData>) => {
+        if (hat.id === hatId) return { ...hat, claimsHatterAddress };
+        if (hat.id === selectedHat?.id)
+          return {
+            ...hat,
+            isEligibilityManual: 'Automatically',
+            eligibility: selectedModuleDetails?.implementationAddress as Hex,
+          };
+
+        return hat;
+      });
 
       if (!_.find(updatedHats, ['id', hatId])) {
-        updatedHats.push({ id: hatId, claimsHatterId });
+        updatedHats.push({ id: hatId, claimsHatterAddress });
+      }
+      if (!_.find(updatedHats, ['id', selectedHat?.id])) {
+        updatedHats.push({
+          id: selectedHat?.id,
+          isEligibilityManual: 'Automatically',
+          eligibility: selectedModuleDetails?.implementationAddress as Hex,
+        });
       }
 
       setStoredData?.(updatedHats);
