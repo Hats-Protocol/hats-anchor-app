@@ -1,11 +1,13 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
+import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDeployModule from '@/hooks/useDeployModule';
-import { ModuleDetails } from '@/types';
+import { FormData, ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
@@ -19,12 +21,25 @@ const TopMenu = ({
   selectedModuleDetails?: ModuleDetails;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId } = useTreeForm();
+  const { chainId, setStoredData, storedData } = useTreeForm();
 
-  const handleSuccess = () => {
+  const handleSuccess = (hatId?: Hex, claimsHatterId?: Hex) => {
     if (selectedModuleDetails) {
       updateModuleAddress(selectedModuleDetails.id);
     }
+
+    if (claimsHatterId) {
+      const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
+        hat.id === hatId ? { ...hat, claimsHatterId } : hat,
+      );
+
+      if (!_.find(updatedHats, ['id', hatId])) {
+        updatedHats.push({ id: hatId, claimsHatterId });
+      }
+
+      setStoredData?.(updatedHats);
+    }
+
     onCloseModuleDrawer();
   };
 

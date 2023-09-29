@@ -395,6 +395,35 @@ const processImageChangeCallForHat = async ({
   };
 };
 
+const processMintingCallForHat = async ({
+  hatsClient,
+  hat,
+  returnData,
+}: ProcessCallForHatProps) => {
+  const { calls, hatChanges } = returnData;
+  const { id: hatId, claimsHatterId } = hat;
+
+  if (!hatId || !hatsClient || !claimsHatterId) return returnData;
+
+  const mintHatCallDataResult = hatsClient.mintHatCallData({
+    hatId: BigInt(hatId),
+    wearer: claimsHatterId,
+  });
+
+  if (!mintHatCallDataResult) return returnData;
+
+  const newHatChanges = {
+    ...hatChanges,
+    claimsHatterId,
+  };
+
+  return {
+    ...returnData,
+    calls: _.concat(calls, mintHatCallDataResult.callData),
+    hatChanges: newHatChanges,
+  };
+};
+
 export const processHatForCalls = async (
   hat: Partial<FormData>,
   onchainHats?: IHat[],
@@ -455,6 +484,11 @@ export const processHatForCalls = async (
     hat,
     returnData: mutabilityResult,
   });
+  const mintingQueueResult = await processMintingCallForHat({
+    hatsClient,
+    hat,
+    returnData: imageResult,
+  });
 
-  return imageResult;
+  return mintingQueueResult;
 };

@@ -1,5 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
+import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -18,7 +20,7 @@ const useDeployModule = ({
 }: {
   localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
-  onSuccessCallback: () => void;
+  onSuccessCallback: (hatId?: Hex, deployedClaimsHatterId?: Hex) => void;
 }) => {
   const toast = useToast();
   const { chainId, selectedHat } = useTreeForm();
@@ -78,8 +80,16 @@ const useDeployModule = ({
       }
       return null;
     },
-    onSuccess: () => {
-      onSuccessCallback();
+    onSuccess: (data) => {
+      // this logic will have to be adjusted when we will deploy the standalone claims hatter
+      // because atm it assumes that the claims hatter is deployed together with the module
+      // so it will be the second element in the array
+      let deployedClaimsHatterId: Hex | undefined;
+      if (data && 'newInstances' in data && Array.isArray(data.newInstances)) {
+        [, deployedClaimsHatterId] = data.newInstances;
+      }
+
+      onSuccessCallback(adminHat, deployedClaimsHatterId);
 
       toast.success({
         title: 'Saved',
