@@ -395,7 +395,7 @@ const processImageChangeCallForHat = async ({
   };
 };
 
-const processMintingCallForHat = async ({
+const processMintAdminForHatterCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -419,7 +419,7 @@ const processMintingCallForHat = async ({
 
   return {
     ...returnData,
-    calls: _.concat(calls, mintHatCallDataResult.callData),
+    calls: _.concat(calls, mintHatCallDataResult),
     hatChanges: newHatChanges,
   };
 };
@@ -484,11 +484,11 @@ export const processHatForCalls = async (
     hat,
     returnData: mutabilityResult,
   });
-  const mintingQueueResult = await processMintingCallForHat({
+  const mintingResult = await processMintAdminForHatterCallForHat({
     hatsClient,
     hat,
     returnData: imageResult,
   });
 
-  return mintingQueueResult;
+  return mintingResult;
 };
