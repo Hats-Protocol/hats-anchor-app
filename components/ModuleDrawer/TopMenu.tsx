@@ -28,32 +28,44 @@ const TopMenu = ({
       updateModuleAddress(selectedModuleDetails.implementationAddress);
     }
 
-    if (claimsHatterAddress) {
-      const updatedHats = _.map(storedData, (hat: Partial<FormData>) => {
-        if (hat.id === hatId) return { ...hat, claimsHatterAddress };
-        if (hat.id === selectedHat?.id)
-          return {
-            ...hat,
-            isEligibilityManual: 'Automatically',
-            eligibility: selectedModuleDetails?.implementationAddress as Hex,
-          };
+    const updatedHats =
+      storedData && Array.isArray(storedData)
+        ? _.map(storedData, (hat: Partial<FormData>) => {
+            if (hat.id === hatId && claimsHatterAddress)
+              return { ...hat, claimsHatterAddress };
 
-        return hat;
-      });
+            if (
+              hat.id === selectedHat?.id &&
+              selectedModuleDetails?.implementationAddress
+            )
+              return {
+                ...hat,
+                isEligibilityManual: 'Automatically',
+                eligibility:
+                  selectedModuleDetails?.implementationAddress as Hex,
+              };
 
-      if (!_.find(updatedHats, ['id', hatId])) {
-        updatedHats.push({ id: hatId, claimsHatterAddress });
-      }
-      if (!_.find(updatedHats, ['id', selectedHat?.id])) {
-        updatedHats.push({
-          id: selectedHat?.id,
-          isEligibilityManual: 'Automatically',
-          eligibility: selectedModuleDetails?.implementationAddress as Hex,
-        });
-      }
+            return hat;
+          })
+        : [...(storedData || [])];
 
-      setStoredData?.(updatedHats);
+    if (claimsHatterAddress && hatId && !_.find(updatedHats, ['id', hatId])) {
+      updatedHats.push({ id: hatId, claimsHatterAddress });
     }
+
+    if (
+      selectedHat?.id &&
+      selectedModuleDetails?.implementationAddress &&
+      !_.find(updatedHats, ['id', selectedHat.id])
+    ) {
+      updatedHats.push({
+        id: selectedHat.id,
+        isEligibilityManual: 'Automatically',
+        eligibility: selectedModuleDetails.implementationAddress as Hex,
+      });
+    }
+
+    setStoredData?.(updatedHats);
 
     onCloseModuleDrawer();
   };
