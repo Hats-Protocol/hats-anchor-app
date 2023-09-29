@@ -16,9 +16,9 @@ import { BsChevronRight } from 'react-icons/bs';
 import Markdown from '@/components/atoms/Markdown';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { getProposedChangesCount, isTopHatOrMutable } from '@/lib/hats';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
-const isDraft = (hatId: string, onchainHats: IHat[]) =>
+const isDraft = (hatId: string, onchainHats: Hat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
 
 const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {

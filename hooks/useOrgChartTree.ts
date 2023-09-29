@@ -6,7 +6,7 @@ import { Hex } from 'viem';
 import { DetailsData } from '@/lib/details';
 import { sha256 } from '@/lib/sha256';
 import { toTreeStructure } from '@/lib/tree';
-import { IHat, IHatWearer, ITree } from '@/types';
+import { Hat, HatWearer, Tree } from '@/types';
 
 import useDeepCompareEffect from './useDeepCompareEffect';
 
@@ -95,12 +95,12 @@ const useOrgChartTree = ({
 export default useOrgChartTree;
 
 interface UseOrgChartTreeProps {
-  treeData: ITree | null | undefined;
-  hatsData: IHat[] | undefined;
+  treeData: Tree | null | undefined;
+  hatsData: Hat[] | undefined;
   detailsData: { id: string; detailsObject: DetailsData }[] | undefined;
-  wearersAndControllers: IHatWearer[] | undefined;
-  imagesData: IHat[] | undefined;
-  draftHats: IHat[] | undefined;
+  wearersAndControllers: HatWearer[] | undefined;
+  imagesData: Hat[] | undefined;
+  draftHats: Hat[] | undefined;
   imagesLoaded: boolean;
   detailsLoaded: boolean;
   initialHatIds: Hex[];

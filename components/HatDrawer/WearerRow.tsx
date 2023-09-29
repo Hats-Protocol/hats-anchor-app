@@ -26,7 +26,7 @@ import useModuleInstance from '@/hooks/useModuleInstance';
 import useToast from '@/hooks/useToast';
 import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
-import { IHatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 import TooltipWrapper from './TooltipWrapper';
 
@@ -215,7 +215,7 @@ const WearerRow = ({
 export default WearerRow;
 
 interface WearerRowProps {
-  wearer: IHatWearer;
+  wearer: HatWearer;
   isAdminUser: boolean;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;

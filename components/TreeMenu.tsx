@@ -37,7 +37,7 @@ import CONFIG, { initialControls } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { chainsMap, explorerUrl } from '@/lib/web3';
-import { IControls } from '@/types';
+import { Controls } from '@/types';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 import EventHistory from './EventHistory';
@@ -145,7 +145,7 @@ const TreeMenu = ({
                   w='100%'
                 >
                   <Stack direction='column' spacing={3}>
-                    {initialControls.map((control: IControls) => (
+                    {initialControls.map((control: Controls) => (
                       <Radio value={control.value} key={control.value}>
                         <HStack>
                           {control.icon}

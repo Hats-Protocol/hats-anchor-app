@@ -37,7 +37,7 @@ import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { FormData, FormWearer, IHatWearer } from '@/types';
+import { FormData, FormWearer, HatWearer } from '@/types';
 
 const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
@@ -230,7 +230,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                 _.filter(_.flatten(results.data), isAddress),
                 localWearers,
                 (csvAddress: unknown, wearer: unknown) =>
-                  csvAddress === _.get(wearer as IHatWearer, 'address'),
+                  csvAddress === _.get(wearer as HatWearer, 'address'),
               ),
               _.toNumber(maxSupply) -
                 _.size(currentWearerList) -

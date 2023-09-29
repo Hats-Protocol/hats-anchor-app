@@ -21,9 +21,9 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
-const Navbar = ({ hatData }: { hatData?: IHat }) => {
+const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const localOverlay = useOverlay();
   const { setCommandPalette: setOpen } = localOverlay;
   const router = useRouter();

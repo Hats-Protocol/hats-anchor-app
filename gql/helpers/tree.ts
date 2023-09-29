@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { mapWithChainId } from '@/lib/general';
-import { ITree } from '@/types';
+import { Tree } from '@/types';
 
 import client from '../client';
 import {
@@ -15,7 +15,7 @@ import {
 export const fetchTreeDetails = async (
   treeId: string | null,
   chainId: number,
-): Promise<ITree | null> => {
+): Promise<Tree | null> => {
   const result = await client(chainId).request(GET_TREE, { id: treeId });
 
   return _.get(result, 'tree', null);

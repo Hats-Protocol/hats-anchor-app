@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 import CommandPalette from './CommandPalette';
 
@@ -96,6 +96,6 @@ export default Layout;
 
 interface LayoutProps {
   editMode?: boolean;
-  hatData?: IHat;
+  hatData?: Hat;
   children: ReactNode;
 }

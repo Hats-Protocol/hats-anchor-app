@@ -3,7 +3,7 @@ import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
-import { FormData, FormDataDetails, HatDetails, IHat } from '@/types';
+import { FormData, FormDataDetails, Hat, HatDetails } from '@/types';
 
 import { getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl } from './ipfs';
@@ -208,7 +208,7 @@ const processWearersCallForHat = async ({
 };
 
 type ProcessDetailsChangeCallForHatProps = {
-  onchainHat: IHat | undefined;
+  onchainHat: Hat | undefined;
 } & ProcessCallForHatProps;
 
 const processDetailsChangeCallForHat = async ({
@@ -397,7 +397,7 @@ const processImageChangeCallForHat = async ({
 
 export const processHatForCalls = async (
   hat: Partial<FormData>,
-  onchainHats?: IHat[],
+  onchainHats?: Hat[],
   chainId?: number,
 ) => {
   const hatsClient = createHatsClient(chainId);

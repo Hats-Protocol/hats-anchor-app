@@ -6,7 +6,7 @@ import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 import CONFIG from '@/constants';
 import { checkImageForHat } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 interface ContractCall {
   address: Hex;
@@ -28,14 +28,14 @@ const tempClient = (chainId: number) => {
  * returns an object, mapping from hat id to image url.
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
  * for every url, checks if valid. If not, sets the image url to undefined.
- * @param {IHat[]} hats Array of Hats
+ * @param {Hat[]} hats Array of Hats
  */
 const useImageURIs = ({
   hats,
   onchainHats,
 }: {
-  hats: IHat[] | undefined;
-  onchainHats?: IHat[];
+  hats: Hat[] | undefined;
+  onchainHats?: Hat[];
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {

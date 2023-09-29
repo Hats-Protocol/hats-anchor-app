@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { fetchTreeDetails, fetchTreesById } from '@/gql/helpers';
 import { ipToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { ITree } from '@/types';
+import { Tree } from '@/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {
@@ -15,7 +15,7 @@ const useFeaturedTreesData = (featuredTrees: any) => {
       fetchTreeDetails(ids[1], 100),
     ]);
 
-    const trees = _.concat(opTrees, gnoTrees) as ITree[];
+    const trees = _.concat(opTrees, gnoTrees) as Tree[];
 
     const data = _.map(trees, (tree) => ({
       treeId: prettyIdToIp(tree.id),

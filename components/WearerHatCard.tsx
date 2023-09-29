@@ -6,10 +6,10 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId } from '@/lib/hats';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 // TODO optimize top hat fetch
-const WearerHatCard = ({ hat }: { hat: IHat }) => {
+const WearerHatCard = ({ hat }: { hat: Hat }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
   const { data: topHat } = useHatDetails({

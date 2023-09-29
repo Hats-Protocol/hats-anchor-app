@@ -7,9 +7,9 @@ import {
   BsToggles2,
 } from 'react-icons/bs';
 
-import { IControls } from '@/types';
+import { Controls } from '@/types';
 
-export const initialControls: IControls[] = [
+export const initialControls: Controls[] = [
   {
     label: 'Title Only',
     value: 'title',

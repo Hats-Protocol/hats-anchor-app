@@ -39,7 +39,7 @@ import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
 import { decimalId, isTopHat, isWearingAdminHat, toTreeId } from '@/lib/hats';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatLinkRequestCreateForm = lazy(
@@ -64,7 +64,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
   const wearerTopHats = _.map(
     _.filter(
       wearer,
-      (hat: IHat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
+      (hat: Hat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
     ),
     'id',
   );

@@ -1,9 +1,9 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
-import { ITree } from './tree';
+import { Tree } from './tree';
 
-export interface IHatEvent {
+export interface HatEvent {
   id: string;
   timestamp: string;
   transactionID: string;
@@ -14,7 +14,7 @@ export type DetailsItem = {
   label: string;
 };
 
-export interface IHatWearer {
+export interface HatWearer {
   id: Hex;
   isContract?: boolean;
   ensName?: string | null;
@@ -42,28 +42,28 @@ export type HatDetails = {
   };
 };
 
-export interface IHat {
+export interface Hat {
   id: Hex;
   chainId: number;
   prettyId?: string;
-  tree?: Partial<ITree>;
+  tree?: Partial<Tree>;
   status: boolean;
   createdAt?: string;
   details: string;
   maxSupply: string;
   eligibility: Hex;
-  extendedEligibility?: IHatWearer;
+  extendedEligibility?: HatWearer;
   toggle: Hex;
-  extendedToggle?: IHatWearer;
+  extendedToggle?: HatWearer;
   mutable: boolean;
   imageUri: string;
   imageUrl?: string | null;
   levelAtLocalTree: number;
   currentSupply: string;
-  events: IHatEvent[];
-  wearers: IHatWearer[];
-  extendedWearers?: IHatWearer[];
-  admin?: Partial<IHat>;
+  events: HatEvent[];
+  wearers: HatWearer[];
+  extendedWearers?: HatWearer[];
+  admin?: Partial<Hat>;
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,4 +97,26 @@ export type ModuleCreationArgs = {
 
 export interface ModuleDetails extends Module {
   id: string;
+}
+
+export interface HatExport {
+  id: Hex;
+  status: boolean;
+  createdAt?: number;
+  details: string;
+  maxSupply: number;
+  eligibility: Hex;
+  toggle: Hex;
+  mutable: boolean;
+  imageUri: string;
+  currentSupply: number;
+  wearers: Hex[];
+  adminId: Hex;
+  imageUrl?: string | null;
+  detailsObject?: {
+    type: string;
+    data: HatDetails;
+  };
+  chainId: number;
+  name: string;
 }

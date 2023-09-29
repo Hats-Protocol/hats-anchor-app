@@ -23,7 +23,7 @@ import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { calculateNextChildId, ipToHatId, isTopHatOrMutable } from '@/lib/hats';
-import { IHat, IHatWearer } from '@/types';
+import { Hat, HatWearer } from '@/types';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
@@ -95,7 +95,7 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick(function test(node: IHat) {
+          .onNodeClick(function test(node: Hat) {
             if (!editMode) {
               handleSelectHat?.(node?.id);
               centerChart(chart, node?.id);
@@ -229,7 +229,7 @@ const OrgChartComponent: React.FC = () => {
 
             // setup wearers section
             let wearersColor = '#FFFFFF';
-            const wearer: IHatWearer | undefined = _.first(wearers);
+            const wearer: HatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
             let wearerAccent: string = `0 of ${maxSupply}`;
             let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;

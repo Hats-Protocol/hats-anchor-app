@@ -3,15 +3,15 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { extendControllers, extendWearers } from '@/lib/contract';
-import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
+import { Hat, HatDetails, HatWearer, Tree } from '@/types';
 
 import { decimalId, idToPrettyId } from './hats';
 
 const mapHat = (
-  hat: IHat | undefined,
+  hat: Hat | undefined,
   chainId: number,
-  wAndCInfo: IHatWearer[] | undefined,
-): IHat | undefined => {
+  wAndCInfo: HatWearer[] | undefined,
+): Hat | undefined => {
   if (!hat) return undefined;
 
   return {
@@ -39,18 +39,18 @@ export async function toTreeStructure({
   chainId,
   initialHatIds,
 }: {
-  treeData: ITree | null | undefined;
-  hatsData: IHat[] | undefined;
+  treeData: Tree | null | undefined;
+  hatsData: Hat[] | undefined;
   detailsData: {
     id: string;
     detailsObject: { type: string; data: HatDetails };
   }[];
-  wearersAndControllers: IHatWearer[] | undefined;
-  imagesData: IHat[] | undefined;
-  draftHats: IHat[] | undefined;
+  wearersAndControllers: HatWearer[] | undefined;
+  imagesData: Hat[] | undefined;
+  draftHats: Hat[] | undefined;
   chainId: number;
   initialHatIds: Hex[];
-}): Promise<IHat[] | undefined> {
+}): Promise<Hat[] | undefined> {
   if (
     !treeData ||
     !hatsData ||
@@ -97,21 +97,21 @@ export async function toTreeStructure({
 }
 
 const isHatInParentOfTrees = (
-  hat: IHat,
-  parentOfTrees: ITree[] | undefined,
+  hat: Hat,
+  parentOfTrees: Tree[] | undefined,
 ): boolean => {
   return !!_.find(parentOfTrees, { id: idToPrettyId(hat.id) });
 };
 
-const isLinkedToHatFunc = (hat: IHat, linkedToHat: IHat | null): boolean => {
+const isLinkedToHatFunc = (hat: Hat, linkedToHat: Hat | null): boolean => {
   return hat.id === linkedToHat?.id;
 };
 
 const updateHatProperties = (
-  hat: IHat,
-  parentOfTrees: ITree[] | undefined,
-  linkedToHat: IHat | null,
-): IHat => {
+  hat: Hat,
+  parentOfTrees: Tree[] | undefined,
+  linkedToHat: Hat | null,
+): Hat => {
   const updatedHat = { ...hat };
 
   if (isHatInParentOfTrees(hat, parentOfTrees)) {

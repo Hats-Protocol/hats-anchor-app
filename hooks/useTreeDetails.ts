@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchTreeDetails } from '@/gql/helpers';
-import { ITree } from '@/types';
+import { Tree } from '@/types';
 
 const useTreeDetails = ({
   treeId,
@@ -23,5 +23,5 @@ export default useTreeDetails;
 interface UseTreeDetailsProps {
   treeId: string;
   chainId: number;
-  initialData?: ITree | null;
+  initialData?: Tree | null;
 }

@@ -35,7 +35,7 @@ import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { isSameAddress } from '@/lib/general';
 import { isWearingAdminHat } from '@/lib/hats';
 import { filterWearers, getEligibleWearers } from '@/lib/wearers';
-import { IHatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
 
@@ -121,7 +121,7 @@ const WearersList = () => {
     filterWearers(searchTerm, wearers),
     0,
     6,
-  ) as IHatWearer[];
+  ) as HatWearer[];
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
   return (
@@ -151,7 +151,7 @@ const WearersList = () => {
           </InputGroup>
         )}
         {/* Wearers list */}
-        {filteredWearers.map((w: IHatWearer) => (
+        {filteredWearers.map((w: HatWearer) => (
           <WearerRow
             key={w.id}
             wearer={w}
@@ -228,7 +228,7 @@ const WearersList = () => {
           localOverlay={localOverlay}
         >
           <Flex direction='column' gap={4}>
-            {wearers?.map((w: IHatWearer) => (
+            {wearers?.map((w: HatWearer) => (
               <WearerRow
                 key={w.id}
                 wearer={w}

@@ -35,7 +35,7 @@ import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { chainsMap, orderedChains } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const WearerDetail = ({
   wearerAddress,
@@ -43,7 +43,7 @@ const WearerDetail = ({
 }: {
   wearerAddress: Hex;
   initialEnsName?: string;
-  // initialData: IHat[] | undefined;
+  // initialData: Hat[] | undefined;
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const [name, setName] = useState<string | undefined>(initialEnsName);
@@ -205,7 +205,7 @@ const WearerDetail = ({
                       _.filter(currentHatsWithImagesData, {
                         chainId: Number(chainId),
                       }),
-                      (hat: IHat) => (
+                      (hat: Hat) => (
                         <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
                       ),
                     )}

@@ -16,11 +16,11 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { processHatForCalls } from '@/lib/form';
 import { handleDetailsPin } from '@/lib/ipfs';
-import { HatDetails, IHat } from '@/types';
+import { Hat, HatDetails } from '@/types';
 
 const useMulticallCallManyHats = () => {
   const [calls, setCalls] = useState<unknown[]>();
-  const [proposedChanges, setProposedChanges] = useState<IHat[]>();
+  const [proposedChanges, setProposedChanges] = useState<Hat[]>();
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
   const { address } = useAccount();
