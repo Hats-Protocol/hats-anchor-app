@@ -18,7 +18,6 @@ export type FormData = FormDataDetails & {
   id: Hex;
   wearers: FormWearer[];
   parentId?: Hex;
-  claimsHatterAddress?: Hex;
 };
 
 export type FormDataDetails = {

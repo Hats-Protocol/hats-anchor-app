@@ -2,7 +2,12 @@ import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { BsBarChartLine, BsPersonAdd, BsPuzzle } from 'react-icons/bs';
+import {
+  BsBarChartLine,
+  BsInfoCircle,
+  BsPersonAdd,
+  BsPuzzle,
+} from 'react-icons/bs';
 
 import RadioBox from '@/components/atoms/RadioBox';
 import Select from '@/components/atoms/Select';
@@ -22,7 +27,9 @@ const PermissionlessClaimingForm = ({
 }) => {
   const { onchainHats, treeToDisplay, selectedHat, topHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
-  const claimableFor = localForm.watch('Claimable For');
+  const isPermissionlesslyClaimable = localForm.watch(
+    'isPermissionlesslyClaimable',
+  );
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   const parentHats = useMemo(() => {
@@ -31,10 +38,10 @@ const PermissionlessClaimingForm = ({
   }, [selectedHat, treeToDisplay, topHat]);
 
   useEffect(() => {
-    if (claimableFor === 'Yes') {
+    if (isPermissionlesslyClaimable === 'Yes') {
       scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [claimableFor]);
+  }, [isPermissionlesslyClaimable]);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -42,55 +49,72 @@ const PermissionlessClaimingForm = ({
     <Stack spacing={12}>
       <FormRowWrapper>
         <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
-        <RadioBox
-          name='Claimable For'
-          label='Hat ClaimIng'
-          subLabel='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
-          localForm={localForm}
-          options={[
-            {
-              label: 'Yes',
-              value: 'Yes',
-            },
-            {
-              label: 'No — admin mint only',
-              value: 'No',
-            },
-          ]}
-        />
+        <Stack>
+          <RadioBox
+            name='isPermissionlesslyClaimable'
+            label='Hat Claiming'
+            subLabel='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
+            localForm={localForm}
+            options={[
+              {
+                label: 'Yes',
+                value: 'Yes',
+              },
+              {
+                label: 'No — admin mint only',
+                value: 'No',
+              },
+            ]}
+            isDisabled={!(parentHats && parentHats.length > 0)} // Disable RadioBox if no parentHats are available
+          />
+        </Stack>
       </FormRowWrapper>
-      {claimableFor === 'Yes' && (
-        <Box ref={scrollTargetRef}>
-          <FormRowWrapper>
-            <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-            <Stack>
-              <Select
-                name='adminHat'
-                label='ADMIN HAT'
-                subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
-                localForm={localForm}
-                placeholder='Select a hat in this tree'
-                defaultValue={undefined}
-                options={{
-                  required: claimableFor === 'Yes',
-                }}
-              >
-                {_.map(parentHats, (id) => (
-                  <option value={decimalId(id)} key={id}>
-                    {prettyIdToIp(idToPrettyId(id))}
-                  </option>
-                ))}
-              </Select>
-              {adminHat && (
-                <Text color='blackAlpha.600'>
-                  Potential wearers will be able to claim this hat if they meet
-                  the requirements in new module above.
-                </Text>
-              )}
-            </Stack>
-          </FormRowWrapper>
-        </Box>
+      {!(parentHats && parentHats.length > 0) && (
+        <FormRowWrapper>
+          <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
+          <Text color='blue.500'>
+            Permissionless claiming is currently unavailable as there are no
+            eligible hats present. To enable this option, there must be at least
+            one non-top hat admin of this hat available.
+          </Text>
+        </FormRowWrapper>
       )}
+
+      {isPermissionlesslyClaimable === 'Yes' &&
+        parentHats &&
+        parentHats.length > 0 && (
+          <Box ref={scrollTargetRef}>
+            <FormRowWrapper>
+              <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+              <Stack>
+                <Select
+                  name='adminHat'
+                  label='ADMIN HAT'
+                  subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                  localForm={localForm}
+                  placeholder='Select a hat in this tree'
+                  defaultValue={undefined}
+                  options={{
+                    required: isPermissionlesslyClaimable === 'Yes',
+                  }}
+                >
+                  {_.map(parentHats, (id) => (
+                    <option value={decimalId(id)} key={id}>
+                      {prettyIdToIp(idToPrettyId(id))}
+                    </option>
+                  ))}
+                </Select>
+                {adminHat && (
+                  <Text color='blackAlpha.600'>
+                    Potential wearers will be able to claim this hat if they
+                    meet the requirements in new module above.
+                  </Text>
+                )}
+              </Stack>
+            </FormRowWrapper>
+          </Box>
+        )}
+
       {selectedHat?.wearers === selectedHat?.maxSupply && (
         <FormRowWrapper>
           <Icon as={BsBarChartLine} boxSize={4} mt='2px' />

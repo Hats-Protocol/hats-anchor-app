@@ -20,7 +20,7 @@ const ModuleDrawer = ({
     mode: 'onBlur',
     defaultValues: {
       moduleType: '',
-      'Claimable For': 'No',
+      isPermissionlesslyClaimable: 'No',
     },
   });
 

@@ -50,7 +50,8 @@ const TopMenu = () => {
   } = useTreeForm();
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
-  const { writeAsync, isLoading } = useMulticallCallManyHats();
+  const { writeAsync, isLoading, prepareMulticallData } =
+    useMulticallCallManyHats();
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -192,7 +193,7 @@ const TopMenu = () => {
             colorScheme='blue'
             variant='solid'
             isDisabled={isDeployDisabled}
-            onClick={handleDeploy}
+            onClick={prepareMulticallData}
           >
             Deploy
           </Button>

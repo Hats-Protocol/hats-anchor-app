@@ -1,13 +1,11 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
-import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
-import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDeployModule from '@/hooks/useDeployModule';
-import { FormData, ModuleDetails } from '@/types';
+import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
@@ -21,59 +19,13 @@ const TopMenu = ({
   selectedModuleDetails?: ModuleDetails;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId, setStoredData, storedData, selectedHat } = useTreeForm();
-
-  const handleSuccess = (hatId?: Hex, claimsHatterAddress?: Hex) => {
-    if (selectedModuleDetails) {
-      updateModuleAddress(selectedModuleDetails.implementationAddress);
-    }
-
-    const updatedHats =
-      storedData && Array.isArray(storedData)
-        ? _.map(storedData, (hat: Partial<FormData>) => {
-            if (hat.id === hatId && claimsHatterAddress)
-              return { ...hat, claimsHatterAddress };
-
-            if (
-              hat.id === selectedHat?.id &&
-              selectedModuleDetails?.implementationAddress
-            )
-              return {
-                ...hat,
-                isEligibilityManual: 'Automatically',
-                eligibility:
-                  selectedModuleDetails?.implementationAddress as Hex,
-              };
-
-            return hat;
-          })
-        : [...(storedData || [])];
-
-    if (claimsHatterAddress && hatId && !_.find(updatedHats, ['id', hatId])) {
-      updatedHats.push({ id: hatId, claimsHatterAddress });
-    }
-
-    if (
-      selectedHat?.id &&
-      selectedModuleDetails?.implementationAddress &&
-      !_.find(updatedHats, ['id', selectedHat.id])
-    ) {
-      updatedHats.push({
-        id: selectedHat.id,
-        isEligibilityManual: 'Automatically',
-        eligibility: selectedModuleDetails.implementationAddress as Hex,
-      });
-    }
-
-    setStoredData?.(updatedHats);
-
-    onCloseModuleDrawer();
-  };
+  const { chainId } = useTreeForm();
 
   const { deployModule, isLoading } = useDeployModule({
     localForm,
     selectedModuleDetails,
-    onSuccessCallback: handleSuccess,
+    onCloseModuleDrawer,
+    updateModuleAddress,
   });
 
   const { watch } = localForm;
