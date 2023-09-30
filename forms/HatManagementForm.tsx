@@ -32,7 +32,7 @@ import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
-import { isMutable } from '@/lib/hats';
+import { findModule, isMutable } from '@/lib/hats';
 import { DetailsItem, ModuleKind } from '@/types';
 
 interface HatManagementFormProps {
@@ -80,11 +80,7 @@ const HatManagementForm = ({
   const moduleAddress = watch(title);
 
   const foundModule = useMemo(
-    () =>
-      _.find(
-        Object.values(modules || {}),
-        (module) => module.implementationAddress === moduleAddress,
-      ),
+    () => findModule(modules, moduleAddress),
     [modules, moduleAddress],
   );
 

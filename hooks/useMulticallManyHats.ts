@@ -38,30 +38,25 @@ const useMulticallCallManyHats = () => {
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
 
-  const prepareMulticallData = async () => {
-    const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
-      _.includes(_.map(onchainHats, 'id'), hat.id),
-    );
-
-    const allCallsPromises = _.map(storedData, (hat) =>
-      processHatForCalls(hat, onlyOnchainHats, chainId),
-    );
-    console.log('allCallsPromises', allCallsPromises);
-
-    return;
-    const allCalls = await Promise.all(allCallsPromises);
-    console.log('allCalls', allCalls);
-
-    const localCalls = _.flatten(_.map(allCalls, 'calls'));
-    const localProposedChanges = _.map(allCalls, 'hatChanges');
-
-    const localDetailsToPin = _.map(allCalls, 'detailsToPin');
-    setCalls(localCalls);
-    setProposedChanges(localProposedChanges);
-    setDetailsToPin(localDetailsToPin);
-  };
-
   useEffect(() => {
+    const prepareMulticallData = async () => {
+      const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
+        _.includes(_.map(onchainHats, 'id'), hat.id),
+      );
+
+      const allCallsPromises = _.map(storedData, (hat) =>
+        processHatForCalls(hat, onlyOnchainHats, chainId),
+      );
+      const allCalls = await Promise.all(allCallsPromises);
+
+      const localCalls = _.flatten(_.map(allCalls, 'calls'));
+      const localProposedChanges = _.map(allCalls, 'hatChanges');
+      const localDetailsToPin = _.map(allCalls, 'detailsToPin');
+      setCalls(localCalls);
+      setProposedChanges(localProposedChanges);
+      setDetailsToPin(localDetailsToPin);
+    };
+
     if (
       !!chainId &&
       chainId === currentChain &&
@@ -174,11 +169,9 @@ const useMulticallCallManyHats = () => {
           handleDetailsPin({ chainId: cId, hatId, details }),
       );
 
-      console.log('promises', promises);
       await Promise.all(promises);
     }
     const result = await writeAsync?.();
-    console.log('result', result);
     return result;
   };
 
@@ -188,7 +181,6 @@ const useMulticallCallManyHats = () => {
     writeError,
     isLoading,
     proposedChanges,
-    prepareMulticallData,
   };
 };
 
