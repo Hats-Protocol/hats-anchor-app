@@ -22,7 +22,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useModuleInstance from '@/hooks/useModuleInstance';
+import useModuleDetails from '@/hooks/useModuleDetails';
 import useToast from '@/hooks/useToast';
 import { formatAddress, isSameAddress } from '@/lib/general';
 import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
@@ -78,11 +78,7 @@ const WearerRow = ({
     },
   });
 
-  const { data: moduleDetails } = useModuleInstance({
-    chainId,
-    address: wearer.id,
-    enabled: wearer.isContract,
-  });
+  const { data: moduleDetails } = useModuleDetails(wearer.id);
 
   const updateEligibility = async () => {
     testEligibility?.();

@@ -1,6 +1,6 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
@@ -24,11 +24,12 @@ const useModuleDetails = (type: string) => {
     return _.get(selectedHat, _.toLower(type));
   }, [selectedHat, type]);
 
+  const clearData = useCallback(() => {
+    setModule(undefined);
+    setModuleParameters(undefined);
+  }, []);
+
   useEffect(() => {
-    const clearData = () => {
-      setModule(undefined);
-      setModuleParameters(undefined);
-    };
     const getModuleData = async () => {
       if (!chainId || !moduleAddress) {
         clearData();
@@ -52,7 +53,7 @@ const useModuleDetails = (type: string) => {
       setModuleParameters(localModuleParameters as ModuleParameters[]);
     };
     getModuleData();
-  }, [moduleAddress, chainId]);
+  }, [moduleAddress, chainId, clearData]);
 
   return { data: module, parameters: moduleParameters };
 };
