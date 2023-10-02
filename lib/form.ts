@@ -258,10 +258,17 @@ const processDetailsChangeCallForHat = async ({
     (acc, existingValue, key) => {
       const newValue = newDetails[key];
 
-      if (_.isArray(newValue) && _.isEmpty(newValue)) {
+      if (
+        _.isArray(newValue) &&
+        _.isEmpty(newValue) &&
+        hat[key as keyof FormData] !== undefined
+      ) {
         acc[key] = newValue;
-      } else if (_.isArray(existingValue) && _.isArray(newValue)) {
-        acc[key] = _.union(existingValue, newValue);
+      } else if (
+        (_.isArray(existingValue) && _.isArray(newValue)) ||
+        (_.isObject(existingValue) && _.isObject(newValue))
+      ) {
+        acc[key] = _.merge(existingValue, newValue);
       } else {
         acc[key] = newValue || existingValue;
       }
