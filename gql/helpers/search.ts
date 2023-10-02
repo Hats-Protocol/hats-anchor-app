@@ -80,7 +80,6 @@ export const searchQueryResult = async (search: string) => {
     );
   });
 
-  console.log('allNetworkResults', allNetworkResults);
   return _.mapValues(allNetworkResults, (o, k) =>
     _.map(o, (r) => processForCommandPalette(k, r)),
   );

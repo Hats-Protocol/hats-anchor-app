@@ -29,7 +29,6 @@ const useManyHatDetails = ({
       };
     }),
   });
-  // console.log(hatsDetails);
 
   const isLoading = _.some(hatsDetails, ['isLoading', true]);
 
