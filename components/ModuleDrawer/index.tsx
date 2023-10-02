@@ -8,9 +8,11 @@ import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
 const ModuleDrawer = ({
+  updateModuleAddress,
   onCloseModuleDrawer,
   title,
 }: {
+  updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;
   title: ModuleKind;
 }) => {
@@ -18,7 +20,7 @@ const ModuleDrawer = ({
     mode: 'onBlur',
     defaultValues: {
       moduleType: '',
-      'Claimable For': 'No',
+      isPermissionlesslyClaimable: 'No',
     },
   });
 
@@ -38,6 +40,7 @@ const ModuleDrawer = ({
     >
       <TopMenu
         localForm={localForm}
+        updateModuleAddress={updateModuleAddress}
         onCloseModuleDrawer={onCloseModuleDrawer}
         selectedModuleDetails={selectedModuleDetails}
       />

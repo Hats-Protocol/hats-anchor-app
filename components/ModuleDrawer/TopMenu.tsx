@@ -9,10 +9,12 @@ import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
+  updateModuleAddress,
   onCloseModuleDrawer,
   selectedModuleDetails,
 }: {
   localForm: UseFormReturn<any>;
+  updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;
   selectedModuleDetails?: ModuleDetails;
 }) => {
@@ -22,6 +24,8 @@ const TopMenu = ({
   const { deployModule, isLoading } = useDeployModule({
     localForm,
     selectedModuleDetails,
+    onCloseModuleDrawer,
+    updateModuleAddress,
   });
 
   const { watch } = localForm;

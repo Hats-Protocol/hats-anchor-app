@@ -1,4 +1,5 @@
 /* eslint-disable no-plusplus */
+import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
@@ -138,11 +139,11 @@ export const decimalToTreeId = (treeId: string) => {
   return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
 };
 
-export const decimalIdToId = (decimalId: number | undefined) => {
+export const decimalIdToId = (decimalId: number | string | undefined): Hex => {
   if (!decimalId) return '0x';
+
   try {
-    const bn = decimalId;
-    return `0x${bn.toString(16).slice(2).padStart(64, '0')}`;
+    return `0x${BigInt(decimalId).toString(16).padStart(64, '0')}`;
   } catch (err) {
     return '0x';
   }
@@ -353,3 +354,12 @@ export const checkImageForHat = async (img?: string) => {
   }
   return null;
 };
+
+export const findModule = (
+  modules: { [id: string]: Module } | undefined,
+  moduleAddress: Hex,
+) =>
+  _.find(
+    Object.values(modules || {}),
+    (module) => module.implementationAddress === moduleAddress,
+  );

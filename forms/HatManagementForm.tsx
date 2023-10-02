@@ -10,7 +10,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ReactNode, Suspense, useState } from 'react';
+import _ from 'lodash';
+import { ReactNode, Suspense, useMemo, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   BsFileCode,
@@ -31,7 +32,7 @@ import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
-import { isMutable } from '@/lib/hats';
+import { findModule, isMutable } from '@/lib/hats';
 import { DetailsItem, ModuleKind } from '@/types';
 
 interface HatManagementFormProps {
@@ -77,6 +78,11 @@ const HatManagementForm = ({
   const items = watch(formName);
   const isActionManual = watch(radioBoxConfig.name);
   const moduleAddress = watch(title);
+
+  const foundModule = useMemo(
+    () => findModule(modules, moduleAddress),
+    [modules, moduleAddress],
+  );
 
   const showActionResolvedAddress =
     actionResolvedAddress && actionResolvedAddress !== address;
@@ -127,6 +133,10 @@ const HatManagementForm = ({
   //   isOpen: isOpenClaimsHatterDrawer,
   // } = useDisclosure();
 
+  const updateModuleAddress = (value: string) => {
+    localForm.setValue(title, value);
+  };
+
   return (
     <form>
       <Stack spacing={8}>
@@ -161,11 +171,11 @@ const HatManagementForm = ({
               resolvedAddress={String(actionResolvedAddress)}
             />
             <HStack spacing={8}>
-              {modules?.[moduleAddress] && (
+              {foundModule && (
                 <HStack>
                   <Icon as={BsFileCode} boxSize={4} color='gray.500' />
                   <Text color='blackAlpha.700' fontSize='sm'>
-                    {modules[moduleAddress].name}
+                    {foundModule.name}
                   </Text>
                 </HStack>
               )}
@@ -263,6 +273,7 @@ const HatManagementForm = ({
             <Suspense fallback={<Suspender />}>
               <ModuleDrawer
                 onCloseModuleDrawer={onCloseModuleDrawer}
+                updateModuleAddress={updateModuleAddress}
                 title={title}
               />
             </Suspense>
