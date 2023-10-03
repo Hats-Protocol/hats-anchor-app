@@ -28,7 +28,7 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useClaimHat from '@/hooks/useClaimHat';
+import useHatClaim from '@/hooks/useHatClaim';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
@@ -90,11 +90,7 @@ const WearersList = () => {
     wearer: address,
   });
 
-  const { claimHat } = useClaimHat({
-    hatData: selectedHat,
-    wearer: address,
-    claimsHatterAddress: '0xc46464502BbC5174464f7179fd831f7298aD6A2A',
-  });
+  const { claimHat } = useHatClaim({ wearer: address });
 
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
@@ -174,20 +170,22 @@ const WearersList = () => {
               Show all {wearers?.length} wearers
             </Text>
           )}
-          {(currentUserIsEligible as boolean) && !currentUserIsWearing && (
-            <Button
-              variant='unstyled'
-              isDisabled={!claimHat || chainId !== currentNetworkId}
-              onClick={() => {
-                claimHat?.();
-              }}
-            >
-              <HStack color='blue.500'>
-                <FaPlus />
-                <Text variant='ghost'>Claim Hat</Text>
-              </HStack>
-            </Button>
-          )}
+          {(currentUserIsEligible as boolean) &&
+            !currentUserIsWearing &&
+            claimHat && (
+              <Button
+                variant='unstyled'
+                isDisabled={!claimHat || chainId !== currentNetworkId}
+                onClick={() => {
+                  claimHat?.();
+                }}
+              >
+                <HStack color='blue.500'>
+                  <FaPlus />
+                  <Text variant='ghost'>Claim Hat</Text>
+                </HStack>
+              </Button>
+            )}
           {isAdminUser && (
             <Tooltip
               label={

@@ -1,6 +1,8 @@
 import { Module } from '@hatsprotocol/modules-sdk';
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
@@ -12,50 +14,41 @@ interface ModuleParameters {
   displayType: string;
 }
 
-const useModuleDetails = (type: string) => {
-  const { selectedHat, chainId } = useTreeForm();
-  const [module, setModule] = useState<Module | undefined>();
-  const [moduleParameters, setModuleParameters] = useState<
-    ModuleParameters[] | undefined
-  >();
+const useModuleDetails = ({
+  address,
+  enabled = true,
+}: {
+  address: Hex;
+  enabled?: boolean;
+}) => {
+  const { chainId } = useTreeForm();
 
-  const moduleAddress = useMemo(() => {
-    if (!selectedHat) return undefined;
-    return _.get(selectedHat, _.toLower(type));
-  }, [selectedHat, type]);
+  const getModuleData = async () => {
+    if (!chainId || !address) return undefined;
 
-  const clearData = useCallback(() => {
-    setModule(undefined);
-    setModuleParameters(undefined);
-  }, []);
+    const moduleClient = await createHatsModulesClient(chainId);
+    if (!moduleClient) return undefined;
 
-  useEffect(() => {
-    const getModuleData = async () => {
-      if (!chainId || !moduleAddress) {
-        clearData();
-        return;
-      }
-      const moduleClient = await createHatsModulesClient(chainId);
-      if (!moduleClient) {
-        clearData();
-        return;
-      }
-      const promises = [
-        moduleClient.getModuleByInstance(moduleAddress),
-        moduleClient.getInstanceParameters(moduleAddress),
-      ];
-      const [moduleData, localModuleParameters] = await Promise.all(promises);
-      if (!moduleData) {
-        clearData();
-        return;
-      }
-      setModule(moduleData as Module);
-      setModuleParameters(localModuleParameters as ModuleParameters[]);
+    const promises = [
+      moduleClient.getModuleByInstance(address),
+      moduleClient.getInstanceParameters(address),
+    ];
+    const [moduleData, localModuleParameters] = await Promise.all(promises);
+    if (!moduleData) return undefined;
+
+    return {
+      details: moduleData as Module,
+      parameters: localModuleParameters as ModuleParameters[],
     };
-    getModuleData();
-  }, [moduleAddress, chainId, clearData]);
+  };
 
-  return { data: module, parameters: moduleParameters };
+  const { data } = useQuery({
+    queryKey: ['moduleDetails', address],
+    queryFn: getModuleData,
+    enabled: !!address && enabled,
+  });
+
+  return { details: data?.details, parameters: data?.parameters };
 };
 
 export default useModuleDetails;

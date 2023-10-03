@@ -12,7 +12,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -22,9 +22,14 @@ import ChakraNextLink from './atoms/ChakraNextLink';
 import ModuleParameters from './ModuleParameters';
 
 const ModuleDetails = ({ type }: { type: string }) => {
-  const { chainId } = useTreeForm();
+  const { chainId, selectedHat } = useTreeForm();
 
-  const { data: moduleDetails, parameters } = useModuleDetails(type);
+  const address = useMemo(
+    () => _.get(selectedHat, _.toLower(type)),
+    [selectedHat, type],
+  );
+
+  const { details: moduleDetails, parameters } = useModuleDetails({ address });
 
   if (!moduleDetails) return null;
 

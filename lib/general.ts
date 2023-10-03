@@ -152,9 +152,6 @@ export const transformAndVerify = (
   return 'This is not a valid input!';
 };
 
-export const claimsHatterId =
-  '0x1d00ea1a1a17b2a70961fedcb2d9eec031bacabb1c3c7dc1ac16305c4828f61e';
-
 export async function hash(string: string) {
   const utf8 = new TextEncoder().encode(string);
   const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);

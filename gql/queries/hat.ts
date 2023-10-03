@@ -21,6 +21,13 @@ export const HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT = gql`
     mutable
     imageUri
     levelAtLocalTree
+    # TODO need to handle more than 1 "registered" hatter instance?
+    claimableBy(first: 1) {
+      id
+    }
+    claimableForBy(first: 1) {
+      id
+    }
     currentSupply
     tree {
       id
