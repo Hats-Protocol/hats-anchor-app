@@ -20,7 +20,7 @@ export const learnMore = [
     icon: 'code',
   },
   {
-    url: 'https://hatsprotocol.typeform.com/getintouch',
+    url: 'https://hatsprotocol.deform.cc/getintouch/',
     name: 'Get in touch!',
     description:
       'Stuck on tree design, deployment, or custom development? We can help.',
