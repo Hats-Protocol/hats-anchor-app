@@ -3,11 +3,11 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { claimsHatterId, transformInput } from '@/lib/general';
-import { decimalId } from '@/lib/hats';
+import { decimalId, decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { FormData, Hat, ModuleDetails } from '@/types';
 
-export const deploySingleModule = async ({
+export const deployModule = async ({
   selectedModuleDetails,
   selectedHat,
   address,
@@ -101,7 +101,7 @@ export const deployModuleWithClaimsHatter = async ({
   return null;
 };
 
-export const deployOnlyClaimsHatterModule = async ({
+export const deployClaimsHatter = async ({
   claimsHatterModule,
   selectedHat,
   address,
@@ -139,75 +139,80 @@ export const deployOnlyClaimsHatterModule = async ({
   return null;
 };
 
-export const processSingleModule = ({
-  singleModuleAddress,
+export const processModule = ({
+  moduleAddress,
   storedData,
   selectedHat,
-  selectedModuleDetails,
-  setStoredData,
 }: {
-  singleModuleAddress: Hex;
+  moduleAddress: Hex;
   storedData?: Partial<FormData>[];
   selectedHat?: Hat;
   selectedModuleDetails?: ModuleDetails;
-  setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
 }) => {
-  const updatedHats = _.map(storedData, (hat) =>
-    hat.id === _.get(selectedHat, 'id') && singleModuleAddress
-      ? {
-          ...hat,
-          isEligibilityManual: 'Automatically',
-          eligibility: singleModuleAddress,
-        }
-      : hat,
-  );
+  const updatedHats = _.isArray(storedData)
+    ? _.map(storedData, (hat) =>
+        hat.id === _.get(selectedHat, 'id') && moduleAddress
+          ? {
+              ...hat,
+              isEligibilityManual: 'Automatically',
+              eligibility: moduleAddress,
+            }
+          : hat,
+      )
+    : [...(storedData || [])];
 
   const updatedHatExists = _.some(updatedHats, [
     'id',
     _.get(selectedHat, 'id'),
   ]);
 
-  if (
-    !updatedHatExists &&
-    _.get(selectedHat, 'id') &&
-    _.get(selectedModuleDetails, 'implementationAddress')
-  ) {
+  if (!updatedHatExists && _.get(selectedHat, 'id') && moduleAddress) {
     updatedHats.push({
       id: _.get(selectedHat, 'id'),
       isEligibilityManual: 'Automatically',
-      eligibility: _.get(selectedModuleDetails, 'implementationAddress') as Hex,
+      eligibility: moduleAddress as Hex,
     });
   }
 
-  setStoredData?.(updatedHats);
+  return updatedHats;
 };
 
 export const processClaimsHatter = ({
   claimsHatterAddress,
-  setStoredData,
   storedData,
   adminHat,
 }: {
   claimsHatterAddress: Hex;
-
-  setStoredData?: (v: Partial<FormData>[]) => void;
   storedData: any;
-  adminHat: any;
+  adminHat: Hex;
 }) => {
+  const adminId = decimalIdToId(adminHat);
+  const claimsHatterWearer = {
+    address: claimsHatterAddress,
+    ens: '',
+  };
+
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat) => {
-        if (hat.id === adminHat?.id && claimsHatterAddress) {
+        if (hat.id === adminId && claimsHatterAddress) {
           const updatedHat = { ...hat };
           updatedHat.wearers = updatedHat.wearers || [];
-          updatedHat.wearers.push({
-            address: claimsHatterAddress,
-            ens: '',
-          });
+          updatedHat.wearers.push(claimsHatterWearer);
           return updatedHat;
         }
         return hat;
       })
     : [...(storedData || [])];
 
-  setStoredData?.(updatedHats);
+  const updatedHatExists = _.some(updatedHats, ['id', adminId]);
+
+  if (claimsHatterAddress && adminId && !updatedHatExists) {
+    updatedHats.push({
+      id: adminId,
+      wearers: [claimsHatterWearer],
+    });
+  }
+
+  console.log('updatedHats', updatedHats);
+  return updatedHats;
 };

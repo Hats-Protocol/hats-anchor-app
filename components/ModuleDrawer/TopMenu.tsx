@@ -4,7 +4,7 @@ import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDeployModule from '@/hooks/useDeployModule';
+import useModuleDeploy from '@/hooks/useModuleDeploy';
 import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
@@ -21,14 +21,20 @@ const TopMenu = ({
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
 
-  const { deployModule, isLoading } = useDeployModule({
-    localForm,
+  const { watch, getValues } = localForm;
+  const values = getValues();
+
+  const { deploy, isLoading } = useModuleDeploy({
+    values,
     selectedModuleDetails,
     onCloseModuleDrawer,
     updateModuleAddress,
+    deploymentType:
+      values.moduleType && values.isPermissionlesslyClaimable === 'Yes'
+        ? 'withClaimsHatter'
+        : 'single',
   });
 
-  const { watch } = localForm;
   const moduleType = watch('moduleType');
 
   const isChainCorrect = currentNetworkId === chainId;
@@ -71,7 +77,7 @@ const TopMenu = ({
           isDisabled={isButtonDisabled}
           isLoading={isLoading}
           onClick={() => {
-            deployModule();
+            deploy();
           }}
         >
           Deploy & Return

@@ -41,6 +41,10 @@ const PermissionlessClaimingForm = ({
     if (isPermissionlesslyClaimable === 'Yes') {
       scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
+    if (isPermissionlesslyClaimable === 'No') {
+      localForm.setValue('adminHat', undefined);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPermissionlesslyClaimable]);
 
   if (!onchainHats || !treeToDisplay) return null;

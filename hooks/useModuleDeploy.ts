@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback } from 'react';
-import { UseFormReturn } from 'react-hook-form';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -9,24 +8,24 @@ import useToast from '@/hooks/useToast';
 import { claimsHatterId } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import {
+  deployClaimsHatter,
+  deployModule,
   deployModuleWithClaimsHatter,
-  deployOnlyClaimsHatterModule,
-  deploySingleModule,
   processClaimsHatter,
-  processSingleModule,
+  processModule,
 } from '@/lib/modules';
 import { ModuleDetails } from '@/types';
 
 import useHatsModules from './useHatsModules';
 
-const useDeployModule = ({
-  localForm,
+const useModuleDeploy = ({
+  values,
   selectedModuleDetails,
   onCloseModuleDrawer,
   updateModuleAddress,
   deploymentType,
 }: {
-  localForm: UseFormReturn;
+  values: any;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   updateModuleAddress: (address: string) => void;
@@ -37,85 +36,78 @@ const useDeployModule = ({
   const { modules } = useHatsModules();
   const { address } = useAccount();
   const hatId = BigInt(decimalId(selectedHat?.id));
-  const { watch, getValues } = localForm;
-  const values = getValues();
 
-  const adminHat = watch('adminHat');
+  const adminHat = values?.adminHat;
   const claimsHatterModule = modules?.[claimsHatterId];
 
   const handleSuccess = useCallback(
     (data: any) => {
-      const isDataValid = _.isArray(_.get(data, 'newInstances'));
-
       switch (deploymentType) {
         case 'single':
-          if (isDataValid) {
-            const [singleModuleAddress] = data.newInstances;
-            if (singleModuleAddress && selectedModuleDetails) {
-              updateModuleAddress(singleModuleAddress);
-              processSingleModule({
-                singleModuleAddress,
-                storedData,
-                selectedHat,
-                selectedModuleDetails,
-                setStoredData,
-              });
-              toast.success({
-                title: 'Saved',
-                description: `Module ${selectedModuleDetails?.name} has been successfully deployed!`,
-                duration: 1500,
-              });
-            }
-          }
-          break;
-
-        case 'withClaimsHatter':
-          if (isDataValid) {
-            const [moduleAddress, claimsHatterAddress] = data.newInstances;
-            processSingleModule({
-              singleModuleAddress: moduleAddress,
+          if (data?.newInstance && selectedModuleDetails) {
+            updateModuleAddress(data?.newInstance);
+            const updatedHats = processModule({
+              moduleAddress: data?.newInstance,
               storedData,
               selectedHat,
-              selectedModuleDetails,
-              setStoredData,
             });
+            setStoredData?.(updatedHats);
             toast.success({
               title: 'Saved',
               description: `Module ${selectedModuleDetails?.name} has been successfully deployed!`,
               duration: 1500,
             });
-            processClaimsHatter({
+          }
+          break;
+
+        case 'withClaimsHatter':
+          if (_.isArray(_.get(data, 'newInstances'))) {
+            const [moduleAddress, claimsHatterAddress] = data.newInstances;
+            updateModuleAddress(moduleAddress);
+
+            const updatedHatsWithModule = processModule({
+              moduleAddress,
+              storedData,
+              selectedHat,
+              selectedModuleDetails,
+            });
+            const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,
-              setStoredData,
               storedData,
               adminHat,
             });
+            const updatedHats = _.unionBy(
+              updatedHatsWithModule,
+              updatedHatsWithClaimsHatter,
+              'id',
+            );
+            setStoredData?.(updatedHats);
 
             toast.success({
               title: 'Saved',
-              description: `Claims Hatter Module has been successfully deployed!`,
+              description: `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
               duration: 1500,
             });
           }
           break;
 
-        case 'onlyClaimsHatter':
-          if (isDataValid) {
-            const claimsHatterAddress = data.newInstance;
-            processClaimsHatter({
-              claimsHatterAddress,
-              setStoredData,
-              storedData,
-              adminHat,
-            });
+        case 'onlyClaimsHatter': {
+          const updatedHats = processClaimsHatter({
+            claimsHatterAddress: data?.newInstance,
+            storedData,
+            adminHat,
+          });
 
-            toast.success({
-              title: 'Saved',
-              description: `Claims Hatter Module has been successfully deployed!`,
-              duration: 1500,
-            });
-          }
+          setStoredData?.(updatedHats);
+
+          toast.success({
+            title: 'Saved',
+            description: `Claims Hatter Module has been successfully deployed!`,
+            duration: 1500,
+          });
+
           break;
+        }
 
         default:
           break;
@@ -139,7 +131,7 @@ const useDeployModule = ({
     mutationFn: async () => {
       switch (deploymentType) {
         case 'single':
-          deploySingleModule({
+          return deployModule({
             selectedModuleDetails,
             selectedHat,
             address,
@@ -147,10 +139,9 @@ const useDeployModule = ({
             chainId,
             hatId,
           });
-          break;
 
         case 'withClaimsHatter':
-          deployModuleWithClaimsHatter({
+          return deployModuleWithClaimsHatter({
             claimsHatterModule,
             selectedModuleDetails,
             selectedHat,
@@ -160,10 +151,9 @@ const useDeployModule = ({
             hatId,
             adminHat,
           });
-          break;
 
         case 'onlyClaimsHatter':
-          deployOnlyClaimsHatterModule({
+          return deployClaimsHatter({
             claimsHatterModule,
             selectedHat,
             address,
@@ -171,10 +161,9 @@ const useDeployModule = ({
             chainId,
             hatId,
           });
-          break;
 
         default:
-          break;
+          return null;
       }
     },
     onSuccess: (data) => {
@@ -191,4 +180,4 @@ const useDeployModule = ({
   return { deploy: mutateAsync, isLoading };
 };
 
-export default useDeployModule;
+export default useModuleDeploy;
