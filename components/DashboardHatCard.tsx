@@ -6,6 +6,7 @@ import {
   Image,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
@@ -45,17 +46,17 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
               alt={`${hatName} image`}
             />
             <Stack maxW='75%'>
-              <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
-                {hatName}
-              </Heading>
-              <HStack>
-                <Text fontSize='xs'>
+              <Tooltip label={hatName} placement='top'>
+                <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
+                  {hatName}
+                </Heading>
+              </Tooltip>
+              <Stack spacing='1px'>
+                <Text fontSize='xs' noOfLines={1}>
                   Tree ID: {Number(hatIdToTreeId(BigInt(hat.id)))}
                 </Text>
-                <Text fontSize='xs'>
-                  Chain ID: {chainsMap(hat.chainId).name}
-                </Text>
-              </HStack>
+                <Text fontSize='xs'>Chain: {chainsMap(hat.chainId).name}</Text>
+              </Stack>
             </Stack>
           </HStack>
         </CardBody>
