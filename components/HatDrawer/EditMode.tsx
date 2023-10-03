@@ -410,7 +410,6 @@ const EditMode = ({
               localForm={localForm}
               address={eligibility}
               actionResolvedAddress={eligibilityResolvedAddress}
-              chainId={chainId}
               title='eligibility'
               formName='revocationsCriteria'
               radioBoxConfig={{

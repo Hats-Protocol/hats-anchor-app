@@ -59,7 +59,6 @@ interface HatManagementFormProps {
     label: string;
     description: string;
   };
-  chainId?: number;
 }
 
 const HatManagementForm = ({
@@ -71,11 +70,10 @@ const HatManagementForm = ({
   radioBoxConfig,
   inputConfig,
   criteriaConfig,
-  chainId,
 }: HatManagementFormProps) => {
   const [isAContract, setIsAContract] = useState(false);
   const { watch, control, setValue, getValues } = localForm;
-  const { selectedHat } = useTreeForm();
+  const { selectedHat, chainId } = useTreeForm();
 
   const { fields, append, remove } = useFieldArray({
     control,
