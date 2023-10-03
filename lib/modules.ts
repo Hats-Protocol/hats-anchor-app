@@ -5,7 +5,7 @@ import { Hex } from 'viem';
 import { claimsHatterId, transformInput } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
-import { FormData, IHat, ModuleDetails } from '@/types';
+import { FormData, Hat, ModuleDetails } from '@/types';
 
 export const deploySingleModule = async ({
   selectedModuleDetails,
@@ -16,7 +16,7 @@ export const deploySingleModule = async ({
   hatId,
 }: {
   selectedModuleDetails?: ModuleDetails;
-  selectedHat?: IHat;
+  selectedHat?: Hat;
   address?: Hex;
   values: any;
   chainId?: number;
@@ -56,7 +56,7 @@ export const deployModuleWithClaimsHatter = async ({
   adminHat,
 }: {
   selectedModuleDetails?: ModuleDetails;
-  selectedHat?: IHat;
+  selectedHat?: Hat;
   address?: Hex;
   claimsHatterModule?: Module;
   values: any;
@@ -110,7 +110,7 @@ export const deployOnlyClaimsHatterModule = async ({
   hatId,
 }: {
   claimsHatterModule?: Module;
-  selectedHat?: IHat;
+  selectedHat?: Hat;
   address?: Hex;
   values: any;
   chainId?: number;
@@ -148,7 +148,7 @@ export const processSingleModule = ({
 }: {
   singleModuleAddress: Hex;
   storedData?: Partial<FormData>[];
-  selectedHat?: IHat;
+  selectedHat?: Hat;
   selectedModuleDetails?: ModuleDetails;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
 }) => {
