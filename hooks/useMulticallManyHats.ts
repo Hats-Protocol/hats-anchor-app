@@ -160,7 +160,6 @@ const useMulticallCallManyHats = () => {
 
   const handleWrite = async () => {
     // eslint-disable-next-line no-console
-    console.log(calls);
     if (!_.isEmpty(detailsToPin)) {
       // ? check to see if any objects are already pinned
       const promises = _.map(

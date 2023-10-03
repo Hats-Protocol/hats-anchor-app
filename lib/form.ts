@@ -9,7 +9,11 @@ import { getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl } from './ipfs';
 import { createHatsClient } from './web3';
 
-const hasDetailsChanged = (hat: Partial<FormDataDetails>) => {
+const hasDetailsChanged = (
+  currentHat: Partial<FormDataDetails>,
+  originalHat?: IHat,
+) => {
+  const originalHatDetails = _.get(originalHat, 'detailsObject.data');
   const {
     name,
     description,
@@ -20,18 +24,36 @@ const hasDetailsChanged = (hat: Partial<FormDataDetails>) => {
     revocationsCriteria,
     isToggleManual,
     deactivationsCriteria,
-  } = hat;
+  } = currentHat;
+
+  const hasGuildsChanged =
+    _.gt(_.size(guilds), 0) ||
+    _.size(guilds) !== _.size(originalHatDetails?.guilds);
+  const hasResponsibilitiesChanged =
+    _.gt(_.size(responsibilities), 0) ||
+    _.size(responsibilities) !== _.size(originalHatDetails?.responsibilities);
+  const hasAuthoritiesChanged =
+    _.gt(_.size(authorities), 0) ||
+    _.size(authorities) !== _.size(originalHatDetails?.authorities);
+  const hasRevocationsCriteriaChanged =
+    _.gt(_.size(revocationsCriteria), 0) ||
+    _.size(revocationsCriteria) !==
+      _.size(originalHatDetails?.eligibility?.criteria);
+  const hasDeactivationsCriteriaChanged =
+    _.gt(_.size(deactivationsCriteria), 0) ||
+    _.size(deactivationsCriteria) !==
+      _.size(originalHatDetails?.toggle?.criteria);
 
   return (
     name ||
     description ||
-    _.gt(_.size(guilds), 0) ||
-    _.gt(_.size(responsibilities), 0) ||
-    _.gt(_.size(authorities), 0) ||
+    hasGuildsChanged ||
+    hasResponsibilitiesChanged ||
+    hasAuthoritiesChanged ||
     isEligibilityManual ||
-    _.gt(_.size(revocationsCriteria), 0) ||
+    hasRevocationsCriteriaChanged ||
     isToggleManual ||
-    _.gt(_.size(deactivationsCriteria), 0)
+    hasDeactivationsCriteriaChanged
   );
 };
 
@@ -220,14 +242,41 @@ const processDetailsChangeCallForHat = async ({
 }: ProcessDetailsChangeCallForHatProps) => {
   const { id: hatId } = hat;
 
-  if (!hatId || !hasDetailsChanged(hat)) return returnData;
+  if (!hatId || !hasDetailsChanged(hat, onchainHat)) return returnData;
 
   const { calls, hatChanges } = returnData;
 
-  const existingDetails = _.get(onchainHat, 'detailsObject.data');
+  const existingDetails: {
+    [key: string]: any;
+  } = _.get(onchainHat, 'detailsObject.data') || {};
+  const newDetails: {
+    [key: string]: any;
+  } = createDetailsData({ hat });
 
-  const newDetails = createDetailsData({ hat });
-  const combinedDetails = _.merge({}, existingDetails, newDetails);
+  const combinedDetails = _.reduce(
+    existingDetails,
+    (acc, existingValue, key) => {
+      const newValue = newDetails[key];
+
+      if (
+        _.isArray(newValue) &&
+        _.isEmpty(newValue) &&
+        hat[key as keyof FormData] !== undefined
+      ) {
+        acc[key] = newValue;
+      } else if (
+        (_.isArray(existingValue) && _.isArray(newValue)) ||
+        (_.isObject(existingValue) && _.isObject(newValue))
+      ) {
+        acc[key] = _.merge(existingValue, newValue);
+      } else {
+        acc[key] = newValue || existingValue;
+      }
+      return acc;
+    },
+    _.merge({}, existingDetails, newDetails),
+  );
+
   const newCid = await calculateCid({ type: '1.0', data: combinedDetails });
 
   const changeHatDetailsData = hatsClient.changeHatDetailsCallData({
