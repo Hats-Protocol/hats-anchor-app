@@ -11,28 +11,33 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { ReactNode, Suspense, useMemo, useState } from 'react';
+import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   BsFileCode,
   BsListUl,
+  BsPersonBadge,
   BsPlusCircle,
   BsShieldLock,
 } from 'react-icons/bs';
+import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import RadioBox from '@/components/atoms/RadioBox';
 import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import ModuleDrawer from '@/components/ModuleDrawer';
-import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
+import { FALLBACK_ADDRESS, MODULE_TYPES, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatsModules from '@/hooks/useHatsModules';
-import { findModule, isMutable } from '@/lib/hats';
+import useModuleDetails from '@/hooks/useModuleDetails';
+import { checkAddressIsContract } from '@/lib/contract';
+import { isMutable } from '@/lib/hats';
+import { explorerUrl } from '@/lib/web3';
 import { DetailsItem, ModuleKind } from '@/types';
 
 interface HatManagementFormProps {
@@ -54,6 +59,7 @@ interface HatManagementFormProps {
     label: string;
     description: string;
   };
+  chainId?: number;
 }
 
 const HatManagementForm = ({
@@ -65,10 +71,11 @@ const HatManagementForm = ({
   radioBoxConfig,
   inputConfig,
   criteriaConfig,
+  chainId,
 }: HatManagementFormProps) => {
+  const [isAContract, setIsAContract] = useState(false);
   const { watch, control, setValue, getValues } = localForm;
   const { selectedHat } = useTreeForm();
-  const { modules } = useHatsModules();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -77,12 +84,7 @@ const HatManagementForm = ({
 
   const items = watch(formName);
   const isActionManual = watch(radioBoxConfig.name);
-  const moduleAddress = watch(title);
-
-  const foundModule = useMemo(
-    () => findModule(modules, moduleAddress),
-    [modules, moduleAddress],
-  );
+  const moduleAddress = getValues(title);
 
   const showActionResolvedAddress =
     actionResolvedAddress && actionResolvedAddress !== address;
@@ -94,6 +96,21 @@ const HatManagementForm = ({
       label: TRIGGER_OPTIONS.AUTOMATICALLY,
     },
   ];
+
+  const { details: moduleDetails } = useModuleDetails({
+    address: moduleAddress,
+  });
+
+  useEffect(() => {
+    const check = async () => {
+      if (moduleAddress && chainId) {
+        const isContract = await checkAddressIsContract(moduleAddress, chainId);
+        setIsAContract(isContract);
+      }
+    };
+
+    check();
+  }, [chainId, moduleAddress]);
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
@@ -171,13 +188,24 @@ const HatManagementForm = ({
               resolvedAddress={String(actionResolvedAddress)}
             />
             <HStack spacing={8}>
-              {foundModule && (
-                <HStack>
-                  <Icon as={BsFileCode} boxSize={4} color='gray.500' />
-                  <Text color='blackAlpha.700' fontSize='sm'>
-                    {foundModule.name}
-                  </Text>
-                </HStack>
+              {moduleDetails && (
+                <ChakraNextLink
+                  href={`${explorerUrl(chainId)}/address/${
+                    selectedHat?.[title]
+                  }`}
+                  isExternal
+                >
+                  <HStack>
+                    {isAContract ? (
+                      <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                    ) : (
+                      <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
+                    )}
+                    <Text color='gray.500' fontSize='sm'>
+                      {moduleDetails.name}
+                    </Text>
+                  </HStack>
+                </ChakraNextLink>
               )}
               {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
                 <Button

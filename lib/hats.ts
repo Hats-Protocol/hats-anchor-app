@@ -356,12 +356,3 @@ export const checkImageForHat = async (img?: string) => {
   }
   return null;
 };
-
-export const findModule = (
-  modules: { [id: string]: Module } | undefined,
-  moduleAddress: Hex,
-) =>
-  _.find(
-    Object.values(modules || {}),
-    (module) => module.implementationAddress === moduleAddress,
-  );
