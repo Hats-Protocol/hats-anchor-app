@@ -5,7 +5,7 @@ import { Hex } from 'viem';
 
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
-import { IHat, ITree } from '@/types';
+import { Hat, Tree } from '@/types';
 
 import client from '../client';
 import { SEARCH_QUERY } from '../queries';
@@ -59,20 +59,20 @@ export const searchQueryResult = async (search: string) => {
 
   const result = await Promise.all(promises);
 
-  const allNetworkResults: { trees: ITree[]; hats: IHat[] } = {
+  const allNetworkResults: { trees: Tree[]; hats: Hat[] } = {
     trees: [],
     hats: [],
   };
   _.forEach(result, (network, i) => {
     allNetworkResults.trees = _.concat(
-      _.map(_.get(network, 'trees'), (tree: ITree) => ({
+      _.map(_.get(network, 'trees'), (tree: Tree) => ({
         ...tree,
         network: _.values(chainsList)[i],
       })),
       allNetworkResults?.trees || [],
     );
     allNetworkResults.hats = _.concat(
-      _.map(_.get(network, 'hats'), (hat: IHat) => ({
+      _.map(_.get(network, 'hats'), (hat: Hat) => ({
         ...hat,
         network: _.values(chainsList)[i],
       })),

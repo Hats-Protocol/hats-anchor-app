@@ -13,7 +13,7 @@ import _ from 'lodash';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
@@ -66,5 +66,5 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 export default DashboardHatCard;
 
 interface HatCardProps {
-  hat: IHat;
+  hat: Hat;
 }

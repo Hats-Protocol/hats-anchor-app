@@ -11,13 +11,13 @@ import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { mapWithChainId } from '@/lib/general';
-import { IHat, ITree } from '@/types';
+import { Hat, Tree } from '@/types';
 
 const Trees = ({
   trees: initialTrees,
   chainId,
 }: {
-  trees: ITree[];
+  trees: Tree[];
   chainId: number;
 }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
@@ -28,7 +28,7 @@ const Trees = ({
 
   const trees = _.flatten(_.get(data, 'pages'));
 
-  const topHats: IHat[] = useMemo(() => {
+  const topHats: Hat[] = useMemo(() => {
     return mapWithChainId(
       _.map(_.flatten(_.get(data, 'pages')), 'hats[0]'),
       chainId,
@@ -64,16 +64,16 @@ const Trees = ({
               maxW='1200px'
               mx='auto'
             >
-              {_.map(trees, (tree: ITree) => {
+              {_.map(trees, (tree: Tree) => {
                 const topHat = _.find(
                   topHats,
-                  (h: IHat) =>
+                  (h: Hat) =>
                     _.get(h, 'id') ===
                     _.get(_.first(_.get(tree, 'hats')), 'id'),
                 );
                 const topHatImage = _.find(
                   topHatsWithImagesData,
-                  (h: IHat) =>
+                  (h: Hat) =>
                     _.get(h, 'id') ===
                     _.get(_.first(_.get(tree, 'hats')), 'id'),
                 );

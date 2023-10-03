@@ -3,15 +3,15 @@ import _ from 'lodash';
 
 import { fetchHatDetails } from '@/gql/helpers';
 import { mapWithChainId } from '@/lib/general';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const useManyHatDetails = ({
   hats,
   initialHats,
 }: {
-  hats: Partial<IHat>[] | undefined;
-  initialHats?: IHat[];
-}): { data: IHat[] | undefined; isLoading: boolean } => {
+  hats: Partial<Hat>[] | undefined;
+  initialHats?: Hat[];
+}): { data: Hat[] | undefined; isLoading: boolean } => {
   const onlyOnchainHats = _.filter(hats, (hat) =>
     _.includes(_.map(initialHats, 'id'), hat.id),
   );

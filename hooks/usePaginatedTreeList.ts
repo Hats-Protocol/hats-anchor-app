@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
 import { fetchPaginatedTrees } from '@/gql/helpers';
-import { ITree } from '@/types';
+import { Tree } from '@/types';
 
 const usePaginatedTreeList = ({
   chainId,
@@ -19,8 +19,8 @@ const usePaginatedTreeList = ({
   } = useInfiniteQuery({
     queryKey: ['treeList', chainId, perPage],
     getNextPageParam: (
-      returnData: ITree[] | undefined,
-      allPages: (ITree[] | undefined)[],
+      returnData: Tree[] | undefined,
+      allPages: (Tree[] | undefined)[],
     ) => {
       return _.eq(_.size(returnData), perPage) ? _.size(allPages) : undefined;
     },
@@ -44,5 +44,5 @@ export default usePaginatedTreeList;
 interface UsePaginatedTreeListProps {
   chainId: number;
   perPage?: number;
-  initialData?: ITree[];
+  initialData?: Tree[];
 }

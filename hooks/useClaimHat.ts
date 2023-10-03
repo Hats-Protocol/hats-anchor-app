@@ -12,7 +12,7 @@ import {
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { createHatsModulesClient } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 import useToast from './useToast';
 
@@ -21,7 +21,7 @@ const useClaimHat = ({
   wearer,
   claimsHatterAddress,
 }: {
-  hatData: IHat | undefined;
+  hatData: Hat | undefined;
   claimsHatterAddress: Hex;
   wearer: Hex | undefined;
 }) => {

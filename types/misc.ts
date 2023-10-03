@@ -26,7 +26,7 @@ export type InputObject = {
   parentId: string | undefined;
 };
 
-export interface IControls {
+export interface Controls {
   label: string;
   value: string;
   icon: ReactNode;

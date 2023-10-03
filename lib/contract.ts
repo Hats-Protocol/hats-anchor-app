@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { IHatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 import { chainsMap } from './web3';
 
@@ -37,19 +37,19 @@ export const checkAddressIsContract = async (
 };
 
 export const extendWearers = (
-  wearers: IHatWearer[],
-  wearersInfo: IHatWearer[] | undefined,
-): IHatWearer[] =>
+  wearers: HatWearer[],
+  wearersInfo: HatWearer[] | undefined,
+): HatWearer[] =>
   _.compact(
-    _.map(wearers, (wearer: IHatWearer) => {
+    _.map(wearers, (wearer: HatWearer) => {
       const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
-      return wearerInfo as IHatWearer | undefined;
+      return wearerInfo as HatWearer | undefined;
     }),
   );
 
 export const extendControllers = (
   controller: Hex,
-  controllersInfo: IHatWearer[] | undefined,
+  controllersInfo: HatWearer[] | undefined,
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: controller });
 
@@ -59,13 +59,13 @@ export const extendControllers = (
   };
 };
 
-export const checkENSNames = async (wearers: IHatWearer[]) => {
+export const checkENSNames = async (wearers: HatWearer[]) => {
   const publicClient = createPublicClient({
     chain: chainsMap(1),
     transport: http(),
   });
 
-  const ensNamePromises = wearers?.map(async (wearer: IHatWearer) => {
+  const ensNamePromises = wearers?.map(async (wearer: HatWearer) => {
     const ensName = await publicClient.getEnsName({
       address: wearer.id,
     });

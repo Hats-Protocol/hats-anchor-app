@@ -19,12 +19,24 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { validateURL } from '@/lib/general';
 import { DetailsItem } from '@/types';
 
-const AccordionWrap = ({ children }: { children: ReactNode }) => (
-  <Accordion>
-    <AccordionItem>
-      <AccordionButton>
-        <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-          Qualifications
+const AccordionWrap = ({
+  title,
+  children,
+  inline = false,
+}: {
+  title?: string;
+  children: ReactNode;
+  inline?: boolean;
+}) => (
+  <Accordion allowToggle>
+    <AccordionItem border={inline ? '0' : undefined}>
+      <AccordionButton px={inline ? 0 : undefined}>
+        <Heading
+          size={inline ? 'xs' : 'sm'}
+          fontWeight='medium'
+          textTransform='uppercase'
+        >
+          {title || 'Qualifications'}
         </Heading>
         <AccordionIcon />
       </AccordionButton>
@@ -36,9 +48,11 @@ const AccordionWrap = ({ children }: { children: ReactNode }) => (
 const DetailList = ({
   title,
   details,
+  inline = false,
 }: {
   title: string;
   details?: DetailsItem[];
+  inline?: boolean;
 }) => {
   const toggleOrEligibility =
     title === 'Eligibility Criteria' || title === 'Toggle Criteria';
@@ -82,7 +96,9 @@ const DetailList = ({
   );
 
   return toggleOrEligibility ? (
-    <AccordionWrap>{renderDetails()}</AccordionWrap>
+    <AccordionWrap title={title} inline={inline}>
+      {renderDetails()}
+    </AccordionWrap>
   ) : (
     renderDetails()
   );

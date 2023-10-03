@@ -4,16 +4,16 @@ import _ from 'lodash';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { decimalId } from '@/lib/hats';
-import { IHat, ITree } from '@/types';
+import { Hat, Tree } from '@/types';
 
 const TreeListCard = ({
   tree,
   topHat,
   topHatImage,
 }: {
-  tree: ITree;
-  topHat: IHat;
-  topHatImage: IHat | undefined;
+  tree: Tree;
+  topHat: Hat;
+  topHatImage: Hat | undefined;
 }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
 

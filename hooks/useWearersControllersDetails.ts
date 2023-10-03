@@ -5,7 +5,7 @@ import { Hex, isAddress } from 'viem';
 
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const fetchWearerAndControllerDetails = async (
   wearer: Hex,
@@ -38,7 +38,7 @@ const fetchWearerAndControllerDetails = async (
 const useWearersControllersDetails = ({
   hats,
 }: {
-  hats: IHat[] | undefined;
+  hats: Hat[] | undefined;
 }) => {
   const chainId = _.get(_.first(hats), 'chainId');
   const wAndCs = _.uniq(

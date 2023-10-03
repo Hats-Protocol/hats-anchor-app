@@ -1,14 +1,14 @@
 import _ from 'lodash';
 
-import { IHatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 export const getEligibleWearers = ({
   wearersEligibility,
   wearers,
 }: {
   wearersEligibility: { address: string; isEligible: boolean }[] | undefined;
-  wearers: IHatWearer[];
-}): IHatWearer[] => {
+  wearers: HatWearer[];
+}): HatWearer[] => {
   const eligibleWearers = wearersEligibility
     ? wearers?.filter((w: { id: string }) =>
         isWearerEligible(w.id, wearersEligibility),
@@ -28,7 +28,7 @@ export const isWearerEligible = (
 
 export const filterWearers = (
   searchTerm: string,
-  wearers: IHatWearer[] | undefined,
+  wearers: HatWearer[] | undefined,
 ) => {
   if (!searchTerm || !wearers) return wearers;
 

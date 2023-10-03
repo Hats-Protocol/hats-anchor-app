@@ -34,26 +34,26 @@ import {
 import { ipfsUrl } from '@/lib/ipfs';
 import {
   FormData,
+  Hat,
   HatDetails,
+  HatEvent,
   Hierarchy,
-  IHat,
-  IHatEvent,
-  ITree,
   LinkRequest,
+  Tree,
 } from '@/types';
 
-export interface ITreeFormContext {
+export interface TreeFormContext {
   chainId: number | undefined;
   treeId: Hex | undefined;
-  topHat: IHat | undefined;
+  topHat: Hat | undefined;
   // tree
   topHatDetails: HatDetails | undefined;
   selectedHatDetails: HatDetails | undefined;
   isDraft: boolean;
-  treeToDisplay: IHat[] | undefined;
-  onchainTree: ITree | undefined;
-  onchainHats: IHat[] | undefined;
-  treeEvents: IHatEvent[] | undefined;
+  treeToDisplay: Hat[] | undefined;
+  onchainTree: Tree | undefined;
+  onchainHats: Hat[] | undefined;
+  treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
   // local storage
@@ -67,25 +67,25 @@ export interface ITreeFormContext {
   editMode: boolean;
   setEditMode: ((v: boolean) => void) | undefined;
   toggleEditMode: (() => void) | undefined;
-  selectedHat: IHat | undefined;
+  selectedHat: Hat | undefined;
   setSelectedHatId: ((id: Hex | undefined) => void) | undefined;
   selectedOption: string | undefined;
   setSelectedOption: ((v: string) => void) | undefined;
   showInactiveHats: boolean;
   setShowInactiveHats: ((v: boolean) => void) | undefined;
   // actions
-  addHat: ((hat: IHat) => void) | undefined;
+  addHat: ((hat: Hat) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
   // disclosures
   hatDisclosure: UseDisclosureReturn | undefined;
   treeDisclosure: UseDisclosureReturn | undefined;
-  patchTree: ((proposedHats: IHat[]) => void) | undefined;
+  patchTree: ((proposedHats: Hat[]) => void) | undefined;
   hierarchy: Hierarchy | undefined;
 }
 
-export const TreeFormContext = createContext<ITreeFormContext>({
+export const treeFormContext = createContext<TreeFormContext>({
   chainId: undefined,
   treeId: undefined,
   topHat: undefined,
@@ -144,7 +144,7 @@ export const TreeFormContextProvider = ({
   treeId: Hex;
   chainId: number;
   initialHatId: string | undefined;
-  initialTreeData: ITree;
+  initialTreeData: Tree;
   // initialHatIds: Hex[];
   children: ReactNode;
 }) => {
@@ -158,7 +158,7 @@ export const TreeFormContextProvider = ({
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
   );
-  const [orgChartHats, setOrgChartHats] = useState<IHat[] | undefined>(
+  const [orgChartHats, setOrgChartHats] = useState<Hat[] | undefined>(
     _.concat(
       _.get(initialTreeData, 'hats'),
       _.get(initialTreeData, 'parentOfHats') || [],
@@ -307,7 +307,7 @@ export const TreeFormContextProvider = ({
   }, [editMode, updatedTree, filteredTree]);
 
   // top hat
-  const topHat: IHat | undefined = useMemo(
+  const topHat: Hat | undefined = useMemo(
     () => _.first(orgChartTree),
     [orgChartTree],
   );
@@ -386,7 +386,7 @@ export const TreeFormContextProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
 
-  const addHat = useCallback((hat: IHat) => {
+  const addHat = useCallback((hat: Hat) => {
     // set updated tree array
     const newHat = {
       ...defaultHat,
@@ -439,7 +439,7 @@ export const TreeFormContextProvider = ({
   }, [onchainHats, setStoredData, onCloseTreeDrawer]);
 
   const patchTree = useCallback(
-    (proposedHats: IHat[]) => {
+    (proposedHats: Hat[]) => {
       setOrgChartHats((prevHats) => {
         if (!prevHats) return [];
 
@@ -469,7 +469,7 @@ export const TreeFormContextProvider = ({
   );
 
   const hierarchy = useMemo(() => {
-    const parentsAndIds = _.map(orgChartTree, (hat: IHat) => ({
+    const parentsAndIds = _.map(orgChartTree, (hat: Hat) => ({
       id: hat.id,
       parentId: hat.admin?.id,
     }));
@@ -566,10 +566,10 @@ export const TreeFormContextProvider = ({
   );
 
   return (
-    <TreeFormContext.Provider value={returnValue}>
+    <treeFormContext.Provider value={returnValue}>
       {children}
-    </TreeFormContext.Provider>
+    </treeFormContext.Provider>
   );
 };
 
-export const useTreeForm = () => useContext(TreeFormContext);
+export const useTreeForm = () => useContext(treeFormContext);

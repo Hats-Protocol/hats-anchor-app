@@ -8,13 +8,13 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import useToast from '@/hooks/useToast';
 import { checkAddressIsContract } from '@/lib/contract';
 import { decimalId, toTreeId } from '@/lib/hats';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const useHatStatusCheck = ({
   hatData,
   chainId,
 }: {
-  hatData?: IHat;
+  hatData?: Hat;
   chainId?: number;
 }) => {
   const toast = useToast();

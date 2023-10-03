@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { handleNestedDetails } from '@/lib/details';
 import { fetchDetailsIpfs } from '@/lib/ipfs';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 // ? should keep fetching strategy inline with `useHatDetailsField.ts`
 
@@ -11,8 +11,8 @@ const useManyHatsDetailsField = ({
   hats,
   onchainHats,
 }: {
-  hats: IHat[] | undefined;
-  onchainHats?: IHat[];
+  hats: Hat[] | undefined;
+  onchainHats?: Hat[];
 }) => {
   let onlyOnchainHats = hats;
   if (onchainHats) {

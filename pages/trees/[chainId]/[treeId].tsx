@@ -7,7 +7,7 @@ import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
 import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
 import { decimalToTreeId, prettyIdToId } from '@/lib/hats';
-import { IHat, ITree } from '@/types';
+import { Hat, Tree } from '@/types';
 
 const TreeDetails = ({
   treeId,
@@ -57,7 +57,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     'parentOfTrees',
   ]);
 
-  let fetchedParentOfTrees = [] as IHat[];
+  let fetchedParentOfTrees = [] as Hat[];
 
   if (parentOfTrees) {
     const promises = parentOfTrees.map((parentTree) =>
@@ -67,7 +67,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     const hats = await Promise.all(promises);
     fetchedParentOfTrees = hats.filter(
       (hat) => hat !== null && hat !== undefined,
-    ) as IHat[];
+    ) as Hat[];
     treeData.parentOfHats = fetchedParentOfTrees;
   }
 
@@ -109,6 +109,6 @@ export default TreeDetails;
 interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
-  initialTreeData: ITree;
+  initialTreeData: Tree;
   // initialHatIds: Hex[];
 }

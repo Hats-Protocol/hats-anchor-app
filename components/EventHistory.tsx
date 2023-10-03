@@ -6,7 +6,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { explorerUrl } from '@/lib/web3';
-import { IHatEvent } from '@/types';
+import { HatEvent } from '@/types';
 
 const EventHistory = ({
   type,
@@ -28,7 +28,7 @@ const EventHistory = ({
 
   return (
     <Box>
-      {_.map(events, (event: IHatEvent) => (
+      {_.map(events, (event: HatEvent) => (
         <Flex
           key={`${event?.transactionID}-${event?.id}`}
           align='center'

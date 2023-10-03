@@ -4,7 +4,7 @@ import _ from 'lodash';
 import client from '@/gql/client';
 import { GET_CONTROLLERS_FOR_USER } from '@/gql/queries';
 import { chainsList } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const chains = _.keys(chainsList);
 
@@ -16,7 +16,7 @@ const useControllerList = ({ address }: { address: string }) => {
 
     const data: unknown[] = await Promise.all(promises);
 
-    const mapWithChains = _.map(data, (d: { hats: IHat[] }, i: number) => {
+    const mapWithChains = _.map(data, (d: { hats: Hat[] }, i: number) => {
       const hats = _.map(d.hats, (h) => ({
         ...h,
         chainId: _.toNumber(chains[i]),

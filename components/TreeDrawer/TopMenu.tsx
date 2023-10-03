@@ -28,7 +28,7 @@ import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import { editHasUpdates, isWearer } from '@/lib/hats';
+import { editHasUpdates, isWearingAdminHat } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
 const TopMenu = () => {
@@ -109,7 +109,7 @@ const TopMenu = () => {
     });
 
     const hasAdminOverAllHats = _.every(hatsWithChanges, (h) =>
-      isWearer(_.map(wearer, 'id'), h.id, false),
+      isWearingAdminHat(_.map(wearer, 'id'), h.id, false),
     );
 
     if (hasAdminOverAllHats) {

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ZERO_ID } from '@/constants';
 import { fetchHatDetails } from '@/gql/helpers';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const useHatDetails = ({
   hatId,
@@ -11,9 +11,9 @@ const useHatDetails = ({
 }: {
   hatId: string | undefined;
   chainId: number;
-  initialData?: IHat | null;
+  initialData?: Hat | null;
 }): {
-  data: IHat | undefined | null;
+  data: Hat | undefined | null;
   isLoading: boolean;
   error: unknown | null;
 } => {

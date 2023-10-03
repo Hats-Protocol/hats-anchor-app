@@ -5,11 +5,11 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { defaultHat, MUTABILITY } from '@/constants';
-import { FormData, Hierarchy, IControls, IHat, InputObject } from '@/types';
+import { Controls, FormData, Hat, Hierarchy, InputObject } from '@/types';
 
 import { formatImageUrl, isImageUrl } from './general';
 
-export const calculateNextChildId = (id: string, hatsData: IHat[]) => {
+export const calculateNextChildId = (id: string, hatsData: Hat[]) => {
   const children = _.filter(
     hatsData,
     (h) => h.admin?.id === id || h.parentId === id,
@@ -164,14 +164,15 @@ const includesAny = (arr: any[], target: any[]) =>
   target.some((v) => arr.includes(v));
 
 /**
- * @param hatId should be a `hatId`
+ * Traverses all ancestry of hat to check for wearers
  * @param wearerHatIds should be an array of `hatId`s worn by the wearer
+ * @param hatId should be a `hatId` that is being checked for admin
  * @param current default `false`, include wearing current hatId
  */
-export const isWearer = (
+export const isWearingAdminHat = (
   wearerHatIds: string[],
   hatId?: string,
-  current = false,
+  includeCurrent = false,
 ) => {
   if (!hatId) return false;
   const treeId = hatId.slice(0, 10);
@@ -181,29 +182,30 @@ export const isWearer = (
 
   if (!hats) return false;
 
-  if (!current) hats.pop();
+  if (!includeCurrent) hats.pop();
 
   // map all parent hatIds for the lineage
   const hatIds = hats.map((__, i) => {
     const joinedParentHats = hats.slice(0, i).join('');
     return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
   });
+  // TODO handle linked trees
 
   if (!wearerHatIds) return false;
   // check if any of the wearer hats' IDs are admin of any parent hat IDs
   return !!includesAny(wearerHatIds, hatIds);
 };
 
-export const isTopHat = (hatData: IHat | null | undefined) =>
+export const isTopHat = (hatData: Hat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.id') === _.get(hatData, 'id');
 
-export const isMutable = (hatData?: IHat) => _.get(hatData, 'mutable');
+export const isMutable = (hatData?: Hat) => _.get(hatData, 'mutable');
 
-export const isTopHatOrMutable = (hatData: IHat) =>
+export const isTopHatOrMutable = (hatData: Hat) =>
   isTopHat(hatData) || isMutable(hatData);
 
-export const isMutableNotTopHat = (hatData: IHat) =>
+export const isMutableNotTopHat = (hatData: Hat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
@@ -213,32 +215,32 @@ export const getTreeId = (prettyHatId: string | null, full = false) => {
   return prettyHatId.slice(0, 10).padEnd(66, '0');
 };
 
-const checkNodeDetails = (node: IHat, type: string) =>
+const checkNodeDetails = (node: Hat, type: string) =>
   node?.detailsObject?.data &&
   _.includes(_.keys(node.detailsObject.data), type);
 
 export const checkPermissionsResponsibilities = (
-  treeToDisplay: IHat[],
-  controls: IControls[],
+  treeToDisplay: Hat[],
+  controls: Controls[],
 ) => {
   const hasPermissions = !_.isEmpty(
-    _.filter(treeToDisplay, (node: IHat) =>
+    _.filter(treeToDisplay, (node: Hat) =>
       checkNodeDetails(node, 'permissions'),
     ),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(treeToDisplay, (node: IHat) =>
+    _.filter(treeToDisplay, (node: Hat) =>
       checkNodeDetails(node, 'responsibilities'),
     ),
   );
 
   if (!hasPermissions) {
-    _.remove(controls, (control: IControls) => control.value === 'permissions');
+    _.remove(controls, (control: Controls) => control.value === 'permissions');
   }
   if (!hasResponsibilities) {
     _.remove(
       controls,
-      (control: IControls) => control.value === 'responsibilities',
+      (control: Controls) => control.value === 'responsibilities',
     );
   }
 
@@ -300,7 +302,7 @@ export const translateDrafts = ({
   chainId: number;
   treeId: Hex;
   drafts: Partial<FormData>[];
-}): IHat[] => {
+}): Hat[] => {
   const extendDrafts = _.map(drafts, (hat) => {
     if (!hat.id) return undefined;
     return {
@@ -329,10 +331,10 @@ export const translateDrafts = ({
     };
   });
 
-  return _.filter(extendDrafts, (x) => x) as IHat[];
+  return _.filter(extendDrafts, (x) => x) as Hat[];
 };
 
-export const getAllParents = (hatId?: Hex, tree?: IHat[]): Hex[] => {
+export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hex[] => {
   const parents: Hex[] = [];
   if (!hatId || !tree) return parents;
   let currentHat = tree.find((hat) => hat.id === hatId);
