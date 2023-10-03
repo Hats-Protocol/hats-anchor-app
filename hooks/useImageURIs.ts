@@ -108,12 +108,13 @@ const useImageURIs = ({
       queryKey: ['imageUrl', img],
       queryFn: () => checkImageForHat(img),
       enabled: enabled && !!img && img !== '',
-      timeout: 5000,
+      timeout: 2000,
     })),
   });
 
   const imageUrls = _.map(imageQueries, 'data');
-  const isLoaded = _.every(imageQueries, ['isLoading', false]);
+  // loading status sticks on true, if there is an error
+  const isLoaded = _.every(imageQueries, ['fetchStatus', 'idle']);
 
   const mergedWithHats = useMemo(() => {
     if (imagesLoading || !isLoaded) return undefined;
