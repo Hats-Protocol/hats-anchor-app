@@ -82,7 +82,6 @@ const WearerRow = ({
     address: wearer.id,
     enabled: wearer.isContract,
   });
-  console.log('moduleDetails', moduleDetails);
 
   const updateEligibility = async () => {
     testEligibility?.();

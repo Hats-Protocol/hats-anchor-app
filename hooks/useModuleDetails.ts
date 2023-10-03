@@ -1,7 +1,5 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';

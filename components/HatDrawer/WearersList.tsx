@@ -128,7 +128,7 @@ const WearersList = () => {
             Hat Wearers
           </Heading>
           <Flex gap={1}>
-            <Text>{wearers?.length}</Text>
+            <Text>{_.get(selectedHat, 'currentSupply')}</Text>
             <Text color='gray.400'>of {maxSupply}</Text>
           </Flex>
         </Flex>
@@ -167,7 +167,7 @@ const WearersList = () => {
                 textDecor: 'underline',
               }}
             >
-              Show all {wearers?.length} wearers
+              Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>
           )}
           {(currentUserIsEligible as boolean) &&
