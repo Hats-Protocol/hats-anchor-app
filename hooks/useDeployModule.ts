@@ -5,9 +5,10 @@ import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { claimsHatterId, transformInput } from '@/lib/general';
+import { transformInput } from '@/lib/general';
 import { decimalId, decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { FormData, ModuleDetails } from '@/types';
@@ -33,7 +34,7 @@ const useDeployModule = ({
   const { watch, getValues } = localForm;
 
   const adminHat = watch('adminHat');
-  const claimsHatterModule = modules?.[claimsHatterId];
+  const claimsHatterModule = modules?.[CONFIG.claimsHatterId];
 
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
@@ -75,7 +76,7 @@ const useDeployModule = ({
         }
         return hatsClient?.batchCreateNewInstances({
           account: address,
-          moduleIds: [selectedModuleDetails.id, claimsHatterId],
+          moduleIds: [selectedModuleDetails.id, CONFIG.claimsHatterId],
           hatIds: [hatId, BigInt(decimalId(adminHat))],
           immutableArgsArray: [immutableArgs, claimsImmutableArgs],
           mutableArgsArray: [mutableArgs, claimsMutableArgs],

@@ -78,7 +78,10 @@ const WearerRow = ({
     },
   });
 
-  const { data: moduleDetails } = useModuleDetails(wearer.id);
+  const { details: moduleDetails } = useModuleDetails({
+    address: wearer.id,
+    enabled: wearer.isContract,
+  });
 
   const updateEligibility = async () => {
     testEligibility?.();
@@ -112,7 +115,7 @@ const WearerRow = ({
 
         <Text>
           {_.get(wearer, 'ensName') ||
-            _.get(moduleDetails, 'details.name') ||
+            _.get(moduleDetails, 'name') ||
             formatAddress(_.get(wearer, 'id'))}
         </Text>
       </Flex>

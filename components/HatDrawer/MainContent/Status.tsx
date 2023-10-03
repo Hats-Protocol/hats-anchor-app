@@ -10,6 +10,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
@@ -43,7 +44,13 @@ const StatusCard = ({
   const statusData =
     status === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
 
-  const { data: moduleDetails } = useModuleDetails(status);
+  const moduleAddress = useMemo(
+    () => _.get(selectedHat, _.toLower(status)),
+    [selectedHat, status],
+  );
+  const { details: moduleDetails } = useModuleDetails({
+    address: moduleAddress,
+  });
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
   });
