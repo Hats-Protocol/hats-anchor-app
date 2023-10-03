@@ -11,7 +11,7 @@ import { createHatsClient } from './web3';
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
-  originalHat?: IHat,
+  originalHat?: Hat,
 ) => {
   const originalHatDetails = _.get(originalHat, 'detailsObject.data');
   const {
