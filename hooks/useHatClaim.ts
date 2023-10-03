@@ -16,6 +16,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 
+import useIsAdmin from './useIsAdmin';
 import useToast from './useToast';
 
 const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
@@ -36,6 +37,8 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
     () => _.get(_.first(_.get(selectedHat, 'claimableForBy')), 'id'),
     [selectedHat],
   );
+
+  const hatterIsAdmin = useIsAdmin(claimsHatterAddress);
 
   const { data: isClaimableFor } = useContractRead({
     address: claimableForAddress,
@@ -68,6 +71,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
       (isCurrentWearer || !!wearer) &&
       !!claimsHatter &&
       !!claimsHatterAddress &&
+      !!hatterIsAdmin &&
       userChain === chainId,
   });
 
@@ -111,6 +115,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
 
   return {
     claimHat: write,
+    hatterIsAdmin,
     prepareError,
     writeError,
     canClaimFor: isClaimableFor && write,

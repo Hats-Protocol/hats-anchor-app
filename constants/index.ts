@@ -1,4 +1,4 @@
-import { Hex } from 'viem';
+import { Abi, Hex } from 'viem';
 
 import { HATS_ABI } from '@/contracts/Hats';
 
@@ -11,10 +11,11 @@ export * from './treeControls';
 const CONFIG: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+  hatsAbi: Abi;
   hatsAddress: Hex;
 } = {
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
-  hatsAbi: HATS_ABI,
+  hatsAbi: HATS_ABI as Abi,
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
   protocolVersion: '1.0',

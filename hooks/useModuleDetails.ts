@@ -24,17 +24,17 @@ const useModuleDetails = ({
   const { chainId } = useTreeForm();
 
   const getModuleData = async () => {
-    if (!chainId || !address) return undefined;
+    if (!chainId || !address) return null;
 
     const moduleClient = await createHatsModulesClient(chainId);
-    if (!moduleClient) return undefined;
+    if (!moduleClient) return null;
 
     const promises = [
       moduleClient.getModuleByInstance(address),
       moduleClient.getInstanceParameters(address),
     ];
     const [moduleData, localModuleParameters] = await Promise.all(promises);
-    if (!moduleData) return undefined;
+    if (!moduleData) return null;
 
     return {
       details: moduleData as Module,
@@ -45,7 +45,10 @@ const useModuleDetails = ({
   const { data } = useQuery({
     queryKey: ['moduleDetails', address],
     queryFn: getModuleData,
-    enabled: !!address && enabled,
+    enabled:
+      !!address &&
+      address !== '0x0000000000000000000000000000000000004a75' &&
+      enabled,
   });
 
   return { details: data?.details, parameters: data?.parameters };
