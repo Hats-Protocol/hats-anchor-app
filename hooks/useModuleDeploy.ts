@@ -3,9 +3,9 @@ import _ from 'lodash';
 import { useCallback } from 'react';
 import { useAccount } from 'wagmi';
 
+import { CLAIMS_HATTER_ID } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { claimsHatterId } from '@/lib/general';
 import { decimalId } from '@/lib/hats';
 import {
   deployClaimsHatter,
@@ -38,7 +38,7 @@ const useModuleDeploy = ({
   const hatId = BigInt(decimalId(selectedHat?.id));
 
   const adminHat = values?.adminHat;
-  const claimsHatterModule = modules?.[claimsHatterId];
+  const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
 
   const handleSuccess = useCallback(
     (data: any) => {
@@ -129,6 +129,7 @@ const useModuleDeploy = ({
 
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
+      const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
         case 'single':
           return deployModule({
@@ -149,7 +150,7 @@ const useModuleDeploy = ({
             values,
             chainId,
             hatId,
-            adminHat,
+            adminHatId,
           });
 
         case 'onlyClaimsHatter':
@@ -159,7 +160,7 @@ const useModuleDeploy = ({
             address,
             values,
             chainId,
-            hatId,
+            adminHatId,
           });
 
         default:

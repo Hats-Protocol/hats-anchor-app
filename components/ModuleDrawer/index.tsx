@@ -2,6 +2,8 @@ import { Box } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import { decimalId } from '@/lib/hats';
 import { ModuleDetails, ModuleKind } from '@/types';
 
 import MainContent from './MainContent';
@@ -16,11 +18,15 @@ const ModuleDrawer = ({
   onCloseModuleDrawer: () => void;
   title: ModuleKind;
 }) => {
+  const { selectedHat } = useTreeForm();
+
   const localForm = useForm({
     mode: 'onBlur',
     defaultValues: {
       moduleType: '',
       isPermissionlesslyClaimable: 'No',
+      initialClaimableHats: decimalId(selectedHat?.id),
+      initialClaimabilityTypes: 1,
     },
   });
 

@@ -1,4 +1,4 @@
-import { Box, Icon, Stack, Text } from '@chakra-ui/react';
+import { Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -23,7 +23,7 @@ import {
 const PermissionlessClaimingForm = ({
   localForm,
 }: {
-  localForm: UseFormReturn<any>;
+  localForm: UseFormReturn;
 }) => {
   const { onchainHats, treeToDisplay, selectedHat, topHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
@@ -87,7 +87,7 @@ const PermissionlessClaimingForm = ({
       {isPermissionlesslyClaimable === 'Yes' &&
         parentHats &&
         parentHats.length > 0 && (
-          <Box ref={scrollTargetRef}>
+          <Stack ref={scrollTargetRef} gap={12}>
             <FormRowWrapper>
               <Icon as={BsPuzzle} boxSize={4} mt='2px' />
               <Stack>
@@ -116,7 +116,7 @@ const PermissionlessClaimingForm = ({
                 )}
               </Stack>
             </FormRowWrapper>
-          </Box>
+          </Stack>
         )}
 
       {selectedHat?.wearers === selectedHat?.maxSupply && (

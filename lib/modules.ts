@@ -2,8 +2,9 @@ import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { claimsHatterId, transformInput } from '@/lib/general';
-import { decimalId, decimalIdToId } from '@/lib/hats';
+import { MULTI_CLAIMS_HATTER_ID } from '@/constants';
+import { transformInput } from '@/lib/general';
+import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { FormData, Hat, ModuleDetails } from '@/types';
 
@@ -53,7 +54,7 @@ export const deployModuleWithClaimsHatter = async ({
   values,
   chainId,
   hatId,
-  adminHat,
+  adminHatId,
 }: {
   selectedModuleDetails?: ModuleDetails;
   selectedHat?: Hat;
@@ -62,7 +63,7 @@ export const deployModuleWithClaimsHatter = async ({
   values: any;
   chainId?: number;
   hatId: bigint;
-  adminHat: any;
+  adminHatId: bigint;
 }) => {
   if (
     selectedModuleDetails &&
@@ -81,20 +82,16 @@ export const deployModuleWithClaimsHatter = async ({
 
     const hatsClient = await createHatsModulesClient(chainId);
 
-    const claimsImmutableArgs = _.map(
-      claimsHatterModule.creationArgs.immutable,
-      ({ name, type }) => transformInput(values[name], type),
-    );
-    const claimsMutableArgs = _.map(
-      claimsHatterModule.creationArgs.mutable,
-      ({ name, type }) => transformInput(values[name], type),
-    );
+    const claimsMutableArgs = [
+      transformInput(values.initialClaimableHats, 'uint256[]'),
+      transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+    ];
 
     return hatsClient?.batchCreateNewInstances({
       account: address,
-      moduleIds: [selectedModuleDetails.id, claimsHatterId],
-      hatIds: [hatId, BigInt(decimalId(adminHat))],
-      immutableArgsArray: [immutableArgs, claimsImmutableArgs],
+      moduleIds: [selectedModuleDetails.id, MULTI_CLAIMS_HATTER_ID],
+      hatIds: [hatId, adminHatId],
+      immutableArgsArray: [immutableArgs, []],
       mutableArgsArray: [mutableArgs, claimsMutableArgs],
     });
   }
@@ -107,32 +104,28 @@ export const deployClaimsHatter = async ({
   address,
   values,
   chainId,
-  hatId,
+  adminHatId,
 }: {
   claimsHatterModule?: Module;
   selectedHat?: Hat;
   address?: Hex;
   values: any;
   chainId?: number;
-  hatId: bigint;
+  adminHatId: bigint;
 }) => {
   if (claimsHatterModule && selectedHat?.id && address) {
-    const claimsImmutableArgs = _.map(
-      claimsHatterModule.creationArgs.immutable,
-      ({ name, type }) => transformInput(values[name], type),
-    );
-    const claimsMutableArgs = _.map(
-      claimsHatterModule.creationArgs.mutable,
-      ({ name, type }) => transformInput(values[name], type),
-    );
+    const claimsMutableArgs = [
+      transformInput(values.initialClaimableHats, 'uint256[]'),
+      transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+    ];
 
     const hatsClient = await createHatsModulesClient(chainId);
 
     return hatsClient?.createNewInstance({
       account: address,
-      moduleId: claimsHatterId,
-      hatId,
-      immutableArgs: claimsImmutableArgs,
+      moduleId: MULTI_CLAIMS_HATTER_ID,
+      hatId: adminHatId,
+      immutableArgs: [],
       mutableArgs: claimsMutableArgs,
     });
   }
@@ -213,6 +206,5 @@ export const processClaimsHatter = ({
     });
   }
 
-  console.log('updatedHats', updatedHats);
   return updatedHats;
 };
