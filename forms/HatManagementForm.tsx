@@ -95,9 +95,8 @@ const HatManagementForm = ({
     },
   ];
 
-  const { details: moduleDetails } = useModuleDetails({
-    address: moduleAddress,
-  });
+  const { data } = useModuleDetails({ address: moduleAddress });
+  const { details: moduleDetails } = data || {};
 
   useEffect(() => {
     const check = async () => {

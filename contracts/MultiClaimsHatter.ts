@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-export const CLAIMS_HATTER_ABI = [
+export const MULTI_CLAIMS_HATTER_ABI = [
   {
     inputs: [{ internalType: 'string', name: '_version', type: 'string' }],
     stateMutability: 'nonpayable',

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback } from 'react';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { CLAIMS_HATTER_ID } from '@/constants';
@@ -11,12 +12,14 @@ import {
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
+  prepareArgs,
   processClaimsHatter,
   processModule,
 } from '@/lib/modules';
 import { ModuleDetails } from '@/types';
 
 import useHatsModules from './useHatsModules';
+import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 
 const useModuleDeploy = ({
   values,
@@ -24,12 +27,14 @@ const useModuleDeploy = ({
   onCloseModuleDrawer,
   updateModuleAddress,
   deploymentType,
+  instanceAddress,
 }: {
   values: any;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   updateModuleAddress: (address: string) => void;
   deploymentType: 'single' | 'withClaimsHatter' | 'onlyClaimsHatter';
+  instanceAddress?: Hex;
 }) => {
   const toast = useToast();
   const { chainId, selectedHat, setStoredData, storedData } = useTreeForm();
@@ -39,6 +44,19 @@ const useModuleDeploy = ({
 
   const adminHat = values?.adminHat;
   const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
+
+  const { immutableArgs, mutableArgs } = prepareArgs(
+    values,
+    selectedModuleDetails,
+  );
+
+  const { writeAsync } = useMultiClaimsHatterContractWrite({
+    functionName: 'setHatClaimabilityAndCreateModule',
+    args: [immutableArgs, mutableArgs],
+    chainId,
+    address: instanceAddress,
+    enabled: !!instanceAddress,
+  });
 
   const handleSuccess = useCallback(
     (data: any) => {
@@ -131,7 +149,11 @@ const useModuleDeploy = ({
     mutationFn: async () => {
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
-        case 'single':
+        case 'single': {
+          if (instanceAddress) {
+            return writeAsync?.();
+          }
+
           return deployModule({
             selectedModuleDetails,
             selectedHat,
@@ -140,6 +162,7 @@ const useModuleDeploy = ({
             chainId,
             hatId,
           });
+        }
 
         case 'withClaimsHatter':
           return deployModuleWithClaimsHatter({

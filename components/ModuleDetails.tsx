@@ -29,7 +29,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
     [selectedHat, type],
   );
 
-  const { details: moduleDetails, parameters } = useModuleDetails({ address });
+  const { data } = useModuleDetails({ address });
+  const { details: moduleDetails, parameters } = data || {};
 
   if (!moduleDetails) return null;
 

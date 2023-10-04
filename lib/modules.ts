@@ -24,13 +24,9 @@ export const deployModule = async ({
   hatId: bigint;
 }) => {
   if (selectedModuleDetails && selectedHat?.id && address) {
-    const immutableArgs = _.map(
-      selectedModuleDetails.creationArgs.immutable,
-      ({ name, type }) => transformInput(values[name], type),
-    );
-    const mutableArgs = _.map(
-      selectedModuleDetails.creationArgs.mutable,
-      ({ name, type }) => transformInput(values[name], type),
+    const { immutableArgs, mutableArgs } = prepareArgs(
+      values,
+      selectedModuleDetails,
     );
 
     const hatsClient = await createHatsModulesClient(chainId);
@@ -71,13 +67,9 @@ export const deployModuleWithClaimsHatter = async ({
     address &&
     claimsHatterModule
   ) {
-    const immutableArgs = _.map(
-      selectedModuleDetails.creationArgs.immutable,
-      ({ name, type }) => transformInput(values[name], type),
-    );
-    const mutableArgs = _.map(
-      selectedModuleDetails.creationArgs.mutable,
-      ({ name, type }) => transformInput(values[name], type),
+    const { immutableArgs, mutableArgs } = prepareArgs(
+      values,
+      selectedModuleDetails,
     );
 
     const hatsClient = await createHatsModulesClient(chainId);
@@ -96,6 +88,25 @@ export const deployModuleWithClaimsHatter = async ({
     });
   }
   return null;
+};
+
+export const prepareArgs = (
+  values: any,
+  selectedModuleDetails?: ModuleDetails,
+) => {
+  if (!selectedModuleDetails) {
+    return { immutableArgs: [], mutableArgs: [] };
+  }
+  const immutableArgs = _.map(
+    selectedModuleDetails.creationArgs.immutable,
+    ({ name, type }) => transformInput(values[name], type),
+  );
+  const mutableArgs = _.map(
+    selectedModuleDetails.creationArgs.mutable,
+    ({ name, type }) => transformInput(values[name], type),
+  );
+
+  return { immutableArgs, mutableArgs };
 };
 
 export const deployClaimsHatter = async ({

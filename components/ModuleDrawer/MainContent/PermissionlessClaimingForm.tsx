@@ -33,40 +33,22 @@ const PermissionlessClaimingForm = ({
   );
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
-  const parentHats = useMemo(() => {
-    const parents = getAllParents(selectedHat?.id, treeToDisplay);
-    return _.filter(parents, (parent) => parent !== topHat?.id);
-  }, [selectedHat, treeToDisplay, topHat]);
-
   useEffect(() => {
     if (isPermissionlesslyClaimable === 'Yes') {
       scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-    if (isPermissionlesslyClaimable === 'No') {
+    } else {
       localForm.setValue('adminHat', undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPermissionlesslyClaimable]);
 
-  const wearersOfAllParentHats = useMemo(() => {
-    return _.flatMap(parentHats, (hatId) => {
-      const hat = _.find(onchainHats, { id: hatId });
-      return _.map(_.get(hat, 'wearers', []), 'id');
-    });
-  }, [onchainHats, parentHats]);
+  const parentHats = useMemo(() => {
+    const parents = getAllParents(selectedHat?.id, treeToDisplay);
+    return _.filter(parents, (parent) => parent !== topHat?.id);
+  }, [selectedHat, treeToDisplay, topHat]);
 
-  const { multiClaimsHatter, address, isLoading } = useCheckMultiClaimsHatter(
-    wearersOfAllParentHats,
-  );
-
-  const showSelectAdminHat = useMemo(() => {
-    return (
-      isPermissionlesslyClaimable === 'Yes' &&
-      !multiClaimsHatter &&
-      !isLoading &&
-      !multiClaimsHatter
-    );
-  }, [isPermissionlesslyClaimable, multiClaimsHatter, isLoading]);
+  const { multiClaimsHatter, instanceAddress } =
+    useCheckMultiClaimsHatter(parentHats);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -98,8 +80,8 @@ const PermissionlessClaimingForm = ({
               <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
               <Text color='blue.500'>
                 Claims hatter for this hat has already been set up at address{' '}
-                <Code>{address}</Code>. It is not required to set up a new
-                claims hatter.
+                <Code>{instanceAddress}</Code>. It is not required to set up a
+                new claims hatter.
               </Text>
             </FormRowWrapper>
           )}
@@ -116,7 +98,7 @@ const PermissionlessClaimingForm = ({
         </FormRowWrapper>
       )}
 
-      {showSelectAdminHat && (
+      {isPermissionlesslyClaimable === 'Yes' && !multiClaimsHatter && (
         <Stack ref={scrollTargetRef}>
           <FormRowWrapper>
             <Icon as={BsPuzzle} boxSize={4} mt='2px' />

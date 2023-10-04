@@ -1,10 +1,14 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import _ from 'lodash';
+import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDeploy from '@/hooks/useModuleDeploy';
+import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
+import { getAllParents } from '@/lib/hats';
 import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
@@ -19,10 +23,17 @@ const TopMenu = ({
   selectedModuleDetails?: ModuleDetails;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId } = useTreeForm();
+  const { chainId, selectedHat, treeToDisplay, topHat } = useTreeForm();
 
   const { watch, getValues } = localForm;
   const values = getValues();
+
+  const parentHats = useMemo(() => {
+    const parents = getAllParents(selectedHat?.id, treeToDisplay);
+    return _.filter(parents, (parent) => parent !== topHat?.id);
+  }, [selectedHat, treeToDisplay, topHat]);
+
+  const { instanceAddress } = useCheckMultiClaimsHatter(parentHats);
 
   const { deploy, isLoading } = useModuleDeploy({
     values,
@@ -33,6 +44,7 @@ const TopMenu = ({
       values.moduleType && values.isPermissionlesslyClaimable === 'Yes'
         ? 'withClaimsHatter'
         : 'single',
+    instanceAddress,
   });
 
   const moduleType = watch('moduleType');

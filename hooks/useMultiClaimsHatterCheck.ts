@@ -1,13 +1,21 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 
-const useCheckMultiClaimsHatter = (addresses: Hex[]) => {
-  const { chainId } = useTreeForm();
+const useCheckMultiClaimsHatter = (hats: Hex[]) => {
+  const { chainId, onchainHats } = useTreeForm();
+
+  const addresses = useMemo(() => {
+    return _.flatMap(hats, (hatId) => {
+      const hat = _.find(onchainHats, { id: hatId });
+      return _.map(_.get(hat, 'wearers', []), 'id');
+    });
+  }, [onchainHats, hats]);
 
   const getModuleData = async (address: Hex) => {
     if (!chainId || !address) return null;
@@ -36,13 +44,13 @@ const useCheckMultiClaimsHatter = (addresses: Hex[]) => {
     (res) => res.data?.name === 'Multi Claims Hatter',
   );
 
-  const foundAddress = foundModuleResult?.data
+  const instanceAddress = foundModuleResult?.data
     ? addresses[results.indexOf(foundModuleResult)]
-    : null;
+    : undefined;
 
   return {
     multiClaimsHatter: foundModuleResult?.data,
-    address: foundAddress,
+    instanceAddress,
     isLoading,
   };
 };
