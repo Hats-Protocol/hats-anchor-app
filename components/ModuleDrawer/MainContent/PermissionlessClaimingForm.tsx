@@ -14,6 +14,7 @@ import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
+import { formatAddress } from '@/lib/general';
 import {
   decimalId,
   getAllParents,
@@ -79,9 +80,10 @@ const PermissionlessClaimingForm = ({
             <FormRowWrapper>
               <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
               <Text color='blue.500'>
-                Claims hatter for this hat has already been set up at address{' '}
-                <Code>{instanceAddress}</Code>. It is not required to set up a
-                new claims hatter.
+                A claims hatter for this tree has already been set up at{' '}
+                <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
+                register this hat with the hatter during the module deploy
+                transaction.
               </Text>
             </FormRowWrapper>
           )}

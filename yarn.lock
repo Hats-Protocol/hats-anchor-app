@@ -1051,10 +1051,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hatsprotocol/modules-sdk@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@hatsprotocol/modules-sdk/-/modules-sdk-0.11.0.tgz#698203dd2f270cef15d9ff4d6980ca78020801b0"
-  integrity sha512-Bz9buEQYYOrKMWcYDC5eglGgzygvTIJgG0NIwcNee2JIiJjb8pBeIlYbzzBAHCet+UmvPDTvZ7WK3/VsdUvR+w==
+"@hatsprotocol/modules-sdk@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@hatsprotocol/modules-sdk/-/modules-sdk-0.13.0.tgz#1a88a73dc497af3393cb9d733a9c7ad35d34778d"
+  integrity sha512-yMMo21xTBAgTrfGa/MRdexElwyaM68QjPaQzzWGCuP2+Y95a5Zz2lEL07a4POd6pZ6zoULhg448qZGEqk7ICYQ==
   dependencies:
     abitype "^0.9.6"
     axios "^1.5.0"

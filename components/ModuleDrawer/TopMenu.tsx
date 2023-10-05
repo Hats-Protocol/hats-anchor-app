@@ -24,30 +24,30 @@ const TopMenu = ({
 }) => {
   const currentNetworkId = useChainId();
   const { chainId, selectedHat, treeToDisplay, topHat } = useTreeForm();
-
-  const { watch, getValues } = localForm;
-  const values = getValues();
+  const { watch } = localForm;
+  const moduleType = watch('moduleType');
+  const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
 
   const parentHats = useMemo(() => {
     const parents = getAllParents(selectedHat?.id, treeToDisplay);
     return _.filter(parents, (parent) => parent !== topHat?.id);
   }, [selectedHat, treeToDisplay, topHat]);
 
+  const lol = 'lol';
+
   const { instanceAddress } = useCheckMultiClaimsHatter(parentHats);
 
   const { deploy, isLoading } = useModuleDeploy({
-    values,
+    localForm,
     selectedModuleDetails,
     onCloseModuleDrawer,
     updateModuleAddress,
     deploymentType:
-      values.moduleType && values.isPermissionlesslyClaimable === 'Yes'
-        ? 'withClaimsHatter'
+      moduleType && isPermissionlesslyClaimable === 'Yes'
+        ? 'permissionlesslyClaimable'
         : 'single',
     instanceAddress,
   });
-
-  const moduleType = watch('moduleType');
 
   const isChainCorrect = currentNetworkId === chainId;
   const isButtonDisabled =

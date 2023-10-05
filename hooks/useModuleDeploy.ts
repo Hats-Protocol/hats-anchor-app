@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -12,7 +13,6 @@ import {
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
-  prepareArgs,
   processClaimsHatter,
   processModule,
 } from '@/lib/modules';
@@ -22,20 +22,22 @@ import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 
 const useModuleDeploy = ({
-  values,
+  localForm,
   selectedModuleDetails,
   onCloseModuleDrawer,
   updateModuleAddress,
   deploymentType,
   instanceAddress,
 }: {
-  values: any;
+  localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   updateModuleAddress: (address: string) => void;
-  deploymentType: 'single' | 'withClaimsHatter' | 'onlyClaimsHatter';
+  deploymentType: 'single' | 'permissionlesslyClaimable' | 'onlyClaimsHatter';
   instanceAddress?: Hex;
 }) => {
+  const { getValues } = localForm;
+  const values = getValues();
   const toast = useToast();
   const { chainId, selectedHat, setStoredData, storedData } = useTreeForm();
   const { modules } = useHatsModules();
@@ -45,15 +47,13 @@ const useModuleDeploy = ({
   const adminHat = values?.adminHat;
   const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
 
-  const { immutableArgs, mutableArgs } = prepareArgs(
-    values,
-    selectedModuleDetails,
-  );
-
-  const { writeAsync } = useMultiClaimsHatterContractWrite({
+  const {
+    deploy: deployModuleWithoutClaimsHatter,
+    isLoading: isLoadingMultiClaimsHatter,
+  } = useMultiClaimsHatterContractWrite({
     functionName: 'setHatClaimabilityAndCreateModule',
-    args: [immutableArgs, mutableArgs],
-    chainId,
+    localForm,
+    selectedModuleDetails,
     address: instanceAddress,
     enabled: !!instanceAddress,
   });
@@ -78,7 +78,7 @@ const useModuleDeploy = ({
           }
           break;
 
-        case 'withClaimsHatter':
+        case 'permissionlesslyClaimable':
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
             updateModuleAddress(moduleAddress);
@@ -103,7 +103,9 @@ const useModuleDeploy = ({
 
             toast.success({
               title: 'Saved',
-              description: `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
+              description: instanceAddress
+                ? `Module ${selectedModuleDetails?.name} has been successfully deployed!`
+                : `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
               duration: 1500,
             });
           }
@@ -142,6 +144,7 @@ const useModuleDeploy = ({
       setStoredData,
       toast,
       adminHat,
+      instanceAddress,
     ],
   );
 
@@ -150,10 +153,6 @@ const useModuleDeploy = ({
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
         case 'single': {
-          if (instanceAddress) {
-            return writeAsync?.();
-          }
-
           return deployModule({
             selectedModuleDetails,
             selectedHat,
@@ -164,7 +163,11 @@ const useModuleDeploy = ({
           });
         }
 
-        case 'withClaimsHatter':
+        case 'permissionlesslyClaimable':
+          if (instanceAddress) {
+            return deployModuleWithoutClaimsHatter();
+          }
+
           return deployModuleWithClaimsHatter({
             claimsHatterModule,
             selectedModuleDetails,
@@ -201,7 +204,10 @@ const useModuleDeploy = ({
     },
   });
 
-  return { deploy: mutateAsync, isLoading };
+  return {
+    deploy: mutateAsync,
+    isLoading: isLoading || isLoadingMultiClaimsHatter,
+  };
 };
 
 export default useModuleDeploy;
