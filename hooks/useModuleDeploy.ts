@@ -1,4 +1,3 @@
-import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback } from 'react';
@@ -6,10 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import {
-  CLAIMS_HATTER_ID,
-  MODULES_REGISTRY_FACTORY_ADDRESS,
-} from '@/constants';
+import { CLAIMS_HATTER_ID, DEPLOYMENT_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
@@ -17,7 +13,6 @@ import {
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
-  prepareArgs,
   prepareDeployModuleWithoutClaimsHatterArgs,
   processClaimsHatter,
   processModule,
@@ -84,7 +79,7 @@ const useModuleDeploy = ({
   const handleSuccess = useCallback(
     (data: any) => {
       switch (deploymentType) {
-        case 'onlyModule':
+        case DEPLOYMENT_TYPES.ONLY_MODULE:
           if (data?.newInstance && selectedModuleDetails) {
             updateModuleAddress(data?.newInstance);
             const updatedHats = processModule({
@@ -101,7 +96,7 @@ const useModuleDeploy = ({
           }
           break;
 
-        case 'moduleAndClaimsHatter':
+        case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
             updateModuleAddress(moduleAddress);
@@ -134,7 +129,7 @@ const useModuleDeploy = ({
           }
           break;
 
-        case 'onlyClaimsHatter': {
+        case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
           const updatedHats = processClaimsHatter({
             claimsHatterAddress: data?.newInstance,
             storedData,
@@ -178,7 +173,7 @@ const useModuleDeploy = ({
     mutationFn: async () => {
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
-        case 'onlyModule': {
+        case DEPLOYMENT_TYPES.ONLY_MODULE: {
           return deployModule({
             selectedModuleDetails,
             selectedHat,
@@ -189,7 +184,7 @@ const useModuleDeploy = ({
           });
         }
 
-        case 'moduleAndClaimsHatter':
+        case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
           if (instanceAddress) {
             return deployModuleWithoutClaimsHatter();
           }
@@ -205,7 +200,7 @@ const useModuleDeploy = ({
             adminHatId,
           });
 
-        case 'onlyClaimsHatter':
+        case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER:
           if (instanceAddress) {
             return setHatClaimability();
           }

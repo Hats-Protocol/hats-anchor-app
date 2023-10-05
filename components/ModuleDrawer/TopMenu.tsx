@@ -4,6 +4,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
+import { DEPLOYMENT_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDeploy from '@/hooks/useModuleDeploy';
 import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
@@ -30,12 +31,12 @@ const TopMenu = ({
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
   const deploymentType = useMemo(() => {
     if (isStandaloneHatterDeploy) {
-      return 'onlyClaimsHatter';
+      return DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER;
     }
     if (moduleType && isPermissionlesslyClaimable === 'Yes') {
-      return 'moduleAndClaimsHatter';
+      return DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER;
     }
-    return 'onlyModule';
+    return DEPLOYMENT_TYPES.ONLY_MODULE;
   }, [isStandaloneHatterDeploy, moduleType, isPermissionlesslyClaimable]);
 
   const { deploy, isLoading } = useModuleDeploy({
