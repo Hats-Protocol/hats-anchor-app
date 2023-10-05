@@ -1,10 +1,13 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
+import { DEPLOYMENT_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDeployModule from '@/hooks/useDeployModule';
+import useModuleDeploy from '@/hooks/useModuleDeploy';
+import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
 import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
@@ -12,28 +15,49 @@ const TopMenu = ({
   updateModuleAddress,
   onCloseModuleDrawer,
   selectedModuleDetails,
+  isStandaloneHatterDeploy,
 }: {
   localForm: UseFormReturn<any>;
   updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;
   selectedModuleDetails?: ModuleDetails;
+  isStandaloneHatterDeploy?: boolean;
 }) => {
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
+  const { instanceAddress } = useCheckMultiClaimsHatter();
+  const { watch } = localForm;
+  const moduleType = watch('moduleType');
+  const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
+  const deploymentType = useMemo(() => {
+    if (isStandaloneHatterDeploy) {
+      return DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER;
+    }
+    if (moduleType && isPermissionlesslyClaimable === 'Yes') {
+      return DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER;
+    }
+    return DEPLOYMENT_TYPES.ONLY_MODULE;
+  }, [isStandaloneHatterDeploy, moduleType, isPermissionlesslyClaimable]);
 
-  const { deployModule, isLoading } = useDeployModule({
+  const { deploy, isLoading } = useModuleDeploy({
     localForm,
     selectedModuleDetails,
     onCloseModuleDrawer,
     updateModuleAddress,
+    deploymentType,
+    instanceAddress,
   });
 
-  const { watch } = localForm;
-  const moduleType = watch('moduleType');
-
   const isChainCorrect = currentNetworkId === chainId;
+
+  const requiresModuleTypeCheck = !(
+    isStandaloneHatterDeploy && isPermissionlesslyClaimable === 'Yes'
+  );
+
   const isButtonDisabled =
-    !localForm?.formState.isValid || !moduleType || !isChainCorrect;
+    !localForm?.formState.isValid ||
+    !isChainCorrect ||
+    (requiresModuleTypeCheck && !moduleType);
 
   return (
     <Flex
@@ -71,7 +95,7 @@ const TopMenu = ({
           isDisabled={isButtonDisabled}
           isLoading={isLoading}
           onClick={() => {
-            deployModule();
+            deploy();
           }}
         >
           Deploy & Return

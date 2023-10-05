@@ -1,6 +1,7 @@
-import { Box, Icon, Stack, Text } from '@chakra-ui/react';
+import { Code, Icon, Stack, Text } from '@chakra-ui/react';
+import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import {
   BsBarChartLine,
@@ -8,42 +9,59 @@ import {
   BsPersonAdd,
   BsPuzzle,
 } from 'react-icons/bs';
+import { Hex } from 'viem';
 
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import RadioBox from '@/components/atoms/RadioBox';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import {
-  decimalId,
-  getAllParents,
-  idToPrettyId,
-  prettyIdToIp,
-} from '@/lib/hats';
+import { formatAddress } from '@/lib/general';
+import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
 
 const PermissionlessClaimingForm = ({
   localForm,
+  parentHats,
+  multiClaimsHatter,
+  instanceAddress,
+  isClaimable = false,
 }: {
-  localForm: UseFormReturn<any>;
+  localForm: UseFormReturn;
+  parentHats?: Hex[];
+  multiClaimsHatter?: Module | null;
+  instanceAddress?: Hex;
+  isClaimable?: boolean;
 }) => {
-  const { onchainHats, treeToDisplay, selectedHat, topHat } = useTreeForm();
+  const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
   );
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
-  const parentHats = useMemo(() => {
-    const parents = getAllParents(selectedHat?.id, treeToDisplay);
-    return _.filter(parents, (parent) => parent !== topHat?.id);
-  }, [selectedHat, treeToDisplay, topHat]);
-
   useEffect(() => {
     if (isPermissionlesslyClaimable === 'Yes') {
       scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      localForm.setValue('adminHat', undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPermissionlesslyClaimable]);
 
   if (!onchainHats || !treeToDisplay) return null;
+
+  if (isClaimable) {
+    return (
+      <Stack spacing={12}>
+        <Text>
+          This hat is already claimable via{' '}
+          <ChakraNextLink href={`/wearers/${instanceAddress}`} isExternal>
+            <Code>{formatAddress(instanceAddress)}</Code>
+          </ChakraNextLink>
+        </Text>
+      </Stack>
+    );
+  }
 
   return (
     <Stack spacing={12}>
@@ -65,8 +83,20 @@ const PermissionlessClaimingForm = ({
                 value: 'No',
               },
             ]}
-            isDisabled={!(parentHats && parentHats.length > 0)} // Disable RadioBox if no parentHats are available
+            isDisabled={!parentHats?.length}
           />
+
+          {multiClaimsHatter && isPermissionlesslyClaimable === 'Yes' && (
+            <FormRowWrapper>
+              <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
+              <Text color='blue.500'>
+                A claims hatter for this tree has already been set up at{' '}
+                <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
+                register this hat with the hatter during the module deploy
+                transaction.
+              </Text>
+            </FormRowWrapper>
+          )}
         </Stack>
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
@@ -80,40 +110,38 @@ const PermissionlessClaimingForm = ({
         </FormRowWrapper>
       )}
 
-      {isPermissionlesslyClaimable === 'Yes' &&
-        parentHats &&
-        parentHats.length > 0 && (
-          <Box ref={scrollTargetRef}>
-            <FormRowWrapper>
-              <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-              <Stack>
-                <Select
-                  name='adminHat'
-                  label='ADMIN HAT'
-                  subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
-                  localForm={localForm}
-                  placeholder='Select a hat in this tree'
-                  defaultValue={undefined}
-                  options={{
-                    required: isPermissionlesslyClaimable === 'Yes',
-                  }}
-                >
-                  {_.map(parentHats, (id) => (
-                    <option value={decimalId(id)} key={id}>
-                      {prettyIdToIp(idToPrettyId(id))}
-                    </option>
-                  ))}
-                </Select>
-                {adminHat && (
-                  <Text color='blackAlpha.600'>
-                    Potential wearers will be able to claim this hat if they
-                    meet the requirements in new module above.
-                  </Text>
-                )}
-              </Stack>
-            </FormRowWrapper>
-          </Box>
-        )}
+      {isPermissionlesslyClaimable === 'Yes' && !multiClaimsHatter && (
+        <Stack ref={scrollTargetRef}>
+          <FormRowWrapper>
+            <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+            <Stack>
+              <Select
+                name='adminHat'
+                label='ADMIN HAT'
+                subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                localForm={localForm}
+                placeholder='Select a hat in this tree'
+                defaultValue={undefined}
+                options={{
+                  required: isPermissionlesslyClaimable === 'Yes',
+                }}
+              >
+                {_.map(parentHats, (id) => (
+                  <option value={decimalId(id)} key={id}>
+                    {prettyIdToIp(idToPrettyId(id))}
+                  </option>
+                ))}
+              </Select>
+              {adminHat && (
+                <Text color='blackAlpha.600'>
+                  Potential wearers will be able to claim this hat if they meet
+                  the requirements in new module above.
+                </Text>
+              )}
+            </Stack>
+          </FormRowWrapper>
+        </Stack>
+      )}
 
       {selectedHat?.wearers === selectedHat?.maxSupply && (
         <FormRowWrapper>

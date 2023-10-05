@@ -82,7 +82,7 @@ const ModuleParameters = ({
         }
 
         return (
-          <Flex key={param.label} justify='space-between'>
+          <Flex key={param.label} justify='space-between' gap={3}>
             <Text fontSize='sm'>{param.label}</Text>
             {displayValue}
           </Flex>

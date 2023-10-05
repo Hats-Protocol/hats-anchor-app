@@ -77,7 +77,6 @@ const WearerRow = ({
       // }
     },
   });
-
   const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,
     enabled: wearer.isContract,

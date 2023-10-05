@@ -106,6 +106,9 @@ export const transformInput = (
   input: unknown,
   solidityType: string,
 ): unknown => {
+  if (input === undefined || input === null) {
+    return undefined;
+  }
   const tsType = solidityToTypescriptType(solidityType);
 
   switch (tsType) {
@@ -124,13 +127,15 @@ export const transformInput = (
       }
       return Boolean(input);
     case 'number[]':
-      return (input as string).split(',').map(Number);
+      return String(input).split(',').map(Number);
     case 'bigint[]':
-      return (input as string).split(',').map((num) => BigInt(num.trim()));
+      return String(input)
+        .split(',')
+        .map((num) => BigInt(num.trim()));
     case 'string[]':
-      return (input as string).split(',');
+      return String(input).split(',');
     case 'boolean[]':
-      return (input as string)
+      return String(input)
         .split(',')
         .map((str) => str.toLowerCase() === 'yes');
     default:

@@ -11,28 +11,35 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { ReactNode, Suspense, useMemo, useState } from 'react';
+import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   BsFileCode,
+  BsListTask,
   BsListUl,
+  BsPersonAdd,
+  BsPersonBadge,
   BsPlusCircle,
   BsShieldLock,
 } from 'react-icons/bs';
+import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import RadioBox from '@/components/atoms/RadioBox';
 import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import ModuleDrawer from '@/components/ModuleDrawer';
-import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
+import { FALLBACK_ADDRESS, MODULE_TYPES, TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatsModules from '@/hooks/useHatsModules';
-import { findModule, isMutable } from '@/lib/hats';
+import useModuleDetails from '@/hooks/useModuleDetails';
+import { checkAddressIsContract } from '@/lib/contract';
+import { isMutable } from '@/lib/hats';
+import { explorerUrl } from '@/lib/web3';
 import { DetailsItem, ModuleKind } from '@/types';
 
 interface HatManagementFormProps {
@@ -66,9 +73,11 @@ const HatManagementForm = ({
   inputConfig,
   criteriaConfig,
 }: HatManagementFormProps) => {
+  const [isAContract, setIsAContract] = useState(false);
   const { watch, control, setValue, getValues } = localForm;
-  const { selectedHat } = useTreeForm();
-  const { modules } = useHatsModules();
+  const { selectedHat, chainId } = useTreeForm();
+  const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
+    useState(false);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -77,12 +86,7 @@ const HatManagementForm = ({
 
   const items = watch(formName);
   const isActionManual = watch(radioBoxConfig.name);
-  const moduleAddress = watch(title);
-
-  const foundModule = useMemo(
-    () => findModule(modules, moduleAddress),
-    [modules, moduleAddress],
-  );
+  const moduleAddress = getValues(title);
 
   const showActionResolvedAddress =
     actionResolvedAddress && actionResolvedAddress !== address;
@@ -94,6 +98,21 @@ const HatManagementForm = ({
       label: TRIGGER_OPTIONS.AUTOMATICALLY,
     },
   ];
+
+  const { details: moduleDetails } = useModuleDetails({
+    address: moduleAddress,
+  });
+
+  useEffect(() => {
+    const check = async () => {
+      if (moduleAddress && chainId) {
+        const isContract = await checkAddressIsContract(moduleAddress, chainId);
+        setIsAContract(isContract);
+      }
+    };
+
+    check();
+  }, [chainId, moduleAddress]);
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
@@ -126,12 +145,6 @@ const HatManagementForm = ({
     onClose: onCloseModuleDrawer,
     isOpen: isOpenModuleDrawer,
   } = useDisclosure();
-
-  // const {
-  //   onOpen: onOpenClaimsHatterDrawer,
-  //   onClose: onCloseClaimsHatterDrawer,
-  //   isOpen: isOpenClaimsHatterDrawer,
-  // } = useDisclosure();
 
   const updateModuleAddress = (value: string) => {
     localForm.setValue(title, value);
@@ -171,13 +184,24 @@ const HatManagementForm = ({
               resolvedAddress={String(actionResolvedAddress)}
             />
             <HStack spacing={8}>
-              {foundModule && (
-                <HStack>
-                  <Icon as={BsFileCode} boxSize={4} color='gray.500' />
-                  <Text color='blackAlpha.700' fontSize='sm'>
-                    {foundModule.name}
-                  </Text>
-                </HStack>
+              {moduleDetails && (
+                <ChakraNextLink
+                  href={`${explorerUrl(chainId)}/address/${
+                    selectedHat?.[title]
+                  }`}
+                  isExternal
+                >
+                  <HStack>
+                    {isAContract ? (
+                      <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                    ) : (
+                      <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
+                    )}
+                    <Text color='gray.500' fontSize='sm'>
+                      {moduleDetails.name}
+                    </Text>
+                  </HStack>
+                </ChakraNextLink>
               )}
               {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
                 <Button
@@ -193,9 +217,14 @@ const HatManagementForm = ({
             </HStack>
           </Stack>
         </FormRowWrapper>
-        {/* <FormRowWrapper>
+        <FormRowWrapper>
           <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
           <Stack>
+            <HStack fontSize='sm'>
+              <Text color='blackAlpha.800' fontWeight='medium'>
+                HAT CLAIMING
+              </Text>
+            </HStack>
             <Text fontSize='sm' color='gray.500' mt={1}>
               To enable permissionless claiming of this hat, deploy a claims
               hatter contract and give that contract an admin hat in this tree.
@@ -207,58 +236,56 @@ const HatManagementForm = ({
                   variant='outline'
                   fontWeight='normal'
                   borderColor='blackAlpha.300'
-                  onClick={onOpenClaimsHatterDrawer}
+                  onClick={() => {
+                    onOpenModuleDrawer();
+                    setIsStandAloneHatterDeploy(true);
+                  }}
                 >
                   Deploy Claims Hatter
                 </Button>
               )}
             </Box>
           </Stack>
-        </FormRowWrapper> */}
-        <Stack>
-          {address !== FALLBACK_ADDRESS && (
-            <FormRowWrapper>
-              <Icon as={BsListUl} boxSize={4} mt='3px' />
-              <Stack>
-                <HStack fontSize='sm'>
-                  <Text color='blackAlpha.800' fontWeight='medium'>
-                    {criteriaConfig.label}
-                  </Text>
-                  <Text color='blackAlpha.600'>optional</Text>
-                </HStack>
-                <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
-              </Stack>
-            </FormRowWrapper>
-          )}
-          {fields.map((field, index) => (
-            <LabelWithLink
-              key={field.id}
-              localForm={localForm}
-              title={title}
-              handleRemoveItem={() => remove(index)}
-              handleEdit={() => handleEdit(index)}
-              handleSave={handleSave}
-              inputLink={inputLink}
-              setInputLink={setInputLink}
-              isLinkValid={isLinkValid}
-              setIsLinkValid={setIsLinkValid}
-              labelName={`${formName}.${index}.label`}
-              linkName={`${formName}.${index}.link`}
-            />
-          ))}
-          <Box mb={2}>
+        </FormRowWrapper>
+        <FormRowWrapper>
+          <Icon as={BsListTask} boxSize={4} mt='2px' />
+          <Stack>
+            <HStack fontSize='sm'>
+              <Text color='blackAlpha.800' fontWeight='medium'>
+                {criteriaConfig.label}
+              </Text>
+              <Text color='blackAlpha.600'>optional</Text>
+            </HStack>
+            <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
+            {fields.map((field, index) => (
+              <LabelWithLink
+                key={field.id}
+                localForm={localForm}
+                title={title}
+                handleRemoveItem={() => remove(index)}
+                handleEdit={() => handleEdit(index)}
+                handleSave={handleSave}
+                inputLink={inputLink}
+                setInputLink={setInputLink}
+                isLinkValid={isLinkValid}
+                setIsLinkValid={setIsLinkValid}
+                labelName={`${formName}.${index}.label`}
+                linkName={`${formName}.${index}.link`}
+              />
+            ))}
             <Button
               onClick={() => append({ link: '', label: '' })}
               isDisabled={items?.some((item: DetailsItem) => item.label === '')}
               gap={2}
               variant='outline'
+              fontWeight='normal'
               borderColor='blackAlpha.300'
             >
               <BsPlusCircle />
               Add {items?.length ? 'another' : 'a'} Requirement
             </Button>
-          </Box>
-        </Stack>
+          </Stack>
+        </FormRowWrapper>
       </Stack>
 
       <Drawer
@@ -274,6 +301,7 @@ const HatManagementForm = ({
               <ModuleDrawer
                 onCloseModuleDrawer={onCloseModuleDrawer}
                 updateModuleAddress={updateModuleAddress}
+                isStandaloneHatterDeploy={isStandaloneHatterDeploy}
                 title={title}
               />
             </Suspense>

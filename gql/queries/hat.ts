@@ -69,3 +69,21 @@ export const GET_HATS_BY_IDS = gql`
   }
   ${HAT_DETAILS_FRAGMENT}
 `;
+
+export const GET_HATTERS_FOR_HATS = gql`
+  query getHattersForHats($hatIds: [ID!]!) {
+    hats(where: { id_in: $hatIds }) {
+      id
+      claimableBy {
+        id
+      }
+    }
+    # something like this doesn't work?
+    # claimsHatters(where: { claimableHats_in: [$hatIds] }) {
+    #   id
+    #   claimableHats {
+    #     id
+    #   }
+    # }
+  }
+`;
