@@ -1,6 +1,7 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
+import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import {
   BsBarChartLine,
@@ -8,26 +9,30 @@ import {
   BsPersonAdd,
   BsPuzzle,
 } from 'react-icons/bs';
+import { Hex } from 'viem';
 
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import RadioBox from '@/components/atoms/RadioBox';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
 import { formatAddress } from '@/lib/general';
-import {
-  decimalId,
-  getAllParents,
-  idToPrettyId,
-  prettyIdToIp,
-} from '@/lib/hats';
+import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
 
 const PermissionlessClaimingForm = ({
   localForm,
+  parentHats,
+  multiClaimsHatter,
+  instanceAddress,
+  isClaimable = false,
 }: {
   localForm: UseFormReturn;
+  parentHats?: Hex[];
+  multiClaimsHatter?: Module | null;
+  instanceAddress?: Hex;
+  isClaimable?: boolean;
 }) => {
-  const { onchainHats, treeToDisplay, selectedHat, topHat } = useTreeForm();
+  const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
@@ -43,15 +48,20 @@ const PermissionlessClaimingForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPermissionlesslyClaimable]);
 
-  const parentHats = useMemo(() => {
-    const parents = getAllParents(selectedHat?.id, treeToDisplay);
-    return _.filter(parents, (parent) => parent !== topHat?.id);
-  }, [selectedHat, treeToDisplay, topHat]);
-
-  const { multiClaimsHatter, instanceAddress } =
-    useCheckMultiClaimsHatter(parentHats);
-
   if (!onchainHats || !treeToDisplay) return null;
+
+  if (isClaimable) {
+    return (
+      <Stack spacing={12}>
+        <Text>
+          This hat is already claimable via{' '}
+          <ChakraNextLink href={`/wearers/${instanceAddress}`} isExternal>
+            <Code>{formatAddress(instanceAddress)}</Code>
+          </ChakraNextLink>
+        </Text>
+      </Stack>
+    );
+  }
 
   return (
     <Stack spacing={12}>

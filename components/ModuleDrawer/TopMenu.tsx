@@ -33,7 +33,7 @@ const TopMenu = ({
     return _.filter(parents, (parent) => parent !== topHat?.id);
   }, [selectedHat, treeToDisplay, topHat]);
 
-  const { instanceAddress } = useCheckMultiClaimsHatter(parentHats);
+  const { instanceAddress } = useCheckMultiClaimsHatter();
 
   const { deploy, isLoading } = useModuleDeploy({
     localForm,

@@ -1,56 +1,60 @@
 import { Module } from '@hatsprotocol/modules-sdk';
-import { useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import client from '@/gql/client';
+import { GET_HATTERS_FOR_HATS } from '@/gql/queries/hat';
 import { createHatsModulesClient } from '@/lib/web3';
 
-const useCheckMultiClaimsHatter = (hats: Hex[]) => {
-  const { chainId, onchainHats } = useTreeForm();
+import useModuleDetails from './useModuleDetails';
 
-  const addresses = useMemo(() => {
-    return _.flatMap(hats, (hatId) => {
-      const hat = _.find(onchainHats, { id: hatId });
-      return _.map(_.get(hat, 'wearers', []), 'id');
-    });
-  }, [onchainHats, hats]);
-
-  const getModuleData = async (address: Hex) => {
-    if (!chainId || !address) return null;
-
-    const moduleClient = await createHatsModulesClient(chainId);
-    if (!moduleClient) return null;
-
-    const moduleData = await moduleClient.getModuleByInstance(address);
-    if (!moduleData) return null;
-
-    return moduleData as Module;
-  };
-
-  const results = useQueries({
-    queries: addresses.map((address) => ({
-      queryKey: ['moduleDetails', address],
-      queryFn: () => getModuleData(address),
-      enabled: !!address,
-    })),
+const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
+  const result = await client(chainId).request(GET_HATTERS_FOR_HATS, {
+    hatIds: hats,
   });
 
-  const isLoading = _.some(results, ['isLoading', true]);
+  return _.get(result, 'hats');
+};
 
-  const foundModuleResult = _.find(
-    results,
-    (res) => res.data?.name === 'Multi Claims Hatter',
-  );
+const useCheckMultiClaimsHatter = () => {
+  const { chainId, onchainHats } = useTreeForm();
 
-  const instanceAddress = foundModuleResult?.data
-    ? addresses[results.indexOf(foundModuleResult)]
-    : undefined;
+  const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
+
+  const fetchHatters = async () => {
+    if (!chainId || !allHatIds) return undefined;
+    const result = await fetchHattersHelper(chainId, allHatIds);
+    return result;
+  };
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['claimsHatter', allHatIds],
+    queryFn: fetchHatters,
+    enabled: !!allHatIds,
+  });
+
+  const claimableHats = useMemo(() => {
+    if (!data) return undefined;
+
+    return _.map(_.filter(data, 'claimableBy[0].id'), 'id');
+  }, [data]);
+
+  const instanceAddress = useMemo(() => {
+    if (!data) return undefined;
+    return _.first(_.compact(_.map(data, 'claimableBy[0].id')));
+  }, [data]);
+
+  const { details } = useModuleDetails({ address: instanceAddress });
+
+  console.log(claimableHats);
 
   return {
-    multiClaimsHatter: foundModuleResult?.data,
+    multiClaimsHatter: details,
     instanceAddress,
+    claimableHats,
     isLoading,
   };
 };

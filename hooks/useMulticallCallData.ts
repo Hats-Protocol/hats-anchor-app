@@ -15,10 +15,10 @@ type useMulticallCallDataProps = {
 const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
   const { chainId, treeId, storedData, onchainHats, treeToDisplay } =
     useTreeForm();
-  const hatsClient = createHatsClient(chainId);
 
   const computeMulticallData = async () => {
     if (!chainId || !treeId || !storedData) return undefined;
+    const hatsClient = createHatsClient(chainId);
 
     const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
       _.includes(_.map(onchainHats, 'id'), hat.id),
@@ -32,10 +32,17 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
     const calls = _.map(_.flatten(_.map(allCalls, 'calls') || []), 'callData');
 
     const detailsToPin = _.map(allCalls, 'detailsToPin');
+    console.log(detailsToPin);
     const detailsPromises = _.map(
-      detailsToPin,
-      ({ chainId: localChainId, hatId, details }: HatPinDetails) =>
-        handleDetailsPin({ chainId: localChainId, hatId, details }),
+      _.compact(detailsToPin),
+      (hatDetails: HatPinDetails) => {
+        const {
+          chainId: localChainId,
+          hatId,
+          details,
+        } = _.pick(hatDetails, ['chainId', 'hatId', 'details']);
+        return handleDetailsPin({ chainId: localChainId, hatId, details });
+      },
     );
     await Promise.all(detailsPromises);
 
@@ -45,8 +52,7 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ['multicallData', { treeId, chainId }, storedData],
     queryFn: computeMulticallData,
-    enabled:
-      !!treeId && !!chainId && !!hatsClient && !!storedData && isExpanded,
+    enabled: !!treeId && !!chainId && !!storedData && isExpanded,
   });
 
   return { data, isLoading };

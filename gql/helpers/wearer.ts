@@ -83,8 +83,9 @@ export const fetchWearerDetailsForAllChains = async (
   const promises = _.map(chains, (cId: string) =>
     fetchWearerDetails(address, Number(cId)),
   );
-
-  const data: { currentHats: Hat[] }[] = await Promise.all(promises);
-
-  return _.flatten(_.map(data, 'currentHats'));
+  return Promise.all(_.map(promises, (p) => p.catch((e) => undefined))).then(
+    (data) => {
+      return _.compact(_.flatten(_.map(data, 'currentHats')));
+    },
+  );
 };
