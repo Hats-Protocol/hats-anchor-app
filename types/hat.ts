@@ -117,6 +117,4 @@ export interface HatExport {
     type: string;
     data: HatDetails;
   };
-  chainId: number;
-  name: string;
 }

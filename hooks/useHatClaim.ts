@@ -6,7 +6,7 @@ import { Hex } from 'viem';
 import {
   useAccount,
   useChainId,
-  useContractRead,
+  useContractReads,
   useContractWrite,
   usePrepareContractWrite,
 } from 'wagmi';
@@ -16,8 +16,12 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 
-import useIsAdmin from './useIsAdmin';
 import useToast from './useToast';
+
+const CLAIMS_HATTER_TYPES = {
+  claimableBy: 'CLAIMABLE_BY',
+  claimableFor: 'CLAIMABLE_FOR',
+};
 
 const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
@@ -38,15 +42,49 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
     [selectedHat],
   );
 
-  const hatterIsAdmin = useIsAdmin(claimsHatterAddress);
-
-  const { data: isClaimableFor } = useContractRead({
-    address: claimableForAddress,
+  const hatter = (type: string) => ({
+    address:
+      type === CLAIMS_HATTER_TYPES.claimableFor
+        ? claimableForAddress
+        : claimsHatterAddress,
     abi: claimsHatter?.abi,
-    functionName: 'isClaimableFor',
-    args: [selectedHat?.id, address],
-    enabled: !!claimsHatter && !!claimsHatterAddress && userChain === chainId,
   });
+
+  const { data: isClaimableData } = useContractReads({
+    contracts: [
+      {
+        ...hatter(
+          isCurrentWearer
+            ? CLAIMS_HATTER_TYPES.claimableBy
+            : CLAIMS_HATTER_TYPES.claimableFor,
+        ),
+        functionName: isCurrentWearer
+          ? 'accountCanClaim'
+          : 'canClaimForAccount',
+        args: [wearer || '0x', selectedHat?.id || '0x'],
+      },
+      {
+        ...hatter(
+          isCurrentWearer
+            ? CLAIMS_HATTER_TYPES.claimableBy
+            : CLAIMS_HATTER_TYPES.claimableFor,
+        ),
+        functionName: 'wearsAdmin',
+        args: [selectedHat?.id || '0x'],
+      },
+    ],
+    enabled:
+      !!claimsHatter &&
+      !!claimsHatterAddress &&
+      userChain === chainId &&
+      !!selectedHat &&
+      (!!address || wearer),
+  });
+
+  const [isClaimable, isClaimableAdmin] = useMemo(
+    () => _.map(isClaimableData, 'result') || [false, false],
+    [isClaimableData],
+  );
 
   useEffect(() => {
     const getHatter = async () => {
@@ -69,9 +107,10 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
     args: isCurrentWearer ? [selectedHat?.id] : [selectedHat?.id, address],
     enabled:
       (isCurrentWearer || !!wearer) &&
+      !!isClaimable &&
+      !!isClaimableAdmin &&
       !!claimsHatter &&
       !!claimsHatterAddress &&
-      !!hatterIsAdmin &&
       userChain === chainId,
   });
 
@@ -115,10 +154,10 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
 
   return {
     claimHat: write,
-    hatterIsAdmin,
+    hatterIsAdmin: isClaimableAdmin,
     prepareError,
     writeError,
-    canClaimFor: isClaimableFor && write,
+    canClaimFor: isClaimable && write,
     error: prepareError || writeError,
   };
 };

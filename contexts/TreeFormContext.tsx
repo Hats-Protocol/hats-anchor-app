@@ -287,7 +287,25 @@ export const TreeFormContextProvider = ({
   }, [results, storedHatsWithImage]);
 
   const filteredTree = useMemo(() => {
-    return orgChartTree?.filter((t) => (showInactiveHats ? t : t.status));
+    if (showInactiveHats) return orgChartTree;
+
+    const inactiveHats = _.map(
+      _.filter(orgChartTree, ['status', false]),
+      (h) => {
+        const prettyId = _.get(h, 'prettyId');
+        if (!prettyId) return '';
+        return _.replace(prettyId, '.', '');
+      },
+    );
+    const inactiveAncestors = _.filter(orgChartTree, (hat) =>
+      _.some(inactiveHats, (h) => hat.id.includes(h)),
+    );
+
+    return _.reject(orgChartTree, (h) =>
+      _.includes(_.map(inactiveAncestors, 'id'), h.id),
+    );
+    // workaround while not supporting ghost hats
+    // : _.reject(orgChartTree, ['status', false]);
   }, [orgChartTree, showInactiveHats]);
 
   const updatedTree = useMemo(() => {

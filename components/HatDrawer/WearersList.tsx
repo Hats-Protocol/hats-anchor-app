@@ -90,7 +90,7 @@ const WearersList = () => {
     wearer: address,
   });
 
-  const { claimHat } = useHatClaim({ wearer: address });
+  const { claimHat, hatterIsAdmin } = useHatClaim({ wearer: address });
 
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
@@ -119,6 +119,14 @@ const WearersList = () => {
     6,
   ) as HatWearer[];
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+
+  const claimTooltip = useMemo(() => {
+    if (chainId !== currentNetworkId)
+      return "You can't claim a hat on a different chain.";
+    if (!hatterIsAdmin)
+      return 'Hatter must be wearing an admin hat to claim this hat.';
+    return undefined;
+  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   return (
     <>
@@ -173,18 +181,20 @@ const WearersList = () => {
           {(currentUserIsEligible as boolean) &&
             !currentUserIsWearing &&
             claimHat && (
-              <Button
-                variant='unstyled'
-                isDisabled={!claimHat || chainId !== currentNetworkId}
-                onClick={() => {
-                  claimHat?.();
-                }}
-              >
-                <HStack color='blue.500'>
-                  <FaPlus />
-                  <Text variant='ghost'>Claim Hat</Text>
-                </HStack>
-              </Button>
+              <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
+                <Button
+                  variant='unstyled'
+                  isDisabled={!claimHat || chainId !== currentNetworkId}
+                  onClick={() => {
+                    claimHat?.();
+                  }}
+                >
+                  <HStack color='blue.500'>
+                    <FaPlus />
+                    <Text variant='ghost'>Claim Hat</Text>
+                  </HStack>
+                </Button>
+              </Tooltip>
             )}
           {isAdminUser && (
             <Tooltip
