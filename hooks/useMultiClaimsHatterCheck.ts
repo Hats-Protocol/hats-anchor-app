@@ -1,4 +1,3 @@
-import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -7,9 +6,9 @@ import { Hex } from 'viem';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import client from '@/gql/client';
 import { GET_HATTERS_FOR_HATS } from '@/gql/queries/hat';
-import { createHatsModulesClient } from '@/lib/web3';
 
 import useModuleDetails from './useModuleDetails';
+// refactor the lookup with claimsHatters(where: {claimableHats_contains: [hatId]}) { id }
 
 const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
   const result = await client(chainId).request(GET_HATTERS_FOR_HATS, {
@@ -48,8 +47,6 @@ const useCheckMultiClaimsHatter = () => {
   }, [data]);
 
   const { details } = useModuleDetails({ address: instanceAddress });
-
-  console.log(claimableHats);
 
   return {
     multiClaimsHatter: details,

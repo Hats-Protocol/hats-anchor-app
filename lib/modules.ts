@@ -1,8 +1,11 @@
-import { Module } from '@hatsprotocol/modules-sdk';
+import { checkAndEncodeArgs, Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { MULTI_CLAIMS_HATTER_ID } from '@/constants';
+import {
+  MODULES_REGISTRY_FACTORY_ADDRESS,
+  MULTI_CLAIMS_HATTER_ID,
+} from '@/constants';
 import { transformInput } from '@/lib/general';
 import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
@@ -218,4 +221,48 @@ export const processClaimsHatter = ({
   }
 
   return updatedHats;
+};
+
+export const prepareDeployModuleWithoutClaimsHatterArgs = ({
+  selectedModuleDetails,
+  isLocalFormValid,
+  values,
+  hatId,
+}: {
+  selectedModuleDetails?: ModuleDetails;
+  isLocalFormValid: boolean;
+  values: any;
+  hatId: bigint;
+}) => {
+  let encodedImmutableArgs: string | undefined;
+  let encodedMutableArgs: string | undefined;
+
+  const { immutableArgs, mutableArgs } = prepareArgs(
+    values,
+    selectedModuleDetails,
+  );
+
+  const areArgsFilled = (args: any[]) => _.every(args, Boolean);
+  const allArgsFilled =
+    areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
+
+  if (selectedModuleDetails && isLocalFormValid && allArgsFilled) {
+    const result = checkAndEncodeArgs({
+      module: selectedModuleDetails,
+      immutableArgs,
+      mutableArgs,
+    });
+    encodedImmutableArgs = result.encodedImmutableArgs;
+    encodedMutableArgs = result.encodedMutableArgs;
+  }
+
+  return [
+    MODULES_REGISTRY_FACTORY_ADDRESS,
+    selectedModuleDetails?.implementationAddress,
+    hatId,
+    encodedImmutableArgs,
+    encodedMutableArgs,
+    hatId,
+    1,
+  ];
 };

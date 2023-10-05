@@ -13,10 +13,12 @@ const ModuleDrawer = ({
   updateModuleAddress,
   onCloseModuleDrawer,
   title,
+  isStandaloneHatterDeploy,
 }: {
   updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;
   title: ModuleKind;
+  isStandaloneHatterDeploy?: boolean;
 }) => {
   const { selectedHat } = useTreeForm();
 
@@ -49,12 +51,14 @@ const ModuleDrawer = ({
         updateModuleAddress={updateModuleAddress}
         onCloseModuleDrawer={onCloseModuleDrawer}
         selectedModuleDetails={selectedModuleDetails}
+        isStandaloneHatterDeploy={isStandaloneHatterDeploy}
       />
       <MainContent
         localForm={localForm}
         title={title}
         selectedModuleDetails={selectedModuleDetails}
         setSelectedModuleDetails={setSelectedModuleDetails}
+        isStandaloneHatterDeploy={isStandaloneHatterDeploy}
       />
     </Box>
   );

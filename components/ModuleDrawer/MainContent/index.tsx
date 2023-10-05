@@ -6,7 +6,7 @@ import { UseFormReturn } from 'react-hook-form';
 import Accordion from '@/components/atoms/Accordion';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
-import { getAllParents } from '@/lib/hats';
+import { getAllParents, prettyIdToIp } from '@/lib/hats';
 import { ModuleDetails, ModuleKind } from '@/types';
 
 import ModuleDetailsForm from './ModuleDetailsForm';
@@ -17,12 +17,14 @@ const MainContent = ({
   title,
   selectedModuleDetails,
   setSelectedModuleDetails,
+  isStandaloneHatterDeploy,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   title: ModuleKind;
   selectedModuleDetails: ModuleDetails | undefined;
   setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
+  isStandaloneHatterDeploy?: boolean;
 }) => {
   const { onchainHats, treeToDisplay, topHat, selectedHat, topHatDetails } =
     useTreeForm();
@@ -34,8 +36,10 @@ const MainContent = ({
 
   const { multiClaimsHatter, instanceAddress, claimableHats } =
     useCheckMultiClaimsHatter();
-  console.log('multiClaimsHatter', multiClaimsHatter);
-  // console.log('instanceAddress', instanceAddress);
+
+  const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
+    selectedHat?.detailsObject?.data?.name
+  })`;
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -52,7 +56,9 @@ const MainContent = ({
     >
       <Stack>
         <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-          Create a new Accountability Module for this hat
+          {isStandaloneHatterDeploy
+            ? `Deploy a Claims Hatter contract to make hat ${hatTitle} claimable`
+            : `Create a new Accountability Module for hat ${hatTitle}`}
         </Heading>
         {topHatDetails?.description && (
           <Text color='blackAlpha.700' noOfLines={2}>
@@ -61,19 +67,20 @@ const MainContent = ({
         )}
       </Stack>
 
-      <Accordion
-        title='Module Basics'
-        subtitle='The fundamentals of the module, including type and details.'
-        open
-      >
-        <ModuleDetailsForm
-          localForm={localForm}
-          title={title}
-          selectedModuleDetails={selectedModuleDetails}
-          setSelectedModuleDetails={setSelectedModuleDetails}
-        />
-      </Accordion>
-
+      {!isStandaloneHatterDeploy && (
+        <Accordion
+          title='Module Basics'
+          subtitle='The fundamentals of the module, including type and details.'
+          open
+        >
+          <ModuleDetailsForm
+            localForm={localForm}
+            title={title}
+            selectedModuleDetails={selectedModuleDetails}
+            setSelectedModuleDetails={setSelectedModuleDetails}
+          />
+        </Accordion>
+      )}
       {claimableHats && (
         <Accordion
           title='Permissionless Claiming'

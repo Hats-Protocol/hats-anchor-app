@@ -1,75 +1,29 @@
-import {
-  checkAndEncodeArgs,
-  getNewInstancesFromReceipt,
-} from '@hatsprotocol/modules-sdk';
+import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { waitForTransaction } from '@wagmi/core';
-import _ from 'lodash';
 import { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import { MODULES_REGISTRY_FACTORY_ADDRESS } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { MULTI_CLAIMS_HATTER_ABI } from '@/contracts/MultiClaimsHatter';
-import { decimalId } from '@/lib/hats';
-import { prepareArgs } from '@/lib/modules';
-import { ModuleDetails } from '@/types';
 
 interface ContractInteractionProps {
   functionName: string;
-  localForm: UseFormReturn;
-  selectedModuleDetails?: ModuleDetails;
   address?: Hex;
   enabled: boolean;
+  args: (string | number | bigint | undefined)[];
 }
 
 const useMultiClaimsHatterContractWrite = ({
   functionName,
-  localForm,
-  selectedModuleDetails,
   enabled,
   address,
+  args,
 }: ContractInteractionProps) => {
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] =
     useState(false);
 
-  const { chainId, selectedHat } = useTreeForm();
-  const hatId = decimalId(selectedHat?.id);
-  const { getValues } = localForm;
-  const values = getValues();
-
-  let encodedImmutableArgs: string | undefined;
-  let encodedMutableArgs: string | undefined;
-
-  const { immutableArgs, mutableArgs } = prepareArgs(
-    values,
-    selectedModuleDetails,
-  );
-
-  const areArgsFilled = (args: any[]) => _.every(args, Boolean);
-  const allArgsFilled =
-    areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
-
-  if (selectedModuleDetails && localForm?.formState.isValid && allArgsFilled) {
-    const result = checkAndEncodeArgs({
-      module: selectedModuleDetails,
-      immutableArgs,
-      mutableArgs,
-    });
-    encodedImmutableArgs = result.encodedImmutableArgs;
-    encodedMutableArgs = result.encodedMutableArgs;
-  }
-
-  const args = [
-    MODULES_REGISTRY_FACTORY_ADDRESS,
-    selectedModuleDetails?.implementationAddress,
-    hatId,
-    encodedImmutableArgs,
-    encodedMutableArgs,
-    hatId,
-    1,
-  ];
+  const { chainId } = useTreeForm();
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address,

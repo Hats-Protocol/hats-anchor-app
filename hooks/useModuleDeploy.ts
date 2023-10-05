@@ -1,3 +1,4 @@
+import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback } from 'react';
@@ -5,18 +6,23 @@ import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import { CLAIMS_HATTER_ID } from '@/constants';
+import {
+  CLAIMS_HATTER_ID,
+  MODULES_REGISTRY_FACTORY_ADDRESS,
+} from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { decimalId } from '@/lib/hats';
+import { decimalId, prettyIdToIp } from '@/lib/hats';
 import {
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
+  prepareArgs,
+  prepareDeployModuleWithoutClaimsHatterArgs,
   processClaimsHatter,
   processModule,
 } from '@/lib/modules';
-import { ModuleDetails } from '@/types';
+import { DeploymentType, ModuleDetails } from '@/types';
 
 import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
@@ -33,10 +39,7 @@ const useModuleDeploy = ({
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   updateModuleAddress: (address: string) => void;
-  deploymentType:
-    | 'onlyModule'
-    | 'permissionlesslyClaimable'
-    | 'onlyClaimsHatter';
+  deploymentType: DeploymentType;
   instanceAddress?: Hex;
 }) => {
   const { getValues } = localForm;
@@ -46,20 +49,37 @@ const useModuleDeploy = ({
   const { modules } = useHatsModules();
   const { address } = useAccount();
   const hatId = BigInt(decimalId(selectedHat?.id));
-
   const adminHat = values?.adminHat;
   const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
+  const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
+    selectedHat?.detailsObject?.data?.name
+  })`;
+
+  const deployModuleWithoutClaimsHatterArgs =
+    prepareDeployModuleWithoutClaimsHatterArgs({
+      selectedModuleDetails,
+      isLocalFormValid: localForm.formState.isValid,
+      values,
+      hatId,
+    });
 
   const {
     deploy: deployModuleWithoutClaimsHatter,
     isLoading: isLoadingMultiClaimsHatter,
   } = useMultiClaimsHatterContractWrite({
     functionName: 'setHatClaimabilityAndCreateModule',
-    localForm,
-    selectedModuleDetails,
     address: instanceAddress,
     enabled: !!instanceAddress,
+    args: deployModuleWithoutClaimsHatterArgs,
   });
+
+  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
+    useMultiClaimsHatterContractWrite({
+      functionName: 'setHatClaimability',
+      address: instanceAddress,
+      enabled: !!instanceAddress,
+      args: [hatId, 1],
+    });
 
   const handleSuccess = useCallback(
     (data: any) => {
@@ -81,7 +101,7 @@ const useModuleDeploy = ({
           }
           break;
 
-        case 'permissionlesslyClaimable':
+        case 'moduleAndClaimsHatter':
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
             updateModuleAddress(moduleAddress);
@@ -125,7 +145,9 @@ const useModuleDeploy = ({
 
           toast.success({
             title: 'Saved',
-            description: `Claims Hatter Module has been successfully deployed!`,
+            description: instanceAddress
+              ? `Hat ${hatTitle} has been successfully registered!`
+              : `Claims Hatter Module has been successfully deployed!`,
             duration: 1500,
           });
 
@@ -148,6 +170,7 @@ const useModuleDeploy = ({
       toast,
       adminHat,
       instanceAddress,
+      hatTitle,
     ],
   );
 
@@ -166,7 +189,7 @@ const useModuleDeploy = ({
           });
         }
 
-        case 'permissionlesslyClaimable':
+        case 'moduleAndClaimsHatter':
           if (instanceAddress) {
             return deployModuleWithoutClaimsHatter();
           }
@@ -183,6 +206,9 @@ const useModuleDeploy = ({
           });
 
         case 'onlyClaimsHatter':
+          if (instanceAddress) {
+            return setHatClaimability();
+          }
           return deployClaimsHatter({
             claimsHatterModule,
             selectedHat,
@@ -209,7 +235,8 @@ const useModuleDeploy = ({
 
   return {
     deploy: mutateAsync,
-    isLoading: isLoading || isLoadingMultiClaimsHatter,
+    isLoading:
+      isLoading || isLoadingMultiClaimsHatter || isLoadingSetHatClaimability,
   };
 };
 
