@@ -84,7 +84,11 @@ export const fetchWearerDetailsForAllChains = async (
     fetchWearerDetails(address, Number(cId)),
   );
 
-  const data: { currentHats: Hat[] }[] = await Promise.all(promises);
-
-  return _.flatten(_.map(data, 'currentHats'));
+  // * let errors fall through here
+  return Promise.all(_.map(promises, (p) => p.catch((e) => undefined))).then(
+    (data) => {
+      // TODO handle errors on subgraph(s) with the user
+      return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
+    },
+  );
 };

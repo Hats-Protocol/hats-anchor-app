@@ -1,4 +1,4 @@
-import { Box, Stack, Text } from '@chakra-ui/react';
+import { Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import {
