@@ -33,7 +33,10 @@ const useModuleDeploy = ({
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   updateModuleAddress: (address: string) => void;
-  deploymentType: 'single' | 'permissionlesslyClaimable' | 'onlyClaimsHatter';
+  deploymentType:
+    | 'onlyModule'
+    | 'permissionlesslyClaimable'
+    | 'onlyClaimsHatter';
   instanceAddress?: Hex;
 }) => {
   const { getValues } = localForm;
@@ -61,7 +64,7 @@ const useModuleDeploy = ({
   const handleSuccess = useCallback(
     (data: any) => {
       switch (deploymentType) {
-        case 'single':
+        case 'onlyModule':
           if (data?.newInstance && selectedModuleDetails) {
             updateModuleAddress(data?.newInstance);
             const updatedHats = processModule({
@@ -152,7 +155,7 @@ const useModuleDeploy = ({
     mutationFn: async () => {
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
-        case 'single': {
+        case 'onlyModule': {
           return deployModule({
             selectedModuleDetails,
             selectedHat,

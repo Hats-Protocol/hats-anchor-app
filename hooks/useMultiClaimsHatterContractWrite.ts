@@ -3,6 +3,7 @@ import {
   getNewInstancesFromReceipt,
 } from '@hatsprotocol/modules-sdk';
 import { waitForTransaction } from '@wagmi/core';
+import _ from 'lodash';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
@@ -45,7 +46,8 @@ const useMultiClaimsHatterContractWrite = ({
     values,
     selectedModuleDetails,
   );
-  const areArgsFilled = (args: any[]) => args.every((arg) => Boolean(arg));
+
+  const areArgsFilled = (args: any[]) => _.every(args, Boolean);
   const allArgsFilled =
     areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
 

@@ -26,7 +26,7 @@ const ModuleDrawer = ({
       moduleType: '',
       isPermissionlesslyClaimable: 'No',
       initialClaimableHats: decimalId(selectedHat?.id),
-      initialClaimabilityTypes: 1,
+      initialClaimabilityTypes: 1, // 0 for not claimable, 1 for "claimable", 2 for "claimable for"
     },
   });
 

@@ -77,11 +77,10 @@ const WearerRow = ({
       // }
     },
   });
-  const { data } = useModuleDetails({
+  const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,
     enabled: wearer.isContract,
   });
-  const { details: moduleDetails } = data || {};
 
   const updateEligibility = async () => {
     testEligibility?.();

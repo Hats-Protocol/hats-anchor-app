@@ -16,7 +16,7 @@ const useModuleDetails = ({
   address,
   enabled = true,
 }: {
-  address?: Hex;
+  address: Hex;
   enabled?: boolean;
 }) => {
   const { chainId } = useTreeForm();
@@ -49,7 +49,7 @@ const useModuleDetails = ({
       enabled,
   });
 
-  return { data };
+  return { details: data?.details, parameters: data?.parameters };
 };
 
 export default useModuleDetails;

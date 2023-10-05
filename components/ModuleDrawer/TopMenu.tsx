@@ -33,8 +33,6 @@ const TopMenu = ({
     return _.filter(parents, (parent) => parent !== topHat?.id);
   }, [selectedHat, treeToDisplay, topHat]);
 
-  const lol = 'lol';
-
   const { instanceAddress } = useCheckMultiClaimsHatter(parentHats);
 
   const { deploy, isLoading } = useModuleDeploy({
@@ -45,7 +43,7 @@ const TopMenu = ({
     deploymentType:
       moduleType && isPermissionlesslyClaimable === 'Yes'
         ? 'permissionlesslyClaimable'
-        : 'single',
+        : 'onlyModule',
     instanceAddress,
   });
 

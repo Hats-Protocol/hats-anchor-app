@@ -49,8 +49,9 @@ const StatusCard = ({
     [selectedHat, status],
   );
 
-  const { data } = useModuleDetails({ address: moduleAddress });
-  const { details: moduleDetails } = data || {};
+  const { details: moduleDetails } = useModuleDetails({
+    address: moduleAddress,
+  });
 
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
