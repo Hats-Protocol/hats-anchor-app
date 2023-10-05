@@ -304,8 +304,6 @@ export const TreeFormContextProvider = ({
     return _.reject(orgChartTree, (h) =>
       _.includes(_.map(inactiveAncestors, 'id'), h.id),
     );
-    // workaround while not supporting ghost hats
-    // : _.reject(orgChartTree, ['status', false]);
   }, [orgChartTree, showInactiveHats]);
 
   const updatedTree = useMemo(() => {

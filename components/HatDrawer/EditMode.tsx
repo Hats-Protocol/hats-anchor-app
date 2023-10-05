@@ -178,6 +178,7 @@ const EditMode = ({
   };
 
   const [newImageURI, setNewImageURI] = useState('');
+  // console.log(newImageURI);
 
   const eligibilityFormValue = useDebounce<Hex | undefined>(
     watch('eligibility', eligibility || FALLBACK_ADDRESS),
@@ -274,6 +275,7 @@ const EditMode = ({
         },
         {},
       );
+      // console.log('dirtyFormData', dirtyFormData);
 
       setUnsavedData(dirtyFormData);
     }

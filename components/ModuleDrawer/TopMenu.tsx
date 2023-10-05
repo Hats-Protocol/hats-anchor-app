@@ -17,6 +17,7 @@ const TopMenu = ({
   selectedModuleDetails,
   isStandaloneHatterDeploy,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;

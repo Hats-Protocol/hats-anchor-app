@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { BsSearch } from 'react-icons/bs';
 import { IoCloseOutline } from 'react-icons/io5';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
@@ -24,6 +24,7 @@ import { containsUpperCase } from '@/lib/general';
 import { Hat } from '@/types';
 
 const Navbar = ({ hatData }: { hatData?: Hat }) => {
+  const currentChainId = useChainId();
   const localOverlay = useOverlay();
   const { setCommandPalette: setOpen } = localOverlay;
   const router = useRouter();
@@ -54,7 +55,9 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
           <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
         </ChakraNextLink>
         <HStack spacing={5}>
-          <ChakraNextLink href={`/${CONFIG.trees}/${hatData?.chainId || 1}`}>
+          <ChakraNextLink
+            href={`/${CONFIG.trees}/${hatData?.chainId || currentChainId || 1}`}
+          >
             <Button
               h='75px'
               minW='125px'

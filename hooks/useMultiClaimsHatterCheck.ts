@@ -7,8 +7,8 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import client from '@/gql/client';
 import { GET_HATTERS_FOR_HATS } from '@/gql/queries/hat';
 
+import useIsAdmin from './useIsAdmin';
 import useModuleDetails from './useModuleDetails';
-// refactor the lookup with claimsHatters(where: {claimableHats_contains: [hatId]}) { id }
 
 const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
   const result = await client(chainId).request(GET_HATTERS_FOR_HATS, {
@@ -18,7 +18,7 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
   return _.get(result, 'hats');
 };
 
-const useCheckMultiClaimsHatter = () => {
+const useMultiClaimsHatterCheck = () => {
   const { chainId, onchainHats } = useTreeForm();
 
   const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
@@ -47,13 +47,15 @@ const useCheckMultiClaimsHatter = () => {
   }, [data]);
 
   const { details } = useModuleDetails({ address: instanceAddress });
+  const hatterIsAdmin = useIsAdmin(instanceAddress);
 
   return {
     multiClaimsHatter: details,
     instanceAddress,
+    hatterIsAdmin,
     claimableHats,
     isLoading,
   };
 };
 
-export default useCheckMultiClaimsHatter;
+export default useMultiClaimsHatterCheck;
