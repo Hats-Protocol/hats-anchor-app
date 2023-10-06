@@ -26,14 +26,8 @@ const MainContent = ({
   setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
   isStandaloneHatterDeploy?: boolean;
 }) => {
-  const {
-    onchainHats,
-    treeToDisplay,
-    topHat,
-    selectedHat,
-    selectedHatDetails,
-    topHatDetails,
-  } = useTreeForm();
+  const { onchainHats, treeToDisplay, topHat, selectedHat, topHatDetails } =
+    useTreeForm();
 
   const parentHats = useMemo(() => {
     const parents = getAllParents(selectedHat?.id, treeToDisplay);
@@ -44,7 +38,7 @@ const MainContent = ({
     useCheckMultiClaimsHatter();
 
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
-    selectedHatDetails?.name
+    selectedHat?.detailsObject?.data?.name
   })`;
 
   if (!onchainHats || !treeToDisplay) return null;
@@ -57,6 +51,7 @@ const MainContent = ({
       w='100%'
       overflow='scroll'
       height='calc(100% - 75px)'
+      pb={400}
       top={75}
       pos='relative'
     >
@@ -91,10 +86,7 @@ const MainContent = ({
         <Accordion
           title='Permissionless Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'
-          open={
-            _.includes(claimableHats, selectedHat?.id) ||
-            isStandaloneHatterDeploy
-          }
+          open={_.includes(claimableHats, selectedHat?.id)}
         >
           <PermissionlessClaimingForm
             localForm={localForm}
