@@ -53,6 +53,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
         ? claimableForAddress
         : claimsHatterAddress,
     abi: claimsHatter?.abi,
+    chainId,
   });
 
   const { data: isClaimableData } = useContractReads({
@@ -81,7 +82,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
     enabled:
       !!claimsHatter &&
       !!claimsHatterAddress &&
-      userChain === chainId &&
+      // userChain === chainId &&
       !!selectedHat &&
       (!!address || wearer),
   });
@@ -140,7 +141,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
         },
       });
 
-      // TODO Handle clearing/updating wearer data
+      // TODO Handle clearing/updating hat/wearer data
     },
     onError: (error) => {
       if (
@@ -162,6 +163,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
 
   return {
     claimHat: write,
+    isClaimable,
     hatterAddress: claimableForAddress || claimsHatterAddress,
     hatterIsAdmin: isClaimableAdmin,
     prepareError,

@@ -25,7 +25,7 @@ const useManyHatDetails = ({
         queryKey: ['hatDetails', hatDetails],
         queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
         enabled: !!hat.id && !!hat.chainId && !!hat.details,
-        initialData: _.find(initialHats, ['id', hat.id]),
+        // initialData: _.find(initialHats, ['id', hat.id]),
       };
     }),
   });

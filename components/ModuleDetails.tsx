@@ -34,7 +34,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   if (!moduleDetails) return null;
 
   return (
-    <Accordion defaultIndex={[1]} allowMultiple>
+    <Accordion allowMultiple>
       <AccordionItem border='0'>
         <AccordionButton px={0}>
           <HStack>

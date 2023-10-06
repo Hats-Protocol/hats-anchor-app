@@ -90,7 +90,9 @@ const WearersList = () => {
     wearer: address,
   });
 
-  const { claimHat, hatterIsAdmin } = useHatClaim({ wearer: address });
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    wearer: address,
+  });
 
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
@@ -179,8 +181,8 @@ const WearersList = () => {
             </Text>
           )}
           {(currentUserIsEligible as boolean) &&
-            !currentUserIsWearing &&
-            claimHat && (
+            !!isClaimable &&
+            !currentUserIsWearing && (
               <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
                 <Button
                   variant='unstyled'
