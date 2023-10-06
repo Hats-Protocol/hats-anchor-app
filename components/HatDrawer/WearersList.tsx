@@ -184,7 +184,9 @@ const WearersList = () => {
               <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
                 <Button
                   variant='unstyled'
-                  isDisabled={!claimHat || chainId !== currentNetworkId}
+                  isDisabled={
+                    !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+                  }
                   onClick={() => {
                     claimHat?.();
                   }}

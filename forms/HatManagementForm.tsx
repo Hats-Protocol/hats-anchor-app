@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Drawer,
   DrawerBody,
@@ -16,8 +15,6 @@ import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   BsFileCode,
   BsListTask,
-  BsListUl,
-  BsPersonAdd,
   BsPersonBadge,
   BsPlusCircle,
   BsShieldLock,
@@ -33,7 +30,7 @@ import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
 import ModuleDrawer from '@/components/ModuleDrawer';
-import { FALLBACK_ADDRESS, MODULE_TYPES, TRIGGER_OPTIONS } from '@/constants';
+import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDetails from '@/hooks/useModuleDetails';
@@ -42,7 +39,10 @@ import { isMutable } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 import { DetailsItem, ModuleKind } from '@/types';
 
+import ClaimsHandler from './ClaimsHandler';
+
 interface HatManagementFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   address: Hex | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
@@ -217,36 +217,15 @@ const HatManagementForm = ({
             </HStack>
           </Stack>
         </FormRowWrapper>
-        <FormRowWrapper>
-          <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
-          <Stack>
-            <HStack fontSize='sm'>
-              <Text color='blackAlpha.800' fontWeight='medium'>
-                HAT CLAIMING
-              </Text>
-            </HStack>
-            <Text fontSize='sm' color='gray.500' mt={1}>
-              To enable permissionless claiming of this hat, deploy a claims
-              hatter contract and give that contract an admin hat in this tree.
-            </Text>
-            <Box>
-              {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
-                <Button
-                  leftIcon={<BsFileCode />}
-                  variant='outline'
-                  fontWeight='normal'
-                  borderColor='blackAlpha.300'
-                  onClick={() => {
-                    onOpenModuleDrawer();
-                    setIsStandAloneHatterDeploy(true);
-                  }}
-                >
-                  Deploy Claims Hatter
-                </Button>
-              )}
-            </Box>
-          </Stack>
-        </FormRowWrapper>
+        {title === 'eligibility' &&
+          moduleDetails &&
+          isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
+            <ClaimsHandler
+              localForm={localForm}
+              onOpenModuleDrawer={onOpenModuleDrawer}
+              setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
+            />
+          )}
         <FormRowWrapper>
           <Icon as={BsListTask} boxSize={4} mt='2px' />
           <Stack>

@@ -91,7 +91,10 @@ const MainContent = ({
         <Accordion
           title='Permissionless Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'
-          open={_.includes(claimableHats, selectedHat?.id)}
+          open={
+            _.includes(claimableHats, selectedHat?.id) ||
+            isStandaloneHatterDeploy
+          }
         >
           <PermissionlessClaimingForm
             localForm={localForm}
