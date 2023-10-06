@@ -1,5 +1,5 @@
 import { Module } from '@hatsprotocol/modules-sdk';
-import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { Hex } from 'viem';
@@ -31,6 +31,11 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const isCurrentWearer = address === wearer;
+
+  const isWearing = useMemo(
+    () => _.includes(_.map(selectedHat?.wearers, 'id'), wearer),
+    [selectedHat, wearer],
+  );
 
   const claimsHatterAddress: Hex | undefined = useMemo(
     () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id'),
@@ -108,6 +113,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
     enabled:
       (isCurrentWearer || !!wearer) &&
       !!isClaimable &&
+      !isWearing &&
       !!isClaimableAdmin &&
       !!claimsHatter &&
       !!claimsHatterAddress &&
@@ -128,11 +134,13 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
           title: 'Hat claimed!',
           description: `You've claimed ${
             selectedHat?.id
-              ? `hat ID ${hatIdHexToDecimal(selectedHat?.id)}`
+              ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
               : 'this hat'
           }.`,
         },
       });
+
+      // TODO Handle clearing/updating wearer data
     },
     onError: (error) => {
       if (
@@ -154,6 +162,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
 
   return {
     claimHat: write,
+    hatterAddress: claimableForAddress || claimsHatterAddress,
     hatterIsAdmin: isClaimableAdmin,
     prepareError,
     writeError,

@@ -1,4 +1,5 @@
 import {
+  Button,
   Flex,
   Heading,
   HStack,
@@ -9,10 +10,11 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
-import { FaBan, FaCheck, FaCode } from 'react-icons/fa';
+import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
@@ -21,9 +23,13 @@ import { MODULE_TYPES } from '@/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatStatus from '@/hooks/useHatStatus';
 import useModuleDetails from '@/hooks/useModuleDetails';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
+import usePendHatterMint from '@/hooks/usePendHatterMint';
 import useToast from '@/hooks/useToast';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress } from '@/lib/general';
+import { isWearingAdminHat } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 
 const StatusCard = ({
@@ -49,8 +55,18 @@ const StatusCard = ({
     [selectedHat, status],
   );
 
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
   const { details: moduleDetails } = useModuleDetails({
     address: moduleAddress,
+  });
+
+  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck();
+
+  const { hatToMintTo, hatToMintPended } = usePendHatterMint({
+    address: instanceAddress,
   });
 
   const { data: isEligible } = useWearerEligibilityCheck({
@@ -72,6 +88,8 @@ const StatusCard = ({
       statusCheck = selectedHat?.status || false;
     }
   }
+
+  const isAdmin = isWearingAdminHat(_.map(wearerDetails, 'id'), hatToMintTo);
 
   return (
     <Stack>
@@ -132,6 +150,47 @@ const StatusCard = ({
           {statusCheck ? <FaCheck /> : <FaBan />}
         </HStack>
       </Flex>
+      {moduleDetails &&
+        status === MODULE_TYPES.eligibility &&
+        _.gt(selectedHat?.levelAtLocalTree, 1) &&
+        (!instanceAddress ? (
+          <Flex justify='space-between'>
+            <Text color='blue.300'>No hatter deployed for tree</Text>
+
+            <Tooltip
+              label='Head over to Edit Mode in the Revocation & Eligibility section to deploy a claims hatter for this hat and tree'
+              placement='left'
+              shouldWrapChildren
+            >
+              <Icon as={FaQuestionCircle} color='blue.500' />
+            </Tooltip>
+          </Flex>
+        ) : (
+          !hatterIsAdmin && (
+            <Flex justify='space-between'>
+              <Text color='blue.300'>Claims Hatter is not an admin</Text>
+              {isAdmin && hatToMintTo ? (
+                <Button
+                  size='xs'
+                  variant='outline'
+                  color='blue.500'
+                  borderColor='blue.500'
+                  isDisabled={hatToMintPended}
+                >
+                  Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to hatter
+                </Button>
+              ) : (
+                <Tooltip
+                  label='Ask an admin of claims hatter hat to mint them a hat'
+                  placement='left'
+                  shouldWrapChildren
+                >
+                  <Icon as={FaQuestionCircle} color='blue.500' />
+                </Tooltip>
+              )}
+            </Flex>
+          )
+        ))}
     </Stack>
   );
 };

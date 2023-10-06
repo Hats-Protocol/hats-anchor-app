@@ -108,9 +108,10 @@ const TopMenu = () => {
       };
     });
 
-    const hasAdminOverAllHats = _.every(hatsWithChanges, (h) =>
-      isWearingAdminHat(_.map(wearer, 'id'), h.id, false),
-    );
+    // ! gets stuck if wearer details cached after new tree deploy
+    const hasAdminOverAllHats = _.every(hatsWithChanges, (h) => {
+      return isWearingAdminHat(_.map(wearer, 'id'), h.id, false);
+    });
 
     if (hasAdminOverAllHats) {
       return true;

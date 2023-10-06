@@ -174,6 +174,8 @@ const useModuleDeploy = ({
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
+          // ? only module + hatter register `setHatClaimabilityAndCreateModule`
+
           return deployModule({
             selectedModuleDetails,
             selectedHat,

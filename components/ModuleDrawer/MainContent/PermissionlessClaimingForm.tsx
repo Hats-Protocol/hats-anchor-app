@@ -17,7 +17,7 @@ import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { formatAddress } from '@/lib/general';
-import { decimalId, idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 
 const PermissionlessClaimingForm = ({
   localForm,
@@ -127,7 +127,7 @@ const PermissionlessClaimingForm = ({
                 }}
               >
                 {_.map(parentHats, (id) => (
-                  <option value={decimalId(id)} key={id}>
+                  <option value={id} key={id}>
                     {prettyIdToIp(idToPrettyId(id))}
                   </option>
                 ))}

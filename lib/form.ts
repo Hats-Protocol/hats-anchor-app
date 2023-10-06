@@ -176,7 +176,7 @@ const processNewDetailsCallForHat = async ({
   };
 };
 
-const processWearersCallForHat = async ({
+const processWearersCallForHat = ({
   hatsClient,
   hat,
   returnData,
@@ -298,7 +298,7 @@ const processDetailsChangeCallForHat = async ({
   };
 };
 
-const processMaxSupplyChangeCallForHat = async ({
+const processMaxSupplyChangeCallForHat = ({
   hatsClient,
   hat,
   returnData,
@@ -327,7 +327,7 @@ const processMaxSupplyChangeCallForHat = async ({
   };
 };
 
-const processEligibilityChangeCallForHat = async ({
+const processEligibilityChangeCallForHat = ({
   hatsClient,
   hat,
   returnData,
@@ -356,7 +356,7 @@ const processEligibilityChangeCallForHat = async ({
   };
 };
 
-const processToggleChangeCallForHat = async ({
+const processToggleChangeCallForHat = ({
   hatsClient,
   hat,
   returnData,
@@ -385,7 +385,7 @@ const processToggleChangeCallForHat = async ({
   };
 };
 
-const processMutabilityChangeCallForHat = async ({
+const processMutabilityChangeCallForHat = ({
   hatsClient,
   hat,
   returnData,

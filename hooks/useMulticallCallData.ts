@@ -32,7 +32,6 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
     const calls = _.map(_.flatten(_.map(allCalls, 'calls') || []), 'callData');
 
     const detailsToPin = _.map(allCalls, 'detailsToPin');
-    console.log(detailsToPin);
     const detailsPromises = _.map(
       _.compact(detailsToPin),
       (hatDetails: HatPinDetails) => {

@@ -1,5 +1,6 @@
 import { Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
@@ -62,7 +63,13 @@ const ModuleParameters = ({
             </ChakraNextLink>
           );
         } else if (param.solidityType === 'uint256') {
-          if (tokenDecimals) {
+          if (param.displayType === 'hat') {
+            displayValue = (
+              <Text fontSize='sm' color='gray.500'>
+                #{hatIdDecimalToIp(param.value as bigint)}
+              </Text>
+            );
+          } else if (tokenDecimals) {
             displayValue = (
               <Text fontSize='sm' color='gray.500'>
                 {formatUnits(
