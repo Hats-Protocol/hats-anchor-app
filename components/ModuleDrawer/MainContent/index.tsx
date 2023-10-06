@@ -5,7 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 
 import Accordion from '@/components/atoms/Accordion';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { getAllParents, prettyIdToIp } from '@/lib/hats';
 import { ModuleDetails, ModuleKind } from '@/types';
 
@@ -35,7 +35,7 @@ const MainContent = ({
   }, [selectedHat, treeToDisplay, topHat]);
 
   const { multiClaimsHatter, instanceAddress, claimableHats } =
-    useCheckMultiClaimsHatter();
+    useMultiClaimsHatterCheck();
 
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHat?.detailsObject?.data?.name

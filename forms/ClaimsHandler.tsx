@@ -41,18 +41,16 @@ const ClaimsHandler = ({
   localForm,
   onOpenModuleDrawer,
   setIsStandAloneHatterDeploy,
+  moduleDetails,
 }: {
   localForm: UseFormReturn;
   onOpenModuleDrawer: () => void;
   setIsStandAloneHatterDeploy: (value: boolean) => void;
+  moduleDetails: any;
 }) => {
   const { treeToDisplay, selectedHatDetails } = useTreeForm();
   const { instanceAddress, hatterIsAdmin, wearingHat } =
     useMultiClaimsHatterCheck();
-  // const isClaimable = useMemo(
-  //   () => _.includes(claimableHats, selectedHat?.id),
-  //   [claimableHats, selectedHat?.id],
-  // );
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
   const hatToMintTo = watch('hatToMintTo');

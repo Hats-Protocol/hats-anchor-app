@@ -234,6 +234,7 @@ const HatManagementForm = ({
           extendedController?.isContract &&
           isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
             <ClaimsHandler
+              moduleDetails={moduleDetails}
               localForm={localForm}
               onOpenModuleDrawer={onOpenModuleDrawer}
               setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}

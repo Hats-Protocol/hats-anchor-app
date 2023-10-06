@@ -7,7 +7,7 @@ import { useChainId } from 'wagmi';
 import { DEPLOYMENT_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDeploy from '@/hooks/useModuleDeploy';
-import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
@@ -26,7 +26,7 @@ const TopMenu = ({
 }) => {
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
-  const { instanceAddress } = useCheckMultiClaimsHatter();
+  const { instanceAddress } = useMultiClaimsHatterCheck();
   const { watch } = localForm;
   const moduleType = watch('moduleType');
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
