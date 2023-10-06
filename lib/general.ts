@@ -116,6 +116,12 @@ export const transformInput = (
       return Number(input);
     case 'bigint':
       if (typeof input === 'string' || typeof input === 'number') {
+        const numberCheck = _.toNumber(input);
+
+        if (!_.isInteger(numberCheck)) {
+          return undefined;
+          // throw new Error('Must be an integer');
+        }
         return BigInt(input);
       }
       break;
@@ -129,6 +135,7 @@ export const transformInput = (
     case 'number[]':
       return String(input).split(',').map(Number);
     case 'bigint[]':
+      // TODO  make sure these are valid bigints
       return String(input)
         .split(',')
         .map((num) => BigInt(num.trim()));
@@ -154,6 +161,7 @@ export const transformAndVerify = (
     return true;
   }
 
+  // TODO pass a more specific error message for types
   return 'This is not a valid input!';
 };
 

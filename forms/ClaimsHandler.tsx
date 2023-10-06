@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 
@@ -46,58 +46,33 @@ const ClaimsHandler = ({
   onOpenModuleDrawer: () => void;
   setIsStandAloneHatterDeploy: (value: boolean) => void;
 }) => {
-  const { selectedHat, treeToDisplay, selectedHatDetails } = useTreeForm();
-  const { claimableHats, instanceAddress, hatterIsAdmin, wearingHat } =
+  const { treeToDisplay, selectedHatDetails } = useTreeForm();
+  const { instanceAddress, hatterIsAdmin, wearingHat } =
     useMultiClaimsHatterCheck();
-  const isClaimable = useMemo(
-    () => _.includes(claimableHats, selectedHat?.id),
-    [claimableHats, selectedHat?.id],
-  );
+  // const isClaimable = useMemo(
+  //   () => _.includes(claimableHats, selectedHat?.id),
+  //   [claimableHats, selectedHat?.id],
+  // );
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
+  const hatToMintTo = watch('hatToMintTo');
   const { availableAdmins, hatToMintPended, pendMintHatForHatter } =
     usePendHatterMint({
       address: instanceAddress,
+      hatToMintTo,
     });
 
-  const hatToMintTo = watch('hatToMintTo');
-
   useEffect(() => {
-    if (treeToDisplay) {
+    if (treeToDisplay && hatToMintPended) {
       const localHatToMintTo = _.get(_.first(availableAdmins), 'id');
-      setValue('hatToMintTo', localHatToMintTo);
+      setValue('hatToMintTo', hatToMintPended || localHatToMintTo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isClaimable) {
+  if (hatterIsAdmin) {
     return (
       <ClaimsHandlerWrapper>
-        <Text fontSize='sm' color='gray.500' mt={1}>
-          To enable permissionless claiming of this hat, deploy a claims hatter
-          contract and give that contract an admin hat in this tree.
-        </Text>
-        <Box>
-          <Button
-            leftIcon={<BsFileCode />}
-            variant='outline'
-            fontWeight='normal'
-            borderColor='blackAlpha.300'
-            onClick={() => {
-              onOpenModuleDrawer();
-              setIsStandAloneHatterDeploy(true);
-            }}
-          >
-            Deploy Claims Hatter
-          </Button>
-        </Box>
-      </ClaimsHandlerWrapper>
-    );
-  }
-
-  return (
-    <ClaimsHandlerWrapper>
-      {hatterIsAdmin ? (
         <Stack>
           <Text fontSize='sm' color='blackAlpha.700' mt={1}>
             This hat has a claims hatter contract deployed, and permissionless
@@ -114,7 +89,13 @@ const ClaimsHandler = ({
             </Text>
           )}
         </Stack>
-      ) : (
+      </ClaimsHandlerWrapper>
+    );
+  }
+
+  if (!hatterIsAdmin) {
+    return (
+      <ClaimsHandlerWrapper>
         <Stack>
           <Text>
             A claims hatter exists at{' '}
@@ -128,13 +109,13 @@ const ClaimsHandler = ({
               </option>
             ))}
           </Select>
-          {hatToMintTo && (
+          {(hatToMintTo || hatToMintPended) && (
             <Flex justify='end'>
               <Tooltip
                 label={
                   hatToMintPended &&
                   `Mint pended for hatter on hat #${hatIdDecimalToIp(
-                    BigInt(hatToMintTo),
+                    BigInt(hatToMintPended || hatToMintTo),
                   )}`
                 }
                 placement='left'
@@ -144,17 +125,41 @@ const ClaimsHandler = ({
                   color='blue.500'
                   borderColor='blue.500'
                   variant='outline'
-                  isDisabled={!hatToMintTo || hatToMintPended}
+                  isDisabled={!hatToMintTo || !!hatToMintPended}
                   onClick={pendMintHatForHatter}
                 >
-                  Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to{' '}
+                  Mint{' '}
+                  {hatIdDecimalToIp(BigInt(hatToMintPended || hatToMintTo))} to{' '}
                   {formatAddress(instanceAddress)}
                 </Button>
               </Tooltip>
             </Flex>
           )}
         </Stack>
-      )}
+      </ClaimsHandlerWrapper>
+    );
+  }
+
+  return (
+    <ClaimsHandlerWrapper>
+      <Text fontSize='sm' color='gray.500' mt={1}>
+        To enable permissionless claiming of this hat, deploy a claims hatter
+        contract and give that contract an admin hat in this tree.
+      </Text>
+      <Box>
+        <Button
+          leftIcon={<BsFileCode />}
+          variant='outline'
+          fontWeight='normal'
+          borderColor='blackAlpha.300'
+          onClick={() => {
+            onOpenModuleDrawer();
+            setIsStandAloneHatterDeploy(true);
+          }}
+        >
+          Deploy Claims Hatter
+        </Button>
+      </Box>
     </ClaimsHandlerWrapper>
   );
 };

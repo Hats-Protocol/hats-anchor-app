@@ -67,9 +67,10 @@ const StatusCard = ({
 
   const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck();
 
-  const { hatToMintTo, hatToMintPended } = usePendHatterMint({
-    address: instanceAddress,
-  });
+  const { hatToMintTo, hatToMintPended, pendMintHatForHatter } =
+    usePendHatterMint({
+      address: instanceAddress,
+    });
 
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
@@ -175,15 +176,27 @@ const StatusCard = ({
             <Flex justify='space-between'>
               <Text color='blue.300'>Claims Hatter is not an admin</Text>
               {isAdmin && hatToMintTo ? (
-                <Button
-                  size='xs'
-                  variant='outline'
-                  color='blue.500'
-                  borderColor='blue.500'
-                  isDisabled={hatToMintPended}
+                <Tooltip
+                  label={
+                    hatToMintPended &&
+                    `Mint pended for hatter on hat #${hatIdDecimalToIp(
+                      BigInt(hatToMintTo),
+                    )} `
+                  }
+                  placement='left'
+                  shouldWrapChildren
                 >
-                  Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to hatter
-                </Button>
+                  <Button
+                    size='xs'
+                    variant='outline'
+                    color='blue.500'
+                    borderColor='blue.500'
+                    isDisabled={hatToMintPended}
+                    onClick={pendMintHatForHatter}
+                  >
+                    Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to hatter
+                  </Button>
+                </Tooltip>
               ) : (
                 <Tooltip
                   label='Ask an admin of claims hatter hat to mint them a hat'

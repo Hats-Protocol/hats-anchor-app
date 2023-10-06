@@ -72,7 +72,7 @@ const HatManagementForm = ({
   criteriaConfig,
 }: HatManagementFormProps) => {
   const [isAContract, setIsAContract] = useState(false);
-  const { watch, control, setValue, getValues } = localForm;
+  const { watch, control, setValue, getValues, reset } = localForm;
   const { selectedHat, chainId } = useTreeForm();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
@@ -148,6 +148,20 @@ const HatManagementForm = ({
     localForm.setValue(title, value);
   };
 
+  const newAddress = watch(title);
+  const formValues = getValues();
+
+  // ? better way to handle checking "manual/automatic" radio box?
+  useEffect(() => {
+    if (moduleDetails) {
+      reset({
+        ...formValues,
+        isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleDetails]);
+
   return (
     <form>
       <Stack spacing={8}>
@@ -157,6 +171,7 @@ const HatManagementForm = ({
             name={radioBoxConfig.name}
             label={radioBoxConfig.label}
             subLabel={radioBoxConfig.subLabel}
+            // defaultValue={moduleDetails && TRIGGER_OPTIONS.AUTOMATICALLY}
             localForm={localForm}
             options={options}
           />
@@ -185,7 +200,7 @@ const HatManagementForm = ({
               {moduleDetails && (
                 <ChakraNextLink
                   href={`${explorerUrl(chainId)}/address/${
-                    selectedHat?.[title]
+                    newAddress || selectedHat?.[title]
                   }`}
                   isExternal
                 >
