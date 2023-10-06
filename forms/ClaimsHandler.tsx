@@ -47,7 +47,7 @@ const ClaimsHandler = ({
   setIsStandAloneHatterDeploy: (value: boolean) => void;
 }) => {
   const { selectedHat, treeToDisplay, selectedHatDetails } = useTreeForm();
-  const { claimableHats, instanceAddress, hatterIsAdmin } =
+  const { claimableHats, instanceAddress, hatterIsAdmin, wearingHat } =
     useMultiClaimsHatterCheck();
   const isClaimable = useMemo(
     () => _.includes(claimableHats, selectedHat?.id),
@@ -99,17 +99,20 @@ const ClaimsHandler = ({
     <ClaimsHandlerWrapper>
       {hatterIsAdmin ? (
         <Stack>
-          <Text fontSize='sm' color='gray.500' mt={1}>
+          <Text fontSize='sm' color='blackAlpha.700' mt={1}>
             This hat has a claims hatter contract deployed, and permissionless
             claiming is enabled. Potential wearers will be able to claim this
             hat if they meet the requirements in this hat&quot;s accountability
             module.
           </Text>
-          <Text>
-            Claims hatter contract <Code>{formatAddress(instanceAddress)}</Code>
-            is wearing hat {hatIdDecimalToIp(BigInt(hatToMintTo))}{' '}
-            {selectedHatDetails?.name}
-          </Text>
+          {wearingHat && instanceAddress && (
+            <Text fontSize='sm' color='gray.500'>
+              🧢 Claims hatter contract{' '}
+              <Code fontSize='xs'>{formatAddress(instanceAddress)}</Code> is
+              wearing hat {hatIdDecimalToIp(BigInt(wearingHat))} (
+              {selectedHatDetails?.name})
+            </Text>
+          )}
         </Stack>
       ) : (
         <Stack>

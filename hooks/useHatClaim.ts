@@ -32,8 +32,8 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
   const { handlePendingTx } = useOverlay();
   const isCurrentWearer = address === wearer;
 
-  const isNotWearing = useMemo(
-    () => _.isEmpty(_.filter(selectedHat?.wearers, { id: wearer })),
+  const isWearing = useMemo(
+    () => _.includes(_.map(selectedHat?.wearers, 'id'), wearer),
     [selectedHat, wearer],
   );
 
@@ -113,7 +113,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
     enabled:
       (isCurrentWearer || !!wearer) &&
       !!isClaimable &&
-      !isNotWearing &&
+      !isWearing &&
       !!isClaimableAdmin &&
       !!claimsHatter &&
       !!claimsHatterAddress &&

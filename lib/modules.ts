@@ -190,7 +190,7 @@ export const processClaimsHatter = ({
   adminHat,
 }: {
   claimsHatterAddress: Hex;
-  storedData: any;
+  storedData: Partial<FormData>[] | undefined;
   adminHat: Hex;
 }) => {
   const adminId = decimalIdToId(adminHat);
@@ -231,7 +231,7 @@ export const prepareDeployModuleWithoutClaimsHatterArgs = ({
 }: {
   selectedModuleDetails?: ModuleDetails;
   isLocalFormValid: boolean;
-  values: any;
+  values: { [key: string]: unknown };
   hatId: bigint;
 }) => {
   let encodedImmutableArgs: string | undefined;

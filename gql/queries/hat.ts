@@ -76,6 +76,7 @@ export const GET_HATTERS_FOR_HATS = gql`
       id
       claimableBy {
         id
+        # wearing hats?
       }
     }
     # something like this doesn't work?

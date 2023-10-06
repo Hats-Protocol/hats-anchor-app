@@ -21,9 +21,9 @@ import { useAccount } from 'wagmi';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { MODULE_TYPES } from '@/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatClaim from '@/hooks/useHatClaim';
 import useHatStatus from '@/hooks/useHatStatus';
 import useModuleDetails from '@/hooks/useModuleDetails';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import usePendHatterMint from '@/hooks/usePendHatterMint';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -63,10 +63,10 @@ const StatusCard = ({
     address: moduleAddress,
   });
 
-  const { hatterAddress, hatterIsAdmin } = useHatClaim({ wearer: address });
+  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck();
 
   const { hatToMintTo, hatToMintPended } = usePendHatterMint({
-    address: hatterAddress,
+    address: instanceAddress,
   });
 
   const { data: isEligible } = useWearerEligibilityCheck({
@@ -151,32 +151,46 @@ const StatusCard = ({
         </HStack>
       </Flex>
       {moduleDetails &&
-        !hatterIsAdmin &&
         status === MODULE_TYPES.eligibility &&
-        _.gt(selectedHat?.levelAtLocalTree, 1) && (
+        _.gt(selectedHat?.levelAtLocalTree, 1) &&
+        (!instanceAddress ? (
           <Flex justify='space-between'>
-            <Text color='blue.300'>Claims Hatter is not an admin</Text>
-            {isAdmin && hatToMintTo ? (
-              <Button
-                size='xs'
-                variant='outline'
-                color='blue.500'
-                borderColor='blue.500'
-                isDisabled={hatToMintPended}
-              >
-                Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to hatter
-              </Button>
-            ) : (
-              <Tooltip
-                label='Ask an admin of claims hatter hat to mint them a hat'
-                placement='left'
-                shouldWrapChildren
-              >
-                <Icon as={FaQuestionCircle} color='blue.500' />
-              </Tooltip>
-            )}
+            <Text color='blue.300'>No hatter deployed for tree</Text>
+
+            <Tooltip
+              label='Head over to Edit Mode in the Revocation & Eligibility section to deploy a claims hatter for this hat and tree'
+              placement='left'
+              shouldWrapChildren
+            >
+              <Icon as={FaQuestionCircle} color='blue.500' />
+            </Tooltip>
           </Flex>
-        )}
+        ) : (
+          !hatterIsAdmin && (
+            <Flex justify='space-between'>
+              <Text color='blue.300'>Claims Hatter is not an admin</Text>
+              {isAdmin && hatToMintTo ? (
+                <Button
+                  size='xs'
+                  variant='outline'
+                  color='blue.500'
+                  borderColor='blue.500'
+                  isDisabled={hatToMintPended}
+                >
+                  Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to hatter
+                </Button>
+              ) : (
+                <Tooltip
+                  label='Ask an admin of claims hatter hat to mint them a hat'
+                  placement='left'
+                  shouldWrapChildren
+                >
+                  <Icon as={FaQuestionCircle} color='blue.500' />
+                </Tooltip>
+              )}
+            </Flex>
+          )
+        ))}
     </Stack>
   );
 };
