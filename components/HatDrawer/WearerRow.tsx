@@ -101,6 +101,12 @@ const WearerRow = ({
     icon = <Icon as={BsFileCode} color='gray.500' />;
   }
 
+  // could look up by Id to be more resilient?
+  let moduleName = _.get(moduleDetails, 'name');
+  if (moduleName === 'Multi Claims Hatter') {
+    moduleName = 'Autonomous Admin';
+  }
+
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
       <Flex
@@ -114,7 +120,7 @@ const WearerRow = ({
 
         <Text>
           {_.get(wearer, 'ensName') ||
-            _.get(moduleDetails, 'name') ||
+            moduleName ||
             formatAddress(_.get(wearer, 'id'))}
         </Text>
       </Flex>

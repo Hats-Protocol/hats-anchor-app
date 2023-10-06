@@ -61,6 +61,9 @@ const Select = ({
         )}
         <ChakraSelect
           {...register(name, { ...options, validate: options?.validate })}
+          bg='white'
+          color='gray.700'
+          iconColor='gray.400'
           {...props}
         >
           {children}

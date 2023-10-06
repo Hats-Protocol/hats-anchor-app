@@ -16,9 +16,11 @@ import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
+import { TbCircleOff } from 'react-icons/tb';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { MODULE_TYPES } from '@/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatStatus from '@/hooks/useHatStatus';
@@ -91,6 +93,13 @@ const StatusCard = ({
 
   const isAdmin = isWearingAdminHat(_.map(wearerDetails, 'id'), hatToMintTo);
 
+  let icon = FaCode;
+  if (statusData?.id === FALLBACK_ADDRESS || statusData?.id === ZERO_ADDRESS) {
+    icon = TbCircleOff;
+  } else if (!statusData?.isContract) {
+    icon = BsPersonBadge;
+  }
+
   return (
     <Stack>
       <Flex justifyContent='space-between'>
@@ -125,11 +134,7 @@ const StatusCard = ({
               isExternal
             >
               <HStack>
-                {isAContract ? (
-                  <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
-                ) : (
-                  <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
-                )}
+                <Icon as={icon} ml={2} w={4} h={4} color='gray.500' />
                 <Text color='gray.500' fontSize='sm'>
                   {moduleDetails
                     ? moduleDetails.name

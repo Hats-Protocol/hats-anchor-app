@@ -154,7 +154,7 @@ export const TreeFormContextProvider = ({
     ipToHatId(initialHatId) || _.get(initialTopHat, 'id'),
   );
   const [editMode, setEditMode] = useState(false);
-  const [showInactiveHats, setShowInactiveHats] = useState<boolean>(true);
+  const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
   );

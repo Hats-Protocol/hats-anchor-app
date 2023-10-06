@@ -1,5 +1,6 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { Module } from '@hatsprotocol/modules-sdk';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -132,10 +133,11 @@ const PermissionlessClaimingForm = ({
                   </option>
                 ))}
               </Select>
-              {adminHat && (
+              {adminHat && selectedHat && (
                 <Text color='blackAlpha.600'>
-                  Potential wearers will be able to claim this hat if they meet
-                  the requirements in new module above.
+                  Potential wearers will be able to claim this hat (#
+                  {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the
+                  requirements in new module above.
                 </Text>
               )}
             </Stack>
