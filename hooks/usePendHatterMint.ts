@@ -9,7 +9,7 @@ const usePendHatterMint = ({
   hatToMintTo,
 }: {
   address?: Hex;
-  hatToMintTo: Hex;
+  hatToMintTo?: Hex;
 }) => {
   const { treeToDisplay, selectedHat, storedData, setStoredData } =
     useTreeForm();

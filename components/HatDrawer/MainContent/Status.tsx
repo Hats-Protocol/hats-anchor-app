@@ -191,7 +191,7 @@ const StatusCard = ({
                     variant='outline'
                     color='blue.500'
                     borderColor='blue.500'
-                    isDisabled={hatToMintPended}
+                    isDisabled={!!hatToMintPended}
                     onClick={pendMintHatForHatter}
                   >
                     Mint {hatIdDecimalToIp(BigInt(hatToMintTo))} to hatter
