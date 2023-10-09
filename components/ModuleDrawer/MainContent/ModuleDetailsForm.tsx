@@ -29,6 +29,7 @@ const ModuleDetailsForm = ({
 }) => {
   const { onchainHats, treeToDisplay } = useTreeForm();
   const { modules } = useHatsModules();
+  console.log('modules', modules);
   const { watch } = localForm;
   const selectedModuleType = watch('moduleType', '');
 
