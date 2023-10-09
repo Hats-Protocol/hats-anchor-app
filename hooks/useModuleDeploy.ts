@@ -129,6 +129,8 @@ const useModuleDeploy = ({
               updatedHatsWithClaimsHatter,
               'id',
             );
+            console.log(instanceAddress);
+            console.log(updatedHats);
             setStoredData?.(updatedHats);
 
             toast.success({
@@ -136,7 +138,7 @@ const useModuleDeploy = ({
               description: instanceAddress
                 ? `Module ${selectedModuleDetails?.name} has been successfully deployed!`
                 : `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
-              duration: 1500,
+              duration: 2500,
             });
           }
           break;
