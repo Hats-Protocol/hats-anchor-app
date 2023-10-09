@@ -34,10 +34,10 @@ const useModuleDeploy = ({
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   updateFormAfterDeploy: ({
-    instanceAddress: address,
+    address,
     incrementWearers,
   }: {
-    instanceAddress?: string;
+    address?: string;
     incrementWearers?: boolean;
   }) => void;
   deploymentType: DeploymentType;
@@ -87,7 +87,9 @@ const useModuleDeploy = ({
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE:
           if (data?.newInstance && selectedModuleDetails) {
-            updateFormAfterDeploy(data?.newInstance);
+            updateFormAfterDeploy({
+              address: data?.newInstance,
+            });
             const updatedHats = processModule({
               moduleAddress: data?.newInstance,
               storedData,
@@ -106,7 +108,7 @@ const useModuleDeploy = ({
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
             updateFormAfterDeploy({
-              instanceAddress: data?.newInstance,
+              address: data?.newInstance,
               incrementWearers: values?.incrementWearers,
             });
 
@@ -139,6 +141,9 @@ const useModuleDeploy = ({
           break;
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
+          updateFormAfterDeploy({
+            incrementWearers: values?.incrementWearers,
+          });
           const updatedHats = processClaimsHatter({
             claimsHatterAddress: data?.newInstance,
             storedData,

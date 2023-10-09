@@ -145,14 +145,14 @@ const HatManagementForm = ({
   } = useDisclosure();
 
   const updateFormAfterDeploy = ({
-    instanceAddress,
+    address,
     incrementWearers,
   }: {
-    instanceAddress?: string;
+    address?: string;
     incrementWearers?: boolean;
   }) => {
-    if (instanceAddress) {
-      localForm.setValue(title, instanceAddress);
+    if (address) {
+      localForm.setValue(title, address);
     }
     if (incrementWearers) {
       const maxSupply = getValues('maxSupply');

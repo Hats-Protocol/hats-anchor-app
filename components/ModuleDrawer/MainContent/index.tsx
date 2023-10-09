@@ -26,8 +26,14 @@ const MainContent = ({
   setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
   isStandaloneHatterDeploy?: boolean;
 }) => {
-  const { onchainHats, treeToDisplay, topHat, selectedHat, topHatDetails } =
-    useTreeForm();
+  const {
+    onchainHats,
+    treeToDisplay,
+    topHat,
+    selectedHat,
+    selectedHatDetails,
+    topHatDetails,
+  } = useTreeForm();
 
   const parentHats = useMemo(() => {
     const parents = getAllParents(selectedHat?.id, treeToDisplay);
@@ -37,7 +43,7 @@ const MainContent = ({
   const { claimableHats } = useMultiClaimsHatterCheck();
 
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
-    selectedHat?.detailsObject?.data?.name
+    selectedHatDetails?.name
   })`;
 
   if (!onchainHats || !treeToDisplay) return null;

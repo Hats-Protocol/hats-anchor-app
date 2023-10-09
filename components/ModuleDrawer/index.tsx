@@ -16,10 +16,10 @@ const ModuleDrawer = ({
   isStandaloneHatterDeploy,
 }: {
   updateFormAfterDeploy: ({
-    instanceAddress,
+    address,
     incrementWearers,
   }: {
-    instanceAddress?: string;
+    address?: string;
     incrementWearers?: boolean;
   }) => void;
   onCloseModuleDrawer: () => void;

@@ -20,10 +20,10 @@ const TopMenu = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   updateFormAfterDeploy: ({
-    instanceAddress,
+    address,
     incrementWearers,
   }: {
-    instanceAddress?: string;
+    address?: string;
     incrementWearers?: boolean;
   }) => void;
   onCloseModuleDrawer: () => void;
