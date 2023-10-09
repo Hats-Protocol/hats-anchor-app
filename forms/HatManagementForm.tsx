@@ -144,8 +144,20 @@ const HatManagementForm = ({
     isOpen: isOpenModuleDrawer,
   } = useDisclosure();
 
-  const updateModuleAddress = (value: string) => {
-    localForm.setValue(title, value);
+  const updateFormAfterDeploy = ({
+    instanceAddress,
+    incrementWearers,
+  }: {
+    instanceAddress?: string;
+    incrementWearers?: boolean;
+  }) => {
+    if (instanceAddress) {
+      localForm.setValue(title, instanceAddress);
+    }
+    if (incrementWearers) {
+      const maxSupply = getValues('maxSupply');
+      localForm.setValue('maxSupply', maxSupply + 1);
+    }
   };
 
   const newAddress = watch(title);
@@ -234,7 +246,6 @@ const HatManagementForm = ({
           extendedController?.isContract &&
           isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
             <ClaimsHandler
-              moduleDetails={moduleDetails}
               localForm={localForm}
               onOpenModuleDrawer={onOpenModuleDrawer}
               setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
@@ -293,7 +304,7 @@ const HatManagementForm = ({
             <Suspense fallback={<Suspender />}>
               <ModuleDrawer
                 onCloseModuleDrawer={onCloseModuleDrawer}
-                updateModuleAddress={updateModuleAddress}
+                updateFormAfterDeploy={updateFormAfterDeploy}
                 isStandaloneHatterDeploy={isStandaloneHatterDeploy}
                 title={title}
               />

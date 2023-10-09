@@ -14,7 +14,6 @@ const WearerHatCard = ({ hat }: { hat: Hat }) => {
 
   const { data: topHat } = useHatDetails({
     hatId: getTreeId(_.get(hat, 'id'), true),
-    chainId: _.get(hat, 'chainId'),
   });
   const { data: topHatDetails } = useHatDetailsField(_.get(topHat, 'details'));
 

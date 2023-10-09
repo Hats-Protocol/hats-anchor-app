@@ -24,10 +24,12 @@ const useMultiClaimsHatterCheck = () => {
   const [wearingHat, setWearingHat] = useState<Hex | undefined>();
 
   const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
+  console.log('allHatIds', allHatIds);
 
   const fetchHatters = async () => {
     if (!chainId || !allHatIds) return undefined;
     const result = await fetchHattersHelper(chainId, allHatIds);
+    console.log('result', result);
     return result;
   };
 
@@ -36,6 +38,7 @@ const useMultiClaimsHatterCheck = () => {
     queryFn: fetchHatters,
     enabled: !!allHatIds,
   });
+  console.log('data', data);
 
   const claimableHats: Hex[] | undefined = useMemo(() => {
     if (!data) return undefined;

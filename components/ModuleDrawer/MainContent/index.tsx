@@ -34,8 +34,7 @@ const MainContent = ({
     return _.filter(parents, (parent) => parent !== topHat?.id);
   }, [selectedHat, treeToDisplay, topHat]);
 
-  const { multiClaimsHatter, instanceAddress, claimableHats } =
-    useMultiClaimsHatterCheck();
+  const { claimableHats } = useMultiClaimsHatterCheck();
 
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHat?.detailsObject?.data?.name
@@ -91,8 +90,6 @@ const MainContent = ({
           <PermissionlessClaimingForm
             localForm={localForm}
             parentHats={parentHats}
-            multiClaimsHatter={multiClaimsHatter}
-            instanceAddress={instanceAddress}
             isClaimable={_.includes(claimableHats, selectedHat?.id)}
           />
         </Accordion>

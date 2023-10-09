@@ -12,14 +12,20 @@ import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
-  updateModuleAddress,
+  updateFormAfterDeploy,
   onCloseModuleDrawer,
   selectedModuleDetails,
   isStandaloneHatterDeploy,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  updateModuleAddress: (value: string) => void;
+  updateFormAfterDeploy: ({
+    instanceAddress,
+    incrementWearers,
+  }: {
+    instanceAddress?: string;
+    incrementWearers?: boolean;
+  }) => void;
   onCloseModuleDrawer: () => void;
   selectedModuleDetails?: ModuleDetails;
   isStandaloneHatterDeploy?: boolean;
@@ -44,7 +50,7 @@ const TopMenu = ({
     localForm,
     selectedModuleDetails,
     onCloseModuleDrawer,
-    updateModuleAddress,
+    updateFormAfterDeploy,
     deploymentType,
     instanceAddress,
   });

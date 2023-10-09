@@ -17,20 +17,18 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatDetails from '@/hooks/useHatDetails';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { formatAddress } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 
 const PermissionlessClaimingForm = ({
   localForm,
   parentHats,
-  multiClaimsHatter,
-  instanceAddress,
   isClaimable = false,
 }: {
   localForm: UseFormReturn;
   parentHats?: Hex[];
-  multiClaimsHatter?: Module | null;
-  instanceAddress?: Hex;
   isClaimable?: boolean;
 }) => {
   const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
@@ -38,6 +36,15 @@ const PermissionlessClaimingForm = ({
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
   );
+
+  const { multiClaimsHatter, instanceAddress } = useMultiClaimsHatterCheck();
+  console.log('adminHat', adminHat);
+
+  const { data: wearingHatDetails } = useHatDetails({
+    hatId: String(adminHat),
+  });
+  console.log('hatDetails', wearingHatDetails);
+
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,18 +58,18 @@ const PermissionlessClaimingForm = ({
 
   if (!onchainHats || !treeToDisplay) return null;
 
-  if (isClaimable) {
-    return (
-      <Stack spacing={12}>
-        <Text>
-          This hat is already claimable via{' '}
-          <ChakraNextLink href={`/wearers/${instanceAddress}`} isExternal>
-            <Code>{formatAddress(instanceAddress)}</Code>
-          </ChakraNextLink>
-        </Text>
-      </Stack>
-    );
-  }
+  // if (isClaimable) {
+  //   return (
+  //     <Stack spacing={12}>
+  //       <Text>
+  //         This hat is already claimable via{' '}
+  //         <ChakraNextLink href={`/wearers/${instanceAddress}`} isExternal>
+  //           <Code>{formatAddress(instanceAddress)}</Code>
+  //         </ChakraNextLink>
+  //       </Text>
+  //     </Stack>
+  //   );
+  // }
 
   return (
     <Stack spacing={12}>
@@ -145,7 +152,8 @@ const PermissionlessClaimingForm = ({
         </Stack>
       )}
 
-      {selectedHat?.wearers === selectedHat?.maxSupply && (
+      {wearingHatDetails?.wearers?.length ===
+        Number(wearingHatDetails?.maxSupply) && (
         <FormRowWrapper>
           <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
           <Stack>
@@ -157,8 +165,8 @@ const PermissionlessClaimingForm = ({
               options={[
                 {
                   label: `Yes — increase max wearers from ${
-                    selectedHat?.maxSupply
-                  } to ${Number(selectedHat?.maxSupply) + 1}`,
+                    wearingHatDetails?.maxSupply
+                  } to ${Number(wearingHatDetails?.maxSupply) + 1}`,
                   value: 'Yes',
                 },
                 {

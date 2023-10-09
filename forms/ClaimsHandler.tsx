@@ -41,12 +41,10 @@ const ClaimsHandler = ({
   localForm,
   onOpenModuleDrawer,
   setIsStandAloneHatterDeploy,
-  moduleDetails,
 }: {
   localForm: UseFormReturn;
   onOpenModuleDrawer: () => void;
   setIsStandAloneHatterDeploy: (value: boolean) => void;
-  moduleDetails: any;
 }) => {
   const { treeToDisplay, selectedHatDetails } = useTreeForm();
   const { instanceAddress, hatterIsAdmin, wearingHat } =
