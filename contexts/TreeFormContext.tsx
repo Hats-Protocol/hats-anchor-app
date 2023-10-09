@@ -294,7 +294,7 @@ export const TreeFormContextProvider = ({
       (h) => {
         const prettyId = _.get(h, 'prettyId');
         if (!prettyId) return '';
-        return _.replace(prettyId, '.', '');
+        return prettyId;
       },
     );
     const inactiveAncestors = _.filter(orgChartTree, (hat) =>
@@ -302,7 +302,10 @@ export const TreeFormContextProvider = ({
     );
 
     return _.reject(orgChartTree, (h) =>
-      _.includes(_.map(inactiveAncestors, 'id'), h.id),
+      _.includes(
+        _.concat(inactiveHats, _.map(inactiveAncestors, 'id')),
+        h.prettyId,
+      ),
     );
   }, [orgChartTree, showInactiveHats]);
 
