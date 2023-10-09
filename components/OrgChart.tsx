@@ -147,7 +147,7 @@ const OrgChartComponent: React.FC = () => {
                 // wait to center. node doesn't exist right away
                 setTimeout(() => {
                   centerChart(chart, newId);
-                }, 100);
+                }, 500);
               } else {
                 centerChart(chart, data.data?.id);
                 handleSelectHat?.(data.data?.id);

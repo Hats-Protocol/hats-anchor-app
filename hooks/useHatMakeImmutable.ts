@@ -38,6 +38,7 @@ const useHatMakeImmutable = ({
       Boolean(decimalId(selectedHatId)) &&
       !!mutable &&
       _.gt(levelAtLocalTree, 0) &&
+      // TODO hat is onchain
       !!isAdminUser &&
       chainId === currentNetworkId,
   });
