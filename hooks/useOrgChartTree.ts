@@ -85,7 +85,7 @@ const useOrgChartTree = ({
       !!imagesData &&
       imagesLoaded &&
       detailsLoaded,
-    staleTime: 1000 * 60 * 15, // 15 minutes
+    staleTime: 1000 * 60 * 30, // 30 minutes
     // refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
   });
 

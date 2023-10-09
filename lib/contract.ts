@@ -51,12 +51,9 @@ export const extendControllers = (
   controller: Hex,
   controllersInfo: HatWearer[] | undefined,
 ) => {
-  const controllerInfo = _.find(controllersInfo, { id: controller });
+  const controllerInfo = _.find(controllersInfo, { id: _.toLower(controller) });
 
-  return {
-    id: controller,
-    ...controllerInfo,
-  };
+  return controllerInfo as HatWearer;
 };
 
 export const checkENSNames = async (wearers: HatWearer[]) => {

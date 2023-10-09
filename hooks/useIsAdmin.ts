@@ -5,11 +5,12 @@ import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
 const useIsAdmin = (address: Hex | undefined, hatId?: Hex) => {
-  const { selectedHat } = useTreeForm();
+  const { selectedHat, chainId } = useTreeForm();
 
   const { data: isAdmin } = useContractRead({
     address: CONFIG.hatsAddress,
     abi: CONFIG.hatsAbi,
+    chainId,
     functionName: 'isAdminOfHat',
     args: [address, hatId || selectedHat?.id],
     enabled: !!address && !!selectedHat?.id,

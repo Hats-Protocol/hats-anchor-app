@@ -71,15 +71,25 @@ const EditMode = ({
     'eligibility',
     'toggle',
   ]);
-  const { maxSupply, eligibility, toggle, mutable, imageUrl, imageUri } =
-    _.pick(selectedHat, [
-      'maxSupply',
-      'eligibility',
-      'toggle',
-      'mutable',
-      'imageUrl',
-      'imageUri',
-    ]);
+  const {
+    maxSupply,
+    eligibility,
+    extendedEligibility,
+    toggle,
+    extendedToggle,
+    mutable,
+    imageUrl,
+    imageUri,
+  } = _.pick(selectedHat, [
+    'maxSupply',
+    'eligibility',
+    'extendedEligibility',
+    'toggle',
+    'extendedToggle',
+    'mutable',
+    'imageUrl',
+    'imageUri',
+  ]);
 
   const defaultFormValues = useMemo<FormData>(() => {
     if (isDraft) {
@@ -233,6 +243,7 @@ const EditMode = ({
         ...prev,
         ...updatedControllers,
       }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligibilityResolvedAddress, toggleResolvedAddress]);
 
   useEffect(() => {
@@ -254,6 +265,7 @@ const EditMode = ({
       setUnsavedData(dirtyFormData);
       prevAllFormData.current = allFormData;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allFormData, getDirtyFields]);
 
   useEffect(() => {
@@ -279,6 +291,7 @@ const EditMode = ({
 
       setUnsavedData(dirtyFormData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newImageURI, imageUri]);
 
   const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
@@ -410,7 +423,7 @@ const EditMode = ({
           <Stack spacing={4}>
             <HatManagementForm
               localForm={localForm}
-              address={eligibility}
+              extendedController={extendedEligibility}
               actionResolvedAddress={eligibilityResolvedAddress}
               title='eligibility'
               formName='revocationsCriteria'
@@ -447,7 +460,7 @@ const EditMode = ({
                 ],
               }}
               criteriaConfig={{
-                label: 'ACTIVATION REQUIREMENTS',
+                label: 'ACCOUNTABILITY REQUIREMENTS',
                 description:
                   'A written description of the logic in the Accountability Contract',
               }}
@@ -465,7 +478,7 @@ const EditMode = ({
           <Stack spacing={4}>
             <HatManagementForm
               localForm={localForm}
-              address={toggle}
+              extendedController={extendedToggle}
               actionResolvedAddress={toggleResolvedAddress}
               title='toggle'
               formName='deactivationsCriteria'

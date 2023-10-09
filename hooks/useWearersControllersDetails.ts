@@ -13,6 +13,14 @@ const fetchWearerAndControllerDetails = async (
 ) => {
   if (!wearer || !chainId) return undefined;
 
+  if (wearer === FALLBACK_ADDRESS || wearer === ZERO_ADDRESS) {
+    return {
+      id: wearer,
+      isContract: false,
+      ensName: '',
+    };
+  }
+
   const data = await Promise.all([
     checkAddressIsContract(wearer, chainId),
     fetchEnsName({
@@ -46,8 +54,8 @@ const useWearersControllersDetails = ({
       _.reject(
         _.concat(
           _.map(_.flatten(_.map(hats, 'wearers')), 'id'),
-          _.map(_.flatten(_.map(hats, 'toggle')), 'id'),
-          _.map(_.flatten(_.map(hats, 'eligibility')), 'id'),
+          _.flatten(_.map(hats, 'toggle')), // not nested in objects here
+          _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
         ),
         ZERO_ADDRESS || FALLBACK_ADDRESS,
       ),
@@ -61,7 +69,7 @@ const useWearersControllersDetails = ({
       enabled: !!w && isAddress(w) && !!chainId,
     })),
   });
-  const isLoaded = _.every(wearerAndControllerDetails, 'isSuccess');
+  const isLoaded = _.every(wearerAndControllerDetails, ['fetchStatus', 'idle']);
 
   if (!isLoaded || !_.eq(_.size(wearerAndControllerDetails), _.size(wAndCs)))
     return undefined;

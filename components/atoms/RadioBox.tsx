@@ -28,6 +28,7 @@ interface RadioBoxProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options?: RadioOption[];
+  defaultValue?: string;
   isRequired?: boolean;
   helperText?: string;
   tooltip?: string;
@@ -40,6 +41,7 @@ const RadioBox = ({
   label,
   localForm,
   options,
+  defaultValue,
   isRequired,
   helperText,
   tooltip,
@@ -92,7 +94,11 @@ const RadioBox = ({
           control={control}
           name={name}
           render={({ field }) => (
-            <RadioGroup isDisabled={isDisabled} {...field}>
+            <RadioGroup
+              isDisabled={isDisabled}
+              defaultValue={defaultValue}
+              {...field}
+            >
               <HStack spacing={4}>
                 {options?.map((option) => (
                   <Radio key={option.value} value={option.value}>

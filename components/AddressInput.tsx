@@ -10,6 +10,7 @@ type AddressInputProps = {
   label: string;
   subLabel: string | ReactNode;
   // docsLink?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
   isDisabled: boolean;

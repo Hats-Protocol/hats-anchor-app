@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
@@ -60,6 +61,7 @@ const Input = ({
     const errorMessage = errors[name]?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
+  const isError = !!getErrorMessage();
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
@@ -92,7 +94,7 @@ const Input = ({
             type={type}
             {...register(name, { ...options, validate: options?.validate })}
             {...props}
-            borderColor={isDirty ? 'cyan.500' : undefined}
+            borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
           {isDirty && (

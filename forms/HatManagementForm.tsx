@@ -9,7 +9,6 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
@@ -37,14 +36,14 @@ import useModuleDetails from '@/hooks/useModuleDetails';
 import { checkAddressIsContract } from '@/lib/contract';
 import { isMutable } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
-import { DetailsItem, ModuleKind } from '@/types';
+import { DetailsItem, HatWearer, ModuleKind } from '@/types';
 
 import ClaimsHandler from './ClaimsHandler';
 
 interface HatManagementFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  address: Hex | undefined; // eligibility or toggle
+  extendedController: HatWearer | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
   title: ModuleKind;
   formName: string;
@@ -62,10 +61,9 @@ interface HatManagementFormProps {
     description: string;
   };
 }
-
 const HatManagementForm = ({
   localForm,
-  address,
+  extendedController,
   actionResolvedAddress,
   title,
   formName,
@@ -74,7 +72,7 @@ const HatManagementForm = ({
   criteriaConfig,
 }: HatManagementFormProps) => {
   const [isAContract, setIsAContract] = useState(false);
-  const { watch, control, setValue, getValues } = localForm;
+  const { watch, control, setValue, getValues, reset } = localForm;
   const { selectedHat, chainId } = useTreeForm();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
@@ -89,7 +87,7 @@ const HatManagementForm = ({
   const moduleAddress = getValues(title);
 
   const showActionResolvedAddress =
-    actionResolvedAddress && actionResolvedAddress !== address;
+    actionResolvedAddress && actionResolvedAddress !== extendedController?.id;
 
   const options = [
     { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
@@ -150,6 +148,20 @@ const HatManagementForm = ({
     localForm.setValue(title, value);
   };
 
+  const newAddress = watch(title);
+  const formValues = getValues();
+
+  // ? better way to handle checking "manual/automatic" radio box?
+  useEffect(() => {
+    if (moduleDetails) {
+      reset({
+        ...formValues,
+        isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleDetails]);
+
   return (
     <form>
       <Stack spacing={8}>
@@ -159,6 +171,7 @@ const HatManagementForm = ({
             name={radioBoxConfig.name}
             label={radioBoxConfig.label}
             subLabel={radioBoxConfig.subLabel}
+            // defaultValue={moduleDetails && TRIGGER_OPTIONS.AUTOMATICALLY}
             localForm={localForm}
             options={options}
           />
@@ -187,7 +200,7 @@ const HatManagementForm = ({
               {moduleDetails && (
                 <ChakraNextLink
                   href={`${explorerUrl(chainId)}/address/${
-                    selectedHat?.[title]
+                    newAddress || selectedHat?.[title]
                   }`}
                   isExternal
                 >
@@ -218,7 +231,7 @@ const HatManagementForm = ({
           </Stack>
         </FormRowWrapper>
         {title === 'eligibility' &&
-          moduleDetails &&
+          extendedController?.isContract &&
           isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
             <ClaimsHandler
               localForm={localForm}
