@@ -292,17 +292,18 @@ export const TreeFormContextProvider = ({
     const inactiveHats = _.map(
       _.filter(orgChartTree, ['status', false]),
       (h) => {
-        const prettyId = _.get(h, 'prettyId');
-        if (!prettyId) return '';
-        return _.replace(prettyId, '.', '');
+        return _.get(h, 'prettyId');
       },
     );
     const inactiveAncestors = _.filter(orgChartTree, (hat) =>
-      _.some(inactiveHats, (h) => hat.id.includes(h)),
+      _.some(inactiveHats, (h) => h && hat.id.includes(h)),
     );
 
     return _.reject(orgChartTree, (h) =>
-      _.includes(_.map(inactiveAncestors, 'id'), h.id),
+      _.includes(
+        _.concat(inactiveHats, _.map(inactiveAncestors, 'id')),
+        h.prettyId,
+      ),
     );
   }, [orgChartTree, showInactiveHats]);
 

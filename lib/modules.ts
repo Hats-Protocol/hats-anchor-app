@@ -64,12 +64,7 @@ export const deployModuleWithClaimsHatter = async ({
   hatId: bigint;
   adminHatId: bigint;
 }) => {
-  if (
-    selectedModuleDetails &&
-    selectedHat?.id &&
-    address &&
-    claimsHatterModule
-  ) {
+  if (selectedModuleDetails && selectedHat?.id && address) {
     const { immutableArgs, mutableArgs } = prepareArgs(
       values,
       selectedModuleDetails,
