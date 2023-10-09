@@ -38,12 +38,10 @@ const PermissionlessClaimingForm = ({
   );
 
   const { multiClaimsHatter, instanceAddress } = useMultiClaimsHatterCheck();
-  console.log('adminHat', adminHat);
 
   const { data: wearingHatDetails } = useHatDetails({
     hatId: String(adminHat),
   });
-  console.log('hatDetails', wearingHatDetails);
 
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
@@ -58,18 +56,18 @@ const PermissionlessClaimingForm = ({
 
   if (!onchainHats || !treeToDisplay) return null;
 
-  // if (isClaimable) {
-  //   return (
-  //     <Stack spacing={12}>
-  //       <Text>
-  //         This hat is already claimable via{' '}
-  //         <ChakraNextLink href={`/wearers/${instanceAddress}`} isExternal>
-  //           <Code>{formatAddress(instanceAddress)}</Code>
-  //         </ChakraNextLink>
-  //       </Text>
-  //     </Stack>
-  //   );
-  // }
+  if (isClaimable) {
+    return (
+      <Stack spacing={12}>
+        <Text>
+          This hat is already claimable via{' '}
+          <ChakraNextLink href={`/wearers/${instanceAddress}`} isExternal>
+            <Code>{formatAddress(instanceAddress)}</Code>
+          </ChakraNextLink>
+        </Text>
+      </Stack>
+    );
+  }
 
   return (
     <Stack spacing={12}>

@@ -51,6 +51,7 @@ const useModuleDeploy = ({
   const { address } = useAccount();
   const hatId = BigInt(decimalId(selectedHat?.id));
   const adminHat = values?.adminHat;
+  const incrementWearers = values?.incrementWearers;
   const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHat?.detailsObject?.data?.name
@@ -109,7 +110,7 @@ const useModuleDeploy = ({
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
             updateFormAfterDeploy({
               address: data?.newInstance,
-              incrementWearers: values?.incrementWearers,
+              incrementWearers,
             });
 
             const updatedHatsWithModule = processModule({
@@ -142,7 +143,7 @@ const useModuleDeploy = ({
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
           updateFormAfterDeploy({
-            incrementWearers: values?.incrementWearers,
+            incrementWearers,
           });
           const updatedHats = processClaimsHatter({
             claimsHatterAddress: data?.newInstance,
@@ -177,6 +178,7 @@ const useModuleDeploy = ({
       selectedHat,
       setStoredData,
       toast,
+      values?.incrementWearers,
       adminHat,
       instanceAddress,
       hatTitle,
