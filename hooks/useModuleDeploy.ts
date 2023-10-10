@@ -81,10 +81,16 @@ const useModuleDeploy = ({
     const storedHat = _.find(storedData, ['id', adminHat]);
     const onchainHat = _.find(onchainHats, ['id', adminHat]);
 
+    // translate boolean to form data string
+    const mutable: { mutable?: string } = {};
+    if (storedHat?.mutable) {
+      mutable.mutable = storedHat?.mutable;
+    }
+
     return {
       ...onchainHat,
       ...storedHat,
-      mutable: storedHat?.mutable,
+      ...mutable,
     };
   }, [storedData, onchainHats, adminHat]);
 
@@ -123,12 +129,10 @@ const useModuleDeploy = ({
               adminHat: adminHatData,
               incrementWearers,
             });
-            const updatedHats = _.unionBy(
-              updatedHatsWithClaimsHatter,
-              updatedHatsWithModule,
-              'id',
-            );
-            console.log(updatedHats);
+            const updatedHats = _.map(updatedHatsWithClaimsHatter, (hat) => {
+              const moduleHat = _.find(updatedHatsWithModule, ['id', hat.id]);
+              return _.merge({}, hat, moduleHat);
+            });
             setStoredData?.(updatedHats);
 
             toast.success({

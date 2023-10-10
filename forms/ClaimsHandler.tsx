@@ -100,7 +100,7 @@ const ClaimsHandler = ({
           </Text>
           <Select localForm={localForm} name='hatToMintTo'>
             {_.map(availableAdmins, (a) => (
-              <option value={a.id}>
+              <option value={a.id} key={a.id}>
                 {hatIdDecimalToIp(BigInt(a.id))} {a.detailsObject?.data.name}
               </option>
             ))}
