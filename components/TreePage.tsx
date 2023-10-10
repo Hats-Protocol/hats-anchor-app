@@ -1,10 +1,4 @@
-import {
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  Flex,
-  Spinner,
-} from '@chakra-ui/react';
+import { Flex, Slide, Spinner } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -40,7 +34,6 @@ const TreePage = () => {
     selectedHat,
     selectedHatDetails,
     treeToDisplay,
-    setSelectedHatId,
     editMode,
     topHat,
     topHatDetails,
@@ -54,11 +47,10 @@ const TreePage = () => {
     isOpen: isOpenHatDrawer,
   } = _.pick(hatDisclosure, ['onOpen', 'onClose', 'isOpen']);
 
-  const {
-    onOpen: onOpenTreeDrawer,
-    onClose: onCloseTreeDrawer,
-    isOpen: isOpenTreeDrawer,
-  } = _.pick(treeDisclosure, ['onOpen', 'onClose', 'isOpen']);
+  const { onOpen: onOpenTreeDrawer, isOpen: isOpenTreeDrawer } = _.pick(
+    treeDisclosure,
+    ['onOpen', 'onClose', 'isOpen'],
+  );
 
   const returnToList = () => {
     onOpenTreeDrawer?.();
@@ -94,46 +86,25 @@ const TreePage = () => {
   return (
     <>
       <NextSeo title={title} />
-      <Drawer
-        placement='right'
-        onClose={() => {
-          onCloseHatDrawer?.();
-          setSelectedHatId?.(undefined);
-        }}
-        isOpen={!!treeToDisplay && !!isOpenHatDrawer}
+      <Slide
+        direction='right'
+        in={!!treeToDisplay && !!isOpenHatDrawer}
+        style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}
       >
-        <DrawerContent
-          background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
-          maxW='43%'
-          width='650px'
-        >
-          <DrawerBody pt={0}>
-            <Suspense fallback={<Suspender />}>
-              <HatDrawer returnToList={returnToList} />
-            </Suspense>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <Suspense fallback={<Suspender />}>
+          <HatDrawer returnToList={returnToList} />
+        </Suspense>
+      </Slide>
 
-      <Drawer
-        placement='right'
-        onClose={() => {
-          onCloseTreeDrawer?.();
-        }}
-        isOpen={!!isOpenTreeDrawer}
+      <Slide
+        direction='right'
+        in={!!isOpenTreeDrawer}
+        style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}
       >
-        <DrawerContent
-          background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
-          maxW='43%'
-          width='650px'
-        >
-          <DrawerBody pt={0}>
-            <Suspense fallback={<Suspender />}>
-              <TreeDrawer />
-            </Suspense>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <Suspense fallback={<Suspender />}>
+          <TreeDrawer />
+        </Suspense>
+      </Slide>
 
       <Layout editMode={editMode} hatData={topHat}>
         <TreeMenu treeDisclosure={treeDisclosure} />

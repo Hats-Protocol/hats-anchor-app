@@ -62,6 +62,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
       display={selectedHatId ? 'block' : 'none'}
       right={0}
       zIndex={12}
+      background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
     >
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
