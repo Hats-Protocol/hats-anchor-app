@@ -69,7 +69,7 @@ const useMultiClaimsHatterCheck = () => {
 
   const storedModuleDetails = useQueries({
     queries: storedAddresses.map((address) => ({
-      queryKey: ['moduleDetails', address],
+      queryKey: ['otherModuleDetails', address],
       queryFn: () => getModuleData(address),
       enabled: !!address,
     })),

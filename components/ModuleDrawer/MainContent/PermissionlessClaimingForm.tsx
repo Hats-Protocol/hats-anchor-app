@@ -1,5 +1,5 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
-import { Module } from '@hatsprotocol/modules-sdk';
+// import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useEffect, useRef } from 'react';
@@ -18,6 +18,7 @@ import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatDetails from '@/hooks/useHatDetails';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { formatAddress } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
@@ -42,6 +43,9 @@ const PermissionlessClaimingForm = ({
   const { data: wearingHatDetails } = useHatDetails({
     hatId: String(adminHat),
   });
+  const { data: wearingHatDetailsObject } = useHatDetailsField(
+    wearingHatDetails?.details,
+  );
 
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
@@ -156,9 +160,13 @@ const PermissionlessClaimingForm = ({
           <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
           <Stack>
             <RadioBox
-              name='increment'
+              name='incrementWearers'
               label='Increment Max Wearers by 1'
-              subLabel='The admin hat you selected (2.3 — Builder Custodian) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?'
+              subLabel={`The admin hat you selected (${hatIdDecimalToIp(
+                BigInt(wearingHatDetails?.id),
+              )} — ${
+                wearingHatDetailsObject?.data.name
+              }) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?`}
               localForm={localForm}
               options={[
                 {
@@ -172,6 +180,7 @@ const PermissionlessClaimingForm = ({
                   value: 'No',
                 },
               ]}
+              maxW='50%'
             />
           </Stack>
         </FormRowWrapper>

@@ -1,4 +1,5 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
@@ -6,36 +7,34 @@ import { useChainId } from 'wagmi';
 
 import { DEPLOYMENT_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatDetails from '@/hooks/useHatDetails';
 import useModuleDeploy from '@/hooks/useModuleDeploy';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { ModuleDetails } from '@/types';
 
 const TopMenu = ({
   localForm,
-  updateFormAfterDeploy,
   onCloseModuleDrawer,
   selectedModuleDetails,
   isStandaloneHatterDeploy,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  updateFormAfterDeploy: ({
-    address,
-    incrementWearers,
-  }: {
-    address?: string;
-    incrementWearers?: boolean;
-  }) => void;
   onCloseModuleDrawer: () => void;
   selectedModuleDetails?: ModuleDetails;
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId } = useTreeForm();
+  const { chainId, storedData } = useTreeForm();
   const { instanceAddress } = useMultiClaimsHatterCheck();
   const { watch } = localForm;
   const moduleType = watch('moduleType');
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
+  const adminHat = watch('adminHat');
+  const incrementWearers = watch('incrementWearers');
+
+  const { data: adminHatDetails } = useHatDetails({ hatId: adminHat });
+
   const deploymentType = useMemo(() => {
     if (isStandaloneHatterDeploy) {
       return DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER;
@@ -50,12 +49,28 @@ const TopMenu = ({
     localForm,
     selectedModuleDetails,
     onCloseModuleDrawer,
-    updateFormAfterDeploy,
     deploymentType,
     instanceAddress,
   });
 
   const isChainCorrect = currentNetworkId === chainId;
+
+  const cannotDeployWithoutIncrement = useMemo(() => {
+    const storedSupply = _.get(
+      _.find(storedData, ['id', adminHat]),
+      'maxSupply',
+    );
+    const supplyExhausted =
+      (storedSupply || adminHatDetails?.currentSupply) ===
+      adminHatDetails?.maxSupply;
+    return incrementWearers === 'No' && supplyExhausted;
+  }, [
+    adminHat,
+    adminHatDetails?.currentSupply,
+    adminHatDetails?.maxSupply,
+    incrementWearers,
+    storedData,
+  ]);
 
   const requiresModuleTypeCheck = !(
     isStandaloneHatterDeploy && isPermissionlesslyClaimable === 'Yes'
@@ -64,7 +79,8 @@ const TopMenu = ({
   const isButtonDisabled =
     !localForm?.formState.isValid ||
     !isChainCorrect ||
-    (requiresModuleTypeCheck && !moduleType);
+    (requiresModuleTypeCheck && !moduleType) ||
+    cannotDeployWithoutIncrement;
 
   return (
     <Flex

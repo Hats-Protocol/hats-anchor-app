@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -26,27 +26,21 @@ const useModuleDeploy = ({
   localForm,
   selectedModuleDetails,
   onCloseModuleDrawer,
-  updateFormAfterDeploy,
   deploymentType,
   instanceAddress,
 }: {
   localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
-  updateFormAfterDeploy: ({
-    address,
-    incrementWearers,
-  }: {
-    address?: string;
-    incrementWearers?: boolean;
-  }) => void;
   deploymentType: DeploymentType;
   instanceAddress?: Hex;
 }) => {
   const { getValues } = localForm;
   const values = getValues();
   const toast = useToast();
-  const { chainId, selectedHat, setStoredData, storedData } = useTreeForm();
+  const queryClient = useQueryClient();
+  const { chainId, selectedHat, setStoredData, onchainHats, storedData } =
+    useTreeForm();
   const { modules } = useHatsModules();
   const { address } = useAccount();
   const hatId = BigInt(decimalId(selectedHat?.id));
@@ -83,14 +77,22 @@ const useModuleDeploy = ({
       args: [hatId, 1],
     });
 
+  const adminHatData = useMemo(() => {
+    const storedHat = _.find(storedData, ['id', adminHat]);
+    const onchainHat = _.find(onchainHats, ['id', adminHat]);
+
+    return {
+      ...onchainHat,
+      ...storedHat,
+      mutable: storedHat?.mutable,
+    };
+  }, [storedData, onchainHats, adminHat]);
+
   const handleSuccess = useCallback(
     (data: any) => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE:
           if (data?.newInstance && selectedModuleDetails) {
-            updateFormAfterDeploy({
-              address: data?.newInstance,
-            });
             const updatedHats = processModule({
               moduleAddress: data?.newInstance,
               storedData,
@@ -108,10 +110,6 @@ const useModuleDeploy = ({
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
-            updateFormAfterDeploy({
-              address: data?.newInstance,
-              incrementWearers,
-            });
 
             const updatedHatsWithModule = processModule({
               moduleAddress,
@@ -122,14 +120,14 @@ const useModuleDeploy = ({
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,
               storedData,
-              adminHat,
+              adminHat: adminHatData,
+              incrementWearers,
             });
             const updatedHats = _.unionBy(
-              updatedHatsWithModule,
               updatedHatsWithClaimsHatter,
+              updatedHatsWithModule,
               'id',
             );
-            console.log(instanceAddress);
             console.log(updatedHats);
             setStoredData?.(updatedHats);
 
@@ -144,13 +142,11 @@ const useModuleDeploy = ({
           break;
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
-          updateFormAfterDeploy({
-            incrementWearers,
-          });
           const updatedHats = processClaimsHatter({
             claimsHatterAddress: data?.newInstance,
             storedData,
-            adminHat,
+            adminHat: adminHatData,
+            incrementWearers,
           });
 
           setStoredData?.(updatedHats);
@@ -169,21 +165,22 @@ const useModuleDeploy = ({
         default:
           break;
       }
+      queryClient.invalidateQueries(['claimsHatter']);
       onCloseModuleDrawer();
     },
     [
       deploymentType,
       onCloseModuleDrawer,
       selectedModuleDetails,
-      updateFormAfterDeploy,
       storedData,
       selectedHat,
       setStoredData,
       toast,
-      values?.incrementWearers,
-      adminHat,
+      incrementWearers,
+      adminHatData,
       instanceAddress,
       hatTitle,
+      queryClient,
     ],
   );
 

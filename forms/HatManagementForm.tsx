@@ -131,24 +131,6 @@ const HatManagementForm = ({
     isOpen: isOpenModuleDrawer,
   } = useDisclosure();
 
-  const updateFormAfterDeploy = ({
-    address,
-    incrementWearers,
-  }: {
-    address?: string;
-    incrementWearers?: boolean;
-  }) => {
-    console.log(address, incrementWearers);
-    console.log('updateFormAfterDeploy');
-    if (address) {
-      localForm.setValue(title, address);
-    }
-    if (incrementWearers) {
-      const maxSupply = getValues('maxSupply');
-      localForm.setValue('maxSupply', maxSupply + 1);
-    }
-  };
-
   const newAddress = watch(title);
   const formValues = getValues();
 
@@ -293,7 +275,6 @@ const HatManagementForm = ({
             <Suspense fallback={<Suspender />}>
               <ModuleDrawer
                 onCloseModuleDrawer={onCloseModuleDrawer}
-                updateFormAfterDeploy={updateFormAfterDeploy}
                 isStandaloneHatterDeploy={isStandaloneHatterDeploy}
                 title={title}
               />
