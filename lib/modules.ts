@@ -5,6 +5,7 @@ import { Hex } from 'viem';
 import {
   MODULES_REGISTRY_FACTORY_ADDRESS,
   MULTI_CLAIMS_HATTER_ID,
+  TRIGGER_OPTIONS,
 } from '@/constants';
 import { transformInput } from '@/lib/general';
 import { decimalIdToId } from '@/lib/hats';
@@ -141,6 +142,7 @@ export const deployClaimsHatter = async ({
   return null;
 };
 
+// TODO handle better return strategy in these two
 export const processModule = ({
   moduleAddress,
   storedData,
@@ -156,7 +158,7 @@ export const processModule = ({
         hat.id === _.get(selectedHat, 'id') && moduleAddress
           ? {
               ...hat,
-              isEligibilityManual: 'Automatically',
+              isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
               eligibility: moduleAddress,
             }
           : hat,
@@ -196,6 +198,9 @@ export const processClaimsHatter = ({
     ens: '',
   };
 
+  const updatedHatExists = _.find(storedData, ['id', adminId]);
+
+  // TODO handle draft case with increment wearers
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat) => {
         if (hat.id === adminId && claimsHatterAddress) {
@@ -217,8 +222,6 @@ export const processClaimsHatter = ({
         return hat;
       })
     : [...(storedData || [])];
-
-  const updatedHatExists = _.some(updatedHats, ['id', adminId]);
 
   if (claimsHatterAddress && adminId && !updatedHatExists) {
     const maxSupply: { maxSupply?: string } = {};
