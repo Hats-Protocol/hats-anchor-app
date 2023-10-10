@@ -49,10 +49,6 @@ const ClaimsHandler = ({
   const { treeToDisplay, selectedHatDetails } = useTreeForm();
   const { instanceAddress, hatterIsAdmin, wearingHat } =
     useMultiClaimsHatterCheck();
-  // const isClaimable = useMemo(
-  //   () => _.includes(claimableHats, selectedHat?.id),
-  //   [claimableHats, selectedHat?.id],
-  // );
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
   const hatToMintTo = watch('hatToMintTo');

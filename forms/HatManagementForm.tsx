@@ -33,7 +33,6 @@ import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDetails from '@/hooks/useModuleDetails';
-import { checkAddressIsContract } from '@/lib/contract';
 import { isMutable } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
 import { DetailsItem, HatWearer, ModuleKind } from '@/types';
@@ -71,7 +70,6 @@ const HatManagementForm = ({
   inputConfig,
   criteriaConfig,
 }: HatManagementFormProps) => {
-  const [isAContract, setIsAContract] = useState(false);
   const { watch, control, setValue, getValues, reset } = localForm;
   const { selectedHat, chainId } = useTreeForm();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
@@ -100,17 +98,6 @@ const HatManagementForm = ({
   const { details: moduleDetails } = useModuleDetails({
     address: moduleAddress,
   });
-
-  useEffect(() => {
-    const check = async () => {
-      if (moduleAddress && chainId) {
-        const isContract = await checkAddressIsContract(moduleAddress, chainId);
-        setIsAContract(isContract);
-      }
-    };
-
-    check();
-  }, [chainId, moduleAddress]);
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
@@ -143,10 +130,6 @@ const HatManagementForm = ({
     onClose: onCloseModuleDrawer,
     isOpen: isOpenModuleDrawer,
   } = useDisclosure();
-
-  const updateModuleAddress = (value: string) => {
-    localForm.setValue(title, value);
-  };
 
   const newAddress = watch(title);
   const formValues = getValues();
@@ -205,7 +188,7 @@ const HatManagementForm = ({
                   isExternal
                 >
                   <HStack>
-                    {isAContract ? (
+                    {extendedController?.isContract || moduleDetails ? (
                       <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
                     ) : (
                       <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
@@ -292,7 +275,6 @@ const HatManagementForm = ({
             <Suspense fallback={<Suspender />}>
               <ModuleDrawer
                 onCloseModuleDrawer={onCloseModuleDrawer}
-                updateModuleAddress={updateModuleAddress}
                 isStandaloneHatterDeploy={isStandaloneHatterDeploy}
                 title={title}
               />

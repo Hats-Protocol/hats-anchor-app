@@ -5,7 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 
 import Accordion from '@/components/atoms/Accordion';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useCheckMultiClaimsHatter from '@/hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { getAllParents, prettyIdToIp } from '@/lib/hats';
 import { ModuleDetails, ModuleKind } from '@/types';
 
@@ -40,8 +40,7 @@ const MainContent = ({
     return _.filter(parents, (parent) => parent !== topHat?.id);
   }, [selectedHat, treeToDisplay, topHat]);
 
-  const { multiClaimsHatter, instanceAddress, claimableHats } =
-    useCheckMultiClaimsHatter();
+  const { claimableHats } = useMultiClaimsHatterCheck();
 
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHatDetails?.name
@@ -57,6 +56,7 @@ const MainContent = ({
       w='100%'
       overflow='scroll'
       height='calc(100% - 75px)'
+      pb={400}
       top={75}
       pos='relative'
     >
@@ -91,16 +91,11 @@ const MainContent = ({
         <Accordion
           title='Permissionless Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'
-          open={
-            _.includes(claimableHats, selectedHat?.id) ||
-            isStandaloneHatterDeploy
-          }
+          open={_.includes(claimableHats, selectedHat?.id)}
         >
           <PermissionlessClaimingForm
             localForm={localForm}
             parentHats={parentHats}
-            multiClaimsHatter={multiClaimsHatter}
-            instanceAddress={instanceAddress}
             isClaimable={_.includes(claimableHats, selectedHat?.id)}
           />
         </Accordion>

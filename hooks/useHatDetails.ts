@@ -1,22 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { ZERO_ID } from '@/constants';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { Hat } from '@/types';
 
 const useHatDetails = ({
   hatId,
-  chainId,
   initialData,
 }: {
   hatId: string | undefined;
-  chainId: number;
   initialData?: Hat | null;
 }): {
   data: Hat | undefined | null;
   isLoading: boolean;
   error: unknown | null;
 } => {
+  const { chainId } = useTreeForm();
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', { id: hatId, chainId }],
     queryFn: () => fetchHatDetails(hatId, chainId),

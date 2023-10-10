@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -26,25 +26,26 @@ const useModuleDeploy = ({
   localForm,
   selectedModuleDetails,
   onCloseModuleDrawer,
-  updateModuleAddress,
   deploymentType,
   instanceAddress,
 }: {
   localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
-  updateModuleAddress: (address: string) => void;
   deploymentType: DeploymentType;
   instanceAddress?: Hex;
 }) => {
   const { getValues } = localForm;
   const values = getValues();
   const toast = useToast();
-  const { chainId, selectedHat, setStoredData, storedData } = useTreeForm();
+  const queryClient = useQueryClient();
+  const { chainId, selectedHat, setStoredData, onchainHats, storedData } =
+    useTreeForm();
   const { modules } = useHatsModules();
   const { address } = useAccount();
   const hatId = BigInt(decimalId(selectedHat?.id));
   const adminHat = values?.adminHat;
+  const incrementWearers = values?.incrementWearers;
   const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHat?.detailsObject?.data?.name
@@ -76,12 +77,22 @@ const useModuleDeploy = ({
       args: [hatId, 1],
     });
 
+  const adminHatData = useMemo(() => {
+    const storedHat = _.find(storedData, ['id', adminHat]);
+    const onchainHat = _.find(onchainHats, ['id', adminHat]);
+
+    return {
+      ...onchainHat,
+      ...storedHat,
+      mutable: storedHat?.mutable,
+    };
+  }, [storedData, onchainHats, adminHat]);
+
   const handleSuccess = useCallback(
     (data: any) => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE:
           if (data?.newInstance && selectedModuleDetails) {
-            updateModuleAddress(data?.newInstance);
             const updatedHats = processModule({
               moduleAddress: data?.newInstance,
               storedData,
@@ -99,7 +110,6 @@ const useModuleDeploy = ({
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
-            updateModuleAddress(moduleAddress);
 
             const updatedHatsWithModule = processModule({
               moduleAddress,
@@ -110,13 +120,15 @@ const useModuleDeploy = ({
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,
               storedData,
-              adminHat,
+              adminHat: adminHatData,
+              incrementWearers,
             });
             const updatedHats = _.unionBy(
-              updatedHatsWithModule,
               updatedHatsWithClaimsHatter,
+              updatedHatsWithModule,
               'id',
             );
+            console.log(updatedHats);
             setStoredData?.(updatedHats);
 
             toast.success({
@@ -124,7 +136,7 @@ const useModuleDeploy = ({
               description: instanceAddress
                 ? `Module ${selectedModuleDetails?.name} has been successfully deployed!`
                 : `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
-              duration: 1500,
+              duration: 2500,
             });
           }
           break;
@@ -133,7 +145,8 @@ const useModuleDeploy = ({
           const updatedHats = processClaimsHatter({
             claimsHatterAddress: data?.newInstance,
             storedData,
-            adminHat,
+            adminHat: adminHatData,
+            incrementWearers,
           });
 
           setStoredData?.(updatedHats);
@@ -152,20 +165,22 @@ const useModuleDeploy = ({
         default:
           break;
       }
+      queryClient.invalidateQueries(['claimsHatter']);
       onCloseModuleDrawer();
     },
     [
       deploymentType,
       onCloseModuleDrawer,
       selectedModuleDetails,
-      updateModuleAddress,
       storedData,
       selectedHat,
       setStoredData,
       toast,
-      adminHat,
+      incrementWearers,
+      adminHatData,
       instanceAddress,
       hatTitle,
+      queryClient,
     ],
   );
 

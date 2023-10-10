@@ -2,9 +2,9 @@ import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Hex, isAddress } from 'viem';
-import { useChainId } from 'wagmi';
 
 import Select from '@/components/atoms/Select';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useHatDetails from '@/hooks/useHatDetails';
@@ -12,14 +12,8 @@ import { prettyIdToIp } from '@/lib/hats';
 
 // TODO refactor without prettyId
 
-const HatUnlinkForm = ({
-  parentOfTrees,
-  chainId,
-}: {
-  parentOfTrees: Hex[];
-  chainId: number;
-}) => {
-  const currentNetworkId = useChainId();
+const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
+  const { chainId } = useTreeForm();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -34,7 +28,6 @@ const HatUnlinkForm = ({
 
   const { data: topHatData } = useHatDetails({
     hatId: topHatPrettyId,
-    chainId,
   });
 
   const wearer = topHatData?.wearers?.[0]?.id || '0x';
@@ -50,11 +43,7 @@ const HatUnlinkForm = ({
       )}`,
     },
     queryKeys: [['topHat', topHatPrettyId]],
-    enabled:
-      Boolean(topHatPrettyId) &&
-      Boolean(wearer) &&
-      isAddress(wearer) &&
-      chainId === currentNetworkId,
+    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
   const onSubmit = async () => {

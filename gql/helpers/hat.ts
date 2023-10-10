@@ -7,9 +7,9 @@ import { GET_HAT, GET_HATS_BY_IDS } from '../queries';
 
 export const fetchHatDetails = async (
   hatId: string | undefined,
-  chainId: number,
+  chainId?: number,
 ): Promise<Hat | null> => {
-  if (!hatId) return null;
+  if (!hatId || !chainId) return null;
 
   const result = await client(chainId).request(GET_HAT, { id: hatId });
 

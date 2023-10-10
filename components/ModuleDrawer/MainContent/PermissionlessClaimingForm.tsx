@@ -1,5 +1,5 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
-import { Module } from '@hatsprotocol/modules-sdk';
+// import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useEffect, useRef } from 'react';
@@ -17,20 +17,19 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatDetails from '@/hooks/useHatDetails';
+import useHatDetailsField from '@/hooks/useHatDetailsField';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { formatAddress } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 
 const PermissionlessClaimingForm = ({
   localForm,
   parentHats,
-  multiClaimsHatter,
-  instanceAddress,
   isClaimable = false,
 }: {
   localForm: UseFormReturn;
   parentHats?: Hex[];
-  multiClaimsHatter?: Module | null;
-  instanceAddress?: Hex;
   isClaimable?: boolean;
 }) => {
   const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
@@ -38,6 +37,16 @@ const PermissionlessClaimingForm = ({
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
   );
+
+  const { multiClaimsHatter, instanceAddress } = useMultiClaimsHatterCheck();
+
+  const { data: wearingHatDetails } = useHatDetails({
+    hatId: String(adminHat),
+  });
+  const { data: wearingHatDetailsObject } = useHatDetailsField(
+    wearingHatDetails?.details,
+  );
+
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -145,20 +154,25 @@ const PermissionlessClaimingForm = ({
         </Stack>
       )}
 
-      {selectedHat?.wearers === selectedHat?.maxSupply && (
+      {wearingHatDetails?.wearers?.length ===
+        Number(wearingHatDetails?.maxSupply) && (
         <FormRowWrapper>
           <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
           <Stack>
             <RadioBox
-              name='increment'
+              name='incrementWearers'
               label='Increment Max Wearers by 1'
-              subLabel='The admin hat you selected (2.3 — Builder Custodian) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?'
+              subLabel={`The admin hat you selected (${hatIdDecimalToIp(
+                BigInt(wearingHatDetails?.id),
+              )} — ${
+                wearingHatDetailsObject?.data.name
+              }) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?`}
               localForm={localForm}
               options={[
                 {
                   label: `Yes — increase max wearers from ${
-                    selectedHat?.maxSupply
-                  } to ${Number(selectedHat?.maxSupply) + 1}`,
+                    wearingHatDetails?.maxSupply
+                  } to ${Number(wearingHatDetails?.maxSupply) + 1}`,
                   value: 'Yes',
                 },
                 {
@@ -166,6 +180,7 @@ const PermissionlessClaimingForm = ({
                   value: 'No',
                 },
               ]}
+              maxW='50%'
             />
           </Stack>
         </FormRowWrapper>

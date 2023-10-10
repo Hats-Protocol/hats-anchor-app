@@ -50,6 +50,7 @@ const MainContent = () => {
       w='100%'
       overflow='scroll'
       height='calc(100% - 150px)'
+      pb={400}
       pos='relative'
     >
       <Header />

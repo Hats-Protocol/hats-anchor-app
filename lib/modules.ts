@@ -183,12 +183,14 @@ export const processClaimsHatter = ({
   claimsHatterAddress,
   storedData,
   adminHat,
+  incrementWearers,
 }: {
   claimsHatterAddress: Hex;
   storedData: Partial<FormData>[] | undefined;
-  adminHat: Hex;
+  adminHat: Partial<any> | undefined; // Hat + FormData
+  incrementWearers: string;
 }) => {
-  const adminId = decimalIdToId(adminHat);
+  const adminId = decimalIdToId(adminHat?.id);
   const claimsHatterWearer = {
     address: claimsHatterAddress,
     ens: '',
@@ -197,7 +199,17 @@ export const processClaimsHatter = ({
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat) => {
         if (hat.id === adminId && claimsHatterAddress) {
-          const updatedHat = { ...hat };
+          const maxSupply: { maxSupply?: string } = {};
+          if (
+            (adminHat?.currentSupply === adminHat?.maxSupply ||
+              hat.maxSupply === adminHat?.maxSupply) &&
+            incrementWearers === 'Yes'
+          ) {
+            maxSupply.maxSupply = _.toString(
+              _.add(_.toNumber(_.get(adminHat, 'maxSupply')), 1),
+            );
+          }
+          const updatedHat = { ...hat, ...maxSupply };
           updatedHat.wearers = updatedHat.wearers || [];
           updatedHat.wearers.push(claimsHatterWearer);
           return updatedHat;
@@ -209,9 +221,19 @@ export const processClaimsHatter = ({
   const updatedHatExists = _.some(updatedHats, ['id', adminId]);
 
   if (claimsHatterAddress && adminId && !updatedHatExists) {
+    const maxSupply: { maxSupply?: string } = {};
+    if (
+      adminHat?.currentSupply === adminHat?.maxSupply &&
+      incrementWearers === 'Yes'
+    ) {
+      maxSupply.maxSupply = _.toString(
+        _.add(_.toNumber(_.get(adminHat, 'maxSupply')), 1),
+      );
+    }
     updatedHats.push({
       id: adminId,
       wearers: [claimsHatterWearer],
+      ...maxSupply,
     });
   }
 

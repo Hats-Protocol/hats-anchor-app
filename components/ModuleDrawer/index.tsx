@@ -10,12 +10,10 @@ import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
 const ModuleDrawer = ({
-  updateModuleAddress,
   onCloseModuleDrawer,
   title,
   isStandaloneHatterDeploy,
 }: {
-  updateModuleAddress: (value: string) => void;
   onCloseModuleDrawer: () => void;
   title: ModuleKind;
   isStandaloneHatterDeploy?: boolean;
@@ -48,7 +46,6 @@ const ModuleDrawer = ({
     >
       <TopMenu
         localForm={localForm}
-        updateModuleAddress={updateModuleAddress}
         onCloseModuleDrawer={onCloseModuleDrawer}
         selectedModuleDetails={selectedModuleDetails}
         isStandaloneHatterDeploy={isStandaloneHatterDeploy}

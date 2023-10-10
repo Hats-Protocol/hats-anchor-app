@@ -56,7 +56,7 @@ const CONFIG: {
     eligibility:
       'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers',
     toggle:
-      'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers',
+      'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats',
   },
 };
 
