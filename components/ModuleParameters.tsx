@@ -1,6 +1,7 @@
-import { Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { format, formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
@@ -46,6 +47,7 @@ const ModuleParameters = ({
           <Text fontSize='sm'>{param.value as string}</Text>
         );
         if (param.solidityType === 'address') {
+          // TODO handle joke race display type
           displayValue = (
             <ChakraNextLink
               href={`${explorerUrl(chainId)}/address/${param.value}`}
@@ -78,6 +80,21 @@ const ModuleParameters = ({
                 ).toString()}{' '}
                 {tokenSymbol as string}
               </Text>
+            );
+          } else if (param.displayType === 'timestamp') {
+            const date = new Date(
+              _.toNumber((param.value as bigint).toString()) * 1000,
+            );
+            displayValue = (
+              <Tooltip
+                label={format(date, 'yyyy-MM-dd HH:mm:ss')}
+                placement='left'
+              >
+                <Text fontSize='sm' color='gray.500'>
+                  {formatDistanceToNow(date)}{' '}
+                  {new Date() > date ? 'ago' : 'from now'}
+                </Text>
+              </Tooltip>
             );
           } else {
             displayValue = (

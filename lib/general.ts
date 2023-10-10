@@ -115,6 +115,11 @@ export const transformInput = (
     case 'number':
       return Number(input);
     case 'bigint':
+      // handle dates
+      if (typeof input === 'object') {
+        return BigInt(_.toNumber(input) / 1000);
+      }
+      // handle floats before here
       if (typeof input === 'string' || typeof input === 'number') {
         const numberCheck = _.toNumber(input);
 
