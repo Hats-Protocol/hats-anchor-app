@@ -21,7 +21,7 @@ import {
   useState,
 } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -33,7 +33,7 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { isSameAddress } from '@/lib/general';
-import { isWearingAdminHat } from '@/lib/hats';
+import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
 import { filterWearers, getEligibleWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
@@ -49,7 +49,7 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -156,10 +156,11 @@ const WearersList = () => {
   return (
     <>
       <Stack spacing={4}>
-        <Flex justify='space-between'>
+        <Flex justify='space-between' alignItems='center'>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Hat Wearers
           </Heading>
+
           <Flex gap={1}>
             <Text>{_.get(selectedHat, 'currentSupply')}</Text>
             <Text color='gray.400'>of {maxSupply}</Text>
@@ -191,7 +192,7 @@ const WearersList = () => {
           />
         ))}
 
-        <Flex justify='space-between'>
+        <Flex justify='space-between' alignItems='center'>
           {_.gt(_.size(wearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
@@ -261,6 +262,15 @@ const WearersList = () => {
           name='hatWearers'
           title='Hat Wearers'
           localOverlay={localOverlay}
+          footer={
+            <Button
+              onClick={() => exportToCsv(wearers, selectedHatDetails?.name)}
+              leftIcon={<FaFileCsv />}
+              colorScheme='blue'
+            >
+              Export
+            </Button>
+          }
         >
           <Flex direction='column' gap={4}>
             {wearers?.map((w: HatWearer) => (
