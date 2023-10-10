@@ -14,15 +14,14 @@ import _ from 'lodash';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
-  const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
-    useHatDetailsField(_.get(hat, 'details'));
+  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
   const hatName =
-    schemaTypeDetailsField === '1.0'
-      ? _.get(hatDetailsFieldData, 'name')
+    _.get(hatDetails, 'type') === '1.0'
+      ? _.get(hatDetails, 'data.name')
       : _.get(hat, 'details');
 
   return (
@@ -68,5 +67,5 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 export default DashboardHatCard;
 
 interface HatCardProps {
-  hat: IHat;
+  hat: Hat;
 }

@@ -2,6 +2,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 import {
   useAccount,
   useChainId,
@@ -12,14 +13,15 @@ import {
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
-import { processHatForCalls } from '@/lib/hats';
-import { IHat } from '@/types';
+import { processHatForCalls } from '@/lib/form';
+import { handleDetailsPin } from '@/lib/ipfs';
+import { Hat, HatDetails } from '@/types';
 
 const useMulticallCallManyHats = () => {
   const [calls, setCalls] = useState<unknown[]>();
-  const [proposedChanges, setProposedChanges] = useState<IHat[]>();
+  const [proposedChanges, setProposedChanges] = useState<Hat[]>();
+  const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
   const { address } = useAccount();
   const currentChain = useChainId();
@@ -30,11 +32,11 @@ const useMulticallCallManyHats = () => {
     onchainHats,
     treeToDisplay,
     setStoredData,
+    patchTree,
   } = useTreeForm();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
-  const { patchTree } = useTreeForm();
 
   useEffect(() => {
     const prepareMulticallData = async () => {
@@ -47,12 +49,12 @@ const useMulticallCallManyHats = () => {
       );
       const allCalls = await Promise.all(allCallsPromises);
 
-      const localCalls = _.flatten(_.map(allCalls, 'calls')) as unknown[];
-      const localProposedChanges = _.flatten(
-        _.map(allCalls, 'proposedChanges'),
-      ) as IHat[];
+      const localCalls = _.flatten(_.map(allCalls, 'calls'));
+      const localProposedChanges = _.map(allCalls, 'hatChanges');
+      const localDetailsToPin = _.map(allCalls, 'detailsToPin');
       setCalls(localCalls);
       setProposedChanges(localProposedChanges);
+      setDetailsToPin(localDetailsToPin);
     };
 
     if (
@@ -76,7 +78,7 @@ const useMulticallCallManyHats = () => {
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi,
+    abi: CONFIG.hatsAbi,
     functionName: 'multicall',
     args: [_.map(calls, 'callData')],
     enabled: !_.isEmpty(calls) && !!chainId && chainId === currentChain,
@@ -94,12 +96,12 @@ const useMulticallCallManyHats = () => {
     queryClient.setQueryData(orgChartTreeQueryKey, undefined);
     queryClient.setQueryData(treeQueryKey, undefined);
 
-    queryClient.invalidateQueries({ queryKey: treeQueryKey });
-    queryClient.invalidateQueries({ queryKey: orgChartTreeQueryKey });
+    queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
 
     setTimeout(() => {
-      queryClient.invalidateQueries({ queryKey: treeQueryKey });
-      queryClient.invalidateQueries({ queryKey: orgChartTreeQueryKey });
+      queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
       queryClient.invalidateQueries({
         queryKey: ['hatDetailsField'],
       });
@@ -110,27 +112,6 @@ const useMulticallCallManyHats = () => {
         queryKey: ['imageURIs'],
       });
     }, 1000);
-
-    _.forEach(storedData, (hat) => {
-      const hatId = _.get(hat, 'id');
-      const hatDetailsField = _.get(hat, 'details');
-
-      if (hatId || hatDetailsField) {
-        // clear query data
-        queryClient.setQueryData(
-          ['hatDetails', _.pick(hat, ['id', 'chainId'])],
-          undefined,
-        );
-        queryClient.setQueryData(
-          ['hatDetailsField', _.get(hat, 'details')],
-          undefined,
-        );
-        // queryClient.setQueryData(
-        //   ['imageUrl', _.get(hat, 'imageUri')],
-        //   undefined,
-        // );
-      }
-    });
 
     if (proposedChanges) {
       patchTree?.(proposedChanges);
@@ -177,13 +158,37 @@ const useMulticallCallManyHats = () => {
     },
   });
 
+  const handleWrite = async () => {
+    // eslint-disable-next-line no-console
+    if (!_.isEmpty(detailsToPin)) {
+      console.log('detailsToPin', detailsToPin);
+      // ? check to see if any objects are already pinned
+      const promises = _.map(
+        _.compact(detailsToPin),
+        ({ chainId: cId, hatId, details }: HatPinDetails) =>
+          handleDetailsPin({ chainId: cId, hatId, details }),
+      );
+
+      await Promise.all(promises);
+    }
+    const result = await writeAsync?.();
+    return result;
+  };
+
   return {
-    writeAsync,
+    writeAsync: handleWrite,
     prepareError,
     writeError,
     isLoading,
     proposedChanges,
   };
 };
+
+export interface HatPinDetails {
+  chainId: number;
+  localChainId?: number;
+  hatId: Hex;
+  details: HatDetails;
+}
 
 export default useMulticallCallManyHats;

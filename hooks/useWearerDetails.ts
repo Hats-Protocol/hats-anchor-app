@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
 import { Hex } from 'viem';
 
 import {
   fetchWearerDetailsForAllChains,
   fetchWearerDetailsForChain,
 } from '@/gql/helpers';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const useWearerDetails = ({
   wearerAddress,
@@ -30,6 +29,6 @@ export default useWearerDetails;
 
 interface UseWearerDetailsProps {
   wearerAddress: Hex | undefined;
-  initialData?: IHat[];
+  initialData?: Hat[];
   chainId?: number | 'all' | undefined;
 }

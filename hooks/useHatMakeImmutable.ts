@@ -6,6 +6,8 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import { decimalId, toTreeId } from '@/lib/hats';
 
+// ! not used w/ edit form
+
 const useHatMakeImmutable = ({
   levelAtLocalTree,
   isAdminUser,
@@ -27,14 +29,16 @@ const useHatMakeImmutable = ({
         )} immutable`,
     },
     queryKeys: [
-      ['hatDetails', selectedHatId],
+      ['hatDetails', { id: selectedHatId, chainId }],
       ['treeDetails', toTreeId(selectedHatId)],
     ],
     enabled:
       !!selectedHatId &&
+      !!selectedHat?.mutable &&
       Boolean(decimalId(selectedHatId)) &&
       !!mutable &&
       _.gt(levelAtLocalTree, 0) &&
+      // TODO hat is onchain
       !!isAdminUser &&
       chainId === currentNetworkId,
   });

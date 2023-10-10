@@ -3,35 +3,32 @@ import _ from 'lodash';
 
 import { fetchHatDetails } from '@/gql/helpers';
 import { mapWithChainId } from '@/lib/general';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const useManyHatDetails = ({
   hats,
   initialHats,
 }: {
-  hats: Partial<IHat>[] | undefined;
-  initialHats?: IHat[];
-}): { data: IHat[] | undefined; isLoading: boolean } => {
+  hats: Partial<Hat>[] | undefined;
+  initialHats?: Hat[];
+}): { data: Hat[] | undefined; isLoading: boolean } => {
   const onlyOnchainHats = _.filter(hats, (hat) =>
     _.includes(_.map(initialHats, 'id'), hat.id),
   );
-  // console.log(onlyOnchainHats);
 
   const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
   const hatsDetails = useQueries({
     queries: _.map(onlyOnchainHats, (hat) => {
       const hatDetails = _.pick(hat, ['id', 'chainId']);
-      // console.log(hatDetails);
 
       return {
         queryKey: ['hatDetails', hatDetails],
         queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
-        enabled: !!hat.id && !!hat.chainId && !!hat.details && !!hat.imageUri,
-        initialData: _.find(initialHats, ['id', hat.id]),
+        enabled: !!hat.id && !!hat.chainId && !!hat.details,
+        // initialData: _.find(initialHats, ['id', hat.id]),
       };
     }),
   });
-  // console.log(hatsDetails);
 
   const isLoading = _.some(hatsDetails, ['isLoading', true]);
 

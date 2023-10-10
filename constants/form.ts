@@ -1,12 +1,20 @@
 import { Hex } from 'viem';
 
-import { FieldItem } from '@/types';
+import { DeploymentType, FieldItem } from '@/types';
 
 import { FALLBACK_ADDRESS } from './misc';
 
-export const MODULE_TYPES: { [key: string]: string } = {
+export type ModuleTypes = { [key: string]: string };
+
+export const MODULE_TYPES: ModuleTypes = {
   eligibility: 'ELIGIBILITY',
   toggle: 'TOGGLE',
+};
+
+export const DEPLOYMENT_TYPES: { [key: string]: DeploymentType } = {
+  ONLY_MODULE: 'onlyModule',
+  MODULE_AND_CLAIMS_HATTER: 'moduleAndClaimsHatter',
+  ONLY_CLAIMS_HATTER: 'onlyClaimsHatter',
 };
 
 export const STATUS = {
@@ -46,11 +54,13 @@ const responsibilitiesFields: FieldItem[] = [
 ];
 
 const revocationFields: FieldItem[] = [
+  { name: 'isEligibilityManual', label: 'Eligibility Type' },
   { name: 'eligibility', label: 'Eligibility' },
   { name: 'revocationsCriteria', label: 'Revocation Criteria' },
 ];
 
 const deactivationFields: FieldItem[] = [
+  { name: 'isToggleManual', label: 'Toggle Type' },
   { name: 'toggle', label: 'Toggle' },
   { name: 'deactivationsCriteria', label: 'Deactivation Criteria' },
 ];

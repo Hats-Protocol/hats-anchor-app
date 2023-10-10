@@ -1,15 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Hex, TransactionReceipt } from 'viem';
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { TransactionReceipt } from 'viem';
+import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
-import abi from '@/contracts/Hats.json';
 import useToast from '@/hooks/useToast';
 
 interface ContractInteractionProps {
@@ -18,10 +13,10 @@ interface ContractInteractionProps {
   chainId?: number;
   onSuccessToastData?: { title: string; description?: string };
   onErrorToastData?: { title: string; description?: string };
-  queryKeys?: (string | number)[][];
+  queryKeys?: (object | string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
-  handleSuccess?: (data: TransactionReceipt) => void;
+  handleSuccess?: (data?: TransactionReceipt) => void;
 }
 
 const useHatContractWrite = ({
@@ -38,21 +33,25 @@ const useHatContractWrite = ({
   const toast = useToast();
   const { handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
-  const [hash, setHash] = useState<Hex>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address: CONFIG.hatsAddress,
     chainId: Number(chainId),
-    abi,
+    abi: CONFIG.hatsAbi,
     functionName,
     args,
     enabled: enabled && !!chainId,
   });
 
-  const { writeAsync, error: writeError } = useContractWrite({
+  const {
+    writeAsync,
+    error: writeError,
+    isLoading: writeLoading,
+  } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
-      setHash(data.hash);
+      setIsLoading(true);
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -61,7 +60,18 @@ const useHatContractWrite = ({
       await handlePendingTx?.({
         hash: data.hash,
         toastData: onSuccessToastData,
+        onSuccess: (d?: TransactionReceipt) => {
+          handleSuccess?.(d);
+          setTimeout(() => {
+            queryKeys.forEach((key) =>
+              queryClient.invalidateQueries({
+                queryKey: key,
+              }),
+            );
+          }, transactionTimeout);
+        },
       });
+      setIsLoading(false);
     },
     onError: (error) => {
       if (
@@ -83,21 +93,12 @@ const useHatContractWrite = ({
     },
   });
 
-  const { isLoading } = useWaitForTransaction({
-    hash,
-    onSuccess: (data) => {
-      handleSuccess?.(data);
-      setTimeout(() => {
-        queryKeys.forEach((key) =>
-          queryClient.invalidateQueries({
-            queryKey: key,
-          }),
-        );
-      }, transactionTimeout);
-    },
-  });
-
-  return { writeAsync, isLoading, prepareError, writeError };
+  return {
+    writeAsync,
+    isLoading: isLoading || writeLoading,
+    prepareError,
+    writeError,
+  };
 };
 
 export default useHatContractWrite;

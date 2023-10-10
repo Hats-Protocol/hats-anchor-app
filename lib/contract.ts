@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { IHatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 import { chainsMap } from './web3';
 
@@ -20,6 +20,8 @@ export const checkAddressIsContract = async (
     transport: custom((window as any).ethereum) || http(),
   });
 
+  if (!publicClient) return false;
+
   try {
     const bytecode = await publicClient.getBytecode({
       address,
@@ -35,35 +37,32 @@ export const checkAddressIsContract = async (
 };
 
 export const extendWearers = (
-  wearers: IHatWearer[],
-  wearersInfo: IHatWearer[] | undefined,
-): IHatWearer[] =>
+  wearers: HatWearer[],
+  wearersInfo: HatWearer[] | undefined,
+): HatWearer[] =>
   _.compact(
-    _.map(wearers, (wearer: IHatWearer) => {
+    _.map(wearers, (wearer: HatWearer) => {
       const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
-      return wearerInfo as IHatWearer | undefined;
+      return wearerInfo as HatWearer | undefined;
     }),
   );
 
 export const extendControllers = (
   controller: Hex,
-  controllersInfo: IHatWearer[] | undefined,
+  controllersInfo: HatWearer[] | undefined,
 ) => {
-  const controllerInfo = _.find(controllersInfo, { id: controller });
+  const controllerInfo = _.find(controllersInfo, { id: _.toLower(controller) });
 
-  return {
-    id: controller,
-    ...controllerInfo,
-  };
+  return controllerInfo as HatWearer;
 };
 
-export const checkENSNames = async (wearers: IHatWearer[]) => {
+export const checkENSNames = async (wearers: HatWearer[]) => {
   const publicClient = createPublicClient({
     chain: chainsMap(1),
     transport: http(),
   });
 
-  const ensNamePromises = wearers?.map(async (wearer: IHatWearer) => {
+  const ensNamePromises = wearers?.map(async (wearer: HatWearer) => {
     const ensName = await publicClient.getEnsName({
       address: wearer.id,
     });
@@ -71,20 +70,20 @@ export const checkENSNames = async (wearers: IHatWearer[]) => {
     return { id: wearer.id, ensName };
   });
 
-  if (ensNamePromises) {
-    const ensNamesList = await Promise.all(ensNamePromises);
+  if (ensNamePromises) return {};
 
-    const newEnsNames = ensNamesList.reduce(
-      (acc: { [key: string]: string }, { id, ensName }) => {
-        if (ensName) {
-          acc[id] = ensName;
-        }
-        return acc;
-      },
-      {},
-    );
-    return newEnsNames;
-  }
+  const ensNamesList: { id: string; ensName: string }[] = await Promise.all(
+    ensNamePromises,
+  );
 
-  return {};
+  const newEnsNames = ensNamesList.reduce(
+    (acc: { [key: string]: string }, { id, ensName }) => {
+      if (ensName) {
+        acc[id] = ensName;
+      }
+      return acc;
+    },
+    {},
+  );
+  return newEnsNames;
 };

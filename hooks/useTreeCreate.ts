@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import router from 'next/router';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
@@ -14,6 +15,8 @@ const useTreeCreate = ({
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
   const currentNetworkId = useChainId();
+  const queryClient = useQueryClient();
+
   const {
     data: newReceiverResolvedAddress,
     isLoading: isLoadingNewReceiverResolvedAddress,
@@ -22,10 +25,16 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
-  function handleSuccess(transactionData: TransactionReceipt) {
+  function handleSuccess(transactionData?: TransactionReceipt) {
+    if (!transactionData) return;
     const data = transactionData?.logs[0]?.data;
     const treeId = treeCreateEventIdToTreeId(data);
     if (!treeId) return;
+
+    setTimeout(() => {
+      queryClient.invalidateQueries(['treeList', chainId]);
+      queryClient.invalidateQueries(['wearerDetails']);
+    }, 1000);
 
     router.push(`/trees/${chainId}/${treeId}`);
   }

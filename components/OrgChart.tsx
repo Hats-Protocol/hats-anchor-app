@@ -8,6 +8,7 @@ import {
   Icon,
   IconButton,
   Spinner,
+  useDisclosure,
 } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
@@ -22,7 +23,7 @@ import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { calculateNextChildId, ipToHatId, isTopHatOrMutable } from '@/lib/hats';
-import { IHat, IHatWearer } from '@/types';
+import { Hat, HatWearer } from '@/types';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
@@ -65,6 +66,7 @@ const OrgChartComponent: React.FC = () => {
     wearerAddress: address,
     chainId,
   });
+  const { isOpen: compact, onToggle: toggleCompact } = useDisclosure();
 
   useLayoutEffect(() => {
     if (_.isEmpty(treeToDisplay)) return;
@@ -93,7 +95,7 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick(function test(node: IHat) {
+          .onNodeClick(function test(node: Hat) {
             if (!editMode) {
               handleSelectHat?.(node?.id);
               centerChart(chart, node?.id);
@@ -145,7 +147,7 @@ const OrgChartComponent: React.FC = () => {
                 // wait to center. node doesn't exist right away
                 setTimeout(() => {
                   centerChart(chart, newId);
-                }, 100);
+                }, 500);
               } else {
                 centerChart(chart, data.data?.id);
                 handleSelectHat?.(data.data?.id);
@@ -222,16 +224,12 @@ const OrgChartComponent: React.FC = () => {
             } = d.data;
 
             const nextChildId = calculateNextChildId(d.data.id, treeToDisplay);
-
-            let detailsName = details;
-            if (detailsObject?.type === '1.0') {
-              detailsName = detailsObject?.data?.name;
-            }
-
+            const detailsName = detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
 
+            // setup wearers section
             let wearersColor = '#FFFFFF';
-            const wearer: IHatWearer | undefined = _.first(wearers);
+            const wearer: HatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
             let wearerAccent: string = `0 of ${maxSupply}`;
             let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;
@@ -244,7 +242,9 @@ const OrgChartComponent: React.FC = () => {
             }
             if (_.size(wearers) === 1) {
               wearerContent =
-                wearer?.ensName ?? formatAddress(_.get(wearer, 'id'));
+                !!wearer?.ensName && wearer?.ensName !== ''
+                  ? wearer?.ensName
+                  : formatAddress(_.get(wearer, 'id'));
               wearerAccent = `1 of ${maxSupply}`;
               if (wearer?.isContract) {
                 wearersColor = '#F0FFF4';
@@ -253,6 +253,20 @@ const OrgChartComponent: React.FC = () => {
                 wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
                 wearersColor = '#FFFAF0';
               }
+            }
+
+            // handle wearers overflow with max supply accent
+            let wearerContentWidth = '135px';
+            let wearerAccentWidth = '35px';
+            if (maxSupply > 999) {
+              wearerContentWidth = '115px';
+              wearerAccentWidth = '62px';
+            } else if (maxSupply > 99) {
+              wearerContentWidth = '115px';
+              wearerAccentWidth = '55px';
+            } else if (maxSupply > 9) {
+              wearerContentWidth = '130px';
+              wearerAccentWidth = '38px';
             }
 
             const selectedOptionContent = () => {
@@ -274,16 +288,20 @@ const OrgChartComponent: React.FC = () => {
                       <div style="
                         display: flex;
                         flex-direction: row;
-                        gap: 4px;
+                        gap: 2px;
                       ">
                         <div style="min-width: 16px;">
                           ${wearerIcon || ''}
                         </div>
                         <div style="
-                          display: inline-block;
+                          display: -webkit-box;
                           font-size: 15px;
                           font-weight: 550;
                           opacity: 0.8;
+                          overflow: hidden;
+                          width: ${wearerContentWidth};
+                          -webkit-line-clamp: 1;
+                          -webkit-box-orient: vertical;
                         ">
                           ${wearerContent}
                         </div>
@@ -291,11 +309,14 @@ const OrgChartComponent: React.FC = () => {
                       ${
                         wearerAccent
                           ? `<div style="
-                          display: inline-block;
-                          opacity: 0.6;
-                        ">
-                          ${wearerAccent}
-                        </div>`
+                              display: inline-block;
+                              fit-content: contain;
+                              text-align: right;
+                              min-width: ${wearerAccentWidth};
+                              opacity: 0.6;
+                            ">
+                              ${wearerAccent}
+                            </div>`
                           : ''
                       }
                     </div>`;
@@ -560,7 +581,7 @@ const OrgChartComponent: React.FC = () => {
               </div>
             </div>`;
           })
-          .compact(false)
+          .compact(compact)
           .render()
           .expandAll();
 
@@ -592,6 +613,7 @@ const OrgChartComponent: React.FC = () => {
     userChain,
     newImageUrls,
     treeToDisplay,
+    compact,
   ]);
 
   return isLoading ? (
@@ -612,19 +634,25 @@ const OrgChartComponent: React.FC = () => {
         ref={d3Container}
         id='d3Container'
       />
-      <Button
-        variant='outline'
-        position='absolute'
-        bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
-        bottom={4}
-        left={4}
-        onClick={() => {
-          chart?.expandAll();
-          chart?.fit();
-        }}
-      >
-        Show full {CONFIG.tree}
-      </Button>
+      <HStack position='absolute' bottom={4} left={4}>
+        <Button
+          variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+          onClick={() => {
+            chart?.expandAll();
+            chart?.fit();
+          }}
+        >
+          Show full {CONFIG.tree}
+        </Button>
+        <Button
+          onClick={toggleCompact}
+          variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+        >
+          {compact ? 'Full View' : 'Compact View'}
+        </Button>
+      </HStack>
 
       <HStack position='absolute' bottom={4} right={4}>
         <IconButton

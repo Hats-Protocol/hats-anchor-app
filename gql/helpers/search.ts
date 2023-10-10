@@ -1,11 +1,14 @@
+/* eslint-disable import/prefer-default-export */
 import _ from 'lodash';
+import { IconName } from 'react-cmdk';
+import { Hex } from 'viem';
 
+import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
-import { ITree, IHat } from '@/types';
+import { Hat, Tree } from '@/types';
+
 import client from '../client';
 import { SEARCH_QUERY } from '../queries';
-import { prettyIdToIp, idToPrettyId } from '@/lib/hats';
-import { Hex } from 'viem';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',
@@ -14,24 +17,33 @@ const keyIcons: { [key: string]: string } = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processForCommandPalette = (key: string, record: any) => {
-  const parts = _.split(_.get(record, 'id'), '.');
-  const treeId = prettyIdToIp(idToPrettyId(_.first(parts) as Hex));
+  const { id, network, prettyId } = record;
+  const { id: networkId, name: networkName } = network || {};
+
+  const parts = id?.split('.');
+  const treeId = parts ? prettyIdToIp(idToPrettyId(parts[0] as Hex)) : '';
+
   let href = '#';
-  if (key === 'trees') {
-    href = `/trees/${_.get(record, 'network.id')}/${prettyIdToIp(
-      _.get(record, 'id'),
-    )}`;
-  }
-  if (key === 'hats') {
-    href = `/trees/${_.get(record, 'network.id')}/${treeId}`;
+  const ip = prettyIdToIp(prettyId || id);
+  const hatIdIp = prettyIdToIp(idToPrettyId(id));
+
+  // eslint-disable-next-line default-case
+  switch (key) {
+    case 'trees':
+      href = `/trees/${networkId}/${ip}`;
+      break;
+    case 'hats':
+      href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
+      break;
   }
 
+  const children = `${networkName} - #${ip}`;
+  const icon = keyIcons[key] as IconName;
+
   return {
-    id: `${key}-${_.get(record, 'id')}-${_.get(record, 'network.id')}`,
-    children: `${_.get(record, 'network.name')} - #${prettyIdToIp(
-      _.get(record, 'prettyId', _.get(record, 'id')),
-    )}`,
-    icon: keyIcons[key],
+    id: `${key}-${id}-${networkId}`,
+    children,
+    icon,
     href,
   };
 };
@@ -47,20 +59,20 @@ export const searchQueryResult = async (search: string) => {
 
   const result = await Promise.all(promises);
 
-  const allNetworkResults: { trees: ITree[]; hats: IHat[] } = {
+  const allNetworkResults: { trees: Tree[]; hats: Hat[] } = {
     trees: [],
     hats: [],
   };
   _.forEach(result, (network, i) => {
     allNetworkResults.trees = _.concat(
-      _.map(_.get(network, 'trees'), (tree: ITree) => ({
+      _.map(_.get(network, 'trees'), (tree: Tree) => ({
         ...tree,
         network: _.values(chainsList)[i],
       })),
       allNetworkResults?.trees || [],
     );
     allNetworkResults.hats = _.concat(
-      _.map(_.get(network, 'hats'), (hat: IHat) => ({
+      _.map(_.get(network, 'hats'), (hat: Hat) => ({
         ...hat,
         network: _.values(chainsList)[i],
       })),

@@ -8,11 +8,13 @@ import {
   Flex,
   Heading,
   HStack,
+  IconButton,
   SimpleGrid,
   Skeleton,
   Spinner,
   Stack,
   Text,
+  useClipboard,
 } from '@chakra-ui/react';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
@@ -20,7 +22,8 @@ import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
-import { Hex } from 'viem';
+import { FiCopy } from 'react-icons/fi';
+import { createPublicClient, Hex, http } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import Layout from '@/components/Layout';
@@ -28,30 +31,39 @@ import CoreHat from '@/components/WearerHatCard';
 import useControllerList from '@/hooks/useControllerList';
 import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
+import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { chainsMap, orderedChains } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const WearerDetail = ({
   wearerAddress,
+  initialEnsName,
 }: {
   wearerAddress: Hex;
-  // initialData: IHat[] | undefined;
+  initialEnsName?: string;
+  // initialData: Hat[] | undefined;
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();
-  const [name, setName] = useState<string | undefined>();
+  const [name, setName] = useState<string | undefined>(initialEnsName);
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
   });
+
+  const toast = useToast();
+  const { onCopy } = useClipboard(wearerAddress);
 
   const firstCreated = _.minBy(currentHats, 'createdAt');
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
     useImageURIs({ hats: currentHats });
 
-  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+  const { data: ensName } = useEnsName({
+    address: wearerAddress,
+    chainId: 1,
+  });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName,
     chainId: 1,
@@ -105,7 +117,7 @@ const WearerDetail = ({
 
   return (
     <Layout>
-      <NextSeo title={`${name}'s Hats`} />
+      <NextSeo title={`${name || formatAddress(wearerAddress)}'s Hats`} />
 
       <Box
         w='100%'
@@ -121,9 +133,24 @@ const WearerDetail = ({
           <HStack spacing={6}>
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
-              <Heading size='lg' fontWeight='medium'>
-                {name}
-              </Heading>
+              <HStack>
+                <Heading size='lg' fontWeight='medium'>
+                  {name}
+                </Heading>
+                <IconButton
+                  variant='ghost'
+                  icon={<FiCopy />}
+                  size='sm'
+                  onClick={() => {
+                    onCopy();
+                    toast.info({
+                      title: 'Successfully copied Address to clipboard',
+                    });
+                  }}
+                  aria-label='Copy Address'
+                  color='gray.500'
+                />
+              </HStack>
               <Skeleton isLoaded={!wearerLoading}>
                 {!!_.get(firstCreated, 'createdAt') && (
                   <Text>
@@ -178,7 +205,7 @@ const WearerDetail = ({
                       _.filter(currentHatsWithImagesData, {
                         chainId: Number(chainId),
                       }),
-                      (hat: IHat) => (
+                      (hat: Hat) => (
                         <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
                       ),
                     )}
@@ -198,10 +225,19 @@ export const getStaticProps = async (context: GetServerSidePropsContext) => {
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
+  const publicClient = createPublicClient({
+    chain: chainsMap(1),
+    transport: http(),
+  });
+  const initialEnsName = await publicClient.getEnsName({
+    address: wearer as Hex,
+  });
+
   return {
     props: {
       wearerAddress: wearer,
-      // initialData: undefined,
+      initialEnsName: initialEnsName || null,
+      // initialData:  || undefined,
     },
     revalidate: 60,
   };

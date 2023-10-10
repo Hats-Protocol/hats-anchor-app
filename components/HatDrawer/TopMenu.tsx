@@ -38,8 +38,8 @@ import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, isTopHat, isWearer, toTreeId } from '@/lib/hats';
-import { IHat } from '@/types';
+import { decimalId, isTopHat, isWearingAdminHat, toTreeId } from '@/lib/hats';
+import { Hat } from '@/types';
 
 const Modal = lazy(() => import('@/components/atoms/Modal'));
 const HatLinkRequestCreateForm = lazy(
@@ -59,12 +59,12 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
     chainId,
   });
 
-  const isAdminUser = isWearer(_.map(wearer, 'id'), selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
   const wearerTopHats = _.map(
     _.filter(
       wearer,
-      (hat: IHat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
+      (hat: Hat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
     ),
     'id',
   );
@@ -89,7 +89,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
         description: 'Successfully updated hat',
       },
       queryKeys: [
-        ['hatDetails', selectedHat?.id || 'none'],
+        ['hatDetails', { id: selectedHat?.id, chainId }],
         ['treeDetails', toTreeId(selectedHat?.id)],
       ],
       enabled:
@@ -131,7 +131,6 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
       align='center'
       justify={editMode ? 'space-between' : 'flex-end'}
       px={4}
-      position='absolute'
       top={0}
       zIndex={16}
     >

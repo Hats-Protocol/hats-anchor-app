@@ -1,7 +1,15 @@
 import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { Hex, TransactionReceipt } from 'viem';
 
 import useToast from '@/hooks/useToast';
@@ -20,8 +28,8 @@ export interface IOverlayContext {
   modals?: { [key: string]: boolean };
   setModals?: (m: object) => void;
   closeModals?: () => void;
-  commandPallet?: boolean;
-  setCommandPallet?: (m: boolean) => void;
+  commandPalette: boolean;
+  setCommandPalette: Dispatch<SetStateAction<boolean>>;
   handlePendingTx?: ({
     hash,
     toastData,
@@ -35,8 +43,8 @@ export interface IOverlayContext {
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
-    onSuccess?: () => void;
-  }) => Promise<TransactionReceipt>;
+    onSuccess?: (d?: TransactionReceipt) => void;
+  }) => Promise<TransactionReceipt | undefined>;
 }
 
 export const OverlayContext = createContext<IOverlayContext>({
@@ -45,6 +53,8 @@ export const OverlayContext = createContext<IOverlayContext>({
   closeModals: undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePendingTx: undefined,
+  commandPalette: false,
+  setCommandPalette: () => {},
 });
 
 export const OverlayContextProvider = ({
@@ -53,7 +63,7 @@ export const OverlayContextProvider = ({
   children: ReactNode;
 }) => {
   const [modals, setModals] = useState(defaults);
-  const [commandPallet, setCommandPallet] = useState(false);
+  const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
@@ -67,78 +77,79 @@ export const OverlayContextProvider = ({
     setModals(defaults);
   };
 
-  const returnValue = useMemo(() => {
-    /**
-     * @param {string} hash
-     * @param {object} toastData
-     * @param {string} toastData.title
-     * @param {string} toastData.description
-     * @param {string} redirect
-     * @param {boolean} clearModals
-     * @param {boolean} sendToast
-     * @returns {Promise<void>}
-     * @example
-     * handlePendingTx({
-     *  hash: '0x123',
-     *  toastData: {
-     *    title: 'Transaction successful',
-     *    description: 'Your hat was created successfully',
-     *  },
-     * });
-     * */
-    const handlePendingTx = async ({
-      hash,
-      toastData,
-      redirect = null,
-      clearModals = true,
-      sendToast = true,
-      onSuccess,
-    }: {
-      hash: Hex;
-      toastData: object | undefined;
-      redirect?: string | null;
-      clearModals?: boolean;
-      sendToast?: boolean;
-      onSuccess?: () => void;
-    }): Promise<TransactionReceipt> => {
-      const data = await waitForTransaction({ hash });
+  /**
+   * @param {string} hash
+   * @param {object} toastData
+   * @param {string} toastData.title
+   * @param {string} toastData.description
+   * @param {string} redirect
+   * @param {boolean} clearModals
+   * @param {boolean} sendToast
+   * @returns {Promise<void>}
+   * @example
+   * handlePendingTx({
+   *  hash: '0x123',
+   *  toastData: {
+   *    title: 'Transaction successful',
+   *    description: 'Your hat was created successfully',
+   *  },
+   * });
+   * */
+  const handlePendingTx = async ({
+    hash,
+    toastData,
+    redirect = null,
+    clearModals = true,
+    sendToast = true,
+    onSuccess,
+  }: {
+    hash: Hex;
+    toastData: object | undefined;
+    redirect?: string | null;
+    clearModals?: boolean;
+    sendToast?: boolean;
+    onSuccess?: (data?: TransactionReceipt) => void;
+  }): Promise<TransactionReceipt | undefined> => {
+    const data = await waitForTransaction({ hash });
 
-      if (data) {
-        if (sendToast && toastData) {
-          toast.success({
-            title: _.get(toastData, 'title', 'Transaction successful'),
-            description: _.get(toastData, 'description'),
-          });
-        }
+    if (!data) {
+      return Promise.resolve(undefined);
+    }
 
-        if (onSuccess) {
-          onSuccess();
-        }
+    if (sendToast && toastData) {
+      toast.success({
+        title: _.get(toastData, 'title', 'Transaction successful'),
+        description: _.get(toastData, 'description'),
+      });
+    }
 
-        if (clearModals) {
-          setModals(defaults);
-        }
+    if (onSuccess) {
+      onSuccess(data);
+    }
 
-        if (redirect) {
-          router.push(redirect);
-        }
-      } else {
-        // TODO handle error
-      }
+    if (clearModals) {
+      setModals(defaults);
+    }
 
-      return Promise.resolve(data);
-    };
+    if (redirect) {
+      router.push(redirect);
+    }
 
-    return {
+    return Promise.resolve(data);
+  };
+
+  const returnValue = useMemo(
+    () => ({
       modals,
       setModals: showModal,
       closeModals,
-      commandPallet,
-      setCommandPallet,
+      commandPalette,
+      setCommandPalette,
       handlePendingTx,
-    };
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modals, commandPallet, toast]);
+    [modals, commandPalette, toast],
+  );
 
   return (
     <OverlayContext.Provider value={returnValue}>

@@ -1,41 +1,21 @@
-import { Hex } from 'viem';
+import { Abi, Hex } from 'viem';
 
-import defaultHat from './defaultHat';
-import {
-  EMPTY_FORM_VALUES,
-  FORM_FIELDS,
-  MODULE_TYPES,
-  MUTABILITY,
-  STATUS,
-  TRIGGER_OPTIONS,
-} from './form';
-import { featuredTemplates, featuredTrees, learnMore } from './landingContent';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS, ZERO_ID } from './misc';
-import { initialControls } from './treeControls';
+import { HATS_ABI } from '@/contracts/Hats';
 
-export {
-  defaultHat,
-  EMPTY_FORM_VALUES,
-  FALLBACK_ADDRESS,
-  featuredTemplates,
-  featuredTrees,
-  FORM_FIELDS,
-  initialControls,
-  learnMore,
-  MODULE_TYPES,
-  MUTABILITY,
-  STATUS,
-  TRIGGER_OPTIONS,
-  ZERO_ADDRESS,
-  ZERO_ID,
-};
+export { default as defaultHat } from './defaultHat';
+export * from './form';
+export * from './landingContent';
+export * from './misc';
+export * from './treeControls';
 
 const CONFIG: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+  hatsAbi: Abi;
   hatsAddress: Hex;
 } = {
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
+  hatsAbi: HATS_ABI as Abi,
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
   protocolVersion: '1.0',
@@ -46,6 +26,8 @@ const CONFIG: {
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
   banner: false,
+  claimsHatterModuleId:
+    '0xa6736b79820695b7014d72937d271224ac9cd523d067bc271c5238cacfa8d16c',
 
   // terminology
   hat: 'hat',
@@ -74,7 +56,7 @@ const CONFIG: {
     eligibility:
       'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/eligibility-requirements-for-wearers',
     toggle:
-      'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-requirements-for-wearers',
+      'https://docs.hatsprotocol.xyz/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats',
   },
 };
 

@@ -8,7 +8,7 @@ export const EVENT_DETAILS_FRAGMENT = gql`
   }
 `;
 
-export const HAT_DETAILS_FRAGMENT = gql`
+export const HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT = gql`
   fragment HatDetailsUnit on Hat {
     id
     prettyId
@@ -21,24 +21,35 @@ export const HAT_DETAILS_FRAGMENT = gql`
     mutable
     imageUri
     levelAtLocalTree
-    currentSupply
-    events(orderBy: timestamp, orderDirection: desc) {
-      ...EventDetails
+    # TODO need to handle more than 1 "registered" hatter instance?
+    claimableBy(first: 1) {
+      id
     }
+    claimableForBy(first: 1) {
+      id
+    }
+    currentSupply
     tree {
       id
     }
-  }
-  fragment HatDetails on Hat {
-    ...HatDetailsUnit
     wearers {
       id
     }
     admin {
-      ...HatDetailsUnit
+      id
     }
   }
   ${EVENT_DETAILS_FRAGMENT}
+`;
+
+export const HAT_DETAILS_FRAGMENT = gql`
+  fragment HatDetails on Hat {
+    ...HatDetailsUnit
+    events(orderBy: timestamp, orderDirection: desc) {
+      ...EventDetails
+    }
+  }
+  ${HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT}
 `;
 
 export const GET_HAT = gql`
@@ -57,4 +68,23 @@ export const GET_HATS_BY_IDS = gql`
     }
   }
   ${HAT_DETAILS_FRAGMENT}
+`;
+
+export const GET_HATTERS_FOR_HATS = gql`
+  query getHattersForHats($hatIds: [ID!]!) {
+    hats(where: { id_in: $hatIds }) {
+      id
+      claimableBy {
+        id
+        # wearing hats?
+      }
+    }
+    # something like this doesn't work?
+    # claimsHatters(where: { claimableHats_in: [$hatIds] }) {
+    #   id
+    #   claimableHats {
+    #     id
+    #   }
+    # }
+  }
 `;

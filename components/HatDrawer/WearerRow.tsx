@@ -1,7 +1,7 @@
-/* eslint-disable no-nested-ternary */
 import {
   Badge,
   Flex,
+  Icon,
   IconButton,
   Image,
   Menu,
@@ -9,8 +9,10 @@ import {
   MenuItem,
   MenuList,
   Text,
+  useClipboard,
 } from '@chakra-ui/react';
 import _ from 'lodash';
+import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -20,11 +22,11 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
+import useModuleDetails from '@/hooks/useModuleDetails';
 import useToast from '@/hooks/useToast';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { formatAddress, isSameAddress } from '@/lib/general';
-import { decimalId } from '@/lib/hats';
-import { IHatWearer } from '@/types';
+import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
+import { HatWearer } from '@/types';
 
 import TooltipWrapper from './TooltipWrapper';
 
@@ -33,7 +35,6 @@ const WearerRow = ({
   isAdminUser,
   setChangeStatusWearer,
   setWearerToTransferFrom,
-  isTopHat,
   isEligible,
 }: WearerRowProps) => {
   const toast = useToast();
@@ -44,38 +45,45 @@ const WearerRow = ({
 
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
+  const isEligibility = selectedHat?.eligibility === _.toLower(address);
 
-  const { data: wearerIsEligible } = useWearerEligibilityCheck({
-    wearer: wearer.id,
-  });
-
-  const { writeAsync, isLoading } = useHatContractWrite({
+  const { writeAsync: testEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
     enabled:
       Boolean(hatId) &&
       Boolean(wearer) &&
-      wearerIsEligible !== undefined &&
-      !wearerIsEligible &&
+      isEligible !== undefined &&
+      !isEligible &&
       chainId === currentNetworkId,
+    queryKeys: [
+      ['hatDetails', { id: hatId, chainId }],
+      ['treeDetails', toTreeId(hatId)],
+    ],
     handleSuccess: (data) => {
-      if (!_.isEmpty(data.logs)) {
+      if (!_.isEmpty(data?.logs)) {
         toast.info({
           title: `The status of ${formatAddress(
             wearer.id,
           )} was successfully updated.`,
         });
-      } else {
-        toast.info({
-          title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
-        });
       }
+      // } else {
+      //   this shouldn't happen with disable states
+      //   toast.info({
+      //     title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
+      //   });
+      // }
     },
   });
+  const { details: moduleDetails } = useModuleDetails({
+    address: wearer.id,
+    enabled: wearer.isContract,
+  });
 
-  const testEligibility = async () => {
-    writeAsync?.();
+  const updateEligibility = async () => {
+    testEligibility?.();
   };
 
   const { writeAsync: renounceHat } = useHatBurn();
@@ -83,6 +91,21 @@ const WearerRow = ({
   const handleRenounceHat = async () => {
     await renounceHat?.();
   };
+
+  const { onCopy } = useClipboard(wearer.id);
+
+  let icon = <Icon as={FaUser} color='gray.500' />;
+  if (isSameAddress(wearer.id, address)) {
+    icon = <Image src='/icons/hat.svg' alt='Hat' />;
+  } else if (wearer.isContract) {
+    icon = <Icon as={BsFileCode} color='gray.500' />;
+  }
+
+  // could look up by Id to be more resilient?
+  let moduleName = _.get(moduleDetails, 'name');
+  if (moduleName === 'Multi Claims Hatter') {
+    moduleName = 'Autonomous Admin';
+  }
 
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
@@ -93,14 +116,12 @@ const WearerRow = ({
           isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
         }
       >
-        {isSameAddress(wearer.id, address) ? (
-          <Image src='/icons/hat.svg' alt='Hat' />
-        ) : (
-          <FaUser />
-        )}
+        {icon}
 
         <Text>
-          {_.get(wearer, 'ensName') || formatAddress(_.get(wearer, 'id'))}
+          {_.get(wearer, 'ensName') ||
+            moduleName ||
+            formatAddress(_.get(wearer, 'id'))}
         </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
@@ -138,7 +159,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {isSameAddress(wearer.id, address) && !isTopHat && (
+            {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
                 <TooltipWrapper
                   isSameChain={isSameChain}
@@ -149,7 +170,7 @@ const WearerRow = ({
               </MenuItem>
             )}
 
-            {!isSameAddress(wearer.id, address) && isAdminUser && (
+            {!isSameAddress(wearer.id, address) && isEligibility && (
               <MenuItem
                 isDisabled={!isSameChain}
                 onClick={() => {
@@ -167,15 +188,26 @@ const WearerRow = ({
             )}
 
             <MenuItem
-              isDisabled={!isSameChain || isLoading || !writeAsync}
-              onClick={testEligibility}
+              isDisabled={!isSameChain || isLoading || !testEligibility}
+              onClick={updateEligibility}
             >
               <TooltipWrapper
                 isSameChain={isSameChain}
-                label="You can't test eligibility of a hat on a different chain"
+                label="You can't update eligibility of a hat on a different chain"
               >
-                <Text>Test Eligibility</Text>
+                <Text>Update Eligibility</Text>
               </TooltipWrapper>
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                onCopy();
+                toast.info({
+                  title: 'Successfully copied Address to clipboard',
+                });
+              }}
+            >
+              <Text>Copy Address</Text>
             </MenuItem>
           </MenuList>
         </Menu>
@@ -187,10 +219,9 @@ const WearerRow = ({
 export default WearerRow;
 
 interface WearerRowProps {
-  wearer: IHatWearer;
+  wearer: HatWearer;
   isAdminUser: boolean;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
-  isTopHat: boolean;
   isEligible: boolean;
 }

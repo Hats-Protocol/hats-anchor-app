@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { IconName } from 'react-cmdk';
 import { Hex } from 'viem';
 
 export type ImageFile = {
@@ -25,8 +26,15 @@ export type InputObject = {
   parentId: string | undefined;
 };
 
-export interface IControls {
+export interface Controls {
   label: string;
   value: string;
   icon: ReactNode;
 }
+
+export type SearchResults = {
+  children: string;
+  href: string;
+  icon: IconName;
+  id: string;
+};

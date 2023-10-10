@@ -1,6 +1,6 @@
 import { Hex } from 'viem';
 
-import { IHat, IHatEvent } from './hat';
+import { Hat, HatEvent } from './hat';
 
 export type LinkRequest = {
   id: Hex;
@@ -10,19 +10,19 @@ export type LinkRequest = {
   };
 };
 
-export interface ITreeEvent extends IHatEvent {
-  hat: Partial<IHat>;
+export interface TreeEvent extends HatEvent {
+  hat: Partial<Hat>;
 }
 
-export interface ITree {
+export interface Tree {
   id: Hex;
   chainId: number;
-  hats: IHat[];
-  events: ITreeEvent[];
+  hats: Hat[];
+  events: TreeEvent[];
   childOfTree: string | null;
-  parentOfTrees: ITree[];
-  parentOfHats?: IHat[];
-  linkedToHat: IHat | null;
+  parentOfTrees: Tree[];
+  parentOfHats?: Hat[];
+  linkedToHat: Hat | null;
   linkRequestFromTree: LinkRequest[];
 }
 

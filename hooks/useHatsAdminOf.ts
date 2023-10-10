@@ -2,13 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
 import { fetchTreesById } from '@/gql/helpers';
-import { isWearer } from '@/lib/hats';
+import { isWearingAdminHat } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
-import { IHat, ITree } from '@/types';
+import { Hat, Tree } from '@/types';
 
 const chains = _.keys(chainsList);
 
-const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
+const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
   const adminOfHats = async () => {
     if (!hats) return {};
     // determine the trees to fetch for each network based on the currently worn hats
@@ -36,9 +36,9 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
     const data: unknown[] = await Promise.all(promises);
 
     // consolidate the associated hats for each tree
-    const test = _.map(data, (arr: ITree[], i) =>
+    const test = _.map(data, (arr: Tree[], i) =>
       _.flatten(
-        _.map(arr, (tree: ITree) =>
+        _.map(arr, (tree: Tree) =>
           _.map(tree.hats, (h) => ({
             ...h,
             chainId: _.toNumber(networkChains[i]),
@@ -49,8 +49,8 @@ const useHatsAdminOf = ({ hats }: { hats: IHat[] | undefined }) => {
 
     // TODO add another lookup for linked trees/hats
     // filter out the hats that the user is not an admin of
-    const filteredAdminHats = _.filter(_.flatten(test), (h: IHat) =>
-      isWearer(_.map(hats, 'id'), h.id),
+    const filteredAdminHats = _.filter(_.flatten(test), (h: Hat) =>
+      isWearingAdminHat(_.map(hats, 'id'), h.id),
     );
 
     return filteredAdminHats;

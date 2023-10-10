@@ -6,30 +6,25 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import { getTreeId } from '@/lib/hats';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 // TODO optimize top hat fetch
-const WearerHatCard = ({ hat }: { hat: IHat }) => {
-  const { data: hatDetailsFieldData, schemaType: schemaTypeDetailsField } =
-    useHatDetailsField(_.get(hat, 'details'));
+const WearerHatCard = ({ hat }: { hat: Hat }) => {
+  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
   const { data: topHat } = useHatDetails({
     hatId: getTreeId(_.get(hat, 'id'), true),
-    chainId: _.get(hat, 'chainId'),
   });
-  const {
-    data: topHatDetailsFieldData,
-    schemaType: topHatSchemaTypeDetailsField,
-  } = useHatDetailsField(_.get(topHat, 'details'));
+  const { data: topHatDetails } = useHatDetailsField(_.get(topHat, 'details'));
 
   const hatName =
-    schemaTypeDetailsField === '1.0'
-      ? _.get(hatDetailsFieldData, 'name')
+    hatDetails?.type === '1.0'
+      ? _.get(hatDetails, 'data.name')
       : _.get(hat, 'details');
 
   const topHatName =
-    topHatSchemaTypeDetailsField === '1.0'
-      ? _.get(topHatDetailsFieldData, 'name')
+    topHatDetails?.type === '1.0'
+      ? _.get(topHatDetails, 'data.name')
       : _.get(topHat, 'details');
 
   return (

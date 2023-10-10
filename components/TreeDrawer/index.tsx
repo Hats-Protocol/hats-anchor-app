@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react';
+import _ from 'lodash';
 import { useState } from 'react';
 
 import BottomMenu from './BottomMenu';
@@ -6,7 +7,8 @@ import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
 const TreeDrawer = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [accordionIndex, setAccordionIndex] = useState<number[]>([]);
+  const isExpanded = _.includes(accordionIndex, 0);
 
   return (
     <Box
@@ -20,7 +22,10 @@ const TreeDrawer = () => {
     >
       <TopMenu />
       <MainContent isExpanded={isExpanded} />
-      <BottomMenu isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+      <BottomMenu
+        isExpanded={isExpanded}
+        setAccordionIndex={setAccordionIndex}
+      />
     </Box>
   );
 };

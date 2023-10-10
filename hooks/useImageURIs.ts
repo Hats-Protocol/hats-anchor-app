@@ -4,10 +4,9 @@ import { useMemo } from 'react';
 import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 
 import CONFIG from '@/constants';
-import abi from '@/contracts/Hats.json';
 import { checkImageForHat } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 interface ContractCall {
   address: Hex;
@@ -29,14 +28,14 @@ const tempClient = (chainId: number) => {
  * returns an object, mapping from hat id to image url.
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
  * for every url, checks if valid. If not, sets the image url to undefined.
- * @param {IHat[]} hats Array of Hats
+ * @param {Hat[]} hats Array of Hats
  */
 const useImageURIs = ({
   hats,
   onchainHats,
 }: {
-  hats: IHat[] | undefined;
-  onchainHats?: IHat[];
+  hats: Hat[] | undefined;
+  onchainHats?: Hat[];
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
@@ -56,7 +55,7 @@ const useImageURIs = ({
         return {
           address: CONFIG.hatsAddress,
           chainId: hat?.chainId,
-          abi: abi as Abi,
+          abi: CONFIG.hatsAbi,
           functionName: 'getImageURIForHat',
           args: [hat?.id || hat],
         };
@@ -81,7 +80,7 @@ const useImageURIs = ({
 
   const hatImageUris = useMemo(() => {
     const allImageUris = _.map(chainIds, (cId, i) => {
-      const hatsForChain = _.filter(onlyOnchainHats, ['chainId', cId]);
+      const hatsForChain = _.filter(onlyOnchainHats, { chainId: cId });
       const imagesForChain = _.get(imagesData, i);
       return _.map(hatsForChain, (hat, j) => {
         return {
@@ -96,7 +95,10 @@ const useImageURIs = ({
   }, [imagesData, chainIds, onlyOnchainHats]);
 
   const uniqueImageUris = useMemo(() => {
-    return _.uniq(_.map(hatImageUris, 'result')) as string[];
+    return _.filter(
+      _.uniq(_.map(hatImageUris, 'result')) as string[],
+      (img) => img !== '',
+    );
   }, [hatImageUris]);
 
   const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;

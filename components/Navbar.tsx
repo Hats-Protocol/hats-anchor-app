@@ -10,29 +10,29 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-// import { FaSearch } from 'react-icons/fa';
+import { BsSearch } from 'react-icons/bs';
 import { IoCloseOutline } from 'react-icons/io5';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
 import CONFIG from '@/constants';
+import { useOverlay } from '@/contexts/OverlayContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-// import { useOverlay } from '@/contexts/OverlayContext';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
-// TODO reimplement search
-const Navbar = ({ hatData }: { hatData?: IHat }) => {
-  // const localOverlay = useOverlay();
-  // const { setCommandPallet: setOpen } = localOverlay;
+const Navbar = ({ hatData }: { hatData?: Hat }) => {
+  const currentChainId = useChainId();
+  const localOverlay = useOverlay();
+  const { setCommandPalette: setOpen } = localOverlay;
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
 
   const { data: hatDetails } = useHatDetailsField(hatData?.details);
-  const tabName = hatDetails?.name || hatData?.details;
+  const tabName = hatDetails?.data?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
 
@@ -55,7 +55,9 @@ const Navbar = ({ hatData }: { hatData?: IHat }) => {
           <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
         </ChakraNextLink>
         <HStack spacing={5}>
-          <ChakraNextLink href={`/${CONFIG.trees}/${hatData?.chainId || 1}`}>
+          <ChakraNextLink
+            href={`/${CONFIG.trees}/${hatData?.chainId || currentChainId || 1}`}
+          >
             <Button
               h='75px'
               minW='125px'
@@ -137,12 +139,12 @@ const Navbar = ({ hatData }: { hatData?: IHat }) => {
       )}
 
       <HStack spacing={2}>
-        {/* <IconButton
-          icon={<Icon as={FaSearch} h='25px' w='25px' />}
+        <IconButton
+          icon={<Icon as={BsSearch} h='25px' w='25px' />}
           onClick={() => setOpen?.(true)}
           aria-label='Search'
-          variant='outline'
-        /> */}
+          variant='ghost'
+        />
         <ConnectWallet />
       </HStack>
     </Flex>

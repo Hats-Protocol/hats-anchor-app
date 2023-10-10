@@ -5,13 +5,22 @@ import { Hex, isAddress } from 'viem';
 
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { checkAddressIsContract } from '@/lib/contract';
-import { IHat } from '@/types';
+import { Hat } from '@/types';
 
 const fetchWearerAndControllerDetails = async (
   wearer: Hex,
   chainId: number | undefined,
 ) => {
   if (!wearer || !chainId) return undefined;
+
+  if (wearer === FALLBACK_ADDRESS || wearer === ZERO_ADDRESS) {
+    return {
+      id: wearer,
+      isContract: false,
+      ensName: '',
+    };
+  }
+
   const data = await Promise.all([
     checkAddressIsContract(wearer, chainId),
     fetchEnsName({
@@ -21,22 +30,23 @@ const fetchWearerAndControllerDetails = async (
   ]).catch((err) => {
     // eslint-disable-next-line no-console
     console.log(err);
-    return undefined;
   });
 
   if (!data) return undefined;
 
+  const [isContract, ensName] = data as [boolean, string];
+
   return {
     id: wearer,
-    isContract: data[0] as boolean,
-    ensName: data[1] as string,
+    isContract,
+    ensName: ensName || '',
   };
 };
 
 const useWearersControllersDetails = ({
   hats,
 }: {
-  hats: IHat[] | undefined;
+  hats: Hat[] | undefined;
 }) => {
   const chainId = _.get(_.first(hats), 'chainId');
   const wAndCs = _.uniq(
@@ -44,8 +54,8 @@ const useWearersControllersDetails = ({
       _.reject(
         _.concat(
           _.map(_.flatten(_.map(hats, 'wearers')), 'id'),
-          _.map(_.flatten(_.map(hats, 'toggle')), 'id'),
-          _.map(_.flatten(_.map(hats, 'eligibility')), 'id'),
+          _.flatten(_.map(hats, 'toggle')), // not nested in objects here
+          _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
         ),
         ZERO_ADDRESS || FALLBACK_ADDRESS,
       ),
@@ -59,7 +69,7 @@ const useWearersControllersDetails = ({
       enabled: !!w && isAddress(w) && !!chainId,
     })),
   });
-  const isLoaded = _.every(wearerAndControllerDetails, 'isSuccess');
+  const isLoaded = _.every(wearerAndControllerDetails, ['fetchStatus', 'idle']);
 
   if (!isLoaded || !_.eq(_.size(wearerAndControllerDetails), _.size(wAndCs)))
     return undefined;

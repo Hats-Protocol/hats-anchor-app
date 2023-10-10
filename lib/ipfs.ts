@@ -1,14 +1,11 @@
-/* eslint-disable */
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
 import _ from 'lodash';
-import { CID } from 'multiformats/cid';
-import * as json from 'multiformats/codecs/json';
-import * as raw from 'multiformats/codecs/raw';
-import { sha256 } from 'multiformats/hashes/sha2';
 
-import { FormDataDetails } from '@/types';
 import CONFIG from '@/constants';
+import { FormDataDetails } from '@/types';
+
+export * from './ipfs-misc';
 
 const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
 
@@ -47,7 +44,8 @@ export const pinImage = async ({
   file,
   metadata,
 }: {
-  file: File;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  file: any;
   metadata: object;
 }) => {
   const formData = new FormData();
@@ -84,43 +82,30 @@ export const unpinImage = async (cid: string) => {
   };
 
   const res = await axios(config);
-  // console.log('upnin res:', res);
   return res;
-};
-
-export const calculateCid = async (data: object): Promise<string> => {
-  const bytes = json.encode(data);
-  const hash = await sha256.digest(bytes);
-  const localCid = CID.create(1, raw.code, hash);
-  return `ipfs://${localCid.toString()}`;
 };
 
 interface handleDetailsPinProps {
   chainId: number;
   hatId: string;
-  newDetails: Partial<FormDataDetails>;
-  existingDetails?: Partial<FormDataDetails> | object;
+  details: Partial<FormDataDetails>;
 }
 
 export const handleDetailsPin = async ({
   chainId,
   hatId,
-  newDetails,
-  existingDetails,
+  details,
 }: handleDetailsPinProps) => {
   const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
 
-  const newDetailsData = _.merge({}, existingDetails, newDetails);
-
+  // TODO handle different details schemas
   const cid = `ipfs://${await pinJson(
-    {
-      type: '1.0',
-      data: newDetailsData,
-    },
+    { type: '1.0', data: details },
     { name: detailsName },
   )}`;
+
   return cid;
 };
 
@@ -133,5 +118,5 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   const res = await axios.get(url, { timeout: 5000 });
-  return res;
+  return Promise.resolve({ details: detailsField, data: _.get(res, 'data') });
 };

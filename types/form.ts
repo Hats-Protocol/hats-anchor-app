@@ -37,3 +37,8 @@ export type DirtyFormData = {
   imageUrl?: string;
   [key: string]: string | string[] | DetailsItem[] | FormWearer[] | undefined;
 };
+
+export type DeploymentType =
+  | 'onlyModule'
+  | 'moduleAndClaimsHatter'
+  | 'onlyClaimsHatter';

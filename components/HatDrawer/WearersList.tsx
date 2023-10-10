@@ -28,12 +28,14 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatClaim from '@/hooks/useHatClaim';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { isSameAddress } from '@/lib/general';
-import { isTopHat, isWearer, prettyIdToId } from '@/lib/hats';
+import { isWearingAdminHat } from '@/lib/hats';
 import { filterWearers, getEligibleWearers } from '@/lib/wearers';
-import { IHatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
 
@@ -47,7 +49,7 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat, treeId } = useTreeForm();
+  const { chainId, selectedHat } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -62,24 +64,42 @@ const WearersList = () => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
   const wearerIds = useMemo(() => wearers.map(({ id }) => id), [wearers]);
+  const currentUserIsWearing = useMemo(
+    () => _.includes(wearerIds, _.toLower(address)),
+    [wearerIds, address],
+  );
   const { data: wearersEligibility } = useWearersEligibilityCheck({
     wearerIds,
   });
 
-  const eligibleWearers = getEligibleWearers({
-    wearersEligibility,
-    wearers,
-    selectedHat,
-  });
+  const eligibleWearers = useMemo(
+    () =>
+      getEligibleWearers({
+        wearersEligibility,
+        wearers,
+      }),
+    [wearersEligibility, wearers],
+  );
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
 
+  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
+    wearer: address,
+  });
+
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    wearer: address,
+  });
+
   const currentWearerHats = _.map(wearer, 'id');
-  const isAdminUser = isWearer(currentWearerHats, selectedHat?.id);
-  const isAdminOfTopHat = isWearer(currentWearerHats, prettyIdToId(treeId));
+  const isAdminUser = isWearingAdminHat(
+    currentWearerHats,
+    selectedHat?.id,
+    true,
+  );
 
   const sortWearers = useCallback(() => {
     if (address) {
@@ -99,8 +119,16 @@ const WearersList = () => {
     filterWearers(searchTerm, wearers),
     0,
     6,
-  ) as IHatWearer[];
+  ) as HatWearer[];
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+
+  const claimTooltip = useMemo(() => {
+    if (chainId !== currentNetworkId)
+      return "You can't claim a hat on a different chain.";
+    if (!hatterIsAdmin)
+      return 'Hatter must be wearing an admin hat to claim this hat.';
+    return undefined;
+  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   return (
     <>
@@ -110,7 +138,7 @@ const WearersList = () => {
             Hat Wearers
           </Heading>
           <Flex gap={1}>
-            <Text>{wearers?.length}</Text>
+            <Text>{_.get(selectedHat, 'currentSupply')}</Text>
             <Text color='gray.400'>of {maxSupply}</Text>
           </Flex>
         </Flex>
@@ -129,7 +157,7 @@ const WearersList = () => {
           </InputGroup>
         )}
         {/* Wearers list */}
-        {filteredWearers.map((w: IHatWearer) => (
+        {filteredWearers.map((w: HatWearer) => (
           <WearerRow
             key={w.id}
             wearer={w}
@@ -137,12 +165,42 @@ const WearersList = () => {
             isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
-            isTopHat={isTopHat(selectedHat)}
           />
         ))}
 
-        <Flex justify='space-between' color='blue.500'>
-          {isAdminOfTopHat && (
+        <Flex justify='space-between'>
+          {_.gt(_.size(wearers), 6) && (
+            <Text
+              onClick={() => setModals?.({ hatWearers: true })}
+              cursor='pointer'
+              _hover={{
+                textDecor: 'underline',
+              }}
+            >
+              Show all {_.get(selectedHat, 'currentSupply')} wearers
+            </Text>
+          )}
+          {(currentUserIsEligible as boolean) &&
+            !!isClaimable &&
+            !currentUserIsWearing && (
+              <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
+                <Button
+                  variant='unstyled'
+                  isDisabled={
+                    !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+                  }
+                  onClick={() => {
+                    claimHat?.();
+                  }}
+                >
+                  <HStack color='blue.500'>
+                    <FaPlus />
+                    <Text variant='ghost'>Claim Hat</Text>
+                  </HStack>
+                </Button>
+              </Tooltip>
+            )}
+          {isAdminUser && (
             <Tooltip
               label={
                 maxWearersReached
@@ -172,17 +230,6 @@ const WearersList = () => {
               </Button>
             </Tooltip>
           )}
-          {_.gt(_.size(wearers), 6) && (
-            <Text
-              onClick={() => setModals?.({ hatWearers: true })}
-              cursor='pointer'
-              _hover={{
-                textDecor: 'underline',
-              }}
-            >
-              Show all {wearers?.length} wearers
-            </Text>
-          )}
         </Flex>
       </Stack>
 
@@ -193,7 +240,7 @@ const WearersList = () => {
           localOverlay={localOverlay}
         >
           <Flex direction='column' gap={4}>
-            {wearers?.map((w: IHatWearer) => (
+            {wearers?.map((w: HatWearer) => (
               <WearerRow
                 key={w.id}
                 wearer={w}
@@ -201,7 +248,6 @@ const WearersList = () => {
                 isAdminUser={isAdminUser}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
-                isTopHat={isTopHat(selectedHat)}
               />
             ))}
           </Flex>

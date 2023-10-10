@@ -1,21 +1,10 @@
+import { solidityToTypescriptType, verify } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
 import CONFIG from '@/constants';
 
 import { PINATA_GATEWAY_TOKEN } from './ipfs';
-
-// unused
-export function parseUri(uri: string) {
-  const parsed = JSON.parse(uri);
-  return parsed;
-}
-
-// unused
-export function decodeUri(uri: string) {
-  const decoded = Buffer.from(uri.substring(29), 'base64').toString('utf8');
-  return decoded;
-}
 
 export const formatAddress = (address: string | null | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
@@ -25,13 +14,6 @@ export const isSameAddress = (address1?: string, address2?: string) => {
   return address1.toLowerCase() === address2.toLowerCase();
 };
 
-// unused
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const clearNonObjects = (array: any[]) => {
-  return _.filter(array, (item) => typeof item === 'object');
-};
-
-// unused?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchWithTimeout(resource: any, options: any = {}) {
   const { timeout = 8000 } = options;
@@ -117,7 +99,70 @@ export const formatImageUrl = (url?: string) => {
     return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
   }
 
+  return null;
+};
+
+export const transformInput = (
+  input: unknown,
+  solidityType: string,
+): unknown => {
+  if (input === undefined || input === null) {
+    return undefined;
+  }
+  const tsType = solidityToTypescriptType(solidityType);
+
+  switch (tsType) {
+    case 'number':
+      return Number(input);
+    case 'bigint':
+      if (typeof input === 'string' || typeof input === 'number') {
+        const numberCheck = _.toNumber(input);
+
+        if (!_.isInteger(numberCheck)) {
+          return undefined;
+          // throw new Error('Must be an integer');
+        }
+        return BigInt(input);
+      }
+      break;
+    case 'string':
+      return String(input);
+    case 'boolean':
+      if (typeof input === 'string') {
+        return input.toLowerCase() === 'yes';
+      }
+      return Boolean(input);
+    case 'number[]':
+      return String(input).split(',').map(Number);
+    case 'bigint[]':
+      // TODO  make sure these are valid bigints
+      return String(input)
+        .split(',')
+        .map((num) => BigInt(num.trim()));
+    case 'string[]':
+      return String(input).split(',');
+    case 'boolean[]':
+      return String(input)
+        .split(',')
+        .map((str) => str.toLowerCase() === 'yes');
+    default:
+      throw new Error(`Invalid Solidity type: ${solidityType}`);
+  }
   return undefined;
+};
+
+export const transformAndVerify = (
+  input: unknown,
+  solidityType: string,
+): string | boolean => {
+  const transformedInput = transformInput(input, solidityType);
+
+  if (verify(transformedInput, solidityType)) {
+    return true;
+  }
+
+  // TODO pass a more specific error message for types
+  return 'This is not a valid input!';
 };
 
 export async function hash(string: string) {

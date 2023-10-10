@@ -1,7 +1,8 @@
 import { gql } from 'graphql-request';
 
-import { HAT_DETAILS_FRAGMENT } from '../queries';
+import { HAT_DETAILS_FRAGMENT } from './hat';
 
+// todo get wearer hats
 export const GET_WEARER_DETAILS = gql`
   query getCurrentHatsForWearer($id: ID!) {
     wearer(id: $id) {

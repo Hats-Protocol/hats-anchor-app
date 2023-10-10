@@ -1,11 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Hex } from 'viem';
 
-import { hash } from '@/lib/general';
+import { DetailsData } from '@/lib/details';
+import { sha256 } from '@/lib/sha256';
 import { toTreeStructure } from '@/lib/tree';
-import { HatDetails, IHat, IHatWearer, ITree } from '@/types';
+import { Hat, HatWearer, Tree } from '@/types';
+
+import useDeepCompareEffect from './useDeepCompareEffect';
 
 const useOrgChartTree = ({
   treeData,
@@ -19,19 +22,24 @@ const useOrgChartTree = ({
   initialHatIds,
   chainId,
 }: UseOrgChartTreeProps) => {
-  const [detailsHashes, setDetailsHashes] = useState<string[]>();
+  const [detailsHashes, setDetailsHashes] = useState<unknown[]>();
+  const [hatsHashes, setHatsHashes] = useState<unknown[]>();
 
-  useEffect(() => {
-    const handleDetailsHashes = async () => {
-      const promiseHashes = _.map(detailsData, (d) => hash(JSON.stringify(d)));
-      const result = await Promise.all(promiseHashes).then((hashes) => hashes);
-      setDetailsHashes(result);
-    };
+  useDeepCompareEffect(() => {
+    setDetailsHashes(
+      _.map(_.reject(detailsData, ['events', 'admin']), (d) =>
+        sha256(JSON.stringify(d)),
+      ),
+    );
+  }, [detailsData]);
 
-    if (!_.isEmpty(detailsData) && !detailsHashes) {
-      handleDetailsHashes();
-    }
-  }, [detailsData, detailsHashes]);
+  useDeepCompareEffect(() => {
+    setHatsHashes(
+      _.map(_.reject(hatsData, ['events', 'admin']), (d) =>
+        sha256(JSON.stringify(d)),
+      ),
+    );
+  }, [hatsData]);
 
   const fetchTree = async () => {
     if (
@@ -57,18 +65,12 @@ const useOrgChartTree = ({
 
     return tree;
   };
-  // console.log(
-  //   'useOrgChartTree',
-  //   _.find(imagesData, [
-  //     'id',
-  //     '0x0000000100030000000000000000000000000000000000000000000000000000',
-  //   ]),
-  // );
 
   const { data: orgChartTree, isLoading } = useQuery({
     queryKey: [
       'orgChartTree',
       { chainId, treeId: treeData?.id },
+      hatsHashes,
       detailsHashes,
       _.map(imagesData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
       _.map(draftHats, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
@@ -83,6 +85,8 @@ const useOrgChartTree = ({
       !!imagesData &&
       imagesLoaded &&
       detailsLoaded,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    // refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
   });
 
   return { orgChartTree, isLoading };
@@ -91,14 +95,12 @@ const useOrgChartTree = ({
 export default useOrgChartTree;
 
 interface UseOrgChartTreeProps {
-  treeData: ITree | null | undefined;
-  hatsData: IHat[] | undefined;
-  detailsData:
-    | { id: string; detailsObject: { type: string; data: HatDetails } }[]
-    | undefined;
-  wearersAndControllers: IHatWearer[] | undefined;
-  imagesData: IHat[] | undefined;
-  draftHats: IHat[] | undefined;
+  treeData: Tree | null | undefined;
+  hatsData: Hat[] | undefined;
+  detailsData: { id: string; detailsObject: DetailsData }[] | undefined;
+  wearersAndControllers: HatWearer[] | undefined;
+  imagesData: Hat[] | undefined;
+  draftHats: Hat[] | undefined;
   imagesLoaded: boolean;
   detailsLoaded: boolean;
   initialHatIds: Hex[];

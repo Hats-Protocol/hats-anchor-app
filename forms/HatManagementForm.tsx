@@ -1,25 +1,50 @@
-import { Box, Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
-import { ReactNode, useState } from 'react';
+import {
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  HStack,
+  Icon,
+  Stack,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { BsListUl, BsPlusCircle, BsShieldLock } from 'react-icons/bs';
+import {
+  BsFileCode,
+  BsListTask,
+  BsPersonBadge,
+  BsPlusCircle,
+  BsShieldLock,
+} from 'react-icons/bs';
+import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import RadioBox from '@/components/atoms/RadioBox';
+import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
-import { FALLBACK_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
+import ModuleDrawer from '@/components/ModuleDrawer';
+import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useModuleDetails from '@/hooks/useModuleDetails';
 import { isMutable } from '@/lib/hats';
-import { DetailsItem } from '@/types';
+import { explorerUrl } from '@/lib/web3';
+import { DetailsItem, HatWearer, ModuleKind } from '@/types';
+
+import ClaimsHandler from './ClaimsHandler';
 
 interface HatManagementFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  address: Hex | undefined; // eligibility or toggle
+  extendedController: HatWearer | undefined; // eligibility or toggle
   actionResolvedAddress?: Hex | null;
-  title: string;
+  title: ModuleKind;
   formName: string;
   radioBoxConfig: {
     name: string;
@@ -33,13 +58,11 @@ interface HatManagementFormProps {
   criteriaConfig: {
     label: string;
     description: string;
-    addButtonLabel: string;
   };
 }
-
 const HatManagementForm = ({
   localForm,
-  address,
+  extendedController,
   actionResolvedAddress,
   title,
   formName,
@@ -47,8 +70,10 @@ const HatManagementForm = ({
   inputConfig,
   criteriaConfig,
 }: HatManagementFormProps) => {
-  const { watch, control, setValue, getValues } = localForm;
-  const { selectedHat } = useTreeForm();
+  const { watch, control, setValue, getValues, reset } = localForm;
+  const { selectedHat, chainId } = useTreeForm();
+  const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
+    useState(false);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -56,10 +81,11 @@ const HatManagementForm = ({
   });
 
   const items = watch(formName);
-
   const isActionManual = watch(radioBoxConfig.name);
+  const moduleAddress = getValues(title);
+
   const showActionResolvedAddress =
-    actionResolvedAddress && actionResolvedAddress !== address;
+    actionResolvedAddress && actionResolvedAddress !== extendedController?.id;
 
   const options = [
     { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
@@ -68,6 +94,10 @@ const HatManagementForm = ({
       label: TRIGGER_OPTIONS.AUTOMATICALLY,
     },
   ];
+
+  const { details: moduleDetails } = useModuleDetails({
+    address: moduleAddress,
+  });
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
@@ -95,6 +125,26 @@ const HatManagementForm = ({
     });
   };
 
+  const {
+    onOpen: onOpenModuleDrawer,
+    onClose: onCloseModuleDrawer,
+    isOpen: isOpenModuleDrawer,
+  } = useDisclosure();
+
+  const newAddress = watch(title);
+  const formValues = getValues();
+
+  // ? better way to handle checking "manual/automatic" radio box?
+  useEffect(() => {
+    if (moduleDetails) {
+      reset({
+        ...formValues,
+        isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleDetails]);
+
   return (
     <form>
       <Stack spacing={8}>
@@ -104,72 +154,134 @@ const HatManagementForm = ({
             name={radioBoxConfig.name}
             label={radioBoxConfig.label}
             subLabel={radioBoxConfig.subLabel}
+            // defaultValue={moduleDetails && TRIGGER_OPTIONS.AUTOMATICALLY}
             localForm={localForm}
             options={options}
           />
         </FormRowWrapper>
         <FormRowWrapper>
           <Icon as={BsShieldLock} boxSize={4} mt='2px' />
-          <AddressInput
-            name={title}
-            label={`${inputConfig.label} ${
-              isActionManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'
-            }`}
-            subLabel={
-              isActionManual === TRIGGER_OPTIONS.MANUALLY
-                ? inputConfig.description[0]
-                : inputConfig.description[1]
-            }
-            localForm={localForm}
-            showResolvedAddress={Boolean(showActionResolvedAddress)}
-            isDisabled={!isMutable(selectedHat)}
-            resolvedAddress={String(actionResolvedAddress)}
-          />
+          <Stack>
+            <AddressInput
+              name={title}
+              label={`${inputConfig.label} ${
+                isActionManual === TRIGGER_OPTIONS.MANUALLY
+                  ? 'ADDRESS'
+                  : 'MODULE'
+              }`}
+              subLabel={
+                isActionManual === TRIGGER_OPTIONS.MANUALLY
+                  ? inputConfig.description[0]
+                  : inputConfig.description[1]
+              }
+              localForm={localForm}
+              showResolvedAddress={Boolean(showActionResolvedAddress)}
+              isDisabled={!isMutable(selectedHat)}
+              resolvedAddress={String(actionResolvedAddress)}
+            />
+            <HStack spacing={8}>
+              {moduleDetails && (
+                <ChakraNextLink
+                  href={`${explorerUrl(chainId)}/address/${
+                    newAddress || selectedHat?.[title]
+                  }`}
+                  isExternal
+                >
+                  <HStack>
+                    {extendedController?.isContract || moduleDetails ? (
+                      <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                    ) : (
+                      <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
+                    )}
+                    <Text color='gray.500' fontSize='sm'>
+                      {moduleDetails.name}
+                    </Text>
+                  </HStack>
+                </ChakraNextLink>
+              )}
+              {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
+                <Button
+                  leftIcon={<BsFileCode />}
+                  variant='outline'
+                  fontWeight='normal'
+                  borderColor='blackAlpha.300'
+                  onClick={onOpenModuleDrawer}
+                >
+                  Create new Module
+                </Button>
+              )}
+            </HStack>
+          </Stack>
         </FormRowWrapper>
-        {address !== FALLBACK_ADDRESS && (
-          <FormRowWrapper>
-            <Icon as={BsListUl} boxSize={4} mt='3px' />
-            <Stack>
-              <HStack fontSize='sm'>
-                <Text color='blackAlpha.800' fontWeight='medium'>
-                  {criteriaConfig.label}
-                </Text>
-                <Text color='blackAlpha.600'>optional</Text>
-              </HStack>
-              <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
-            </Stack>
-          </FormRowWrapper>
-        )}
-        {fields.map((field, index) => (
-          <LabelWithLink
-            key={field.id}
-            localForm={localForm}
-            title={title}
-            handleRemoveItem={() => remove(index)}
-            handleEdit={() => handleEdit(index)}
-            handleSave={handleSave}
-            inputLink={inputLink}
-            setInputLink={setInputLink}
-            isLinkValid={isLinkValid}
-            setIsLinkValid={setIsLinkValid}
-            labelName={`${formName}.${index}.label`}
-            linkName={`${formName}.${index}.link`}
-          />
-        ))}
-        <Box mb={2}>
-          <Button
-            onClick={() => append({ link: '', label: '' })}
-            isDisabled={items?.some((item: DetailsItem) => item.label === '')}
-            gap={2}
-            variant='outline'
-            borderColor='blackAlpha.300'
-          >
-            <BsPlusCircle />
-            Add {items?.length ? 'another' : 'a'}{' '}
-            {criteriaConfig.addButtonLabel}
-          </Button>
-        </Box>
+        {title === 'eligibility' &&
+          extendedController?.isContract &&
+          isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
+            <ClaimsHandler
+              localForm={localForm}
+              onOpenModuleDrawer={onOpenModuleDrawer}
+              setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
+            />
+          )}
+        <FormRowWrapper>
+          <Icon as={BsListTask} boxSize={4} mt='2px' />
+          <Stack>
+            <HStack fontSize='sm'>
+              <Text color='blackAlpha.800' fontWeight='medium'>
+                {criteriaConfig.label}
+              </Text>
+              <Text color='blackAlpha.600'>optional</Text>
+            </HStack>
+            <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
+            {fields.map((field, index) => (
+              <LabelWithLink
+                key={field.id}
+                localForm={localForm}
+                title={title}
+                handleRemoveItem={() => remove(index)}
+                handleEdit={() => handleEdit(index)}
+                handleSave={handleSave}
+                inputLink={inputLink}
+                setInputLink={setInputLink}
+                isLinkValid={isLinkValid}
+                setIsLinkValid={setIsLinkValid}
+                labelName={`${formName}.${index}.label`}
+                linkName={`${formName}.${index}.link`}
+              />
+            ))}
+            <Button
+              onClick={() => append({ link: '', label: '' })}
+              isDisabled={items?.some((item: DetailsItem) => item.label === '')}
+              gap={2}
+              variant='outline'
+              fontWeight='normal'
+              borderColor='blackAlpha.300'
+            >
+              <BsPlusCircle />
+              Add {items?.length ? 'another' : 'a'} Requirement
+            </Button>
+          </Stack>
+        </FormRowWrapper>
       </Stack>
+
+      <Drawer
+        placement='right'
+        onClose={() => {
+          onCloseModuleDrawer?.();
+        }}
+        isOpen={!!isOpenModuleDrawer}
+      >
+        <DrawerContent background='cyan.50' maxW='43%' width='650px'>
+          <DrawerBody pt={0}>
+            <Suspense fallback={<Suspender />}>
+              <ModuleDrawer
+                onCloseModuleDrawer={onCloseModuleDrawer}
+                isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+                title={title}
+              />
+            </Suspense>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </form>
   );
 };

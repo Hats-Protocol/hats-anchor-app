@@ -1,5 +1,6 @@
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
@@ -86,7 +87,9 @@ export const wagmiConfig = createConfig({
   publicClient,
 });
 
-export function createHatsClient(chainId: number | undefined) {
+export function createHatsClient(
+  chainId: number | undefined,
+): HatsClient | undefined {
   if (!chainId) return undefined;
   const chain = chainsMap(chainId);
 
@@ -109,4 +112,32 @@ export function createHatsClient(chainId: number | undefined) {
   });
 
   return hatsClient;
+}
+
+export async function createHatsModulesClient(
+  chainId: number | undefined,
+): Promise<HatsModulesClient | undefined> {
+  if (!chainId) return undefined;
+  const chain = chainsMap(chainId);
+
+  const walletClientHats = createWalletClient({
+    chain,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    transport: custom(window.ethereum),
+  });
+
+  const publicClientHats = createPublicClient({
+    chain,
+    transport: http(),
+  });
+
+  const hatsModulesClient = new HatsModulesClient({
+    publicClient: publicClientHats,
+    walletClient: walletClientHats,
+  });
+
+  await hatsModulesClient.prepare();
+
+  return hatsModulesClient as HatsModulesClient;
 }

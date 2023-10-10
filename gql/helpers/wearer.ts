@@ -5,7 +5,7 @@ import { Hex } from 'viem';
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
 import { chainsList } from '@/lib/web3';
-import { IHat, IHatWearer } from '@/types';
+import { Hat, HatWearer } from '@/types';
 
 import client from '../client';
 import { GET_ALL_WEARERS, GET_WEARER_DETAILS } from '../queries';
@@ -15,7 +15,7 @@ const chains = _.keys(chainsList);
 export const fetchManyWearerDetails = async (
   wearerIds: Hex[],
   chainId: number,
-): Promise<IHatWearer[]> => {
+): Promise<HatWearer[]> => {
   // two promises per address
   const promises = wearerIds.map((wearerId: Hex) => {
     return [
@@ -68,7 +68,7 @@ export const fetchWearerDetailsForChain = async (
   chainId: number,
 ) => {
   if (!address) return [];
-  const data: { currentHats: IHat[] } = await fetchWearerDetails(
+  const data: { currentHats: Hat[] } = await fetchWearerDetails(
     address,
     chainId,
   );
@@ -84,7 +84,11 @@ export const fetchWearerDetailsForAllChains = async (
     fetchWearerDetails(address, Number(cId)),
   );
 
-  const data: { currentHats: IHat[] }[] = await Promise.all(promises);
-
-  return _.flatten(_.map(data, 'currentHats'));
+  // * let errors fall through here
+  return Promise.all(_.map(promises, (p) => p.catch((e) => undefined))).then(
+    (data) => {
+      // TODO handle errors on subgraph(s) with the user
+      return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
+    },
+  );
 };

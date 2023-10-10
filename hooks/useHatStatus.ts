@@ -2,7 +2,6 @@ import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import abi from '@/contracts/Hats.json';
 
 const useHatStatus = () => {
   const { chainId, selectedHat } = useTreeForm();
@@ -11,14 +10,14 @@ const useHatStatus = () => {
 
   const { data, isLoading } = useContractRead({
     address: CONFIG.hatsAddress,
-    abi,
+    abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isActive',
     args: [hatId],
     enabled: Boolean(hatId) && Boolean(chainId),
   });
 
-  return { data, isLoading };
+  return { data: data as unknown as boolean, isLoading };
 };
 
 export default useHatStatus;

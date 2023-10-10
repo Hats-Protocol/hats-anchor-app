@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
@@ -15,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
 
@@ -47,7 +48,7 @@ const Input = ({
   const {
     register,
     resetField,
-    formState: { dirtyFields },
+    formState: { dirtyFields, errors },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
@@ -55,6 +56,12 @@ const Input = ({
   const onReset = () => {
     resetField(name, { keepDirty: false });
   };
+
+  const getErrorMessage = () => {
+    const errorMessage = errors[name]?.message;
+    return typeof errorMessage === 'string' ? errorMessage : null;
+  };
+  const isError = !!getErrorMessage();
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
@@ -85,9 +92,9 @@ const Input = ({
         <InputGroup {...props}>
           <ChakraInput
             type={type}
-            {...register(name, options)}
+            {...register(name, { ...options, validate: options?.validate })}
             {...props}
-            borderColor={isDirty ? 'cyan.500' : undefined}
+            borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
           {isDirty && (
@@ -105,6 +112,9 @@ const Input = ({
             <InputRightElement>{rightElement}</InputRightElement>
           )}
         </InputGroup>
+        <Text color='red.500' fontSize='xs'>
+          {getErrorMessage()}
+        </Text>
       </Stack>
     </FormControl>
   );
@@ -119,12 +129,7 @@ interface InputProps extends ChakraInputProps {
   info?: string;
   tip?: string | ReactNode;
   type?: string;
-  options?: {
-    required?: boolean;
-    pattern?: RegExp;
-    min?: number;
-    max?: number;
-  };
+  options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;

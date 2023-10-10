@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
 
+import { handleNestedDetails } from '@/lib/details';
 import { fetchDetailsIpfs } from '@/lib/ipfs';
 import { HatDetails } from '@/types';
+
+// ? should keep fetching strategy inline with `useManyHatsDetailsField.ts`
 
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
@@ -13,10 +15,9 @@ import { HatDetails } from '@/types';
 const useHatDetailsField = (
   detailsField?: string,
 ): {
-  data: HatDetails | undefined;
+  data: { type: string; data: HatDetails } | undefined;
   isLoading: boolean;
   error: Error;
-  schemaType: string;
 } => {
   // currently uses this prefix as an indicator for ipfs data
   const isIpfs = detailsField?.startsWith('ipfs://');
@@ -30,36 +31,14 @@ const useHatDetailsField = (
     enabled: !!detailsField && isIpfs,
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
-  const detailsData: HatDetails | undefined = _.get(
-    data,
-    'data.data.data',
-    _.get(data, 'data.data'),
-  );
 
-  let schemaType;
-  if (!!data && data.headers?.['content-type'] === 'application/json') {
-    const schemaTypeField = data.data.type;
-    // schema validation
-    switch (schemaTypeField) {
-      case '1.0':
-        if (
-          _.includes(_.keys(detailsData), 'name') ||
-          _.includes(_.keys(detailsData), 'description') ||
-          _.includes(_.keys(detailsData), 'guilds') ||
-          _.includes(_.keys(detailsData), 'responsibilities') ||
-          _.includes(_.keys(detailsData), 'authorities') ||
-          _.includes(_.keys(detailsData), 'eligibility') ||
-          _.includes(_.keys(detailsData), 'toggle')
-        ) {
-          schemaType = schemaTypeField;
-        }
-        break;
-      default:
-        schemaType = undefined;
-    }
-  }
+  // don't handle schema type here
 
-  return { data: detailsData, isLoading, error: error as Error, schemaType };
+  return {
+    data: handleNestedDetails(data),
+    isLoading,
+    error: error as Error,
+  };
 };
 
 export default useHatDetailsField;

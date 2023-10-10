@@ -1,9 +1,8 @@
-import { Hex } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import abi from '@/contracts/Hats.json';
 
 const useWearerEligibilityCheck = ({
   wearer,
@@ -14,14 +13,18 @@ const useWearerEligibilityCheck = ({
 
   const { data, isLoading } = useContractRead({
     address: CONFIG.hatsAddress,
-    abi,
+    abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isEligible',
     args: [wearer, hatId],
-    enabled: Boolean(wearer) && Boolean(hatId) && Boolean(chainId),
+    enabled:
+      Boolean(wearer) &&
+      isAddress(wearer || '0x') &&
+      Boolean(hatId) &&
+      Boolean(chainId),
   });
 
-  return { data, isLoading };
+  return { data: data as unknown as boolean, isLoading };
 };
 
 export default useWearerEligibilityCheck;
