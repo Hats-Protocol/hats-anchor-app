@@ -47,7 +47,6 @@ export const deployModule = async ({
 };
 
 export const deployModuleWithClaimsHatter = async ({
-  claimsHatterModule,
   selectedModuleDetails,
   selectedHat,
   address,
@@ -59,7 +58,6 @@ export const deployModuleWithClaimsHatter = async ({
   selectedModuleDetails?: ModuleDetails;
   selectedHat?: Hat;
   address?: Hex;
-  claimsHatterModule?: Module;
   values: any;
   chainId?: number;
   hatId: bigint;

@@ -13,6 +13,15 @@ import { explorerUrl } from '@/lib/web3';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 
+const numberTypes = [
+  'uint256',
+  'uint8',
+  'uint16',
+  'uint32',
+  'uint64',
+  'uint248',
+];
+
 const ModuleParameters = ({
   parameters,
   chainId,
@@ -64,7 +73,7 @@ const ModuleParameters = ({
               </HStack>
             </ChakraNextLink>
           );
-        } else if (param.solidityType === 'uint256') {
+        } else if (_.includes(numberTypes, param.solidityType)) {
           if (param.displayType === 'hat') {
             displayValue = (
               <Text fontSize='sm' color='gray.500'>
