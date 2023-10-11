@@ -69,14 +69,6 @@ const useModuleDeploy = ({
     args: deployModuleWithoutClaimsHatterArgs,
   });
 
-  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
-    useMultiClaimsHatterContractWrite({
-      functionName: 'setHatClaimability',
-      address: instanceAddress,
-      enabled: !!instanceAddress,
-      args: [hatId, 1],
-    });
-
   const adminHatData = useMemo(() => {
     const storedHat = _.find(storedData, ['id', adminHat]);
     const onchainHat = _.find(onchainHats, ['id', adminHat]);
@@ -97,10 +89,11 @@ const useModuleDeploy = ({
   const handleSuccess = useCallback(
     (data: any) => {
       switch (deploymentType) {
-        case DEPLOYMENT_TYPES.ONLY_MODULE:
-          if (data?.newInstance && selectedModuleDetails) {
+        case DEPLOYMENT_TYPES.ONLY_MODULE: {
+          const moduleAddress: Hex | undefined = _.first(data?.newInstances);
+          if (moduleAddress && selectedModuleDetails) {
             const updatedHats = processModule({
-              moduleAddress: data?.newInstance,
+              moduleAddress,
               storedData,
               selectedHat,
             });
@@ -112,8 +105,8 @@ const useModuleDeploy = ({
             });
           }
           break;
-
-        case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
+        }
+        case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER: {
           if (_.isArray(_.get(data, 'newInstances'))) {
             const [moduleAddress, claimsHatterAddress] = data.newInstances;
 
@@ -121,7 +114,6 @@ const useModuleDeploy = ({
               moduleAddress,
               storedData,
               selectedHat,
-              selectedModuleDetails,
             });
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,
@@ -129,25 +121,34 @@ const useModuleDeploy = ({
               adminHat: adminHatData,
               incrementWearers,
             });
-            const updatedHats = _.map(updatedHatsWithClaimsHatter, (hat) => {
-              const moduleHat = _.find(updatedHatsWithModule, ['id', hat.id]);
-              return _.merge({}, hat, moduleHat);
+            const hatIds = _.concat(
+              _.map(updatedHatsWithModule, 'id'),
+              _.map(updatedHatsWithClaimsHatter, 'id'),
+            );
+            const updatedHats = _.map(hatIds, (id) => {
+              const hatterHat = _.find(updatedHatsWithClaimsHatter, ['id', id]);
+              const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
+              return _.merge({}, hatterHat, moduleHat);
             });
             setStoredData?.(updatedHats);
 
             toast.success({
               title: 'Saved',
               description: instanceAddress
-                ? `Module ${selectedModuleDetails?.name} has been successfully deployed!`
-                : `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
+                ? `${selectedModuleDetails?.name} Module has been successfully deployed!`
+                : `${selectedModuleDetails?.name} Module and Claims Hatter have been successfully deployed!`,
               duration: 2500,
             });
           }
           break;
-
+        }
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
+          const claimsHatterAddress: Hex | undefined = _.first(
+            data?.newInstances,
+          );
+          if (!claimsHatterAddress) return;
           const updatedHats = processClaimsHatter({
-            claimsHatterAddress: data?.newInstance,
+            claimsHatterAddress,
             storedData,
             adminHat: adminHatData,
             incrementWearers,
@@ -193,7 +194,9 @@ const useModuleDeploy = ({
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          // ? only module + hatter register `setHatClaimabilityAndCreateModule`
+          if (instanceAddress && _.isEmpty(selectedHat?.claimableBy)) {
+            return deployModuleWithoutClaimsHatter();
+          }
 
           return deployModule({
             selectedModuleDetails,
@@ -206,12 +209,7 @@ const useModuleDeploy = ({
         }
 
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
-          if (instanceAddress) {
-            return deployModuleWithoutClaimsHatter();
-          }
-
           return deployModuleWithClaimsHatter({
-            claimsHatterModule,
             selectedModuleDetails,
             selectedHat,
             address,
@@ -222,9 +220,6 @@ const useModuleDeploy = ({
           });
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER:
-          if (instanceAddress) {
-            return setHatClaimability();
-          }
           return deployClaimsHatter({
             claimsHatterModule,
             selectedHat,
@@ -251,8 +246,7 @@ const useModuleDeploy = ({
 
   return {
     deploy: mutateAsync,
-    isLoading:
-      isLoading || isLoadingMultiClaimsHatter || isLoadingSetHatClaimability,
+    isLoading: isLoading || isLoadingMultiClaimsHatter,
   };
 };
 

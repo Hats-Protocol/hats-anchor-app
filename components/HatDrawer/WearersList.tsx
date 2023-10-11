@@ -29,6 +29,9 @@ import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatClaim from '@/hooks/useHatClaim';
+import useModuleDetails from '@/hooks/useModuleDetails';
+import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
@@ -90,9 +93,21 @@ const WearersList = () => {
     wearer: address,
   });
 
+  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck();
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
     wearer: address,
   });
+  const { details: eligibilityDetails } = useModuleDetails({
+    address: selectedHat?.eligibility,
+  });
+
+  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
+    useMultiClaimsHatterContractWrite({
+      functionName: 'setHatClaimability',
+      address: instanceAddress,
+      enabled: !!instanceAddress,
+      args: [selectedHat?.id, 1],
+    });
 
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
@@ -168,7 +183,7 @@ const WearersList = () => {
           />
         ))}
 
-        <Flex justify='space-between'>
+        <Flex justify='space-between' align='center'>
           {_.gt(_.size(wearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
@@ -180,6 +195,22 @@ const WearersList = () => {
               Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>
           )}
+          {!!instanceAddress &&
+            !!eligibilityDetails &&
+            !_.includes(claimableHats, selectedHat?.id) &&
+            isAdminUser && (
+              <Button
+                size='xs'
+                variant='outline'
+                colorScheme='blue'
+                borderColor='blue.500'
+                onClick={setHatClaimability}
+                isLoading={isLoadingSetHatClaimability}
+                isDisabled={isLoadingSetHatClaimability}
+              >
+                Set hat for claiming
+              </Button>
+            )}
           {(currentUserIsEligible as boolean) &&
             !!isClaimable &&
             !currentUserIsWearing && (

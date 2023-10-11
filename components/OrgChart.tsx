@@ -374,7 +374,7 @@ const OrgChartComponent: React.FC = () => {
                           ${
                             levelAtLocalTree === 0
                               ? 'None - Top Hat'
-                              : toggle?.ensName ??
+                              : toggle?.ensName !== '' ||
                                 formatAddress(_.get(toggle, 'id'))
                           }
                         </div>
@@ -383,40 +383,41 @@ const OrgChartComponent: React.FC = () => {
 
                 case 'eligibility':
                   return `
-                  <div style="
-                    margin-top: 68px;
-                    width: 100%;
-                    height: 40px;
-                    border-top: 1px solid #4A5568;
-                    padding: 10px;
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: space-between;
-                  ">
                     <div style="
+                      margin-top: 68px;
+                      width: 100%;
+                      height: 40px;
+                      border-top: 1px solid #4A5568;
+                      padding: 10px;
                       display: flex;
                       flex-direction: row;
-                      gap: 4px;
+                      align-items: center;
+                      justify-content: space-between;
                     ">
-                      <div style="min-width: 16px;">
-                        <img src="/icons/eligibility.svg" alt="toggle" />
-                      </div>
                       <div style="
-                        display: inline-block;
-                        font-size: 15px;
-                        font-weight: 550;
-                        opacity: 0.8;
+                        display: flex;
+                        flex-direction: row;
+                        gap: 4px;
                       ">
-                        ${
-                          levelAtLocalTree === 0
-                            ? 'None - Top Hat'
-                            : eligibility?.ensName ??
-                              formatAddress(_.get(eligibility, 'id'))
-                        }
+                        <div style="min-width: 16px;">
+                          <img src="/icons/eligibility.svg" alt="toggle" />
+                        </div>
+                        <div style="
+                          display: inline-block;
+                          font-size: 15px;
+                          font-weight: 550;
+                          opacity: 0.8;
+                        ">
+                          ${
+                            levelAtLocalTree === 0
+                              ? 'None - Top Hat'
+                              : eligibility?.ensName !== '' ||
+                                formatAddress(_.get(eligibility, 'id'))
+                          }
+                        </div>
                       </div>
                     </div>
-                  </div>`;
+                  `;
 
                 default:
                   return '';

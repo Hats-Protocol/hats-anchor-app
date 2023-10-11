@@ -1,6 +1,7 @@
-import { Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { format, formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
@@ -11,6 +12,15 @@ import { formatAddress } from '@/lib/general';
 import { explorerUrl } from '@/lib/web3';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
+
+const numberTypes = [
+  'uint256',
+  'uint8',
+  'uint16',
+  'uint32',
+  'uint64',
+  'uint248',
+];
 
 const ModuleParameters = ({
   parameters,
@@ -46,6 +56,7 @@ const ModuleParameters = ({
           <Text fontSize='sm'>{param.value as string}</Text>
         );
         if (param.solidityType === 'address') {
+          // TODO handle joke race display type
           displayValue = (
             <ChakraNextLink
               href={`${explorerUrl(chainId)}/address/${param.value}`}
@@ -62,7 +73,7 @@ const ModuleParameters = ({
               </HStack>
             </ChakraNextLink>
           );
-        } else if (param.solidityType === 'uint256') {
+        } else if (_.includes(numberTypes, param.solidityType)) {
           if (param.displayType === 'hat') {
             displayValue = (
               <Text fontSize='sm' color='gray.500'>
@@ -78,6 +89,21 @@ const ModuleParameters = ({
                 ).toString()}{' '}
                 {tokenSymbol as string}
               </Text>
+            );
+          } else if (param.displayType === 'timestamp') {
+            const date = new Date(
+              _.toNumber((param.value as bigint).toString()) * 1000,
+            );
+            displayValue = (
+              <Tooltip
+                label={format(date, 'yyyy-MM-dd HH:mm:ss')}
+                placement='left'
+              >
+                <Text fontSize='sm' color='gray.500'>
+                  {formatDistanceToNow(date)}{' '}
+                  {new Date() > date ? 'ago' : 'from now'}
+                </Text>
+              </Tooltip>
             );
           } else {
             displayValue = (

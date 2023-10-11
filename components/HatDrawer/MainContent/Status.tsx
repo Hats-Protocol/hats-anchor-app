@@ -110,6 +110,8 @@ const StatusCard = ({
         <Tooltip
           label={_.get(statusData, 'id')}
           placement='left'
+          minW='400px'
+          textAlign='center'
           shouldWrapChildren
           hasArrow
         >
