@@ -114,7 +114,6 @@ const useModuleDeploy = ({
               moduleAddress,
               storedData,
               selectedHat,
-              selectedModuleDetails,
             });
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,
@@ -122,17 +121,22 @@ const useModuleDeploy = ({
               adminHat: adminHatData,
               incrementWearers,
             });
-            const updatedHats = _.map(updatedHatsWithClaimsHatter, (hat) => {
-              const moduleHat = _.find(updatedHatsWithModule, ['id', hat.id]);
-              return _.merge({}, hat, moduleHat);
+            const hatIds = _.concat(
+              _.map(updatedHatsWithModule, 'id'),
+              _.map(updatedHatsWithClaimsHatter, 'id'),
+            );
+            const updatedHats = _.map(hatIds, (id) => {
+              const hatterHat = _.find(updatedHatsWithClaimsHatter, ['id', id]);
+              const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
+              return _.merge({}, hatterHat, moduleHat);
             });
             setStoredData?.(updatedHats);
 
             toast.success({
               title: 'Saved',
               description: instanceAddress
-                ? `Module ${selectedModuleDetails?.name} has been successfully deployed!`
-                : `Module ${selectedModuleDetails?.name} and Claims Hatter Module have been successfully deployed!`,
+                ? `${selectedModuleDetails?.name} Module has been successfully deployed!`
+                : `${selectedModuleDetails?.name} Module and Claims Hatter have been successfully deployed!`,
               duration: 2500,
             });
           }
