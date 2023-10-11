@@ -149,7 +149,6 @@ export const processModule = ({
   moduleAddress: Hex;
   storedData?: Partial<FormData>[];
   selectedHat?: Hat;
-  selectedModuleDetails?: ModuleDetails;
 }) => {
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat) =>
