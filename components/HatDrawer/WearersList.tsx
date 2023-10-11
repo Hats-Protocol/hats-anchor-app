@@ -93,15 +93,12 @@ const WearersList = () => {
     wearer: address,
   });
 
-  const { instanceAddress } = useMultiClaimsHatterCheck();
+  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck();
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
     wearer: address,
   });
   const { details: eligibilityDetails } = useModuleDetails({
     address: selectedHat?.eligibility,
-  });
-  const { details: toggleDetails } = useModuleDetails({
-    address: selectedHat?.toggle,
   });
 
   const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
@@ -199,8 +196,8 @@ const WearersList = () => {
             </Text>
           )}
           {!!instanceAddress &&
-            (toggleDetails || eligibilityDetails) &&
-            !isClaimable &&
+            !!eligibilityDetails &&
+            !_.includes(claimableHats, selectedHat?.id) &&
             isAdminUser && (
               <Button
                 size='xs'
