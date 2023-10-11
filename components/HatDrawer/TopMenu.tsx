@@ -26,6 +26,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiSave } from 'react-icons/fi';
+import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
@@ -49,10 +50,12 @@ const HatLinkRequestCreateForm = lazy(
 const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, editMode, selectedHat } = useTreeForm();
+  const { chainId, editMode, selectedHat, hatDisclosure, setSelectedHatId } =
+    useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
+  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -143,7 +146,21 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
         </Button>
       )}
 
-      <HStack spacing={3}>
+      <HStack spacing={3} w='full' justifyContent='flex-end'>
+        {!editMode && (
+          <Button
+            onClick={() => {
+              setSelectedHatId?.(undefined);
+              onCloseHatDrawer?.();
+            }}
+            leftIcon={<IoCloseOutline />}
+            variant='outline'
+            aria-label='Close'
+            marginRight='auto'
+          >
+            Close
+          </Button>
+        )}
         {!editMode && (
           <Menu isLazy>
             <MenuButton as={Button} variant='outline'>

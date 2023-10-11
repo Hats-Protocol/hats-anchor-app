@@ -43,6 +43,7 @@ const ModuleDrawer = ({
       position='fixed'
       right={0}
       zIndex={12}
+      background='cyan.50'
     >
       <TopMenu
         localForm={localForm}

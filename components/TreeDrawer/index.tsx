@@ -2,6 +2,8 @@ import { Box } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
+
 import BottomMenu from './BottomMenu';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
@@ -9,6 +11,7 @@ import TopMenu from './TopMenu';
 const TreeDrawer = () => {
   const [accordionIndex, setAccordionIndex] = useState<number[]>([]);
   const isExpanded = _.includes(accordionIndex, 0);
+  const { editMode } = useTreeForm();
 
   return (
     <Box
@@ -19,6 +22,7 @@ const TreeDrawer = () => {
       position='fixed'
       right={0}
       zIndex={12}
+      background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
     >
       <TopMenu />
       <MainContent isExpanded={isExpanded} />
