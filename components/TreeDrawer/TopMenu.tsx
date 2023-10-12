@@ -1,7 +1,6 @@
 import {
   Button,
   Flex,
-  HStack,
   Icon,
   Modal as ChakraModal,
   ModalBody,
@@ -13,11 +12,9 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaSave } from 'react-icons/fa';
-import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -26,7 +23,6 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
-import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { editHasUpdates, isWearingAdminHat } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
@@ -35,11 +31,9 @@ const TopMenu = () => {
   const { address } = useAccount();
   const currentChain = useChainId();
   const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
     chainId,
-    treeId,
     editMode,
     setEditMode,
     storedData,
@@ -48,33 +42,12 @@ const TopMenu = () => {
     setSelectedOption,
     treeToDisplay,
   } = useTreeForm();
-  const toast = useToast();
-  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const { writeAsync, isLoading } = useMulticallCallManyHats();
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
-
-  const openImportModal = () => {
-    setModals?.({ importFile: true });
-  };
-
-  const handleExport = () => {
-    const fileData = JSON.stringify(storedData);
-    const blob = new Blob([fileData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    // TODO add unix timestamp so don't get (1) on subsequent downloads
-    // update file name validation also, based on this ^
-    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
-    link.href = url;
-    link.click();
-    toast.success({
-      title: `Exported tree #${decimalTreeId} to your desktop`,
-    });
-  };
 
   const handleDeploy = async () => {
     const result = await writeAsync?.();
@@ -165,40 +138,21 @@ const TopMenu = () => {
         Cancel
       </Button>
 
-      <HStack spacing={3}>
+      <Tooltip
+        label={isDeployDisabled ? getDeployTooltipLabel : ''}
+        placement='left'
+        hasArrow
+      >
         <Button
-          leftIcon={<FiShare2 />}
-          colorScheme='gray'
-          variant='outline'
-          onClick={openImportModal}
-        >
-          Import
-        </Button>
-        <Button
-          leftIcon={<FiSave />}
-          colorScheme='twitter'
+          leftIcon={<IoExitOutline />}
+          colorScheme='blue'
           variant='solid'
-          isDisabled={!editHasUpdates(storedData)}
-          onClick={handleExport}
+          isDisabled={isDeployDisabled}
+          onClick={handleDeploy}
         >
-          Export
+          Deploy
         </Button>
-        <Tooltip
-          label={isDeployDisabled ? getDeployTooltipLabel : ''}
-          placement='left'
-          hasArrow
-        >
-          <Button
-            leftIcon={<IoExitOutline />}
-            colorScheme='blue'
-            variant='solid'
-            isDisabled={isDeployDisabled}
-            onClick={handleDeploy}
-          >
-            Deploy
-          </Button>
-        </Tooltip>
-      </HStack>
+      </Tooltip>
 
       <Modal
         name='importFile'
