@@ -29,6 +29,7 @@ const Modal = ({
   title,
   content,
   footer,
+  customHeader,
   isOpen,
   onClose,
   size = '2xl',
@@ -66,13 +67,13 @@ const Modal = ({
         display='flex'
         flexDirection='column'
       >
-        <ModalHeader>
-          <Heading fontSize='24px'>{title}</Heading>
-        </ModalHeader>
+        {customHeader || (
+          <ModalHeader>
+            <Heading fontSize='24px'>{title}</Heading>
+          </ModalHeader>
+        )}
         <ModalCloseButton />
-        <ModalBody overflowY='auto' flex='1' maxH='60vh'>
-          {content || children}
-        </ModalBody>
+        <ModalBody>{content || children}</ModalBody>
         {footer && <ModalFooter>{footer}</ModalFooter>}
       </ModalContent>
     </ChakraModal>
@@ -83,9 +84,10 @@ export default Modal;
 
 interface ModalProps {
   name: string;
-  title: string;
+  title?: string;
   content?: string;
   footer?: ReactNode;
+  customHeader?: ReactNode;
   isOpen?: boolean;
   onClose?: () => void;
   size?: string;

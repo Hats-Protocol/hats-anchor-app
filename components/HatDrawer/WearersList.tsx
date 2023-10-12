@@ -260,16 +260,24 @@ const WearersList = () => {
       <Suspense fallback={<Suspender />}>
         <Modal
           name='hatWearers'
-          title='Hat Wearers'
           localOverlay={localOverlay}
-          footer={
-            <Button
-              onClick={() => exportToCsv(wearers, selectedHatDetails?.name)}
-              leftIcon={<FaFileCsv />}
-              colorScheme='blue'
+          customHeader={
+            <Flex
+              justify='space-between'
+              alignItems='center'
+              mt={8}
+              px={6}
+              pb={4}
             >
-              Export
-            </Button>
+              <Heading fontSize='24px'>Hat Wearers</Heading>
+              <Button
+                onClick={() => exportToCsv(wearers, selectedHatDetails?.name)}
+                leftIcon={<FaFileCsv />}
+                colorScheme='blue'
+              >
+                Export
+              </Button>
+            </Flex>
           }
         >
           <Flex direction='column' gap={4}>
