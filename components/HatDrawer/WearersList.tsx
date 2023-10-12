@@ -7,6 +7,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Spinner,
   Stack,
   Text,
   Tooltip,
@@ -28,7 +29,9 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import { wearersPerPage } from '@/gql/helpers';
 import useHatClaim from '@/hooks/useHatClaim';
+import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
@@ -63,7 +66,22 @@ const WearersList = () => {
   const wearers = useMemo(() => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
-  const wearerIds = useMemo(() => wearers.map(({ id }) => id), [wearers]);
+
+  const {
+    data: paginatedWearers,
+    nextPage,
+    prevPage,
+    isLoading,
+    isFetching,
+    currentPage,
+  } = useHatPaginatedWearers({
+    hatId: selectedHat?.id,
+    chainId,
+    initialData: wearers,
+  });
+
+  const mergedWearers = _.merge(wearers, paginatedWearers);
+  const wearerIds = (mergedWearers || []).map(({ id }) => id);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
     [wearerIds, address],
@@ -76,9 +94,9 @@ const WearersList = () => {
     () =>
       getEligibleWearers({
         wearersEligibility,
-        wearers,
+        wearers: mergedWearers,
       }),
-    [wearersEligibility, wearers],
+    [wearersEligibility, mergedWearers],
   );
 
   const { data: wearer } = useWearerDetails({
@@ -138,11 +156,11 @@ const WearersList = () => {
     sortWearers();
   }, [sortWearers]);
 
-  const filteredWearers = _.slice(
-    filterWearers(searchTerm, wearers),
-    0,
-    6,
-  ) as HatWearer[];
+  const filteredWearers = useMemo(
+    () => _.slice(filterWearers(searchTerm, wearers), 0, 6) as HatWearer[],
+    [searchTerm, wearers],
+  );
+
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
   const claimTooltip = useMemo(() => {
@@ -279,18 +297,44 @@ const WearersList = () => {
               </Button>
             </Flex>
           }
+          footer={
+            <Flex justify='center' px={6} pb={6} w='full'>
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  prevPage();
+                }}
+                isDisabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  nextPage();
+                }}
+                isDisabled={_.size(paginatedWearers) < wearersPerPage}
+              >
+                Next
+              </Button>
+            </Flex>
+          }
         >
           <Flex direction='column' gap={4}>
-            {wearers?.map((w: HatWearer) => (
-              <WearerRow
-                key={w.id}
-                wearer={w}
-                isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
-                isAdminUser={isAdminUser}
-                setChangeStatusWearer={setChangeStatusWearer}
-                setWearerToTransferFrom={setWearerToTransferFrom}
-              />
-            ))}
+            {isLoading || isFetching ? (
+              <Spinner />
+            ) : (
+              paginatedWearers?.map((w: HatWearer) => (
+                <WearerRow
+                  key={w.id}
+                  wearer={w}
+                  isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
+                  isAdminUser={isAdminUser}
+                  setChangeStatusWearer={setChangeStatusWearer}
+                  setWearerToTransferFrom={setWearerToTransferFrom}
+                />
+              ))
+            )}
           </Flex>
         </Modal>
       </Suspense>
