@@ -87,6 +87,7 @@ const useModuleDeploy = ({
   }, [storedData, onchainHats, adminHat]);
 
   const handleSuccess = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data: any) => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
