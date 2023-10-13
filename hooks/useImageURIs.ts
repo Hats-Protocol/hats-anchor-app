@@ -33,9 +33,11 @@ const tempClient = (chainId: number) => {
 const useImageURIs = ({
   hats,
   onchainHats,
+  editMode,
 }: {
   hats: Hat[] | undefined;
   onchainHats?: Hat[];
+  editMode?: boolean;
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
@@ -76,6 +78,7 @@ const useImageURIs = ({
       return Promise.all(clientCalls);
     },
     enabled: !!calls && !_.isEmpty(calls) && !!chainIds && !_.isEmpty(chainIds),
+    refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   const hatImageUris = useMemo(() => {
@@ -109,6 +112,7 @@ const useImageURIs = ({
       queryFn: () => checkImageForHat(img),
       enabled: enabled && !!img && img !== '',
       timeout: 2000,
+      refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     })),
   });
 

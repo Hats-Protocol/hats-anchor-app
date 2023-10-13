@@ -29,7 +29,6 @@ const useHatDetailsField = (
       return result;
     },
     enabled: !!detailsField && isIpfs,
-    staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
   // don't handle schema type here

@@ -19,6 +19,7 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
     queryKey: ['searchResults', localSearch],
     queryFn: () => searchQueryResult(localSearch),
     enabled: !!localSearch && localSearch !== '0x',
+    refetchInterval: 1000 * 60 * 60 * 24,
   });
 
   return { status, error, data, isLoading };

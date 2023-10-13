@@ -11,6 +11,7 @@ const useWearerDetails = ({
   wearerAddress,
   chainId,
   initialData,
+  editMode,
 }: UseWearerDetailsProps) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['wearerDetails', wearerAddress, { chainId }],
@@ -20,6 +21,7 @@ const useWearerDetails = ({
         : fetchWearerDetailsForAllChains(wearerAddress),
     enabled: !!wearerAddress && !!chainId,
     initialData,
+    refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return { data, isLoading, error };
@@ -31,4 +33,5 @@ interface UseWearerDetailsProps {
   wearerAddress: Hex | undefined;
   initialData?: Hat[];
   chainId?: number | 'all' | undefined;
+  editMode?: boolean;
 }

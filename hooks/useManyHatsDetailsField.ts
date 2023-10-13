@@ -10,9 +10,11 @@ import { Hat } from '@/types';
 const useManyHatsDetailsField = ({
   hats,
   onchainHats,
+  editMode,
 }: {
   hats: Hat[] | undefined;
   onchainHats?: Hat[];
+  editMode?: boolean;
 }) => {
   let onlyOnchainHats = hats;
   if (onchainHats) {
@@ -32,6 +34,7 @@ const useManyHatsDetailsField = ({
       queryKey: ['hatDetailsField', hat?.details],
       queryFn: () => fetchDetailsIpfs(hat?.details),
       enabled: !!hat?.details,
+      refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     })),
   });
 
