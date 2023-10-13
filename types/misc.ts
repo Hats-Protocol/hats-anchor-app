@@ -38,3 +38,9 @@ export type SearchResults = {
   icon: IconName;
   id: string;
 };
+
+export type Transaction = {
+  hash: string;
+  status: string;
+  timestamp: number;
+};
