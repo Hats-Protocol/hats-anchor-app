@@ -9,7 +9,6 @@ const useHatPaginatedWearers = ({
   hatId,
   chainId,
   initialPage = 0,
-  initialData,
 }: useHatPaginatedWearersProps) => {
   const [page, setPage] = useState(initialPage);
 
@@ -19,7 +18,6 @@ const useHatPaginatedWearers = ({
       if (!hatId || !chainId) return [];
       return fetchPaginatedWearersForHat(hatId, chainId, page);
     },
-    initialData,
   });
 
   const nextPage = () => {

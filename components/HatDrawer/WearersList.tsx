@@ -77,7 +77,6 @@ const WearersList = () => {
   } = useHatPaginatedWearers({
     hatId: selectedHat?.id,
     chainId,
-    initialData: wearers,
   });
 
   const mergedWearers = _.merge(wearers, paginatedWearers);
@@ -304,9 +303,9 @@ const WearersList = () => {
                 onClick={() => {
                   prevPage();
                 }}
-                isDisabled={currentPage === 1}
+                isDisabled={currentPage === 0}
               >
-                Previous
+                {currentPage > 1 ? `Previous (${currentPage - 1})` : 'Previous'}
               </Button>
               <Button
                 variant='ghost'
@@ -315,7 +314,7 @@ const WearersList = () => {
                 }}
                 isDisabled={_.size(paginatedWearers) < wearersPerPage}
               >
-                Next
+                {`Next (${currentPage + 1})`}
               </Button>
             </Flex>
           }
