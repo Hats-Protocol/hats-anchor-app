@@ -15,7 +15,7 @@ import {
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { lazy, Suspense } from 'react';
-import { BsArrowLeft } from 'react-icons/bs';
+import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import {
   FaCopy,
   FaDoorOpen,

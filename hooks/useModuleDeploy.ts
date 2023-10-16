@@ -121,9 +121,11 @@ const useModuleDeploy = ({
               adminHat: adminHatData,
               incrementWearers,
             });
-            const hatIds = _.concat(
-              _.map(updatedHatsWithModule, 'id'),
-              _.map(updatedHatsWithClaimsHatter, 'id'),
+            const hatIds = _.uniq(
+              _.concat(
+                _.map(updatedHatsWithModule, 'id'),
+                _.map(updatedHatsWithClaimsHatter, 'id'),
+              ),
             );
             const updatedHats = _.map(hatIds, (id) => {
               const hatterHat = _.find(updatedHatsWithClaimsHatter, ['id', id]);
