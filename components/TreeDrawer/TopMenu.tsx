@@ -16,7 +16,7 @@ import {
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { FaSave } from 'react-icons/fa';
+import { BsXSquare } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { IoExitOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
@@ -160,7 +160,7 @@ const TopMenu = () => {
         variant='outline'
         colorScheme='gray'
         onClick={promptForReset}
-        leftIcon={<Icon as={FaSave} />}
+        leftIcon={<Icon as={BsXSquare} />}
       >
         Cancel
       </Button>
