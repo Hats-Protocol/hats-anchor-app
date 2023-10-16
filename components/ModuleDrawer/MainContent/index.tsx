@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 import Accordion from '@/components/atoms/Accordion';
+// import { MODULE_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { getAllParents, prettyIdToIp } from '@/lib/hats';
@@ -87,7 +88,7 @@ const MainContent = ({
           />
         </Accordion>
       )}
-      {claimableHats && (
+      {claimableHats && title !== 'toggle' && (
         <Accordion
           title='Permissionless Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'

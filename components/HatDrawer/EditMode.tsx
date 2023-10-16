@@ -323,7 +323,7 @@ const EditMode = ({
       {isTopHatOrMutable(selectedHat) && (
         <Accordion
           title='Hat Basics'
-          subtitle='The fundamentals of the hat, including name, image, and supply.'
+          subtitle='The fundamentals of the hat, including name, image, and description.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
         >
           <Stack spacing={4}>
