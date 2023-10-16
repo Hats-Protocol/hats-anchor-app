@@ -26,7 +26,6 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { FiSave } from 'react-icons/fi';
-import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
@@ -154,7 +153,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
               setSelectedHatId?.(undefined);
               onCloseHatDrawer?.();
             }}
-            leftIcon={<IoCloseOutline />}
+            leftIcon={<BsXSquare />}
             variant='outline'
             aria-label='Close'
             marginRight='auto'

@@ -35,8 +35,8 @@ const useModuleDeploy = ({
   deploymentType: DeploymentType;
   instanceAddress?: Hex;
 }) => {
-  const { getValues } = localForm;
-  const values = getValues();
+  const { watch } = localForm;
+  const values = watch();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { chainId, selectedHat, setStoredData, onchainHats, storedData } =
@@ -46,6 +46,7 @@ const useModuleDeploy = ({
   const hatId = BigInt(decimalId(selectedHat?.id));
   const adminHat = values?.adminHat;
   const incrementWearers = values?.incrementWearers;
+  const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
   const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHat?.detailsObject?.data?.name
@@ -87,11 +88,10 @@ const useModuleDeploy = ({
   }, [storedData, onchainHats, adminHat]);
 
   const handleSuccess = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (data: any) => {
+    (data: { newInstance?: Hex | null; newInstances?: Hex[] | null }) => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          const moduleAddress: Hex | undefined = _.first(data?.newInstances);
+          const moduleAddress = data?.newInstance;
           if (moduleAddress && selectedModuleDetails) {
             const updatedHats = processModule({
               moduleAddress,
@@ -108,8 +108,9 @@ const useModuleDeploy = ({
           break;
         }
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER: {
-          if (_.isArray(_.get(data, 'newInstances'))) {
-            const [moduleAddress, claimsHatterAddress] = data.newInstances;
+          const instances = _.get(data, 'newInstances');
+          if (_.isArray(instances)) {
+            const [moduleAddress, claimsHatterAddress] = instances;
 
             const updatedHatsWithModule = processModule({
               moduleAddress,
@@ -147,7 +148,7 @@ const useModuleDeploy = ({
         }
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
           const claimsHatterAddress: Hex | undefined = _.first(
-            data?.newInstances,
+            data?.newInstances, // !! check this, might be `newInstance`
           );
           if (!claimsHatterAddress) return;
           const updatedHats = processClaimsHatter({
@@ -197,7 +198,11 @@ const useModuleDeploy = ({
       const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          if (instanceAddress && _.isEmpty(selectedHat?.claimableBy)) {
+          if (
+            instanceAddress &&
+            isPermissionlesslyClaimable === 'Yes' &&
+            _.isEmpty(selectedHat?.claimableBy)
+          ) {
             return deployModuleWithoutClaimsHatter();
           }
 
@@ -237,6 +242,7 @@ const useModuleDeploy = ({
       }
     },
     onSuccess: (data) => {
+      if (!data) return;
       handleSuccess(data);
     },
     onError: (error: Error) => {
