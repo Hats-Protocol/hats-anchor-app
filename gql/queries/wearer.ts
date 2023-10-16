@@ -30,3 +30,15 @@ export const GET_CONTROLLERS_FOR_USER = gql`
   }
   ${HAT_DETAILS_FRAGMENT}
 `;
+
+export const GET_PAGINATED_WEARERS_FOR_HAT = gql`
+  query getPaginatedWearersForHat($hatId: ID!, $first: Int!, $skip: Int!) {
+    wearers(
+      skip: $skip
+      first: $first
+      where: { currentHats_: { id: $hatId } }
+    ) {
+      id
+    }
+  }
+`;
