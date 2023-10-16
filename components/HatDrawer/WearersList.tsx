@@ -55,7 +55,7 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -104,6 +104,7 @@ const WearersList = () => {
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
 
   const { data: currentUserIsEligible } = useWearerEligibilityCheck({

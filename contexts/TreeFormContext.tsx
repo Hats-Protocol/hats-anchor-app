@@ -197,6 +197,7 @@ export const TreeFormContextProvider = ({
     treeId,
     chainId,
     initialData: initialTreeData,
+    editMode,
   });
   const treeEvents = _.get(treeData, 'events');
   const onchainHats = useMemo(() => {
@@ -236,21 +237,25 @@ export const TreeFormContextProvider = ({
   const { data: hatDetails } = useManyHatDetails({
     hats: mapWithChainId(orgChartHats, chainId),
     initialHats: onchainHats,
+    editMode,
   });
 
   const { data: detailsFields, isLoading: detailsLoading } =
     useManyHatsDetailsField({
       hats: hatDetails,
       onchainHats,
+      editMode,
     });
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
+    editMode,
   });
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,
     onchainHats,
+    editMode,
   });
 
   const { orgChartTree } = useOrgChartTree({
@@ -264,6 +269,7 @@ export const TreeFormContextProvider = ({
     imagesLoaded: !imagesLoading,
     detailsLoaded: !detailsLoading,
     initialHatIds: _.map(onchainHats, 'id'),
+    editMode,
   });
 
   const storedHatsWithImage = useMemo(() => {

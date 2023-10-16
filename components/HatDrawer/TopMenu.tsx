@@ -60,6 +60,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);

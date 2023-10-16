@@ -1,5 +1,6 @@
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { waitForTransaction } from '@wagmi/core';
+import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
@@ -31,7 +32,12 @@ const useMultiClaimsHatterContractWrite = ({
     abi: MULTI_CLAIMS_HATTER_ABI,
     functionName,
     args,
-    enabled: enabled && !!chainId,
+    enabled:
+      enabled &&
+      !!address &&
+      !!chainId &&
+      !!functionName &&
+      _.every(args, !_.isUndefined),
   });
 
   const {

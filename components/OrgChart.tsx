@@ -65,6 +65,7 @@ const OrgChartComponent: React.FC = () => {
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure();
 

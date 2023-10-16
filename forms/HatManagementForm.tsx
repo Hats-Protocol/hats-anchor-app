@@ -185,7 +185,7 @@ const HatManagementForm = ({
                   }`}
                   isExternal
                 >
-                  <HStack>
+                  <HStack maxW='200px'>
                     {extendedController?.isContract || moduleDetails ? (
                       <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
                     ) : (
