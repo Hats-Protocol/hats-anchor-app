@@ -1,6 +1,7 @@
 import { useQueries } from '@tanstack/react-query';
 import { readContract } from '@wagmi/core';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -44,5 +45,5 @@ const useWearersEligibilityCheck = ({
 export default useWearersEligibilityCheck;
 
 interface useWearersEligibilityCheckProps {
-  wearerIds: string[];
+  wearerIds: Hex[];
 }

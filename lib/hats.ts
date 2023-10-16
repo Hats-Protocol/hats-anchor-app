@@ -3,7 +3,14 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { defaultHat, MUTABILITY } from '@/constants';
-import { Controls, FormData, Hat, Hierarchy, InputObject } from '@/types';
+import {
+  Controls,
+  FormData,
+  Hat,
+  HatWearer,
+  Hierarchy,
+  InputObject,
+} from '@/types';
 
 import { formatImageUrl, isImageUrl } from './general';
 
@@ -353,4 +360,27 @@ export const checkImageForHat = async (img?: string) => {
     return formatImageUrl(img);
   }
   return null;
+};
+
+const generateCsvContent = (hatWearers: HatWearer[]) => {
+  let csvContent = 'address,ens\n';
+
+  hatWearers.forEach((hatWearer) => {
+    const name = hatWearer.ensName || '';
+    csvContent += `${hatWearer.id},${name}\n`;
+  });
+
+  return csvContent;
+};
+
+export const exportToCsv = (hatWearers: HatWearer[], hatName?: string) => {
+  const csvContent = generateCsvContent(hatWearers);
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `${hatName || 'hat'}-wearers.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
