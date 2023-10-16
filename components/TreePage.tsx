@@ -8,10 +8,8 @@ import React, { Suspense, useEffect, useState } from 'react';
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useTransactions from '@/hooks/useTransactions';
 import { isTopHat, prettyIdToId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { Transaction } from '@/types';
 
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';
@@ -42,7 +40,6 @@ const TreePage = () => {
     hatDisclosure,
     treeDisclosure,
   } = useTreeForm();
-  const { transactions, clearCompletedTransactions } = useTransactions();
 
   const {
     onOpen: onOpenHatDrawer,
@@ -67,16 +64,6 @@ const TreePage = () => {
       setInitialLoad(false);
     }
   }, [selectedHat, router, onOpenHatDrawer, editMode, initialLoad]);
-
-  // might need tweaking.this is to clear any pending transactions after a refresh
-  // could make a timeout of 10 seconds or something
-  useEffect(() => {
-    _.forEach(transactions, (tx: Transaction) => {
-      if (tx.status === 'completed') {
-        clearCompletedTransactions();
-      }
-    });
-  }, []);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);

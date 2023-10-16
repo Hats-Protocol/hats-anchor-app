@@ -21,7 +21,6 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import useTransactions from '@/hooks/useTransactions';
 import { containsUpperCase } from '@/lib/general';
 import { Hat, Transaction } from '@/types';
 
@@ -29,10 +28,11 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const currentChainId = useChainId();
   const localOverlay = useOverlay();
   const { setCommandPalette: setOpen } = localOverlay;
+
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
-  const { transactions } = useTransactions();
+  const { transactions } = useOverlay();
   const hasPendingTransactions = transactions.some(
     (tx: Transaction) => tx.status === 'pending',
   );

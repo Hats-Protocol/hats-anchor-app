@@ -6,13 +6,19 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { Hex, TransactionReceipt } from 'viem';
+import { useChainId } from 'wagmi';
 
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
+import { checkTransactionStatus } from '@/lib/contract';
+import { Transaction } from '@/types';
 
 const defaults = {
   createTree: false,
@@ -45,6 +51,8 @@ export interface IOverlayContext {
     sendToast?: boolean;
     onSuccess?: (d?: TransactionReceipt) => void;
   }) => Promise<TransactionReceipt | undefined>;
+  // transactions
+  transactions: Transaction[];
 }
 
 export const OverlayContext = createContext<IOverlayContext>({
@@ -55,6 +63,8 @@ export const OverlayContext = createContext<IOverlayContext>({
   handlePendingTx: undefined,
   commandPalette: false,
   setCommandPalette: () => {},
+  // transactions
+  transactions: [],
 });
 
 export const OverlayContextProvider = ({
@@ -66,6 +76,12 @@ export const OverlayContextProvider = ({
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const chainId = useChainId();
+
+  const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
+    'transactions',
+    [],
+  );
 
   const showModal = (m: object) => {
     // This allows to show only one modal at a time.
@@ -76,6 +92,22 @@ export const OverlayContextProvider = ({
   const closeModals = () => {
     setModals(defaults);
   };
+
+  const addTransaction = useCallback(
+    (transaction: Transaction) => {
+      const updatedTransactions = [...transactions, transaction];
+      setTransactions(updatedTransactions);
+    },
+    [transactions, setTransactions],
+  );
+
+  const clearTransaction = useCallback(
+    (hash: Hex) => {
+      const updatedTransactions = transactions.filter((tx) => tx.hash !== hash);
+      setTransactions(updatedTransactions);
+    },
+    [transactions, setTransactions],
+  );
 
   /**
    * @param {string} hash
@@ -110,6 +142,12 @@ export const OverlayContextProvider = ({
     sendToast?: boolean;
     onSuccess?: (data?: TransactionReceipt) => void;
   }): Promise<TransactionReceipt | undefined> => {
+    addTransaction({
+      hash,
+      timestamp: Date.now(),
+      status: 'pending',
+    });
+
     const data = await waitForTransaction({ hash });
 
     if (!data) {
@@ -131,12 +169,32 @@ export const OverlayContextProvider = ({
       setModals(defaults);
     }
 
+    clearTransaction(hash);
+
     if (redirect) {
       router.push(redirect);
     }
 
     return Promise.resolve(data);
   };
+
+  useEffect(() => {
+    const checkAndClearTransactions = async () => {
+      const confirmedTransactions = await checkTransactionStatus(
+        transactions,
+        chainId, // maybe need to check all chains
+      );
+
+      _.forEach(transactions, (tx) => {
+        const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
+        if (confirmedTx && tx.status !== 'completed') {
+          clearTransaction(tx.hash as Hex); // directly clear the transaction
+        }
+      });
+    };
+
+    checkAndClearTransactions();
+  }, [chainId, transactions, setTransactions, clearTransaction]);
 
   const returnValue = useMemo(
     () => ({
@@ -146,6 +204,7 @@ export const OverlayContextProvider = ({
       commandPalette,
       setCommandPalette,
       handlePendingTx,
+      transactions,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],

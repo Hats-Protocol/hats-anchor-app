@@ -14,7 +14,6 @@ import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import useTransactions from '@/hooks/useTransactions';
 import { processHatForCalls } from '@/lib/form';
 import { handleDetailsPin } from '@/lib/ipfs';
 import { Hat, HatDetails } from '@/types';
@@ -35,11 +34,10 @@ const useMulticallCallManyHats = () => {
     setStoredData,
     patchTree,
   } = useTreeForm();
+
   const toast = useToast();
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
-
-  const { addTransaction, clearCompletedTransactions } = useTransactions();
 
   useEffect(() => {
     const prepareMulticallData = async () => {
@@ -120,8 +118,6 @@ const useMulticallCallManyHats = () => {
       patchTree?.(proposedChanges);
     }
     setStoredData?.([]);
-
-    clearCompletedTransactions();
   };
 
   const {
@@ -134,12 +130,6 @@ const useMulticallCallManyHats = () => {
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
-      });
-
-      addTransaction({
-        hash: data.hash,
-        timestamp: Date.now(),
-        status: 'pending',
       });
 
       await handlePendingTx?.({
