@@ -5,7 +5,7 @@ import { lazy, Suspense } from 'react';
 import { BsArrowLeft } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { IoCloseOutline } from 'react-icons/io5';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
 import NetworkSwitcher from '@/components/NetworkSwitcher';
@@ -27,7 +27,6 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
   const { chainId, editMode, selectedHat, hatDisclosure, setSelectedHatId } =
     useTreeForm();
   const { address } = useAccount();
-  const currentNetworkId = useChainId();
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const { data: wearer } = useWearerDetails({
@@ -93,7 +92,7 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
         )}
         {!editMode && (
           <HStack spacing={3} w='full' justifyContent='flex-end'>
-            <NetworkSwitcher currentNetworkId={currentNetworkId} />
+            <NetworkSwitcher />
             <MoreMenu />
           </HStack>
         )}

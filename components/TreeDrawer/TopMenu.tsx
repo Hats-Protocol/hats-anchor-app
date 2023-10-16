@@ -1,6 +1,7 @@
 import {
   Button,
   Flex,
+  HStack,
   Icon,
   Modal as ChakraModal,
   ModalBody,
@@ -19,6 +20,7 @@ import { IoExitOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
+import NetworkSwitcher from '@/components/NetworkSwitcher';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
@@ -137,22 +139,24 @@ const TopMenu = () => {
       >
         Cancel
       </Button>
-
-      <Tooltip
-        label={isDeployDisabled ? getDeployTooltipLabel : ''}
-        placement='left'
-        hasArrow
-      >
-        <Button
-          leftIcon={<IoExitOutline />}
-          colorScheme='blue'
-          variant='solid'
-          isDisabled={isDeployDisabled}
-          onClick={handleDeploy}
+      <HStack>
+        <NetworkSwitcher />
+        <Tooltip
+          label={isDeployDisabled ? getDeployTooltipLabel : ''}
+          placement='left'
+          hasArrow
         >
-          Deploy
-        </Button>
-      </Tooltip>
+          <Button
+            leftIcon={<IoExitOutline />}
+            colorScheme='blue'
+            variant='solid'
+            isDisabled={isDeployDisabled}
+            onClick={handleDeploy}
+          >
+            Deploy
+          </Button>
+        </Tooltip>
+      </HStack>
 
       <Modal
         name='importFile'

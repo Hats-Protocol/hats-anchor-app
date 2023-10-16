@@ -1,35 +1,29 @@
-import { Button, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import React from 'react';
-import { useSwitchNetwork } from 'wagmi';
+import { useNetwork, useSwitchNetwork } from 'wagmi';
 
-interface NetworkSwitcherProps {
-  currentNetworkId?: number;
-}
+import { useTreeForm } from '@/contexts/TreeFormContext';
+import { chainsList } from '@/lib/web3';
 
-const NetworkSwitcher: React.FC<NetworkSwitcherProps> = ({
-  currentNetworkId,
-}) => {
-  const { chains, isLoading, pendingChainId, switchNetwork } =
-    useSwitchNetwork();
+const NetworkSwitcher: React.FC = () => {
+  const { chainId } = useTreeForm();
+  const { chain } = useNetwork();
+  const { isLoading, switchNetwork } = useSwitchNetwork();
+
+  const desiredChainName =
+    chain?.id === chainId ? chain?.name : chainId && chainsList[chainId]?.name;
+
+  if (!desiredChainName || !switchNetwork || chainId === chain?.id) return null;
 
   return (
-    <Menu>
-      <MenuButton as={Button} variant='outline'>
-        Network
-      </MenuButton>
-      <MenuList>
-        {chains.map((x) => (
-          <MenuItem
-            isDisabled={!switchNetwork || x.id === currentNetworkId}
-            key={x.id}
-            onClick={() => switchNetwork?.(x.id)}
-          >
-            {x.name}
-            {isLoading && pendingChainId === x.id && ' (switching)'}
-          </MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
+    <Button
+      variant='outline'
+      isDisabled={!switchNetwork || chain?.id === chainId}
+      onClick={() => switchNetwork?.(chainId)}
+      isLoading={isLoading && chain?.id !== chainId}
+    >
+      Switch to {desiredChainName}
+    </Button>
   );
 };
 
