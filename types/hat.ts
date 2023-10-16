@@ -64,6 +64,9 @@ export interface Hat {
   wearers: HatWearer[];
   extendedWearers?: HatWearer[];
   admin?: Partial<Hat>;
+  claimableBy?: Hex[];
+  claimableForBy?: Hex[];
+  // app specific
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

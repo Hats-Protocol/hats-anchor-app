@@ -1,10 +1,8 @@
 import {
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
   HStack,
   Icon,
+  Slide,
   Stack,
   Text,
   useDisclosure,
@@ -263,25 +261,19 @@ const HatManagementForm = ({
         </FormRowWrapper>
       </Stack>
 
-      <Drawer
-        placement='right'
-        onClose={() => {
-          onCloseModuleDrawer?.();
-        }}
-        isOpen={!!isOpenModuleDrawer}
+      <Slide
+        direction='right'
+        in={!!isOpenModuleDrawer}
+        style={{ zIndex: 1001, width: '100%' }}
       >
-        <DrawerContent background='cyan.50' maxW='43%' width='650px'>
-          <DrawerBody pt={0}>
-            <Suspense fallback={<Suspender />}>
-              <ModuleDrawer
-                onCloseModuleDrawer={onCloseModuleDrawer}
-                isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-                title={title}
-              />
-            </Suspense>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <Suspense fallback={<Suspender />}>
+          <ModuleDrawer
+            onCloseModuleDrawer={onCloseModuleDrawer}
+            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+            title={title}
+          />
+        </Suspense>
+      </Slide>
     </form>
   );
 };

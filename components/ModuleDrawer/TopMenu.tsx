@@ -39,11 +39,20 @@ const TopMenu = ({
     if (isStandaloneHatterDeploy) {
       return DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER;
     }
-    if (moduleType && isPermissionlesslyClaimable === 'Yes') {
+    if (
+      moduleType &&
+      !instanceAddress &&
+      isPermissionlesslyClaimable === 'Yes'
+    ) {
       return DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER;
     }
     return DEPLOYMENT_TYPES.ONLY_MODULE;
-  }, [isStandaloneHatterDeploy, moduleType, isPermissionlesslyClaimable]);
+  }, [
+    isStandaloneHatterDeploy,
+    moduleType,
+    isPermissionlesslyClaimable,
+    instanceAddress,
+  ]);
 
   const { deploy, isLoading } = useModuleDeploy({
     localForm,

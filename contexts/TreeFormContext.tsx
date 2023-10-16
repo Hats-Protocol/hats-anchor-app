@@ -366,6 +366,7 @@ export const TreeFormContextProvider = ({
 
       router.push(updatedUrl, undefined, { shallow: true });
 
+      onCloseTreeDrawer();
       onOpenHatDrawer();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

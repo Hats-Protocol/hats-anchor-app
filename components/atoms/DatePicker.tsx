@@ -26,6 +26,8 @@ const DatePicker = ({
 }: DatePickerProps) => {
   if (!localForm) return null;
 
+  const { control } = localForm;
+
   return (
     <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
@@ -52,7 +54,7 @@ const DatePicker = ({
           )}
         </Box>
         <Controller
-          control={localForm.control}
+          control={control}
           name={name}
           render={({ field: { onChange, value } }) => (
             <DatePickerComponent
