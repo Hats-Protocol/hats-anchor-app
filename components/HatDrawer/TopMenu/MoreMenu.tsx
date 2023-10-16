@@ -37,7 +37,7 @@ import { decimalId, isWearingAdminHat, toTreeId } from '@/lib/hats';
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, editMode } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
