@@ -23,6 +23,7 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
 import { Hat, Transaction } from '@/types';
+import { FaBell } from 'react-icons/fa';
 
 const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const currentChainId = useChainId();
@@ -151,7 +152,11 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
           aria-label='Search'
           variant='ghost'
         />
-        {hasPendingTransactions && <Spinner />}
+        {hasPendingTransactions ? (
+          <Spinner />
+        ) : (
+          <Icon as={FaBell} h='25px' w='25px' />
+        )}
         <ConnectWallet />
       </HStack>
     </Flex>
