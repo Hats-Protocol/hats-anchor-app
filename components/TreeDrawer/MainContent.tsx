@@ -7,15 +7,26 @@ import {
   HStack,
   Stack,
   Text,
+  VStack,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
+import { FiSave, FiShare2 } from 'react-icons/fi';
 
 import Markdown from '@/components/atoms/Markdown';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { getProposedChangesCount, isTopHatOrMutable } from '@/lib/hats';
+import useToast from '@/hooks/useToast';
+import {
+  editHasUpdates,
+  getProposedChangesCount,
+  isTopHatOrMutable,
+} from '@/lib/hats';
 import { Hat } from '@/types';
 
 const isDraft = (hatId: string, onchainHats: Hat[]) =>
@@ -32,10 +43,36 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     hatDisclosure,
     treeEvents,
     topHatDetails,
+    treeId,
+    chainId,
   } = useTreeForm();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
+  const toast = useToast();
+  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
+  const localOverlay = useOverlay();
+
+  const { setModals } = localOverlay;
+
+  const openImportModal = () => {
+    setModals?.({ importFile: true });
+  };
+
+  const handleExport = () => {
+    const fileData = JSON.stringify(storedData);
+    const blob = new Blob([fileData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    // TODO add unix timestamp so don't get (1) on subsequent downloads
+    // update file name validation also, based on this ^
+    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
+    link.href = url;
+    link.click();
+    toast.success({
+      title: `Exported tree #${decimalTreeId} to your desktop`,
+    });
+  };
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -50,30 +87,55 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       top={75}
       pos='relative'
     >
-      <Stack>
-        <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-          {topHatDetails?.name || topHat?.name || 'No Hats'}
-        </Heading>
-        {topHatDetails?.description && (
-          <Markdown>{topHatDetails?.description}</Markdown>
-        )}
+      <HStack alignItems='flex-start' justifyContent='space-between'>
+        <Stack>
+          <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
+            {topHatDetails?.name || topHat?.name || 'No Hats'}
+          </Heading>
+          {topHatDetails?.description && (
+            <Markdown>{topHatDetails?.description}</Markdown>
+          )}
 
-        <Text color='blackAlpha.600'>
-          Created{' '}
-          {_.get(_.first(treeEvents), 'timestamp') &&
-            formatDistanceToNow(
-              new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000),
-            )}{' '}
-          ago. Last edited{' '}
-          {/* maybe we're looking for the last change in the tree, not the top hat? */}
-          {_.get(_.last(treeEvents), 'timestamp') &&
-            formatDistanceToNow(
-              new Date(Number(_.get(_.last(treeEvents), 'timestamp')) * 1000),
-            )}{' '}
-          ago.
-        </Text>
-        {!topHatDetails?.description && <Flex h={12} />}
-      </Stack>
+          <Text color='blackAlpha.600'>
+            Created{' '}
+            {_.get(_.first(treeEvents), 'timestamp') &&
+              formatDistanceToNow(
+                new Date(
+                  Number(_.get(_.first(treeEvents), 'timestamp')) * 1000,
+                ),
+              )}{' '}
+            ago. Last edited{' '}
+            {/* maybe we're looking for the last change in the tree, not the top hat? */}
+            {_.get(_.last(treeEvents), 'timestamp') &&
+              formatDistanceToNow(
+                new Date(Number(_.get(_.last(treeEvents), 'timestamp')) * 1000),
+              )}{' '}
+            ago.
+          </Text>
+          {!topHatDetails?.description && <Flex h={12} />}
+        </Stack>
+
+        <VStack>
+          <Button
+            leftIcon={<FiShare2 />}
+            colorScheme='gray'
+            variant='outline'
+            onClick={openImportModal}
+          >
+            Import
+          </Button>
+          <Button
+            leftIcon={<FiSave />}
+            colorScheme='twitter'
+            variant='solid'
+            isDisabled={!editHasUpdates(storedData)}
+            onClick={handleExport}
+          >
+            Export
+          </Button>
+        </VStack>
+      </HStack>
+
       <Stack>
         <Text color='blackAlpha.800' fontSize='xl' fontWeight='medium'>
           Drafted Changes
