@@ -179,21 +179,30 @@ export const OverlayContextProvider = ({
   };
 
   useEffect(() => {
-    const checkAndClearTransactions = async () => {
+    const interval = setInterval(async () => {
+      if (transactions.length === 0) {
+        clearInterval(interval);
+        return;
+      }
+
       const confirmedTransactions = await checkTransactionStatus(
         transactions,
-        chainId, // maybe need to check all chains
+        chainId,
       );
 
       _.forEach(transactions, (tx) => {
         const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
         if (confirmedTx && tx.status !== 'completed') {
-          clearTransaction(tx.hash as Hex); // directly clear the transaction
+          clearTransaction(tx.hash as Hex);
         }
       });
-    };
 
-    checkAndClearTransactions();
+      if (_.every(transactions, (tx) => tx.status === 'completed')) {
+        clearInterval(interval);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, [chainId, transactions, setTransactions, clearTransaction]);
 
   const returnValue = useMemo(
