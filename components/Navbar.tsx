@@ -12,6 +12,7 @@ import {
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { BsSearch } from 'react-icons/bs';
+import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -23,7 +24,6 @@ import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
 import { Hat, Transaction } from '@/types';
-import { FaBell } from 'react-icons/fa';
 
 const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const currentChainId = useChainId();
