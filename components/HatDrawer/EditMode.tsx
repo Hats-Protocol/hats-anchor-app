@@ -369,6 +369,7 @@ const EditMode = ({
                   details in the{' '}
                   <ChakraNextLink
                     href={CONFIG.docsLinks.authorities}
+                    isExternal
                     decoration
                   >
                     docs
@@ -399,6 +400,7 @@ const EditMode = ({
                   the{' '}
                   <ChakraNextLink
                     href={CONFIG.docsLinks.authorities}
+                    isExternal
                     decoration
                   >
                     docs
@@ -439,6 +441,7 @@ const EditMode = ({
                     this hat from specific wearers. More details in the{' '}
                     <ChakraNextLink
                       href={CONFIG.docsLinks.eligibility}
+                      isExternal
                       decoration
                     >
                       docs
@@ -450,6 +453,7 @@ const EditMode = ({
                     when a wearer should have this hat. More details in the{' '}
                     <ChakraNextLink
                       href={CONFIG.docsLinks.eligibility}
+                      isExternal
                       decoration
                     >
                       docs
@@ -493,7 +497,11 @@ const EditMode = ({
                   <Text key='manual'>
                     The address of the person or group that can manually
                     deactivate and reactive this hat. More details in the{' '}
-                    <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.toggle}
+                      isExternal
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .
@@ -501,7 +509,11 @@ const EditMode = ({
                   <Text key='automatic'>
                     The address of the smart contract containing the logic about
                     when this hat should be active. More details in the{' '}
-                    <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.toggle}
+                      isExternal
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .

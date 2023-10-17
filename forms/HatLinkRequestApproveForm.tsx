@@ -31,6 +31,8 @@ import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { ImageFile } from '@/types';
 
+// ! update links to use new docs links constants
+
 const HatLinkRequestApproveForm = ({
   topHatDomain,
   newAdmin,

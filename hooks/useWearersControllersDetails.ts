@@ -68,7 +68,7 @@ const useWearersControllersDetails = ({
     queries: _.map(wAndCs, (w) => ({
       queryKey: ['wearerAndControllerDetails', w, chainId],
       queryFn: () => fetchWearerAndControllerDetails(w, chainId),
-      enabled: !!w && isAddress(w) && !!chainId,
+      enabled: !!w && isAddress(w) && w !== ZERO_ADDRESS && !!chainId,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     })),
   });

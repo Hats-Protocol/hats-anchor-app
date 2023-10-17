@@ -253,6 +253,7 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     editMode,
   });
+  // console.log(wearersAndControllers);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,

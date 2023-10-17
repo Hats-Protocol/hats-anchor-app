@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { createPublicClient, custom, Hex, http } from 'viem';
+import { createPublicClient, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
 import { HatWearer } from '@/types';
@@ -16,8 +16,9 @@ export const checkAddressIsContract = async (
 
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum) || http(),
+    // ideally could use window.ethereum here, but result is cached also
+    //    custom((window as any).ethereum) ||
+    transport: http(),
   });
 
   if (!publicClient) return false;
