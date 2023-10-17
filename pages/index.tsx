@@ -4,6 +4,7 @@ import {
   Card,
   Flex,
   Grid,
+  Heading,
   HStack,
   SimpleGrid,
   Spinner,
@@ -72,9 +73,11 @@ const Home = () => {
               <Text fontSize={24} fontWeight='medium'>
                 gm {ensName || formatAddress(wearerAddress)} 👋
               </Text>
-              <Text fontSize={18}>
-                Here&apos;s what&apos;s happening with your hats
-              </Text>
+              {!_.isEmpty(sortedHats) && (
+                <Text fontSize={18}>
+                  Here&apos;s what&apos;s happening with your hats
+                </Text>
+              )}
             </Stack>
 
             <Box>
@@ -99,46 +102,59 @@ const Home = () => {
           </Stack>
         )}
 
-        {wearerAddress && (
-          <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-            <Flex justifyContent='space-between' alignItems='center'>
-              <Text fontSize={24} fontWeight='medium'>
-                Your hats
-              </Text>
-              {sortedHats.length > 8 && (
-                <ChakraNextLink
-                  as={ChakraNextLink}
-                  href={`/wearers/${wearerAddress}`}
-                >
-                  <HStack alignItems='center'>
-                    <Text>View all of your hats</Text> <FaArrowRight />
-                  </HStack>
-                </ChakraNextLink>
-              )}
-            </Flex>
-            {imagesLoading || detailsLoading ? (
-              <Flex justify='center' align='center' pt={10}>
-                <Spinner />
+        {wearerAddress &&
+          currentHatsWithImagesData &&
+          (!_.isEmpty(sortedHats) ? (
+            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+              <Flex justifyContent='space-between' alignItems='center'>
+                <Text fontSize={24} fontWeight='medium'>
+                  Your hats
+                </Text>
+                {sortedHats.length > 8 && (
+                  <ChakraNextLink
+                    as={ChakraNextLink}
+                    href={`/wearers/${wearerAddress}`}
+                  >
+                    <HStack alignItems='center'>
+                      <Text>View all of your hats</Text> <FaArrowRight />
+                    </HStack>
+                  </ChakraNextLink>
+                )}
               </Flex>
-            ) : (
-              <SimpleGrid
-                columns={{
-                  base: 1,
-                  sm: 2,
-                  md: 3,
-                  lg: 4,
-                }}
-                spacing={6}
-              >
-                {_.map(currentHatsWithImagesData, (hat, i) => (
-                  <Suspense fallback={<Suspender />} key={i}>
-                    <DashboardHatCard hat={hat} key={i} />
-                  </Suspense>
-                ))}
-              </SimpleGrid>
-            )}
-          </Card>
-        )}
+              {imagesLoading || detailsLoading ? (
+                <Flex justify='center' align='center' pt={10}>
+                  <Spinner />
+                </Flex>
+              ) : (
+                <SimpleGrid
+                  columns={{
+                    base: 1,
+                    sm: 2,
+                    md: 3,
+                    lg: 4,
+                  }}
+                  spacing={6}
+                >
+                  {_.map(currentHatsWithImagesData, (hat, i) => (
+                    <Suspense fallback={<Suspender />} key={i}>
+                      <DashboardHatCard hat={hat} key={i} />
+                    </Suspense>
+                  ))}
+                </SimpleGrid>
+              )}
+            </Card>
+          ) : (
+            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+              <Flex minH={20} justify='center' align='center'>
+                <Stack align='center'>
+                  <Heading size='md'>Your hats will appear here</Heading>
+                  <Text>
+                    Create a tree or check out the starter templates below.
+                  </Text>
+                </Stack>
+              </Flex>
+            </Card>
+          ))}
 
         <Flex
           alignItems='start'

@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { FaSave } from 'react-icons/fa';
+import { BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -135,7 +135,7 @@ const TopMenu = () => {
         variant='outline'
         colorScheme='gray'
         onClick={promptForReset}
-        leftIcon={<Icon as={FaSave} />}
+        leftIcon={<Icon as={BsXSquare} />}
       >
         Cancel
       </Button>

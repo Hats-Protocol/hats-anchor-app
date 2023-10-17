@@ -83,6 +83,7 @@ export interface Hat {
   newImage?: string;
 }
 
+// ! USE MODULE_TYPES
 export type ModuleKind = 'eligibility' | 'toggle';
 
 export type ModuleCreationArg = {
