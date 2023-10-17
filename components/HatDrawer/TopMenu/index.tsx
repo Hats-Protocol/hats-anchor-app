@@ -22,10 +22,23 @@ const HatLinkRequestCreateForm = lazy(
   () => import('@/forms/HatLinkRequestCreateForm'),
 );
 
-const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
+const TopMenu = ({
+  onSave,
+  handleRemoveHat,
+  handleClearChanges,
+  returnToList,
+  isLoading,
+}: TopMenuProps) => {
   const localOverlay = useOverlay();
-  const { chainId, editMode, selectedHat, hatDisclosure, setSelectedHatId } =
-    useTreeForm();
+  const {
+    chainId,
+    editMode,
+    onchainHats,
+    selectedHat,
+    storedData,
+    hatDisclosure,
+    setSelectedHatId,
+  } = useTreeForm();
   const { address } = useAccount();
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
@@ -50,6 +63,9 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
   const handleSave = () => {
     onSave();
   };
+
+  const onchainHat = _.find(onchainHats, { id: selectedHat?.id });
+  const hatHasChanges = _.find(storedData, { id: selectedHat?.id });
 
   if (!selectedHat) return null;
 
@@ -98,15 +114,37 @@ const TopMenu = ({ onSave, returnToList, isLoading }: TopMenuProps) => {
         )}
 
         {editMode && (
-          <Button
-            leftIcon={<FiSave />}
-            colorScheme='twitter'
-            variant='solid'
-            onClick={handleSave}
-            isLoading={isLoading}
-          >
-            Save
-          </Button>
+          <HStack>
+            {hatHasChanges &&
+              (onchainHat ? (
+                <Button
+                  onClick={handleClearChanges}
+                  variant='outline'
+                  colorScheme='red'
+                  borderColor='red.500'
+                >
+                  Clear changes
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleRemoveHat}
+                  variant='outline'
+                  colorScheme='red'
+                  borderColor='red.500'
+                >
+                  Delete Hat
+                </Button>
+              ))}
+            <Button
+              leftIcon={<FiSave />}
+              colorScheme='twitter'
+              variant='solid'
+              onClick={handleSave}
+              isLoading={isLoading}
+            >
+              Save
+            </Button>
+          </HStack>
         )}
       </HStack>
 
@@ -133,6 +171,8 @@ export default TopMenu;
 
 interface TopMenuProps {
   onSave: (v?: boolean) => void;
+  handleRemoveHat: () => void;
+  handleClearChanges: () => void;
   returnToList: () => void;
   isLoading: boolean;
 }

@@ -287,7 +287,6 @@ const EditMode = ({
         },
         {},
       );
-      // console.log('dirtyFormData', dirtyFormData);
 
       setUnsavedData(dirtyFormData);
     }
