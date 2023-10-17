@@ -76,6 +76,7 @@ export interface TreeFormContext {
   // actions
   addHat: ((hat: Hat) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
+  removeHat: ((hatId: Hex) => void) | undefined;
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
   // disclosures
@@ -116,6 +117,7 @@ export const treeFormContext = createContext<TreeFormContext>({
   // actions
   handleSelectHat: undefined,
   addHat: undefined,
+  removeHat: undefined,
   resetTree: undefined,
   importHats: undefined,
   // disclosures
@@ -188,7 +190,7 @@ export const TreeFormContextProvider = ({
   });
   const treeDisclosure = useDisclosure();
 
-  const { onOpen: onOpenHatDrawer } = hatDisclosure;
+  const { onOpen: onOpenHatDrawer, onClose: onCloseHatDrawer } = hatDisclosure;
   const { onOpen: onOpenTreeDrawer, onClose: onCloseTreeDrawer } =
     treeDisclosure;
 
@@ -251,6 +253,7 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     editMode,
   });
+  // console.log(wearersAndControllers);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,
@@ -432,6 +435,24 @@ export const TreeFormContextProvider = ({
     });
   }, []);
 
+  const removeHat = useCallback(
+    (hatId: Hex) => {
+      setStoredData((prev) => {
+        const tempData = _.cloneDeep(prev);
+        if (!tempData) return [];
+        return _.reject(tempData, ['id', hatId]);
+      });
+      setOrgChartHats((prev) => {
+        const tempHats = _.cloneDeep(prev);
+        if (!tempHats) return [];
+        return _.reject(tempHats, ['id', hatId]);
+      });
+      onOpenTreeDrawer();
+      onCloseHatDrawer();
+    },
+    [setStoredData, onCloseHatDrawer, onOpenTreeDrawer],
+  );
+
   const importHats = useCallback(
     (hats: Partial<FormData>[]) => {
       setStoredData?.(hats);
@@ -539,6 +560,7 @@ export const TreeFormContextProvider = ({
       // actions
       handleSelectHat,
       addHat,
+      removeHat,
       resetTree,
       importHats,
       // disclosures
@@ -579,6 +601,7 @@ export const TreeFormContextProvider = ({
       // actions
       handleSelectHat,
       addHat,
+      removeHat,
       resetTree,
       importHats,
       // disclosures

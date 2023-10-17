@@ -132,6 +132,7 @@ const TreeMenu = ({
                 rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                 fontWeight='medium'
                 color={isOpen ? 'blue.500' : '#2D3748'}
+                borderColor={isOpen ? 'blue.500' : '#2D3748'}
               >
                 View Controls
               </Button>

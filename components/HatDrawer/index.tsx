@@ -17,13 +17,23 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
     undefined,
   );
-  const { selectedHat, editMode, storedData, setStoredData, newImageUrls } =
-    useTreeForm();
+  const {
+    selectedHat,
+    editMode,
+    storedData,
+    setStoredData,
+    newImageUrls,
+    removeHat,
+    treeDisclosure,
+    hatDisclosure,
+  } = useTreeForm();
   const newImageUrl = _.find(newImageUrls, [
     'id',
     selectedHat?.id,
   ])?.newImageUrl;
   const selectedHatId = selectedHat?.id;
+  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
+  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
@@ -48,6 +58,21 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         });
       }
     }
+  };
+
+  const handleRemoveHat = () => {
+    if (!selectedHat) return;
+    removeHat?.(selectedHat?.id);
+    setUnsavedData(undefined);
+  };
+
+  const handleClearChanges = () => {
+    if (!selectedHat) return;
+    const updateData = _.reject(storedData, { id: selectedHat?.id });
+    setStoredData?.(updateData);
+    setUnsavedData(undefined);
+    onOpenTreeDrawer?.();
+    onCloseHatDrawer?.();
   };
 
   if (!selectedHat) return null;
@@ -88,6 +113,8 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
         <TopMenu
           onSave={handleSave}
+          handleRemoveHat={handleRemoveHat}
+          handleClearChanges={handleClearChanges}
           returnToList={returnToList}
           isLoading={isLoading}
         />

@@ -31,6 +31,7 @@ import { pinJson } from '@/lib/ipfs';
 import { ImageFile } from '@/types';
 
 // TODO refactor without prettyId
+// ! update links to use new docs links constants
 
 const HatRelinkForm = ({
   chainId,
