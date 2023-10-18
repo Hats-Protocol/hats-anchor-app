@@ -125,8 +125,7 @@ const ClaimsHandler = ({
               >
                 <Button
                   size='xs'
-                  color='blue.500'
-                  borderColor='blue.500'
+                  colorScheme='blue.500'
                   variant='outline'
                   isDisabled={!hatToMintTo || !!hatToMintPended}
                   onClick={pendMintHatForHatter}

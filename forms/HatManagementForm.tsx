@@ -202,7 +202,6 @@ const HatManagementForm = ({
                   leftIcon={<BsFileCode />}
                   variant='outline'
                   fontWeight='normal'
-                  borderColor='blackAlpha.300'
                   onClick={onOpenModuleDrawer}
                 >
                   Create new Module
@@ -252,7 +251,6 @@ const HatManagementForm = ({
               gap={2}
               variant='outline'
               fontWeight='normal'
-              borderColor='blackAlpha.300'
             >
               <BsPlusCircle />
               Add {items?.length ? 'another' : 'a'} Requirement

@@ -121,18 +121,12 @@ const TreeMenu = ({
           <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose} matchWidth>
             <PopoverTrigger>
               <Button
-                leftIcon={
-                  <Icon
-                    as={BsToggles}
-                    color={isOpen ? 'blue.500' : '#2D3748'}
-                  />
-                }
+                leftIcon={<Icon as={BsToggles} />}
                 isDisabled={editMode}
                 variant='filled'
                 rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                 fontWeight='medium'
-                color={isOpen ? 'blue.500' : '#2D3748'}
-                borderColor={isOpen ? 'blue.500' : '#2D3748'}
+                colorScheme={isOpen ? 'blue.500' : '#2D3748'}
               >
                 View Controls
               </Button>

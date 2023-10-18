@@ -120,8 +120,7 @@ const TopMenu = ({
                 <Button
                   onClick={handleClearChanges}
                   variant='outline'
-                  colorScheme='red'
-                  borderColor='red.500'
+                  colorScheme='red.500'
                 >
                   Clear changes
                 </Button>
@@ -129,8 +128,7 @@ const TopMenu = ({
                 <Button
                   onClick={handleRemoveHat}
                   variant='outline'
-                  colorScheme='red'
-                  borderColor='red.500'
+                  colorScheme='red.500'
                 >
                   Delete Hat
                 </Button>
