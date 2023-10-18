@@ -98,18 +98,25 @@ export const OverlayContextProvider = ({
   const addTransaction = useCallback(
     (transaction: Transaction) => {
       const updatedTransactions = [...transactions, transaction];
+
       setTransactions(updatedTransactions);
     },
     [transactions, setTransactions],
   );
 
-  const deleteTransaction = useCallback(
-    (hash: Hex) => {
-      const updatedTransactions = transactions.filter((tx) => tx.hash !== hash);
-      setTransactions(updatedTransactions);
-    },
-    [transactions, setTransactions],
-  );
+  const updateTransactionStatus = (hash: Hex, status: string) => {
+    if (!hash) return;
+
+    setTransactions((prevTransactions) => {
+      if (!prevTransactions.length) return prevTransactions;
+
+      const updatedTransactions = prevTransactions.map((tx) =>
+        tx.hash === hash ? { ...tx, status } : tx,
+      );
+
+      return updatedTransactions;
+    });
+  };
 
   const clearAllTransactions = useCallback(() => {
     setTransactions([]);
@@ -167,6 +174,8 @@ export const OverlayContextProvider = ({
       });
     }
 
+    updateTransactionStatus(hash, 'completed');
+
     if (onSuccess) {
       onSuccess(data);
     }
@@ -174,8 +183,6 @@ export const OverlayContextProvider = ({
     if (clearModals) {
       setModals(defaults);
     }
-
-    deleteTransaction(hash);
 
     if (redirect) {
       router.push(redirect);
@@ -198,18 +205,16 @@ export const OverlayContextProvider = ({
 
       _.forEach(transactions, (tx) => {
         const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
+
         if (confirmedTx && tx.status !== 'completed') {
-          deleteTransaction(tx.hash as Hex);
+          updateTransactionStatus(tx.hash as Hex, 'completed');
         }
       });
-
-      if (_.every(transactions, (tx) => tx.status === 'completed')) {
-        clearInterval(interval);
-      }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [chainId, transactions, setTransactions, deleteTransaction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainId, transactions, setTransactions]);
 
   const returnValue = useMemo(
     () => ({
