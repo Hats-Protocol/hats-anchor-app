@@ -53,6 +53,7 @@ export interface IOverlayContext {
   }) => Promise<TransactionReceipt | undefined>;
   // transactions
   transactions: Transaction[];
+  clearAllTransactions: () => void;
 }
 
 export const OverlayContext = createContext<IOverlayContext>({
@@ -65,6 +66,7 @@ export const OverlayContext = createContext<IOverlayContext>({
   setCommandPalette: () => {},
   // transactions
   transactions: [],
+  clearAllTransactions: () => {},
 });
 
 export const OverlayContextProvider = ({
@@ -101,13 +103,17 @@ export const OverlayContextProvider = ({
     [transactions, setTransactions],
   );
 
-  const clearTransaction = useCallback(
+  const deleteTransaction = useCallback(
     (hash: Hex) => {
       const updatedTransactions = transactions.filter((tx) => tx.hash !== hash);
       setTransactions(updatedTransactions);
     },
     [transactions, setTransactions],
   );
+
+  const clearAllTransactions = useCallback(() => {
+    setTransactions([]);
+  }, [setTransactions]);
 
   /**
    * @param {string} hash
@@ -169,7 +175,7 @@ export const OverlayContextProvider = ({
       setModals(defaults);
     }
 
-    clearTransaction(hash);
+    deleteTransaction(hash);
 
     if (redirect) {
       router.push(redirect);
@@ -193,7 +199,7 @@ export const OverlayContextProvider = ({
       _.forEach(transactions, (tx) => {
         const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
         if (confirmedTx && tx.status !== 'completed') {
-          clearTransaction(tx.hash as Hex);
+          deleteTransaction(tx.hash as Hex);
         }
       });
 
@@ -203,7 +209,7 @@ export const OverlayContextProvider = ({
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [chainId, transactions, setTransactions, clearTransaction]);
+  }, [chainId, transactions, setTransactions, deleteTransaction]);
 
   const returnValue = useMemo(
     () => ({
@@ -214,6 +220,7 @@ export const OverlayContextProvider = ({
       setCommandPalette,
       handlePendingTx,
       transactions,
+      clearAllTransactions,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],
