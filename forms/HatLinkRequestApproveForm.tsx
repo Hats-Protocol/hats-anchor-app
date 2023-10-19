@@ -145,9 +145,9 @@ const HatLinkRequestApproveForm = ({
     chainId,
     onSuccessToastData: {
       title: 'Link Request Approved!',
-      description: `Successfully linked top hat ${hatIdDecimalToIp(
-        BigInt(topHatDomain),
-      )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
+      description: `Successfully linked top hat ${BigInt(
+        topHatDomain,
+      ).toString()} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
       ['hatDetails', { id: newAdmin, chainId }],

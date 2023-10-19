@@ -104,6 +104,13 @@ const createNewHatData = ({
 
   if (!hatId) return undefined;
 
+  const admin = getDefaultAdminId(hatId);
+  if (!admin || admin === '0x') {
+    // eslint-disable-next-line no-console
+    console.log('admin is undefined');
+    return undefined;
+  }
+
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
     details,

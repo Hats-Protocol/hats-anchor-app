@@ -36,6 +36,7 @@ import { IoCloseCircleOutline } from 'react-icons/io5';
 import CONFIG, { initialControls } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useIsClient from '@/hooks/useIsClient';
 import { chainsMap, explorerUrl } from '@/lib/web3';
 import { Controls } from '@/types';
 
@@ -62,8 +63,10 @@ const TreeMenu = ({
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
+  const isClient = useIsClient();
 
   useEffect(() => {
+    if (!isClient) return;
     setLocalLastTimestamp(
       `${
         _.get(_.first(treeEvents), 'timestamp') &&
@@ -72,7 +75,7 @@ const TreeMenu = ({
         )
       } ago`,
     );
-  }, [treeEvents]);
+  }, [treeEvents, isClient]);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -196,7 +199,7 @@ const TreeMenu = ({
                 </ChakraNextLink>
               </Flex>
             </Skeleton>
-            <Skeleton isLoaded={!!localLastTimestamp}>
+            <Skeleton isLoaded={isClient && !!localLastTimestamp}>
               <Popover trigger='hover'>
                 <PopoverTrigger>
                   <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
