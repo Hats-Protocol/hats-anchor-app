@@ -22,7 +22,14 @@ const TransactionHistory = ({ count }: { count?: number }) => {
   if (events.length === 0) {
     return (
       <Flex align='center' justify='center' py={2}>
-        <Text>No new transactions</Text>
+        <Text
+          fontSize='sm'
+          color='gray.500'
+          textAlign='center'
+          fontWeight='medium'
+        >
+          No new transactions
+        </Text>
       </Flex>
     );
   }

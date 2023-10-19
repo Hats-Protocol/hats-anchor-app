@@ -180,7 +180,7 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
               />
             </PopoverTrigger>
             <Portal>
-              <PopoverContent width='auto'>
+              <PopoverContent width='auto' minW='300px'>
                 <PopoverArrow />
                 <PopoverCloseButton />
                 <PopoverBody>
