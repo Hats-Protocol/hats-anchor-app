@@ -11,7 +11,7 @@ import { Transaction } from '@/types';
 
 const TransactionHistory = ({ count }: { count?: number }) => {
   const { chainId } = useTreeForm();
-  const { transactions } = useOverlay(); // Using the useOverlay hook to get transactions
+  const { transactions } = useOverlay();
 
   let events = [] as Transaction[];
 
@@ -35,13 +35,16 @@ const TransactionHistory = ({ count }: { count?: number }) => {
 
   return (
     <Box>
-      {_.map(events, ({ hash, status, timestamp }: Transaction) => (
-        <Flex key={hash} align='center' justify='space-between' py={2}>
-          {status === 'pending' ? (
-            <Spinner color='blue.500' size='xs' />
-          ) : (
-            <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
-          )}
+      {_.map(events, ({ hash, status, timestamp, fnName }: Transaction) => (
+        <HStack key={hash} align='center' justify='space-between' py={2}>
+          <HStack>
+            {status === 'pending' ? (
+              <Spinner color='blue.500' size='xs' />
+            ) : (
+              <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
+            )}
+            <Text>{fnName}</Text>
+          </HStack>
 
           <ChakraNextLink
             isExternal
@@ -54,7 +57,7 @@ const TransactionHistory = ({ count }: { count?: number }) => {
               <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
             </HStack>
           </ChakraNextLink>
-        </Flex>
+        </HStack>
       ))}
     </Box>
   );

@@ -171,7 +171,7 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
         {hasPendingTransactions ? (
           <Spinner />
         ) : (
-          <Popover>
+          <Popover trigger='hover'>
             <PopoverTrigger>
               <IconButton
                 icon={<Icon as={FaBell} h='25px' w='25px' />}
@@ -180,7 +180,7 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
               />
             </PopoverTrigger>
             <Portal>
-              <PopoverContent>
+              <PopoverContent width='auto'>
                 <PopoverArrow />
                 <PopoverCloseButton />
                 <PopoverBody>
