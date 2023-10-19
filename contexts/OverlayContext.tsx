@@ -38,6 +38,7 @@ export interface IOverlayContext {
   setCommandPalette: Dispatch<SetStateAction<boolean>>;
   handlePendingTx?: ({
     hash,
+    fnName,
     toastData,
     redirect = null,
     clearModals = true,
@@ -45,13 +46,13 @@ export interface IOverlayContext {
     onSuccess,
   }: {
     hash: Hex;
+    fnName: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
     onSuccess?: (d?: TransactionReceipt) => void;
   }) => Promise<TransactionReceipt | undefined>;
-  // transactions
   transactions: Transaction[];
   clearAllTransactions: () => void;
 }
@@ -64,7 +65,6 @@ export const OverlayContext = createContext<IOverlayContext>({
   handlePendingTx: undefined,
   commandPalette: false,
   setCommandPalette: () => {},
-  // transactions
   transactions: [],
   clearAllTransactions: () => {},
 });
@@ -127,6 +127,7 @@ export const OverlayContextProvider = ({
    * @param {object} toastData
    * @param {string} toastData.title
    * @param {string} toastData.description
+   * @param {string} fnName
    * @param {string} redirect
    * @param {boolean} clearModals
    * @param {boolean} sendToast
@@ -142,6 +143,7 @@ export const OverlayContextProvider = ({
    * */
   const handlePendingTx = async ({
     hash,
+    fnName,
     toastData,
     redirect = null,
     clearModals = true,
@@ -149,6 +151,7 @@ export const OverlayContextProvider = ({
     onSuccess,
   }: {
     hash: Hex;
+    fnName: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
@@ -159,6 +162,7 @@ export const OverlayContextProvider = ({
       hash,
       timestamp: Date.now(),
       status: 'pending',
+      fnName,
     });
 
     const data = await waitForTransaction({ hash });
