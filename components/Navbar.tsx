@@ -168,62 +168,62 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
           aria-label='Search'
           variant='ghost'
         />
-        {hasPendingTransactions ? (
-          <Spinner />
-        ) : (
-          <Popover trigger='hover'>
-            <PopoverTrigger>
+        <Popover trigger='hover'>
+          <PopoverTrigger>
+            {hasPendingTransactions ? (
+              <Spinner />
+            ) : (
               <IconButton
                 icon={<Icon as={FaBell} h='25px' w='25px' />}
                 aria-label='Notifications'
                 variant='ghost'
               />
-            </PopoverTrigger>
-            <Portal>
-              <PopoverContent width='auto' minW='300px'>
-                <PopoverArrow />
-                <PopoverCloseButton />
-                <PopoverBody>
-                  <Box>
-                    <HStack w='full' justify='space-between' align='center'>
-                      <Heading
-                        size='sm'
-                        fontWeight='medium'
-                        textTransform='uppercase'
-                        mb={1}
-                      >
-                        History
-                      </Heading>
+            )}
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent width='auto' minW='300px'>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverBody>
+                <Box>
+                  <HStack w='full' justify='space-between' align='center'>
+                    <Heading
+                      size='sm'
+                      fontWeight='medium'
+                      textTransform='uppercase'
+                      mb={1}
+                    >
+                      History
+                    </Heading>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      colorScheme='blue'
+                      onClick={clearAllTransactions}
+                      mr={4}
+                      isDisabled={_.isEmpty(transactions)}
+                    >
+                      Clear
+                    </Button>
+                  </HStack>
+                  <TransactionHistory count={5} />
+                  {_.gt(_.size(transactions), 5) && (
+                    <>
+                      <Divider my={2} />
                       <Button
-                        size='sm'
-                        variant='ghost'
+                        onClick={() => setModals?.({ transactions: true })}
+                        variant='link'
                         colorScheme='blue'
-                        onClick={clearAllTransactions}
-                        mr={4}
-                        isDisabled={_.isEmpty(transactions)}
                       >
-                        Clear
+                        View Full History
                       </Button>
-                    </HStack>
-                    <TransactionHistory count={5} />
-                    {_.gt(_.size(transactions), 5) && (
-                      <>
-                        <Divider my={2} />
-                        <Button
-                          onClick={() => setModals?.({ transactions: true })}
-                          variant='link'
-                          colorScheme='blue'
-                        >
-                          View Full History
-                        </Button>
-                      </>
-                    )}
-                  </Box>
-                </PopoverBody>
-              </PopoverContent>
-            </Portal>
-          </Popover>
-        )}
+                    </>
+                  )}
+                </Box>
+              </PopoverBody>
+            </PopoverContent>
+          </Portal>
+        </Popover>
         <ConnectWallet />
       </HStack>
     </Flex>

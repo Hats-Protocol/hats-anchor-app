@@ -28,7 +28,7 @@ const TransactionHistory = ({ count }: { count?: number }) => {
           textAlign='center'
           fontWeight='medium'
         >
-          No new transactions
+          No recent transactions
         </Text>
       </Flex>
     );
@@ -43,28 +43,34 @@ const TransactionHistory = ({ count }: { count?: number }) => {
   return (
     <Box>
       {_.map(events, ({ hash, status, timestamp, fnName }: Transaction) => (
-        <HStack key={hash} align='center' justify='space-between' py={2}>
-          <HStack>
-            {status === 'pending' ? (
-              <Spinner color='blue.500' size='xs' />
-            ) : (
-              <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
-            )}
-            <Text>{fnName}</Text>
-          </HStack>
-
-          <ChakraNextLink
-            isExternal
-            href={`${chainId && explorerUrl(chainId)}/tx/${hash}`}
-            display='block'
+        <ChakraNextLink
+          isExternal
+          href={`${chainId && explorerUrl(chainId)}/tx/${hash}`}
+          display='block'
+        >
+          <HStack
+            key={hash}
+            align='center'
+            justify='space-between'
+            py={2}
+            spacing={4}
           >
-            <HStack spacing={3}>
-              <Text>{abbreviateHash(hash)}</Text>
+            <HStack>
+              {status === 'pending' ? (
+                <Spinner color='blue.500' size='xs' />
+              ) : (
+                <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
+              )}
+              <Text>{fnName}</Text>
+            </HStack>
+
+            <HStack>
+              <Text>{`(${abbreviateHash(hash)})`}</Text>
               <Text>{formatDistanceToNow(new Date(timestamp))} ago</Text>
               <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
             </HStack>
-          </ChakraNextLink>
-        </HStack>
+          </HStack>
+        </ChakraNextLink>
       ))}
     </Box>
   );
