@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { createPublicClient, Hex, http } from 'viem';
+import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
 import { HatWearer } from '@/types';
