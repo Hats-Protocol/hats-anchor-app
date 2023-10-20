@@ -51,7 +51,7 @@ const LabelWithLink = ({
           px={8}
           variant='outline'
           fontWeight='normal'
-          borderColor='blackAlpha.300'
+          colorScheme='blackAlpha.300'
         >
           {linkValue ? 'Edit' : 'Add'} a Link
         </Button>

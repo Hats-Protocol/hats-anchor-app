@@ -34,13 +34,15 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
     const detailsToPin = _.map(allCalls, 'detailsToPin');
     const detailsPromises = _.map(
       _.compact(detailsToPin),
-      (hatDetails: HatPinDetails) => {
-        const {
-          chainId: localChainId,
-          hatId,
-          details,
-        } = _.pick(hatDetails, ['chainId', 'hatId', 'details']);
-        return handleDetailsPin({ chainId: localChainId, hatId, details });
+      (hatDetails: HatPinDetails, index) => {
+        setTimeout(() => {
+          const {
+            chainId: localChainId,
+            hatId,
+            details,
+          } = _.pick(hatDetails, ['chainId', 'hatId', 'details']);
+          return handleDetailsPin({ chainId: localChainId, hatId, details });
+        }, index * 500); // spread these as to not overload the pinning service
       },
     );
     await Promise.all(detailsPromises);

@@ -336,7 +336,9 @@ export const translateDrafts = ({
     };
   });
 
-  return _.filter(extendDrafts, (x) => x) as Hat[];
+  const defined = _.reject(extendDrafts, _.isUndefined) as Hat[];
+
+  return _.sortBy(defined, (hat) => BigInt(hat.id));
 };
 
 export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hex[] => {

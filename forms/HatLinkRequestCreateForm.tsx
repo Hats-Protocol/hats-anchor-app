@@ -24,13 +24,13 @@ const HatLinkRequestCreateForm = ({
     mode: 'all',
     defaultValues: {
       newAdmin: decimalId(newAdmin),
-      topHatDomain: wearerTopHats[0],
+      topHatDomain: _.first(wearerTopHats),
     },
   });
   const { handleSubmit, watch } = localForm;
 
-  const topHatDomain = useDebounce<Hex>(
-    watch('topHatDomain', wearerTopHats[0]),
+  const topHatDomain = useDebounce<Hex | undefined>(
+    watch('topHatDomain', _.first(wearerTopHats)),
   );
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -39,14 +39,17 @@ const HatLinkRequestCreateForm = ({
     chainId,
     onSuccessToastData: {
       title: 'Successfully Requested to Link!',
-      description: `Successfully requested to link top hat ${hatIdDecimalToIp(
-        BigInt(topHatDomain),
-      )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
+      description:
+        topHatDomain &&
+        newAdmin &&
+        `Successfully requested to link top hat ${hatIdDecimalToIp(
+          BigInt(topHatDomain),
+        )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
       ['hatDetails', { id: newAdmin, chainId }],
       ['hatDetails', { id: topHatDomain, chainId }],
-      ['treeDetails', topHatDomain, chainId || 1],
+      ['treeDetails', topHatDomain || 'none', chainId || 1],
       ['treeDetails', newAdmin, chainId || 1],
     ],
     enabled:
@@ -64,6 +67,20 @@ const HatLinkRequestCreateForm = ({
       console.log(error);
     }
   };
+
+  if (_.isEmpty(wearerTopHats)) {
+    return (
+      <Stack spacing={4}>
+        <Text>
+          Ask the wearer of this hat to become the admin of a Top Hat that you
+          are wearing. You will lose admin control of this Top Hat!
+        </Text>
+        <Text>
+          You are not wearing any Top Hats that can be linked to this tree.
+        </Text>
+      </Stack>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

@@ -2,9 +2,8 @@ import { Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { lazy, Suspense } from 'react';
-import { BsArrowLeft } from 'react-icons/bs';
+import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
-import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
@@ -98,7 +97,7 @@ const TopMenu = ({
               setSelectedHatId?.(undefined);
               onCloseHatDrawer?.();
             }}
-            leftIcon={<IoCloseOutline />}
+            leftIcon={<BsXSquare />}
             variant='outline'
             aria-label='Close'
             marginRight='auto'
@@ -120,8 +119,7 @@ const TopMenu = ({
                 <Button
                   onClick={handleClearChanges}
                   variant='outline'
-                  colorScheme='red'
-                  borderColor='red.500'
+                  colorScheme='red.500'
                 >
                   Clear changes
                 </Button>
@@ -129,8 +127,7 @@ const TopMenu = ({
                 <Button
                   onClick={handleRemoveHat}
                   variant='outline'
-                  colorScheme='red'
-                  borderColor='red.500'
+                  colorScheme='red.500'
                 >
                   Delete Hat
                 </Button>

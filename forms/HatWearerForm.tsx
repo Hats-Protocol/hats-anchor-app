@@ -419,7 +419,6 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                 onClick={handleAddWearer}
                 aria-label='Add Another Wallet'
                 variant='outline'
-                borderColor='blackAlpha.300'
               >
                 <Icon
                   as={BsPersonBadge}

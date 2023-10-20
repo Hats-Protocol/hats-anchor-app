@@ -165,8 +165,11 @@ const useMulticallCallManyHats = () => {
       // ? check to see if any objects are already pinned
       const promises = _.map(
         _.compact(detailsToPin),
-        ({ chainId: cId, hatId, details }: HatPinDetails) =>
-          handleDetailsPin({ chainId: cId, hatId, details }),
+        ({ chainId: cId, hatId, details }: HatPinDetails, index: number) => {
+          return setTimeout(() => {
+            return handleDetailsPin({ chainId: cId, hatId, details });
+          }, index * 500);
+        },
       );
 
       await Promise.all(promises);

@@ -2,6 +2,7 @@ import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { Hex } from 'viem';
 
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 
@@ -45,7 +46,8 @@ const useModuleDetails = ({
     queryFn: getModuleData,
     enabled:
       !!address &&
-      address !== '0x0000000000000000000000000000000000004a75' &&
+      address !== FALLBACK_ADDRESS &&
+      address !== ZERO_ADDRESS &&
       enabled,
   });
 

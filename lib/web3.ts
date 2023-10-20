@@ -68,7 +68,7 @@ export const chainsMap = (chainId?: number) =>
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
-  (chainsMap(chainId)?.blockExplorers?.etherscan.url ||
+  (chainsMap(chainId)?.blockExplorers?.etherscan?.url ||
     chainsMap(chainId)?.blockExplorers?.default.url);
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [

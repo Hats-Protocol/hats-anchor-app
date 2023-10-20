@@ -244,8 +244,7 @@ const WearersList = () => {
               <Button
                 size='xs'
                 variant='outline'
-                colorScheme='blue'
-                borderColor='blue.500'
+                colorScheme='blue.500'
                 onClick={setHatClaimability}
                 isLoading={isLoadingSetHatClaimability}
                 isDisabled={isLoadingSetHatClaimability}
