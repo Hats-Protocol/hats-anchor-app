@@ -131,6 +131,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
 
       await handlePendingTx?.({
         hash: data.hash,
+        fnName: 'Claim Hat',
         toastData: {
           title: 'Hat claimed!',
           description: `You've claimed ${

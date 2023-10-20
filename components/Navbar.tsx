@@ -1,16 +1,28 @@
 import {
+  Box,
   Button,
+  Divider,
   Flex,
+  Heading,
   HStack,
   Icon,
   IconButton,
   Image,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
+  Spinner,
   Stack,
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { BsSearch } from 'react-icons/bs';
+import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -21,15 +33,26 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
-import { Hat } from '@/types';
+import { Hat, Transaction } from '@/types';
+
+import TransactionHistory from './TransactionHistory';
 
 const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const currentChainId = useChainId();
-  const localOverlay = useOverlay();
-  const { setCommandPalette: setOpen } = localOverlay;
+  const {
+    setCommandPalette: setOpen,
+    setModals,
+    transactions,
+    clearAllTransactions,
+  } = useOverlay();
+
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
+
+  const hasPendingTransactions = transactions.some(
+    (tx: Transaction) => tx.status === 'pending',
+  );
 
   const { data: hatDetails } = useHatDetailsField(hatData?.details);
   const tabName = hatDetails?.data?.name || hatData?.details;
@@ -145,6 +168,62 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
           aria-label='Search'
           variant='ghost'
         />
+        <Popover trigger='hover'>
+          <PopoverTrigger>
+            {hasPendingTransactions ? (
+              <Spinner />
+            ) : (
+              <IconButton
+                icon={<Icon as={FaBell} h='25px' w='25px' />}
+                aria-label='Notifications'
+                variant='ghost'
+              />
+            )}
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent width='auto' minW='300px'>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverBody>
+                <Box>
+                  <HStack w='full' justify='space-between' align='center'>
+                    <Heading
+                      size='sm'
+                      fontWeight='medium'
+                      textTransform='uppercase'
+                      mb={1}
+                    >
+                      History
+                    </Heading>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      colorScheme='blue'
+                      onClick={clearAllTransactions}
+                      mr={4}
+                      isDisabled={_.isEmpty(transactions)}
+                    >
+                      Clear
+                    </Button>
+                  </HStack>
+                  <TransactionHistory count={5} />
+                  {_.gt(_.size(transactions), 5) && (
+                    <>
+                      <Divider my={2} />
+                      <Button
+                        onClick={() => setModals?.({ transactions: true })}
+                        variant='link'
+                        colorScheme='blue'
+                      >
+                        View Full History
+                      </Button>
+                    </>
+                  )}
+                </Box>
+              </PopoverBody>
+            </PopoverContent>
+          </Portal>
+        </Popover>
         <ConnectWallet />
       </HStack>
     </Flex>

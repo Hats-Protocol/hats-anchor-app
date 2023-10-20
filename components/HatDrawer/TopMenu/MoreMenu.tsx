@@ -37,7 +37,7 @@ import { decimalId, isWearingAdminHat, toTreeId } from '@/lib/hats';
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat, editMode } = useTreeForm();
+  const { chainId, selectedHat } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
@@ -45,7 +45,6 @@ const MoreMenu = () => {
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
-    editMode,
   });
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);

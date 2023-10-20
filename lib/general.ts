@@ -179,3 +179,10 @@ export async function hash(string: string) {
     .join('');
   return hashHex;
 }
+
+// turn e.g. checkHatWearerStatus -> Check Hat Wearer Status
+export function formatFunctionName(functionName: string): string {
+  return functionName
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase());
+}

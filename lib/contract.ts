@@ -37,6 +37,40 @@ export const checkAddressIsContract = async (
   return false;
 };
 
+export const checkTransactionStatus = async (
+  pendingTransactions: { hash: string }[],
+  chainId?: number,
+) => {
+  if (!chainId) return null;
+
+  const publicClient = createPublicClient({
+    chain: chainsMap(chainId),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transport: custom((window as any).ethereum) || http(),
+  });
+
+  if (!publicClient) return [];
+
+  const transactionPromises = pendingTransactions.map(async (tx) => {
+    try {
+      const transactionData = await publicClient.getTransaction({
+        hash: tx.hash as Hex,
+      });
+      if (transactionData && transactionData.blockHash) {
+        return transactionData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching transaction data:', error);
+      return null;
+    }
+  });
+
+  const results = await Promise.all(transactionPromises);
+
+  return results;
+};
+
 export const extendWearers = (
   wearers: HatWearer[],
   wearersInfo: HatWearer[] | undefined,

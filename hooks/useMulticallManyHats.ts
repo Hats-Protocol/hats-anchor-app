@@ -34,6 +34,7 @@ const useMulticallCallManyHats = () => {
     setStoredData,
     patchTree,
   } = useTreeForm();
+
   const toast = useToast();
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
@@ -133,6 +134,7 @@ const useMulticallCallManyHats = () => {
 
       await handlePendingTx?.({
         hash: data.hash,
+        fnName: 'Multicall',
         toastData: {
           title: 'Transaction successful',
           description: 'Hats were successfully updated',
