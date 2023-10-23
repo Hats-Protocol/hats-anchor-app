@@ -17,15 +17,18 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
+import { useAccount } from 'wagmi';
 
 import Markdown from '@/components/atoms/Markdown';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
+import useWearerDetails from '@/hooks/useWearerDetails';
 import {
   editHasUpdates,
   getProposedChangesCount,
   isTopHatOrMutable,
+  isWearingAdminHat,
 } from '@/lib/hats';
 import { Hat } from '@/types';
 
@@ -52,12 +55,18 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const localOverlay = useOverlay();
+  const { address } = useAccount();
 
   const { setModals } = localOverlay;
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
   };
+
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
 
   const handleExport = () => {
     const fileData = JSON.stringify(storedData);
@@ -171,6 +180,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             displayName = hat.name;
           }
 
+          const isAdmin = isWearingAdminHat(_.map(wearerDetails, 'id'), hat.id);
+
           return (
             <Box
               borderBottom='1px solid'
@@ -202,8 +213,13 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                     </Badge>
                   ) : (
                     changes && (
-                      <Badge colorScheme='cyan' fontSize='sm' variant='outline'>
-                        {changes} CHANGE
+                      <Badge
+                        colorScheme={isAdmin ? 'blue' : 'cyan'}
+                        fontSize='sm'
+                        variant={isAdmin ? 'solid' : 'outline'}
+                      >
+                        {changes}
+                        {isAdmin ? ' DEPLOYABLE EDIT' : ' CHANGE'}
                         {_.gt(changes, 1) ? 'S' : ''}
                       </Badge>
                     )
