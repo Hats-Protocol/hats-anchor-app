@@ -20,7 +20,7 @@ import { Hat, HatDetails } from '@/types';
 
 import useAdminOfHats from './useAdminOfHats';
 
-const useMulticallCallManyHats = () => {
+const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<Hat[]>([]);
 
@@ -95,7 +95,11 @@ const useMulticallCallManyHats = () => {
     abi: CONFIG.hatsAbi,
     functionName: 'multicall',
     args: [_.map(calls, 'callData')],
-    enabled: !_.isEmpty(calls) && !!chainId && chainId === currentChain,
+    enabled:
+      !_.isEmpty(calls) &&
+      !!chainId &&
+      chainId === currentChain &&
+      isAdminOfAnyHatWithChanges,
   });
 
   const onSuccess = async () => {
