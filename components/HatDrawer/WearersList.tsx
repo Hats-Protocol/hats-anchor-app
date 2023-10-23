@@ -13,14 +13,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
@@ -38,9 +31,8 @@ import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContr
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
-import { isSameAddress } from '@/lib/general';
 import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
-import { filterWearers, getEligibleWearers } from '@/lib/wearers';
+import { filterWearers, getEligibleWearers, sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
@@ -61,7 +53,6 @@ const WearersList = () => {
   >();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortedWearers, setSortedWearers] = useState<HatWearer[]>([]);
   const localForm = useForm({
     mode: 'onBlur',
   });
@@ -71,8 +62,13 @@ const WearersList = () => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
 
+  const sortedWearers = useMemo(
+    () => sortWearers({ wearers, address }),
+    [wearers, address],
+  );
+
   const {
-    data: paginatedWearers,
+    paginatedWearers,
     nextPage,
     prevPage,
     isLoading,
@@ -104,7 +100,6 @@ const WearersList = () => {
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
-    chainId,
     editMode,
   });
 
@@ -134,50 +129,6 @@ const WearersList = () => {
     selectedHat?.id,
     true,
   );
-
-  const sortWearers = useCallback(
-    (hatWearers: HatWearer[]) => {
-      const currentUser = hatWearers?.filter((w) =>
-        isSameAddress(w.id, address),
-      );
-      const otherUsers = hatWearers?.filter(
-        (w) => !isSameAddress(w.id, address),
-      );
-
-      otherUsers?.sort((w1, w2) => {
-        if (w1.ensName && w2.ensName)
-          return w1.ensName.localeCompare(w2.ensName);
-        if (w1.ensName) return -1;
-        if (w2.ensName) return 1;
-
-        // For 0x addresses: Sort based on their numerical value, then uppercase, then lowercase.
-        const addr1Without0x = w1.id.slice(2);
-        const addr2Without0x = w2.id.slice(2);
-
-        const num1 = parseInt(addr1Without0x, 16);
-        const num2 = parseInt(addr2Without0x, 16);
-
-        if (num1 !== num2) return num1 - num2;
-
-        const upperCaseRegex = /[A-F]/;
-        const isUpper1 = upperCaseRegex.test(addr1Without0x);
-        const isUpper2 = upperCaseRegex.test(addr2Without0x);
-
-        if (isUpper1 && isUpper2) return w1.id.localeCompare(w2.id);
-        if (isUpper1) return -1;
-        if (isUpper2) return 1;
-
-        return w1.id.localeCompare(w2.id);
-      });
-
-      return [...currentUser, ...otherUsers];
-    },
-    [address],
-  );
-
-  useEffect(() => {
-    setSortedWearers(sortWearers(wearers));
-  }, [wearers, sortWearers]);
 
   const filteredWearers = useMemo(
     () =>
