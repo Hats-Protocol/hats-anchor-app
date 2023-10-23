@@ -74,7 +74,7 @@ const TopMenu = () => {
     closeModal();
   };
 
-  const isAdminOfAllHatsWithChanges = useMemo(() => {
+  const isAdminOfAnyHatWithChanges = useMemo(() => {
     const hatsWithChanges = _.map(storedData, ({ id }) => {
       const foundHat = _.find(treeToDisplay, { id });
       return {
@@ -83,16 +83,11 @@ const TopMenu = () => {
       };
     });
 
-    // ! gets stuck if wearer details cached after new tree deploy
-    const hasAdminOverAllHats = _.every(hatsWithChanges, (h) => {
+    const hasAdminOverAnyHat = _.some(hatsWithChanges, (h) => {
       return isWearingAdminHat(_.map(wearer, 'id'), h.id, false);
     });
 
-    if (hasAdminOverAllHats) {
-      return true;
-    }
-
-    return false;
+    return hasAdminOverAnyHat;
   }, [storedData, treeToDisplay, wearer]);
 
   const getDeployTooltipLabel = useMemo(() => {
@@ -102,19 +97,19 @@ const TopMenu = () => {
     if (chainId !== currentChain) {
       return `Must be on ${chainsMap(chainId).name} to deploy`;
     }
-    if (!isAdminOfAllHatsWithChanges) {
-      return 'You must be the admin of all hats with changes to deploy';
+    if (!isAdminOfAnyHatWithChanges) {
+      return 'You must be the admin of at least one hat with changes to deploy';
     }
     return '';
-  }, [chainId, currentChain, isAdminOfAllHatsWithChanges, storedData]);
+  }, [chainId, currentChain, isAdminOfAnyHatWithChanges, storedData]);
 
   const isDeployDisabled = useMemo(
     () =>
       !editHasUpdates(storedData) ||
       isLoading ||
       currentChain !== chainId ||
-      !isAdminOfAllHatsWithChanges,
-    [storedData, isLoading, currentChain, chainId, isAdminOfAllHatsWithChanges],
+      !isAdminOfAnyHatWithChanges,
+    [storedData, isLoading, currentChain, chainId, isAdminOfAnyHatWithChanges],
   );
 
   return (

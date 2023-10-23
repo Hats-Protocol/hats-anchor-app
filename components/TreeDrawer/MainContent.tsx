@@ -17,18 +17,17 @@ import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
+import { Hex } from 'viem';
 
 import Markdown from '@/components/atoms/Markdown';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useToast from '@/hooks/useToast';
-import useWearerDetails from '@/hooks/useWearerDetails';
 import {
   editHasUpdates,
   getProposedChangesCount,
   isTopHatOrMutable,
-  isWearingAdminHat,
 } from '@/lib/hats';
 import { Hat } from '@/types';
 
@@ -55,7 +54,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const toast = useToast();
   const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const localOverlay = useOverlay();
-  const { address } = useAccount();
 
   const { setModals } = localOverlay;
 
@@ -63,10 +61,11 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     setModals?.({ importFile: true });
   };
 
-  const { data: wearerDetails } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
+  const hatIds = _.filter(
+    _.map(storedData, 'id'),
+    (hatId) => hatId !== undefined,
+  ) as Hex[];
+  const { adminHatIds } = useAdminOfHats(hatIds);
 
   const handleExport = () => {
     const fileData = JSON.stringify(storedData);
@@ -180,7 +179,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             displayName = hat.name;
           }
 
-          const isAdmin = isWearingAdminHat(_.map(wearerDetails, 'id'), hat.id);
+          const isAdmin = _.includes(adminHatIds, hat.id);
 
           return (
             <Box

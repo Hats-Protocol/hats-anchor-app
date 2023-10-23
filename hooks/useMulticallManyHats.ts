@@ -18,9 +18,11 @@ import { processHatForCalls } from '@/lib/form';
 import { handleDetailsPin } from '@/lib/ipfs';
 import { Hat, HatDetails } from '@/types';
 
+import useAdminOfHats from './useAdminOfHats';
+
 const useMulticallCallManyHats = () => {
   const [calls, setCalls] = useState<unknown[]>();
-  const [proposedChanges, setProposedChanges] = useState<Hat[]>();
+  const [proposedChanges, setProposedChanges] = useState<Hat[]>([]);
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
   const { address } = useAccount();
@@ -39,13 +41,22 @@ const useMulticallCallManyHats = () => {
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
 
+  const hatIds = _.filter(
+    _.map(storedData, 'id'),
+    (hatId) => hatId !== undefined,
+  ) as Hex[];
+  const { adminHatIds } = useAdminOfHats(hatIds);
+
   useEffect(() => {
     const prepareMulticallData = async () => {
       const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
         _.includes(_.map(onchainHats, 'id'), hat.id),
       );
 
-      const allCallsPromises = _.map(storedData, (hat) =>
+      const deployableHatChanges = _.filter(storedData, (hat) =>
+        _.includes(adminHatIds, hat.id),
+      );
+      const allCallsPromises = _.map(deployableHatChanges, (hat) =>
         processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
@@ -74,6 +85,7 @@ const useMulticallCallManyHats = () => {
     storedData,
     onchainHats,
     treeToDisplay,
+    adminHatIds,
   ]);
 
   const { config, error: prepareError } = usePrepareContractWrite({
@@ -117,7 +129,8 @@ const useMulticallCallManyHats = () => {
     if (proposedChanges) {
       patchTree?.(proposedChanges);
     }
-    setStoredData?.([]);
+    const newStoredData = _.differenceBy(storedData, proposedChanges, 'id');
+    setStoredData?.(newStoredData);
   };
 
   const {
