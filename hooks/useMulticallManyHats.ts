@@ -23,6 +23,7 @@ import useAdminOfHats from './useAdminOfHats';
 const useMulticallCallManyHats = () => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<Hat[]>([]);
+
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
   const { address } = useAccount();
@@ -129,7 +130,12 @@ const useMulticallCallManyHats = () => {
     if (proposedChanges) {
       patchTree?.(proposedChanges);
     }
-    const newStoredData = _.differenceBy(storedData, proposedChanges, 'id');
+
+    const newStoredData = _.filter(
+      storedData,
+      (hat) => !_.includes(adminHatIds, hat.id),
+    );
+
     setStoredData?.(newStoredData);
   };
 
@@ -176,7 +182,6 @@ const useMulticallCallManyHats = () => {
   const handleWrite = async () => {
     // eslint-disable-next-line no-console
     if (!_.isEmpty(detailsToPin)) {
-      console.log('detailsToPin', detailsToPin);
       // ? check to see if any objects are already pinned
       const promises = _.map(
         _.compact(detailsToPin),
