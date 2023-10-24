@@ -13,13 +13,14 @@ import {
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
-  prepareDeployModuleWithoutClaimsHatterArgs,
+  prepareDeployModuleAndRegisterWithClaimsHatterArgs,
   processClaimsHatter,
   processModule,
 } from '@/lib/modules';
-import { DeploymentType, ModuleDetails } from '@/types';
+import { DeploymentType, FormData, ModuleDetails } from '@/types';
 
 import useHatsModules from './useHatsModules';
+import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 
 const useModuleDeploy = ({
@@ -27,13 +28,11 @@ const useModuleDeploy = ({
   selectedModuleDetails,
   onCloseModuleDrawer,
   deploymentType,
-  instanceAddress,
 }: {
   localForm: UseFormReturn;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   deploymentType: DeploymentType;
-  instanceAddress?: Hex;
 }) => {
   const { watch } = localForm;
   const values = watch();
@@ -52,8 +51,10 @@ const useModuleDeploy = ({
     selectedHat?.detailsObject?.data?.name
   })`;
 
-  const deployModuleWithoutClaimsHatterArgs =
-    prepareDeployModuleWithoutClaimsHatterArgs({
+  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck();
+
+  const deployModuleAndRegisterWithClaimsHatterArgs =
+    prepareDeployModuleAndRegisterWithClaimsHatterArgs({
       selectedModuleDetails,
       isLocalFormValid: localForm.formState.isValid,
       values,
@@ -61,13 +62,15 @@ const useModuleDeploy = ({
     });
 
   const {
-    deploy: deployModuleWithoutClaimsHatter,
+    deploy: deployModuleAndRegisterWithClaimsHatter,
     isLoading: isLoadingMultiClaimsHatter,
   } = useMultiClaimsHatterContractWrite({
     functionName: 'setHatClaimabilityAndCreateModule',
     address: instanceAddress,
-    enabled: !!instanceAddress,
-    args: deployModuleWithoutClaimsHatterArgs,
+    enabled:
+      !!instanceAddress &&
+      !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
+    args: deployModuleAndRegisterWithClaimsHatterArgs,
   });
 
   const adminHatData = useMemo(() => {
@@ -91,13 +94,40 @@ const useModuleDeploy = ({
     (data: { newInstance?: Hex | null; newInstances?: Hex[] | null }) => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          const moduleAddress = data?.newInstance;
+          const moduleAddress = _.get(
+            data,
+            'newInstance',
+            _.get(data, 'newInstances[0]'),
+          );
           if (moduleAddress && selectedModuleDetails) {
-            const updatedHats = processModule({
+            let hatterHats: Partial<FormData>[] = [];
+            if (
+              instanceAddress &&
+              isPermissionlesslyClaimable === 'Yes' &&
+              !hatterIsAdmin
+            ) {
+              hatterHats = processClaimsHatter({
+                claimsHatterAddress: instanceAddress,
+                storedData,
+                adminHat: adminHatData,
+                incrementWearers,
+              });
+            }
+            const moduleHats = processModule({
               moduleAddress,
               storedData,
               selectedHat,
             });
+            const hatIds = _.uniq(
+              _.map(_.concat(moduleHats, hatterHats), 'id'),
+            );
+            const updatedHats = _.map(hatIds, (id) =>
+              _.merge(
+                {},
+                _.find(hatterHats, { id }),
+                _.find(moduleHats, { id }),
+              ),
+            );
             setStoredData?.(updatedHats);
             toast.success({
               title: 'Saved',
@@ -190,6 +220,8 @@ const useModuleDeploy = ({
       instanceAddress,
       hatTitle,
       queryClient,
+      hatterIsAdmin,
+      isPermissionlesslyClaimable,
     ],
   );
 
@@ -203,7 +235,7 @@ const useModuleDeploy = ({
             isPermissionlesslyClaimable === 'Yes' &&
             _.isEmpty(selectedHat?.claimableBy)
           ) {
-            return deployModuleWithoutClaimsHatter();
+            return deployModuleAndRegisterWithClaimsHatter();
           }
 
           return deployModule({
@@ -246,6 +278,7 @@ const useModuleDeploy = ({
       handleSuccess(data);
     },
     onError: (error: Error) => {
+      // TODO catch rejected signature
       toast.error({
         title: 'Error!',
         description: `${error.message}`,

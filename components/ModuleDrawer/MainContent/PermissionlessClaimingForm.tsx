@@ -26,11 +26,9 @@ import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
 const PermissionlessClaimingForm = ({
   localForm,
   parentHats,
-  isClaimable = false,
 }: {
   localForm: UseFormReturn;
   parentHats?: Hex[];
-  isClaimable?: boolean;
 }) => {
   const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
@@ -38,8 +36,10 @@ const PermissionlessClaimingForm = ({
     'isPermissionlesslyClaimable',
   );
 
-  const { multiClaimsHatter, instanceAddress } = useMultiClaimsHatterCheck();
+  const { multiClaimsHatter, instanceAddress, claimableHats } =
+    useMultiClaimsHatterCheck();
 
+  const isClaimable = _.includes(claimableHats, selectedHat?.id);
   const { data: wearingHatDetails } = useHatDetails({
     hatId: String(adminHat),
   });
@@ -96,17 +96,19 @@ const PermissionlessClaimingForm = ({
             isDisabled={!parentHats?.length}
           />
 
-          {multiClaimsHatter && isPermissionlesslyClaimable === 'Yes' && (
-            <FormRowWrapper>
-              <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
-              <Text color='blue.500'>
-                A claims hatter for this tree has already been set up at{' '}
-                <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
-                register this hat with the hatter during the module deploy
-                transaction.
-              </Text>
-            </FormRowWrapper>
-          )}
+          {multiClaimsHatter &&
+            isClaimable &&
+            isPermissionlesslyClaimable === 'Yes' && (
+              <FormRowWrapper>
+                <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
+                <Text color='blue.500'>
+                  A claims hatter for this tree has already been set up at{' '}
+                  <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
+                  register this hat with the hatter during the module deploy
+                  transaction.
+                </Text>
+              </FormRowWrapper>
+            )}
         </Stack>
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
@@ -120,39 +122,40 @@ const PermissionlessClaimingForm = ({
         </FormRowWrapper>
       )}
 
-      {isPermissionlesslyClaimable === 'Yes' && !multiClaimsHatter && (
-        <Stack ref={scrollTargetRef}>
-          <FormRowWrapper>
-            <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-            <Stack>
-              <Select
-                name='adminHat'
-                label='ADMIN HAT'
-                subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
-                localForm={localForm}
-                placeholder='Select a hat in this tree'
-                defaultValue={undefined}
-                options={{
-                  required: isPermissionlesslyClaimable === 'Yes',
-                }}
-              >
-                {_.map(parentHats, (id) => (
-                  <option value={id} key={id}>
-                    {prettyIdToIp(idToPrettyId(id))}
-                  </option>
-                ))}
-              </Select>
-              {adminHat && selectedHat && (
-                <Text color='blackAlpha.600'>
-                  Potential wearers will be able to claim this hat (#
-                  {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the
-                  requirements in new module above.
-                </Text>
-              )}
-            </Stack>
-          </FormRowWrapper>
-        </Stack>
-      )}
+      {isPermissionlesslyClaimable === 'Yes' &&
+        (!multiClaimsHatter || (multiClaimsHatter && !isClaimable)) && (
+          <Stack ref={scrollTargetRef}>
+            <FormRowWrapper>
+              <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+              <Stack>
+                <Select
+                  name='adminHat'
+                  label='ADMIN HAT'
+                  subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                  localForm={localForm}
+                  placeholder='Select a hat in this tree'
+                  defaultValue={undefined}
+                  options={{
+                    required: isPermissionlesslyClaimable === 'Yes',
+                  }}
+                >
+                  {_.map(parentHats, (id) => (
+                    <option value={id} key={id}>
+                      {prettyIdToIp(idToPrettyId(id))}
+                    </option>
+                  ))}
+                </Select>
+                {adminHat && selectedHat && (
+                  <Text color='blackAlpha.600'>
+                    Potential wearers will be able to claim this hat (#
+                    {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the
+                    requirements in new module above.
+                  </Text>
+                )}
+              </Stack>
+            </FormRowWrapper>
+          </Stack>
+        )}
 
       {wearingHatDetails?.wearers?.length ===
         Number(wearingHatDetails?.maxSupply) && (
