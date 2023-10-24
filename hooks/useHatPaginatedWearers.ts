@@ -1,16 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
 import { useState } from 'react';
+import { useAccount } from 'wagmi';
 
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchPaginatedWearersForHat } from '@/gql/helpers';
+import { sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
 const useHatPaginatedWearers = ({
   hatId,
-  chainId,
   initialPage = 0,
 }: useHatPaginatedWearersProps) => {
   const [page, setPage] = useState(initialPage);
+  const { chainId } = useTreeForm();
+  const { address } = useAccount();
 
   const { data, isLoading, isFetching, isPreviousData } = useQuery({
     queryKey: ['wearersList', hatId, chainId, page],
@@ -31,7 +34,10 @@ const useHatPaginatedWearers = ({
   };
 
   return {
-    data,
+    paginatedWearers: sortWearers({
+      wearers: data,
+      address,
+    }),
     isLoading,
     isFetching,
     nextPage,

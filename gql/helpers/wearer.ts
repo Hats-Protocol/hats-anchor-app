@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '@/lib/contract';
-import { mapWithChainId } from '@/lib/general';
+import { isSameAddress, mapWithChainId } from '@/lib/general';
 import { chainsList } from '@/lib/web3';
 import { Hat, HatWearer } from '@/types';
 
