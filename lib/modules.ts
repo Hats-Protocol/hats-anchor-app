@@ -240,7 +240,7 @@ export const processClaimsHatter = ({
   return updatedHats;
 };
 
-export const prepareDeployModuleWithoutClaimsHatterArgs = ({
+export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   selectedModuleDetails,
   isLocalFormValid,
   values,
@@ -270,7 +270,7 @@ export const prepareDeployModuleWithoutClaimsHatterArgs = ({
       mutableArgs,
     });
     encodedImmutableArgs = result.encodedImmutableArgs;
-    encodedMutableArgs = result.encodedMutableArgs;
+    encodedMutableArgs = result.encodedMutableArgs || '0x';
   }
 
   return [

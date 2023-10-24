@@ -97,7 +97,6 @@ const MainContent = ({
           <PermissionlessClaimingForm
             localForm={localForm}
             parentHats={parentHats}
-            isClaimable={_.includes(claimableHats, selectedHat?.id)}
           />
         </Accordion>
       )}

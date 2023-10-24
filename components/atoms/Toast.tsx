@@ -101,7 +101,7 @@ const Toast: React.FC<ToastProps> = ({
             {title}
           </Heading>
           {description && (
-            <Text size='sm' color='white'>
+            <Text size='sm' color='white' noOfLines={2}>
               {description}
             </Text>
           )}

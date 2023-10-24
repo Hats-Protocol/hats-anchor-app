@@ -38,7 +38,7 @@ const useMultiClaimsHatterContractWrite = ({
       !!chainId &&
       !!functionName &&
       // module creation args could be optional in some cases
-      !_.some(args, _.isUndefined), // currently assuming not
+      !_.some(args, _.isUndefined), // currently we're assuming not
   });
 
   const {

@@ -59,7 +59,6 @@ const TopMenu = ({
     selectedModuleDetails,
     onCloseModuleDrawer,
     deploymentType,
-    instanceAddress,
   });
 
   const isChainCorrect = currentNetworkId === chainId;
