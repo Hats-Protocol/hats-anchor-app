@@ -96,7 +96,7 @@ const ClaimsHandler = ({
     );
   }
 
-  if (!hatterIsAdmin) {
+  if (!hatterIsAdmin && instanceAddress) {
     return (
       <ClaimsHandlerWrapper>
         <Stack>
