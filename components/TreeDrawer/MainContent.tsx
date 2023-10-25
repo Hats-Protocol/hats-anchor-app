@@ -19,14 +19,11 @@ import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 
 import Markdown from '@/components/atoms/Markdown';
+import { MUTABILITY } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import {
-  editHasUpdates,
-  getProposedChangesCount,
-  isTopHatOrMutable,
-} from '@/lib/hats';
+import { getProposedChangesCount, isTopHatOrMutable } from '@/lib/hats';
 import { Hat } from '@/types';
 
 const isDraft = (hatId: string, onchainHats: Hat[]) =>
@@ -45,6 +42,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     topHatDetails,
     treeId,
     chainId,
+    linkedHatIds,
   } = useTreeForm();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
@@ -58,14 +56,89 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const openImportModal = () => {
     setModals?.({ importFile: true });
   };
-
   const handleExport = () => {
-    const fileData = JSON.stringify(storedData);
+    const hatsWithoutLinkedHats = _.filter(
+      treeToDisplay,
+      (hat) => hat.id && !linkedHatIds?.includes(hat.id),
+    );
+
+    // Modify treeToDisplay's hats
+    const modifiedHats = _.map(hatsWithoutLinkedHats, (hat) => {
+      const pickedHat = _.pick(hat, [
+        'id',
+        'status',
+        'createdAt',
+        'details',
+        'mutable',
+        'maxSupply',
+        'eligibility',
+        'toggle',
+        'imageUri',
+        'currentSupply',
+        'wearers',
+        'adminId',
+        'imageUrl',
+      ]);
+      // Spread the data from detailsObject
+      return {
+        ...pickedHat,
+        ...hat?.detailsObject?.data,
+        mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+        toggle: hat.toggle,
+        eligibility: hat.eligibility,
+        isEligibilityManual: hat?.detailsObject?.data?.eligibility?.manual,
+        revocationCriteria: hat?.detailsObject?.data?.eligibility?.criteria,
+        isToggleManual: hat?.detailsObject?.data?.eligibility?.manual,
+        deactivationsCriteria: hat?.detailsObject?.data?.eligibility?.criteria,
+      };
+    });
+
+    // Merge modifiedHats with storedData
+    const mergedData = _.map(modifiedHats, (hat) => {
+      let hatWearerIds = _.map(hat.wearers || [], 'id');
+      const storedHat = _.find(storedData, { id: hat.id });
+      if (storedHat) {
+        hatWearerIds = _.concat(
+          hatWearerIds,
+          _.map(storedHat.wearers || [], 'address'),
+        );
+      }
+      return { ..._.merge({}, hat, storedHat), wearers: hatWearerIds };
+    });
+
+    // will have to adapt to HatExport type
+    const exportData = _.map(mergedData, (hat) =>
+      _.pick(hat, [
+        'id',
+        'status',
+        'createdAt',
+        'details',
+        'maxSupply',
+        'eligibility',
+        'isEligibilityManual',
+        'revocationCriteria',
+        'toggle',
+        'isToggleManual',
+        'deactivationsCriteria',
+        'mutable',
+        'imageUri',
+        'currentSupply',
+        'wearers',
+        'adminId',
+        'imageUrl',
+        'name',
+        'description',
+        'responsibilities',
+        'authorities',
+        'guilds',
+      ]),
+    );
+
+    const fileData = JSON.stringify(exportData);
     const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     // TODO add unix timestamp so don't get (1) on subsequent downloads
-    // update file name validation also, based on this ^
     link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
     link.href = url;
     link.click();
@@ -128,7 +201,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             leftIcon={<FiSave />}
             colorScheme='twitter'
             variant='solid'
-            isDisabled={!editHasUpdates(storedData)}
+            isDisabled={treeToDisplay?.length === 1}
             onClick={handleExport}
           >
             Export

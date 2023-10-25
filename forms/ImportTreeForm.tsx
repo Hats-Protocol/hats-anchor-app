@@ -12,10 +12,13 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
 import { BsBoxArrowInUpRight } from 'react-icons/bs';
+import { Hex } from 'viem';
 
 import DropZone from '@/components/atoms/DropZone';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import { prettyIdToId } from '@/lib/hats';
+import { FormData } from '@/types';
 
 interface validateTreeImportProps {
   file: File;
@@ -23,6 +26,7 @@ interface validateTreeImportProps {
   chainId?: number;
 }
 
+// we might need it at some point
 const validateTreeImport = ({
   file,
   treeId,
@@ -31,7 +35,6 @@ const validateTreeImport = ({
   if (!treeId || !chainId) return null;
   const fileName = file.name;
   const splitFileName = _.split(fileName, '-');
-  const fileChainId = _.toNumber(_.nth(splitFileName, 1));
   let fileTreeId = _.nth(splitFileName, 3);
   if (fileTreeId?.includes(' ')) {
     fileTreeId = _.first(_.split(fileTreeId, ' '));
@@ -39,25 +42,13 @@ const validateTreeImport = ({
   if (fileTreeId?.includes('.')) {
     fileTreeId = _.first(_.split(fileTreeId, '.'));
   }
-  const fileTreeIdNum = _.toNumber(fileTreeId);
-  if (fileChainId !== chainId) {
-    return {
-      code: 'chain-mismatch',
-      message: "File doesn't match current Tree's chain",
-    };
-  }
-  if (fileTreeIdNum !== treeIdHexToDecimal(treeId)) {
-    return {
-      code: 'tree-mismatch',
-      message: "File doesn't match current Tree's ID",
-    };
-  }
   return null;
 };
 
 const ImportTreeForm = () => {
   const { setModals } = useOverlay();
   const { treeId, chainId, importHats } = useTreeForm();
+  console.log('treeId', treeId);
   const [validImport, setValidImport] = useState(true);
   const [treeFile, setTreeFile] = useState<File | undefined>();
   const [fileReader, setFileReader] = useState<FileReader | undefined>();
@@ -86,15 +77,48 @@ const ImportTreeForm = () => {
     validator: (file) => validateTreeImport({ file, treeId, chainId }),
   });
 
+  function updateHatIDs(hats: Partial<FormData>[], newMainID?: Hex) {
+    if (!newMainID) return hats;
+    // Extract the main portion of the new main hat ID.
+    const mainPortion = newMainID?.substr(0, 10); // taking the first 18 characters as the main portion
+
+    // Update each hat's ID.
+    hats.forEach((hat) => {
+      // Extract the specific portion of the current hat's ID.
+      const specificPortion = hat?.id?.substr(10);
+      // Update the hat's ID with the new main portion.
+      // eslint-disable-next-line no-param-reassign
+      if (hat.id) hat.id = (mainPortion + specificPortion) as Hex;
+    });
+
+    return hats; // This will be the updated list of hats.
+  }
+
   const handleImport = () => {
     if (!treeFile || !fileReader) return;
+
     fileReader.onload = function readFile(e: ProgressEvent<FileReader>) {
       const contents = e.target?.result;
       // parsed so we don't double stringify
       const parsedData = JSON.parse(contents as string);
-      importHats?.(parsedData);
+
+      // Use the updateHatIDs function to update the hat IDs.
+      console.log('parsedData', parsedData);
+
+      const updatedHats = updateHatIDs(parsedData, prettyIdToId(treeId));
+      console.log('updatedHats', updatedHats);
+
+      const filteredData = updatedHats.filter(
+        (hat: any) => hat.id !== prettyIdToId(treeId),
+      );
+
+      console.log('filteredData', filteredData);
+
+      // return;
+      importHats?.(filteredData);
       setModals?.({});
     };
+
     fileReader.readAsText(treeFile);
   };
 

@@ -56,6 +56,7 @@ export interface TreeFormContext {
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
+  linkedHatIds?: Hex[];
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
@@ -100,6 +101,7 @@ export const treeFormContext = createContext<TreeFormContext>({
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
+  linkedHatIds: undefined,
   // local storage
   storedData: undefined,
   setStoredData: undefined,
@@ -168,6 +170,16 @@ export const TreeFormContextProvider = ({
     ),
   );
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
+
+  const linkedHatIds = useMemo(() => {
+    return _.map(
+      _.concat(
+        _.get(initialTreeData, 'parentOfHats'),
+        _.get(initialTreeData, 'linkedToHat'),
+      ),
+      'id',
+    );
+  }, [initialTreeData]);
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
@@ -543,6 +555,7 @@ export const TreeFormContextProvider = ({
       treeEvents,
       isLoading: imagesLoading || detailsLoading,
       linkRequestFromTree,
+      linkedHatIds,
       // local storage
       storedData,
       setStoredData,
@@ -584,6 +597,7 @@ export const TreeFormContextProvider = ({
       imagesLoading,
       detailsLoading,
       linkRequestFromTree,
+      linkedHatIds,
       // local storage
       storedData,
       setStoredData,
