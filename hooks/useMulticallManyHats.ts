@@ -18,9 +18,12 @@ import { processHatForCalls } from '@/lib/form';
 import { handleDetailsPin } from '@/lib/ipfs';
 import { Hat, HatDetails } from '@/types';
 
-const useMulticallCallManyHats = () => {
+import useAdminOfHats from './useAdminOfHats';
+
+const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
   const [calls, setCalls] = useState<unknown[]>();
-  const [proposedChanges, setProposedChanges] = useState<Hat[]>();
+  const [proposedChanges, setProposedChanges] = useState<Hat[]>([]);
+
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
   const { address } = useAccount();
@@ -39,13 +42,22 @@ const useMulticallCallManyHats = () => {
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
 
+  const hatIds = _.filter(
+    _.map(storedData, 'id'),
+    (hatId) => hatId !== undefined,
+  ) as Hex[];
+  const { adminHatIds } = useAdminOfHats(hatIds);
+
   useEffect(() => {
     const prepareMulticallData = async () => {
       const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
         _.includes(_.map(onchainHats, 'id'), hat.id),
       );
 
-      const allCallsPromises = _.map(storedData, (hat) =>
+      const deployableHatChanges = _.filter(storedData, (hat) =>
+        _.includes(adminHatIds, hat.id),
+      );
+      const allCallsPromises = _.map(deployableHatChanges, (hat) =>
         processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
@@ -74,6 +86,7 @@ const useMulticallCallManyHats = () => {
     storedData,
     onchainHats,
     treeToDisplay,
+    adminHatIds,
   ]);
 
   const { config, error: prepareError } = usePrepareContractWrite({
@@ -82,7 +95,11 @@ const useMulticallCallManyHats = () => {
     abi: CONFIG.hatsAbi,
     functionName: 'multicall',
     args: [_.map(calls, 'callData')],
-    enabled: !_.isEmpty(calls) && !!chainId && chainId === currentChain,
+    enabled:
+      !_.isEmpty(calls) &&
+      !!chainId &&
+      chainId === currentChain &&
+      isAdminOfAnyHatWithChanges,
   });
 
   const onSuccess = async () => {
@@ -117,7 +134,13 @@ const useMulticallCallManyHats = () => {
     if (proposedChanges) {
       patchTree?.(proposedChanges);
     }
-    setStoredData?.([]);
+
+    const newStoredData = _.filter(
+      storedData,
+      (hat) => !_.includes(adminHatIds, hat.id),
+    );
+
+    setStoredData?.(newStoredData);
   };
 
   const {
@@ -163,7 +186,6 @@ const useMulticallCallManyHats = () => {
   const handleWrite = async () => {
     // eslint-disable-next-line no-console
     if (!_.isEmpty(detailsToPin)) {
-      console.log('detailsToPin', detailsToPin);
       // ? check to see if any objects are already pinned
       const promises = _.map(
         _.compact(detailsToPin),

@@ -17,20 +17,20 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
-import { useAccount, useChainId } from 'wagmi';
+import { Hex } from 'viem';
+import { useChainId } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
 import NetworkSwitcher from '@/components/NetworkSwitcher';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
+import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { editHasUpdates, isWearingAdminHat } from '@/lib/hats';
+import { editHasUpdates } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
 const TopMenu = () => {
-  const { address } = useAccount();
   const currentChain = useChainId();
   const localOverlay = useOverlay();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
@@ -42,13 +42,7 @@ const TopMenu = () => {
     treeDisclosure,
     resetTree,
     setSelectedOption,
-    treeToDisplay,
   } = useTreeForm();
-  const { writeAsync, isLoading } = useMulticallCallManyHats();
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
   const handleDeploy = async () => {
@@ -74,26 +68,26 @@ const TopMenu = () => {
     closeModal();
   };
 
-  const isAdminOfAllHatsWithChanges = useMemo(() => {
-    const hatsWithChanges = _.map(storedData, ({ id }) => {
-      const foundHat = _.find(treeToDisplay, { id });
-      return {
-        id: foundHat?.id,
-        adminId: foundHat?.admin?.id,
-      };
-    });
+  const hatIds = _.filter(
+    _.map(storedData, 'id'),
+    (hatId) => hatId !== undefined,
+  ) as Hex[];
 
-    // ! gets stuck if wearer details cached after new tree deploy
-    const hasAdminOverAllHats = _.every(hatsWithChanges, (h) => {
-      return isWearingAdminHat(_.map(wearer, 'id'), h.id, false);
-    });
+  const { adminHatIds } = useAdminOfHats(hatIds);
 
-    if (hasAdminOverAllHats) {
-      return true;
-    }
+  const isAdminOfAnyHatWithChanges = useMemo(() => {
+    const hatsWithChangesIds = _.map(storedData, 'id');
 
-    return false;
-  }, [storedData, treeToDisplay, wearer]);
+    const hasAdminOverAnyHat = _.some(hatsWithChangesIds, (id) =>
+      _.includes(adminHatIds, id),
+    );
+
+    return hasAdminOverAnyHat;
+  }, [storedData, adminHatIds]);
+
+  const { writeAsync, isLoading } = useMulticallCallManyHats(
+    isAdminOfAnyHatWithChanges,
+  );
 
   const getDeployTooltipLabel = useMemo(() => {
     if (!storedData?.length) {
@@ -102,19 +96,19 @@ const TopMenu = () => {
     if (chainId !== currentChain) {
       return `Must be on ${chainsMap(chainId).name} to deploy`;
     }
-    if (!isAdminOfAllHatsWithChanges) {
-      return 'You must be the admin of all hats with changes to deploy';
+    if (!isAdminOfAnyHatWithChanges) {
+      return 'You must be the admin of at least one hat with changes to deploy';
     }
     return '';
-  }, [chainId, currentChain, isAdminOfAllHatsWithChanges, storedData]);
+  }, [chainId, currentChain, isAdminOfAnyHatWithChanges, storedData]);
 
   const isDeployDisabled = useMemo(
     () =>
       !editHasUpdates(storedData) ||
       isLoading ||
       currentChain !== chainId ||
-      !isAdminOfAllHatsWithChanges,
-    [storedData, isLoading, currentChain, chainId, isAdminOfAllHatsWithChanges],
+      !isAdminOfAnyHatWithChanges,
+    [storedData, isLoading, currentChain, chainId, isAdminOfAnyHatWithChanges],
   );
 
   return (
