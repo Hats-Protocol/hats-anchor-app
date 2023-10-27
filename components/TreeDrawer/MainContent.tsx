@@ -23,6 +23,7 @@ import Markdown from '@/components/atoms/Markdown';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useAdminOfHats from '@/hooks/useAdminOfHats';
+import useIsClient from '@/hooks/useIsClient';
 import useToast from '@/hooks/useToast';
 import {
   editHasUpdates,
@@ -48,6 +49,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     treeId,
     chainId,
   } = useTreeForm();
+  const isClient = useIsClient();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
@@ -104,22 +106,27 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             <Markdown>{topHatDetails?.description}</Markdown>
           )}
 
-          <Text color='blackAlpha.600'>
-            Created{' '}
-            {_.get(_.first(treeEvents), 'timestamp') &&
-              formatDistanceToNow(
-                new Date(
-                  Number(_.get(_.first(treeEvents), 'timestamp')) * 1000,
-                ),
-              )}{' '}
-            ago. Last edited{' '}
-            {/* maybe we're looking for the last change in the tree, not the top hat? */}
-            {_.get(_.last(treeEvents), 'timestamp') &&
-              formatDistanceToNow(
-                new Date(Number(_.get(_.last(treeEvents), 'timestamp')) * 1000),
-              )}{' '}
-            ago.
-          </Text>
+          {isClient && (
+            <Text color='blackAlpha.600'>
+              Created{' '}
+              {_.get(_.first(treeEvents), 'timestamp') &&
+                formatDistanceToNow(
+                  new Date(
+                    Number(_.get(_.first(treeEvents), 'timestamp')) * 1000,
+                  ),
+                )}{' '}
+              ago. Last edited{' '}
+              {/* maybe we're looking for the last change in the tree, not the top hat? */}
+              {_.get(_.last(treeEvents), 'timestamp') &&
+                formatDistanceToNow(
+                  new Date(
+                    Number(_.get(_.last(treeEvents), 'timestamp')) * 1000,
+                  ),
+                )}{' '}
+              ago.
+            </Text>
+          )}
+
           {!topHatDetails?.description && <Flex h={12} />}
         </Stack>
 

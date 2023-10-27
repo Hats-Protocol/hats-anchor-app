@@ -5,7 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import { CLAIMS_HATTER_ID, DEPLOYMENT_TYPES } from '@/constants';
+import { DEPLOYMENT_TYPES, MULTI_CLAIMS_HATTER_ID } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
@@ -46,7 +46,7 @@ const useModuleDeploy = ({
   const adminHat = values?.adminHat;
   const incrementWearers = values?.incrementWearers;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
-  const claimsHatterModule = modules?.[CLAIMS_HATTER_ID];
+  const claimsHatterModule = modules?.[MULTI_CLAIMS_HATTER_ID];
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHat?.detailsObject?.data?.name
   })`;
@@ -177,8 +177,10 @@ const useModuleDeploy = ({
           break;
         }
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
-          const claimsHatterAddress: Hex | undefined = _.first(
-            data?.newInstances, // !! check this, might be `newInstance`
+          const claimsHatterAddress: Hex | null | undefined = _.get(
+            data,
+            'newInstance',
+            _.get(data, 'newInstances[0]', undefined),
           );
           if (!claimsHatterAddress) return;
           const updatedHats = processClaimsHatter({

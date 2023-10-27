@@ -47,6 +47,7 @@ const TransactionHistory = ({ count }: { count?: number }) => {
           isExternal
           href={`${chainId && explorerUrl(chainId)}/tx/${hash}`}
           display='block'
+          key={hash}
         >
           <HStack
             key={hash}
