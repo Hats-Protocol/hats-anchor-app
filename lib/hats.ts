@@ -519,6 +519,7 @@ function patchHatIds(hats: Partial<FormData>[], newMainID?: Hex) {
   });
 }
 
+// general helper functions for importing and exporting tree data
 export const flattenHatData = (data: any[]): FormData[] =>
   _.map(data || [], (hat) => ({
     id: hat.id,
@@ -535,7 +536,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
     imageUri: hat.imageUri,
     currentSupply: _.toNumber(hat.currentSupply),
-    wearers: extractWearers(hat),
+    wearers: extractWearers(hat.wearers),
     adminId: hat.adminId || _.get(hat, 'admin.id'),
     imageUrl: hat.imageUrl,
     name: _.get(hat, 'detailsObject.data.name'),
@@ -545,19 +546,19 @@ export const flattenHatData = (data: any[]): FormData[] =>
     guilds: _.get(hat, 'detailsObject.data.guilds', []),
   }));
 
-const extractWearers = (hat: any): FormWearer[] => {
+const extractWearers = (wearers: any): FormWearer[] => {
   if (
-    _.isArray(hat.wearers) &&
-    !_.isEmpty(hat.wearers) &&
-    _.isString(_.first(hat.wearers))
+    _.isArray(wearers) &&
+    !_.isEmpty(wearers) &&
+    _.isString(_.first(wearers))
   ) {
-    return _.map(hat.wearers, (wearer) => ({
+    return _.map(wearers, (wearer) => ({
       address: wearer,
       ens: '',
     }));
   }
   return (
-    _.map(hat.wearers, ({ id }) => ({
+    _.map(wearers, ({ id }) => ({
       address: id,
       ens: '',
     })) || []

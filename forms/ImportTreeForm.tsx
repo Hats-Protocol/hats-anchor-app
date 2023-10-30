@@ -44,8 +44,7 @@ const validateTreeImport = ({
 
 const ImportTreeForm = () => {
   const { setModals } = useOverlay();
-  const { treeId, chainId, importHats, storedData, treeToDisplay } =
-    useTreeForm();
+  const { treeId, chainId, importHats, treeToDisplay } = useTreeForm();
 
   const [validImport, setValidImport] = useState(true);
   const [treeFile, setTreeFile] = useState<File | undefined>();
@@ -77,18 +76,15 @@ const ImportTreeForm = () => {
 
   const handleImport = () => {
     if (!treeFile || !fileReader) return;
-
     fileReader.onload = function readFile(e: ProgressEvent<FileReader>) {
       const fileContents = e.target?.result;
       const treeFromJson = JSON.parse(fileContents as string);
       const importedTree = flattenHatData(treeFromJson);
       const onchainTree = flattenHatData(treeToDisplay as any[]);
       const draftHats = prepareDraftHats(importedTree, onchainTree, treeId);
-
       importHats?.(draftHats);
       setModals?.({});
     };
-
     fileReader.readAsText(treeFile);
   };
 
