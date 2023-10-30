@@ -195,9 +195,6 @@ const processWearersCallForHat = ({
   if (!hatId || !hatsClient || !wearers || wearers.length === 0)
     return returnData;
 
-  // Detect the format of wearers and adapt if needed
-  // we export as array of Hex strings
-  // we store as { address, ens }
   const isWearerFormatString = typeof wearers[0] === 'string';
   const adaptedWearers = isWearerFormatString
     ? wearers
@@ -223,7 +220,7 @@ const processWearersCallForHat = ({
 
   if (_.gt(_.size(wearers), 1)) {
     const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
-      hatIds: Array(adaptedWearers.length).fill(BigInt(hatId)),
+      hatIds: Array(_.size(wearers)).fill(BigInt(hatId)),
       wearers: adaptedWearers as Hex[],
     });
 
