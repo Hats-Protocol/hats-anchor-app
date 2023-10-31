@@ -88,3 +88,14 @@ export const GET_HATTERS_FOR_HATS = gql`
     # }
   }
 `;
+
+export const GET_HAT_WEARERS_PAGE = gql`
+  query getHatWearersPage($hatId: ID!, $page: Int!) {
+    hat(id: $hatId) {
+      id
+      wearers(first: 1000, skip: $page) {
+        id
+      }
+    }
+  }
+`;

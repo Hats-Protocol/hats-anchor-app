@@ -365,7 +365,8 @@ export const checkImageForHat = async (img?: string) => {
 };
 
 const generateCsvContent = (hatWearers: HatWearer[]) => {
-  let csvContent = 'address,ens\n';
+  // not fetching ens for all wearers
+  let csvContent = 'address\n';
 
   hatWearers.forEach((hatWearer) => {
     const name = hatWearer.ensName || '';
