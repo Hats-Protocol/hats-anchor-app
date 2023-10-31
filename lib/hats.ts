@@ -2,7 +2,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { defaultHat, MUTABILITY } from '@/constants';
+import { defaultHat, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import {
   Controls,
   FormData,
@@ -447,15 +447,29 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
   };
 
   _.forEach(hatA, (value, key) => {
-    if (key === 'createdAt') {
+    if (_.includes(['createdAt', 'currentSupply'], key)) {
       return;
     }
 
-    if (
-      _.includes(['maxSupply', 'currentSupply', 'timestamp', 'adminId'], key)
-    ) {
+    if (key === 'adminId') {
       if (!_.isEqual(String(value), String(hatB[key]))) {
-        diffHat[key] = value;
+        diffHat[key] = hatB[key];
+      }
+      return;
+    }
+
+    if (_.includes(['isEligibilityManual', 'isToggleManual'], key)) {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat[key] = value
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY;
+      }
+      return;
+    }
+
+    if (_.includes(['maxSupply', 'currentSupply', 'timestamp'], key)) {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat[key] = Number(value);
       }
       return;
     }
@@ -489,21 +503,20 @@ export const prepareDraftHats = (
   onChainTree: FormData[],
   treeId?: Hex,
 ): Partial<FormData>[] => {
-  const differences = _.map(importedTree, (hat) => {
+  const hatsWithPatchedIds = patchHatIds(importedTree, prettyIdToId(treeId));
+  const hatsDifferences = _.map(hatsWithPatchedIds, (hat) => {
     const matchingHat = _.find(onChainTree, { id: hat.id });
     if (!matchingHat) return hat;
     return compareHatObjects(hat, matchingHat);
   });
-
-  const hatsWithUpdates = _.filter(differences, (hat) => {
-    return _.size(hat) > 1 && _.some(hat, (value) => value !== undefined);
-  });
-
-  const hatsWithUpdatedIds = patchHatIds(hatsWithUpdates, prettyIdToId(treeId));
-  const hatsExcludingTop = hatsWithUpdatedIds.filter(
+  const hatsWithUpdates = _.filter(
+    hatsDifferences,
+    (hat) => _.size(hat) > 1 && _.some(hat, (value) => value !== undefined),
+  );
+  const hatsExcludingTop = _.filter(
+    hatsWithUpdates,
     (hat: any) => hat.id !== prettyIdToId(treeId),
   );
-
   return hatsExcludingTop;
 };
 
