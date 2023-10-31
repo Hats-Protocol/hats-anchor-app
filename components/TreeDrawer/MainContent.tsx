@@ -28,6 +28,7 @@ import {
   isTopHatOrMutable,
   mergeHatsWithStoredData,
   prepareExportTree,
+  prettyIdToId,
 } from '@/lib/hats';
 import { Hat } from '@/types';
 
@@ -68,6 +69,16 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       treeToDisplay,
       (hat) => hat.id && !linkedHatIds?.includes(hat.id),
     );
+    // if the top hat is linked, we need to set its admin id to itself
+    const topHatId = prettyIdToId(treeId);
+    const targetHat = _.find(hatsWithoutLinkedHats, { id: topHatId });
+    if (
+      targetHat &&
+      targetHat.admin?.id &&
+      linkedHatIds?.includes(targetHat.admin?.id)
+    ) {
+      targetHat.admin.id = topHatId;
+    }
     const onChainHats = flattenHatData(hatsWithoutLinkedHats);
     const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
     const preparedTree = prepareExportTree(mergedHats);

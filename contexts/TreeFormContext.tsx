@@ -53,6 +53,7 @@ export interface TreeFormContext {
   treeToDisplay: Hat[] | undefined;
   onchainTree: Tree | undefined;
   onchainHats: Hat[] | undefined;
+  onchainHatsWithDetails: Hat[] | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
@@ -98,6 +99,7 @@ export const treeFormContext = createContext<TreeFormContext>({
   treeToDisplay: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
+  onchainHatsWithDetails: undefined,
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -260,6 +262,19 @@ export const TreeFormContextProvider = ({
       onchainHats,
       editMode,
     });
+
+  const { data: onChainHatDetails } = useManyHatDetails({
+    hats: mapWithChainId(_.get(initialTreeData, 'hats'), chainId),
+  });
+  const { data: oChainDetailsFields } = useManyHatsDetailsField({
+    hats: onChainHatDetails,
+  });
+  const onchainHatsWithDetails = useMemo(() => {
+    return _.map(_.get(initialTreeData, 'hats'), (hat) => {
+      const details = _.find(oChainDetailsFields, { id: hat.details });
+      return { ...hat, detailsObject: details?.detailsObject };
+    });
+  }, [initialTreeData, oChainDetailsFields]);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
@@ -552,6 +567,7 @@ export const TreeFormContextProvider = ({
       treeToDisplay,
       onchainTree: onchainTree.current,
       onchainHats,
+      onchainHatsWithDetails,
       treeEvents,
       isLoading: imagesLoading || detailsLoading,
       linkRequestFromTree,
@@ -593,6 +609,7 @@ export const TreeFormContextProvider = ({
       treeToDisplay,
       onchainTree,
       onchainHats,
+      onchainHatsWithDetails,
       treeEvents,
       imagesLoading,
       detailsLoading,
