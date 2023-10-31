@@ -289,8 +289,12 @@ export const TreeFormContextProvider = ({
     [onchainHats, selectedHatId],
   );
   const selectedOnchainHatDetails = useMemo(
-    () => _.get(selectedOnchainHat, 'detailsObject.data'),
-    [selectedOnchainHat],
+    () =>
+      _.get(
+        _.find(onchainHatsWithDetails, ['id', selectedHatId]),
+        'detailsObject.data',
+      ),
+    [onchainHatsWithDetails, selectedHatId],
   );
 
   const wearersAndControllers = useWearersControllersDetails({

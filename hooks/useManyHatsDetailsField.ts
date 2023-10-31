@@ -56,11 +56,6 @@ const useManyHatsDetailsField = ({
     ),
     isLoading: _.some(detailsFields, 'isLoading'),
   };
-  console.log('details id:', result.data[2]?.id);
-  console.log(
-    'details eligiblity',
-    result.data[2]?.detailsObject?.data?.eligibility,
-  );
   return result;
 };
 

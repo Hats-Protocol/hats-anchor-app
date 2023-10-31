@@ -139,6 +139,7 @@ const EditMode = ({
     initialGuilds,
     isDraft,
   ]);
+  console.log('defaultFormValues', defaultFormValues);
 
   const localForm = useForm({
     mode: 'onChange',
@@ -162,7 +163,7 @@ const EditMode = ({
         reset(formValues, { keepDefaultValues: true });
         return;
       }
-      reset(formValues, { keepDefaultValues: true });
+      reset(formValues);
     };
 
     if (selectedHat?.id && chainId && defaultFormValues && storedData) {
@@ -191,7 +192,6 @@ const EditMode = ({
   };
 
   const [newImageURI, setNewImageURI] = useState('');
-  // console.log(newImageURI);
 
   const eligibilityFormValue = useDebounce<Hex | undefined>(
     watch('eligibility', eligibility || FALLBACK_ADDRESS),
