@@ -23,6 +23,7 @@ import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { wearersPerPage } from '@/gql/helpers';
+import useAllWearers from '@/hooks/useAllWearers';
 import useHatClaim from '@/hooks/useHatClaim';
 import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
 import useModuleDetails from '@/hooks/useModuleDetails';
@@ -61,6 +62,8 @@ const WearersList = () => {
   const wearers = useMemo(() => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
+
+  const { wearers: exportWearers } = useAllWearers();
 
   const sortedWearers = useMemo(
     () => sortWearers({ wearers, address }),
@@ -221,9 +224,7 @@ const WearersList = () => {
                   isDisabled={
                     !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
                   }
-                  onClick={() => {
-                    claimHat?.();
-                  }}
+                  onClick={claimHat}
                 >
                   <HStack color='blue.500'>
                     <FaPlus />
@@ -280,7 +281,8 @@ const WearersList = () => {
               <Heading fontSize='24px'>Hat Wearers</Heading>
               <Button
                 onClick={() =>
-                  exportToCsv(sortedWearers, selectedHatDetails?.name)
+                  exportWearers &&
+                  exportToCsv(exportWearers, selectedHatDetails?.name)
                 }
                 leftIcon={<FaFileCsv />}
                 colorScheme='blue'
