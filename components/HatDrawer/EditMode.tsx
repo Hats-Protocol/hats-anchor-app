@@ -49,7 +49,8 @@ const EditMode = ({
     chainId,
     storedData,
     selectedHat,
-    selectedHatDetails,
+    selectedOnchainHat,
+    selectedOnchainHatDetails,
     isDraft,
     treeToDisplay,
   } = useTreeForm();
@@ -62,7 +63,7 @@ const EditMode = ({
     authorities: initialAuthorities,
     eligibility: initialEligibility,
     toggle: initialToggle,
-  } = _.pick(selectedHatDetails, [
+  } = _.pick(selectedOnchainHatDetails, [
     'name',
     'description',
     'guilds',
@@ -80,7 +81,7 @@ const EditMode = ({
     mutable,
     imageUrl,
     imageUri,
-  } = _.pick(selectedHat, [
+  } = _.pick(selectedOnchainHat, [
     'maxSupply',
     'eligibility',
     'extendedEligibility',
@@ -127,8 +128,10 @@ const EditMode = ({
     toggle,
     mutable,
     imageUrl,
-    initialEligibility,
-    initialToggle,
+    initialEligibility?.criteria,
+    initialEligibility?.manual,
+    initialToggle?.criteria,
+    initialToggle?.manual,
     initialName,
     initialDescription,
     initialAuthorities,
@@ -155,11 +158,11 @@ const EditMode = ({
           ...defaultFormValues,
           ...matchingHat,
         };
+        // reset the onchain hat as defaultValues?
         reset(formValues, { keepDefaultValues: true });
         return;
       }
-
-      reset(formValues);
+      reset(formValues, { keepDefaultValues: true });
     };
 
     if (selectedHat?.id && chainId && defaultFormValues && storedData) {

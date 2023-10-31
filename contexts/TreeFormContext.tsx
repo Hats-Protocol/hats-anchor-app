@@ -54,6 +54,8 @@ export interface TreeFormContext {
   onchainTree: Tree | undefined;
   onchainHats: Hat[] | undefined;
   onchainHatsWithDetails: Hat[] | undefined;
+  selectedOnchainHat: Hat | undefined;
+  selectedOnchainHatDetails: HatDetails | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
@@ -100,6 +102,8 @@ export const treeFormContext = createContext<TreeFormContext>({
   onchainTree: undefined,
   onchainHats: undefined,
   onchainHatsWithDetails: undefined,
+  selectedOnchainHat: undefined,
+  selectedOnchainHatDetails: undefined,
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -280,11 +284,19 @@ export const TreeFormContextProvider = ({
     });
   }, [initialTreeData, onChainDetailsFields]);
 
+  const selectedOnchainHat = useMemo(
+    () => _.find(onchainHats, ['id', selectedHatId]),
+    [onchainHats, selectedHatId],
+  );
+  const selectedOnchainHatDetails = useMemo(
+    () => _.get(selectedOnchainHat, 'detailsObject.data'),
+    [selectedOnchainHat],
+  );
+
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
     editMode,
   });
-  // console.log(wearersAndControllers);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,
@@ -585,6 +597,8 @@ export const TreeFormContextProvider = ({
       setEditMode,
       toggleEditMode,
       selectedHat,
+      selectedOnchainHat,
+      selectedOnchainHatDetails,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
@@ -628,6 +642,8 @@ export const TreeFormContextProvider = ({
       setEditMode,
       toggleEditMode,
       selectedHat,
+      selectedOnchainHat,
+      selectedOnchainHatDetails,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
