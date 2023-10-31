@@ -442,6 +442,10 @@ export const prepareExportTree = (data: any[]): HatExport[] => {
 
 // Helper functions for importing tree data
 const compareHatObjects = (hatA: any, hatB: any): any => {
+  if (hatB.mutable === MUTABILITY.IMMUTABLE) {
+    return null;
+  }
+
   const diffHat: any = {
     id: hatA.id,
   };
