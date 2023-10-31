@@ -82,11 +82,16 @@ const ImportTreeForm = () => {
       const importedTree = flattenHatData(treeFromJson);
       console.log('importedTree', importedTree);
       console.log('importedTree', importedTree);
-      console.log('onchainHatsWithDetails', onchainHatsWithDetails[2].details);
-      console.log(
-        'onchainHatsWithDetails',
-        onchainHatsWithDetails[2].detailsObject.data.eligibility,
-      );
+      if (onchainHatsWithDetails) {
+        console.log(
+          'onchainHatsWithDetails',
+          onchainHatsWithDetails[2]?.details,
+        );
+        console.log(
+          'onchainHatsWithDetails',
+          onchainHatsWithDetails[2]?.detailsObject?.data?.eligibility,
+        );
+      }
       const onChainTree = flattenHatData(onchainHatsWithDetails as any[]);
       console.log('onChainTree', onChainTree[1]);
       const draftHats = prepareDraftHats(importedTree, onChainTree, treeId);
