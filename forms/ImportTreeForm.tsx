@@ -80,8 +80,19 @@ const ImportTreeForm = () => {
       const fileContents = e.target?.result;
       const treeFromJson = JSON.parse(fileContents as string);
       const importedTree = flattenHatData(treeFromJson);
+      console.log('importedTree', importedTree);
+      console.log('importedTree', importedTree);
+      console.log('onchainHatsWithDetails', onchainHatsWithDetails[2].details);
+      console.log(
+        'onchainHatsWithDetails',
+        onchainHatsWithDetails[2].detailsObject.data.eligibility,
+      );
       const onChainTree = flattenHatData(onchainHatsWithDetails as any[]);
+      console.log('onChainTree', onChainTree[1]);
       const draftHats = prepareDraftHats(importedTree, onChainTree, treeId);
+      console.log('draftHats', draftHats);
+
+      // return;
       importHats?.(draftHats);
       setModals?.({});
     };

@@ -38,7 +38,7 @@ const useManyHatsDetailsField = ({
     })),
   });
 
-  return {
+  const result = {
     data: _.compact(
       _.map(onlyOnchainHats, (hat) => {
         const detailsData =
@@ -56,6 +56,12 @@ const useManyHatsDetailsField = ({
     ),
     isLoading: _.some(detailsFields, 'isLoading'),
   };
+  console.log('details id:', result.data[2]?.id);
+  console.log(
+    'details eligiblity',
+    result.data[2]?.detailsObject?.data?.eligibility,
+  );
+  return result;
 };
 
 export default useManyHatsDetailsField;

@@ -96,6 +96,7 @@ export const handleDetailsPin = async ({
   hatId,
   details,
 }: handleDetailsPinProps) => {
+  console.log('details', details);
   const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
@@ -113,10 +114,12 @@ export const ipfsUrl = (hash: string) =>
   `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
 
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
+  console.log('detailsField', detailsField);
   if (!detailsField) return null;
   const url = ipfsUrl(detailsField?.slice(7));
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   const res = await axios.get(url, { timeout: 5000 });
+  console.log('res', res);
   return Promise.resolve({ details: detailsField, data: _.get(res, 'data') });
 };

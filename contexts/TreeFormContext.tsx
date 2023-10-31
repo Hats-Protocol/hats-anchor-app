@@ -265,16 +265,20 @@ export const TreeFormContextProvider = ({
 
   const { data: onChainHatDetails } = useManyHatDetails({
     hats: mapWithChainId(_.get(initialTreeData, 'hats'), chainId),
+    initialHats: _.get(initialTreeData, 'hats'),
+    editMode: false,
   });
-  const { data: oChainDetailsFields } = useManyHatsDetailsField({
+  const { data: onChainDetailsFields } = useManyHatsDetailsField({
     hats: onChainHatDetails,
+    // onchainHats: _.get(initialTreeData, 'hats'),
+    editMode: false,
   });
   const onchainHatsWithDetails = useMemo(() => {
     return _.map(_.get(initialTreeData, 'hats'), (hat) => {
-      const details = _.find(oChainDetailsFields, { id: hat.details });
+      const details = _.find(onChainDetailsFields, { id: hat.details });
       return { ...hat, detailsObject: details?.detailsObject };
     });
-  }, [initialTreeData, oChainDetailsFields]);
+  }, [initialTreeData, onChainDetailsFields]);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,

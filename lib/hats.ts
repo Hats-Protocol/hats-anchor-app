@@ -524,14 +524,23 @@ export const prepareDraftHats = (
   return hatsExcludingTop;
 };
 
-function patchHatIds(hats: Partial<FormData>[], newMainID?: Hex) {
+function patchHatIds(hats: any[], newMainID?: Hex) {
   if (!newMainID) return hats;
   const mainPortion = _.slice(newMainID, 0, 10).join('');
 
   return _.map(hats, (hat) => {
-    const specificPortion = _.slice(hat?.id, 10).join('');
+    const specificPortionOfId = _.slice(hat?.id, 10).join('');
+    const specificPortionOfAdminId = _.slice(hat?.adminId, 10).join('');
+
+    // Update id
     // eslint-disable-next-line no-param-reassign
-    if (hat?.id) hat.id = (mainPortion + specificPortion) as Hex;
+    if (hat?.id) hat.id = (mainPortion + specificPortionOfId) as Hex;
+
+    // Update adminId in similar fashion
+    if (hat?.adminId)
+      // eslint-disable-next-line no-param-reassign
+      hat.adminId = (mainPortion + specificPortionOfAdminId) as Hex;
+
     return hat;
   });
 }
@@ -542,7 +551,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     id: hat.id,
     status: hat.status,
     createdAt: _.toNumber(hat.createdAt),
-    details: hat.details,
+    // details: hat.details,
     maxSupply: _.toString(hat.maxSupply),
     eligibility: hat.eligibility,
     isEligibilityManual: hat.detailsObject?.data?.eligibility?.manual || false,
@@ -551,7 +560,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     isToggleManual: _.get(hat, 'detailsObject.data.toggle.manual', false),
     deactivationsCriteria: _.get(hat, 'detailsObject.data.toggle.criteria', []),
     mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    imageUri: hat.imageUri,
+    // imageUri: hat.imageUri,
     currentSupply: _.toNumber(hat.currentSupply),
     wearers: extractWearers(hat.wearers),
     adminId: hat.adminId || _.get(hat, 'admin.id'),

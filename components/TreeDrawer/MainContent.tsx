@@ -176,6 +176,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         {_.map(treeToDisplay, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
+          // console.log('storedData', storedData);
 
           const handleHatClick = () => {
             onCloseTreeDrawer?.();
