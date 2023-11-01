@@ -133,5 +133,5 @@ export const fetchTreesById = async (treeIds: string[], chainId: number) => {
     },
   });
 
-  return res;
+  return res as unknown as Tree[];
 };
