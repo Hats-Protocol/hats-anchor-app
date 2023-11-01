@@ -1,7 +1,7 @@
+import { getGraphqlClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import client from '@/gql/client';
 import { GET_CONTROLLERS_FOR_USER } from '@/gql/queries';
 import { chainsList } from '@/lib/web3';
 import { Hat } from '@/types';
@@ -10,9 +10,15 @@ const chains = _.keys(chainsList);
 
 const useControllerList = ({ address }: { address: string }) => {
   const fetchControllersForUser = async (a: string) => {
-    const promises = _.map(chains, (cId: number) =>
-      client(cId).request(GET_CONTROLLERS_FOR_USER, { address: _.toLower(a) }),
-    );
+    const promises = _.map(chains, (cId: number) => {
+      const subgraphClient = getGraphqlClient(cId);
+      if (subgraphClient !== undefined) {
+        return subgraphClient.request(GET_CONTROLLERS_FOR_USER, {
+          address: _.toLower(a),
+        });
+      }
+      return undefined;
+    });
 
     const data: unknown[] = await Promise.all(promises);
 

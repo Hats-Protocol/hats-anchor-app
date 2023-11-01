@@ -3,34 +3,72 @@ import _ from 'lodash';
 import { mapWithChainId } from '@/lib/general';
 import { Tree } from '@/types';
 
-import client from '../client';
-import {
-  GET_ALL_TREE_IDS,
-  GET_ALL_TREES,
-  GET_PAGINATED_TREES,
-  GET_TREE,
-  GET_TREES_BY_ID,
-} from '../queries';
+import { createSubgraphClient } from '../../lib/web3';
 
 export const fetchTreeDetails = async (
   treeId: string | null,
   chainId: number,
 ): Promise<Tree | null> => {
-  const result = await client(chainId).request(GET_TREE, { id: treeId });
+  if (treeId === null) {
+    return null;
+  }
+  const subgraphClient = createSubgraphClient();
 
-  return _.get(result, 'tree', null);
-};
+  const res = (await subgraphClient.getTree({
+    chainId,
+    treeId: +treeId,
+    props: {
+      hats: {
+        prettyId: true,
+        status: true,
+        createdAt: true,
+        details: true,
+        maxSupply: true,
+        eligibility: true,
+        toggle: true,
+        mutable: true,
+        imageUri: true,
+        levelAtLocalTree: true,
+        claimableBy: {},
+        claimableForBy: {},
+        currentSupply: true,
+        tree: {},
+        wearers: {},
+        admin: {},
+      },
+      events: {
+        timestamp: true,
+        transactionID: true,
+        hat: {
+          prettyId: true,
+        },
+      },
+      linkRequestFromTree: {
+        requestedLinkToHat: {
+          prettyId: true,
+        },
+      },
+      childOfTree: {},
+      parentOfTrees: {
+        linkedToHat: {
+          prettyId: true,
+        },
+      },
+      linkedToHat: {
+        prettyId: true,
+        tree: {},
+      },
+    },
+    filters: {
+      first: {
+        tree: {
+          events: 5,
+        },
+      },
+    },
+  })) as unknown as Tree;
 
-export const fetchAllTreeIds = async (chainId: number) => {
-  const result = await client(chainId).request(GET_ALL_TREE_IDS);
-
-  return _.get(result, 'trees', null);
-};
-
-export const fetchAllTrees = async (chainId: number) => {
-  const result = await client(chainId).request(GET_ALL_TREES);
-
-  return mapWithChainId(_.get(result, 'trees'), chainId);
+  return res;
 };
 
 export const fetchPaginatedTrees = async (
@@ -38,18 +76,62 @@ export const fetchPaginatedTrees = async (
   page: number = 0,
   perPage: number = 40,
 ) => {
-  const result = await client(chainId).request(GET_PAGINATED_TREES, {
-    skip: page * perPage,
-    first: perPage,
+  const subgraphClient = createSubgraphClient();
+
+  const res = await subgraphClient.getTreesPaginated({
+    chainId,
+    props: {
+      hats: {
+        details: true,
+        imageUri: true,
+        prettyId: true,
+        admin: {
+          prettyId: true,
+        },
+      },
+    },
+    page,
+    perPage,
+    filters: {
+      first: {
+        tree: {
+          hats: 1,
+        },
+      },
+    },
   });
 
-  return mapWithChainId(_.get(result, 'trees'), chainId);
+  return mapWithChainId(res, chainId);
 };
 
 export const fetchTreesById = async (treeIds: string[], chainId: number) => {
-  const result = await client(chainId).request(GET_TREES_BY_ID, {
-    ids: treeIds,
+  const subgraphClient = createSubgraphClient();
+
+  const res = await subgraphClient.getTreesByIds({
+    chainId,
+    treeIds: treeIds.map((id) => +id),
+    props: {
+      hats: {
+        details: true,
+        imageUri: true,
+        prettyId: true,
+        admin: {
+          prettyId: true,
+        },
+        wearers: {},
+      },
+      childOfTree: {},
+      parentOfTrees: {
+        linkedToHat: {
+          prettyId: true,
+        },
+      },
+      linkedToHat: {
+        prettyId: true,
+        tree: {},
+      },
+    },
   });
 
-  return _.get(result, 'trees', null);
+  return res;
 };

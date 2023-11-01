@@ -5,20 +5,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import client from '@/gql/client';
 import { fetchWearerDetails } from '@/gql/helpers';
-import { GET_HATTERS_FOR_HATS } from '@/gql/queries/hat';
-import { createHatsModulesClient } from '@/lib/web3';
+import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
 
 import useIsAdmin from './useIsAdmin';
 import useModuleDetails from './useModuleDetails';
 
 const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
-  const result = await client(chainId).request(GET_HATTERS_FOR_HATS, {
-    hatIds: hats,
+  const subgraphClient = createSubgraphClient();
+  const res = subgraphClient.getHatsByIds({
+    chainId,
+    hatIds: hats.map((hat) => BigInt(hat)),
+    props: {
+      claimableBy: {},
+    },
   });
 
-  return _.get(result, 'hats');
+  return res;
 };
 
 const useMultiClaimsHatterCheck = () => {

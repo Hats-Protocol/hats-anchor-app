@@ -3,16 +3,9 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '@/lib/contract';
-import { isSameAddress, mapWithChainId } from '@/lib/general';
-import { chainsList } from '@/lib/web3';
+import { mapWithChainId } from '@/lib/general';
+import { chainsList, createSubgraphClient } from '@/lib/web3';
 import { Hat, HatWearer } from '@/types';
-
-import client from '../client';
-import {
-  GET_ALL_WEARERS,
-  GET_PAGINATED_WEARERS_FOR_HAT,
-  GET_WEARER_DETAILS,
-} from '../queries';
 
 const chains = _.keys(chainsList);
 
@@ -52,21 +45,46 @@ export const fetchWearerDetails = async (
   address: Hex | string | undefined,
   chainId: number,
 ) => {
-  const result = await client(chainId).request(GET_WEARER_DETAILS, {
-    id: _.toLower(address as string),
-  });
-  const wearer: any = _.get(result, 'wearer', {});
+  const subgraphClient = createSubgraphClient();
+
+  let res: any;
+  try {
+    res = await subgraphClient.getWearer({
+      chainId,
+      wearerAddress: address as Hex,
+      props: {
+        currentHats: {
+          prettyId: true,
+          status: true,
+          createdAt: true,
+          details: true,
+          maxSupply: true,
+          eligibility: true,
+          toggle: true,
+          mutable: true,
+          imageUri: true,
+          levelAtLocalTree: true,
+          claimableBy: {},
+          claimableForBy: {},
+          currentSupply: true,
+          tree: {},
+          wearers: {},
+          admin: {},
+          events: {
+            timestamp: true,
+            transactionID: true,
+          },
+        },
+      },
+    });
+  } catch (err) {
+    res = {};
+  }
 
   return {
-    ...wearer,
-    currentHats: mapWithChainId(wearer?.currentHats, chainId),
+    ...res,
+    currentHats: mapWithChainId(res.currentHats, chainId),
   };
-};
-
-export const fetchAllWearers = async (chainId: number) => {
-  const result = await client(chainId).request(GET_ALL_WEARERS);
-
-  return _.get(result, 'wearers', null);
 };
 
 export const fetchWearerDetailsForChain = async (
@@ -104,14 +122,18 @@ export const fetchPaginatedWearersForHat = async (
   chainId: number,
   page: number = 0,
 ) => {
-  const wearers = await client(chainId).request(GET_PAGINATED_WEARERS_FOR_HAT, {
-    hatId,
-    skip: page * wearersPerPage,
-    first: wearersPerPage,
+  const subgraphClient = createSubgraphClient();
+
+  const res = await subgraphClient.getWearersOfHatPaginated({
+    chainId,
+    hatId: BigInt(hatId),
+    props: {},
+    page,
+    perPage: wearersPerPage,
   });
 
   const wearersWithDetails = await fetchManyWearerDetails(
-    _.map(_.get(wearers, 'wearers', []), 'id'),
+    _.map(res, 'id') as Hex[],
     chainId,
   );
 
