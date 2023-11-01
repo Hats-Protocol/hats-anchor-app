@@ -6,6 +6,7 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -91,7 +92,7 @@ const EditMode = ({
     'imageUri',
   ]);
 
-  const defaultFormValues = useCallback(() => {
+  const defaultFormValues = useMemo<FormData>(() => {
     if (isDraft) {
       return EMPTY_FORM_VALUES;
     }
@@ -153,9 +154,9 @@ const EditMode = ({
 
       if (matchingHat) {
         formValues = {
-          ...defaultFormValues(),
+          ...defaultFormValues,
           ...matchingHat,
-        };
+        } as any;
 
         reset(formValues, { keepDefaultValues: true });
         return;
@@ -164,7 +165,7 @@ const EditMode = ({
       reset(formValues);
     };
 
-    if (selectedHat?.id && chainId && defaultFormValues() && storedData) {
+    if (selectedHat?.id && chainId && defaultFormValues && storedData) {
       initialFormValues();
     }
   }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
@@ -174,9 +175,9 @@ const EditMode = ({
   const prevAllFormData = useRef<FieldValues>(allFormData as FormData);
 
   const getDirtyFields = useCallback(() => {
-    return (Object.keys(defaultFormValues()) as Array<keyof FormData>).filter(
+    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
       (key) =>
-        JSON.stringify(defaultFormValues()?.[key]) !==
+        JSON.stringify(defaultFormValues[key]) !==
           JSON.stringify(allFormData[key]) || allFormData[key] === 'New Hat',
     );
   }, [allFormData, defaultFormValues]);
