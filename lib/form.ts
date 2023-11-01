@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import { FormData, FormDataDetails, Hat, HatDetails } from '@/types';
@@ -191,45 +192,47 @@ const processWearersCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { wearers, id: hatId } = hat;
 
-  if (!hatId || !hatsClient || !wearers) return returnData;
+  if (!hatId || !hatsClient || !wearers || wearers.length === 0)
+    return returnData;
+
+  const isWearerFormatString = typeof wearers[0] === 'string';
+  const adaptedWearers = isWearerFormatString
+    ? wearers
+    : wearers.map((wearer) => wearer.address);
 
   if (_.eq(_.size(wearers), 1)) {
-    const wearer = _.first(wearers);
-    if (!wearer) return returnData;
-
     const mintHatWearersData = hatsClient?.mintHatCallData({
       hatId: BigInt(hatId),
-      wearer: _.get(wearer, 'address'),
+      wearer: adaptedWearers[0] as Hex,
     });
 
     if (!mintHatWearersData) return returnData;
 
-    const newHatChanges = {
-      ...hatChanges,
-      wearers: [wearer],
-    };
     return {
       ...returnData,
       calls: _.concat(calls, mintHatWearersData),
-      hatChanges: newHatChanges,
+      hatChanges: {
+        ...hatChanges,
+        wearers: [adaptedWearers[0]],
+      },
     };
   }
+
   if (_.gt(_.size(wearers), 1)) {
     const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
       hatIds: Array(_.size(wearers)).fill(BigInt(hatId)),
-      wearers: _.map(wearers, 'address'),
+      wearers: adaptedWearers as Hex[],
     });
 
     if (!batchMintHatWearersData) return returnData;
 
-    const newHatChanges = {
-      ...hatChanges,
-      wearers,
-    };
     return {
       ...returnData,
       calls: _.concat(calls, batchMintHatWearersData),
-      hatChanges: newHatChanges,
+      hatChanges: {
+        ...hatChanges,
+        wearers: adaptedWearers,
+      },
     };
   }
 

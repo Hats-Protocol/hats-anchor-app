@@ -53,9 +53,13 @@ export interface TreeFormContext {
   treeToDisplay: Hat[] | undefined;
   onchainTree: Tree | undefined;
   onchainHats: Hat[] | undefined;
+  onchainHatsWithDetails: Hat[] | undefined;
+  selectedOnchainHat: Hat | undefined;
+  selectedOnchainHatDetails: HatDetails | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
+  linkedHatIds?: Hex[];
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
@@ -97,9 +101,13 @@ export const treeFormContext = createContext<TreeFormContext>({
   treeToDisplay: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
+  onchainHatsWithDetails: undefined,
+  selectedOnchainHat: undefined,
+  selectedOnchainHatDetails: undefined,
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
+  linkedHatIds: undefined,
   // local storage
   storedData: undefined,
   setStoredData: undefined,
@@ -168,6 +176,16 @@ export const TreeFormContextProvider = ({
     ),
   );
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
+
+  const linkedHatIds = useMemo(() => {
+    return _.map(
+      _.concat(
+        _.get(initialTreeData, 'parentOfHats'),
+        _.get(initialTreeData, 'linkedToHat'),
+      ),
+      'id',
+    );
+  }, [initialTreeData]);
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
@@ -249,11 +267,40 @@ export const TreeFormContextProvider = ({
       editMode,
     });
 
+  const { data: onChainHatDetails } = useManyHatDetails({
+    hats: mapWithChainId(_.get(initialTreeData, 'hats'), chainId),
+    initialHats: _.get(initialTreeData, 'hats'),
+    editMode: false,
+  });
+  const { data: onChainDetailsFields } = useManyHatsDetailsField({
+    hats: onChainHatDetails,
+    editMode: false,
+    onchain: true,
+  });
+  const onchainHatsWithDetails = useMemo(() => {
+    return _.map(_.get(initialTreeData, 'hats'), (hat) => {
+      const details = _.find(onChainDetailsFields, { id: hat.details });
+      return { ...hat, detailsObject: details?.detailsObject };
+    });
+  }, [initialTreeData, onChainDetailsFields]);
+
+  const selectedOnchainHat = useMemo(
+    () => _.find(onChainHatDetails, ['id', selectedHatId]),
+    [onChainHatDetails, selectedHatId],
+  );
+  const selectedOnchainHatDetails = useMemo(
+    () =>
+      _.get(
+        _.find(onchainHatsWithDetails, ['id', selectedHatId]),
+        'detailsObject.data',
+      ),
+    [onchainHatsWithDetails, selectedHatId],
+  );
+
   const wearersAndControllers = useWearersControllersDetails({
     hats: hatDetails,
     editMode,
   });
-  // console.log(wearersAndControllers);
 
   const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
     hats: hatDetails,
@@ -540,9 +587,11 @@ export const TreeFormContextProvider = ({
       treeToDisplay,
       onchainTree: onchainTree.current,
       onchainHats,
+      onchainHatsWithDetails,
       treeEvents,
       isLoading: imagesLoading || detailsLoading,
       linkRequestFromTree,
+      linkedHatIds,
       // local storage
       storedData,
       setStoredData,
@@ -552,6 +601,8 @@ export const TreeFormContextProvider = ({
       setEditMode,
       toggleEditMode,
       selectedHat,
+      selectedOnchainHat,
+      selectedOnchainHatDetails,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
@@ -580,10 +631,12 @@ export const TreeFormContextProvider = ({
       treeToDisplay,
       onchainTree,
       onchainHats,
+      onchainHatsWithDetails,
       treeEvents,
       imagesLoading,
       detailsLoading,
       linkRequestFromTree,
+      linkedHatIds,
       // local storage
       storedData,
       setStoredData,
@@ -593,6 +646,8 @@ export const TreeFormContextProvider = ({
       setEditMode,
       toggleEditMode,
       selectedHat,
+      selectedOnchainHat,
+      selectedOnchainHatDetails,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,

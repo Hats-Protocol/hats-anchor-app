@@ -26,9 +26,12 @@ import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useIsClient from '@/hooks/useIsClient';
 import useToast from '@/hooks/useToast';
 import {
-  editHasUpdates,
+  flattenHatData,
   getProposedChangesCount,
   isTopHatOrMutable,
+  mergeHatsWithStoredData,
+  prepareExportTree,
+  prettyIdToId,
 } from '@/lib/hats';
 import { Hat } from '@/types';
 
@@ -48,6 +51,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     topHatDetails,
     treeId,
     chainId,
+    linkedHatIds,
   } = useTreeForm();
   const isClient = useIsClient();
 
@@ -70,7 +74,26 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const { adminHatIds } = useAdminOfHats(hatIds);
 
   const handleExport = () => {
-    const fileData = JSON.stringify(storedData);
+    if (!treeToDisplay) return;
+    const hatsWithoutLinkedHats = _.filter(
+      treeToDisplay,
+      (hat) => hat.id && !linkedHatIds?.includes(hat.id),
+    );
+    // if the top hat is linked, we need to set its admin id to itself
+    const topHatId = prettyIdToId(treeId);
+    const targetHat = _.find(hatsWithoutLinkedHats, { id: topHatId });
+    if (
+      targetHat &&
+      targetHat.admin?.id &&
+      linkedHatIds?.includes(targetHat.admin?.id)
+    ) {
+      targetHat.admin.id = topHatId;
+    }
+    const onChainHats = flattenHatData(hatsWithoutLinkedHats);
+    const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
+    const preparedTree = prepareExportTree(mergedHats);
+    const fileData = JSON.stringify(preparedTree);
+
     const blob = new Blob([fileData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -143,7 +166,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             leftIcon={<FiSave />}
             colorScheme='twitter'
             variant='solid'
-            isDisabled={!editHasUpdates(storedData)}
+            isDisabled={treeToDisplay?.length === 1}
             onClick={handleExport}
           >
             Export
@@ -168,6 +191,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         {_.map(treeToDisplay, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
+          // console.log('storedData', storedData);
 
           const handleHatClick = () => {
             onCloseTreeDrawer?.();

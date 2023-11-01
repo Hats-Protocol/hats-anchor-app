@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
@@ -49,7 +49,8 @@ const EditMode = ({
     chainId,
     storedData,
     selectedHat,
-    selectedHatDetails,
+    selectedOnchainHat,
+    selectedOnchainHatDetails,
     isDraft,
     treeToDisplay,
   } = useTreeForm();
@@ -62,7 +63,7 @@ const EditMode = ({
     authorities: initialAuthorities,
     eligibility: initialEligibility,
     toggle: initialToggle,
-  } = _.pick(selectedHatDetails, [
+  } = _.pick(selectedOnchainHatDetails, [
     'name',
     'description',
     'guilds',
@@ -80,7 +81,7 @@ const EditMode = ({
     mutable,
     imageUrl,
     imageUri,
-  } = _.pick(selectedHat, [
+  } = _.pick(selectedOnchainHat, [
     'maxSupply',
     'eligibility',
     'extendedEligibility',
@@ -127,8 +128,10 @@ const EditMode = ({
     toggle,
     mutable,
     imageUrl,
-    initialEligibility,
-    initialToggle,
+    initialEligibility?.criteria,
+    initialEligibility?.manual,
+    initialToggle?.criteria,
+    initialToggle?.manual,
     initialName,
     initialDescription,
     initialAuthorities,
@@ -139,7 +142,6 @@ const EditMode = ({
 
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: defaultFormValues,
   });
 
   const { watch, reset } = localForm;
@@ -154,7 +156,8 @@ const EditMode = ({
         formValues = {
           ...defaultFormValues,
           ...matchingHat,
-        };
+        } as any;
+
         reset(formValues, { keepDefaultValues: true });
         return;
       }
@@ -169,7 +172,7 @@ const EditMode = ({
 
   const allFormData = watch();
 
-  const prevAllFormData = useRef<FormData>(allFormData);
+  const prevAllFormData = useRef<FieldValues>(allFormData as FormData);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -188,7 +191,6 @@ const EditMode = ({
   };
 
   const [newImageURI, setNewImageURI] = useState('');
-  // console.log(newImageURI);
 
   const eligibilityFormValue = useDebounce<Hex | undefined>(
     watch('eligibility', eligibility || FALLBACK_ADDRESS),
