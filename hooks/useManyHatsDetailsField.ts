@@ -11,10 +11,12 @@ const useManyHatsDetailsField = ({
   hats,
   onchainHats,
   editMode,
+  onchain,
 }: {
   hats: Hat[] | undefined;
   onchainHats?: Hat[];
   editMode?: boolean;
+  onchain?: boolean;
 }) => {
   let onlyOnchainHats = hats;
   if (onchainHats) {
@@ -31,7 +33,11 @@ const useManyHatsDetailsField = ({
 
   const detailsFields = useQueries({
     queries: _.map(filteredDetails, (hat) => ({
-      queryKey: ['hatDetailsField', hat?.details],
+      queryKey: [
+        'hatDetailsField',
+        hat?.details,
+        { onchain: onchain || false },
+      ],
       queryFn: () => fetchDetailsIpfs(hat?.details),
       enabled: !!hat?.details,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

@@ -6,11 +6,10 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
@@ -92,7 +91,7 @@ const EditMode = ({
     'imageUri',
   ]);
 
-  const defaultFormValues = useMemo<FormData>(() => {
+  const defaultFormValues = useCallback(() => {
     if (isDraft) {
       return EMPTY_FORM_VALUES;
     }
@@ -139,11 +138,9 @@ const EditMode = ({
     initialGuilds,
     isDraft,
   ]);
-  console.log('defaultFormValues', defaultFormValues);
 
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: defaultFormValues,
   });
 
   const { watch, reset } = localForm;
@@ -156,29 +153,30 @@ const EditMode = ({
 
       if (matchingHat) {
         formValues = {
-          ...defaultFormValues,
+          ...defaultFormValues(),
           ...matchingHat,
         };
-        // reset the onchain hat as defaultValues?
+
         reset(formValues, { keepDefaultValues: true });
         return;
       }
+
       reset(formValues);
     };
 
-    if (selectedHat?.id && chainId && defaultFormValues && storedData) {
+    if (selectedHat?.id && chainId && defaultFormValues() && storedData) {
       initialFormValues();
     }
   }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
 
   const allFormData = watch();
 
-  const prevAllFormData = useRef<FormData>(allFormData);
+  const prevAllFormData = useRef<FieldValues>(allFormData as FormData);
 
   const getDirtyFields = useCallback(() => {
-    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
+    return (Object.keys(defaultFormValues()) as Array<keyof FormData>).filter(
       (key) =>
-        JSON.stringify(defaultFormValues[key]) !==
+        JSON.stringify(defaultFormValues()?.[key]) !==
           JSON.stringify(allFormData[key]) || allFormData[key] === 'New Hat',
     );
   }, [allFormData, defaultFormValues]);

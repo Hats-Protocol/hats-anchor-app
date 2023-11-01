@@ -274,8 +274,8 @@ export const TreeFormContextProvider = ({
   });
   const { data: onChainDetailsFields } = useManyHatsDetailsField({
     hats: onChainHatDetails,
-    // onchainHats: _.get(initialTreeData, 'hats'),
     editMode: false,
+    onchain: true,
   });
   const onchainHatsWithDetails = useMemo(() => {
     return _.map(_.get(initialTreeData, 'hats'), (hat) => {
@@ -285,8 +285,8 @@ export const TreeFormContextProvider = ({
   }, [initialTreeData, onChainDetailsFields]);
 
   const selectedOnchainHat = useMemo(
-    () => _.find(onchainHats, ['id', selectedHatId]),
-    [onchainHats, selectedHatId],
+    () => _.find(onChainHatDetails, ['id', selectedHatId]),
+    [onChainHatDetails, selectedHatId],
   );
   const selectedOnchainHatDetails = useMemo(
     () =>

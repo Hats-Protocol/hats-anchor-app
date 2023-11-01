@@ -42,19 +42,25 @@ const Input = ({
   localForm,
   rightElement,
   isDisabled,
+  resetValue,
   ...props
 }: InputProps) => {
   if (!localForm) return null;
   const {
     register,
     resetField,
+    setValue,
     formState: { dirtyFields, errors },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
 
   const onReset = () => {
-    resetField(name, { keepDirty: false });
+    if (resetValue) {
+      setValue(name, resetValue, { shouldDirty: true });
+    } else {
+      resetField(name, { keepDirty: false });
+    }
   };
 
   const getErrorMessage = () => {
@@ -136,4 +142,5 @@ interface InputProps extends ChakraInputProps {
   rightElement?: React.ReactNode;
   defaultValue?: string | number;
   isDisabled?: boolean;
+  resetValue?: string | number;
 }
