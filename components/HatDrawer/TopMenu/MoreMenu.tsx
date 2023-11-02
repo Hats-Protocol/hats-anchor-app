@@ -11,6 +11,7 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -21,6 +22,7 @@ import {
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
+import { TbChartDots3 } from 'react-icons/tb';
 import { useAccount, useChainId } from 'wagmi';
 
 import CONFIG, { MUTABILITY } from '@/constants';
@@ -32,15 +34,33 @@ import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, isWearingAdminHat, toTreeId } from '@/lib/hats';
+import {
+  decimalId,
+  flattenHatData,
+  getBranch,
+  idToPrettyId,
+  isWearingAdminHat,
+  mergeHatsWithStoredData,
+  prepareExportTree,
+  prettyIdToIp,
+  toTreeId,
+} from '@/lib/hats';
 
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const {
+    chainId,
+    selectedHat,
+    treeToDisplay,
+    storedData,
+    linkedHatIds,
+    treeId,
+  } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
+  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -90,6 +110,41 @@ const MoreMenu = () => {
 
   const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+
+  const handleExportBranch = () => {
+    if (!treeToDisplay || !selectedHat?.id) return;
+    const targetHatId = selectedHat.id;
+    const branch = getBranch(targetHatId, treeToDisplay);
+    const hatsWithoutLinkedHats = _.filter(
+      branch,
+      (hat) => hat.id && !linkedHatIds?.includes(hat.id),
+    );
+    const targetHatInBranch = _.find(hatsWithoutLinkedHats, {
+      id: targetHatId,
+    });
+    if (
+      linkedHatIds?.includes(targetHatId) &&
+      targetHatInBranch &&
+      targetHatInBranch.admin
+    ) {
+      targetHatInBranch.admin.id = targetHatId;
+    }
+
+    const onChainHats = flattenHatData(hatsWithoutLinkedHats);
+    const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
+    const preparedTree = prepareExportTree(mergedHats);
+    const fileData = JSON.stringify(preparedTree);
+
+    const blob = new Blob([fileData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `chain-${chainId}-branch-${decimalTreeId}.json`; // Change filename to denote branch
+    link.href = url;
+    link.click();
+    toast.success({
+      title: `Exported branch #${decimalTreeId} to your desktop`,
+    });
+  };
 
   if (!selectedHat) return null;
 
@@ -154,6 +209,14 @@ const MoreMenu = () => {
             </Tooltip>
           </MenuItem>
         )}
+        <MenuItem onClick={handleExportBranch}>
+          <HStack>
+            <TbChartDots3 />
+            <Text>
+              Export branch {prettyIdToIp(idToPrettyId(selectedHat?.id))}
+            </Text>
+          </HStack>
+        </MenuItem>
         {address && (
           <MenuItem
             gap={2}

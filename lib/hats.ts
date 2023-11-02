@@ -357,6 +357,29 @@ export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hex[] => {
   return parents;
 };
 
+export const getAllDescendants = (hatId: Hex, tree: Hat[]): Hat[] => {
+  const children = _.filter(tree, (hat) => hat.parentId === hatId);
+
+  const descendants = _.reduce(
+    children,
+    (acc, child) => {
+      return _.concat(acc, child, getAllDescendants(child.id, tree));
+    },
+    [] as Hat[],
+  );
+
+  return descendants;
+};
+
+export const getBranch = (hatId: Hex, tree: Hat[]): Hat[] => {
+  const targetHat = _.find(tree, { id: hatId });
+  if (!targetHat) return [];
+
+  const descendants = getAllDescendants(hatId, tree);
+
+  return [targetHat, ...descendants];
+};
+
 export const checkImageForHat = async (img?: string) => {
   const isValidImage = await isImageUrl(formatImageUrl(img));
 
