@@ -7,6 +7,7 @@ import { Hex } from 'viem';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchWearerDetails } from '@/gql/helpers';
 import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
+import { Hat } from '@/types';
 
 import useIsAdmin from './useIsAdmin';
 import useModuleDetails from './useModuleDetails';
@@ -21,7 +22,7 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
     },
   });
 
-  return res;
+  return res as unknown as Promise<Hat[]>;
 };
 
 const useMultiClaimsHatterCheck = () => {
