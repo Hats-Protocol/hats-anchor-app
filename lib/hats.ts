@@ -2,11 +2,13 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { defaultHat, MUTABILITY } from '@/constants';
+import { defaultHat, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import {
   Controls,
   FormData,
+  FormWearer,
   Hat,
+  HatExport,
   HatWearer,
   Hierarchy,
   InputObject,
@@ -365,7 +367,8 @@ export const checkImageForHat = async (img?: string) => {
 };
 
 const generateCsvContent = (hatWearers: HatWearer[]) => {
-  let csvContent = 'address,ens\n';
+  // not fetching ens for all wearers
+  let csvContent = 'address\n';
 
   hatWearers.forEach((hatWearer) => {
     const name = hatWearer.ensName || '';
@@ -385,4 +388,206 @@ export const exportToCsv = (hatWearers: HatWearer[], hatName?: string) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+// Helper function for exporting tree data
+export const mergeHatsWithStoredData = (
+  hats: FormData[],
+  storedData: Partial<FormData>[] | undefined,
+) => {
+  return _.map(hats, (hat) => {
+    const storedHat = _.find(storedData, { id: hat.id });
+    const mergedHats = _.merge({}, hat, storedHat);
+    return {
+      ...mergedHats,
+      wearers: _.map(mergedHats.wearers, 'address') || [],
+    };
+  });
+};
+
+export const prepareExportTree = (data: any[]): HatExport[] => {
+  return _.map(data, (hat) => ({
+    id: hat.id,
+    status: hat.status,
+    createdAt: parseInt(hat.createdAt, 10),
+    details: hat.details,
+    maxSupply: parseInt(hat.maxSupply, 10),
+    eligibility: hat.eligibility,
+    toggle: hat.toggle,
+    mutable: hat.mutable === MUTABILITY.MUTABLE,
+    imageUri: hat.imageUri,
+    currentSupply: parseInt(hat.currentSupply, 10),
+    wearers: hat.wearers,
+    adminId: hat.adminId,
+    imageUrl: hat.imageUrl || null,
+    detailsObject: {
+      type: '1.0',
+      data: {
+        name: hat.name,
+        description: hat.description,
+        responsibilities: hat.responsibilities,
+        authorities: hat.authorities,
+        guilds: hat.guilds,
+        eligibility: {
+          manual: hat.isEligibilityManual,
+          criteria: hat.revocationsCriteria,
+        },
+        toggle: {
+          manual: hat.isToggleManual,
+          criteria: hat.deactivationsCriteria,
+        },
+      },
+    },
+  }));
+};
+
+// Helper functions for importing tree data
+const compareHatObjects = (hatA: any, hatB: any): any => {
+  if (hatB.mutable === MUTABILITY.IMMUTABLE) {
+    return null;
+  }
+
+  const diffHat: any = {
+    id: hatA.id,
+  };
+
+  _.forEach(hatA, (value, key) => {
+    if (_.includes(['createdAt', 'currentSupply'], key)) {
+      return;
+    }
+
+    if (key === 'adminId') {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat[key] = hatB[key];
+      }
+      return;
+    }
+
+    if (_.includes(['isEligibilityManual', 'isToggleManual'], key)) {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat[key] = value
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY;
+      }
+      return;
+    }
+
+    if (_.includes(['maxSupply', 'currentSupply', 'timestamp'], key)) {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat[key] = Number(value);
+      }
+      return;
+    }
+
+    if (_.isArray(value)) {
+      if (_.isObject(_.first(value))) {
+        let resultArray = _.unionWith(value, hatB[key], _.isEqual);
+        if (key === 'wearers') {
+          resultArray = _.differenceBy(value, hatB[key], 'address');
+          if (_.isEmpty(resultArray)) {
+            return;
+          }
+        }
+        if (!_.isEqual(resultArray.sort(), hatB[key].sort())) {
+          diffHat[key] = resultArray;
+        }
+      } else {
+        const diffArray = _.differenceWith(value, hatB[key], _.isEqual);
+        if (!_.isEmpty(diffArray)) diffHat[key] = diffArray;
+      }
+    } else if (!_.isEqual(value, hatB[key])) {
+      diffHat[key] = value;
+    }
+  });
+
+  return diffHat;
+};
+
+export const prepareDraftHats = (
+  importedTree: FormData[],
+  onChainTree: FormData[],
+  treeId?: Hex,
+): Partial<FormData>[] => {
+  const hatsWithPatchedIds = patchHatIds(importedTree, prettyIdToId(treeId));
+  const hatsDifferences = _.map(hatsWithPatchedIds, (hat) => {
+    const matchingHat = _.find(onChainTree, { id: hat.id });
+    if (!matchingHat) return hat;
+    return compareHatObjects(hat, matchingHat);
+  });
+  const hatsWithUpdates = _.filter(
+    hatsDifferences,
+    (hat) => _.size(hat) > 1 && _.some(hat, (value) => value !== undefined),
+  );
+  const hatsExcludingTop = _.filter(
+    hatsWithUpdates,
+    (hat: any) => hat.id !== prettyIdToId(treeId),
+  );
+  return hatsExcludingTop;
+};
+
+function patchHatIds(hats: any[], newMainID?: Hex) {
+  if (!newMainID) return hats;
+  const mainPortion = _.slice(newMainID, 0, 10).join('');
+
+  return _.map(hats, (hat) => {
+    const specificPortionOfId = _.slice(hat?.id, 10).join('');
+    const specificPortionOfAdminId = _.slice(hat?.adminId, 10).join('');
+
+    // Update id
+    // eslint-disable-next-line no-param-reassign
+    if (hat?.id) hat.id = (mainPortion + specificPortionOfId) as Hex;
+
+    // Update adminId in similar fashion
+    if (hat?.adminId)
+      // eslint-disable-next-line no-param-reassign
+      hat.adminId = (mainPortion + specificPortionOfAdminId) as Hex;
+
+    return hat;
+  });
+}
+
+// general helper functions for importing and exporting tree data
+export const flattenHatData = (data: any[]): FormData[] =>
+  _.map(data || [], (hat) => ({
+    id: hat.id,
+    status: hat.status,
+    createdAt: _.toNumber(hat.createdAt),
+    // details: hat.details,
+    maxSupply: _.toString(hat.maxSupply),
+    eligibility: hat.eligibility,
+    isEligibilityManual: hat.detailsObject?.data?.eligibility?.manual || false,
+    revocationsCriteria: hat.detailsObject?.data?.eligibility?.criteria || [],
+    toggle: hat.toggle,
+    isToggleManual: _.get(hat, 'detailsObject.data.toggle.manual', false),
+    deactivationsCriteria: _.get(hat, 'detailsObject.data.toggle.criteria', []),
+    mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+    // imageUri: hat.imageUri,
+    currentSupply: _.toNumber(hat.currentSupply),
+    wearers: extractWearers(hat.wearers),
+    adminId: hat.adminId || _.get(hat, 'admin.id'),
+    imageUrl: hat.imageUrl,
+    name: _.get(hat, 'detailsObject.data.name'),
+    description: _.get(hat, 'detailsObject.data.description'),
+    responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
+    authorities: _.get(hat, 'detailsObject.data.authorities', []),
+    guilds: _.get(hat, 'detailsObject.data.guilds', []),
+  }));
+
+const extractWearers = (wearers: any): FormWearer[] => {
+  if (
+    _.isArray(wearers) &&
+    !_.isEmpty(wearers) &&
+    _.isString(_.first(wearers))
+  ) {
+    return _.map(wearers, (wearer) => ({
+      address: wearer,
+      ens: '',
+    }));
+  }
+  return (
+    _.map(wearers, ({ id }) => ({
+      address: id,
+      ens: '',
+    })) || []
+  );
 };

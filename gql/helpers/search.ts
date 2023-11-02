@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { Hex } from 'viem';
 
-import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
 import { chainsList, createSubgraphClient } from '@/lib/web3';
 import { Hat, Tree } from '@/types';
 
@@ -18,7 +18,7 @@ const processForCommandPalette = (key: string, record: any) => {
   const { id: networkId, name: networkName } = network || {};
 
   const parts = id?.split('.');
-  const treeId = parts ? prettyIdToIp(idToPrettyId(parts[0] as Hex)) : '';
+  const treeId = parts ? BigInt(toTreeId(parts[0] as Hex)) : '';
 
   let href = '#';
   const ip = prettyIdToIp(prettyId || id);

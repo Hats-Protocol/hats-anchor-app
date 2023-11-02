@@ -7,7 +7,6 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
@@ -16,6 +15,7 @@ import { BsBoxArrowInUpRight } from 'react-icons/bs';
 import DropZone from '@/components/atoms/DropZone';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import { flattenHatData, prepareDraftHats } from '@/lib/hats';
 
 interface validateTreeImportProps {
   file: File;
@@ -23,6 +23,7 @@ interface validateTreeImportProps {
   chainId?: number;
 }
 
+// we might need it at some point
 const validateTreeImport = ({
   file,
   treeId,
@@ -31,7 +32,6 @@ const validateTreeImport = ({
   if (!treeId || !chainId) return null;
   const fileName = file.name;
   const splitFileName = _.split(fileName, '-');
-  const fileChainId = _.toNumber(_.nth(splitFileName, 1));
   let fileTreeId = _.nth(splitFileName, 3);
   if (fileTreeId?.includes(' ')) {
     fileTreeId = _.first(_.split(fileTreeId, ' '));
@@ -39,25 +39,13 @@ const validateTreeImport = ({
   if (fileTreeId?.includes('.')) {
     fileTreeId = _.first(_.split(fileTreeId, '.'));
   }
-  const fileTreeIdNum = _.toNumber(fileTreeId);
-  if (fileChainId !== chainId) {
-    return {
-      code: 'chain-mismatch',
-      message: "File doesn't match current Tree's chain",
-    };
-  }
-  if (fileTreeIdNum !== treeIdHexToDecimal(treeId)) {
-    return {
-      code: 'tree-mismatch',
-      message: "File doesn't match current Tree's ID",
-    };
-  }
   return null;
 };
 
 const ImportTreeForm = () => {
   const { setModals } = useOverlay();
-  const { treeId, chainId, importHats } = useTreeForm();
+  const { treeId, chainId, importHats, onchainHatsWithDetails } = useTreeForm();
+
   const [validImport, setValidImport] = useState(true);
   const [treeFile, setTreeFile] = useState<File | undefined>();
   const [fileReader, setFileReader] = useState<FileReader | undefined>();
@@ -89,10 +77,15 @@ const ImportTreeForm = () => {
   const handleImport = () => {
     if (!treeFile || !fileReader) return;
     fileReader.onload = function readFile(e: ProgressEvent<FileReader>) {
-      const contents = e.target?.result;
-      // parsed so we don't double stringify
-      const parsedData = JSON.parse(contents as string);
-      importHats?.(parsedData);
+      const fileContents = e.target?.result;
+      const treeFromJson = JSON.parse(fileContents as string);
+      const importedTree = flattenHatData(treeFromJson);
+      if (!onchainHatsWithDetails) return;
+      const onChainTree = flattenHatData(onchainHatsWithDetails);
+      const draftHats = prepareDraftHats(importedTree, onChainTree, treeId);
+
+      // return;
+      importHats?.(draftHats);
       setModals?.({});
     };
     fileReader.readAsText(treeFile);
