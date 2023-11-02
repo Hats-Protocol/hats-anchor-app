@@ -414,7 +414,7 @@ export const exportToCsv = (hatWearers: HatWearer[], hatName?: string) => {
 };
 
 // Helper function for exporting tree data
-export const mergeHatsWithStoredData = (
+const mergeHatsWithStoredData = (
   hats: FormData[],
   storedData: Partial<FormData>[] | undefined,
 ) => {
@@ -428,7 +428,7 @@ export const mergeHatsWithStoredData = (
   });
 };
 
-export const prepareExportTree = (data: any[]): HatExport[] => {
+const prepareExportTree = (data: any[]): HatExport[] => {
   return _.map(data, (hat) => ({
     id: hat.id,
     status: hat.status,
@@ -462,6 +462,64 @@ export const prepareExportTree = (data: any[]): HatExport[] => {
       },
     },
   }));
+};
+
+export const handleExportBranch = ({
+  targetHatId,
+  treeToDisplay,
+  linkedHatIds,
+  storedData,
+  decimalTreeId,
+  chainId,
+  toast,
+}: {
+  targetHatId?: Hex;
+  treeToDisplay?: Hat[];
+  linkedHatIds?: Hex[];
+  storedData?: Partial<FormData>[];
+  decimalTreeId?: number;
+  chainId?: number;
+  toast: any;
+}) => {
+  if (
+    !targetHatId ||
+    !treeToDisplay ||
+    !linkedHatIds ||
+    !storedData ||
+    !decimalTreeId ||
+    !chainId
+  )
+    return;
+  const branch = getBranch(targetHatId, treeToDisplay);
+  const hatsWithoutLinkedHats = _.filter(
+    branch,
+    (hat) => hat.id && !linkedHatIds?.includes(hat.id),
+  );
+  const targetHatInBranch = _.find(hatsWithoutLinkedHats, {
+    id: targetHatId,
+  });
+  if (
+    linkedHatIds?.includes(targetHatId) &&
+    targetHatInBranch &&
+    targetHatInBranch.admin
+  ) {
+    targetHatInBranch.admin.id = targetHatId;
+  }
+
+  const onChainHats = flattenHatData(hatsWithoutLinkedHats);
+  const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
+  const preparedTree = prepareExportTree(mergedHats);
+  const fileData = JSON.stringify(preparedTree);
+
+  const blob = new Blob([fileData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `chain-${chainId}-branch-${decimalTreeId}.json`; // Change filename to denote branch
+  link.href = url;
+  link.click();
+  toast.success({
+    title: `Exported branch #${decimalTreeId} to your desktop`,
+  });
 };
 
 // Helper functions for importing tree data

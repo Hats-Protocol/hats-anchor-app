@@ -36,12 +36,9 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
 import {
   decimalId,
-  flattenHatData,
-  getBranch,
+  handleExportBranch,
   idToPrettyId,
   isWearingAdminHat,
-  mergeHatsWithStoredData,
-  prepareExportTree,
   prettyIdToIp,
   toTreeId,
 } from '@/lib/hats';
@@ -111,40 +108,16 @@ const MoreMenu = () => {
   const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
-  const handleExportBranch = () => {
-    if (!treeToDisplay || !selectedHat?.id) return;
-    const targetHatId = selectedHat.id;
-    const branch = getBranch(targetHatId, treeToDisplay);
-    const hatsWithoutLinkedHats = _.filter(
-      branch,
-      (hat) => hat.id && !linkedHatIds?.includes(hat.id),
-    );
-    const targetHatInBranch = _.find(hatsWithoutLinkedHats, {
-      id: targetHatId,
+  const handleExport = () =>
+    handleExportBranch({
+      targetHatId: selectedHat?.id,
+      treeToDisplay,
+      linkedHatIds,
+      storedData,
+      decimalTreeId,
+      chainId,
+      toast,
     });
-    if (
-      linkedHatIds?.includes(targetHatId) &&
-      targetHatInBranch &&
-      targetHatInBranch.admin
-    ) {
-      targetHatInBranch.admin.id = targetHatId;
-    }
-
-    const onChainHats = flattenHatData(hatsWithoutLinkedHats);
-    const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
-    const preparedTree = prepareExportTree(mergedHats);
-    const fileData = JSON.stringify(preparedTree);
-
-    const blob = new Blob([fileData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `chain-${chainId}-branch-${decimalTreeId}.json`; // Change filename to denote branch
-    link.href = url;
-    link.click();
-    toast.success({
-      title: `Exported branch #${decimalTreeId} to your desktop`,
-    });
-  };
 
   if (!selectedHat) return null;
 
@@ -209,7 +182,7 @@ const MoreMenu = () => {
             </Tooltip>
           </MenuItem>
         )}
-        <MenuItem onClick={handleExportBranch}>
+        <MenuItem onClick={handleExport}>
           <HStack>
             <TbChartDots3 />
             <Text>

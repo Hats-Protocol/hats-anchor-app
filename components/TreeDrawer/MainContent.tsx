@@ -26,11 +26,9 @@ import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useIsClient from '@/hooks/useIsClient';
 import useToast from '@/hooks/useToast';
 import {
-  flattenHatData,
   getProposedChangesCount,
+  handleExportBranch,
   isTopHatOrMutable,
-  mergeHatsWithStoredData,
-  prepareExportTree,
   prettyIdToId,
 } from '@/lib/hats';
 import { Hat } from '@/types';
@@ -73,39 +71,16 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats(hatIds);
 
-  const handleExport = () => {
-    if (!treeToDisplay) return;
-    const hatsWithoutLinkedHats = _.filter(
+  const handleExport = () =>
+    handleExportBranch({
+      targetHatId: prettyIdToId(treeId),
       treeToDisplay,
-      (hat) => hat.id && !linkedHatIds?.includes(hat.id),
-    );
-    // if the top hat is linked, we need to set its admin id to itself
-    const topHatId = prettyIdToId(treeId);
-    const targetHat = _.find(hatsWithoutLinkedHats, { id: topHatId });
-    if (
-      targetHat &&
-      targetHat.admin?.id &&
-      linkedHatIds?.includes(targetHat.admin?.id)
-    ) {
-      targetHat.admin.id = topHatId;
-    }
-    const onChainHats = flattenHatData(hatsWithoutLinkedHats);
-    const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
-    const preparedTree = prepareExportTree(mergedHats);
-    const fileData = JSON.stringify(preparedTree);
-
-    const blob = new Blob([fileData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    // TODO add unix timestamp so don't get (1) on subsequent downloads
-    // update file name validation also, based on this ^
-    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
-    link.href = url;
-    link.click();
-    toast.success({
-      title: `Exported tree #${decimalTreeId} to your desktop`,
+      linkedHatIds,
+      storedData,
+      decimalTreeId,
+      chainId,
+      toast,
     });
-  };
 
   if (!onchainHats || !treeToDisplay) return null;
 
