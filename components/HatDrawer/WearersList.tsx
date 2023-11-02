@@ -32,6 +32,7 @@ import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContr
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
+import { commify } from '@/lib/general';
 import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
 import { filterWearers, getEligibleWearers, sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
@@ -149,6 +150,31 @@ const WearersList = () => {
     return undefined;
   }, [chainId, currentNetworkId, hatterIsAdmin]);
 
+  const maxSupplyText = () => {
+    if (_.toNumber(maxSupply) > 999_999) {
+      // could handle for thousands
+      // const rounds = [1_000_000_000, 1_000_000, 1_000];
+      // const formatString = [`e9`, `e6`, `e3`];
+
+      const rounds = [1_000_000_000, 1_000_000];
+      const formatString = [`e9`, `e6`];
+      const supplyRounded = _.map(rounds, (r) =>
+        _.round(_.toNumber(maxSupply) / r, 0),
+      );
+      const index = _.findIndex(supplyRounded, (v) => v > 0);
+
+      return (
+        <HStack color='gray.400' spacing={1}>
+          <Text>of</Text>
+          <Tooltip label={commify(maxSupply)} placement='left' hasArrow>
+            <Text fontFamily='mono'>{`${supplyRounded[index]}${formatString[index]}`}</Text>
+          </Tooltip>
+        </HStack>
+      );
+    }
+    return <Text color='gray.400'>of {commify(maxSupply)}</Text>;
+  };
+
   return (
     <>
       <Stack spacing={4}>
@@ -159,7 +185,7 @@ const WearersList = () => {
 
           <Flex gap={1}>
             <Text>{_.get(selectedHat, 'currentSupply')}</Text>
-            <Text color='gray.400'>of {maxSupply}</Text>
+            {maxSupplyText()}
           </Flex>
         </Flex>
 

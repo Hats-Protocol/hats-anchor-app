@@ -228,25 +228,32 @@ const OrgChartComponent: React.FC = () => {
             const detailsName = detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
 
+            const maxSupplyText = () => {
+              if (maxSupply > 9999) {
+                return 'a lot';
+              }
+              return maxSupply;
+            };
+
             // setup wearers section
             let wearersColor = '#FFFFFF';
             const wearer: HatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
-            let wearerAccent: string = `0 of ${maxSupply}`;
+            let wearerAccent: string = `0 of ${maxSupplyText()}`;
             let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
               wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
-              wearerAccent = `out of ${maxSupply}`;
+              wearerAccent = `out of ${maxSupplyText()}`;
             }
             if (_.size(wearers) === 1) {
               wearerContent =
                 !!wearer?.ensName && wearer?.ensName !== ''
                   ? wearer?.ensName
                   : formatAddress(_.get(wearer, 'id'));
-              wearerAccent = `1 of ${maxSupply}`;
+              wearerAccent = `1 of ${maxSupplyText()}`;
               if (wearer?.isContract) {
                 wearersColor = '#F0FFF4';
                 wearerIcon = `<img src="/icons/contract.svg" alt="wearer contract">`;
@@ -479,6 +486,7 @@ const OrgChartComponent: React.FC = () => {
                       }"
                       style="
                         background: white;
+                        height: 100%;
                         left: ${isSelected ? -4 : -1}px;
                         top: ${isSelected ? -4 : -1}px;
                         opacity: ${imageUrl === null ? 0.5 : 1};"
