@@ -72,24 +72,18 @@ const EditMode = ({
     'eligibility',
     'toggle',
   ]);
-  const {
-    maxSupply,
-    eligibility,
-    extendedEligibility,
-    toggle,
-    extendedToggle,
-    mutable,
-    imageUrl,
-    imageUri,
-  } = _.pick(selectedOnchainHat, [
-    'maxSupply',
-    'eligibility',
+  const { maxSupply, eligibility, toggle, mutable, imageUrl, imageUri } =
+    _.pick(selectedOnchainHat, [
+      'maxSupply',
+      'eligibility',
+      'toggle',
+      'mutable',
+      'imageUrl',
+      'imageUri',
+    ]);
+  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
     'extendedEligibility',
-    'toggle',
     'extendedToggle',
-    'mutable',
-    'imageUrl',
-    'imageUri',
   ]);
 
   const defaultFormValues = useMemo<FormData>(() => {
