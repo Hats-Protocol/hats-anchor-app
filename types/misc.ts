@@ -41,6 +41,7 @@ export type SearchResults = {
 
 export type Transaction = {
   hash: string;
+  txChainId?: number;
   fnName: string;
   status: string;
   timestamp: number;

@@ -38,6 +38,7 @@ export interface IOverlayContext {
   setCommandPalette: Dispatch<SetStateAction<boolean>>;
   handlePendingTx?: ({
     hash,
+    txChainId,
     fnName,
     toastData,
     redirect = null,
@@ -46,6 +47,7 @@ export interface IOverlayContext {
     onSuccess,
   }: {
     hash: Hex;
+    txChainId?: number;
     fnName: string;
     toastData: object | undefined;
     redirect?: string | null;
@@ -97,7 +99,7 @@ export const OverlayContextProvider = ({
 
   const addTransaction = useCallback(
     (transaction: Transaction) => {
-      const updatedTransactions = [...transactions, transaction];
+      const updatedTransactions = [transaction, ...transactions];
 
       setTransactions(updatedTransactions);
     },
@@ -143,6 +145,7 @@ export const OverlayContextProvider = ({
    * */
   const handlePendingTx = async ({
     hash,
+    txChainId,
     fnName,
     toastData,
     redirect = null,
@@ -151,6 +154,7 @@ export const OverlayContextProvider = ({
     onSuccess,
   }: {
     hash: Hex;
+    txChainId?: number | undefined;
     fnName: string;
     toastData: object | undefined;
     redirect?: string | null;
@@ -160,6 +164,7 @@ export const OverlayContextProvider = ({
   }): Promise<TransactionReceipt | undefined> => {
     addTransaction({
       hash,
+      txChainId,
       timestamp: Date.now(),
       status: 'pending',
       fnName,
