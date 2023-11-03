@@ -11,6 +11,7 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -21,6 +22,7 @@ import {
   FaLock,
   FaPowerOff,
 } from 'react-icons/fa';
+import { TbChartDots3 } from 'react-icons/tb';
 import { useAccount, useChainId } from 'wagmi';
 
 import CONFIG, { MUTABILITY } from '@/constants';
@@ -32,15 +34,30 @@ import useHatStatusCheck from '@/hooks/useHatStatusCheck';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isSameAddress } from '@/lib/general';
-import { decimalId, isWearingAdminHat, toTreeId } from '@/lib/hats';
+import {
+  decimalId,
+  handleExportBranch,
+  idToPrettyId,
+  isWearingAdminHat,
+  prettyIdToIp,
+  toTreeId,
+} from '@/lib/hats';
 
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const {
+    chainId,
+    selectedHat,
+    treeToDisplay,
+    storedData,
+    linkedHatIds,
+    treeId,
+  } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
+  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -90,6 +107,17 @@ const MoreMenu = () => {
 
   const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+
+  const handleExport = () =>
+    handleExportBranch({
+      targetHatId: selectedHat?.id,
+      treeToDisplay,
+      linkedHatIds,
+      storedData,
+      decimalTreeId,
+      chainId,
+      toast,
+    });
 
   if (!selectedHat) return null;
 
@@ -154,6 +182,14 @@ const MoreMenu = () => {
             </Tooltip>
           </MenuItem>
         )}
+        <MenuItem onClick={handleExport}>
+          <HStack>
+            <TbChartDots3 />
+            <Text>
+              Export branch {prettyIdToIp(idToPrettyId(selectedHat?.id))}
+            </Text>
+          </HStack>
+        </MenuItem>
         {address && (
           <MenuItem
             gap={2}

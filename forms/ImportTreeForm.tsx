@@ -84,7 +84,6 @@ const ImportTreeForm = () => {
       const onChainTree = flattenHatData(onchainHatsWithDetails);
       const draftHats = prepareDraftHats(importedTree, onChainTree, treeId);
 
-      // return;
       importHats?.(draftHats);
       setModals?.({});
     };
