@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { BsXSquare } from 'react-icons/bs';
+import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
@@ -125,14 +125,22 @@ const TopMenu = () => {
       top={0}
       zIndex={16}
     >
-      <Button
-        variant='outline'
-        colorScheme='gray'
-        onClick={promptForReset}
-        leftIcon={<Icon as={BsXSquare} />}
-      >
-        Cancel
-      </Button>
+      <HStack>
+        <Button
+          variant='outline'
+          onClick={promptForReset}
+          leftIcon={<Icon as={BsXSquare} />}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant='outline'
+          onClick={onCloseTreeDrawer}
+          rightIcon={<Icon as={BsChevronDoubleRight} />}
+        >
+          Close
+        </Button>
+      </HStack>
       <HStack>
         <NetworkSwitcher />
         <Tooltip

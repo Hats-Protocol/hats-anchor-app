@@ -60,6 +60,7 @@ const useHatContractWrite = ({
 
       await handlePendingTx?.({
         hash: data.hash,
+        txChainId: chainId,
         fnName: formatFunctionName(functionName),
         toastData: onSuccessToastData,
         onSuccess: (d?: TransactionReceipt) => {
