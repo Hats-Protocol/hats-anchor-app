@@ -91,25 +91,31 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     >
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
-        <Image
-          loading='lazy'
-          src={
-            (editMode && newImageUrl) ||
-            _.get(selectedHat, 'imageUrl') ||
-            '/icon.jpeg'
-          }
-          alt='hat image'
+        <Box
           position='absolute'
-          background='white'
-          w='100px'
           h='100px'
+          w='100px'
+          overflow='hidden'
           border='3px solid'
           borderColor='gray.700'
           borderRadius='md'
           top='110px'
           left={-81}
           zIndex={16}
-        />
+        >
+          <Image
+            loading='lazy'
+            src={
+              (editMode && newImageUrl) ||
+              _.get(selectedHat, 'imageUrl') ||
+              '/icon.jpeg'
+            }
+            alt='hat image'
+            background='white'
+            objectFit='cover'
+            h='100%'
+          />
+        </Box>
 
         <TopMenu
           onSave={handleSave}

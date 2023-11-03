@@ -205,7 +205,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 <HStack>
                   <Text>{hatId}</Text>
                   {displayName && (
-                    <Text maxW={hat.mutable ? '300px' : '200px'} isTruncated>
+                    <Text
+                      maxW={hat.mutable && !changes ? '300px' : '160px'}
+                      isTruncated
+                    >
                       {displayName}
                     </Text>
                   )}

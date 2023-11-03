@@ -487,6 +487,7 @@ const OrgChartComponent: React.FC = () => {
                       style="
                         background: white;
                         height: 100%;
+                        object-fit: cover;
                         left: ${isSelected ? -4 : -1}px;
                         top: ${isSelected ? -4 : -1}px;
                         opacity: ${imageUrl === null ? 0.5 : 1};"

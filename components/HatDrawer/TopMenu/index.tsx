@@ -81,38 +81,35 @@ const TopMenu = ({
       top={0}
       zIndex={16}
     >
-      {editMode && (
+      {editMode ? (
         <Button onClick={handleReturnToList} variant='outline'>
           <HStack>
             <Icon as={BsArrowLeft} />
             <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
           </HStack>
         </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            setSelectedHatId?.(undefined);
+            onCloseHatDrawer?.();
+          }}
+          leftIcon={<BsXSquare />}
+          variant='outline'
+          aria-label='Close'
+          marginRight='auto'
+        >
+          Close
+        </Button>
       )}
 
-      <HStack spacing={3} w='full' justifyContent='flex-end'>
-        {!editMode && (
-          <Button
-            onClick={() => {
-              setSelectedHatId?.(undefined);
-              onCloseHatDrawer?.();
-            }}
-            leftIcon={<BsXSquare />}
-            variant='outline'
-            aria-label='Close'
-            marginRight='auto'
-          >
-            Close
-          </Button>
-        )}
-        {!editMode && (
+      <HStack spacing={3} justifyContent='flex-end'>
+        {!editMode ? (
           <HStack spacing={3} w='full' justifyContent='flex-end'>
             <NetworkSwitcher />
             <MoreMenu />
           </HStack>
-        )}
-
-        {editMode && (
+        ) : (
           <HStack>
             {hatHasChanges &&
               (onchainHat ? (
