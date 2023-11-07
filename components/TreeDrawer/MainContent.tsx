@@ -218,8 +218,13 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 </HStack>
                 <HStack>
                   {draft ? (
-                    <Badge colorScheme='green' fontSize='sm' variant='outline'>
-                      NEW!
+                    <Badge
+                      colorScheme='green'
+                      fontSize='sm'
+                      variant={isAdmin ? 'solid' : 'outline'}
+                      textTransform='uppercase'
+                    >
+                      {isAdmin ? 'Deployable Draft' : 'New!'}
                     </Badge>
                   ) : (
                     changes && (
@@ -227,9 +232,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                         colorScheme={isAdmin ? 'blue' : 'cyan'}
                         fontSize='sm'
                         variant={isAdmin ? 'solid' : 'outline'}
+                        textTransform='uppercase'
                       >
                         {changes}
-                        {isAdmin ? ' DEPLOYABLE EDIT' : ' CHANGE'}
+                        {isAdmin ? ' Deployable Edit' : ' Change'}
                         {_.gt(changes, 1) ? 'S' : ''}
                       </Badge>
                     )
