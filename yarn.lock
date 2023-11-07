@@ -1074,19 +1074,19 @@
     graphql "^16.6.0"
     graphql-request "^6.1.0"
 
-"@hatsprotocol/sdk-v1-subgraph@0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-subgraph/-/sdk-v1-subgraph-0.3.0.tgz#6da0ffa8cecde86dc218d3fb29d07f108cb18a43"
-  integrity sha512-c0qrVQ4R5WKx6Cj5TnS8f9sGOlbuYiY+seAMk+DRmyAmKBn7TFxScWTagoXZ1rDO/ByE1oZE7GlOdvvxd8G9GA==
+"@hatsprotocol/sdk-v1-subgraph@0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-subgraph/-/sdk-v1-subgraph-0.3.1.tgz#2d0355f886fa18a2657ac6ae24fd960c22caa455"
+  integrity sha512-asRPvslnoDngzPK0j3bxEVHIZPBS3t+QkDTm8Pvg841s2MP7c/eFkEMSdp50q0XiwDf/Ttav8dSCwVb1LX8Kog==
   dependencies:
     graphql "^16.6.0"
     graphql-request "^6.1.0"
     zod "^3.22.4"
 
-"@hatsprotocol/sdk-v1-subgraph@0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-subgraph/-/sdk-v1-subgraph-0.3.1.tgz#2d0355f886fa18a2657ac6ae24fd960c22caa455"
-  integrity sha512-asRPvslnoDngzPK0j3bxEVHIZPBS3t+QkDTm8Pvg841s2MP7c/eFkEMSdp50q0XiwDf/Ttav8dSCwVb1LX8Kog==
+"@hatsprotocol/sdk-v1-subgraph@0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-subgraph/-/sdk-v1-subgraph-0.3.2.tgz#a7e0ebabb66c49e1acdb8b2767f5a13c7e440754"
+  integrity sha512-QNAj8nGkPJLSGWivCpoRgKz806OViR2uBAeLFxV1hMvSEh8CdXqFdR0acBu0mcgPpFvWajFDNqEAvoNiFAZwBQ==
   dependencies:
     graphql "^16.6.0"
     graphql-request "^6.1.0"
