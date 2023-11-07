@@ -1,4 +1,4 @@
-import { Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
+import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { lazy, Suspense } from 'react';
@@ -35,6 +35,7 @@ const TopMenu = ({
     onchainHats,
     selectedHat,
     storedData,
+    treeToDisplay,
     hatDisclosure,
     setSelectedHatId,
   } = useTreeForm();
@@ -65,6 +66,10 @@ const TopMenu = ({
 
   const onchainHat = _.find(onchainHats, { id: selectedHat?.id });
   const hatHasChanges = _.find(storedData, { id: selectedHat?.id });
+
+  const draftWithChildren =
+    !onchainHat &&
+    !_.isEmpty(_.filter(treeToDisplay, { admin: { id: selectedHat?.id } }));
 
   if (!selectedHat) return null;
 
@@ -121,13 +126,21 @@ const TopMenu = ({
                   Clear changes
                 </Button>
               ) : (
-                <Button
-                  onClick={handleRemoveHat}
-                  variant='outline'
-                  colorScheme='red.500'
+                <Tooltip
+                  label={
+                    draftWithChildren && "Can't delete draft hats with children"
+                  }
+                  hasArrow
                 >
-                  Delete Hat
-                </Button>
+                  <Button
+                    onClick={handleRemoveHat}
+                    variant='outline'
+                    colorScheme='red.500'
+                    isDisabled={draftWithChildren}
+                  >
+                    Delete Hat
+                  </Button>
+                </Tooltip>
               ))}
             <Button
               leftIcon={<FiSave />}

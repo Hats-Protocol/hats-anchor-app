@@ -475,6 +475,7 @@ const OrgChartComponent: React.FC = () => {
                     top: ${isSelected ? -4 : 0}px;
                     border-radius: 4px;
                     overflow: hidden;
+                    ${isSelected && 'background: white;'}
                   ">
                     <img
                       loading="lazy"

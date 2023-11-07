@@ -15,6 +15,8 @@ import {
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
+import Modal from '@/components/atoms/Modal';
+import TransactionHistory from '@/components/TransactionHistory';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { checkTransactionStatus } from '@/lib/contract';
@@ -207,10 +209,7 @@ export const OverlayContextProvider = ({
         return;
       }
 
-      const confirmedTransactions = await checkTransactionStatus(
-        transactions,
-        chainId,
-      );
+      const confirmedTransactions = await checkTransactionStatus(transactions);
 
       _.forEach(transactions, (tx) => {
         const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
@@ -243,6 +242,22 @@ export const OverlayContextProvider = ({
   return (
     <OverlayContext.Provider value={returnValue}>
       {children}
+
+      <Modal
+        name='transactions'
+        title='Transactions'
+        size='xl'
+        localOverlay={{
+          modals,
+          closeModals,
+          commandPalette,
+          setCommandPalette,
+          transactions,
+          clearAllTransactions,
+        }}
+      >
+        <TransactionHistory />
+      </Modal>
     </OverlayContext.Provider>
   );
 };

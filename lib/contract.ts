@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { HatWearer } from '@/types';
+import { HatWearer, Transaction } from '@/types';
 
 import { chainsMap } from './web3';
 
@@ -37,21 +37,18 @@ export const checkAddressIsContract = async (
   return false;
 };
 
-export const checkTransactionStatus = async (
-  pendingTransactions: { hash: string }[],
-  chainId?: number,
-) => {
-  if (!chainId) return null;
-
-  const publicClient = createPublicClient({
-    chain: chainsMap(chainId),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum) || http(),
+export const checkTransactionStatus = async (transactions: Transaction[]) => {
+  // don't recheck transactions that are already confirmed
+  const pendingTransactions = _.filter(transactions, {
+    status: 'pending',
   });
-
-  if (!publicClient) return [];
-
+  // handle the client with tx so chain is relative to tx
   const transactionPromises = pendingTransactions.map(async (tx) => {
+    const publicClient = createPublicClient({
+      chain: chainsMap(tx.txChainId),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transport: custom((window as any).ethereum) || http(),
+    });
     try {
       const transactionData = await publicClient.getTransaction({
         hash: tx.hash as Hex,

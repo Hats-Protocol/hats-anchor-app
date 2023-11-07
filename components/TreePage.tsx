@@ -126,15 +126,6 @@ const TreePage = () => {
       >
         <EventHistory type='tree' />
       </Modal>
-
-      <Modal
-        name='transactions'
-        title='Transactions'
-        size='2xl'
-        localOverlay={localOverlay}
-      >
-        <TransactionHistory />
-      </Modal>
     </>
   );
 };
