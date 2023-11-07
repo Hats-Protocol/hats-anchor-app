@@ -39,7 +39,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     if (unsavedData) {
       const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
         hat.id === selectedHat?.id
-          ? { ...unsavedData, id: selectedHat?.id }
+          ? { ...hat, ...unsavedData, id: selectedHat?.id }
           : hat,
       );
 

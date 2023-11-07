@@ -162,16 +162,18 @@ const EditMode = ({
         formValues = {
           ...defaultFormValues,
           ...matchingHat,
-        } as any;
-
+        };
+        console.log('reset for plaintext details');
         // reset default values for plaintext details
         reset(defaultFormValues);
 
+        console.log('reset for stored data values');
         // reset with stored data values
         reset(formValues, { keepDefaultValues: true });
         return;
       }
 
+      console.log('reset without stored data values');
       reset(formValues);
     };
 

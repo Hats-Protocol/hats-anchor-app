@@ -4,9 +4,15 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
-import { FormData, FormDataDetails, Hat, HatDetails } from '@/types';
+import {
+  FormData,
+  FormDataDetails,
+  Hat,
+  HatDetails,
+  InputObject,
+} from '@/types';
 
-import { getDefaultAdminId } from './hats';
+import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl } from './ipfs';
 import { createHatsClient } from './web3';
 
@@ -525,4 +531,58 @@ export const processHatForCalls = async (
   });
 
   return imageResult;
+};
+
+export const removeAndHandleSiblings = (
+  storedData: Partial<FormData>[],
+  hatId: Hex,
+) => {
+  const storedHat = _.find(storedData, ['id', hatId]);
+  const hierarchy = createHierarchy(
+    storedData as unknown as InputObject[],
+    hatId,
+  );
+
+  const noEmptyChanges = _.reject(storedData, (d) =>
+    _.isEmpty(_.reject(_.keys(d), (k) => k === 'id')),
+  );
+
+  const newSiblings = _.filter(noEmptyChanges, [
+    'parentId',
+    storedHat?.parentId,
+  ]);
+
+  const updateSiblings = _.map(newSiblings, (child, i) => {
+    const childId = child.id;
+    if (i === newSiblings.length - 1 || !childId) return undefined;
+
+    const isLeftSib = _.includes(_.get(hierarchy, 'leftSiblings'), childId);
+    if (isLeftSib) return child;
+
+    return { ...newSiblings[i + 1], id: childId };
+  });
+
+  const filterSiblings = _.reject(storedData, (child) =>
+    _.includes(_.map(newSiblings, 'id'), child.id),
+  );
+
+  return _.concat(filterSiblings, _.compact(updateSiblings));
+};
+
+export const removeAndHandleSiblingsOrgChart = (hats: Hat[], hatId: Hex) => {
+  const orgChartHat = _.find(hats, ['id', hatId]);
+  const newSiblings = _.filter(hats, ['parentId', orgChartHat?.parentId]);
+
+  const updateSiblings = _.map(newSiblings, (child, i) => {
+    if (i + 1 === newSiblings.length) return undefined;
+
+    // TODO do we need to handle left siblings here?
+    return { ...newSiblings[i + 1], id: child.id };
+  });
+
+  const filterSiblings = _.reject(hats, (child) =>
+    _.includes(_.concat(_.map(newSiblings, 'id'), [orgChartHat?.id]), child.id),
+  );
+
+  return _.concat(filterSiblings, _.compact(updateSiblings));
 };
