@@ -27,6 +27,7 @@ const hasDetailsChanged = (
     deactivationsCriteria,
   } = currentHat;
 
+  const namePlainText = !_.startsWith(_.get(originalHat, 'details'), 'ipfs://');
   const hasGuildsChanged =
     _.gt(_.size(guilds), 0) ||
     _.size(guilds) !== _.size(originalHatDetails?.guilds);
@@ -46,19 +47,26 @@ const hasDetailsChanged = (
       _.size(originalHatDetails?.toggle?.criteria);
 
   return (
-    name ||
-    description ||
-    hasGuildsChanged ||
-    hasResponsibilitiesChanged ||
-    hasAuthoritiesChanged ||
-    isEligibilityManual ||
-    hasRevocationsCriteriaChanged ||
-    isToggleManual ||
-    hasDeactivationsCriteriaChanged
+    !!name ||
+    !!namePlainText ||
+    !!description ||
+    !!hasGuildsChanged ||
+    !!hasResponsibilitiesChanged ||
+    !!hasAuthoritiesChanged ||
+    !!isEligibilityManual ||
+    !!hasRevocationsCriteriaChanged ||
+    !!isToggleManual ||
+    !!hasDeactivationsCriteriaChanged
   );
 };
 
-const createDetailsData = ({ hat }: { hat: Partial<FormData> }): HatDetails => {
+const createDetailsData = ({
+  hat,
+  originalHat,
+}: {
+  hat: Partial<FormData>;
+  originalHat?: Hat;
+}): HatDetails => {
   const {
     isEligibilityManual,
     isToggleManual,
@@ -72,7 +80,7 @@ const createDetailsData = ({ hat }: { hat: Partial<FormData> }): HatDetails => {
   } = hat;
 
   const detailsData = {
-    name: name || '',
+    name: name || _.get(originalHat, 'details') || '',
     description: description || '',
     guilds: guilds || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
@@ -149,7 +157,7 @@ const processNewDetailsCallForHat = async ({
   returnData,
 }: ProcessCallForHatProps): Promise<ProcessCallForHatReturnProps> => {
   const { calls } = returnData;
-  let newHatChanges = {} as any;
+  let newHatChanges = {} as Partial<Hat>;
   const { id, imageUrl } = hat;
 
   const detailsData = createDetailsData({ hat });
@@ -165,6 +173,7 @@ const processNewDetailsCallForHat = async ({
   newHatChanges = {
     ...newHat,
     id,
+    maxSupply: _.toString(newHat.maxSupply),
     admin: {
       id: getDefaultAdminId(id),
     },
@@ -261,7 +270,7 @@ const processDetailsChangeCallForHat = async ({
   } = _.get(onchainHat, 'detailsObject.data') || {};
   const newDetails: {
     [key: string]: any;
-  } = createDetailsData({ hat });
+  } = createDetailsData({ hat, originalHat: onchainHat });
 
   const combinedDetails = _.reduce(
     existingDetails,
@@ -469,7 +478,7 @@ export const processHatForCalls = async (
       hat,
       returnData: emptyReturnData,
     });
-    const wearersResult = await processWearersCallForHat({
+    const wearersResult = processWearersCallForHat({
       hatsClient,
       hat,
       returnData: newDetailsResult,
@@ -484,32 +493,32 @@ export const processHatForCalls = async (
     returnData: emptyReturnData,
     onchainHat: _.find(onchainHats, ['id', _.get(hat, 'id')]),
   });
-  const maxSupplyResult = await processMaxSupplyChangeCallForHat({
+  const maxSupplyResult = processMaxSupplyChangeCallForHat({
     hatsClient,
     hat,
     returnData: detailsResult,
   });
-  const wearersResult = await processWearersCallForHat({
+  const wearersResult = processWearersCallForHat({
     hatsClient,
     hat,
     returnData: maxSupplyResult,
   });
-  const eligibilityResult = await processEligibilityChangeCallForHat({
+  const eligibilityResult = processEligibilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: wearersResult,
   });
-  const toggleResult = await processToggleChangeCallForHat({
+  const toggleResult = processToggleChangeCallForHat({
     hatsClient,
     hat,
     returnData: eligibilityResult,
   });
-  const mutabilityResult = await processMutabilityChangeCallForHat({
+  const mutabilityResult = processMutabilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: toggleResult,
   });
-  const imageResult = await processImageChangeCallForHat({
+  const imageResult = processImageChangeCallForHat({
     hatsClient,
     hat,
     returnData: mutabilityResult,

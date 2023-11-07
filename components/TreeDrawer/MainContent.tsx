@@ -98,7 +98,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       <HStack alignItems='flex-start' justifyContent='space-between'>
         <Stack>
           <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-            {topHatDetails?.name || topHat?.name || 'No Hats'}
+            {topHatDetails?.name ||
+              topHat?.details ||
+              topHat?.name ||
+              'No Hats'}
           </Heading>
           {topHatDetails?.description && (
             <Markdown>{topHatDetails?.description}</Markdown>

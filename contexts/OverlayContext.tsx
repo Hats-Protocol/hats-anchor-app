@@ -6,6 +6,7 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -16,6 +17,7 @@ import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
+import Suspender from '@/components/atoms/Suspender';
 import TransactionHistory from '@/components/TransactionHistory';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
@@ -243,21 +245,23 @@ export const OverlayContextProvider = ({
     <OverlayContext.Provider value={returnValue}>
       {children}
 
-      <Modal
-        name='transactions'
-        title='Transactions'
-        size='xl'
-        localOverlay={{
-          modals,
-          closeModals,
-          commandPalette,
-          setCommandPalette,
-          transactions,
-          clearAllTransactions,
-        }}
-      >
-        <TransactionHistory />
-      </Modal>
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='transactions'
+          title='Transactions'
+          size='xl'
+          localOverlay={{
+            modals,
+            closeModals,
+            commandPalette,
+            setCommandPalette,
+            transactions,
+            clearAllTransactions,
+          }}
+        >
+          <TransactionHistory />
+        </Modal>
+      </Suspense>
     </OverlayContext.Provider>
   );
 };
