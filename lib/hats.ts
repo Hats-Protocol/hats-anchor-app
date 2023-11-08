@@ -15,6 +15,7 @@ import {
 } from '@/types';
 
 import { formatImageUrl, isImageUrl } from './general';
+import { ipfsUrl } from './ipfs';
 
 export const calculateNextChildId = (id: string, hatsData: Hat[]) => {
   const children = _.filter(
@@ -417,16 +418,19 @@ export const exportToCsv = (hatWearers: HatWearer[], hatName?: string) => {
 
 // Helper function for exporting tree data
 const mergeHatsWithStoredData = (
-  hats: FormData[],
+  hats: any[],
   storedData: Partial<FormData>[] | undefined,
 ) => {
   return _.map(hats, (hat) => {
     const storedHat = _.find(storedData, { id: hat.id });
-    const mergedHats = _.merge({}, hat, storedHat);
+    const mergedHat = _.merge({}, hat, storedHat);
+    const imageUri = storedHat?.imageUrl ?? (hat?.imageUri || '');
+    const imageUrl = ipfsUrl(imageUri?.slice(7));
     return {
-      ...mergedHats,
-      imageUrl: hat?.imageUrl === '/icon.jpeg' ? '' : hat?.imageUrl,
-      wearers: _.map(mergedHats.wearers, 'address') || [],
+      ...mergedHat,
+      imageUri,
+      imageUrl: hat?.imageUrl === '/icon.jpeg' ? '' : imageUrl,
+      wearers: _.map(mergedHat.wearers, 'address') || [],
     };
   });
 };
@@ -441,10 +445,10 @@ const prepareExportTree = (data: any[]): HatExport[] => {
     eligibility: hat.eligibility,
     toggle: hat.toggle,
     mutable: hat.mutable === MUTABILITY.MUTABLE,
-    imageUri: hat.imageUri,
     currentSupply: parseInt(hat.currentSupply, 10),
     wearers: hat.wearers,
     adminId: hat.adminId,
+    imageUri: hat.imageUri || '',
     imageUrl: hat.imageUrl || '',
     detailsObject: {
       type: '1.0',
@@ -536,7 +540,14 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
   };
 
   _.forEach(hatA, (value, key) => {
-    if (_.includes(['createdAt', 'currentSupply'], key)) {
+    if (_.includes(['createdAt', 'currentSupply', 'imageUrl'], key)) {
+      return;
+    }
+
+    if (key === 'imageUri') {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat.imageUrl = hatA.imageUrl;
+      }
       return;
     }
 
@@ -656,6 +667,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     wearers: extractWearers(hat.wearers),
     adminId: hat.adminId || _.get(hat, 'admin.id'),
     imageUrl: hat.imageUrl,
+    imageUri: hat.imageUri,
     name: _.get(hat, 'detailsObject.data.name'),
     description: _.get(hat, 'detailsObject.data.description'),
     responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),

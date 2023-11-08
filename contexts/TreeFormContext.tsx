@@ -342,6 +342,7 @@ export const TreeFormContextProvider = ({
   const newImageUrls = useMemo(() => {
     return results.map((result, index) => ({
       id: storedHatsWithImage[index].id,
+      newImageUri: storedHatsWithImage[index].imageUrl,
       newImageUrl: result.data,
     }));
   }, [results, storedHatsWithImage]);
@@ -370,11 +371,13 @@ export const TreeFormContextProvider = ({
   const updatedTree = useMemo(() => {
     return _.map(filteredTree, (hat) => {
       const newImageUrl = _.find(newImageUrls, ['id', hat.id])?.newImageUrl;
+      const newImageUri = _.find(newImageUrls, ['id', hat.id])?.newImageUri;
       const newName = _.find(storedData, ['id', hat.id])?.name;
       return {
         ...hat,
         newName,
         newImageUrl,
+        newImageUri,
       };
     });
   }, [filteredTree, newImageUrls, storedData]);
