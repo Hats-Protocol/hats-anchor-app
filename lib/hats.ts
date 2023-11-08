@@ -600,7 +600,7 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 };
 
 export const prepareDraftHats = (
-  importedTree: FormData[],
+  importedTree: HatExport[],
   onChainTree: FormData[],
   treeId?: Hex,
 ): Partial<FormData>[] => {
@@ -616,12 +616,12 @@ export const prepareDraftHats = (
   );
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
-    (hat: any) => hat.id !== prettyIdToId(treeId),
+    (hat: FormData) => hat.id !== prettyIdToId(treeId),
   );
   return hatsExcludingTop;
 };
 
-function patchHatIds(hats: any[], newMainID?: Hex) {
+function patchHatIds(hats: HatExport[], newMainID?: Hex) {
   if (!newMainID) return hats;
   const mainPortion = _.slice(newMainID, 0, 10).join('');
 

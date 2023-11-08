@@ -1,6 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import {
+  Box,
   Button,
+  Divider,
   Flex,
   Heading,
   HStack,
@@ -119,20 +121,20 @@ const WearersList = () => {
     address: selectedHat?.eligibility,
   });
 
-  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
-    useMultiClaimsHatterContractWrite({
-      functionName: 'setHatClaimability',
-      address: instanceAddress,
-      enabled: !!instanceAddress,
-      args: [selectedHat?.id, 1],
-    });
-
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
     currentWearerHats,
     selectedHat?.id,
     true,
   );
+
+  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
+    useMultiClaimsHatterContractWrite({
+      functionName: 'setHatClaimability',
+      address: instanceAddress,
+      enabled: !!instanceAddress && isAdminUser,
+      args: [selectedHat?.id, 1],
+    });
 
   const filteredWearers = useMemo(
     () =>
@@ -213,6 +215,14 @@ const WearersList = () => {
             setWearerToTransferFrom={setWearerToTransferFrom}
           />
         ))}
+        {_.isEmpty(filteredWearers) && (
+          <Box>
+            <Flex justify='center' h='70px' align='center'>
+              <Text>No wearers currently</Text>
+            </Flex>
+            <Divider />
+          </Box>
+        )}
 
         <Flex justify='space-between' align='center'>
           {_.gt(_.size(sortedWearers), 6) && (

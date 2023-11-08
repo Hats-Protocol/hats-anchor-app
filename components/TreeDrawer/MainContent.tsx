@@ -9,10 +9,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
