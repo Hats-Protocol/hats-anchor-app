@@ -425,6 +425,7 @@ const mergeHatsWithStoredData = (
     const mergedHats = _.merge({}, hat, storedHat);
     return {
       ...mergedHats,
+      imageUrl: hat?.imageUrl === '/icon.jpeg' ? '' : hat?.imageUrl,
       wearers: _.map(mergedHats.wearers, 'address') || [],
     };
   });
@@ -444,7 +445,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
     currentSupply: parseInt(hat.currentSupply, 10),
     wearers: hat.wearers,
     adminId: hat.adminId,
-    imageUrl: hat.imageUrl || null,
+    imageUrl: hat.imageUrl || '',
     detailsObject: {
       type: '1.0',
       data: {
@@ -454,11 +455,11 @@ const prepareExportTree = (data: any[]): HatExport[] => {
         authorities: hat.authorities,
         guilds: hat.guilds,
         eligibility: {
-          manual: hat.isEligibilityManual,
+          manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
           criteria: hat.revocationsCriteria,
         },
         toggle: {
-          manual: hat.isToggleManual,
+          manual: hat.isToggleManual === TRIGGER_OPTIONS.MANUALLY,
           criteria: hat.deactivationsCriteria,
         },
       },
@@ -638,10 +639,16 @@ export const flattenHatData = (data: any[]): FormData[] =>
     // details: hat.details,
     maxSupply: _.toString(hat.maxSupply),
     eligibility: hat.eligibility,
-    isEligibilityManual: hat.detailsObject?.data?.eligibility?.manual || false,
+    isEligibilityManual:
+      hat.detailsObject?.data?.eligibility?.manual !== false
+        ? TRIGGER_OPTIONS.MANUALLY
+        : TRIGGER_OPTIONS.AUTOMATICALLY,
     revocationsCriteria: hat.detailsObject?.data?.eligibility?.criteria || [],
     toggle: hat.toggle,
-    isToggleManual: _.get(hat, 'detailsObject.data.toggle.manual', false),
+    isToggleManual:
+      hat.detailsObject?.data?.toggle?.manual !== false
+        ? TRIGGER_OPTIONS.MANUALLY
+        : TRIGGER_OPTIONS.AUTOMATICALLY,
     deactivationsCriteria: _.get(hat, 'detailsObject.data.toggle.criteria', []),
     mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
     // imageUri: hat.imageUri,
