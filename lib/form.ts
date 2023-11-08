@@ -13,7 +13,7 @@ import {
 } from '@/types';
 
 import { createHierarchy, getDefaultAdminId } from './hats';
-import { calculateCid, ipfsUrl } from './ipfs';
+import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
 import { createHatsClient } from './web3';
 
 const hasDetailsChanged = (
@@ -449,17 +449,23 @@ const processImageChangeCallForHat = async ({
 
   if (!hatId || !imageUrl) return returnData;
 
+  const imageUri = imageUrl.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
+
+  if (!imageUri) return returnData;
+
   const changeHatImageUriData = hatsClient.changeHatImageURICallData({
     hatId: BigInt(hatId),
-    newImageURI: imageUrl,
+    newImageURI: imageUri,
   });
 
   if (!changeHatImageUriData) return returnData;
 
   const newHatChanges = {
     ...hatChanges,
-    imageUri: imageUrl,
-    imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
+    imageUri,
+    imageUrl: imageUri ? ipfsUrl(imageUri) : '/icon.jpeg',
   };
 
   return {
