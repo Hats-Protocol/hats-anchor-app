@@ -56,7 +56,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
   const toast = useToast();
-  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const localOverlay = useOverlay();
 
   const { setModals } = localOverlay;
@@ -77,7 +76,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       treeToDisplay,
       linkedHatIds,
       storedData,
-      decimalTreeId,
       chainId,
       toast,
     });

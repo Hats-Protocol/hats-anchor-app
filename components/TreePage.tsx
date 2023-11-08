@@ -13,7 +13,6 @@ import { chainsMap } from '@/lib/web3';
 
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';
-import TransactionHistory from './TransactionHistory';
 
 const EventHistory = dynamic(() => import('./EventHistory'));
 const HatDrawer = dynamic(() => import('./HatDrawer'));
