@@ -72,15 +72,23 @@ const EditMode = ({
     'eligibility',
     'toggle',
   ]);
-  const { maxSupply, eligibility, toggle, mutable, imageUrl, imageUri } =
-    _.pick(selectedOnchainHat, [
-      'maxSupply',
-      'eligibility',
-      'toggle',
-      'mutable',
-      'imageUrl',
-      'imageUri',
-    ]);
+  const {
+    maxSupply,
+    eligibility,
+    toggle,
+    mutable,
+    imageUrl,
+    imageUri,
+    details,
+  } = _.pick(selectedOnchainHat, [
+    'maxSupply',
+    'eligibility',
+    'toggle',
+    'mutable',
+    'imageUrl',
+    'imageUri',
+    'details',
+  ]);
   const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
     'extendedEligibility',
     'extendedToggle',
@@ -108,7 +116,7 @@ const EditMode = ({
           : TRIGGER_OPTIONS.AUTOMATICALLY,
       revocationsCriteria: initialEligibility?.criteria ?? [],
       deactivationsCriteria: initialToggle?.criteria ?? [],
-      name: initialName || '',
+      name: initialName && initialName !== '' ? initialName : details || '',
       description: initialDescription || '',
       authorities: initialAuthorities ?? [],
       responsibilities: initialResponsibilities ?? [],
@@ -122,6 +130,7 @@ const EditMode = ({
     toggle,
     mutable,
     imageUrl,
+    details,
     initialEligibility?.criteria,
     initialEligibility?.manual,
     initialToggle?.criteria,
@@ -146,16 +155,25 @@ const EditMode = ({
     const initialFormValues = () => {
       const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
 
-      if (matchingHat) {
+      if (
+        matchingHat &&
+        !_.isEmpty(_.remove(_.keys(matchingHat), (key) => key === 'id'))
+      ) {
         formValues = {
           ...defaultFormValues,
           ...matchingHat,
-        } as any;
+        };
+        console.log('reset for plaintext details');
+        // reset default values for plaintext details
+        reset(defaultFormValues);
 
+        console.log('reset for stored data values');
+        // reset with stored data values
         reset(formValues, { keepDefaultValues: true });
         return;
       }
 
+      console.log('reset without stored data values');
       reset(formValues);
     };
 
@@ -310,6 +328,7 @@ const EditMode = ({
                   BigInt(selectedHat?.id),
                 )} to this tree`
               : selectedHat?.detailsObject?.data?.name ||
+                selectedHat?.details ||
                 (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
         </Text>
         <Text>All changes are local until you deploy to chain.</Text>

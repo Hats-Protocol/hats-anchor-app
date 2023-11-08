@@ -3,6 +3,7 @@ import {
   Flex,
   HStack,
   Icon,
+  IconButton,
   Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
@@ -42,6 +43,7 @@ const TopMenu = () => {
     treeDisclosure,
     resetTree,
     setSelectedOption,
+    selectedHat,
   } = useTreeForm();
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
@@ -133,13 +135,24 @@ const TopMenu = () => {
         >
           Cancel
         </Button>
-        <Button
-          variant='outline'
-          onClick={onCloseTreeDrawer}
-          rightIcon={<Icon as={BsChevronDoubleRight} />}
-        >
-          Close
-        </Button>
+        {chainId === selectedHat?.chainId ? (
+          <Button
+            variant='outline'
+            onClick={onCloseTreeDrawer}
+            rightIcon={<Icon as={BsChevronDoubleRight} />}
+          >
+            Close
+          </Button>
+        ) : (
+          <Tooltip label='Close'>
+            <IconButton
+              variant='outline'
+              onClick={onCloseTreeDrawer}
+              aria-label='Close'
+              icon={<Icon as={BsChevronDoubleRight} />}
+            />
+          </Tooltip>
+        )}
       </HStack>
       <HStack>
         <NetworkSwitcher />

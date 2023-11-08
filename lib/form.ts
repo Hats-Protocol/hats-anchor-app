@@ -4,9 +4,15 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
-import { FormData, FormDataDetails, Hat, HatDetails } from '@/types';
+import {
+  FormData,
+  FormDataDetails,
+  Hat,
+  HatDetails,
+  InputObject,
+} from '@/types';
 
-import { getDefaultAdminId } from './hats';
+import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl } from './ipfs';
 import { createHatsClient } from './web3';
 
@@ -27,6 +33,7 @@ const hasDetailsChanged = (
     deactivationsCriteria,
   } = currentHat;
 
+  const namePlainText = !_.startsWith(_.get(originalHat, 'details'), 'ipfs://');
   const hasGuildsChanged =
     _.gt(_.size(guilds), 0) ||
     _.size(guilds) !== _.size(originalHatDetails?.guilds);
@@ -46,19 +53,26 @@ const hasDetailsChanged = (
       _.size(originalHatDetails?.toggle?.criteria);
 
   return (
-    name ||
-    description ||
-    hasGuildsChanged ||
-    hasResponsibilitiesChanged ||
-    hasAuthoritiesChanged ||
-    isEligibilityManual ||
-    hasRevocationsCriteriaChanged ||
-    isToggleManual ||
-    hasDeactivationsCriteriaChanged
+    !!name ||
+    !!namePlainText ||
+    !!description ||
+    !!hasGuildsChanged ||
+    !!hasResponsibilitiesChanged ||
+    !!hasAuthoritiesChanged ||
+    !!isEligibilityManual ||
+    !!hasRevocationsCriteriaChanged ||
+    !!isToggleManual ||
+    !!hasDeactivationsCriteriaChanged
   );
 };
 
-const createDetailsData = ({ hat }: { hat: Partial<FormData> }): HatDetails => {
+const createDetailsData = ({
+  hat,
+  originalHat,
+}: {
+  hat: Partial<FormData>;
+  originalHat?: Hat;
+}): HatDetails => {
   const {
     isEligibilityManual,
     isToggleManual,
@@ -72,7 +86,7 @@ const createDetailsData = ({ hat }: { hat: Partial<FormData> }): HatDetails => {
   } = hat;
 
   const detailsData = {
-    name: name || '',
+    name: name || _.get(originalHat, 'details') || '',
     description: description || '',
     guilds: guilds || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
@@ -149,7 +163,7 @@ const processNewDetailsCallForHat = async ({
   returnData,
 }: ProcessCallForHatProps): Promise<ProcessCallForHatReturnProps> => {
   const { calls } = returnData;
-  let newHatChanges = {} as any;
+  let newHatChanges = {} as Partial<Hat>;
   const { id, imageUrl } = hat;
 
   const detailsData = createDetailsData({ hat });
@@ -165,6 +179,7 @@ const processNewDetailsCallForHat = async ({
   newHatChanges = {
     ...newHat,
     id,
+    maxSupply: _.toString(newHat.maxSupply),
     admin: {
       id: getDefaultAdminId(id),
     },
@@ -261,7 +276,7 @@ const processDetailsChangeCallForHat = async ({
   } = _.get(onchainHat, 'detailsObject.data') || {};
   const newDetails: {
     [key: string]: any;
-  } = createDetailsData({ hat });
+  } = createDetailsData({ hat, originalHat: onchainHat });
 
   const combinedDetails = _.reduce(
     existingDetails,
@@ -469,7 +484,7 @@ export const processHatForCalls = async (
       hat,
       returnData: emptyReturnData,
     });
-    const wearersResult = await processWearersCallForHat({
+    const wearersResult = processWearersCallForHat({
       hatsClient,
       hat,
       returnData: newDetailsResult,
@@ -484,36 +499,90 @@ export const processHatForCalls = async (
     returnData: emptyReturnData,
     onchainHat: _.find(onchainHats, ['id', _.get(hat, 'id')]),
   });
-  const maxSupplyResult = await processMaxSupplyChangeCallForHat({
+  const maxSupplyResult = processMaxSupplyChangeCallForHat({
     hatsClient,
     hat,
     returnData: detailsResult,
   });
-  const wearersResult = await processWearersCallForHat({
+  const wearersResult = processWearersCallForHat({
     hatsClient,
     hat,
     returnData: maxSupplyResult,
   });
-  const eligibilityResult = await processEligibilityChangeCallForHat({
+  const eligibilityResult = processEligibilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: wearersResult,
   });
-  const toggleResult = await processToggleChangeCallForHat({
+  const toggleResult = processToggleChangeCallForHat({
     hatsClient,
     hat,
     returnData: eligibilityResult,
   });
-  const mutabilityResult = await processMutabilityChangeCallForHat({
+  const mutabilityResult = processMutabilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: toggleResult,
   });
-  const imageResult = await processImageChangeCallForHat({
+  const imageResult = processImageChangeCallForHat({
     hatsClient,
     hat,
     returnData: mutabilityResult,
   });
 
   return imageResult;
+};
+
+export const removeAndHandleSiblings = (
+  storedData: Partial<FormData>[],
+  hatId: Hex,
+) => {
+  const storedHat = _.find(storedData, ['id', hatId]);
+  const hierarchy = createHierarchy(
+    storedData as unknown as InputObject[],
+    hatId,
+  );
+
+  const noEmptyChanges = _.reject(storedData, (d) =>
+    _.isEmpty(_.reject(_.keys(d), (k) => k === 'id')),
+  );
+
+  const newSiblings = _.filter(noEmptyChanges, [
+    'parentId',
+    storedHat?.parentId,
+  ]);
+
+  const updateSiblings = _.map(newSiblings, (child, i) => {
+    const childId = child.id;
+    if (i === newSiblings.length - 1 || !childId) return undefined;
+
+    const isLeftSib = _.includes(_.get(hierarchy, 'leftSiblings'), childId);
+    if (isLeftSib) return child;
+
+    return { ...newSiblings[i + 1], id: childId };
+  });
+
+  const filterSiblings = _.reject(storedData, (child) =>
+    _.includes(_.map(newSiblings, 'id'), child.id),
+  );
+
+  return _.concat(filterSiblings, _.compact(updateSiblings));
+};
+
+export const removeAndHandleSiblingsOrgChart = (hats: Hat[], hatId: Hex) => {
+  const orgChartHat = _.find(hats, ['id', hatId]);
+  const newSiblings = _.filter(hats, ['parentId', orgChartHat?.parentId]);
+
+  const updateSiblings = _.map(newSiblings, (child, i) => {
+    if (i + 1 === newSiblings.length) return undefined;
+
+    // TODO do we need to handle left siblings here?
+    return { ...newSiblings[i + 1], id: child.id };
+  });
+
+  const filterSiblings = _.reject(hats, (child) =>
+    _.includes(_.concat(_.map(newSiblings, 'id'), [orgChartHat?.id]), child.id),
+  );
+
+  return _.concat(filterSiblings, _.compact(updateSiblings));
 };

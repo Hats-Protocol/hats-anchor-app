@@ -37,6 +37,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         rightElement={showResolvedAddress && <FaCheck color='green' />}
         localForm={localForm}
         isDisabled={isDisabled}
+        addressButtons
       />
       {showResolvedAddress && (
         <Text fontSize='sm' color='gray.500' mt={1}>

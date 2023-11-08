@@ -19,6 +19,7 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatDetails from '@/hooks/useHatDetails';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
+import useIsAdmin from '@/hooks/useIsAdmin';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { formatAddress } from '@/lib/general';
 import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
@@ -38,6 +39,8 @@ const PermissionlessClaimingForm = ({
 
   const { multiClaimsHatter, instanceAddress, claimableHats } =
     useMultiClaimsHatterCheck();
+
+  const isAdmin = useIsAdmin(instanceAddress, selectedHat?.id);
 
   const isClaimable = _.includes(claimableHats, selectedHat?.id);
   const { data: wearingHatDetails } = useHatDetails({
@@ -97,7 +100,8 @@ const PermissionlessClaimingForm = ({
           />
 
           {multiClaimsHatter &&
-            isClaimable &&
+            !isClaimable &&
+            isAdmin &&
             isPermissionlesslyClaimable === 'Yes' && (
               <FormRowWrapper>
                 <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
@@ -123,7 +127,8 @@ const PermissionlessClaimingForm = ({
       )}
 
       {isPermissionlesslyClaimable === 'Yes' &&
-        (!multiClaimsHatter || (multiClaimsHatter && !isClaimable)) && (
+        (!multiClaimsHatter ||
+          (multiClaimsHatter && !isClaimable && !isAdmin)) && (
           <Stack ref={scrollTargetRef}>
             <FormRowWrapper>
               <Icon as={BsPuzzle} boxSize={4} mt='2px' />

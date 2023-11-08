@@ -11,7 +11,7 @@ import { Transaction } from '@/types';
 const TransactionHistory = ({ count }: { count?: number }) => {
   const { transactions } = useOverlay();
 
-  let events = [] as Transaction[];
+  let events = transactions;
 
   if (count) {
     events = _.take(transactions, count);

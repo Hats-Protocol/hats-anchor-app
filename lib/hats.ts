@@ -54,8 +54,10 @@ export function createHierarchy(
   const currentHatIndex = _.findIndex(sortedSiblings, { id: currentHat.id });
   const leftSiblings = _.slice(sortedSiblings, 0, currentHatIndex);
   const rightSiblings = _.slice(sortedSiblings, currentHatIndex + 1);
-  currentHierarchy.leftSibling = _.last(leftSiblings)?.id as Hex;
-  currentHierarchy.rightSibling = _.first(rightSiblings)?.id as Hex;
+  currentHierarchy.leftSiblings = _.map(leftSiblings, 'id');
+  currentHierarchy.rightSiblings = _.map(rightSiblings, 'id');
+  currentHierarchy.leftSibling = _.get(_.last(leftSiblings), 'id') as Hex;
+  currentHierarchy.rightSibling = _.get(_.first(rightSiblings), 'id') as Hex;
 
   const children = _.sortBy(
     _.filter(

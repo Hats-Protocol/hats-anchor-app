@@ -19,11 +19,13 @@ export type Hierarchy = {
   firstChild?: Hex;
   leftSibling?: Hex;
   rightSibling?: Hex;
+  leftSiblings?: Hex[];
+  rightSiblings?: Hex[];
 };
 
 export type InputObject = {
-  id: string;
-  parentId: string | undefined;
+  id: Hex;
+  parentId: Hex | undefined;
 };
 
 export interface Controls {

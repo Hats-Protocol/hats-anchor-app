@@ -98,7 +98,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       <HStack alignItems='flex-start' justifyContent='space-between'>
         <Stack>
           <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-            {topHatDetails?.name || topHat?.name || 'No Hats'}
+            {topHatDetails?.name ||
+              topHat?.details ||
+              topHat?.name ||
+              'No Hats'}
           </Heading>
           {topHatDetails?.description && (
             <Markdown>{topHatDetails?.description}</Markdown>
@@ -205,15 +208,23 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 <HStack>
                   <Text>{hatId}</Text>
                   {displayName && (
-                    <Text maxW={hat.mutable ? '300px' : '200px'} isTruncated>
+                    <Text
+                      maxW={hat.mutable && !changes ? '300px' : '160px'}
+                      isTruncated
+                    >
                       {displayName}
                     </Text>
                   )}
                 </HStack>
                 <HStack>
                   {draft ? (
-                    <Badge colorScheme='green' fontSize='sm' variant='outline'>
-                      NEW!
+                    <Badge
+                      colorScheme='green'
+                      fontSize='sm'
+                      variant={isAdmin ? 'solid' : 'outline'}
+                      textTransform='uppercase'
+                    >
+                      {isAdmin ? 'Deployable Draft' : 'New!'}
                     </Badge>
                   ) : (
                     changes && (
@@ -221,9 +232,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                         colorScheme={isAdmin ? 'blue' : 'cyan'}
                         fontSize='sm'
                         variant={isAdmin ? 'solid' : 'outline'}
+                        textTransform='uppercase'
                       >
                         {changes}
-                        {isAdmin ? ' DEPLOYABLE EDIT' : ' CHANGE'}
+                        {isAdmin ? ' Deployable Edit' : ' Change'}
                         {_.gt(changes, 1) ? 'S' : ''}
                       </Badge>
                     )

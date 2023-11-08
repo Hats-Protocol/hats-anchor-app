@@ -24,6 +24,10 @@ import useManyHatsDetailsField from '@/hooks/useManyHatsDetailsField';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
+import {
+  removeAndHandleSiblings,
+  removeAndHandleSiblingsOrgChart,
+} from '@/lib/form';
 import { generateLocalStorageKey, mapWithChainId } from '@/lib/general';
 import {
   checkImageForHat,
@@ -487,12 +491,14 @@ export const TreeFormContextProvider = ({
       setStoredData((prev) => {
         const tempData = _.cloneDeep(prev);
         if (!tempData) return [];
-        return _.reject(tempData, ['id', hatId]);
+        const result = removeAndHandleSiblings(tempData, hatId);
+        return result;
       });
       setOrgChartHats((prev) => {
         const tempHats = _.cloneDeep(prev);
         if (!tempHats) return [];
-        return _.reject(tempHats, ['id', hatId]);
+        const result = removeAndHandleSiblingsOrgChart(tempHats, hatId);
+        return result;
       });
       onOpenTreeDrawer();
       onCloseHatDrawer();
