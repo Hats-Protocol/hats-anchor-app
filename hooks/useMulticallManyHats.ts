@@ -157,6 +157,7 @@ const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
 
       await handlePendingTx?.({
         hash: data.hash,
+        txChainId: chainId,
         fnName: 'Multicall',
         toastData: {
           title: 'Transaction successful',

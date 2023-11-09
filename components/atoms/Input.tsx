@@ -2,6 +2,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
+  Button,
+  Flex,
   FormControl,
   FormLabel,
   HStack,
@@ -19,6 +21,9 @@ import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
+import { useAccount } from 'wagmi';
+
+import { FALLBACK_ADDRESS } from '@/constants';
 
 /**
  * Primary Input component for React Hook Form
@@ -43,8 +48,11 @@ const Input = ({
   rightElement,
   isDisabled,
   resetValue,
+  addressButtons,
   ...props
 }: InputProps) => {
+  const { address } = useAccount();
+
   if (!localForm) return null;
   const {
     register,
@@ -68,6 +76,14 @@ const Input = ({
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
   const isError = !!getErrorMessage();
+
+  const resetFallback = () => {
+    setValue(name, FALLBACK_ADDRESS, { shouldDirty: true });
+  };
+
+  const resetMe = () => {
+    setValue(name, address, { shouldDirty: true });
+  };
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
@@ -95,6 +111,29 @@ const Input = ({
           )}
         </Box>
         {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
+        {addressButtons && (
+          <Flex justify='flex-end'>
+            <HStack>
+              <Button
+                size='xs'
+                variant='outline'
+                colorScheme='blue.500'
+                onClick={resetFallback}
+              >
+                Reset
+              </Button>
+              <Button
+                size='xs'
+                variant='outline'
+                colorScheme='blue.500'
+                onClick={resetMe}
+              >
+                Me
+              </Button>
+            </HStack>
+          </Flex>
+        )}
+
         <InputGroup {...props}>
           <ChakraInput
             type={type}
@@ -143,4 +182,5 @@ interface InputProps extends ChakraInputProps {
   defaultValue?: string | number;
   isDisabled?: boolean;
   resetValue?: string | number;
+  addressButtons?: boolean;
 }

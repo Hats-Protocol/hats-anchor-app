@@ -112,6 +112,11 @@ export const handleDetailsPin = async ({
 export const ipfsUrl = (hash: string) =>
   `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
 
+export const urlToIpfsUri = (url: string) => {
+  const match = url.match(/ipfs\/([a-zA-Z0-9]+)/);
+  return match ? `ipfs://${match[1]}` : null;
+};
+
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
   const url = ipfsUrl(detailsField?.slice(7));

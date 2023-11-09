@@ -9,10 +9,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
@@ -26,11 +23,9 @@ import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useIsClient from '@/hooks/useIsClient';
 import useToast from '@/hooks/useToast';
 import {
-  flattenHatData,
   getProposedChangesCount,
+  handleExportBranch,
   isTopHatOrMutable,
-  mergeHatsWithStoredData,
-  prepareExportTree,
   prettyIdToId,
 } from '@/lib/hats';
 import { Hat } from '@/types';
@@ -58,7 +53,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
   const toast = useToast();
-  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const localOverlay = useOverlay();
 
   const { setModals } = localOverlay;
@@ -73,39 +67,15 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats(hatIds);
 
-  const handleExport = () => {
-    if (!treeToDisplay) return;
-    const hatsWithoutLinkedHats = _.filter(
+  const handleExport = () =>
+    handleExportBranch({
+      targetHatId: prettyIdToId(treeId),
       treeToDisplay,
-      (hat) => hat.id && !linkedHatIds?.includes(hat.id),
-    );
-    // if the top hat is linked, we need to set its admin id to itself
-    const topHatId = prettyIdToId(treeId);
-    const targetHat = _.find(hatsWithoutLinkedHats, { id: topHatId });
-    if (
-      targetHat &&
-      targetHat.admin?.id &&
-      linkedHatIds?.includes(targetHat.admin?.id)
-    ) {
-      targetHat.admin.id = topHatId;
-    }
-    const onChainHats = flattenHatData(hatsWithoutLinkedHats);
-    const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
-    const preparedTree = prepareExportTree(mergedHats);
-    const fileData = JSON.stringify(preparedTree);
-
-    const blob = new Blob([fileData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    // TODO add unix timestamp so don't get (1) on subsequent downloads
-    // update file name validation also, based on this ^
-    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
-    link.href = url;
-    link.click();
-    toast.success({
-      title: `Exported tree #${decimalTreeId} to your desktop`,
+      linkedHatIds,
+      storedData,
+      chainId,
+      toast,
     });
-  };
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -123,7 +93,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       <HStack alignItems='flex-start' justifyContent='space-between'>
         <Stack>
           <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-            {topHatDetails?.name || topHat?.name || 'No Hats'}
+            {topHatDetails?.name ||
+              topHat?.details ||
+              topHat?.name ||
+              'No Hats'}
           </Heading>
           {topHatDetails?.description && (
             <Markdown>{topHatDetails?.description}</Markdown>
@@ -191,7 +164,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         {_.map(treeToDisplay, (hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
-          // console.log('storedData', storedData);
 
           const handleHatClick = () => {
             onCloseTreeDrawer?.();
@@ -231,15 +203,23 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 <HStack>
                   <Text>{hatId}</Text>
                   {displayName && (
-                    <Text maxW={hat.mutable ? '300px' : '200px'} isTruncated>
+                    <Text
+                      maxW={hat.mutable && !changes ? '300px' : '160px'}
+                      isTruncated
+                    >
                       {displayName}
                     </Text>
                   )}
                 </HStack>
                 <HStack>
                   {draft ? (
-                    <Badge colorScheme='green' fontSize='sm' variant='outline'>
-                      NEW!
+                    <Badge
+                      colorScheme='green'
+                      fontSize='sm'
+                      variant={isAdmin ? 'solid' : 'outline'}
+                      textTransform='uppercase'
+                    >
+                      {isAdmin ? 'Deployable Draft' : 'New!'}
                     </Badge>
                   ) : (
                     changes && (
@@ -247,9 +227,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                         colorScheme={isAdmin ? 'blue' : 'cyan'}
                         fontSize='sm'
                         variant={isAdmin ? 'solid' : 'outline'}
+                        textTransform='uppercase'
                       >
                         {changes}
-                        {isAdmin ? ' DEPLOYABLE EDIT' : ' CHANGE'}
+                        {isAdmin ? ' Deployable Edit' : ' Change'}
                         {_.gt(changes, 1) ? 'S' : ''}
                       </Badge>
                     )

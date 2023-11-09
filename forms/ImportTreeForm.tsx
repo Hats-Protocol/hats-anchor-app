@@ -16,6 +16,7 @@ import DropZone from '@/components/atoms/DropZone';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { flattenHatData, prepareDraftHats } from '@/lib/hats';
+import { HatExport } from '@/types';
 
 interface validateTreeImportProps {
   file: File;
@@ -39,6 +40,7 @@ const validateTreeImport = ({
   if (fileTreeId?.includes('.')) {
     fileTreeId = _.first(_.split(fileTreeId, '.'));
   }
+  console.log('fileTreeId', fileTreeId);
   return null;
 };
 
@@ -82,9 +84,13 @@ const ImportTreeForm = () => {
       const importedTree = flattenHatData(treeFromJson);
       if (!onchainHatsWithDetails) return;
       const onChainTree = flattenHatData(onchainHatsWithDetails);
-      const draftHats = prepareDraftHats(importedTree, onChainTree, treeId);
+      const draftHats = prepareDraftHats(
+        // TODO prepareDraftHats is expecting HatExport[], flattenHatData returns FormData[]
+        importedTree as unknown as HatExport[],
+        onChainTree,
+        treeId,
+      );
 
-      // return;
       importHats?.(draftHats);
       setModals?.({});
     };

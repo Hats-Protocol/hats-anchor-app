@@ -15,6 +15,7 @@ import {
 } from '@/types';
 
 import { formatImageUrl, isImageUrl } from './general';
+import { ipfsUrl } from './ipfs';
 
 export const calculateNextChildId = (id: string, hatsData: Hat[]) => {
   const children = _.filter(
@@ -54,8 +55,10 @@ export function createHierarchy(
   const currentHatIndex = _.findIndex(sortedSiblings, { id: currentHat.id });
   const leftSiblings = _.slice(sortedSiblings, 0, currentHatIndex);
   const rightSiblings = _.slice(sortedSiblings, currentHatIndex + 1);
-  currentHierarchy.leftSibling = _.last(leftSiblings)?.id as Hex;
-  currentHierarchy.rightSibling = _.first(rightSiblings)?.id as Hex;
+  currentHierarchy.leftSiblings = _.map(leftSiblings, 'id');
+  currentHierarchy.rightSiblings = _.map(rightSiblings, 'id');
+  currentHierarchy.leftSibling = _.get(_.last(leftSiblings), 'id') as Hex;
+  currentHierarchy.rightSibling = _.get(_.first(rightSiblings), 'id') as Hex;
 
   const children = _.sortBy(
     _.filter(
@@ -357,6 +360,29 @@ export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hex[] => {
   return parents;
 };
 
+export const getAllDescendants = (hatId: Hex, tree: Hat[]): Hat[] => {
+  const children = _.filter(tree, (hat) => hat.parentId === hatId);
+
+  const descendants = _.reduce(
+    children,
+    (acc, child) => {
+      return _.concat(acc, child, getAllDescendants(child.id, tree));
+    },
+    [] as Hat[],
+  );
+
+  return descendants;
+};
+
+export const getBranch = (hatId: Hex, tree: Hat[]): Hat[] => {
+  const targetHat = _.find(tree, { id: hatId });
+  if (!targetHat) return [];
+
+  const descendants = getAllDescendants(hatId, tree);
+
+  return [targetHat, ...descendants];
+};
+
 export const checkImageForHat = async (img?: string) => {
   const isValidImage = await isImageUrl(formatImageUrl(img));
 
@@ -391,21 +417,25 @@ export const exportToCsv = (hatWearers: HatWearer[], hatName?: string) => {
 };
 
 // Helper function for exporting tree data
-export const mergeHatsWithStoredData = (
-  hats: FormData[],
+const mergeHatsWithStoredData = (
+  hats: any[],
   storedData: Partial<FormData>[] | undefined,
 ) => {
   return _.map(hats, (hat) => {
     const storedHat = _.find(storedData, { id: hat.id });
-    const mergedHats = _.merge({}, hat, storedHat);
+    const mergedHat = _.merge({}, hat, storedHat);
+    const imageUri = storedHat?.imageUrl ?? (hat?.imageUri || '');
+    const imageUrl = ipfsUrl(imageUri?.slice(7));
     return {
-      ...mergedHats,
-      wearers: _.map(mergedHats.wearers, 'address') || [],
+      ...mergedHat,
+      imageUri,
+      imageUrl: hat?.imageUrl === '/icon.jpeg' ? '' : imageUrl,
+      wearers: _.map(mergedHat.wearers, 'address') || [],
     };
   });
 };
 
-export const prepareExportTree = (data: any[]): HatExport[] => {
+const prepareExportTree = (data: any[]): HatExport[] => {
   return _.map(data, (hat) => ({
     id: hat.id,
     status: hat.status,
@@ -415,11 +445,11 @@ export const prepareExportTree = (data: any[]): HatExport[] => {
     eligibility: hat.eligibility,
     toggle: hat.toggle,
     mutable: hat.mutable === MUTABILITY.MUTABLE,
-    imageUri: hat.imageUri,
     currentSupply: parseInt(hat.currentSupply, 10),
     wearers: hat.wearers,
     adminId: hat.adminId,
-    imageUrl: hat.imageUrl || null,
+    imageUri: hat.imageUri || '',
+    imageUrl: hat.imageUrl || '',
     detailsObject: {
       type: '1.0',
       data: {
@@ -429,16 +459,75 @@ export const prepareExportTree = (data: any[]): HatExport[] => {
         authorities: hat.authorities,
         guilds: hat.guilds,
         eligibility: {
-          manual: hat.isEligibilityManual,
+          manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
           criteria: hat.revocationsCriteria,
         },
         toggle: {
-          manual: hat.isToggleManual,
+          manual: hat.isToggleManual === TRIGGER_OPTIONS.MANUALLY,
           criteria: hat.deactivationsCriteria,
         },
       },
     },
   }));
+};
+
+export const handleExportBranch = ({
+  targetHatId,
+  treeToDisplay,
+  linkedHatIds,
+  storedData,
+  chainId,
+  toast,
+}: {
+  targetHatId?: Hex;
+  treeToDisplay?: Hat[];
+  linkedHatIds?: Hex[];
+  storedData?: Partial<FormData>[];
+  decimalTreeId?: number;
+  chainId?: number;
+  toast: any;
+}) => {
+  if (
+    !targetHatId ||
+    !treeToDisplay ||
+    !linkedHatIds ||
+    !storedData ||
+    !chainId
+  )
+    return;
+  const branch = getBranch(targetHatId, treeToDisplay);
+  const hatsWithoutLinkedHats = _.filter(
+    branch,
+    (hat) => hat.id && !linkedHatIds?.includes(hat.id),
+  );
+  const targetHatInBranch = _.find(hatsWithoutLinkedHats, {
+    id: targetHatId,
+  });
+  if (
+    linkedHatIds?.includes(targetHatId) &&
+    targetHatInBranch &&
+    targetHatInBranch.admin
+  ) {
+    targetHatInBranch.admin.id = targetHatId;
+  }
+  const targetHat = _.find(treeToDisplay, { id: targetHatId });
+  const type = isTopHat(targetHat) ? 'tree' : 'branch';
+
+  const onChainHats = flattenHatData(hatsWithoutLinkedHats);
+  const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
+  const preparedTree = prepareExportTree(mergedHats);
+  const fileData = JSON.stringify(preparedTree);
+  const hatId = hatIdDecimalToIp(BigInt(targetHatId));
+
+  const blob = new Blob([fileData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `chain-${chainId}-${type}-${hatId}.json`; // Change filename to denote branch
+  link.href = url;
+  link.click();
+  toast.success({
+    title: `Exported ${type} #${hatId} to your desktop`,
+  });
 };
 
 // Helper functions for importing tree data
@@ -452,7 +541,14 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
   };
 
   _.forEach(hatA, (value, key) => {
-    if (_.includes(['createdAt', 'currentSupply'], key)) {
+    if (_.includes(['createdAt', 'currentSupply', 'imageUrl'], key)) {
+      return;
+    }
+
+    if (key === 'imageUri') {
+      if (!_.isEqual(String(value), String(hatB[key]))) {
+        diffHat.imageUrl = hatA.imageUrl;
+      }
       return;
     }
 
@@ -504,7 +600,7 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 };
 
 export const prepareDraftHats = (
-  importedTree: FormData[],
+  importedTree: HatExport[],
   onChainTree: FormData[],
   treeId?: Hex,
 ): Partial<FormData>[] => {
@@ -520,12 +616,12 @@ export const prepareDraftHats = (
   );
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
-    (hat: any) => hat.id !== prettyIdToId(treeId),
+    (hat: FormData) => hat.id !== prettyIdToId(treeId),
   );
   return hatsExcludingTop;
 };
 
-function patchHatIds(hats: any[], newMainID?: Hex) {
+function patchHatIds(hats: HatExport[], newMainID?: Hex) {
   if (!newMainID) return hats;
   const mainPortion = _.slice(newMainID, 0, 10).join('');
 
@@ -555,10 +651,16 @@ export const flattenHatData = (data: any[]): FormData[] =>
     // details: hat.details,
     maxSupply: _.toString(hat.maxSupply),
     eligibility: hat.eligibility,
-    isEligibilityManual: hat.detailsObject?.data?.eligibility?.manual || false,
+    isEligibilityManual:
+      hat.detailsObject?.data?.eligibility?.manual !== false
+        ? TRIGGER_OPTIONS.MANUALLY
+        : TRIGGER_OPTIONS.AUTOMATICALLY,
     revocationsCriteria: hat.detailsObject?.data?.eligibility?.criteria || [],
     toggle: hat.toggle,
-    isToggleManual: _.get(hat, 'detailsObject.data.toggle.manual', false),
+    isToggleManual:
+      hat.detailsObject?.data?.toggle?.manual !== false
+        ? TRIGGER_OPTIONS.MANUALLY
+        : TRIGGER_OPTIONS.AUTOMATICALLY,
     deactivationsCriteria: _.get(hat, 'detailsObject.data.toggle.criteria', []),
     mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
     // imageUri: hat.imageUri,
@@ -566,6 +668,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     wearers: extractWearers(hat.wearers),
     adminId: hat.adminId || _.get(hat, 'admin.id'),
     imageUrl: hat.imageUrl,
+    imageUri: hat.imageUri,
     name: _.get(hat, 'detailsObject.data.name'),
     description: _.get(hat, 'detailsObject.data.description'),
     responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),

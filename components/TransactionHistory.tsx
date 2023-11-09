@@ -5,15 +5,13 @@ import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
 import { explorerUrl } from '@/lib/web3';
 import { Transaction } from '@/types';
 
 const TransactionHistory = ({ count }: { count?: number }) => {
-  const { chainId } = useTreeForm();
   const { transactions } = useOverlay();
 
-  let events = [] as Transaction[];
+  let events = transactions;
 
   if (count) {
     events = _.take(transactions, count);
@@ -42,37 +40,42 @@ const TransactionHistory = ({ count }: { count?: number }) => {
 
   return (
     <Box>
-      {_.map(events, ({ hash, status, timestamp, fnName }: Transaction) => (
-        <ChakraNextLink
-          isExternal
-          href={`${chainId && explorerUrl(chainId)}/tx/${hash}`}
-          display='block'
-          key={hash}
-        >
-          <HStack
+      {_.map(
+        events,
+        ({ hash, txChainId, status, timestamp, fnName }: Transaction) => (
+          <ChakraNextLink
+            isExternal
+            href={
+              txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'
+            }
+            display='block'
             key={hash}
-            align='center'
-            justify='space-between'
-            py={2}
-            spacing={4}
           >
-            <HStack>
-              {status === 'pending' ? (
-                <Spinner color='blue.500' size='xs' />
-              ) : (
-                <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
-              )}
-              <Text>{fnName}</Text>
-            </HStack>
+            <HStack
+              key={hash}
+              align='center'
+              justify='space-between'
+              py={2}
+              spacing={4}
+            >
+              <HStack>
+                {status === 'pending' ? (
+                  <Spinner color='blue.500' size='xs' />
+                ) : (
+                  <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
+                )}
+                <Text>{fnName}</Text>
+              </HStack>
 
-            <HStack>
-              <Text>{`(${abbreviateHash(hash)})`}</Text>
-              <Text>{formatDistanceToNow(new Date(timestamp))} ago</Text>
-              <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+              <HStack>
+                <Text>{`(${abbreviateHash(hash)})`}</Text>
+                <Text>{formatDistanceToNow(new Date(timestamp))} ago</Text>
+                <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+              </HStack>
             </HStack>
-          </HStack>
-        </ChakraNextLink>
-      ))}
+          </ChakraNextLink>
+        ),
+      )}
     </Box>
   );
 };

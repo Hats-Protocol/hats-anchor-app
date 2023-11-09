@@ -13,6 +13,15 @@ const Button = {
       color: props.color || 'gray.700',
       borderColor: props.borderColor || props.colorScheme || 'gray.700',
     }),
+    outlineMatch: (props: StyleFunctionProps) => ({
+      color: props.color || props.colorScheme || 'gray.700',
+      borderColor: props.borderColor || props.colorScheme || 'gray.700',
+      _hover: {
+        background: props.background || props.bg || 'whiteAlpha.900',
+        color: props.color || props.colorScheme || 'gray.700',
+        borderColor: props.borderColor || props.colorScheme || 'gray.700',
+      },
+    }),
   },
 };
 

@@ -196,11 +196,11 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
                       History
                     </Heading>
                     <Button
-                      size='sm'
+                      size='xs'
                       variant='ghost'
                       colorScheme='blue'
                       onClick={clearAllTransactions}
-                      mr={4}
+                      mr={6}
                       isDisabled={_.isEmpty(transactions)}
                     >
                       Clear

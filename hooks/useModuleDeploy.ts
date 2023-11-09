@@ -1,3 +1,4 @@
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
@@ -47,9 +48,11 @@ const useModuleDeploy = ({
   const incrementWearers = values?.incrementWearers;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
   const claimsHatterModule = modules?.[MULTI_CLAIMS_HATTER_ID];
-  const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
-    selectedHat?.detailsObject?.data?.name
-  })`;
+  const hatTitle =
+    selectedHat?.id &&
+    `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${
+      selectedHat?.detailsObject?.data?.name
+    })`;
 
   const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck();
 

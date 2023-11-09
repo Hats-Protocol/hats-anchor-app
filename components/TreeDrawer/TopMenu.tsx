@@ -3,6 +3,7 @@ import {
   Flex,
   HStack,
   Icon,
+  IconButton,
   Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
@@ -15,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { BsXSquare } from 'react-icons/bs';
+import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
@@ -42,6 +43,7 @@ const TopMenu = () => {
     treeDisclosure,
     resetTree,
     setSelectedOption,
+    selectedHat,
   } = useTreeForm();
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
@@ -125,14 +127,33 @@ const TopMenu = () => {
       top={0}
       zIndex={16}
     >
-      <Button
-        variant='outline'
-        colorScheme='gray'
-        onClick={promptForReset}
-        leftIcon={<Icon as={BsXSquare} />}
-      >
-        Cancel
-      </Button>
+      <HStack>
+        <Button
+          variant='outline'
+          onClick={promptForReset}
+          leftIcon={<Icon as={BsXSquare} />}
+        >
+          Cancel
+        </Button>
+        {chainId === selectedHat?.chainId ? (
+          <Button
+            variant='outline'
+            onClick={onCloseTreeDrawer}
+            rightIcon={<Icon as={BsChevronDoubleRight} />}
+          >
+            Close
+          </Button>
+        ) : (
+          <Tooltip label='Close'>
+            <IconButton
+              variant='outline'
+              onClick={onCloseTreeDrawer}
+              aria-label='Close'
+              icon={<Icon as={BsChevronDoubleRight} />}
+            />
+          </Tooltip>
+        )}
+      </HStack>
       <HStack>
         <NetworkSwitcher />
         <Tooltip
