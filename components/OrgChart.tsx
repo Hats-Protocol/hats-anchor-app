@@ -52,6 +52,8 @@ const OrgChartComponent: React.FC = () => {
     selectedOption,
     selectedHat,
     handleSelectHat,
+    handleFlipChart,
+    handleSetCompact,
     isLoading,
     storedData,
     setStoredData,
@@ -67,7 +69,15 @@ const OrgChartComponent: React.FC = () => {
     chainId,
     editMode,
   });
-  const { isOpen: compact, onToggle: toggleCompact } = useDisclosure();
+  const queryParams = new URLSearchParams(window.location.search);
+  const initialCompact = queryParams.get('compact') === 'true';
+  const initialFlipped = queryParams.get('flipped') === 'true';
+  const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
+    defaultIsOpen: initialCompact,
+  });
+  const { isOpen: flipped, onToggle: toggleFlip } = useDisclosure({
+    defaultIsOpen: initialFlipped,
+  });
 
   useLayoutEffect(() => {
     if (_.isEmpty(treeToDisplay)) return;
@@ -593,6 +603,7 @@ const OrgChartComponent: React.FC = () => {
           })
           .compact(compact)
           .render()
+          .layout(flipped ? 'bottom' : 'top')
           .expandAll();
 
         if (initialLoad) {
@@ -624,6 +635,7 @@ const OrgChartComponent: React.FC = () => {
     newImageUrls,
     treeToDisplay,
     compact,
+    flipped,
   ]);
 
   return isLoading ? (
@@ -656,11 +668,27 @@ const OrgChartComponent: React.FC = () => {
           Show full {CONFIG.tree}
         </Button>
         <Button
-          onClick={toggleCompact}
+          onClick={() => {
+            toggleCompact();
+            handleSetCompact?.(!compact);
+          }}
           variant='outline'
           bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
         >
           {compact ? 'Full View' : 'Compact View'}
+        </Button>
+        <Button
+          onClick={() => {
+            toggleFlip();
+            handleFlipChart?.(!flipped);
+            setTimeout(() => {
+              chart?.fit();
+            }, 50);
+          }}
+          variant='outline'
+          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+        >
+          Flip Tree
         </Button>
       </HStack>
 

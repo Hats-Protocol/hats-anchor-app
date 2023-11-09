@@ -84,6 +84,8 @@ export interface TreeFormContext {
   // actions
   addHat: ((hat: Hat) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
+  handleFlipChart: ((isFlipped: boolean) => void) | undefined;
+  handleSetCompact: ((isCompact: boolean) => void) | undefined;
   removeHat: ((hatId: Hex) => void) | undefined;
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
@@ -128,6 +130,8 @@ export const treeFormContext = createContext<TreeFormContext>({
   setShowInactiveHats: undefined,
   // actions
   handleSelectHat: undefined,
+  handleFlipChart: undefined,
+  handleSetCompact: undefined,
   addHat: undefined,
   removeHat: undefined,
   resetTree: undefined,
@@ -436,6 +440,44 @@ export const TreeFormContextProvider = ({
     [orgChartTree, isMobile],
   );
 
+  const handleFlipChart = useCallback((isFlipped: boolean) => {
+    let updatedQuery = {
+      ...router.query,
+    };
+
+    if (isFlipped) {
+      updatedQuery = { ...updatedQuery, flipped: 'true' };
+    } else {
+      delete updatedQuery.flipped;
+    }
+
+    const updatedUrl = {
+      pathname: router.pathname,
+      query: updatedQuery,
+    };
+
+    router.push(updatedUrl, undefined, { shallow: true });
+  }, []);
+
+  const handleSetCompact = useCallback((isCompact: boolean) => {
+    let updatedQuery = {
+      ...router.query,
+    };
+
+    if (isCompact) {
+      updatedQuery = { ...updatedQuery, compact: 'true' };
+    } else {
+      delete updatedQuery.compact;
+    }
+
+    const updatedUrl = {
+      pathname: router.pathname,
+      query: updatedQuery,
+    };
+
+    router.push(updatedUrl, undefined, { shallow: true });
+  }, []);
+
   const toggleEditMode = useCallback(() => {
     if (!editMode) {
       const localDraftHats = _.reject(
@@ -619,6 +661,8 @@ export const TreeFormContextProvider = ({
       setShowInactiveHats,
       // actions
       handleSelectHat,
+      handleFlipChart,
+      handleSetCompact,
       addHat,
       removeHat,
       resetTree,
@@ -664,6 +708,8 @@ export const TreeFormContextProvider = ({
       setShowInactiveHats,
       // actions
       handleSelectHat,
+      handleFlipChart,
+      handleSetCompact,
       addHat,
       removeHat,
       resetTree,
