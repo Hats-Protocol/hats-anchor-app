@@ -3,6 +3,7 @@ import {
   Flex,
   HStack,
   Icon,
+  IconButton,
   Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
@@ -13,68 +14,38 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { BsXSquare } from 'react-icons/bs';
-import { FiSave, FiShare2 } from 'react-icons/fi';
+import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
-import { useAccount, useChainId } from 'wagmi';
+import { Hex } from 'viem';
+import { useChainId } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
+import NetworkSwitcher from '@/components/NetworkSwitcher';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
+import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
-import useToast from '@/hooks/useToast';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { editHasUpdates, isWearingAdminHat } from '@/lib/hats';
+import { editHasUpdates } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
 const TopMenu = () => {
-  const { address } = useAccount();
   const currentChain = useChainId();
   const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
     chainId,
-    treeId,
     editMode,
     setEditMode,
     storedData,
     treeDisclosure,
     resetTree,
     setSelectedOption,
-    treeToDisplay,
+    selectedHat,
   } = useTreeForm();
-  const toast = useToast();
-  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
-  const { writeAsync, isLoading } = useMulticallCallManyHats();
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
-
-  const openImportModal = () => {
-    setModals?.({ importFile: true });
-  };
-
-  const handleExport = () => {
-    const fileData = JSON.stringify(storedData);
-    const blob = new Blob([fileData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    // TODO add unix timestamp so don't get (1) on subsequent downloads
-    // update file name validation also, based on this ^
-    link.download = `chain-${chainId}-tree-${decimalTreeId}.json`;
-    link.href = url;
-    link.click();
-    toast.success({
-      title: `Exported tree #${decimalTreeId} to your desktop`,
-    });
-  };
 
   const handleDeploy = async () => {
     const result = await writeAsync?.();
@@ -99,26 +70,26 @@ const TopMenu = () => {
     closeModal();
   };
 
-  const isAdminOfAllHatsWithChanges = useMemo(() => {
-    const hatsWithChanges = _.map(storedData, ({ id }) => {
-      const foundHat = _.find(treeToDisplay, { id });
-      return {
-        id: foundHat?.id,
-        adminId: foundHat?.admin?.id,
-      };
-    });
+  const hatIds = _.filter(
+    _.map(storedData, 'id'),
+    (hatId) => hatId !== undefined,
+  ) as Hex[];
 
-    // ! gets stuck if wearer details cached after new tree deploy
-    const hasAdminOverAllHats = _.every(hatsWithChanges, (h) => {
-      return isWearingAdminHat(_.map(wearer, 'id'), h.id, false);
-    });
+  const { adminHatIds } = useAdminOfHats(hatIds);
 
-    if (hasAdminOverAllHats) {
-      return true;
-    }
+  const isAdminOfAnyHatWithChanges = useMemo(() => {
+    const hatsWithChangesIds = _.map(storedData, 'id');
 
-    return false;
-  }, [storedData, treeToDisplay, wearer]);
+    const hasAdminOverAnyHat = _.some(hatsWithChangesIds, (id) =>
+      _.includes(adminHatIds, id),
+    );
+
+    return hasAdminOverAnyHat;
+  }, [storedData, adminHatIds]);
+
+  const { writeAsync, isLoading } = useMulticallCallManyHats(
+    isAdminOfAnyHatWithChanges,
+  );
 
   const getDeployTooltipLabel = useMemo(() => {
     if (!storedData?.length) {
@@ -127,19 +98,19 @@ const TopMenu = () => {
     if (chainId !== currentChain) {
       return `Must be on ${chainsMap(chainId).name} to deploy`;
     }
-    if (!isAdminOfAllHatsWithChanges) {
-      return 'You must be the admin of all hats with changes to deploy';
+    if (!isAdminOfAnyHatWithChanges) {
+      return 'You must be the admin of at least one hat with changes to deploy';
     }
     return '';
-  }, [chainId, currentChain, isAdminOfAllHatsWithChanges, storedData]);
+  }, [chainId, currentChain, isAdminOfAnyHatWithChanges, storedData]);
 
   const isDeployDisabled = useMemo(
     () =>
       !editHasUpdates(storedData) ||
       isLoading ||
       currentChain !== chainId ||
-      !isAdminOfAllHatsWithChanges,
-    [storedData, isLoading, currentChain, chainId, isAdminOfAllHatsWithChanges],
+      !isAdminOfAnyHatWithChanges,
+    [storedData, isLoading, currentChain, chainId, isAdminOfAnyHatWithChanges],
   );
 
   return (
@@ -156,33 +127,35 @@ const TopMenu = () => {
       top={0}
       zIndex={16}
     >
-      <Button
-        variant='outline'
-        colorScheme='gray'
-        onClick={promptForReset}
-        leftIcon={<Icon as={BsXSquare} />}
-      >
-        Cancel
-      </Button>
-
-      <HStack spacing={3}>
+      <HStack>
         <Button
-          leftIcon={<FiShare2 />}
-          colorScheme='gray'
           variant='outline'
-          onClick={openImportModal}
+          onClick={promptForReset}
+          leftIcon={<Icon as={BsXSquare} />}
         >
-          Import
+          Cancel
         </Button>
-        <Button
-          leftIcon={<FiSave />}
-          colorScheme='twitter'
-          variant='solid'
-          isDisabled={!editHasUpdates(storedData)}
-          onClick={handleExport}
-        >
-          Export
-        </Button>
+        {chainId === selectedHat?.chainId ? (
+          <Button
+            variant='outline'
+            onClick={onCloseTreeDrawer}
+            rightIcon={<Icon as={BsChevronDoubleRight} />}
+          >
+            Close
+          </Button>
+        ) : (
+          <Tooltip label='Close'>
+            <IconButton
+              variant='outline'
+              onClick={onCloseTreeDrawer}
+              aria-label='Close'
+              icon={<Icon as={BsChevronDoubleRight} />}
+            />
+          </Tooltip>
+        )}
+      </HStack>
+      <HStack>
+        <NetworkSwitcher />
         <Tooltip
           label={isDeployDisabled ? getDeployTooltipLabel : ''}
           placement='left'

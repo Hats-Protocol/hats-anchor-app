@@ -24,7 +24,7 @@ import { decimalId } from '@/lib/hats';
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
   const { onCopy } = useClipboard(decimalId(selectedHat?.id));
 
   const { name, description } = _.pick(selectedHatDetails, [
@@ -35,6 +35,7 @@ const Header = () => {
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
   const isCurrentWearer = _.includes(_.map(wearer, 'id'), selectedHat?.id);
 
@@ -49,7 +50,7 @@ const Header = () => {
       <Flex align='start' justify='space-between'>
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
-            <Tooltip label={name} aria-label='A tooltip'>
+            <Tooltip label={name || selectedHat?.details}>
               <Text fontSize={24} isTruncated fontWeight='semibold'>
                 {name || selectedHat?.details}
               </Text>

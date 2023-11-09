@@ -1,11 +1,14 @@
 import { Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { HatRole } from '@/types';
 
 const GuildRoles = ({ hatRoles }: { hatRoles: HatRole[] }) => {
-  return hatRoles?.length ? (
+  if (_.isEmpty(hatRoles)) return null;
+
+  return (
     <Stack>
       <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
         Guild Roles
@@ -33,7 +36,7 @@ const GuildRoles = ({ hatRoles }: { hatRoles: HatRole[] }) => {
         </Flex>
       ))}
     </Stack>
-  ) : null;
+  );
 };
 
 export default GuildRoles;

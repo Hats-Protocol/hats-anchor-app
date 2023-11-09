@@ -5,11 +5,12 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import { decimalId } from '@/lib/hats';
 import { HatRole } from '@/types';
 
+// TODO migrate to useQuery
 const useHatGuilds = () => {
-  const { selectedHat, selectedHatDetails } = useTreeForm();
+  const { selectedHat, topHatDetails } = useTreeForm();
 
   const hatId = selectedHat?.id;
-  const guilds = selectedHatDetails?.guilds;
+  const guilds = topHatDetails?.guilds;
   const [hatRoles, setHatRoles] = useState<HatRole[]>([]);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const useHatGuilds = () => {
           }),
         );
 
+        // TODO check chain also
         const roles = _.flatMap(guildData, (guild) => {
           return _.map(
             _.filter(guild.roles, (role) =>

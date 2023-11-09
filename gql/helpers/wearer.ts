@@ -3,14 +3,20 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '@/lib/contract';
-import { mapWithChainId } from '@/lib/general';
+import { isSameAddress, mapWithChainId } from '@/lib/general';
 import { chainsList } from '@/lib/web3';
 import { Hat, HatWearer } from '@/types';
 
 import client from '../client';
-import { GET_ALL_WEARERS, GET_WEARER_DETAILS } from '../queries';
+import {
+  GET_ALL_WEARERS,
+  GET_PAGINATED_WEARERS_FOR_HAT,
+  GET_WEARER_DETAILS,
+} from '../queries';
 
 const chains = _.keys(chainsList);
+
+export const wearersPerPage = 100;
 
 export const fetchManyWearerDetails = async (
   wearerIds: Hex[],
@@ -91,4 +97,23 @@ export const fetchWearerDetailsForAllChains = async (
       return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
     },
   );
+};
+
+export const fetchPaginatedWearersForHat = async (
+  hatId: string,
+  chainId: number,
+  page: number = 0,
+) => {
+  const wearers = await client(chainId).request(GET_PAGINATED_WEARERS_FOR_HAT, {
+    hatId,
+    skip: page * wearersPerPage,
+    first: wearersPerPage,
+  });
+
+  const wearersWithDetails = await fetchManyWearerDetails(
+    _.map(_.get(wearers, 'wearers', []), 'id'),
+    chainId,
+  );
+
+  return wearersWithDetails;
 };

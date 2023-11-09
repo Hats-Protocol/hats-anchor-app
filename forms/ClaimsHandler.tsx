@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 
@@ -46,9 +46,12 @@ const ClaimsHandler = ({
   onOpenModuleDrawer: () => void;
   setIsStandAloneHatterDeploy: (value: boolean) => void;
 }) => {
-  const { treeToDisplay, selectedHatDetails } = useTreeForm();
-  const { instanceAddress, hatterIsAdmin, wearingHat } =
-    useMultiClaimsHatterCheck();
+  const { treeToDisplay } = useTreeForm();
+  const {
+    instanceAddress,
+    hatterIsAdmin,
+    wearingHat: wearingHatId,
+  } = useMultiClaimsHatterCheck();
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
   const hatToMintTo = watch('hatToMintTo');
@@ -57,6 +60,10 @@ const ClaimsHandler = ({
       address: instanceAddress,
       hatToMintTo,
     });
+  const wearingHat = useMemo(() => {
+    if (!wearingHatId) return undefined;
+    return _.find(treeToDisplay, { id: wearingHatId });
+  }, [treeToDisplay, wearingHatId]);
 
   useEffect(() => {
     if (treeToDisplay && hatToMintPended) {
@@ -80,8 +87,8 @@ const ClaimsHandler = ({
             <Text fontSize='sm' color='gray.500'>
               🧢 Claims hatter contract{' '}
               <Code fontSize='xs'>{formatAddress(instanceAddress)}</Code> is
-              wearing hat {hatIdDecimalToIp(BigInt(wearingHat))} (
-              {selectedHatDetails?.name})
+              wearing hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} (
+              {wearingHat?.detailsObject?.data?.name})
             </Text>
           )}
         </Stack>
@@ -89,7 +96,7 @@ const ClaimsHandler = ({
     );
   }
 
-  if (!hatterIsAdmin) {
+  if (!hatterIsAdmin && instanceAddress) {
     return (
       <ClaimsHandlerWrapper>
         <Stack>
@@ -118,8 +125,7 @@ const ClaimsHandler = ({
               >
                 <Button
                   size='xs'
-                  color='blue.500'
-                  borderColor='blue.500'
+                  colorScheme='blue.500'
                   variant='outline'
                   isDisabled={!hatToMintTo || !!hatToMintPended}
                   onClick={pendMintHatForHatter}

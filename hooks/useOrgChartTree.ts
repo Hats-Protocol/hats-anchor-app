@@ -21,6 +21,7 @@ const useOrgChartTree = ({
   detailsLoaded,
   initialHatIds,
   chainId,
+  editMode,
 }: UseOrgChartTreeProps) => {
   const [detailsHashes, setDetailsHashes] = useState<unknown[]>();
   const [hatsHashes, setHatsHashes] = useState<unknown[]>();
@@ -85,7 +86,7 @@ const useOrgChartTree = ({
       !!imagesData &&
       imagesLoaded &&
       detailsLoaded,
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     // refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
   });
 
@@ -105,4 +106,5 @@ interface UseOrgChartTreeProps {
   detailsLoaded: boolean;
   initialHatIds: Hex[];
   chainId: number;
+  editMode: boolean;
 }

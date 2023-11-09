@@ -229,18 +229,30 @@ export const getStaticProps = async (context: GetServerSidePropsContext) => {
     chain: chainsMap(1),
     transport: http(),
   });
-  const initialEnsName = await publicClient.getEnsName({
-    address: wearer as Hex,
-  });
 
-  return {
-    props: {
-      wearerAddress: wearer,
-      initialEnsName: initialEnsName || null,
-      // initialData:  || undefined,
-    },
-    revalidate: 60,
-  };
+  try {
+    const initialEnsName = await publicClient.getEnsName({
+      address: wearer as Hex,
+    });
+
+    return {
+      props: {
+        wearerAddress: wearer,
+        initialEnsName: initialEnsName || null,
+        // initialData:  || undefined,
+      },
+      revalidate: 60,
+    };
+  } catch (e) {
+    return {
+      props: {
+        wearerAddress: wearer,
+        initialEnsName: null,
+        // initialData:  || undefined,
+      },
+      revalidate: 60,
+    };
+  }
 };
 
 export const getStaticPaths = async () => {

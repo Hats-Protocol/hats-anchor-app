@@ -31,6 +31,8 @@ import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
 import { pinJson } from '@/lib/ipfs';
 import { ImageFile } from '@/types';
 
+// ! update links to use new docs links constants
+
 const HatLinkRequestApproveForm = ({
   topHatDomain,
   newAdmin,
@@ -143,9 +145,9 @@ const HatLinkRequestApproveForm = ({
     chainId,
     onSuccessToastData: {
       title: 'Link Request Approved!',
-      description: `Successfully linked top hat ${hatIdDecimalToIp(
-        BigInt(topHatDomain),
-      )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
+      description: `Successfully linked top hat ${BigInt(
+        topHatDomain,
+      ).toString()} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     queryKeys: [
       ['hatDetails', { id: newAdmin, chainId }],

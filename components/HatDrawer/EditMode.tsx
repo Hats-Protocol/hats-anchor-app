@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
@@ -49,7 +49,8 @@ const EditMode = ({
     chainId,
     storedData,
     selectedHat,
-    selectedHatDetails,
+    selectedOnchainHat,
+    selectedOnchainHatDetails,
     isDraft,
     treeToDisplay,
   } = useTreeForm();
@@ -62,7 +63,7 @@ const EditMode = ({
     authorities: initialAuthorities,
     eligibility: initialEligibility,
     toggle: initialToggle,
-  } = _.pick(selectedHatDetails, [
+  } = _.pick(selectedOnchainHatDetails, [
     'name',
     'description',
     'guilds',
@@ -74,21 +75,23 @@ const EditMode = ({
   const {
     maxSupply,
     eligibility,
-    extendedEligibility,
     toggle,
-    extendedToggle,
     mutable,
     imageUrl,
     imageUri,
-  } = _.pick(selectedHat, [
+    details,
+  } = _.pick(selectedOnchainHat, [
     'maxSupply',
     'eligibility',
-    'extendedEligibility',
     'toggle',
-    'extendedToggle',
     'mutable',
     'imageUrl',
     'imageUri',
+    'details',
+  ]);
+  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
+    'extendedEligibility',
+    'extendedToggle',
   ]);
 
   const defaultFormValues = useMemo<FormData>(() => {
@@ -113,7 +116,7 @@ const EditMode = ({
           : TRIGGER_OPTIONS.AUTOMATICALLY,
       revocationsCriteria: initialEligibility?.criteria ?? [],
       deactivationsCriteria: initialToggle?.criteria ?? [],
-      name: initialName || '',
+      name: initialName && initialName !== '' ? initialName : details || '',
       description: initialDescription || '',
       authorities: initialAuthorities ?? [],
       responsibilities: initialResponsibilities ?? [],
@@ -127,8 +130,11 @@ const EditMode = ({
     toggle,
     mutable,
     imageUrl,
-    initialEligibility,
-    initialToggle,
+    details,
+    initialEligibility?.criteria,
+    initialEligibility?.manual,
+    initialToggle?.criteria,
+    initialToggle?.manual,
     initialName,
     initialDescription,
     initialAuthorities,
@@ -139,7 +145,6 @@ const EditMode = ({
 
   const localForm = useForm({
     mode: 'onChange',
-    defaultValues: defaultFormValues,
   });
 
   const { watch, reset } = localForm;
@@ -150,15 +155,25 @@ const EditMode = ({
     const initialFormValues = () => {
       const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
 
-      if (matchingHat) {
+      if (
+        matchingHat &&
+        !_.isEmpty(_.remove(_.keys(matchingHat), (key) => key === 'id'))
+      ) {
         formValues = {
           ...defaultFormValues,
           ...matchingHat,
         };
+        console.log('reset for plaintext details');
+        // reset default values for plaintext details
+        reset(defaultFormValues);
+
+        console.log('reset for stored data values');
+        // reset with stored data values
         reset(formValues, { keepDefaultValues: true });
         return;
       }
 
+      console.log('reset without stored data values');
       reset(formValues);
     };
 
@@ -169,7 +184,7 @@ const EditMode = ({
 
   const allFormData = watch();
 
-  const prevAllFormData = useRef<FormData>(allFormData);
+  const prevAllFormData = useRef<FieldValues>(allFormData as FormData);
 
   const getDirtyFields = useCallback(() => {
     return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
@@ -188,7 +203,6 @@ const EditMode = ({
   };
 
   const [newImageURI, setNewImageURI] = useState('');
-  // console.log(newImageURI);
 
   const eligibilityFormValue = useDebounce<Hex | undefined>(
     watch('eligibility', eligibility || FALLBACK_ADDRESS),
@@ -287,7 +301,6 @@ const EditMode = ({
         },
         {},
       );
-      // console.log('dirtyFormData', dirtyFormData);
 
       setUnsavedData(dirtyFormData);
     }
@@ -315,6 +328,7 @@ const EditMode = ({
                   BigInt(selectedHat?.id),
                 )} to this tree`
               : selectedHat?.detailsObject?.data?.name ||
+                selectedHat?.details ||
                 (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
         </Text>
         <Text>All changes are local until you deploy to chain.</Text>
@@ -323,7 +337,7 @@ const EditMode = ({
       {isTopHatOrMutable(selectedHat) && (
         <Accordion
           title='Hat Basics'
-          subtitle='The fundamentals of the hat, including name, image, and supply.'
+          subtitle='The fundamentals of the hat, including name, image, and description.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
         >
           <Stack spacing={4}>
@@ -370,6 +384,7 @@ const EditMode = ({
                   details in the{' '}
                   <ChakraNextLink
                     href={CONFIG.docsLinks.authorities}
+                    isExternal
                     decoration
                   >
                     docs
@@ -400,6 +415,7 @@ const EditMode = ({
                   the{' '}
                   <ChakraNextLink
                     href={CONFIG.docsLinks.authorities}
+                    isExternal
                     decoration
                   >
                     docs
@@ -440,6 +456,7 @@ const EditMode = ({
                     this hat from specific wearers. More details in the{' '}
                     <ChakraNextLink
                       href={CONFIG.docsLinks.eligibility}
+                      isExternal
                       decoration
                     >
                       docs
@@ -451,6 +468,7 @@ const EditMode = ({
                     when a wearer should have this hat. More details in the{' '}
                     <ChakraNextLink
                       href={CONFIG.docsLinks.eligibility}
+                      isExternal
                       decoration
                     >
                       docs
@@ -494,7 +512,11 @@ const EditMode = ({
                   <Text key='manual'>
                     The address of the person or group that can manually
                     deactivate and reactive this hat. More details in the{' '}
-                    <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.toggle}
+                      isExternal
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .
@@ -502,7 +524,11 @@ const EditMode = ({
                   <Text key='automatic'>
                     The address of the smart contract containing the logic about
                     when this hat should be active. More details in the{' '}
-                    <ChakraNextLink href={CONFIG.docsLinks.toggle} decoration>
+                    <ChakraNextLink
+                      href={CONFIG.docsLinks.toggle}
+                      isExternal
+                      decoration
+                    >
                       docs
                     </ChakraNextLink>
                     .

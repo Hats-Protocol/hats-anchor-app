@@ -65,6 +65,7 @@ const OrgChartComponent: React.FC = () => {
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure();
 
@@ -227,25 +228,32 @@ const OrgChartComponent: React.FC = () => {
             const detailsName = detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
 
+            const maxSupplyText = () => {
+              if (maxSupply > 9999) {
+                return 'a lot';
+              }
+              return maxSupply;
+            };
+
             // setup wearers section
             let wearersColor = '#FFFFFF';
             const wearer: HatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
-            let wearerAccent: string = `0 of ${maxSupply}`;
+            let wearerAccent: string = `0 of ${maxSupplyText()}`;
             let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
               wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
-              wearerAccent = `out of ${maxSupply}`;
+              wearerAccent = `out of ${maxSupplyText()}`;
             }
             if (_.size(wearers) === 1) {
               wearerContent =
                 !!wearer?.ensName && wearer?.ensName !== ''
                   ? wearer?.ensName
                   : formatAddress(_.get(wearer, 'id'));
-              wearerAccent = `1 of ${maxSupply}`;
+              wearerAccent = `1 of ${maxSupplyText()}`;
               if (wearer?.isContract) {
                 wearersColor = '#F0FFF4';
                 wearerIcon = `<img src="/icons/contract.svg" alt="wearer contract">`;
@@ -467,23 +475,24 @@ const OrgChartComponent: React.FC = () => {
                     top: ${isSelected ? -4 : 0}px;
                     border-radius: 4px;
                     overflow: hidden;
+                    ${isSelected && 'background: white;'}
                   ">
-                  <img
-                    loading="lazy"
-                    src="${
-                      newImageUrl ||
-                      (imageUrl !== '' && imageUrl !== null
-                        ? imageUrl
-                        : '/icon.jpeg')
-                    }"
-                    style="
-                      background: white;
-                      width: ${isSelected ? '78.5px' : '72px'};
-                      height: ${isSelected ? '78.5px' : '72px'};
-                      left: ${isSelected ? -4 : -1}px;
-                      top: ${isSelected ? -4 : -1}px;
-                      opacity: ${imageUrl === null ? 0.5 : 1};"
-                  />
+                    <img
+                      loading="lazy"
+                      src="${
+                        newImageUrl ||
+                        (imageUrl !== '' && imageUrl !== null
+                          ? imageUrl
+                          : '/icon.jpeg')
+                      }"
+                      style="
+                        background: white;
+                        height: 100%;
+                        object-fit: cover;
+                        left: ${isSelected ? -4 : -1}px;
+                        top: ${isSelected ? -4 : -1}px;
+                        opacity: ${imageUrl === null ? 0.5 : 1};"
+                    />
                   </div>
                   <div style="
                     display: flex;

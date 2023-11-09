@@ -19,11 +19,13 @@ export type Hierarchy = {
   firstChild?: Hex;
   leftSibling?: Hex;
   rightSibling?: Hex;
+  leftSiblings?: Hex[];
+  rightSiblings?: Hex[];
 };
 
 export type InputObject = {
-  id: string;
-  parentId: string | undefined;
+  id: Hex;
+  parentId: Hex | undefined;
 };
 
 export interface Controls {
@@ -37,4 +39,12 @@ export type SearchResults = {
   href: string;
   icon: IconName;
   id: string;
+};
+
+export type Transaction = {
+  hash: string;
+  txChainId?: number;
+  fnName: string;
+  status: string;
+  timestamp: number;
 };

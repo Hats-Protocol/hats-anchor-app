@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { createPublicClient, custom, Hex, http } from 'viem';
 
 import { ZERO_ADDRESS } from '@/constants';
-import { HatWearer } from '@/types';
+import { HatWearer, Transaction } from '@/types';
 
 import { chainsMap } from './web3';
 
@@ -16,8 +16,9 @@ export const checkAddressIsContract = async (
 
   const publicClient = createPublicClient({
     chain: chainsMap(chainId),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum) || http(),
+    // ideally could use window.ethereum here, but result is cached also
+    //    custom((window as any).ethereum) ||
+    transport: http(),
   });
 
   if (!publicClient) return false;
@@ -34,6 +35,38 @@ export const checkAddressIsContract = async (
     return false;
   }
   return false;
+};
+
+export const checkTransactionStatus = async (transactions: Transaction[]) => {
+  // don't recheck transactions that are already confirmed
+  const pendingTransactions = _.filter(transactions, {
+    status: 'pending',
+  });
+  // handle the client with tx so chain is relative to tx
+  const transactionPromises = pendingTransactions.map(async (tx) => {
+    const publicClient = createPublicClient({
+      chain: chainsMap(tx.txChainId),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transport: custom((window as any).ethereum) || http(),
+    });
+    try {
+      const transactionData = await publicClient.getTransaction({
+        hash: tx.hash as Hex,
+      });
+      if (transactionData && transactionData.blockHash) {
+        return transactionData;
+      }
+      return null;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching transaction data:', error);
+      return null;
+    }
+  });
+
+  const results = await Promise.all(transactionPromises);
+
+  return results;
 };
 
 export const extendWearers = (

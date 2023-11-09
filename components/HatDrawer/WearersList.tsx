@@ -1,43 +1,42 @@
 /* eslint-disable no-nested-ternary */
 import {
+  Box,
   Button,
+  Divider,
   Flex,
   Heading,
   HStack,
   Input,
   InputGroup,
   InputLeftElement,
+  Spinner,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import { wearersPerPage } from '@/gql/helpers';
+import useAllWearers from '@/hooks/useAllWearers';
 import useHatClaim from '@/hooks/useHatClaim';
+import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
-import { isSameAddress } from '@/lib/general';
-import { isWearingAdminHat } from '@/lib/hats';
-import { filterWearers, getEligibleWearers } from '@/lib/wearers';
+import { commify } from '@/lib/general';
+import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
+import { filterWearers, getEligibleWearers, sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
@@ -52,7 +51,7 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -66,7 +65,28 @@ const WearersList = () => {
   const wearers = useMemo(() => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
-  const wearerIds = useMemo(() => wearers.map(({ id }) => id), [wearers]);
+
+  const { wearers: exportWearers } = useAllWearers();
+
+  const sortedWearers = useMemo(
+    () => sortWearers({ wearers, address }),
+    [wearers, address],
+  );
+
+  const {
+    paginatedWearers,
+    nextPage,
+    prevPage,
+    isLoading,
+    isFetching,
+    currentPage,
+  } = useHatPaginatedWearers({
+    hatId: selectedHat?.id,
+    chainId,
+  });
+
+  const mergedWearers = _.merge(wearers, paginatedWearers);
+  const wearerIds = (mergedWearers || []).map(({ id }) => id);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
     [wearerIds, address],
@@ -79,14 +99,14 @@ const WearersList = () => {
     () =>
       getEligibleWearers({
         wearersEligibility,
-        wearers,
+        wearers: mergedWearers,
       }),
-    [wearersEligibility, wearers],
+    [wearersEligibility, mergedWearers],
   );
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
-    chainId,
+    editMode,
   });
 
   const { data: currentUserIsEligible } = useWearerEligibilityCheck({
@@ -101,14 +121,6 @@ const WearersList = () => {
     address: selectedHat?.eligibility,
   });
 
-  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
-    useMultiClaimsHatterContractWrite({
-      functionName: 'setHatClaimability',
-      address: instanceAddress,
-      enabled: !!instanceAddress,
-      args: [selectedHat?.id, 1],
-    });
-
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
     currentWearerHats,
@@ -116,25 +128,20 @@ const WearersList = () => {
     true,
   );
 
-  const sortWearers = useCallback(() => {
-    if (address) {
-      wearers?.sort((w1, w2) => {
-        if (isSameAddress(w1.id, address)) return -1;
-        if (isSameAddress(w2.id, address)) return 1;
-        return 0;
-      });
-    }
-  }, [address, wearers]);
+  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
+    useMultiClaimsHatterContractWrite({
+      functionName: 'setHatClaimability',
+      address: instanceAddress,
+      enabled: !!instanceAddress && isAdminUser,
+      args: [selectedHat?.id, 1],
+    });
 
-  useEffect(() => {
-    sortWearers();
-  }, [sortWearers]);
+  const filteredWearers = useMemo(
+    () =>
+      _.slice(filterWearers(searchTerm, sortedWearers), 0, 6) as HatWearer[],
+    [searchTerm, sortedWearers],
+  );
 
-  const filteredWearers = _.slice(
-    filterWearers(searchTerm, wearers),
-    0,
-    6,
-  ) as HatWearer[];
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
   const claimTooltip = useMemo(() => {
@@ -145,20 +152,46 @@ const WearersList = () => {
     return undefined;
   }, [chainId, currentNetworkId, hatterIsAdmin]);
 
+  const maxSupplyText = () => {
+    if (_.toNumber(maxSupply) > 999_999) {
+      // could handle for thousands
+      // const rounds = [1_000_000_000, 1_000_000, 1_000];
+      // const formatString = [`e9`, `e6`, `e3`];
+
+      const rounds = [1_000_000_000, 1_000_000];
+      const formatString = [`e9`, `e6`];
+      const supplyRounded = _.map(rounds, (r) =>
+        _.round(_.toNumber(maxSupply) / r, 0),
+      );
+      const index = _.findIndex(supplyRounded, (v) => v > 0);
+
+      return (
+        <HStack color='gray.400' spacing={1}>
+          <Text>of</Text>
+          <Tooltip label={commify(maxSupply)} placement='left' hasArrow>
+            <Text fontFamily='mono'>{`${supplyRounded[index]}${formatString[index]}`}</Text>
+          </Tooltip>
+        </HStack>
+      );
+    }
+    return <Text color='gray.400'>of {commify(maxSupply)}</Text>;
+  };
+
   return (
     <>
       <Stack spacing={4}>
-        <Flex justify='space-between'>
+        <Flex justify='space-between' alignItems='center'>
           <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
             Hat Wearers
           </Heading>
+
           <Flex gap={1}>
             <Text>{_.get(selectedHat, 'currentSupply')}</Text>
-            <Text color='gray.400'>of {maxSupply}</Text>
+            {maxSupplyText()}
           </Flex>
         </Flex>
 
-        {_.gt(_.size(wearers), 5) && (
+        {_.gt(_.size(sortedWearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -182,9 +215,17 @@ const WearersList = () => {
             setWearerToTransferFrom={setWearerToTransferFrom}
           />
         ))}
+        {_.isEmpty(filteredWearers) && (
+          <Box>
+            <Flex justify='center' h='70px' align='center'>
+              <Text>No wearers currently</Text>
+            </Flex>
+            <Divider />
+          </Box>
+        )}
 
         <Flex justify='space-between' align='center'>
-          {_.gt(_.size(wearers), 6) && (
+          {_.gt(_.size(sortedWearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'
@@ -202,8 +243,7 @@ const WearersList = () => {
               <Button
                 size='xs'
                 variant='outline'
-                colorScheme='blue'
-                borderColor='blue.500'
+                colorScheme='blue.500'
                 onClick={setHatClaimability}
                 isLoading={isLoadingSetHatClaimability}
                 isDisabled={isLoadingSetHatClaimability}
@@ -220,9 +260,7 @@ const WearersList = () => {
                   isDisabled={
                     !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
                   }
-                  onClick={() => {
-                    claimHat?.();
-                  }}
+                  onClick={claimHat}
                 >
                   <HStack color='blue.500'>
                     <FaPlus />
@@ -267,20 +305,66 @@ const WearersList = () => {
       <Suspense fallback={<Suspender />}>
         <Modal
           name='hatWearers'
-          title='Hat Wearers'
           localOverlay={localOverlay}
+          customHeader={
+            <Flex
+              justify='space-between'
+              alignItems='center'
+              mt={8}
+              px={6}
+              pb={4}
+            >
+              <Heading fontSize='24px'>Hat Wearers</Heading>
+              <Button
+                onClick={() =>
+                  exportWearers &&
+                  exportToCsv(exportWearers, selectedHatDetails?.name)
+                }
+                leftIcon={<FaFileCsv />}
+                colorScheme='blue'
+              >
+                Export
+              </Button>
+            </Flex>
+          }
+          footer={
+            <Flex justify='center' px={6} pb={6} w='full'>
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  prevPage();
+                }}
+                isDisabled={currentPage === 0}
+              >
+                {currentPage > 1 ? `Previous (${currentPage - 1})` : 'Previous'}
+              </Button>
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  nextPage();
+                }}
+                isDisabled={_.size(paginatedWearers) < wearersPerPage}
+              >
+                {`Next (${currentPage + 1})`}
+              </Button>
+            </Flex>
+          }
         >
           <Flex direction='column' gap={4}>
-            {wearers?.map((w: HatWearer) => (
-              <WearerRow
-                key={w.id}
-                wearer={w}
-                isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
-                isAdminUser={isAdminUser}
-                setChangeStatusWearer={setChangeStatusWearer}
-                setWearerToTransferFrom={setWearerToTransferFrom}
-              />
-            ))}
+            {isLoading || isFetching ? (
+              <Spinner />
+            ) : (
+              paginatedWearers?.map((w: HatWearer) => (
+                <WearerRow
+                  key={w.id}
+                  wearer={w}
+                  isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
+                  isAdminUser={isAdminUser}
+                  setChangeStatusWearer={setChangeStatusWearer}
+                  setWearerToTransferFrom={setWearerToTransferFrom}
+                />
+              ))
+            )}
           </Flex>
         </Modal>
       </Suspense>

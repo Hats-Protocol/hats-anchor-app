@@ -7,15 +7,27 @@ import {
   HStack,
   Stack,
   Text,
+  VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
+import { FiSave, FiShare2 } from 'react-icons/fi';
+import { Hex } from 'viem';
 
 import Markdown from '@/components/atoms/Markdown';
+import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { getProposedChangesCount, isTopHatOrMutable } from '@/lib/hats';
+import useAdminOfHats from '@/hooks/useAdminOfHats';
+import useIsClient from '@/hooks/useIsClient';
+import useToast from '@/hooks/useToast';
+import {
+  getProposedChangesCount,
+  handleExportBranch,
+  isTopHatOrMutable,
+  prettyIdToId,
+} from '@/lib/hats';
 import { Hat } from '@/types';
 
 const isDraft = (hatId: string, onchainHats: Hat[]) =>
@@ -32,10 +44,38 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     hatDisclosure,
     treeEvents,
     topHatDetails,
+    treeId,
+    chainId,
+    linkedHatIds,
   } = useTreeForm();
+  const isClient = useIsClient();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
+  const toast = useToast();
+  const localOverlay = useOverlay();
+
+  const { setModals } = localOverlay;
+
+  const openImportModal = () => {
+    setModals?.({ importFile: true });
+  };
+
+  const hatIds = _.filter(
+    _.map(storedData, 'id'),
+    (hatId) => hatId !== undefined,
+  ) as Hex[];
+  const { adminHatIds } = useAdminOfHats(hatIds);
+
+  const handleExport = () =>
+    handleExportBranch({
+      targetHatId: prettyIdToId(treeId),
+      treeToDisplay,
+      linkedHatIds,
+      storedData,
+      chainId,
+      toast,
+    });
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -50,30 +90,63 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       top={75}
       pos='relative'
     >
-      <Stack>
-        <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
-          {topHatDetails?.name || topHat?.name || 'No Hats'}
-        </Heading>
-        {topHatDetails?.description && (
-          <Markdown>{topHatDetails?.description}</Markdown>
-        )}
+      <HStack alignItems='flex-start' justifyContent='space-between'>
+        <Stack>
+          <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
+            {topHatDetails?.name ||
+              topHat?.details ||
+              topHat?.name ||
+              'No Hats'}
+          </Heading>
+          {topHatDetails?.description && (
+            <Markdown>{topHatDetails?.description}</Markdown>
+          )}
 
-        <Text color='blackAlpha.600'>
-          Created{' '}
-          {_.get(_.first(treeEvents), 'timestamp') &&
-            formatDistanceToNow(
-              new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000),
-            )}{' '}
-          ago. Last edited{' '}
-          {/* maybe we're looking for the last change in the tree, not the top hat? */}
-          {_.get(_.last(treeEvents), 'timestamp') &&
-            formatDistanceToNow(
-              new Date(Number(_.get(_.last(treeEvents), 'timestamp')) * 1000),
-            )}{' '}
-          ago.
-        </Text>
-        {!topHatDetails?.description && <Flex h={12} />}
-      </Stack>
+          {isClient && (
+            <Text color='blackAlpha.600'>
+              Created{' '}
+              {_.get(_.first(treeEvents), 'timestamp') &&
+                formatDistanceToNow(
+                  new Date(
+                    Number(_.get(_.first(treeEvents), 'timestamp')) * 1000,
+                  ),
+                )}{' '}
+              ago. Last edited{' '}
+              {/* maybe we're looking for the last change in the tree, not the top hat? */}
+              {_.get(_.last(treeEvents), 'timestamp') &&
+                formatDistanceToNow(
+                  new Date(
+                    Number(_.get(_.last(treeEvents), 'timestamp')) * 1000,
+                  ),
+                )}{' '}
+              ago.
+            </Text>
+          )}
+
+          {!topHatDetails?.description && <Flex h={12} />}
+        </Stack>
+
+        <VStack>
+          <Button
+            leftIcon={<FiShare2 />}
+            colorScheme='gray'
+            variant='outline'
+            onClick={openImportModal}
+          >
+            Import
+          </Button>
+          <Button
+            leftIcon={<FiSave />}
+            colorScheme='twitter'
+            variant='solid'
+            isDisabled={treeToDisplay?.length === 1}
+            onClick={handleExport}
+          >
+            Export
+          </Button>
+        </VStack>
+      </HStack>
+
       <Stack>
         <Text color='blackAlpha.800' fontSize='xl' fontWeight='medium'>
           Drafted Changes
@@ -109,6 +182,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             displayName = hat.name;
           }
 
+          const isAdmin = _.includes(adminHatIds, hat.id);
+
           return (
             <Box
               borderBottom='1px solid'
@@ -128,20 +203,34 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 <HStack>
                   <Text>{hatId}</Text>
                   {displayName && (
-                    <Text maxW={hat.mutable ? '300px' : '200px'} isTruncated>
+                    <Text
+                      maxW={hat.mutable && !changes ? '300px' : '160px'}
+                      isTruncated
+                    >
                       {displayName}
                     </Text>
                   )}
                 </HStack>
                 <HStack>
                   {draft ? (
-                    <Badge colorScheme='green' fontSize='sm' variant='outline'>
-                      NEW!
+                    <Badge
+                      colorScheme='green'
+                      fontSize='sm'
+                      variant={isAdmin ? 'solid' : 'outline'}
+                      textTransform='uppercase'
+                    >
+                      {isAdmin ? 'Deployable Draft' : 'New!'}
                     </Badge>
                   ) : (
                     changes && (
-                      <Badge colorScheme='cyan' fontSize='sm' variant='outline'>
-                        {changes} CHANGE
+                      <Badge
+                        colorScheme={isAdmin ? 'blue' : 'cyan'}
+                        fontSize='sm'
+                        variant={isAdmin ? 'solid' : 'outline'}
+                        textTransform='uppercase'
+                      >
+                        {changes}
+                        {isAdmin ? ' Deployable Edit' : ' Change'}
                         {_.gt(changes, 1) ? 'S' : ''}
                       </Badge>
                     )

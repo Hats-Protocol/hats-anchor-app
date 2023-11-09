@@ -17,19 +17,29 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
     undefined,
   );
-  const { selectedHat, editMode, storedData, setStoredData, newImageUrls } =
-    useTreeForm();
+  const {
+    selectedHat,
+    editMode,
+    storedData,
+    setStoredData,
+    newImageUrls,
+    removeHat,
+    treeDisclosure,
+    hatDisclosure,
+  } = useTreeForm();
   const newImageUrl = _.find(newImageUrls, [
     'id',
     selectedHat?.id,
   ])?.newImageUrl;
   const selectedHatId = selectedHat?.id;
+  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
+  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const handleSave = (sendToast: boolean = true) => {
     if (unsavedData) {
       const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
         hat.id === selectedHat?.id
-          ? { ...unsavedData, id: selectedHat?.id }
+          ? { ...hat, ...unsavedData, id: selectedHat?.id }
           : hat,
       );
 
@@ -50,6 +60,21 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     }
   };
 
+  const handleRemoveHat = () => {
+    if (!selectedHat) return;
+    removeHat?.(selectedHat?.id);
+    setUnsavedData(undefined);
+  };
+
+  const handleClearChanges = () => {
+    if (!selectedHat) return;
+    const updateData = _.reject(storedData, { id: selectedHat?.id });
+    setStoredData?.(updateData);
+    setUnsavedData(undefined);
+    onOpenTreeDrawer?.();
+    onCloseHatDrawer?.();
+  };
+
   if (!selectedHat) return null;
 
   return (
@@ -62,31 +87,40 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
       display={selectedHatId ? 'block' : 'none'}
       right={0}
       zIndex={12}
+      background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
     >
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
-        <Image
-          loading='lazy'
-          src={
-            (editMode && newImageUrl) ||
-            _.get(selectedHat, 'imageUrl') ||
-            '/icon.jpeg'
-          }
-          alt='hat image'
+        <Box
           position='absolute'
-          background='white'
-          w='100px'
           h='100px'
+          w='100px'
+          overflow='hidden'
           border='3px solid'
           borderColor='gray.700'
           borderRadius='md'
           top='110px'
           left={-81}
           zIndex={16}
-        />
+        >
+          <Image
+            loading='lazy'
+            src={
+              (editMode && newImageUrl) ||
+              _.get(selectedHat, 'imageUrl') ||
+              '/icon.jpeg'
+            }
+            alt='hat image'
+            background='white'
+            objectFit='cover'
+            h='100%'
+          />
+        </Box>
 
         <TopMenu
           onSave={handleSave}
+          handleRemoveHat={handleRemoveHat}
+          handleClearChanges={handleClearChanges}
           returnToList={returnToList}
           isLoading={isLoading}
         />

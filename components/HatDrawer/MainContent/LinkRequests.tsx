@@ -7,6 +7,9 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import HatLinkRequestApproveForm from '@/forms/HatLinkRequestApproveForm';
 import { prettyIdToIp } from '@/lib/hats';
 
+// TODO RQ hook this
+// ? don't inline ternary
+
 const LinkRequests = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;

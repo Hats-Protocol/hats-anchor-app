@@ -5,6 +5,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useIsClient from '@/hooks/useIsClient';
 import { explorerUrl } from '@/lib/web3';
 import { HatEvent } from '@/types';
 
@@ -16,13 +17,14 @@ const EventHistory = ({
   count?: number;
 }) => {
   const { chainId, selectedHat, treeEvents } = useTreeForm();
+  const isClient = useIsClient();
 
   let events = type === 'tree' ? treeEvents : selectedHat?.events;
   if (count) {
     events = _.take(events, count);
   }
 
-  if (!events) {
+  if (!events || !isClient) {
     return null;
   }
 

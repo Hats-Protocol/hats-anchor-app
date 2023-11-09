@@ -191,8 +191,7 @@ const StatusCard = ({
                   <Button
                     size='xs'
                     variant='outline'
-                    color='blue.500'
-                    borderColor='blue.500'
+                    colorScheme='blue.500'
                     isDisabled={!!hatToMintPended}
                     onClick={pendMintHatForHatter}
                   >

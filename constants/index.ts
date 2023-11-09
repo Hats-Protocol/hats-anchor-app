@@ -18,7 +18,7 @@ const CONFIG: {
   hatsAbi: HATS_ABI as Abi,
   emojis: '🧢🎩👒',
   appName: 'Hats Protocol',
-  protocolVersion: '1.0',
+  protocolVersion: 'v1',
   shortName: 'Hats',
   url: 'https://app.hatsprotocol.xyz',
   logoUrl: 'https://app.hatsprotocol.xyz/img/favicon-512.png',
@@ -50,7 +50,7 @@ const CONFIG: {
   // docs
   docsLinks: {
     responsibilities:
-      'https://docs.hatsprotocol.xyz/using-hats/setting-hat-properties',
+      'https://docs.hatsprotocol.xyz/using-hats/connecting-hats-w-authorities-and-responsibilities/documenting-hat-powers-and-responsibilities',
     authorities:
       'https://docs.hatsprotocol.xyz/hats-integrations/hat-gated-authorities',
     eligibility:

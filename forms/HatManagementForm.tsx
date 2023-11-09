@@ -1,10 +1,8 @@
 import {
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
   HStack,
   Icon,
+  Slide,
   Stack,
   Text,
   useDisclosure,
@@ -187,7 +185,7 @@ const HatManagementForm = ({
                   }`}
                   isExternal
                 >
-                  <HStack>
+                  <HStack maxW='200px'>
                     {extendedController?.isContract || moduleDetails ? (
                       <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
                     ) : (
@@ -204,7 +202,6 @@ const HatManagementForm = ({
                   leftIcon={<BsFileCode />}
                   variant='outline'
                   fontWeight='normal'
-                  borderColor='blackAlpha.300'
                   onClick={onOpenModuleDrawer}
                 >
                   Create new Module
@@ -254,7 +251,6 @@ const HatManagementForm = ({
               gap={2}
               variant='outline'
               fontWeight='normal'
-              borderColor='blackAlpha.300'
             >
               <BsPlusCircle />
               Add {items?.length ? 'another' : 'a'} Requirement
@@ -263,25 +259,19 @@ const HatManagementForm = ({
         </FormRowWrapper>
       </Stack>
 
-      <Drawer
-        placement='right'
-        onClose={() => {
-          onCloseModuleDrawer?.();
-        }}
-        isOpen={!!isOpenModuleDrawer}
+      <Slide
+        direction='right'
+        in={!!isOpenModuleDrawer}
+        style={{ zIndex: 1001, width: '100%' }}
       >
-        <DrawerContent background='cyan.50' maxW='43%' width='650px'>
-          <DrawerBody pt={0}>
-            <Suspense fallback={<Suspender />}>
-              <ModuleDrawer
-                onCloseModuleDrawer={onCloseModuleDrawer}
-                isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-                title={title}
-              />
-            </Suspense>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        <Suspense fallback={<Suspender />}>
+          <ModuleDrawer
+            onCloseModuleDrawer={onCloseModuleDrawer}
+            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+            title={title}
+          />
+        </Suspense>
+      </Slide>
     </form>
   );
 };

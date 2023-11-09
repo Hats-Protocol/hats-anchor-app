@@ -12,8 +12,10 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
@@ -91,10 +93,19 @@ const BottomMenu = ({
                     Copy
                   </Button>
                 </HStack>
-                <Text color='blackAlpha.700'>
-                  Copy this into the Data field of a transaction builder to
-                  deploy the tree from a contract (such as a multisig or DAO).
-                </Text>
+                <HStack>
+                  <Text color='blackAlpha.700'>
+                    Transaction call data (hex encoded)
+                  </Text>
+                  <Tooltip
+                    label='To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.'
+                    hasArrow
+                  >
+                    <Box h={5}>
+                      <Icon as={AiOutlineInfoCircle} color='blackAlpha.700' />
+                    </Box>
+                  </Tooltip>
+                </HStack>
 
                 {!isLoading ? (
                   <HStack spacing={4}>

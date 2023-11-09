@@ -6,13 +6,23 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  Suspense,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { Hex, TransactionReceipt } from 'viem';
+import { useChainId } from 'wagmi';
 
+import Modal from '@/components/atoms/Modal';
+import Suspender from '@/components/atoms/Suspender';
+import TransactionHistory from '@/components/TransactionHistory';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
+import { checkTransactionStatus } from '@/lib/contract';
+import { Transaction } from '@/types';
 
 const defaults = {
   createTree: false,
@@ -32,6 +42,8 @@ export interface IOverlayContext {
   setCommandPalette: Dispatch<SetStateAction<boolean>>;
   handlePendingTx?: ({
     hash,
+    txChainId,
+    fnName,
     toastData,
     redirect = null,
     clearModals = true,
@@ -39,12 +51,16 @@ export interface IOverlayContext {
     onSuccess,
   }: {
     hash: Hex;
+    txChainId?: number;
+    fnName: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
     onSuccess?: (d?: TransactionReceipt) => void;
   }) => Promise<TransactionReceipt | undefined>;
+  transactions: Transaction[];
+  clearAllTransactions: () => void;
 }
 
 export const OverlayContext = createContext<IOverlayContext>({
@@ -55,6 +71,8 @@ export const OverlayContext = createContext<IOverlayContext>({
   handlePendingTx: undefined,
   commandPalette: false,
   setCommandPalette: () => {},
+  transactions: [],
+  clearAllTransactions: () => {},
 });
 
 export const OverlayContextProvider = ({
@@ -66,6 +84,12 @@ export const OverlayContextProvider = ({
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const chainId = useChainId();
+
+  const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
+    'transactions',
+    [],
+  );
 
   const showModal = (m: object) => {
     // This allows to show only one modal at a time.
@@ -77,11 +101,39 @@ export const OverlayContextProvider = ({
     setModals(defaults);
   };
 
+  const addTransaction = useCallback(
+    (transaction: Transaction) => {
+      const updatedTransactions = [transaction, ...transactions];
+
+      setTransactions(updatedTransactions);
+    },
+    [transactions, setTransactions],
+  );
+
+  const updateTransactionStatus = (hash: Hex, status: string) => {
+    if (!hash) return;
+
+    setTransactions((prevTransactions) => {
+      if (!prevTransactions.length) return prevTransactions;
+
+      const updatedTransactions = prevTransactions.map((tx) =>
+        tx.hash === hash ? { ...tx, status } : tx,
+      );
+
+      return updatedTransactions;
+    });
+  };
+
+  const clearAllTransactions = useCallback(() => {
+    setTransactions([]);
+  }, [setTransactions]);
+
   /**
    * @param {string} hash
    * @param {object} toastData
    * @param {string} toastData.title
    * @param {string} toastData.description
+   * @param {string} fnName
    * @param {string} redirect
    * @param {boolean} clearModals
    * @param {boolean} sendToast
@@ -97,6 +149,8 @@ export const OverlayContextProvider = ({
    * */
   const handlePendingTx = async ({
     hash,
+    txChainId,
+    fnName,
     toastData,
     redirect = null,
     clearModals = true,
@@ -104,12 +158,22 @@ export const OverlayContextProvider = ({
     onSuccess,
   }: {
     hash: Hex;
+    txChainId?: number | undefined;
+    fnName: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;
     onSuccess?: (data?: TransactionReceipt) => void;
   }): Promise<TransactionReceipt | undefined> => {
+    addTransaction({
+      hash,
+      txChainId,
+      timestamp: Date.now(),
+      status: 'pending',
+      fnName,
+    });
+
     const data = await waitForTransaction({ hash });
 
     if (!data) {
@@ -122,6 +186,8 @@ export const OverlayContextProvider = ({
         description: _.get(toastData, 'description'),
       });
     }
+
+    updateTransactionStatus(hash, 'completed');
 
     if (onSuccess) {
       onSuccess(data);
@@ -138,6 +204,28 @@ export const OverlayContextProvider = ({
     return Promise.resolve(data);
   };
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (transactions.length === 0) {
+        clearInterval(interval);
+        return;
+      }
+
+      const confirmedTransactions = await checkTransactionStatus(transactions);
+
+      _.forEach(transactions, (tx) => {
+        const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
+
+        if (confirmedTx && tx.status !== 'completed') {
+          updateTransactionStatus(tx.hash as Hex, 'completed');
+        }
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainId, transactions, setTransactions]);
+
   const returnValue = useMemo(
     () => ({
       modals,
@@ -146,6 +234,8 @@ export const OverlayContextProvider = ({
       commandPalette,
       setCommandPalette,
       handlePendingTx,
+      transactions,
+      clearAllTransactions,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],
@@ -154,6 +244,24 @@ export const OverlayContextProvider = ({
   return (
     <OverlayContext.Provider value={returnValue}>
       {children}
+
+      <Suspense fallback={<Suspender />}>
+        <Modal
+          name='transactions'
+          title='Transactions'
+          size='xl'
+          localOverlay={{
+            modals,
+            closeModals,
+            commandPalette,
+            setCommandPalette,
+            transactions,
+            clearAllTransactions,
+          }}
+        >
+          <TransactionHistory />
+        </Modal>
+      </Suspense>
     </OverlayContext.Provider>
   );
 };

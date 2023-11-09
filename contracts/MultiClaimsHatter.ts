@@ -5,11 +5,7 @@ export const MULTI_CLAIMS_HATTER_ABI = [
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
-  {
-    inputs: [],
-    name: 'MultiClaimsHatter_ArrayLengthMismatch',
-    type: 'error',
-  },
+  { inputs: [], name: 'MultiClaimsHatter_ArrayLengthMismatch', type: 'error' },
   {
     inputs: [{ internalType: 'uint256', name: 'hatId', type: 'uint256' }],
     name: 'MultiClaimsHatter_HatNotClaimable',
@@ -77,12 +73,7 @@ export const MULTI_CLAIMS_HATTER_ABI = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: 'uint8',
-        name: 'version',
-        type: 'uint8',
-      },
+      { indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' },
     ],
     name: 'Initialized',
     type: 'event',

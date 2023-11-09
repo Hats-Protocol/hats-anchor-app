@@ -68,7 +68,7 @@ export const chainsMap = (chainId?: number) =>
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
-  (chainsMap(chainId)?.blockExplorers?.etherscan.url ||
+  (chainsMap(chainId)?.blockExplorers?.etherscan?.url ||
     chainsMap(chainId)?.blockExplorers?.default.url);
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
@@ -100,9 +100,8 @@ export function createHatsClient(
 
   const walletClientHats = createWalletClient({
     chain,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    transport: custom(window.ethereum),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transport: custom((window as any).ethereum),
   });
 
   const hatsClient = new HatsClient({

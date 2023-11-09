@@ -6,6 +6,7 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useToast from '@/hooks/useToast';
+import { formatFunctionName } from '@/lib/general';
 
 interface ContractInteractionProps {
   functionName: string;
@@ -59,6 +60,8 @@ const useHatContractWrite = ({
 
       await handlePendingTx?.({
         hash: data.hash,
+        txChainId: chainId,
+        fnName: formatFunctionName(functionName),
         toastData: onSuccessToastData,
         onSuccess: (d?: TransactionReceipt) => {
           handleSuccess?.(d);

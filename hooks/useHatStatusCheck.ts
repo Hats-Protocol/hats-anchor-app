@@ -63,6 +63,8 @@ const useHatStatusCheck = ({
 
       await handlePendingTx?.({
         hash: _.get(data, 'hash'),
+        txChainId: chainId,
+        fnName: 'Check Hat Status',
         toastData: {
           title: 'Transaction Confirmed',
           description: 'Checking Hat Status...',

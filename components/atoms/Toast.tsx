@@ -83,6 +83,8 @@ const Toast: React.FC<ToastProps> = ({
       bg={bgValues[status].bg}
       position='relative'
       borderRadius='md'
+      justify='space-between'
+      minW='350px'
       padding={4}
     >
       <HStack spacing={3}>
@@ -101,7 +103,7 @@ const Toast: React.FC<ToastProps> = ({
             {title}
           </Heading>
           {description && (
-            <Text size='sm' color='white'>
+            <Text size='sm' color='white' noOfLines={2}>
               {description}
             </Text>
           )}
