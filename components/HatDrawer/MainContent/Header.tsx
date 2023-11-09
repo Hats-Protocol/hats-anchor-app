@@ -50,7 +50,7 @@ const Header = () => {
       <Flex align='start' justify='space-between'>
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
-            <Tooltip label={name} aria-label='A tooltip'>
+            <Tooltip label={name || selectedHat?.details}>
               <Text fontSize={24} isTruncated fontWeight='semibold'>
                 {name || selectedHat?.details}
               </Text>

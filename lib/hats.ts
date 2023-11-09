@@ -476,7 +476,6 @@ export const handleExportBranch = ({
   treeToDisplay,
   linkedHatIds,
   storedData,
-  decimalTreeId,
   chainId,
   toast,
 }: {
@@ -493,7 +492,6 @@ export const handleExportBranch = ({
     !treeToDisplay ||
     !linkedHatIds ||
     !storedData ||
-    !decimalTreeId ||
     !chainId
   )
     return;
@@ -512,20 +510,23 @@ export const handleExportBranch = ({
   ) {
     targetHatInBranch.admin.id = targetHatId;
   }
+  const targetHat = _.find(treeToDisplay, { id: targetHatId });
+  const type = isTopHat(targetHat) ? 'tree' : 'branch';
 
   const onChainHats = flattenHatData(hatsWithoutLinkedHats);
   const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
   const preparedTree = prepareExportTree(mergedHats);
   const fileData = JSON.stringify(preparedTree);
+  const hatId = hatIdDecimalToIp(BigInt(targetHatId));
 
   const blob = new Blob([fileData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.download = `chain-${chainId}-branch-${decimalTreeId}.json`; // Change filename to denote branch
+  link.download = `chain-${chainId}-${type}-${hatId}.json`; // Change filename to denote branch
   link.href = url;
   link.click();
   toast.success({
-    title: `Exported branch #${decimalTreeId} to your desktop`,
+    title: `Exported ${type} #${hatId} to your desktop`,
   });
 };
 
@@ -599,7 +600,7 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 };
 
 export const prepareDraftHats = (
-  importedTree: FormData[],
+  importedTree: HatExport[],
   onChainTree: FormData[],
   treeId?: Hex,
 ): Partial<FormData>[] => {
@@ -615,12 +616,12 @@ export const prepareDraftHats = (
   );
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
-    (hat: any) => hat.id !== prettyIdToId(treeId),
+    (hat: FormData) => hat.id !== prettyIdToId(treeId),
   );
   return hatsExcludingTop;
 };
 
-function patchHatIds(hats: any[], newMainID?: Hex) {
+function patchHatIds(hats: HatExport[], newMainID?: Hex) {
   if (!newMainID) return hats;
   const mainPortion = _.slice(newMainID, 0, 10).join('');
 

@@ -11,7 +11,6 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -46,18 +45,11 @@ import {
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const {
-    chainId,
-    selectedHat,
-    treeToDisplay,
-    storedData,
-    linkedHatIds,
-    treeId,
-  } = useTreeForm();
+  const { chainId, selectedHat, treeToDisplay, storedData, linkedHatIds } =
+    useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
-  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -114,7 +106,6 @@ const MoreMenu = () => {
       treeToDisplay,
       linkedHatIds,
       storedData,
-      decimalTreeId,
       chainId,
       toast,
     });

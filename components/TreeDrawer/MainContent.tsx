@@ -9,10 +9,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
@@ -56,7 +53,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
   const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
   const toast = useToast();
-  const decimalTreeId = treeId && treeIdHexToDecimal(treeId);
   const localOverlay = useOverlay();
 
   const { setModals } = localOverlay;
@@ -77,7 +73,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       treeToDisplay,
       linkedHatIds,
       storedData,
-      decimalTreeId,
       chainId,
       toast,
     });
