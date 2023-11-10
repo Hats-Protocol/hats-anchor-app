@@ -40,7 +40,6 @@ const validateTreeImport = ({
   if (fileTreeId?.includes('.')) {
     fileTreeId = _.first(_.split(fileTreeId, '.'));
   }
-  console.log('fileTreeId', fileTreeId);
   return null;
 };
 
@@ -97,6 +96,7 @@ const ImportTreeForm = () => {
         setValidImport(false);
         return;
       }
+      // ? check for duplicate hats in done in importHats
 
       importHats?.(draftHats);
       setModals?.({});

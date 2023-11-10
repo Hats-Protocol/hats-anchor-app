@@ -178,12 +178,12 @@ const Home = () => {
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTrees, (tree, i) => (
                   <FeaturedTreeCard
+                    key={i}
                     treeData={tree}
                     hatsAndWearers={_.find(
                       hatsAndWearers,
                       (h: { treeId: string }) => Number(h.treeId) === tree.id,
                     )}
-                    key={i}
                   />
                 ))}
               </SimpleGrid>

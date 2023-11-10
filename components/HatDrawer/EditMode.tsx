@@ -153,6 +153,7 @@ const EditMode = ({
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
+      console.log('resetting form values', defaultFormValues);
       const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
 
       if (
