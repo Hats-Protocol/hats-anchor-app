@@ -183,6 +183,7 @@ const Home = () => {
                       hatsAndWearers,
                       (h: { treeId: string }) => Number(h.treeId) === tree.id,
                     )}
+                    key={i}
                   />
                 ))}
               </SimpleGrid>
