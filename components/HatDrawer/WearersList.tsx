@@ -15,7 +15,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { lazy, Suspense, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
@@ -41,10 +42,21 @@ import { HatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
 
-const Modal = lazy(() => import('@/components/atoms/Modal'));
-const HatTransferForm = lazy(() => import('@/forms/HatTransferForm'));
-const HatWearerForm = lazy(() => import('@/forms/HatWearerForm'));
-const HatWearerStatusForm = lazy(() => import('@/forms/HatWearerStatusForm'));
+const Modal = dynamic(() => import('@/components/atoms/Modal'), {
+  loading: () => <Suspender />,
+});
+const HatTransferForm = dynamic(() => import('@/forms/HatTransferForm'), {
+  loading: () => <Suspender />,
+});
+const HatWearerForm = dynamic(() => import('@/forms/HatWearerForm'), {
+  loading: () => <Suspender />,
+});
+const HatWearerStatusForm = dynamic(
+  () => import('@/forms/HatWearerStatusForm'),
+  {
+    loading: () => <Suspender />,
+  },
+);
 
 const WearersList = () => {
   const currentNetworkId = useChainId();
@@ -302,106 +314,98 @@ const WearersList = () => {
         </Flex>
       </Stack>
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='hatWearers'
-          localOverlay={localOverlay}
-          customHeader={
-            <Flex
-              justify='space-between'
-              alignItems='center'
-              mt={8}
-              px={6}
-              pb={4}
+      <Modal
+        name='hatWearers'
+        localOverlay={localOverlay}
+        customHeader={
+          <Flex
+            justify='space-between'
+            alignItems='center'
+            mt={8}
+            px={6}
+            pb={4}
+          >
+            <Heading fontSize='24px'>Hat Wearers</Heading>
+            <Button
+              onClick={() =>
+                exportWearers &&
+                exportToCsv(exportWearers, selectedHatDetails?.name)
+              }
+              leftIcon={<FaFileCsv />}
+              colorScheme='blue'
             >
-              <Heading fontSize='24px'>Hat Wearers</Heading>
-              <Button
-                onClick={() =>
-                  exportWearers &&
-                  exportToCsv(exportWearers, selectedHatDetails?.name)
-                }
-                leftIcon={<FaFileCsv />}
-                colorScheme='blue'
-              >
-                Export
-              </Button>
-            </Flex>
-          }
-          footer={
-            <Flex justify='center' px={6} pb={6} w='full'>
-              <Button
-                variant='ghost'
-                onClick={() => {
-                  prevPage();
-                }}
-                isDisabled={currentPage === 0}
-              >
-                {currentPage > 1 ? `Previous (${currentPage - 1})` : 'Previous'}
-              </Button>
-              <Button
-                variant='ghost'
-                onClick={() => {
-                  nextPage();
-                }}
-                isDisabled={_.size(paginatedWearers) < wearersPerPage}
-              >
-                {`Next (${currentPage + 1})`}
-              </Button>
-            </Flex>
-          }
-        >
-          <Flex direction='column' gap={4}>
-            {isLoading || isFetching ? (
-              <Spinner />
-            ) : (
-              paginatedWearers?.map((w: HatWearer) => (
-                <WearerRow
-                  key={w.id}
-                  wearer={w}
-                  isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
-                  isAdminUser={isAdminUser}
-                  setChangeStatusWearer={setChangeStatusWearer}
-                  setWearerToTransferFrom={setWearerToTransferFrom}
-                />
-              ))
-            )}
+              Export
+            </Button>
           </Flex>
-        </Modal>
-      </Suspense>
+        }
+        footer={
+          <Flex justify='center' px={6} pb={6} w='full'>
+            <Button
+              variant='ghost'
+              onClick={() => {
+                prevPage();
+              }}
+              isDisabled={currentPage === 0}
+            >
+              {currentPage > 1 ? `Previous (${currentPage - 1})` : 'Previous'}
+            </Button>
+            <Button
+              variant='ghost'
+              onClick={() => {
+                nextPage();
+              }}
+              isDisabled={_.size(paginatedWearers) < wearersPerPage}
+            >
+              {`Next (${currentPage + 1})`}
+            </Button>
+          </Flex>
+        }
+      >
+        <Flex direction='column' gap={4}>
+          {isLoading || isFetching ? (
+            <Spinner />
+          ) : (
+            paginatedWearers?.map((w: HatWearer) => (
+              <WearerRow
+                key={w.id}
+                wearer={w}
+                isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
+                isAdminUser={isAdminUser}
+                setChangeStatusWearer={setChangeStatusWearer}
+                setWearerToTransferFrom={setWearerToTransferFrom}
+              />
+            ))
+          )}
+        </Flex>
+      </Modal>
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='hatWearerStatus'
-          title='Remove a Wearer by revoking their Hat token'
-          localOverlay={localOverlay}
-          size='3xl'
-        >
-          <HatWearerStatusForm
-            wearer={changeStatusWearer}
-            eligibility='Not Eligible'
-          />
-        </Modal>
-      </Suspense>
+      <Modal
+        name='hatWearerStatus'
+        title='Remove a Wearer by revoking their Hat token'
+        localOverlay={localOverlay}
+        size='3xl'
+      >
+        <HatWearerStatusForm
+          wearer={changeStatusWearer}
+          eligibility='Not Eligible'
+        />
+      </Modal>
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='transferHat'
-          title='Transfer Hat to New Address'
-          localOverlay={localOverlay}
-        >
-          <HatTransferForm currentWearerAddress={wearerToTransferFrom} />
-        </Modal>
-      </Suspense>
+      <Modal
+        name='transferHat'
+        title='Transfer Hat to New Address'
+        localOverlay={localOverlay}
+      >
+        <HatTransferForm currentWearerAddress={wearerToTransferFrom} />
+      </Modal>
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='newWearer'
-          title='Add a Wearer by minting a Hat token'
-          localOverlay={localOverlay}
-        >
-          <HatWearerForm localForm={localForm} />
-        </Modal>
-      </Suspense>
+      <Modal
+        name='newWearer'
+        title='Add a Wearer by minting a Hat token'
+        localOverlay={localOverlay}
+      >
+        <HatWearerForm localForm={localForm} />
+      </Modal>
     </>
   );
 };
