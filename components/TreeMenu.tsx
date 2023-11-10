@@ -22,7 +22,6 @@ import {
   Text,
   useDisclosure,
   UseDisclosureReturn,
-  VStack,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
@@ -59,11 +58,17 @@ const TreeMenu = ({
     showInactiveHats,
     setShowInactiveHats,
     toggleEditMode,
+    // storedData,
+    // setStoredData,
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
   const isClient = useIsClient();
+
+  // const updatedHats = !_.isEmpty(
+  //   _.filter(storedData, (h) => !_.isEmpty(_.reject(_.keys(h), ['id']))),
+  // );
 
   useEffect(() => {
     if (!isClient) return;
@@ -99,9 +104,8 @@ const TreeMenu = ({
       zIndex={4}
     >
       <Flex justify='space-between' align='center' w='100%'>
-        <Box>
+        <HStack>
           <Button
-            mr={3}
             fontWeight='medium'
             border='1px solid #0987A0'
             background='#C4F1F9'
@@ -166,7 +170,7 @@ const TreeMenu = ({
               </PopoverBody>
             </PopoverContent>
           </Popover>
-        </Box>
+        </HStack>
         {editMode ? (
           <Button
             variant='outline'
@@ -178,72 +182,95 @@ const TreeMenu = ({
             Draft Changes List
           </Button>
         ) : (
-          <VStack align='center' alignItems='flex-end' spacing={1}>
-            <Skeleton isLoaded={!!chain && !!treeToDisplay}>
-              <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
-                <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
+          <HStack spacing={4}>
+            {/* {!_.isEmpty(treeToDisplay) && (
+              <Stack minH='55px' spacing={1}>
+                <Text color='blue.500'>
+                  <b>{_.size(treeToDisplay) || 0}</b> hat
+                  {_.size(treeToDisplay) > 1 ? 's' : ''} in this {CONFIG.tree}
+                </Text>
+                {updatedHats && (
+                  <Button
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
+                    onClick={() => setStoredData?.([])}
+                    size='xs'
+                  >
+                    Clear Updates
+                  </Button>
+                )}
+              </Stack>
+            )} */}
 
-                <ChakraNextLink
-                  href={`${explorerUrl(chainId)}/address/${CONFIG.hatsAddress}`}
-                  isExternal
-                >
-                  <HStack spacing={1}>
-                    <Text fontWeight='medium'>{chain?.name}</Text>
-                    <IconButton
-                      aria-label='Explorer contract address'
-                      icon={<Icon as={FiExternalLink} />}
-                      size='xs'
-                      variant='ghost'
-                    />
-                  </HStack>
-                </ChakraNextLink>
-              </Flex>
-            </Skeleton>
-            <Skeleton isLoaded={isClient && !!localLastTimestamp}>
-              <Popover trigger='hover'>
-                <PopoverTrigger>
-                  <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
-                    <Text>Last event: </Text>
-                    <Text mr={2} fontWeight='medium'>
-                      {localLastTimestamp}
-                    </Text>
-                    <Image src='/icons/ago.svg' alt='History icon' />
-                  </Flex>
-                </PopoverTrigger>
-                <PopoverContent width='400px' mr={4}>
-                  <PopoverArrow />
-                  <PopoverCloseButton />
-                  <PopoverBody>
-                    <Stack>
-                      <Box>
-                        <Heading
-                          size='sm'
-                          fontWeight='medium'
-                          textTransform='uppercase'
-                          mb={1}
-                        >
-                          Event history
-                        </Heading>
-                        <EventHistory type='tree' count={6} />
-                        {_.gt(_.size(treeEvents), 4) && (
-                          <>
-                            <Divider my={2} />
-                            <Button
-                              onClick={() => setModals?.({ events: true })}
-                              variant='link'
-                              colorScheme='blue'
-                            >
-                              View Full History
-                            </Button>
-                          </>
-                        )}
-                      </Box>
-                    </Stack>
-                  </PopoverBody>
-                </PopoverContent>
-              </Popover>
-            </Skeleton>
-          </VStack>
+            <Stack align='center' alignItems='flex-end' spacing={1}>
+              <Skeleton isLoaded={!!chain && !!treeToDisplay}>
+                <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
+                  <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
+
+                  <ChakraNextLink
+                    href={`${explorerUrl(chainId)}/address/${
+                      CONFIG.hatsAddress
+                    }`}
+                    isExternal
+                  >
+                    <HStack spacing={1}>
+                      <Text fontWeight='medium'>{chain?.name}</Text>
+                      <IconButton
+                        aria-label='Explorer contract address'
+                        icon={<Icon as={FiExternalLink} />}
+                        size='xs'
+                        variant='ghost'
+                      />
+                    </HStack>
+                  </ChakraNextLink>
+                </Flex>
+              </Skeleton>
+              <Skeleton isLoaded={isClient && !!localLastTimestamp}>
+                <Popover trigger='hover'>
+                  <PopoverTrigger>
+                    <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
+                      <Text>Last event: </Text>
+                      <Text mr={2} fontWeight='medium'>
+                        {localLastTimestamp}
+                      </Text>
+                      <Image src='/icons/ago.svg' alt='History icon' />
+                    </Flex>
+                  </PopoverTrigger>
+                  <PopoverContent width='400px' mr={4}>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverBody>
+                      <Stack>
+                        <Box>
+                          <Heading
+                            size='sm'
+                            fontWeight='medium'
+                            textTransform='uppercase'
+                            mb={1}
+                          >
+                            Event history
+                          </Heading>
+                          <EventHistory type='tree' count={6} />
+                          {_.gt(_.size(treeEvents), 4) && (
+                            <>
+                              <Divider my={2} />
+                              <Button
+                                onClick={() => setModals?.({ events: true })}
+                                variant='link'
+                                colorScheme='blue'
+                              >
+                                View Full History
+                              </Button>
+                            </>
+                          )}
+                        </Box>
+                      </Stack>
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              </Skeleton>
+            </Stack>
+          </HStack>
         )}
       </Flex>
     </Flex>

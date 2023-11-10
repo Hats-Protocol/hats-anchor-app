@@ -694,3 +694,20 @@ const extractWearers = (wearers: any): FormWearer[] => {
     })) || []
   );
 };
+
+export const checkMissingHats = (
+  hats: Partial<FormData>[],
+  onchainHats: Hat[] | undefined,
+) => {
+  if (!onchainHats) return true;
+  const onChainIds = _.map(onchainHats, 'id');
+  const draftIds = _.map(hats, 'id');
+  const idList = _.uniq(_.concat(onChainIds, draftIds));
+
+  const missingParent = _.filter(hats, (hat) => {
+    if (!hat.adminId) return true;
+    return !_.includes(idList, hat.adminId);
+  });
+
+  return _.some(missingParent);
+};

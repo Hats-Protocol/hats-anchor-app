@@ -15,7 +15,7 @@ import { BsBoxArrowInUpRight } from 'react-icons/bs';
 import DropZone from '@/components/atoms/DropZone';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { flattenHatData, prepareDraftHats } from '@/lib/hats';
+import { checkMissingHats, flattenHatData, prepareDraftHats } from '@/lib/hats';
 import { HatExport } from '@/types';
 
 interface validateTreeImportProps {
@@ -46,7 +46,8 @@ const validateTreeImport = ({
 
 const ImportTreeForm = () => {
   const { setModals } = useOverlay();
-  const { treeId, chainId, importHats, onchainHatsWithDetails } = useTreeForm();
+  const { treeId, chainId, importHats, onchainHats, onchainHatsWithDetails } =
+    useTreeForm();
 
   const [validImport, setValidImport] = useState(true);
   const [treeFile, setTreeFile] = useState<File | undefined>();
@@ -91,6 +92,12 @@ const ImportTreeForm = () => {
         treeId,
       );
 
+      const missingHats = checkMissingHats(draftHats, onchainHats);
+      if (missingHats) {
+        setValidImport(false);
+        return;
+      }
+
       importHats?.(draftHats);
       setModals?.({});
     };
@@ -122,8 +129,10 @@ const ImportTreeForm = () => {
             isFullWidth
           />
           {!validImport ? (
-            <Text fontSize='sm' color='red'>
-              Error: {_.get(_.first(fileRejections), 'errors[0].message')}
+            <Text fontSize='sm' color='red' maxW='70%'>
+              <b>Error:</b>{' '}
+              {_.get(_.first(fileRejections), 'errors[0].message') ||
+                'Missing hats in tree! Please check the file and onchain tree to ensure no hats are missing parents.'}
             </Text>
           ) : (
             treeFile && (

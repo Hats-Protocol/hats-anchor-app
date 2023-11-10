@@ -15,6 +15,7 @@ const Button = {
     }),
     outlineMatch: (props: StyleFunctionProps) => ({
       color: props.color || props.colorScheme || 'gray.700',
+      border: props.border || '1px solid',
       borderColor: props.borderColor || props.colorScheme || 'gray.700',
       _hover: {
         background: props.background || props.bg || 'whiteAlpha.900',
