@@ -4,6 +4,7 @@ import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
+import useToast from '@/hooks/useToast';
 import { treeCreateEventIdToTreeId } from '@/lib/hats';
 
 const useTreeCreate = ({
@@ -16,6 +17,7 @@ const useTreeCreate = ({
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const {
     data: newReceiverResolvedAddress,
@@ -34,9 +36,13 @@ const useTreeCreate = ({
     setTimeout(() => {
       queryClient.invalidateQueries(['treeList', chainId]);
       queryClient.invalidateQueries(['wearerDetails']);
-    }, 1000);
 
-    router.push(`/trees/${chainId}/${treeId}`);
+      toast.info({
+        title: 'Redirecting you to your new tree',
+      });
+
+      router.push(`/trees/${chainId}/${treeId}`);
+    }, 1000);
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({

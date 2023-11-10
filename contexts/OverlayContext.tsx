@@ -1,12 +1,12 @@
 import { waitForTransaction } from '@wagmi/core';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
   createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
-  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -16,13 +16,21 @@ import {
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
-import Modal from '@/components/atoms/Modal';
+// import Modal from '@/components/atoms/Modal';
 import Suspender from '@/components/atoms/Suspender';
-import TransactionHistory from '@/components/TransactionHistory';
+// import TransactionHistory from '@/components/TransactionHistory';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { checkTransactionStatus } from '@/lib/contract';
 import { Transaction } from '@/types';
+
+const Modal = dynamic(() => import('@/components/atoms/Modal'), {
+  loading: () => <Suspender />,
+});
+const TransactionHistory = dynamic(
+  () => import('@/components/TransactionHistory'),
+  { loading: () => <Suspender /> },
+);
 
 const defaults = {
   createTree: false,
@@ -245,23 +253,21 @@ export const OverlayContextProvider = ({
     <OverlayContext.Provider value={returnValue}>
       {children}
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='transactions'
-          title='Transactions'
-          size='xl'
-          localOverlay={{
-            modals,
-            closeModals,
-            commandPalette,
-            setCommandPalette,
-            transactions,
-            clearAllTransactions,
-          }}
-        >
-          <TransactionHistory />
-        </Modal>
-      </Suspense>
+      <Modal
+        name='transactions'
+        title='Transactions'
+        size='xl'
+        localOverlay={{
+          modals,
+          closeModals,
+          commandPalette,
+          setCommandPalette,
+          transactions,
+          clearAllTransactions,
+        }}
+      >
+        <TransactionHistory />
+      </Modal>
     </OverlayContext.Provider>
   );
 };

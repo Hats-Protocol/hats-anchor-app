@@ -13,15 +13,13 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Suspender from '@/components/atoms/Suspender';
-import DashboardHatCard from '@/components/DashboardHatCard';
-import FeaturedTreeCard from '@/components/FeaturedTreeCard';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import LearnMoreCard from '@/components/LearnMoreCard';
@@ -33,6 +31,19 @@ import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { orderedChains } from '@/lib/web3';
+
+const DashboardHatCard = dynamic(
+  () => import('@/components/DashboardHatCard'),
+  {
+    loading: () => <Suspender />,
+  },
+);
+const FeaturedTreeCard = dynamic(
+  () => import('@/components/FeaturedTreeCard'),
+  {
+    loading: () => <Suspender />,
+  },
+);
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
@@ -136,9 +147,7 @@ const Home = () => {
                   spacing={6}
                 >
                   {_.map(currentHatsWithImagesData, (hat, i) => (
-                    <Suspense fallback={<Suspender />} key={i}>
-                      <DashboardHatCard hat={hat} key={i} />
-                    </Suspense>
+                    <DashboardHatCard hat={hat} key={i} />
                   ))}
                 </SimpleGrid>
               )}
@@ -168,15 +177,13 @@ const Home = () => {
               </Text>
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTrees, (tree, i) => (
-                  <Suspense key={i} fallback={<Suspender />}>
-                    <FeaturedTreeCard
-                      treeData={tree}
-                      hatsAndWearers={_.find(
-                        hatsAndWearers,
-                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
-                      )}
-                    />
-                  </Suspense>
+                  <FeaturedTreeCard
+                    treeData={tree}
+                    hatsAndWearers={_.find(
+                      hatsAndWearers,
+                      (h: { treeId: string }) => Number(h.treeId) === tree.id,
+                    )}
+                  />
                 ))}
               </SimpleGrid>
             </Card>

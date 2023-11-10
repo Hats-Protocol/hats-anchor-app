@@ -7,7 +7,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ReactNode, Suspense, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { ReactNode, useEffect, useState } from 'react';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import {
   BsFileCode,
@@ -26,7 +27,6 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
-import ModuleDrawer from '@/components/ModuleDrawer';
 import { TRIGGER_OPTIONS } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -36,6 +36,10 @@ import { explorerUrl } from '@/lib/web3';
 import { DetailsItem, HatWearer, ModuleKind } from '@/types';
 
 import ClaimsHandler from './ClaimsHandler';
+
+const ModuleDrawer = dynamic(() => import('@/components/ModuleDrawer'), {
+  loading: () => <Suspender />,
+});
 
 interface HatManagementFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -264,13 +268,11 @@ const HatManagementForm = ({
         in={!!isOpenModuleDrawer}
         style={{ zIndex: 1001, width: '100%' }}
       >
-        <Suspense fallback={<Suspender />}>
-          <ModuleDrawer
-            onCloseModuleDrawer={onCloseModuleDrawer}
-            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-            title={title}
-          />
-        </Suspense>
+        <ModuleDrawer
+          onCloseModuleDrawer={onCloseModuleDrawer}
+          isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+          title={title}
+        />
       </Slide>
     </form>
   );

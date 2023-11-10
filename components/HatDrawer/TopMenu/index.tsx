@@ -1,7 +1,7 @@
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
@@ -16,9 +16,12 @@ import { Hat } from '@/types';
 
 import MoreMenu from './MoreMenu';
 
-const Modal = lazy(() => import('@/components/atoms/Modal'));
-const HatLinkRequestCreateForm = lazy(
+const Modal = dynamic(() => import('@/components/atoms/Modal'), {
+  loading: () => <Suspender />,
+});
+const HatLinkRequestCreateForm = dynamic(
   () => import('@/forms/HatLinkRequestCreateForm'),
+  { loading: () => <Suspender /> },
 );
 
 const TopMenu = ({
@@ -155,21 +158,19 @@ const TopMenu = ({
         )}
       </HStack>
 
-      <Suspense fallback={<Suspender />}>
-        <Modal
-          name='requestLink'
-          title='Request to Link'
-          localOverlay={localOverlay}
-        >
-          <HatLinkRequestCreateForm
-            newAdmin={selectedHat.id}
-            wearerTopHats={_.filter(
-              wearerTopHats,
-              (hat) => hat !== selectedHat.admin?.id,
-            )}
-          />
-        </Modal>
-      </Suspense>
+      <Modal
+        name='requestLink'
+        title='Request to Link'
+        localOverlay={localOverlay}
+      >
+        <HatLinkRequestCreateForm
+          newAdmin={selectedHat.id}
+          wearerTopHats={_.filter(
+            wearerTopHats,
+            (hat) => hat !== selectedHat.admin?.id,
+          )}
+        />
+      </Modal>
     </Flex>
   );
 };
