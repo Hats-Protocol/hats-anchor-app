@@ -14,15 +14,24 @@ import { chainsMap } from '@/lib/web3';
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';
 
-const EventHistory = dynamic(() => import('./EventHistory'));
-const HatDrawer = dynamic(() => import('./HatDrawer'));
+const EventHistory = dynamic(() => import('./EventHistory'), {
+  loading: () => <Suspender />,
+});
+const HatDrawer = dynamic(() => import('./HatDrawer'), {
+  loading: () => <Suspender />,
+});
 const OrgChart = dynamic(() => import('./OrgChart'), {
   loading: () => <Suspender />,
 });
-const TreeDrawer = dynamic(() => import('./TreeDrawer'));
-const TreeMenu = dynamic(() => import('./TreeMenu'));
-
-const Modal = dynamic(() => import('./atoms/Modal'));
+const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
+  loading: () => <Suspender />,
+});
+const TreeMenu = dynamic(() => import('./TreeMenu'), {
+  loading: () => <Suspender />,
+});
+const Modal = dynamic(() => import('./atoms/Modal'), {
+  loading: () => <Suspender />,
+});
 
 const TreePage = () => {
   const [initialLoad, setInitialLoad] = useState(true);
@@ -91,9 +100,7 @@ const TreePage = () => {
         in={!!treeToDisplay && !!isOpenHatDrawer}
         style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}
       >
-        <Suspense fallback={<Suspender />}>
-          <HatDrawer returnToList={returnToList} />
-        </Suspense>
+        <HatDrawer returnToList={returnToList} />
       </Slide>
 
       <Slide
@@ -101,9 +108,7 @@ const TreePage = () => {
         in={!!isOpenTreeDrawer}
         style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}
       >
-        <Suspense fallback={<Suspender />}>
-          <TreeDrawer />
-        </Suspense>
+        <TreeDrawer />
       </Slide>
 
       <Layout editMode={editMode} hatData={topHat}>
