@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
+
 import {
   Box,
   Button,
@@ -116,10 +117,7 @@ const OrgChartComponent: React.FC = () => {
             if (!editMode || !chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
               if (
-                checkParentElementForClass(
-                  event,
-                  `test-click-${data.data.name}`,
-                )
+                checkParentElementForClass(event, `click-${data.data.name}`)
               ) {
                 const nextChildId = calculateNextChildId(
                   data.data.id,
@@ -615,18 +613,44 @@ const OrgChartComponent: React.FC = () => {
                     align-items: center;
                     justify-content: space-between;
                   "
-                    class="test-click-${name}">
+                    class="click-${name}">
                     <div style="
                       display: flex;
                       width: 100%;
                       justify-content: flex-end;
+                      align-items: center;
                       flex-direction: row;
                       gap: 4px;
                       font-size: 14px;
-                    ">
-                      Create Hat ${nextChildId}
-                      <div style="background: white;">
-                        <img src="/icons/plus-square.svg" alt="add" />
+                      position: relative;
+                    " class="hover-text">
+                      ${
+                        levelAtLocalTree > 3
+                          ? `
+                              <div class="tooltip">
+                                #${nextChildId}
+                              </div>
+                            `
+                          : ''
+                      }
+                      
+                      <div style="
+                        display: -webkit-box;
+                        overflow: hidden;
+                        width: 180px;
+                        -webkit-line-clamp: 1;
+                        -webkit-box-orient: vertical;
+                      ">
+                        Create Hat ${nextChildId}
+                      </div>
+                      <div style="
+                        display: block;
+                        background: white;
+                        border-radius: 2px;
+                        height: 14px;
+                        width: 15px;
+                      ">
+                        <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
                       </div>
                     </div>
                   </div>`
