@@ -94,9 +94,6 @@ const OrgChartComponent: React.FC = () => {
           // margin from top for root node
           .rootMargin(80)
           .siblingsMargin(() => 40)
-          // TODO fix when update pushed
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           .neighbourMargin(() => 40)
           // set node sizes
           .nodeHeight(() => {
@@ -107,10 +104,11 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick(function test(node: Hat) {
+          .onNodeClick(function test(node: unknown) {
+            const hat = node as Hat;
             if (!editMode) {
-              handleSelectHat?.(node?.id);
-              centerChart(chart, node?.id);
+              handleSelectHat?.(hat?.id);
+              centerChart(chart, hat?.id);
             }
           })
           .nodeUpdate(function test(this: any) {
