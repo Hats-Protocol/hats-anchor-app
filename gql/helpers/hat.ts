@@ -2,8 +2,7 @@ import _ from 'lodash';
 
 import { Hat } from '@/types';
 
-import client from '../client';
-import { GET_HAT, GET_HATS_BY_IDS } from '../queries';
+import { createSubgraphClient } from '../../lib/web3';
 
 export const fetchHatDetails = async (
   hatId: string | undefined,
@@ -11,23 +10,75 @@ export const fetchHatDetails = async (
 ): Promise<Hat | null> => {
   if (!hatId || !chainId) return null;
 
-  const result = await client(chainId).request(GET_HAT, { id: hatId });
+  const subgraphClient = createSubgraphClient();
+
+  const res = await subgraphClient.getHat({
+    chainId,
+    hatId: BigInt(hatId),
+    props: {
+      prettyId: true,
+      status: true,
+      createdAt: true,
+      details: true,
+      maxSupply: true,
+      eligibility: true,
+      toggle: true,
+      mutable: true,
+      imageUri: true,
+      levelAtLocalTree: true,
+      claimableBy: {},
+      claimableForBy: {},
+      currentSupply: true,
+      tree: {},
+      wearers: {},
+      admin: {},
+      events: {
+        timestamp: true,
+        transactionID: true,
+      },
+    },
+  });
 
   return {
-    ...(_.get(result, 'hat', {}) as Hat),
+    ...res,
     chainId,
-  };
+  } as unknown as Hat;
 };
 
 export const fetchManyHatDetails = async (
   hatIds: string[],
   chainId: number,
 ): Promise<Hat[]> => {
-  const result = await client(chainId).request(GET_HATS_BY_IDS, {
-    ids: hatIds,
+  const subgraphClient = createSubgraphClient();
+
+  const res = await subgraphClient.getHatsByIds({
+    chainId,
+    hatIds: hatIds.map((id) => BigInt(id)),
+    props: {
+      prettyId: true,
+      status: true,
+      createdAt: true,
+      details: true,
+      maxSupply: true,
+      eligibility: true,
+      toggle: true,
+      mutable: true,
+      imageUri: true,
+      levelAtLocalTree: true,
+      claimableBy: {},
+      claimableForBy: {},
+      currentSupply: true,
+      tree: {},
+      wearers: {},
+      admin: {},
+      events: {
+        timestamp: true,
+        transactionID: true,
+      },
+    },
   });
 
-  return (_.get(result, 'hats', []) as Hat[]).map((hat) => ({
+  return (res as unknown as Hat[]).map((hat) => ({
     ...hat,
     chainId,
   }));

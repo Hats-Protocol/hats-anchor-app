@@ -2,6 +2,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
+import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { publicProvider } from '@wagmi/core/providers/public';
@@ -111,6 +112,10 @@ export function createHatsClient(
   });
 
   return hatsClient;
+}
+
+export function createSubgraphClient(): HatsSubgraphClient {
+  return new HatsSubgraphClient();
 }
 
 export async function createHatsModulesClient(
