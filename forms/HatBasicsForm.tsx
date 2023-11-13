@@ -12,7 +12,7 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaHouseUser, FaPlus, FaTrash } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
@@ -23,6 +23,7 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { MUTABILITY } from '@/constants';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
@@ -38,30 +39,27 @@ const MUTABILITY_OPTIONS = [
   },
 ];
 
-const HatBasicsForm = ({
-  localForm,
-  setNewImageURI,
-}: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
-  setNewImageURI: (uri: string) => void;
-}) => {
-  const { watch, control, formState } = localForm;
-
+const HatBasicsForm = () => {
   const { chainId, selectedHat, newImageUrls } = useTreeForm();
+  const { localForm, formValues } = useHatForm();
+
+  const [image, setImage] = useState<ImageFile>();
+
+  const { control, formState, setValue } = _.pick(localForm, [
+    'control',
+    'formState',
+    'setValue',
+  ]);
+
   const newImageUrl = _.find(newImageUrls, [
     'id',
     selectedHat?.id,
   ])?.newImageUrl;
 
-  const [image, setImage] = useState<ImageFile>();
-
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'guilds',
   });
-
-  const guilds = useDebounce<string[]>(watch('guilds'));
 
   const {
     acceptedFiles,
@@ -80,21 +78,27 @@ const HatBasicsForm = ({
       );
     },
   });
-
-  const imageUrl = formatImageUrl(formState?.defaultValues?.imageUrl);
-  const currentImageUrl = watch('imageUrl');
+  console.log('acceptedFiles', acceptedFiles);
 
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: { name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}` },
   });
+  console.log(imagePinData);
 
   useEffect(() => {
-    const hatImageURI =
-      imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
-    setNewImageURI(hatImageURI);
-  }, [imagePinData, currentImageUrl, setNewImageURI]);
+    console.log('this effect');
+    if (!imagePinData) return;
+    const hatImageURI = `ipfs://${imagePinData}`;
+    console.log('hatImageURI', hatImageURI);
+    setValue?.('imageUri', hatImageURI, { shouldDirty: true });
+  }, [imagePinData, setValue]);
+
+  const imageUrl = formatImageUrl(formState?.defaultValues?.imageUrl);
+  // console.log(imageUrl);
+
+  if (!localForm) return null;
 
   return (
     <form>
@@ -160,7 +164,7 @@ const HatBasicsForm = ({
                     />
                   </HStack>
                 ))}
-                <Box mb={2}>
+                {/* <Box mb={2}>
                   <Button
                     onClick={() => append('')}
                     isDisabled={_.some(guilds, (item: string) => item === '')}
@@ -169,7 +173,7 @@ const HatBasicsForm = ({
                     <FaPlus />
                     Add {guilds?.length ? 'another' : 'a'} Guild
                   </Button>
-                </Box>
+                </Box> */}
               </Stack>
             </FormRowWrapper>
           )}

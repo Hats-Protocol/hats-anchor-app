@@ -6,18 +6,18 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { ReactNode, useState } from 'react';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle } from 'react-icons/bs';
 
 import LabelWithLink from '@/components/LabelWithLink';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { DetailsItem } from '@/types';
 
 interface ItemDetailsFormProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
   formName: string;
   title: string;
   subtitle?: string | ReactNode;
@@ -26,29 +26,34 @@ interface ItemDetailsFormProps {
 }
 
 const ItemDetailsForm = ({
-  localForm,
   formName,
   title,
   Icon,
   subtitle,
   label,
 }: ItemDetailsFormProps) => {
+  const { localForm } = useHatForm();
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isLinkValid, setIsLinkValid] = useState(false);
   const [inputLink, setInputLink] = useState('');
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
 
-  const { watch, control, setValue, getValues } = localForm;
+  const { watch, control, setValue, getValues } = _.pick(localForm, [
+    'watch',
+    'control',
+    'setValue',
+    'getValues',
+  ]);
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
   });
-  const items = watch(formName);
+  const items = watch?.(formName);
 
   const handleEdit = (index: number) => {
-    const itemsArray = getValues(formName);
+    const itemsArray = getValues?.(formName);
     setInputLink(itemsArray[index].link);
     setCurrentItemIndex(index);
     setModals?.({
@@ -58,7 +63,7 @@ const ItemDetailsForm = ({
 
   const handleSave = () => {
     if (isLinkValid) {
-      setValue(`${formName}.${currentItemIndex}.link`, inputLink);
+      setValue?.(`${formName}.${currentItemIndex}.link`, inputLink);
       setInputLink('');
       setCurrentItemIndex(0);
     }
@@ -66,6 +71,8 @@ const ItemDetailsForm = ({
       [`editLabel-${title}`]: false,
     });
   };
+
+  if (!localForm) return null;
 
   return (
     <Stack>

@@ -1,10 +1,8 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useState } from 'react';
 
+import { HatFormContextProvider } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useToast from '@/hooks/useToast';
-import { FormData } from '@/types';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -12,68 +10,12 @@ import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
-  const toast = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
-    undefined,
-  );
-  const {
-    selectedHat,
-    editMode,
-    storedData,
-    setStoredData,
-    newImageUrls,
-    removeHat,
-    treeDisclosure,
-    hatDisclosure,
-  } = useTreeForm();
+  const { selectedHat, editMode, newImageUrls } = useTreeForm();
   const newImageUrl = _.find(newImageUrls, [
     'id',
     selectedHat?.id,
   ])?.newImageUrl;
   const selectedHatId = selectedHat?.id;
-  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
-  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
-
-  const handleSave = (sendToast: boolean = true) => {
-    if (unsavedData) {
-      const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
-        hat.id === selectedHat?.id
-          ? { ...hat, ...unsavedData, id: selectedHat?.id }
-          : hat,
-      );
-
-      if (!_.find(updatedHats, ['id', selectedHat?.id])) {
-        updatedHats.push({ ...unsavedData, id: selectedHat?.id || '0x' });
-      }
-
-      setStoredData?.(updatedHats);
-      setUnsavedData(undefined);
-
-      if (sendToast) {
-        toast.success({
-          title: 'Saved',
-          description: 'Your changes have been saved.',
-          duration: 1500,
-        });
-      }
-    }
-  };
-
-  const handleRemoveHat = () => {
-    if (!selectedHat) return;
-    removeHat?.(selectedHat?.id);
-    setUnsavedData(undefined);
-  };
-
-  const handleClearChanges = () => {
-    if (!selectedHat) return;
-    const updateData = _.reject(storedData, { id: selectedHat?.id });
-    setStoredData?.(updateData);
-    setUnsavedData(undefined);
-    onOpenTreeDrawer?.();
-    onCloseHatDrawer?.();
-  };
 
   if (!selectedHat) return null;
 
@@ -117,25 +59,15 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           />
         </Box>
 
-        <TopMenu
-          onSave={handleSave}
-          handleRemoveHat={handleRemoveHat}
-          handleClearChanges={handleClearChanges}
-          returnToList={returnToList}
-          isLoading={isLoading}
-        />
+        <HatFormContextProvider>
+          <TopMenu returnToList={returnToList} />
 
-        {!editMode && <MainContent />}
+          {!editMode && <MainContent />}
 
-        {editMode && (
-          <EditMode
-            setUnsavedData={setUnsavedData}
-            unsavedData={unsavedData}
-            setIsLoading={setIsLoading}
-          />
-        )}
+          {editMode && <EditMode />}
 
-        <BottomMenu />
+          <BottomMenu />
+        </HatFormContextProvider>
       </Box>
     </Box>
   );

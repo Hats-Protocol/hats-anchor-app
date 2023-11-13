@@ -623,8 +623,7 @@ export const TreeFormContextProvider = ({
     if (initialHatId && orgChartTree) {
       handleSelectHat(ipToHatId(String(initialHatId)));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialHatId, orgChartTree]);
+  }, [initialHatId, orgChartTree, handleSelectHat]);
 
   const returnValue = useMemo(
     () => ({

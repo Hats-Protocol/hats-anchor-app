@@ -60,7 +60,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   let fetchedParentOfTrees = [] as Hat[];
 
   if (parentOfTrees) {
-    const promises = parentOfTrees.map((parentTree) =>
+    const promises = _.map(parentOfTrees, (parentTree) =>
       fetchHatDetails(prettyIdToId(parentTree?.id), chainId),
     );
 
@@ -100,7 +100,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 export const getStaticPaths = async () => {
   return {
     paths: [],
-    fallback: 'blocking',
+    fallback: false,
   };
 };
 

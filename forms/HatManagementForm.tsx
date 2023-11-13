@@ -7,9 +7,10 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import {
   BsFileCode,
   BsListTask,
@@ -19,7 +20,6 @@ import {
 } from 'react-icons/bs';
 import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
-import { Hex } from 'viem';
 
 import AddressInput from '@/components/AddressInput';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -27,13 +27,14 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
-import { TRIGGER_OPTIONS } from '@/constants';
+import { MODULE_TYPES, TRIGGER_OPTIONS } from '@/constants';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import { isMutable } from '@/lib/hats';
 import { explorerUrl } from '@/lib/web3';
-import { DetailsItem, HatWearer, ModuleKind } from '@/types';
+import { DetailsItem } from '@/types';
 
 import ClaimsHandler from './ClaimsHandler';
 
@@ -41,12 +42,16 @@ const ModuleDrawer = dynamic(() => import('@/components/ModuleDrawer'), {
   loading: () => <Suspender />,
 });
 
+const options = [
+  { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
+  {
+    value: TRIGGER_OPTIONS.AUTOMATICALLY,
+    label: TRIGGER_OPTIONS.AUTOMATICALLY,
+  },
+];
+
 interface HatManagementFormProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
-  extendedController: HatWearer | undefined; // eligibility or toggle
-  actionResolvedAddress?: Hex | null;
-  title: ModuleKind;
+  title: string;
   formName: string;
   radioBoxConfig: {
     name: string;
@@ -63,17 +68,21 @@ interface HatManagementFormProps {
   };
 }
 const HatManagementForm = ({
-  localForm,
-  extendedController,
-  actionResolvedAddress,
   title,
   formName,
   radioBoxConfig,
   inputConfig,
   criteriaConfig,
 }: HatManagementFormProps) => {
-  const { watch, control, setValue, getValues, reset } = localForm;
   const { selectedHat, chainId } = useTreeForm();
+  const { localForm } = useHatForm();
+  const { watch, control, setValue, getValues, reset } = _.pick(localForm, [
+    'watch',
+    'control',
+    'setValue',
+    'getValues',
+    'reset',
+  ]);
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
 
@@ -82,20 +91,23 @@ const HatManagementForm = ({
     name: formName,
   });
 
-  const items = watch(formName);
-  const isActionManual = watch(radioBoxConfig.name);
-  const moduleAddress = getValues(title);
+  const items = watch?.(formName);
+  const isActionManual = watch?.(radioBoxConfig.name);
+  const moduleAddress = getValues?.(title);
+
+  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
+    'extendedEligibility',
+    'extendedToggle',
+  ]);
+  const actionResolvedAddress =
+    title === MODULE_TYPES.eligibility
+      ? extendedEligibility?.id
+      : extendedToggle?.id;
+  const extendedController =
+    title === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
 
   const showActionResolvedAddress =
     actionResolvedAddress && actionResolvedAddress !== extendedController?.id;
-
-  const options = [
-    { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
-    {
-      value: TRIGGER_OPTIONS.AUTOMATICALLY,
-      label: TRIGGER_OPTIONS.AUTOMATICALLY,
-    },
-  ];
 
   const { details: moduleDetails } = useModuleDetails({
     address: moduleAddress,
@@ -108,7 +120,7 @@ const HatManagementForm = ({
   const { setModals } = localOverlay;
 
   const handleEdit = (index: number) => {
-    const itemsArray = getValues(formName);
+    const itemsArray = getValues?.(formName);
     setInputLink(itemsArray[index].link);
     setCurrentItemIndex(index);
     setModals?.({
@@ -118,7 +130,7 @@ const HatManagementForm = ({
 
   const handleSave = () => {
     if (isLinkValid) {
-      setValue(`${formName}.${currentItemIndex}.link`, inputLink);
+      setValue?.(`${formName}.${currentItemIndex}.link`, inputLink);
       setInputLink('');
       setCurrentItemIndex(0);
     }
@@ -133,19 +145,21 @@ const HatManagementForm = ({
     isOpen: isOpenModuleDrawer,
   } = useDisclosure();
 
-  const newAddress = watch(title);
-  const formValues = getValues();
+  const newAddress = watch?.(title);
+  const formValues = getValues?.();
 
   // ? better way to handle checking "manual/automatic" radio box?
   useEffect(() => {
     if (moduleDetails) {
-      reset({
+      reset?.({
         ...formValues,
         isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleDetails]);
+
+  if (!localForm) return null;
 
   return (
     <form>
@@ -185,7 +199,7 @@ const HatManagementForm = ({
               {moduleDetails && (
                 <ChakraNextLink
                   href={`${explorerUrl(chainId)}/address/${
-                    newAddress || selectedHat?.[title]
+                    newAddress || extendedController?.id
                   }`}
                   isExternal
                 >

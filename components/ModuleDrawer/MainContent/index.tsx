@@ -8,7 +8,7 @@ import Accordion from '@/components/atoms/Accordion';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { getAllParents, prettyIdToIp } from '@/lib/hats';
-import { ModuleDetails, ModuleKind } from '@/types';
+import { ModuleDetails } from '@/types';
 
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
@@ -22,7 +22,7 @@ const MainContent = ({
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  title: ModuleKind;
+  title: string;
   selectedModuleDetails: ModuleDetails | undefined;
   setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
   isStandaloneHatterDeploy?: boolean;

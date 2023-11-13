@@ -6,7 +6,7 @@ import { FALLBACK_ADDRESS } from './misc';
 
 export type ModuleTypes = { [key: string]: string };
 
-export const MODULE_TYPES: ModuleTypes = {
+export const MODULE_TYPES = {
   eligibility: 'ELIGIBILITY',
   toggle: 'TOGGLE',
 };
