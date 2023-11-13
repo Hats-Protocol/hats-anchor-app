@@ -1,4 +1,12 @@
-import { Stack, Text } from '@chakra-ui/react';
+import {
+  Flex,
+  Icon,
+  IconButton,
+  Stack,
+  Text,
+  Tooltip,
+  useClipboard,
+} from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import {
@@ -12,10 +20,12 @@ import {
 } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { BsKey, BsListUl } from 'react-icons/bs';
+import { FaCopy } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 import Accordion from '@/components/atoms/Accordion';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import CONFIG, {
   EMPTY_FORM_VALUES,
   FALLBACK_ADDRESS,
@@ -29,6 +39,7 @@ import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
 import ItemDetailsForm from '@/forms/ItemDetailsForm';
 import useDebounce from '@/hooks/useDebounce';
+import useToast from '@/hooks/useToast';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
 import {
   DetailsItem,
@@ -37,8 +48,6 @@ import {
   FormData,
   FormWearer,
 } from '@/types';
-
-import ChakraNextLink from '../atoms/ChakraNextLink';
 
 const EditMode = ({
   unsavedData,
@@ -54,6 +63,7 @@ const EditMode = ({
     isDraft,
     treeToDisplay,
   } = useTreeForm();
+  const toast = useToast();
 
   const {
     name: initialName,
@@ -308,6 +318,13 @@ const EditMode = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newImageURI, imageUri]);
 
+  const { onCopy } = useClipboard(selectedHat?.id || '');
+
+  const copyHatId = () => {
+    onCopy();
+    toast.success({ title: 'Copied Hat ID to clipboard' });
+  };
+
   const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
 
   if (!selectedHat) return null;
@@ -322,16 +339,28 @@ const EditMode = ({
       spacing={10}
     >
       <Stack>
-        <Text fontSize={32} fontWeight='medium'>
-          {newName ||
-            (isDraft
-              ? `Add hat ${hatIdDecimalToIp(
-                  BigInt(selectedHat?.id),
-                )} to this tree`
-              : selectedHat?.detailsObject?.data?.name ||
-                selectedHat?.details ||
-                (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
-        </Text>
+        <Flex justify='space-between' align='center'>
+          <Text fontSize={32} fontWeight='medium'>
+            {newName ||
+              (isDraft
+                ? `Add hat ${hatIdDecimalToIp(
+                    BigInt(selectedHat?.id),
+                  )} to this tree`
+                : selectedHat?.detailsObject?.data?.name ||
+                  selectedHat?.details ||
+                  (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
+          </Text>
+          <Tooltip label='Copy Hat ID' placement='left' hasArrow>
+            <IconButton
+              onClick={copyHatId}
+              icon={<Icon as={FaCopy} color='blue.500' />}
+              aria-label='Copy Hat ID'
+              variant='outline'
+              colorScheme='blue.500'
+              size='sm'
+            />
+          </Tooltip>
+        </Flex>
         <Text>All changes are local until you deploy to chain.</Text>
       </Stack>
 

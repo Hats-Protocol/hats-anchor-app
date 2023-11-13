@@ -104,13 +104,13 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick(function test(node: unknown) {
-            const hat = node as Hat;
-            if (!editMode) {
-              handleSelectHat?.(hat?.id);
-              centerChart(chart, hat?.id);
-            }
-          })
+          // .onNodeClick(function test(node: unknown) {
+          //   const hat = node as Hat;
+          //   if (!editMode) {
+          //     handleSelectHat?.(hat?.id);
+          //     centerChart(chart, hat?.id);
+          //   }
+          // })
           .nodeUpdate(function test(this: any) {
             if (!editMode || !chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {

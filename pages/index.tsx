@@ -61,9 +61,10 @@ const Home = () => {
   const sortedHats = _.sortBy(currentHats, (hat) => {
     return _.indexOf(orderedChains, hat.chainId);
   });
+  const activeHats = _.filter(sortedHats, ['status', true]);
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({ hats: sortedHats.splice(0, 8) });
+    useImageURIs({ hats: activeHats.splice(0, 8) });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
