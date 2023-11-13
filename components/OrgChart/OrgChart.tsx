@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
+
 import {
   Box,
   Button,
@@ -93,9 +94,6 @@ const OrgChartComponent: React.FC = () => {
           // margin from top for root node
           .rootMargin(80)
           .siblingsMargin(() => 40)
-          // TODO fix when update pushed
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           .neighbourMargin(() => 40)
           // set node sizes
           .nodeHeight(() => {
@@ -106,20 +104,18 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick(function test(node: Hat) {
+          .onNodeClick(function test(node: unknown) {
+            const hat = node as Hat;
             if (!editMode) {
-              handleSelectHat?.(node?.id);
-              centerChart(chart, node?.id);
+              handleSelectHat?.(hat?.id);
+              centerChart(chart, hat?.id);
             }
           })
           .nodeUpdate(function test(this: any) {
             if (!editMode || !chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
               if (
-                checkParentElementForClass(
-                  event,
-                  `test-click-${data.data.name}`,
-                )
+                checkParentElementForClass(event, `click-${data.data.name}`)
               ) {
                 const nextChildId = calculateNextChildId(
                   data.data.id,
@@ -239,7 +235,7 @@ const OrgChartComponent: React.FC = () => {
             const isSelected = selectedHat?.id === d.id;
 
             const maxSupplyText = () => {
-              if (maxSupply > 9999) {
+              if (_.gt(_.toNumber(maxSupply), 9999)) {
                 return 'a lot';
               }
               return maxSupply;
@@ -276,13 +272,13 @@ const OrgChartComponent: React.FC = () => {
             // handle wearers overflow with max supply accent
             let wearerContentWidth = '135px';
             let wearerAccentWidth = '35px';
-            if (maxSupply > 999) {
+            if (_.gt(_.toNumber(maxSupply), 999)) {
               wearerContentWidth = '115px';
               wearerAccentWidth = '62px';
-            } else if (maxSupply > 99) {
+            } else if (_.gt(_.toNumber(maxSupply), 99)) {
               wearerContentWidth = '115px';
               wearerAccentWidth = '55px';
-            } else if (maxSupply > 9) {
+            } else if (_.gt(_.toNumber(maxSupply), 9)) {
               wearerContentWidth = '130px';
               wearerAccentWidth = '38px';
             }
@@ -290,6 +286,40 @@ const OrgChartComponent: React.FC = () => {
             const selectedOptionContent = () => {
               switch (selectedOption) {
                 case 'wearers':
+                  // handle "group" hats
+                  if (_.isEqual(_.toNumber(maxSupply), 0)) {
+                    return `
+                      <div style="
+                        margin-top: 68px;
+                        width: 100%;
+                        height: 40px;
+                        border-top: 1px solid #4A5568;
+                        padding: 10px;
+                        background: rgba(196, 241, 249, 0.2);
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: space-between;
+                      ">
+                        <div style="
+                          display: flex;
+                          flex-direction: row;
+                          gap: 2px;
+                        ">
+                          <div style="min-width: 16px;" />
+                          <div style="
+                            display: -webkit-box;
+                            font-size: 15px;
+                            font-style: italic;
+                            font-weight: 400;
+                            opacity: 0.6;
+                          ">
+                            Group
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  }
                   return `
                     <div style="
                       margin-top: 68px;
@@ -581,18 +611,44 @@ const OrgChartComponent: React.FC = () => {
                     align-items: center;
                     justify-content: space-between;
                   "
-                    class="test-click-${name}">
+                    class="click-${name}">
                     <div style="
                       display: flex;
                       width: 100%;
                       justify-content: flex-end;
+                      align-items: center;
                       flex-direction: row;
                       gap: 4px;
                       font-size: 14px;
-                    ">
-                      Create Hat ${nextChildId}
-                      <div style="background: white;">
-                        <img src="/icons/plus-square.svg" alt="add" />
+                      position: relative;
+                    " class="hover-text">
+                      ${
+                        levelAtLocalTree > 3
+                          ? `
+                              <div class="tooltip">
+                                #${nextChildId}
+                              </div>
+                            `
+                          : ''
+                      }
+                      
+                      <div style="
+                        display: -webkit-box;
+                        overflow: hidden;
+                        width: 180px;
+                        -webkit-line-clamp: 1;
+                        -webkit-box-orient: vertical;
+                      ">
+                        Create Hat ${nextChildId}
+                      </div>
+                      <div style="
+                        display: block;
+                        background: white;
+                        border-radius: 2px;
+                        height: 14px;
+                        width: 15px;
+                      ">
+                        <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
                       </div>
                     </div>
                   </div>`
