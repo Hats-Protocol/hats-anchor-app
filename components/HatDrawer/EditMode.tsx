@@ -369,6 +369,7 @@ const EditMode = ({
           title='Hat Basics'
           subtitle='The fundamentals of the hat, including name, image, and description.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
+          open
         >
           <Stack spacing={4}>
             <HatBasicsForm
