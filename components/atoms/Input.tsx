@@ -72,7 +72,7 @@ const Input = ({
   };
 
   const getErrorMessage = () => {
-    const errorMessage = errors[name]?.message;
+    const errorMessage = _.get(errors, name)?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
   const isError = !!getErrorMessage();
