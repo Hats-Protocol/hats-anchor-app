@@ -34,6 +34,7 @@ import CONFIG, {
   TRIGGER_OPTIONS,
 } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import AuthoritiesForm from '@/forms/AuthoritiesForm';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
@@ -42,6 +43,7 @@ import useDebounce from '@/hooks/useDebounce';
 import useToast from '@/hooks/useToast';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
 import {
+  Authority,
   DetailsItem,
   DirtyFormData,
   FieldItem,
@@ -278,6 +280,7 @@ const EditMode = ({
         (acc: Partial<FormData>, key: keyof FormData) => {
           (acc[key] as
             | DetailsItem[]
+            | Authority[]
             | FormWearer[]
             | string
             | string[]
@@ -436,7 +439,7 @@ const EditMode = ({
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
         >
           <Stack spacing={4}>
-            <ItemDetailsForm
+            <AuthoritiesForm
               localForm={localForm}
               formName='authorities'
               title='PERMISSIONS'
