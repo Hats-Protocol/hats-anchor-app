@@ -1,5 +1,6 @@
-import { Icon, Stack, Text } from '@chakra-ui/react';
+import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
+import Link from 'next/link';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
@@ -68,21 +69,40 @@ const ModuleDetailsForm = ({
     <Stack spacing={12}>
       <FormRowWrapper>
         <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-        <Select
-          label='Module Type'
-          subLabel='The category of prewritten module to connect to this hat.'
-          name='moduleType'
-          defaultValue={undefined}
-          placeholder='Select a module type'
-          localForm={localForm}
-        >
-          {_.map(modulesToDisplay, ({ name, id }) => (
-            <option value={id} key={name}>
-              {name}
-            </option>
-          ))}
-        </Select>
+        <Box>
+          <Select
+            label='Module Type'
+            subLabel='The category of prewritten module to connect to this hat.'
+            name='moduleType'
+            defaultValue={undefined}
+            placeholder='Select a module type'
+            localForm={localForm}
+          >
+            {_.map(modulesToDisplay, ({ name, id }) => (
+              <option value={id} key={name}>
+                {name}
+              </option>
+            ))}
+          </Select>
+          <Link
+            href='https://hatsprotocol.deform.cc/getintouch/'
+            target='_blank'
+          >
+            <Text
+              fontSize='sm'
+              color='blue.500'
+              mt={2}
+              _hover={{
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+            >
+              Not finding a module you&apos;re looking for? Let us know here.
+            </Text>
+          </Link>
+        </Box>
       </FormRowWrapper>
+
       {selectedModuleDetails && (
         <FormRowWrapper>
           <Icon as={BsTextLeft} boxSize={4} mt='2px' />
