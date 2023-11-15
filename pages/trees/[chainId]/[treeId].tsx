@@ -7,14 +7,8 @@ import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
 import { fetchTreeDetails } from '@/gql/helpers';
 import { decimalToTreeId } from '@/lib/hats';
-import { Tree } from '@/types';
 
-const TreeDetails = ({
-  treeId,
-  chainId,
-  initialTreeData,
-  linkedHatIds,
-}: TreeDetailsProps) => {
+const TreeDetails = ({ treeId, chainId, linkedHatIds }: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
   if (_.isArray(hatId)) {
@@ -25,8 +19,6 @@ const TreeDetails = ({
     <TreeFormContextProvider
       treeId={treeId}
       chainId={chainId}
-      initialHatId={hatId}
-      initialTreeData={initialTreeData}
       linkedHatIds={linkedHatIds}
     >
       <TreePage />
@@ -37,7 +29,6 @@ const TreeDetails = ({
 const defaultProps = {
   treeId: null,
   chainId: null,
-  initialTreeData: null,
   linkedHatIds: null,
 };
 
@@ -111,6 +102,5 @@ export default TreeDetails;
 interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
-  initialTreeData: Tree;
   linkedHatIds: Hex[];
 }

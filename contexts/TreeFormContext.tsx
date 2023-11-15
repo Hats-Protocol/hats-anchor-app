@@ -1,7 +1,7 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -36,7 +36,6 @@ import {
   HatEvent,
   Hierarchy,
   LinkRequest,
-  Tree,
 } from '@/types';
 
 export interface TreeFormContext {
@@ -71,7 +70,7 @@ export interface TreeFormContext {
   showInactiveHats: boolean;
   setShowInactiveHats: ((v: boolean) => void) | undefined;
   // actions
-  addHat: ((hat: Hat) => void) | undefined;
+  addHat: ((hat: Hat, parentId: Hex) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
   handleFlipChart: ((isFlipped: boolean) => void) | undefined;
   handleSetCompact: ((isCompact: boolean) => void) | undefined;
@@ -142,34 +141,28 @@ export const TreeFormContext = createContext<TreeFormContext>({
 export const TreeFormContextProvider = ({
   treeId,
   chainId,
-  initialHatId,
-  initialTreeData,
   linkedHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
-  initialHatId: string | undefined;
-  initialTreeData: Tree;
   linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
-  const initialTopHat = _.first(_.get(initialTreeData, 'hats'));
+  const router = useRouter();
+  let { hatId: initialHatId } = router.query;
+  if (_.isArray(initialHatId)) {
+    initialHatId = _.first(initialHatId);
+  }
   const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
-    ipToHatId(initialHatId) || _.get(initialTopHat, 'id'),
+    ipToHatId(initialHatId),
   );
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
   );
-  const [orgChartHats, setOrgChartHats] = useState<Hat[] | undefined>(
-    _.concat(
-      _.get(initialTreeData, 'hats'),
-      _.get(initialTreeData, 'parentOfHats') || [],
-      _.get(initialTreeData, 'linkedToHat') || [],
-    ),
-  );
+  const [orgChartHats, setOrgChartHats] = useState<Hat[] | undefined>();
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
@@ -201,9 +194,13 @@ export const TreeFormContextProvider = ({
   const { data: treeData } = useTreeDetails({
     treeId,
     chainId,
-    initialData: initialTreeData,
     editMode,
   });
+
+  useEffect(() => {
+    setOrgChartHats(treeData?.hats);
+  }, [treeData?.hats]);
+
   const treeEvents = _.get(treeData, 'events');
 
   const { data: onchainLinkedHats } = useManyHatDetails({
@@ -246,11 +243,11 @@ export const TreeFormContextProvider = ({
       onchain: true,
     });
   const onchainHatsWithDetails = useMemo(() => {
-    return _.map(_.get(initialTreeData, 'hats'), (hat) => {
+    return _.map(treeData?.hats, (hat) => {
       const details = _.find(onchainDetailsFields, { id: hat.details });
       return { ...hat, detailsObject: details?.detailsObject };
     });
-  }, [initialTreeData, onchainDetailsFields]);
+  }, [treeData?.hats, onchainDetailsFields]);
   const onchainWearersAndControllers = useWearersControllersDetails({
     hats: onchainHatDetails,
     editMode,
@@ -379,10 +376,9 @@ export const TreeFormContextProvider = ({
   // *********************
   // * SELECTED HAT
   // *********************
-  const selectedHat = useMemo(
-    () => _.find(orgChartTree, ['id', selectedHatId]),
-    [orgChartTree, selectedHatId],
-  );
+  const selectedHat = useMemo(() => {
+    return _.find(orgChartTree, ['id', selectedHatId]);
+  }, [orgChartTree, selectedHatId]);
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
@@ -434,43 +430,49 @@ export const TreeFormContextProvider = ({
     [orgChartTree, isMobile],
   );
 
-  const handleFlipChart = useCallback((isFlipped: boolean) => {
-    let updatedQuery = {
-      ...router.query,
-    };
+  const handleFlipChart = useCallback(
+    (isFlipped: boolean) => {
+      let updatedQuery = {
+        ...router.query,
+      };
 
-    if (isFlipped) {
-      updatedQuery = { ...updatedQuery, flipped: 'true' };
-    } else {
-      delete updatedQuery.flipped;
-    }
+      if (isFlipped) {
+        updatedQuery = { ...updatedQuery, flipped: 'true' };
+      } else {
+        delete updatedQuery.flipped;
+      }
 
-    const updatedUrl = {
-      pathname: router.pathname,
-      query: updatedQuery,
-    };
+      const updatedUrl = {
+        pathname: router.pathname,
+        query: updatedQuery,
+      };
 
-    router.push(updatedUrl, undefined, { shallow: true });
-  }, []);
+      router.push(updatedUrl, undefined, { shallow: true });
+    },
+    [router],
+  );
 
-  const handleSetCompact = useCallback((isCompact: boolean) => {
-    let updatedQuery = {
-      ...router.query,
-    };
+  const handleSetCompact = useCallback(
+    (isCompact: boolean) => {
+      let updatedQuery = {
+        ...router.query,
+      };
 
-    if (isCompact) {
-      updatedQuery = { ...updatedQuery, compact: 'true' };
-    } else {
-      delete updatedQuery.compact;
-    }
+      if (isCompact) {
+        updatedQuery = { ...updatedQuery, compact: 'true' };
+      } else {
+        delete updatedQuery.compact;
+      }
 
-    const updatedUrl = {
-      pathname: router.pathname,
-      query: updatedQuery,
-    };
+      const updatedUrl = {
+        pathname: router.pathname,
+        query: updatedQuery,
+      };
 
-    router.push(updatedUrl, undefined, { shallow: true });
-  }, []);
+      router.push(updatedUrl, undefined, { shallow: true });
+    },
+    [router],
+  );
 
   const toggleEditMode = useCallback(() => {
     if (!editMode) {
@@ -503,27 +505,42 @@ export const TreeFormContextProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
 
-  const addHat = useCallback((hat: Hat) => {
-    // set updated tree array
-    const newHat = {
-      ...defaultHat,
-      ...hat,
-    };
-    setOrgChartHats((prev) => {
-      const tempHats = _.cloneDeep(prev);
-      if (!tempHats) return [];
-      return _.concat(tempHats, [newHat]);
-    });
+  const addHat = useCallback(
+    (hat: Hat, parentId: Hex) => {
+      if (!editMode) return;
+      // set updated tree array
+      const newHat = {
+        ...defaultHat,
+        ...hat,
+      };
+      setOrgChartHats((prev) => {
+        const tempHats = _.cloneDeep(prev);
+        if (!tempHats) return [];
+        return _.concat(tempHats, [newHat]);
+      });
 
-    // update query param to open drawer
-    const updatedQuery = {
-      ...router.query,
-      hatId: hatIdDecimalToIp(BigInt(hat.id)),
-    };
-    router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
-      shallow: true,
-    });
-  }, []);
+      const newDetails = _.get(newHat, 'detailsObject.data');
+      const onlyNeededKeys = {
+        id: newHat.id,
+        parentId,
+        ...newDetails,
+      };
+      const removeCurrentId = _.reject(storedData, ['id', newHat.id]);
+      setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys as FormData));
+      // const updatedQuery = {
+      //   ...router.query,
+      //   hatId: hatIdDecimalToIp(BigInt(hat.id)),
+      // };
+      // const updatedUrl = {
+      //   pathname: router.pathname,
+      //   query: updatedQuery,
+      // };
+
+      // any way to get this to stick? always reverts to parent
+      // router.push(updatedUrl, undefined, { shallow: true });
+    },
+    [editMode, storedData, setStoredData],
+  );
 
   const removeHat = useCallback(
     (hatId: Hex) => {

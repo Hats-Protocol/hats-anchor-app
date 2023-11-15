@@ -29,7 +29,7 @@ function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
   let n = 0;
   while (element) {
-    if (n > 4) break;
+    if (n > 5) break;
     const classArray = _.split(element.classList.value, ' ');
     if (classArray && _.includes(classArray, name)) {
       return true;
@@ -101,8 +101,14 @@ const OrgChartComponent: React.FC = () => {
             return 70;
           })
           .nodeWidth(() => 220)
-          .nodeUpdate(function test(this: any) {
-            if (!editMode || !chainId) return;
+          // eslint-disable-next-line func-names
+          .onNodeClick(function (node: any) {
+            if (!chainId) return;
+            handleSelectHat?.(node?.id);
+          })
+          // eslint-disable-next-line func-names
+          .nodeUpdate(function (this: any) {
+            if (!chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
               if (
                 checkParentElementForClass(event, `click-${data.data.name}`)
@@ -132,26 +138,18 @@ const OrgChartComponent: React.FC = () => {
                   },
                 };
 
-                addHat?.(newHat);
-                const newDetails = _.get(newHat, 'detailsObject.data');
-                const onlyNeededKeys = {
-                  id: newHat.id,
-                  parentId: data.data.id,
-                  ...newDetails,
-                };
-                const removeCurrentId = _.reject(storedData, ['id', newId]);
-                setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys));
-                // wait to center. node doesn't exist right away
-                setTimeout(() => {
-                  centerChart(chart, newId);
-                }, 500);
+                addHat?.(newHat, data.data.id);
+
+                // still not having luck centering new nodes here
+                // always node not found or parent node
               } else {
                 centerChart(chart, data.data?.id);
                 handleSelectHat?.(data.data?.id);
               }
             });
           })
-          .linkUpdate(function test(this: any) {
+          // eslint-disable-next-line func-names
+          .linkUpdate(function (this: any) {
             d3.select(this).attr('stroke', '#718096');
             // handle linked links?
           })
@@ -654,16 +652,15 @@ const OrgChartComponent: React.FC = () => {
           .layout(flipped ? 'bottom' : 'top')
           .expandAll();
 
-        if (initialLoad) {
-          if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
-            // ! can we still center on initial load? but not on "page change"
-            // centerChart(chart, selectedHat.id);
-          } else {
-            chart.fit();
-          }
+        if (!initialLoad || !treeToDisplay) return;
 
-          setInitialLoad(false);
+        if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
+          handleSelectHat?.(selectedHat.id);
+          centerChart(chart, selectedHat.id);
+        } else {
+          chart.fit();
         }
+        setInitialLoad(false);
       }
     }
   }, [
