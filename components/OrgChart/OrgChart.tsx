@@ -656,7 +656,8 @@ const OrgChartComponent: React.FC = () => {
 
         if (initialLoad) {
           if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
-            centerChart(chart, selectedHat.id);
+            // ! can we still center on initial load? but not on "page change"
+            // centerChart(chart, selectedHat.id);
           } else {
             chart.fit();
           }

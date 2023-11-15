@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { mapWithChainId } from '@/lib/general';
 import { Tree } from '@/types';
 
@@ -51,6 +49,11 @@ export const fetchTreeDetails = async (
       childOfTree: {},
       parentOfTrees: {
         linkedToHat: {
+          prettyId: true,
+        },
+        hats: {
+          // TODO do we need more keys here?
+          // ? ID is not an option?
           prettyId: true,
         },
       },

@@ -33,7 +33,7 @@ const tempClient = (chainId: number) => {
 const useImageURIs = ({
   hats,
   onchainHats,
-  editMode,
+  editMode = false,
   onchain = false,
 }: {
   hats: Hat[] | undefined;

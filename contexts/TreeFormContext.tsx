@@ -144,12 +144,14 @@ export const TreeFormContextProvider = ({
   chainId,
   initialHatId,
   initialTreeData,
+  linkedHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
   initialHatId: string | undefined;
   initialTreeData: Tree;
+  linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
   const initialTopHat = _.first(_.get(initialTreeData, 'hats'));
@@ -169,16 +171,6 @@ export const TreeFormContextProvider = ({
     ),
   );
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
-
-  const linkedHatIds = useMemo(() => {
-    return _.map(
-      _.concat(
-        _.get(initialTreeData, 'parentOfHats'),
-        _.get(initialTreeData, 'linkedToHat'),
-      ),
-      'id',
-    );
-  }, [initialTreeData]);
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
@@ -213,29 +205,18 @@ export const TreeFormContextProvider = ({
     editMode,
   });
   const treeEvents = _.get(treeData, 'events');
-  const onchainHats = useMemo(() => {
-    return _.compact(
-      _.concat(
-        _.get(treeData, 'hats'),
-        _.get(initialTreeData, 'parentOfHats') || [],
-        _.get(initialTreeData, 'linkedToHat') || [],
-      ),
-    );
-  }, [treeData, initialTreeData]);
-  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
-  // set initial org chart hats
-  useEffect(() => {
-    setOrgChartHats(
-      _.compact(
-        _.concat(
-          _.get(treeData, 'hats'),
-          _.get(treeData, 'parentOfHats', []),
-          _.get(treeData, 'linkedToHat', []),
-        ),
-      ),
-    );
-  }, [treeData]);
+  const { data: onchainLinkedHats } = useManyHatDetails({
+    hats: mapWithChainId(
+      _.map(linkedHatIds, (id) => ({ id })),
+      chainId,
+    ),
+    initialHats: _.map(linkedHatIds, (id) => ({ id })),
+  });
+  const onchainHats = useMemo(() => {
+    return _.compact(_.concat(_.get(treeData, 'hats'), onchainLinkedHats));
+  }, [treeData, onchainLinkedHats]);
+  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
 
   // get difference between onchain hats and org chart hats
   const draftHats = useMemo(
@@ -252,31 +233,32 @@ export const TreeFormContextProvider = ({
   // *********************
   // * ONCHAIN TREE (ONCHAIN HATS)
   // *********************
-  const { data: onChainHatDetails } = useManyHatDetails({
-    hats: mapWithChainId(_.get(initialTreeData, 'hats'), chainId),
-    initialHats: _.get(initialTreeData, 'hats'),
-    editMode: false,
+  const onchainIds = _.map(onchainHats, ({ id }) => ({ id }));
+  const { data: onchainHatDetails } = useManyHatDetails({
+    hats: mapWithChainId(onchainIds, chainId),
+    initialHats: mapWithChainId(onchainIds, chainId),
+    editMode,
   });
-  const { data: onChainDetailsFields, isLoading: onchainDetailsFieldsLoading } =
+  const { data: onchainDetailsFields, isLoading: onchainDetailsFieldsLoading } =
     useManyHatsDetailsField({
-      hats: onChainHatDetails,
-      editMode: false,
+      hats: onchainHatDetails,
+      editMode,
       onchain: true,
     });
   const onchainHatsWithDetails = useMemo(() => {
     return _.map(_.get(initialTreeData, 'hats'), (hat) => {
-      const details = _.find(onChainDetailsFields, { id: hat.details });
+      const details = _.find(onchainDetailsFields, { id: hat.details });
       return { ...hat, detailsObject: details?.detailsObject };
     });
-  }, [initialTreeData, onChainDetailsFields]);
+  }, [initialTreeData, onchainDetailsFields]);
   const onchainWearersAndControllers = useWearersControllersDetails({
-    hats: onChainHatDetails,
+    hats: onchainHatDetails,
     editMode,
     onchain: true,
   });
   const { data: onchainImagesData, isLoading: onchainImagesLoading } =
     useImageURIs({
-      hats: onChainHatDetails,
+      hats: onchainHatDetails,
       onchainHats,
       editMode,
       onchain: true,
@@ -284,8 +266,8 @@ export const TreeFormContextProvider = ({
   const { orgChartTree: onchainTree } = useOrgChartTree({
     treeData,
     chainId,
-    hatsData: onChainHatDetails,
-    detailsData: onChainDetailsFields,
+    hatsData: onchainHatDetails,
+    detailsData: onchainDetailsFields,
     wearersAndControllers: onchainWearersAndControllers,
     imagesData: onchainImagesData,
     draftHats,
@@ -294,14 +276,16 @@ export const TreeFormContextProvider = ({
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });
-  // console.log(onchainTree);
 
   // *********************
   // * TREE TO DISPLAY (ORG CHART HATS)
   // *********************
   const { data: hatDetails } = useManyHatDetails({
-    hats: mapWithChainId(orgChartHats, chainId),
-    initialHats: onchainHats,
+    hats: mapWithChainId(
+      _.compact(_.concat(orgChartHats, onchainLinkedHats)),
+      chainId,
+    ),
+    initialHats: mapWithChainId(onchainIds, chainId),
     editMode,
   });
   const { data: detailsFields, isLoading: detailsFieldsLoading } =
@@ -373,8 +357,12 @@ export const TreeFormContextProvider = ({
     });
   }, [filteredTree, storedData]);
   const treeToDisplay = useMemo(() => {
-    return editMode ? overrideOrgChartData : filteredTree;
-  }, [editMode, overrideOrgChartData, filteredTree]);
+    const noHatsOutsideTree = _.reject(
+      overrideOrgChartData,
+      ({ id }) => treeData?.id && !id.startsWith(treeData?.id),
+    ) as Hat[];
+    return editMode ? noHatsOutsideTree : filteredTree;
+  }, [editMode, overrideOrgChartData, treeData?.id, filteredTree]);
 
   // *********************
   // * TOP HAT
@@ -401,8 +389,8 @@ export const TreeFormContextProvider = ({
   );
   // selected onchain hat
   const selectedOnchainHat = useMemo(
-    () => _.find(onChainHatDetails, ['id', selectedHatId]),
-    [onChainHatDetails, selectedHatId],
+    () => _.find(onchainHatDetails, ['id', selectedHatId]),
+    [onchainHatDetails, selectedHatId],
   );
   const selectedOnchainHatDetails = useMemo(
     () =>
