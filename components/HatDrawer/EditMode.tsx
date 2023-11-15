@@ -36,7 +36,10 @@ const EditMode = () => {
     toast.success({ title: 'Copied Hat ID to clipboard' });
   };
 
-  const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
+  const name = _.get(
+    _.find(treeToDisplay, ['id', selectedHat?.id]),
+    'displayName',
+  );
 
   if (!selectedHat || !localForm) return null;
 
@@ -52,7 +55,7 @@ const EditMode = () => {
       <Stack>
         <Flex justify='space-between' align='center'>
           <Text fontSize={32} fontWeight='medium'>
-            {newName ||
+            {name ||
               (isDraft
                 ? `Add hat ${hatIdDecimalToIp(
                     BigInt(selectedHat?.id),

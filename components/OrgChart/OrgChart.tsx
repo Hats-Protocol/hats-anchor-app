@@ -58,7 +58,6 @@ const OrgChartComponent: React.FC = () => {
     storedData,
     setStoredData,
     addHat,
-    newImageUrls,
   } = useTreeForm();
 
   const d3Container = useRef(null);
@@ -102,14 +101,6 @@ const OrgChartComponent: React.FC = () => {
             return 70;
           })
           .nodeWidth(() => 220)
-          // node click handler
-          // .onNodeClick(function test(node: unknown) {
-          //   const hat = node as Hat;
-          //   if (!editMode) {
-          //     handleSelectHat?.(hat?.id);
-          //     centerChart(chart, hat?.id);
-          //   }
-          // })
           .nodeUpdate(function test(this: any) {
             if (!editMode || !chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
@@ -225,12 +216,15 @@ const OrgChartComponent: React.FC = () => {
               extendedEligibility: eligibility,
               extendedToggle: toggle,
               levelAtLocalTree,
-              newImageUrl,
-              newName,
             } = d.data;
 
             const nextChildId = calculateNextChildId(d.data.id, treeToDisplay);
-            const detailsName = detailsObject?.data?.name || details;
+            const currentName = _.find(treeToDisplay, [
+              'id',
+              d.data.id,
+            ])?.displayName;
+            const detailsName =
+              currentName || detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
 
             const maxSupplyText = () => {
@@ -519,10 +513,9 @@ const OrgChartComponent: React.FC = () => {
                     <img
                       loading="lazy"
                       src="${
-                        newImageUrl ||
-                        (imageUrl !== '' && imageUrl !== null
+                        imageUrl !== '' && imageUrl !== null
                           ? imageUrl
-                          : '/icon.jpeg')
+                          : '/icon.jpeg'
                       }"
                       style="
                         background: white;
@@ -574,7 +567,7 @@ const OrgChartComponent: React.FC = () => {
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;"
                       >
-                        ${newName || detailsName}
+                        ${detailsName}
                       </div>
                     </div>
                     ${
@@ -687,7 +680,6 @@ const OrgChartComponent: React.FC = () => {
     addHat,
     setStoredData,
     userChain,
-    newImageUrls,
     treeToDisplay,
     compact,
     flipped,

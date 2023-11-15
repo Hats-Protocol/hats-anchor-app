@@ -79,8 +79,7 @@ export interface Hat {
   url?: string;
   active?: boolean;
   type?: string;
-  newName?: string;
-  newImage?: string;
+  displayName?: string;
 }
 
 export type ModuleCreationArg = {

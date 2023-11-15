@@ -18,16 +18,12 @@ import {
   TRIGGER_OPTIONS,
 } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-// import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useToast from '@/hooks/useToast';
-import { formatImageUrl } from '@/lib/general';
 import {
-  // DetailsItem,
-  // DirtyFormData,
-  FieldItem,
-  FormData,
-  // FormWearer,
-} from '@/types';
+  fieldsAreDirty as fieldsAreDirtyHandler,
+  getDirtyFields,
+} from '@/lib/form';
+import { FieldItem, FormData, FormFieldData } from '@/types';
 
 import { useTreeForm } from './TreeFormContext';
 
@@ -43,11 +39,6 @@ export interface IHatFormContext {
   eligibilityResolvedAddress: Hex | undefined;
   toggleResolvedAddress: Hex | undefined;
 }
-
-type FormFieldData = Exclude<
-  keyof FormData,
-  'id' | 'parentId' | 'adminId' | 'newImageUri'
->;
 
 export const HatFormContext = createContext<IHatFormContext>({
   localForm: null,
@@ -92,7 +83,7 @@ export const HatFormContextProvider = ({
   const formDescription = useDebounce<string>(watch?.('description', ''));
   const formGuilds = useDebounce<string[]>(watch?.('guilds', []));
   const formImageUri = useDebounce<string | undefined>(watch?.('imageUri', ''));
-  const formImageUrl = formatImageUrl(formImageUri) || '';
+  const formImageUrl = watch('imageUrl');
   const formEligibility = useDebounce<Hex | undefined>(
     watch('eligibility', FALLBACK_ADDRESS),
   );
@@ -235,20 +226,13 @@ export const HatFormContextProvider = ({
           ...defaultFormValues,
           ...matchingHat,
         };
-        // eslint-disable-next-line no-console
-        console.log('reset for plaintext details');
-        // reset default values for plaintext details
+
         reset(defaultFormValues);
 
-        // eslint-disable-next-line no-console
-        console.log('reset for stored data values');
-        // reset with stored data values
         reset(formValues, { keepDefaultValues: true });
         return;
       }
 
-      // eslint-disable-next-line no-console
-      console.log('reset without stored data values');
       reset(formValues);
     };
 
@@ -258,33 +242,14 @@ export const HatFormContextProvider = ({
   }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
 
   // get dirty fields
-  const getDirtyFields = useCallback(() => {
-    const excludeKeys = ['id', 'parentId', 'newImageUri', 'adminId'];
-    const keys = _.reject(_.keys(defaultFormValues), (k) =>
-      _.includes(excludeKeys, k),
-    );
-    return _.filter(keys, (key: FormFieldData) => {
-      return (
-        JSON.stringify(defaultFormValues[key]) !==
-          JSON.stringify(debouncedFormValues[key]) ||
-        debouncedFormValues[key] === 'New Hat'
-      );
-    });
-  }, [debouncedFormValues, defaultFormValues]);
-  // console.log('getDirtyFields', getDirtyFields());
-
+  const dirtyFields = getDirtyFields(debouncedFormValues, defaultFormValues);
   const getDirtyFieldsForAccordion = useCallback(
-    (fieldsArray: FieldItem[]) => {
-      const fields = getDirtyFields();
-
-      return _.map(
-        _.filter(fieldsArray, (field) => _.includes(fields, field.name)),
-        'label',
-      );
-    },
-    [getDirtyFields],
+    (fieldsArray: FieldItem[]) =>
+      fieldsAreDirtyHandler(fieldsArray, dirtyFields),
+    [dirtyFields],
   );
 
+  // resolve controller addresses, could this be done in the input instead?
   const {
     data: eligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
@@ -295,7 +260,6 @@ export const HatFormContextProvider = ({
       !!debouncedFormValues?.eligibility &&
       debouncedFormValues?.eligibility?.includes('.eth'),
   });
-
   const {
     data: toggleResolvedAddress,
     isLoading: isLoadingToggleResolvedAddress,
@@ -307,34 +271,29 @@ export const HatFormContextProvider = ({
       debouncedFormValues?.eligibility?.includes('.eth'),
   });
 
+  // form actions
   const handleSave = useCallback(
     (sendToast: boolean = true) => {
       const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
-      // combine with getDirtyFields
-      const dirtyValues = _.pickBy(debouncedFormValues, (value, key) => {
-        if (
-          (defaultFormValues.imageUrl === '' && value === '') ||
-          key === 'imageUri'
-        ) {
-          return false;
-        }
 
-        if (key === 'imageUrl') {
-          return (
-            formatImageUrl(debouncedFormValues.imageUri) !==
-              defaultFormValues.imageUrl &&
-            debouncedFormValues.imageUri !== undefined
-          );
-        }
+      const dirtyValues = getDirtyFields(
+        debouncedFormValues,
+        defaultFormValues,
+      );
+      const dirtyFormValues = _.pickBy(
+        debouncedFormValues,
+        (__, key: FormFieldData) => _.includes(dirtyValues, key),
+      );
 
-        return (
-          JSON.stringify(value) !==
-          JSON.stringify(defaultFormValues[key as FormFieldData])
-        );
-      });
+      // remove storedData values when resetting to default values
+      const resetValues = _.filter(
+        _.keys(matchingHat),
+        (key) => !_.includes(dirtyValues, key) && !_.includes(['id'], key),
+      );
+
       const matchingHatWithValues = {
-        ...matchingHat,
-        ...dirtyValues,
+        ..._.omit(matchingHat, resetValues),
+        ...dirtyFormValues,
         id: selectedHat?.id,
       };
 

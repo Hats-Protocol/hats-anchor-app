@@ -10,12 +10,12 @@ import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
-  const { selectedHat, editMode, newImageUrls } = useTreeForm();
-  const newImageUrl = _.find(newImageUrls, [
-    'id',
-    selectedHat?.id,
-  ])?.newImageUrl;
+  const { selectedHat, editMode, treeToDisplay } = useTreeForm();
   const selectedHatId = selectedHat?.id;
+  const imageUrl = _.get(
+    _.find(treeToDisplay, { id: selectedHatId }),
+    'imageUrl',
+  );
 
   if (!selectedHat) return null;
 
@@ -48,7 +48,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           <Image
             loading='lazy'
             src={
-              (editMode && newImageUrl) ||
+              (editMode && imageUrl) ||
               _.get(selectedHat, 'imageUrl') ||
               '/icon.jpeg'
             }

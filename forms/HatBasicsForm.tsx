@@ -39,21 +39,17 @@ const MUTABILITY_OPTIONS = [
 ];
 
 const HatBasicsForm = () => {
-  const { chainId, selectedHat, newImageUrls } = useTreeForm();
+  const { chainId, selectedHat, treeToDisplay } = useTreeForm();
   const { localForm, formValues } = useHatForm();
 
   const [image, setImage] = useState<ImageFile>();
 
-  const { control, formState, setValue } = _.pick(localForm, [
-    'control',
-    'formState',
-    'setValue',
-  ]);
+  const { control, setValue } = _.pick(localForm, ['control', 'setValue']);
 
-  const newImageUrl = _.find(newImageUrls, [
-    'id',
-    selectedHat?.id,
-  ])?.newImageUrl;
+  const currentImageUrl = _.get(
+    _.find(treeToDisplay, ['id', selectedHat?.id]),
+    'imageUrl',
+  );
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -86,12 +82,11 @@ const HatBasicsForm = () => {
 
   useEffect(() => {
     if (!imagePinData) return;
-    const hatImageURI = `ipfs://${imagePinData}`;
-    setValue?.('imageUri', hatImageURI, { shouldDirty: true });
+    const hatImageUrl = formatImageUrl(`ipfs://${imagePinData}`);
+    setValue?.('imageUrl', hatImageUrl, { shouldDirty: true });
   }, [imagePinData, setValue]);
 
-  const imageUrl = formatImageUrl(formState?.defaultValues?.imageUrl);
-  // console.log(imageUrl);
+  const isNewImage = currentImageUrl !== selectedHat?.imageUrl;
 
   if (!localForm) return null;
 
@@ -114,7 +109,8 @@ const HatBasicsForm = () => {
                 isDragReject={isDragReject}
                 isFullWidth
                 image={image}
-                imageUrl={newImageUrl || imageUrl}
+                imageUrl={currentImageUrl}
+                isNewImage={isNewImage}
               />
             </Box>
           </FormRowWrapper>

@@ -46,9 +46,11 @@ const fetchWearerAndControllerDetails = async (
 const useWearersControllersDetails = ({
   hats,
   editMode,
+  onchain = false,
 }: {
   hats: Hat[] | undefined;
   editMode?: boolean;
+  onchain?: boolean;
 }) => {
   const chainId = _.get(_.first(hats), 'chainId');
   const wAndCs = _.uniq(
@@ -66,7 +68,7 @@ const useWearersControllersDetails = ({
 
   const wearerAndControllerDetails = useQueries({
     queries: _.map(wAndCs, (w) => ({
-      queryKey: ['wearerAndControllerDetails', w, chainId],
+      queryKey: ['wearerAndControllerDetails', { wearer: w, chainId, onchain }],
       queryFn: () => fetchWearerAndControllerDetails(w, chainId),
       enabled: !!w && isAddress(w) && w !== ZERO_ADDRESS && !!chainId,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

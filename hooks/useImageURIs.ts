@@ -34,10 +34,12 @@ const useImageURIs = ({
   hats,
   onchainHats,
   editMode,
+  onchain = false,
 }: {
   hats: Hat[] | undefined;
   onchainHats?: Hat[];
   editMode?: boolean;
+  onchain?: boolean;
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
@@ -67,7 +69,10 @@ const useImageURIs = ({
 
   const { data: imagesData, isLoading: imagesLoading } = useQuery({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ['imageURIs', _.map(onlyOnchainHats, 'id'), chainIds],
+    queryKey: [
+      'imageURIs',
+      { hatIds: _.map(onlyOnchainHats, 'id'), chainIds, onchain },
+    ],
     queryFn: () => {
       const clients = _.map(chainIds, (cId) => tempClient(cId));
 

@@ -2,7 +2,11 @@ import { Hex } from 'viem';
 
 import { DetailsItem } from './hat';
 
-export type FieldItem = { name: keyof FormData; label: string };
+export type FormFieldData = Exclude<
+  keyof FormData,
+  'id' | 'parentId' | 'adminId'
+>;
+export type FieldItem = { name: keyof FormFieldData; label: string };
 
 export interface FormWearer {
   address: Hex;
@@ -31,7 +35,6 @@ export type FormDataDetails = {
   isToggleManual: string;
   revocationsCriteria: DetailsItem[];
   deactivationsCriteria: DetailsItem[];
-  newImageUri?: string;
 };
 
 export type DirtyFormData = {

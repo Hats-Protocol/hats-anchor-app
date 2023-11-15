@@ -26,15 +26,15 @@ const baseStyle = {
 };
 
 const focusedStyle = {
-  borderColor: '#2196f3',
+  borderColor: '#2196F3',
 };
 
 const acceptStyle = {
-  borderColor: '#00e676',
+  borderColor: '#00E676',
 };
 
 const rejectStyle = {
-  borderColor: '#ff1744',
+  borderColor: '#FF1744',
 };
 
 /**
@@ -49,6 +49,7 @@ const DropZone = ({
   isFullWidth,
   image,
   imageUrl,
+  isNewImage,
 }: DropZoneProps) => {
   const style = useMemo(
     () => ({
@@ -64,7 +65,7 @@ const DropZone = ({
   const thumb = {
     display: 'inline-flex',
     borderRadius: 2,
-    border: '1px solid #eaeaea',
+    border: isNewImage ? '2px dashed #00B5D8' : '1px solid #EAEAEA',
     marginBottom: 8,
     marginRight: 8,
     fit: 'cover',
@@ -131,4 +132,5 @@ interface DropZoneProps {
   isFullWidth?: boolean;
   image?: ImageFile;
   imageUrl?: string | null;
+  isNewImage?: boolean;
 }
