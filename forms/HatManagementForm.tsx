@@ -75,7 +75,12 @@ const HatManagementForm = ({
   criteriaConfig,
 }: HatManagementFormProps) => {
   const { selectedHat, chainId } = useTreeForm();
-  const { localForm } = useHatForm();
+  const {
+    localForm,
+    formValues,
+    eligibilityResolvedAddress,
+    toggleResolvedAddress,
+  } = useHatForm();
   const { watch, control, setValue, getValues, reset } = _.pick(localForm, [
     'watch',
     'control',
@@ -101,8 +106,8 @@ const HatManagementForm = ({
   ]);
   const actionResolvedAddress =
     title === MODULE_TYPES.eligibility
-      ? extendedEligibility?.id
-      : extendedToggle?.id;
+      ? eligibilityResolvedAddress
+      : toggleResolvedAddress;
   const extendedController =
     title === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
 
@@ -146,7 +151,6 @@ const HatManagementForm = ({
   } = useDisclosure();
 
   const newAddress = watch?.(title);
-  const formValues = getValues?.();
 
   // ? better way to handle checking "manual/automatic" radio box?
   useEffect(() => {
@@ -179,7 +183,7 @@ const HatManagementForm = ({
           <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <Stack>
             <AddressInput
-              name={title}
+              name={_.toLower(title)}
               label={`${inputConfig.label} ${
                 isActionManual === TRIGGER_OPTIONS.MANUALLY
                   ? 'ADDRESS'

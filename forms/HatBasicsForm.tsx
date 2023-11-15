@@ -25,7 +25,6 @@ import FormRowWrapper from '@/components/FormRowWrapper';
 import { MUTABILITY } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl } from '@/lib/general';
 import { isMutable, isTopHat } from '@/lib/hats';
@@ -78,20 +77,16 @@ const HatBasicsForm = () => {
       );
     },
   });
-  console.log('acceptedFiles', acceptedFiles);
 
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: { name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}` },
   });
-  console.log(imagePinData);
 
   useEffect(() => {
-    console.log('this effect');
     if (!imagePinData) return;
     const hatImageURI = `ipfs://${imagePinData}`;
-    console.log('hatImageURI', hatImageURI);
     setValue?.('imageUri', hatImageURI, { shouldDirty: true });
   }, [imagePinData, setValue]);
 
@@ -164,16 +159,19 @@ const HatBasicsForm = () => {
                     />
                   </HStack>
                 ))}
-                {/* <Box mb={2}>
+                <Box mb={2}>
                   <Button
                     onClick={() => append('')}
-                    isDisabled={_.some(guilds, (item: string) => item === '')}
+                    isDisabled={_.some(
+                      formValues?.guilds,
+                      (item: string) => item === '',
+                    )}
                     gap={2}
                   >
                     <FaPlus />
-                    Add {guilds?.length ? 'another' : 'a'} Guild
+                    Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
                   </Button>
-                </Box> */}
+                </Box>
               </Stack>
             </FormRowWrapper>
           )}

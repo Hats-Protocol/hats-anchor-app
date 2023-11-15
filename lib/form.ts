@@ -14,7 +14,7 @@ import {
 
 import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
-import { createHatsClient } from './web3';
+import { createHatsClient, publicClient } from './web3';
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
@@ -352,7 +352,7 @@ const processMaxSupplyChangeCallForHat = ({
   };
 };
 
-const processEligibilityChangeCallForHat = ({
+const processEligibilityChangeCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -360,11 +360,21 @@ const processEligibilityChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { eligibility, id: hatId } = hat;
 
+  let localEligibility = eligibility;
   if (!hatId || !eligibility) return returnData;
+
+  if (eligibility.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: eligibility,
+      })) || undefined;
+  }
+
+  if (!localEligibility) return returnData;
 
   const changeHatEligibilityData = hatsClient.changeHatEligibilityCallData({
     hatId: BigInt(hatId),
-    newEligibility: eligibility,
+    newEligibility: localEligibility,
   });
 
   if (!changeHatEligibilityData) return returnData;
@@ -381,7 +391,7 @@ const processEligibilityChangeCallForHat = ({
   };
 };
 
-const processToggleChangeCallForHat = ({
+const processToggleChangeCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -389,7 +399,17 @@ const processToggleChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { toggle, id: hatId } = hat;
 
+  let localToggle = toggle;
   if (!hatId || !toggle) return returnData;
+
+  if (toggle.includes('.eth')) {
+    localToggle =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: toggle,
+      })) || undefined;
+  }
+
+  if (!localToggle) return returnData;
 
   const changeHatToggleData = hatsClient.changeHatToggleCallData({
     hatId: BigInt(hatId),
@@ -515,12 +535,12 @@ export const processHatForCalls = async (
     hat,
     returnData: maxSupplyResult,
   });
-  const eligibilityResult = processEligibilityChangeCallForHat({
+  const eligibilityResult = await processEligibilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: wearersResult,
   });
-  const toggleResult = processToggleChangeCallForHat({
+  const toggleResult = await processToggleChangeCallForHat({
     hatsClient,
     hat,
     returnData: eligibilityResult,

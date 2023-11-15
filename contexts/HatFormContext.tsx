@@ -1,17 +1,13 @@
 import _ from 'lodash';
 import {
   createContext,
-  Dispatch,
   ReactNode,
-  SetStateAction,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
-  useState,
 } from 'react';
-import { FieldValues, useForm, UseFormReturn } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
@@ -22,32 +18,30 @@ import {
   TRIGGER_OPTIONS,
 } from '@/constants';
 import useDebounce from '@/hooks/useDebounce';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
+// import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useToast from '@/hooks/useToast';
 import { formatImageUrl } from '@/lib/general';
 import {
-  DetailsItem,
-  DirtyFormData,
+  // DetailsItem,
+  // DirtyFormData,
   FieldItem,
   FormData,
-  FormWearer,
+  // FormWearer,
 } from '@/types';
 
 import { useTreeForm } from './TreeFormContext';
 
 export interface IHatFormContext {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any> | null;
   formValues: Partial<FormData> | undefined;
   isLoading: boolean;
-  setIsLoading: (b: boolean) => void;
-  unsavedData: Partial<FormData> | undefined;
-  setUnsavedData: Dispatch<SetStateAction<Partial<FormData> | undefined>>;
   handleSave: (sendToast?: boolean) => void;
   handleRemoveHat: () => void;
   handleClearChanges: () => void;
   getDirtyFieldsForAccordion: (fieldsArray: FieldItem[]) => string[];
-  // newImageUri?: string;
-  // setNewImageUri: (uri: string) => void;
+  eligibilityResolvedAddress: Hex | undefined;
+  toggleResolvedAddress: Hex | undefined;
 }
 
 type FormFieldData = Exclude<
@@ -59,15 +53,12 @@ export const HatFormContext = createContext<IHatFormContext>({
   localForm: null,
   formValues: undefined,
   isLoading: false,
-  setIsLoading: () => {},
-  unsavedData: undefined,
-  setUnsavedData: () => {},
   handleSave: () => {},
   handleRemoveHat: () => {},
   handleClearChanges: () => {},
   getDirtyFieldsForAccordion: () => [],
-  // newImageUri: '',
-  // setNewImageUri: () => {},
+  eligibilityResolvedAddress: undefined,
+  toggleResolvedAddress: undefined,
 });
 
 export const HatFormContextProvider = ({
@@ -89,10 +80,6 @@ export const HatFormContextProvider = ({
   } = useTreeForm();
   const toast = useToast();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [unsavedData, setUnsavedData] = useState<Partial<FormData> | undefined>(
-    undefined,
-  );
   const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
@@ -101,9 +88,9 @@ export const HatFormContextProvider = ({
   });
   const { watch, reset } = localForm;
 
-  const formName = useDebounce<string>(watch?.('name'));
-  const formDescription = useDebounce<string>(watch?.('description'));
-  const formGuilds = useDebounce<string[]>(watch?.('guilds'));
+  const formName = useDebounce<string>(watch?.('name', ''));
+  const formDescription = useDebounce<string>(watch?.('description', ''));
+  const formGuilds = useDebounce<string[]>(watch?.('guilds', []));
   const formImageUri = useDebounce<string | undefined>(watch?.('imageUri', ''));
   const formImageUrl = formatImageUrl(formImageUri) || '';
   const formEligibility = useDebounce<Hex | undefined>(
@@ -112,15 +99,15 @@ export const HatFormContextProvider = ({
   const formToggle = useDebounce<Hex | undefined>(
     watch('toggle', FALLBACK_ADDRESS),
   );
-  const formResponsibilities = watch?.('responsibilities');
-  const formAuthorities = watch?.('authorities');
-  const formMaxSupply = watch?.('maxSupply');
-  const formMutable = watch?.('mutable');
-  const formIsEligibilityManual = watch?.('isEligibilityManual');
-  const formIsToggleManual = watch?.('isToggleManual');
-  const formRevocationsCriteria = watch?.('revocationsCriteria');
-  const formDeactivationsCriteria = watch?.('deactivationsCriteria');
-  const formWearers = watch?.('wearers');
+  const formResponsibilities = watch?.('responsibilities', []);
+  const formAuthorities = watch?.('authorities', []);
+  const formMaxSupply = watch?.('maxSupply', '1');
+  const formMutable = watch?.('mutable', 'Mutable');
+  const formIsEligibilityManual = watch?.('isEligibilityManual', 'Manually');
+  const formIsToggleManual = watch?.('isToggleManual', 'Manually');
+  const formRevocationsCriteria = watch?.('revocationsCriteria', []);
+  const formDeactivationsCriteria = watch?.('deactivationsCriteria', []);
+  const formWearers = watch?.('wearers', []);
 
   const debouncedFormValues = useMemo(
     () => ({
@@ -160,7 +147,6 @@ export const HatFormContextProvider = ({
       formWearers,
     ],
   );
-  console.log(debouncedFormValues);
 
   const {
     name: initialName,
@@ -179,24 +165,12 @@ export const HatFormContextProvider = ({
     'eligibility',
     'toggle',
   ]);
-  const {
-    maxSupply,
-    eligibility,
-    toggle,
-    mutable,
-    imageUrl,
-    imageUri,
-    details,
-  } = _.pick(selectedOnchainHat, [
-    'maxSupply',
-    'eligibility',
-    'toggle',
-    'mutable',
-    'imageUrl',
-    'imageUri',
-    'details',
-  ]);
+  const { maxSupply, eligibility, toggle, mutable, imageUrl, details } = _.pick(
+    selectedOnchainHat,
+    ['maxSupply', 'eligibility', 'toggle', 'mutable', 'imageUrl', 'details'],
+  );
 
+  // get default form values
   const defaultFormValues = useMemo<FormData>(() => {
     if (isDraft) {
       return EMPTY_FORM_VALUES;
@@ -246,11 +220,11 @@ export const HatFormContextProvider = ({
     isDraft,
   ]);
 
+  // set initial form values
   useEffect(() => {
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      console.log('resetting form values', defaultFormValues);
       const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
 
       if (
@@ -261,16 +235,19 @@ export const HatFormContextProvider = ({
           ...defaultFormValues,
           ...matchingHat,
         };
+        // eslint-disable-next-line no-console
         console.log('reset for plaintext details');
         // reset default values for plaintext details
         reset(defaultFormValues);
 
+        // eslint-disable-next-line no-console
         console.log('reset for stored data values');
         // reset with stored data values
         reset(formValues, { keepDefaultValues: true });
         return;
       }
 
+      // eslint-disable-next-line no-console
       console.log('reset without stored data values');
       reset(formValues);
     };
@@ -280,19 +257,13 @@ export const HatFormContextProvider = ({
     }
   }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
 
-  const prevAllFormData = useRef<FieldValues>(
-    debouncedFormValues as Partial<FormData>,
-  );
-
+  // get dirty fields
   const getDirtyFields = useCallback(() => {
     const excludeKeys = ['id', 'parentId', 'newImageUri', 'adminId'];
     const keys = _.reject(_.keys(defaultFormValues), (k) =>
       _.includes(excludeKeys, k),
     );
-    console.log(keys);
     return _.filter(keys, (key: FormFieldData) => {
-      console.log(key);
-
       return (
         JSON.stringify(defaultFormValues[key]) !==
           JSON.stringify(debouncedFormValues[key]) ||
@@ -300,15 +271,16 @@ export const HatFormContextProvider = ({
       );
     });
   }, [debouncedFormValues, defaultFormValues]);
-  console.log('getDirtyFields', getDirtyFields());
+  // console.log('getDirtyFields', getDirtyFields());
 
   const getDirtyFieldsForAccordion = useCallback(
     (fieldsArray: FieldItem[]) => {
       const fields = getDirtyFields();
 
-      return fieldsArray
-        .filter((field) => fields.includes(field.name))
-        .map((field) => field.label);
+      return _.map(
+        _.filter(fieldsArray, (field) => _.includes(fields, field.name)),
+        'label',
+      );
     },
     [getDirtyFields],
   );
@@ -317,141 +289,92 @@ export const HatFormContextProvider = ({
     data: eligibilityResolvedAddress,
     isLoading: isLoadingEligibilityResolvedAddress,
   } = useEnsAddress({
-    name: formEligibility || eligibility,
+    name: debouncedFormValues?.eligibility,
     chainId: 1,
     enabled:
-      !!(formEligibility || eligibility) && formEligibility?.includes('.eth'),
+      !!debouncedFormValues?.eligibility &&
+      debouncedFormValues?.eligibility?.includes('.eth'),
   });
 
   const {
     data: toggleResolvedAddress,
     isLoading: isLoadingToggleResolvedAddress,
   } = useEnsAddress({
-    name: formToggle || toggle,
+    name: debouncedFormValues?.toggle,
     chainId: 1,
-    enabled: !!(formToggle || toggle) && formToggle?.includes('.eth'),
+    enabled:
+      !!debouncedFormValues?.toggle &&
+      debouncedFormValues?.eligibility?.includes('.eth'),
   });
-
-  useEffect(() => {
-    if (isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress) {
-      // setIsLoading(true);
-    }
-    // } else setIsLoading(false);
-  }, [
-    isLoadingEligibilityResolvedAddress,
-    isLoadingToggleResolvedAddress,
-    // setIsLoading,
-  ]);
-
-  useEffect(() => {
-    const updatedControllers: Partial<FormData> = {};
-    if (toggleResolvedAddress !== unsavedData?.toggle) {
-      updatedControllers.toggle = _.toLower(
-        toggleResolvedAddress || debouncedFormValues.toggle,
-      ) as Hex;
-    }
-    if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
-      updatedControllers.eligibility = _.toLower(
-        eligibilityResolvedAddress || debouncedFormValues.eligibility,
-      ) as Hex;
-    }
-
-    if (!_.isEmpty(_.keys(updatedControllers)))
-      setUnsavedData((prev: Partial<FormData> | undefined) => ({
-        ...prev,
-        ...updatedControllers,
-      }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibilityResolvedAddress, toggleResolvedAddress]);
-
-  // useEffect(() => {
-  //   if (!_.isEqual(prevAllFormData.current, allFormData)) {
-  //     const dirtyFieldKeys = getDirtyFields();
-  //     const dirtyFormData = dirtyFieldKeys.reduce(
-  //       (acc: Partial<FormData>, key: keyof FormData) => {
-  //         (acc[key] as
-  //           | DetailsItem[]
-  //           | FormWearer[]
-  //           | string
-  //           | string[]
-  //           | undefined) = allFormData[key];
-  //         return acc;
-  //       },
-  //       {} as Partial<FormData>,
-  //     );
-
-  //     setUnsavedData(dirtyFormData);
-  //     prevAllFormData.current = allFormData;
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [allFormData, getDirtyFields]);
-
-  // set new image uri in unsavedData
-  // useEffect(() => {
-  //   if (newImageUri && newImageUri !== imageUri) {
-  //     const dirtyFieldKeys = getDirtyFields();
-
-  //     if (!dirtyFieldKeys.includes('newImageUri')) {
-  //       dirtyFieldKeys.push('newImageUri');
-  //     }
-
-  //     const dirtyFormData = dirtyFieldKeys.reduce(
-  //       (acc: DirtyFormData, key: keyof FormData) => {
-  //         if (key === 'newImageUri') {
-  //           acc.imageUrl = newImageUri;
-  //         } else {
-  //           acc[key as string] = allFormData[key];
-  //         }
-  //         return acc;
-  //       },
-  //       {},
-  //     );
-
-  //     setUnsavedData(dirtyFormData);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [newImageUri, imageUri]);
 
   const handleSave = useCallback(
     (sendToast: boolean = true) => {
-      console.log('handleSave', unsavedData);
-      if (unsavedData) {
-        const updatedHats = _.map(storedData, (hat: Partial<FormData>) =>
-          hat.id === selectedHat?.id
-            ? { ...hat, ...unsavedData, id: selectedHat?.id }
-            : hat,
+      const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
+      // combine with getDirtyFields
+      const dirtyValues = _.pickBy(debouncedFormValues, (value, key) => {
+        if (
+          (defaultFormValues.imageUrl === '' && value === '') ||
+          key === 'imageUri'
+        ) {
+          return false;
+        }
+
+        if (key === 'imageUrl') {
+          return (
+            formatImageUrl(debouncedFormValues.imageUri) !==
+              defaultFormValues.imageUrl &&
+            debouncedFormValues.imageUri !== undefined
+          );
+        }
+
+        return (
+          JSON.stringify(value) !==
+          JSON.stringify(defaultFormValues[key as FormFieldData])
         );
+      });
+      const matchingHatWithValues = {
+        ...matchingHat,
+        ...dirtyValues,
+        id: selectedHat?.id,
+      };
 
-        if (!_.find(updatedHats, ['id', selectedHat?.id])) {
-          updatedHats.push({ ...unsavedData, id: selectedHat?.id || '0x' });
-        }
+      const updatedHats = _.reject(storedData, {
+        id: selectedHat?.id,
+      });
 
-        setStoredData?.(updatedHats);
-        setUnsavedData(undefined);
+      updatedHats.push(matchingHatWithValues);
 
-        if (sendToast) {
-          toast.success({
-            title: 'Saved',
-            description: 'Your changes have been saved.',
-            duration: 1500,
-          });
-        }
+      setStoredData?.(updatedHats);
+      reset();
+
+      if (sendToast) {
+        toast.success({
+          title: 'Saved',
+          description: 'Your changes have been saved.',
+          duration: 1500,
+        });
       }
     },
-    [selectedHat?.id, setStoredData, storedData, toast, unsavedData],
+    [
+      selectedHat?.id,
+      setStoredData,
+      storedData,
+      toast,
+      debouncedFormValues,
+      defaultFormValues,
+      reset,
+    ],
   );
 
   const handleRemoveHat = useCallback(() => {
     if (!selectedHat) return;
     removeHat?.(selectedHat?.id);
-    setUnsavedData(undefined);
   }, [removeHat, selectedHat]);
 
   const handleClearChanges = useCallback(() => {
     if (!selectedHat) return;
     const updateData = _.reject(storedData, { id: selectedHat?.id });
     setStoredData?.(updateData);
-    setUnsavedData(undefined);
     onOpenTreeDrawer?.();
     onCloseHatDrawer?.();
   }, [
@@ -467,16 +390,13 @@ export const HatFormContextProvider = ({
       // form state
       localForm,
       formValues: debouncedFormValues,
-      // local state
-      isLoading,
-      setIsLoading,
-      unsavedData,
-      setUnsavedData,
-      // newImageUri,
-      // setNewImageUri,
+      isLoading:
+        isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress,
 
       // helpers
       getDirtyFieldsForAccordion,
+      eligibilityResolvedAddress: eligibilityResolvedAddress || undefined,
+      toggleResolvedAddress: toggleResolvedAddress || undefined,
 
       // actions
       handleSave,
@@ -484,12 +404,18 @@ export const HatFormContextProvider = ({
       handleClearChanges,
     }),
     [
+      // form state
       localForm,
       debouncedFormValues,
-      isLoading,
-      unsavedData,
-      // newImageUri,
+      isLoadingEligibilityResolvedAddress,
+      isLoadingToggleResolvedAddress,
+
+      // helpers
       getDirtyFieldsForAccordion,
+      eligibilityResolvedAddress,
+      toggleResolvedAddress,
+
+      // actions
       handleSave,
       handleRemoveHat,
       handleClearChanges,

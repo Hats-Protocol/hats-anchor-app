@@ -43,9 +43,15 @@ import { FormWearer, HatWearer } from '@/types';
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
 
-  const { chainId, selectedHat, onchainHats, storedData, hatDisclosure } =
-    useTreeForm();
-  const { localForm: hatForm, setUnsavedData } = useHatForm();
+  const {
+    chainId,
+    selectedHat,
+    onchainHats,
+    selectedOnchainHat,
+    storedData,
+    hatDisclosure,
+  } = useTreeForm();
+  const { localForm: hatForm } = useHatForm();
   const form = localForm || hatForm;
   const { handleSubmit, setValue, watch } = _.pick(form, [
     'handleSubmit',
@@ -143,6 +149,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       Boolean(decimalId(hatId)) &&
       _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
+      _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
       chainId === currentNetworkId,
   });
 
@@ -166,6 +173,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         Boolean(decimalId(hatId)) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
         _.eq(_.size(localWearers), 1) &&
+        _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
         chainId === currentNetworkId,
     });
 
@@ -203,10 +211,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       ens: isEnsAddress ? currentInput : '',
     });
     setValue?.('wearers', newLocalWearers);
-    setUnsavedData?.((prevState) => ({
-      ...prevState,
-      wearers: newLocalWearers,
-    }));
     setCurrentInput('');
     setCurrentResolvedAddress(undefined);
   };
@@ -217,10 +221,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       (__, i) => _.toNumber(i) !== index,
     );
     setValue?.('wearers', updateWearers);
-    setUnsavedData?.((prevState) => ({
-      ...prevState,
-      wearers: updateWearers,
-    }));
   };
   const { isOpen, onToggle } = useDisclosure();
 

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-
 import {
   Box,
   Button,
@@ -24,7 +23,7 @@ import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { calculateNextChildId, ipToHatId, isTopHatOrMutable } from '@/lib/hats';
-import { Hat, HatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;

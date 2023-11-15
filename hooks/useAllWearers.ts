@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { GET_HAT_WEARERS_PAGE } from '@/gql/queries';
 import { createSubgraphClient } from '@/lib/web3';
 import { HatWearer } from '@/types';
 
@@ -26,7 +25,7 @@ const fetchHatWearersPage = async ({
     perPage: 1000,
   });
 
-  return res as any;
+  return res;
 };
 
 const useAllWearers = () => {
