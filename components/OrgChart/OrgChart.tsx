@@ -102,11 +102,6 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // eslint-disable-next-line func-names
-          .onNodeClick(function (node: any) {
-            if (!chainId) return;
-            handleSelectHat?.(node?.id);
-          })
-          // eslint-disable-next-line func-names
           .nodeUpdate(function (this: any) {
             if (!chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
@@ -143,7 +138,7 @@ const OrgChartComponent: React.FC = () => {
                 // still not having luck centering new nodes here
                 // always node not found or parent node
               } else {
-                centerChart(chart, data.data?.id);
+                // don't center here
                 handleSelectHat?.(data.data?.id);
               }
             });
