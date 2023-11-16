@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-
 import {
   Box,
   Button,
@@ -24,13 +23,13 @@ import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { formatAddress } from '@/lib/general';
 import { calculateNextChildId, ipToHatId, isTopHatOrMutable } from '@/lib/hats';
-import { Hat, HatWearer } from '@/types';
+import { HatWearer } from '@/types';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
   let n = 0;
   while (element) {
-    if (n > 4) break;
+    if (n > 5) break;
     const classArray = _.split(element.classList.value, ' ');
     if (classArray && _.includes(classArray, name)) {
       return true;
@@ -59,7 +58,6 @@ const OrgChartComponent: React.FC = () => {
     storedData,
     setStoredData,
     addHat,
-    newImageUrls,
   } = useTreeForm();
 
   const d3Container = useRef(null);
@@ -103,16 +101,9 @@ const OrgChartComponent: React.FC = () => {
             return 70;
           })
           .nodeWidth(() => 220)
-          // node click handler
-          // .onNodeClick(function test(node: unknown) {
-          //   const hat = node as Hat;
-          //   if (!editMode) {
-          //     handleSelectHat?.(hat?.id);
-          //     centerChart(chart, hat?.id);
-          //   }
-          // })
-          .nodeUpdate(function test(this: any) {
-            if (!editMode || !chainId) return;
+          // eslint-disable-next-line func-names
+          .nodeUpdate(function (this: any) {
+            if (!chainId) return;
             d3.select(this).on('click.node-update', (event: any, data: any) => {
               if (
                 checkParentElementForClass(event, `click-${data.data.name}`)
@@ -142,26 +133,18 @@ const OrgChartComponent: React.FC = () => {
                   },
                 };
 
-                addHat?.(newHat);
-                const newDetails = _.get(newHat, 'detailsObject.data');
-                const onlyNeededKeys = {
-                  id: newHat.id,
-                  parentId: data.data.id,
-                  ...newDetails,
-                };
-                const removeCurrentId = _.reject(storedData, ['id', newId]);
-                setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys));
-                // wait to center. node doesn't exist right away
-                setTimeout(() => {
-                  centerChart(chart, newId);
-                }, 500);
+                addHat?.(newHat, data.data.id);
+
+                // still not having luck centering new nodes here
+                // always node not found or parent node
               } else {
-                centerChart(chart, data.data?.id);
+                // don't center here
                 handleSelectHat?.(data.data?.id);
               }
             });
           })
-          .linkUpdate(function test(this: any) {
+          // eslint-disable-next-line func-names
+          .linkUpdate(function (this: any) {
             d3.select(this).attr('stroke', '#718096');
             // handle linked links?
           })
@@ -226,12 +209,15 @@ const OrgChartComponent: React.FC = () => {
               extendedEligibility: eligibility,
               extendedToggle: toggle,
               levelAtLocalTree,
-              newImageUrl,
-              newName,
             } = d.data;
 
             const nextChildId = calculateNextChildId(d.data.id, treeToDisplay);
-            const detailsName = detailsObject?.data?.name || details;
+            const currentName = _.find(treeToDisplay, [
+              'id',
+              d.data.id,
+            ])?.displayName;
+            const detailsName =
+              currentName || detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
 
             const maxSupplyText = () => {
@@ -520,10 +506,9 @@ const OrgChartComponent: React.FC = () => {
                     <img
                       loading="lazy"
                       src="${
-                        newImageUrl ||
-                        (imageUrl !== '' && imageUrl !== null
+                        imageUrl !== '' && imageUrl !== null
                           ? imageUrl
-                          : '/icon.jpeg')
+                          : '/icon.jpeg'
                       }"
                       style="
                         background: white;
@@ -575,7 +560,7 @@ const OrgChartComponent: React.FC = () => {
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;"
                       >
-                        ${newName || detailsName}
+                        ${detailsName}
                       </div>
                     </div>
                     ${
@@ -662,15 +647,15 @@ const OrgChartComponent: React.FC = () => {
           .layout(flipped ? 'bottom' : 'top')
           .expandAll();
 
-        if (initialLoad) {
-          if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
-            centerChart(chart, selectedHat.id);
-          } else {
-            chart.fit();
-          }
+        if (!initialLoad || !treeToDisplay) return;
 
-          setInitialLoad(false);
+        if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
+          handleSelectHat?.(selectedHat.id);
+          centerChart(chart, selectedHat.id);
+        } else {
+          chart.fit();
         }
+        setInitialLoad(false);
       }
     }
   }, [
@@ -688,7 +673,6 @@ const OrgChartComponent: React.FC = () => {
     addHat,
     setStoredData,
     userChain,
-    newImageUrls,
     treeToDisplay,
     compact,
     flipped,

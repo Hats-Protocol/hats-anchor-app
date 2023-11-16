@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { decimalId } from '@/lib/hats';
-import { ModuleDetails, ModuleKind } from '@/types';
+import { ModuleDetails } from '@/types';
 
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
@@ -15,7 +15,7 @@ const ModuleDrawer = ({
   isStandaloneHatterDeploy,
 }: {
   onCloseModuleDrawer: () => void;
-  title: ModuleKind;
+  title: string;
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const { selectedHat } = useTreeForm();

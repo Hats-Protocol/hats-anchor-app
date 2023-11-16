@@ -1,13 +1,13 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchWearerDetails } from '@/gql/helpers';
 import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
-import { Hat } from '@/types';
+import { FormData, Hat } from '@/types';
 
 import useIsAdmin from './useIsAdmin';
 import useModuleDetails from './useModuleDetails';
@@ -25,10 +25,39 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
   return res as unknown as Promise<Hat[]>;
 };
 
+const getHatterHat = async (
+  claimsHatterData: Hat[] | undefined,
+  storedModuleDetails: Module[] | undefined,
+  storedData: Partial<FormData>[] | undefined,
+  chainId: number | undefined,
+) => {
+  if (!chainId) return {};
+
+  const onchainHatId = _.first(
+    _.compact(_.map(claimsHatterData, 'claimableBy[0].id')),
+  );
+
+  const claimsHatterIndex = _.findIndex(
+    storedModuleDetails,
+    (result) => _.get(result, 'name') === 'Multi Claims Hatter',
+  );
+  const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
+
+  const address = onchainHatId || storedDataHatId;
+
+  if (address) {
+    const result = await fetchWearerDetails(address, chainId);
+
+    return {
+      wearingHat: _.get(result, 'currentHats.[0].id'),
+      instanceAddress: address,
+    };
+  }
+  return {};
+};
+
 const useMultiClaimsHatterCheck = () => {
   const { chainId, onchainHats, storedData } = useTreeForm();
-  const [wearingHat, setWearingHat] = useState<Hex | undefined>();
-  const [instanceAddress, setInstanceAddress] = useState<Hex | undefined>();
 
   const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
 
@@ -38,20 +67,21 @@ const useMultiClaimsHatterCheck = () => {
     return result;
   };
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['claimsHatter', allHatIds],
+  const {
+    data: claimsHatterData,
+    isLoading: claimsHatterLoading,
+    error: claimsHatterError,
+  } = useQuery({
+    queryKey: ['claimsHatter', allHatIds, chainId],
     queryFn: fetchHatters,
-    enabled: !!allHatIds,
+    enabled: !!allHatIds && !!chainId,
   });
 
   const claimableHats: Hex[] | undefined = useMemo(() => {
-    if (!data) return undefined;
+    if (!claimsHatterData) return undefined;
 
-    return _.map(_.filter(data, 'claimableBy[0].id'), 'id');
-  }, [data]);
-
-  const { details } = useModuleDetails({ address: instanceAddress });
-  const hatterIsAdmin = useIsAdmin(instanceAddress);
+    return _.map(_.filter(claimsHatterData, 'claimableBy[0].id'), 'id');
+  }, [claimsHatterData]);
 
   const storedAddresses = _.uniq(
     _.compact(
@@ -78,6 +108,10 @@ const useMultiClaimsHatterCheck = () => {
       enabled: !!address,
     })),
   });
+  const storedModulesDetailsData = _.compact(
+    _.map(storedModuleDetails, 'data'),
+  );
+  const modulesLoading = _.some(storedModuleDetails, 'isLoading');
 
   const storedDataClaimableHats = _.compact(
     _.map(storedModuleDetails, (result, index) => {
@@ -90,37 +124,37 @@ const useMultiClaimsHatterCheck = () => {
 
   const hats = _.uniq(_.concat(claimableHats, storedDataClaimableHats));
 
-  useEffect(() => {
-    const getHatterHat = async () => {
-      if (instanceAddress || !chainId) return;
+  const {
+    data: hatterHat,
+    isLoading: hatterHatLoading,
+    error: hatterHatError,
+  } = useQuery({
+    queryKey: [
+      'hatterHat',
+      { chainId, hats: _.map(claimsHatterData, 'id') },
+      { storedModulesDetailsData, storedData },
+    ],
+    queryFn: () =>
+      getHatterHat(
+        claimsHatterData,
+        storedModulesDetailsData,
+        storedData,
+        chainId,
+      ),
+    enabled: !!chainId && !!claimsHatterData,
+  });
 
-      const onchainHatId = _.first(_.compact(_.map(data, 'claimableBy[0].id')));
-
-      const claimsHatterIndex = _.findIndex(
-        storedModuleDetails,
-        (result) => _.get(result, 'data.name') === 'Multi Claims Hatter',
-      );
-      const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
-
-      const address = onchainHatId || storedDataHatId;
-
-      if (address) {
-        setInstanceAddress(address);
-        const result = await fetchWearerDetails(address, chainId);
-        setWearingHat(_.get(result, 'currentHats.[0].id'));
-      }
-    };
-
-    getHatterHat();
-  }, [instanceAddress, chainId, data, storedModuleDetails, storedData]);
+  const { details } = useModuleDetails({ address: hatterHat?.instanceAddress });
+  const hatterIsAdmin = useIsAdmin(hatterHat?.instanceAddress);
 
   return {
     multiClaimsHatter: details,
-    wearingHat,
-    instanceAddress,
+    wearingHat: hatterHat?.wearingHat,
+    instanceAddress: hatterHat?.instanceAddress,
     hatterIsAdmin,
     claimableHats: hats,
-    isLoading,
+    isLoading: claimsHatterLoading || hatterHatLoading || modulesLoading,
+    error: claimsHatterError || hatterHatError,
   };
 };
 
