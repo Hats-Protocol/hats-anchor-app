@@ -96,7 +96,7 @@ const OrgChartComponent: React.FC = () => {
           })
           .nodeWidth(() => 220)
           // node click handler
-          .onNodeClick(function test(node: Hat) {
+          .onNodeClick(function test(node: any) {
             if (!editMode) {
               handleSelectHat?.(node?.id);
               centerChart(chart, node?.id);
