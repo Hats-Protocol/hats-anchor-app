@@ -109,8 +109,10 @@ export const handleDetailsPin = async ({
   return cid;
 };
 
-export const ipfsUrl = (hash: string) =>
-  `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+export const ipfsUrl = (hash?: string) => {
+  if (!hash) return '';
+  return `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+};
 
 export const urlToIpfsUri = (url: string) => {
   const match = url.match(/ipfs\/([a-zA-Z0-9]+)/);

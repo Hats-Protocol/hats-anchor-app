@@ -10,6 +10,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatGuilds from '@/hooks/useGuilds';
 import { checkAddressIsContract } from '@/lib/contract';
 
+import AuthoritiesList from './AuthoritiesList';
 import DetailList from './DetailList';
 import GuildRoles from './GuildRoles';
 import Header from './Header';
@@ -52,6 +53,7 @@ const MainContent = () => {
       height='calc(100% - 150px)'
       pb={400}
       pos='relative'
+      color='blackAlpha.800'
     >
       <Header />
 
@@ -60,7 +62,7 @@ const MainContent = () => {
       <GuildRoles hatRoles={hatRoles} />
 
       <DetailList title='Responsibilities' details={responsibilities} />
-      <DetailList title='Authorities' details={authorities} />
+      <AuthoritiesList title='Authorities' authorities={authorities} />
 
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
