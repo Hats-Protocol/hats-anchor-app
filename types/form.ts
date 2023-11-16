@@ -6,7 +6,7 @@ export type FormFieldData = Exclude<
   keyof FormData,
   'id' | 'parentId' | 'adminId'
 >;
-export type FieldItem = { name: keyof FormFieldData; label: string };
+export type FieldItem = { name: FormFieldData; label: string };
 
 export interface FormWearer {
   address: Hex;
