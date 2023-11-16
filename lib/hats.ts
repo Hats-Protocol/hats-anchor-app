@@ -449,7 +449,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
     wearers: hat.wearers,
     adminId: hat.adminId,
     imageUri: hat.imageUri || '',
-    imageUrl: hat.imageUrl || '',
+    // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
     detailsObject: {
       type: '1.0',
       data: {
@@ -541,11 +541,11 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
   };
 
   _.forEach(hatA, (value, key) => {
-    if (_.includes(['createdAt', 'currentSupply', 'imageUrl'], key)) {
+    if (_.includes(['createdAt', 'currentSupply', 'imageUri'], key)) {
       return;
     }
 
-    if (key === 'imageUri') {
+    if (key === 'imageUrl') {
       if (!_.isEqual(String(value), String(hatB[key]))) {
         diffHat.imageUrl = hatA.imageUrl;
       }
