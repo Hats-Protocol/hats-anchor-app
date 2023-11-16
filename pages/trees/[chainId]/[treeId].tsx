@@ -39,6 +39,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam);
+  console.log(treeId, chainId);
 
   if (!treeId || treeId === 'undefined' || !chainId) {
     return { props: defaultProps };
@@ -47,6 +48,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 
   try {
     const treeData = await fetchTreeDetails(treeHex, Number(chainId));
+    console.log(treeData?.id);
 
     if (!treeData) {
       return { props: defaultProps };
@@ -64,6 +66,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
       _.omit(hat, ['events']),
     );
 
+    console.log('returning default props');
     return {
       props: {
         ...defaultProps,
