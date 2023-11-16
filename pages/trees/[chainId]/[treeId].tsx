@@ -33,18 +33,15 @@ const defaultProps = {
 };
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
-  // const treeIdParam = _.get(context, 'params.treeId');
+  const treeIdParam = _.get(context, 'params.treeId');
   const chainIdParam = _.get(context, 'params.chainId');
-  // const treeId = _.isArray(treeIdParam) ? _.first(treeIdParam) : treeIdParam;
+  const treeId = _.isArray(treeIdParam) ? _.first(treeIdParam) : treeIdParam;
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam);
-
-  const treeId = '1';
   console.log(treeId, chainId);
 
-  // treeId === 'undefined' ||
-  if (!treeId || !chainId) {
+  if (!treeId || treeId === 'undefined' || !chainId) {
     return { props: defaultProps };
   }
   const treeHex = decimalToTreeId(treeId);
@@ -97,9 +94,10 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 };
 
 export const getStaticPaths = async () => {
+  // lookup trees for chain
   return {
     paths: [],
-    fallback: false,
+    fallback: 'blocking',
   };
 };
 
