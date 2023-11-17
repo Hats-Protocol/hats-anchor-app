@@ -8,7 +8,12 @@ import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
 import { fetchTreeDetails } from '@/gql/helpers';
 import { decimalToTreeId } from '@/lib/hats';
 
-const TreeDetails = ({ treeId, chainId, linkedHatIds }: TreeDetailsProps) => {
+const TreeDetails = ({
+  treeId,
+  chainId,
+  linkedHatIds,
+  exists,
+}: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
   if (_.isArray(hatId)) {
@@ -21,7 +26,7 @@ const TreeDetails = ({ treeId, chainId, linkedHatIds }: TreeDetailsProps) => {
       chainId={chainId}
       linkedHatIds={linkedHatIds}
     >
-      <TreePage />
+      <TreePage exists={exists} />
     </TreeFormContextProvider>
   );
 };
@@ -39,7 +44,6 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam);
-  console.log(treeId, chainId);
 
   if (!treeId || treeId === 'undefined' || !chainId) {
     return { props: defaultProps };
@@ -48,7 +52,6 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 
   try {
     const treeData = await fetchTreeDetails(treeHex, Number(chainId));
-    console.log(treeData?.id);
 
     if (!treeData) {
       return { props: defaultProps };
@@ -66,7 +69,6 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
       _.omit(hat, ['events']),
     );
 
-    console.log('returning default props');
     return {
       props: {
         ...defaultProps,
@@ -88,6 +90,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
         ...defaultProps,
         treeId: treeHex,
         chainId: _.toNumber(chainId),
+        exists: !((e as { name: string }).name === 'SubgraphTreeNotExistError'),
       },
     };
   }
@@ -107,4 +110,5 @@ interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
   linkedHatIds: Hex[];
+  exists: boolean;
 }
