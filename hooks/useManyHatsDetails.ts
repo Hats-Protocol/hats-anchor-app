@@ -8,10 +8,10 @@ import { Hat } from '@/types';
 const useManyHatDetails = ({
   hats,
   initialHats,
-  editMode,
+  editMode = false, // TODO is this a bad default?
 }: {
   hats: Partial<Hat>[] | undefined;
-  initialHats?: Hat[];
+  initialHats?: Partial<Hat>[];
   editMode?: boolean;
 }): { data: Hat[] | undefined; isLoading: boolean } => {
   const onlyOnchainHats = _.filter(hats, (hat) =>
@@ -26,9 +26,8 @@ const useManyHatDetails = ({
       return {
         queryKey: ['hatDetails', hatDetails],
         queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
-        enabled: !!hat.id && !!hat.chainId && !!hat.details,
+        enabled: !!hat.id && !!hat.chainId,
         refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
-        // initialData: _.find(initialHats, ['id', hat.id]),
       };
     }),
   });

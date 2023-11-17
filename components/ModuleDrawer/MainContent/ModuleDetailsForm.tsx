@@ -1,4 +1,5 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
+import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import Link from 'next/link';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
@@ -14,7 +15,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
-import { ModuleCreationArg, ModuleDetails, ModuleKind } from '@/types';
+import { ModuleCreationArg, ModuleDetails } from '@/types';
 
 const ModuleDetailsForm = ({
   localForm,
@@ -24,7 +25,7 @@ const ModuleDetailsForm = ({
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  title: ModuleKind;
+  title: string;
   selectedModuleDetails: ModuleDetails | undefined;
   setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
 }) => {
@@ -37,14 +38,15 @@ const ModuleDetailsForm = ({
     ModuleCreationArg[] | null
   >([]);
 
-  const modulesToDisplay = useMemo(() => {
-    return _.map(
-      _.pickBy(modules, ({ type }) => type[title]),
-      (value, key) => ({
-        id: key,
-        ...value,
-      }),
-    );
+  const modulesToDisplay: ModuleDetails[] = useMemo(() => {
+    const modulesForType: Module[] = _.filter(modules, [
+      'type',
+      _.toLower(title),
+    ]);
+    return _.map(modulesForType, (value: Module, key: string) => ({
+      id: key,
+      ...value,
+    })) as unknown as ModuleDetails[]; // thinks boolean[] ?
   }, [modules, title]);
 
   const selectedModule = useMemo(() => {

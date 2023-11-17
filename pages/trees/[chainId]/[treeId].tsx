@@ -5,15 +5,10 @@ import { Hex } from 'viem';
 
 import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
-import { fetchHatDetails, fetchTreeDetails } from '@/gql/helpers';
-import { decimalToTreeId, prettyIdToId } from '@/lib/hats';
-import { Hat, Tree } from '@/types';
+import { fetchTreeDetails } from '@/gql/helpers';
+import { decimalToTreeId } from '@/lib/hats';
 
-const TreeDetails = ({
-  treeId,
-  chainId,
-  initialTreeData,
-}: TreeDetailsProps) => {
+const TreeDetails = ({ treeId, chainId, linkedHatIds }: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
   if (_.isArray(hatId)) {
@@ -24,13 +19,17 @@ const TreeDetails = ({
     <TreeFormContextProvider
       treeId={treeId}
       chainId={chainId}
-      initialHatId={hatId}
-      initialTreeData={initialTreeData}
-      // initialHatIds={initialHatIds}
+      linkedHatIds={linkedHatIds}
     >
       <TreePage />
     </TreeFormContextProvider>
   );
+};
+
+const defaultProps = {
+  treeId: null,
+  chainId: null,
+  linkedHatIds: null,
 };
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
@@ -40,64 +39,62 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam);
+  console.log(treeId, chainId);
 
   if (!treeId || treeId === 'undefined' || !chainId) {
-    return { props: {} };
+    return { props: defaultProps };
   }
-
   const treeHex = decimalToTreeId(treeId);
-  const treeData = await fetchTreeDetails(treeHex, Number(chainId));
 
-  if (!treeData) {
-    return { props: {} };
-  }
+  try {
+    const treeData = await fetchTreeDetails(treeHex, Number(chainId));
+    console.log(treeData?.id);
 
-  const { linkedToHat, parentOfTrees } = _.pick(treeData, [
-    'linkedToHat',
-    'parentOfTrees',
-  ]);
+    if (!treeData) {
+      return { props: defaultProps };
+    }
 
-  let fetchedParentOfTrees = [] as Hat[];
-
-  if (parentOfTrees) {
-    const promises = parentOfTrees.map((parentTree) =>
-      fetchHatDetails(prettyIdToId(parentTree?.id), chainId),
+    const { linkedToHat, parentOfTrees } = _.pick(treeData, [
+      'linkedToHat',
+      'parentOfTrees',
+    ]);
+    const linkedHatIds = _.compact(
+      _.concat(_.map(parentOfTrees, 'hats[0].id'), _.get(linkedToHat, 'id')),
     );
 
-    const hats = await Promise.all(promises);
-    fetchedParentOfTrees = hats.filter(
-      (hat) => hat !== null && hat !== undefined,
-    ) as Hat[];
-    treeData.parentOfHats = fetchedParentOfTrees;
-  }
-
-  if (linkedToHat) {
-    const fetchedLinkedHat = await fetchHatDetails(
-      prettyIdToId(linkedToHat?.id),
-      chainId,
+    const hatsWithoutEvents = _.map(treeData.hats, (hat) =>
+      _.omit(hat, ['events']),
     );
-    treeData.linkedToHat = fetchedLinkedHat;
+
+    console.log('returning default props');
+    return {
+      props: {
+        ...defaultProps,
+        treeId: treeHex,
+        chainId: _.toNumber(chainId),
+        initialTreeData: {
+          ..._.omit(treeData, ['events']),
+          hats: hatsWithoutEvents,
+        },
+        linkedHatIds,
+      },
+      revalidate: 5,
+    };
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e);
+    return {
+      props: {
+        ...defaultProps,
+        treeId: treeHex,
+        chainId: _.toNumber(chainId),
+      },
+    };
   }
-
-  const linkedHats = linkedToHat ? [linkedToHat?.id] : [];
-  const parentOfHats = _.map(fetchedParentOfTrees, 'id');
-
-  const initialHatIds = _.compact(
-    _.concat(_.map(_.get(treeData, 'hats'), 'id'), linkedHats, parentOfHats),
-  );
-
-  return {
-    props: {
-      treeId: treeHex || null,
-      chainId: _.toNumber(chainId),
-      initialTreeData: treeData || null,
-      initialHatIds: initialHatIds || null,
-    },
-    revalidate: 5,
-  };
 };
 
 export const getStaticPaths = async () => {
+  // lookup trees for chain
   return {
     paths: [],
     fallback: 'blocking',
@@ -109,6 +106,5 @@ export default TreeDetails;
 interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
-  initialTreeData: Tree;
-  // initialHatIds: Hex[];
+  linkedHatIds: Hex[];
 }

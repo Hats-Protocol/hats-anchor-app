@@ -3,10 +3,17 @@ import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import {
+  defaultHat,
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@/constants';
+import {
+  FieldItem,
   FormData,
   FormDataDetails,
+  FormFieldData,
   Hat,
   HatDetails,
   InputObject,
@@ -14,7 +21,7 @@ import {
 
 import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
-import { createHatsClient } from './web3';
+import { createHatsClient, publicClient } from './web3';
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
@@ -108,7 +115,7 @@ const createDetailsData = ({
   return detailsData;
 };
 
-const createNewHatData = ({
+const createNewHatData = async ({
   hat,
   details,
 }: {
@@ -118,6 +125,20 @@ const createNewHatData = ({
   const { maxSupply, eligibility, toggle, mutable, imageUrl, id: hatId } = hat;
 
   if (!hatId) return undefined;
+  let localEligibility = eligibility;
+  const localToggle = toggle;
+  if (eligibility?.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: eligibility,
+      })) || undefined;
+  }
+  if (toggle?.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: toggle,
+      })) || undefined;
+  }
 
   const admin = getDefaultAdminId(hatId);
   if (!admin || admin === '0x') {
@@ -130,8 +151,8 @@ const createNewHatData = ({
     admin: BigInt(getDefaultAdminId(hatId)),
     details,
     maxSupply: _.toNumber(maxSupply) || 1,
-    eligibility: eligibility || FALLBACK_ADDRESS,
-    toggle: toggle || FALLBACK_ADDRESS,
+    eligibility: localEligibility || FALLBACK_ADDRESS,
+    toggle: localToggle || FALLBACK_ADDRESS,
     mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
     imageURI: imageUrl || '',
   };
@@ -170,7 +191,7 @@ const processNewDetailsCallForHat = async ({
   const details = await calculateCid({ type: '1.0', data: detailsData });
 
   if (!id || !details) return returnData;
-  const newHat = createNewHatData({ hat, details });
+  const newHat = await createNewHatData({ hat, details });
   if (!newHat) return returnData;
   const newHatData = hatsClient.createHatCallData(newHat);
 
@@ -352,7 +373,7 @@ const processMaxSupplyChangeCallForHat = ({
   };
 };
 
-const processEligibilityChangeCallForHat = ({
+const processEligibilityChangeCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -360,11 +381,21 @@ const processEligibilityChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { eligibility, id: hatId } = hat;
 
+  let localEligibility = eligibility;
   if (!hatId || !eligibility) return returnData;
+
+  if (eligibility.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: eligibility,
+      })) || undefined;
+  }
+
+  if (!localEligibility) return returnData;
 
   const changeHatEligibilityData = hatsClient.changeHatEligibilityCallData({
     hatId: BigInt(hatId),
-    newEligibility: eligibility,
+    newEligibility: localEligibility,
   });
 
   if (!changeHatEligibilityData) return returnData;
@@ -381,7 +412,7 @@ const processEligibilityChangeCallForHat = ({
   };
 };
 
-const processToggleChangeCallForHat = ({
+const processToggleChangeCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -389,7 +420,17 @@ const processToggleChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { toggle, id: hatId } = hat;
 
+  let localToggle = toggle;
   if (!hatId || !toggle) return returnData;
+
+  if (toggle.includes('.eth')) {
+    localToggle =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: toggle,
+      })) || undefined;
+  }
+
+  if (!localToggle) return returnData;
 
   const changeHatToggleData = hatsClient.changeHatToggleCallData({
     hatId: BigInt(hatId),
@@ -515,12 +556,12 @@ export const processHatForCalls = async (
     hat,
     returnData: maxSupplyResult,
   });
-  const eligibilityResult = processEligibilityChangeCallForHat({
+  const eligibilityResult = await processEligibilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: wearersResult,
   });
-  const toggleResult = processToggleChangeCallForHat({
+  const toggleResult = await processToggleChangeCallForHat({
     hatsClient,
     hat,
     returnData: eligibilityResult,
@@ -591,4 +632,40 @@ export const removeAndHandleSiblingsOrgChart = (hats: Hat[], hatId: Hex) => {
   );
 
   return _.concat(filterSiblings, _.compact(updateSiblings));
+};
+
+// get dirty fields
+export const getDirtyFields = (
+  formValues: Partial<FormData>,
+  defaultFormValues: Partial<FormData>,
+): string[] => {
+  const excludeKeys = ['id', 'parentId', 'adminId', 'imageUri'];
+
+  return _.filter(_.keys(formValues), (key: FormFieldData) => {
+    if (_.includes(excludeKeys, key)) return false;
+    if (key === 'imageUrl') {
+      return (
+        formValues.imageUrl !== defaultFormValues.imageUrl &&
+        formValues.imageUrl !== undefined
+      );
+    }
+    // if (value === _.get(defaultHat, key)) return false;
+
+    return (
+      JSON.stringify(defaultFormValues[key]) !== JSON.stringify(formValues[key])
+      // || formValues[key] === 'New Hat'
+    );
+  }) as string[];
+};
+
+export const fieldsAreDirty = (
+  fieldsArray: FieldItem[],
+  dirtyFields: string[],
+) => {
+  return _.map(
+    _.filter(fieldsArray, (field) =>
+      _.includes(dirtyFields, field.name as string),
+    ),
+    'label',
+  );
 };

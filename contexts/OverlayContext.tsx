@@ -16,9 +16,7 @@ import {
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
-// import Modal from '@/components/atoms/Modal';
 import Suspender from '@/components/atoms/Suspender';
-// import TransactionHistory from '@/components/TransactionHistory';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { checkTransactionStatus } from '@/lib/contract';

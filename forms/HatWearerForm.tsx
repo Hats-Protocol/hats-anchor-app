@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
@@ -31,20 +31,33 @@ import { useChainId, useEnsAddress } from 'wagmi';
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import FormRowWrapper from '@/components/FormRowWrapper';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
-import { FormData, FormWearer, HatWearer } from '@/types';
+import { FormWearer, HatWearer } from '@/types';
 
-const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
+const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
 
-  const { handleSubmit, setValue, watch } = localForm;
-  const { chainId, selectedHat, onchainHats, storedData, hatDisclosure } =
-    useTreeForm();
+  const {
+    chainId,
+    selectedHat,
+    onchainHats,
+    selectedOnchainHat,
+    storedData,
+    hatDisclosure,
+  } = useTreeForm();
+  const { localForm: hatForm } = useHatForm();
+  const form = localForm || hatForm;
+  const { handleSubmit, setValue, watch } = _.pick(form, [
+    'handleSubmit',
+    'setValue',
+    'watch',
+  ]);
 
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
@@ -52,8 +65,8 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     Hex | undefined
   >();
 
-  const localWearers: FormWearer[] = watch('wearers', []);
-  const editMode = _.gt(_.size(_.keys(watch())), 1);
+  const localWearers: FormWearer[] = watch?.('wearers', []);
+  const editMode = _.gt(_.size(_.keys(watch?.())), 1);
 
   const hatId = _.get(selectedHat, 'id');
   const detailsObject = _.get(selectedHat, 'detailsObject');
@@ -63,7 +76,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     hatName = detailsObject.data.name;
   }
 
-  const currentMaxSupply = watch('maxSupply');
+  const currentMaxSupply = watch?.('maxSupply');
   const maxSupply = useMemo(() => {
     if (currentMaxSupply) {
       return currentMaxSupply;
@@ -136,6 +149,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       Boolean(decimalId(hatId)) &&
       _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
+      _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
       chainId === currentNetworkId,
   });
 
@@ -159,6 +173,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
         Boolean(decimalId(hatId)) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
         _.eq(_.size(localWearers), 1) &&
+        _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
         chainId === currentNetworkId,
     });
 
@@ -195,11 +210,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       address,
       ens: isEnsAddress ? currentInput : '',
     });
-    setValue('wearers', newLocalWearers);
-    setUnsavedData?.((prevState) => ({
-      ...prevState,
-      wearers: newLocalWearers,
-    }));
+    setValue?.('wearers', newLocalWearers);
     setCurrentInput('');
     setCurrentResolvedAddress(undefined);
   };
@@ -209,11 +220,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
       localWearers,
       (__, i) => _.toNumber(i) !== index,
     );
-    setValue('wearers', updateWearers);
-    setUnsavedData?.((prevState) => ({
-      ...prevState,
-      wearers: updateWearers,
-    }));
+    setValue?.('wearers', updateWearers);
   };
   const { isOpen, onToggle } = useDisclosure();
 
@@ -236,7 +243,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                 _.size(currentWearerList) -
                 _.size(localWearers),
             );
-            setValue('wearers', [
+            setValue?.('wearers', [
               ...localWearers,
               ...csvAddresses.map((address: unknown) => ({ address, ens: '' })),
             ]);
@@ -259,8 +266,10 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
     toolTip = 'Please input a valid address';
   }
 
+  if (!form) return null;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit?.(onSubmit)}>
       <Stack spacing={4}>
         {editMode && (
           <FormRowWrapper>
@@ -280,7 +289,7 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
                 },
               }}
               isDisabled={!isMutable(selectedHat)}
-              localForm={localForm}
+              localForm={form}
             />
           </FormRowWrapper>
         )}
@@ -503,9 +512,3 @@ const HatWearerForm = ({ localForm, setUnsavedData }: HatWearerFormProps) => {
 };
 
 export default HatWearerForm;
-
-interface HatWearerFormProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
-  setUnsavedData?: Dispatch<SetStateAction<Partial<FormData> | undefined>>;
-}

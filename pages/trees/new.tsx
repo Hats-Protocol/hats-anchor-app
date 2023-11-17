@@ -132,6 +132,7 @@ const NewTree = () => {
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
                 image={image}
+                isFullWidth
               />
             </Stack>
             <Input

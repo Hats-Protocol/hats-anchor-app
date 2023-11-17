@@ -80,12 +80,8 @@ export interface Hat {
   url?: string;
   active?: boolean;
   type?: string;
-  newName?: string;
-  newImage?: string;
+  displayName?: string;
 }
-
-// ! USE MODULE_TYPES
-export type ModuleKind = 'eligibility' | 'toggle';
 
 export type ModuleCreationArg = {
   name: string;

@@ -8,6 +8,7 @@ import { useAccount } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
 import NetworkSwitcher from '@/components/NetworkSwitcher';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useWearerDetails from '@/hooks/useWearerDetails';
@@ -24,13 +25,7 @@ const HatLinkRequestCreateForm = dynamic(
   { loading: () => <Suspender /> },
 );
 
-const TopMenu = ({
-  onSave,
-  handleRemoveHat,
-  handleClearChanges,
-  returnToList,
-  isLoading,
-}: TopMenuProps) => {
+const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const {
     chainId,
@@ -42,6 +37,12 @@ const TopMenu = ({
     hatDisclosure,
     setSelectedHatId,
   } = useTreeForm();
+  const {
+    isLoading,
+    handleRemoveHat,
+    handleClearChanges,
+    handleSave: onSave,
+  } = useHatForm();
   const { address } = useAccount();
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
@@ -90,12 +91,14 @@ const TopMenu = ({
       zIndex={16}
     >
       {editMode ? (
-        <Button onClick={handleReturnToList} variant='outline'>
-          <HStack>
-            <Icon as={BsArrowLeft} />
-            <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
-          </HStack>
-        </Button>
+        <Tooltip label='Save and return to list'>
+          <Button onClick={handleReturnToList} variant='outline'>
+            <HStack>
+              <Icon as={BsArrowLeft} />
+              <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
+            </HStack>
+          </Button>
+        </Tooltip>
       ) : (
         <Button
           onClick={() => {
@@ -178,9 +181,9 @@ const TopMenu = ({
 export default TopMenu;
 
 interface TopMenuProps {
-  onSave: (v?: boolean) => void;
-  handleRemoveHat: () => void;
-  handleClearChanges: () => void;
+  // onSave: (v?: boolean) => void;
+  // handleRemoveHat: () => void;
+  // handleClearChanges: () => void;
   returnToList: () => void;
-  isLoading: boolean;
+  // isLoading: boolean;
 }

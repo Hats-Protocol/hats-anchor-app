@@ -1,11 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
+import _ from 'lodash';
 import router from 'next/router';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
+import { fetchTreeDetails } from '@/gql/helpers';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
-import { treeCreateEventIdToTreeId } from '@/lib/hats';
+import { decimalToTreeId, treeCreateEventIdToTreeId } from '@/lib/hats';
 
 const useTreeCreate = ({
   chainId,
@@ -27,13 +29,30 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
-  function handleSuccess(transactionData?: TransactionReceipt) {
+  async function handleSuccess(transactionData?: TransactionReceipt) {
     if (!transactionData) return;
-    const data = transactionData?.logs[0]?.data;
-    const treeId = treeCreateEventIdToTreeId(data);
+    const eventData = _.get(transactionData, 'logs[0].data');
+    const treeId = treeCreateEventIdToTreeId(eventData);
     if (!treeId) return;
 
-    setTimeout(() => {
+    // wait for tree to be created and found in the subgraph
+    let treeFound = false;
+    while (!treeFound) {
+      // eslint-disable-next-line no-await-in-loop
+      const tree = await fetchTreeDetails(
+        decimalToTreeId(_.toString(treeId)),
+        chainId,
+      );
+
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log('waiting for tree to be created');
+      }, 1000);
+
+      if (!tree) return;
+
+      treeFound = true;
+
       queryClient.invalidateQueries(['treeList', chainId]);
       queryClient.invalidateQueries(['wearerDetails']);
 
@@ -42,7 +61,7 @@ const useTreeCreate = ({
       });
 
       router.push(`/trees/${chainId}/${treeId}`);
-    }, 1000);
+    }
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({

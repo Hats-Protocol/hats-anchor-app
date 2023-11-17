@@ -513,8 +513,8 @@ export const handleExportBranch = ({
   const targetHat = _.find(treeToDisplay, { id: targetHatId });
   const type = isTopHat(targetHat) ? 'tree' : 'branch';
 
-  const onChainHats = flattenHatData(hatsWithoutLinkedHats);
-  const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
+  const onchainHats = flattenHatData(hatsWithoutLinkedHats);
+  const mergedHats = mergeHatsWithStoredData(onchainHats, storedData);
   const preparedTree = prepareExportTree(mergedHats);
   const fileData = JSON.stringify(preparedTree);
   const hatId = hatIdDecimalToIp(BigInt(targetHatId));
@@ -601,12 +601,12 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 
 export const prepareDraftHats = (
   importedTree: HatExport[],
-  onChainTree: FormData[],
+  onchainTree: FormData[],
   treeId?: Hex,
 ): Partial<FormData>[] => {
   const hatsWithPatchedIds = patchHatIds(importedTree, prettyIdToId(treeId));
   const hatsDifferences = _.map(hatsWithPatchedIds, (hat) => {
-    const matchingHat = _.find(onChainTree, { id: hat.id });
+    const matchingHat = _.find(onchainTree, { id: hat.id });
     if (!matchingHat) return hat;
     return compareHatObjects(hat, matchingHat);
   });
@@ -700,9 +700,9 @@ export const checkMissingHats = (
   onchainHats: Hat[] | undefined,
 ) => {
   if (!onchainHats) return true;
-  const onChainIds = _.map(onchainHats, 'id');
+  const onchainIds = _.map(onchainHats, 'id');
   const draftIds = _.map(hats, 'id');
-  const idList = _.uniq(_.concat(onChainIds, draftIds));
+  const idList = _.uniq(_.concat(onchainIds, draftIds));
 
   const missingParent = _.filter(hats, (hat) => {
     if (!hat.adminId) return true;

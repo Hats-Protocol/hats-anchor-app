@@ -142,6 +142,11 @@ const Input = ({
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
+          {rightElement && (
+            <InputRightElement mr={isDirty ? '25px' : ''}>
+              {rightElement}
+            </InputRightElement>
+          )}
           {isDirty && (
             <InputRightElement>
               <IconButton
@@ -152,9 +157,6 @@ const Input = ({
                 colorScheme='cyan'
               />
             </InputRightElement>
-          )}
-          {rightElement && (
-            <InputRightElement>{rightElement}</InputRightElement>
           )}
         </InputGroup>
         <Text color='red.500' fontSize='xs'>
