@@ -1,5 +1,4 @@
 import { Icon, Stack, Text } from '@chakra-ui/react';
-import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -37,15 +36,15 @@ const ModuleDetailsForm = ({
     ModuleCreationArg[] | null
   >([]);
 
+  // TODO modules for type in sdk?
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
-    const modulesForType: Module[] = _.filter(modules, [
-      'type',
-      _.toLower(title),
-    ]);
-    return _.map(modulesForType, (value: Module, key: string) => ({
-      id: key,
-      ...value,
-    })) as unknown as ModuleDetails[]; // thinks boolean[] ?
+    const modulesForType = _.filter(modules, (m) => {
+      const types = _.keys(_.pickBy(m.type, (value) => value));
+
+      return _.includes(types, _.toLower(title));
+    });
+
+    return modulesForType;
   }, [modules, title]);
 
   const selectedModule = useMemo(() => {
