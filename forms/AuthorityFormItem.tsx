@@ -1,9 +1,23 @@
-import { Box, Flex, IconButton, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  useDisclosure,
+} from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
-import { FaRegTrashAlt } from 'react-icons/fa';
+import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
@@ -33,6 +47,7 @@ const AuthoritiesFormItem = ({
   const { chainId, selectedHat } = useTreeForm();
   const [newImageURI, setNewImageURI] = useState<string>();
   const { setValue } = localForm;
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const {
     acceptedFiles,
@@ -67,7 +82,9 @@ const AuthoritiesFormItem = ({
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
     setNewImageURI(hatImageURI);
   }, [imagePinData, setNewImageURI]);
+
   const imageUrl = formatImageUrl(image?.preview);
+  const imageUrlFormatted = formatImageUrl(newImageURI);
 
   useEffect(() => {
     if (newImageURI) {
@@ -77,16 +94,19 @@ const AuthoritiesFormItem = ({
 
   return (
     <Box key={id}>
-      <Flex justifyContent='space-between' pt={3}>
-        <Text
-          fontSize='md'
-          color='blackAlpha.800'
-          fontWeight='medium'
-          alignSelf='center'
-        >
-          Authority {index + 1}
-        </Text>
-
+      <HStack justifyContent='space-between' pt={3} alignItems='center'>
+        <Input
+          name={`${formName}.${index}.label`}
+          localForm={localForm}
+          placeholder='Label'
+        />
+        <IconButton
+          onClick={onOpen}
+          icon={<FaRegEdit />}
+          aria-label='Edit'
+          variant='ghost'
+          borderColor='blackAlpha.300'
+        />
         <IconButton
           onClick={() => remove(index)}
           icon={<FaRegTrashAlt />}
@@ -94,52 +114,75 @@ const AuthoritiesFormItem = ({
           variant='ghost'
           borderColor='blackAlpha.300'
         />
-      </Flex>
-      <Stack>
-        <Input
-          name={`${formName}.${index}.label`}
-          localForm={localForm}
-          placeholder='Label'
-        />
-        <Input
-          name={`${formName}.${index}.link`}
-          localForm={localForm}
-          placeholder='Action Link'
-          options={{
-            validate: (value) => {
-              if (!validateURL(value)) return 'Invalid URL';
-              return true;
-            },
-          }}
-        />
-        <Input
-          name={`${formName}.${index}.gate`}
-          localForm={localForm}
-          placeholder='Gate Link'
-          options={{
-            validate: (value) => {
-              if (!validateURL(value)) return 'Invalid URL';
-              return true;
-            },
-          }}
-        />
-        <Textarea
-          localForm={localForm}
-          name={`${formName}.${index}.description`}
-          label='Description'
-          placeholder='Enter description (supports markdown)'
-        />
-        <DropZone
-          getRootProps={getRootProps}
-          getInputProps={getInputProps}
-          isFocused={isFocused}
-          isDragAccept={isDragAccept}
-          isDragReject={isDragReject}
-          isFullWidth
-          image={image}
-          imageUrl={imageUrl}
-        />
-      </Stack>
+      </HStack>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Authority Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack>
+              <Input
+                name={`${formName}.${index}.label`}
+                localForm={localForm}
+                placeholder='Label'
+              />
+              <Input
+                name={`${formName}.${index}.link`}
+                localForm={localForm}
+                placeholder='Action Link'
+                options={{
+                  validate: (value) => {
+                    if (!validateURL(value)) return 'Invalid URL';
+                    return true;
+                  },
+                }}
+              />
+              <Input
+                name={`${formName}.${index}.gate`}
+                localForm={localForm}
+                placeholder='Gate Link'
+                options={{
+                  validate: (value) => {
+                    if (!validateURL(value)) return 'Invalid URL';
+                    return true;
+                  },
+                }}
+              />
+              <Textarea
+                localForm={localForm}
+                name={`${formName}.${index}.description`}
+                label='Description'
+                placeholder='Enter description (supports markdown)'
+              />
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                isFocused={isFocused}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+                isFullWidth
+                image={image}
+                imageUrl={imageUrl || imageUrlFormatted}
+              />
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme='blue'
+              mr={3}
+              onClick={() => {
+                onClose();
+                setImage(undefined);
+              }}
+            >
+              Save
+            </Button>
+            {/* You can add more buttons here if needed */}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
