@@ -112,7 +112,7 @@ export interface HatExport {
   currentSupply: number;
   wearers: Hex[];
   adminId: Hex;
-  imageUrl?: string | null;
+  // imageUrl?: string | null;
   detailsObject?: {
     type: string;
     data: HatDetails;

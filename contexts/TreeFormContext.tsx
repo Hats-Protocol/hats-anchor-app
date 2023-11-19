@@ -562,11 +562,17 @@ export const TreeFormContextProvider = ({
     [setStoredData, onCloseHatDrawer, onOpenTreeDrawer],
   );
 
+  // HatExport[] -> FormData[]
   const importHats = useCallback(
-    (hats: Partial<FormData>[]) => {
-      setStoredData?.(hats);
+    (hats: any[]) => {
+      const translateImageUrl = _.map(hats, (hat) => ({
+        ...hat,
+        imageUrl: ipfsUrl(hat.imageUri?.slice(7)),
+      }));
+      // convert imageUri to imageUrl
+      setStoredData?.(translateImageUrl);
       const localDraftHats = _.reject(
-        hats,
+        translateImageUrl,
         (hat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
