@@ -553,6 +553,7 @@ export const TreeFormContextProvider = ({
 
   // HatExport[] -> FormData[]
   const importHats = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (hats: any[]) => {
       const translateImageUrl = _.map(hats, (hat) => ({
         ...hat,

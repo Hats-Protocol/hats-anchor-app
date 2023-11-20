@@ -26,6 +26,8 @@ export interface HatRole {
   requirements: (string | null)[];
 }
 
+export type HatDetailsKeys = keyof HatDetails;
+
 export type HatDetails = {
   name: string;
   description?: string;

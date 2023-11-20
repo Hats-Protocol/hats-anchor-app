@@ -2,7 +2,7 @@ import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { MODULES_REGISTRY_FACTORY_ADDRESS, TRIGGER_OPTIONS } from '@/constants';
+import CONFIG, { TRIGGER_OPTIONS } from '@/constants';
 import { transformInput } from '@/lib/general';
 import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
@@ -277,7 +277,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   }
 
   return [
-    MODULES_REGISTRY_FACTORY_ADDRESS,
+    CONFIG.modulesRegistryFactory,
     selectedModuleDetails?.implementationAddress,
     hatId,
     encodedImmutableArgs,

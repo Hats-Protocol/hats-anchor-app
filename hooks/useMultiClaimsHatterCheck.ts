@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
 
+import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchWearerDetails } from '@/gql/helpers';
 import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
@@ -48,7 +49,7 @@ const getHatterHat = async (
 
   const claimsHatterIndex = _.findIndex(
     storedModuleDetails,
-    (result) => _.get(result, 'name') === 'Multi Claims Hatter',
+    (result) => _.get(result, 'name') === CONFIG.claimsHatterModuleName,
   );
   const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
 

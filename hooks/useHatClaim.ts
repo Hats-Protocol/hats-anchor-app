@@ -11,6 +11,7 @@ import {
   usePrepareContractWrite,
 } from 'wagmi';
 
+import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
@@ -97,7 +98,9 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
       if (!moduleClient) return;
       const modules = moduleClient?.getAllModules();
       if (!modules) return;
-      const moduleData = _.find(modules, { name: 'Multi Claims Hatter' });
+      const moduleData = _.find(modules, {
+        name: CONFIG.claimsHatterModuleName,
+      });
       if (!moduleData) return;
       setClaimsHatter(moduleData);
     };
