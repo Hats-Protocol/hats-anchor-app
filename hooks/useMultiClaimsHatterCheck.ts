@@ -18,7 +18,7 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
     chainId,
     hatIds: hats.map((hat) => BigInt(hat)),
     props: {
-      claimableBy: {},
+      claimableBy: { props: {} },
     },
   });
 

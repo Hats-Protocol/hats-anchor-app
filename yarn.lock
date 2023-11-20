@@ -1079,10 +1079,10 @@
     graphql-request "^6.1.0"
     zod "^3.22.4"
 
-"@hatsprotocol/sdk-v1-subgraph@0.3.4":
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-subgraph/-/sdk-v1-subgraph-0.3.4.tgz#0eb9ff4a07c7f11808d88c25be2c24a04d4fae2b"
-  integrity sha512-hUcBR8gcoH9D52NLKOwKZYkzIcpCnmQbzA+R0Sm0dWgAMZyH76Tyg24yQ5LnR8JxCpfiDdQVsDVp8gvCCkstTQ==
+"@hatsprotocol/sdk-v1-subgraph@0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@hatsprotocol/sdk-v1-subgraph/-/sdk-v1-subgraph-0.4.0.tgz#5127982f04538de7e48aae094de19275bed6a855"
+  integrity sha512-3C2Ck3cal/xVAiGUepKRIZLafgutiPixEvXs7ps/DGLLtKY5eWhKQqTiCHeYeT12MJflMlV3FLQ42BMOVUI2zw==
   dependencies:
     graphql "^16.6.0"
     graphql-request "^6.1.0"
