@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   HStack,
   IconButton,
   Modal,
@@ -23,10 +24,12 @@ import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
+import AuthorityHeader from '@/components/HatDrawer/MainContent/AuthorityHeader';
+import { AUTHORITY_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl, validateURL } from '@/lib/general';
-import { ImageFile } from '@/types';
+import { AuthorityType, ImageFile } from '@/types';
 
 interface AuthoritiesFormItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,6 +127,22 @@ const AuthoritiesFormItem = ({
           <ModalCloseButton />
           <ModalBody>
             <Stack>
+              <Flex w='full' justifyContent='center' mb={8}>
+                <Box
+                  borderRadius='4px'
+                  border='1px solid var(--gray-100, #EDF2F7)'
+                  boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
+                  p={3}
+                  w='80%'
+                >
+                  <AuthorityHeader
+                    label={localForm.watch(`${formName}.${index}.label`)}
+                    type={AUTHORITY_TYPES.social as AuthorityType}
+                    imageUrl={localForm.watch(`${formName}.${index}.imageUrl`)}
+                    hideInfo
+                  />
+                </Box>
+              </Flex>
               <Input
                 label='AUTHORITY NAME'
                 name={`${formName}.${index}.label`}

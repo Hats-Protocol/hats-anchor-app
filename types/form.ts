@@ -31,7 +31,10 @@ export type Authority = {
   gate?: string;
   description?: string;
   imageUrl?: string;
+  type?: AuthorityType;
 };
+
+export type AuthorityType = 'token' | 'snapshot' | 'social';
 
 export type FormDataDetails = {
   name: string;
