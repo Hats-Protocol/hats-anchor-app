@@ -29,6 +29,20 @@ const AuthoritiesListCard = ({
   const { label, description, link, gate, imageUrl } = authority || {};
   const mainUrlRegex = /(?:https?:\/\/)?(?:www\.)?([^/:?#]+)/;
 
+  if (!link && !gate && !description)
+    return (
+      <Box
+        borderRadius='4px'
+        border='1px solid var(--gray-100, #EDF2F7)'
+        boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
+        mb={4}
+        px={4}
+        py={2}
+      >
+        <AuthorityHeader label={label} type={type} imageUrl={imageUrl} />
+      </Box>
+    );
+
   return (
     <AccordionItem
       borderRadius='4px'
@@ -36,13 +50,12 @@ const AuthoritiesListCard = ({
       boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
       mb={4}
     >
-      {/* if there is no data to expand don't use acc. button, but some card */}
       <AccordionButton>
         <AuthorityHeader label={label} type={type} imageUrl={imageUrl} />
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel pb={4} pl={20}>
-        <HStack pt={2} pb={6}>
+        <HStack pt={2}>
           {link && validateURL(link) && (
             <ChakraNextLink isExternal href={link} display='block'>
               <Link href={link} isExternal>
@@ -74,7 +87,7 @@ const AuthoritiesListCard = ({
           )}
         </HStack>
         {description && (
-          <Box>
+          <Box pt={link || gate ? 6 : 0}>
             <Text fontSize='sm' fontWeight={500}>
               Details
             </Text>

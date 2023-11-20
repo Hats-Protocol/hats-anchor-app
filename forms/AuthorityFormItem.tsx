@@ -147,7 +147,7 @@ const AuthoritiesFormItem = ({
                 label='AUTHORITY NAME'
                 name={`${formName}.${index}.label`}
                 localForm={localForm}
-                placeholder='Label'
+                placeholder='Name'
                 options={{
                   required: true,
                 }}
@@ -157,7 +157,7 @@ const AuthoritiesFormItem = ({
                 label='AUTHORITY LINK'
                 name={`${formName}.${index}.link`}
                 localForm={localForm}
-                placeholder='Action Link'
+                placeholder='https://example.com'
                 options={{
                   validate: (value) => {
                     if (!validateURL(value)) return 'Invalid URL';
@@ -169,7 +169,7 @@ const AuthoritiesFormItem = ({
                 label='TOKEN GATE LINK'
                 name={`${formName}.${index}.gate`}
                 localForm={localForm}
-                placeholder='Gate Link'
+                placeholder='https://example.com'
                 options={{
                   validate: (value) => {
                     if (!validateURL(value)) return 'Invalid URL';
@@ -181,7 +181,7 @@ const AuthoritiesFormItem = ({
                 localForm={localForm}
                 name={`${formName}.${index}.description`}
                 label='Description'
-                placeholder='Enter description (supports markdown)'
+                placeholder='Enter a description here (supports markdown)'
               />
               <DropZone
                 label='Image'
