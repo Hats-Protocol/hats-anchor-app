@@ -115,7 +115,7 @@ export function createHatsClient(
 }
 
 export function createSubgraphClient(): HatsSubgraphClient {
-  return new HatsSubgraphClient();
+  return new HatsSubgraphClient({});
 }
 
 export async function createHatsModulesClient(
