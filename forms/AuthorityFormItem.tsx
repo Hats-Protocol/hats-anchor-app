@@ -17,6 +17,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
+import { BsSave } from 'react-icons/bs';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
 import DropZone from '@/components/atoms/DropZone';
@@ -67,7 +68,7 @@ const AuthoritiesFormItem = ({
     },
   });
 
-  const { data: imagePinData } = usePinImageIpfs({
+  const { data: imagePinData, isLoading } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
@@ -118,17 +119,23 @@ const AuthoritiesFormItem = ({
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Authority Details</ModalHeader>
+        <ModalContent minW='800px' px={3} py={2}>
+          <ModalHeader>Edit Authority</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Stack>
               <Input
+                label='AUTHORITY NAME'
                 name={`${formName}.${index}.label`}
                 localForm={localForm}
                 placeholder='Label'
+                options={{
+                  required: true,
+                }}
               />
+
               <Input
+                label='AUTHORITY LINK'
                 name={`${formName}.${index}.link`}
                 localForm={localForm}
                 placeholder='Action Link'
@@ -140,6 +147,7 @@ const AuthoritiesFormItem = ({
                 }}
               />
               <Input
+                label='TOKEN GATE LINK'
                 name={`${formName}.${index}.gate`}
                 localForm={localForm}
                 placeholder='Gate Link'
@@ -157,6 +165,7 @@ const AuthoritiesFormItem = ({
                 placeholder='Enter description (supports markdown)'
               />
               <DropZone
+                label='Image'
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
                 isFocused={isFocused}
@@ -170,8 +179,20 @@ const AuthoritiesFormItem = ({
           </ModalBody>
           <ModalFooter>
             <Button
-              colorScheme='blue'
+              colorScheme='gray'
+              color='gray.600'
               mr={3}
+              onClick={() => {
+                onClose();
+                setImage(undefined);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              colorScheme='blue'
+              leftIcon={<BsSave />}
+              isLoading={isLoading}
               onClick={() => {
                 onClose();
                 setImage(undefined);
@@ -179,7 +200,6 @@ const AuthoritiesFormItem = ({
             >
               Save
             </Button>
-            {/* You can add more buttons here if needed */}
           </ModalFooter>
         </ModalContent>
       </Modal>
