@@ -34,7 +34,7 @@ export type Authority = {
   type?: AuthorityType;
 };
 
-export type AuthorityType = 'token' | 'snapshot' | 'social';
+export type AuthorityType = 'token' | 'manual';
 
 export type FormDataDetails = {
   name: string;

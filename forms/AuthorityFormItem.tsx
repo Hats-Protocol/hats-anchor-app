@@ -50,8 +50,9 @@ const AuthoritiesFormItem = ({
   const [image, setImage] = useState<ImageFile>();
   const { chainId, selectedHat } = useTreeForm();
   const [newImageURI, setNewImageURI] = useState<string>();
-  const { setValue } = localForm;
+  const { setValue, getValues } = localForm;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const img = getValues(`${formName}.${index}.imageUrl`);
 
   const {
     acceptedFiles,
@@ -88,7 +89,7 @@ const AuthoritiesFormItem = ({
   }, [imagePinData, setNewImageURI]);
 
   const imageUrl = formatImageUrl(image?.preview);
-  const imageUrlFormatted = formatImageUrl(newImageURI);
+  const newImageUrl = formatImageUrl(newImageURI);
 
   useEffect(() => {
     if (newImageURI) {
@@ -137,7 +138,7 @@ const AuthoritiesFormItem = ({
                 >
                   <AuthorityHeader
                     label={localForm.watch(`${formName}.${index}.label`)}
-                    type={AUTHORITY_TYPES.social as AuthorityType}
+                    type={AUTHORITY_TYPES.manual as AuthorityType}
                     imageUrl={localForm.watch(`${formName}.${index}.imageUrl`)}
                     hideInfo
                   />
@@ -191,8 +192,8 @@ const AuthoritiesFormItem = ({
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
                 isFullWidth
-                image={image}
-                imageUrl={imageUrl || imageUrlFormatted}
+                image={image || img}
+                imageUrl={imageUrl || newImageUrl || img}
               />
             </Stack>
           </ModalBody>

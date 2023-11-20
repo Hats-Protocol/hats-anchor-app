@@ -1,23 +1,17 @@
 import { Accordion, Heading, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 
-import { AUTHORITY_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { Authority, AuthorityType } from '@/types';
+import { AuthorityType } from '@/types';
 
 import AuthoritiesListCard from './AuthoritiesListCard';
 
-const AuthoritiesList = ({
-  title,
-  authorities,
-}: {
-  title: string;
-  authorities?: Authority[];
-}) => {
+const AuthoritiesList = ({ title }: { title: string }) => {
   const toggleOrEligibility =
     title === 'Eligibility Criteria' || title === 'Toggle Criteria';
-  const { selectedHatGuildRoles } = useTreeForm();
-  const list = [...(authorities || []), ...(selectedHatGuildRoles || [])];
+  const { combinedAuthorities } = useTreeForm();
+
+  if (!combinedAuthorities) return null;
 
   return (
     <Accordion allowMultiple>
@@ -32,29 +26,19 @@ const AuthoritiesList = ({
         </Heading>
       )}
 
-      {_.map(authorities, (authority) => (
+      {_.map(combinedAuthorities, (authority) => (
         <AuthoritiesListCard
           key={authority.label}
           authority={authority}
-          type={AUTHORITY_TYPES.social as AuthorityType}
+          type={authority.type as AuthorityType}
         />
       ))}
 
-      {_.map(selectedHatGuildRoles, (authority) => (
-        <AuthoritiesListCard
-          key={authority.label}
-          authority={authority}
-          type={AUTHORITY_TYPES.token as AuthorityType}
-        />
-      ))}
-
-      {!list.length && (
+      {!combinedAuthorities.length && (
         <Text color='gray.500' fontSize='sm'>
           None
         </Text>
       )}
-
-      {/* handle the case where there are no authorities */}
     </Accordion>
   );
 };

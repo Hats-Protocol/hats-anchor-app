@@ -95,8 +95,7 @@ export const EMPTY_FORM_VALUES = {
 
 export const AUTHORITY_TYPES = {
   token: 'token',
-  snapshot: 'snapshot',
-  social: 'social',
+  manual: 'manual',
 };
 
 export const AUTHORITIES = {
@@ -105,12 +104,7 @@ export const AUTHORITIES = {
     info: 'Retrieved from the blockchain',
     color: 'green.300',
   },
-  snapshot: {
-    label: 'Admin Connected Authority',
-    info: 'Automatically retrieved from Snapshot',
-    color: 'blue.300',
-  },
-  social: {
+  manual: {
     label: 'Social Authority',
     info: 'Appended off-chain for clarity',
     color: 'purple.300',

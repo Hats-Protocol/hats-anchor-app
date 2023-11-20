@@ -20,10 +20,11 @@ const MainContent = () => {
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
 
-  const { responsibilities, authorities, toggle, eligibility } = _.pick(
-    selectedHatDetails,
-    ['responsibilities', 'authorities', 'toggle', 'eligibility'],
-  );
+  const { responsibilities, toggle, eligibility } = _.pick(selectedHatDetails, [
+    'responsibilities',
+    'toggle',
+    'eligibility',
+  ]);
 
   useEffect(() => {
     const check = async () => {
@@ -56,7 +57,7 @@ const MainContent = () => {
       <WearersList />
 
       <DetailList title='Responsibilities' details={responsibilities} />
-      <AuthoritiesList title='Authorities' authorities={authorities} />
+      <AuthoritiesList title='Authorities' />
 
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
