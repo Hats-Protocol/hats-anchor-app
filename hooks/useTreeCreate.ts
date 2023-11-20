@@ -9,6 +9,37 @@ import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
 import { decimalToTreeId, treeCreateEventIdToTreeId } from '@/lib/hats';
 
+async function waitForTreeCreation(treeId: number, chainId: number) {
+  return new Promise((resolve) => {
+    const checkTree = async () => {
+      try {
+        const tree = await fetchTreeDetails(
+          decimalToTreeId(_.toString(treeId)),
+          chainId,
+        );
+
+        if (tree) {
+          clearInterval(intervalId);
+          resolve(tree);
+        }
+        // eslint-disable-next-line no-console
+        console.log('waiting for tree creation');
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
+    };
+
+    const intervalId = setInterval(checkTree, 1000);
+    checkTree(); // Check immediately
+
+    setTimeout(() => {
+      clearInterval(intervalId);
+      resolve(null); // Resolve with null or handle the timeout case
+    }, 20000);
+  });
+}
+
 const useTreeCreate = ({
   chainId,
   details,
@@ -36,32 +67,16 @@ const useTreeCreate = ({
     if (!treeId) return;
 
     // wait for tree to be created and found in the subgraph
-    let treeFound = false;
-    while (!treeFound) {
-      // eslint-disable-next-line no-await-in-loop
-      const tree = await fetchTreeDetails(
-        decimalToTreeId(_.toString(treeId)),
-        chainId,
-      );
+    await waitForTreeCreation(treeId, chainId);
 
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log('waiting for tree to be created');
-      }, 1000);
+    queryClient.invalidateQueries(['treeList', chainId]);
+    queryClient.invalidateQueries(['wearerDetails']);
 
-      if (!tree) return;
+    toast.info({
+      title: 'Redirecting you to your new tree',
+    });
 
-      treeFound = true;
-
-      queryClient.invalidateQueries(['treeList', chainId]);
-      queryClient.invalidateQueries(['wearerDetails']);
-
-      toast.info({
-        title: 'Redirecting you to your new tree',
-      });
-
-      router.push(`/trees/${chainId}/${treeId}`);
-    }
+    router.push(`/trees/${chainId}/${treeId}`);
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -74,7 +89,7 @@ const useTreeCreate = ({
     chainId,
     onSuccessToastData: {
       title: 'Tree created!',
-      description: 'Successfully created tree',
+      description: 'Waiting on the subgraph to index your tree...', // 'Successfully created tree',
     },
     queryKeys: [['treeList', chainId]],
     enabled:

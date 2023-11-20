@@ -1,8 +1,10 @@
 import { Box } from '@chakra-ui/react';
-import { useState } from 'react';
+import _ from 'lodash';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useHatsModules from '@/hooks/useHatsModules';
 import { decimalId } from '@/lib/hats';
 import { ModuleDetails } from '@/types';
 
@@ -19,6 +21,7 @@ const ModuleDrawer = ({
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const { selectedHat } = useTreeForm();
+  const { modules } = useHatsModules();
 
   const localForm = useForm({
     mode: 'onBlur',
@@ -29,10 +32,13 @@ const ModuleDrawer = ({
       initialClaimabilityTypes: 1, // 0 for not claimable, 1 for "claimable", 2 for "claimable for"
     },
   });
+  const { watch } = localForm;
 
-  const [selectedModuleDetails, setSelectedModuleDetails] = useState<
-    ModuleDetails | undefined
-  >();
+  const selectedModuleField = watch('moduleType', '');
+
+  const selectedModuleDetails: ModuleDetails | undefined = useMemo(() => {
+    return _.find(modules, { id: selectedModuleField }) as ModuleDetails;
+  }, [modules, selectedModuleField]);
 
   return (
     <Box
@@ -54,8 +60,6 @@ const ModuleDrawer = ({
       <MainContent
         localForm={localForm}
         title={title}
-        selectedModuleDetails={selectedModuleDetails}
-        setSelectedModuleDetails={setSelectedModuleDetails}
         isStandaloneHatterDeploy={isStandaloneHatterDeploy}
       />
     </Box>

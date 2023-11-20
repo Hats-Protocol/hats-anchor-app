@@ -26,8 +26,13 @@ import {
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
+// ORDER HERE WILL BE USED IN THE UI
+export const orderedChains = [1, 10, 42161, 137, 100, 5];
+
+type OrderedChains = (typeof orderedChains)[number];
+
 // can we use the defaults here again?
-export const networkImages: { [key: number]: string } = {
+export const networkImages: { [K in OrderedChains]: string } = {
   1: '/chains/ethereum.svg',
   5: '/chains/ethereum.svg',
   10: '/chains/optimism.svg',
@@ -45,16 +50,12 @@ const gnosisContract = {
       blockCreated: 21022491,
     },
   },
-  // TODO where did the defaults go?
   hasIcon: true,
   iconUrl: networkImages[100],
   iconBackground: 'none',
 };
 
-// ORDER HERE WILL BE USED IN THE UI
-export const orderedChains = [1, 10, 42161, 137, 100, 5];
-
-export const chainsList: { [key: number]: Chain } = {
+export const chainsList: { [K in OrderedChains]: Chain } = {
   1: mainnet,
   5: goerli,
   10: optimism,
@@ -69,8 +70,11 @@ export const chainsMap = (chainId?: number) =>
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
-  (chainsMap(chainId)?.blockExplorers?.etherscan?.url ||
-    chainsMap(chainId)?.blockExplorers?.default.url);
+  _.get(
+    chainsMap(chainId),
+    'blockExplorers.etherscan.url',
+    _.get(chainsMap(chainId), 'blockExplorers.default.url'),
+  );
 
 export const { chains, publicClient } = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),

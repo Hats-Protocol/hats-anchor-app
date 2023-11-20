@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { Hat } from '@/types';
 
 import { createSubgraphClient } from '../../lib/web3';

@@ -6,10 +6,10 @@ import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import { DEPLOYMENT_TYPES, MULTI_CLAIMS_HATTER_ID } from '@/constants';
+import CONFIG, { DEPLOYMENT_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
-import { decimalId, prettyIdToIp } from '@/lib/hats';
+import { decimalId } from '@/lib/hats';
 import {
   deployClaimsHatter,
   deployModule,
@@ -47,7 +47,9 @@ const useModuleDeploy = ({
   const adminHat = values?.adminHat;
   const incrementWearers = values?.incrementWearers;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
-  const claimsHatterModule = modules?.[MULTI_CLAIMS_HATTER_ID];
+  const claimsHatterModule = _.find(modules, {
+    name: CONFIG.claimsHatterModuleName,
+  });
   const hatTitle =
     selectedHat?.id &&
     `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${
@@ -256,6 +258,7 @@ const useModuleDeploy = ({
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
           return deployModuleWithClaimsHatter({
             selectedModuleDetails,
+            claimsHatterId: claimsHatterModule?.id,
             selectedHat,
             address,
             values,

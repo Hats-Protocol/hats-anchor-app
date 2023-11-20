@@ -26,6 +26,8 @@ export interface HatRole {
   requirements: (string | null)[];
 }
 
+export type HatDetailsKeys = keyof HatDetails;
+
 export type HatDetails = {
   name: string;
   description?: string;
@@ -96,7 +98,7 @@ export type ModuleCreationArgs = {
 };
 
 export interface ModuleDetails extends Module {
-  id: string;
+  id: Hex;
 }
 
 export interface HatExport {
@@ -112,7 +114,7 @@ export interface HatExport {
   currentSupply: number;
   wearers: Hex[];
   adminId: Hex;
-  imageUrl?: string | null;
+  // imageUrl?: string | null;
   detailsObject?: {
     type: string;
     data: HatDetails;

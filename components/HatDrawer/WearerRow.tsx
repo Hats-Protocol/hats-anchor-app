@@ -18,6 +18,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
@@ -103,7 +104,7 @@ const WearerRow = ({
 
   // could look up by Id to be more resilient?
   let moduleName = _.get(moduleDetails, 'name');
-  if (moduleName === 'Multi Claims Hatter') {
+  if (moduleName === CONFIG.claimsHatterModuleName) {
     moduleName = 'Autonomous Admin';
   }
 

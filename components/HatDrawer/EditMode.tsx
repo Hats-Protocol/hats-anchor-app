@@ -84,7 +84,7 @@ const EditMode = () => {
           subtitle='The fundamentals of the hat, including name, image, and description.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <HatBasicsForm />
           </Stack>
         </Accordion>
@@ -96,7 +96,7 @@ const EditMode = () => {
           subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.wearer)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <HatWearerForm />
           </Stack>
         </Accordion>
@@ -110,7 +110,7 @@ const EditMode = () => {
             FORM_FIELDS.responsibilities,
           )}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <ItemDetailsForm
               formName='responsibilities'
               title='RESPONSIBILITIES'
@@ -141,7 +141,7 @@ const EditMode = () => {
           subtitle='Permissions and rights that are controlled by wearers of this hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <ItemDetailsForm
               formName='authorities'
               title='PERMISSIONS'
@@ -172,7 +172,7 @@ const EditMode = () => {
           subtitle='The people or logic that determine when a wearer should have a hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <HatManagementForm
               title={MODULE_TYPES.eligibility}
               formName='revocationsCriteria'
@@ -226,7 +226,7 @@ const EditMode = () => {
           subtitle='The people and contracts that control this Hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <HatManagementForm
               title={MODULE_TYPES.toggle}
               formName='deactivationsCriteria'

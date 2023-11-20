@@ -23,7 +23,7 @@ import {
   fieldsAreDirty as fieldsAreDirtyHandler,
   getDirtyFields,
 } from '@/lib/form';
-import { FieldItem, FormData, FormFieldData } from '@/types';
+import { FieldItem, FormData, FormFieldKeys } from '@/types';
 
 import { useTreeForm } from './TreeFormContext';
 
@@ -282,7 +282,7 @@ export const HatFormContextProvider = ({
       );
       const dirtyFormValues = _.pickBy(
         debouncedFormValues,
-        (__, key: FormFieldData) => _.includes(dirtyValues, key),
+        (__, key: FormFieldKeys) => _.includes(dirtyValues, key),
       );
 
       // remove storedData values when resetting to default values
