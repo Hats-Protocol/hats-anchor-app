@@ -22,6 +22,7 @@ const useOrgChartTree = ({
   initialHatIds,
   chainId,
   editMode,
+  onchain = false,
 }: UseOrgChartTreeProps) => {
   const [detailsHashes, setDetailsHashes] = useState<unknown[]>();
   const [hatsHashes, setHatsHashes] = useState<unknown[]>();
@@ -75,6 +76,7 @@ const useOrgChartTree = ({
       detailsHashes,
       _.map(imagesData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
       _.map(draftHats, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+      { onchain },
     ],
     queryFn: fetchTree,
     enabled:
@@ -107,4 +109,5 @@ interface UseOrgChartTreeProps {
   initialHatIds: Hex[];
   chainId: number;
   editMode: boolean;
+  onchain?: boolean;
 }

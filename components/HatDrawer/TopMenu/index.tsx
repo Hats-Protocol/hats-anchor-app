@@ -73,7 +73,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
 
   const draftWithChildren =
     !onchainHat &&
-    !_.isEmpty(_.filter(treeToDisplay, { admin: { id: selectedHat?.id } }));
+    !_.isEmpty(_.filter(treeToDisplay, { parentId: selectedHat?.id }));
 
   if (!selectedHat) return null;
 

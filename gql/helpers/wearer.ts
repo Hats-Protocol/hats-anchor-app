@@ -54,25 +54,26 @@ export const fetchWearerDetails = async (
       wearerAddress: address as Hex,
       props: {
         currentHats: {
-          prettyId: true,
-          status: true,
-          createdAt: true,
-          details: true,
-          maxSupply: true,
-          eligibility: true,
-          toggle: true,
-          mutable: true,
-          imageUri: true,
-          levelAtLocalTree: true,
-          claimableBy: {},
-          claimableForBy: {},
-          currentSupply: true,
-          tree: {},
-          wearers: {},
-          admin: {},
-          events: {
-            timestamp: true,
-            transactionID: true,
+          props: {
+            prettyId: true,
+            status: true,
+            createdAt: true,
+            details: true,
+            maxSupply: true,
+            eligibility: true,
+            toggle: true,
+            mutable: true,
+            imageUri: true,
+            levelAtLocalTree: true,
+            claimableBy: { props: {} },
+            claimableForBy: { props: {} },
+            currentSupply: true,
+            tree: {},
+            wearers: { props: {} },
+            admin: {},
+            events: {
+              props: { timestamp: true, transactionID: true },
+            },
           },
         },
       },
@@ -109,7 +110,7 @@ export const fetchWearerDetailsForAllChains = async (
   );
 
   // * let errors fall through here
-  return Promise.all(_.map(promises, (p) => p.catch((e) => undefined))).then(
+  return Promise.all(_.map(promises, (p) => p.catch(() => undefined))).then(
     (data) => {
       // TODO handle errors on subgraph(s) with the user
       return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));

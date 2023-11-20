@@ -1,7 +1,10 @@
+import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
+import _ from 'lodash';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
+import { ModuleDetails } from '@/types';
 
 const useHatsModules = () => {
   const { chainId } = useTreeForm();
@@ -15,16 +18,20 @@ const useHatsModules = () => {
     return hatsClient.getAllModules();
   };
 
-  const {
-    data: modules,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['hatsModules', chainId],
     queryFn: fetchModules,
     enabled: !!chainId,
   });
+
+  const modules: ModuleDetails[] = _.map(
+    data,
+    (value: Module, key: string) =>
+      ({
+        id: key,
+        ...value,
+      } as ModuleDetails),
+  );
 
   return { modules, isLoading, isError, error };
 };

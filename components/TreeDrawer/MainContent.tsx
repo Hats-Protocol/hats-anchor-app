@@ -57,6 +57,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
   const { setModals } = localOverlay;
 
+  const topHatCreated = _.get(_.last(_.get(topHat, 'events')), 'timestamp');
+
   const openImportModal = () => {
     setModals?.({ importFile: true });
   };
@@ -91,7 +93,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       pos='relative'
     >
       <HStack alignItems='flex-start' justifyContent='space-between'>
-        <Stack>
+        <Stack w='75%'>
           <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
             {topHatDetails?.name ||
               topHat?.details ||
@@ -103,20 +105,17 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           )}
 
           {isClient && (
-            <Text color='blackAlpha.600' maxW='90%'>
+            <Text color='blackAlpha.600' maxW='80%'>
               Created{' '}
+              {topHatCreated &&
+                formatDistanceToNow(
+                  new Date(Number(topHatCreated) * 1000),
+                )}{' '}
+              ago. Last edited {/* treeEvents is sorted by recent timestamp */}
               {_.get(_.first(treeEvents), 'timestamp') &&
                 formatDistanceToNow(
                   new Date(
                     Number(_.get(_.first(treeEvents), 'timestamp')) * 1000,
-                  ),
-                )}{' '}
-              ago. Last edited{' '}
-              {/* maybe we're looking for the last change in the tree, not the top hat? */}
-              {_.get(_.last(treeEvents), 'timestamp') &&
-                formatDistanceToNow(
-                  new Date(
-                    Number(_.get(_.last(treeEvents), 'timestamp')) * 1000,
                   ),
                 )}{' '}
               ago.

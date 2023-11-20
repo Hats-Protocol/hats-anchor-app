@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { Hat } from '@/types';
 
 import { createSubgraphClient } from '../../lib/web3';
@@ -26,15 +24,23 @@ export const fetchHatDetails = async (
       mutable: true,
       imageUri: true,
       levelAtLocalTree: true,
-      claimableBy: {},
-      claimableForBy: {},
+      claimableBy: {
+        props: {},
+      },
+      claimableForBy: {
+        props: {},
+      },
       currentSupply: true,
       tree: {},
-      wearers: {},
+      wearers: {
+        props: {},
+      },
       admin: {},
       events: {
-        timestamp: true,
-        transactionID: true,
+        props: {
+          timestamp: true,
+          transactionID: true,
+        },
       },
     },
   });
@@ -65,15 +71,16 @@ export const fetchManyHatDetails = async (
       mutable: true,
       imageUri: true,
       levelAtLocalTree: true,
-      claimableBy: {},
-      claimableForBy: {},
+      claimableBy: {
+        props: {},
+      },
+      claimableForBy: { props: {} },
       currentSupply: true,
       tree: {},
-      wearers: {},
+      wearers: { props: {} },
       admin: {},
       events: {
-        timestamp: true,
-        transactionID: true,
+        props: { timestamp: true, transactionID: true },
       },
     },
   });

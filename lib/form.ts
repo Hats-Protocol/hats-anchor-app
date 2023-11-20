@@ -1,21 +1,16 @@
-/* eslint-disable import/prefer-default-export */
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import {
-  defaultHat,
-  FALLBACK_ADDRESS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@/constants';
+import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import {
   FieldItem,
   FormData,
   FormDataDetails,
-  FormFieldData,
+  FormFieldKeys,
   Hat,
   HatDetails,
+  HatDetailsKeys,
   InputObject,
 } from '@/types';
 
@@ -86,14 +81,19 @@ const createDetailsData = ({
     revocationsCriteria,
     deactivationsCriteria,
     name,
+    displayName,
     description,
     guilds,
     responsibilities,
     authorities,
   } = hat;
 
+  let updateName = _.get(originalHat, 'detailsObject.data.name');
+  if (name || displayName) updateName = name || displayName;
+  if (!updateName) updateName = _.get(originalHat, 'details');
+
   const detailsData = {
-    name: name || _.get(originalHat, 'details') || '',
+    name: updateName || '',
     description: description || '',
     guilds: guilds || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
@@ -101,7 +101,7 @@ const createDetailsData = ({
     eligibility: {
       manual: isEligibilityManual
         ? isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
-        : true,
+        : _.get(originalHat, 'detailsObject.data.eligibility.manual', true),
       criteria: _.reject(revocationsCriteria, ['label', '']) || [],
     },
     toggle: {
@@ -146,6 +146,9 @@ const createNewHatData = async ({
     console.log('admin is undefined');
     return undefined;
   }
+  const imageUri = imageUrl?.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
 
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
@@ -154,14 +157,17 @@ const createNewHatData = async ({
     eligibility: localEligibility || FALLBACK_ADDRESS,
     toggle: localToggle || FALLBACK_ADDRESS,
     mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
-    imageURI: imageUrl || '',
+    imageURI: imageUri || '',
   };
 };
 
 interface ProcessCallForHatReturnProps {
-  calls: any[];
-  hatChanges: any;
-  detailsToPin: any;
+  calls: {
+    functionName: string;
+    callData: Hex;
+  }[];
+  hatChanges: any; // Partial<FormData>;
+  detailsToPin?: { hatId: Hex; chainId: number; details: HatDetails };
 }
 
 interface ProcessCallForHatProps {
@@ -174,7 +180,6 @@ interface ProcessCallForHatProps {
 const emptyReturnData = {
   calls: [],
   hatChanges: {},
-  detailsToPin: undefined,
 };
 
 const processNewDetailsCallForHat = async ({
@@ -190,12 +195,15 @@ const processNewDetailsCallForHat = async ({
   const detailsData = createDetailsData({ hat });
   const details = await calculateCid({ type: '1.0', data: detailsData });
 
-  if (!id || !details) return returnData;
+  if (!id || !details || !chainId) return returnData;
   const newHat = await createNewHatData({ hat, details });
   if (!newHat) return returnData;
   const newHatData = hatsClient.createHatCallData(newHat);
 
   if (!newHatData) return returnData;
+  const imageUri = imageUrl?.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
 
   newHatChanges = {
     ...newHat,
@@ -209,8 +217,8 @@ const processNewDetailsCallForHat = async ({
       data: detailsData,
     },
     chainId,
-    imageUri: imageUrl,
-    imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
+    imageUri: imageUri || undefined,
+    imageUrl,
   };
 
   return {
@@ -288,33 +296,37 @@ const processDetailsChangeCallForHat = async ({
 }: ProcessDetailsChangeCallForHatProps) => {
   const { id: hatId } = hat;
 
-  if (!hatId || !hasDetailsChanged(hat, onchainHat)) return returnData;
+  if (!hatId || !hasDetailsChanged(hat, onchainHat) || !chainId)
+    return returnData;
 
   const { calls, hatChanges } = returnData;
 
-  const existingDetails: {
-    [key: string]: any;
-  } = _.get(onchainHat, 'detailsObject.data') || {};
-  const newDetails: {
-    [key: string]: any;
-  } = createDetailsData({ hat, originalHat: onchainHat });
+  const existingDetails: HatDetails | undefined =
+    _.get(onchainHat, 'detailsObject.data') || undefined;
+  const newDetails: HatDetails = createDetailsData({
+    hat,
+    originalHat: onchainHat,
+  });
 
   const combinedDetails = _.reduce(
     existingDetails,
-    (acc, existingValue, key) => {
-      const newValue = newDetails[key];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (acc: any, existingValue, key) => {
+      const localKey = key as HatDetailsKeys;
+      const newValue = newDetails[localKey];
 
       if (
         _.isArray(newValue) &&
         _.isEmpty(newValue) &&
         hat[key as keyof FormData] !== undefined
       ) {
-        acc[key] = newValue;
+        acc[localKey] = newValue;
       } else if (
         (_.isArray(existingValue) && _.isArray(newValue)) ||
         (_.isObject(existingValue) && _.isObject(newValue))
       ) {
-        acc[key] = _.merge(existingValue, newValue);
+        acc[localKey] = _.merge(existingValue, newValue);
       } else {
         acc[key] = newValue || existingValue;
       }
@@ -641,7 +653,7 @@ export const getDirtyFields = (
 ): string[] => {
   const excludeKeys = ['id', 'parentId', 'adminId', 'imageUri'];
 
-  return _.filter(_.keys(formValues), (key: FormFieldData) => {
+  return _.filter(_.keys(formValues), (key: FormFieldKeys) => {
     if (_.includes(excludeKeys, key)) return false;
     if (key === 'imageUrl') {
       return (

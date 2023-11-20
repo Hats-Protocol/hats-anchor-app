@@ -122,6 +122,7 @@ export const urlToIpfsUri = (url: string) => {
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
   const url = ipfsUrl(detailsField?.slice(7));
+  if (!url) return null;
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   const res = await axios.get(url, { timeout: 5000 });

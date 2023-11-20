@@ -17,56 +17,58 @@ export const fetchTreeDetails = async (
     treeId: +treeId,
     props: {
       hats: {
-        prettyId: true,
-        status: true,
-        createdAt: true,
-        details: true,
-        maxSupply: true,
-        eligibility: true,
-        toggle: true,
-        mutable: true,
-        imageUri: true,
-        levelAtLocalTree: true,
-        claimableBy: {},
-        claimableForBy: {},
-        currentSupply: true,
-        tree: {},
-        wearers: {},
-        admin: {},
-      },
-      events: {
-        timestamp: true,
-        transactionID: true,
-        hat: {
+        props: {
           prettyId: true,
+          status: true,
+          createdAt: true,
+          details: true,
+          maxSupply: true,
+          eligibility: true,
+          toggle: true,
+          mutable: true,
+          imageUri: true,
+          levelAtLocalTree: true,
+          claimableBy: { props: {} },
+          claimableForBy: { props: {} },
+          currentSupply: true,
+          tree: {},
+          wearers: { props: {} },
+          admin: {},
         },
       },
+      events: {
+        props: {
+          timestamp: true,
+          transactionID: true,
+          hat: {
+            prettyId: true,
+          },
+        },
+        filters: { first: 5 },
+      },
       linkRequestFromTree: {
-        requestedLinkToHat: {
-          prettyId: true,
+        props: {
+          requestedLinkToHat: {
+            prettyId: true,
+          },
         },
       },
       childOfTree: {},
       parentOfTrees: {
-        linkedToHat: {
-          prettyId: true,
-        },
-        hats: {
-          // TODO do we need more keys here?
-          // ? ID is not an option?
-          prettyId: true,
+        props: {
+          linkedToHat: {
+            prettyId: true,
+          },
+          hats: {
+            // TODO do we need more keys here?
+            // ? ID is not an option?
+            props: { prettyId: true },
+          },
         },
       },
       linkedToHat: {
         prettyId: true,
         tree: {},
-      },
-    },
-    filters: {
-      first: {
-        tree: {
-          events: 5,
-        },
       },
     },
   })) as unknown as Tree;
@@ -85,23 +87,19 @@ export const fetchPaginatedTrees = async (
     chainId,
     props: {
       hats: {
-        details: true,
-        imageUri: true,
-        prettyId: true,
-        admin: {
+        props: {
+          details: true,
+          imageUri: true,
           prettyId: true,
+          admin: {
+            prettyId: true,
+          },
         },
+        filters: { first: 1 },
       },
     },
     page,
     perPage,
-    filters: {
-      first: {
-        tree: {
-          hats: 1,
-        },
-      },
-    },
   });
 
   return mapWithChainId(res, chainId);
@@ -115,18 +113,22 @@ export const fetchTreesById = async (treeIds: string[], chainId: number) => {
     treeIds: treeIds.map((id) => +id),
     props: {
       hats: {
-        details: true,
-        imageUri: true,
-        prettyId: true,
-        admin: {
+        props: {
+          details: true,
+          imageUri: true,
           prettyId: true,
+          admin: {
+            prettyId: true,
+          },
+          wearers: { props: {} },
         },
-        wearers: {},
       },
       childOfTree: {},
       parentOfTrees: {
-        linkedToHat: {
-          prettyId: true,
+        props: {
+          linkedToHat: {
+            prettyId: true,
+          },
         },
       },
       linkedToHat: {

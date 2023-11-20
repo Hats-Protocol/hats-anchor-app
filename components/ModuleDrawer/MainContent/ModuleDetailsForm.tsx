@@ -1,8 +1,7 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
-import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import Link from 'next/link';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { isAddress } from 'viem';
@@ -20,49 +19,40 @@ import { ModuleCreationArg, ModuleDetails } from '@/types';
 const ModuleDetailsForm = ({
   localForm,
   title,
-  selectedModuleDetails,
-  setSelectedModuleDetails,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   title: string;
-  selectedModuleDetails: ModuleDetails | undefined;
-  setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
 }) => {
   const { onchainHats, treeToDisplay } = useTreeForm();
   const { modules } = useHatsModules();
   const { watch } = localForm;
-  const selectedModuleType = watch('moduleType', '');
-
-  const [selectedModuleArgs, setSelectedModuleArgs] = useState<
-    ModuleCreationArg[] | null
-  >([]);
+  const selectedModuleField = watch('moduleType', '');
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
-    const modulesForType: Module[] = _.filter(modules, [
-      'type',
-      _.toLower(title),
-    ]);
-    return _.map(modulesForType, (value: Module, key: string) => ({
-      id: key,
-      ...value,
-    })) as unknown as ModuleDetails[]; // thinks boolean[] ?
+    const modulesForType = _.filter(modules, (m) => {
+      const types = _.keys(_.pickBy(m.type, (value) => value));
+
+      return _.includes(types, _.toLower(title));
+    });
+
+    return modulesForType;
   }, [modules, title]);
 
   const selectedModule = useMemo(() => {
-    return _.find(modulesToDisplay, ['id', selectedModuleType]);
-  }, [modulesToDisplay, selectedModuleType]);
-
-  useEffect(() => {
-    setSelectedModuleDetails?.(selectedModule || undefined);
-    setSelectedModuleArgs(
+    return _.find(modulesToDisplay, { id: selectedModuleField });
+  }, [modulesToDisplay, selectedModuleField]);
+  const selectedModuleDetails = useMemo(() => {
+    return _.find(modules, { id: selectedModuleField });
+  }, [modules, selectedModuleField]);
+  const selectedModuleArgs = useMemo(() => {
+    return (
       (selectedModule?.creationArgs && [
         ...selectedModule.creationArgs.immutable,
         ...selectedModule.creationArgs.mutable,
       ]) ||
-        null,
+      null
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedModule]);
 
   if (!onchainHats || !treeToDisplay) return null;

@@ -52,7 +52,6 @@ export interface TreeFormContext {
   treeToDisplay: Hat[] | undefined;
   onchainTree: Hat[] | undefined;
   onchainHats: Hat[] | undefined;
-  onchainHatsWithDetails: Hat[] | undefined;
   selectedOnchainHat: Hat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
   selectedHatGuildRoles: Authority[] | undefined;
@@ -100,7 +99,6 @@ export const TreeFormContext = createContext<TreeFormContext>({
   treeToDisplay: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
-  onchainHatsWithDetails: undefined,
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
   selectedHatGuildRoles: undefined,
@@ -249,12 +247,6 @@ export const TreeFormContextProvider = ({
       editMode,
       onchain: true,
     });
-  const onchainHatsWithDetails = useMemo(() => {
-    return _.map(treeData?.hats, (hat) => {
-      const details = _.find(onchainDetailsFields, { id: hat.details });
-      return { ...hat, detailsObject: details?.detailsObject };
-    });
-  }, [treeData?.hats, onchainDetailsFields]);
   const onchainWearersAndControllers = useWearersControllersDetails({
     hats: onchainHatDetails,
     editMode,
@@ -279,6 +271,7 @@ export const TreeFormContextProvider = ({
     detailsLoaded: !onchainDetailsFieldsLoading,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
+    onchain: true,
   });
 
   // *********************
@@ -392,16 +385,12 @@ export const TreeFormContextProvider = ({
   );
   // selected onchain hat
   const selectedOnchainHat = useMemo(
-    () => _.find(onchainHatDetails, ['id', selectedHatId]),
-    [onchainHatDetails, selectedHatId],
+    () => _.find(onchainTree, ['id', selectedHatId]),
+    [onchainTree, selectedHatId],
   );
   const selectedOnchainHatDetails = useMemo(
-    () =>
-      _.get(
-        _.find(onchainHatsWithDetails, ['id', selectedHatId]),
-        'detailsObject.data',
-      ),
-    [onchainHatsWithDetails, selectedHatId],
+    () => _.get(selectedOnchainHat, 'detailsObject.data'),
+    [selectedOnchainHat],
   );
   const isDraft = useMemo(
     () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
@@ -569,11 +558,18 @@ export const TreeFormContextProvider = ({
     [setStoredData, onCloseHatDrawer, onOpenTreeDrawer],
   );
 
+  // HatExport[] -> FormData[]
   const importHats = useCallback(
-    (hats: Partial<FormData>[]) => {
-      setStoredData?.(hats);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (hats: any[]) => {
+      const translateImageUrl = _.map(hats, (hat) => ({
+        ...hat,
+        imageUrl: ipfsUrl(hat.imageUri?.slice(7)),
+      }));
+      // convert imageUri to imageUrl
+      setStoredData?.(translateImageUrl);
       const localDraftHats = _.reject(
-        hats,
+        translateImageUrl,
         (hat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
@@ -599,34 +595,23 @@ export const TreeFormContextProvider = ({
     onCloseTreeDrawer();
   }, [onchainHats, setStoredData, onCloseTreeDrawer]);
 
-  const patchTree = useCallback(
-    (proposedHats: Hat[]) => {
-      setOrgChartHats((prevHats) => {
-        if (!prevHats) return [];
+  const patchTree = useCallback((proposedHats: Hat[]) => {
+    setOrgChartHats((prevHats) => {
+      if (!prevHats) return [];
 
-        return _.map(prevHats, (existingHat) => {
-          const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
-          // wearers is coming in as 'wearer'
-          const newName = _.find(storedData, ['id', existingHat.id])?.name;
+      return _.map(prevHats, (existingHat) => {
+        const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
 
-          if (proposedHat) {
-            return {
-              ...existingHat,
-              ...proposedHat,
-              imageUri: proposedHat?.imageUri || existingHat.imageUri || '',
-              imageUrl: ipfsUrl(
-                proposedHat?.imageUri?.slice(7) ||
-                  existingHat.imageUri?.slice(7),
-              ),
-              name: newName || existingHat.name,
-            };
-          }
-          return existingHat;
-        });
+        if (proposedHat) {
+          return {
+            ...existingHat,
+            ...proposedHat,
+          };
+        }
+        return existingHat;
       });
-    },
-    [storedData],
-  );
+    });
+  }, []);
 
   const hierarchy = useMemo(() => {
     const parentsAndIds = _.map(orgChartTree, (hat: Hat) => ({
@@ -678,7 +663,6 @@ export const TreeFormContextProvider = ({
       treeToDisplay,
       onchainTree,
       onchainHats,
-      onchainHatsWithDetails,
       treeEvents,
       isLoading: imagesLoading || detailsFieldsLoading,
       linkRequestFromTree,
@@ -725,7 +709,6 @@ export const TreeFormContextProvider = ({
       treeToDisplay,
       onchainTree,
       onchainHats,
-      onchainHatsWithDetails,
       treeEvents,
       imagesLoading,
       detailsFieldsLoading,

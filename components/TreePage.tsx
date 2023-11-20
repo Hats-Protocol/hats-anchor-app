@@ -1,16 +1,28 @@
-import { Flex, Slide, Spinner } from '@chakra-ui/react';
+/* eslint-disable no-nested-ternary */
+import {
+  Button,
+  Flex,
+  Heading,
+  Icon,
+  Image,
+  Slide,
+  Spinner,
+  Stack,
+} from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
+import { BsArrowRight } from 'react-icons/bs';
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { isTopHat, prettyIdToId } from '@/lib/hats';
 import { chainsMap } from '@/lib/web3';
 
+import ChakraNextLink from './atoms/ChakraNextLink';
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';
 
@@ -33,7 +45,7 @@ const Modal = dynamic(() => import('./atoms/Modal'), {
   loading: () => <Suspender />,
 });
 
-const TreePage = () => {
+const TreePage = ({ exists = true }: { exists: boolean }) => {
   const [initialLoad, setInitialLoad] = useState(true);
   const router = useRouter();
   const localOverlay = useOverlay();
@@ -112,12 +124,33 @@ const TreePage = () => {
       </Slide>
 
       <Layout editMode={editMode} hatData={topHat}>
-        <TreeMenu treeDisclosure={treeDisclosure} />
-        {!_.isEmpty(treeToDisplay) ? (
-          <OrgChart />
+        {exists ? (
+          <>
+            <TreeMenu treeDisclosure={treeDisclosure} />
+            {_.isEmpty(treeToDisplay) ? (
+              <Flex justify='center' align='center' w='full' h='full'>
+                <Spinner />
+              </Flex>
+            ) : (
+              <OrgChart />
+            )}
+          </>
         ) : (
-          <Flex justify='center' align='center' w='full' h='full'>
-            <Spinner />
+          <Flex justify='center' align='center' w='full' h='full' pt={20}>
+            <Stack spacing={8} align='center'>
+              <Heading size='md'>Tree not found!</Heading>
+              <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
+              <Flex>
+                <ChakraNextLink href='/'>
+                  <Button
+                    variant='outline'
+                    rightIcon={<Icon as={BsArrowRight} />}
+                  >
+                    🧢 Head home
+                  </Button>
+                </ChakraNextLink>
+              </Flex>
+            </Stack>
           </Flex>
         )}
       </Layout>

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
 
+import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchWearerDetails } from '@/gql/helpers';
 import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
@@ -18,11 +19,20 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
     chainId,
     hatIds: hats.map((hat) => BigInt(hat)),
     props: {
-      claimableBy: {},
+      claimableBy: { props: {} },
     },
   });
 
   return res as unknown as Promise<Hat[]>;
+};
+
+const fetchHatters = async (
+  chainId: number | undefined,
+  allHatIds: Hex[] | undefined,
+) => {
+  if (!chainId || !allHatIds) return undefined;
+  const result = await fetchHattersHelper(chainId, allHatIds);
+  return result;
 };
 
 const getHatterHat = async (
@@ -39,7 +49,7 @@ const getHatterHat = async (
 
   const claimsHatterIndex = _.findIndex(
     storedModuleDetails,
-    (result) => _.get(result, 'name') === 'Multi Claims Hatter',
+    (result) => _.get(result, 'name') === CONFIG.claimsHatterModuleName,
   );
   const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
 
@@ -61,19 +71,13 @@ const useMultiClaimsHatterCheck = () => {
 
   const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
 
-  const fetchHatters = async () => {
-    if (!chainId || !allHatIds) return undefined;
-    const result = await fetchHattersHelper(chainId, allHatIds);
-    return result;
-  };
-
   const {
     data: claimsHatterData,
     isLoading: claimsHatterLoading,
     error: claimsHatterError,
   } = useQuery({
     queryKey: ['claimsHatter', allHatIds, chainId],
-    queryFn: fetchHatters,
+    queryFn: () => fetchHatters(chainId, allHatIds),
     enabled: !!allHatIds && !!chainId,
   });
 
