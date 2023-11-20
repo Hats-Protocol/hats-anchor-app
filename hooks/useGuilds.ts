@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
+import { AUTHORITY_TYPES } from '@/constants';
 import { decimalId } from '@/lib/hats';
 import { Hat, HatDetails } from '@/types';
 
@@ -55,6 +56,7 @@ const useHatGuilds = ({
             gate: `https://guild.xyz/${guild.urlName}`,
             link: platform ? platform.invite : 'No invite available',
             imageUrl: guild.imageUrl,
+            type: AUTHORITY_TYPES.token,
           };
         });
       },

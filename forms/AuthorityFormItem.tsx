@@ -97,6 +97,9 @@ const AuthoritiesFormItem = ({
     }
   }, [newImageURI, setValue, formName, index]);
 
+  const isToken =
+    getValues(`${formName}.${index}.type`) === AUTHORITY_TYPES.token;
+
   return (
     <Box key={id}>
       <HStack justifyContent='space-between' pt={3} alignItems='center'>
@@ -104,6 +107,7 @@ const AuthoritiesFormItem = ({
           name={`${formName}.${index}.label`}
           localForm={localForm}
           placeholder='Label'
+          isDisabled={isToken}
         />
         <IconButton
           onClick={onOpen}
@@ -118,6 +122,7 @@ const AuthoritiesFormItem = ({
           aria-label='Remove'
           variant='ghost'
           borderColor='blackAlpha.300'
+          isDisabled={isToken}
         />
       </HStack>
 
@@ -138,7 +143,11 @@ const AuthoritiesFormItem = ({
                 >
                   <AuthorityHeader
                     label={localForm.watch(`${formName}.${index}.label`)}
-                    type={AUTHORITY_TYPES.manual as AuthorityType}
+                    type={
+                      (isToken
+                        ? AUTHORITY_TYPES.token
+                        : AUTHORITY_TYPES.manual) as AuthorityType
+                    }
                     imageUrl={localForm.watch(`${formName}.${index}.imageUrl`)}
                     hideInfo
                   />
@@ -152,6 +161,7 @@ const AuthoritiesFormItem = ({
                 options={{
                   required: true,
                 }}
+                isDisabled={isToken}
               />
 
               <Input
@@ -165,6 +175,7 @@ const AuthoritiesFormItem = ({
                     return true;
                   },
                 }}
+                isDisabled={isToken}
               />
               <Input
                 label='TOKEN GATE LINK'
@@ -177,6 +188,7 @@ const AuthoritiesFormItem = ({
                     return true;
                   },
                 }}
+                isDisabled={isToken}
               />
               <Textarea
                 localForm={localForm}

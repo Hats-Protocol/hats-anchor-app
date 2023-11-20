@@ -634,10 +634,7 @@ export const TreeFormContextProvider = ({
 
   const combinedAuthorities: Authority[] = useMemo(() => {
     const authorities = _.get(selectedHatDetails, 'authorities');
-    let combined = _.map(selectedHatGuildRoles, (authority) => ({
-      ...authority,
-      type: AUTHORITY_TYPES.token as AuthorityType,
-    })).concat(
+    let combined = selectedHatGuildRoles.concat(
       _.map(authorities, (authority) => ({
         ...authority,
         type: AUTHORITY_TYPES.manual as AuthorityType,

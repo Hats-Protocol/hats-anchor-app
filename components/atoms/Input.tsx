@@ -154,6 +154,7 @@ const Input = ({
                 aria-label='Reset'
                 onClick={onReset}
                 size='xs'
+                isDisabled={isDisabled}
                 colorScheme='cyan'
               />
             </InputRightElement>
