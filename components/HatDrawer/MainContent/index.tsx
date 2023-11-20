@@ -7,12 +7,10 @@ import WearersList from '@/components/HatDrawer/WearersList';
 import ModuleDetails from '@/components/ModuleDetails';
 import { MODULE_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatGuilds from '@/hooks/useGuilds';
 import { checkAddressIsContract } from '@/lib/contract';
 
 import AuthoritiesList from './AuthoritiesList';
 import DetailList from './DetailList';
-import GuildRoles from './GuildRoles';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
 import StatusCard from './Status';
@@ -26,8 +24,6 @@ const MainContent = () => {
     selectedHatDetails,
     ['responsibilities', 'authorities', 'toggle', 'eligibility'],
   );
-
-  const { hatRoles } = useHatGuilds();
 
   useEffect(() => {
     const check = async () => {
@@ -58,8 +54,6 @@ const MainContent = () => {
       <Header />
 
       <WearersList />
-
-      <GuildRoles hatRoles={hatRoles} />
 
       <DetailList title='Responsibilities' details={responsibilities} />
       <AuthoritiesList title='Authorities' authorities={authorities} />

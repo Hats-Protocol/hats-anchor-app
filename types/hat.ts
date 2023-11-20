@@ -21,12 +21,6 @@ export interface HatWearer {
   ensName?: string | null;
 }
 
-export interface HatRole {
-  role: string;
-  guild: string;
-  requirements: (string | null)[];
-}
-
 export type HatDetails = {
   name: string;
   description?: string;

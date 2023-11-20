@@ -15,6 +15,7 @@ import { Hex } from 'viem';
 
 import { defaultHat } from '@/constants';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
+import useHatGuilds from '@/hooks/useGuilds';
 import useImageURIs from '@/hooks/useImageURIs';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useManyHatDetails from '@/hooks/useManyHatsDetails';
@@ -30,6 +31,7 @@ import { generateLocalStorageKey, mapWithChainId } from '@/lib/general';
 import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
 import { ipfsUrl } from '@/lib/ipfs';
 import {
+  Authority,
   FormData,
   Hat,
   HatDetails,
@@ -52,6 +54,7 @@ export interface TreeFormContext {
   onchainHatsWithDetails: Hat[] | undefined;
   selectedOnchainHat: Hat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
+  selectedHatGuildRoles: Authority[] | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
@@ -98,6 +101,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   onchainHatsWithDetails: undefined,
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
+  selectedHatGuildRoles: undefined,
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -635,6 +639,11 @@ export const TreeFormContextProvider = ({
     }
   }, [initialHatId, orgChartTree, handleSelectHat]);
 
+  const { selectedHatGuildRoles } = useHatGuilds({
+    selectedHat,
+    topHatDetails,
+  });
+
   const returnValue = useMemo(
     () => ({
       chainId,
@@ -662,6 +671,7 @@ export const TreeFormContextProvider = ({
       selectedHat,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      selectedHatGuildRoles,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
@@ -708,6 +718,7 @@ export const TreeFormContextProvider = ({
       selectedHat,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      selectedHatGuildRoles,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
