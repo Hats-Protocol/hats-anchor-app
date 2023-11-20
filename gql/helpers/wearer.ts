@@ -109,7 +109,7 @@ export const fetchWearerDetailsForAllChains = async (
   );
 
   // * let errors fall through here
-  return Promise.all(_.map(promises, (p) => p.catch((e) => undefined))).then(
+  return Promise.all(_.map(promises, (p) => p.catch(() => undefined))).then(
     (data) => {
       // TODO handle errors on subgraph(s) with the user
       return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));

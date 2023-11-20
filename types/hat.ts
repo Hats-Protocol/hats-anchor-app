@@ -96,7 +96,7 @@ export type ModuleCreationArgs = {
 };
 
 export interface ModuleDetails extends Module {
-  id: string;
+  id: Hex;
 }
 
 export interface HatExport {

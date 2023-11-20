@@ -19,6 +19,7 @@ import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
 import usePendHatterMint from '@/hooks/usePendHatterMint';
 import { formatAddress } from '@/lib/general';
 
@@ -46,11 +47,12 @@ const ClaimsHandler = ({
   onOpenModuleDrawer: () => void;
   setIsStandAloneHatterDeploy: (value: boolean) => void;
 }) => {
-  const { treeToDisplay } = useTreeForm();
+  const { treeToDisplay, selectedHat } = useTreeForm();
   const {
     instanceAddress,
     hatterIsAdmin,
     wearingHat: wearingHatId,
+    claimableHats,
   } = useMultiClaimsHatterCheck();
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
@@ -65,6 +67,13 @@ const ClaimsHandler = ({
     return _.find(treeToDisplay, { id: wearingHatId });
   }, [treeToDisplay, wearingHatId]);
 
+  const { deploy: registerHat } = useMultiClaimsHatterContractWrite({
+    functionName: 'setHatClaimability',
+    address: instanceAddress,
+    enabled: !!instanceAddress && !!selectedHat?.id,
+    args: [selectedHat?.id, 1],
+  });
+
   useEffect(() => {
     if (treeToDisplay && hatToMintPended) {
       const localHatToMintTo = _.get(_.first(availableAdmins), 'id');
@@ -72,6 +81,24 @@ const ClaimsHandler = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!_.includes(claimableHats, selectedHat?.id) && hatterIsAdmin) {
+    return (
+      <ClaimsHandlerWrapper>
+        <Stack>
+          <Text color='blackAlpha.700' mt={1}>
+            There is a claims hatter in the tree, but this hat is not set
+            claimable.
+          </Text>
+          <Flex>
+            <Button variant='outlineMatch' onClick={registerHat}>
+              Make Claimable
+            </Button>
+          </Flex>
+        </Stack>
+      </ClaimsHandlerWrapper>
+    );
+  }
 
   if (hatterIsAdmin) {
     return (

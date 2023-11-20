@@ -26,8 +26,8 @@ const CONFIG: {
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
   banner: false,
-  claimsHatterModuleId:
-    '0xa6736b79820695b7014d72937d271224ac9cd523d067bc271c5238cacfa8d16c',
+  // claimsHatterModuleId:
+  //   '0xa6736b79820695b7014d72937d271224ac9cd523d067bc271c5238cacfa8d16c',
 
   // terminology
   hat: 'hat',

@@ -3,12 +3,7 @@ import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import {
-  defaultHat,
-  FALLBACK_ADDRESS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@/constants';
+import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import {
   FieldItem,
   FormData,
@@ -86,14 +81,19 @@ const createDetailsData = ({
     revocationsCriteria,
     deactivationsCriteria,
     name,
+    displayName,
     description,
     guilds,
     responsibilities,
     authorities,
   } = hat;
 
+  let updateName = _.get(originalHat, 'detailsObject.data.name');
+  if (name || displayName) updateName = name || displayName;
+  if (!updateName) updateName = _.get(originalHat, 'details');
+
   const detailsData = {
-    name: name || _.get(originalHat, 'details') || '',
+    name: updateName || '',
     description: description || '',
     guilds: guilds || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
@@ -101,7 +101,7 @@ const createDetailsData = ({
     eligibility: {
       manual: isEligibilityManual
         ? isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
-        : true,
+        : _.get(originalHat, 'detailsObject.data.eligibility.manual', true),
       criteria: _.reject(revocationsCriteria, ['label', '']) || [],
     },
     toggle: {
@@ -146,6 +146,9 @@ const createNewHatData = async ({
     console.log('admin is undefined');
     return undefined;
   }
+  const imageUri = imageUrl?.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
 
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
@@ -154,7 +157,7 @@ const createNewHatData = async ({
     eligibility: localEligibility || FALLBACK_ADDRESS,
     toggle: localToggle || FALLBACK_ADDRESS,
     mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
-    imageURI: imageUrl || '',
+    imageURI: imageUri || '',
   };
 };
 
@@ -196,6 +199,9 @@ const processNewDetailsCallForHat = async ({
   const newHatData = hatsClient.createHatCallData(newHat);
 
   if (!newHatData) return returnData;
+  const imageUri = imageUrl?.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
 
   newHatChanges = {
     ...newHat,
@@ -209,8 +215,8 @@ const processNewDetailsCallForHat = async ({
       data: detailsData,
     },
     chainId,
-    imageUri: imageUrl,
-    imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
+    imageUri: imageUri || undefined,
+    imageUrl,
   };
 
   return {

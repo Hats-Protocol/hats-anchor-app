@@ -26,10 +26,11 @@ const useHatsModules = () => {
 
   const modules: ModuleDetails[] = _.map(
     data,
-    (value: Module, key: string) => ({
-      id: key,
-      ...value,
-    }),
+    (value: Module, key: string) =>
+      ({
+        id: key,
+        ...value,
+      } as ModuleDetails),
   );
 
   return { modules, isLoading, isError, error };

@@ -75,18 +75,13 @@ const HatManagementForm = ({
   criteriaConfig,
 }: HatManagementFormProps) => {
   const { selectedHat, chainId } = useTreeForm();
-  const {
-    localForm,
-    formValues,
-    eligibilityResolvedAddress,
-    toggleResolvedAddress,
-  } = useHatForm();
-  const { watch, control, setValue, getValues, reset } = _.pick(localForm, [
+  const { localForm, eligibilityResolvedAddress, toggleResolvedAddress } =
+    useHatForm();
+  const { watch, control, setValue, getValues } = _.pick(localForm, [
     'watch',
     'control',
     'setValue',
     'getValues',
-    'reset',
   ]);
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
@@ -155,9 +150,8 @@ const HatManagementForm = ({
   // ? better way to handle checking "manual/automatic" radio box?
   useEffect(() => {
     if (moduleDetails) {
-      reset?.({
-        ...formValues,
-        isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+      setValue?.('isEligibilityManual', TRIGGER_OPTIONS.AUTOMATICALLY, {
+        shouldDirty: true,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,7 +226,7 @@ const HatManagementForm = ({
             </HStack>
           </Stack>
         </FormRowWrapper>
-        {title === 'eligibility' &&
+        {title === MODULE_TYPES.eligibility &&
           extendedController?.isContract &&
           isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
             <ClaimsHandler

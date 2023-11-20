@@ -27,6 +27,7 @@ export type FormData = FormDataDetails & {
 
 export type FormDataDetails = {
   name: string;
+  displayName?: string;
   description: string;
   guilds: string[];
   responsibilities: DetailsItem[];
