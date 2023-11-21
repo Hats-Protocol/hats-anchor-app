@@ -24,6 +24,7 @@ import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 
+// modules-hooks
 const useModuleDeploy = ({
   localForm,
   selectedModuleDetails,

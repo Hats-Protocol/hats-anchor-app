@@ -1,6 +1,5 @@
+import { createSubgraphClient } from '@/lib/web3';
 import { Hat } from '@/types';
-
-import { createSubgraphClient } from '../../lib/web3';
 
 export const fetchHatDetails = async (
   hatId: string | undefined,

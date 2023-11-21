@@ -6,6 +6,7 @@ import { Hex } from 'viem';
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
+// hats-hooks
 const useWearersEligibilityCheck = ({
   wearerIds,
 }: useWearersEligibilityCheckProps) => {

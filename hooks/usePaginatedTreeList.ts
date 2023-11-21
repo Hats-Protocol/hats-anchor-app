@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { fetchPaginatedTrees } from '@/gql/helpers';
 import { Tree } from '@/types';
 
+// hats-hooks
 const usePaginatedTreeList = ({
   chainId,
   perPage = 40,

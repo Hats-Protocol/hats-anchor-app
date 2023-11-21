@@ -1,4 +1,9 @@
+import {
+  DEFAULT_ENDPOINTS_CONFIG,
+  Wearer,
+} from '@hatsprotocol/sdk-v1-subgraph';
 import { fetchEnsName } from '@wagmi/core';
+import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
@@ -47,7 +52,7 @@ export const fetchWearerDetails = async (
 ) => {
   const subgraphClient = createSubgraphClient();
 
-  let res: any;
+  let res: Wearer | object | undefined;
   try {
     res = await subgraphClient.getWearer({
       chainId,
@@ -80,6 +85,7 @@ export const fetchWearerDetails = async (
     });
   } catch (err) {
     res = {};
+    return res;
   }
 
   return {
@@ -139,4 +145,93 @@ export const fetchPaginatedWearersForHat = async (
   );
 
   return wearersWithDetails;
+};
+
+// TODO replace with where stmt in subgraph client
+export const EVENT_DETAILS_FRAGMENT = gql`
+  fragment EventDetails on HatsEvent {
+    id
+    timestamp
+    transactionID
+  }
+`;
+
+const HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT = gql`
+  fragment HatDetailsUnit on Hat {
+    id
+    prettyId
+    status
+    createdAt
+    details
+    maxSupply
+    eligibility
+    toggle
+    mutable
+    imageUri
+    levelAtLocalTree
+    # TODO need to handle more than 1 "registered" hatter instance?
+    claimableBy(first: 1) {
+      id
+    }
+    claimableForBy(first: 1) {
+      id
+    }
+    currentSupply
+    tree {
+      id
+    }
+    wearers {
+      id
+    }
+    admin {
+      id
+    }
+  }
+`;
+
+const HAT_DETAILS_FRAGMENT = gql`
+  fragment HatDetails on Hat {
+    ...HatDetailsUnit
+    events(orderBy: timestamp, orderDirection: desc) {
+      ...EventDetails
+    }
+  }
+  ${HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT}
+  ${EVENT_DETAILS_FRAGMENT}
+`;
+
+export const GET_CONTROLLERS_FOR_USER = gql`
+  query getControllersForUser($address: String!) {
+    hats(where: { or: [{ toggle: $address }, { eligibility: $address }] }) {
+      ...HatDetails
+    }
+  }
+  ${HAT_DETAILS_FRAGMENT}
+`;
+
+export const fetchControllersForUser = async (a: string) => {
+  const promises = _.map(chains, (cId: number) => {
+    const subgraphClient = new GraphQLClient(
+      DEFAULT_ENDPOINTS_CONFIG[cId].endpoint,
+    );
+    if (subgraphClient !== undefined) {
+      return subgraphClient.request(GET_CONTROLLERS_FOR_USER, {
+        address: _.toLower(a),
+      });
+    }
+    return undefined;
+  });
+
+  const data: unknown[] = await Promise.all(promises);
+
+  const mapWithChains = _.map(data, (d: { hats: Hat[] }, i: number) => {
+    const hats = _.map(d.hats, (h) => ({
+      ...h,
+      chainId: _.toNumber(chains[i]),
+    }));
+
+    return { hats };
+  });
+
+  return _.flatten(_.map(mapWithChains, 'hats'));
 };

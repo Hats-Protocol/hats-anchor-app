@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetails } from '@/gql/helpers';
 import { Tree } from '@/types';
 
+// hats-hooks
 const useTreeDetails = ({
   treeId,
   chainId,

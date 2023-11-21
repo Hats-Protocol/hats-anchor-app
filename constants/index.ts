@@ -2,6 +2,8 @@ import { Abi, Hex } from 'viem';
 
 import { HATS_ABI } from '@/contracts/Hats';
 
+// constants lib or sub of app-utils
+
 export { default as defaultHat } from './defaultHat';
 export * from './form';
 export * from './landingContent';

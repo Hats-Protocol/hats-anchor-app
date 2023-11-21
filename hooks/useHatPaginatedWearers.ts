@@ -7,6 +7,7 @@ import { fetchPaginatedWearersForHat } from '@/gql/helpers';
 import { sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
+// hats-hooks
 const useHatPaginatedWearers = ({
   hatId,
   initialPage = 0,

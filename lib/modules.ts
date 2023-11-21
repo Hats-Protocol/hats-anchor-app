@@ -8,6 +8,8 @@ import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { FormData, Hat, ModuleDetails } from '@/types';
 
+// modules-utils
+
 export const deployModule = async ({
   selectedModuleDetails,
   selectedHat,

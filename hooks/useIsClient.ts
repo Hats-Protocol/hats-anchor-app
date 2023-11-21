@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+// app-hooks
 const useIsClient = () => {
   const [isClient, setIsClient] = useState(false);
 

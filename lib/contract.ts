@@ -6,6 +6,8 @@ import { HatWearer, Transaction } from '@/types';
 
 import { chainsMap } from './web3';
 
+// app-utils
+
 export const checkAddressIsContract = async (
   address?: Hex,
   chainId?: number,

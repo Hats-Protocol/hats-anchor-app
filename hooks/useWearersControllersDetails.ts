@@ -43,6 +43,7 @@ const fetchWearerAndControllerDetails = async (
   };
 };
 
+// hats-hooks or app-hooks
 const useWearersControllersDetails = ({
   hats,
   editMode,

@@ -5,6 +5,7 @@ import { useAccount, useChainId } from 'wagmi';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 
+// hat-hooks
 const useHatBurn = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();

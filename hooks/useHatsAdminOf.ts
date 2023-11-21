@@ -8,6 +8,7 @@ import { Hat, Tree } from '@/types';
 
 const chains = _.keys(chainsList);
 
+// hats-hooks
 const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
   const adminOfHats = async () => {
     if (!hats) return {};

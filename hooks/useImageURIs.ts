@@ -24,6 +24,7 @@ const tempClient = (chainId: number) => {
   return client;
 };
 
+// image-sdk/hooks
 /**
  * returns an object, mapping from hat id to image url.
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.

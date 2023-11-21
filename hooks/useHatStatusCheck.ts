@@ -10,6 +10,7 @@ import { checkAddressIsContract } from '@/lib/contract';
 import { decimalId, toTreeId } from '@/lib/hats';
 import { Hat } from '@/types';
 
+// hats-hooks
 const useHatStatusCheck = ({
   hatData,
   chainId,
