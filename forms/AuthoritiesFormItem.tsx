@@ -13,13 +13,11 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
-  Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UseFormReturn } from 'react-hook-form';
 import { BsSave } from 'react-icons/bs';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
@@ -28,14 +26,14 @@ import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
 import AuthorityHeader from '@/components/HatDrawer/MainContent/AuthorityHeader';
 import { AUTHORITY_TYPES } from '@/constants';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl, validateURL } from '@/lib/general';
+import { formatImageUrl, getHostnameFromURL, validateURL } from '@/lib/general';
 import { AuthorityType, ImageFile } from '@/types';
 
 interface AuthoritiesFormItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
   formName: string;
   index: number;
   id: string;
@@ -47,14 +45,15 @@ const AuthoritiesFormItem = ({
   id,
   formName,
   remove,
-  localForm,
 }: AuthoritiesFormItemProps) => {
   const [image, setImage] = useState<ImageFile>();
   const { chainId, selectedHat } = useTreeForm();
   const [newImageURI, setNewImageURI] = useState<string>();
-  const { setValue, getValues } = localForm;
+  const { localForm } = useHatForm();
+  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { imageUrl: img, gate } = getValues(`${formName}.${index}`);
+  const { imageUrl, gate } = getValues?.(`${formName}.${index}`) ?? {};
+  const hostname = getHostnameFromURL(gate);
 
   const {
     acceptedFiles,
@@ -90,17 +89,19 @@ const AuthoritiesFormItem = ({
     setNewImageURI(hatImageURI);
   }, [imagePinData, setNewImageURI]);
 
-  const imageUrl = formatImageUrl(image?.preview);
+  const formattedImageUrl = formatImageUrl(image?.preview);
   const newImageUrl = formatImageUrl(newImageURI);
 
   useEffect(() => {
     if (newImageURI) {
-      setValue(`${formName}.${index}.imageUrl`, newImageURI);
+      setValue?.(`${formName}.${index}.imageUrl`, newImageURI);
     }
   }, [newImageURI, setValue, formName, index]);
 
   const isToken =
-    getValues(`${formName}.${index}.type`) === AUTHORITY_TYPES.token;
+    getValues?.(`${formName}.${index}.type`) === AUTHORITY_TYPES.token;
+
+  if (!localForm) return null;
 
   return (
     <Box key={id}>
@@ -113,8 +114,7 @@ const AuthoritiesFormItem = ({
           subInput={
             isToken ? (
               <Link href={gate} isExternal fontSize='xs'>
-                {/* <Text>{gate}</Text> */}
-                {gate}
+                {hostname}
               </Link>
             ) : undefined
           }
@@ -142,7 +142,7 @@ const AuthoritiesFormItem = ({
           <ModalHeader>Edit Authority</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Stack>
+            <Stack spacing={5}>
               <Flex w='full' justifyContent='center' mb={8}>
                 <Box
                   borderRadius='4px'
@@ -214,8 +214,8 @@ const AuthoritiesFormItem = ({
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
                 isFullWidth
-                image={image || img}
-                imageUrl={imageUrl || newImageUrl || img}
+                image={imageUrl}
+                imageUrl={formattedImageUrl || newImageUrl || imageUrl}
               />
             </Stack>
           </ModalBody>

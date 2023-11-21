@@ -200,3 +200,12 @@ export function commify(value: any) {
   return `${neg}${whole}`;
   // return `${neg}${whole}.${frac}`;
 }
+
+export function getHostnameFromURL(urlString?: string) {
+  if (!urlString) return '';
+  try {
+    return new URL(urlString).hostname;
+  } catch (error) {
+    return '';
+  }
+}

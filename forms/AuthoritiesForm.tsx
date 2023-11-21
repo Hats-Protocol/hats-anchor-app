@@ -8,18 +8,18 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { ReactNode, useEffect } from 'react';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle } from 'react-icons/bs';
 
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { Authority } from '@/types';
 
-import AuthorityFormItem from './AuthorityFormItem';
+import AuthoritiesFormItem from './AuthoritiesFormItem';
 
 interface AuthoritiesFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
   formName: string;
   title: string;
   subtitle?: string | ReactNode;
@@ -28,21 +28,20 @@ interface AuthoritiesFormProps {
 }
 
 const AuthoritiesForm = ({
-  localForm,
   formName,
   title,
   Icon,
   subtitle,
   label,
 }: AuthoritiesFormProps) => {
-  const { watch, control } = localForm;
+  const { localForm } = useHatForm();
+  const { watch, control } = _.pick(localForm, ['watch', 'control']);
   const { selectedHatGuildRoles } = useTreeForm();
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
   });
-  const items = watch(formName);
+  const items = watch?.(formName);
 
   // append fetched guild roles to form, if they aren't already there
   useEffect(() => {
@@ -75,13 +74,12 @@ const AuthoritiesForm = ({
         )}
       </Box>
       {fields.map((field, index) => (
-        <AuthorityFormItem
+        <AuthoritiesFormItem
           key={field.id}
           id={field.id}
           index={index}
           formName={formName}
           remove={remove}
-          localForm={localForm}
         />
       ))}
 

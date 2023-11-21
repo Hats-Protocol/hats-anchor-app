@@ -76,6 +76,7 @@ const AuthoritiesListCard = ({
                 <Button
                   rightIcon={<Icon as={FaExternalLinkAlt} />}
                   colorScheme='blue'
+                  borderColor='blue.500'
                   size='sm'
                   variant='outline'
                   color='blue.500'

@@ -21,7 +21,7 @@ import AuthoritiesForm from '@/forms/AuthoritiesForm';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
-import ItemDetailsForm from '@/forms/ItemDetailsForm';
+import ResponsibilitiesForm from '@/forms/ResponsibilitiesForm';
 import useToast from '@/hooks/useToast';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
 
@@ -113,7 +113,7 @@ const EditMode = () => {
           )}
         >
           <Stack spacing={4} w='100%'>
-            <ItemDetailsForm
+            <ResponsibilitiesForm
               formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
@@ -145,7 +145,6 @@ const EditMode = () => {
         >
           <Stack spacing={4} w='100%'>
             <AuthoritiesForm
-              localForm={localForm}
               formName='authorities'
               title='PERMISSIONS'
               subtitle={

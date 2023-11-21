@@ -7,15 +7,15 @@ import {
   Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle } from 'react-icons/bs';
 
-import LabelWithLink from '@/components/LabelWithLink';
 import { useHatForm } from '@/contexts/HatFormContext';
-import { useOverlay } from '@/contexts/OverlayContext';
 import { DetailsItem } from '@/types';
+
+import ResponsibilitiesFormItem from './ResponsibilitiesFormItem';
 
 interface ItemDetailsFormProps {
   formName: string;
@@ -25,7 +25,7 @@ interface ItemDetailsFormProps {
   label: string;
 }
 
-const ItemDetailsForm = ({
+const ResponsibilitiesForm = ({
   formName,
   title,
   Icon,
@@ -33,46 +33,14 @@ const ItemDetailsForm = ({
   label,
 }: ItemDetailsFormProps) => {
   const { localForm } = useHatForm();
-  const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [isLinkValid, setIsLinkValid] = useState(false);
-  const [inputLink, setInputLink] = useState('');
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
 
-  const { watch, control, setValue, getValues } = _.pick(localForm, [
-    'watch',
-    'control',
-    'setValue',
-    'getValues',
-  ]);
+  const { watch, control } = _.pick(localForm, ['watch', 'control']);
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
   });
   const items = watch?.(formName);
-
-  const handleEdit = (index: number) => {
-    const itemsArray = getValues?.(formName);
-    setInputLink(itemsArray[index].link);
-    setCurrentItemIndex(index);
-    setModals?.({
-      [`editLabel-${title}`]: true,
-    });
-  };
-
-  const handleSave = () => {
-    if (isLinkValid) {
-      setValue?.(`${formName}.${currentItemIndex}.link`, inputLink);
-      setInputLink('');
-      setCurrentItemIndex(0);
-    }
-    setModals?.({
-      [`editLabel-${title}`]: false,
-    });
-  };
-
-  if (!localForm) return null;
 
   return (
     <Stack>
@@ -90,19 +58,12 @@ const ItemDetailsForm = ({
         )}
       </Box>
       {fields.map((field, index) => (
-        <LabelWithLink
+        <ResponsibilitiesFormItem
           key={field.id}
-          localForm={localForm}
-          title={title}
-          handleRemoveItem={() => remove(index)}
-          handleEdit={() => handleEdit(index)}
-          handleSave={handleSave}
-          inputLink={inputLink}
-          setInputLink={setInputLink}
-          isLinkValid={isLinkValid}
-          setIsLinkValid={setIsLinkValid}
-          labelName={`${formName}.${index}.label`}
-          linkName={`${formName}.${index}.link`}
+          id={field.id}
+          index={index}
+          formName={formName}
+          remove={remove}
         />
       ))}
 
@@ -122,4 +83,4 @@ const ItemDetailsForm = ({
   );
 };
 
-export default ItemDetailsForm;
+export default ResponsibilitiesForm;
