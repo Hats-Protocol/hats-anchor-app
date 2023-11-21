@@ -6,25 +6,16 @@ import { AuthorityType } from '@/types';
 
 import AuthoritiesListCard from './AuthoritiesListCard';
 
-const AuthoritiesList = ({ title }: { title: string }) => {
-  const toggleOrEligibility =
-    title === 'Eligibility Criteria' || title === 'Toggle Criteria';
+const AuthoritiesList = () => {
   const { combinedAuthorities } = useTreeForm();
 
   if (!combinedAuthorities) return null;
 
   return (
     <Accordion allowMultiple>
-      {!toggleOrEligibility && (
-        <Heading
-          size={toggleOrEligibility ? 'xs' : 'sm'}
-          fontWeight='medium'
-          textTransform='uppercase'
-          mb={2}
-        >
-          {title}
-        </Heading>
-      )}
+      <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={2}>
+        Authorities
+      </Heading>
 
       {_.map(combinedAuthorities, (authority) => (
         <AuthoritiesListCard

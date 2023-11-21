@@ -13,6 +13,7 @@ import AuthoritiesList from './AuthoritiesList';
 import DetailList from './DetailList';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
+import ResponsibilitiesList from './ResponsibilitiesList';
 import StatusCard from './Status';
 
 const MainContent = () => {
@@ -20,8 +21,7 @@ const MainContent = () => {
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
 
-  const { responsibilities, toggle, eligibility } = _.pick(selectedHatDetails, [
-    'responsibilities',
+  const { toggle, eligibility } = _.pick(selectedHatDetails, [
     'toggle',
     'eligibility',
   ]);
@@ -53,11 +53,9 @@ const MainContent = () => {
       color='blackAlpha.800'
     >
       <Header />
-
       <WearersList />
-
-      <DetailList title='Responsibilities' details={responsibilities} />
-      <AuthoritiesList title='Authorities' />
+      <ResponsibilitiesList />
+      <AuthoritiesList />
 
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
