@@ -85,7 +85,7 @@ const AuthoritiesForm = ({
         />
       ))}
 
-      <Box mb={2}>
+      <Box my={2}>
         <Button
           onClick={() =>
             append({ label: '', description: '', link: '', gate: '' })

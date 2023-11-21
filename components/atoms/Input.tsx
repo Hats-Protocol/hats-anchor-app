@@ -1,7 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -39,6 +38,7 @@ import { FALLBACK_ADDRESS } from '@/constants';
 const Input = ({
   label,
   subLabel,
+  subInput,
   name,
   info,
   tip,
@@ -88,28 +88,26 @@ const Input = ({
   return (
     <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
-        <Box>
-          {label && (
-            <FormLabel mb={0}>
-              <HStack>
-                <Text fontSize='sm'>
-                  {label.toUpperCase()}
-                  {options?.required && '*'}
-                </Text>
-                {info && (
-                  <Tooltip shouldWrapChildren label={info}>
-                    <FaRegQuestionCircle />
-                  </Tooltip>
-                )}
-              </HStack>
-            </FormLabel>
-          )}
-          {typeof subLabel !== 'string' ? (
-            subLabel
-          ) : (
-            <Text color='blackAlpha.700'>{subLabel}</Text>
-          )}
-        </Box>
+        {label && (
+          <FormLabel mb={0}>
+            <HStack>
+              <Text fontSize='sm'>
+                {label.toUpperCase()}
+                {options?.required && '*'}
+              </Text>
+              {info && (
+                <Tooltip shouldWrapChildren label={info}>
+                  <FaRegQuestionCircle />
+                </Tooltip>
+              )}
+            </HStack>
+          </FormLabel>
+        )}
+        {typeof subLabel !== 'string' ? (
+          subLabel
+        ) : (
+          <Text color='blackAlpha.700'>{subLabel}</Text>
+        )}
         {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
         {addressButtons && (
           <Flex justify='flex-end'>
@@ -160,9 +158,18 @@ const Input = ({
             </InputRightElement>
           )}
         </InputGroup>
-        <Text color='red.500' fontSize='xs'>
-          {getErrorMessage()}
-        </Text>
+        {typeof subInput !== 'string' ? (
+          subInput
+        ) : (
+          <Text color='blackAlpha.700' fontSize='xs'>
+            {subInput}
+          </Text>
+        )}
+        {getErrorMessage() && (
+          <Text color='red.500' fontSize='xs'>
+            {getErrorMessage()}
+          </Text>
+        )}
       </Stack>
     </FormControl>
   );
@@ -173,6 +180,7 @@ export default Input;
 interface InputProps extends ChakraInputProps {
   label?: string;
   subLabel?: string | ReactNode;
+  subInput?: string | ReactNode;
   name: string;
   info?: string;
   tip?: string | ReactNode;

@@ -4,6 +4,7 @@ import {
   Flex,
   HStack,
   IconButton,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -12,6 +13,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
+  Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import _ from 'lodash';
@@ -52,7 +54,7 @@ const AuthoritiesFormItem = ({
   const [newImageURI, setNewImageURI] = useState<string>();
   const { setValue, getValues } = localForm;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const img = getValues(`${formName}.${index}.imageUrl`);
+  const { imageUrl: img, gate } = getValues(`${formName}.${index}`);
 
   const {
     acceptedFiles,
@@ -102,12 +104,20 @@ const AuthoritiesFormItem = ({
 
   return (
     <Box key={id}>
-      <HStack justifyContent='space-between' pt={3} alignItems='center'>
+      <HStack justifyContent='space-between' pt={3} alignItems='normal'>
         <Input
           name={`${formName}.${index}.label`}
           localForm={localForm}
           placeholder='Label'
           isDisabled={isToken}
+          subInput={
+            isToken ? (
+              <Link href={gate} isExternal fontSize='xs'>
+                {/* <Text>{gate}</Text> */}
+                {gate}
+              </Link>
+            ) : undefined
+          }
         />
         <IconButton
           onClick={onOpen}
