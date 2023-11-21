@@ -14,7 +14,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Markdown from '@/components/atoms/Markdown';
-import { validateURL } from '@/lib/general';
+import { getHostnameFromURL, validateURL } from '@/lib/general';
 import { Authority, AuthorityType } from '@/types';
 
 import AuthorityHeader from './AuthorityHeader';
@@ -27,7 +27,7 @@ const AuthoritiesListCard = ({
   type: AuthorityType;
 }) => {
   const { label, description, link, gate, imageUrl } = authority || {};
-  const mainUrlRegex = /(?:https?:\/\/)?(?:www\.)?([^/:?#]+)/;
+  const gateHostName = getHostnameFromURL(gate);
 
   if (!link && !gate && !description)
     return (
@@ -81,7 +81,7 @@ const AuthoritiesListCard = ({
                   variant='outline'
                   color='blue.500'
                 >
-                  {gate.match(mainUrlRegex)?.[1]}
+                  {gateHostName}
                 </Button>
               </Link>
             </ChakraNextLink>

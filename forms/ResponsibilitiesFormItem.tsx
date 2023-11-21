@@ -44,13 +44,17 @@ const ResponsibilitiesFormItem = ({
   formName,
   remove,
 }: ResponsibilitiesFormItemProps) => {
+  const { chainId, selectedHat } = useTreeForm();
   const { localForm } = useHatForm();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [image, setImage] = useState<ImageFile>();
-  const { chainId, selectedHat } = useTreeForm();
   const [newImageURI, setNewImageURI] = useState<string>();
+  const formattedImageUrl = formatImageUrl(image?.preview);
+  const newImageUrl = formatImageUrl(newImageURI);
+
   const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
+  const { imageUrl, label, link } = getValues?.(`${formName}.${index}`) ?? {};
 
   const {
     acceptedFiles,
@@ -86,9 +90,6 @@ const ResponsibilitiesFormItem = ({
     setNewImageURI(hatImageURI);
   }, [imagePinData, setNewImageURI]);
 
-  const formattedImageUrl = formatImageUrl(image?.preview);
-  const newImageUrl = formatImageUrl(newImageURI);
-
   useEffect(() => {
     if (newImageURI) {
       setValue?.(`${formName}.${index}.imageUrl`, newImageURI);
@@ -96,10 +97,6 @@ const ResponsibilitiesFormItem = ({
   }, [newImageURI, setValue, formName, index]);
 
   if (!localForm) return null;
-
-  const link = getValues?.(`${formName}.${index}.link`);
-  const label = getValues?.(`${formName}.${index}.label`);
-  const imageUrl = getValues?.(`${formName}.${index}.imageUrl`);
 
   return (
     <Box key={id}>

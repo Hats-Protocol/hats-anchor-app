@@ -46,13 +46,19 @@ const AuthoritiesFormItem = ({
   formName,
   remove,
 }: AuthoritiesFormItemProps) => {
-  const [image, setImage] = useState<ImageFile>();
   const { chainId, selectedHat } = useTreeForm();
-  const [newImageURI, setNewImageURI] = useState<string>();
   const { localForm } = useHatForm();
-  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { imageUrl, gate } = getValues?.(`${formName}.${index}`) ?? {};
+
+  const [image, setImage] = useState<ImageFile>();
+  const [newImageURI, setNewImageURI] = useState<string>();
+  const formattedImageUrl = formatImageUrl(image?.preview);
+  const newImageUrl = formatImageUrl(newImageURI);
+
+  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
+  const { imageUrl, label, gate, type } =
+    getValues?.(`${formName}.${index}`) ?? {};
+  const isToken = type === AUTHORITY_TYPES.token;
   const hostname = getHostnameFromURL(gate);
 
   const {
@@ -89,17 +95,11 @@ const AuthoritiesFormItem = ({
     setNewImageURI(hatImageURI);
   }, [imagePinData, setNewImageURI]);
 
-  const formattedImageUrl = formatImageUrl(image?.preview);
-  const newImageUrl = formatImageUrl(newImageURI);
-
   useEffect(() => {
     if (newImageURI) {
       setValue?.(`${formName}.${index}.imageUrl`, newImageURI);
     }
   }, [newImageURI, setValue, formName, index]);
-
-  const isToken =
-    getValues?.(`${formName}.${index}.type`) === AUTHORITY_TYPES.token;
 
   if (!localForm) return null;
 
@@ -152,13 +152,13 @@ const AuthoritiesFormItem = ({
                   w='80%'
                 >
                   <AuthorityHeader
-                    label={localForm.watch(`${formName}.${index}.label`)}
+                    label={label}
                     type={
                       (isToken
                         ? AUTHORITY_TYPES.token
                         : AUTHORITY_TYPES.manual) as AuthorityType
                     }
-                    imageUrl={localForm.watch(`${formName}.${index}.imageUrl`)}
+                    imageUrl={imageUrl}
                     hideInfo
                   />
                 </Box>
