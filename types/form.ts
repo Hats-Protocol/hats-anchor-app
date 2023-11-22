@@ -32,6 +32,7 @@ export type Authority = {
   description?: string;
   imageUrl?: string;
   type?: AuthorityType;
+  id?: number;
 };
 
 export type AuthorityType = 'token' | 'manual';

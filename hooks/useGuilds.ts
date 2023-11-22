@@ -52,9 +52,10 @@ const useHatGuilds = ({
           });
           return {
             label: platform ? platform.platformGuildName : guild.name,
+            link: platform ? platform.invite : 'No invite available',
+            id: platform?.platformId,
             description: role.description,
             gate: `https://guild.xyz/${guild.urlName}`,
-            link: platform ? platform.invite : 'No invite available',
             imageUrl: guild.imageUrl,
             type: AUTHORITY_TYPES.token,
           };

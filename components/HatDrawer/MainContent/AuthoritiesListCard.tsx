@@ -14,6 +14,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Markdown from '@/components/atoms/Markdown';
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/constants';
 import { getHostnameFromURL, validateURL } from '@/lib/general';
 import { Authority, AuthorityType } from '@/types';
 
@@ -26,8 +27,13 @@ const AuthoritiesListCard = ({
   authority?: Authority;
   type: AuthorityType;
 }) => {
-  const { label, description, link, gate, imageUrl } = authority || {};
+  const { label, description, link, gate, imageUrl, id } = authority || {};
   const gateHostName = getHostnameFromURL(gate);
+
+  const img =
+    type === AUTHORITY_TYPES.token
+      ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS].icon
+      : imageUrl;
 
   if (!link && !gate && !description)
     return (
@@ -39,7 +45,7 @@ const AuthoritiesListCard = ({
         px={4}
         py={2}
       >
-        <AuthorityHeader label={label} type={type} imageUrl={imageUrl} />
+        <AuthorityHeader label={label} type={type} imageUrl={img} />
       </Box>
     );
 
@@ -51,7 +57,7 @@ const AuthoritiesListCard = ({
       mb={4}
     >
       <AccordionButton>
-        <AuthorityHeader label={label} type={type} imageUrl={imageUrl} />
+        <AuthorityHeader label={label} type={type} imageUrl={img} />
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel pb={4} pl={20}>
