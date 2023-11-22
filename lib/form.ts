@@ -14,9 +14,10 @@ import {
   InputObject,
 } from '@/types';
 
+import { publicClient } from './chains';
 import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
-import { createHatsClient, publicClient } from './web3';
+import { createHatsClient } from './web3';
 
 // hats-utils - used in calldata hooks
 

@@ -32,8 +32,8 @@ import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useModuleDetails from '@/hooks/useModuleDetails';
+import { explorerUrl } from '@/lib/chains';
 import { isMutable } from '@/lib/hats';
-import { explorerUrl } from '@/lib/web3';
 import { DetailsItem } from '@/types';
 
 import ClaimsHandler from './ClaimsHandler';

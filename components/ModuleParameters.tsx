@@ -8,8 +8,8 @@ import { FiExternalLink } from 'react-icons/fi';
 import { formatUnits, Hex } from 'viem';
 import { erc20ABI, useContractReads } from 'wagmi';
 
+import { explorerUrl } from '@/lib/chains';
 import { formatAddress } from '@/lib/general';
-import { explorerUrl } from '@/lib/web3';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 

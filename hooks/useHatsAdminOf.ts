@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchTreesById } from '@/lib/subgraph';
+import { chainsList } from '@/lib/chains';
 import { isWearingAdminHat } from '@/lib/hats';
-import { chainsList } from '@/lib/web3';
+import { fetchTreesById } from '@/lib/subgraph';
 import { Hat, Tree } from '@/types';
 
 const chains = _.keys(chainsList);

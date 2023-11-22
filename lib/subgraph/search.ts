@@ -3,8 +3,9 @@ import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { Hex } from 'viem';
 
+import { chainsList } from '@/lib/chains';
 import { idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
-import { chainsList, createSubgraphClient } from '@/lib/web3';
+import { createSubgraphClient } from '@/lib/web3';
 import { Hat, Tree } from '@/types';
 
 const keyIcons: { [key: string]: string } = {

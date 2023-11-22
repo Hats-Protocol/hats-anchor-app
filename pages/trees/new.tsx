@@ -29,8 +29,8 @@ import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useTreeCreate from '@/hooks/useTreeCreate';
+import { chainsMap } from '@/lib/chains';
 import { fetchToken, pinJson } from '@/lib/ipfs';
-import { chainsMap } from '@/lib/web3';
 import { ImageFile } from '@/types';
 
 const NewTree = () => {

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const date = new Date();
@@ -34,6 +35,7 @@ const generateApiKey = async (keyRestrictions: KeyRestrictions) => {
     });
 };
 
+// TODO move type
 type KeyRestrictions = {
   keyName: string;
   maxUses: number;
@@ -82,14 +84,15 @@ export default async function handler(
     res.status(405).send('Method Not Allowed');
     return;
   }
-  const data = req.body;
 
-  if (data.count > 0) {
-    keyRestrictions.maxUses = data.count > 20 ? 20 : data.count;
+  const count = _.get(req, 'body.count');
+  if (_.gt(_.toNumber(count), 0)) {
+    keyRestrictions.maxUses = _.gt(count, 20) ? 20 : count;
   }
 
   try {
-    res.send(generateApiKey(keyRestrictions));
+    const apiKey = await generateApiKey(keyRestrictions);
+    res.send(apiKey);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e);
