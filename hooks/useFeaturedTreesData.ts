@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchTreeDetails, fetchTreesById } from '@/gql/helpers';
 import { ipToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { fetchTreeDetails, fetchTreesById } from '@/lib/subgraph';
 import { Tree } from '@/types';
 
 // app-hooks

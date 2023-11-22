@@ -7,9 +7,10 @@ import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
+import { chainsList } from '@/lib/chains';
 import { checkAddressIsContract } from '@/lib/contract';
 import { mapWithChainId } from '@/lib/general';
-import { chainsList, createSubgraphClient } from '@/lib/web3';
+import { createSubgraphClient } from '@/lib/web3';
 import { Hat, HatWearer } from '@/types';
 
 const chains = _.keys(chainsList);

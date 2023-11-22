@@ -19,8 +19,8 @@ import { BsArrowRight } from 'react-icons/bs';
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import { chainsMap } from '@/lib/chains';
 import { isTopHat, prettyIdToId } from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Suspender from './atoms/Suspender';

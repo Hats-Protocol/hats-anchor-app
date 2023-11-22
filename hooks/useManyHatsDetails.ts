@@ -1,8 +1,8 @@
 import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchHatDetails } from '@/gql/helpers';
 import { mapWithChainId } from '@/lib/general';
+import { fetchHatDetails } from '@/lib/subgraph';
 import { Hat } from '@/types';
 
 // hats-hooks

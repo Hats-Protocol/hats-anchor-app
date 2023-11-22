@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { FaFilter } from 'react-icons/fa';
 
-import { chainsList, networkImages } from '@/lib/web3';
+import { chainsList, networkImages } from '@/lib/chains';
 
 const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
   const router = useRouter();

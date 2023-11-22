@@ -27,7 +27,7 @@ import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
-import { pinJson } from '@/lib/ipfs';
+import { fetchToken, pinJson } from '@/lib/ipfs';
 import { ImageFile } from '@/types';
 
 // TODO refactor without prettyId
@@ -139,9 +139,11 @@ const HatRelinkForm = ({
   const onSubmit = async () => {
     writeAsync?.();
     if (newDetails) {
+      const token = await fetchToken();
       await pinJson(
         { type: '1.0', data: { description } },
         { name: `details_${chainId.toString()}_${decimalAdmin}` },
+        token,
       );
     }
   };

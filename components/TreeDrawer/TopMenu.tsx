@@ -28,8 +28,8 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import ImportTreeForm from '@/forms/ImportTreeForm';
 import useAdminOfHats from '@/hooks/useAdminOfHats';
 import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
+import { chainsMap } from '@/lib/chains';
 import { editHasUpdates } from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
 
 const TopMenu = () => {
   const currentChain = useChainId();

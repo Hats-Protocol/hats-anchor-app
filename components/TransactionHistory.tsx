@@ -5,7 +5,7 @@ import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { useOverlay } from '@/contexts/OverlayContext';
-import { explorerUrl } from '@/lib/web3';
+import { explorerUrl } from '@/lib/chains';
 import { Transaction } from '@/types';
 
 const TransactionHistory = ({ count }: { count?: number }) => {
