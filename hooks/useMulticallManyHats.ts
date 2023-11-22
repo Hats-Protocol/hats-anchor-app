@@ -186,7 +186,6 @@ const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
   });
 
   const handleWrite = async () => {
-    // eslint-disable-next-line no-console
     if (!_.isEmpty(detailsToPin)) {
       // ? check to see if any objects are already pinned
 
