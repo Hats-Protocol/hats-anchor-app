@@ -28,7 +28,7 @@ const ResponsibilitiesFormItem = ({
 
   return (
     <Box borderBottom='1px solid' borderColor='blackAlpha.300' pb={2}>
-      <HStack justifyContent='space-between' pt={3} alignItems='normal'>
+      <HStack justifyContent='space-between' alignItems='center'>
         <Stack flex={1}>
           <Text mb={0} fontSize='sm' color='blackAlpha.800'>
             {label}

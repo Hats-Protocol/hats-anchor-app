@@ -2,8 +2,10 @@ import {
   Box,
   Button,
   Flex,
+  FormLabel,
   HStack,
   Icon as IconWrapper,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,6 +15,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
 import { id } from 'date-fns/locale';
@@ -24,14 +27,12 @@ import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 
 import DropZone from '@/components/atoms/DropZone';
-import Input from '@/components/atoms/Input';
-import Textarea from '@/components/atoms/Textarea';
 import ResponsibilityHeader from '@/components/HatDrawer/MainContent/ResponsibilityHeader';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl, validateURL } from '@/lib/general';
-import { DetailsItem, ImageFile } from '@/types';
+import { formatImageUrl } from '@/lib/general';
+import { Authority, DetailsItem } from '@/types';
 
 import ResponsibilitiesFormItem from './ResponsibilitiesFormItem';
 
@@ -51,10 +52,15 @@ const ResponsibilitiesForm = ({
   label,
 }: ItemDetailsFormProps) => {
   const { localForm } = useHatForm();
-  const { watch, control } = _.pick(localForm, ['watch', 'control']);
+  const { watch, control, getValues, setValue } = _.pick(localForm, [
+    'watch',
+    'control',
+    'getValues',
+    'setValue',
+  ]);
   const [index, setIndex] = useState<number>();
+  const [editingItem, setEditingItem] = useState<Authority>({} as Authority);
   const { chainId, selectedHat } = useTreeForm();
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
@@ -62,17 +68,25 @@ const ResponsibilitiesForm = ({
   const items = watch?.(formName);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [image, setImage] = useState<ImageFile>();
-  const [newImageURI, setNewImageURI] = useState<string>();
-  const formattedImageUrl = formatImageUrl(image?.preview);
-  const newImageUrl = formatImageUrl(newImageURI);
-
-  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
   const {
     imageUrl,
     label: responsibilityLabel,
+    description,
     link,
   } = getValues?.(`${formName}.${index}`) ?? {};
+
+  const openEditModal = (i: number) => {
+    setEditingItem(getValues?.(`${formName}.${i}`));
+    onOpen();
+  };
+
+  const saveEditedItem = () => {
+    if (editingItem) {
+      setValue?.(`${formName}.${index}`, editingItem);
+      onClose();
+      setEditingItem({} as Authority);
+    }
+  };
 
   const {
     acceptedFiles,
@@ -83,13 +97,6 @@ const ResponsibilitiesForm = ({
     isDragReject,
   } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop: (a) => {
-      setImage(
-        Object.assign(a[0], {
-          preview: URL.createObjectURL(a[0]),
-        } as ImageFile),
-      );
-    },
   });
 
   const { data: imagePinData, isLoading } = usePinImageIpfs({
@@ -105,20 +112,16 @@ const ResponsibilitiesForm = ({
   useEffect(() => {
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
-    setNewImageURI(hatImageURI);
-  }, [imagePinData, setNewImageURI]);
 
-  useEffect(() => {
-    if (newImageURI) {
-      setValue?.(`${formName}.${index}.imageUrl`, newImageURI);
-    }
-  }, [newImageURI, setValue, formName, index]);
+    if (hatImageURI !== '')
+      setEditingItem({ ...editingItem, imageUrl: hatImageURI });
+  }, [imagePinData]);
 
   if (!localForm) return null;
 
   return (
     <Stack>
-      <Box>
+      <Box mb={3}>
         <HStack alignItems='center' ml={-6}>
           {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
           <Text fontSize='sm' color='blackAlpha.800' fontWeight='medium'>
@@ -138,13 +141,17 @@ const ResponsibilitiesForm = ({
           formName={formName}
           remove={remove}
           setIndex={setIndex}
-          onOpen={onOpen}
+          onOpen={() => openEditModal(i)}
         />
       ))}
 
       <Box my={2}>
         <Button
-          onClick={() => append({ link: '', label: '' })}
+          onClick={() => {
+            append({ link: '', label: '', description: '', imageUrl: '' });
+            setIndex(fields.length);
+            onOpen();
+          }}
           isDisabled={items?.some((item: DetailsItem) => item.label === '')}
           gap={2}
           variant='outline'
@@ -174,37 +181,65 @@ const ResponsibilitiesForm = ({
                   <ResponsibilityHeader
                     label={responsibilityLabel}
                     link={link}
-                    imageUrl={imageUrl}
+                    imageUrl={editingItem?.imageUrl}
                   />
                 </HStack>
               </Flex>
-              <Input
-                label='RESPONSIBILITY NAME'
-                name={`${formName}.${index}.label`}
-                localForm={localForm}
-                placeholder='Name'
-                options={{
-                  required: true,
-                }}
-              />
-              <Textarea
-                localForm={localForm}
-                name={`${formName}.${index}.description`}
-                label='Description'
-                placeholder='Enter a description here (supports markdown)'
-              />
-              <Input
-                label='RESPONSIBILITY LINK'
-                name={`${formName}.${index}.link`}
-                localForm={localForm}
-                placeholder='https://example.com'
-                options={{
-                  validate: (value) => {
-                    if (!validateURL(value)) return 'Invalid URL';
-                    return true;
-                  },
-                }}
-              />
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>RESPONSIBILITY NAME</Text>
+                </FormLabel>
+                <Input
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, label: e.target.value })
+                  }
+                  defaultValue={responsibilityLabel}
+                  placeholder='Name'
+                  required
+                />
+              </Stack>
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>DESCRIPTION</Text>
+                </FormLabel>
+                <Textarea
+                  placeholder='Enter a description here (supports markdown)'
+                  defaultValue={description}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </Stack>
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>RESPONSIBILITY LINK</Text>
+                </FormLabel>
+                <Input
+                  placeholder='https://example.com'
+                  defaultValue={link}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, link: e.target.value })
+                  }
+                />
+              </Stack>
               <DropZone
                 label='Image'
                 getRootProps={getRootProps}
@@ -214,7 +249,7 @@ const ResponsibilitiesForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={imageUrl}
-                imageUrl={formattedImageUrl || newImageUrl || imageUrl}
+                imageUrl={formatImageUrl(editingItem?.imageUrl)}
               />
             </Stack>
           </ModalBody>
@@ -223,10 +258,7 @@ const ResponsibilitiesForm = ({
               colorScheme='gray'
               color='gray.600'
               mr={3}
-              onClick={() => {
-                onClose();
-                setImage(undefined);
-              }}
+              onClick={onClose}
             >
               Cancel
             </Button>
@@ -234,10 +266,7 @@ const ResponsibilitiesForm = ({
               colorScheme='blue'
               leftIcon={<BsSave />}
               isLoading={isLoading}
-              onClick={() => {
-                onClose();
-                setImage(undefined);
-              }}
+              onClick={saveEditedItem}
             >
               Save
             </Button>

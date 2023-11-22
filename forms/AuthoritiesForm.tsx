@@ -2,8 +2,10 @@ import {
   Box,
   Button,
   Flex,
+  FormLabel,
   HStack,
   Icon as IconWrapper,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,6 +15,7 @@ import {
   ModalOverlay,
   Stack,
   Text,
+  Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
 import { id } from 'date-fns/locale';
@@ -24,15 +27,13 @@ import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 
 import DropZone from '@/components/atoms/DropZone';
-import Input from '@/components/atoms/Input';
-import Textarea from '@/components/atoms/Textarea';
 import AuthorityHeader from '@/components/HatDrawer/MainContent/AuthorityHeader';
 import { AUTHORITY_TYPES } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl, validateURL } from '@/lib/general';
-import { Authority, AuthorityType, ImageFile } from '@/types';
+import { formatImageUrl } from '@/lib/general';
+import { Authority, AuthorityType } from '@/types';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
 
@@ -55,27 +56,42 @@ const AuthoritiesForm = ({
   const { chainId, selectedHat } = useTreeForm();
   const { localForm } = useHatForm();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [editingItem, setEditingItem] = useState<Authority>({} as Authority);
   const [index, setIndex] = useState<number>();
-  const [image, setImage] = useState<ImageFile>();
-  const [newImageURI, setNewImageURI] = useState<string>();
-  const formattedImageUrl = formatImageUrl(image?.preview);
-  const newImageUrl = formatImageUrl(newImageURI);
-
-  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
+  const { setValue, getValues, watch, control } = _.pick(localForm, [
+    'setValue',
+    'getValues',
+    'watch',
+    'control',
+  ]);
   const {
     imageUrl,
     label: authorityLabel,
+    description,
+    link,
+    gate,
     type,
   } = getValues?.(`${formName}.${index}`) ?? {};
   const isToken = type === AUTHORITY_TYPES.token;
-
-  const { watch, control } = _.pick(localForm, ['watch', 'control']);
   const { selectedHatGuildRoles } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
   });
   const items = watch?.(formName);
+
+  const openEditModal = (i: number) => {
+    setEditingItem(getValues?.(`${formName}.${i}`));
+    onOpen();
+  };
+
+  const saveEditedItem = () => {
+    if (editingItem) {
+      setValue?.(`${formName}.${index}`, editingItem);
+      onClose();
+      setEditingItem({} as Authority);
+    }
+  };
 
   // append fetched guild roles to form, if they aren't already there
   useEffect(() => {
@@ -101,13 +117,6 @@ const AuthoritiesForm = ({
     isDragReject,
   } = useDropzone({
     accept: { 'image/*': [] },
-    onDrop: (a) => {
-      setImage(
-        Object.assign(a[0], {
-          preview: URL.createObjectURL(a[0]),
-        } as ImageFile),
-      );
-    },
   });
 
   const { data: imagePinData, isLoading } = usePinImageIpfs({
@@ -123,14 +132,10 @@ const AuthoritiesForm = ({
   useEffect(() => {
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
-    setNewImageURI(hatImageURI);
-  }, [imagePinData, setNewImageURI]);
 
-  useEffect(() => {
-    if (newImageURI) {
-      setValue?.(`${formName}.${index}.imageUrl`, newImageURI);
-    }
-  }, [newImageURI, setValue, formName, index]);
+    if (hatImageURI !== '')
+      setEditingItem({ ...editingItem, imageUrl: hatImageURI });
+  }, [imagePinData]);
 
   if (!localForm) return null;
 
@@ -156,14 +161,20 @@ const AuthoritiesForm = ({
           formName={formName}
           remove={remove}
           setIndex={setIndex}
-          onOpen={onOpen}
+          onOpen={() => openEditModal(i)}
         />
       ))}
 
       <Box my={2}>
         <Button
           onClick={() => {
-            append({ label: '', description: '', link: '', gate: '' });
+            append({
+              label: '',
+              description: '',
+              link: '',
+              gate: '',
+              imageUrl: '',
+            });
             setIndex(fields.length);
             onOpen();
           }}
@@ -199,53 +210,85 @@ const AuthoritiesForm = ({
                         ? AUTHORITY_TYPES.token
                         : AUTHORITY_TYPES.manual) as AuthorityType
                     }
-                    imageUrl={imageUrl}
+                    imageUrl={editingItem?.imageUrl}
                     hideInfo
                   />
                 </Box>
               </Flex>
-              <Input
-                label='AUTHORITY NAME'
-                name={`${formName}.${index}.label`}
-                localForm={localForm}
-                placeholder='Name'
-                options={{
-                  required: true,
-                }}
-              />
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>AUTHORITY NAME</Text>
+                </FormLabel>
+                <Input
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, label: e.target.value })
+                  }
+                  defaultValue={authorityLabel}
+                  placeholder='Name'
+                  required
+                />
+              </Stack>
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>AUTHORITY LINK</Text>
+                </FormLabel>
+                <Input
+                  placeholder='https://example.com'
+                  defaultValue={link}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, link: e.target.value })
+                  }
+                />
+              </Stack>
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>TOKEN GATE LINK</Text>
+                </FormLabel>
+                <Input
+                  placeholder='https://example.com'
+                  defaultValue={gate}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, gate: e.target.value })
+                  }
+                />
+              </Stack>
 
-              <Input
-                label='AUTHORITY LINK'
-                name={`${formName}.${index}.link`}
-                localForm={localForm}
-                placeholder='https://example.com'
-                options={{
-                  validate: (value) => {
-                    if (!validateURL(value)) return 'Invalid URL';
-                    return true;
-                  },
-                }}
-                isDisabled={isToken}
-              />
-              <Input
-                label='TOKEN GATE LINK'
-                name={`${formName}.${index}.gate`}
-                localForm={localForm}
-                placeholder='https://example.com'
-                options={{
-                  validate: (value) => {
-                    if (!validateURL(value)) return 'Invalid URL';
-                    return true;
-                  },
-                }}
-                isDisabled={isToken}
-              />
-              <Textarea
-                localForm={localForm}
-                name={`${formName}.${index}.description`}
-                label='Description'
-                placeholder='Enter a description here (supports markdown)'
-              />
+              <Stack>
+                <FormLabel
+                  m='0'
+                  display='contents'
+                  alignItems='baseline'
+                  fontSize='sm'
+                >
+                  <Text>DESCRIPTION</Text>
+                </FormLabel>
+                <Textarea
+                  placeholder='Enter a description here (supports markdown)'
+                  defaultValue={description}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </Stack>
+
               <DropZone
                 label='Image'
                 getRootProps={getRootProps}
@@ -255,7 +298,7 @@ const AuthoritiesForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={imageUrl}
-                imageUrl={formattedImageUrl || newImageUrl || imageUrl}
+                imageUrl={formatImageUrl(editingItem?.imageUrl)}
               />
             </Stack>
           </ModalBody>
@@ -264,10 +307,7 @@ const AuthoritiesForm = ({
               colorScheme='gray'
               color='gray.600'
               mr={3}
-              onClick={() => {
-                onClose();
-                setImage(undefined);
-              }}
+              onClick={onClose}
             >
               Cancel
             </Button>
@@ -275,10 +315,7 @@ const AuthoritiesForm = ({
               colorScheme='blue'
               leftIcon={<BsSave />}
               isLoading={isLoading}
-              onClick={() => {
-                onClose();
-                setImage(undefined);
-              }}
+              onClick={saveEditedItem}
             >
               Save
             </Button>
