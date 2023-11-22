@@ -6,6 +6,7 @@ import { decimalIdToId, ipToPrettyId, toTreeId } from '@/lib/hats';
 
 // TODO refactor without prettyId
 
+// app-hooks
 const useSearchResults = ({ search }: { search: string | undefined }) => {
   let localSearch = toTreeId(search);
   if (_.includes(search, '.')) {

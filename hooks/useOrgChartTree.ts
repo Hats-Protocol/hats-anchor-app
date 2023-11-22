@@ -10,6 +10,7 @@ import { Hat, HatWearer, Tree } from '@/types';
 
 import useDeepCompareEffect from './useDeepCompareEffect';
 
+// app-hooks
 const useOrgChartTree = ({
   treeData,
   hatsData,

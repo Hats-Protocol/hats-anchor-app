@@ -3,6 +3,7 @@ import { useContractRead } from 'wagmi';
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
+// hats-hooks
 const useHatStatus = () => {
   const { chainId, selectedHat } = useTreeForm();
 

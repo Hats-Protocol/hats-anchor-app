@@ -40,6 +40,7 @@ async function waitForTreeCreation(treeId: number, chainId: number) {
   });
 }
 
+// hats-hooks
 const useTreeCreate = ({
   chainId,
   details,

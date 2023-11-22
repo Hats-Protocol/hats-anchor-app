@@ -4,6 +4,7 @@ import { useContractRead } from 'wagmi';
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
+// hats-hooks
 const useIsAdmin = (address: Hex | undefined, hatId?: Hex) => {
   const { selectedHat, chainId } = useTreeForm();
 

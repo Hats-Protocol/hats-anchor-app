@@ -5,6 +5,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchHatDetails } from '@/gql/helpers';
 import { Hat } from '@/types';
 
+// hats-hooks
 const useHatDetails = ({
   hatId,
   initialData,

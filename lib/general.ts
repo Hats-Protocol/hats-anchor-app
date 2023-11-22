@@ -6,6 +6,8 @@ import CONFIG from '@/constants';
 
 import { PINATA_GATEWAY_TOKEN } from './ipfs';
 
+// app-utils mostly, some should move
+
 export const formatAddress = (address: string | null | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 

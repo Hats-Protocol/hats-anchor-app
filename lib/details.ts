@@ -3,6 +3,8 @@ import _ from 'lodash';
 
 import { HatDetails } from '@/types';
 
+// app-utils
+
 const includesKeys = (data: unknown, keys: string[]) =>
   _.every(_.keys(data), (k) => _.includes(keys, k));
 

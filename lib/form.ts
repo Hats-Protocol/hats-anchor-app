@@ -18,6 +18,8 @@ import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
 import { createHatsClient, publicClient } from './web3';
 
+// hats-utils - used in calldata hooks
+
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
   originalHat?: Hat,

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { pinImage, unpinImage } from '@/lib/ipfs';
 
+// app-hooks/image-sdk
 /**
  * Pins an image file to ipfs. If image file is updated, then unpins previous and pins updated image
  * @param {File} imageFile the image file to pin

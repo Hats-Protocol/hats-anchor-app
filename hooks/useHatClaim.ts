@@ -23,6 +23,7 @@ const CLAIMS_HATTER_TYPES = {
   claimableFor: 'CLAIMABLE_FOR',
 };
 
+// hat-hooks
 const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { chainId, selectedHat } = useTreeForm();

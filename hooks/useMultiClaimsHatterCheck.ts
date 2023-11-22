@@ -66,6 +66,7 @@ const getHatterHat = async (
   return {};
 };
 
+// modules-hooks
 const useMultiClaimsHatterCheck = () => {
   const { chainId, onchainHats, storedData } = useTreeForm();
 

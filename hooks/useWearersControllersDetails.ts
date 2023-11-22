@@ -43,6 +43,7 @@ const fetchWearerAndControllerDetails = async (
   };
 };
 
+// hats-hooks or app-hooks
 const useWearersControllersDetails = ({
   hats,
   editMode,
@@ -67,10 +68,11 @@ const useWearersControllersDetails = ({
   );
 
   const wearerAndControllerDetails = useQueries({
-    queries: _.map(wAndCs, (w) => ({
-      queryKey: ['wearerAndControllerDetails', { wearer: w, chainId, onchain }],
-      queryFn: () => fetchWearerAndControllerDetails(w, chainId),
-      enabled: !!w && isAddress(w) && w !== ZERO_ADDRESS && !!chainId,
+    queries: _.map(wAndCs, (wearer) => ({
+      queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
+      queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
+      enabled:
+        !!wearer && isAddress(wearer) && wearer !== ZERO_ADDRESS && !!chainId,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     })),
   });

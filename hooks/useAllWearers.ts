@@ -6,6 +6,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createSubgraphClient } from '@/lib/web3';
 import { HatWearer } from '@/types';
 
+// hats-hooks
 const fetchHatWearersPage = async ({
   hatId,
   chainId,

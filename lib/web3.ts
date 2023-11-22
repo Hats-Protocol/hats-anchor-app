@@ -26,6 +26,8 @@ import {
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
+// app-utils
+
 // ORDER HERE WILL BE USED IN THE UI
 export const orderedChains = [1, 10, 42161, 137, 100, 5];
 
