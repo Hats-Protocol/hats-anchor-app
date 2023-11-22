@@ -3,10 +3,10 @@ import {
   Box,
   Button,
   Flex,
-  HStack,
   Icon,
   Link,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { BsFileCheck } from 'react-icons/bs';
 
@@ -26,7 +26,7 @@ const ResponsibilityHeader = ({
   const hostname = getHostnameFromURL(link);
 
   return (
-    <HStack spacing={4} w='full'>
+    <Flex alignItems='center' justifyContent='space-between' w='full'>
       {imageUrl ? (
         <Avatar
           size='md'
@@ -45,13 +45,15 @@ const ResponsibilityHeader = ({
           <Icon as={BsFileCheck} boxSize={4} color='gray.500' />
         </Flex>
       )}
-      <Box textAlign='left'>
-        <Text fontSize='md' fontWeight='medium' isTruncated maxWidth='30ch'>
-          {label || 'New Responsibility'}
-        </Text>
+      <Box flex={1} mx={4} minW={0} w='full'>
+        <Tooltip label={label} placement='top' hasArrow>
+          <Text fontSize='md' fontWeight='medium' isTruncated>
+            {label || 'New Responsibility'}
+          </Text>
+        </Tooltip>
       </Box>
       {hostname && (
-        <Link href={link} ml='auto' isExternal>
+        <Link href={link} isExternal>
           <Button
             colorScheme='blue'
             color='blue.500'
@@ -64,7 +66,7 @@ const ResponsibilityHeader = ({
           </Button>
         </Link>
       )}
-    </HStack>
+    </Flex>
   );
 };
 
