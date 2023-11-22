@@ -29,8 +29,8 @@ import useFeaturedTrees from '@/hooks/useFeaturedTrees';
 import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { orderedChains } from '@/lib/chains';
 import { formatAddress } from '@/lib/general';
-import { orderedChains } from '@/lib/web3';
 
 const DashboardHatCard = dynamic(
   () => import('@/components/DashboardHatCard'),

@@ -36,7 +36,7 @@ import CONFIG, { initialControls } from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useIsClient from '@/hooks/useIsClient';
-import { chainsMap, explorerUrl } from '@/lib/web3';
+import { chainsMap, explorerUrl } from '@/lib/chains';
 import { Controls } from '@/types';
 
 import ChakraNextLink from './atoms/ChakraNextLink';

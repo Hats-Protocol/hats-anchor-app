@@ -7,8 +7,7 @@ import { FormDataDetails } from '@/types';
 
 export * from './ipfs-misc';
 
-export const PINATA_GATEWAY_TOKEN =
-  process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN;
+export const GATEWAY_TOKEN = process.env.NEXT_PUBLIC_GATEWAY_TOKEN;
 
 // app-utils likely, @pinata/sdk in image-sdk could replace
 
@@ -120,7 +119,7 @@ export const handleDetailsPin = async ({
 
 export const ipfsUrl = (hash: string | undefined) => {
   if (!hash) return null;
-  return `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+  return `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 
 export const urlToIpfsUri = (url: string) => {

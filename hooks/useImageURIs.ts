@@ -4,8 +4,8 @@ import { useMemo } from 'react';
 import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 
 import CONFIG from '@/constants';
+import { chainsMap } from '@/lib/chains';
 import { checkImageForHat } from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
 import { Hat } from '@/types';
 
 interface ContractCall {

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchPaginatedWearersForHat } from '@/gql/helpers';
+import { fetchPaginatedWearersForHat } from '@/lib/subgraph';
 import { sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 

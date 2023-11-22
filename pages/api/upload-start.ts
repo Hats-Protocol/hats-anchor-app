@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const date = new Date();
@@ -9,6 +10,51 @@ export const PIN_TYPE = {
 };
 
 const { PINATA_JWT } = process.env;
+
+const generateApiKey = async (keyRestrictions: KeyRestrictions) => {
+  const options = {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Bearer ${PINATA_JWT}`,
+    },
+    body: JSON.stringify(keyRestrictions),
+  };
+
+  return fetch('https://api.pinata.cloud/users/generateApiKey', options)
+    .then((response) => response.json())
+    .then((json) => {
+      const { JWT } = json;
+      return JWT;
+    })
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      return null;
+    });
+};
+
+// TODO move type
+type KeyRestrictions = {
+  keyName: string;
+  maxUses: number;
+  permissions: {
+    endpoints: {
+      data: {
+        pinList: boolean;
+        userPinnedDataTotal: boolean;
+      };
+      pinning: {
+        pinFileToIPFS: boolean;
+        pinJSONToIPFS: boolean;
+        pinJobs: boolean;
+        unpin: boolean;
+        userPinPolicy: boolean;
+      };
+    };
+  };
+};
 
 const keyRestrictions = {
   keyName: `Signed Upload JWT-${date.toISOString()}`,
@@ -34,37 +80,22 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  if (req.method === 'POST') {
-    const data = req.body;
-
-    if (data.count > 0) {
-      keyRestrictions.maxUses = data.count > 20 ? 20 : data.count;
-    }
-
-    try {
-      const options = {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
-          authorization: `Bearer ${PINATA_JWT}`,
-        },
-        body: JSON.stringify(keyRestrictions),
-      };
-
-      const jwtResponse = await fetch(
-        'https://api.pinata.cloud/users/generateApiKey',
-        options,
-      );
-      const json = await jwtResponse.json();
-      const { JWT } = json;
-      res.send(JWT);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
-      res.status(500).send('Server Error');
-    }
-  } else {
+  if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');
+    return;
+  }
+
+  const count = _.get(req, 'body.count');
+  if (_.gt(_.toNumber(count), 0)) {
+    keyRestrictions.maxUses = _.gt(count, 20) ? 20 : count;
+  }
+
+  try {
+    const apiKey = await generateApiKey(keyRestrictions);
+    res.send(apiKey);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e);
+    res.status(500).send('Server Error');
   }
 }

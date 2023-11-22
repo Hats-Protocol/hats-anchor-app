@@ -30,9 +30,9 @@ import usePendHatterMint from '@/hooks/usePendHatterMint';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
+import { explorerUrl } from '@/lib/chains';
 import { formatAddress } from '@/lib/general';
 import { isWearingAdminHat } from '@/lib/hats';
-import { explorerUrl } from '@/lib/web3';
 
 const StatusCard = ({
   status,

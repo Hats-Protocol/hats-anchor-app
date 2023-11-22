@@ -3,7 +3,7 @@ import React from 'react';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { chainsList } from '@/lib/web3';
+import { chainsList } from '@/lib/chains';
 
 const NetworkSwitcher: React.FC = () => {
   const { chainId } = useTreeForm();

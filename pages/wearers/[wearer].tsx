@@ -33,8 +33,8 @@ import useHatsAdminOf from '@/hooks/useHatsAdminOf';
 import useImageURIs from '@/hooks/useImageURIs';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { chainsMap, orderedChains } from '@/lib/chains';
 import { formatAddress } from '@/lib/general';
-import { chainsMap, orderedChains } from '@/lib/web3';
 import { Hat } from '@/types';
 
 const WearerDetail = ({

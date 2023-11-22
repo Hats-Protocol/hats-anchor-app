@@ -25,7 +25,6 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { wearersPerPage } from '@/gql/helpers';
 import useAllWearers from '@/hooks/useAllWearers';
 import useHatClaim from '@/hooks/useHatClaim';
 import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
@@ -37,6 +36,7 @@ import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { commify } from '@/lib/general';
 import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
+import { wearersPerPage } from '@/lib/subgraph';
 import { filterWearers, getEligibleWearers, sortWearers } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
