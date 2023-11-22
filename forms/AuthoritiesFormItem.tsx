@@ -1,126 +1,53 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  IconButton,
-  Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Stack,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { BsSave } from 'react-icons/bs';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
-import DropZone from '@/components/atoms/DropZone';
-import Input from '@/components/atoms/Input';
-import Textarea from '@/components/atoms/Textarea';
-import AuthorityHeader from '@/components/HatDrawer/MainContent/AuthorityHeader';
 import { AUTHORITY_TYPES } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl, getHostnameFromURL, validateURL } from '@/lib/general';
-import { AuthorityType, ImageFile } from '@/types';
+import { getHostnameFromURL } from '@/lib/general';
 
 interface AuthoritiesFormItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formName: string;
   index: number;
-  id: string;
   remove: (index: number) => void;
+  setIndex: (index: number) => void;
+  onOpen: () => void;
 }
 
 const AuthoritiesFormItem = ({
   index,
-  id,
   formName,
   remove,
+  setIndex,
+  onOpen,
 }: AuthoritiesFormItemProps) => {
-  const { chainId, selectedHat } = useTreeForm();
   const { localForm } = useHatForm();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const [image, setImage] = useState<ImageFile>();
-  const [newImageURI, setNewImageURI] = useState<string>();
-  const formattedImageUrl = formatImageUrl(image?.preview);
-  const newImageUrl = formatImageUrl(newImageURI);
-
-  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
-  const { imageUrl, label, gate, type } =
-    getValues?.(`${formName}.${index}`) ?? {};
+  const { getValues } = _.pick(localForm, ['getValues']);
+  const { gate, type, label } = getValues?.(`${formName}.${index}`) ?? {};
   const isToken = type === AUTHORITY_TYPES.token;
   const hostname = getHostnameFromURL(gate);
-
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
-    accept: { 'image/*': [] },
-    onDrop: (a) => {
-      setImage(
-        Object.assign(a[0], {
-          preview: URL.createObjectURL(a[0]),
-        } as ImageFile),
-      );
-    },
-  });
-
-  const { data: imagePinData, isLoading } = usePinImageIpfs({
-    imageFile: acceptedFiles[0],
-    enabled: true,
-    metadata: {
-      name: `image_${_.toString(chainId)}_hat_${
-        selectedHat?.id
-      }_authorities_${id}`,
-    },
-  });
-
-  useEffect(() => {
-    const hatImageURI =
-      imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
-    setNewImageURI(hatImageURI);
-  }, [imagePinData, setNewImageURI]);
-
-  useEffect(() => {
-    if (newImageURI) {
-      setValue?.(`${formName}.${index}.imageUrl`, newImageURI);
-    }
-  }, [newImageURI, setValue, formName, index]);
 
   if (!localForm) return null;
 
   return (
-    <Box key={id}>
-      <HStack justifyContent='space-between' pt={3} alignItems='normal'>
-        <Input
-          name={`${formName}.${index}.label`}
-          localForm={localForm}
-          placeholder='Label'
-          isDisabled={isToken}
-          subInput={
-            isToken ? (
-              <Link href={gate} isExternal fontSize='xs'>
-                {hostname}
-              </Link>
-            ) : undefined
-          }
-        />
+    <Box borderBottom='1px solid' borderColor='blackAlpha.300' pb={2}>
+      <HStack justifyContent='space-between' w='full' alignItems='center'>
+        <Stack flex={1}>
+          <Text mb={0} fontSize='sm' color='blackAlpha.800'>
+            {label}
+          </Text>
+          {isToken && (
+            <Link href={gate} isExternal fontSize='xs' color='blue.500'>
+              {hostname}
+            </Link>
+          )}
+        </Stack>
         <IconButton
-          onClick={onOpen}
+          onClick={() => {
+            onOpen();
+            setIndex(index);
+          }}
           icon={<FaRegEdit />}
           aria-label='Edit'
           variant='ghost'
@@ -135,116 +62,6 @@ const AuthoritiesFormItem = ({
           isDisabled={isToken}
         />
       </HStack>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent minW='800px' px={3} py={2}>
-          <ModalHeader>Edit Authority</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing={5}>
-              <Flex w='full' justifyContent='center' mb={8}>
-                <Box
-                  borderRadius='4px'
-                  border='1px solid var(--gray-100, #EDF2F7)'
-                  boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
-                  p={3}
-                  w='80%'
-                >
-                  <AuthorityHeader
-                    label={label}
-                    type={
-                      (isToken
-                        ? AUTHORITY_TYPES.token
-                        : AUTHORITY_TYPES.manual) as AuthorityType
-                    }
-                    imageUrl={imageUrl}
-                    hideInfo
-                  />
-                </Box>
-              </Flex>
-              <Input
-                label='AUTHORITY NAME'
-                name={`${formName}.${index}.label`}
-                localForm={localForm}
-                placeholder='Name'
-                options={{
-                  required: true,
-                }}
-                isDisabled={isToken}
-              />
-
-              <Input
-                label='AUTHORITY LINK'
-                name={`${formName}.${index}.link`}
-                localForm={localForm}
-                placeholder='https://example.com'
-                options={{
-                  validate: (value) => {
-                    if (!validateURL(value)) return 'Invalid URL';
-                    return true;
-                  },
-                }}
-                isDisabled={isToken}
-              />
-              <Input
-                label='TOKEN GATE LINK'
-                name={`${formName}.${index}.gate`}
-                localForm={localForm}
-                placeholder='https://example.com'
-                options={{
-                  validate: (value) => {
-                    if (!validateURL(value)) return 'Invalid URL';
-                    return true;
-                  },
-                }}
-                isDisabled={isToken}
-              />
-              <Textarea
-                localForm={localForm}
-                name={`${formName}.${index}.description`}
-                label='Description'
-                placeholder='Enter a description here (supports markdown)'
-              />
-              <DropZone
-                label='Image'
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                isFullWidth
-                image={imageUrl}
-                imageUrl={formattedImageUrl || newImageUrl || imageUrl}
-              />
-            </Stack>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme='gray'
-              color='gray.600'
-              mr={3}
-              onClick={() => {
-                onClose();
-                setImage(undefined);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorScheme='blue'
-              leftIcon={<BsSave />}
-              isLoading={isLoading}
-              onClick={() => {
-                onClose();
-                setImage(undefined);
-              }}
-            >
-              Save
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 };
