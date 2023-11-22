@@ -15,7 +15,7 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { processHatForCalls } from '@/lib/form';
-import { handleDetailsPin } from '@/lib/ipfs';
+import { fetchToken, handleDetailsPin } from '@/lib/ipfs';
 import { Hat, HatDetails } from '@/types';
 
 import useAdminOfHats from './useAdminOfHats';
@@ -189,11 +189,15 @@ const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
     // eslint-disable-next-line no-console
     if (!_.isEmpty(detailsToPin)) {
       // ? check to see if any objects are already pinned
+
+      const token = await fetchToken(_.size(detailsToPin));
+      // TODO handle no token/empty string
+
       const promises = _.map(
         _.compact(detailsToPin),
         ({ chainId: cId, hatId, details }: HatPinDetails, index: number) => {
           return setTimeout(() => {
-            return handleDetailsPin({ chainId: cId, hatId, details });
+            return handleDetailsPin({ chainId: cId, hatId, details, token });
           }, index * 500);
         },
       );

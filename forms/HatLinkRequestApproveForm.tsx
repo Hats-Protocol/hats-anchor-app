@@ -28,7 +28,7 @@ import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { decimalId, prettyIdToIp, toTreeId } from '@/lib/hats';
-import { pinJson } from '@/lib/ipfs';
+import { fetchToken, pinJson } from '@/lib/ipfs';
 import { ImageFile } from '@/types';
 
 // ! update links to use new docs links constants
@@ -165,9 +165,11 @@ const HatLinkRequestApproveForm = ({
   const onSubmit = async () => {
     writeAsync?.();
     if (newDetails && customDetails) {
+      const token = await fetchToken();
       await pinJson(
         { type: '1.0', data: { name, description } },
         { name: `details_${_.toString(chainId)}_${decimalAdmin}` },
+        token,
       );
     }
   };

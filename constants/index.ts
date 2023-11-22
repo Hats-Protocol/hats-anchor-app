@@ -64,7 +64,7 @@ const CONFIG: Config = {
   shortName: 'Hats',
   url: 'https://app.hatsprotocol.xyz',
   logoUrl: 'https://app.hatsprotocol.xyz/img/favicon-512.png',
-  ipfsGateway: 'https://indigo-selective-coral-505.mypinata.cloud/ipfs/',
+  ipfsGateway: process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://ipfs.io/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
   banner: false,

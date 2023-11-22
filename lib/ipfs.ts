@@ -7,14 +7,16 @@ import { FormDataDetails } from '@/types';
 
 export * from './ipfs-misc';
 
-const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
-
 export const PINATA_GATEWAY_TOKEN =
   process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN;
 
 // app-utils likely, @pinata/sdk in image-sdk could replace
 
-export const pinJson = async (data: object, metadata: object) => {
+export const pinJson = async (
+  data: object,
+  metadata: object,
+  token: string,
+) => {
   const pinataData = JSON.stringify({
     pinataOptions: {
       cidVersion: 1,
@@ -32,7 +34,7 @@ export const pinJson = async (data: object, metadata: object) => {
     url: 'https://api.pinata.cloud/pinning/pinJSONToIPFS',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${PINATA_JWT}`,
+      Authorization: `Bearer ${token}`,
     },
     data: pinataData,
   };
@@ -45,10 +47,12 @@ export const pinJson = async (data: object, metadata: object) => {
 export const pinImage = async ({
   file,
   metadata,
+  token,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file: any;
   metadata: object;
+  token: string;
 }) => {
   const formData = new FormData();
   formData.append('file', file);
@@ -66,7 +70,7 @@ export const pinImage = async ({
     {
       maxBodyLength: undefined,
       headers: {
-        Authorization: `Bearer ${PINATA_JWT}`,
+        Authorization: `Bearer ${token}`,
       },
     },
   );
@@ -74,12 +78,12 @@ export const pinImage = async ({
   return res.data.IpfsHash;
 };
 
-export const unpinImage = async (cid: string) => {
+export const unpinImage = async (cid: string, token: string) => {
   const config = {
     method: 'delete',
     url: `https://api.pinata.cloud/pinning/unpin/${cid}`,
     headers: {
-      Authorization: `Bearer ${PINATA_JWT}`,
+      Authorization: `Bearer ${token}`,
     },
   };
 
@@ -91,12 +95,14 @@ interface handleDetailsPinProps {
   chainId: number;
   hatId: string;
   details: Partial<FormDataDetails>;
+  token: string;
 }
 
 export const handleDetailsPin = async ({
   chainId,
   hatId,
   details,
+  token,
 }: handleDetailsPinProps) => {
   const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
@@ -106,6 +112,7 @@ export const handleDetailsPin = async ({
   const cid = `ipfs://${await pinJson(
     { type: '1.0', data: details },
     { name: detailsName },
+    token,
   )}`;
 
   return cid;
@@ -129,4 +136,17 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   const res = await axios.get(url, { timeout: 5000 });
   return Promise.resolve({ details: detailsField, data: _.get(res, 'data') });
+};
+
+export const fetchToken = async (count: number = 0) => {
+  const token = await fetch('/api/upload-start', {
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: JSON.stringify({ count }),
+  }).then((res) => res.text());
+
+  return token;
 };

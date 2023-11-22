@@ -29,7 +29,7 @@ import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import useTreeCreate from '@/hooks/useTreeCreate';
-import { pinJson } from '@/lib/ipfs';
+import { fetchToken, pinJson } from '@/lib/ipfs';
 import { chainsMap } from '@/lib/web3';
 import { ImageFile } from '@/types';
 
@@ -99,9 +99,12 @@ const NewTree = () => {
   const onSubmit = async () => {
     writeAsync?.();
     if (detailsCID) {
+      // TODO migrate to `handleDetailsPin`
+      const token = await fetchToken();
       await pinJson(
         { type: '1.0', data: { name, description } },
         { name: `details_${_.toString(chainId)}_topHat` },
+        token,
       );
     }
   };
