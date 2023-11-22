@@ -2,6 +2,8 @@ import { Abi, Hex } from 'viem';
 
 import { HATS_ABI } from '@/contracts/Hats';
 
+import { CONTACT_URL, DOCS_URL } from './landingContent';
+
 // constants lib or sub of app-utils
 
 export { default as defaultHat } from './defaultHat';
@@ -45,6 +47,8 @@ type Config = {
   wearers: string;
 
   // docs
+  DOCS_URL: string;
+  CONTACT_URL: string;
   docsLinks: {
     responsibilities: string;
     authorities: string;
@@ -52,8 +56,6 @@ type Config = {
     toggle: string;
   };
 };
-
-const docsUrl = 'https://docs.hatsprotocol.xyz';
 
 const CONFIG: Config = {
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
@@ -70,6 +72,8 @@ const CONFIG: Config = {
   banner: false,
   claimsHatterModuleName: 'Multi Claims Hatter',
   modulesRegistryFactory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
+  DOCS_URL,
+  CONTACT_URL,
 
   // terminology
   hat: 'hat',
@@ -91,10 +95,10 @@ const CONFIG: Config = {
 
   // docs
   docsLinks: {
-    responsibilities: `${docsUrl}/using-hats/connecting-hats-w-authorities-and-responsibilities/documenting-hat-powers-and-responsibilities`,
-    authorities: `${docsUrl}/hats-integrations/hat-gated-authorities`,
-    eligibility: `${docsUrl}/using-hats/setting-accountabilities/eligibility-requirements-for-wearers`,
-    toggle: `${docsUrl}/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats`,
+    responsibilities: `${DOCS_URL}/using-hats/connecting-hats-w-authorities-and-responsibilities/documenting-hat-powers-and-responsibilities`,
+    authorities: `${DOCS_URL}/hats-integrations/hat-gated-authorities`,
+    eligibility: `${DOCS_URL}/using-hats/setting-accountabilities/eligibility-requirements-for-wearers`,
+    toggle: `${DOCS_URL}/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats`,
   },
 };
 
