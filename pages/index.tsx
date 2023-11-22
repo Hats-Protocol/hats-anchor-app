@@ -58,8 +58,8 @@ const Home = () => {
     chainId: 'all',
   });
 
-  const sortedHats = _.sortBy(currentHats, (hat) => {
-    return _.indexOf(orderedChains, hat.chainId);
+  const sortedHats = _.sortBy(_.compact(currentHats), (hat) => {
+    return _.indexOf(orderedChains, hat?.chainId);
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
 

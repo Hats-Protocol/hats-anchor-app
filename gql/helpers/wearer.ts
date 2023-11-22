@@ -52,7 +52,7 @@ export const fetchWearerDetails = async (
 ) => {
   const subgraphClient = createSubgraphClient();
 
-  let res: Wearer | object | undefined;
+  let res: Wearer | undefined;
   try {
     res = await subgraphClient.getWearer({
       chainId,
@@ -84,8 +84,7 @@ export const fetchWearerDetails = async (
       },
     });
   } catch (err) {
-    res = {};
-    return res;
+    return undefined;
   }
 
   return {
@@ -99,10 +98,8 @@ export const fetchWearerDetailsForChain = async (
   chainId: number,
 ) => {
   if (!address) return [];
-  const data: { currentHats: Hat[] } = await fetchWearerDetails(
-    address,
-    chainId,
-  );
+  const data = await fetchWearerDetails(address, chainId);
+  if (!data) return [];
 
   return data.currentHats;
 };
