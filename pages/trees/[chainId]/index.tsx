@@ -7,7 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '@/components/Layout';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeListCard';
-import { fetchPaginatedTrees } from '@/gql/helpers';
+import { fetchPaginatedTrees } from '@/lib/subgraph';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { mapWithChainId } from '@/lib/general';

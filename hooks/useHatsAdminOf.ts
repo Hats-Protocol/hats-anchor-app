@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchTreesById } from '@/gql/helpers';
+import { fetchTreesById } from '@/lib/subgraph';
 import { isWearingAdminHat } from '@/lib/hats';
 import { chainsList } from '@/lib/web3';
 import { Hat, Tree } from '@/types';

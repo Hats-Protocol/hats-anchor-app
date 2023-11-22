@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { searchQueryResult } from '@/gql/helpers';
+import { searchQueryResult } from '@/lib/subgraph';
 import { decimalIdToId, ipToPrettyId, toTreeId } from '@/lib/hats';
 
 // TODO refactor without prettyId

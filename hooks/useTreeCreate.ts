@@ -4,7 +4,7 @@ import router from 'next/router';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
-import { fetchTreeDetails } from '@/gql/helpers';
+import { fetchTreeDetails } from '@/lib/subgraph';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
 import { decimalToTreeId, treeCreateEventIdToTreeId } from '@/lib/hats';

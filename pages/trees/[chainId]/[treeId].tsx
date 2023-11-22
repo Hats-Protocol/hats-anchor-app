@@ -5,7 +5,7 @@ import { Hex } from 'viem';
 
 import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
-import { fetchTreeDetails } from '@/gql/helpers';
+import { fetchTreeDetails } from '@/lib/subgraph';
 import { decimalToTreeId } from '@/lib/hats';
 
 const TreeDetails = ({

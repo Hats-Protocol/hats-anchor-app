@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchTreeDetails } from '@/gql/helpers';
+import { fetchTreeDetails } from '@/lib/subgraph';
 import { Tree } from '@/types';
 
 // hats-hooks
