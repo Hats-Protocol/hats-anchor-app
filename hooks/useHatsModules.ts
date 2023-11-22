@@ -6,6 +6,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 import { ModuleDetails } from '@/types';
 
+// modules-hooks
 const useHatsModules = () => {
   const { chainId } = useTreeForm();
 

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { featuredTemplates } from '@/constants';
 
+// app-hooks
 const useFeaturedTemplates = () => {
   const returnFeaturedTemplates = () => featuredTemplates;
 

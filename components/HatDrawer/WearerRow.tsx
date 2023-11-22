@@ -143,22 +143,20 @@ const WearerRow = ({
             variant='outline'
           />
           <MenuList>
-            {isAdminUser && (
-              <MenuItem
-                isDisabled={!isSameChain}
-                onClick={() => {
-                  setModals?.({ transferHat: true });
-                  setWearerToTransferFrom(wearer.id);
-                }}
+            <MenuItem
+              isDisabled={!isSameChain || !isAdminUser}
+              onClick={() => {
+                setModals?.({ transferHat: true });
+                setWearerToTransferFrom(wearer.id);
+              }}
+            >
+              <TooltipWrapper
+                isSameChain={isSameChain}
+                label="You can't transfer a hat on a different chain"
               >
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't transfer a hat on a different chain"
-                >
-                  <Text>Transfer</Text>
-                </TooltipWrapper>
-              </MenuItem>
-            )}
+                <Text>Transfer</Text>
+              </TooltipWrapper>
+            </MenuItem>
 
             {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>

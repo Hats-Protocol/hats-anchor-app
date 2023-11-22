@@ -13,6 +13,7 @@ interface ModuleParameters {
   displayType: string;
 }
 
+// modules-hooks
 const useModuleDetails = ({
   address,
   enabled = true,

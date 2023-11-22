@@ -7,6 +7,8 @@ import { Hat, HatDetails, HatWearer, Tree } from '@/types';
 
 import { decimalId, idToPrettyId } from './hats';
 
+// hats-utils or app-utils
+
 const mapHat = (
   hat: Hat | undefined,
   chainId: number,

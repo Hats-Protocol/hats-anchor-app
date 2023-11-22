@@ -135,11 +135,11 @@ export const OverlayContextProvider = ({
   }, [setTransactions]);
 
   /**
-   * @param {string} hash
+   * @param {hex} hash
    * @param {object} toastData
    * @param {string} toastData.title
    * @param {string} toastData.description
-   * @param {string} fnName
+   * @param {string} onSuccess
    * @param {string} redirect
    * @param {boolean} clearModals
    * @param {boolean} sendToast
@@ -148,8 +148,8 @@ export const OverlayContextProvider = ({
    * handlePendingTx({
    *  hash: '0x123',
    *  toastData: {
-   *    title: 'Transaction successful',
-   *    description: 'Your hat was created successfully',
+   *   title: 'Transaction successful',
+   *   description: 'Your hat was created successfully',
    *  },
    * });
    * */

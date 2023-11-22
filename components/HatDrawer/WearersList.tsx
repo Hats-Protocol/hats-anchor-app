@@ -118,6 +118,7 @@ const WearersList = () => {
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
+    chainId,
     editMode,
   });
 

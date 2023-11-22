@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { calculateCid } from '@/lib/ipfs';
 
+// image-sdk/hooks
 /**
  * Computes the CID of a Json object
  * @param {*} data JS object representing the Json object

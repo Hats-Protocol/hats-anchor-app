@@ -20,6 +20,7 @@ import { Hat, HatDetails } from '@/types';
 
 import useAdminOfHats from './useAdminOfHats';
 
+// hats-hooks
 const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<Hat[]>([]);

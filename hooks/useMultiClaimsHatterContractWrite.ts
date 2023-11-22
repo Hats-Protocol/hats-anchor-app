@@ -15,6 +15,7 @@ interface ContractInteractionProps {
   args: (string | number | bigint | undefined)[];
 }
 
+// modules-hooks
 const useMultiClaimsHatterContractWrite = ({
   functionName,
   enabled,

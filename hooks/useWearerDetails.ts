@@ -7,6 +7,7 @@ import {
 } from '@/gql/helpers';
 import { Hat } from '@/types';
 
+// hats-hooks
 const useWearerDetails = ({
   wearerAddress,
   chainId,

@@ -4,8 +4,9 @@ import { handleNestedDetails } from '@/lib/details';
 import { fetchDetailsIpfs } from '@/lib/ipfs';
 import { HatDetails } from '@/types';
 
-// ? should keep fetching strategy inline with `useManyHatsDetailsField.ts`
+// * should keep fetching strategy inline with `useManyHatsDetailsField.ts`
 
+// details-sdk/hooks
 /**
  * Handles the "details" field of a Hat. If content is pointing to IPFS, fetches the data and checks its schema type.
  * @param {string} detailsField Details field as received from the contract

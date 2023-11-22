@@ -5,6 +5,8 @@ import { HatWearer } from '@/types';
 
 import { isSameAddress } from './general';
 
+// app-utils or hats-utils
+
 export const getEligibleWearers = ({
   wearersEligibility,
   wearers,

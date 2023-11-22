@@ -17,6 +17,9 @@ import {
 import { formatImageUrl, isImageUrl } from './general';
 import { ipfsUrl } from './ipfs';
 
+// hats-utils or app-utils mostly
+
+// ! missing IDs when inactive are hidden
 export const calculateNextChildId = (id: string, hatsData: Hat[]) => {
   const children = _.filter(
     hatsData,

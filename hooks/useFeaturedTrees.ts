@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { featuredTrees } from '@/constants';
 
+// app-hooks
 const useFeaturedTrees = () => {
   const returnFeaturedTrees = () => featuredTrees;
 

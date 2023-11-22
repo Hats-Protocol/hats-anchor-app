@@ -4,6 +4,9 @@ import { useContractRead } from 'wagmi';
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
+// TODO migrate to `useWearersEligibilityCheck`
+
+// hats-hooks
 const useWearerEligibilityCheck = ({
   wearer,
 }: useWearerEligibilityCheckProps) => {

@@ -5,6 +5,7 @@ import { fetchHatDetails } from '@/gql/helpers';
 import { mapWithChainId } from '@/lib/general';
 import { Hat } from '@/types';
 
+// hats-hooks
 const useManyHatDetails = ({
   hats,
   initialHats,

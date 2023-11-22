@@ -20,6 +20,7 @@ interface ContractInteractionProps {
   handleSuccess?: (data?: TransactionReceipt) => void;
 }
 
+// app-hooks
 const useHatContractWrite = ({
   functionName,
   args,
