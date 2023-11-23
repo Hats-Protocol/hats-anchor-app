@@ -13,8 +13,9 @@ import {
 } from 'react';
 import { Hex } from 'viem';
 
-import { defaultHat } from '@/constants';
+import { AUTHORITY_TYPES, defaultHat } from '@/constants';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
+import useHatGuilds from '@/hooks/useGuilds';
 import useImageURIs from '@/hooks/useImageURIs';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useManyHatDetails from '@/hooks/useManyHatsDetails';
@@ -30,6 +31,8 @@ import { generateLocalStorageKey, mapWithChainId } from '@/lib/general';
 import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
 import { ipfsUrl } from '@/lib/ipfs';
 import {
+  Authority,
+  AuthorityType,
   FormData,
   Hat,
   HatDetails,
@@ -51,6 +54,8 @@ export interface TreeFormContext {
   onchainHats: Hat[] | undefined;
   selectedOnchainHat: Hat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
+  selectedHatGuildRoles: Authority[] | undefined;
+  combinedAuthorities: Authority[] | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
@@ -96,6 +101,8 @@ export const TreeFormContext = createContext<TreeFormContext>({
   onchainHats: undefined,
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
+  selectedHatGuildRoles: undefined,
+  combinedAuthorities: undefined,
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -620,6 +627,27 @@ export const TreeFormContextProvider = ({
     }
   }, [initialHatId, orgChartTree, handleSelectHat]);
 
+  const { selectedHatGuildRoles } = useHatGuilds({
+    selectedHat,
+    topHatDetails,
+  });
+
+  const combinedAuthorities: Authority[] = useMemo(() => {
+    const authorities = _.get(selectedHatDetails, 'authorities');
+    let combined = selectedHatGuildRoles.concat(
+      _.map(authorities, (authority) => ({
+        ...authority,
+        type: AUTHORITY_TYPES.manual as AuthorityType,
+      })),
+    );
+
+    combined = _.uniqWith(combined, (a, b) => {
+      return Boolean(a.link && b.link && a.link === b.link);
+    });
+
+    return combined;
+  }, [selectedHatDetails, selectedHatGuildRoles]);
+
   const returnValue = useMemo(
     () => ({
       chainId,
@@ -646,6 +674,8 @@ export const TreeFormContextProvider = ({
       selectedHat,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      selectedHatGuildRoles,
+      combinedAuthorities,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
@@ -691,6 +721,8 @@ export const TreeFormContextProvider = ({
       selectedHat,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      selectedHatGuildRoles,
+      combinedAuthorities,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,

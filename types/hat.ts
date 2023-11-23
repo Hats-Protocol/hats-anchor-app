@@ -1,6 +1,7 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
+import { Authority } from './form';
 import { Tree } from './tree';
 
 export interface HatEvent {
@@ -20,19 +21,13 @@ export interface HatWearer {
   ensName?: string | null;
 }
 
-export interface HatRole {
-  role: string;
-  guild: string;
-  requirements: (string | null)[];
-}
-
 export type HatDetailsKeys = keyof HatDetails;
 
 export type HatDetails = {
   name: string;
   description?: string;
   responsibilities?: DetailsItem[];
-  authorities?: DetailsItem[];
+  authorities?: Authority[];
   guilds?: string[];
   eligibility?: {
     manual?: boolean;

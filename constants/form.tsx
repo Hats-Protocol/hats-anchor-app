@@ -92,3 +92,28 @@ export const EMPTY_FORM_VALUES = {
   guilds: [],
   wearers: [],
 };
+
+export const AUTHORITY_TYPES = {
+  token: 'token',
+  manual: 'manual',
+};
+
+export const AUTHORITIES = {
+  token: {
+    label: 'Connected Token-gated Authority',
+    info: 'Retrieved from the blockchain',
+    color: 'green.300',
+  },
+  manual: {
+    label: 'Social Authority',
+    info: 'Appended off-chain for clarity',
+    color: 'purple.300',
+  },
+};
+
+export const GUILD_PLATFORMS = {
+  1: { label: 'Discord', icon: '/img/discord.svg' },
+  2: { label: 'Telegram', icon: '/img/telegram.png' },
+  3: { label: 'GitHub', icon: '/img/github.png' },
+  4: { label: 'GoogleDoc', icon: '/img/drive.png' },
+};

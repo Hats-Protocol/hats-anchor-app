@@ -1,14 +1,16 @@
-import { Icon, Stack, Text } from '@chakra-ui/react';
+import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { isAddress } from 'viem';
 
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import DatePicker from '@/components/atoms/DatePicker';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
+import { getInTouch } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';
@@ -60,21 +62,35 @@ const ModuleDetailsForm = ({
     <Stack spacing={12}>
       <FormRowWrapper>
         <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-        <Select
-          label='Module Type'
-          subLabel='The category of prewritten module to connect to this hat.'
-          name='moduleType'
-          defaultValue={undefined}
-          placeholder='Select a module type'
-          localForm={localForm}
-        >
-          {_.map(modulesToDisplay, ({ name, id }) => (
-            <option value={id} key={name}>
-              {name}
-            </option>
-          ))}
-        </Select>
+        <Box>
+          <Select
+            label='Module Type'
+            subLabel='The category of prewritten module to connect to this hat.'
+            name='moduleType'
+            defaultValue={undefined}
+            placeholder='Select a module type'
+            localForm={localForm}
+          >
+            {_.map(modulesToDisplay, ({ name, id }) => (
+              <option value={id} key={name}>
+                {name}
+              </option>
+            ))}
+          </Select>
+          <ChakraNextLink
+            href={getInTouch}
+            fontSize='sm'
+            color='blue.500'
+            decoration
+            textAlign='center'
+            mt={2}
+            isExternal
+          >
+            Not finding a module you&apos;re looking for? Let us know here.
+          </ChakraNextLink>
+        </Box>
       </FormRowWrapper>
+
       {selectedModuleDetails && (
         <FormRowWrapper>
           <Icon as={BsTextLeft} boxSize={4} mt='2px' />

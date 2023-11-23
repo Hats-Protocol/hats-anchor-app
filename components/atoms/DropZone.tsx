@@ -1,6 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
-import { Box, Flex, Image, Input, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  FormLabel,
+  Image,
+  Input,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
 import { ImageFile } from '@/types';
@@ -41,6 +49,7 @@ const rejectStyle = {
  * Props are as returned from the useDropzone hook
  */
 const DropZone = ({
+  label,
   getRootProps,
   getInputProps,
   isFocused,
@@ -86,6 +95,11 @@ const DropZone = ({
 
   return (
     <Stack spacing={2} w='full'>
+      {label && (
+        <FormLabel mb={0}>
+          <Text fontSize='sm'>{label.toUpperCase()}</Text>
+        </FormLabel>
+      )}
       <Flex gap={3}>
         <Box {...getRootProps({ style })}>
           <Input {...getInputProps()} display='none' />{' '}
@@ -121,6 +135,7 @@ const DropZone = ({
 export default DropZone;
 
 interface DropZoneProps {
+  label?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getRootProps: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

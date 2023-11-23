@@ -1,3 +1,5 @@
+export const getInTouch = 'https://hatsprotocol.deform.cc/getintouch/';
+
 export const learnMore = [
   {
     url: 'https://docs.hatsprotocol.xyz/using-hats/essentials-for-hat-wearers',
@@ -20,7 +22,7 @@ export const learnMore = [
     icon: 'code',
   },
   {
-    url: 'https://hatsprotocol.deform.cc/getintouch/',
+    url: getInTouch,
     name: 'Get in touch!',
     description:
       'Stuck on tree design, deployment, or custom development? We can help.',

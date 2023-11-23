@@ -25,13 +25,25 @@ export type FormData = FormDataDetails & {
   adminId?: Hex;
 };
 
+export type Authority = {
+  label: string;
+  link: string;
+  gate?: string;
+  description?: string;
+  imageUrl?: string;
+  type?: AuthorityType;
+  id?: number;
+};
+
+export type AuthorityType = 'token' | 'manual';
+
 export type FormDataDetails = {
   name: string;
   displayName?: string;
   description: string;
   guilds: string[];
   responsibilities: DetailsItem[];
-  authorities: DetailsItem[];
+  authorities: Authority[];
   isEligibilityManual: string;
   isToggleManual: string;
   revocationsCriteria: DetailsItem[];
