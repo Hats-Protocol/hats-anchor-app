@@ -5,6 +5,7 @@ import {
   AccordionPanel,
   Box,
   Button,
+  Card,
   HStack,
   Icon,
   Link,
@@ -37,25 +38,13 @@ const AuthoritiesListCard = ({
 
   if (!link && !gate && !description)
     return (
-      <Box
-        borderRadius='4px'
-        border='1px solid var(--gray-100, #EDF2F7)'
-        boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
-        mb={4}
-        px={4}
-        py={2}
-      >
+      <Card borderRadius='4px' mb={4} px={4} py={2}>
         <AuthorityHeader label={label} type={type} imageUrl={img} />
-      </Box>
+      </Card>
     );
 
   return (
-    <AccordionItem
-      borderRadius='4px'
-      border='1px solid var(--gray-100, #EDF2F7)'
-      boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
-      mb={4}
-    >
+    <AccordionItem borderRadius='4px' boxShadow='md' mb={4}>
       <AccordionButton>
         <AuthorityHeader label={label} type={type} imageUrl={img} />
         <AccordionIcon />
@@ -81,11 +70,10 @@ const AuthoritiesListCard = ({
               <Link href={gate} isExternal>
                 <Button
                   rightIcon={<Icon as={FaExternalLinkAlt} />}
-                  colorScheme='blue'
-                  borderColor='blue.500'
-                  size='sm'
-                  variant='outline'
                   color='blue.500'
+                  borderColor='blue.500'
+                  variant='outlineMatch'
+                  size='sm'
                 >
                   {gateHostName}
                 </Button>

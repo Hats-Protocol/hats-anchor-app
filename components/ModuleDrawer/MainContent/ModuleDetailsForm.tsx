@@ -1,15 +1,16 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import Link from 'next/link';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { isAddress } from 'viem';
 
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import DatePicker from '@/components/atoms/DatePicker';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
+import { getInTouch } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';
@@ -76,22 +77,17 @@ const ModuleDetailsForm = ({
               </option>
             ))}
           </Select>
-          <Link
-            href='https://hatsprotocol.deform.cc/getintouch/'
-            target='_blank'
+          <ChakraNextLink
+            href={getInTouch}
+            fontSize='sm'
+            color='blue.500'
+            decoration
+            textAlign='center'
+            mt={2}
+            isExternal
           >
-            <Text
-              fontSize='sm'
-              color='blue.500'
-              mt={2}
-              _hover={{
-                textDecoration: 'underline',
-                cursor: 'pointer',
-              }}
-            >
-              Not finding a module you&apos;re looking for? Let us know here.
-            </Text>
-          </Link>
+            Not finding a module you&apos;re looking for? Let us know here.
+          </ChakraNextLink>
         </Box>
       </FormRowWrapper>
 

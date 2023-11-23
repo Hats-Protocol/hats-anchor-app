@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Card,
   Flex,
   FormLabel,
   HStack,
@@ -170,20 +171,13 @@ const ResponsibilitiesForm = ({
           <ModalBody>
             <Stack spacing={5}>
               <Flex w='full' justifyContent='center' mb={8}>
-                <HStack
-                  spacing={4}
-                  borderRadius='4px'
-                  border='1px solid var(--gray-100, #EDF2F7)'
-                  boxShadow='0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.10)'
-                  p={3}
-                  w='80%'
-                >
+                <Card borderRadius='4px' boxShadow='md' w='80%' p={3}>
                   <ResponsibilityHeader
                     label={responsibilityLabel}
                     link={link}
                     imageUrl={editingItem?.imageUrl}
                   />
-                </HStack>
+                </Card>
               </Flex>
               <Stack>
                 <FormLabel

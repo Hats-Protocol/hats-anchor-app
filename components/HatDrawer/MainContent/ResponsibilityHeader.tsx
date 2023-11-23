@@ -55,10 +55,9 @@ const ResponsibilityHeader = ({
       {hostname && (
         <Link href={link} isExternal>
           <Button
-            colorScheme='blue'
-            color='blue.500'
-            variant='outline'
+            variant='outlineMatch'
             borderColor='blue.500'
+            color='blue.500'
           >
             <Text fontSize='md' fontWeight='medium'>
               {hostname}
