@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { chainsMap } from '@/lib/web3';
+import { chainsMap } from '@/lib/chains';
 import { Hat } from '@/types';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {

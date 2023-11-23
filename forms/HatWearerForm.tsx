@@ -36,8 +36,8 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
+import { chainsMap } from '@/lib/chains';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
 import { FormWearer, HatWearer } from '@/types';
 
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {

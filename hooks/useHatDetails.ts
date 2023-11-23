@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ZERO_ID } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchHatDetails } from '@/gql/helpers';
+import { fetchHatDetails } from '@/lib/subgraph';
 import { Hat } from '@/types';
 
 // hats-hooks

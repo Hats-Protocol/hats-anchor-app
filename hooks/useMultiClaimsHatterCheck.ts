@@ -6,7 +6,7 @@ import { Hex } from 'viem';
 
 import CONFIG from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchWearerDetails } from '@/gql/helpers';
+import { fetchWearerDetails } from '@/lib/subgraph';
 import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
 import { FormData, Hat } from '@/types';
 

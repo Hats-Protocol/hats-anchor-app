@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import CONFIG from '@/constants';
 
-import { PINATA_GATEWAY_TOKEN } from './ipfs';
+import { GATEWAY_TOKEN } from './ipfs';
 
 // app-utils mostly, some should move
 
@@ -91,14 +91,14 @@ export const formatImageUrl = (url?: string) => {
   if (_.startsWith(url, 'ipfs://')) {
     return `${CONFIG.ipfsGateway}${url?.slice(
       7,
-    )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+    )}?pinataGatewayToken=${GATEWAY_TOKEN}`;
   }
   if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
     const ipfsHash = url?.slice(21);
     const ipfsHashSplit = ipfsHash?.split('?')[0];
     const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
     const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
-    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${GATEWAY_TOKEN}`;
   }
 
   return null;

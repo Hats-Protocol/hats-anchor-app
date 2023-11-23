@@ -14,7 +14,8 @@ import { WagmiConfig } from 'wagmi';
 
 import SEO from '@/constants/next-seo.config';
 import { OverlayContextProvider } from '@/contexts/OverlayContext';
-import { chains, wagmiConfig } from '@/lib/web3';
+import { chains } from '@/lib/chains';
+import { wagmiConfig } from '@/lib/web3';
 
 import theme from '../theme';
 

@@ -4,7 +4,7 @@ import { createPublicClient, custom, Hex, http } from 'viem';
 import { ZERO_ADDRESS } from '@/constants';
 import { HatWearer, Transaction } from '@/types';
 
-import { chainsMap } from './web3';
+import { chainsMap } from './chains';
 
 // app-utils
 

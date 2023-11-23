@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchPaginatedTrees } from '@/gql/helpers';
+import { fetchPaginatedTrees } from '@/lib/subgraph';
 import { Tree } from '@/types';
 
 // hats-hooks

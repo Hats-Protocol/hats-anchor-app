@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { processHatForCalls } from '@/lib/form';
-import { handleDetailsPin } from '@/lib/ipfs';
+import { fetchToken, handleDetailsPin } from '@/lib/ipfs';
 import { createHatsClient } from '@/lib/web3';
 
 import { HatPinDetails } from './useMulticallManyHats';
@@ -33,6 +33,10 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
     const calls = _.map(_.flatten(_.map(allCalls, 'calls') || []), 'callData');
 
     const detailsToPin = _.map(allCalls, 'detailsToPin');
+
+    const token = await fetchToken(_.size(detailsToPin));
+    // TODO handle no token
+
     const detailsPromises = _.map(
       _.compact(detailsToPin),
       (hatDetails: HatPinDetails, index) => {
@@ -42,7 +46,12 @@ const useMulticallCallData = ({ isExpanded }: useMulticallCallDataProps) => {
             hatId,
             details,
           } = _.pick(hatDetails, ['chainId', 'hatId', 'details']);
-          return handleDetailsPin({ chainId: localChainId, hatId, details });
+          return handleDetailsPin({
+            chainId: localChainId,
+            hatId,
+            details,
+            token,
+          });
         }, index * 500); // spread these as to not overload the pinning service
       },
     );
