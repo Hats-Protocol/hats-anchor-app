@@ -118,7 +118,7 @@ export const handleDetailsPin = async ({
 };
 
 export const ipfsUrl = (hash: string | undefined) => {
-  if (!hash) return '';
+  if (!hash) return null;
   return `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 

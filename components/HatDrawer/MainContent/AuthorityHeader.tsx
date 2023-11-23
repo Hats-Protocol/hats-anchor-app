@@ -29,7 +29,10 @@ const AuthorityHeader = ({
 
   return (
     <HStack spacing={4} w='full'>
-      <Avatar size='md' src={isIpfs ? ipfsUrl(imageUrl?.slice(7)) : imageUrl} />
+      <Avatar
+        size='md'
+        src={isIpfs ? ipfsUrl(imageUrl?.slice(7)) || '' : imageUrl}
+      />
       <Box textAlign='left'>
         <Text fontSize='md' fontWeight='medium'>
           {label}

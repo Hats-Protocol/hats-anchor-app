@@ -30,7 +30,7 @@ const ResponsibilityHeader = ({
       {imageUrl ? (
         <Avatar
           size='md'
-          src={isIpfs ? ipfsUrl(imageUrl?.slice(7)) : imageUrl}
+          src={isIpfs ? ipfsUrl(imageUrl?.slice(7)) || '' : imageUrl}
         />
       ) : (
         <Flex
