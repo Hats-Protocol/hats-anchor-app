@@ -118,4 +118,5 @@ export const GUILD_PLATFORMS = {
   2: { label: 'Telegram', icon: '/img/telegram.png' },
   3: { label: 'GitHub', icon: '/img/github.png' },
   4: { label: 'GoogleDoc', icon: '/img/drive.png' },
+  snapshot: { label: 'Snapshot', icon: '/img/snapshot.jpeg' },
 };

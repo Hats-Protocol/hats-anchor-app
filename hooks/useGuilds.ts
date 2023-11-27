@@ -3,7 +3,6 @@ import _ from 'lodash';
 
 import { AUTHORITY_TYPES } from '@/constants';
 import { decimalId } from '@/lib/hats';
-import { Hat, HatDetails } from '@/types';
 
 const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];
@@ -21,15 +20,12 @@ const fetchGuildsData = async (guilds?: string[]) => {
 };
 
 const useHatGuilds = ({
-  selectedHat,
-  topHatDetails,
+  hatId,
+  guilds,
 }: {
-  selectedHat?: Hat;
-  topHatDetails?: HatDetails;
+  hatId?: string;
+  guilds?: string[];
 }) => {
-  const guilds = topHatDetails?.guilds;
-  const hatId = selectedHat?.id;
-
   const {
     data: guildData,
     error,

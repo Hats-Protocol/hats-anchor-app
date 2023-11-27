@@ -16,6 +16,7 @@ const fetchSpace = async (spaceId: string) => {
         query GetSpace($id: String!) {
           space(id: $id) {
             id
+            network
           }
         }
       `,
@@ -81,7 +82,7 @@ const SpaceInput = ({
       <Input
         name={name}
         localForm={localForm}
-        placeholder='Space ID (e.g. my-space)'
+        placeholder='Space ID (e.g. hatsprotocol.eth)'
         isDisabled={index !== fieldsLength - 1}
         onChange={handleChange}
         rightElement={

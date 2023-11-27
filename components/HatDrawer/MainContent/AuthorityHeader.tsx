@@ -19,11 +19,13 @@ const AuthorityHeader = ({
   type,
   imageUrl,
   hideInfo,
+  strategies,
 }: {
   label?: string;
   type: AuthorityType;
   imageUrl?: string;
   hideInfo?: boolean;
+  strategies?: string[];
 }) => {
   const isIpfs = imageUrl?.startsWith('ipfs://');
 
@@ -41,7 +43,13 @@ const AuthorityHeader = ({
           <Circle size='10px' bg={AUTHORITIES[type].color} />
           <Text fontSize='sm'>{AUTHORITIES[type].label}</Text>
           {!hideInfo && (
-            <Tooltip label={AUTHORITIES[type].info}>
+            <Tooltip
+              label={
+                strategies
+                  ? `Automatically pulled in from Snapshot. Voting weight in ${strategies.length} strategies.`
+                  : AUTHORITIES[type].info
+              }
+            >
               <IconButton
                 aria-label='Info'
                 icon={<Icon as={BsInfoCircle} />}

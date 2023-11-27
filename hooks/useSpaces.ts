@@ -1,7 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
+import _ from 'lodash';
 
-// Function to fetch spaces data
-const fetchSpaces = async (spaceIds: string[]) => {
+import { AUTHORITY_TYPES } from '@/constants';
+import { decimalId } from '@/lib/hats';
+
+const fetchSpaces = async (spaces?: string[]) => {
+  if (!spaces || spaces.length === 0) {
+    return [];
+  }
+
   const response = await fetch('https://hub.snapshot.org/graphql', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -23,7 +30,7 @@ const fetchSpaces = async (spaceIds: string[]) => {
           }
         }
       `,
-      variables: { ids: spaceIds },
+      variables: { ids: spaces },
     }),
   });
 
@@ -35,15 +42,47 @@ const fetchSpaces = async (spaceIds: string[]) => {
   return result.data.spaces;
 };
 
-// useSpaces hook using useQuery
-const useSpaces = (spaceIds: string[]) => {
+const useSpaces = ({
+  spaces,
+  hatId,
+  chainId,
+}: {
+  spaces?: string[];
+  hatId?: string;
+  chainId?: number;
+}) => {
   const { data, error, isLoading } = useQuery({
-    queryKey: ['spaces', spaceIds], // Use a unique key for caching
-    queryFn: () => fetchSpaces(spaceIds),
-    enabled: spaceIds.length > 0, // Fetch only if spaceIds are provided
+    queryKey: ['spaces', spaces],
+    queryFn: () => fetchSpaces(spaces),
+    enabled: spaces && spaces.length > 0,
   });
 
-  return { data, error, loading: isLoading };
+  const selectedHatSpaceStrategies = data
+    ? _.compact(
+        _.map(data, (space) => {
+          const filteredStrategies = _.filter(
+            space.strategies,
+            (strategy) =>
+              _.includes(strategy.params.ids, decimalId(hatId)) &&
+              Number(strategy.network) === chainId,
+          );
+
+          return !_.isEmpty(filteredStrategies)
+            ? {
+                label: space.name,
+                link: `https://snapshot.org/#/${space.id}`,
+                description: space.about,
+                imageUrl: '/img/snapshot.jpeg',
+                type: AUTHORITY_TYPES.token,
+                id: 'snapshot',
+                strategies: filteredStrategies,
+              }
+            : null;
+        }),
+      )
+    : [];
+
+  return { selectedHatSpaceStrategies, error, loading: isLoading };
 };
 
 export default useSpaces;

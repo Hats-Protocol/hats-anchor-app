@@ -28,7 +28,8 @@ const AuthoritiesListCard = ({
   authority?: Authority;
   type: AuthorityType;
 }) => {
-  const { label, description, link, gate, imageUrl, id } = authority || {};
+  const { label, description, link, gate, imageUrl, id, strategies } =
+    authority || {};
   const gateHostName = getHostnameFromURL(gate);
 
   const img =
@@ -46,7 +47,12 @@ const AuthoritiesListCard = ({
   return (
     <AccordionItem borderRadius='4px' boxShadow='md' mb={4}>
       <AccordionButton>
-        <AuthorityHeader label={label} type={type} imageUrl={img} />
+        <AuthorityHeader
+          label={label}
+          type={type}
+          imageUrl={img}
+          strategies={strategies}
+        />
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel pb={4} pl={20}>

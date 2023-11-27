@@ -15,7 +15,7 @@ import { Hex } from 'viem';
 
 import { AUTHORITY_TYPES, defaultHat } from '@/constants';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
-import useHatGuilds from '@/hooks/useGuilds';
+import useGuilds from '@/hooks/useGuilds';
 import useImageURIs from '@/hooks/useImageURIs';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useManyHatDetails from '@/hooks/useManyHatsDetails';
@@ -628,25 +628,22 @@ export const TreeFormContextProvider = ({
     }
   }, [initialHatId, orgChartTree, handleSelectHat]);
 
-  const { selectedHatGuildRoles } = useHatGuilds({
-    selectedHat,
-    topHatDetails,
+  const { selectedHatGuildRoles } = useGuilds({
+    guilds: _.get(topHatDetails, 'guilds'),
+    hatId: selectedHat?.id,
   });
-  console.log('selectedHat', selectedHat);
-  console.log('topHatDetails', topHatDetails);
 
-  const spaceIds = ['demo.hatsprotocol.eth'];
-
-  const memoizedSpaceIds = useMemo(() => spaceIds, [spaceIds]);
-
-  const { loading, error, data } = useSpaces(memoizedSpaceIds);
-  console.log('error', error);
-  console.log('loading', loading);
-  console.log('data', data);
+  const { selectedHatSpaceStrategies } = useSpaces({
+    spaces: _.get(topHatDetails, 'spaces'),
+    hatId: selectedHat?.id,
+    chainId,
+  });
 
   const combinedAuthorities: Authority[] = useMemo(() => {
     const authorities = _.get(selectedHatDetails, 'authorities');
-    let combined = selectedHatGuildRoles.concat(
+    let combined = _.concat(
+      selectedHatSpaceStrategies,
+      selectedHatGuildRoles,
       _.map(authorities, (authority) => ({
         ...authority,
         type: AUTHORITY_TYPES.manual as AuthorityType,
@@ -658,7 +655,7 @@ export const TreeFormContextProvider = ({
     });
 
     return combined;
-  }, [selectedHatDetails, selectedHatGuildRoles]);
+  }, [selectedHatSpaceStrategies, selectedHatDetails, selectedHatGuildRoles]);
 
   const returnValue = useMemo(
     () => ({
