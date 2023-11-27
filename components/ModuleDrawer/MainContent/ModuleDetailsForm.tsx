@@ -10,7 +10,7 @@ import DatePicker from '@/components/atoms/DatePicker';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
-import { getInTouch } from '@/constants';
+import { CONTACT_URL } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';
@@ -78,7 +78,7 @@ const ModuleDetailsForm = ({
             ))}
           </Select>
           <ChakraNextLink
-            href={getInTouch}
+            href={CONTACT_URL}
             fontSize='sm'
             color='blue.500'
             decoration

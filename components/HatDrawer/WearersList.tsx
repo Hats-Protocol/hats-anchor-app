@@ -168,11 +168,8 @@ const WearersList = () => {
   const maxSupplyText = () => {
     if (_.toNumber(maxSupply) > 999_999) {
       // could handle for thousands
-      // const rounds = [1_000_000_000, 1_000_000, 1_000];
-      // const formatString = [`e9`, `e6`, `e3`];
-
-      const rounds = [1_000_000_000, 1_000_000];
-      const formatString = [`e9`, `e6`];
+      const rounds = [1_000_000_000, 1_000_000]; // [1_000_000_000, 1_000_000, 1_000];
+      const formatString = [`e9`, `e6`]; // [`e9`, `e6`, `e3`];
       const supplyRounded = _.map(rounds, (r) =>
         _.round(_.toNumber(maxSupply) / r, 0),
       );

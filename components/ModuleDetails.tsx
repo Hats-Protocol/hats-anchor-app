@@ -82,7 +82,11 @@ const ModuleDetails = ({ type }: { type: string }) => {
         <AccordionPanel px={0}>
           <Stack>
             {_.map(moduleDetails.links, (link) => (
-              <ChakraNextLink href={link.link} key={link.link} isExternal>
+              <ChakraNextLink
+                href={link.link || '#'}
+                key={link.link}
+                isExternal
+              >
                 <Flex justify='space-between'>
                   <Text fontSize='sm'>{link.label}</Text>
                   <Icon as={FiExternalLink} h='14px' color='gray.500' />

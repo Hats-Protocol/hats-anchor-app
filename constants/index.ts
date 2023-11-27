@@ -8,6 +8,7 @@ import { CONTACT_URL, DOCS_URL } from './landingContent';
 
 export { default as defaultHat } from './defaultHat';
 export * from './form';
+export * from './ipfs';
 export * from './landingContent';
 export * from './misc';
 export * from './treeControls';
