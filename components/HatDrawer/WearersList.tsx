@@ -95,6 +95,7 @@ const WearersList = () => {
   } = useHatPaginatedWearers({
     hatId: selectedHat?.id,
     chainId,
+    editMode,
   });
 
   const mergedWearers = _.merge(wearers, paginatedWearers);

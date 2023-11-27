@@ -31,6 +31,7 @@ import { MODULE_TYPES, TRIGGER_OPTIONS } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useContractData from '@/hooks/useContractData';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import { explorerUrl } from '@/lib/chains';
 import { isMutable } from '@/lib/hats';
@@ -74,7 +75,7 @@ const HatManagementForm = ({
   inputConfig,
   criteriaConfig,
 }: HatManagementFormProps) => {
-  const { selectedHat, chainId } = useTreeForm();
+  const { selectedHat, chainId, editMode } = useTreeForm();
   const { localForm, eligibilityResolvedAddress, toggleResolvedAddress } =
     useHatForm();
   const { watch, control, setValue, getValues } = _.pick(localForm, [
@@ -111,6 +112,12 @@ const HatManagementForm = ({
 
   const { details: moduleDetails } = useModuleDetails({
     address: moduleAddress,
+  });
+  const { data: contractData } = useContractData({
+    chainId,
+    address: extendedController?.id,
+    enabled: !!extendedController?.isContract,
+    editMode,
   });
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -194,7 +201,7 @@ const HatManagementForm = ({
               resolvedAddress={String(actionResolvedAddress)}
             />
             <HStack spacing={8}>
-              {moduleDetails && (
+              {(moduleDetails || contractData) && (
                 <ChakraNextLink
                   href={`${explorerUrl(chainId)}/address/${
                     newAddress || extendedController?.id
@@ -208,7 +215,7 @@ const HatManagementForm = ({
                       <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                     )}
                     <Text color='gray.500' fontSize='sm'>
-                      {moduleDetails.name}
+                      {contractData?.contractName || moduleDetails?.name}
                     </Text>
                   </HStack>
                 </ChakraNextLink>

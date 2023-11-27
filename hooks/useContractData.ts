@@ -42,15 +42,18 @@ const useContractData = ({
   chainId,
   address,
   enabled = true,
+  editMode = false,
 }: {
   chainId: number | undefined;
   address: Hex | undefined;
   enabled?: boolean;
+  editMode?: boolean;
 }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['contractData', chainId, address],
     queryFn: () => fetchContractData(chainId, address),
     enabled: !!chainId && !!address && enabled,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 24 hours
   });
 
   return { data, isLoading, error };
