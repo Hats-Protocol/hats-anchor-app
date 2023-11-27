@@ -37,6 +37,7 @@ const hatBasicsFields: FieldItem[] = [
   { name: 'description', label: 'Description' },
   { name: 'imageUrl', label: 'Image' },
   { name: 'guilds', label: 'Guilds' },
+  { name: 'spaces', label: 'Spaces' },
   { name: 'mutable', label: 'Editable' },
 ];
 
@@ -90,6 +91,7 @@ export const EMPTY_FORM_VALUES = {
   authorities: [],
   responsibilities: [],
   guilds: [],
+  spaces: [],
   wearers: [],
 };
 

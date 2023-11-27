@@ -42,6 +42,7 @@ export type FormDataDetails = {
   displayName?: string;
   description: string;
   guilds: string[];
+  spaces: string[];
   responsibilities: DetailsItem[];
   authorities: Authority[];
   isEligibilityManual: string;

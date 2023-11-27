@@ -21,6 +21,7 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import useManyHatDetails from '@/hooks/useManyHatsDetails';
 import useManyHatsDetailsField from '@/hooks/useManyHatsDetailsField';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
+import useSpaces from '@/hooks/useSpaces';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
 import {
@@ -631,6 +632,17 @@ export const TreeFormContextProvider = ({
     selectedHat,
     topHatDetails,
   });
+  console.log('selectedHat', selectedHat);
+  console.log('topHatDetails', topHatDetails);
+
+  const spaceIds = ['demo.hatsprotocol.eth'];
+
+  const memoizedSpaceIds = useMemo(() => spaceIds, [spaceIds]);
+
+  const { loading, error, data } = useSpaces(memoizedSpaceIds);
+  console.log('error', error);
+  console.log('loading', loading);
+  console.log('data', data);
 
   const combinedAuthorities: Authority[] = useMemo(() => {
     const authorities = _.get(selectedHatDetails, 'authorities');

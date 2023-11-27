@@ -82,6 +82,7 @@ export const HatFormContextProvider = ({
   const formName = useDebounce<string>(watch?.('name', ''));
   const formDescription = useDebounce<string>(watch?.('description', ''));
   const formGuilds = useDebounce<string[]>(watch?.('guilds', []));
+  const formSpaces = useDebounce<string[]>(watch?.('spaces', []));
   const formImageUri = useDebounce<string | undefined>(watch?.('imageUri', ''));
   const formImageUrl = watch('imageUrl');
   const formEligibility = useDebounce<Hex | undefined>(
@@ -107,6 +108,7 @@ export const HatFormContextProvider = ({
       imageUri: formImageUri,
       imageUrl: formImageUrl,
       guilds: formGuilds,
+      spaces: formSpaces,
       eligibility: formEligibility,
       toggle: formToggle,
       responsibilities: formResponsibilities,
@@ -125,6 +127,7 @@ export const HatFormContextProvider = ({
       formImageUri,
       formImageUrl,
       formGuilds,
+      formSpaces,
       formEligibility,
       formToggle,
       formResponsibilities,
@@ -143,6 +146,7 @@ export const HatFormContextProvider = ({
     name: initialName,
     description: initialDescription,
     guilds: initialGuilds,
+    spaces: initialSpaces,
     responsibilities: initialResponsibilities,
     authorities: initialAuthorities,
     eligibility: initialEligibility,
@@ -151,6 +155,7 @@ export const HatFormContextProvider = ({
     'name',
     'description',
     'guilds',
+    'spaces',
     'responsibilities',
     'authorities',
     'eligibility',
@@ -189,6 +194,7 @@ export const HatFormContextProvider = ({
       authorities: initialAuthorities ?? [],
       responsibilities: initialResponsibilities ?? [],
       guilds: initialGuilds ?? [],
+      spaces: initialSpaces ?? [],
       wearers: [],
     };
   }, [
@@ -208,6 +214,7 @@ export const HatFormContextProvider = ({
     initialAuthorities,
     initialResponsibilities,
     initialGuilds,
+    initialSpaces,
     isDraft,
   ]);
 

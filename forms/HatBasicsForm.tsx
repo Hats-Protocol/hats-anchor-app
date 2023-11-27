@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray } from 'react-hook-form';
 import { BsImage, BsTextParagraph } from 'react-icons/bs';
-import { FaHouseUser, FaPlus } from 'react-icons/fa';
+import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 
 import DropZone from '@/components/atoms/DropZone';
@@ -21,6 +21,7 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import GuildInput from '@/components/GuildInput';
+import SpaceInput from '@/components/SpaceInput';
 import { MUTABILITY } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -51,6 +52,15 @@ const HatBasicsForm = () => {
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'guilds',
+  });
+
+  const {
+    append: appendSpace,
+    fields: fieldsSpaces,
+    remove: removeSpace,
+  } = useFieldArray({
+    control,
+    name: 'spaces',
   });
 
   const {
@@ -155,6 +165,38 @@ const HatBasicsForm = () => {
                   >
                     <FaPlus />
                     Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
+                  </Button>
+                </Box>
+              </Stack>
+            </FormRowWrapper>
+          )}
+
+          {isTopHat(selectedHat) && (
+            <FormRowWrapper>
+              <Icon as={FaCube} boxSize={4} mt='2px' />
+              <Stack w='full'>
+                <Text fontSize='sm'>SPACES</Text>
+                {fieldsSpaces.map((field, index) => (
+                  <SpaceInput
+                    key={field.id}
+                    name={`spaces.${index}`}
+                    remove={removeSpace}
+                    index={index}
+                    fieldsLength={fields.length}
+                    localForm={localForm}
+                  />
+                ))}
+                <Box mb={2}>
+                  <Button
+                    onClick={() => appendSpace('')}
+                    isDisabled={_.some(
+                      formValues?.spaces,
+                      (item: string) => item === '',
+                    )}
+                    gap={2}
+                  >
+                    <FaPlus />
+                    Add {formValues?.spaces?.length ? 'another' : 'a'} Guild
                   </Button>
                 </Box>
               </Stack>

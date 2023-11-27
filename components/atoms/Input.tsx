@@ -141,7 +141,7 @@ const Input = ({
             variant='filled'
           />
           {rightElement && (
-            <InputRightElement mr={isDirty ? '25px' : ''}>
+            <InputRightElement mr={isDirty ? '28px' : ''}>
               {rightElement}
             </InputRightElement>
           )}

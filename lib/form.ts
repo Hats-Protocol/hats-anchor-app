@@ -30,6 +30,7 @@ const hasDetailsChanged = (
     name,
     description,
     guilds,
+    spaces,
     responsibilities,
     authorities,
     isEligibilityManual,
@@ -42,6 +43,9 @@ const hasDetailsChanged = (
   const hasGuildsChanged =
     _.gt(_.size(guilds), 0) ||
     _.size(guilds) !== _.size(originalHatDetails?.guilds);
+  const hasSpacesChanged =
+    _.gt(_.size(spaces), 0) ||
+    _.size(spaces) !== _.size(originalHatDetails?.spaces);
   const hasResponsibilitiesChanged =
     _.gt(_.size(responsibilities), 0) ||
     _.size(responsibilities) !== _.size(originalHatDetails?.responsibilities);
@@ -62,6 +66,7 @@ const hasDetailsChanged = (
     !!namePlainText ||
     !!description ||
     !!hasGuildsChanged ||
+    !!hasSpacesChanged ||
     !!hasResponsibilitiesChanged ||
     !!hasAuthoritiesChanged ||
     !!isEligibilityManual ||
@@ -87,6 +92,7 @@ const createDetailsData = ({
     displayName,
     description,
     guilds,
+    spaces,
     responsibilities,
     authorities,
   } = hat;
@@ -99,6 +105,7 @@ const createDetailsData = ({
     name: updateName || '',
     description: description || '',
     guilds: guilds || [],
+    spaces: spaces || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
     authorities: _.reject(authorities, ['label', '']),
     eligibility: {

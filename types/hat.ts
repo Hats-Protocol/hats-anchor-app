@@ -29,6 +29,7 @@ export type HatDetails = {
   responsibilities?: DetailsItem[];
   authorities?: Authority[];
   guilds?: string[];
+  spaces?: string[];
   eligibility?: {
     manual?: boolean;
     criteria?: DetailsItem[];
