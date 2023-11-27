@@ -4,7 +4,7 @@ import { FEATURED_TEMPLATES } from '@/constants';
 
 // app-hooks
 const useFeaturedTemplates = () => {
-  const returnFeaturedTemplates = () => FEATURED_TEMPLATES;
+  const returnFeaturedTemplates = () => FEATURED_TEMPLATES();
 
   const { data, isLoading } = useQuery({
     queryKey: ['featuredTemplates'],

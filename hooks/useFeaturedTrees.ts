@@ -4,7 +4,7 @@ import { FEATURED_TREES } from '@/constants';
 
 // app-hooks
 const useFeaturedTrees = () => {
-  const returnFeaturedTrees = () => FEATURED_TREES;
+  const returnFeaturedTrees = () => FEATURED_TREES();
 
   const { data, isLoading } = useQuery({
     queryKey: ['featuredTrees'],

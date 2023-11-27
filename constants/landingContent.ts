@@ -33,7 +33,7 @@ export const LEARN_MORE = [
   },
 ];
 
-export const FEATURED_TEMPLATES = [
+export const FEATURED_TEMPLATES = () => [
   {
     chainId: 5,
     id: 54,
@@ -66,7 +66,7 @@ export const FEATURED_TEMPLATES = [
   },
 ];
 
-export const FEATURED_TREES = [
+export const FEATURED_TREES = () => [
   {
     chainId: 10,
     id: 2,
