@@ -21,7 +21,7 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import useManyHatDetails from '@/hooks/useManyHatsDetails';
 import useManyHatsDetailsField from '@/hooks/useManyHatsDetailsField';
 import useOrgChartTree from '@/hooks/useOrgChartTree';
-import useSpaces from '@/hooks/useSpaces';
+import useSpaces from '@/hooks/useSnapshotSpaces';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
 import {
