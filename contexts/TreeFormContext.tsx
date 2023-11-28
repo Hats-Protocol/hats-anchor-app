@@ -631,12 +631,14 @@ export const TreeFormContextProvider = ({
   const { selectedHatGuildRoles } = useGuilds({
     guilds: _.get(topHatDetails, 'guilds'),
     hatId: selectedHat?.id,
+    editMode,
   });
 
   const { selectedHatSpaceStrategies } = useSpaces({
     spaces: _.get(topHatDetails, 'spaces'),
     hatId: selectedHat?.id,
     chainId,
+    editMode,
   });
 
   const combinedAuthorities: Authority[] = useMemo(() => {

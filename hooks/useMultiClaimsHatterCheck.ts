@@ -68,7 +68,7 @@ const getHatterHat = async (
 
 // modules-hooks
 const useMultiClaimsHatterCheck = () => {
-  const { chainId, onchainHats, storedData } = useTreeForm();
+  const { chainId, onchainHats, storedData, editMode } = useTreeForm();
 
   const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
 
@@ -80,6 +80,7 @@ const useMultiClaimsHatterCheck = () => {
     queryKey: ['claimsHatter', allHatIds, chainId],
     queryFn: () => fetchHatters(chainId, allHatIds),
     enabled: !!allHatIds && !!chainId,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   const claimableHats: Hex[] | undefined = useMemo(() => {
@@ -147,6 +148,7 @@ const useMultiClaimsHatterCheck = () => {
         chainId,
       ),
     enabled: !!chainId && !!claimsHatterData,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   const { details } = useModuleDetails({ address: hatterHat?.instanceAddress });

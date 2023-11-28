@@ -46,15 +46,18 @@ const useSpaces = ({
   spaces,
   hatId,
   chainId,
+  editMode = false,
 }: {
   spaces?: string[];
   hatId?: string;
   chainId?: number;
+  editMode?: boolean;
 }) => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['spaces', spaces],
     queryFn: () => fetchSpaces(spaces),
     enabled: spaces && spaces.length > 0,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   const selectedHatSpaceStrategies = data

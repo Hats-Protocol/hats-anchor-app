@@ -27,6 +27,8 @@ const useMultiClaimsHatterContractWrite = ({
 
   const { chainId } = useTreeForm();
 
+  // TODO fetch abi from modules sdk
+
   const { config, error: prepareError } = usePrepareContractWrite({
     address,
     chainId: Number(chainId),

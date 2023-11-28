@@ -30,6 +30,7 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
 import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
+import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
@@ -45,6 +46,7 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
     transactions,
     clearAllTransactions,
   } = useOverlay();
+  const { editMode } = useTreeForm();
 
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
@@ -54,7 +56,7 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
     (tx: Transaction) => tx.status === 'pending',
   );
 
-  const { data: hatDetails } = useHatDetailsField(hatData?.details);
+  const { data: hatDetails } = useHatDetailsField(hatData?.details, editMode);
   const tabName = hatDetails?.data?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);

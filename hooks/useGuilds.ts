@@ -22,9 +22,11 @@ const fetchGuildsData = async (guilds?: string[]) => {
 const useHatGuilds = ({
   hatId,
   guilds,
+  editMode = false,
 }: {
   hatId?: string;
   guilds?: string[];
+  editMode?: boolean;
 }) => {
   const {
     data: guildData,
@@ -34,6 +36,7 @@ const useHatGuilds = ({
     queryKey: ['hatGuilds', guilds],
     queryFn: () => (guilds ? fetchGuildsData(guilds) : []),
     enabled: !!hatId && !!guilds?.length,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   const selectedHatGuildRoles = _.flatMap(guildData, (guild) => {

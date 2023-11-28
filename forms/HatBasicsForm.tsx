@@ -147,7 +147,9 @@ const HatBasicsForm = () => {
             <FormRowWrapper>
               <FaHouseUser />
               <Stack w='full'>
-                <Text fontSize='sm'>GUILDS</Text>
+                <Text fontSize='sm' textTransform='uppercase'>
+                  Guilds
+                </Text>
                 {fieldsGuilds.map((field, index) => (
                   <GuildInput
                     key={field.id}
@@ -178,7 +180,9 @@ const HatBasicsForm = () => {
             <FormRowWrapper>
               <Icon as={FaCube} boxSize={4} mt='2px' />
               <Stack w='full'>
-                <Text fontSize='sm'>SPACES</Text>
+                <Text fontSize='sm' textTransform='uppercase'>
+                  Snapshot Spaces
+                </Text>
                 {fieldsSpaces.map((field, index) => (
                   <SpaceInput
                     key={field.id}
@@ -198,7 +202,7 @@ const HatBasicsForm = () => {
                     gap={2}
                   >
                     <FaPlus />
-                    Add {formValues?.spaces?.length ? 'another' : 'a'} Guild
+                    Add {formValues?.spaces?.length ? 'another' : 'a'} Space
                   </Button>
                 </Box>
               </Stack>
