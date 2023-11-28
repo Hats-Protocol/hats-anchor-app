@@ -49,6 +49,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
 
   const wearerTopHats = _.map(

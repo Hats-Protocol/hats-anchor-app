@@ -63,6 +63,7 @@ export const searchQueryResult = async (search: string) => {
     }),
   );
 
+  // TODO surface errors, but don't fail all calls
   const result = await Promise.all(promises);
 
   const allNetworkResults: { trees: Tree[]; hats: Hat[] } = {

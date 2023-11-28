@@ -15,6 +15,7 @@ import { HatDetails } from '@/types';
  */
 const useHatDetailsField = (
   detailsField?: string,
+  editMode = false,
 ): {
   data: { type: string; data: HatDetails } | undefined;
   isLoading: boolean;
@@ -30,6 +31,7 @@ const useHatDetailsField = (
       return result;
     },
     enabled: !!detailsField && isIpfs,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   // don't handle schema type here

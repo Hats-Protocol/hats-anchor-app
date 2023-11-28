@@ -23,6 +23,7 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { MODULE_TYPES } from '@/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useContractData from '@/hooks/useContractData';
 import useHatStatus from '@/hooks/useHatStatus';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
@@ -77,6 +78,11 @@ const StatusCard = ({
   });
 
   const { data: isActive } = useHatStatus();
+  const { data: contractData } = useContractData({
+    chainId,
+    address: statusData?.id,
+    enabled: statusData?.isContract,
+  });
 
   const { onCopy } = useClipboard(statusData?.id || '');
   const toast = useToast();
@@ -141,7 +147,9 @@ const StatusCard = ({
                 <Text color='gray.500' fontSize='sm'>
                   {moduleDetails
                     ? moduleDetails.name
-                    : statusData?.ensName || formatAddress(statusData?.id)}
+                    : statusData?.ensName ||
+                      contractData?.contractName ||
+                      formatAddress(statusData?.id)}
                 </Text>
               </HStack>
             </ChakraNextLink>

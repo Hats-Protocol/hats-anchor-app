@@ -115,7 +115,10 @@ const ResponsibilitiesForm = ({
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
 
     if (hatImageURI !== '')
-      setEditingItem({ ...editingItem, imageUrl: hatImageURI });
+      setEditingItem((localEditingItem) => ({
+        ...localEditingItem,
+        imageUrl: hatImageURI,
+      }));
   }, [imagePinData]);
 
   if (!localForm) return null;

@@ -11,6 +11,7 @@ import { HatWearer } from '@/types';
 const useHatPaginatedWearers = ({
   hatId,
   initialPage = 0,
+  editMode = false,
 }: useHatPaginatedWearersProps) => {
   const [page, setPage] = useState(initialPage);
   const { chainId } = useTreeForm();
@@ -22,6 +23,7 @@ const useHatPaginatedWearers = ({
       if (!hatId || !chainId) return [];
       return fetchPaginatedWearersForHat(hatId, chainId, page);
     },
+    staleTime: editMode ? Infinity : 1_000 * 60 * 15,
   });
 
   const nextPage = () => {
@@ -55,4 +57,5 @@ interface useHatPaginatedWearersProps {
   perPage?: number;
   initialPage?: number;
   initialData?: HatWearer[];
+  editMode?: boolean;
 }

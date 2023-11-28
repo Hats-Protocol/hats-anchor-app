@@ -2,12 +2,11 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
 import _ from 'lodash';
 
-import CONFIG from '@/constants';
 import { FormDataDetails } from '@/types';
 
-export * from './ipfs-misc';
+import { GATEWAY_TOKEN, GATEWAY_URL } from '../constants';
 
-export const GATEWAY_TOKEN = process.env.NEXT_PUBLIC_GATEWAY_TOKEN;
+export * from './ipfs-misc';
 
 // app-utils likely, @pinata/sdk in image-sdk could replace
 
@@ -119,7 +118,7 @@ export const handleDetailsPin = async ({
 
 export const ipfsUrl = (hash: string | undefined) => {
   if (!hash) return null;
-  return `${CONFIG.ipfsGateway}${hash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
+  return `${GATEWAY_URL}${hash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 
 export const urlToIpfsUri = (url: string) => {

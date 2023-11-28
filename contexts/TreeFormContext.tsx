@@ -630,6 +630,7 @@ export const TreeFormContextProvider = ({
   const { selectedHatGuildRoles } = useHatGuilds({
     selectedHat,
     topHatDetails,
+    editMode,
   });
 
   const combinedAuthorities: Authority[] = useMemo(() => {

@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { featuredTemplates } from '@/constants';
+import { FEATURED_TEMPLATES } from '@/constants';
 
 // app-hooks
 const useFeaturedTemplates = () => {
-  const returnFeaturedTemplates = () => featuredTemplates;
+  const returnFeaturedTemplates = () => FEATURED_TEMPLATES();
 
   const { data, isLoading } = useQuery({
     queryKey: ['featuredTemplates'],

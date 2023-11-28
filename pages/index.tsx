@@ -23,7 +23,7 @@ import Suspender from '@/components/atoms/Suspender';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import LearnMoreCard from '@/components/LearnMoreCard';
-import CONFIG, { learnMore } from '@/constants';
+import CONFIG, { LEARN_MORE } from '@/constants';
 import useFeaturedTemplates from '@/hooks/useFeaturedTemplates';
 import useFeaturedTrees from '@/hooks/useFeaturedTrees';
 import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';
@@ -214,13 +214,13 @@ const Home = () => {
             </Text>
             {isSmallerScreen ? (
               <Grid templateColumns='repeat(2, 1fr)' gap={6}>
-                {_.map(learnMore, (docsLink, i) => (
+                {_.map(LEARN_MORE, (docsLink, i) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </Grid>
             ) : (
               <Stack spacing={6}>
-                {_.map(learnMore, (docsLink, i) => (
+                {_.map(LEARN_MORE, (docsLink, i) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </Stack>
