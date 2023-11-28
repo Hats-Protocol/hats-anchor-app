@@ -1,16 +1,35 @@
 import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const ETHERSCAN_API_URLS: { [key: number]: string } = {
+import { SupportedChains } from '@/lib/chains';
+
+const {
+  ETHERSCAN_API_KEY,
+  OPSCAN_API_KEY,
+  POLYGONSCAN_API_KEY,
+  GNOSISSCAN_API_KEY,
+  ARBISCAN_API_KEY,
+} = process.env;
+
+const ETHERSCAN_API_URLS: { [key in SupportedChains]: string } = {
   1: 'https://api.etherscan.io/api',
   5: 'https://api-goerli.etherscan.io/api',
   10: 'https://api-optimistic.etherscan.io/api',
   100: 'https://api.gnosisscan.io/api',
   137: 'https://api.polygonscan.com/api',
-  42151: 'https://api.arbiscan.io/api',
+  424: 'https://api.pgn.one/api', // TODO explorer URL
+  42161: 'https://api.arbiscan.io/api',
 };
 
-const { ETHERSCAN_API_KEY } = process.env;
+const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
+  1: ETHERSCAN_API_KEY,
+  5: ETHERSCAN_API_KEY,
+  10: OPSCAN_API_KEY,
+  100: GNOSISSCAN_API_KEY,
+  137: POLYGONSCAN_API_KEY,
+  424: ETHERSCAN_API_KEY, // TODO PGN Explorer Key
+  42161: ARBISCAN_API_KEY,
+};
 
 const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
   const { chainId, address } = req.body;
@@ -27,7 +46,11 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     const result = await fetch(
-      `${ETHERSCAN_API_URLS[chainId]}?module=contract&action=getsourcecode&address=${address}&apikey=${ETHERSCAN_API_KEY}`,
+      `${
+        ETHERSCAN_API_URLS[chainId as SupportedChains]
+      }?module=contract&action=getsourcecode&address=${address}&apikey=${
+        ETHERSCAN_KEYS[chainId as SupportedChains]
+      }`,
     );
     const data = await result.json();
     const returnData = _.mapKeys(_.get(data, 'result[0]'), (value, key) =>

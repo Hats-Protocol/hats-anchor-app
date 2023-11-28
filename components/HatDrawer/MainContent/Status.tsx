@@ -17,6 +17,7 @@ import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { TbCircleOff } from 'react-icons/tb';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -31,9 +32,26 @@ import usePendHatterMint from '@/hooks/usePendHatterMint';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import { explorerUrl } from '@/lib/chains';
+import { explorerUrl, SupportedChains } from '@/lib/chains';
 import { formatAddress } from '@/lib/general';
 import { isWearingAdminHat } from '@/lib/hats';
+
+const SAFE_URL = 'https://app.safe.global';
+
+const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
+  1: 'eth',
+  5: 'gor',
+  10: 'oeth',
+  100: 'gno',
+  137: 'matic',
+  424: 'pgn', // NOT ACTUALLY SUPPORTED YET
+  42161: 'arb1',
+};
+
+const safeUrl = (chainId: SupportedChains, address: Hex | undefined) => {
+  if (!chainId || !address) return '';
+  return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
+};
 
 const StatusCard = ({
   status,
@@ -107,6 +125,22 @@ const StatusCard = ({
     icon = BsPersonBadge;
   }
 
+  let controllerName = formatAddress(statusData?.id);
+  let controllerLink = `${explorerUrl(chainId)}/address/${_.get(
+    statusData,
+    'id',
+  )}`;
+  if (moduleDetails) controllerName = moduleDetails.name;
+  else if (statusData?.ensName) controllerName = statusData?.ensName;
+  else if (contractData?.contractName === 'GnosisSafeProxy') {
+    controllerName = 'Safe Multi-sig';
+    controllerLink = safeUrl(
+      chainId as SupportedChains,
+      _.get(statusData, 'id'),
+    );
+  } else if (contractData?.contractName)
+    controllerName = contractData?.contractName;
+
   return (
     <Stack>
       <Flex justifyContent='space-between'>
@@ -135,21 +169,11 @@ const StatusCard = ({
               aria-label='Copy Address'
               color='gray.500'
             />
-            <ChakraNextLink
-              href={`${explorerUrl(chainId)}/address/${_.get(
-                statusData,
-                'id',
-              )}`}
-              isExternal
-            >
+            <ChakraNextLink href={controllerLink} isExternal>
               <HStack>
                 <Icon as={icon} ml={2} w={4} h={4} color='gray.500' />
                 <Text color='gray.500' fontSize='sm'>
-                  {moduleDetails
-                    ? moduleDetails.name
-                    : statusData?.ensName ||
-                      contractData?.contractName ||
-                      formatAddress(statusData?.id)}
+                  {controllerName}
                 </Text>
               </HStack>
             </ChakraNextLink>

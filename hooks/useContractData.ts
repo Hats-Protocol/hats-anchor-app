@@ -38,6 +38,8 @@ const fetchContractData = async (
   return data as ContractData;
 };
 
+// TODO disable if not supported on chain
+
 const useContractData = ({
   chainId,
   address,

@@ -21,13 +21,12 @@ import pgn from './pgn';
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
+export type SupportedChains = 1 | 5 | 10 | 100 | 137 | 424 | 42161; // 42220, 8453, 84532, // 11155111
 // ORDER HERE WILL BE USED IN THE UI
 export const orderedChains = [1, 10, 42161, 137, 100, 424, 5]; // 42220, 8453, 84532, // 11155111
 
-type OrderedChains = (typeof orderedChains)[number];
-
 // can we use the defaults here again?
-export const networkImages: { [K in OrderedChains]: string } = {
+export const networkImages: { [key in SupportedChains]: string } = {
   1: '/chains/ethereum.svg',
   5: '/chains/ethereum.svg',
   10: '/chains/optimism.svg',
@@ -56,7 +55,7 @@ const customGnosis = {
   iconBackground: 'none',
 };
 
-export const chainsList: { [K in OrderedChains]: Chain } = {
+export const chainsList: { [key in SupportedChains]: Chain } = {
   1: mainnet,
   5: goerli,
   10: optimism,
@@ -71,7 +70,7 @@ export const chainsList: { [K in OrderedChains]: Chain } = {
 };
 
 export const chainsMap = (chainId?: number) =>
-  chainId ? chainsList[chainId] : chainsList[5];
+  chainId ? chainsList[chainId as SupportedChains] : chainsList[5];
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
