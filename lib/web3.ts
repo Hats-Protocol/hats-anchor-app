@@ -50,9 +50,11 @@ export function createHatsClient(
 }
 
 export function createSubgraphClient(): HatsSubgraphClient {
+  /*
   if (process.env.NODE_ENV === 'development') {
     return new HatsSubgraphClient({});
   }
+  */
   return new HatsSubgraphClient({ config: NETWORK_ENDPOINTS });
 }
 
