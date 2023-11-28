@@ -49,7 +49,11 @@ const HatBasicsForm = () => {
     'imageUrl',
   );
 
-  const { append, fields, remove } = useFieldArray({
+  const {
+    append: appendGuild,
+    fields: fieldsGuilds,
+    remove: removeGuild,
+  } = useFieldArray({
     control,
     name: 'guilds',
   });
@@ -144,19 +148,18 @@ const HatBasicsForm = () => {
               <FaHouseUser />
               <Stack w='full'>
                 <Text fontSize='sm'>GUILDS</Text>
-                {fields.map((field, index) => (
+                {fieldsGuilds.map((field, index) => (
                   <GuildInput
                     key={field.id}
                     name={`guilds.${index}`}
-                    remove={remove}
+                    remove={removeGuild}
                     index={index}
-                    fieldsLength={fields.length}
-                    localForm={localForm}
+                    fieldsLength={fieldsGuilds.length}
                   />
                 ))}
                 <Box mb={2}>
                   <Button
-                    onClick={() => append('')}
+                    onClick={() => appendGuild('')}
                     isDisabled={_.some(
                       formValues?.guilds,
                       (item: string) => item === '',
@@ -182,8 +185,7 @@ const HatBasicsForm = () => {
                     name={`spaces.${index}`}
                     remove={removeSpace}
                     index={index}
-                    fieldsLength={fields.length}
-                    localForm={localForm}
+                    fieldsLength={fieldsSpaces.length}
                   />
                 ))}
                 <Box mb={2}>

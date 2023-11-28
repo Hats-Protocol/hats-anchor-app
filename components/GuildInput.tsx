@@ -1,11 +1,11 @@
 import { HStack, IconButton } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { debounce } from 'lodash';
+import _, { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
 import { FaCheck, FaTrash } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
+import { useHatForm } from '@/contexts/HatFormContext';
 
 const fetchGuild = async (guildName: string) => {
   const response = await fetch(`https://api.guild.xyz/v1/guild/${guildName}`);
@@ -17,18 +17,12 @@ type GuildInputProps = {
   remove: (index: number) => void;
   index: number;
   fieldsLength: number;
-  localForm: UseFormReturn<any>;
 };
 
-const GuildInput = ({
-  name,
-  remove,
-  index,
-  fieldsLength,
-  localForm,
-}: GuildInputProps) => {
+const GuildInput = ({ name, remove, index, fieldsLength }: GuildInputProps) => {
   const [guildName, setGuildName] = useState('');
-  const { setValue } = localForm;
+  const { localForm } = useHatForm();
+  const { setValue } = _.pick(localForm, ['setValue']);
 
   const { data: guildExists, refetch } = useQuery({
     queryKey: ['guildExists', guildName],
@@ -39,7 +33,7 @@ const GuildInput = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setGuildName(newValue);
-    setValue(name, newValue);
+    setValue?.(name, newValue);
   };
 
   useEffect(() => {
@@ -53,6 +47,8 @@ const GuildInput = ({
 
     return () => debouncedRefetch.cancel();
   }, [guildName, refetch]);
+
+  if (!localForm) return null;
 
   return (
     <HStack>

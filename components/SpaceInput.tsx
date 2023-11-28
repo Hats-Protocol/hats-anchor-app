@@ -1,11 +1,11 @@
 import { HStack, IconButton, Spinner } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { debounce } from 'lodash';
+import _, { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
 import { FaCheck, FaTrash } from 'react-icons/fa';
 
 import Input from '@/components/atoms/Input';
+import { useHatForm } from '@/contexts/HatFormContext';
 
 const fetchSpace = async (spaceId: string) => {
   const response = await fetch('https://hub.snapshot.org/graphql', {
@@ -16,7 +16,6 @@ const fetchSpace = async (spaceId: string) => {
         query GetSpace($id: String!) {
           space(id: $id) {
             id
-            network
           }
         }
       `,
@@ -37,18 +36,13 @@ type SpaceInputProps = {
   remove: (index: number) => void;
   index: number;
   fieldsLength: number;
-  localForm: UseFormReturn<any>;
 };
 
-const SpaceInput = ({
-  name,
-  remove,
-  index,
-  fieldsLength,
-  localForm,
-}: SpaceInputProps) => {
+const SpaceInput = ({ name, remove, index, fieldsLength }: SpaceInputProps) => {
   const [spaceId, setSpaceId] = useState('');
-  const { setValue } = localForm;
+  const { localForm } = useHatForm();
+  const { setValue } = _.pick(localForm, ['setValue']);
+
   const {
     data: spaceExists,
     refetch,
@@ -58,12 +52,6 @@ const SpaceInput = ({
     queryFn: () => fetchSpace(spaceId),
     enabled: false,
   });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setSpaceId(newValue);
-    setValue(name, newValue);
-  };
 
   useEffect(() => {
     const debouncedRefetch = debounce(() => {
@@ -76,6 +64,14 @@ const SpaceInput = ({
 
     return () => debouncedRefetch.cancel();
   }, [spaceId, refetch]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSpaceId(newValue);
+    setValue?.(name, newValue);
+  };
+
+  if (!localForm) return null;
 
   return (
     <HStack>
