@@ -26,6 +26,7 @@ const defaultHat = {
   name: '',
   description: '',
   guilds: [],
+  spaces: [],
   responsibilities: [],
   authorities: [],
   isEligibilityManual: false,

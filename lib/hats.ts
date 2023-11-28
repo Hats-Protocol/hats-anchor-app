@@ -461,6 +461,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
         responsibilities: hat.responsibilities,
         authorities: hat.authorities,
         guilds: hat.guilds,
+        spaces: hat.spaces,
         eligibility: {
           manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
           criteria: hat.revocationsCriteria,
@@ -677,6 +678,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
     authorities: _.get(hat, 'detailsObject.data.authorities', []),
     guilds: _.get(hat, 'detailsObject.data.guilds', []),
+    spaces: _.get(hat, 'detailsObject.data.spaces', []),
   }));
 
 const extractWearers = (wearers: any): FormWearer[] => {

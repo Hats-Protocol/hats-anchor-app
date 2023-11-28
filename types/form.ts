@@ -33,6 +33,7 @@ export type Authority = {
   imageUrl?: string;
   type?: AuthorityType;
   id?: number;
+  strategies?: any[];
 };
 
 export type AuthorityType = 'token' | 'manual';
@@ -42,6 +43,7 @@ export type FormDataDetails = {
   displayName?: string;
   description: string;
   guilds: string[];
+  spaces: string[];
   responsibilities: DetailsItem[];
   authorities: Authority[];
   isEligibilityManual: string;
