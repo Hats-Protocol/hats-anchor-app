@@ -51,7 +51,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const treeHex = decimalToTreeId(treeId);
 
   try {
-    const treeData = await fetchTreeDetails(treeHex, Number(chainId));
+    const treeData = await fetchTreeDetails(treeHex, Number(chainId), true);
 
     if (!treeData) {
       return { props: defaultProps };

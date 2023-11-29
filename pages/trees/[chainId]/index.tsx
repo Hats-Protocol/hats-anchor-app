@@ -115,7 +115,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.get(context, 'params.chainId');
 
   try {
-    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
+    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40, true);
 
     return {
       props: {
