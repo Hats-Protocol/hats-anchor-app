@@ -7,6 +7,7 @@ import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import { createConfig } from 'wagmi';
 
+import NETWORK_ENDPOINTS from '../constants/subgraph';
 import { chains, chainsMap, publicClient } from './chains';
 
 // app-utils
@@ -48,8 +49,14 @@ export function createHatsClient(
   return hatsClient;
 }
 
-export function createSubgraphClient(): HatsSubgraphClient {
-  return new HatsSubgraphClient({});
+export function createSubgraphClient(
+  useDefaultEndpoints: boolean = false,
+): HatsSubgraphClient {
+  if (process.env.NODE_ENV === 'development' || useDefaultEndpoints) {
+    return new HatsSubgraphClient({});
+  }
+
+  return new HatsSubgraphClient({ config: NETWORK_ENDPOINTS });
 }
 
 export async function createHatsModulesClient(
