@@ -187,8 +187,8 @@ export function formatFunctionName(functionName: string): string {
     .replace(/^./, (str) => str.toUpperCase());
 }
 
-export function commify(value: any) {
-  const match = value.match(/^(-?)([0-9]*)(\.?)([0-9]*)$/);
+export function commify(value: number | string) {
+  const match = _.toString(value).match(/^(-?)([0-9]*)(\.?)([0-9]*)$/);
   if (!match || (!match[2] && !match[4])) {
     throw new Error(`bad formatted number: ${JSON.stringify(value)}`);
   }

@@ -1,4 +1,11 @@
-import { Card, Flex } from '@chakra-ui/react';
+import {
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Card,
+  Flex,
+} from '@chakra-ui/react';
 
 import Markdown from '@/components/atoms/Markdown';
 import { Authority } from '@/types';
@@ -12,12 +19,26 @@ const ResponsibilitiesListCard = ({
 }) => {
   const { label, description, link, imageUrl } = responsibility || {};
 
+  if (!description) {
+    return (
+      <Card borderRadius='4px' mb={4} px={4} py={2}>
+        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
+      </Card>
+    );
+  }
   return (
-    <Card borderRadius='4px' mb={4} px={4} py={2}>
-      <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-      <Flex ml={14}>
-        {description && <Markdown smallFont>{description}</Markdown>}
-      </Flex>
+    <Card borderRadius='4px' mb={4}>
+      <AccordionItem border='none' mb={4} my='auto'>
+        <AccordionButton>
+          <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
+          <AccordionIcon ml={2} />
+        </AccordionButton>
+        <AccordionPanel pb={4} pl={20}>
+          <Flex>
+            {description && <Markdown smallFont>{description}</Markdown>}
+          </Flex>
+        </AccordionPanel>
+      </AccordionItem>
     </Card>
   );
 };
