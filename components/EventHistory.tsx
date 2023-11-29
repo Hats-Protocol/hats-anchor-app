@@ -1,7 +1,14 @@
-import { Box, Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
-import { useState } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 
@@ -20,7 +27,7 @@ const EventHistory = ({
 }) => {
   const { chainId, selectedHat, treeEvents } = useTreeForm();
   const isClient = useIsClient();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const { isOpen, onToggle } = useDisclosure();
   let events = type === 'tree' ? treeEvents : selectedHat?.events;
   if (count) {
     events = _.take(events, count);
@@ -31,9 +38,8 @@ const EventHistory = ({
   }
 
   const shouldCollapse = events.length > 5 && type === 'hat';
-  const displayedEvents =
-    shouldCollapse && isCollapsed ? _.take(events, 4) : events;
-  const lastEvent = shouldCollapse && isCollapsed ? _.last(events) : null;
+  const displayedEvents = shouldCollapse && isOpen ? events : _.take(events, 4);
+  const lastEvent = shouldCollapse && isOpen ? null : _.last(events);
 
   return (
     <Box>
@@ -45,19 +51,17 @@ const EventHistory = ({
         />
       ))}
 
-      {shouldCollapse && isCollapsed && (
+      {shouldCollapse && !isOpen && (
         <Flex justify='center' w='100px'>
-          <IoEllipsisVerticalSharp />
+          <Icon as={IoEllipsisVerticalSharp} />
         </Flex>
       )}
 
-      {lastEvent && isCollapsed && (
-        <Event event={lastEvent} chainId={chainId} />
-      )}
+      {lastEvent && !isOpen && <Event event={lastEvent} chainId={chainId} />}
 
       {shouldCollapse && (
-        <Button onClick={() => setIsCollapsed(!isCollapsed)} size='sm'>
-          {isCollapsed ? `Show All (${events.length - 1})` : 'Show Less'}
+        <Button onClick={onToggle} size='sm' variant='outline'>
+          {isOpen ? 'Show Less' : `Show All (${events.length - 1})`}
         </Button>
       )}
     </Box>
@@ -72,9 +76,9 @@ const Event = ({ event, chainId }: { event: HatEvent; chainId?: number }) => {
       justify='space-between'
       py={2}
     >
-      <Text>{`${formatDistanceToNow(
-        new Date(Number(event.timestamp) * 1000),
-      )} ago`}</Text>
+      <Text>
+        {`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}
+      </Text>
 
       <ChakraNextLink
         isExternal
