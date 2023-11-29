@@ -405,7 +405,21 @@ export const TreeFormContextProvider = ({
     (id: Hex) => {
       if (isMobile) return;
       const allIds = _.map(orgChartTree, 'id');
-      if (!_.includes(allIds, id)) return;
+      const hat = _.find(orgChartTree, ['id', id]);
+      if (!_.includes(allIds, id) || !hat) return;
+
+      // if it's linked
+      if (treeId && hat.treeId !== treeId) {
+        const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
+        const basePath = router.basePath ? `${router.basePath}` : '';
+        const urlToOpen = new URL(
+          `${basePath}${hat.url}`,
+          window.location.origin,
+        );
+        urlToOpen.searchParams.append('hatId', hatIdParam);
+        window.open(urlToOpen.toString(), '_blank')?.focus();
+        return;
+      }
 
       setSelectedHatId(id);
 
