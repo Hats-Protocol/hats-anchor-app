@@ -20,8 +20,7 @@ import Input from '@/components/atoms/Input';
 import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
-import GuildInput from '@/components/GuildInput';
-import SpaceInput from '@/components/SpaceInput';
+import PlatformInput from '@/components/PlatformInput';
 import { MUTABILITY } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -151,12 +150,13 @@ const HatBasicsForm = () => {
                   Guilds
                 </Text>
                 {fieldsGuilds.map((field, index) => (
-                  <GuildInput
+                  <PlatformInput
                     key={field.id}
                     name={`guilds.${index}`}
                     remove={removeGuild}
                     index={index}
                     fieldsLength={fieldsGuilds.length}
+                    type='guild'
                   />
                 ))}
                 <Box mb={2}>
@@ -184,12 +184,13 @@ const HatBasicsForm = () => {
                   Snapshot Spaces
                 </Text>
                 {fieldsSpaces.map((field, index) => (
-                  <SpaceInput
+                  <PlatformInput
                     key={field.id}
                     name={`spaces.${index}`}
                     remove={removeSpace}
                     index={index}
                     fieldsLength={fieldsSpaces.length}
+                    type='snapshot'
                   />
                 ))}
                 <Box mb={2}>

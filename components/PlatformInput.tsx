@@ -7,6 +7,11 @@ import { FaCheck, FaTrash } from 'react-icons/fa';
 import Input from '@/components/atoms/Input';
 import { useHatForm } from '@/contexts/HatFormContext';
 
+const fetchGuild = async (guildName: string) => {
+  const response = await fetch(`https://api.guild.xyz/v1/guild/${guildName}`);
+  return response.ok;
+};
+
 const fetchSpace = async (spaceId: string) => {
   const response = await fetch('https://hub.snapshot.org/graphql', {
     method: 'POST',
@@ -31,31 +36,41 @@ const fetchSpace = async (spaceId: string) => {
   return result.data.space;
 };
 
-type SpaceInputProps = {
+type PlatformInputProps = {
+  type: 'snapshot' | 'guild';
   name: string;
   remove: (index: number) => void;
   index: number;
   fieldsLength: number;
 };
 
-const SpaceInput = ({ name, remove, index, fieldsLength }: SpaceInputProps) => {
-  const [spaceId, setSpaceId] = useState('');
+const PlatformInput = ({
+  type,
+  name,
+  remove,
+  index,
+  fieldsLength,
+}: PlatformInputProps) => {
+  const [inputValue, setInputValue] = useState('');
   const { localForm } = useHatForm();
   const { setValue } = _.pick(localForm, ['setValue']);
 
   const {
-    data: spaceExists,
+    data: dataExists,
     refetch,
     isLoading,
   } = useQuery({
-    queryKey: ['spaceExists', spaceId],
-    queryFn: () => fetchSpace(spaceId),
+    queryKey: [`${type}Exists`, inputValue],
+    queryFn:
+      type === 'guild'
+        ? () => fetchGuild(inputValue)
+        : () => fetchSpace(inputValue),
     enabled: false,
   });
 
   useEffect(() => {
     const debouncedRefetch = debounce(() => {
-      if (spaceId) {
+      if (inputValue) {
         refetch();
       }
     }, 300);
@@ -63,11 +78,11 @@ const SpaceInput = ({ name, remove, index, fieldsLength }: SpaceInputProps) => {
     debouncedRefetch();
 
     return () => debouncedRefetch.cancel();
-  }, [spaceId, refetch]);
+  }, [inputValue, refetch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    setSpaceId(newValue);
+    setInputValue(newValue);
     setValue?.(name, newValue);
   };
 
@@ -78,14 +93,18 @@ const SpaceInput = ({ name, remove, index, fieldsLength }: SpaceInputProps) => {
       <Input
         name={name}
         localForm={localForm}
-        placeholder='Space ID (e.g. hatsprotocol.eth)'
+        placeholder={
+          type === 'guild'
+            ? 'Guild name (e.g. hats-protocol)'
+            : 'Space ID (e.g. hatsprotocol.eth)'
+        }
         isDisabled={index !== fieldsLength - 1}
         onChange={handleChange}
         rightElement={
           // eslint-disable-next-line no-nested-ternary
-          spaceExists ? (
+          dataExists ? (
             <FaCheck color='green' />
-          ) : isLoading && spaceId ? (
+          ) : isLoading && inputValue ? (
             <Spinner size='sm' color='blue.500' />
           ) : null
         }
@@ -102,4 +121,4 @@ const SpaceInput = ({ name, remove, index, fieldsLength }: SpaceInputProps) => {
   );
 };
 
-export default SpaceInput;
+export default PlatformInput;

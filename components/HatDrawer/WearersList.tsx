@@ -45,6 +45,7 @@ import {
 } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
+import MainAction from './MainAction';
 import WearerRow from './WearerRow';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'), {
@@ -157,8 +158,6 @@ const WearersList = () => {
     [searchTerm, sortedWearers],
   );
 
-  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
-
   const claimTooltip = useMemo(() => {
     if (chainId !== currentNetworkId)
       return "You can't claim a hat on a different chain.";
@@ -268,36 +267,7 @@ const WearersList = () => {
                 </Button>
               </Tooltip>
             )}
-          {isAdminUser && (
-            <Tooltip
-              label={
-                maxWearersReached
-                  ? 'Maximum number of wearers reached.'
-                  : chainId !== currentNetworkId
-                  ? "You can't add a wearer on a different chain."
-                  : ''
-              }
-              fontSize='md'
-              isDisabled={!maxWearersReached && chainId === currentNetworkId}
-              shouldWrapChildren
-            >
-              <Button
-                variant='unstyled'
-                isDisabled={maxWearersReached || chainId !== currentNetworkId}
-                onClick={() =>
-                  !maxWearersReached ? setModals?.({ newWearer: true }) : {}
-                }
-              >
-                <HStack
-                  cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-                  color={maxWearersReached ? 'gray.500' : 'blue.500'}
-                >
-                  <FaPlus />
-                  <Text variant='ghost'>Add a wearer</Text>
-                </HStack>
-              </Button>
-            </Tooltip>
-          )}
+          <MainAction />
         </Flex>
       </Stack>
 
