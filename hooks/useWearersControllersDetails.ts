@@ -54,11 +54,17 @@ const useWearersControllersDetails = ({
   onchain?: boolean;
 }) => {
   const chainId = _.get(_.first(hats), 'chainId');
+  // Don't spam the RPC with requests for wearers on individual hats. Handle OrgChart wearers + controllers
+  const hatsWithIndividualWearers = _.filter(
+    hats,
+    (hat) => _.size(hat.wearers) === 1,
+  );
+
   const wAndCs = _.uniq(
     _.compact(
       _.reject(
         _.concat(
-          _.map(_.flatten(_.map(hats, 'wearers')), 'id'),
+          _.map(_.flatten(_.map(hatsWithIndividualWearers, 'wearers')), 'id'),
           _.flatten(_.map(hats, 'toggle')), // not nested in objects here
           _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
         ),

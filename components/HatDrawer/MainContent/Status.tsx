@@ -17,7 +17,6 @@ import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { TbCircleOff } from 'react-icons/tb';
-import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
@@ -32,26 +31,9 @@ import usePendHatterMint from '@/hooks/usePendHatterMint';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import { explorerUrl, SupportedChains } from '@/lib/chains';
-import { formatAddress } from '@/lib/general';
+import { SupportedChains } from '@/lib/chains';
+import { getControllerNameAndLink } from '@/lib/controllers';
 import { isWearingAdminHat } from '@/lib/hats';
-
-const SAFE_URL = 'https://app.safe.global';
-
-const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
-  1: 'eth',
-  5: 'gor',
-  10: 'oeth',
-  100: 'gno',
-  137: 'matic',
-  424: 'pgn', // NOT ACTUALLY SUPPORTED YET
-  42161: 'arb1',
-};
-
-const safeUrl = (chainId: SupportedChains, address: Hex | undefined) => {
-  if (!chainId || !address) return '';
-  return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
-};
 
 const StatusCard = ({
   status,
@@ -68,7 +50,7 @@ const StatusCard = ({
     'extendedEligibility',
     'extendedToggle',
   ]);
-  const statusData =
+  const controllerData =
     status === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
 
   const moduleAddress = useMemo(
@@ -98,11 +80,11 @@ const StatusCard = ({
   const { data: isActive } = useHatStatus();
   const { data: contractData } = useContractData({
     chainId,
-    address: statusData?.id,
-    enabled: statusData?.isContract,
+    address: controllerData?.id,
+    enabled: controllerData?.isContract,
   });
 
-  const { onCopy } = useClipboard(statusData?.id || '');
+  const { onCopy } = useClipboard(controllerData?.id || '');
   const toast = useToast();
 
   let statusCheck = true;
@@ -119,27 +101,21 @@ const StatusCard = ({
   const isAdmin = isWearingAdminHat(_.map(wearerDetails, 'id'), hatToMintTo);
 
   let icon = FaCode;
-  if (statusData?.id === FALLBACK_ADDRESS || statusData?.id === ZERO_ADDRESS) {
+  if (
+    controllerData?.id === FALLBACK_ADDRESS ||
+    controllerData?.id === ZERO_ADDRESS
+  ) {
     icon = TbCircleOff;
-  } else if (!statusData?.isContract) {
+  } else if (!controllerData?.isContract) {
     icon = BsPersonBadge;
   }
 
-  let controllerName = formatAddress(statusData?.id);
-  let controllerLink = `${explorerUrl(chainId)}/address/${_.get(
-    statusData,
-    'id',
-  )}`;
-  if (moduleDetails) controllerName = moduleDetails.name;
-  else if (statusData?.ensName) controllerName = statusData?.ensName;
-  else if (contractData?.contractName === 'GnosisSafeProxy') {
-    controllerName = 'Safe Multi-sig';
-    controllerLink = safeUrl(
-      chainId as SupportedChains,
-      _.get(statusData, 'id'),
-    );
-  } else if (contractData?.contractName)
-    controllerName = contractData?.contractName;
+  const { controllerName, controllerLink } = getControllerNameAndLink({
+    controllerData,
+    moduleDetails,
+    contractData,
+    chainId: chainId as SupportedChains,
+  });
 
   return (
     <Stack>
@@ -148,7 +124,7 @@ const StatusCard = ({
           {_.capitalize(_.toString(status))}
         </Heading>
         <Tooltip
-          label={_.get(statusData, 'id')}
+          label={_.get(controllerData, 'id')}
           placement='left'
           minW='400px'
           textAlign='center'

@@ -38,6 +38,7 @@ import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
 import { chainsMap } from '@/lib/chains';
 import { decimalId, isMutable, toTreeId } from '@/lib/hats';
+import { maxSupplyText } from '@/lib/wearers';
 import { FormWearer, HatWearer } from '@/types';
 
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
@@ -70,6 +71,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   const hatId = _.get(selectedHat, 'id');
   const detailsObject = _.get(selectedHat, 'detailsObject');
+  const currentSupply = _.get(selectedHat, 'currentSupply');
+  // TODO handle more than 100 wearers
   const currentWearers = _.get(selectedHat, 'extendedWearers');
   let hatName = selectedHat?.details;
   if (detailsObject?.data) {
@@ -101,6 +104,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         wearer.address === currentInput ||
         (wearer.ens === currentInput && currentInput !== ''),
     ) ||
+    // TODO dynamic check for current wearers in case of > 100 wearers
     _.includes(_.map(currentWearers, 'id'), _.toLower(currentResolvedAddress));
 
   const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
@@ -270,7 +274,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   return (
     <form onSubmit={handleSubmit?.(onSubmit)}>
-      <Stack spacing={4}>
+      <Stack spacing={editMode ? 4 : 2}>
         {editMode && (
           <FormRowWrapper>
             <Icon as={BsBarChart} boxSize={4} mt='2px' />
@@ -294,9 +298,9 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           </FormRowWrapper>
         )}
         <Flex justify='space-between' align='flex-end'>
-          <Stack gap={0}>
+          <Stack gap={0} maxW='60%'>
             <HStack>
-              <Text fontSize='sm'>NEW WEARER ADDRESS</Text>
+              <Text fontSize='sm'>NEW WEARER ADDRESSES</Text>
             </HStack>
             <Text fontSize='sm' color='blackAlpha.700'>
               This address will receive a {hatName} hat token on{' '}
@@ -305,8 +309,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           </Stack>
           {!editMode && (
             <Text fontSize='sm' color='blackAlpha.700'>
-              {_.size(currentWearerList) + _.size(localWearers)} of {maxSupply}{' '}
-              wearers
+              {_.toNumber(currentSupply) + _.size(localWearers)} of{' '}
+              {maxSupplyText(maxSupply)} wearers
             </Text>
           )}
         </Flex>

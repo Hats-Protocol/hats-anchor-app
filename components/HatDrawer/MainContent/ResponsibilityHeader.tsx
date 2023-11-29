@@ -1,14 +1,15 @@
 import {
   Avatar,
   Box,
-  Button,
   Flex,
   Icon,
+  IconButton,
   Link,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
 import { BsFileCheck } from 'react-icons/bs';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import { getHostnameFromURL } from '@/lib/general';
 import { ipfsUrl } from '@/lib/ipfs';
@@ -46,25 +47,45 @@ const ResponsibilityHeader = ({
         </Flex>
       )}
       <Box flex={1} mx={4} minW={0} w='full'>
-        <Tooltip label={label} placement='top' hasArrow>
-          <Text fontSize='md' fontWeight='medium' isTruncated>
+        <Tooltip label={label} placement='left' hasArrow>
+          <Text
+            fontSize='md'
+            fontWeight='medium'
+            noOfLines={2}
+            textAlign='left'
+          >
             {label || 'New Responsibility'}
           </Text>
         </Tooltip>
       </Box>
-      {hostname && (
+      {link && (
+        <Link href={link} isExternal>
+          <Tooltip label={hostname}>
+            <IconButton
+              icon={<Icon as={FaExternalLinkAlt} />}
+              variant='outlineMatch'
+              aria-label='Responsibility Link'
+              borderColor='blue.500'
+              color='blue.500'
+              size='sm'
+            />
+          </Tooltip>
+        </Link>
+      )}
+      {/* {hostname && (
         <Link href={link} isExternal>
           <Button
             variant='outlineMatch'
             borderColor='blue.500'
             color='blue.500'
+            size='sm'
           >
             <Text fontSize='md' fontWeight='medium'>
               {hostname}
             </Text>
           </Button>
         </Link>
-      )}
+      )} */}
     </Flex>
   );
 };

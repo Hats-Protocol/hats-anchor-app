@@ -14,7 +14,7 @@ type ContractDataKeys =
   | 'runs'
   | 'swarmSource';
 
-type ContractData = {
+export type ContractData = {
   [key in ContractDataKeys]: string;
 };
 
@@ -22,20 +22,28 @@ const fetchContractData = async (
   chainId: number | undefined,
   address: Hex | undefined,
 ) => {
-  const result = await fetch('/api/contract-name', {
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    mode: 'cors', // no-cors, *cors, same-origin
-    credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      chainId,
-      address,
-    }),
-  });
-  const data = await result.json();
-  return data as ContractData;
+  try {
+    const result = await fetch('/api/contract-name', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chainId,
+        address,
+      }),
+    });
+
+    const data = await result.json();
+    console.log(data);
+    return data as ContractData;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(err);
+    return undefined;
+  }
 };
 
 // TODO disable if not supported on chain

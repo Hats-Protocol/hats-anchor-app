@@ -42,7 +42,7 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).json({ error: 'Missing chainId or address' });
   }
 
-  // TODO more auth, simple fetch requests passes next session?
+  // TODO more auth, do fetch requests pass next session?
 
   try {
     const result = await fetch(
@@ -53,6 +53,10 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
       }`,
     );
     const data = await result.json();
+    // force error if not verified
+    if (_.get(data, 'result[0].ABI') === 'Contract source code not verified') {
+      return res.status(404).json({ error: 'Contract not verified', address });
+    }
     const returnData = _.mapKeys(_.get(data, 'result[0]'), (value, key) =>
       _.camelCase(key),
     );
