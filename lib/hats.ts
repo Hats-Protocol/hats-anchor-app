@@ -191,17 +191,21 @@ export const isWearingAdminHat = (
   const treeId = hatId.slice(0, 10);
   // separate children IDs
   const children = hatId.slice(10);
-  const hats = children.match(/.{1,4}/g); // _.split(children, '.');
+  const hats = children.match(/.{1,4}/g);
 
   if (!hats) return false;
 
-  if (!includeCurrent) hats.pop();
-
   // map all parent hatIds for the lineage
-  const hatIds = hats.map((__, i) => {
-    const joinedParentHats = hats.slice(0, i).join('');
-    return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
-  });
+  let hatIds = _.uniq(
+    _.map(hats, (__, i) => {
+      const joinedParentHats = hats.slice(0, i).join('');
+      return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
+    }),
+  );
+
+  if (!includeCurrent) {
+    hatIds = _.reject(hatIds, (id) => id === hatId);
+  }
   // TODO handle linked trees
 
   if (!wearerHatIds) return false;
@@ -681,23 +685,21 @@ export const flattenHatData = (data: any[]): FormData[] =>
     spaces: _.get(hat, 'detailsObject.data.spaces', []),
   }));
 
-const extractWearers = (wearers: any): FormWearer[] => {
+const extractWearers = (wearers: any[]): FormWearer[] => {
   if (
     _.isArray(wearers) &&
     !_.isEmpty(wearers) &&
     _.isString(_.first(wearers))
   ) {
     return _.map(wearers, (wearer) => ({
-      address: wearer,
+      address: wearer as Hex,
       ens: '',
     }));
   }
-  return (
-    _.map(wearers, ({ id }) => ({
-      address: id,
-      ens: '',
-    })) || []
-  );
+  return _.map(wearers, (wearer) => ({
+    address: wearer.id,
+    ens: '',
+  }));
 };
 
 export const checkMissingHats = (
