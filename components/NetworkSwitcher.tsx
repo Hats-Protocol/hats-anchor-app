@@ -3,7 +3,7 @@ import React from 'react';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { chainsList } from '@/lib/chains';
+import { chainsList, SupportedChains } from '@/lib/chains';
 
 const NetworkSwitcher: React.FC = () => {
   const { chainId } = useTreeForm();
@@ -11,7 +11,9 @@ const NetworkSwitcher: React.FC = () => {
   const { isLoading, switchNetwork } = useSwitchNetwork();
 
   const desiredChainName =
-    chain?.id === chainId ? chain?.name : chainId && chainsList[chainId]?.name;
+    chain?.id === chainId
+      ? chain?.name
+      : chainId && chainsList[chainId as SupportedChains]?.name;
 
   if (!desiredChainName || !switchNetwork || chainId === chain?.id) return null;
 

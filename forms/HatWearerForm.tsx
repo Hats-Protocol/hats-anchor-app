@@ -41,6 +41,7 @@ import { decimalId, isMutable, toTreeId } from '@/lib/hats';
 import { maxSupplyText } from '@/lib/wearers';
 import { FormWearer, HatWearer } from '@/types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
 
