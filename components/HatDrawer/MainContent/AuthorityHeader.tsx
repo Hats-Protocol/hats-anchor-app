@@ -15,6 +15,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { AUTHORITIES } from '@/constants';
+import { SnapshotStrategy } from '@/hooks/useSnapshotSpaces';
 import { getHostnameFromURL, validateURL } from '@/lib/general';
 import { ipfsUrl } from '@/lib/ipfs';
 import { Authority, AuthorityType } from '@/types';
@@ -32,7 +33,7 @@ const AuthorityHeader = ({
   type: AuthorityType;
   imageUrl?: string;
   hideInfo?: boolean;
-  strategies?: string[];
+  strategies?: SnapshotStrategy[];
   link?: string;
   editingItem?: Authority;
 }) => {
@@ -67,7 +68,9 @@ const AuthorityHeader = ({
             <Tooltip
               label={
                 strategies
-                  ? `Automatically pulled in from Snapshot. Voting weight in ${strategies.length} strategies.`
+                  ? `Automatically pulled in from Snapshot. Voting weight in ${_.size(
+                      strategies,
+                    )} strategies.`
                   : AUTHORITIES[type].info
               }
               placement='right'

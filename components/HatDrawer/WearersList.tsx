@@ -262,7 +262,7 @@ const WearersList = () => {
                 >
                   <HStack color='blue.500'>
                     <FaPlus />
-                    <Text variant='ghost'>Claim Hat</Text>
+                    <Text>Claim Hat</Text>
                   </HStack>
                 </Button>
               </Tooltip>
