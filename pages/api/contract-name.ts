@@ -57,8 +57,9 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     if (_.get(data, 'result[0].ABI') === 'Contract source code not verified') {
       return res.status(404).json({ error: 'Contract not verified', address });
     }
-    const returnData = _.mapKeys(_.get(data, 'result[0]'), (value, key) =>
-      _.camelCase(key),
+    const returnData = _.mapKeys(
+      _.get(data, 'result[0]'),
+      (value: any, key: any) => _.camelCase(key),
     );
     const trimData = _.omit(returnData, ['abi', 'sourceCode']);
 

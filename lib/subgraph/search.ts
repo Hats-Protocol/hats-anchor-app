@@ -70,7 +70,7 @@ export const searchQueryResult = async (search: string) => {
     trees: [],
     hats: [],
   };
-  _.forEach(result, (network, i) => {
+  _.forEach(result, (network: any, i: number) => {
     allNetworkResults.trees = _.concat(
       _.map(_.get(network, 'trees'), (tree: Tree) => ({
         ...tree,
@@ -87,7 +87,14 @@ export const searchQueryResult = async (search: string) => {
     );
   });
 
-  return _.mapValues(allNetworkResults, (o, k) =>
-    _.map(o, (r) => processForCommandPalette(k, r)),
+  return _.mapValues(
+    allNetworkResults,
+    (
+      o: {
+        trees: Tree[];
+        hats: Hat[];
+      },
+      k: any,
+    ) => _.map(o, (r: any) => processForCommandPalette(k, r)),
   );
 };

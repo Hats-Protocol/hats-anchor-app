@@ -65,7 +65,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
-    (hatId) => hatId !== undefined,
+    (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats(hatIds);
 
@@ -160,7 +160,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         borderY='1px solid'
         borderColor='gray.200'
       >
-        {_.map(treeToDisplay, (hat) => {
+        {_.map(treeToDisplay, (hat: Hat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
           // console.log(changes);

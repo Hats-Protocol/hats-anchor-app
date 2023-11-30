@@ -85,7 +85,7 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
       !!claimsHatterAddress &&
       // userChain === chainId &&
       !!selectedHat &&
-      (!!address || wearer),
+      (!!address || !!wearer),
   });
 
   const [isClaimable, isClaimableAdmin] = useMemo(

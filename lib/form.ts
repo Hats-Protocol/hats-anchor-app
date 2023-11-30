@@ -322,7 +322,7 @@ const processDetailsChangeCallForHat = async ({
     existingDetails,
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (acc: any, existingValue, key) => {
+    (acc: any, existingValue: any, key: string) => {
       const localKey = key as HatDetailsKeys;
       const newValue = newDetails[localKey];
 
@@ -612,8 +612,8 @@ export const removeAndHandleSiblings = (
     hatId,
   );
 
-  const noEmptyChanges = _.reject(storedData, (d) =>
-    _.isEmpty(_.reject(_.keys(d), (k) => k === 'id')),
+  const noEmptyChanges = _.reject(storedData, (d: Partial<FormData>) =>
+    _.isEmpty(_.reject(_.keys(d), (k: string) => k === 'id')),
   );
 
   const newSiblings = _.filter(noEmptyChanges, [
@@ -621,7 +621,7 @@ export const removeAndHandleSiblings = (
     storedHat?.parentId,
   ]);
 
-  const updateSiblings = _.map(newSiblings, (child, i) => {
+  const updateSiblings = _.map(newSiblings, (child: { id: any }, i: number) => {
     const childId = child.id;
     if (i === newSiblings.length - 1 || !childId) return undefined;
 
@@ -631,7 +631,7 @@ export const removeAndHandleSiblings = (
     return { ...newSiblings[i + 1], id: childId };
   });
 
-  const filterSiblings = _.reject(storedData, (child) =>
+  const filterSiblings = _.reject(storedData, (child: Partial<FormData>) =>
     _.includes(_.map(newSiblings, 'id'), child.id),
   );
 
@@ -642,14 +642,14 @@ export const removeAndHandleSiblingsOrgChart = (hats: Hat[], hatId: Hex) => {
   const orgChartHat = _.find(hats, ['id', hatId]);
   const newSiblings = _.filter(hats, ['parentId', orgChartHat?.parentId]);
 
-  const updateSiblings = _.map(newSiblings, (child, i) => {
+  const updateSiblings = _.map(newSiblings, (child: { id: any }, i: number) => {
     if (i + 1 === newSiblings.length) return undefined;
 
     // TODO do we need to handle left siblings here?
     return { ...newSiblings[i + 1], id: child.id };
   });
 
-  const filterSiblings = _.reject(hats, (child) =>
+  const filterSiblings = _.reject(hats, (child: Hat) =>
     _.includes(_.concat(_.map(newSiblings, 'id'), [orgChartHat?.id]), child.id),
   );
 
@@ -685,7 +685,7 @@ export const fieldsAreDirty = (
   dirtyFields: string[],
 ) => {
   return _.map(
-    _.filter(fieldsArray, (field) =>
+    _.filter(fieldsArray, (field: FieldItem) =>
       _.includes(dirtyFields, field.name as string),
     ),
     'label',

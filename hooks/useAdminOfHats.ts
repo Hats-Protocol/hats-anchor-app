@@ -20,7 +20,7 @@ const useAdminOfHats = (hatIds: Hex[]) => {
     if (!user) return [];
 
     const results: (Hex | null)[] = await Promise.all(
-      _.map(hatIds, async (hatId) => {
+      _.map(hatIds, async (hatId: Hex) => {
         try {
           const isAdmin = await hatsClient.isAdminOfHat({
             user,

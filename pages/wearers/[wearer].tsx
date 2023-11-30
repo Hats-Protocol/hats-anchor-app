@@ -111,7 +111,7 @@ const WearerDetail = ({
   ];
 
   const groupedHats = _.groupBy(currentHatsWithImagesData, 'chainId');
-  const localOrderedChains = _.filter(orderedChains, (k) =>
+  const localOrderedChains = _.filter(orderedChains, (k: number) =>
     _.includes(_.keys(groupedHats), String(k)),
   );
 
@@ -166,7 +166,7 @@ const WearerDetail = ({
             </Stack>
           </HStack>
           <HStack>
-            {_.map(headlineStats, (stat) => (
+            {_.map(headlineStats, (stat: any) => (
               <Card w='125px' key={stat.label}>
                 <CardBody>
                   <Stack align='center'>
@@ -196,7 +196,7 @@ const WearerDetail = ({
             <Text>Not wearing any hats</Text>
           ) : (
             <Stack>
-              {_.map(localOrderedChains, (chainId) => (
+              {_.map(localOrderedChains, (chainId: any) => (
                 <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 

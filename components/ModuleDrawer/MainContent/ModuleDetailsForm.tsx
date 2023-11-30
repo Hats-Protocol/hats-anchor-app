@@ -15,7 +15,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';
 import { decimalId, prettyIdToIp } from '@/lib/hats';
-import { ModuleCreationArg, ModuleDetails } from '@/types';
+import { Hat, ModuleCreationArg, ModuleDetails } from '@/types';
 
 const ModuleDetailsForm = ({
   localForm,
@@ -31,8 +31,8 @@ const ModuleDetailsForm = ({
   const selectedModuleField = watch('moduleType', '');
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
-    const modulesForType = _.filter(modules, (m) => {
-      const types = _.keys(_.pickBy(m.type, (value) => value));
+    const modulesForType = _.filter(modules, (m: ModuleDetails) => {
+      const types = _.keys(_.pickBy(m.type, (value: any) => value));
 
       return _.includes(types, _.toLower(title));
     });
@@ -71,7 +71,7 @@ const ModuleDetailsForm = ({
             placeholder='Select a module type'
             localForm={localForm}
           >
-            {_.map(modulesToDisplay, ({ name, id }) => (
+            {_.map(modulesToDisplay, ({ name, id }: ModuleDetails) => (
               <option value={id} key={name}>
                 {name}
               </option>
@@ -148,7 +148,7 @@ const ModuleDetailsForm = ({
                 validate: (value) => transformAndVerify(value, arg.type),
               }}
             >
-              {_.map(onchainHats, ({ id, prettyId }) => (
+              {_.map(onchainHats, ({ id, prettyId }: Hat) => (
                 <option value={decimalId(id)} key={id}>
                   {prettyIdToIp(prettyId)}
                 </option>

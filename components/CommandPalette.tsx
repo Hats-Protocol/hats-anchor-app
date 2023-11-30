@@ -11,7 +11,7 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 
-import { SearchResults } from '@/types';
+import { Group, SearchResults } from '@/types';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import useSearchResults from '../hooks/useSearchResults';
@@ -149,9 +149,9 @@ const CommandPalette = () => {
             </CmdkCommandPalette.List>
           ))
         ) : localResults ? (
-          _.map(searchResults, (group) => (
+          _.map(searchResults, (group: Group) => (
             <CmdkCommandPalette.List key={group.id} heading={group.heading}>
-              {_.map(_.get(group, 'items'), ({ id, ...rest }) => (
+              {_.map(_.get(group, 'items'), ({ id, ...rest }: { id: any }) => (
                 <CmdkCommandPalette.ListItem
                   key={id}
                   index={getItemIndex(searchResults, id)}

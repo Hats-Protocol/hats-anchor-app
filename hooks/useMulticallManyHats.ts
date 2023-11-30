@@ -16,7 +16,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { processHatForCalls } from '@/lib/form';
 import { fetchToken, handleDetailsPin } from '@/lib/ipfs';
-import { Hat, HatDetails } from '@/types';
+import { FormData, Hat, HatDetails } from '@/types';
 
 import useAdminOfHats from './useAdminOfHats';
 
@@ -45,20 +45,21 @@ const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
-    (hatId) => hatId !== undefined,
+    (hatId: undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats(hatIds);
 
   useEffect(() => {
     const prepareMulticallData = async () => {
-      const onlyOnchainHats = _.filter(treeToDisplay, (hat) =>
+      const onlyOnchainHats = _.filter(treeToDisplay, (hat: Hat) =>
         _.includes(_.map(onchainHats, 'id'), hat.id),
       );
 
-      const deployableHatChanges = _.filter(storedData, (hat) =>
-        _.includes(adminHatIds, hat.id),
+      const deployableHatChanges = _.filter(
+        storedData,
+        (hat: Partial<FormData>) => _.includes(adminHatIds, hat.id),
       );
-      const allCallsPromises = _.map(deployableHatChanges, (hat) =>
+      const allCallsPromises = _.map(deployableHatChanges, (hat: any) =>
         processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
@@ -108,7 +109,9 @@ const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
     const orgChartTreeQueryKey = [
       'orgChartTree',
       { chainId, treeId },
-      _.map(treeToDisplay, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+      _.map(treeToDisplay, (h: Hat) =>
+        _.pick(h, ['id', 'details', 'imageUri']),
+      ),
     ];
 
     // * set all queries to undefined to force a refetch, not ideal but working
@@ -138,7 +141,7 @@ const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {
 
     const newStoredData = _.filter(
       storedData,
-      (hat) => !_.includes(adminHatIds, hat.id),
+      (hat: Partial<FormData>) => !_.includes(adminHatIds, hat.id),
     );
 
     setStoredData?.(newStoredData);

@@ -46,7 +46,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
         </AccordionButton>
         <AccordionPanel px={0}>
           <Stack>
-            {_.map(moduleDetails.details, (detail) => (
+            {_.map(moduleDetails.details, (detail: string) => (
               <Text key={detail} fontSize='sm'>
                 {detail}
               </Text>
@@ -81,7 +81,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
         </AccordionButton>
         <AccordionPanel px={0}>
           <Stack>
-            {_.map(moduleDetails.links, (link) => (
+            {_.map(moduleDetails.links, (link: any) => (
               <ChakraNextLink
                 href={link.link || '#'}
                 key={link.link}

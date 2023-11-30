@@ -127,7 +127,7 @@ const useModuleDeploy = ({
             const hatIds = _.uniq(
               _.map(_.concat(moduleHats, hatterHats), 'id'),
             );
-            const updatedHats = _.map(hatIds, (id) =>
+            const updatedHats = _.map(hatIds, (id: any) =>
               _.merge(
                 {},
                 _.find(hatterHats, { id }),
@@ -165,7 +165,7 @@ const useModuleDeploy = ({
                 _.map(updatedHatsWithClaimsHatter, 'id'),
               ),
             );
-            const updatedHats = _.map(hatIds, (id) => {
+            const updatedHats = _.map(hatIds, (id: any) => {
               const hatterHat = _.find(updatedHatsWithClaimsHatter, ['id', id]);
               const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
               return _.merge({}, hatterHat, moduleHat);

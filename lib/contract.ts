@@ -45,7 +45,7 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
     status: 'pending',
   });
   // handle the client with tx so chain is relative to tx
-  const transactionPromises = pendingTransactions.map(async (tx) => {
+  const transactionPromises = pendingTransactions.map(async (tx: any) => {
     const publicClient = createPublicClient({
       chain: chainsMap(tx.txChainId),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

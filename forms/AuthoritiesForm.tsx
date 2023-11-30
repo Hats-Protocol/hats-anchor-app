@@ -101,7 +101,7 @@ const AuthoritiesForm = ({
     );
     const newRoles = _.filter(
       selectedHatGuildRoles,
-      (role) => !_.includes(existingLinks, role.link),
+      (role: Authority) => !_.includes(existingLinks, role.link),
     );
 
     if (newRoles.length) {

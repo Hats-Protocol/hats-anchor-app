@@ -171,7 +171,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
           newAdmin={selectedHat.id}
           wearerTopHats={_.filter(
             wearerTopHats,
-            (hat) => hat !== selectedHat.admin?.id,
+            (hat: string | undefined) => hat !== selectedHat.admin?.id,
           )}
         />
       </Modal>

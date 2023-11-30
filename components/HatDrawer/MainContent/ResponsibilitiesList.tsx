@@ -18,7 +18,7 @@ const ResponsibilitiesList = () => {
         Responsibilities
       </Heading>
 
-      {_.map(responsibilities, (responsibility) => (
+      {_.map(responsibilities, (responsibility: any) => (
         <ResponsibilitiesListCard
           key={responsibility.label}
           responsibility={responsibility}

@@ -72,7 +72,7 @@ const TopMenu = () => {
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
-    (hatId) => hatId !== undefined,
+    (hatId: Hex) => hatId !== undefined,
   ) as Hex[];
 
   const { adminHatIds } = useAdminOfHats(hatIds);
@@ -80,7 +80,7 @@ const TopMenu = () => {
   const isAdminOfAnyHatWithChanges = useMemo(() => {
     const hatsWithChangesIds = _.map(storedData, 'id');
 
-    const hasAdminOverAnyHat = _.some(hatsWithChangesIds, (id) =>
+    const hasAdminOverAnyHat = _.some(hatsWithChangesIds, (id: Hex) =>
       _.includes(adminHatIds, id),
     );
 

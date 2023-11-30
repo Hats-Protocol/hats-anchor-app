@@ -15,22 +15,25 @@ const useManyHatDetails = ({
   initialHats?: Partial<Hat>[];
   editMode?: boolean;
 }): { data: Hat[] | undefined; isLoading: boolean } => {
-  const onlyOnchainHats = _.filter(hats, (hat) =>
+  const onlyOnchainHats = _.filter(hats, (hat: { id: any }) =>
     _.includes(_.map(initialHats, 'id'), hat.id),
   );
 
   const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
   const hatsDetails = useQueries({
-    queries: _.map(onlyOnchainHats, (hat) => {
-      const hatDetails = _.pick(hat, ['id', 'chainId']);
+    queries: _.map(
+      onlyOnchainHats,
+      (hat: { id: string | undefined; chainId: any }) => {
+        const hatDetails = _.pick(hat, ['id', 'chainId']);
 
-      return {
-        queryKey: ['hatDetails', hatDetails],
-        queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
-        enabled: !!hat.id && !!hat.chainId,
-        refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
-      };
-    }),
+        return {
+          queryKey: ['hatDetails', hatDetails],
+          queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
+          enabled: !!hat.id && !!hat.chainId,
+          refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+        };
+      },
+    ),
   });
 
   const isLoading = _.some(hatsDetails, ['isLoading', true]);

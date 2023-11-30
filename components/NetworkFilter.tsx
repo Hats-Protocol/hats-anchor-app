@@ -38,7 +38,7 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
         </HStack>
       </MenuButton>
       <MenuList>
-        {_.map(chainsList, ({ id, name }) => (
+        {_.map(chainsList, ({ id, name }: any) => (
           <MenuItem
             key={id}
             onClick={() => router.push(`/trees/${id}`)}

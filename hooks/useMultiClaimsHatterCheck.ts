@@ -49,7 +49,7 @@ const getHatterHat = async (
 
   const claimsHatterIndex = _.findIndex(
     storedModuleDetails,
-    (result) => _.get(result, 'name') === CONFIG.claimsHatterModuleName,
+    (result: Module) => _.get(result, 'name') === CONFIG.claimsHatterModuleName,
   );
   const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
 
@@ -91,7 +91,10 @@ const useMultiClaimsHatterCheck = () => {
 
   const storedAddresses = _.uniq(
     _.compact(
-      _.flatMap(storedData, ({ eligibility, toggle }) => [eligibility, toggle]),
+      _.flatMap(storedData, ({ eligibility, toggle }: Partial<FormData>) => [
+        eligibility,
+        toggle,
+      ]),
     ),
   );
 
@@ -108,7 +111,7 @@ const useMultiClaimsHatterCheck = () => {
   };
 
   const storedModuleDetails = useQueries({
-    queries: storedAddresses.map((address) => ({
+    queries: storedAddresses.map((address: any) => ({
       queryKey: ['otherModuleDetails', address],
       queryFn: () => getModuleData(address),
       enabled: !!address,
@@ -120,7 +123,7 @@ const useMultiClaimsHatterCheck = () => {
   const modulesLoading = _.some(storedModuleDetails, 'isLoading');
 
   const storedDataClaimableHats = _.compact(
-    _.map(storedModuleDetails, (result, index) => {
+    _.map(storedModuleDetails, (result: { data: any }, index: any) => {
       if (result.data) {
         return _.get(storedData, `[${index}].id`);
       }

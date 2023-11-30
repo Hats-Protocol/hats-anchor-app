@@ -57,7 +57,7 @@ const useWearersControllersDetails = ({
   // Don't spam the RPC with requests for wearers on individual hats. Handle OrgChart wearers + controllers
   const hatsWithIndividualWearers = _.filter(
     hats,
-    (hat) => _.size(hat.wearers) === 1,
+    (hat: Hat) => _.size(hat.wearers) === 1,
   );
 
   const wAndCs = _.uniq(
@@ -74,7 +74,7 @@ const useWearersControllersDetails = ({
   );
 
   const wearerAndControllerDetails = useQueries({
-    queries: _.map(wAndCs, (wearer) => ({
+    queries: _.map(wAndCs, (wearer: any) => ({
       queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
       queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
       enabled:

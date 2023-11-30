@@ -36,7 +36,7 @@ const useAllWearers = () => {
   const fetchAllWearers = async () => {
     if (!chainId || !selectedHat || !supply) return [];
     const pages = Math.ceil(supply / 1000);
-    const promises = _.map(_.range(pages), (page) => {
+    const promises = _.map(_.range(pages), (page: any) => {
       return fetchHatWearersPage({ hatId: selectedHat?.id, chainId, page });
     });
 

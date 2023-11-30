@@ -92,7 +92,7 @@ const filterStrategies = (
   // generic filter for strategies where the hatId is included in the params.ids array
   const standardIdStrategies = _.filter(
     strategies,
-    (strategy) =>
+    (strategy: SnapshotStrategy) =>
       _.toNumber(strategy.network) === chainId &&
       (_.includes(strategy.params.ids, decimalId(hatId)) ||
         _.includes(strategy.params.ids, hatIdDecimalToIp(BigInt(hatId)))),
@@ -100,7 +100,7 @@ const filterStrategies = (
   // generic filter for strategies where the hatId is included in the params.tokenId value
   const standardTokenIdStrategies = _.filter(
     strategies,
-    (strategy) =>
+    (strategy: SnapshotStrategy) =>
       _.toNumber(strategy.network) === chainId &&
       (_.eq(strategy.params.tokenId, decimalId(hatId)) ||
         _.eq(strategy.params.tokenId, hatIdDecimalToIp(BigInt(hatId)))),
@@ -133,7 +133,7 @@ const useSnapshotSpaces = ({
 
   const selectedHatSpaceStrategies = data
     ? _.compact(
-        _.map(data, (space) => {
+        _.map(data, (space: SnapshotSpace) => {
           const filteredStrategies = filterStrategies(
             space.strategies,
             hatId,

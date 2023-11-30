@@ -19,28 +19,30 @@ const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
       networkTrees[cId] = {
         trees: _.uniq(
           _.map(
-            _.filter(hats, (h) => h.chainId === _.toNumber(cId)),
-            (h) => h.tree?.id,
+            _.filter(hats, (h: Hat) => h.chainId === _.toNumber(cId)),
+            (h: Hat) => h.tree?.id,
           ),
         ),
       };
     });
 
-    const networksWithTrees = _.omitBy(networkTrees, (v) => _.isEmpty(v.trees));
+    const networksWithTrees = _.omitBy(networkTrees, (v: { trees: any }) =>
+      _.isEmpty(v.trees),
+    );
     const networkChains = _.keys(networksWithTrees);
 
     // fetch the trees for each network
-    const promises = _.map(networksWithTrees, (v, k) => {
-      const trees = _.filter(v.trees, (t) => t !== undefined) as string[];
+    const promises = _.map(networksWithTrees, (v: { trees: any }, k: any) => {
+      const trees = _.filter(v.trees, (t: any) => t !== undefined) as string[];
       return fetchTreesById(trees, _.toNumber(k));
     });
     const data: unknown[] = await Promise.all(promises);
 
     // consolidate the associated hats for each tree
-    const test = _.map(data, (arr: Tree[], i) =>
+    const test = _.map(data, (arr: Tree[], i: number) =>
       _.flatten(
         _.map(arr, (tree: Tree) =>
-          _.map(tree.hats, (h) => ({
+          _.map(tree.hats, (h: Hat) => ({
             ...h,
             chainId: _.toNumber(networkChains[i]),
           })),

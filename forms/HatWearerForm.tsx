@@ -223,7 +223,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const handleRemoveWearer = (index: number) => {
     const updateWearers = _.filter(
       localWearers,
-      (__, i) => _.toNumber(i) !== index,
+      (__: any, i: any) => _.toNumber(i) !== index,
     );
     setValue?.('wearers', updateWearers);
   };

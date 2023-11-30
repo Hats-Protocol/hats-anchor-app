@@ -33,7 +33,10 @@ const MainContent = ({
 
   const parentHats = useMemo(() => {
     const parents = getAllParents(selectedHat?.id, treeToDisplay);
-    return _.filter(parents, (parent) => parent !== topHat?.id);
+    return _.filter(
+      parents,
+      (parent: string | undefined) => parent !== topHat?.id,
+    );
   }, [selectedHat, treeToDisplay, topHat]);
 
   const { claimableHats } = useMultiClaimsHatterCheck();

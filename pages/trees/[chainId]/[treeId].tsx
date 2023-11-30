@@ -7,6 +7,7 @@ import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
 import { decimalToTreeId } from '@/lib/hats';
 import { fetchTreeDetails } from '@/lib/subgraph';
+import { Hat } from '@/types';
 
 const TreeDetails = ({
   treeId,
@@ -65,7 +66,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
       _.concat(_.map(parentOfTrees, 'hats[0].id'), _.get(linkedToHat, 'id')),
     );
 
-    const hatsWithoutEvents = _.map(treeData.hats, (hat) =>
+    const hatsWithoutEvents = _.map(treeData.hats, (hat: Hat) =>
       _.omit(hat, ['events']),
     );
 

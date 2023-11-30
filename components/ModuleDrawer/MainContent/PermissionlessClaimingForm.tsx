@@ -144,7 +144,7 @@ const PermissionlessClaimingForm = ({
                     required: isPermissionlesslyClaimable === 'Yes',
                   }}
                 >
-                  {_.map(parentHats, (id) => (
+                  {_.map(parentHats, (id?: Hex) => (
                     <option value={id} key={id}>
                       {prettyIdToIp(idToPrettyId(id))}
                     </option>

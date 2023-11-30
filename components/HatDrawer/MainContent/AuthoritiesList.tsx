@@ -2,7 +2,7 @@ import { Accordion, Heading, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { AuthorityType } from '@/types';
+import { Authority, AuthorityType } from '@/types';
 
 import AuthoritiesListCard from './AuthoritiesListCard';
 
@@ -17,7 +17,7 @@ const AuthoritiesList = () => {
         Authorities
       </Heading>
 
-      {_.map(combinedAuthorities, (authority) => (
+      {_.map(combinedAuthorities, (authority: Authority) => (
         <AuthoritiesListCard
           key={authority.label}
           authority={authority}

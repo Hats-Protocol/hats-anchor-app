@@ -62,11 +62,11 @@ export async function toTreeStructure({
   ) {
     return Promise.resolve(undefined);
   }
-  const onlyOnchainHats = _.filter(hatsData, (hat) =>
+  const onlyOnchainHats = _.filter(hatsData, (hat: Hat) =>
     _.includes(initialHatIds, hat?.id),
   );
 
-  const mergedHatsData = _.map(onlyOnchainHats, (hat) => {
+  const mergedHatsData = _.map(onlyOnchainHats, (hat: any) => {
     const fullHat = _.find(hatsData, ['id', hat.id]);
     const details = _.find(detailsData, ['id', hat.details]);
     const image = _.find(imagesData, ['id', hat.id]);
@@ -80,18 +80,18 @@ export async function toTreeStructure({
     };
   });
 
-  const hats = _.map(initialHatIds, (hat) =>
+  const hats = _.map(initialHatIds, (hat: Hex) =>
     mapHat(_.find(mergedHatsData, ['id', hat]), chainId, wearersAndControllers),
   );
 
   const hatsList = _.orderBy(
     _.compact(_.concat(hats, draftHats)),
-    (h) => {
+    (h: Hat) => {
       return _.size(_.split(h.name, '.'));
     },
     'asc',
   );
-  const updatedHatsList = hatsList.map((hat) =>
+  const updatedHatsList = hatsList.map((hat: any) =>
     updateHatProperties(hat, treeData.parentOfTrees, treeData.linkedToHat),
   );
 

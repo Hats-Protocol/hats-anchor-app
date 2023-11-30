@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import { FormData } from '@/types';
 
 // app-hooks
 const usePendHatterMint = ({
@@ -29,7 +30,7 @@ const usePendHatterMint = ({
   }, [availableAdmins]);
 
   const hatToMintPended = useMemo(() => {
-    const pendedWearers = _.filter(storedData, (h) =>
+    const pendedWearers = _.filter(storedData, (h: Partial<FormData>) =>
       _.includes(_.map(h.wearers, 'address'), address),
     );
     if (!_.isEmpty(pendedWearers)) return _.get(_.first(pendedWearers), 'id');

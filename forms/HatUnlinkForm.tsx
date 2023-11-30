@@ -63,7 +63,7 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
           name='topHatPrettyId'
           localForm={localForm}
         >
-          {_.map(parentOfTrees, (hat) => (
+          {_.map(parentOfTrees, (hat: Hex) => (
             <option value={hat} key={hat}>
               {prettyIdToIp(hat)}
             </option>

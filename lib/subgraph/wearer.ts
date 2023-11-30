@@ -38,7 +38,7 @@ export const fetchManyWearerDetails = async (
   });
 
   // map with ID so can be looked up later
-  return _.map(wearerIds, (wearerId, index) => {
+  return _.map(wearerIds, (wearerId: Hex, index: number) => {
     return {
       id: wearerId,
       isContract: data[index * 2] as boolean,
@@ -114,12 +114,12 @@ export const fetchWearerDetailsForAllChains = async (
   );
 
   // * let errors fall through here
-  return Promise.all(_.map(promises, (p) => p.catch(() => undefined))).then(
-    (data) => {
-      // TODO handle errors on subgraph(s) with the user
-      return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
-    },
-  );
+  return Promise.all(
+    _.map(promises, (p: any) => p.catch(() => undefined)),
+  ).then((data) => {
+    // TODO handle errors on subgraph(s) with the user
+    return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
+  });
 };
 
 export const fetchPaginatedWearersForHat = async (
@@ -223,7 +223,7 @@ export const fetchControllersForUser = async (a: string) => {
   const data: unknown[] = await Promise.all(promises);
 
   const mapWithChains = _.map(data, (d: { hats: Hat[] }, i: number) => {
-    const hats = _.map(d.hats, (h) => ({
+    const hats = _.map(d.hats, (h: Hat) => ({
       ...h,
       chainId: _.toNumber(chains[i]),
     }));

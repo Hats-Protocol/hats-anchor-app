@@ -30,7 +30,7 @@ const useOrgChartTree = ({
 
   useDeepCompareEffect(() => {
     setDetailsHashes(
-      _.map(_.reject(detailsData, ['events', 'admin']), (d) =>
+      _.map(_.reject(detailsData, ['events', 'admin']), (d: any) =>
         sha256(JSON.stringify(d)),
       ),
     );
@@ -38,7 +38,7 @@ const useOrgChartTree = ({
 
   useDeepCompareEffect(() => {
     setHatsHashes(
-      _.map(_.reject(hatsData, ['events', 'admin']), (d) =>
+      _.map(_.reject(hatsData, ['events', 'admin']), (d: any) =>
         sha256(JSON.stringify(d)),
       ),
     );
@@ -75,8 +75,8 @@ const useOrgChartTree = ({
       { chainId, treeId: treeData?.id },
       hatsHashes,
       detailsHashes,
-      _.map(imagesData, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
-      _.map(draftHats, (h) => _.pick(h, ['id', 'details', 'imageUri'])),
+      _.map(imagesData, (h: Hat) => _.pick(h, ['id', 'details', 'imageUri'])),
+      _.map(draftHats, (h: Hat) => _.pick(h, ['id', 'details', 'imageUri'])),
       { onchain },
     ],
     queryFn: fetchTree,

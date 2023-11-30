@@ -48,3 +48,12 @@ export type Transaction = {
   status: string;
   timestamp: number;
 };
+
+export interface Group {
+  id: string;
+  heading: string;
+  items: Array<{
+    id: string;
+    [key: string]: any;
+  }>;
+}

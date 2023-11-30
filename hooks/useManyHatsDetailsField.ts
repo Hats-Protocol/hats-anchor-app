@@ -21,19 +21,19 @@ const useManyHatsDetailsField = ({
 }) => {
   let onlyOnchainHats = hats;
   if (onchainHats) {
-    onlyOnchainHats = _.filter(hats, (hat) =>
+    onlyOnchainHats = _.filter(hats, (hat: Hat) =>
       _.includes(_.map(onchainHats, 'id'), hat?.id),
     );
   }
 
   const filteredDetails = _.reject(
     onlyOnchainHats,
-    (hat) =>
+    (hat: Hat) =>
       !_.startsWith(_.get(hat, 'details'), 'ipfs://') && hat?.details !== '',
   );
 
   const detailsFields = useQueries({
-    queries: _.map(filteredDetails, (hat) => ({
+    queries: _.map(filteredDetails, (hat: Hat) => ({
       queryKey: [
         'hatDetailsField',
         hat?.details,
@@ -47,7 +47,7 @@ const useManyHatsDetailsField = ({
 
   const result = {
     data: _.compact(
-      _.map(onlyOnchainHats, (hat) => {
+      _.map(onlyOnchainHats, (hat: Hat) => {
         const detailsData =
           _.find(detailsFields, ['details', hat.details]) ||
           _.find(_.map(detailsFields, 'data'), ['details', hat.details]);

@@ -227,7 +227,7 @@ export const HatFormContextProvider = ({
 
       if (
         matchingHat &&
-        !_.isEmpty(_.remove(_.keys(matchingHat), (key) => key === 'id'))
+        !_.isEmpty(_.remove(_.keys(matchingHat), (key: string) => key === 'id'))
       ) {
         formValues = {
           ...defaultFormValues,
@@ -289,13 +289,13 @@ export const HatFormContextProvider = ({
       );
       const dirtyFormValues = _.pickBy(
         debouncedFormValues,
-        (__, key: FormFieldKeys) => _.includes(dirtyValues, key),
+        (__: any, key: FormFieldKeys) => _.includes(dirtyValues, key),
       );
 
       // remove storedData values when resetting to default values
       const resetValues = _.filter(
         _.keys(matchingHat),
-        (key) => !_.includes(dirtyValues, key) && !_.includes(['id'], key),
+        (key: any) => !_.includes(dirtyValues, key) && !_.includes(['id'], key),
       );
 
       const matchingHatWithValues = {

@@ -51,7 +51,7 @@ const ModuleParameters = ({
 
   return (
     <Stack>
-      {_.map(parameters, (param) => {
+      {_.map(parameters, (param: ModuleParameter) => {
         let displayValue: ReactNode = (
           <Text fontSize='sm'>{param.value as string}</Text>
         );

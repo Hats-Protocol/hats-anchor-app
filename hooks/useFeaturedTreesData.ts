@@ -3,13 +3,15 @@ import _ from 'lodash';
 
 import { ipToPrettyId, prettyIdToIp } from '@/lib/hats';
 import { fetchTreeDetails, fetchTreesById } from '@/lib/subgraph';
-import { Tree } from '@/types';
+import { Hat, Tree } from '@/types';
 
 // app-hooks
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {
   const fetchFeaturedTrees = async () => {
-    const ids = _.map(featuredTrees, (tree) => ipToPrettyId(String(tree.id)));
+    const ids = _.map(featuredTrees, (tree: any) =>
+      ipToPrettyId(String(tree.id)),
+    );
 
     const [opTrees, gnoTrees] = await Promise.all([
       fetchTreesById([ids[0], ids[2]], 10),
@@ -18,10 +20,10 @@ const useFeaturedTreesData = (featuredTrees: any) => {
 
     const trees = _.concat(opTrees, gnoTrees) as Tree[];
 
-    const data = _.map(trees, (tree) => ({
+    const data = _.map(trees, (tree: Tree) => ({
       treeId: prettyIdToIp(tree.id),
       hats: tree.hats.length,
-      wearers: _.sum(_.map(tree.hats, (hat) => hat.wearers.length)),
+      wearers: _.sum(_.map(tree.hats, (hat: Hat) => hat.wearers.length)),
     }));
 
     return data;

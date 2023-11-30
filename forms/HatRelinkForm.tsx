@@ -168,7 +168,7 @@ const HatRelinkForm = ({
           name='newAdmin'
           localForm={localForm}
         >
-          {_.map(parentTreeHats, (hat) => (
+          {_.map(parentTreeHats, (hat: any) => (
             <option value={hat} key={hat}>
               {prettyIdToIp(hat)}
             </option>

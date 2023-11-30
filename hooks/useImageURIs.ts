@@ -44,7 +44,7 @@ const useImageURIs = ({
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
-      return _.filter(hats, (hat) =>
+      return _.filter(hats, (hat: Hat) =>
         _.includes(_.map(onchainHats, 'id'), hat?.id),
       );
     }
@@ -54,9 +54,9 @@ const useImageURIs = ({
   const chainIds = _.uniq(_.map(onlyOnchainHats, 'chainId'));
 
   const calls: ContractCall[][] = useMemo(() => {
-    return _.map(chainIds, (cId) => {
+    return _.map(chainIds, (cId: any) => {
       const hatsForChain = _.filter(onlyOnchainHats, ['chainId', cId]);
-      return _.map(hatsForChain, (hat) => {
+      return _.map(hatsForChain, (hat: any) => {
         return {
           address: CONFIG.hatsAddress,
           chainId: hat?.chainId,
@@ -75,9 +75,9 @@ const useImageURIs = ({
       { hatIds: _.map(onlyOnchainHats, 'id'), chainIds, onchain },
     ],
     queryFn: () => {
-      const clients = _.map(chainIds, (cId) => tempClient(cId));
+      const clients = _.map(chainIds, (cId: number) => tempClient(cId));
 
-      const clientCalls = _.map(calls, (call, i) => {
+      const clientCalls = _.map(calls, (call: any, i: string | number) => {
         return clients[i].multicall({ contracts: call });
       });
 
@@ -88,10 +88,10 @@ const useImageURIs = ({
   });
 
   const hatImageUris = useMemo(() => {
-    const allImageUris = _.map(chainIds, (cId, i) => {
+    const allImageUris = _.map(chainIds, (cId: any, i: any) => {
       const hatsForChain = _.filter(onlyOnchainHats, { chainId: cId });
       const imagesForChain = _.get(imagesData, i);
-      return _.map(hatsForChain, (hat, j) => {
+      return _.map(hatsForChain, (hat: { id: any; chainId: any }, j: any) => {
         return {
           id: hat?.id || hat,
           chainId: hat?.chainId,
@@ -106,14 +106,14 @@ const useImageURIs = ({
   const uniqueImageUris = useMemo(() => {
     return _.filter(
       _.uniq(_.map(hatImageUris, 'result')) as string[],
-      (img) => img !== '',
+      (img: string) => img !== '',
     );
   }, [hatImageUris]);
 
   const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
 
   const imageQueries = useQueries({
-    queries: _.map(uniqueImageUris, (img) => ({
+    queries: _.map(uniqueImageUris, (img: string | undefined) => ({
       queryKey: ['imageUrl', img],
       queryFn: () => checkImageForHat(img),
       enabled: enabled && !!img && img !== '',
@@ -128,10 +128,10 @@ const useImageURIs = ({
 
   const mergedWithHats = useMemo(() => {
     if (imagesLoading || !isLoaded) return undefined;
-    return _.map(_.flatten(onlyOnchainHats), (hat, i) => {
+    return _.map(_.flatten(onlyOnchainHats), (hat: any, i: any) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,
-        (img) => img === _.get(_.nth(hatImageUris, i), 'result'),
+        (img: any) => img === _.get(_.nth(hatImageUris, i), 'result'),
       );
 
       return {

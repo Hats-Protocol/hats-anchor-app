@@ -100,7 +100,7 @@ const HatLinkRequestCreateForm = ({
           name='topHatDomain'
           localForm={localForm}
         >
-          {_.map(wearerTopHats, (hat) => (
+          {_.map(wearerTopHats, (hat: Hex) => (
             <option value={hat} key={hat}>
               {hatIdDecimalToIp(BigInt(hat))}
             </option>

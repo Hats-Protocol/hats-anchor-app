@@ -105,7 +105,7 @@ const WearersList = () => {
   });
 
   const mergedWearers = _.merge(wearers, paginatedWearers);
-  const wearerIds = (mergedWearers || []).map(({ id }) => id);
+  const wearerIds = (mergedWearers || []).map(({ id }: { id: any }) => id);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
     [wearerIds, address],

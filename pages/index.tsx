@@ -58,7 +58,7 @@ const Home = () => {
     chainId: 'all',
   });
 
-  const sortedHats = _.sortBy(_.compact(currentHats), (hat) => {
+  const sortedHats = _.sortBy(_.compact(currentHats), (hat: any) => {
     return _.indexOf(orderedChains, hat?.chainId);
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
@@ -147,7 +147,7 @@ const Home = () => {
                   }}
                   spacing={6}
                 >
-                  {_.map(currentHatsWithImagesData, (hat, i) => (
+                  {_.map(currentHatsWithImagesData, (hat: any, i: number) => (
                     <DashboardHatCard hat={hat} key={i} />
                   ))}
                 </SimpleGrid>
@@ -177,7 +177,7 @@ const Home = () => {
                 Explore featured trees
               </Text>
               <SimpleGrid columns={3} spacing={6}>
-                {_.map(featuredTrees, (tree, i) => (
+                {_.map(featuredTrees, (tree: any, i: number) => (
                   <FeaturedTreeCard
                     key={i}
                     treeData={tree}
@@ -195,7 +195,7 @@ const Home = () => {
                 Jump right in with a forkable template
               </Text>
               <SimpleGrid columns={3} spacing={6}>
-                {_.map(featuredTemplates, (tree, i) => (
+                {_.map(featuredTemplates, (tree: any, i: number) => (
                   <ForkableTemplateCard key={i} treeData={tree} />
                 ))}
               </SimpleGrid>
@@ -214,13 +214,13 @@ const Home = () => {
             </Text>
             {isSmallerScreen ? (
               <Grid templateColumns='repeat(2, 1fr)' gap={6}>
-                {_.map(LEARN_MORE, (docsLink, i) => (
+                {_.map(LEARN_MORE, (docsLink: any, i: number) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </Grid>
             ) : (
               <Stack spacing={6}>
-                {_.map(LEARN_MORE, (docsLink, i) => (
+                {_.map(LEARN_MORE, (docsLink: any, i: number) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </Stack>

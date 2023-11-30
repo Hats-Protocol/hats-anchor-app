@@ -7,7 +7,7 @@ import { decimalId } from '@/lib/hats';
 const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];
   const guildData = await Promise.all(
-    _.map(guilds, async (guildName) => {
+    _.map(guilds, async (guildName: any) => {
       const guildResponse = await fetch(
         `https://api.guild.xyz/v1/guild/${guildName}`,
       );
@@ -39,12 +39,15 @@ const useHatGuilds = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const selectedHatGuildRoles = _.flatMap(guildData, (guild) => {
+  const selectedHatGuildRoles = _.flatMap(guildData, (guild: any) => {
     return _.flatMap(
-      _.filter(guild.roles, (role) =>
-        _.some(role.requirements, (req) => req.data?.id === decimalId(hatId)),
+      _.filter(guild.roles, (role: any) =>
+        _.some(
+          role.requirements,
+          (req: any) => req.data?.id === decimalId(hatId),
+        ),
       ),
-      (role) => {
+      (role: any) => {
         return role.rolePlatforms.map((rolePlatform: any) => {
           const platform = _.find(guild.guildPlatforms, {
             id: rolePlatform.guildPlatformId,

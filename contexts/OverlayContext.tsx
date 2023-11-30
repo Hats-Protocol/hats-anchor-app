@@ -219,7 +219,7 @@ export const OverlayContextProvider = ({
 
       const confirmedTransactions = await checkTransactionStatus(transactions);
 
-      _.forEach(transactions, (tx) => {
+      _.forEach(transactions, (tx: Transaction) => {
         const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
 
         if (confirmedTx && tx.status !== 'completed') {

@@ -6,7 +6,7 @@ import CONFIG, { TRIGGER_OPTIONS } from '@/constants';
 import { transformInput } from '@/lib/general';
 import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
-import { FormData, Hat, ModuleDetails } from '@/types';
+import { FormData, Hat, ModuleCreationArg, ModuleDetails } from '@/types';
 
 // modules-utils
 
@@ -101,11 +101,11 @@ export const prepareArgs = (
   }
   const immutableArgs = _.map(
     selectedModuleDetails.creationArgs.immutable,
-    ({ name, type }) => transformInput(values[name], type),
+    ({ name, type }: ModuleCreationArg) => transformInput(values[name], type),
   );
   const mutableArgs = _.map(
     selectedModuleDetails.creationArgs.mutable,
-    ({ name, type }) => transformInput(values[name], type),
+    ({ name, type }: ModuleCreationArg) => transformInput(values[name], type),
   );
 
   return { immutableArgs, mutableArgs };
@@ -156,7 +156,7 @@ export const processModule = ({
   selectedHat?: Hat;
 }) => {
   const updatedHats = _.isArray(storedData)
-    ? _.map(storedData, (hat) =>
+    ? _.map(storedData, (hat: Partial<FormData>) =>
         hat.id === _.get(selectedHat, 'id') && moduleAddress
           ? {
               ...hat,
@@ -204,7 +204,7 @@ export const processClaimsHatter = ({
 
   // TODO handle draft case with increment wearers
   const updatedHats = _.isArray(storedData)
-    ? _.map(storedData, (hat) => {
+    ? _.map(storedData, (hat: Partial<FormData>) => {
         if (hat.id === adminId && claimsHatterAddress) {
           const maxSupply: { maxSupply?: string } = {};
           if (

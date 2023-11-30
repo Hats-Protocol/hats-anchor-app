@@ -161,7 +161,7 @@ export const TreeFormContextProvider = ({
     initialHatId = _.first(initialHatId);
   }
   const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
-    ipToHatId(initialHatId),
+    initialHatId ? ipToHatId(initialHatId as string) : undefined,
   );
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
@@ -211,10 +211,10 @@ export const TreeFormContextProvider = ({
 
   const { data: onchainLinkedHats } = useManyHatDetails({
     hats: mapWithChainId(
-      _.map(linkedHatIds, (id) => ({ id })),
+      _.map(linkedHatIds, (id: any) => ({ id })),
       chainId,
     ),
-    initialHats: _.map(linkedHatIds, (id) => ({ id })),
+    initialHats: _.map(linkedHatIds, (id: any) => ({ id })),
   });
   const onchainHats = useMemo(() => {
     return _.compact(_.concat(_.get(treeData, 'hats'), onchainLinkedHats));
@@ -226,7 +226,7 @@ export const TreeFormContextProvider = ({
     () =>
       _.reject(
         orgChartHats,
-        (hat) =>
+        (hat: Hat) =>
           _.includes(_.map(onchainHats, 'id'), _.get(hat, 'id')) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       ),
@@ -236,7 +236,7 @@ export const TreeFormContextProvider = ({
   // *********************
   // * ONCHAIN TREE (ONCHAIN HATS)
   // *********************
-  const onchainIds = _.map(onchainHats, ({ id }) => ({ id }));
+  const onchainIds = _.map(onchainHats, ({ id }: { id: any }) => ({ id }));
   const { data: onchainHatDetails } = useManyHatDetails({
     hats: mapWithChainId(onchainIds, chainId),
     initialHats: mapWithChainId(onchainIds, chainId),
@@ -323,23 +323,23 @@ export const TreeFormContextProvider = ({
 
     const inactiveHats = _.map(
       _.filter(orgChartTree, ['status', false]),
-      (h) => {
+      (h: Hat) => {
         return _.get(h, 'prettyId');
       },
     );
     const inactiveAncestors = _.map(
-      _.filter(orgChartTree, (hat) =>
-        _.some(inactiveHats, (h) => h && hat.prettyId?.includes(h)),
+      _.filter(orgChartTree, (hat: Hat) =>
+        _.some(inactiveHats, (h: any) => h && hat.prettyId?.includes(h)),
       ),
       'prettyId',
     );
 
-    return _.reject(orgChartTree, (h) =>
+    return _.reject(orgChartTree, (h: Hat) =>
       _.includes(_.concat(inactiveHats, inactiveAncestors), h.prettyId),
     );
   }, [orgChartTree, showInactiveHats]);
   const overrideOrgChartData = useMemo(() => {
-    return _.map(filteredTree, (hat) => {
+    return _.map(filteredTree, (hat: any) => {
       const matchingHat = _.find(storedData, { id: hat.id });
       const orgChartHat = _.find(filteredTree, { id: hat.id });
 
@@ -357,7 +357,7 @@ export const TreeFormContextProvider = ({
   const treeToDisplay = useMemo(() => {
     const noHatsOutsideTree = _.reject(
       overrideOrgChartData,
-      ({ id }) => treeData?.id && !id.startsWith(treeData?.id),
+      (hat: { id: string }) => treeData?.id && !hat.id.startsWith(treeData?.id),
     ) as Hat[];
     return editMode ? noHatsOutsideTree : filteredTree;
   }, [editMode, overrideOrgChartData, treeData?.id, filteredTree]);
@@ -489,7 +489,7 @@ export const TreeFormContextProvider = ({
     if (!editMode) {
       const localDraftHats = _.reject(
         storedData,
-        (hat) =>
+        (hat: Partial<FormData>) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
@@ -577,7 +577,7 @@ export const TreeFormContextProvider = ({
   const importHats = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (hats: any[]) => {
-      const translateImageUrl = _.map(hats, (hat) => ({
+      const translateImageUrl = _.map(hats, (hat: any) => ({
         ...hat,
         imageUrl: ipfsUrl(hat.imageUri?.slice(7)),
       }));
@@ -585,7 +585,7 @@ export const TreeFormContextProvider = ({
       setStoredData?.(translateImageUrl);
       const localDraftHats = _.reject(
         translateImageUrl,
-        (hat) =>
+        (hat: any) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
@@ -614,7 +614,7 @@ export const TreeFormContextProvider = ({
     setOrgChartHats((prevHats) => {
       if (!prevHats) return [];
 
-      return _.map(prevHats, (existingHat) => {
+      return _.map(prevHats, (existingHat: { id: any }) => {
         const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
 
         if (proposedHat) {
@@ -660,13 +660,13 @@ export const TreeFormContextProvider = ({
     let combined = _.concat(
       selectedHatSpaceStrategies,
       selectedHatGuildRoles,
-      _.map(authorities, (authority) => ({
+      _.map(authorities, (authority: any) => ({
         ...authority,
         type: AUTHORITY_TYPES.manual as AuthorityType,
       })),
     );
 
-    combined = _.uniqWith(combined, (a, b) => {
+    combined = _.uniqWith(combined, (a: any, b: any) => {
       return Boolean(a.link && b.link && a.link === b.link);
     });
 
