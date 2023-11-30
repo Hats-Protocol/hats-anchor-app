@@ -144,7 +144,7 @@ const WearerDetail = ({
                   onClick={() => {
                     onCopy();
                     toast.info({
-                      title: 'Successfully copied Address to clipboard',
+                      title: 'Successfully copied wearer address to clipboard',
                     });
                   }}
                   aria-label='Copy Address'

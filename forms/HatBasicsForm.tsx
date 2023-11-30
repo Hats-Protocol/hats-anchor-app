@@ -167,6 +167,8 @@ const HatBasicsForm = () => {
                       (item: string) => item === '',
                     )}
                     gap={2}
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
                   >
                     <FaPlus />
                     Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
@@ -201,6 +203,8 @@ const HatBasicsForm = () => {
                       (item: string) => item === '',
                     )}
                     gap={2}
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
                   >
                     <FaPlus />
                     Add {formValues?.spaces?.length ? 'another' : 'a'} Space

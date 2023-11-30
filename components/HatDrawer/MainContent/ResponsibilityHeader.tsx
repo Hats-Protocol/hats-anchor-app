@@ -8,30 +8,39 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { BsFileCheck } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import { getHostnameFromURL } from '@/lib/general';
 import { ipfsUrl } from '@/lib/ipfs';
+import { Authority } from '@/types';
 
 const ResponsibilityHeader = ({
   label,
   imageUrl,
   link,
+  editingItem,
 }: {
   label?: string;
   imageUrl?: string;
   link?: string;
+  editingItem?: Authority;
 }) => {
-  const isIpfs = imageUrl?.startsWith('ipfs://');
-  const hostname = getHostnameFromURL(link);
+  const localImageUrl = editingItem ? editingItem.imageUrl : imageUrl;
+  const isIpfs = localImageUrl?.startsWith('ipfs://');
+  const { label: currentLabel, link: currentLink } = _.pick(editingItem, [
+    'label',
+    'link',
+  ]);
+  const hostname = getHostnameFromURL(currentLink || link);
 
   return (
     <Flex alignItems='center' justifyContent='space-between' w='full'>
-      {imageUrl ? (
+      {localImageUrl ? (
         <Avatar
           size='md'
-          src={isIpfs ? ipfsUrl(imageUrl?.slice(7)) || '' : imageUrl}
+          src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
         />
       ) : (
         <Flex
@@ -54,14 +63,15 @@ const ResponsibilityHeader = ({
             noOfLines={2}
             textAlign='left'
           >
-            {label || 'New Responsibility'}
+            {currentLabel || label || 'New Responsibility'}
           </Text>
         </Tooltip>
       </Box>
-      {link && (
-        <Link href={link} isExternal>
+      {(currentLink || link) && (
+        <Link href={currentLink || link} isExternal>
           <Tooltip label={hostname}>
             <IconButton
+              as='a'
               icon={<Icon as={FaExternalLinkAlt} />}
               variant='outlineMatch'
               aria-label='Responsibility Link'
