@@ -3,33 +3,38 @@ import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useNetwork } from 'wagmi';
 
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useAllWearers from '@/hooks/useAllWearers';
 import useHatClaim from '@/hooks/useHatClaim';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { isWearingAdminHat } from '@/lib/hats';
 
 import ConnectWallet from '../ConnectWallet';
+import NetworkSwitcher from '../NetworkSwitcher';
 
 const MainAction = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
+  const { chain } = useNetwork();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const { chainId, selectedHat, editMode } = useTreeForm();
   const isConnected = Boolean(address);
   const maxSupply = _.get(selectedHat, 'maxSupply', 0);
-  const wearers = useMemo(() => {
-    return _.get(selectedHat, 'extendedWearers', []);
-  }, [selectedHat]);
-
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
     editMode,
   });
+  const { wearers } = useAllWearers();
+  const currentUserIsWearing = useMemo(
+    () => _.includes(_.map(wearers || [], 'id'), _.toLower(address)),
+    [wearers, address],
+  );
 
   const currentWearerHats = _.map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(
@@ -37,13 +42,51 @@ const MainAction = () => {
     selectedHat?.id,
     true,
   );
-  const { claimHat, isClaimable } = useHatClaim({ wearer: address });
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    wearer: address,
+  });
 
+  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
+    wearer: address,
+  });
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+
+  if (chainId !== chain?.id) return <NetworkSwitcher />;
 
   if (!isConnected) {
     return <ConnectWallet />;
   }
+
+  if (
+    (currentUserIsEligible as boolean) &&
+    isClaimable &&
+    !currentUserIsWearing
+  )
+    return (
+      <Tooltip
+        label={
+          !hatterIsAdmin
+            ? 'Hatter must be wearing an admin hat to claim this hat.'
+            : undefined
+        }
+        fontSize='md'
+        shouldWrapChildren
+      >
+        <Button
+          variant='unstyled'
+          isDisabled={
+            !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+          }
+          onClick={claimHat}
+        >
+          <HStack color='blue.500'>
+            <FaPlus />
+            <Text variant='ghost'>Claim Hat</Text>
+          </HStack>
+        </Button>
+      </Tooltip>
+    );
+
   if (isAdminUser) {
     return (
       <Tooltip
@@ -76,9 +119,7 @@ const MainAction = () => {
       </Tooltip>
     );
   }
-  if (isClaimable) {
-    return <Button onClick={claimHat}>Claim Hat</Button>;
-  }
+
   return null;
 };
 
