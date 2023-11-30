@@ -1,5 +1,7 @@
 import { Hex } from 'viem';
 
+import { SnapshotStrategy } from '@/hooks/useSnapshotSpaces';
+
 import { DetailsItem } from './hat';
 
 export type FormFieldKeys = Exclude<
@@ -28,12 +30,12 @@ export type FormData = FormDataDetails & {
 export type Authority = {
   label: string;
   link: string;
-  gate?: string;
+  gate?: string | undefined;
   description?: string;
   imageUrl?: string;
-  type?: AuthorityType;
-  id?: number;
-  strategies?: any[];
+  type?: string | AuthorityType | undefined;
+  id?: string | number;
+  strategies?: SnapshotStrategy[];
 };
 
 export type AuthorityType = 'token' | 'manual';

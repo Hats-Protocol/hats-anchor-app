@@ -74,7 +74,7 @@ const AuthoritiesForm = ({
     type,
   } = getValues?.(`${formName}.${index}`) ?? {};
   const isToken = type === AUTHORITY_TYPES.token;
-  const { selectedHatGuildRoles } = useTreeForm();
+  const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
@@ -103,11 +103,14 @@ const AuthoritiesForm = ({
       selectedHatGuildRoles,
       (role) => !_.includes(existingLinks, role.link),
     );
+    const newSpaces = _.filter(
+      selectedHatSpaces,
+      (space) => !_.includes(existingLinks, space.link),
+    );
+    if (_.isEmpty(newRoles) && _.isEmpty(newSpaces)) return;
 
-    if (newRoles.length) {
-      append(newRoles);
-    }
-  }, [selectedHatGuildRoles, append, fields]);
+    append(_.concat(newRoles, newSpaces));
+  }, [selectedHatGuildRoles, selectedHatSpaces, append, fields]);
 
   const {
     acceptedFiles,
@@ -135,7 +138,7 @@ const AuthoritiesForm = ({
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
 
     if (hatImageURI !== '')
-      setEditingItem({ ...editingItem, imageUrl: hatImageURI });
+      setEditingItem((prev) => ({ ...prev, imageUrl: hatImageURI }));
   }, [imagePinData]);
 
   if (!localForm) return null;
