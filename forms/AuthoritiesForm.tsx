@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { id } from 'date-fns/locale';
 import _ from 'lodash';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
@@ -33,7 +33,7 @@ import { AUTHORITY_TYPES } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl } from '@/lib/general';
+import { formatImageUrl, getHostnameFromURL } from '@/lib/general';
 import { Authority, AuthorityType } from '@/types';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
@@ -141,6 +141,13 @@ const AuthoritiesForm = ({
       setEditingItem((prev) => ({ ...prev, imageUrl: hatImageURI }));
   }, [imagePinData]);
 
+  const guildOrSnapshot = useMemo(() => {
+    return (
+      getHostnameFromURL(editingItem.gate) === 'guild.xyz' ||
+      getHostnameFromURL(editingItem.link) === 'snapshot.org'
+    );
+  }, [editingItem.gate, editingItem.link]);
+
   if (!localForm) return null;
 
   return (
@@ -247,6 +254,7 @@ const AuthoritiesForm = ({
                   onChange={(e) =>
                     setEditingItem({ ...editingItem, link: e.target.value })
                   }
+                  isDisabled={guildOrSnapshot}
                 />
               </Stack>
               <Stack>
@@ -264,6 +272,7 @@ const AuthoritiesForm = ({
                   onChange={(e) =>
                     setEditingItem({ ...editingItem, gate: e.target.value })
                   }
+                  isDisabled={guildOrSnapshot}
                 />
               </Stack>
 
