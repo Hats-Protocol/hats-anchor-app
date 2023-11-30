@@ -37,7 +37,6 @@ const fetchContractData = async (
     });
 
     const data = await result.json();
-    console.log(data);
     return data as ContractData;
   } catch (err) {
     // eslint-disable-next-line no-console
