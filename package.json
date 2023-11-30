@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint -c ./.eslintrc.json ./"
+    "lint": "eslint -c ./.eslintrc.json ./",
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.0",
