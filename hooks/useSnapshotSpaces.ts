@@ -41,7 +41,7 @@ const SNAPSHOT_QUERY = gql`
   }
 `;
 
-interface SnapshotStrategy {
+export interface SnapshotStrategy {
   name: string;
   network: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -202,7 +202,7 @@ const useSnapshotSpaces = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const selectedHatSpaceStrategies = data
+  const selectedHatSpaces = data
     ? _.compact(
         _.map(data, (space) => {
           const filteredStrategies = filterStrategies(
@@ -227,7 +227,7 @@ const useSnapshotSpaces = ({
       )
     : [];
 
-  return { selectedHatSpaceStrategies, error, loading: isLoading };
+  return { selectedHatSpaces, error, loading: isLoading };
 };
 
 export default useSnapshotSpaces;

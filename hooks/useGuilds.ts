@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import { AUTHORITY_TYPES } from '@/constants';
 import { decimalId } from '@/lib/hats';
+import { Authority } from '@/types';
 
 const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];
@@ -39,7 +40,7 @@ const useHatGuilds = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const selectedHatGuildRoles = _.flatMap(guildData, (guild) => {
+  const selectedHatGuildRoles: Authority[] = _.flatMap(guildData, (guild) => {
     return _.flatMap(
       _.filter(guild.roles, (role) =>
         _.some(role.requirements, (req) => req.data?.id === decimalId(hatId)),
