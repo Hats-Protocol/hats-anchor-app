@@ -234,7 +234,7 @@ const MoreMenu = () => {
           onClick={() => {
             copyHatId();
             toast.info({
-              title: 'Successfully copied Hat ID to clipboard',
+              title: 'Successfully copied hat ID to clipboard',
             });
           }}
         >

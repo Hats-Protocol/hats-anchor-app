@@ -1,4 +1,4 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
@@ -80,6 +80,55 @@ const fetchSnapshotSpaces = async (
   return response?.spaces;
 };
 
+const processStrategy = ({
+  strategy,
+  param,
+  type,
+  chainId,
+  hatId,
+}: {
+  strategy: SnapshotStrategy;
+  param: string;
+  type: 'array' | 'id';
+  chainId: number;
+  hatId: string;
+}) => {
+  const paramValue = _.get(strategy.params, param);
+  if (type === 'array') {
+    if (_.toNumber(_.get(strategy, 'network')) !== chainId) return false;
+    if (_.includes(paramValue, hatId)) return true;
+    if (_.includes(paramValue, decimalId(hatId))) return true;
+    if (_.includes(paramValue, hatIdDecimalToIp(BigInt(hatId)))) return true;
+    return false;
+  }
+
+  if (_.toNumber(_.get(strategy, 'network')) !== chainId) return false;
+  if (_.eq(paramValue, hatId)) return true;
+  if (_.eq(paramValue, decimalId(hatId))) return true;
+  if (_.eq(paramValue, hatIdDecimalToIp(BigInt(hatId)))) return true;
+  return false;
+};
+
+const processStrategyForTree = ({
+  strategy,
+  param,
+  // type,
+  chainId,
+  treeId,
+}: {
+  strategy: SnapshotStrategy;
+  param: string;
+  // type: 'array' | 'id';
+  chainId: number;
+  treeId: number;
+}) => {
+  const paramValue = _.get(strategy.params, param);
+
+  if (_.toNumber(_.get(strategy, 'network')) !== chainId) return false;
+  if (_.eq(paramValue, treeId)) return true;
+  return false;
+};
+
 const filterStrategies = (
   strategies: SnapshotStrategy[],
   hatId: string | undefined,
@@ -89,26 +138,48 @@ const filterStrategies = (
     return [];
   }
 
-  // generic filter for strategies where the hatId is included in the params.ids array
-  const standardIdStrategies = _.filter(
-    strategies,
-    (strategy) =>
-      _.toNumber(strategy.network) === chainId &&
-      (_.includes(strategy.params.ids, decimalId(hatId)) ||
-        _.includes(strategy.params.ids, hatIdDecimalToIp(BigInt(hatId)))),
+  // hatId is included in the params.ids array
+  const standardIdStrategies = _.filter(strategies, (strategy) =>
+    processStrategy({ strategy, chainId, hatId, param: 'id', type: 'id' }),
   );
-  // generic filter for strategies where the hatId is included in the params.tokenId value
-  const standardTokenIdStrategies = _.filter(
-    strategies,
-    (strategy) =>
-      _.toNumber(strategy.network) === chainId &&
-      (_.eq(strategy.params.tokenId, decimalId(hatId)) ||
-        _.eq(strategy.params.tokenId, hatIdDecimalToIp(BigInt(hatId)))),
+  // hatId is the params.tokenId value
+  const standardTokenIdStrategies = _.filter(strategies, (strategy) =>
+    processStrategy({ strategy, chainId, hatId, param: 'tokenId', type: 'id' }),
+  );
+  // hatId is the params.hatId value
+  const hatIdStrategies = _.filter(strategies, (strategy) =>
+    processStrategy({ strategy, chainId, hatId, param: 'hatId', type: 'id' }),
+  );
+  // hatId is included in the params.hatIds array
+  const hatIdsStrategies = _.filter(strategies, (strategy) =>
+    processStrategy({
+      strategy,
+      chainId,
+      hatId,
+      param: 'hatIds',
+      type: 'array',
+    }),
+  );
+  // treeId is the params.humanReadableTreeId value
+  const treeId = hatIdToTreeId(BigInt(hatId));
+  const treeIdStrategies = _.filter(strategies, (strategy) =>
+    processStrategyForTree({
+      strategy,
+      chainId,
+      treeId,
+      param: 'humanReadableTreeId',
+    }),
   );
 
   // concatenate filtered groups and remove any duplicates
   return _.uniqWith(
-    _.concat(standardIdStrategies, standardTokenIdStrategies),
+    _.concat(
+      standardIdStrategies,
+      standardTokenIdStrategies,
+      hatIdStrategies,
+      hatIdsStrategies,
+      treeIdStrategies,
+    ),
     _.isEqual,
   );
 };
@@ -144,6 +215,7 @@ const useSnapshotSpaces = ({
             ? {
                 label: space.name,
                 link: `https://snapshot.org/#/${space.id}`,
+                gate: `https://snapshot.org`,
                 description: space.about,
                 imageUrl: '/img/snapshot.jpeg',
                 type: AUTHORITY_TYPES.token,

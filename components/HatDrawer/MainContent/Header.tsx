@@ -68,7 +68,7 @@ const Header = () => {
                   onClick={() => {
                     onCopy();
                     toast.info({
-                      title: 'Successfully copied Hat id to clipboard',
+                      title: 'Successfully copied hat ID to clipboard',
                     });
                   }}
                 />
