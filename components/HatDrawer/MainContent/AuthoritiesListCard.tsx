@@ -48,7 +48,7 @@ const AuthoritiesListCard = ({
   }
 
   const img =
-    type === AUTHORITY_TYPES.token
+    type === AUTHORITY_TYPES.gate
       ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS].icon
       : imageUrl;
 

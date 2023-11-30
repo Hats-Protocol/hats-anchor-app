@@ -96,14 +96,44 @@ export const EMPTY_FORM_VALUES = {
 };
 
 export const AUTHORITY_TYPES = {
-  token: 'token',
+  protocol: 'protocol',
+  modules: 'modules',
+  wallet: 'wallet',
+  hsg: 'hsg',
+  onchain: 'onchain',
+  gate: 'gate',
   manual: 'manual',
 };
 
 export const AUTHORITIES = {
-  token: {
+  protocol: {
+    label: '',
+    info: '',
+    color: '',
+  },
+  modules: {
+    label: '',
+    info: '',
+    color: '',
+  },
+  wallet: {
+    label: '',
+    info: '',
+    color: '',
+  },
+  hsg: {
+    label: '',
+    info: '',
+    color: '',
+  },
+  onchain: {
+    label: '',
+    info: '',
+    color: '',
+  },
+  gate: {
     label: 'Connected Token-gated Authority',
-    info: 'Retrieved from the blockchain',
+    info: 'Pulled directly from the token gate API',
     color: 'green.300',
   },
   manual: {

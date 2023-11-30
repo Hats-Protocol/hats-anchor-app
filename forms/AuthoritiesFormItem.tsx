@@ -25,7 +25,7 @@ const AuthoritiesFormItem = ({
   const { localForm } = useHatForm();
   const { getValues } = _.pick(localForm, ['getValues']);
   const { gate, type, label } = getValues?.(`${formName}.${index}`) ?? {};
-  const isToken = type === AUTHORITY_TYPES.token;
+  const isGate = type === AUTHORITY_TYPES.gate;
   const hostname = getHostnameFromURL(gate);
 
   if (!localForm) return null;
@@ -37,7 +37,7 @@ const AuthoritiesFormItem = ({
           <Text mb={0} fontSize='sm' color='blackAlpha.800'>
             {label}
           </Text>
-          {isToken && (
+          {isGate && (
             <Link href={gate} isExternal fontSize='xs' color='blue.500'>
               {hostname}
             </Link>
@@ -59,7 +59,7 @@ const AuthoritiesFormItem = ({
           aria-label='Remove'
           variant='ghost'
           borderColor='blackAlpha.300'
-          isDisabled={isToken}
+          isDisabled={isGate}
         />
       </HStack>
     </Box>

@@ -57,7 +57,7 @@ const useHatGuilds = ({
             description: role.description,
             gate: `https://guild.xyz/${guild.urlName}`,
             imageUrl: guild.imageUrl,
-            type: AUTHORITY_TYPES.token,
+            type: AUTHORITY_TYPES.gate,
           };
         });
       },
