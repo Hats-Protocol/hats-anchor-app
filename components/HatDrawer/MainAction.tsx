@@ -9,11 +9,16 @@ import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatClaim from '@/hooks/useHatClaim';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import { isWearingAdminHat } from '@/lib/hats';
 
 import ConnectWallet from '../ConnectWallet';
 
-const MainAction = () => {
+const MainAction = ({
+  currentUserIsWearing,
+}: {
+  currentUserIsWearing: boolean;
+}) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
   const localOverlay = useOverlay();
@@ -24,7 +29,6 @@ const MainAction = () => {
   const wearers = useMemo(() => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
-
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
@@ -37,13 +41,27 @@ const MainAction = () => {
     selectedHat?.id,
     true,
   );
-  const { claimHat, isClaimable } = useHatClaim({ wearer: address });
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    wearer: address,
+  });
 
+  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
+    wearer: address,
+  });
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+
+  const claimTooltip = useMemo(() => {
+    if (chainId !== currentNetworkId)
+      return "You can't claim a hat on a different chain.";
+    if (!hatterIsAdmin)
+      return 'Hatter must be wearing an admin hat to claim this hat.';
+    return undefined;
+  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   if (!isConnected) {
     return <ConnectWallet />;
   }
+
   if (isAdminUser) {
     return (
       <Tooltip
@@ -76,9 +94,29 @@ const MainAction = () => {
       </Tooltip>
     );
   }
-  if (isClaimable) {
-    return <Button onClick={claimHat}>Claim Hat</Button>;
-  }
+
+  if (
+    (currentUserIsEligible as boolean) &&
+    !!isClaimable &&
+    !currentUserIsWearing
+  )
+    return (
+      <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
+        <Button
+          variant='unstyled'
+          isDisabled={
+            !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+          }
+          onClick={claimHat}
+        >
+          <HStack color='blue.500'>
+            <FaPlus />
+            <Text variant='ghost'>Claim Hat</Text>
+          </HStack>
+        </Button>
+      </Tooltip>
+    );
+
   return null;
 };
 

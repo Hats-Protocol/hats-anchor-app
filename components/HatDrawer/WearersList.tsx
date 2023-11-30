@@ -18,7 +18,7 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaFileCsv, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -26,13 +26,11 @@ import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useAllWearers from '@/hooks/useAllWearers';
-import useHatClaim from '@/hooks/useHatClaim';
 import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
 import useWearerDetails from '@/hooks/useWearerDetails';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { commify } from '@/lib/general';
 import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
@@ -65,7 +63,6 @@ const HatWearerStatusForm = dynamic(
 );
 
 const WearersList = () => {
-  const currentNetworkId = useChainId();
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -129,14 +126,7 @@ const WearersList = () => {
     editMode,
   });
 
-  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
-    wearer: address,
-  });
-
   const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck();
-  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
-    wearer: address,
-  });
   const { details: eligibilityDetails } = useModuleDetails({
     address: selectedHat?.eligibility,
   });
@@ -157,14 +147,6 @@ const WearersList = () => {
       _.slice(filterWearers(searchTerm, sortedWearers), 0, 6) as HatWearer[],
     [searchTerm, sortedWearers],
   );
-
-  const claimTooltip = useMemo(() => {
-    if (chainId !== currentNetworkId)
-      return "You can't claim a hat on a different chain.";
-    if (!hatterIsAdmin)
-      return 'Hatter must be wearing an admin hat to claim this hat.';
-    return undefined;
-  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   return (
     <>
@@ -249,25 +231,7 @@ const WearersList = () => {
                 Set hat for claiming
               </Button>
             )}
-          {(currentUserIsEligible as boolean) &&
-            !!isClaimable &&
-            !currentUserIsWearing && (
-              <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
-                <Button
-                  variant='unstyled'
-                  isDisabled={
-                    !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
-                  }
-                  onClick={claimHat}
-                >
-                  <HStack color='blue.500'>
-                    <FaPlus />
-                    <Text variant='ghost'>Claim Hat</Text>
-                  </HStack>
-                </Button>
-              </Tooltip>
-            )}
-          <MainAction />
+          <MainAction currentUserIsWearing={currentUserIsWearing} />
         </Flex>
       </Stack>
 
