@@ -18,7 +18,7 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaFileCsv, FaSearch } from 'react-icons/fa';
+import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -26,11 +26,13 @@ import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useAllWearers from '@/hooks/useAllWearers';
+import useHatClaim from '@/hooks/useHatClaim';
 import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { commify } from '@/lib/general';
 import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
@@ -43,7 +45,6 @@ import {
 } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
-import MainAction from './MainAction';
 import WearerRow from './WearerRow';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'), {
@@ -63,6 +64,7 @@ const HatWearerStatusForm = dynamic(
 );
 
 const WearersList = () => {
+  const currentNetworkId = useChainId();
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -102,7 +104,7 @@ const WearersList = () => {
   });
 
   const mergedWearers = _.merge(wearers, paginatedWearers);
-  const wearerIds = (mergedWearers || []).map(({ id }) => id);
+  const wearerIds = useMemo(() => _.map(exportWearers, 'id'), [exportWearers]);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
     [wearerIds, address],
@@ -126,7 +128,14 @@ const WearersList = () => {
     editMode,
   });
 
+  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
+    wearer: address,
+  });
+
   const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck();
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    wearer: address,
+  });
   const { details: eligibilityDetails } = useModuleDetails({
     address: selectedHat?.eligibility,
   });
@@ -147,6 +156,16 @@ const WearersList = () => {
       _.slice(filterWearers(searchTerm, sortedWearers), 0, 6) as HatWearer[],
     [searchTerm, sortedWearers],
   );
+
+  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+
+  const claimTooltip = useMemo(() => {
+    if (chainId !== currentNetworkId)
+      return "You can't claim a hat on a different chain.";
+    if (!hatterIsAdmin)
+      return 'Hatter must be wearing an admin hat to claim this hat.';
+    return undefined;
+  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   return (
     <>
@@ -231,7 +250,54 @@ const WearersList = () => {
                 Set hat for claiming
               </Button>
             )}
-          <MainAction currentUserIsWearing={currentUserIsWearing} />
+          {(currentUserIsEligible as boolean) &&
+            !!isClaimable &&
+            !currentUserIsWearing && (
+              <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
+                <Button
+                  variant='unstyled'
+                  isDisabled={
+                    !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+                  }
+                  onClick={claimHat}
+                >
+                  <HStack color='blue.500'>
+                    <FaPlus />
+                    <Text variant='ghost'>Claim Hat</Text>
+                  </HStack>
+                </Button>
+              </Tooltip>
+            )}
+          {isAdminUser && (
+            <Tooltip
+              label={
+                maxWearersReached
+                  ? 'Maximum number of wearers reached.'
+                  : chainId !== currentNetworkId
+                  ? "You can't add a wearer on a different chain."
+                  : ''
+              }
+              fontSize='md'
+              isDisabled={!maxWearersReached && chainId === currentNetworkId}
+              shouldWrapChildren
+            >
+              <Button
+                variant='unstyled'
+                isDisabled={maxWearersReached || chainId !== currentNetworkId}
+                onClick={() =>
+                  !maxWearersReached ? setModals?.({ newWearer: true }) : {}
+                }
+              >
+                <HStack
+                  cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
+                  color={maxWearersReached ? 'gray.500' : 'blue.500'}
+                >
+                  <FaPlus />
+                  <Text variant='ghost'>Add a wearer</Text>
+                </HStack>
+              </Button>
+            </Tooltip>
+          )}
         </Flex>
       </Stack>
 
