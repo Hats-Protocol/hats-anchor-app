@@ -41,6 +41,7 @@ const ResponsibilityHeader = ({
         <Avatar
           size='md'
           src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
+          showBorder
         />
       ) : (
         <Flex

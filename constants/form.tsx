@@ -1,6 +1,6 @@
 import { Hex } from 'viem';
 
-import { DeploymentType, FieldItem } from '@/types';
+import { AuthorityType, DeploymentType, FieldItem } from '@/types';
 
 import { FALLBACK_ADDRESS } from './misc';
 
@@ -95,7 +95,7 @@ export const EMPTY_FORM_VALUES = {
   wearers: [],
 };
 
-export const AUTHORITY_TYPES = {
+export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   protocol: 'protocol',
   modules: 'modules',
   wallet: 'wallet',
@@ -105,7 +105,13 @@ export const AUTHORITY_TYPES = {
   manual: 'manual',
 };
 
-export const AUTHORITIES = {
+type AuthorityInfo = {
+  label: string;
+  info: string;
+  color: string;
+};
+
+export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
   protocol: {
     label: '',
     info: '',

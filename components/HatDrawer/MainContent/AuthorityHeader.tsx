@@ -56,6 +56,7 @@ const AuthorityHeader = ({
               ? ipfsUrl(localImageUrl?.slice(7)) || ''
               : localImageUrl || '/icons/authority.svg'
           }
+          showBorder
         />
         <Box textAlign='left'>
           <Tooltip label={currentLabel || label} placement='left' hasArrow>
