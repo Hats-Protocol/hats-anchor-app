@@ -14,8 +14,8 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { isTopHat } from '@/lib/hats';
 import { Hat } from '@/types';
 
-import MoreMenu from './MoreMenu';
 import MainAction from '../MainAction';
+import MoreMenu from './MoreMenu';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'), {
   loading: () => <Suspender />,
