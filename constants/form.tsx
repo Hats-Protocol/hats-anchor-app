@@ -116,7 +116,7 @@ export const AUTHORITIES = {
 export const GUILD_PLATFORMS = {
   1: { label: 'Discord', icon: '/img/discord.svg' },
   2: { label: 'Telegram', icon: '/img/telegram.png' },
-  3: { label: 'GitHub', icon: '/img/github.png' },
-  4: { label: 'GoogleDoc', icon: '/img/drive.png' },
+  3: { label: 'GitHub', icon: '/img/github.svg' },
+  4: { label: 'Google Docs', icon: '/img/drive.svg' },
   snapshot: { label: 'Snapshot', icon: '/img/snapshot.jpeg' },
 };

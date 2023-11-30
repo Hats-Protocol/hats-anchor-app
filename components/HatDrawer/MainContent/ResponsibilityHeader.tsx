@@ -62,6 +62,7 @@ const ResponsibilityHeader = ({
         <Link href={link} isExternal>
           <Tooltip label={hostname}>
             <IconButton
+              as='a'
               icon={<Icon as={FaExternalLinkAlt} />}
               variant='outlineMatch'
               aria-label='Responsibility Link'

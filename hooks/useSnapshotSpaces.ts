@@ -215,6 +215,7 @@ const useSnapshotSpaces = ({
             ? {
                 label: space.name,
                 link: `https://snapshot.org/#/${space.id}`,
+                gate: `https://snapshot.org`,
                 description: space.about,
                 imageUrl: '/img/snapshot.jpeg',
                 type: AUTHORITY_TYPES.token,
