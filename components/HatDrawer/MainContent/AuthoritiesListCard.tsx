@@ -72,18 +72,18 @@ const AuthoritiesListCard = ({
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel pb={4} pl={20}>
-          <HStack pt={2}>
+          <HStack>
             {link && validateURL(link) && (
               <ChakraNextLink isExternal href={link} display='block'>
                 <Link href={link} isExternal>
-                  {linkName ? (
+                  {linkName || linkHostName ? (
                     <Button
                       rightIcon={<Icon as={FaExternalLinkAlt} />}
                       colorScheme='blue'
                       size='sm'
                       variant='solid'
                     >
-                      {linkName}
+                      {linkName || linkHostName}
                     </Button>
                   ) : (
                     <IconButton
@@ -114,7 +114,7 @@ const AuthoritiesListCard = ({
             )}
           </HStack>
           {description && (
-            <Box pt={link || gate ? 6 : 0}>
+            <Box pt={link || gate ? 4 : 0}>
               <Text fontSize='sm' fontWeight={500}>
                 Details
               </Text>

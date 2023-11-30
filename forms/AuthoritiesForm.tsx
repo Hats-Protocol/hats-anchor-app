@@ -199,6 +199,7 @@ const AuthoritiesForm = ({
               <Flex w='full' justifyContent='center' mb={8}>
                 <Card borderRadius='4px' boxShadow='md' p={3} w='80%'>
                   <AuthorityHeader
+                    editingItem={editingItem}
                     label={authorityLabel}
                     type={
                       (isToken
