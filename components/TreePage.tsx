@@ -89,9 +89,13 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   if (!chainId) return null;
   const chain = chainsMap(chainId);
 
-  let title = `Tree #${hatIdDecimalToIp(
-    BigInt(prettyIdToId(treeId) || '0'),
-  )} on ${chain.name}`;
+  let title = '';
+  const prettyId = prettyIdToId(treeId);
+  if (_.isFinite(_.toNumber(prettyId))) {
+    title = `Tree #${hatIdDecimalToIp(BigInt(prettyId))} on ${chain.name}`;
+  } else {
+    title = 'Invalid Tree ID';
+  }
   if (!selectedHat && topHatDetails) {
     title = `${topHatDetails.name} on ${chain.name}`;
   } else if (selectedHat) {
