@@ -3,12 +3,10 @@ import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { Hex } from 'viem';
 
+import { chainsList } from '@/lib/chains';
 import { idToPrettyId, prettyIdToIp, toTreeId } from '@/lib/hats';
-import { chainsList } from '@/lib/web3';
+import { createSubgraphClient } from '@/lib/web3';
 import { Hat, Tree } from '@/types';
-
-import client from '../client';
-import { SEARCH_QUERY } from '../queries';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',
@@ -51,12 +49,21 @@ const processForCommandPalette = (key: string, record: any) => {
 export const searchQueryResult = async (search: string) => {
   if (!search) return { trees: [], hats: [] };
 
+  const subgraphClient = createSubgraphClient();
+
   const promises = _.map(_.keys(chainsList), (chainId: number) =>
-    client(chainId).request(SEARCH_QUERY, {
-      search: `${search}`, // `%${search}%`,
+    subgraphClient.searchTreesHatsWearers({
+      chainId,
+      search,
+      treeProps: {},
+      hatProps: {
+        prettyId: true,
+      },
+      wearerProps: {},
     }),
   );
 
+  // TODO surface errors, but don't fail all calls
   const result = await Promise.all(promises);
 
   const allNetworkResults: { trees: Tree[]; hats: Hat[] } = {

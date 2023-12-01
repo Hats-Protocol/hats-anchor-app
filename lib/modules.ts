@@ -1,16 +1,14 @@
-import { checkAndEncodeArgs, Module } from '@hatsprotocol/modules-sdk';
+import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import {
-  MODULES_REGISTRY_FACTORY_ADDRESS,
-  MULTI_CLAIMS_HATTER_ID,
-  TRIGGER_OPTIONS,
-} from '@/constants';
+import CONFIG, { TRIGGER_OPTIONS } from '@/constants';
 import { transformInput } from '@/lib/general';
 import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';
 import { FormData, Hat, ModuleDetails } from '@/types';
+
+// modules-utils
 
 export const deployModule = async ({
   selectedModuleDetails,
@@ -48,6 +46,7 @@ export const deployModule = async ({
 
 export const deployModuleWithClaimsHatter = async ({
   selectedModuleDetails,
+  claimsHatterId,
   selectedHat,
   address,
   values,
@@ -56,6 +55,7 @@ export const deployModuleWithClaimsHatter = async ({
   adminHatId,
 }: {
   selectedModuleDetails?: ModuleDetails;
+  claimsHatterId?: Hex;
   selectedHat?: Hat;
   address?: Hex;
   values: any;
@@ -63,28 +63,33 @@ export const deployModuleWithClaimsHatter = async ({
   hatId: bigint;
   adminHatId: bigint;
 }) => {
-  if (selectedModuleDetails && selectedHat?.id && address) {
-    const { immutableArgs, mutableArgs } = prepareArgs(
-      values,
-      selectedModuleDetails,
-    );
-
-    const hatsClient = await createHatsModulesClient(chainId);
-
-    const claimsMutableArgs = [
-      transformInput(values.initialClaimableHats, 'uint256[]'),
-      transformInput(values.initialClaimabilityTypes, 'uint8[]'),
-    ];
-
-    return hatsClient?.batchCreateNewInstances({
-      account: address,
-      moduleIds: [selectedModuleDetails.id, MULTI_CLAIMS_HATTER_ID],
-      hatIds: [hatId, adminHatId],
-      immutableArgsArray: [immutableArgs, []],
-      mutableArgsArray: [mutableArgs, claimsMutableArgs],
-    });
+  if (
+    !selectedModuleDetails ||
+    !selectedHat?.id ||
+    !address ||
+    !claimsHatterId
+  ) {
+    return null;
   }
-  return null;
+  const { immutableArgs, mutableArgs } = prepareArgs(
+    values,
+    selectedModuleDetails,
+  );
+
+  const hatsClient = await createHatsModulesClient(chainId);
+
+  const claimsMutableArgs = [
+    transformInput(values.initialClaimableHats, 'uint256[]'),
+    transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+  ];
+
+  return hatsClient?.batchCreateNewInstances({
+    account: address,
+    moduleIds: [selectedModuleDetails.id, claimsHatterId],
+    hatIds: [hatId, adminHatId],
+    immutableArgsArray: [immutableArgs, []],
+    mutableArgsArray: [mutableArgs, claimsMutableArgs],
+  });
 };
 
 export const prepareArgs = (
@@ -114,7 +119,7 @@ export const deployClaimsHatter = async ({
   chainId,
   adminHatId,
 }: {
-  claimsHatterModule?: Module;
+  claimsHatterModule?: ModuleDetails;
   selectedHat?: Hat;
   address?: Hex;
   values: any;
@@ -131,7 +136,7 @@ export const deployClaimsHatter = async ({
 
     return hatsClient?.createNewInstance({
       account: address,
-      moduleId: MULTI_CLAIMS_HATTER_ID,
+      moduleId: claimsHatterModule?.id,
       hatId: adminHatId,
       immutableArgs: [],
       mutableArgs: claimsMutableArgs,
@@ -274,7 +279,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   }
 
   return [
-    MODULES_REGISTRY_FACTORY_ADDRESS,
+    CONFIG.modulesRegistryFactory,
     selectedModuleDetails?.implementationAddress,
     hatId,
     encodedImmutableArgs,

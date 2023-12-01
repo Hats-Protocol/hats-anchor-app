@@ -22,6 +22,17 @@ const defaultHat = {
   details: '',
   detailsObject: undefined,
   isLinked: false,
+  // details
+  name: '',
+  description: '',
+  guilds: [],
+  spaces: [],
+  responsibilities: [],
+  authorities: [],
+  isEligibilityManual: false,
+  isToggleManual: false,
+  revocationsCriteria: [],
+  deactivationsCriteria: [],
 };
 
 export default defaultHat;

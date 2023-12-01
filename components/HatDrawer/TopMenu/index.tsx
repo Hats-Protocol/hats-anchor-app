@@ -7,13 +7,14 @@ import { FiSave } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
-import NetworkSwitcher from '@/components/NetworkSwitcher';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import { isTopHat } from '@/lib/hats';
 import { Hat } from '@/types';
 
+import MainAction from '../MainAction';
 import MoreMenu from './MoreMenu';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'), {
@@ -24,13 +25,7 @@ const HatLinkRequestCreateForm = dynamic(
   { loading: () => <Suspender /> },
 );
 
-const TopMenu = ({
-  onSave,
-  handleRemoveHat,
-  handleClearChanges,
-  returnToList,
-  isLoading,
-}: TopMenuProps) => {
+const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
   const {
     chainId,
@@ -42,12 +37,19 @@ const TopMenu = ({
     hatDisclosure,
     setSelectedHatId,
   } = useTreeForm();
+  const {
+    isLoading,
+    handleRemoveHat,
+    handleClearChanges,
+    handleSave: onSave,
+  } = useHatForm();
   const { address } = useAccount();
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
+    editMode,
   });
 
   const wearerTopHats = _.map(
@@ -72,7 +74,7 @@ const TopMenu = ({
 
   const draftWithChildren =
     !onchainHat &&
-    !_.isEmpty(_.filter(treeToDisplay, { admin: { id: selectedHat?.id } }));
+    !_.isEmpty(_.filter(treeToDisplay, { parentId: selectedHat?.id }));
 
   if (!selectedHat) return null;
 
@@ -90,12 +92,14 @@ const TopMenu = ({
       zIndex={16}
     >
       {editMode ? (
-        <Button onClick={handleReturnToList} variant='outline'>
-          <HStack>
-            <Icon as={BsArrowLeft} />
-            <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
-          </HStack>
-        </Button>
+        <Tooltip label='Save and return to list'>
+          <Button onClick={handleReturnToList} variant='outline'>
+            <HStack>
+              <Icon as={BsArrowLeft} />
+              <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
+            </HStack>
+          </Button>
+        </Tooltip>
       ) : (
         <Button
           onClick={() => {
@@ -114,7 +118,7 @@ const TopMenu = ({
       <HStack spacing={3} justifyContent='flex-end'>
         {!editMode ? (
           <HStack spacing={3} w='full' justifyContent='flex-end'>
-            <NetworkSwitcher />
+            <MainAction />
             <MoreMenu />
           </HStack>
         ) : (
@@ -178,9 +182,9 @@ const TopMenu = ({
 export default TopMenu;
 
 interface TopMenuProps {
-  onSave: (v?: boolean) => void;
-  handleRemoveHat: () => void;
-  handleClearChanges: () => void;
+  // onSave: (v?: boolean) => void;
+  // handleRemoveHat: () => void;
+  // handleClearChanges: () => void;
   returnToList: () => void;
-  isLoading: boolean;
+  // isLoading: boolean;
 }

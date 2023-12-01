@@ -5,6 +5,8 @@ import { HatWearer } from '@/types';
 
 import { isSameAddress } from './general';
 
+// app-utils or hats-utils
+
 export const getEligibleWearers = ({
   wearersEligibility,
   wearers,
@@ -83,4 +85,18 @@ export const sortWearers = ({
   });
 
   return [...currentUser, ...otherUsers];
+};
+
+export const maxSupplyText = (maxSupply: number) => {
+  if (_.toNumber(maxSupply) > 999) {
+    const rounds = [1_000_000_000, 1_000_000, 1_000];
+    const formatString = [`e9`, `e6`, `k`];
+    const supplyRounded = _.map(rounds, (r) =>
+      _.round(_.toNumber(maxSupply) / r, 0),
+    );
+    const index = _.findIndex(supplyRounded, (v) => v > 0);
+
+    return `${supplyRounded[index]}${formatString[index]}`;
+  }
+  return maxSupply;
 };

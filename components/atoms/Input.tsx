@@ -1,7 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -39,9 +38,9 @@ import { FALLBACK_ADDRESS } from '@/constants';
 const Input = ({
   label,
   subLabel,
+  subInput,
   name,
-  info,
-  tip,
+  tooltip,
   type = 'text',
   options,
   localForm,
@@ -72,7 +71,7 @@ const Input = ({
   };
 
   const getErrorMessage = () => {
-    const errorMessage = errors[name]?.message;
+    const errorMessage = _.get(errors, name)?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
   const isError = !!getErrorMessage();
@@ -88,29 +87,29 @@ const Input = ({
   return (
     <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
-        <Box>
-          {label && (
-            <FormLabel mb={0}>
-              <HStack>
-                <Text fontSize='sm'>
-                  {label.toUpperCase()}
-                  {options?.required && '*'}
-                </Text>
-                {info && (
-                  <Tooltip shouldWrapChildren label={info}>
-                    <FaRegQuestionCircle />
-                  </Tooltip>
-                )}
-              </HStack>
-            </FormLabel>
-          )}
-          {typeof subLabel !== 'string' ? (
-            subLabel
-          ) : (
-            <Text color='blackAlpha.700'>{subLabel}</Text>
-          )}
-        </Box>
-        {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
+        {label && (
+          // disabled input lessens opacity of FormLabel
+          <FormLabel mb={0}>
+            <HStack>
+              <Text fontSize='sm'>
+                {_.toUpper(label)}
+                {options?.required && ' *'}
+              </Text>
+              {tooltip && (
+                <Tooltip shouldWrapChildren label={tooltip}>
+                  <FaRegQuestionCircle />
+                </Tooltip>
+              )}
+            </HStack>
+          </FormLabel>
+        )}
+        {typeof subLabel !== 'string' ? (
+          subLabel
+        ) : (
+          <Text color='blackAlpha.700' fontSize='sm'>
+            {subLabel}
+          </Text>
+        )}
         {addressButtons && (
           <Flex justify='flex-end'>
             <HStack>
@@ -142,6 +141,11 @@ const Input = ({
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
+          {rightElement && (
+            <InputRightElement mr={isDirty ? '28px' : ''}>
+              {rightElement}
+            </InputRightElement>
+          )}
           {isDirty && (
             <InputRightElement>
               <IconButton
@@ -149,17 +153,24 @@ const Input = ({
                 aria-label='Reset'
                 onClick={onReset}
                 size='xs'
+                isDisabled={isDisabled}
                 colorScheme='cyan'
               />
             </InputRightElement>
           )}
-          {rightElement && (
-            <InputRightElement>{rightElement}</InputRightElement>
-          )}
         </InputGroup>
-        <Text color='red.500' fontSize='xs'>
-          {getErrorMessage()}
-        </Text>
+        {typeof subInput !== 'string' ? (
+          subInput
+        ) : (
+          <Text color='blackAlpha.700' fontSize='xs'>
+            {subInput}
+          </Text>
+        )}
+        {getErrorMessage() && (
+          <Text color='red.500' fontSize='xs'>
+            {getErrorMessage()}
+          </Text>
+        )}
       </Stack>
     </FormControl>
   );
@@ -170,9 +181,9 @@ export default Input;
 interface InputProps extends ChakraInputProps {
   label?: string;
   subLabel?: string | ReactNode;
+  subInput?: string | ReactNode;
   name: string;
-  info?: string;
-  tip?: string | ReactNode;
+  tooltip?: string;
   type?: string;
   options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

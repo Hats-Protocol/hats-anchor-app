@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import { Tooltip } from '@chakra-ui/react';
 
 // TooltipWrapper component

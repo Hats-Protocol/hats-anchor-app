@@ -23,6 +23,7 @@ import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
 import { MODULE_TYPES } from '@/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import useContractData from '@/hooks/useContractData';
 import useHatStatus from '@/hooks/useHatStatus';
 import useModuleDetails from '@/hooks/useModuleDetails';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
@@ -30,9 +31,9 @@ import usePendHatterMint from '@/hooks/usePendHatterMint';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';
 import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import { formatAddress } from '@/lib/general';
+import { SupportedChains } from '@/lib/chains';
+import { getControllerNameAndLink } from '@/lib/controllers';
 import { isWearingAdminHat } from '@/lib/hats';
-import { explorerUrl } from '@/lib/web3';
 
 const StatusCard = ({
   status,
@@ -49,7 +50,7 @@ const StatusCard = ({
     'extendedEligibility',
     'extendedToggle',
   ]);
-  const statusData =
+  const controllerData =
     status === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
 
   const moduleAddress = useMemo(
@@ -77,8 +78,13 @@ const StatusCard = ({
   });
 
   const { data: isActive } = useHatStatus();
+  const { data: contractData } = useContractData({
+    chainId,
+    address: controllerData?.id,
+    enabled: controllerData?.isContract,
+  });
 
-  const { onCopy } = useClipboard(statusData?.id || '');
+  const { onCopy } = useClipboard(controllerData?.id || '');
   const toast = useToast();
 
   let statusCheck = true;
@@ -95,11 +101,21 @@ const StatusCard = ({
   const isAdmin = isWearingAdminHat(_.map(wearerDetails, 'id'), hatToMintTo);
 
   let icon = FaCode;
-  if (statusData?.id === FALLBACK_ADDRESS || statusData?.id === ZERO_ADDRESS) {
+  if (
+    controllerData?.id === FALLBACK_ADDRESS ||
+    controllerData?.id === ZERO_ADDRESS
+  ) {
     icon = TbCircleOff;
-  } else if (!statusData?.isContract) {
+  } else if (!controllerData?.isContract) {
     icon = BsPersonBadge;
   }
+
+  const { controllerName, controllerLink } = getControllerNameAndLink({
+    controllerData,
+    moduleDetails,
+    contractData,
+    chainId: chainId as SupportedChains,
+  });
 
   return (
     <Stack>
@@ -108,7 +124,7 @@ const StatusCard = ({
           {_.capitalize(_.toString(status))}
         </Heading>
         <Tooltip
-          label={_.get(statusData, 'id')}
+          label={_.get(controllerData, 'id')}
           placement='left'
           minW='400px'
           textAlign='center'
@@ -123,25 +139,17 @@ const StatusCard = ({
               onClick={() => {
                 onCopy();
                 toast.info({
-                  title: 'Successfully copied Address to clipboard',
+                  title: 'Successfully copied address to clipboard',
                 });
               }}
               aria-label='Copy Address'
               color='gray.500'
             />
-            <ChakraNextLink
-              href={`${explorerUrl(chainId)}/address/${_.get(
-                statusData,
-                'id',
-              )}`}
-              isExternal
-            >
+            <ChakraNextLink href={controllerLink} isExternal>
               <HStack>
                 <Icon as={icon} ml={2} w={4} h={4} color='gray.500' />
                 <Text color='gray.500' fontSize='sm'>
-                  {moduleDetails
-                    ? moduleDetails.name
-                    : statusData?.ensName || formatAddress(statusData?.id)}
+                  {controllerName}
                 </Text>
               </HStack>
             </ChakraNextLink>

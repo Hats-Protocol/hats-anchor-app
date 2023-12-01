@@ -5,8 +5,9 @@ import { handleNestedDetails } from '@/lib/details';
 import { fetchDetailsIpfs } from '@/lib/ipfs';
 import { Hat } from '@/types';
 
-// ? should keep fetching strategy inline with `useHatDetailsField.ts`
+// * should keep fetching strategy inline with `useHatDetailsField.ts`
 
+// details-sdk/hooks
 const useManyHatsDetailsField = ({
   hats,
   onchainHats,

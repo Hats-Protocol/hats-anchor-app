@@ -7,13 +7,13 @@ import WearersList from '@/components/HatDrawer/WearersList';
 import ModuleDetails from '@/components/ModuleDetails';
 import { MODULE_TYPES } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatGuilds from '@/hooks/useGuilds';
 import { checkAddressIsContract } from '@/lib/contract';
 
+import AuthoritiesList from './AuthoritiesList';
 import DetailList from './DetailList';
-import GuildRoles from './GuildRoles';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
+import ResponsibilitiesList from './ResponsibilitiesList';
 import StatusCard from './Status';
 
 const MainContent = () => {
@@ -21,12 +21,10 @@ const MainContent = () => {
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
 
-  const { responsibilities, authorities, toggle, eligibility } = _.pick(
-    selectedHatDetails,
-    ['responsibilities', 'authorities', 'toggle', 'eligibility'],
-  );
-
-  const { hatRoles } = useHatGuilds();
+  const { toggle, eligibility } = _.pick(selectedHatDetails, [
+    'toggle',
+    'eligibility',
+  ]);
 
   useEffect(() => {
     const check = async () => {
@@ -52,15 +50,12 @@ const MainContent = () => {
       height='calc(100% - 150px)'
       pb={400}
       pos='relative'
+      color='blackAlpha.800'
     >
       <Header />
-
       <WearersList />
-
-      <GuildRoles hatRoles={hatRoles} />
-
-      <DetailList title='Responsibilities' details={responsibilities} />
-      <DetailList title='Authorities' details={authorities} />
+      <ResponsibilitiesList />
+      <AuthoritiesList />
 
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (

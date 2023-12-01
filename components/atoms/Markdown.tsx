@@ -9,6 +9,11 @@ interface CustomLinkProps {
   children: ReactNode | ReactNode[];
 }
 
+interface MarkdownProps {
+  children: string;
+  smallFont?: boolean;
+}
+
 const customComponents = {
   a: ({ href, children }: CustomLinkProps) => {
     if (!href) return undefined;
@@ -20,8 +25,11 @@ const customComponents = {
   },
 };
 
-const Markdown = ({ children }: { children: string }) => (
-  <ReactMarkdown components={ChakraUIRenderer(customComponents)}>
+const Markdown = ({ children, smallFont }: MarkdownProps) => (
+  <ReactMarkdown
+    components={ChakraUIRenderer(customComponents)}
+    className={smallFont ? 'small-font' : ''}
+  >
     {children}
   </ReactMarkdown>
 );

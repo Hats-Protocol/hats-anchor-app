@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 
 import { ZERO_ID } from '@/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchHatDetails } from '@/gql/helpers';
+import { fetchHatDetails } from '@/lib/subgraph';
 import { Hat } from '@/types';
 
+// hats-hooks
 const useHatDetails = ({
   hatId,
   initialData,
@@ -20,7 +21,8 @@ const useHatDetails = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', { id: hatId, chainId }],
     queryFn: () => fetchHatDetails(hatId, chainId),
-    enabled: !!hatId && hatId !== ZERO_ID && !!chainId,
+    // why is hatId getting set to undefined string?
+    enabled: !!hatId && hatId !== ZERO_ID && hatId !== 'undefined' && !!chainId,
     initialData,
   });
 

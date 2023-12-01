@@ -4,8 +4,8 @@ import { useMemo } from 'react';
 import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 
 import CONFIG from '@/constants';
+import { chainsMap } from '@/lib/chains';
 import { checkImageForHat } from '@/lib/hats';
-import { chainsMap } from '@/lib/web3';
 import { Hat } from '@/types';
 
 interface ContractCall {
@@ -24,6 +24,7 @@ const tempClient = (chainId: number) => {
   return client;
 };
 
+// image-sdk/hooks
 /**
  * returns an object, mapping from hat id to image url.
  * uses multi call in order to call the "getImageURIForHat" function for every hat with one call.
@@ -33,11 +34,13 @@ const tempClient = (chainId: number) => {
 const useImageURIs = ({
   hats,
   onchainHats,
-  editMode,
+  editMode = false,
+  onchain = false,
 }: {
   hats: Hat[] | undefined;
   onchainHats?: Hat[];
   editMode?: boolean;
+  onchain?: boolean;
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
@@ -67,7 +70,10 @@ const useImageURIs = ({
 
   const { data: imagesData, isLoading: imagesLoading } = useQuery({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ['imageURIs', _.map(onlyOnchainHats, 'id'), chainIds],
+    queryKey: [
+      'imageURIs',
+      { hatIds: _.map(onlyOnchainHats, 'id'), chainIds, onchain },
+    ],
     queryFn: () => {
       const clients = _.map(chainIds, (cId) => tempClient(cId));
 

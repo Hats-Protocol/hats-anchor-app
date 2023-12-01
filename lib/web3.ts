@@ -2,79 +2,15 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
+import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { alchemyProvider } from '@wagmi/core/providers/alchemy';
-import { publicProvider } from '@wagmi/core/providers/public';
-import _ from 'lodash';
-import {
-  createPublicClient,
-  createWalletClient,
-  custom,
-  Hex,
-  http,
-} from 'viem';
-import { Chain, configureChains, createConfig } from 'wagmi';
-import {
-  arbitrum,
-  gnosis,
-  goerli,
-  mainnet,
-  optimism,
-  polygon,
-} from 'wagmi/chains';
+import { createPublicClient, createWalletClient, custom, http } from 'viem';
+import { createConfig } from 'wagmi';
 
-const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+import NETWORK_ENDPOINTS from '../constants/subgraph';
+import { chains, chainsMap, publicClient } from './chains';
 
-// can we use the defaults here again?
-export const networkImages: { [key: number]: string } = {
-  1: '/chains/ethereum.svg',
-  5: '/chains/ethereum.svg',
-  10: '/chains/optimism.svg',
-  100: '/chains/gnosis.png',
-  137: '/chains/polygon.svg',
-  42161: '/chains/arbitrum.svg',
-};
-
-// TODO check if this got fixed, submit issue if not (should be fixed)
-// gnosis chain object from wagmi doesn't include multicall contract details. This is a temporary fix
-const gnosisContract = {
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11' as Hex,
-      blockCreated: 21022491,
-    },
-  },
-  // TODO where did the defaults go?
-  hasIcon: true,
-  iconUrl: networkImages[100],
-  iconBackground: 'none',
-};
-
-// ORDER HERE WILL BE USED IN THE UI
-export const orderedChains = [1, 10, 42161, 137, 100, 5];
-
-export const chainsList: { [key: number]: Chain } = {
-  1: mainnet,
-  5: goerli,
-  10: optimism,
-  100: { ...gnosisContract, ...gnosis },
-  137: polygon,
-  42161: arbitrum,
-  // 11155111: sepolia,
-};
-
-export const chainsMap = (chainId?: number) =>
-  chainId ? chainsList[chainId] : chainsList[5];
-
-export const explorerUrl = (chainId?: number) =>
-  chainId &&
-  (chainsMap(chainId)?.blockExplorers?.etherscan?.url ||
-    chainsMap(chainId)?.blockExplorers?.default.url);
-
-export const { chains, publicClient } = configureChains(_.values(chainsList), [
-  alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
-  publicProvider(),
-]);
+// app-utils
 
 const { connectors } = getDefaultWallets({
   appName: 'Hats',
@@ -111,6 +47,14 @@ export function createHatsClient(
   });
 
   return hatsClient;
+}
+
+export function createSubgraphClient(): HatsSubgraphClient {
+  if (process.env.NODE_ENV === 'development') {
+    return new HatsSubgraphClient({});
+  }
+
+  return new HatsSubgraphClient({ config: NETWORK_ENDPOINTS });
 }
 
 export async function createHatsModulesClient(

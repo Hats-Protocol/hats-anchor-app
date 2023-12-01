@@ -1,6 +1,6 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 import Accordion from '@/components/atoms/Accordion';
@@ -8,7 +8,6 @@ import Accordion from '@/components/atoms/Accordion';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { getAllParents, prettyIdToIp } from '@/lib/hats';
-import { ModuleDetails, ModuleKind } from '@/types';
 
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
@@ -16,15 +15,11 @@ import PermissionlessClaimingForm from './PermissionlessClaimingForm';
 const MainContent = ({
   localForm,
   title,
-  selectedModuleDetails,
-  setSelectedModuleDetails,
   isStandaloneHatterDeploy,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  title: ModuleKind;
-  selectedModuleDetails: ModuleDetails | undefined;
-  setSelectedModuleDetails: Dispatch<SetStateAction<ModuleDetails | undefined>>;
+  title: string;
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const {
@@ -80,12 +75,7 @@ const MainContent = ({
           subtitle='The fundamentals of the module, including type and details.'
           open
         >
-          <ModuleDetailsForm
-            localForm={localForm}
-            title={title}
-            selectedModuleDetails={selectedModuleDetails}
-            setSelectedModuleDetails={setSelectedModuleDetails}
-          />
+          <ModuleDetailsForm localForm={localForm} title={title} />
         </Accordion>
       )}
       {claimableHats && title !== 'toggle' && (

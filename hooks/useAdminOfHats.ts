@@ -6,12 +6,13 @@ import { useAccount } from 'wagmi';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsClient } from '@/lib/web3';
 
+// hats-hooks
 const useAdminOfHats = (hatIds: Hex[]) => {
   const { chainId } = useTreeForm();
   const { address: user } = useAccount();
 
   const fetchAdminStatus = async () => {
-    const hatsClient = await createHatsClient(chainId);
+    const hatsClient = createHatsClient(chainId);
     if (!hatsClient) {
       throw new Error('Unable to initialize hatsClient');
     }

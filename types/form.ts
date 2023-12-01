@@ -1,8 +1,14 @@
 import { Hex } from 'viem';
 
+import { SnapshotStrategy } from '@/hooks/useSnapshotSpaces';
+
 import { DetailsItem } from './hat';
 
-export type FieldItem = { name: keyof FormData; label: string };
+export type FormFieldKeys = Exclude<
+  keyof FormData,
+  'id' | 'parentId' | 'adminId'
+>;
+export type FieldItem = { name: FormFieldKeys; label: string };
 
 export interface FormWearer {
   address: Hex;
@@ -21,22 +27,38 @@ export type FormData = FormDataDetails & {
   adminId?: Hex;
 };
 
+export type AuthorityType =
+  | 'protocol'
+  | 'modules'
+  | 'wallet'
+  | 'hsg'
+  | 'onchain'
+  | 'gate'
+  | 'manual';
+
+export type Authority = {
+  label: string;
+  link: string;
+  gate?: string | undefined;
+  description?: string;
+  imageUrl?: string;
+  type?: string | AuthorityType | undefined;
+  id?: string | number;
+  strategies?: SnapshotStrategy[];
+};
+
 export type FormDataDetails = {
   name: string;
+  displayName?: string;
   description: string;
   guilds: string[];
+  spaces: string[];
   responsibilities: DetailsItem[];
-  authorities: DetailsItem[];
+  authorities: Authority[];
   isEligibilityManual: string;
   isToggleManual: string;
   revocationsCriteria: DetailsItem[];
   deactivationsCriteria: DetailsItem[];
-  newImageUri?: string;
-};
-
-export type DirtyFormData = {
-  imageUrl?: string;
-  [key: string]: string | string[] | DetailsItem[] | FormWearer[] | undefined;
 };
 
 export type DeploymentType =

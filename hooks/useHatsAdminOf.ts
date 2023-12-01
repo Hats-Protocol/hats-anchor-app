@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchTreesById } from '@/gql/helpers';
+import { chainsList } from '@/lib/chains';
 import { isWearingAdminHat } from '@/lib/hats';
-import { chainsList } from '@/lib/web3';
+import { fetchTreesById } from '@/lib/subgraph';
 import { Hat, Tree } from '@/types';
 
 const chains = _.keys(chainsList);
 
+// hats-hooks
 const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
   const adminOfHats = async () => {
     if (!hats) return {};

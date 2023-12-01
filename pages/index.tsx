@@ -23,14 +23,14 @@ import Suspender from '@/components/atoms/Suspender';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import LearnMoreCard from '@/components/LearnMoreCard';
-import CONFIG, { learnMore } from '@/constants';
+import CONFIG, { LEARN_MORE } from '@/constants';
 import useFeaturedTemplates from '@/hooks/useFeaturedTemplates';
 import useFeaturedTrees from '@/hooks/useFeaturedTrees';
 import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';
 import useImageURIs from '@/hooks/useImageURIs';
 import useWearerDetails from '@/hooks/useWearerDetails';
+import { orderedChains } from '@/lib/chains';
 import { formatAddress } from '@/lib/general';
-import { orderedChains } from '@/lib/web3';
 
 const DashboardHatCard = dynamic(
   () => import('@/components/DashboardHatCard'),
@@ -58,12 +58,13 @@ const Home = () => {
     chainId: 'all',
   });
 
-  const sortedHats = _.sortBy(currentHats, (hat) => {
-    return _.indexOf(orderedChains, hat.chainId);
+  const sortedHats = _.sortBy(_.compact(currentHats), (hat) => {
+    return _.indexOf(orderedChains, hat?.chainId);
   });
+  const activeHats = _.filter(sortedHats, ['status', true]);
 
   const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({ hats: sortedHats.splice(0, 8) });
+    useImageURIs({ hats: activeHats.splice(0, 8) });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
@@ -178,12 +179,12 @@ const Home = () => {
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTrees, (tree, i) => (
                   <FeaturedTreeCard
+                    key={i}
                     treeData={tree}
                     hatsAndWearers={_.find(
                       hatsAndWearers,
                       (h: { treeId: string }) => Number(h.treeId) === tree.id,
                     )}
-                    key={i}
                   />
                 ))}
               </SimpleGrid>
@@ -213,13 +214,13 @@ const Home = () => {
             </Text>
             {isSmallerScreen ? (
               <Grid templateColumns='repeat(2, 1fr)' gap={6}>
-                {_.map(learnMore, (docsLink, i) => (
+                {_.map(LEARN_MORE, (docsLink, i) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </Grid>
             ) : (
               <Stack spacing={6}>
-                {_.map(learnMore, (docsLink, i) => (
+                {_.map(LEARN_MORE, (docsLink, i) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </Stack>

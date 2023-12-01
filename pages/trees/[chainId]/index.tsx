@@ -7,23 +7,15 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Layout from '@/components/Layout';
 import NetworkFilter from '@/components/NetworkFilter';
 import TreeCard from '@/components/TreeListCard';
-import { fetchPaginatedTrees } from '@/gql/helpers';
 import useImageURIs from '@/hooks/useImageURIs';
 import usePaginatedTreeList from '@/hooks/usePaginatedTreeList';
 import { mapWithChainId } from '@/lib/general';
 import { Hat, Tree } from '@/types';
 
-const Trees = ({
-  trees: initialTrees,
-  chainId,
-}: {
-  trees: Tree[];
-  chainId: number;
-}) => {
+const Trees = ({ chainId }: { chainId: number }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,
-      initialData: initialTrees,
     });
 
   const trees = _.flatten(_.get(data, 'pages'));
@@ -78,7 +70,7 @@ const Trees = ({
                     _.get(_.first(_.get(tree, 'hats')), 'id'),
                 );
 
-                if (!topHat) return null;
+                if (!topHat || !tree) return null;
 
                 return (
                   <TreeCard
@@ -114,27 +106,12 @@ const Trees = ({
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const chainId = _.get(context, 'params.chainId');
 
-  try {
-    const trees = await fetchPaginatedTrees(Number(chainId) || 1, 0, 40);
-
-    return {
-      props: {
-        chainId,
-        trees,
-      },
-      revalidate: 30,
-    };
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
-    return {
-      props: {
-        chainId: 1,
-        trees: [],
-      },
-      revalidate: 30,
-    };
-  }
+  return {
+    props: {
+      chainId,
+    },
+    revalidate: 30,
+  };
 };
 
 export const getStaticPaths = async () => {

@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { fetchTreeDetails, fetchTreesById } from '@/gql/helpers';
 import { ipToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { fetchTreeDetails, fetchTreesById } from '@/lib/subgraph';
 import { Tree } from '@/types';
 
+// app-hooks
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {
   const fetchFeaturedTrees = async () => {

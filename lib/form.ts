@@ -1,20 +1,25 @@
-/* eslint-disable import/prefer-default-export */
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
 import {
+  FieldItem,
   FormData,
   FormDataDetails,
+  FormFieldKeys,
   Hat,
   HatDetails,
+  HatDetailsKeys,
   InputObject,
 } from '@/types';
 
+import { publicClient } from './chains';
 import { createHierarchy, getDefaultAdminId } from './hats';
 import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
 import { createHatsClient } from './web3';
+
+// hats-utils - used in calldata hooks
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
@@ -25,6 +30,7 @@ const hasDetailsChanged = (
     name,
     description,
     guilds,
+    spaces,
     responsibilities,
     authorities,
     isEligibilityManual,
@@ -37,6 +43,9 @@ const hasDetailsChanged = (
   const hasGuildsChanged =
     _.gt(_.size(guilds), 0) ||
     _.size(guilds) !== _.size(originalHatDetails?.guilds);
+  const hasSpacesChanged =
+    _.gt(_.size(spaces), 0) ||
+    _.size(spaces) !== _.size(originalHatDetails?.spaces);
   const hasResponsibilitiesChanged =
     _.gt(_.size(responsibilities), 0) ||
     _.size(responsibilities) !== _.size(originalHatDetails?.responsibilities);
@@ -57,6 +66,7 @@ const hasDetailsChanged = (
     !!namePlainText ||
     !!description ||
     !!hasGuildsChanged ||
+    !!hasSpacesChanged ||
     !!hasResponsibilitiesChanged ||
     !!hasAuthoritiesChanged ||
     !!isEligibilityManual ||
@@ -79,22 +89,29 @@ const createDetailsData = ({
     revocationsCriteria,
     deactivationsCriteria,
     name,
+    displayName,
     description,
     guilds,
+    spaces,
     responsibilities,
     authorities,
   } = hat;
 
+  let updateName = _.get(originalHat, 'detailsObject.data.name');
+  if (name || displayName) updateName = name || displayName;
+  if (!updateName) updateName = _.get(originalHat, 'details');
+
   const detailsData = {
-    name: name || _.get(originalHat, 'details') || '',
+    name: updateName || '',
     description: description || '',
     guilds: guilds || [],
+    spaces: spaces || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
     authorities: _.reject(authorities, ['label', '']),
     eligibility: {
       manual: isEligibilityManual
         ? isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
-        : true,
+        : _.get(originalHat, 'detailsObject.data.eligibility.manual', true),
       criteria: _.reject(revocationsCriteria, ['label', '']) || [],
     },
     toggle: {
@@ -108,7 +125,7 @@ const createDetailsData = ({
   return detailsData;
 };
 
-const createNewHatData = ({
+const createNewHatData = async ({
   hat,
   details,
 }: {
@@ -118,6 +135,20 @@ const createNewHatData = ({
   const { maxSupply, eligibility, toggle, mutable, imageUrl, id: hatId } = hat;
 
   if (!hatId) return undefined;
+  let localEligibility = eligibility;
+  const localToggle = toggle;
+  if (eligibility?.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: eligibility,
+      })) || undefined;
+  }
+  if (toggle?.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: toggle,
+      })) || undefined;
+  }
 
   const admin = getDefaultAdminId(hatId);
   if (!admin || admin === '0x') {
@@ -125,22 +156,28 @@ const createNewHatData = ({
     console.log('admin is undefined');
     return undefined;
   }
+  const imageUri = imageUrl?.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
 
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
     details,
     maxSupply: _.toNumber(maxSupply) || 1,
-    eligibility: eligibility || FALLBACK_ADDRESS,
-    toggle: toggle || FALLBACK_ADDRESS,
+    eligibility: localEligibility || FALLBACK_ADDRESS,
+    toggle: localToggle || FALLBACK_ADDRESS,
     mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
-    imageURI: imageUrl || '',
+    imageURI: imageUri || '',
   };
 };
 
 interface ProcessCallForHatReturnProps {
-  calls: any[];
-  hatChanges: any;
-  detailsToPin: any;
+  calls: {
+    functionName: string;
+    callData: Hex;
+  }[];
+  hatChanges: any; // Partial<FormData>;
+  detailsToPin?: { hatId: Hex; chainId: number; details: HatDetails };
 }
 
 interface ProcessCallForHatProps {
@@ -153,7 +190,6 @@ interface ProcessCallForHatProps {
 const emptyReturnData = {
   calls: [],
   hatChanges: {},
-  detailsToPin: undefined,
 };
 
 const processNewDetailsCallForHat = async ({
@@ -169,12 +205,15 @@ const processNewDetailsCallForHat = async ({
   const detailsData = createDetailsData({ hat });
   const details = await calculateCid({ type: '1.0', data: detailsData });
 
-  if (!id || !details) return returnData;
-  const newHat = createNewHatData({ hat, details });
+  if (!id || !details || !chainId) return returnData;
+  const newHat = await createNewHatData({ hat, details });
   if (!newHat) return returnData;
   const newHatData = hatsClient.createHatCallData(newHat);
 
   if (!newHatData) return returnData;
+  const imageUri = imageUrl?.startsWith('https://')
+    ? urlToIpfsUri(imageUrl)
+    : imageUrl;
 
   newHatChanges = {
     ...newHat,
@@ -188,8 +227,8 @@ const processNewDetailsCallForHat = async ({
       data: detailsData,
     },
     chainId,
-    imageUri: imageUrl,
-    imageUrl: imageUrl ? ipfsUrl(imageUrl?.slice(7)) : '/icon.jpeg',
+    imageUri: imageUri || undefined,
+    imageUrl,
   };
 
   return {
@@ -267,33 +306,37 @@ const processDetailsChangeCallForHat = async ({
 }: ProcessDetailsChangeCallForHatProps) => {
   const { id: hatId } = hat;
 
-  if (!hatId || !hasDetailsChanged(hat, onchainHat)) return returnData;
+  if (!hatId || !hasDetailsChanged(hat, onchainHat) || !chainId)
+    return returnData;
 
   const { calls, hatChanges } = returnData;
 
-  const existingDetails: {
-    [key: string]: any;
-  } = _.get(onchainHat, 'detailsObject.data') || {};
-  const newDetails: {
-    [key: string]: any;
-  } = createDetailsData({ hat, originalHat: onchainHat });
+  const existingDetails: HatDetails | undefined =
+    _.get(onchainHat, 'detailsObject.data') || undefined;
+  const newDetails: HatDetails = createDetailsData({
+    hat,
+    originalHat: onchainHat,
+  });
 
   const combinedDetails = _.reduce(
     existingDetails,
-    (acc, existingValue, key) => {
-      const newValue = newDetails[key];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (acc: any, existingValue, key) => {
+      const localKey = key as HatDetailsKeys;
+      const newValue = newDetails[localKey];
 
       if (
         _.isArray(newValue) &&
         _.isEmpty(newValue) &&
         hat[key as keyof FormData] !== undefined
       ) {
-        acc[key] = newValue;
+        acc[localKey] = newValue;
       } else if (
         (_.isArray(existingValue) && _.isArray(newValue)) ||
         (_.isObject(existingValue) && _.isObject(newValue))
       ) {
-        acc[key] = _.merge(existingValue, newValue);
+        acc[localKey] = _.merge(existingValue, newValue);
       } else {
         acc[key] = newValue || existingValue;
       }
@@ -352,7 +395,7 @@ const processMaxSupplyChangeCallForHat = ({
   };
 };
 
-const processEligibilityChangeCallForHat = ({
+const processEligibilityChangeCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -360,11 +403,21 @@ const processEligibilityChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { eligibility, id: hatId } = hat;
 
+  let localEligibility = eligibility;
   if (!hatId || !eligibility) return returnData;
+
+  if (eligibility.includes('.eth')) {
+    localEligibility =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: eligibility,
+      })) || undefined;
+  }
+
+  if (!localEligibility) return returnData;
 
   const changeHatEligibilityData = hatsClient.changeHatEligibilityCallData({
     hatId: BigInt(hatId),
-    newEligibility: eligibility,
+    newEligibility: localEligibility,
   });
 
   if (!changeHatEligibilityData) return returnData;
@@ -381,7 +434,7 @@ const processEligibilityChangeCallForHat = ({
   };
 };
 
-const processToggleChangeCallForHat = ({
+const processToggleChangeCallForHat = async ({
   hatsClient,
   hat,
   returnData,
@@ -389,7 +442,17 @@ const processToggleChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { toggle, id: hatId } = hat;
 
+  let localToggle = toggle;
   if (!hatId || !toggle) return returnData;
+
+  if (toggle.includes('.eth')) {
+    localToggle =
+      (await publicClient({ chainId: 1 }).getEnsAddress({
+        name: toggle,
+      })) || undefined;
+  }
+
+  if (!localToggle) return returnData;
 
   const changeHatToggleData = hatsClient.changeHatToggleCallData({
     hatId: BigInt(hatId),
@@ -515,12 +578,12 @@ export const processHatForCalls = async (
     hat,
     returnData: maxSupplyResult,
   });
-  const eligibilityResult = processEligibilityChangeCallForHat({
+  const eligibilityResult = await processEligibilityChangeCallForHat({
     hatsClient,
     hat,
     returnData: wearersResult,
   });
-  const toggleResult = processToggleChangeCallForHat({
+  const toggleResult = await processToggleChangeCallForHat({
     hatsClient,
     hat,
     returnData: eligibilityResult,
@@ -591,4 +654,40 @@ export const removeAndHandleSiblingsOrgChart = (hats: Hat[], hatId: Hex) => {
   );
 
   return _.concat(filterSiblings, _.compact(updateSiblings));
+};
+
+// get dirty fields
+export const getDirtyFields = (
+  formValues: Partial<FormData>,
+  defaultFormValues: Partial<FormData>,
+): string[] => {
+  const excludeKeys = ['id', 'parentId', 'adminId', 'imageUri'];
+
+  return _.filter(_.keys(formValues), (key: FormFieldKeys) => {
+    if (_.includes(excludeKeys, key)) return false;
+    if (key === 'imageUrl') {
+      return (
+        formValues.imageUrl !== defaultFormValues.imageUrl &&
+        formValues.imageUrl !== undefined
+      );
+    }
+    // if (value === _.get(defaultHat, key)) return false;
+
+    return (
+      JSON.stringify(defaultFormValues[key]) !== JSON.stringify(formValues[key])
+      // || formValues[key] === 'New Hat'
+    );
+  }) as string[];
+};
+
+export const fieldsAreDirty = (
+  fieldsArray: FieldItem[],
+  dirtyFields: string[],
+) => {
+  return _.map(
+    _.filter(fieldsArray, (field) =>
+      _.includes(dirtyFields, field.name as string),
+    ),
+    'label',
+  );
 };

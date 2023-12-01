@@ -16,9 +16,7 @@ import {
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
-// import Modal from '@/components/atoms/Modal';
 import Suspender from '@/components/atoms/Suspender';
-// import TransactionHistory from '@/components/TransactionHistory';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useToast from '@/hooks/useToast';
 import { checkTransactionStatus } from '@/lib/contract';
@@ -137,11 +135,11 @@ export const OverlayContextProvider = ({
   }, [setTransactions]);
 
   /**
-   * @param {string} hash
+   * @param {hex} hash
    * @param {object} toastData
    * @param {string} toastData.title
    * @param {string} toastData.description
-   * @param {string} fnName
+   * @param {string} onSuccess
    * @param {string} redirect
    * @param {boolean} clearModals
    * @param {boolean} sendToast
@@ -150,8 +148,8 @@ export const OverlayContextProvider = ({
    * handlePendingTx({
    *  hash: '0x123',
    *  toastData: {
-   *    title: 'Transaction successful',
-   *    description: 'Your hat was created successfully',
+   *   title: 'Transaction successful',
+   *   description: 'Your hat was created successfully',
    *  },
    * });
    * */

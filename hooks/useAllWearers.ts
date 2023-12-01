@@ -3,10 +3,10 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import client from '@/gql/client';
-import { GET_HAT_WEARERS_PAGE } from '@/gql/queries';
+import { createSubgraphClient } from '@/lib/web3';
 import { HatWearer } from '@/types';
 
+// hats-hooks
 const fetchHatWearersPage = async ({
   hatId,
   chainId,
@@ -16,12 +16,17 @@ const fetchHatWearersPage = async ({
   chainId: number;
   page: number;
 }) => {
-  const result = await client(chainId).request(GET_HAT_WEARERS_PAGE, {
-    hatId,
-    page: page * 1000 || 0,
+  const subgraphClient = createSubgraphClient();
+
+  const res = await subgraphClient.getWearersOfHatPaginated({
+    chainId,
+    hatId: BigInt(hatId),
+    props: {},
+    page,
+    perPage: 1000,
   });
 
-  return result;
+  return res;
 };
 
 const useAllWearers = () => {
@@ -37,7 +42,7 @@ const useAllWearers = () => {
 
     const result = await Promise.all(promises);
 
-    return _.flatten(_.map(result, 'hat.wearers')) as HatWearer[];
+    return _.flatten(result) as HatWearer[];
   };
 
   const { data, error, isLoading } = useQuery({

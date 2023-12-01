@@ -4,9 +4,10 @@ import { Hex } from 'viem';
 import {
   fetchWearerDetailsForAllChains,
   fetchWearerDetailsForChain,
-} from '@/gql/helpers';
+} from '@/lib/subgraph';
 import { Hat } from '@/types';
 
+// hats-hooks
 const useWearerDetails = ({
   wearerAddress,
   chainId,

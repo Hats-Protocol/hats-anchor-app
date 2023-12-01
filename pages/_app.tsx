@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import '../public/style.css';
+import '../components/OrgChart/OrgChart.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
@@ -13,7 +14,8 @@ import { WagmiConfig } from 'wagmi';
 
 import SEO from '@/constants/next-seo.config';
 import { OverlayContextProvider } from '@/contexts/OverlayContext';
-import { chains, wagmiConfig } from '@/lib/web3';
+import { chains } from '@/lib/chains';
+import { wagmiConfig } from '@/lib/web3';
 
 import theme from '../theme';
 

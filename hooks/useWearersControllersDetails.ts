@@ -43,19 +43,28 @@ const fetchWearerAndControllerDetails = async (
   };
 };
 
+// hats-hooks or app-hooks
 const useWearersControllersDetails = ({
   hats,
   editMode,
+  onchain = false,
 }: {
   hats: Hat[] | undefined;
   editMode?: boolean;
+  onchain?: boolean;
 }) => {
   const chainId = _.get(_.first(hats), 'chainId');
+  // Don't spam the RPC with requests for wearers on individual hats. Handle OrgChart wearers + controllers
+  const hatsWithIndividualWearers = _.filter(
+    hats,
+    (hat) => _.size(hat.wearers) === 1,
+  );
+
   const wAndCs = _.uniq(
     _.compact(
       _.reject(
         _.concat(
-          _.map(_.flatten(_.map(hats, 'wearers')), 'id'),
+          _.map(_.flatten(_.map(hatsWithIndividualWearers, 'wearers')), 'id'),
           _.flatten(_.map(hats, 'toggle')), // not nested in objects here
           _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
         ),
@@ -65,10 +74,11 @@ const useWearersControllersDetails = ({
   );
 
   const wearerAndControllerDetails = useQueries({
-    queries: _.map(wAndCs, (w) => ({
-      queryKey: ['wearerAndControllerDetails', w, chainId],
-      queryFn: () => fetchWearerAndControllerDetails(w, chainId),
-      enabled: !!w && isAddress(w) && w !== ZERO_ADDRESS && !!chainId,
+    queries: _.map(wAndCs, (wearer) => ({
+      queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
+      queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
+      enabled:
+        !!wearer && isAddress(wearer) && wearer !== ZERO_ADDRESS && !!chainId,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     })),
   });

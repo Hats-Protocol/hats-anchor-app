@@ -40,13 +40,12 @@ const validateTreeImport = ({
   if (fileTreeId?.includes('.')) {
     fileTreeId = _.first(_.split(fileTreeId, '.'));
   }
-  console.log('fileTreeId', fileTreeId);
   return null;
 };
 
 const ImportTreeForm = () => {
   const { setModals } = useOverlay();
-  const { treeId, chainId, importHats, onchainHats, onchainHatsWithDetails } =
+  const { treeId, chainId, importHats, onchainHats, onchainTree } =
     useTreeForm();
 
   const [validImport, setValidImport] = useState(true);
@@ -83,12 +82,12 @@ const ImportTreeForm = () => {
       const fileContents = e.target?.result;
       const treeFromJson = JSON.parse(fileContents as string);
       const importedTree = flattenHatData(treeFromJson);
-      if (!onchainHatsWithDetails) return;
-      const onChainTree = flattenHatData(onchainHatsWithDetails);
+      if (!onchainTree) return;
+      const onchainTreeData = flattenHatData(onchainTree);
       const draftHats = prepareDraftHats(
         // TODO prepareDraftHats is expecting HatExport[], flattenHatData returns FormData[]
         importedTree as unknown as HatExport[],
-        onChainTree,
+        onchainTreeData,
         treeId,
       );
 
@@ -97,6 +96,7 @@ const ImportTreeForm = () => {
         setValidImport(false);
         return;
       }
+      // ? check for duplicate hats in done in importHats
 
       importHats?.(draftHats);
       setModals?.({});

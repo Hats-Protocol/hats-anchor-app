@@ -2,9 +2,9 @@ import { solidityToTypescriptType, verify } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
-import CONFIG from '@/constants';
+import CONFIG, { GATEWAY_TOKEN } from '@/constants';
 
-import { PINATA_GATEWAY_TOKEN } from './ipfs';
+// app-utils mostly, some should move
 
 export const formatAddress = (address: string | null | undefined) =>
   address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
@@ -83,20 +83,20 @@ export async function isImageUrl(url: string | unknown) {
 }
 
 export const formatImageUrl = (url?: string) => {
-  if (_.startsWith(url, 'https://')) {
+  if (_.startsWith(url, 'https://') || _.startsWith(url, '/')) {
     return url;
   }
   if (_.startsWith(url, 'ipfs://')) {
     return `${CONFIG.ipfsGateway}${url?.slice(
       7,
-    )}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+    )}?pinataGatewayToken=${GATEWAY_TOKEN}`;
   }
   if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
     const ipfsHash = url?.slice(21);
     const ipfsHashSplit = ipfsHash?.split('?')[0];
     const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
     const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
-    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${PINATA_GATEWAY_TOKEN}`;
+    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${GATEWAY_TOKEN}`;
   }
 
   return null;
@@ -187,8 +187,8 @@ export function formatFunctionName(functionName: string): string {
     .replace(/^./, (str) => str.toUpperCase());
 }
 
-export function commify(value: any) {
-  const match = value.match(/^(-?)([0-9]*)(\.?)([0-9]*)$/);
+export function commify(value: number | string) {
+  const match = _.toString(value).match(/^(-?)([0-9]*)(\.?)([0-9]*)$/);
   if (!match || (!match[2] && !match[4])) {
     throw new Error(`bad formatted number: ${JSON.stringify(value)}`);
   }
@@ -199,4 +199,13 @@ export function commify(value: any) {
 
   return `${neg}${whole}`;
   // return `${neg}${whole}.${frac}`;
+}
+
+export function getHostnameFromURL(urlString?: string) {
+  if (!urlString) return '';
+  try {
+    return new URL(urlString).hostname;
+  } catch (error) {
+    return '';
+  }
 }

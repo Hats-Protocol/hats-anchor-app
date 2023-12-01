@@ -17,6 +17,9 @@ import {
 import { formatImageUrl, isImageUrl } from './general';
 import { ipfsUrl } from './ipfs';
 
+// hats-utils or app-utils mostly
+
+// ! missing IDs when inactive are hidden
 export const calculateNextChildId = (id: string, hatsData: Hat[]) => {
   const children = _.filter(
     hatsData,
@@ -144,10 +147,10 @@ export const hatIdToHex = (hatId: string | null) => {
 };
 
 // treeId is a decimal string '5'
-export const decimalToTreeId = (treeId: string) => {
-  if (!treeId) return null;
-  return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
-};
+// export const decimalToTreeId = (treeId: string) => {
+//   if (!treeId) return null;
+//   return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
+// };
 
 export const decimalIdToId = (decimalId: number | string | undefined): Hex => {
   if (!decimalId) return '0x';
@@ -171,7 +174,7 @@ export const decimalId = (hatId: string | undefined): string => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const includesAny = (arr: any[], target: any[]) =>
-  target.some((v) => arr.includes(v));
+  _.some(target, (v) => _.includes(arr, v));
 
 /**
  * Traverses all ancestry of hat to check for wearers
@@ -188,17 +191,21 @@ export const isWearingAdminHat = (
   const treeId = hatId.slice(0, 10);
   // separate children IDs
   const children = hatId.slice(10);
-  const hats = children.match(/.{1,4}/g); // _.split(children, '.');
+  const hats = children.match(/.{1,4}/g);
 
   if (!hats) return false;
 
-  if (!includeCurrent) hats.pop();
-
   // map all parent hatIds for the lineage
-  const hatIds = hats.map((__, i) => {
-    const joinedParentHats = hats.slice(0, i).join('');
-    return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
-  });
+  let hatIds = _.uniq(
+    _.map(hats, (__, i) => {
+      const joinedParentHats = hats.slice(0, i).join('');
+      return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
+    }),
+  );
+
+  if (!includeCurrent) {
+    hatIds = _.reject(hatIds, (id) => id === hatId);
+  }
   // TODO handle linked trees
 
   if (!wearerHatIds) return false;
@@ -219,7 +226,7 @@ export const isMutableNotTopHat = (hatData: Hat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
-export const getTreeId = (prettyHatId: string | null, full = false) => {
+export const getTreeId = (prettyHatId: Hex | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);
   return prettyHatId.slice(0, 10).padEnd(66, '0');
@@ -316,7 +323,7 @@ export const translateDrafts = ({
   const extendDrafts = _.map(drafts, (hat) => {
     if (!hat.id) return undefined;
     return {
-      ...hat,
+      ..._.omit(hat, ['imageUrl']),
       ...defaultHat,
       chainId,
       name: hatIdDecimalToIp(BigInt(hat.id)),
@@ -428,6 +435,7 @@ const mergeHatsWithStoredData = (
     const imageUrl = ipfsUrl(imageUri?.slice(7));
     return {
       ...mergedHat,
+      adminId: mergedHat?.adminId || storedHat?.parentId,
       imageUri,
       imageUrl: hat?.imageUrl === '/icon.jpeg' ? '' : imageUrl,
       wearers: _.map(mergedHat.wearers, 'address') || [],
@@ -447,7 +455,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
     mutable: hat.mutable === MUTABILITY.MUTABLE,
     currentSupply: parseInt(hat.currentSupply, 10),
     wearers: hat.wearers,
-    adminId: hat.adminId,
+    adminId: hat.adminId || hat.parentId,
     imageUri: hat.imageUri || '',
     // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
     detailsObject: {
@@ -458,6 +466,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
         responsibilities: hat.responsibilities,
         authorities: hat.authorities,
         guilds: hat.guilds,
+        spaces: hat.spaces,
         eligibility: {
           manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
           criteria: hat.revocationsCriteria,
@@ -513,8 +522,8 @@ export const handleExportBranch = ({
   const targetHat = _.find(treeToDisplay, { id: targetHatId });
   const type = isTopHat(targetHat) ? 'tree' : 'branch';
 
-  const onChainHats = flattenHatData(hatsWithoutLinkedHats);
-  const mergedHats = mergeHatsWithStoredData(onChainHats, storedData);
+  const onchainHats = flattenHatData(hatsWithoutLinkedHats);
+  const mergedHats = mergeHatsWithStoredData(onchainHats, storedData);
   const preparedTree = prepareExportTree(mergedHats);
   const fileData = JSON.stringify(preparedTree);
   const hatId = hatIdDecimalToIp(BigInt(targetHatId));
@@ -541,20 +550,28 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
   };
 
   _.forEach(hatA, (value, key) => {
+    // skip keys that we're handling separately
     if (_.includes(['createdAt', 'currentSupply', 'imageUri'], key)) {
       return;
     }
 
     if (key === 'imageUrl') {
+      console.log(key, value, hatB[key]);
+      // if imageUrl isn't set imageUri is usually set to ''
+      if (!value) {
+        return;
+      }
       if (!_.isEqual(String(value), String(hatB[key]))) {
         diffHat.imageUrl = hatA.imageUrl;
       }
       return;
     }
 
-    if (key === 'adminId') {
+    if (
+      _.includes(['maxSupply', 'currentSupply', 'timestamp', 'parentId'], key)
+    ) {
       if (!_.isEqual(String(value), String(hatB[key]))) {
-        diffHat[key] = hatB[key];
+        diffHat[key] = Number(value);
       }
       return;
     }
@@ -564,13 +581,6 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
         diffHat[key] = value
           ? TRIGGER_OPTIONS.MANUALLY
           : TRIGGER_OPTIONS.AUTOMATICALLY;
-      }
-      return;
-    }
-
-    if (_.includes(['maxSupply', 'currentSupply', 'timestamp'], key)) {
-      if (!_.isEqual(String(value), String(hatB[key]))) {
-        diffHat[key] = Number(value);
       }
       return;
     }
@@ -601,12 +611,12 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 
 export const prepareDraftHats = (
   importedTree: HatExport[],
-  onChainTree: FormData[],
+  onchainTree: FormData[],
   treeId?: Hex,
 ): Partial<FormData>[] => {
   const hatsWithPatchedIds = patchHatIds(importedTree, prettyIdToId(treeId));
   const hatsDifferences = _.map(hatsWithPatchedIds, (hat) => {
-    const matchingHat = _.find(onChainTree, { id: hat.id });
+    const matchingHat = _.find(onchainTree, { id: hat.id });
     if (!matchingHat) return hat;
     return compareHatObjects(hat, matchingHat);
   });
@@ -614,6 +624,7 @@ export const prepareDraftHats = (
     hatsDifferences,
     (hat) => _.size(hat) > 1 && _.some(hat, (value) => value !== undefined),
   );
+  console.log(hatsWithUpdates);
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
     (hat: FormData) => hat.id !== prettyIdToId(treeId),
@@ -666,7 +677,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     // imageUri: hat.imageUri,
     currentSupply: _.toNumber(hat.currentSupply),
     wearers: extractWearers(hat.wearers),
-    adminId: hat.adminId || _.get(hat, 'admin.id'),
+    adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
     imageUrl: hat.imageUrl,
     imageUri: hat.imageUri,
     name: _.get(hat, 'detailsObject.data.name'),
@@ -674,25 +685,24 @@ export const flattenHatData = (data: any[]): FormData[] =>
     responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
     authorities: _.get(hat, 'detailsObject.data.authorities', []),
     guilds: _.get(hat, 'detailsObject.data.guilds', []),
+    spaces: _.get(hat, 'detailsObject.data.spaces', []),
   }));
 
-const extractWearers = (wearers: any): FormWearer[] => {
+const extractWearers = (wearers: any[]): FormWearer[] => {
   if (
     _.isArray(wearers) &&
     !_.isEmpty(wearers) &&
     _.isString(_.first(wearers))
   ) {
     return _.map(wearers, (wearer) => ({
-      address: wearer,
+      address: wearer as Hex,
       ens: '',
     }));
   }
-  return (
-    _.map(wearers, ({ id }) => ({
-      address: id,
-      ens: '',
-    })) || []
-  );
+  return _.map(wearers, (wearer) => ({
+    address: wearer.id,
+    ens: '',
+  }));
 };
 
 export const checkMissingHats = (
@@ -700,13 +710,14 @@ export const checkMissingHats = (
   onchainHats: Hat[] | undefined,
 ) => {
   if (!onchainHats) return true;
-  const onChainIds = _.map(onchainHats, 'id');
+  const onchainIds = _.map(onchainHats, 'id');
   const draftIds = _.map(hats, 'id');
-  const idList = _.uniq(_.concat(onChainIds, draftIds));
+  const idList = _.uniq(_.concat(onchainIds, draftIds));
 
   const missingParent = _.filter(hats, (hat) => {
-    if (!hat.adminId) return true;
-    return !_.includes(idList, hat.adminId);
+    const localHat = _.find(onchainHats, { id: hat.id });
+    if (!hat.adminId && !localHat?.admin?.id) return true;
+    return !_.includes(idList, hat.adminId || localHat?.admin?.id);
   });
 
   return _.some(missingParent);

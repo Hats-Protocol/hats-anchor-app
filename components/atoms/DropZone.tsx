@@ -1,6 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
-import { Box, Flex, Image, Input, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  FormLabel,
+  Image,
+  Input,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
 import { ImageFile } from '@/types';
@@ -26,21 +34,22 @@ const baseStyle = {
 };
 
 const focusedStyle = {
-  borderColor: '#2196f3',
+  borderColor: '#2196F3',
 };
 
 const acceptStyle = {
-  borderColor: '#00e676',
+  borderColor: '#00E676',
 };
 
 const rejectStyle = {
-  borderColor: '#ff1744',
+  borderColor: '#FF1744',
 };
 
 /**
  * Props are as returned from the useDropzone hook
  */
 const DropZone = ({
+  label,
   getRootProps,
   getInputProps,
   isFocused,
@@ -49,6 +58,7 @@ const DropZone = ({
   isFullWidth,
   image,
   imageUrl,
+  isNewImage,
 }: DropZoneProps) => {
   const style = useMemo(
     () => ({
@@ -64,7 +74,7 @@ const DropZone = ({
   const thumb = {
     display: 'inline-flex',
     borderRadius: 2,
-    border: '1px solid #eaeaea',
+    border: isNewImage ? '2px dashed #00B5D8' : '1px solid #EAEAEA',
     marginBottom: 8,
     marginRight: 8,
     fit: 'cover',
@@ -85,6 +95,11 @@ const DropZone = ({
 
   return (
     <Stack spacing={2} w='full'>
+      {label && (
+        <FormLabel mb={0}>
+          <Text fontSize='sm'>{label.toUpperCase()}</Text>
+        </FormLabel>
+      )}
       <Flex gap={3}>
         <Box {...getRootProps({ style })}>
           <Input {...getInputProps()} display='none' />{' '}
@@ -120,6 +135,7 @@ const DropZone = ({
 export default DropZone;
 
 interface DropZoneProps {
+  label?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getRootProps: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,4 +147,5 @@ interface DropZoneProps {
   isFullWidth?: boolean;
   image?: ImageFile;
   imageUrl?: string | null;
+  isNewImage?: boolean;
 }

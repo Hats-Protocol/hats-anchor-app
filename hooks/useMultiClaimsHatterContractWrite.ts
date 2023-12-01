@@ -15,6 +15,7 @@ interface ContractInteractionProps {
   args: (string | number | bigint | undefined)[];
 }
 
+// modules-hooks
 const useMultiClaimsHatterContractWrite = ({
   functionName,
   enabled,
@@ -25,6 +26,8 @@ const useMultiClaimsHatterContractWrite = ({
     useState(false);
 
   const { chainId } = useTreeForm();
+
+  // TODO fetch abi from modules sdk
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address,

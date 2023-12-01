@@ -25,7 +25,6 @@ import { useAccount, useChainId } from 'wagmi';
 import Suspender from '@/components/atoms/Suspender';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { wearersPerPage } from '@/gql/helpers';
 import useAllWearers from '@/hooks/useAllWearers';
 import useHatClaim from '@/hooks/useHatClaim';
 import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
@@ -37,7 +36,13 @@ import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
 import { commify } from '@/lib/general';
 import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
-import { filterWearers, getEligibleWearers, sortWearers } from '@/lib/wearers';
+import { wearersPerPage } from '@/lib/subgraph';
+import {
+  filterWearers,
+  getEligibleWearers,
+  maxSupplyText,
+  sortWearers,
+} from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
 import WearerRow from './WearerRow';
@@ -73,7 +78,7 @@ const WearersList = () => {
     mode: 'onBlur',
   });
 
-  const maxSupply = _.get(selectedHat, 'maxSupply', 0);
+  const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
   const wearers = useMemo(() => {
     return _.get(selectedHat, 'extendedWearers', []);
   }, [selectedHat]);
@@ -95,10 +100,11 @@ const WearersList = () => {
   } = useHatPaginatedWearers({
     hatId: selectedHat?.id,
     chainId,
+    editMode,
   });
 
   const mergedWearers = _.merge(wearers, paginatedWearers);
-  const wearerIds = (mergedWearers || []).map(({ id }) => id);
+  const wearerIds = useMemo(() => _.map(exportWearers, 'id'), [exportWearers]);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
     [wearerIds, address],
@@ -118,6 +124,7 @@ const WearersList = () => {
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
+    chainId,
     editMode,
   });
 
@@ -134,11 +141,7 @@ const WearersList = () => {
   });
 
   const currentWearerHats = _.map(wearer, 'id');
-  const isAdminUser = isWearingAdminHat(
-    currentWearerHats,
-    selectedHat?.id,
-    true,
-  );
+  const isAdminUser = isWearingAdminHat(currentWearerHats, selectedHat?.id);
 
   const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
     useMultiClaimsHatterContractWrite({
@@ -164,31 +167,6 @@ const WearersList = () => {
     return undefined;
   }, [chainId, currentNetworkId, hatterIsAdmin]);
 
-  const maxSupplyText = () => {
-    if (_.toNumber(maxSupply) > 999_999) {
-      // could handle for thousands
-      // const rounds = [1_000_000_000, 1_000_000, 1_000];
-      // const formatString = [`e9`, `e6`, `e3`];
-
-      const rounds = [1_000_000_000, 1_000_000];
-      const formatString = [`e9`, `e6`];
-      const supplyRounded = _.map(rounds, (r) =>
-        _.round(_.toNumber(maxSupply) / r, 0),
-      );
-      const index = _.findIndex(supplyRounded, (v) => v > 0);
-
-      return (
-        <HStack color='gray.400' spacing={1}>
-          <Text>of</Text>
-          <Tooltip label={commify(maxSupply)} placement='left' hasArrow>
-            <Text fontFamily='mono'>{`${supplyRounded[index]}${formatString[index]}`}</Text>
-          </Tooltip>
-        </HStack>
-      );
-    }
-    return <Text color='gray.400'>of {commify(maxSupply)}</Text>;
-  };
-
   return (
     <>
       <Stack spacing={4}>
@@ -199,7 +177,16 @@ const WearersList = () => {
 
           <Flex gap={1}>
             <Text>{_.get(selectedHat, 'currentSupply')}</Text>
-            {maxSupplyText()}
+            <HStack color='gray.400' spacing={1}>
+              <Text>of</Text>
+              <Tooltip
+                label={maxSupply && commify(maxSupply)}
+                placement='left'
+                hasArrow
+              >
+                <Text fontFamily='mono'>{maxSupplyText(maxSupply)}</Text>
+              </Tooltip>
+            </HStack>
           </Flex>
         </Flex>
 
@@ -276,7 +263,7 @@ const WearersList = () => {
                 >
                   <HStack color='blue.500'>
                     <FaPlus />
-                    <Text variant='ghost'>Claim Hat</Text>
+                    <Text>Claim Hat</Text>
                   </HStack>
                 </Button>
               </Tooltip>

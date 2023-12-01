@@ -1,315 +1,48 @@
-import { Stack, Text } from '@chakra-ui/react';
+import {
+  Flex,
+  Icon,
+  IconButton,
+  Stack,
+  Text,
+  Tooltip,
+  useClipboard,
+} from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
 import { BsKey, BsListUl } from 'react-icons/bs';
-import { Hex } from 'viem';
-import { useEnsAddress } from 'wagmi';
+import { FaCopy } from 'react-icons/fa';
 
 import Accordion from '@/components/atoms/Accordion';
-import CONFIG, {
-  EMPTY_FORM_VALUES,
-  FALLBACK_ADDRESS,
-  FORM_FIELDS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@/constants';
+import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import CONFIG, { FORM_FIELDS, MODULE_TYPES } from '@/constants';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
+import AuthoritiesForm from '@/forms/AuthoritiesForm';
 import HatBasicsForm from '@/forms/HatBasicsForm';
 import HatManagementForm from '@/forms/HatManagementForm';
 import HatWearerForm from '@/forms/HatWearerForm';
-import ItemDetailsForm from '@/forms/ItemDetailsForm';
-import useDebounce from '@/hooks/useDebounce';
+import ResponsibilitiesForm from '@/forms/ResponsibilitiesForm';
+import useToast from '@/hooks/useToast';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
-import {
-  DetailsItem,
-  DirtyFormData,
-  FieldItem,
-  FormData,
-  FormWearer,
-} from '@/types';
 
-import ChakraNextLink from '../atoms/ChakraNextLink';
+const EditMode = () => {
+  const { selectedHat, isDraft, treeToDisplay } = useTreeForm();
+  const { getDirtyFieldsForAccordion, localForm } = useHatForm();
+  const toast = useToast();
 
-const EditMode = ({
-  unsavedData,
-  setUnsavedData,
-  setIsLoading,
-}: EditModeProps) => {
-  const {
-    chainId,
-    storedData,
-    selectedHat,
-    selectedOnchainHat,
-    selectedOnchainHatDetails,
-    isDraft,
-    treeToDisplay,
-  } = useTreeForm();
+  const { onCopy } = useClipboard(selectedHat?.id || '');
 
-  const {
-    name: initialName,
-    description: initialDescription,
-    guilds: initialGuilds,
-    responsibilities: initialResponsibilities,
-    authorities: initialAuthorities,
-    eligibility: initialEligibility,
-    toggle: initialToggle,
-  } = _.pick(selectedOnchainHatDetails, [
-    'name',
-    'description',
-    'guilds',
-    'responsibilities',
-    'authorities',
-    'eligibility',
-    'toggle',
-  ]);
-  const {
-    maxSupply,
-    eligibility,
-    toggle,
-    mutable,
-    imageUrl,
-    imageUri,
-    details,
-  } = _.pick(selectedOnchainHat, [
-    'maxSupply',
-    'eligibility',
-    'toggle',
-    'mutable',
-    'imageUrl',
-    'imageUri',
-    'details',
-  ]);
-  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
-    'extendedEligibility',
-    'extendedToggle',
-  ]);
-
-  const defaultFormValues = useMemo<FormData>(() => {
-    if (isDraft) {
-      return EMPTY_FORM_VALUES;
-    }
-
-    return {
-      id: selectedHat?.id || '0x',
-      maxSupply,
-      eligibility,
-      toggle,
-      mutable: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-      imageUrl: imageUrl ?? '',
-      isEligibilityManual:
-        initialEligibility?.manual || initialEligibility?.manual === undefined
-          ? TRIGGER_OPTIONS.MANUALLY
-          : TRIGGER_OPTIONS.AUTOMATICALLY,
-      isToggleManual:
-        initialToggle?.manual || initialToggle?.manual === undefined
-          ? TRIGGER_OPTIONS.MANUALLY
-          : TRIGGER_OPTIONS.AUTOMATICALLY,
-      revocationsCriteria: initialEligibility?.criteria ?? [],
-      deactivationsCriteria: initialToggle?.criteria ?? [],
-      name: initialName && initialName !== '' ? initialName : details || '',
-      description: initialDescription || '',
-      authorities: initialAuthorities ?? [],
-      responsibilities: initialResponsibilities ?? [],
-      guilds: initialGuilds ?? [],
-      wearers: [],
-    };
-  }, [
-    selectedHat?.id,
-    maxSupply,
-    eligibility,
-    toggle,
-    mutable,
-    imageUrl,
-    details,
-    initialEligibility?.criteria,
-    initialEligibility?.manual,
-    initialToggle?.criteria,
-    initialToggle?.manual,
-    initialName,
-    initialDescription,
-    initialAuthorities,
-    initialResponsibilities,
-    initialGuilds,
-    isDraft,
-  ]);
-
-  const localForm = useForm({
-    mode: 'onChange',
-  });
-
-  const { watch, reset } = localForm;
-
-  useEffect(() => {
-    let formValues = defaultFormValues;
-
-    const initialFormValues = () => {
-      const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
-
-      if (
-        matchingHat &&
-        !_.isEmpty(_.remove(_.keys(matchingHat), (key) => key === 'id'))
-      ) {
-        formValues = {
-          ...defaultFormValues,
-          ...matchingHat,
-        };
-        console.log('reset for plaintext details');
-        // reset default values for plaintext details
-        reset(defaultFormValues);
-
-        console.log('reset for stored data values');
-        // reset with stored data values
-        reset(formValues, { keepDefaultValues: true });
-        return;
-      }
-
-      console.log('reset without stored data values');
-      reset(formValues);
-    };
-
-    if (selectedHat?.id && chainId && defaultFormValues && storedData) {
-      initialFormValues();
-    }
-  }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
-
-  const allFormData = watch();
-
-  const prevAllFormData = useRef<FieldValues>(allFormData as FormData);
-
-  const getDirtyFields = useCallback(() => {
-    return (Object.keys(defaultFormValues) as Array<keyof FormData>).filter(
-      (key) =>
-        JSON.stringify(defaultFormValues[key]) !==
-          JSON.stringify(allFormData[key]) || allFormData[key] === 'New Hat',
-    );
-  }, [allFormData, defaultFormValues]);
-
-  const getDirtyFieldsForAccordion = (fieldsArray: FieldItem[]) => {
-    const fields = getDirtyFields();
-
-    return fieldsArray
-      .filter((field) => fields.includes(field.name))
-      .map((field) => field.label);
+  const copyHatId = () => {
+    onCopy();
+    toast.success({ title: 'Copied Hat ID to clipboard' });
   };
 
-  const [newImageURI, setNewImageURI] = useState('');
-
-  const eligibilityFormValue = useDebounce<Hex | undefined>(
-    watch('eligibility', eligibility || FALLBACK_ADDRESS),
-  );
-  const toggleFormValue = useDebounce<Hex | undefined>(
-    watch('toggle', toggle || FALLBACK_ADDRESS),
+  const name = _.get(
+    _.find(treeToDisplay, ['id', selectedHat?.id]),
+    'displayName',
   );
 
-  const {
-    data: eligibilityResolvedAddress,
-    isLoading: isLoadingEligibilityResolvedAddress,
-  } = useEnsAddress({
-    name: eligibilityFormValue,
-    chainId: 1,
-    enabled: !!eligibilityFormValue && eligibilityFormValue.includes('.eth'),
-  });
-
-  const {
-    data: toggleResolvedAddress,
-    isLoading: isLoadingToggleResolvedAddress,
-  } = useEnsAddress({
-    name: toggleFormValue,
-    chainId: 1,
-    enabled: !!toggleFormValue && toggleFormValue.includes('.eth'),
-  });
-
-  useEffect(() => {
-    if (isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress) {
-      setIsLoading(true);
-    } else setIsLoading(false);
-  }, [
-    isLoadingEligibilityResolvedAddress,
-    isLoadingToggleResolvedAddress,
-    setIsLoading,
-  ]);
-
-  useEffect(() => {
-    const updatedControllers: Partial<FormData> = {};
-    if (toggleResolvedAddress !== unsavedData?.toggle) {
-      updatedControllers.toggle = _.toLower(
-        toggleResolvedAddress || allFormData.toggle,
-      ) as Hex;
-    }
-    if (eligibilityResolvedAddress !== unsavedData?.eligibility) {
-      updatedControllers.eligibility = _.toLower(
-        eligibilityResolvedAddress || allFormData.eligibility,
-      ) as Hex;
-    }
-
-    if (!_.isEmpty(_.keys(updatedControllers)))
-      setUnsavedData((prev: Partial<FormData> | undefined) => ({
-        ...prev,
-        ...updatedControllers,
-      }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibilityResolvedAddress, toggleResolvedAddress]);
-
-  useEffect(() => {
-    if (!_.isEqual(prevAllFormData.current, allFormData)) {
-      const dirtyFieldKeys = getDirtyFields();
-      const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: Partial<FormData>, key: keyof FormData) => {
-          (acc[key] as
-            | DetailsItem[]
-            | FormWearer[]
-            | string
-            | string[]
-            | undefined) = allFormData[key];
-          return acc;
-        },
-        {} as Partial<FormData>,
-      );
-
-      setUnsavedData(dirtyFormData);
-      prevAllFormData.current = allFormData;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allFormData, getDirtyFields]);
-
-  useEffect(() => {
-    if (newImageURI && newImageURI !== imageUri) {
-      const dirtyFieldKeys = getDirtyFields();
-
-      if (!dirtyFieldKeys.includes('newImageUri')) {
-        dirtyFieldKeys.push('newImageUri');
-      }
-
-      const dirtyFormData = dirtyFieldKeys.reduce(
-        (acc: DirtyFormData, key: keyof FormData) => {
-          if (key === 'newImageUri') {
-            acc.imageUrl = newImageURI;
-          } else {
-            acc[key as string] = allFormData[key];
-          }
-          return acc;
-        },
-        {},
-      );
-
-      setUnsavedData(dirtyFormData);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newImageURI, imageUri]);
-
-  const newName = _.find(treeToDisplay, ['id', selectedHat?.id])?.newName;
-
-  if (!selectedHat) return null;
+  if (!selectedHat || !localForm) return null;
 
   return (
     <Stack
@@ -321,16 +54,28 @@ const EditMode = ({
       spacing={10}
     >
       <Stack>
-        <Text fontSize={32} fontWeight='medium'>
-          {newName ||
-            (isDraft
-              ? `Add hat ${hatIdDecimalToIp(
-                  BigInt(selectedHat?.id),
-                )} to this tree`
-              : selectedHat?.detailsObject?.data?.name ||
-                selectedHat?.details ||
-                (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
-        </Text>
+        <Flex justify='space-between' align='center'>
+          <Text fontSize={32} fontWeight='medium'>
+            {name ||
+              (isDraft
+                ? `Add hat ${hatIdDecimalToIp(
+                    BigInt(selectedHat?.id),
+                  )} to this tree`
+                : selectedHat?.detailsObject?.data?.name ||
+                  selectedHat?.details ||
+                  (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
+          </Text>
+          <Tooltip label='Copy Hat ID' placement='left' hasArrow>
+            <IconButton
+              onClick={copyHatId}
+              icon={<Icon as={FaCopy} color='blue.500' />}
+              aria-label='Copy Hat ID'
+              variant='outline'
+              colorScheme='blue.500'
+              size='sm'
+            />
+          </Tooltip>
+        </Flex>
         <Text>All changes are local until you deploy to chain.</Text>
       </Stack>
 
@@ -339,12 +84,10 @@ const EditMode = ({
           title='Hat Basics'
           subtitle='The fundamentals of the hat, including name, image, and description.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
+          open
         >
-          <Stack spacing={4}>
-            <HatBasicsForm
-              localForm={localForm}
-              setNewImageURI={setNewImageURI}
-            />
+          <Stack spacing={4} w='100%'>
+            <HatBasicsForm />
           </Stack>
         </Accordion>
       )}
@@ -355,11 +98,8 @@ const EditMode = ({
           subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.wearer)}
         >
-          <Stack spacing={4}>
-            <HatWearerForm
-              localForm={localForm}
-              setUnsavedData={setUnsavedData}
-            />
+          <Stack spacing={4} w='100%'>
+            <HatWearerForm />
           </Stack>
         </Accordion>
       )}
@@ -372,9 +112,8 @@ const EditMode = ({
             FORM_FIELDS.responsibilities,
           )}
         >
-          <Stack spacing={4}>
-            <ItemDetailsForm
-              localForm={localForm}
+          <Stack spacing={4} w='100%'>
+            <ResponsibilitiesForm
               formName='responsibilities'
               title='RESPONSIBILITIES'
               label='Responsibility'
@@ -404,9 +143,8 @@ const EditMode = ({
           subtitle='Permissions and rights that are controlled by wearers of this hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
         >
-          <Stack spacing={4}>
-            <ItemDetailsForm
-              localForm={localForm}
+          <Stack spacing={4} w='100%'>
+            <AuthoritiesForm
               formName='authorities'
               title='PERMISSIONS'
               subtitle={
@@ -436,12 +174,9 @@ const EditMode = ({
           subtitle='The people or logic that determine when a wearer should have a hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <HatManagementForm
-              localForm={localForm}
-              extendedController={extendedEligibility}
-              actionResolvedAddress={eligibilityResolvedAddress}
-              title='eligibility'
+              title={MODULE_TYPES.eligibility}
               formName='revocationsCriteria'
               radioBoxConfig={{
                 name: 'isEligibilityManual',
@@ -493,12 +228,9 @@ const EditMode = ({
           subtitle='The people and contracts that control this Hat.'
           dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
         >
-          <Stack spacing={4}>
+          <Stack spacing={4} w='100%'>
             <HatManagementForm
-              localForm={localForm}
-              extendedController={extendedToggle}
-              actionResolvedAddress={toggleResolvedAddress}
-              title='toggle'
+              title={MODULE_TYPES.toggle}
               formName='deactivationsCriteria'
               radioBoxConfig={{
                 name: 'isToggleManual',
@@ -550,8 +282,8 @@ const EditMode = ({
 
 export default EditMode;
 
-interface EditModeProps {
-  setUnsavedData: Dispatch<SetStateAction<Partial<FormData> | undefined>>;
-  unsavedData: Partial<FormData> | undefined;
-  setIsLoading: (isLoading: boolean) => void;
-}
+// interface EditModeProps {
+//   setUnsavedData: Dispatch<SetStateAction<Partial<FormData> | undefined>>;
+//   unsavedData: Partial<FormData> | undefined;
+//   setIsLoading: (isLoading: boolean) => void;
+// }

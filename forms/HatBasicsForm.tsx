@@ -2,9 +2,7 @@ import {
   Box,
   Button,
   FormControl,
-  HStack,
   Icon,
-  IconButton,
   Image,
   Stack,
   Text,
@@ -12,9 +10,9 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { BsImage, BsTextParagraph } from 'react-icons/bs';
-import { FaHouseUser, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 
 import DropZone from '@/components/atoms/DropZone';
@@ -22,9 +20,10 @@ import Input from '@/components/atoms/Input';
 import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
+import PlatformInput from '@/components/PlatformInput';
 import { MUTABILITY } from '@/constants';
+import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl } from '@/lib/general';
 import { isMutable, isTopHat } from '@/lib/hats';
@@ -38,30 +37,34 @@ const MUTABILITY_OPTIONS = [
   },
 ];
 
-const HatBasicsForm = ({
-  localForm,
-  setNewImageURI,
-}: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
-  setNewImageURI: (uri: string) => void;
-}) => {
-  const { watch, control, formState } = localForm;
-
-  const { chainId, selectedHat, newImageUrls } = useTreeForm();
-  const newImageUrl = _.find(newImageUrls, [
-    'id',
-    selectedHat?.id,
-  ])?.newImageUrl;
-
+const HatBasicsForm = () => {
+  const { chainId, selectedHat, treeToDisplay } = useTreeForm();
+  const { localForm, formValues } = useHatForm();
   const [image, setImage] = useState<ImageFile>();
+  const { control, setValue } = _.pick(localForm, ['control', 'setValue']);
 
-  const { append, fields, remove } = useFieldArray({
+  const currentImageUrl = _.get(
+    _.find(treeToDisplay, ['id', selectedHat?.id]),
+    'imageUrl',
+  );
+
+  const {
+    append: appendGuild,
+    fields: fieldsGuilds,
+    remove: removeGuild,
+  } = useFieldArray({
     control,
     name: 'guilds',
   });
 
-  const guilds = useDebounce<string[]>(watch('guilds'));
+  const {
+    append: appendSpace,
+    fields: fieldsSpaces,
+    remove: removeSpace,
+  } = useFieldArray({
+    control,
+    name: 'spaces',
+  });
 
   const {
     acceptedFiles,
@@ -81,9 +84,6 @@ const HatBasicsForm = ({
     },
   });
 
-  const imageUrl = formatImageUrl(formState?.defaultValues?.imageUrl);
-  const currentImageUrl = watch('imageUrl');
-
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
@@ -91,10 +91,14 @@ const HatBasicsForm = ({
   });
 
   useEffect(() => {
-    const hatImageURI =
-      imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
-    setNewImageURI(hatImageURI);
-  }, [imagePinData, currentImageUrl, setNewImageURI]);
+    if (!imagePinData) return;
+    const hatImageUrl = formatImageUrl(`ipfs://${imagePinData}`);
+    setValue?.('imageUrl', hatImageUrl, { shouldDirty: true });
+  }, [imagePinData, setValue]);
+
+  const isNewImage = currentImageUrl !== selectedHat?.imageUrl;
+
+  if (!localForm) return null;
 
   return (
     <form>
@@ -115,7 +119,8 @@ const HatBasicsForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={image}
-                imageUrl={newImageUrl || imageUrl}
+                imageUrl={currentImageUrl}
+                isNewImage={isNewImage}
               />
             </Box>
           </FormRowWrapper>
@@ -141,33 +146,68 @@ const HatBasicsForm = ({
             <FormRowWrapper>
               <FaHouseUser />
               <Stack w='full'>
-                <Text fontSize='sm'>GUILDS</Text>
-                {fields.map((field, index) => (
-                  <HStack key={field.id}>
-                    <Input
-                      name={`guilds.${index}`}
-                      localForm={localForm}
-                      placeholder='Guild name (e.g. hats-protocol)'
-                      isDisabled={index !== fields.length - 1}
-                    />
-                    <IconButton
-                      type='button'
-                      onClick={() => remove(index)}
-                      icon={<FaTrash />}
-                      aria-label='Remove'
-                      height={9}
-                      w={16}
-                    />
-                  </HStack>
+                <Text fontSize='sm' textTransform='uppercase'>
+                  Guilds
+                </Text>
+                {fieldsGuilds.map((field, index) => (
+                  <PlatformInput
+                    key={field.id}
+                    name={`guilds.${index}`}
+                    remove={removeGuild}
+                    index={index}
+                    fieldsLength={fieldsGuilds.length}
+                    type='guild'
+                  />
                 ))}
                 <Box mb={2}>
                   <Button
-                    onClick={() => append('')}
-                    isDisabled={_.some(guilds, (item: string) => item === '')}
+                    onClick={() => appendGuild('')}
+                    isDisabled={_.some(
+                      formValues?.guilds,
+                      (item: string) => item === '',
+                    )}
                     gap={2}
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
                   >
                     <FaPlus />
-                    Add {guilds?.length ? 'another' : 'a'} Guild
+                    Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
+                  </Button>
+                </Box>
+              </Stack>
+            </FormRowWrapper>
+          )}
+
+          {isTopHat(selectedHat) && (
+            <FormRowWrapper>
+              <Icon as={FaCube} boxSize={4} mt='2px' />
+              <Stack w='full'>
+                <Text fontSize='sm' textTransform='uppercase'>
+                  Snapshot Spaces
+                </Text>
+                {fieldsSpaces.map((field, index) => (
+                  <PlatformInput
+                    key={field.id}
+                    name={`spaces.${index}`}
+                    remove={removeSpace}
+                    index={index}
+                    fieldsLength={fieldsSpaces.length}
+                    type='snapshot'
+                  />
+                ))}
+                <Box mb={2}>
+                  <Button
+                    onClick={() => appendSpace('')}
+                    isDisabled={_.some(
+                      formValues?.spaces,
+                      (item: string) => item === '',
+                    )}
+                    gap={2}
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
+                  >
+                    <FaPlus />
+                    Add {formValues?.spaces?.length ? 'another' : 'a'} Space
                   </Button>
                 </Box>
               </Stack>

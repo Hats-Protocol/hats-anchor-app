@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { featuredTrees } from '@/constants';
+import { FEATURED_TREES } from '@/constants';
 
+// app-hooks
 const useFeaturedTrees = () => {
-  const returnFeaturedTrees = () => featuredTrees;
+  const returnFeaturedTrees = () => FEATURED_TREES();
 
   const { data, isLoading } = useQuery({
     queryKey: ['featuredTrees'],

@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { FaFilter } from 'react-icons/fa';
 
-import { chainsList, networkImages } from '@/lib/web3';
+import { chainsList, networkImages, SupportedChains } from '@/lib/chains';
 
 const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
   const router = useRouter();
@@ -28,7 +28,12 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
         p={2}
       >
         <HStack spacing={4}>
-          <Image src={networkImages[selectedNetwork]} alt='chain' w={6} h={6} />
+          <Image
+            src={networkImages[selectedNetwork as SupportedChains]}
+            alt='chain'
+            w={6}
+            h={6}
+          />
           <Icon as={FaFilter} />
         </HStack>
       </MenuButton>
@@ -44,7 +49,7 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
           >
             <Image
               loading='lazy'
-              src={networkImages[id]}
+              src={networkImages[id as SupportedChains]}
               alt='chain'
               w={6}
               h={6}

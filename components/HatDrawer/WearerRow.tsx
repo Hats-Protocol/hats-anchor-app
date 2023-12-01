@@ -18,6 +18,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import CONFIG from '@/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';
@@ -103,7 +104,7 @@ const WearerRow = ({
 
   // could look up by Id to be more resilient?
   let moduleName = _.get(moduleDetails, 'name');
-  if (moduleName === 'Multi Claims Hatter') {
+  if (moduleName === CONFIG.claimsHatterModuleName) {
     moduleName = 'Autonomous Admin';
   }
 
@@ -142,22 +143,20 @@ const WearerRow = ({
             variant='outline'
           />
           <MenuList>
-            {isAdminUser && (
-              <MenuItem
-                isDisabled={!isSameChain}
-                onClick={() => {
-                  setModals?.({ transferHat: true });
-                  setWearerToTransferFrom(wearer.id);
-                }}
+            <MenuItem
+              isDisabled={!isSameChain || !isAdminUser}
+              onClick={() => {
+                setModals?.({ transferHat: true });
+                setWearerToTransferFrom(wearer.id);
+              }}
+            >
+              <TooltipWrapper
+                isSameChain={isSameChain}
+                label="You can't transfer a hat on a different chain"
               >
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't transfer a hat on a different chain"
-                >
-                  <Text>Transfer</Text>
-                </TooltipWrapper>
-              </MenuItem>
-            )}
+                <Text>Transfer</Text>
+              </TooltipWrapper>
+            </MenuItem>
 
             {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
               <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
@@ -203,7 +202,7 @@ const WearerRow = ({
               onClick={() => {
                 onCopy();
                 toast.info({
-                  title: 'Successfully copied Address to clipboard',
+                  title: 'Successfully copied address to clipboard',
                 });
               }}
             >

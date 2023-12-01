@@ -1,7 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-import { pinImage, unpinImage } from '@/lib/ipfs';
+import { fetchToken, pinImage, unpinImage } from '@/lib/ipfs';
+
+// app-hooks/image-sdk
 
 /**
  * Pins an image file to ipfs. If image file is updated, then unpins previous and pins updated image
@@ -27,13 +29,14 @@ const usePinImageIpfs = ({
   });
 
   useEffect(() => {
-    const pin = async (i: File) => {
-      const cid = await mutateAsync({ file: i, metadata });
+    const pin = async (file: File) => {
+      const token = await fetchToken();
+      const cid = await mutateAsync({ file, metadata, token });
       if (cid !== undefined) {
-        setCurrentImageFile(i);
+        setCurrentImageFile(file);
         // unpin prev image in case the image was updated
         if (currentImageCid !== undefined && cid !== currentImageCid) {
-          unpinImage(currentImageCid);
+          unpinImage(currentImageCid, token);
         }
         setCurrentImageCid(cid);
       }

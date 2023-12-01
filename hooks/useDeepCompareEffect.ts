@@ -5,6 +5,7 @@ function deepCompareEquals(a: unknown, b: unknown) {
   return _.isEqual(a, b);
 }
 
+// app-hooks
 function useDeepCompareMemoize(value: unknown) {
   const ref = useRef<unknown>();
   // it can be done by using useMemo as well

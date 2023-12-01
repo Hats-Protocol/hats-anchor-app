@@ -23,6 +23,7 @@ const CLAIMS_HATTER_TYPES = {
   claimableFor: 'CLAIMABLE_FOR',
 };
 
+// hat-hooks
 const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { chainId, selectedHat } = useTreeForm();
@@ -98,7 +99,9 @@ const useHatClaim = ({ wearer }: { wearer: Hex | undefined }) => {
       if (!moduleClient) return;
       const modules = moduleClient?.getAllModules();
       if (!modules) return;
-      const moduleData = _.get(modules, CONFIG.claimsHatterModuleId);
+      const moduleData = _.find(modules, {
+        name: CONFIG.claimsHatterModuleName,
+      });
       if (!moduleData) return;
       setClaimsHatter(moduleData);
     };
