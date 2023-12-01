@@ -7,7 +7,6 @@ import { FiSave } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import Suspender from '@/components/atoms/Suspender';
-import NetworkSwitcher from '@/components/NetworkSwitcher';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
@@ -15,6 +14,7 @@ import useWearerDetails from '@/hooks/useWearerDetails';
 import { isTopHat } from '@/lib/hats';
 import { Hat } from '@/types';
 
+import MainAction from '../MainAction';
 import MoreMenu from './MoreMenu';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'), {
@@ -118,7 +118,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
       <HStack spacing={3} justifyContent='flex-end'>
         {!editMode ? (
           <HStack spacing={3} w='full' justifyContent='flex-end'>
-            <NetworkSwitcher />
+            <MainAction />
             <MoreMenu />
           </HStack>
         ) : (

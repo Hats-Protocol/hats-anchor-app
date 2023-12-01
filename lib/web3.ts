@@ -49,10 +49,8 @@ export function createHatsClient(
   return hatsClient;
 }
 
-export function createSubgraphClient(
-  useDefaultEndpoints: boolean = false,
-): HatsSubgraphClient {
-  if (process.env.NODE_ENV === 'development' || useDefaultEndpoints) {
+export function createSubgraphClient(): HatsSubgraphClient {
+  if (process.env.NODE_ENV === 'development') {
     return new HatsSubgraphClient({});
   }
 

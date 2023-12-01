@@ -1,5 +1,8 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -13,7 +16,7 @@ import {
 } from 'react';
 import { Hex } from 'viem';
 
-import { AUTHORITY_TYPES, defaultHat } from '@/constants';
+import { defaultHat } from '@/constants';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
 import useGuilds from '@/hooks/useGuilds';
 import useImageURIs from '@/hooks/useImageURIs';
@@ -24,6 +27,7 @@ import useOrgChartTree from '@/hooks/useOrgChartTree';
 import useSpaces from '@/hooks/useSnapshotSpaces';
 import useTreeDetails from '@/hooks/useTreeDetails';
 import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
+import { combineAuthorities } from '@/lib/authorities';
 import {
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
@@ -33,7 +37,6 @@ import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
 import { ipfsUrl } from '@/lib/ipfs';
 import {
   Authority,
-  AuthorityType,
   FormData,
   Hat,
   HatDetails,
@@ -56,6 +59,7 @@ export interface TreeFormContext {
   selectedOnchainHat: Hat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
   selectedHatGuildRoles: Authority[] | undefined;
+  selectedHatSpaces: Authority[] | undefined;
   combinedAuthorities: Authority[] | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
@@ -103,6 +107,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
   selectedHatGuildRoles: undefined,
+  selectedHatSpaces: undefined,
   combinedAuthorities: undefined,
   treeEvents: undefined,
   isLoading: true,
@@ -147,12 +152,12 @@ export const TreeFormContext = createContext<TreeFormContext>({
 export const TreeFormContextProvider = ({
   treeId,
   chainId,
-  linkedHatIds,
+  // linkedHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
-  linkedHatIds: Hex[] | undefined;
+  // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
   const router = useRouter();
@@ -202,6 +207,15 @@ export const TreeFormContextProvider = ({
     chainId,
     editMode,
   });
+  const linkedHatIds = useMemo(() => {
+    const { linkedToHat, parentOfTrees } = _.pick(treeData, [
+      'linkedToHat',
+      'parentOfTrees',
+    ]);
+    return _.compact(
+      _.concat(_.map(parentOfTrees, 'hats[0].id'), _.get(linkedToHat, 'id')),
+    );
+  }, [treeData]);
 
   useEffect(() => {
     setOrgChartHats(treeData?.hats);
@@ -409,9 +423,10 @@ export const TreeFormContextProvider = ({
       if (!_.includes(allIds, id) || !hat) return;
 
       // if it's linked
-      if (treeId && hat.treeId !== treeId) {
+      if (hat.treeId && treeId && hat.treeId !== treeId) {
         const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
         const basePath = router.basePath ? `${router.basePath}` : '';
+
         const urlToOpen = new URL(
           `${basePath}${hat.url}`,
           window.location.origin,
@@ -425,6 +440,9 @@ export const TreeFormContextProvider = ({
 
       const updatedQuery = {
         ...router.query,
+        treeId: hat.treeId
+          ? treeIdHexToDecimal(hat.treeId)
+          : treeIdHexToDecimal(treeId),
         hatId: hatIdDecimalToIp(BigInt(id)),
       };
       const updatedUrl = {
@@ -522,7 +540,7 @@ export const TreeFormContextProvider = ({
       // set updated tree array
       const newHat = {
         ...defaultHat,
-        ...hat,
+        ...hat, // handles treeId?
       };
       setOrgChartHats((prev) => {
         const tempHats = _.cloneDeep(prev);
@@ -648,30 +666,18 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { selectedHatSpaceStrategies } = useSpaces({
+  const { selectedHatSpaces } = useSpaces({
     spaces: _.get(topHatDetails, 'spaces'),
     hatId: selectedHat?.id,
     chainId,
     editMode,
   });
 
-  const combinedAuthorities: Authority[] = useMemo(() => {
-    const authorities = _.get(selectedHatDetails, 'authorities');
-    let combined = _.concat(
-      selectedHatSpaceStrategies,
-      selectedHatGuildRoles,
-      _.map(authorities, (authority: any) => ({
-        ...authority,
-        type: AUTHORITY_TYPES.manual as AuthorityType,
-      })),
-    );
-
-    combined = _.uniqWith(combined, (a: any, b: any) => {
-      return Boolean(a.link && b.link && a.link === b.link);
-    });
-
-    return combined;
-  }, [selectedHatSpaceStrategies, selectedHatDetails, selectedHatGuildRoles]);
+  const { data: combinedAuthorities } = combineAuthorities({
+    authorities: _.get(selectedHatDetails, 'authorities'),
+    guildRoles: selectedHatGuildRoles,
+    spaces: selectedHatSpaces,
+  });
 
   const returnValue = useMemo(
     () => ({
@@ -700,6 +706,7 @@ export const TreeFormContextProvider = ({
       selectedOnchainHat,
       selectedOnchainHatDetails,
       selectedHatGuildRoles,
+      selectedHatSpaces,
       combinedAuthorities,
       setSelectedHatId,
       selectedOption,
@@ -747,6 +754,7 @@ export const TreeFormContextProvider = ({
       selectedOnchainHat,
       selectedOnchainHatDetails,
       selectedHatGuildRoles,
+      selectedHatSpaces,
       combinedAuthorities,
       setSelectedHatId,
       selectedOption,

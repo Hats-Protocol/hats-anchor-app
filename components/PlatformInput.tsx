@@ -114,6 +114,9 @@ const PlatformInput = ({
         onClick={() => remove(index)}
         icon={<FaTrash />}
         aria-label='Remove'
+        variant='outline'
+        color='blackAlpha.400'
+        borderColor='blackAlpha.400'
         height={9}
         w={16}
       />

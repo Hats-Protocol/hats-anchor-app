@@ -1,3 +1,4 @@
+import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -5,16 +6,8 @@ import { Hex } from 'viem';
 
 import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
-import { decimalToTreeId } from '@/lib/hats';
-import { fetchTreeDetails } from '@/lib/subgraph';
-import { Hat } from '@/types';
 
-const TreeDetails = ({
-  treeId,
-  chainId,
-  linkedHatIds,
-  exists,
-}: TreeDetailsProps) => {
+const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   const router = useRouter();
   let { hatId } = router.query;
   if (_.isArray(hatId)) {
@@ -22,11 +15,7 @@ const TreeDetails = ({
   }
 
   return (
-    <TreeFormContextProvider
-      treeId={treeId}
-      chainId={chainId}
-      linkedHatIds={linkedHatIds}
-    >
+    <TreeFormContextProvider treeId={treeId} chainId={chainId}>
       <TreePage exists={exists} />
     </TreeFormContextProvider>
   );
@@ -35,7 +24,6 @@ const TreeDetails = ({
 const defaultProps = {
   treeId: null,
   chainId: null,
-  linkedHatIds: null,
 };
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
@@ -49,52 +37,21 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   if (!treeId || treeId === 'undefined' || !chainId) {
     return { props: defaultProps };
   }
-  const treeHex = decimalToTreeId(treeId);
+  const treeHex = treeIdDecimalToHex(_.toNumber(treeId));
 
-  try {
-    const treeData = await fetchTreeDetails(treeHex, Number(chainId), true);
-
-    if (!treeData) {
-      return { props: defaultProps };
-    }
-
-    const { linkedToHat, parentOfTrees } = _.pick(treeData, [
-      'linkedToHat',
-      'parentOfTrees',
-    ]);
-    const linkedHatIds = _.compact(
-      _.concat(_.map(parentOfTrees, 'hats[0].id'), _.get(linkedToHat, 'id')),
-    );
-
-    const hatsWithoutEvents = _.map(treeData.hats, (hat: Hat) =>
-      _.omit(hat, ['events']),
-    );
-
-    return {
-      props: {
-        ...defaultProps,
-        treeId: treeHex,
-        chainId: _.toNumber(chainId),
-        initialTreeData: {
-          ..._.omit(treeData, ['events']),
-          hats: hatsWithoutEvents,
-        },
-        linkedHatIds,
-      },
-      revalidate: 5,
-    };
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
-    return {
-      props: {
-        ...defaultProps,
-        treeId: treeHex,
-        chainId: _.toNumber(chainId),
-        exists: !((e as { name: string }).name === 'SubgraphTreeNotExistError'),
-      },
-    };
-  }
+  return {
+    props: {
+      ...defaultProps,
+      treeId: treeHex,
+      chainId: _.toNumber(chainId),
+      // initialTreeData: {
+      //   ..._.omit(treeData, ['events']),
+      //   hats: hatsWithoutEvents,
+      // },
+      // linkedHatIds,
+    },
+    revalidate: 5,
+  };
 };
 
 export const getStaticPaths = async () => {
@@ -110,6 +67,5 @@ export default TreeDetails;
 interface TreeDetailsProps {
   treeId: Hex;
   chainId: number;
-  linkedHatIds: Hex[];
   exists: boolean;
 }

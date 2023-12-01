@@ -83,7 +83,7 @@ export async function isImageUrl(url: string | unknown) {
 }
 
 export const formatImageUrl = (url?: string) => {
-  if (_.startsWith(url, 'https://')) {
+  if (_.startsWith(url, 'https://') || _.startsWith(url, '/')) {
     return url;
   }
   if (_.startsWith(url, 'ipfs://')) {

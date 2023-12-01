@@ -19,7 +19,7 @@ import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
 import { Hex } from 'viem';
-import { useChainId } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import Modal from '@/components/atoms/Modal';
 import NetworkSwitcher from '@/components/NetworkSwitcher';
@@ -34,6 +34,7 @@ import { editHasUpdates } from '@/lib/hats';
 const TopMenu = () => {
   const currentChain = useChainId();
   const localOverlay = useOverlay();
+  const { address } = useAccount();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
     chainId,
@@ -95,6 +96,9 @@ const TopMenu = () => {
     if (!storedData?.length) {
       return 'No changes have been made.';
     }
+    if (!address) {
+      return 'Connect a wallet to deploy. Or export the changes to a file.';
+    }
     if (chainId !== currentChain) {
       return `Must be on ${chainsMap(chainId).name} to deploy`;
     }
@@ -102,7 +106,7 @@ const TopMenu = () => {
       return 'You must be the admin of at least one hat with changes to deploy';
     }
     return '';
-  }, [chainId, currentChain, isAdminOfAnyHatWithChanges, storedData]);
+  }, [chainId, currentChain, address, isAdminOfAnyHatWithChanges, storedData]);
 
   const isDeployDisabled = useMemo(
     () =>

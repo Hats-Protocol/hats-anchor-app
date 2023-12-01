@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import { AUTHORITY_TYPES } from '@/constants';
 import { decimalId } from '@/lib/hats';
+import { Authority } from '@/types';
 
 const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];
@@ -39,32 +40,35 @@ const useHatGuilds = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const selectedHatGuildRoles = _.flatMap(guildData, (guild: any) => {
-    return _.flatMap(
-      _.filter(guild.roles, (role: any) =>
-        _.some(
-          role.requirements,
-          (req: any) => req.data?.id === decimalId(hatId),
+  const selectedHatGuildRoles: Authority[] = _.flatMap(
+    guildData,
+    (guild: any) => {
+      return _.flatMap(
+        _.filter(guild.roles, (role: any) =>
+          _.some(
+            role.requirements,
+            (req: any) => req.data?.id === decimalId(hatId),
+          ),
         ),
-      ),
-      (role: any) => {
-        return role.rolePlatforms.map((rolePlatform: any) => {
-          const platform = _.find(guild.guildPlatforms, {
-            id: rolePlatform.guildPlatformId,
+        (role: any) => {
+          return role.rolePlatforms.map((rolePlatform: any) => {
+            const platform = _.find(guild.guildPlatforms, {
+              id: rolePlatform.guildPlatformId,
+            });
+            return {
+              label: platform ? platform.platformGuildName : guild.name,
+              link: platform ? platform.invite : 'No invite available',
+              id: platform?.platformId,
+              description: role.description,
+              gate: `https://guild.xyz/${guild.urlName}`,
+              imageUrl: guild.imageUrl,
+              type: AUTHORITY_TYPES.gate,
+            };
           });
-          return {
-            label: platform ? platform.platformGuildName : guild.name,
-            link: platform ? platform.invite : 'No invite available',
-            id: platform?.platformId,
-            description: role.description,
-            gate: `https://guild.xyz/${guild.urlName}`,
-            imageUrl: guild.imageUrl,
-            type: AUTHORITY_TYPES.token,
-          };
-        });
-      },
-    );
-  });
+        },
+      );
+    },
+  );
 
   return { selectedHatGuildRoles, error, isLoading };
 };

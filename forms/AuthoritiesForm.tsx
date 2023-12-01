@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { id } from 'date-fns/locale';
 import _ from 'lodash';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray } from 'react-hook-form';
 import { IconType } from 'react-icons';
@@ -33,7 +33,7 @@ import { AUTHORITY_TYPES } from '@/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl } from '@/lib/general';
+import { formatImageUrl, getHostnameFromURL } from '@/lib/general';
 import { Authority, AuthorityType } from '@/types';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
@@ -73,8 +73,8 @@ const AuthoritiesForm = ({
     gate,
     type,
   } = getValues?.(`${formName}.${index}`) ?? {};
-  const isToken = type === AUTHORITY_TYPES.token;
-  const { selectedHatGuildRoles } = useTreeForm();
+  const isGate = type === AUTHORITY_TYPES.gate;
+  const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
     control,
     name: formName,
@@ -103,11 +103,14 @@ const AuthoritiesForm = ({
       selectedHatGuildRoles,
       (role: Authority) => !_.includes(existingLinks, role.link),
     );
+    const newSpaces = _.filter(
+      selectedHatSpaces,
+      (space) => !_.includes(existingLinks, space.link),
+    );
+    if (_.isEmpty(newRoles) && _.isEmpty(newSpaces)) return;
 
-    if (newRoles.length) {
-      append(newRoles);
-    }
-  }, [selectedHatGuildRoles, append, fields]);
+    append(_.concat(newRoles, newSpaces));
+  }, [selectedHatGuildRoles, selectedHatSpaces, append, fields]);
 
   const {
     acceptedFiles,
@@ -135,8 +138,15 @@ const AuthoritiesForm = ({
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
 
     if (hatImageURI !== '')
-      setEditingItem({ ...editingItem, imageUrl: hatImageURI });
+      setEditingItem((prev) => ({ ...prev, imageUrl: hatImageURI }));
   }, [imagePinData]);
+
+  const guildOrSnapshot = useMemo(() => {
+    return (
+      getHostnameFromURL(editingItem.gate) === 'guild.xyz' ||
+      getHostnameFromURL(editingItem.link) === 'snapshot.org'
+    );
+  }, [editingItem.gate, editingItem.link]);
 
   if (!localForm) return null;
 
@@ -199,10 +209,11 @@ const AuthoritiesForm = ({
               <Flex w='full' justifyContent='center' mb={8}>
                 <Card borderRadius='4px' boxShadow='md' p={3} w='80%'>
                   <AuthorityHeader
+                    editingItem={editingItem}
                     label={authorityLabel}
                     type={
-                      (isToken
-                        ? AUTHORITY_TYPES.token
+                      (isGate
+                        ? AUTHORITY_TYPES.gate
                         : AUTHORITY_TYPES.manual) as AuthorityType
                     }
                     imageUrl={editingItem?.imageUrl}
@@ -243,6 +254,7 @@ const AuthoritiesForm = ({
                   onChange={(e) =>
                     setEditingItem({ ...editingItem, link: e.target.value })
                   }
+                  isDisabled={guildOrSnapshot}
                 />
               </Stack>
               <Stack>
@@ -260,6 +272,7 @@ const AuthoritiesForm = ({
                   onChange={(e) =>
                     setEditingItem({ ...editingItem, gate: e.target.value })
                   }
+                  isDisabled={guildOrSnapshot}
                 />
               </Stack>
 

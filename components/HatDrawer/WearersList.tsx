@@ -45,7 +45,6 @@ import {
 } from '@/lib/wearers';
 import { HatWearer } from '@/types';
 
-import MainAction from './MainAction';
 import WearerRow from './WearerRow';
 
 const Modal = dynamic(() => import('@/components/atoms/Modal'), {
@@ -105,7 +104,7 @@ const WearersList = () => {
   });
 
   const mergedWearers = _.merge(wearers, paginatedWearers);
-  const wearerIds = (mergedWearers || []).map(({ id }: { id: any }) => id);
+  const wearerIds = useMemo(() => _.map(exportWearers, 'id'), [exportWearers]);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
     [wearerIds, address],
@@ -157,6 +156,8 @@ const WearersList = () => {
       _.slice(filterWearers(searchTerm, sortedWearers), 0, 6) as HatWearer[],
     [searchTerm, sortedWearers],
   );
+
+  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
   const claimTooltip = useMemo(() => {
     if (chainId !== currentNetworkId)
@@ -262,12 +263,41 @@ const WearersList = () => {
                 >
                   <HStack color='blue.500'>
                     <FaPlus />
-                    <Text variant='ghost'>Claim Hat</Text>
+                    <Text>Claim Hat</Text>
                   </HStack>
                 </Button>
               </Tooltip>
             )}
-          <MainAction />
+          {isAdminUser && (
+            <Tooltip
+              label={
+                maxWearersReached
+                  ? 'Maximum number of wearers reached.'
+                  : chainId !== currentNetworkId
+                  ? "You can't add a wearer on a different chain."
+                  : ''
+              }
+              fontSize='md'
+              isDisabled={!maxWearersReached && chainId === currentNetworkId}
+              shouldWrapChildren
+            >
+              <Button
+                variant='unstyled'
+                isDisabled={maxWearersReached || chainId !== currentNetworkId}
+                onClick={() =>
+                  !maxWearersReached ? setModals?.({ newWearer: true }) : {}
+                }
+              >
+                <HStack
+                  cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
+                  color={maxWearersReached ? 'gray.500' : 'blue.500'}
+                >
+                  <FaPlus />
+                  <Text variant='ghost'>Add a wearer</Text>
+                </HStack>
+              </Button>
+            </Tooltip>
+          )}
         </Flex>
       </Stack>
 

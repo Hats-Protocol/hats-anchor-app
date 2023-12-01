@@ -139,7 +139,7 @@ const StatusCard = ({
               onClick={() => {
                 onCopy();
                 toast.info({
-                  title: 'Successfully copied Address to clipboard',
+                  title: 'Successfully copied address to clipboard',
                 });
               }}
               aria-label='Copy Address'

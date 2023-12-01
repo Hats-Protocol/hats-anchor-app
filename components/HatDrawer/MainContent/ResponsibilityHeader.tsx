@@ -1,67 +1,74 @@
 import {
-  Avatar,
   Box,
   Flex,
   Icon,
   IconButton,
+  Image,
   Link,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { BsFileCheck } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import { getHostnameFromURL } from '@/lib/general';
 import { ipfsUrl } from '@/lib/ipfs';
+import { Authority } from '@/types';
 
 const ResponsibilityHeader = ({
   label,
   imageUrl,
   link,
+  editingItem,
 }: {
   label?: string;
   imageUrl?: string;
   link?: string;
+  editingItem?: Authority;
 }) => {
-  const isIpfs = imageUrl?.startsWith('ipfs://');
-  const hostname = getHostnameFromURL(link);
+  const localImageUrl = editingItem ? editingItem.imageUrl : imageUrl;
+  const isIpfs = localImageUrl?.startsWith('ipfs://');
+  const { label: currentLabel, link: currentLink } = _.pick(editingItem, [
+    'label',
+    'link',
+  ]);
+  const hostname = getHostnameFromURL(currentLink || link);
 
   return (
-    <Flex alignItems='center' justifyContent='space-between' w='full'>
-      {imageUrl ? (
-        <Avatar
-          size='md'
-          src={isIpfs ? ipfsUrl(imageUrl?.slice(7)) || '' : imageUrl}
+    <Flex alignItems='center' justifyContent='space-between' w='full' gap={4}>
+      {localImageUrl ? (
+        <Image
+          boxSize='50px'
+          src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
+          borderRadius='full'
+          border='2px solid'
+          borderColor='gray.300'
+          alt='responsibility image'
         />
       ) : (
         <Flex
           borderRadius='6px'
           border='1px solid var(--gray-300, #CBD5E0)'
           background='var(--gray-100, #EDF2F7)'
-          minW={42}
-          h={42}
+          boxSize='45px'
+          mx='2px'
           alignItems='center'
           justifyContent='center'
         >
           <Icon as={BsFileCheck} boxSize={4} color='gray.500' />
         </Flex>
       )}
-      <Box flex={1} mx={4} minW={0} w='full'>
-        <Tooltip label={label} placement='left' hasArrow>
-          <Text
-            fontSize='md'
-            fontWeight='medium'
-            noOfLines={2}
-            textAlign='left'
-          >
-            {label || 'New Responsibility'}
-          </Text>
-        </Tooltip>
+      <Box flex={1} minW={0} w='full'>
+        <Text fontSize='md' fontWeight='medium' noOfLines={1} textAlign='left'>
+          {currentLabel || label || 'New Responsibility'}
+        </Text>
       </Box>
-      {link && (
-        <Link href={link} isExternal>
+      {(currentLink || link) && (
+        <Link href={currentLink || link} isExternal>
           <Tooltip label={hostname}>
             <IconButton
+              as='span'
               icon={<Icon as={FaExternalLinkAlt} />}
               variant='outlineMatch'
               aria-label='Responsibility Link'

@@ -1,6 +1,6 @@
 import { Hex } from 'viem';
 
-import { DeploymentType, FieldItem } from '@/types';
+import { AuthorityType, DeploymentType, FieldItem } from '@/types';
 
 import { FALLBACK_ADDRESS } from './misc';
 
@@ -95,15 +95,51 @@ export const EMPTY_FORM_VALUES = {
   wearers: [],
 };
 
-export const AUTHORITY_TYPES = {
-  token: 'token',
+export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
+  protocol: 'protocol',
+  modules: 'modules',
+  wallet: 'wallet',
+  hsg: 'hsg',
+  onchain: 'onchain',
+  gate: 'gate',
   manual: 'manual',
 };
 
-export const AUTHORITIES = {
-  token: {
+type AuthorityInfo = {
+  label: string;
+  info: string;
+  color: string;
+};
+
+export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
+  protocol: {
+    label: 'Hats Protocol Authority',
+    info: '',
+    color: 'green.300',
+  },
+  modules: {
+    label: 'Hats Modules Authority',
+    info: '',
+    color: 'green.300',
+  },
+  wallet: {
+    label: 'HatsWallet Authority',
+    info: '',
+    color: 'green.300',
+  },
+  hsg: {
+    label: 'HatsSignerGate Authority',
+    info: '',
+    color: 'green.300',
+  },
+  onchain: {
+    label: 'Connected Onchain Authority',
+    info: '',
+    color: 'green.300',
+  },
+  gate: {
     label: 'Connected Token-gated Authority',
-    info: 'Retrieved from the blockchain',
+    info: 'Pulled directly from the gate API',
     color: 'green.300',
   },
   manual: {
@@ -116,7 +152,7 @@ export const AUTHORITIES = {
 export const GUILD_PLATFORMS = {
   1: { label: 'Discord', icon: '/img/discord.svg' },
   2: { label: 'Telegram', icon: '/img/telegram.png' },
-  3: { label: 'GitHub', icon: '/img/github.png' },
-  4: { label: 'GoogleDoc', icon: '/img/drive.png' },
+  3: { label: 'GitHub', icon: '/img/github.svg' },
+  4: { label: 'Google Docs', icon: '/img/drive.svg' },
   snapshot: { label: 'Snapshot', icon: '/img/snapshot.jpeg' },
 };

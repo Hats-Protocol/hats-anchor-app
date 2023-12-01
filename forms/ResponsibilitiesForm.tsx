@@ -176,9 +176,9 @@ const ResponsibilitiesForm = ({
               <Flex w='full' justifyContent='center' mb={8}>
                 <Card borderRadius='4px' boxShadow='md' w='80%' p={3}>
                   <ResponsibilityHeader
+                    editingItem={editingItem}
                     label={responsibilityLabel}
                     link={link}
-                    imageUrl={editingItem?.imageUrl}
                   />
                 </Card>
               </Flex>
@@ -189,7 +189,7 @@ const ResponsibilitiesForm = ({
                   alignItems='baseline'
                   fontSize='sm'
                 >
-                  <Text>RESPONSIBILITY NAME</Text>
+                  <Text textTransform='uppercase'>Responsibility Name</Text>
                 </FormLabel>
                 <Input
                   onChange={(e) =>

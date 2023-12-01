@@ -12,6 +12,7 @@ import { Hat } from '@/types';
 const WearerHatCard = ({ hat }: { hat: Hat }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
+  // TODO need topHatId from hatId
   const { data: topHat } = useHatDetails({
     hatId: getTreeId(_.get(hat, 'id'), true),
   });
