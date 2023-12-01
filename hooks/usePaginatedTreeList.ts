@@ -8,8 +8,8 @@ import { Tree } from '@/types';
 const usePaginatedTreeList = ({
   chainId,
   perPage = 40,
-  initialData,
-}: UsePaginatedTreeListProps) => {
+}: // initialData,
+UsePaginatedTreeListProps) => {
   const {
     data,
     fetchNextPage,
@@ -27,7 +27,7 @@ const usePaginatedTreeList = ({
     },
     queryFn: ({ pageParam = 0 }) =>
       fetchPaginatedTrees(chainId, pageParam, perPage),
-    initialData: { pages: [initialData], pageParams: [0] },
+    // initialData: { pages: [initialData], pageParams: [0] },
   });
 
   return {
@@ -45,5 +45,5 @@ export default usePaginatedTreeList;
 interface UsePaginatedTreeListProps {
   chainId: number;
   perPage?: number;
-  initialData?: Tree[];
+  // initialData?: Tree[];
 }
