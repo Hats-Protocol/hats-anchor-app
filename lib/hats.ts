@@ -323,7 +323,7 @@ export const translateDrafts = ({
   const extendDrafts = _.map(drafts, (hat) => {
     if (!hat.id) return undefined;
     return {
-      ...hat,
+      ..._.omit(hat, ['imageUrl']),
       ...defaultHat,
       chainId,
       name: hatIdDecimalToIp(BigInt(hat.id)),
@@ -556,6 +556,7 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
     }
 
     if (key === 'imageUrl') {
+      console.log(key, value, hatB[key]);
       // if imageUrl isn't set imageUri is usually set to ''
       if (!value) {
         return;
@@ -566,9 +567,11 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
       return;
     }
 
-    if (key === 'parentId') {
+    if (
+      _.includes(['maxSupply', 'currentSupply', 'timestamp', 'parentId'], key)
+    ) {
       if (!_.isEqual(String(value), String(hatB[key]))) {
-        diffHat[key] = hatB[key];
+        diffHat[key] = Number(value);
       }
       return;
     }
@@ -578,13 +581,6 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
         diffHat[key] = value
           ? TRIGGER_OPTIONS.MANUALLY
           : TRIGGER_OPTIONS.AUTOMATICALLY;
-      }
-      return;
-    }
-
-    if (_.includes(['maxSupply', 'currentSupply', 'timestamp'], key)) {
-      if (!_.isEqual(String(value), String(hatB[key]))) {
-        diffHat[key] = Number(value);
       }
       return;
     }
@@ -628,6 +624,7 @@ export const prepareDraftHats = (
     hatsDifferences,
     (hat) => _.size(hat) > 1 && _.some(hat, (value) => value !== undefined),
   );
+  console.log(hatsWithUpdates);
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
     (hat: FormData) => hat.id !== prettyIdToId(treeId),
@@ -718,8 +715,9 @@ export const checkMissingHats = (
   const idList = _.uniq(_.concat(onchainIds, draftIds));
 
   const missingParent = _.filter(hats, (hat) => {
-    if (!hat.adminId) return true;
-    return !_.includes(idList, hat.adminId);
+    const localHat = _.find(onchainHats, { id: hat.id });
+    if (!hat.adminId && !localHat?.admin?.id) return true;
+    return !_.includes(idList, hat.adminId || localHat?.admin?.id);
   });
 
   return _.some(missingParent);
