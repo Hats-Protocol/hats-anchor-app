@@ -25,7 +25,7 @@ const AuthoritiesFormItem = ({
   const { localForm } = useHatForm();
   const { getValues } = _.pick(localForm, ['getValues']);
   const { gate, type, label } = getValues?.(`${formName}.${index}`) ?? {};
-  const isGate = type === AUTHORITY_TYPES.gate;
+  const isGate = type === AUTHORITY_TYPES.gate || type === 'token'; // originally set as 'token'/ gate is more general
   const hostname = getHostnameFromURL(gate);
 
   if (!localForm) return null;

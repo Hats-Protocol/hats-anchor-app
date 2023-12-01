@@ -113,33 +113,33 @@ type AuthorityInfo = {
 
 export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
   protocol: {
-    label: '',
+    label: 'Hats Protocol Authority',
     info: '',
-    color: '',
+    color: 'green.300',
   },
   modules: {
-    label: '',
+    label: 'Hats Modules Authority',
     info: '',
-    color: '',
+    color: 'green.300',
   },
   wallet: {
-    label: '',
+    label: 'HatsWallet Authority',
     info: '',
-    color: '',
+    color: 'green.300',
   },
   hsg: {
-    label: '',
+    label: 'HatsSignerGate Authority',
     info: '',
-    color: '',
+    color: 'green.300',
   },
   onchain: {
-    label: '',
+    label: 'Connected Onchain Authority',
     info: '',
-    color: '',
+    color: 'green.300',
   },
   gate: {
     label: 'Connected Token-gated Authority',
-    info: 'Pulled directly from the token gate API',
+    info: 'Pulled directly from the gate API',
     color: 'green.300',
   },
   manual: {

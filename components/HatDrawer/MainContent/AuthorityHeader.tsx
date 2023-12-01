@@ -1,11 +1,11 @@
 import {
-  Avatar,
   Box,
   Circle,
   Flex,
   HStack,
   Icon,
   IconButton,
+  Image,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
@@ -49,21 +49,22 @@ const AuthorityHeader = ({
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
       <HStack spacing={4}>
-        <Avatar
-          size='md'
+        <Image
           src={
             isIpfs
               ? ipfsUrl(localImageUrl?.slice(7)) || ''
               : localImageUrl || '/icons/authority.svg'
           }
-          showBorder
+          boxSize='50px'
+          border='1px solid'
+          borderColor='blackAlpha.300'
+          borderRadius='full'
+          alt='authority image'
         />
         <Box textAlign='left'>
-          <Tooltip label={currentLabel || label} placement='left' hasArrow>
-            <Text fontSize='md' fontWeight='medium' noOfLines={2}>
-              {currentLabel || label || 'New Authority'}
-            </Text>
-          </Tooltip>
+          <Text fontSize='md' fontWeight='medium' noOfLines={1}>
+            {currentLabel || label || 'New Authority'}
+          </Text>
 
           {!hideInfo ? (
             <Tooltip
@@ -71,7 +72,7 @@ const AuthorityHeader = ({
                 strategies
                   ? `Automatically pulled in from Snapshot. Voting weight in ${_.size(
                       strategies,
-                    )} strategies.`
+                    )} strateg${_.size(strategies) === 1 ? 'y' : 'ies'}.`
                   : AUTHORITIES[type].info
               }
               placement='right'
