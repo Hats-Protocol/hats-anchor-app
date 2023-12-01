@@ -18,9 +18,11 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
@@ -34,6 +36,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
+import { getOperatingSystem } from '@/lib/platform';
 import { Hat, Transaction } from '@/types';
 
 import TransactionHistory from './TransactionHistory';
@@ -60,6 +63,10 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const tabName = hatDetails?.data?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
+  const isCtrl = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return _.includes(['Windows', 'Linux', 'Unix'], getOperatingSystem(window));
+  }, []);
 
   return (
     <Flex
@@ -164,12 +171,15 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
       )}
 
       <HStack spacing={2}>
-        <IconButton
-          icon={<Icon as={BsSearch} h='25px' w='25px' />}
-          onClick={() => setOpen?.(true)}
-          aria-label='Search'
-          variant='ghost'
-        />
+        <Tooltip label={`Search with ${isCtrl ? 'Ctrl' : 'Cmd'} + K`}>
+          <IconButton
+            icon={<Icon as={BsSearch} h='25px' w='25px' />}
+            onClick={() => setOpen?.(true)}
+            aria-label='Search'
+            variant='ghost'
+          />
+        </Tooltip>
+
         <Popover trigger='hover'>
           <PopoverTrigger>
             {hasPendingTransactions ? (
