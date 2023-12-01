@@ -10,7 +10,9 @@ import CmdkCommandPalette, {
   getItemIndex,
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
+import { useAccount } from 'wagmi';
 
+import { getOperatingSystem } from '@/lib/platform';
 import { SearchResults } from '@/types';
 
 import { useOverlay } from '../contexts/OverlayContext';
@@ -19,14 +21,14 @@ import ChakraNextLink from './atoms/ChakraNextLink';
 
 const CommandPaletteInternalLink = ({
   href,
-  setOpen,
   children,
+  handleClose,
 }: {
   href: string;
-  setOpen: (value: boolean) => void;
   children: React.ReactNode;
+  handleClose?: () => void;
 }) => (
-  <ChakraNextLink href={href} onClick={() => setOpen(false)}>
+  <ChakraNextLink href={href} onClick={handleClose}>
     <Flex w='100%' justify='space-between' p={2}>
       {children}
     </Flex>
@@ -34,6 +36,7 @@ const CommandPaletteInternalLink = ({
 );
 
 const CommandPalette = () => {
+  const { address } = useAccount();
   const [page] = useState('root');
   const { commandPalette: isOpen, setCommandPalette: setOpen } = useOverlay();
   const [search, setSearch] = useState('');
@@ -42,7 +45,7 @@ const CommandPalette = () => {
     trees: SearchResults[];
     hats: SearchResults[];
   } | null>(null);
-  const { data: searchData } = useSearchResults({
+  const { data: searchData, searchKey } = useSearchResults({
     search: serverSearch,
   });
 
@@ -98,7 +101,7 @@ const CommandPalette = () => {
         items: _.get(localResults, 'hats', []),
       },
     ],
-    search,
+    searchKey || '',
   );
 
   const filteredItems = filterItems(
@@ -106,21 +109,28 @@ const CommandPalette = () => {
       {
         heading: 'Navigate',
         id: 'navigation',
-        items: [
+        items: _.compact([
           {
             id: 'dashboard',
             children: 'Dashboard',
             icon: 'HomeIcon',
             href: '/',
           },
-        ],
+          address && {
+            id: 'wearer',
+            children: 'My Hats',
+            icon: 'UserIcon',
+            href: `/wearers/${address}`,
+          },
+        ]),
       },
     ],
-    search,
+    searchKey || '',
   );
 
   return (
     <CmdkCommandPalette
+      placeholder='Search by Hat ID or Tree ID (e.g. 1, 3.1, 0x123..., 5674234...)'
       onChangeSearch={setSearchTimeout}
       onChangeOpen={handleClose}
       search={search}
@@ -138,7 +148,7 @@ const CommandPalette = () => {
                   renderLink={({ href, children }) => (
                     <CommandPaletteInternalLink
                       href={href ?? ''}
-                      setOpen={setOpen}
+                      handleClose={handleClose}
                     >
                       {children}
                     </CommandPaletteInternalLink>
@@ -158,7 +168,7 @@ const CommandPalette = () => {
                   renderLink={({ href, children }) => (
                     <CommandPaletteInternalLink
                       href={href ?? ''}
-                      setOpen={setOpen}
+                      handleClose={handleClose}
                     >
                       {children}
                     </CommandPaletteInternalLink>
