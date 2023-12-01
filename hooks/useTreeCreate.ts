@@ -1,3 +1,4 @@
+import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import _ from 'lodash';
 import router from 'next/router';
@@ -6,7 +7,7 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import useToast from '@/hooks/useToast';
-import { decimalToTreeId, treeCreateEventIdToTreeId } from '@/lib/hats';
+import { treeCreateEventIdToTreeId } from '@/lib/hats';
 import { fetchTreeDetails } from '@/lib/subgraph';
 
 async function waitForTreeCreation(treeId: number, chainId: number) {
@@ -14,7 +15,7 @@ async function waitForTreeCreation(treeId: number, chainId: number) {
     const checkTree = async () => {
       try {
         const tree = await fetchTreeDetails(
-          decimalToTreeId(_.toString(treeId)),
+          treeIdDecimalToHex(treeId),
           chainId,
         );
 

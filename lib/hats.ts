@@ -147,10 +147,10 @@ export const hatIdToHex = (hatId: string | null) => {
 };
 
 // treeId is a decimal string '5'
-export const decimalToTreeId = (treeId: string) => {
-  if (!treeId) return null;
-  return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
-};
+// export const decimalToTreeId = (treeId: string) => {
+//   if (!treeId) return null;
+//   return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
+// };
 
 export const decimalIdToId = (decimalId: number | string | undefined): Hex => {
   if (!decimalId) return '0x';
@@ -174,7 +174,7 @@ export const decimalId = (hatId: string | undefined): string => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const includesAny = (arr: any[], target: any[]) =>
-  target.some((v) => arr.includes(v));
+  _.some(target, (v) => _.includes(arr, v));
 
 /**
  * Traverses all ancestry of hat to check for wearers
@@ -226,7 +226,7 @@ export const isMutableNotTopHat = (hatData: Hat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
-export const getTreeId = (prettyHatId: string | null, full = false) => {
+export const getTreeId = (prettyHatId: Hex | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);
   return prettyHatId.slice(0, 10).padEnd(66, '0');

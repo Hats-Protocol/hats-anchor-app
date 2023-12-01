@@ -1,5 +1,8 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -149,12 +152,12 @@ export const TreeFormContext = createContext<TreeFormContext>({
 export const TreeFormContextProvider = ({
   treeId,
   chainId,
-  linkedHatIds,
+  // linkedHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: number;
-  linkedHatIds: Hex[] | undefined;
+  // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
   const router = useRouter();
@@ -204,6 +207,15 @@ export const TreeFormContextProvider = ({
     chainId,
     editMode,
   });
+  const linkedHatIds = useMemo(() => {
+    const { linkedToHat, parentOfTrees } = _.pick(treeData, [
+      'linkedToHat',
+      'parentOfTrees',
+    ]);
+    return _.compact(
+      _.concat(_.map(parentOfTrees, 'hats[0].id'), _.get(linkedToHat, 'id')),
+    );
+  }, [treeData]);
 
   useEffect(() => {
     setOrgChartHats(treeData?.hats);
@@ -411,9 +423,10 @@ export const TreeFormContextProvider = ({
       if (!_.includes(allIds, id) || !hat) return;
 
       // if it's linked
-      if (treeId && hat.treeId !== treeId) {
+      if (hat.treeId && treeId && hat.treeId !== treeId) {
         const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
         const basePath = router.basePath ? `${router.basePath}` : '';
+
         const urlToOpen = new URL(
           `${basePath}${hat.url}`,
           window.location.origin,
@@ -427,6 +440,9 @@ export const TreeFormContextProvider = ({
 
       const updatedQuery = {
         ...router.query,
+        treeId: hat.treeId
+          ? treeIdHexToDecimal(hat.treeId)
+          : treeIdHexToDecimal(treeId),
         hatId: hatIdDecimalToIp(BigInt(id)),
       };
       const updatedUrl = {
@@ -524,7 +540,7 @@ export const TreeFormContextProvider = ({
       // set updated tree array
       const newHat = {
         ...defaultHat,
-        ...hat,
+        ...hat, // handles treeId?
       };
       setOrgChartHats((prev) => {
         const tempHats = _.cloneDeep(prev);
