@@ -435,6 +435,7 @@ const mergeHatsWithStoredData = (
     const imageUrl = ipfsUrl(imageUri?.slice(7));
     return {
       ...mergedHat,
+      adminId: mergedHat?.adminId || storedHat?.parentId,
       imageUri,
       imageUrl: hat?.imageUrl === '/icon.jpeg' ? '' : imageUrl,
       wearers: _.map(mergedHat.wearers, 'address') || [],
@@ -454,7 +455,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
     mutable: hat.mutable === MUTABILITY.MUTABLE,
     currentSupply: parseInt(hat.currentSupply, 10),
     wearers: hat.wearers,
-    adminId: hat.adminId,
+    adminId: hat.adminId || hat.parentId,
     imageUri: hat.imageUri || '',
     // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
     detailsObject: {
@@ -549,18 +550,23 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
   };
 
   _.forEach(hatA, (value, key) => {
+    // skip keys that we're handling separately
     if (_.includes(['createdAt', 'currentSupply', 'imageUri'], key)) {
       return;
     }
 
     if (key === 'imageUrl') {
+      // if imageUrl isn't set imageUri is usually set to ''
+      if (!value) {
+        return;
+      }
       if (!_.isEqual(String(value), String(hatB[key]))) {
         diffHat.imageUrl = hatA.imageUrl;
       }
       return;
     }
 
-    if (key === 'adminId') {
+    if (key === 'parentId') {
       if (!_.isEqual(String(value), String(hatB[key]))) {
         diffHat[key] = hatB[key];
       }
@@ -674,7 +680,7 @@ export const flattenHatData = (data: any[]): FormData[] =>
     // imageUri: hat.imageUri,
     currentSupply: _.toNumber(hat.currentSupply),
     wearers: extractWearers(hat.wearers),
-    adminId: hat.adminId || _.get(hat, 'admin.id'),
+    adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
     imageUrl: hat.imageUrl,
     imageUri: hat.imageUri,
     name: _.get(hat, 'detailsObject.data.name'),
