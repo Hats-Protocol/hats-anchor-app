@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
@@ -62,10 +63,10 @@ const Navbar = ({ hatData }: { hatData?: Hat }) => {
   const tabName = hatDetails?.data?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
-  const isCtrl = _.includes(
-    ['Windows', 'Linux', 'Unix'],
-    getOperatingSystem(window),
-  );
+  const isCtrl = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return _.includes(['Windows', 'Linux', 'Unix'], getOperatingSystem(window));
+  }, []);
 
   return (
     <Flex

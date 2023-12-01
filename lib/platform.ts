@@ -1,6 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getOperatingSystem(window: any) {
+  if (!window) return '';
   let operatingSystem = 'Not known';
   if (window.navigator.appVersion.indexOf('Win') !== -1) {
     operatingSystem = 'Windows';

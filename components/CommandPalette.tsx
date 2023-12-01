@@ -12,7 +12,6 @@ import CmdkCommandPalette, {
 } from 'react-cmdk';
 import { useAccount } from 'wagmi';
 
-import { getOperatingSystem } from '@/lib/platform';
 import { SearchResults } from '@/types';
 
 import { useOverlay } from '../contexts/OverlayContext';
