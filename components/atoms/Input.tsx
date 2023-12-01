@@ -40,8 +40,7 @@ const Input = ({
   subLabel,
   subInput,
   name,
-  info,
-  tip,
+  tooltip,
   type = 'text',
   options,
   localForm,
@@ -89,14 +88,15 @@ const Input = ({
     <FormControl isDisabled={isDisabled} {...props}>
       <Stack spacing={1} w='100%'>
         {label && (
+          // disabled input lessens opacity of FormLabel
           <FormLabel mb={0}>
             <HStack>
               <Text fontSize='sm'>
-                {label.toUpperCase()}
-                {options?.required && '*'}
+                {_.toUpper(label)}
+                {options?.required && ' *'}
               </Text>
-              {info && (
-                <Tooltip shouldWrapChildren label={info}>
+              {tooltip && (
+                <Tooltip shouldWrapChildren label={tooltip}>
                   <FaRegQuestionCircle />
                 </Tooltip>
               )}
@@ -106,9 +106,10 @@ const Input = ({
         {typeof subLabel !== 'string' ? (
           subLabel
         ) : (
-          <Text color='blackAlpha.700'>{subLabel}</Text>
+          <Text color='blackAlpha.700' fontSize='sm'>
+            {subLabel}
+          </Text>
         )}
-        {tip && typeof tip === 'string' ? <Text>{tip}</Text> : tip}
         {addressButtons && (
           <Flex justify='flex-end'>
             <HStack>
@@ -182,8 +183,7 @@ interface InputProps extends ChakraInputProps {
   subLabel?: string | ReactNode;
   subInput?: string | ReactNode;
   name: string;
-  info?: string;
-  tip?: string | ReactNode;
+  tooltip?: string;
   type?: string;
   options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

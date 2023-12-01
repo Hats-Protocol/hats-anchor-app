@@ -31,7 +31,7 @@ const ResponsibilitiesFormItem = ({
       <HStack justifyContent='space-between' alignItems='center'>
         <Stack flex={1}>
           <Text mb={0} fontSize='sm' color='blackAlpha.800'>
-            {label}
+            {label || 'New Responsibility'}
           </Text>
         </Stack>
         <IconButton
