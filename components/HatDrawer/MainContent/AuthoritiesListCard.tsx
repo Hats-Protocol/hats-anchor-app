@@ -48,21 +48,21 @@ const AuthoritiesListCard = ({
   }
 
   const img =
-    type === AUTHORITY_TYPES.token
+    type === AUTHORITY_TYPES.gate
       ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS].icon
       : imageUrl;
 
   if (!gate && !description)
     return (
-      <Card borderRadius='4px' mb={4} px={4} py={2}>
+      <Card borderRadius='4px' mb={4} p={4}>
         <AuthorityHeader label={label} type={type} imageUrl={img} link={link} />
       </Card>
     );
 
   return (
     <Card borderRadius='4px' mb={4}>
-      <AccordionItem border='none' mb={4} my='auto'>
-        <AccordionButton>
+      <AccordionItem border='none' mb={4} my={2}>
+        <AccordionButton _hover={{ bg: 'white' }}>
           <AuthorityHeader
             label={label}
             type={type}

@@ -73,7 +73,7 @@ const AuthoritiesForm = ({
     gate,
     type,
   } = getValues?.(`${formName}.${index}`) ?? {};
-  const isToken = type === AUTHORITY_TYPES.token;
+  const isGate = type === AUTHORITY_TYPES.gate;
   const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -212,8 +212,8 @@ const AuthoritiesForm = ({
                     editingItem={editingItem}
                     label={authorityLabel}
                     type={
-                      (isToken
-                        ? AUTHORITY_TYPES.token
+                      (isGate
+                        ? AUTHORITY_TYPES.gate
                         : AUTHORITY_TYPES.manual) as AuthorityType
                     }
                     imageUrl={editingItem?.imageUrl}

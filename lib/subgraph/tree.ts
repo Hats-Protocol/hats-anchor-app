@@ -5,12 +5,11 @@ import { Tree } from '@/types';
 export const fetchTreeDetails = async (
   treeId: string | null,
   chainId: number,
-  useDefaultEndpoints: boolean = false,
 ): Promise<Tree | null> => {
   if (treeId === null) {
     return null;
   }
-  const subgraphClient = createSubgraphClient(useDefaultEndpoints);
+  const subgraphClient = createSubgraphClient();
 
   const res = (await subgraphClient.getTree({
     chainId,
@@ -44,7 +43,7 @@ export const fetchTreeDetails = async (
             prettyId: true,
           },
         },
-        filters: { first: 5 },
+        filters: { first: 100 },
       },
       linkRequestFromTree: {
         props: {
@@ -80,9 +79,8 @@ export const fetchPaginatedTrees = async (
   chainId: number,
   page: number = 0,
   perPage: number = 40,
-  useDefaultEndpoints: boolean = false,
 ) => {
-  const subgraphClient = createSubgraphClient(useDefaultEndpoints);
+  const subgraphClient = createSubgraphClient();
 
   const res = await subgraphClient.getTreesPaginated({
     chainId,

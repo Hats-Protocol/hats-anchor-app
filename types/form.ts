@@ -27,6 +27,15 @@ export type FormData = FormDataDetails & {
   adminId?: Hex;
 };
 
+export type AuthorityType =
+  | 'protocol'
+  | 'modules'
+  | 'wallet'
+  | 'hsg'
+  | 'onchain'
+  | 'gate'
+  | 'manual';
+
 export type Authority = {
   label: string;
   link: string;
@@ -37,8 +46,6 @@ export type Authority = {
   id?: string | number;
   strategies?: SnapshotStrategy[];
 };
-
-export type AuthorityType = 'token' | 'manual';
 
 export type FormDataDetails = {
   name: string;

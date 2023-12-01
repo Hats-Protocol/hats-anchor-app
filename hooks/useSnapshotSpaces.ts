@@ -218,7 +218,7 @@ const useSnapshotSpaces = ({
                 gate: `https://snapshot.org`,
                 description: space.about,
                 imageUrl: '/img/snapshot.jpeg',
-                type: AUTHORITY_TYPES.token,
+                type: AUTHORITY_TYPES.gate,
                 id: 'snapshot',
                 strategies: filteredStrategies,
               }

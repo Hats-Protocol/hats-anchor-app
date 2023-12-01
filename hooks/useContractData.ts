@@ -37,7 +37,6 @@ const fetchContractData = async (
     });
 
     const data = await result.json();
-    console.log(data);
     return data as ContractData;
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -63,7 +62,7 @@ const useContractData = ({
     queryKey: ['contractData', chainId, address],
     queryFn: () => fetchContractData(chainId, address),
     enabled: !!chainId && !!address && enabled,
-    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 24 hours
+    staleTime: editMode ? Infinity : 1000 * 60 * 60 * 24, // 24 hours
   });
 
   return { data, isLoading, error };

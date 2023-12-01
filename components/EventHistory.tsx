@@ -38,8 +38,15 @@ const EventHistory = ({
   }
 
   const shouldCollapse = events.length > 5 && type === 'hat';
-  const displayedEvents = shouldCollapse && isOpen ? events : _.take(events, 4);
-  const lastEvent = shouldCollapse && isOpen ? null : _.last(events);
+  let displayedEvents = events;
+  let lastEvent = _.last(events);
+  if (shouldCollapse) {
+    if (!isOpen) {
+      displayedEvents = _.take(events, 4);
+    } else {
+      lastEvent = undefined;
+    }
+  }
 
   return (
     <Box>

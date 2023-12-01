@@ -2,7 +2,7 @@
 import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { FaPlus } from 'react-icons/fa';
+// import { FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId, useNetwork } from 'wagmi';
 
 import { useOverlay } from '@/contexts/OverlayContext';
@@ -51,11 +51,11 @@ const MainAction = () => {
   });
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
 
-  if (chainId !== chain?.id) return <NetworkSwitcher />;
-
   if (!isConnected) {
     return <ConnectWallet />;
   }
+
+  if (chainId !== chain?.id) return <NetworkSwitcher />;
 
   if (
     (currentUserIsEligible as boolean) &&
@@ -73,15 +73,16 @@ const MainAction = () => {
         shouldWrapChildren
       >
         <Button
-          variant='unstyled'
+          variant='outlineMatch'
+          colorScheme='blue.500'
           isDisabled={
             !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
           }
           onClick={claimHat}
         >
-          <HStack color='blue.500'>
-            <FaPlus />
-            <Text variant='ghost'>Claim Hat</Text>
+          <HStack>
+            {/* <FaPlus /> */}
+            <Text>Claim Hat</Text>
           </HStack>
         </Button>
       </Tooltip>
@@ -102,18 +103,18 @@ const MainAction = () => {
         shouldWrapChildren
       >
         <Button
-          variant='unstyled'
+          variant='outlineMatch'
+          colorScheme='blue.500'
           isDisabled={maxWearersReached || chainId !== currentNetworkId}
           onClick={() =>
             !maxWearersReached ? setModals?.({ newWearer: true }) : {}
           }
         >
           <HStack
-            cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-            color={maxWearersReached ? 'gray.500' : 'blue.500'}
+          // cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
+          // color={maxWearersReached ? 'gray.500' : 'blue.500'}
           >
-            <FaPlus />
-            <Text variant='ghost'>Add a wearer</Text>
+            <Text variant='ghost'>Add wearer</Text>
           </HStack>
         </Button>
       </Tooltip>
