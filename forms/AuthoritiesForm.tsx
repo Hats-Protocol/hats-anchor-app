@@ -105,7 +105,7 @@ const AuthoritiesForm = ({
     );
     const newSpaces = _.filter(
       selectedHatSpaces,
-      (space) => !_.includes(existingLinks, space.link),
+      (space: any) => !_.includes(existingLinks, space.link),
     );
     if (_.isEmpty(newRoles) && _.isEmpty(newSpaces)) return;
 

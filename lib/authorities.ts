@@ -13,7 +13,7 @@ export const combineAuthorities = ({
   guildRoles: Authority[] | undefined;
   spaces: Authority[] | undefined;
 }) => {
-  const socialAuthorities = _.map(authorities, (authority) => ({
+  const socialAuthorities = _.map(authorities, (authority: Authority) => ({
     ...authority,
     type: AUTHORITY_TYPES.manual as AuthorityType,
   }));
@@ -21,11 +21,11 @@ export const combineAuthorities = ({
   // authorities with matching link
   const matchingAuthorities = _.filter(
     socialAuthorities,
-    (authority) =>
+    (authority: any) =>
       _.includes(_.map(guildRoles, 'link'), authority.link) ||
       _.includes(_.map(spaces, 'link'), authority.link),
   );
-  const mergedAuthorities = _.map(matchingAuthorities, (authority) => {
+  const mergedAuthorities = _.map(matchingAuthorities, (authority: any) => {
     const guildRole = _.find(guildRoles, ['link', authority.link]);
     const guildProps = _.pick(guildRole, ['gate', 'type']);
     const space = _.find(spaces, ['link', authority.link]);
@@ -40,12 +40,12 @@ export const combineAuthorities = ({
   // authorities without matching link
   const nonMatchingAuthorities = _.reject(
     _.concat(guildRoles, spaces),
-    (authority) =>
+    (authority: Authority) =>
       _.includes(_.map(socialAuthorities, 'link'), authority?.link),
   );
 
   // authorities that aren't in guildRoles or spaces
-  const filteredAuthorities = _.reject(socialAuthorities, (authority) =>
+  const filteredAuthorities = _.reject(socialAuthorities, (authority: any) =>
     _.includes(_.map(matchingAuthorities, 'link'), authority.link),
   );
 
