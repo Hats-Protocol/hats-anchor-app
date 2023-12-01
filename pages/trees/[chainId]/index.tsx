@@ -70,7 +70,7 @@ const Trees = ({ chainId }: { chainId: number }) => {
                     _.get(_.first(_.get(tree, 'hats')), 'id'),
                 );
 
-                if (!topHat) return null;
+                if (!topHat || !tree) return null;
 
                 return (
                   <TreeCard

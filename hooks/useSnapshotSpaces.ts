@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 
-import { AUTHORITY_TYPES } from '@/constants';
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/constants';
 import { decimalId } from '@/lib/hats';
 
 type SnapshotApiKeys = 1 | 5 | 10 | 100 | 137 | 424 | 42151;
@@ -217,7 +217,7 @@ const useSnapshotSpaces = ({
                 link: `https://snapshot.org/#/${space.id}`,
                 gate: `https://snapshot.org`,
                 description: space.about,
-                imageUrl: '/img/snapshot.jpeg',
+                imageUrl: GUILD_PLATFORMS.snapshot.icon,
                 type: AUTHORITY_TYPES.gate,
                 id: 'snapshot',
                 strategies: filteredStrategies,
