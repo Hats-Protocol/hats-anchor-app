@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "nx run frontend:serve",
     "start": "nx run frontend:serve:production",
-    "build": "nx run frontend:build",
+    "build": "nx run frontend:build && ls -lh dist/apps/frontend/.next",
     "test": "nx test",
     "preinstall": "npx only-allow pnpm"
   },
