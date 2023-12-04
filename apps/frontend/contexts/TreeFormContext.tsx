@@ -25,6 +25,7 @@ import {
   useState,
 } from 'react';
 import { Hex } from 'viem';
+import { useQueryClient } from 'wagmi';
 
 import useBetterMediaQuery from '../hooks/useBetterMediaQuery';
 import useGuilds from '../hooks/useGuilds';
@@ -161,7 +162,9 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   let { hatId: initialHatId } = router.query;
+  const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
   if (_.isArray(initialHatId)) {
     initialHatId = _.first(initialHatId);
   }
@@ -417,7 +420,9 @@ export const TreeFormContextProvider = ({
   // *********************
   const handleSelectHat = useCallback(
     (id: Hex) => {
+      console.log(id);
       if (isMobile) return;
+      queryClient.invalidateQueries(['hatDetails', { chainId, id }]);
       const allIds = _.map(orgChartTree, 'id');
       const hat = _.find(orgChartTree, ['id', id]);
       if (!_.includes(allIds, id) || !hat) return;
@@ -437,14 +442,22 @@ export const TreeFormContextProvider = ({
       }
 
       setSelectedHatId(id);
+      let existingQuery = router.query;
+      if (compact === 'true') {
+        existingQuery = { ...existingQuery, compact: 'true' };
+      }
+      if (flipped === 'true') {
+        existingQuery = { ...existingQuery, flipped: 'true' };
+      }
 
       const updatedQuery = {
-        ...router.query,
+        ...existingQuery,
         treeId: hat.treeId
           ? treeIdHexToDecimal(hat.treeId)
           : treeIdHexToDecimal(treeId),
         hatId: hatIdDecimalToIp(BigInt(id)),
       };
+      console.log('updatedQuery', updatedQuery);
       const updatedUrl = {
         pathname: router.pathname,
         query: updatedQuery,
@@ -455,8 +468,8 @@ export const TreeFormContextProvider = ({
       onCloseTreeDrawer();
       onOpenHatDrawer();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [orgChartTree, isMobile],
+
+    [orgChartTree, isMobile, flipped, compact, chainId],
   );
 
   const handleFlipChart = useCallback(

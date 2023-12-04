@@ -96,17 +96,15 @@ const AuthoritiesListCard = ({
             )}
             {gate && validateURL(gate) && (
               <ChakraNextLink isExternal href={gate} display='block'>
-                <Link href={gate} isExternal>
-                  <Button
-                    rightIcon={<Icon as={FaExternalLinkAlt} />}
-                    color='blue.500'
-                    borderColor='blue.500'
-                    variant='outlineMatch'
-                    size='sm'
-                  >
-                    {gateHostName}
-                  </Button>
-                </Link>
+                <Button
+                  rightIcon={<Icon as={FaExternalLinkAlt} />}
+                  color='blue.500'
+                  borderColor='blue.500'
+                  variant='outlineMatch'
+                  size='sm'
+                >
+                  {gateHostName}
+                </Button>
               </ChakraNextLink>
             )}
           </HStack>
