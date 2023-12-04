@@ -13,7 +13,8 @@
     "incremental": true,
     "types": [
       "node"
-    ]
+    ],
+    "lib": ["ES2021"],
   },
   "include": [
     "**/*.ts",
