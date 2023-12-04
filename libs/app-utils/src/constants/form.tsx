@@ -150,9 +150,24 @@ export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
 };
 
 export const GUILD_PLATFORMS = {
-  1: { label: 'Discord', icon: '/img/discord.svg' },
-  2: { label: 'Telegram', icon: '/img/telegram.png' },
-  3: { label: 'GitHub', icon: '/img/github.svg' },
-  4: { label: 'Google Docs', icon: '/img/drive.svg' },
-  snapshot: { label: 'Snapshot', icon: '/img/snapshot.jpeg' },
+  1: {
+    label: 'Discord',
+    icon: 'ipfs://QmPqL5WeuKZod1EnS2jeNhocVe5a9sXLTzbvpo47ZRydLd',
+  },
+  2: {
+    label: 'Telegram',
+    icon: 'ipfs://QmX4qMuCnkJguSnf4L5wdi3dcfrqdNPctSQH6BtJZFT1yr',
+  },
+  3: {
+    label: 'GitHub',
+    icon: 'ipfs://QmYLQiMBfDm6Mtbz97JnNDAZVLietA8z9m5ThRULxNLxgq',
+  },
+  4: {
+    label: 'Google Docs',
+    icon: 'ipfs://QmXgcdaCnfkfTj2cJHn7Sr9Xxa4eb1grjADMjb8FzAqqSt',
+  },
+  snapshot: {
+    label: 'Snapshot',
+    icon: 'ipfs://QmQwKSu2StPNqSFZC5u17jYtxwfP9fmdrVJVxLxi7mTS9S',
+  },
 };

@@ -64,7 +64,9 @@ const EventHistory = ({
         </Flex>
       )}
 
-      {lastEvent && !isOpen && <Event event={lastEvent} chainId={chainId} />}
+      {shouldCollapse && lastEvent && !isOpen && (
+        <Event event={lastEvent} chainId={chainId} />
+      )}
 
       {shouldCollapse && (
         <Button onClick={onToggle} size='sm' variant='outline'>

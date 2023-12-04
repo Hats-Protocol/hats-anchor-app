@@ -75,26 +75,24 @@ const AuthoritiesListCard = ({
           <HStack>
             {link && validateURL(link) && (
               <ChakraNextLink isExternal href={link} display='block'>
-                <Link href={link} isExternal>
-                  {linkName || linkHostName ? (
-                    <Button
-                      rightIcon={<Icon as={FaExternalLinkAlt} />}
-                      colorScheme='blue'
-                      size='sm'
-                      variant='solid'
-                    >
-                      {linkName || linkHostName}
-                    </Button>
-                  ) : (
-                    <IconButton
-                      icon={<Icon as={FaExternalLinkAlt} />}
-                      colorScheme='blue'
-                      aria-label='Authority Link'
-                      size='sm'
-                      variant='solid'
-                    />
-                  )}
-                </Link>
+                {linkName || linkHostName ? (
+                  <Button
+                    rightIcon={<Icon as={FaExternalLinkAlt} />}
+                    colorScheme='blue'
+                    size='sm'
+                    variant='solid'
+                  >
+                    {linkName || linkHostName}
+                  </Button>
+                ) : (
+                  <IconButton
+                    icon={<Icon as={FaExternalLinkAlt} />}
+                    colorScheme='blue'
+                    aria-label='Authority Link'
+                    size='sm'
+                    variant='solid'
+                  />
+                )}
               </ChakraNextLink>
             )}
             {gate && validateURL(gate) && (
