@@ -1,21 +1,21 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
+import { CONTACT_URL } from 'app-utils';
+import { Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { isAddress } from 'viem';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import DatePicker from '@/components/atoms/DatePicker';
-import Input from '@/components/atoms/Input';
-import Select from '@/components/atoms/Select';
-import FormRowWrapper from '@/components/FormRowWrapper';
-import { CONTACT_URL } from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatsModules from '@/hooks/useHatsModules';
-import { transformAndVerify } from '@/lib/general';
-import { decimalId, prettyIdToIp } from '@/lib/hats';
-import { Hat, ModuleCreationArg, ModuleDetails } from '@/types';
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import useHatsModules from '../../../hooks/useHatsModules';
+import { transformAndVerify } from '../../../lib/general';
+import { decimalId, prettyIdToIp } from '../../../lib/hats';
+import ChakraNextLink from '../../atoms/ChakraNextLink';
+import DatePicker from '../../atoms/DatePicker';
+import Input from '../../atoms/Input';
+import Select from '../../atoms/Select';
+import FormRowWrapper from '../../FormRowWrapper';
 
 const ModuleDetailsForm = ({
   localForm,

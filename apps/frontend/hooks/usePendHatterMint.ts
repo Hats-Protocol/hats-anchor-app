@@ -1,9 +1,9 @@
+import { FormData } from 'hats-types';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { Hex } from 'viem';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { FormData } from '@/types';
+import { useTreeForm } from '../contexts/TreeFormContext';
 
 // app-hooks
 const usePendHatterMint = ({

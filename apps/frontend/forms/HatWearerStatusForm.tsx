@@ -14,12 +14,12 @@ import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { formatAddress } from '@/lib/general';
-import { toTreeId } from '@/lib/hats';
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useDebounce from '../hooks/useDebounce';
+import useHatContractWrite from '../hooks/useHatContractWrite';
+import { formatAddress } from '../lib/general';
+import { toTreeId } from '../lib/hats';
 
 const HatWearerStatusForm = ({
   wearer,

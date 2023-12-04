@@ -1,9 +1,8 @@
 import { Accordion, Heading, Text } from '@chakra-ui/react';
+import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { Authority, AuthorityType } from '@/types';
-
+import { useTreeForm } from '../../../contexts/TreeFormContext';
 import AuthoritiesListCard from './AuthoritiesListCard';
 
 const AuthoritiesList = () => {

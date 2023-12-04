@@ -4,8 +4,8 @@ import _, { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
 import { FaCheck, FaTrash } from 'react-icons/fa';
 
-import Input from '@/components/atoms/Input';
-import { useHatForm } from '@/contexts/HatFormContext';
+import { useHatForm } from '../contexts/HatFormContext';
+import Input from './atoms/Input';
 
 const fetchGuild = async (guildName: string) => {
   const response = await fetch(`https://api.guild.xyz/v1/guild/${guildName}`);

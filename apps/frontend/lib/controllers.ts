@@ -1,10 +1,9 @@
 import { Module } from '@hatsprotocol/modules-sdk';
+import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { ContractData } from '@/hooks/useContractData';
-import { HatWearer } from '@/types';
-
+import { ContractData } from '../hooks/useContractData';
 import { explorerUrl, SupportedChains } from './chains';
 import { formatAddress } from './general';
 

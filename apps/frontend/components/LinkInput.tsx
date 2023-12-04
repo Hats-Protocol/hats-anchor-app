@@ -1,6 +1,6 @@
 import { Button, HStack, Input as ChakraInput, Stack } from '@chakra-ui/react';
 
-import { validateURL } from '@/lib/general';
+import { validateURL } from '../lib/general';
 
 interface LinkInputProps {
   inputLink: string;

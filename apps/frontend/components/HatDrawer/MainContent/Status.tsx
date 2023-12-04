@@ -11,6 +11,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, MODULE_TYPES, ZERO_ADDRESS } from 'app-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -19,21 +20,19 @@ import { FiCopy } from 'react-icons/fi';
 import { TbCircleOff } from 'react-icons/tb';
 import { useAccount } from 'wagmi';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
-import { MODULE_TYPES } from '@/utils/constants/form';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useContractData from '@/hooks/useContractData';
-import useHatStatus from '@/hooks/useHatStatus';
-import useModuleDetails from '@/hooks/useModuleDetails';
-import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
-import usePendHatterMint from '@/hooks/usePendHatterMint';
-import useToast from '@/hooks/useToast';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import { SupportedChains } from '@/lib/chains';
-import { getControllerNameAndLink } from '@/lib/controllers';
-import { isWearingAdminHat } from '@/lib/hats';
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import useContractData from '../../../hooks/useContractData';
+import useHatStatus from '../../../hooks/useHatStatus';
+import useModuleDetails from '../../../hooks/useModuleDetails';
+import useMultiClaimsHatterCheck from '../../../hooks/useMultiClaimsHatterCheck';
+import usePendHatterMint from '../../../hooks/usePendHatterMint';
+import useToast from '../../../hooks/useToast';
+import useWearerDetails from '../../../hooks/useWearerDetails';
+import useWearerEligibilityCheck from '../../../hooks/useWearerEligibilityCheck';
+import { SupportedChains } from '../../../lib/chains/index';
+import { getControllerNameAndLink } from '../../../lib/controllers';
+import { isWearingAdminHat } from '../../../lib/hats';
+import ChakraNextLink from '../../atoms/ChakraNextLink';
 
 const StatusCard = ({
   status,

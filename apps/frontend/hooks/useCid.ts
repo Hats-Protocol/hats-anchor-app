@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { calculateCid } from '@/lib/ipfs';
+import { calculateCid } from '../lib/ipfs';
 
 // image-sdk/hooks
 /**

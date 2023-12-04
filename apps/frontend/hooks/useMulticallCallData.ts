@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { FormData, Hat } from 'hats-types';
 import _ from 'lodash';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { processHatForCalls } from '@/lib/form';
-import { fetchToken, handleDetailsPin } from '@/lib/ipfs';
-import { createHatsClient } from '@/lib/web3';
-import { FormData, Hat } from '@/types';
-
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { processHatForCalls } from '../lib/form';
+import { fetchToken, handleDetailsPin } from '../lib/ipfs';
+import { createHatsClient } from '../lib/web3';
 import { HatPinDetails } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {

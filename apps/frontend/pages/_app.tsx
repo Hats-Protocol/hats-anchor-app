@@ -8,15 +8,14 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
+import { SEO } from 'app-utils';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
 import { WagmiConfig } from 'wagmi';
 
-import SEO from '@/utils/constants/next-seo.config';
-import { OverlayContextProvider } from '@/contexts/OverlayContext';
-import { chains } from '@/lib/chains';
-import { wagmiConfig } from '@/lib/web3';
-
+import { OverlayContextProvider } from '../contexts/OverlayContext';
+import { chains } from '../lib/chains/index';
+import { wagmiConfig } from '../lib/web3';
 import theme from '../theme';
 
 const queryClient = new QueryClient({

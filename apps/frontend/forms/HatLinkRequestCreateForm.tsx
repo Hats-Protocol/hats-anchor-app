@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
-import Select from '@/components/atoms/Select';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { decimalId, idToPrettyId, prettyIdToId } from '@/lib/hats';
+import Select from '../components/atoms/Select';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useDebounce from '../hooks/useDebounce';
+import useHatContractWrite from '../hooks/useHatContractWrite';
+import { decimalId, idToPrettyId, prettyIdToId } from '../lib/hats';
 
 const HatLinkRequestCreateForm = ({
   newAdmin,

@@ -12,15 +12,14 @@ import {
   Link,
   Text,
 } from '@chakra-ui/react';
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from 'app-utils';
+import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import Markdown from '@/components/atoms/Markdown';
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/utils/constants';
-import { getHostnameFromURL, validateURL } from '@/lib/general';
-import { Authority, AuthorityType } from '@/types';
-
+import { getHostnameFromURL, validateURL } from '../../../lib/general';
+import ChakraNextLink from '../../atoms/ChakraNextLink';
+import Markdown from '../../atoms/Markdown';
 import AuthorityHeader from './AuthorityHeader';
 
 const AuthoritiesListCard = ({

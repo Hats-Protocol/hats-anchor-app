@@ -1,12 +1,12 @@
 import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
+import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { explorerUrl } from '@/lib/chains';
-import { Transaction } from '@/types';
+import { useOverlay } from '../contexts/OverlayContext';
+import { explorerUrl } from '../lib/chains/index';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const TransactionHistory = ({ count }: { count?: number }) => {
   const { transactions } = useOverlay();

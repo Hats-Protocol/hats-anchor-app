@@ -9,12 +9,12 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { chainsMap } from '@/lib/chains';
-import { Hat } from '@/types';
+import useHatDetailsField from '../hooks/useHatDetailsField';
+import { chainsMap } from '../lib/chains/index';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));

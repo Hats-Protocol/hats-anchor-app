@@ -6,10 +6,9 @@ import {
   Card,
   Flex,
 } from '@chakra-ui/react';
+import { Authority } from 'hats-types';
 
-import Markdown from '@/components/atoms/Markdown';
-import { Authority } from '@/types';
-
+import Markdown from '../../atoms/Markdown';
 import ResponsibilityHeader from './ResponsibilityHeader';
 
 const ResponsibilitiesListCard = ({

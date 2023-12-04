@@ -3,8 +3,8 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { createHatsClient } from '@/lib/web3';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { createHatsClient } from '../lib/web3';
 
 // hats-hooks
 const useAdminOfHats = (hatIds: Hex[]) => {

@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { Hat } from 'hats-types';
 import { Hex } from 'viem';
 
 import {
   fetchWearerDetailsForAllChains,
   fetchWearerDetailsForChain,
-} from '@/lib/subgraph';
-import { Hat } from '@/types';
+} from '../lib/subgraph/wearer';
 
 // hats-hooks
 const useWearerDetails = ({

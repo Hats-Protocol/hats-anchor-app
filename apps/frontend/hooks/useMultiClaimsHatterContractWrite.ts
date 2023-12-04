@@ -1,12 +1,12 @@
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { waitForTransaction } from '@wagmi/core';
+import { MULTI_CLAIMS_HATTER_ABI } from 'app-utils';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { MULTI_CLAIMS_HATTER_ABI } from '@/utils/contracts/MultiClaimsHatter';
+import { useTreeForm } from '../contexts/TreeFormContext';
 
 interface ContractInteractionProps {
   functionName: string;

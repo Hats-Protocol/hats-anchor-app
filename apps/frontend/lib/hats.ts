@@ -1,8 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
-import { Hex } from 'viem';
-
-import { defaultHat, MUTABILITY, TRIGGER_OPTIONS } from '@/utils/constants';
+import { defaultHat, MUTABILITY, TRIGGER_OPTIONS } from 'app-utils';
 import {
   Controls,
   FormData,
@@ -12,7 +9,9 @@ import {
   HatWearer,
   Hierarchy,
   InputObject,
-} from '@/types';
+} from 'hats-types';
+import _ from 'lodash';
+import { Hex } from 'viem';
 
 import { formatImageUrl, isImageUrl } from './general';
 import { ipfsUrl } from './ipfs';

@@ -1,6 +1,5 @@
+import { CONFIG } from 'app-utils';
 import { useEffect, useState } from 'react';
-
-import CONFIG from '@/utils/constants';
 
 // app-hooks
 function useDebounce<T>(value: T, delay?: number) {

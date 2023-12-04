@@ -21,15 +21,15 @@ import { IoExitOutline } from 'react-icons/io5';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-import Modal from '@/components/atoms/Modal';
-import NetworkSwitcher from '@/components/NetworkSwitcher';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import ImportTreeForm from '@/forms/ImportTreeForm';
-import useAdminOfHats from '@/hooks/useAdminOfHats';
-import useMulticallCallManyHats from '@/hooks/useMulticallManyHats';
-import { chainsMap } from '@/lib/chains';
-import { editHasUpdates } from '@/lib/hats';
+import { useOverlay } from '../../contexts/OverlayContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import ImportTreeForm from '../../forms/ImportTreeForm';
+import useAdminOfHats from '../../hooks/useAdminOfHats';
+import useMulticallCallManyHats from '../../hooks/useMulticallManyHats';
+import { chainsMap } from '../../lib/chains';
+import { editHasUpdates } from '../../lib/hats';
+import Modal from '../atoms/Modal';
+import NetworkSwitcher from '../NetworkSwitcher';
 
 const TopMenu = () => {
   const currentChain = useChainId();

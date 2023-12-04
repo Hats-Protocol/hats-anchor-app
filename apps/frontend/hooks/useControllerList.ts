@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchControllersForUser } from '@/lib/subgraph';
+import { fetchControllersForUser } from '../lib/subgraph/wearer';
 
 // hats-hooks
 const useControllerList = ({ address }: { address: string }) => {

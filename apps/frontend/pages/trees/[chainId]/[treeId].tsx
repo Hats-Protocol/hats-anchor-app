@@ -4,8 +4,8 @@ import { GetStaticPropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { Hex } from 'viem';
 
-import TreePage from '@/components/TreePage';
-import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
+import TreePage from '../../../components/TreePage';
+import { TreeFormContextProvider } from '../../../contexts/TreeFormContext';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   const router = useRouter();

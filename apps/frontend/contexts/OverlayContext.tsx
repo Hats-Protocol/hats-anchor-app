@@ -1,4 +1,5 @@
 import { waitForTransaction } from '@wagmi/core';
+import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -16,17 +17,16 @@ import {
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
-import Suspender from '@/components/atoms/Suspender';
-import useLocalStorage from '@/hooks/useLocalStorage';
-import useToast from '@/hooks/useToast';
-import { checkTransactionStatus } from '@/lib/contract';
-import { Transaction } from '@/types';
+import Suspender from '../components/atoms/Suspender';
+import useLocalStorage from '../hooks/useLocalStorage';
+import useToast from '../hooks/useToast';
+import { checkTransactionStatus } from '../lib/contract';
 
-const Modal = dynamic(() => import('@/components/atoms/Modal'), {
+const Modal = dynamic(() => import('../components/atoms/Modal'), {
   loading: () => <Suspender />,
 });
 const TransactionHistory = dynamic(
-  () => import('@/components/TransactionHistory'),
+  () => import('../components/TransactionHistory'),
   { loading: () => <Suspender /> },
 );
 
@@ -51,9 +51,9 @@ export interface IOverlayContext {
     txChainId,
     fnName,
     toastData,
-    redirect = null,
-    clearModals = true,
-    sendToast = true,
+    redirect,
+    clearModals,
+    sendToast,
     onSuccess,
   }: {
     hash: Hex;

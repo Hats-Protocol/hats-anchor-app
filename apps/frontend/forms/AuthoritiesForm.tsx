@@ -16,7 +16,9 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { AUTHORITY_TYPES } from 'app-utils';
 import { id } from 'date-fns/locale';
+import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -24,17 +26,14 @@ import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 
-import DropZone from '@/components/atoms/DropZone';
-import AuthorityHeader from '@/components/HatDrawer/MainContent/AuthorityHeader';
-import { AUTHORITY_TYPES } from '@/utils/constants';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl, getHostnameFromURL } from '@/lib/general';
-import { Authority, AuthorityType } from '@/types';
-
+import DropZone from '../components/atoms/DropZone';
 import Input from '../components/atoms/Input';
 import Textarea from '../components/atoms/Textarea';
+import AuthorityHeader from '../components/HatDrawer/MainContent/AuthorityHeader';
+import { useHatForm } from '../contexts/HatFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { formatImageUrl, getHostnameFromURL } from '../lib/general';
 import AuthoritiesFormItem from './AuthoritiesFormItem';
 
 interface AuthoritiesFormProps {

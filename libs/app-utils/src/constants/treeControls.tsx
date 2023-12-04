@@ -1,13 +1,13 @@
+/* eslint-disable react/jsx-filename-extension */
 /* eslint-disable import/prefer-default-export */
 import { Icon } from '@chakra-ui/react';
+import { Controls } from 'hats-types';
 import {
   BsFileFont,
   BsPersonBadge,
   BsShieldLock,
   BsToggles2,
 } from 'react-icons/bs';
-
-import { Controls } from '@/types';
 
 export const initialControls: Controls[] = [
   {

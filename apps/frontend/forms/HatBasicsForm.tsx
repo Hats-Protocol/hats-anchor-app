@@ -7,6 +7,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { MUTABILITY } from 'app-utils';
+import { ImageFile } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -15,19 +17,17 @@ import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 
-import DropZone from '@/components/atoms/DropZone';
-import Input from '@/components/atoms/Input';
-import RadioBox from '@/components/atoms/RadioBox';
-import Textarea from '@/components/atoms/Textarea';
-import FormRowWrapper from '@/components/FormRowWrapper';
-import PlatformInput from '@/components/PlatformInput';
-import { MUTABILITY } from '@/utils/constants';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl } from '@/lib/general';
-import { isMutable, isTopHat } from '@/lib/hats';
-import { ImageFile } from '@/types';
+import DropZone from '../components/atoms/DropZone';
+import Input from '../components/atoms/Input';
+import RadioBox from '../components/atoms/RadioBox';
+import Textarea from '../components/atoms/Textarea';
+import FormRowWrapper from '../components/FormRowWrapper';
+import PlatformInput from '../components/PlatformInput';
+import { useHatForm } from '../contexts/HatFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { formatImageUrl } from '../lib/general';
+import { isMutable, isTopHat } from '../lib/hats';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },

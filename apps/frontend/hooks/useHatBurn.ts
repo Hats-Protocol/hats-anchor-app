@@ -2,8 +2,8 @@ import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { useAccount, useChainId } from 'wagmi';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useHatContractWrite from './useHatContractWrite';
 
 // hat-hooks
 const useHatBurn = () => {

@@ -1,8 +1,8 @@
+import { CONFIG } from 'app-utils';
 import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
-import CONFIG from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
 
 // TODO migrate to `useWearersEligibilityCheck`
 

@@ -1,8 +1,7 @@
 import { Box, Flex, Heading, HStack, Icon, Text } from '@chakra-ui/react';
+import { ImageFile } from 'hats-types';
 import React from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
-
-import { ImageFile } from '@/types';
 
 const HatCreateCard = ({
   name,

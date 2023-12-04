@@ -1,3 +1,10 @@
+import {
+  EMPTY_FORM_VALUES,
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from 'app-utils';
+import { FieldItem, FormData, FormFieldKeys } from 'hats-types';
 import _ from 'lodash';
 import {
   createContext,
@@ -11,20 +18,9 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
-import {
-  EMPTY_FORM_VALUES,
-  FALLBACK_ADDRESS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@/utils/constants';
-import useDebounce from '@/hooks/useDebounce';
-import useToast from '@/hooks/useToast';
-import {
-  fieldsAreDirty as fieldsAreDirtyHandler,
-  getDirtyFields,
-} from '@/lib/form';
-import { FieldItem, FormData, FormFieldKeys } from '@/types';
-
+import useDebounce from '../hooks/useDebounce';
+import useToast from '../hooks/useToast';
+import { fieldsAreDirty, getDirtyFields } from '../lib/form';
 import { useTreeForm } from './TreeFormContext';
 
 export interface IHatFormContext {
@@ -251,8 +247,7 @@ export const HatFormContextProvider = ({
   // get dirty fields
   const dirtyFields = getDirtyFields(debouncedFormValues, defaultFormValues);
   const getDirtyFieldsForAccordion = useCallback(
-    (fieldsArray: FieldItem[]) =>
-      fieldsAreDirtyHandler(fieldsArray, dirtyFields),
+    (fieldsArray: FieldItem[]) => fieldsAreDirty(fieldsArray, dirtyFields),
     [dirtyFields],
   );
 

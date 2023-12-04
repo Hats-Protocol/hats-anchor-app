@@ -15,15 +15,15 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { CONFIG } from 'app-utils';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
-import CONFIG from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useMulticallCallData from '@/hooks/useMulticallCallData';
-import useToast from '@/hooks/useToast';
-import { editHasUpdates } from '@/lib/hats';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import useMulticallCallData from '../../hooks/useMulticallCallData';
+import useToast from '../../hooks/useToast';
+import { editHasUpdates } from '../../lib/hats';
 
 // ! use Input component
 

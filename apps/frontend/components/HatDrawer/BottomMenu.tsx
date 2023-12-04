@@ -7,7 +7,7 @@ import {
   FaRegArrowAltCircleUp,
 } from 'react-icons/fa';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
 
 const BottomMenu = () => {
   const { setSelectedHatId, hierarchy } = useTreeForm();

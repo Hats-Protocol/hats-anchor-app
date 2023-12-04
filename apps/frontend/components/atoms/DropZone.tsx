@@ -9,9 +9,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { ImageFile } from 'hats-types';
 import { useEffect, useMemo } from 'react';
-
-import { ImageFile } from '@/types';
 
 const baseStyle = {
   display: 'flex',

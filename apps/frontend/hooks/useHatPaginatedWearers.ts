@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { HatWearer } from 'hats-types';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchPaginatedWearersForHat } from '@/lib/subgraph';
-import { sortWearers } from '@/lib/wearers';
-import { HatWearer } from '@/types';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { fetchPaginatedWearersForHat } from '../lib/subgraph/wearer';
+import { sortWearers } from '../lib/wearers';
 
 // hats-hooks
 const useHatPaginatedWearers = ({

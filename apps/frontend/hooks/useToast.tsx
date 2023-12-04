@@ -7,7 +7,7 @@ import {
 import _ from 'lodash';
 import { useRef } from 'react';
 
-import Toast from '@/components/atoms/Toast';
+import Toast from '../components/atoms/Toast';
 
 const ToastBase = ({
   toast,

@@ -2,15 +2,14 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
+import { Hat } from 'hats-types';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import { Hat } from '@/types';
-
 import CommandPalette from './CommandPalette';
 
-const Navbar = dynamic(() => import('@/components/Navbar'));
+const Navbar = dynamic(() => import('./Navbar'));
 
 const Layout = ({ editMode, hatData, children }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);

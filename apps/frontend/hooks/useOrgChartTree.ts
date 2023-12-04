@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
+import { Hat, HatWearer, Tree } from 'hats-types';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
 
-import { DetailsData } from '@/lib/details';
-import { sha256 } from '@/lib/sha256';
-import { toTreeStructure } from '@/lib/tree';
-import { Hat, HatWearer, Tree } from '@/types';
-
+import { DetailsData } from '../lib/details';
+// eslint-disable-next-line import/extensions
+import { sha256 } from '../lib/sha256.js';
+import { toTreeStructure } from '../lib/tree';
 import useDeepCompareEffect from './useDeepCompareEffect';
 
 // app-hooks

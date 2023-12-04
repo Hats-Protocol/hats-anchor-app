@@ -1,14 +1,13 @@
 import { Box, Heading, Stack } from '@chakra-ui/react';
+import { MODULE_TYPES } from 'app-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
-import EventHistory from '@/components/EventHistory';
-import WearersList from '@/components/HatDrawer/WearersList';
-import ModuleDetails from '@/components/ModuleDetails';
-import { MODULE_TYPES } from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { checkAddressIsContract } from '@/lib/contract';
-
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import { checkAddressIsContract } from '../../../lib/contract';
+import EventHistory from '../../EventHistory';
+import ModuleDetails from '../../ModuleDetails';
+import WearersList from '../WearersList';
 import AuthoritiesList from './AuthoritiesList';
 import DetailList from './DetailList';
 import Header from './Header';

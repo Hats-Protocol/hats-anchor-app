@@ -7,16 +7,20 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { HatExport } from 'hats-types';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
 import { BsBoxArrowInUpRight } from 'react-icons/bs';
 
-import DropZone from '@/components/atoms/DropZone';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { checkMissingHats, flattenHatData, prepareDraftHats } from '@/lib/hats';
-import { HatExport } from '@/types';
+import DropZone from '../components/atoms/DropZone';
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import {
+  checkMissingHats,
+  flattenHatData,
+  prepareDraftHats,
+} from '../lib/hats';
 
 interface validateTreeImportProps {
   file: File;

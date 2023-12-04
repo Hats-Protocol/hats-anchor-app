@@ -1,8 +1,7 @@
 /* eslint-disable import/prefer-default-export */
+import { AUTHORITY_TYPES } from 'app-utils';
+import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
-
-import { AUTHORITY_TYPES } from '@/utils/constants';
-import { Authority, AuthorityType } from '@/types';
 
 export const combineAuthorities = ({
   authorities,

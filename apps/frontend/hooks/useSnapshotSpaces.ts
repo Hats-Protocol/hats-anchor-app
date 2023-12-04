@@ -1,10 +1,10 @@
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from 'app-utils';
 import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/utils/constants';
-import { decimalId } from '@/lib/hats';
+import { decimalId } from '../lib/hats';
 
 type SnapshotApiKeys = 1 | 5 | 10 | 100 | 137 | 424 | 42151;
 

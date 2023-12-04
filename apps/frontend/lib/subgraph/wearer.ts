@@ -4,14 +4,14 @@ import {
 } from '@hatsprotocol/sdk-v1-subgraph';
 import { fetchEnsName } from '@wagmi/core';
 import { gql, GraphQLClient } from 'graphql-request';
+import { Hat, HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { chainsList } from '@/lib/chains';
-import { checkAddressIsContract } from '@/lib/contract';
-import { mapWithChainId } from '@/lib/general';
-import { createSubgraphClient } from '@/lib/web3';
-import { Hat, HatWearer } from '@/types';
+import { chainsList } from '../chains/index';
+import { checkAddressIsContract } from '../contract';
+import { mapWithChainId } from '../general';
+import { createSubgraphClient } from '../web3';
 
 const chains = _.keys(chainsList);
 

@@ -1,7 +1,6 @@
+import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
-
-import { HatWearer } from '@/types';
 
 import { isSameAddress } from './general';
 

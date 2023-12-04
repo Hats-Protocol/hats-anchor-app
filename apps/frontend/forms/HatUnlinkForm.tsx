@@ -3,12 +3,12 @@ import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Hex, isAddress } from 'viem';
 
-import Select from '@/components/atoms/Select';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useHatDetails from '@/hooks/useHatDetails';
-import { prettyIdToIp } from '@/lib/hats';
+import Select from '../components/atoms/Select';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useDebounce from '../hooks/useDebounce';
+import useHatContractWrite from '../hooks/useHatContractWrite';
+import useHatDetails from '../hooks/useHatDetails';
+import { prettyIdToIp } from '../lib/hats';
 
 // TODO refactor without prettyId
 

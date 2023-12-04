@@ -1,9 +1,8 @@
 import { Box, Image } from '@chakra-ui/react';
 import _ from 'lodash';
 
-import { HatFormContextProvider } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-
+import { HatFormContextProvider } from '../../contexts/HatFormContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
 import MainContent from './MainContent';

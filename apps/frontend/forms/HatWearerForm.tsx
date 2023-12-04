@@ -18,6 +18,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
+import { FormWearer, HatWearer } from 'hats-types';
 import _ from 'lodash';
 import Papa from 'papaparse';
 import { useEffect, useMemo, useState } from 'react';
@@ -28,18 +29,17 @@ import { FaCheck, FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/atoms/DropZone';
-import Input from '@/components/atoms/Input';
-import FormRowWrapper from '@/components/FormRowWrapper';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import useWearerIsInGoodStanding from '@/hooks/useWearerIsInGoodStanding';
-import { chainsMap } from '@/lib/chains';
-import { decimalId, isMutable, toTreeId } from '@/lib/hats';
-import { maxSupplyText } from '@/lib/wearers';
-import { FormWearer, HatWearer } from '@/types';
+import DropZone from '../components/atoms/DropZone';
+import Input from '../components/atoms/Input';
+import FormRowWrapper from '../components/FormRowWrapper';
+import { useHatForm } from '../contexts/HatFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useHatContractWrite from '../hooks/useHatContractWrite';
+import useWearerEligibilityCheck from '../hooks/useWearerEligibilityCheck';
+import useWearerIsInGoodStanding from '../hooks/useWearerIsInGoodStanding';
+import { chainsMap } from '../lib/chains/index';
+import { decimalId, isMutable, toTreeId } from '../lib/hats';
+import { maxSupplyText } from '../lib/wearers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {

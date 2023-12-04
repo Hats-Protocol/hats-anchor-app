@@ -14,6 +14,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
@@ -22,42 +23,40 @@ import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-import Suspender from '@/components/atoms/Suspender';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useAllWearers from '@/hooks/useAllWearers';
-import useHatClaim from '@/hooks/useHatClaim';
-import useHatPaginatedWearers from '@/hooks/useHatPaginatedWearers';
-import useModuleDetails from '@/hooks/useModuleDetails';
-import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
-import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import useWearersEligibilityCheck from '@/hooks/useWearersEligibilityCheck';
-import { commify } from '@/lib/general';
-import { exportToCsv, isWearingAdminHat } from '@/lib/hats';
-import { wearersPerPage } from '@/lib/subgraph';
+import { useOverlay } from '../../contexts/OverlayContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import useAllWearers from '../../hooks/useAllWearers';
+import useHatClaim from '../../hooks/useHatClaim';
+import useHatPaginatedWearers from '../../hooks/useHatPaginatedWearers';
+import useModuleDetails from '../../hooks/useModuleDetails';
+import useMultiClaimsHatterCheck from '../../hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterContractWrite from '../../hooks/useMultiClaimsHatterContractWrite';
+import useWearerDetails from '../../hooks/useWearerDetails';
+import useWearerEligibilityCheck from '../../hooks/useWearerEligibilityCheck';
+import useWearersEligibilityCheck from '../../hooks/useWearersEligibilityCheck';
+import { commify } from '../../lib/general';
+import { exportToCsv, isWearingAdminHat } from '../../lib/hats';
+import { wearersPerPage } from '../../lib/subgraph/wearer';
 import {
   filterWearers,
   getEligibleWearers,
   maxSupplyText,
   sortWearers,
-} from '@/lib/wearers';
-import { HatWearer } from '@/types';
-
+} from '../../lib/wearers';
+import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
 
-const Modal = dynamic(() => import('@/components/atoms/Modal'), {
+const Modal = dynamic(() => import('../atoms/Modal'), {
   loading: () => <Suspender />,
 });
-const HatTransferForm = dynamic(() => import('@/forms/HatTransferForm'), {
+const HatTransferForm = dynamic(() => import('../../forms/HatTransferForm'), {
   loading: () => <Suspender />,
 });
-const HatWearerForm = dynamic(() => import('@/forms/HatWearerForm'), {
+const HatWearerForm = dynamic(() => import('../../forms/HatWearerForm'), {
   loading: () => <Suspender />,
 });
 const HatWearerStatusForm = dynamic(
-  () => import('@/forms/HatWearerStatusForm'),
+  () => import('../../forms/HatWearerStatusForm'),
   {
     loading: () => <Suspender />,
   },

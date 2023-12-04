@@ -11,6 +11,7 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { CONFIG, MUTABILITY } from 'app-utils';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -24,15 +25,14 @@ import {
 import { TbChartDots3 } from 'react-icons/tb';
 import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG, { MUTABILITY } from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useHatMakeImmutable from '@/hooks/useHatMakeImmutable';
-import useHatStatusCheck from '@/hooks/useHatStatusCheck';
-import useToast from '@/hooks/useToast';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { isSameAddress } from '@/lib/general';
+import { useOverlay } from '../../../contexts/OverlayContext';
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import useHatContractWrite from '../../../hooks/useHatContractWrite';
+import useHatMakeImmutable from '../../../hooks/useHatMakeImmutable';
+import useHatStatusCheck from '../../../hooks/useHatStatusCheck';
+import useToast from '../../../hooks/useToast';
+import useWearerDetails from '../../../hooks/useWearerDetails';
+import { isSameAddress } from '../../../lib/general';
 import {
   decimalId,
   handleExportBranch,
@@ -40,7 +40,7 @@ import {
   isWearingAdminHat,
   prettyIdToIp,
   toTreeId,
-} from '@/lib/hats';
+} from '../../../lib/hats';
 
 const MoreMenu = () => {
   const localOverlay = useOverlay();

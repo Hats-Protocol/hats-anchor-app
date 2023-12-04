@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import useDebounce from '@/hooks/useDebounce';
+import useDebounce from './useDebounce';
 
 const useResolveGuild = ({ guildName }: { guildName: string }) => {
   const [isResolved, setIsResolved] = useState(false);

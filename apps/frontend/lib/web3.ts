@@ -4,10 +4,10 @@ import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { NETWORK_ENDPOINTS } from 'app-utils';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import { createConfig } from 'wagmi';
 
-import NETWORK_ENDPOINTS from '@/utils/constants/subgraph';
 import { chains, chainsMap, publicClient } from './chains';
 
 // app-utils

@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
@@ -26,16 +27,15 @@ import { FiCopy } from 'react-icons/fi';
 import { createPublicClient, Hex, http } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
-import Layout from '@/components/Layout';
-import CoreHat from '@/components/WearerHatCard';
-import useControllerList from '@/hooks/useControllerList';
-import useHatsAdminOf from '@/hooks/useHatsAdminOf';
-import useImageURIs from '@/hooks/useImageURIs';
-import useToast from '@/hooks/useToast';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { chainsMap, orderedChains } from '@/lib/chains';
-import { formatAddress } from '@/lib/general';
-import { Hat } from '@/types';
+import Layout from '../../components/Layout';
+import CoreHat from '../../components/WearerHatCard';
+import useControllerList from '../../hooks/useControllerList';
+import useHatsAdminOf from '../../hooks/useHatsAdminOf';
+import useImageURIs from '../../hooks/useImageURIs';
+import useToast from '../../hooks/useToast';
+import useWearerDetails from '../../hooks/useWearerDetails';
+import { chainsMap, orderedChains } from '../../lib/chains/index';
+import { formatAddress } from '../../lib/general';
 
 const WearerDetail = ({
   wearerAddress,

@@ -3,12 +3,10 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
-import Accordion from '@/components/atoms/Accordion';
-// import { MODULE_TYPES } from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
-import { getAllParents, prettyIdToIp } from '@/lib/hats';
-
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import useMultiClaimsHatterCheck from '../../../hooks/useMultiClaimsHatterCheck';
+import { getAllParents, prettyIdToIp } from '../../../lib/hats';
+import Accordion from '../../atoms/Accordion';
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
 

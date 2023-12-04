@@ -1,12 +1,5 @@
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
-import { Hex } from 'viem';
-
-import {
-  FALLBACK_ADDRESS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@/utils/constants';
+import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from 'app-utils';
 import {
   FieldItem,
   FormData,
@@ -16,7 +9,9 @@ import {
   HatDetails,
   HatDetailsKeys,
   InputObject,
-} from '@/types';
+} from 'hats-types';
+import _ from 'lodash';
+import { Hex } from 'viem';
 
 import { publicClient } from './chains';
 import { createHierarchy, getDefaultAdminId } from './hats';

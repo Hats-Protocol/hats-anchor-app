@@ -1,10 +1,10 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
+import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { createHatsModulesClient } from '@/lib/web3';
-import { ModuleDetails } from '@/types';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { createHatsModulesClient } from '../lib/web3';
 
 // modules-hooks
 const useHatsModules = () => {

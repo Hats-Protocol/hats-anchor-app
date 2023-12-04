@@ -3,6 +3,16 @@ import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
+import { defaultHat } from 'app-utils';
+import {
+  Authority,
+  FormData,
+  Hat,
+  HatDetails,
+  HatEvent,
+  Hierarchy,
+  LinkRequest,
+} from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -16,34 +26,24 @@ import {
 } from 'react';
 import { Hex } from 'viem';
 
-import { defaultHat } from '@/utils/constants';
-import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
-import useGuilds from '@/hooks/useGuilds';
-import useImageURIs from '@/hooks/useImageURIs';
-import useLocalStorage from '@/hooks/useLocalStorage';
-import useManyHatDetails from '@/hooks/useManyHatsDetails';
-import useManyHatsDetailsField from '@/hooks/useManyHatsDetailsField';
-import useOrgChartTree from '@/hooks/useOrgChartTree';
-import useSpaces from '@/hooks/useSnapshotSpaces';
-import useTreeDetails from '@/hooks/useTreeDetails';
-import useWearersControllersDetails from '@/hooks/useWearersControllersDetails';
-import { combineAuthorities } from '@/lib/authorities';
+import useBetterMediaQuery from '../hooks/useBetterMediaQuery';
+import useGuilds from '../hooks/useGuilds';
+import useImageURIs from '../hooks/useImageURIs';
+import useLocalStorage from '../hooks/useLocalStorage';
+import useManyHatDetails from '../hooks/useManyHatsDetails';
+import useManyHatsDetailsField from '../hooks/useManyHatsDetailsField';
+import useOrgChartTree from '../hooks/useOrgChartTree';
+import useSpaces from '../hooks/useSnapshotSpaces';
+import useTreeDetails from '../hooks/useTreeDetails';
+import useWearersControllersDetails from '../hooks/useWearersControllersDetails';
+import { combineAuthorities } from '../lib/authorities';
 import {
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
-} from '@/lib/form';
-import { generateLocalStorageKey, mapWithChainId } from '@/lib/general';
-import { createHierarchy, ipToHatId, translateDrafts } from '@/lib/hats';
-import { ipfsUrl } from '@/lib/ipfs';
-import {
-  Authority,
-  FormData,
-  Hat,
-  HatDetails,
-  HatEvent,
-  Hierarchy,
-  LinkRequest,
-} from '@/types';
+} from '../lib/form';
+import { generateLocalStorageKey, mapWithChainId } from '../lib/general';
+import { createHierarchy, ipToHatId, translateDrafts } from '../lib/hats';
+import { ipfsUrl } from '../lib/ipfs';
 
 export interface TreeFormContext {
   chainId: number | undefined;

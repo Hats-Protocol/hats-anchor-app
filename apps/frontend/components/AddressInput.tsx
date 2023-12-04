@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 
-import Input from '@/components/atoms/Input';
+import Input from './atoms/Input';
 
 type AddressInputProps = {
   name: string;

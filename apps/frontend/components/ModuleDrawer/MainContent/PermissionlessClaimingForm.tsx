@@ -12,17 +12,17 @@ import {
 } from 'react-icons/bs';
 import { Hex } from 'viem';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import RadioBox from '@/components/atoms/RadioBox';
-import Select from '@/components/atoms/Select';
-import FormRowWrapper from '@/components/FormRowWrapper';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatDetails from '@/hooks/useHatDetails';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
-import useIsAdmin from '@/hooks/useIsAdmin';
-import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
-import { formatAddress } from '@/lib/general';
-import { idToPrettyId, prettyIdToIp } from '@/lib/hats';
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import useHatDetails from '../../../hooks/useHatDetails';
+import useHatDetailsField from '../../../hooks/useHatDetailsField';
+import useIsAdmin from '../../../hooks/useIsAdmin';
+import useMultiClaimsHatterCheck from '../../../hooks/useMultiClaimsHatterCheck';
+import { formatAddress } from '../../../lib/general';
+import { idToPrettyId, prettyIdToIp } from '../../../lib/hats';
+import ChakraNextLink from '../../atoms/ChakraNextLink';
+import RadioBox from '../../atoms/RadioBox';
+import Select from '../../atoms/Select';
+import FormRowWrapper from '../../FormRowWrapper';
 
 const PermissionlessClaimingForm = ({
   localForm,

@@ -1,8 +1,7 @@
 import { Accordion, Heading, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-
+import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
 const ResponsibilitiesList = () => {

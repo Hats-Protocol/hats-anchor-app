@@ -8,15 +8,15 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
+import { HatEvent } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useIsClient from '@/hooks/useIsClient';
-import { explorerUrl } from '@/lib/chains';
-import { HatEvent } from '@/types';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useIsClient from '../hooks/useIsClient';
+import { explorerUrl } from '../lib/chains/index';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const EventHistory = ({
   type,

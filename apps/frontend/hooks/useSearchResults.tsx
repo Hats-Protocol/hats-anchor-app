@@ -2,8 +2,8 @@ import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { decimalIdToId, ipToPrettyId, toTreeId } from '@/lib/hats';
-import { searchQueryResult } from '@/lib/subgraph';
+import { decimalIdToId, ipToPrettyId, toTreeId } from '../lib/hats';
+import { searchQueryResult } from '../lib/subgraph/search';
 
 // TODO refactor without prettyId
 

@@ -7,6 +7,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { MODULE_TYPES, TRIGGER_OPTIONS } from 'app-utils';
+import { DetailsItem } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
@@ -21,25 +23,22 @@ import {
 import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 
-import AddressInput from '@/components/AddressInput';
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import RadioBox from '@/components/atoms/RadioBox';
-import Suspender from '@/components/atoms/Suspender';
-import FormRowWrapper from '@/components/FormRowWrapper';
-import LabelWithLink from '@/components/LabelWithLink';
-import { MODULE_TYPES, TRIGGER_OPTIONS } from '@/utils/constants';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useContractData from '@/hooks/useContractData';
-import useModuleDetails from '@/hooks/useModuleDetails';
-import { explorerUrl } from '@/lib/chains';
-import { isMutable } from '@/lib/hats';
-import { DetailsItem } from '@/types';
-
+import AddressInput from '../components/AddressInput';
+import ChakraNextLink from '../components/atoms/ChakraNextLink';
+import RadioBox from '../components/atoms/RadioBox';
+import Suspender from '../components/atoms/Suspender';
+import FormRowWrapper from '../components/FormRowWrapper';
+import LabelWithLink from '../components/LabelWithLink';
+import { useHatForm } from '../contexts/HatFormContext';
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useContractData from '../hooks/useContractData';
+import useModuleDetails from '../hooks/useModuleDetails';
+import { explorerUrl } from '../lib/chains/index';
+import { isMutable } from '../lib/hats';
 import ClaimsHandler from './ClaimsHandler';
 
-const ModuleDrawer = dynamic(() => import('@/components/ModuleDrawer'), {
+const ModuleDrawer = dynamic(() => import('../components/ModuleDrawer'), {
   loading: () => <Suspender />,
 });
 

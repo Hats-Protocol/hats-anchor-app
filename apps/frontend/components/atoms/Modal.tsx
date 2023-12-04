@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import React, { ReactNode } from 'react';
 
-import { IOverlayContext } from '@/contexts/OverlayContext';
+import { IOverlayContext } from '../../contexts/OverlayContext';
 
 /**
  * Modal component, wraps Chakra's default Modal

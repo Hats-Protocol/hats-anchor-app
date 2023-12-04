@@ -1,7 +1,7 @@
 import { Box, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
 import { BsPeopleFill } from 'react-icons/bs';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const FeaturedTreeCard = ({
   treeData,

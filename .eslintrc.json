@@ -31,23 +31,6 @@
           }
         ]
       }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nx/typescript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nx/javascript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
-      "env": {
-        "jest": true
-      },
-      "rules": {}
     }
   ],
   "extends": [
@@ -62,17 +45,6 @@
     // gen
     "no-use-before-define": "off",
     "no-unused-vars": "off",
-    // ts
-    "@typescript-eslint/no-unused-vars": ["warn"],
-    "@typescript-eslint/no-explicit-any": ["warn"],
-    // react
-    "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],
-    "react/function-component-definition": [
-      2,
-      { "namedComponents": ["arrow-function", "function-declaration"] }
-    ],
-    "react/require-default-props": "off",
-    "react/destructuring-assignment": "off",
     // import
     "import/extensions": [
       "error",
@@ -96,9 +68,19 @@
   },
   "settings": {
     "import/resolver": {
-      "alias": {
-        "map": [["@", "."]],
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      "typescript": {
+        "project": [
+          "tsconfig.json",
+          "apps/frontend/tsconfig.json",
+          "libs/*/tsconfig.json"
+        ]
+      },
+      "node": {
+        "project": [
+          "tsconfig.json",
+          "apps/frontend/tsconfig.json",
+          "libs/*/tsconfig.json"
+        ]
       }
     }
   }

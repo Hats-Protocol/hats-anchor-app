@@ -8,12 +8,20 @@
   "ignorePatterns": ["!**/*", ".next/**/*"],
   "overrides": [
     {
-      "files": ["*.*"],
-    },
-    {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "@next/next/no-html-link-for-pages": ["error", "apps/frontend/pages"]
+        "@next/next/no-html-link-for-pages": ["error", "apps/frontend/pages"],
+        // ts
+        "@typescript-eslint/no-unused-vars": ["warn"],
+        "@typescript-eslint/no-explicit-any": ["warn"],
+        // react
+        "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],
+        "react/function-component-definition": [
+          2,
+          { "namedComponents": ["arrow-function", "function-declaration"] }
+        ],
+        "react/require-default-props": "off",
+        "react/destructuring-assignment": "off"
       }
     },
     {

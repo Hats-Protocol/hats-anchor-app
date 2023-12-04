@@ -2,8 +2,7 @@ import { Box } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useState } from 'react';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-
+import { useTreeForm } from '../../contexts/TreeFormContext';
 import BottomMenu from './BottomMenu';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';

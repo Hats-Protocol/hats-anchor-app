@@ -1,16 +1,16 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import { DEPLOYMENT_TYPES } from 'app-utils';
+import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
-import { DEPLOYMENT_TYPES } from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatDetails from '@/hooks/useHatDetails';
-import useModuleDeploy from '@/hooks/useModuleDeploy';
-import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
-import { ModuleDetails } from '@/types';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import useHatDetails from '../../hooks/useHatDetails';
+import useModuleDeploy from '../../hooks/useModuleDeploy';
+import useMultiClaimsHatterCheck from '../../hooks/useMultiClaimsHatterCheck';
 
 const TopMenu = ({
   localForm,

@@ -1,11 +1,11 @@
 import { useQueries } from '@tanstack/react-query';
 import { fetchEnsName } from '@wagmi/core';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-utils';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 import { Hex, isAddress } from 'viem';
 
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
-import { checkAddressIsContract } from '@/lib/contract';
-import { Hat } from '@/types';
+import { checkAddressIsContract } from '../lib/contract';
 
 const fetchWearerAndControllerDetails = async (
   wearer: Hex,

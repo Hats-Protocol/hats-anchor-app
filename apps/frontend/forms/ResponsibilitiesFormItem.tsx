@@ -2,7 +2,7 @@ import { Box, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
-import { useHatForm } from '@/contexts/HatFormContext';
+import { useHatForm } from '../contexts/HatFormContext';
 
 interface ResponsibilitiesFormItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

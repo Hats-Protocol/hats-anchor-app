@@ -17,6 +17,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { id } from 'date-fns/locale';
+import { Authority } from 'hats-types';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -24,16 +25,14 @@ import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 
-import DropZone from '@/components/atoms/DropZone';
-import ResponsibilityHeader from '@/components/HatDrawer/MainContent/ResponsibilityHeader';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { formatImageUrl } from '@/lib/general';
-import { Authority } from '@/types';
-
+import DropZone from '../components/atoms/DropZone';
 import Input from '../components/atoms/Input';
 import Textarea from '../components/atoms/Textarea';
+import ResponsibilityHeader from '../components/HatDrawer/MainContent/ResponsibilityHeader';
+import { useHatForm } from '../contexts/HatFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { formatImageUrl } from '../lib/general';
 import ResponsibilitiesFormItem from './ResponsibilitiesFormItem';
 
 interface ItemDetailsFormProps {

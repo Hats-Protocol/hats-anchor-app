@@ -1,10 +1,10 @@
 import { Box, Card, CardBody, HStack, Stack, Text } from '@chakra-ui/react';
+import { Hat, Tree } from 'hats-types';
 import _ from 'lodash';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
-import { decimalId } from '@/lib/hats';
-import { Hat, Tree } from '@/types';
+import useHatDetailsField from '../hooks/useHatDetailsField';
+import { decimalId } from '../lib/hats';
+import ChakraNextLink from './atoms/ChakraNextLink';
 
 const TreeListCard = ({
   tree,

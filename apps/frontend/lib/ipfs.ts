@@ -1,10 +1,8 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { GATEWAY_TOKEN, GATEWAY_URL } from 'app-utils';
 import axios from 'axios';
+import { FormDataDetails } from 'hats-types';
 import _ from 'lodash';
-
-import { FormDataDetails } from '@/types';
-
-import { GATEWAY_TOKEN, GATEWAY_URL } from '@/utils/constants';
 
 export * from './ipfs-misc';
 

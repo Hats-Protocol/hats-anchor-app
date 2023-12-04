@@ -1,8 +1,8 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
     "types": ["node", "jest"],
     "rootDir": ".",
+    "baseUrl": ".",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
@@ -14,11 +14,10 @@
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["apps/frontend/*"],
-      "@/utils/*": ["libs/app-utils/src/*"],
-      "@/types": ["libs/hats-types/src/index.ts"],
+      "app-utils": ["libs/app-utils/src/index.ts"],
+      "hats-types": ["libs/hats-types/src/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

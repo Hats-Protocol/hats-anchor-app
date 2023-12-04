@@ -1,15 +1,15 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { CONFIG, DEPLOYMENT_TYPES } from 'app-utils';
+import { DeploymentType, FormData, ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import CONFIG, { DEPLOYMENT_TYPES } from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useToast from '@/hooks/useToast';
-import { decimalId } from '@/lib/hats';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { decimalId } from '../lib/hats';
 import {
   deployClaimsHatter,
   deployModule,
@@ -17,12 +17,11 @@ import {
   prepareDeployModuleAndRegisterWithClaimsHatterArgs,
   processClaimsHatter,
   processModule,
-} from '@/lib/modules';
-import { DeploymentType, FormData, ModuleDetails } from '@/types';
-
+} from '../lib/modules';
 import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
+import useToast from './useToast';
 
 // modules-hooks
 const useModuleDeploy = ({

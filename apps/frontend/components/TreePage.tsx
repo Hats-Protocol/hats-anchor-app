@@ -17,11 +17,10 @@ import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { chainsMap } from '@/lib/chains';
-import { isTopHat, prettyIdToId } from '@/lib/hats';
-
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { chainsMap } from '../lib/chains';
+import { isTopHat, prettyIdToId } from '../lib/hats';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';

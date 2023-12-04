@@ -1,12 +1,12 @@
 import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
+import { CONFIG, TRIGGER_OPTIONS } from 'app-utils';
+import { FormData, Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import CONFIG, { TRIGGER_OPTIONS } from '@/utils/constants';
-import { transformInput } from '@/lib/general';
-import { decimalIdToId } from '@/lib/hats';
-import { createHatsModulesClient } from '@/lib/web3';
-import { FormData, Hat, ModuleCreationArg, ModuleDetails } from '@/types';
+import { transformInput } from './general';
+import { decimalIdToId } from './hats';
+import { createHatsModulesClient } from './web3';
 
 // modules-utils
 

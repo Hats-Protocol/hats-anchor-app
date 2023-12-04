@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { Hat, Tree } from 'hats-types';
 import _ from 'lodash';
 
-import { chainsList } from '@/lib/chains';
-import { isWearingAdminHat } from '@/lib/hats';
-import { fetchTreesById } from '@/lib/subgraph';
-import { Hat, Tree } from '@/types';
+import { chainsList } from '../lib/chains/index';
+import { isWearingAdminHat } from '../lib/hats';
+import { fetchTreesById } from '../lib/subgraph/tree';
 
 const chains = _.keys(chainsList);
 

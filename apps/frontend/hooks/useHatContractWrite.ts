@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { CONFIG } from 'app-utils';
 import { useState } from 'react';
 import { TransactionReceipt } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import CONFIG from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import useToast from '@/hooks/useToast';
-import { formatFunctionName } from '@/lib/general';
+import { useOverlay } from '../contexts/OverlayContext';
+import { formatFunctionName } from '../lib/general';
+import useToast from './useToast';
 
 interface ContractInteractionProps {
   functionName: string;

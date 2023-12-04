@@ -1,7 +1,7 @@
+import { CONFIG } from 'app-utils';
 import { useContractRead } from 'wagmi';
 
-import CONFIG from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
 
 // hats-hooks
 const useHatStatus = () => {

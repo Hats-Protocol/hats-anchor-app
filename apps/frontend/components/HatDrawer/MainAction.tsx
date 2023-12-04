@@ -5,14 +5,13 @@ import { useMemo } from 'react';
 // import { FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId, useNetwork } from 'wagmi';
 
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useAllWearers from '@/hooks/useAllWearers';
-import useHatClaim from '@/hooks/useHatClaim';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import useWearerEligibilityCheck from '@/hooks/useWearerEligibilityCheck';
-import { isWearingAdminHat } from '@/lib/hats';
-
+import { useOverlay } from '../../contexts/OverlayContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import useAllWearers from '../../hooks/useAllWearers';
+import useHatClaim from '../../hooks/useHatClaim';
+import useWearerDetails from '../../hooks/useWearerDetails';
+import useWearerEligibilityCheck from '../../hooks/useWearerEligibilityCheck';
+import { isWearingAdminHat } from '../../lib/hats';
 import ConnectWallet from '../ConnectWallet';
 import NetworkSwitcher from '../NetworkSwitcher';
 

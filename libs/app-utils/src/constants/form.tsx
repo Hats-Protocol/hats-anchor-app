@@ -1,6 +1,5 @@
+import { AuthorityType, DeploymentType, FieldItem } from 'hats-types';
 import { Hex } from 'viem';
-
-import { AuthorityType, DeploymentType, FieldItem } from '@/types';
 
 import { FALLBACK_ADDRESS } from './misc';
 

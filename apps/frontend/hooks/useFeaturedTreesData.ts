@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { Hat, Tree } from 'hats-types';
 import _ from 'lodash';
 
-import { ipToPrettyId, prettyIdToIp } from '@/lib/hats';
-import { fetchTreeDetails, fetchTreesById } from '@/lib/subgraph';
-import { Hat, Tree } from '@/types';
+import { ipToPrettyId, prettyIdToIp } from '../lib/hats';
+import { fetchTreeDetails, fetchTreesById } from '../lib/subgraph/tree';
 
 // app-hooks
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

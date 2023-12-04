@@ -15,13 +15,13 @@ import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 
-import Select from '@/components/atoms/Select';
-import FormRowWrapper from '@/components/FormRowWrapper';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
-import useMultiClaimsHatterContractWrite from '@/hooks/useMultiClaimsHatterContractWrite';
-import usePendHatterMint from '@/hooks/usePendHatterMint';
-import { formatAddress } from '@/lib/general';
+import Select from '../components/atoms/Select';
+import FormRowWrapper from '../components/FormRowWrapper';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useMultiClaimsHatterCheck from '../hooks/useMultiClaimsHatterCheck';
+import useMultiClaimsHatterContractWrite from '../hooks/useMultiClaimsHatterContractWrite';
+import usePendHatterMint from '../hooks/usePendHatterMint';
+import { formatAddress } from '../lib/general';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
   <FormRowWrapper>

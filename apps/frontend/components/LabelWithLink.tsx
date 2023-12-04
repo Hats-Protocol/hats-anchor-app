@@ -3,10 +3,10 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsLink45Deg } from 'react-icons/bs';
 import { FaRegTrashAlt } from 'react-icons/fa';
 
-import Input from '@/components/atoms/Input';
-import Modal from '@/components/atoms/Modal';
-import LinkInput from '@/components/LinkInput';
-import { useOverlay } from '@/contexts/OverlayContext';
+import { useOverlay } from '../contexts/OverlayContext';
+import Input from './atoms/Input';
+import Modal from './atoms/Modal';
+import LinkInput from './LinkInput';
 
 interface LabelWithLinkProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

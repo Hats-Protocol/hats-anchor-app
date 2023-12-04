@@ -1,10 +1,10 @@
 import { useQueries } from '@tanstack/react-query';
 import { readContract } from '@wagmi/core';
+import { CONFIG } from 'app-utils';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import CONFIG from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
 
 // hats-hooks
 const useWearersEligibilityCheck = ({

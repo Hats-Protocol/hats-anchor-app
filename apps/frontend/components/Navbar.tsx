@@ -20,6 +20,8 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { CONFIG, getOperatingSystem } from 'app-utils';
+import { Hat, Transaction } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
@@ -28,17 +30,13 @@ import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import ConnectWallet from '@/components/ConnectWallet';
-import CONFIG from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatDetailsField from '@/hooks/useHatDetailsField';
-import useLocalStorage from '@/hooks/useLocalStorage';
-import { containsUpperCase } from '@/lib/general';
-import { getOperatingSystem } from '@/utils/lib';
-import { Hat, Transaction } from '@/types';
-
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useHatDetailsField from '../hooks/useHatDetailsField';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { containsUpperCase } from '../lib/general';
+import ChakraNextLink from './atoms/ChakraNextLink';
+import ConnectWallet from './ConnectWallet';
 import TransactionHistory from './TransactionHistory';
 
 const Navbar = ({ hatData }: { hatData?: Hat }) => {

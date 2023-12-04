@@ -8,22 +8,26 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG, FORM_FIELDS, MODULE_TYPES } from 'app-utils';
 import _ from 'lodash';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
 
-import Accordion from '@/components/atoms/Accordion';
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import CONFIG, { FORM_FIELDS, MODULE_TYPES } from '@/utils/constants';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import AuthoritiesForm from '@/forms/AuthoritiesForm';
-import HatBasicsForm from '@/forms/HatBasicsForm';
-import HatManagementForm from '@/forms/HatManagementForm';
-import HatWearerForm from '@/forms/HatWearerForm';
-import ResponsibilitiesForm from '@/forms/ResponsibilitiesForm';
-import useToast from '@/hooks/useToast';
-import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from '@/lib/hats';
+import { useHatForm } from '../../contexts/HatFormContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import AuthoritiesForm from '../../forms/AuthoritiesForm';
+import HatBasicsForm from '../../forms/HatBasicsForm';
+import HatManagementForm from '../../forms/HatManagementForm';
+import HatWearerForm from '../../forms/HatWearerForm';
+import ResponsibilitiesForm from '../../forms/ResponsibilitiesForm';
+import useToast from '../../hooks/useToast';
+import {
+  isMutableNotTopHat,
+  isTopHat,
+  isTopHatOrMutable,
+} from '../../lib/hats';
+import Accordion from '../atoms/Accordion';
+import ChakraNextLink from '../atoms/ChakraNextLink';
 
 const EditMode = () => {
   const { selectedHat, isDraft, treeToDisplay } = useTreeForm();

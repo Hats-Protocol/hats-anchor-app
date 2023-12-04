@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { ZERO_ID } from 'app-utils';
+import { Hat } from 'hats-types';
 
-import { ZERO_ID } from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchHatDetails } from '@/lib/subgraph';
-import { Hat } from '@/types';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { fetchHatDetails } from '../lib/subgraph/hat';
 
 // hats-hooks
 const useHatDetails = ({

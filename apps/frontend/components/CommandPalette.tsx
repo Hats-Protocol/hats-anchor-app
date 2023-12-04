@@ -3,6 +3,7 @@
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Spinner } from '@chakra-ui/react';
+import { Group, SearchResults } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import CmdkCommandPalette, {
@@ -11,7 +12,6 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { useAccount } from 'wagmi';
-import { Group, SearchResults } from '@/types';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import useSearchResults from '../hooks/useSearchResults';

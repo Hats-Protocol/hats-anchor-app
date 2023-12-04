@@ -1,14 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { CONFIG, STATUS } from 'app-utils';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import CONFIG, { STATUS } from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import useToast from '@/hooks/useToast';
-import { checkAddressIsContract } from '@/lib/contract';
-import { decimalId, toTreeId } from '@/lib/hats';
-import { Hat } from '@/types';
+import { useOverlay } from '../contexts/OverlayContext';
+import { checkAddressIsContract } from '../lib/contract';
+import { decimalId, toTreeId } from '../lib/hats';
+import useToast from './useToast';
 
 // hats-hooks
 const useHatStatusCheck = ({

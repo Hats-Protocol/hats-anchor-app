@@ -1,12 +1,12 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
+import { CONFIG } from 'app-utils';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 
-import CONFIG from '@/utils/constants';
-import { chainsMap } from '@/lib/chains';
-import { checkImageForHat } from '@/lib/hats';
-import { Hat } from '@/types';
+import { chainsMap } from '../lib/chains/index';
+import { checkImageForHat } from '../lib/hats';
 
 interface ContractCall {
   address: Hex;

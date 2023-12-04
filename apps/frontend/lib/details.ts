@@ -1,7 +1,6 @@
 /* eslint-disable import/prefer-default-export */
+import { HatDetails } from 'hats-types';
 import _ from 'lodash';
-
-import { HatDetails } from '@/types';
 
 // app-utils
 

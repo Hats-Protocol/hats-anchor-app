@@ -1,6 +1,7 @@
-import { mapWithChainId } from '@/lib/general';
-import { createSubgraphClient } from '@/lib/web3';
-import { Tree } from '@/types';
+import { Tree } from 'hats-types';
+
+import { mapWithChainId } from '../general';
+import { createSubgraphClient } from '../web3';
 
 export const fetchTreeDetails = async (
   treeId: string | null,

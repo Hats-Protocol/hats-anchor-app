@@ -1,8 +1,8 @@
+import { CONFIG } from 'app-utils';
 import { Hex } from 'viem';
 import { useContractRead } from 'wagmi';
 
-import CONFIG from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
 
 // hats-hooks
 const useIsAdmin = (address: Hex | undefined, hatId?: Hex) => {

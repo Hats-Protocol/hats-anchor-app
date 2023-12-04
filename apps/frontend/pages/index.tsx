@@ -12,34 +12,34 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react';
+import { CONFIG, LEARN_MORE } from 'app-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { useAccount, useEnsName } from 'wagmi';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import Suspender from '@/components/atoms/Suspender';
-import ForkableTemplateCard from '@/components/ForkableTemplateCard';
-import Layout from '@/components/Layout';
-import LearnMoreCard from '@/components/LearnMoreCard';
-import CONFIG, { LEARN_MORE } from '@/utils/constants';
-import useFeaturedTemplates from '@/hooks/useFeaturedTemplates';
-import useFeaturedTrees from '@/hooks/useFeaturedTrees';
-import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';
-import useImageURIs from '@/hooks/useImageURIs';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { orderedChains } from '@/lib/chains';
-import { formatAddress } from '@/lib/general';
+import ChakraNextLink from '../components/atoms/ChakraNextLink';
+import Suspender from '../components/atoms/Suspender';
+import ForkableTemplateCard from '../components/ForkableTemplateCard';
+import Layout from '../components/Layout';
+import LearnMoreCard from '../components/LearnMoreCard';
+import useFeaturedTemplates from '../hooks/useFeaturedTemplates';
+import useFeaturedTrees from '../hooks/useFeaturedTrees';
+import useFeaturedTreesData from '../hooks/useFeaturedTreesData';
+import useImageURIs from '../hooks/useImageURIs';
+import useWearerDetails from '../hooks/useWearerDetails';
+import { orderedChains } from '../lib/chains/index';
+import { formatAddress } from '../lib/general';
 
 const DashboardHatCard = dynamic(
-  () => import('@/components/DashboardHatCard'),
+  () => import('../components/DashboardHatCard'),
   {
     loading: () => <Suspender />,
   },
 );
 const FeaturedTreeCard = dynamic(
-  () => import('@/components/FeaturedTreeCard'),
+  () => import('../components/FeaturedTreeCard'),
   {
     loading: () => <Suspender />,
   },

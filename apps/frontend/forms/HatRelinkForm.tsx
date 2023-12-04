@@ -10,6 +10,8 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-utils';
+import { ImageFile } from 'hats-types';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -18,17 +20,15 @@ import { FaCheck } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import DropZone from '@/components/atoms/DropZone';
-import Input from '@/components/atoms/Input';
-import Select from '@/components/atoms/Select';
-import Textarea from '@/components/atoms/Textarea';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
-import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import usePinImageIpfs from '@/hooks/usePinImageIpfs';
-import { decimalId, prettyIdToId, prettyIdToIp } from '@/lib/hats';
-import { fetchToken, pinJson } from '@/lib/ipfs';
-import { ImageFile } from '@/types';
+import DropZone from '../components/atoms/DropZone';
+import Input from '../components/atoms/Input';
+import Select from '../components/atoms/Select';
+import Textarea from '../components/atoms/Textarea';
+import useDebounce from '../hooks/useDebounce';
+import useHatContractWrite from '../hooks/useHatContractWrite';
+import usePinImageIpfs from '../hooks/usePinImageIpfs';
+import { decimalId, prettyIdToId, prettyIdToIp } from '../lib/hats';
+import { fetchToken, pinJson } from '../lib/ipfs';
 
 // TODO refactor without prettyId
 // ! update links to use new docs links constants

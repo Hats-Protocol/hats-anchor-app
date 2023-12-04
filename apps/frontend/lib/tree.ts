@@ -1,10 +1,9 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { Hat, HatDetails, HatWearer, Tree } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { extendControllers, extendWearers } from '@/lib/contract';
-import { Hat, HatDetails, HatWearer, Tree } from '@/types';
-
+import { extendControllers, extendWearers } from './contract';
 import { decimalId, idToPrettyId } from './hats';
 
 // hats-utils or app-utils

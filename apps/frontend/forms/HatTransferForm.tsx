@@ -15,12 +15,12 @@ import { FaCheck } from 'react-icons/fa';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import Input from '@/components/atoms/Input';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useDebounce from '@/hooks/useDebounce';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import { formatAddress } from '@/lib/general';
-import { toTreeId } from '@/lib/hats';
+import Input from '../components/atoms/Input';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useDebounce from '../hooks/useDebounce';
+import useHatContractWrite from '../hooks/useHatContractWrite';
+import { formatAddress } from '../lib/general';
+import { toTreeId } from '../lib/hats';
 
 const HatTransferForm = ({
   currentWearerAddress,

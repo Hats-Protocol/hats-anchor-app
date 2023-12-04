@@ -15,9 +15,8 @@ import _ from 'lodash';
 import React, { useMemo } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useModuleDetails from '@/hooks/useModuleDetails';
-
+import { useTreeForm } from '../contexts/TreeFormContext';
+import useModuleDetails from '../hooks/useModuleDetails';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import ModuleParameters from './ModuleParameters';
 

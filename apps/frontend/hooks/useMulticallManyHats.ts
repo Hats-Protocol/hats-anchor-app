@@ -1,5 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { useQueryClient } from '@tanstack/react-query';
+import { CONFIG } from 'app-utils';
+import { FormData, Hat, HatDetails } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
@@ -10,15 +12,12 @@ import {
   usePrepareContractWrite,
 } from 'wagmi';
 
-import CONFIG from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useToast from '@/hooks/useToast';
-import { processHatForCalls } from '@/lib/form';
-import { fetchToken, handleDetailsPin } from '@/lib/ipfs';
-import { FormData, Hat, HatDetails } from '@/types';
-
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { processHatForCalls } from '../lib/form';
+import { fetchToken, handleDetailsPin } from '../lib/ipfs';
 import useAdminOfHats from './useAdminOfHats';
+import useToast from './useToast';
 
 // hats-hooks
 const useMulticallCallManyHats = (isAdminOfAnyHatWithChanges: boolean) => {

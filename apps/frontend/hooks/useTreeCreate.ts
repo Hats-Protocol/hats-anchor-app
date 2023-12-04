@@ -5,10 +5,10 @@ import router from 'next/router';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useToast from '@/hooks/useToast';
-import { treeCreateEventIdToTreeId } from '@/lib/hats';
-import { fetchTreeDetails } from '@/lib/subgraph';
+import { treeCreateEventIdToTreeId } from '../lib/hats';
+import { fetchTreeDetails } from '../lib/subgraph/tree';
+import useHatContractWrite from './useHatContractWrite';
+import useToast from './useToast';
 
 async function waitForTreeCreation(treeId: number, chainId: number) {
   return new Promise((resolve) => {

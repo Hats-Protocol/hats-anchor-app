@@ -1,5 +1,6 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG } from 'app-utils';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { Hex } from 'viem';
@@ -11,11 +12,9 @@ import {
   usePrepareContractWrite,
 } from 'wagmi';
 
-import CONFIG from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { createHatsModulesClient } from '@/lib/web3';
-
+import { useOverlay } from '../contexts/OverlayContext';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { createHatsModulesClient } from '../lib/web3';
 import useToast from './useToast';
 
 const CLAIMS_HATTER_TYPES = {

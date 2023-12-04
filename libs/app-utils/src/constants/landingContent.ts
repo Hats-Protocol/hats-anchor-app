@@ -1,4 +1,4 @@
-import { ipfsUrl } from '@/utils/lib';
+import { ipfsUrl } from '../lib';
 
 export const DOCS_URL = 'https://docs.hatsprotocol.xyz';
 export const CONTACT_URL = 'https://hatsprotocol.deform.cc/getintouch/';

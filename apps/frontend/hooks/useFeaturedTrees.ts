@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-
-import { FEATURED_TREES } from '@/utils/constants';
+import { FEATURED_TREES } from 'app-utils';
 
 // app-hooks
 const useFeaturedTrees = () => {

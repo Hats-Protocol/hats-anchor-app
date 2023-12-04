@@ -1,13 +1,12 @@
 import { Box } from '@chakra-ui/react';
+import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatsModules from '@/hooks/useHatsModules';
-import { decimalId } from '@/lib/hats';
-import { ModuleDetails } from '@/types';
-
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import useHatsModules from '../../hooks/useHatsModules';
+import { decimalId } from '../../lib/hats';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 

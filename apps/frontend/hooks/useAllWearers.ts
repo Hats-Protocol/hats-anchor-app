@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { createSubgraphClient } from '@/lib/web3';
-import { HatWearer } from '@/types';
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { createSubgraphClient } from '../lib/web3';
 
 // hats-hooks
 const fetchHatWearersPage = async ({

@@ -1,15 +1,14 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQueries, useQuery } from '@tanstack/react-query';
+import { CONFIG } from 'app-utils';
+import { FormData, Hat } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
 
-import CONFIG from '@/utils/constants';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import { fetchWearerDetails } from '@/lib/subgraph';
-import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';
-import { FormData, Hat } from '@/types';
-
+import { useTreeForm } from '../contexts/TreeFormContext';
+import { fetchWearerDetails } from '../lib/subgraph/wearer';
+import { createHatsModulesClient, createSubgraphClient } from '../lib/web3';
 import useIsAdmin from './useIsAdmin';
 import useModuleDetails from './useModuleDetails';
 

@@ -1,27 +1,26 @@
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
-import Suspender from '@/components/atoms/Suspender';
-import { useHatForm } from '@/contexts/HatFormContext';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useWearerDetails from '@/hooks/useWearerDetails';
-import { isTopHat } from '@/lib/hats';
-import { Hat } from '@/types';
-
+import { useHatForm } from '../../../contexts/HatFormContext';
+import { useOverlay } from '../../../contexts/OverlayContext';
+import { useTreeForm } from '../../../contexts/TreeFormContext';
+import useWearerDetails from '../../../hooks/useWearerDetails';
+import { isTopHat } from '../../../lib/hats';
+import Suspender from '../../atoms/Suspender';
 import MainAction from '../MainAction';
 import MoreMenu from './MoreMenu';
 
-const Modal = dynamic(() => import('@/components/atoms/Modal'), {
+const Modal = dynamic(() => import('../../atoms/Modal'), {
   loading: () => <Suspender />,
 });
 const HatLinkRequestCreateForm = dynamic(
-  () => import('@/forms/HatLinkRequestCreateForm'),
+  () => import('../../../forms/HatLinkRequestCreateForm'),
   { loading: () => <Suspender /> },
 );
 

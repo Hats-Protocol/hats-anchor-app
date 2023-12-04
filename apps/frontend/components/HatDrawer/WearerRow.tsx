@@ -11,24 +11,23 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
+import { CONFIG } from 'app-utils';
+import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import CONFIG from '@/utils/constants';
-import { useOverlay } from '@/contexts/OverlayContext';
-import { useTreeForm } from '@/contexts/TreeFormContext';
-import useHatBurn from '@/hooks/useHatBurn';
-import useHatContractWrite from '@/hooks/useHatContractWrite';
-import useModuleDetails from '@/hooks/useModuleDetails';
-import useToast from '@/hooks/useToast';
-import { formatAddress, isSameAddress } from '@/lib/general';
-import { decimalId, isTopHat, toTreeId } from '@/lib/hats';
-import { HatWearer } from '@/types';
-
+import { useOverlay } from '../../contexts/OverlayContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
+import useHatBurn from '../../hooks/useHatBurn';
+import useHatContractWrite from '../../hooks/useHatContractWrite';
+import useModuleDetails from '../../hooks/useModuleDetails';
+import useToast from '../../hooks/useToast';
+import { formatAddress, isSameAddress } from '../../lib/general';
+import { decimalId, isTopHat, toTreeId } from '../../lib/hats';
+import ChakraNextLink from '../atoms/ChakraNextLink';
 import TooltipWrapper from './TooltipWrapper';
 
 const WearerRow = ({

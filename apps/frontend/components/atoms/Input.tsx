@@ -15,14 +15,13 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { FALLBACK_ADDRESS } from 'app-utils';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
 import { useAccount } from 'wagmi';
-
-import { FALLBACK_ADDRESS } from '@/utils/constants';
 
 /**
  * Primary Input component for React Hook Form
