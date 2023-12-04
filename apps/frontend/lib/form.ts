@@ -2,7 +2,11 @@ import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
+import {
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@/utils/constants';
 import {
   FieldItem,
   FormData,

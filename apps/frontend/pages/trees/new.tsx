@@ -24,7 +24,7 @@ import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
 import Layout from '@/components/Layout';
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';

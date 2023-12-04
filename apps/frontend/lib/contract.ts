@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { createPublicClient, custom, Hex, http } from 'viem';
 
-import { ZERO_ADDRESS } from '@/constants';
+import { ZERO_ADDRESS } from '@/utils/constants';
 import { HatWearer, Transaction } from '@/types';
 
 import { chainsMap } from './chains';

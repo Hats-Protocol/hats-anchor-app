@@ -7,7 +7,7 @@ import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import { createConfig } from 'wagmi';
 
-import NETWORK_ENDPOINTS from '../constants/subgraph';
+import NETWORK_ENDPOINTS from '@/utils/constants/subgraph';
 import { chains, chainsMap, publicClient } from './chains';
 
 // app-utils

@@ -15,7 +15,7 @@ import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
 import Markdown from '@/components/atoms/Markdown';
-import { MUTABILITY, STATUS } from '@/constants';
+import { MUTABILITY, STATUS } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';

@@ -6,7 +6,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import CONFIG, { DEPLOYMENT_TYPES } from '@/constants';
+import CONFIG, { DEPLOYMENT_TYPES } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import { decimalId } from '@/lib/hats';

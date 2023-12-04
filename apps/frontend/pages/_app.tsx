@@ -12,7 +12,7 @@ import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
 import { WagmiConfig } from 'wagmi';
 
-import SEO from '@/constants/next-seo.config';
+import SEO from '@/utils/constants/next-seo.config';
 import { OverlayContextProvider } from '@/contexts/OverlayContext';
 import { chains } from '@/lib/chains';
 import { wagmiConfig } from '@/lib/web3';

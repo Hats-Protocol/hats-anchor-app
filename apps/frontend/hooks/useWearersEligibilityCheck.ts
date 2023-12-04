@@ -3,7 +3,7 @@ import { readContract } from '@wagmi/core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
 // hats-hooks

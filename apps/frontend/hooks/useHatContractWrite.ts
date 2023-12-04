@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { TransactionReceipt } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import useToast from '@/hooks/useToast';
 import { formatFunctionName } from '@/lib/general';

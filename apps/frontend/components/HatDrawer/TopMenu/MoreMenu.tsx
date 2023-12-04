@@ -24,7 +24,7 @@ import {
 import { TbChartDots3 } from 'react-icons/tb';
 import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG, { MUTABILITY } from '@/constants';
+import CONFIG, { MUTABILITY } from '@/utils/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatContractWrite from '@/hooks/useHatContractWrite';

@@ -32,7 +32,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 
-import CONFIG, { initialControls } from '@/constants';
+import CONFIG, { initialControls } from '@/utils/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useIsClient from '@/hooks/useIsClient';

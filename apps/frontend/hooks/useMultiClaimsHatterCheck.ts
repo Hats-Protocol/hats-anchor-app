@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { fetchWearerDetails } from '@/lib/subgraph';
 import { createHatsModulesClient, createSubgraphClient } from '@/lib/web3';

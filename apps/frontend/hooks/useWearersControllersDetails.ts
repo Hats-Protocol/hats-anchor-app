@@ -3,7 +3,7 @@ import { fetchEnsName } from '@wagmi/core';
 import _ from 'lodash';
 import { Hex, isAddress } from 'viem';
 
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
 import { checkAddressIsContract } from '@/lib/contract';
 import { Hat } from '@/types';
 

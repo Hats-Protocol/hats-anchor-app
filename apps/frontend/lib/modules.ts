@@ -2,7 +2,7 @@ import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import CONFIG, { TRIGGER_OPTIONS } from '@/constants';
+import CONFIG, { TRIGGER_OPTIONS } from '@/utils/constants';
 import { transformInput } from '@/lib/general';
 import { decimalIdToId } from '@/lib/hats';
 import { createHatsModulesClient } from '@/lib/web3';

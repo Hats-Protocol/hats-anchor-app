@@ -17,7 +17,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-import CONFIG, { defaultHat, ZERO_ID } from '@/constants';
+import CONFIG, { defaultHat, ZERO_ID } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useToast from '@/hooks/useToast';
 import useWearerDetails from '@/hooks/useWearerDetails';

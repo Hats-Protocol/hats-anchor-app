@@ -16,7 +16,7 @@ import {
   FALLBACK_ADDRESS,
   MUTABILITY,
   TRIGGER_OPTIONS,
-} from '@/constants';
+} from '@/utils/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useToast from '@/hooks/useToast';
 import {

@@ -21,7 +21,7 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Textarea from '@/components/atoms/Textarea';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import PlatformInput from '@/components/PlatformInput';
-import { MUTABILITY } from '@/constants';
+import { MUTABILITY } from '@/utils/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';

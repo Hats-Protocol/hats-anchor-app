@@ -22,7 +22,7 @@ import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
 import { useAccount } from 'wagmi';
 
-import { FALLBACK_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS } from '@/utils/constants';
 
 /**
  * Primary Input component for React Hook Form

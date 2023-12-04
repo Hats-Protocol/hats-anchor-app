@@ -21,7 +21,7 @@ import { useChainId, useEnsAddress } from 'wagmi';
 import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useCid from '@/hooks/useCid';
 import useDebounce from '@/hooks/useDebounce';

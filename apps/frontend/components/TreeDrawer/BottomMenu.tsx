@@ -19,7 +19,7 @@ import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMulticallCallData from '@/hooks/useMulticallCallData';
 import useToast from '@/hooks/useToast';

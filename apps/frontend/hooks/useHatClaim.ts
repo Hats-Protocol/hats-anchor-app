@@ -11,7 +11,7 @@ import {
   usePrepareContractWrite,
 } from 'wagmi';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';

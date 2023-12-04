@@ -2,7 +2,7 @@ import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { Hex } from 'viem';
 
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { createHatsModulesClient } from '@/lib/web3';
 

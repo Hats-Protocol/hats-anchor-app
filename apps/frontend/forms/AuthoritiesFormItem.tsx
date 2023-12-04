@@ -2,7 +2,7 @@ import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
-import { AUTHORITY_TYPES } from '@/constants';
+import { AUTHORITY_TYPES } from '@/utils/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { getHostnameFromURL } from '@/lib/general';
 

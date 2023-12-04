@@ -10,7 +10,7 @@ import DatePicker from '@/components/atoms/DatePicker';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import FormRowWrapper from '@/components/FormRowWrapper';
-import { CONTACT_URL } from '@/constants';
+import { CONTACT_URL } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatsModules from '@/hooks/useHatsModules';
 import { transformAndVerify } from '@/lib/general';

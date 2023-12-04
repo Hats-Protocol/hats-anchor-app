@@ -20,8 +20,8 @@ import { TbCircleOff } from 'react-icons/tb';
 import { useAccount } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
-import { MODULE_TYPES } from '@/constants/form';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
+import { MODULE_TYPES } from '@/utils/constants/form';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useContractData from '@/hooks/useContractData';
 import useHatStatus from '@/hooks/useHatStatus';

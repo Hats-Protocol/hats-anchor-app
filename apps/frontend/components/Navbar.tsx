@@ -28,7 +28,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import ConnectWallet from '@/components/ConnectWallet';
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';

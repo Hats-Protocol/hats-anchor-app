@@ -18,7 +18,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatBurn from '@/hooks/useHatBurn';

@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import { FormDataDetails } from '@/types';
 
-import { GATEWAY_TOKEN, GATEWAY_URL } from '../constants';
+import { GATEWAY_TOKEN, GATEWAY_URL } from '@/utils/constants';
 
 export * from './ipfs-misc';
 

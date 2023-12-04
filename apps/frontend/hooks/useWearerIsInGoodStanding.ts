@@ -1,7 +1,7 @@
 import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 
 // hats-hooks

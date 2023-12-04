@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
-import { AUTHORITY_TYPES } from '@/constants';
+import { AUTHORITY_TYPES } from '@/utils/constants';
 import { decimalId } from '@/lib/hats';
 import { Authority } from '@/types';
 

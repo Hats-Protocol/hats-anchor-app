@@ -17,7 +17,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
 import Markdown from '@/components/atoms/Markdown';
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/constants';
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/utils/constants';
 import { getHostnameFromURL, validateURL } from '@/lib/general';
 import { Authority, AuthorityType } from '@/types';
 

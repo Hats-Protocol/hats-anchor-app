@@ -22,7 +22,7 @@ import DropZone from '@/components/atoms/DropZone';
 import Input from '@/components/atoms/Input';
 import Select from '@/components/atoms/Select';
 import Textarea from '@/components/atoms/Textarea';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/constants';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from '@/utils/constants';
 import useDebounce from '@/hooks/useDebounce';
 import useHatContractWrite from '@/hooks/useHatContractWrite';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';

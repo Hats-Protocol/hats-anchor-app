@@ -27,7 +27,7 @@ import RadioBox from '@/components/atoms/RadioBox';
 import Suspender from '@/components/atoms/Suspender';
 import FormRowWrapper from '@/components/FormRowWrapper';
 import LabelWithLink from '@/components/LabelWithLink';
-import { MODULE_TYPES, TRIGGER_OPTIONS } from '@/constants';
+import { MODULE_TYPES, TRIGGER_OPTIONS } from '@/utils/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';

@@ -23,7 +23,7 @@ import Suspender from '@/components/atoms/Suspender';
 import ForkableTemplateCard from '@/components/ForkableTemplateCard';
 import Layout from '@/components/Layout';
 import LearnMoreCard from '@/components/LearnMoreCard';
-import CONFIG, { LEARN_MORE } from '@/constants';
+import CONFIG, { LEARN_MORE } from '@/utils/constants';
 import useFeaturedTemplates from '@/hooks/useFeaturedTemplates';
 import useFeaturedTrees from '@/hooks/useFeaturedTrees';
 import useFeaturedTreesData from '@/hooks/useFeaturedTreesData';

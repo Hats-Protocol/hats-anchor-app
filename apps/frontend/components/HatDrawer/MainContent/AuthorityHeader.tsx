@@ -14,7 +14,7 @@ import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import { AUTHORITIES } from '@/constants';
+import { AUTHORITIES } from '@/utils/constants';
 import { SnapshotStrategy } from '@/hooks/useSnapshotSpaces';
 import { getHostnameFromURL, validateURL } from '@/lib/general';
 import { ipfsUrl } from '@/lib/ipfs';

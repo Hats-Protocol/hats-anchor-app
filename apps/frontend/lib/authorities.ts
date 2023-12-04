@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import _ from 'lodash';
 
-import { AUTHORITY_TYPES } from '@/constants';
+import { AUTHORITY_TYPES } from '@/utils/constants';
 import { Authority, AuthorityType } from '@/types';
 
 export const combineAuthorities = ({

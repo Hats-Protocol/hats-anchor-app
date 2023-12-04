@@ -16,7 +16,7 @@ import {
 } from 'react';
 import { Hex } from 'viem';
 
-import { defaultHat } from '@/constants';
+import { defaultHat } from '@/utils/constants';
 import useBetterMediaQuery from '@/hooks/useBetterMediaQuery';
 import useGuilds from '@/hooks/useGuilds';
 import useImageURIs from '@/hooks/useImageURIs';

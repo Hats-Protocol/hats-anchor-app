@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import EventHistory from '@/components/EventHistory';
 import WearersList from '@/components/HatDrawer/WearersList';
 import ModuleDetails from '@/components/ModuleDetails';
-import { MODULE_TYPES } from '@/constants';
+import { MODULE_TYPES } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import { checkAddressIsContract } from '@/lib/contract';
 

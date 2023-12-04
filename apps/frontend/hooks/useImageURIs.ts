@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
 
-import CONFIG from '@/constants';
+import CONFIG from '@/utils/constants';
 import { chainsMap } from '@/lib/chains';
 import { checkImageForHat } from '@/lib/hats';
 import { Hat } from '@/types';

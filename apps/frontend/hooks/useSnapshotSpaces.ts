@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 
-import { AUTHORITY_TYPES } from '@/constants';
+import { AUTHORITY_TYPES } from '@/utils/constants';
 import { decimalId } from '@/lib/hats';
 
 type SnapshotApiKeys = 1 | 5 | 10 | 100 | 137 | 424 | 42151;

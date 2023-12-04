@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 import Accordion from '@/components/atoms/Accordion';
-// import { MODULE_TYPES } from '@/constants';
+// import { MODULE_TYPES } from '@/utils/constants';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import useMultiClaimsHatterCheck from '@/hooks/useMultiClaimsHatterCheck';
 import { getAllParents, prettyIdToIp } from '@/lib/hats';

@@ -2,7 +2,7 @@ import { solidityToTypescriptType, verify } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 
-import CONFIG, { GATEWAY_TOKEN } from '@/constants';
+import CONFIG, { GATEWAY_TOKEN } from '@/utils/constants';
 
 // app-utils mostly, some should move
 

@@ -29,7 +29,7 @@ import { BsPlusCircle, BsSave } from 'react-icons/bs';
 
 import DropZone from '@/components/atoms/DropZone';
 import AuthorityHeader from '@/components/HatDrawer/MainContent/AuthorityHeader';
-import { AUTHORITY_TYPES } from '@/constants';
+import { AUTHORITY_TYPES } from '@/utils/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import usePinImageIpfs from '@/hooks/usePinImageIpfs';

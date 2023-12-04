@@ -14,7 +14,7 @@ import { FaCopy } from 'react-icons/fa';
 
 import Accordion from '@/components/atoms/Accordion';
 import ChakraNextLink from '@/components/atoms/ChakraNextLink';
-import CONFIG, { FORM_FIELDS, MODULE_TYPES } from '@/constants';
+import CONFIG, { FORM_FIELDS, MODULE_TYPES } from '@/utils/constants';
 import { useHatForm } from '@/contexts/HatFormContext';
 import { useTreeForm } from '@/contexts/TreeFormContext';
 import AuthoritiesForm from '@/forms/AuthoritiesForm';
