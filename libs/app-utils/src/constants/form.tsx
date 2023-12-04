@@ -1,0 +1,172 @@
+import { AuthorityType, DeploymentType, FieldItem } from 'hats-types';
+import { Hex } from 'viem';
+
+import { FALLBACK_ADDRESS } from './misc';
+
+export type ModuleTypes = { [key: string]: string };
+
+export const MODULE_TYPES = {
+  eligibility: 'ELIGIBILITY',
+  toggle: 'TOGGLE',
+};
+
+export const DEPLOYMENT_TYPES: { [key: string]: DeploymentType } = {
+  ONLY_MODULE: 'onlyModule',
+  MODULE_AND_CLAIMS_HATTER: 'moduleAndClaimsHatter',
+  ONLY_CLAIMS_HATTER: 'onlyClaimsHatter',
+};
+
+export const STATUS = {
+  ACTIVE: 'Active',
+  INACTIVE: 'Inactive',
+};
+
+export const MUTABILITY = {
+  MUTABLE: 'Mutable',
+  IMMUTABLE: 'Immutable',
+};
+
+export const TRIGGER_OPTIONS = {
+  MANUALLY: 'Manually',
+  AUTOMATICALLY: 'Automatically',
+};
+
+const hatBasicsFields: FieldItem[] = [
+  { name: 'name', label: 'Name' },
+  { name: 'description', label: 'Description' },
+  { name: 'imageUrl', label: 'Image' },
+  { name: 'guilds', label: 'Guilds' },
+  { name: 'spaces', label: 'Spaces' },
+  { name: 'mutable', label: 'Editable' },
+];
+
+const wearerFields: FieldItem[] = [
+  { name: 'maxSupply', label: 'Max Supply' },
+  { name: 'wearers', label: 'Wearers' },
+];
+
+const powersFields: FieldItem[] = [
+  { name: 'authorities', label: 'Authorities' },
+];
+
+const responsibilitiesFields: FieldItem[] = [
+  { name: 'responsibilities', label: 'Responsibilities' },
+];
+
+const revocationFields: FieldItem[] = [
+  { name: 'isEligibilityManual', label: 'Eligibility Type' },
+  { name: 'eligibility', label: 'Eligibility' },
+  { name: 'revocationsCriteria', label: 'Revocation Criteria' },
+];
+
+const deactivationFields: FieldItem[] = [
+  { name: 'isToggleManual', label: 'Toggle Type' },
+  { name: 'toggle', label: 'Toggle' },
+  { name: 'deactivationsCriteria', label: 'Deactivation Criteria' },
+];
+
+export const FORM_FIELDS = {
+  basics: hatBasicsFields,
+  wearer: wearerFields,
+  powers: powersFields,
+  responsibilities: responsibilitiesFields,
+  revocation: revocationFields,
+  deactivation: deactivationFields,
+};
+
+export const EMPTY_FORM_VALUES = {
+  id: '0x' as Hex,
+  maxSupply: '1',
+  eligibility: FALLBACK_ADDRESS,
+  toggle: FALLBACK_ADDRESS,
+  mutable: MUTABILITY.MUTABLE,
+  imageUrl: '',
+  isEligibilityManual: TRIGGER_OPTIONS.MANUALLY,
+  isToggleManual: TRIGGER_OPTIONS.MANUALLY,
+  revocationsCriteria: [],
+  deactivationsCriteria: [],
+  name: '',
+  description: '',
+  authorities: [],
+  responsibilities: [],
+  guilds: [],
+  spaces: [],
+  wearers: [],
+};
+
+export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
+  protocol: 'protocol',
+  modules: 'modules',
+  wallet: 'wallet',
+  hsg: 'hsg',
+  onchain: 'onchain',
+  gate: 'gate',
+  manual: 'manual',
+};
+
+type AuthorityInfo = {
+  label: string;
+  info: string;
+  color: string;
+};
+
+export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
+  protocol: {
+    label: 'Hats Protocol Authority',
+    info: '',
+    color: 'green.300',
+  },
+  modules: {
+    label: 'Hats Modules Authority',
+    info: '',
+    color: 'green.300',
+  },
+  wallet: {
+    label: 'HatsWallet Authority',
+    info: '',
+    color: 'green.300',
+  },
+  hsg: {
+    label: 'HatsSignerGate Authority',
+    info: '',
+    color: 'green.300',
+  },
+  onchain: {
+    label: 'Connected Onchain Authority',
+    info: '',
+    color: 'green.300',
+  },
+  gate: {
+    label: 'Connected Token-gated Authority',
+    info: 'Pulled directly from the gate API',
+    color: 'green.300',
+  },
+  manual: {
+    label: 'Social Authority',
+    info: 'Appended off-chain for clarity',
+    color: 'purple.300',
+  },
+};
+
+export const GUILD_PLATFORMS = {
+  1: {
+    label: 'Discord',
+    icon: 'ipfs://QmPqL5WeuKZod1EnS2jeNhocVe5a9sXLTzbvpo47ZRydLd',
+  },
+  2: {
+    label: 'Telegram',
+    icon: 'ipfs://QmX4qMuCnkJguSnf4L5wdi3dcfrqdNPctSQH6BtJZFT1yr',
+  },
+  3: {
+    label: 'GitHub',
+    icon: 'ipfs://QmYLQiMBfDm6Mtbz97JnNDAZVLietA8z9m5ThRULxNLxgq',
+  },
+  4: {
+    label: 'Google Docs',
+    icon: 'ipfs://QmXgcdaCnfkfTj2cJHn7Sr9Xxa4eb1grjADMjb8FzAqqSt',
+  },
+  snapshot: {
+    label: 'Snapshot',
+    icon: 'ipfs://QmQwKSu2StPNqSFZC5u17jYtxwfP9fmdrVJVxLxi7mTS9S',
+  },
+};

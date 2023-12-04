@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "rootDir": ".",
+    "baseUrl": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2016",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "@/*": ["apps/frontend/*"],
+      "app-utils": ["libs/app-utils/src/index.ts"],
+      "hats-types": ["libs/hats-types/src/index.ts"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "tmp"]
+}

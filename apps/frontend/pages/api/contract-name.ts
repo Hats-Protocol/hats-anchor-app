@@ -1,0 +1,74 @@
+import _ from 'lodash';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+import { SupportedChains } from '../../lib/chains';
+
+const {
+  ETHERSCAN_API_KEY,
+  OPSCAN_API_KEY,
+  POLYGONSCAN_API_KEY,
+  GNOSISSCAN_API_KEY,
+  ARBISCAN_API_KEY,
+} = process.env;
+
+const ETHERSCAN_API_URLS: { [key in SupportedChains]: string } = {
+  1: 'https://api.etherscan.io/api',
+  5: 'https://api-goerli.etherscan.io/api',
+  10: 'https://api-optimistic.etherscan.io/api',
+  100: 'https://api.gnosisscan.io/api',
+  137: 'https://api.polygonscan.com/api',
+  424: 'https://api.pgn.one/api', // TODO explorer URL
+  42161: 'https://api.arbiscan.io/api',
+};
+
+const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
+  1: ETHERSCAN_API_KEY,
+  5: ETHERSCAN_API_KEY,
+  10: OPSCAN_API_KEY,
+  100: GNOSISSCAN_API_KEY,
+  137: POLYGONSCAN_API_KEY,
+  424: ETHERSCAN_API_KEY, // TODO PGN Explorer Key
+  42161: ARBISCAN_API_KEY,
+};
+
+const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { chainId, address } = req.body;
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!chainId || !address) {
+    return res.status(400).json({ error: 'Missing chainId or address' });
+  }
+
+  // TODO more auth, do fetch requests pass next session?
+
+  try {
+    const result = await fetch(
+      `${
+        ETHERSCAN_API_URLS[chainId as SupportedChains]
+      }?module=contract&action=getsourcecode&address=${address}&apikey=${
+        ETHERSCAN_KEYS[chainId as SupportedChains]
+      }`,
+    );
+    const data = await result.json();
+    // force error if not verified
+    if (_.get(data, 'result[0].ABI') === 'Contract source code not verified') {
+      return res.status(404).json({ error: 'Contract not verified', address });
+    }
+    const returnData = _.mapKeys(
+      _.get(data, 'result[0]'),
+      (value: any, key: any) => _.camelCase(key),
+    );
+    const trimData = _.omit(returnData, ['abi', 'sourceCode']);
+
+    return res.status(201).json(trimData);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+    return res.status(500).json({ error });
+  }
+};
+
+export default ContractName;
