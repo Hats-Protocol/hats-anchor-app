@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "types": ["node", "jest"],
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
@@ -8,13 +9,16 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2016",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@/*": ["apps/frontend/*"]
+    }
   },
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "tmp"]
 }
