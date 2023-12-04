@@ -3,11 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 
-<<<<<<< HEAD:apps/frontend/hooks/useSnapshotSpaces.ts
-import { AUTHORITY_TYPES } from '@/utils/constants';
-=======
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/constants';
->>>>>>> develop:hooks/useSnapshotSpaces.ts
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from '@/utils/constants';
 import { decimalId } from '@/lib/hats';
 
 type SnapshotApiKeys = 1 | 5 | 10 | 100 | 137 | 424 | 42151;

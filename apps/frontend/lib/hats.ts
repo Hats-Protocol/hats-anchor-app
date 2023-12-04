@@ -2,7 +2,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { defaultHat, MUTABILITY, TRIGGER_OPTIONS } from '@/constants';
+import { defaultHat, MUTABILITY, TRIGGER_OPTIONS } from '@/utils/constants';
 import {
   Controls,
   FormData,

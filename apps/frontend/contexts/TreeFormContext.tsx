@@ -595,13 +595,6 @@ export const TreeFormContextProvider = ({
   const importHats = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (hats: any[]) => {
-<<<<<<< HEAD:apps/frontend/contexts/TreeFormContext.tsx
-      const translateImageUrl = _.map(hats, (hat: any) => ({
-        ...hat,
-        imageUrl: ipfsUrl(hat.imageUri?.slice(7)),
-      }));
-      // convert imageUri to imageUrl
-=======
       const translateImageUrl = _.map(hats, (hat) => {
         // don't try to compute image url if imageUri is empty
         const imageUrl = hat.imageUri
@@ -612,7 +605,6 @@ export const TreeFormContextProvider = ({
           ...imageUrl,
         };
       });
->>>>>>> develop:contexts/TreeFormContext.tsx
       setStoredData?.(translateImageUrl);
       const localDraftHats = _.reject(
         translateImageUrl,

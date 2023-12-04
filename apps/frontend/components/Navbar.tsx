@@ -36,7 +36,7 @@ import { useTreeForm } from '@/contexts/TreeFormContext';
 import useHatDetailsField from '@/hooks/useHatDetailsField';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { containsUpperCase } from '@/lib/general';
-import { getOperatingSystem } from '@/lib/platform';
+import { getOperatingSystem } from '@/utils/lib';
 import { Hat, Transaction } from '@/types';
 
 import TransactionHistory from './TransactionHistory';
