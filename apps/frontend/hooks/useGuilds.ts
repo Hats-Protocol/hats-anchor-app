@@ -8,7 +8,7 @@ import { decimalId } from '../lib/hats';
 const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];
   const guildData = await Promise.all(
-    _.map(guilds, async (guildName: any) => {
+    _.map(guilds, async (guildName: string) => {
       const guildResponse = await fetch(
         `https://api.guild.xyz/v1/guild/${guildName}`,
       );

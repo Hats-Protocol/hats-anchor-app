@@ -228,10 +228,10 @@ export const TreeFormContextProvider = ({
 
   const { data: onchainLinkedHats } = useManyHatDetails({
     hats: mapWithChainId(
-      _.map(linkedHatIds, (id: any) => ({ id })),
+      _.map(linkedHatIds, (id: Hex) => ({ id })),
       chainId,
     ),
-    initialHats: _.map(linkedHatIds, (id: any) => ({ id })),
+    initialHats: _.map(linkedHatIds, (id: Hex) => ({ id })),
   });
   const onchainHats = useMemo(() => {
     return _.compact(_.concat(_.get(treeData, 'hats'), onchainLinkedHats));
@@ -253,7 +253,7 @@ export const TreeFormContextProvider = ({
   // *********************
   // * ONCHAIN TREE (ONCHAIN HATS)
   // *********************
-  const onchainIds = _.map(onchainHats, ({ id }: { id: any }) => ({ id }));
+  const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({ id }));
   const { data: onchainHatDetails } = useManyHatDetails({
     hats: mapWithChainId(onchainIds, chainId),
     initialHats: mapWithChainId(onchainIds, chainId),
@@ -346,7 +346,7 @@ export const TreeFormContextProvider = ({
     );
     const inactiveAncestors = _.map(
       _.filter(orgChartTree, (hat: Hat) =>
-        _.some(inactiveHats, (h: any) => h && hat.prettyId?.includes(h)),
+        _.some(inactiveHats, (h: Hex) => h && hat.prettyId?.includes(h)),
       ),
       'prettyId',
     );
@@ -356,7 +356,7 @@ export const TreeFormContextProvider = ({
     );
   }, [orgChartTree, showInactiveHats]);
   const overrideOrgChartData = useMemo(() => {
-    return _.map(filteredTree, (hat: any) => {
+    return _.map(filteredTree, (hat: Hat) => {
       const matchingHat = _.find(storedData, { id: hat.id });
       const orgChartHat = _.find(filteredTree, { id: hat.id });
 
@@ -420,7 +420,6 @@ export const TreeFormContextProvider = ({
   // *********************
   const handleSelectHat = useCallback(
     (id: Hex) => {
-      console.log(id);
       if (isMobile) return;
       queryClient.invalidateQueries(['hatDetails', { chainId, id }]);
       const allIds = _.map(orgChartTree, 'id');
@@ -457,7 +456,6 @@ export const TreeFormContextProvider = ({
           : treeIdHexToDecimal(treeId),
         hatId: hatIdDecimalToIp(BigInt(id)),
       };
-      console.log('updatedQuery', updatedQuery);
       const updatedUrl = {
         pathname: router.pathname,
         query: updatedQuery,
@@ -469,6 +467,7 @@ export const TreeFormContextProvider = ({
       onOpenHatDrawer();
     },
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [orgChartTree, isMobile, flipped, compact, chainId],
   );
 
@@ -621,7 +620,7 @@ export const TreeFormContextProvider = ({
       setStoredData?.(translateImageUrl);
       const localDraftHats = _.reject(
         translateImageUrl,
-        (hat: any) =>
+        (hat: Hat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
@@ -650,7 +649,7 @@ export const TreeFormContextProvider = ({
     setOrgChartHats((prevHats) => {
       if (!prevHats) return [];
 
-      return _.map(prevHats, (existingHat: { id: any }) => {
+      return _.map(prevHats, (existingHat: { id: Hex }) => {
         const proposedHat = _.find(proposedHats, ['id', existingHat.id]);
 
         if (proposedHat) {

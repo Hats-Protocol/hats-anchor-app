@@ -207,7 +207,11 @@ const WearersList = () => {
           <WearerRow
             key={w.id}
             wearer={w}
-            isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
+            isEligible={
+              !_.isEmpty(eligibleWearers)
+                ? _.includes(_.map(eligibleWearers, 'id'), w.id)
+                : true
+            }
             isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
