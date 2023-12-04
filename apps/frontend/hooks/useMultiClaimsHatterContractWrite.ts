@@ -6,7 +6,7 @@ import { Hex } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import { useTreeForm } from '@/contexts/TreeFormContext';
-import { MULTI_CLAIMS_HATTER_ABI } from '@/contracts/MultiClaimsHatter';
+import { MULTI_CLAIMS_HATTER_ABI } from '@/utils/contracts/MultiClaimsHatter';
 
 interface ContractInteractionProps {
   functionName: string;

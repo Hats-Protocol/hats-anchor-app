@@ -1,0 +1,16 @@
+{
+  "name": "libs/app-utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-utils/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/app-utils/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

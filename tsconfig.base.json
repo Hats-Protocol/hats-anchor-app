@@ -16,7 +16,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/frontend/*"]
+      "@/*": ["apps/frontend/*"],
+      "@/utils/*": ["libs/app-utils/src/*"],
+      "@/types": ["libs/hats-types/src/index.ts"],
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
