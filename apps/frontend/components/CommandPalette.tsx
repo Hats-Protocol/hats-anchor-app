@@ -11,7 +11,6 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { useAccount } from 'wagmi';
-
 import { Group, SearchResults } from '@/types';
 
 import { useOverlay } from '../contexts/OverlayContext';

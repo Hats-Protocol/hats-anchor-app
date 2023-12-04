@@ -11,26 +11,6 @@
       "options": {
         "lintFilePatterns": ["libs/hats-types/**/*.{ts,tsx,js,jsx}"]
       }
-    },
-    "build": {
-      "executor": "@nx/rollup:rollup",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/hats-types",
-        "tsConfig": "libs/hats-types/tsconfig.lib.json",
-        "project": "libs/hats-types/package.json",
-        "entryFile": "libs/hats-types/src/index.ts",
-        "external": ["react", "react-dom", "react/jsx-runtime"],
-        "rollupConfig": "@nx/react/plugins/bundle-rollup",
-        "compiler": "swc",
-        "assets": [
-          {
-            "glob": "libs/hats-types/README.md",
-            "input": ".",
-            "output": "."
-          }
-        ]
-      }
     }
   }
 }
