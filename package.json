@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "scripts": {
     "dev": "nx run frontend:serve",
-    "start:production": "nx run frontend:serve:production",
+    "start": "nx run frontend:serve:production",
     "build": "nx run frontend:build",
     "test": "nx test",
     "preinstall": "npx only-allow pnpm"
