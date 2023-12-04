@@ -1,4 +1,8 @@
-import CONFIG from './index';
+export const MINI_CONFIG = {
+  appName: 'Hats Protocol',
+  url: 'https://app.hatsprotocol.xyz',
+  logoUrl: 'https://app.hatsprotocol.xyz/img/favicon-512.png',
+};
 
 const additionalLinkTags = [
   { rel: 'manifest', href: '/site.webmanifest' },
@@ -33,28 +37,28 @@ const additionalLinkTags = [
 ];
 
 const SeoConfig = {
-  titleTemplate: `%s | ${CONFIG.appName}`,
-  defaultTitle: CONFIG.appName,
-  description: 'A hat for any occasion', // CONFIG.appDescription,
+  titleTemplate: `%s | ${MINI_CONFIG.appName}`,
+  defaultTitle: MINI_CONFIG.appName,
+  description: 'A hat for any occasion', // MINI_CONFIG.appDescription,
   openGraph: {
     type: 'website',
     locale: 'en_US',
     images: [
       {
-        url: CONFIG.logoUrl,
+        url: MINI_CONFIG.logoUrl,
         width: 500,
         height: 500,
         alt: 'Hats Protocol',
       },
     ],
-    url: CONFIG.url,
-    siteName: CONFIG.appName,
+    url: MINI_CONFIG.url,
+    siteName: MINI_CONFIG.appName,
   },
   twitter: {
     handle: '@hatsprotocol',
     site: '@hatsprotocol',
     cardType: 'summary',
-    image: CONFIG.logoUrl,
+    image: MINI_CONFIG.logoUrl,
   },
   additionalLinkTags,
   // additionalMetaTags,

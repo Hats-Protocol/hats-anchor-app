@@ -2,6 +2,7 @@ import { Abi, Hex } from 'viem';
 
 import { HATS_ABI } from '../contracts/Hats';
 import { CONTACT_URL, DOCS_URL } from './landingContent';
+import { MINI_CONFIG } from './next-seo.config';
 
 // constants lib or sub of app-utils
 
@@ -60,14 +61,12 @@ type Config = {
 };
 
 const CONFIG: Config = {
+  ...MINI_CONFIG,
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
   hatsAbi: HATS_ABI as Abi,
   emojis: '🧢🎩👒',
-  appName: 'Hats Protocol',
   protocolVersion: 'v1',
   shortName: 'Hats',
-  url: 'https://app.hatsprotocol.xyz',
-  logoUrl: 'https://app.hatsprotocol.xyz/img/favicon-512.png',
   ipfsGateway: process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://ipfs.io/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
