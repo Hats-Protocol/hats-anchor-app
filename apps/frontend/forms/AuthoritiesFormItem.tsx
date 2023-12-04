@@ -35,7 +35,7 @@ const AuthoritiesFormItem = ({
       <HStack justifyContent='space-between' w='full' alignItems='center'>
         <Stack flex={1} spacing='1px'>
           <Text mb={0} fontSize='sm' color='blackAlpha.800'>
-            {label}
+            {label || 'New Authority'}
           </Text>
           {isGate && (
             <Link href={gate} isExternal fontSize='xs' color='blue.500'>

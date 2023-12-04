@@ -3,10 +3,8 @@ import {
   Button,
   Card,
   Flex,
-  FormLabel,
   HStack,
   Icon as IconWrapper,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -16,14 +14,13 @@ import {
   ModalOverlay,
   Stack,
   Text,
-  Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
 import { id } from 'date-fns/locale';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFieldArray } from 'react-hook-form';
+import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 
@@ -36,6 +33,8 @@ import usePinImageIpfs from '@/hooks/usePinImageIpfs';
 import { formatImageUrl, getHostnameFromURL } from '@/lib/general';
 import { Authority, AuthorityType } from '@/types';
 
+import Input from '../components/atoms/Input';
+import Textarea from '../components/atoms/Textarea';
 import AuthoritiesFormItem from './AuthoritiesFormItem';
 
 interface AuthoritiesFormProps {
@@ -55,43 +54,64 @@ const AuthoritiesForm = ({
   label,
 }: AuthoritiesFormProps) => {
   const { chainId, selectedHat } = useTreeForm();
-  const { localForm } = useHatForm();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [editingItem, setEditingItem] = useState<Authority>({} as Authority);
+  const { localForm: hatForm } = useHatForm();
+  const { isOpen, onOpen, onClose } = useDisclosure({
+    onClose: () => {
+      reset();
+      if (item.label === '') remove(index);
+    },
+  });
   const [index, setIndex] = useState<number>();
-  const { setValue, getValues, watch, control } = _.pick(localForm, [
-    'setValue',
-    'getValues',
-    'watch',
-    'control',
-  ]);
   const {
-    imageUrl,
-    label: authorityLabel,
-    description,
-    link,
+    setValue: hatSetValue,
+    getValues: hatGetValues,
+    watch: hatWatch,
+    control: hatControl,
+  } = _.pick(hatForm, ['setValue', 'getValues', 'watch', 'control']);
+  const {
     gate,
+    link,
     type,
-  } = getValues?.(`${formName}.${index}`) ?? {};
-  const isGate = type === AUTHORITY_TYPES.gate;
+    label: authorityLabel,
+    imageUrl,
+  } = hatGetValues?.(`${formName}.${index}`) ?? {};
+  const localForm = useForm();
+  const { setValue, reset, handleSubmit, watch, formState } = _.pick(
+    localForm,
+    ['setValue', 'reset', 'handleSubmit', 'watch', 'formState'],
+  );
+  const items = hatWatch?.(formName);
+  const item = watch();
+  const { errors, isDirty } = _.pick(formState, ['errors', 'isDirty']);
+
   const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
-    control,
+    control: hatControl,
     name: formName,
   });
-  const items = watch?.(formName);
 
   const openEditModal = (i: number) => {
-    setEditingItem(getValues?.(`${formName}.${i}`));
+    // const localItem = hatGetValues?.(`${formName}.${i}`);
+    const {
+      imageUrl: localImageUrl,
+      label: localLabel,
+      description: localDescription,
+      link: localLink,
+      gate: localGate,
+    } = hatGetValues?.(`${formName}.${i}`) ?? {};
+    setValue('label', localLabel, { shouldDirty: false });
+    setValue('description', localDescription, { shouldDirty: false });
+    setValue('link', localLink, { shouldDirty: false });
+    setValue('gate', localGate, { shouldDirty: false });
+    setValue('imageUrl', localImageUrl, { shouldDirty: false });
     onOpen();
   };
 
-  const saveEditedItem = () => {
-    if (editingItem) {
-      setValue?.(`${formName}.${index}`, editingItem);
-      onClose();
-      setEditingItem({} as Authority);
-    }
+  const saveEditedItem = (values: FieldValues) => {
+    hatSetValue?.(`${formName}.${index}`, values);
+    onClose();
+
+    reset();
   };
 
   // append fetched guild roles to form, if they aren't already there
@@ -137,16 +157,16 @@ const AuthoritiesForm = ({
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
 
-    if (hatImageURI !== '')
-      setEditingItem((prev) => ({ ...prev, imageUrl: hatImageURI }));
-  }, [imagePinData]);
+    if (hatImageURI !== '') setValue('imageUrl', hatImageURI);
+  }, [imagePinData, setValue]);
 
+  const isGate = type === AUTHORITY_TYPES.gate;
   const guildOrSnapshot = useMemo(() => {
     return (
-      getHostnameFromURL(editingItem.gate) === 'guild.xyz' ||
-      getHostnameFromURL(editingItem.link) === 'snapshot.org'
+      getHostnameFromURL(gate) === 'guild.xyz' ||
+      getHostnameFromURL(link) === 'snapshot.org'
     );
-  }, [editingItem.gate, editingItem.link]);
+  }, [gate, link]);
 
   if (!localForm) return null;
 
@@ -189,7 +209,7 @@ const AuthoritiesForm = ({
             setIndex(fields.length);
             onOpen();
           }}
-          isDisabled={items?.some((item: Authority) => item.label === '')}
+          isDisabled={_.some(items, ['label', ''])}
           gap={2}
           variant='outline'
           borderColor='blackAlpha.300'
@@ -205,129 +225,99 @@ const AuthoritiesForm = ({
           <ModalHeader>Edit Authority</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Stack spacing={5}>
-              <Flex w='full' justifyContent='center' mb={8}>
-                <Card borderRadius='4px' boxShadow='md' p={3} w='80%'>
+            <Stack spacing={8}>
+              <Flex w='full' justifyContent='center'>
+                <Card borderRadius='4px' boxShadow='md' p={4} w='80%'>
                   <AuthorityHeader
-                    editingItem={editingItem}
+                    editingItem={item as Authority}
                     label={authorityLabel}
                     type={
                       (isGate
                         ? AUTHORITY_TYPES.gate
                         : AUTHORITY_TYPES.manual) as AuthorityType
                     }
-                    imageUrl={editingItem?.imageUrl}
+                    imageUrl={item?.imageUrl}
                     hideInfo
                   />
                 </Card>
               </Flex>
-              <Stack>
-                <FormLabel
-                  m='0'
-                  display='contents'
-                  alignItems='baseline'
-                  fontSize='sm'
-                >
-                  <Text>AUTHORITY NAME</Text>
-                </FormLabel>
+
+              <Stack
+                as='form'
+                onSubmit={handleSubmit(saveEditedItem)}
+                spacing={4}
+              >
                 <Input
-                  onChange={(e) =>
-                    setEditingItem({ ...editingItem, label: e.target.value })
-                  }
-                  defaultValue={authorityLabel}
+                  label='Authority Name'
+                  name='label'
                   placeholder='Name'
-                  required
+                  localForm={localForm}
+                  options={{
+                    required: 'Authority name is required',
+                  }}
                 />
-              </Stack>
-              <Stack>
-                <FormLabel
-                  m='0'
-                  display='contents'
-                  alignItems='baseline'
-                  fontSize='sm'
-                >
-                  <Text>AUTHORITY LINK</Text>
-                </FormLabel>
-                <Input
-                  placeholder='https://example.com'
-                  defaultValue={link}
-                  onChange={(e) =>
-                    setEditingItem({ ...editingItem, link: e.target.value })
-                  }
-                  isDisabled={guildOrSnapshot}
-                />
-              </Stack>
-              <Stack>
-                <FormLabel
-                  m='0'
-                  display='contents'
-                  alignItems='baseline'
-                  fontSize='sm'
-                >
-                  <Text>TOKEN GATE LINK</Text>
-                </FormLabel>
-                <Input
-                  placeholder='https://example.com'
-                  defaultValue={gate}
-                  onChange={(e) =>
-                    setEditingItem({ ...editingItem, gate: e.target.value })
-                  }
-                  isDisabled={guildOrSnapshot}
-                />
-              </Stack>
 
-              <Stack>
-                <FormLabel
-                  m='0'
-                  display='contents'
-                  alignItems='baseline'
-                  fontSize='sm'
-                >
-                  <Text>DESCRIPTION</Text>
-                </FormLabel>
+                <Input
+                  label='Authority Link'
+                  name='link'
+                  subLabel='The place where action is taken using this authority.'
+                  placeholder='https://example.com'
+                  localForm={localForm}
+                  isDisabled={guildOrSnapshot}
+                />
+
+                <Input
+                  label='Token Gate Link'
+                  name='gate'
+                  subLabel='The place where the linkage is created between the hat token and this authority.'
+                  placeholder='https://example.com'
+                  localForm={localForm}
+                  isDisabled={guildOrSnapshot}
+                />
+
                 <Textarea
+                  label='Description'
+                  name='description'
                   placeholder='Enter a description here (supports markdown)'
-                  defaultValue={description}
-                  onChange={(e) =>
-                    setEditingItem({
-                      ...editingItem,
-                      description: e.target.value,
-                    })
-                  }
+                  localForm={localForm}
                 />
-              </Stack>
 
-              <DropZone
-                label='Image'
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                isFullWidth
-                image={imageUrl}
-                imageUrl={formatImageUrl(editingItem?.imageUrl)}
-              />
+                <DropZone
+                  label='Image'
+                  getRootProps={getRootProps}
+                  getInputProps={getInputProps}
+                  isFocused={isFocused}
+                  isDragAccept={isDragAccept}
+                  isDragReject={isDragReject}
+                  isFullWidth
+                  image={imageUrl}
+                  imageUrl={formatImageUrl(imageUrl)}
+                />
+
+                <Flex mt={4} justify='flex-end'>
+                  <HStack>
+                    <Button
+                      colorScheme='gray'
+                      color='gray.600'
+                      onClick={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme='blue'
+                      leftIcon={<BsSave />}
+                      isLoading={isLoading}
+                      isDisabled={_.some(errors) || !isDirty}
+                      type='submit'
+                    >
+                      Save
+                    </Button>
+                  </HStack>
+                </Flex>
+              </Stack>
             </Stack>
           </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme='gray'
-              color='gray.600'
-              mr={3}
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorScheme='blue'
-              leftIcon={<BsSave />}
-              isLoading={isLoading}
-              onClick={saveEditedItem}
-            >
-              Save
-            </Button>
-          </ModalFooter>
+          <ModalFooter />
         </ModalContent>
       </Modal>
     </Stack>
