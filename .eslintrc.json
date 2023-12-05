@@ -39,7 +39,13 @@
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
-  "ignorePatterns": ["lib/ipfs-misc.ts"], // `multiformats` breaking
+  "ignorePatterns": [
+    "node_modules/*",
+    ".nx/*",
+    "dist/*",
+    "tmp/*",
+    "lib/app-utils/src/lib/ipfs-misc.ts"
+  ], // `multiformats` breaking
   "rules": {
     // gen
     "no-use-before-define": "off",

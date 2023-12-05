@@ -70,7 +70,7 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     }
     const returnData = _.mapKeys(
       _.get(data, 'result[0]'),
-      (value: any, key: any) => _.camelCase(key),
+      (value: unknown, key: string) => _.camelCase(key),
     );
     const trimData = _.omit(returnData, ['abi', 'sourceCode']);
 

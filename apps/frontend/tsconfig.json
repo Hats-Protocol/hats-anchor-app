@@ -11,20 +11,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "types": [
-      "node"
-    ],
-    "lib": ["ES2021"],
+    "types": ["node"],
+    "lib": ["ES2021"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "next-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "jest.config.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "*.d.ts"],
+  "exclude": ["jest.config.ts"]
 }
