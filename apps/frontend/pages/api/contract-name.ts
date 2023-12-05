@@ -11,14 +11,16 @@ const {
   ARBISCAN_API_KEY,
 } = process.env;
 
-const ETHERSCAN_API_URLS: { [key in SupportedChains]: string } = {
+const ETHERSCAN_API_URLS: { [key in SupportedChains]: string | undefined } = {
   1: 'https://api.etherscan.io/api',
   5: 'https://api-goerli.etherscan.io/api',
   10: 'https://api-optimistic.etherscan.io/api',
   100: 'https://api.gnosisscan.io/api',
   137: 'https://api.polygonscan.com/api',
-  424: 'https://api.pgn.one/api', // TODO explorer URL
+  424: undefined, // 'https://api.pgn.one/api', // TODO PGN explorer URL
+  // 8453: 'https://api.basescan.org/api',
   42161: 'https://api.arbiscan.io/api',
+  // 42220: 'https://api.celoscan.io/api',
   11155111: 'https://api-sepolia.etherscan.io/api',
 };
 
@@ -30,6 +32,7 @@ const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
   137: POLYGONSCAN_API_KEY,
   424: ETHERSCAN_API_KEY, // TODO PGN Explorer Key
   42161: ARBISCAN_API_KEY,
+  // 42220: CELOSCAN_API_KEY,
   11155111: ETHERSCAN_API_KEY,
 };
 
@@ -45,6 +48,12 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   // TODO more auth, do fetch requests pass next session?
+  if (
+    !ETHERSCAN_API_URLS[chainId as SupportedChains] ||
+    !ETHERSCAN_KEYS[chainId as SupportedChains]
+  ) {
+    return res.status(400).json({ error: 'Chain not supported' });
+  }
 
   try {
     const result = await fetch(
