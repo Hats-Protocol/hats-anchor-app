@@ -1,18 +1,13 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Hat, HatDetails, HatWearer, Tree } from 'hats-types';
+import { Hat, HatDetails, Tree } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-import { extendControllers, extendWearers } from './contract';
 import { decimalId, idToPrettyId } from './hats';
 
 // hats-utils or app-utils
 
-const mapHat = (
-  hat: Hat | undefined,
-  chainId: number,
-  wAndCInfo: HatWearer[] | undefined,
-): Hat | undefined => {
+const mapHat = (hat: Hat | undefined, chainId: number): Hat | undefined => {
   if (!hat) return undefined;
 
   return {
@@ -23,9 +18,6 @@ const mapHat = (
     treeId: hat.tree?.id,
     isLinked: false,
     url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
-    extendedWearers: extendWearers(hat.wearers, wAndCInfo),
-    extendedEligibility: extendControllers(hat.eligibility, wAndCInfo),
-    extendedToggle: extendControllers(hat.toggle, wAndCInfo),
   };
 };
 
@@ -34,7 +26,6 @@ export async function toTreeStructure({
   treeData,
   hatsData,
   detailsData,
-  wearersAndControllers,
   imagesData,
   draftHats,
   chainId,
@@ -46,19 +37,12 @@ export async function toTreeStructure({
     id: string;
     detailsObject: { type: string; data: HatDetails };
   }[];
-  wearersAndControllers: HatWearer[] | undefined;
   imagesData: Hat[] | undefined;
   draftHats: Hat[] | undefined;
   chainId: number;
   initialHatIds: Hex[];
 }): Promise<Hat[] | undefined> {
-  if (
-    !treeData ||
-    !hatsData ||
-    !detailsData ||
-    !wearersAndControllers ||
-    !imagesData
-  ) {
+  if (!treeData || !hatsData || !detailsData || !imagesData) {
     return Promise.resolve(undefined);
   }
   const onlyOnchainHats = _.filter(hatsData, (hat: Hat) =>
@@ -80,7 +64,7 @@ export async function toTreeStructure({
   });
 
   const hats = _.map(initialHatIds, (hat: Hex) =>
-    mapHat(_.find(mergedHatsData, ['id', hat]), chainId, wearersAndControllers),
+    mapHat(_.find(mergedHatsData, ['id', hat]), chainId),
   );
 
   const hatsList = _.orderBy(

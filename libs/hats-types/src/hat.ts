@@ -50,9 +50,7 @@ export interface Hat {
   details: string;
   maxSupply: string;
   eligibility: Hex;
-  extendedEligibility?: HatWearer;
   toggle: Hex;
-  extendedToggle?: HatWearer;
   mutable: boolean;
   imageUri: string;
   imageUrl?: string | null;
@@ -60,7 +58,6 @@ export interface Hat {
   currentSupply: string;
   events: HatEvent[];
   wearers: HatWearer[];
-  extendedWearers?: HatWearer[];
   admin?: Partial<Hat>;
   claimableBy?: Hex[];
   claimableForBy?: Hex[];

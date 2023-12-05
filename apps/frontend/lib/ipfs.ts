@@ -1,5 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { GATEWAY_TOKEN, GATEWAY_URL } from 'app-utils';
+import { ipfsUrl } from 'app-utils';
 import axios from 'axios';
 import { FormDataDetails } from 'hats-types';
 import _ from 'lodash';
@@ -112,11 +112,6 @@ export const handleDetailsPin = async ({
   )}`;
 
   return cid;
-};
-
-export const ipfsUrl = (hash: string | undefined) => {
-  if (!hash) return null;
-  return `${GATEWAY_URL}${hash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 
 export const urlToIpfsUri = (url: string) => {

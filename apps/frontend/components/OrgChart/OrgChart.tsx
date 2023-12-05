@@ -63,6 +63,7 @@ const OrgChartComponent: React.FC = () => {
     storedData,
     setStoredData,
     addHat,
+    wearersAndControllers,
   } = useTreeForm();
 
   const d3Container = useRef(null);
@@ -228,11 +229,11 @@ const OrgChartComponent: React.FC = () => {
               details,
               detailsObject,
               isLinked,
-              extendedWearers: wearers,
+              wearers,
               maxSupply,
               currentSupply,
-              extendedEligibility: eligibility,
-              extendedToggle: toggle,
+              eligibility,
+              toggle,
               levelAtLocalTree,
             } = d.data;
 
@@ -244,6 +245,12 @@ const OrgChartComponent: React.FC = () => {
             const detailsName =
               currentName || detailsObject?.data?.name || details;
             const isSelected = selectedHat?.id === d.id;
+            const extendedEligibility = _.find(wearersAndControllers, {
+              id: eligibility,
+            });
+            const extendedToggle = _.find(wearersAndControllers, {
+              id: toggle,
+            });
 
             // setup wearers section
             let wearersColor = '#FFFFFF';
@@ -259,9 +266,12 @@ const OrgChartComponent: React.FC = () => {
               wearerAccent = `out of ${maxSupplyText(maxSupply)}`;
             }
             if (_.size(wearers) === 1) {
+              const extendedWearer = _.find(wearersAndControllers, {
+                id: wearer?.id,
+              });
               wearerContent =
-                !!wearer?.ensName && wearer?.ensName !== ''
-                  ? wearer?.ensName
+                !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
+                  ? extendedWearer?.ensName
                   : formatAddress(_.get(wearer, 'id'));
               wearerAccent = `1 of ${maxSupplyText(maxSupply)}`;
               if (wearer?.isContract) {
@@ -424,10 +434,13 @@ const OrgChartComponent: React.FC = () => {
                           opacity: 0.8;
                         ">
                           ${
+                            // eslint-disable-next-line no-nested-ternary
                             levelAtLocalTree === 0
                               ? 'None - Top Hat'
-                              : toggle?.ensName !== '' ||
-                                formatAddress(_.get(toggle, 'id'))
+                              : extendedToggle?.ensName &&
+                                extendedToggle?.ensName !== ''
+                              ? extendedToggle?.ensName
+                              : formatAddress(toggle)
                           }
                         </div>
                       </div>
@@ -461,10 +474,13 @@ const OrgChartComponent: React.FC = () => {
                           opacity: 0.8;
                         ">
                           ${
+                            // eslint-disable-next-line no-nested-ternary
                             levelAtLocalTree === 0
                               ? 'None - Top Hat'
-                              : eligibility?.ensName !== '' ||
-                                formatAddress(_.get(eligibility, 'id'))
+                              : extendedEligibility?.ensName &&
+                                extendedEligibility?.ensName !== ''
+                              ? extendedEligibility?.ensName
+                              : formatAddress(eligibility)
                           }
                         </div>
                       </div>
@@ -694,6 +710,7 @@ const OrgChartComponent: React.FC = () => {
     treeToDisplay,
     compact,
     flipped,
+    wearersAndControllers,
   ]);
 
   return isLoading ? (

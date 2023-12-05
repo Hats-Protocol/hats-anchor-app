@@ -77,7 +77,7 @@ export const extendWearers = (
   _.compact(
     _.map(wearers, (wearer: HatWearer) => {
       const wearerInfo = _.find(wearersInfo, { id: _.toLower(wearer.id) });
-      return wearerInfo as HatWearer | undefined;
+      return wearerInfo || wearer;
     }),
   );
 

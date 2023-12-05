@@ -37,10 +37,8 @@ export const filterWearers = (
   if (!searchTerm || !wearers) return wearers;
 
   return _.filter(wearers, (wearer: HatWearer) => {
-    const idSearch = wearer.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const ensSearch = wearer.ensName
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const idSearch = _.toLower(wearer.id).includes(_.toLower(searchTerm));
+    const ensSearch = _.toLower(wearer.ensName).includes(_.toLower(searchTerm));
 
     return idSearch || ensSearch;
   });
@@ -93,7 +91,7 @@ export const maxSupplyText = (maxSupply: number) => {
     const supplyRounded = _.map(rounds, (r: number) =>
       _.round(_.toNumber(maxSupply) / r, 0),
     );
-    const index = _.findIndex(supplyRounded, (v: any) => v > 0);
+    const index = _.findIndex(supplyRounded, (v: number) => v > 0);
 
     return `${supplyRounded[index]}${formatString[index]}`;
   }

@@ -9,7 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { AUTHORITIES } from 'app-utils';
+import { AUTHORITIES, ipfsUrl } from 'app-utils';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 import { BsInfoCircle } from 'react-icons/bs';
@@ -17,7 +17,6 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 
 import { SnapshotStrategy } from '../../../hooks/useSnapshotSpaces';
 import { getHostnameFromURL, validateURL } from '../../../lib/general';
-import { ipfsUrl } from '../../../lib/ipfs';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 
 const AuthorityHeader = ({

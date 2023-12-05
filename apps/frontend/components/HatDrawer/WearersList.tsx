@@ -34,6 +34,7 @@ import useMultiClaimsHatterContractWrite from '../../hooks/useMultiClaimsHatterC
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useWearerEligibilityCheck from '../../hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '../../hooks/useWearersEligibilityCheck';
+import { extendWearers } from '../../lib/contract';
 import { commify } from '../../lib/general';
 import { exportToCsv, isWearingAdminHat } from '../../lib/hats';
 import { wearersPerPage } from '../../lib/subgraph/wearer';
@@ -41,7 +42,7 @@ import {
   filterWearers,
   getEligibleWearers,
   maxSupplyText,
-  sortWearers,
+  // sortWearers,
 } from '../../lib/wearers';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
@@ -66,8 +67,14 @@ const WearersList = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
-  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
+  const { setModals, modals } = localOverlay;
+  const {
+    chainId,
+    selectedHat,
+    selectedHatDetails,
+    editMode,
+    wearersAndControllers,
+  } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -78,16 +85,14 @@ const WearersList = () => {
   });
 
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
-  const wearers = useMemo(() => {
-    return _.get(selectedHat, 'extendedWearers', []);
-  }, [selectedHat]);
-
-  const { wearers: exportWearers } = useAllWearers();
-
-  const sortedWearers = useMemo(
-    () => sortWearers({ wearers, address }),
-    [wearers, address],
+  const extendedWearers = extendWearers(
+    _.get(selectedHat, 'wearers'),
+    wearersAndControllers,
   );
+
+  const { wearers: exportWearers } = useAllWearers({
+    enabled: _.get(modals, 'hatWearers'),
+  });
 
   const {
     paginatedWearers,
@@ -102,7 +107,7 @@ const WearersList = () => {
     editMode,
   });
 
-  const mergedWearers = _.merge(wearers, paginatedWearers);
+  const mergedWearers = _.merge(extendedWearers, paginatedWearers);
   const wearerIds = useMemo(() => _.map(exportWearers, 'id'), [exportWearers]);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
@@ -150,13 +155,16 @@ const WearersList = () => {
       args: [selectedHat?.id, 1],
     });
 
-  const filteredWearers = useMemo(
-    () =>
-      _.slice(filterWearers(searchTerm, sortedWearers), 0, 6) as HatWearer[],
-    [searchTerm, sortedWearers],
-  );
+  const filteredWearers = useMemo(() => {
+    if (!extendedWearers) return undefined;
+    return _.slice(
+      filterWearers(searchTerm, extendedWearers),
+      0,
+      6,
+    ) as HatWearer[];
+  }, [searchTerm, extendedWearers]);
 
-  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+  const maxWearersReached = _.gte(_.size(extendedWearers), maxSupply);
 
   const claimTooltip = useMemo(() => {
     if (chainId !== currentNetworkId)
@@ -189,7 +197,7 @@ const WearersList = () => {
           </Flex>
         </Flex>
 
-        {_.gt(_.size(sortedWearers), 5) && (
+        {_.gt(_.size(extendedWearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -203,11 +211,15 @@ const WearersList = () => {
           </InputGroup>
         )}
         {/* Wearers list */}
-        {filteredWearers.map((w: HatWearer) => (
+        {_.map(filteredWearers, (w: HatWearer) => (
           <WearerRow
             key={w.id}
             wearer={w}
-            isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
+            isEligible={
+              !_.isEmpty(eligibleWearers)
+                ? _.includes(_.map(eligibleWearers, 'id'), w.id)
+                : true
+            }
             isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
@@ -223,7 +235,7 @@ const WearersList = () => {
         )}
 
         <Flex justify='space-between' align='center'>
-          {_.gt(_.size(sortedWearers), 6) && (
+          {_.gt(_.size(extendedWearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'
