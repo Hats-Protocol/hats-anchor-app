@@ -17,7 +17,9 @@ export const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
   100: 'gno',
   137: 'matic',
   424: 'pgn', // NOT ACTUALLY SUPPORTED YET
+  // 8453: 'base', // NOT ACTUALLY SUPPORTED YET
   42161: 'arb1',
+  11155111: 'sep',
 };
 
 export const safeUrl = (chainId: SupportedChains, address: Hex | undefined) => {

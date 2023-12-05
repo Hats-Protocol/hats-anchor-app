@@ -14,16 +14,16 @@ import {
   mainnet,
   optimism,
   polygon,
-  // sepolia,
+  sepolia,
 } from 'wagmi/chains';
 
 import pgn from './pgn';
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
-export type SupportedChains = 1 | 5 | 10 | 100 | 137 | 424 | 42161; // 42220, 8453, 84532, // 11155111
+export type SupportedChains = 1 | 5 | 10 | 100 | 137 | 424 | 42161 | 11155111; // 42220, 8453 // 84532
 // ORDER HERE WILL BE USED IN THE UI
-export const orderedChains = [1, 10, 42161, 137, 100, 424, 5]; // 42220, 8453, 84532, // 11155111
+export const orderedChains = [1, 10, 42161, 137, 100, 424, 11155111, 5]; // 42220, 8453 // 84532
 
 // can we use the defaults here again?
 export const networkImages: { [key in SupportedChains]: string } = {
@@ -37,7 +37,7 @@ export const networkImages: { [key in SupportedChains]: string } = {
   42161: '/chains/arbitrum.svg',
   // 42220: '/chains/celo.svg',
   // 84532: '/chains/base-sepolia.svg',
-  // 11155111: '/chains/sepolia.svg',
+  11155111: '/chains/ethereum.svg',
 };
 
 // TODO check if this got fixed, submit issue if not (should be fixed)
@@ -66,7 +66,7 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   42161: arbitrum,
   // 42220: celo,
   // 84532: baseSepolia,
-  // 11155111: sepolia,
+  11155111: sepolia,
 };
 
 export const chainsMap = (chainId?: number) =>

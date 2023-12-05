@@ -3,7 +3,7 @@ import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
-import { defaultHat } from 'app-utils';
+import { defaultHat, ipfsUrl } from 'app-utils';
 import {
   Authority,
   FormData,
@@ -45,7 +45,6 @@ import {
 } from '../lib/form';
 import { generateLocalStorageKey, mapWithChainId } from '../lib/general';
 import { createHierarchy, ipToHatId, translateDrafts } from '../lib/hats';
-import { ipfsUrl } from '../lib/ipfs';
 
 export interface TreeFormContext {
   chainId: number | undefined;

@@ -36,7 +36,6 @@
   "extends": [
     "airbnb",
     "plugin:@tanstack/eslint-plugin-query/recommended",
-    "next/core-web-vitals",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended"
   ],

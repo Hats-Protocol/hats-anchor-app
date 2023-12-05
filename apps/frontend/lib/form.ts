@@ -1,5 +1,10 @@
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
-import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from 'app-utils';
+import {
+  FALLBACK_ADDRESS,
+  ipfsUrl,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from 'app-utils';
 import {
   FieldItem,
   FormData,
@@ -15,7 +20,7 @@ import { Hex } from 'viem';
 
 import { publicClient } from './chains';
 import { createHierarchy, getDefaultAdminId } from './hats';
-import { calculateCid, ipfsUrl, urlToIpfsUri } from './ipfs';
+import { calculateCid, urlToIpfsUri } from './ipfs';
 import { createHatsClient } from './web3';
 
 // hats-utils - used in calldata hooks

@@ -19,6 +19,7 @@ const ETHERSCAN_API_URLS: { [key in SupportedChains]: string } = {
   137: 'https://api.polygonscan.com/api',
   424: 'https://api.pgn.one/api', // TODO explorer URL
   42161: 'https://api.arbiscan.io/api',
+  11155111: 'https://api-sepolia.etherscan.io/api',
 };
 
 const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
@@ -29,6 +30,7 @@ const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
   137: POLYGONSCAN_API_KEY,
   424: ETHERSCAN_API_KEY, // TODO PGN Explorer Key
   42161: ARBISCAN_API_KEY,
+  11155111: ETHERSCAN_API_KEY,
 };
 
 const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {

@@ -3,6 +3,7 @@
     "plugin:@nx/react-typescript",
     "next",
     "next/core-web-vitals",
+    "plugin:react/recommended",
     "../../.eslintrc.json"
   ],
   "ignorePatterns": ["!**/*", ".next/**/*"],
@@ -21,7 +22,8 @@
           { "namedComponents": ["arrow-function", "function-declaration"] }
         ],
         "react/require-default-props": "off",
-        "react/destructuring-assignment": "off"
+        "react/destructuring-assignment": "off",
+        "react/react-in-jsx-scope": "off"
       }
     },
     {
