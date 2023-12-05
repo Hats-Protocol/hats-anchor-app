@@ -34,39 +34,40 @@ export const daohausUrl = (
 };
 
 export const getControllerNameAndLink = ({
-  controllerData,
+  extendedController,
   moduleDetails,
   contractData,
   chainId,
 }: {
-  controllerData: HatWearer | undefined; // toggle/eligibility data
+  extendedController: HatWearer | undefined; // toggle/eligibility data
   moduleDetails: Module | undefined;
   contractData: ContractData | undefined;
   chainId: SupportedChains | undefined;
 }) => {
   // fallback values: formatted address and explorer link
-  let controllerName = formatAddress(controllerData?.id);
+  let controllerName = formatAddress(extendedController?.id);
   let controllerLink = `${explorerUrl(chainId)}/address/${_.get(
-    controllerData,
+    extendedController,
     'id',
   )}`;
   // if known module, use module name
   if (moduleDetails) controllerName = moduleDetails.name;
   // prioritize ens
-  else if (controllerData?.ensName) controllerName = controllerData?.ensName;
+  else if (extendedController?.ensName)
+    controllerName = extendedController?.ensName;
   else if (contractData?.contractName === 'GnosisSafeProxy') {
     // override for safe
     controllerName = 'Safe Multisig';
     controllerLink = safeUrl(
       chainId as SupportedChains,
-      _.get(controllerData, 'id'),
+      _.get(extendedController, 'id'),
     );
   } else if (contractData?.contractName === 'Baal') {
     // override for baal
     controllerName = contractData?.contractName;
     controllerLink = daohausUrl(
       chainId as SupportedChains,
-      _.get(controllerData, 'id'),
+      _.get(extendedController, 'id'),
     );
   } else if (contractData?.contractName)
     // contract (etherscan) name, if verified

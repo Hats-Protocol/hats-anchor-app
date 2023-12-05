@@ -34,6 +34,7 @@ import useMultiClaimsHatterContractWrite from '../../hooks/useMultiClaimsHatterC
 import useWearerDetails from '../../hooks/useWearerDetails';
 import useWearerEligibilityCheck from '../../hooks/useWearerEligibilityCheck';
 import useWearersEligibilityCheck from '../../hooks/useWearersEligibilityCheck';
+import { extendWearers } from '../../lib/contract';
 import { commify } from '../../lib/general';
 import { exportToCsv, isWearingAdminHat } from '../../lib/hats';
 import { wearersPerPage } from '../../lib/subgraph/wearer';
@@ -67,7 +68,13 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals, modals } = localOverlay;
-  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
+  const {
+    chainId,
+    selectedHat,
+    selectedHatDetails,
+    editMode,
+    wearersAndControllers,
+  } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();
@@ -78,9 +85,10 @@ const WearersList = () => {
   });
 
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
-  const wearers = useMemo(() => {
-    return _.get(selectedHat, 'wearers', []);
-  }, [selectedHat]);
+  const extendedWearers = extendWearers(
+    _.get(selectedHat, 'wearers'),
+    wearersAndControllers,
+  );
 
   const { wearers: exportWearers } = useAllWearers({
     enabled: _.get(modals, 'hatWearers'),
@@ -99,7 +107,7 @@ const WearersList = () => {
     editMode,
   });
 
-  const mergedWearers = _.merge(wearers, paginatedWearers);
+  const mergedWearers = _.merge(extendedWearers, paginatedWearers);
   const wearerIds = useMemo(() => _.map(exportWearers, 'id'), [exportWearers]);
   const currentUserIsWearing = useMemo(
     () => _.includes(wearerIds, _.toLower(address)),
@@ -147,12 +155,16 @@ const WearersList = () => {
       args: [selectedHat?.id, 1],
     });
 
-  const filteredWearers = useMemo(
-    () => _.slice(filterWearers(searchTerm, wearers), 0, 6) as HatWearer[],
-    [searchTerm, wearers],
-  );
+  const filteredWearers = useMemo(() => {
+    if (!extendedWearers) return undefined;
+    return _.slice(
+      filterWearers(searchTerm, extendedWearers),
+      0,
+      6,
+    ) as HatWearer[];
+  }, [searchTerm, extendedWearers]);
 
-  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+  const maxWearersReached = _.gte(_.size(extendedWearers), maxSupply);
 
   const claimTooltip = useMemo(() => {
     if (chainId !== currentNetworkId)
@@ -185,7 +197,7 @@ const WearersList = () => {
           </Flex>
         </Flex>
 
-        {_.gt(_.size(wearers), 5) && (
+        {_.gt(_.size(extendedWearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -199,7 +211,7 @@ const WearersList = () => {
           </InputGroup>
         )}
         {/* Wearers list */}
-        {filteredWearers.map((w: HatWearer) => (
+        {_.map(filteredWearers, (w: HatWearer) => (
           <WearerRow
             key={w.id}
             wearer={w}
@@ -223,7 +235,7 @@ const WearersList = () => {
         )}
 
         <Flex justify='space-between' align='center'>
-          {_.gt(_.size(wearers), 6) && (
+          {_.gt(_.size(extendedWearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'

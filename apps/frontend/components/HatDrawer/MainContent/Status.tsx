@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { FALLBACK_ADDRESS, MODULE_TYPES, ZERO_ADDRESS } from 'app-utils';
+import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -44,13 +45,15 @@ const StatusCard = ({
   label: string;
 }) => {
   const { address } = useAccount();
-  const { chainId, selectedHat } = useTreeForm();
-  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
-    'extendedEligibility',
-    'extendedToggle',
+  const { chainId, selectedHat, wearersAndControllers } = useTreeForm();
+  const { eligibility, toggle } = _.pick(selectedHat, [
+    'eligibility',
+    'toggle',
   ]);
-  const controllerData =
-    status === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
+  const controller = status === MODULE_TYPES.eligibility ? eligibility : toggle;
+  const extendedController: HatWearer = _.find(wearersAndControllers, {
+    id: controller,
+  });
 
   const moduleAddress = useMemo(
     () => _.get(selectedHat, _.toLower(status)),
@@ -79,11 +82,11 @@ const StatusCard = ({
   const { data: isActive } = useHatStatus();
   const { data: contractData } = useContractData({
     chainId,
-    address: controllerData?.id,
-    enabled: controllerData?.isContract,
+    address: extendedController?.id,
+    enabled: extendedController?.isContract,
   });
 
-  const { onCopy } = useClipboard(controllerData?.id || '');
+  const { onCopy } = useClipboard(extendedController?.id || '');
   const toast = useToast();
 
   let statusCheck = true;
@@ -101,16 +104,16 @@ const StatusCard = ({
 
   let icon = FaCode;
   if (
-    controllerData?.id === FALLBACK_ADDRESS ||
-    controllerData?.id === ZERO_ADDRESS
+    extendedController?.id === FALLBACK_ADDRESS ||
+    extendedController?.id === ZERO_ADDRESS
   ) {
     icon = TbCircleOff;
-  } else if (!controllerData?.isContract) {
+  } else if (!extendedController?.isContract) {
     icon = BsPersonBadge;
   }
 
   const { controllerName, controllerLink } = getControllerNameAndLink({
-    controllerData,
+    extendedController,
     moduleDetails,
     contractData,
     chainId: chainId as SupportedChains,
@@ -123,7 +126,7 @@ const StatusCard = ({
           {_.capitalize(_.toString(status))}
         </Heading>
         <Tooltip
-          label={_.get(controllerData, 'id')}
+          label={_.get(extendedController, 'id')}
           placement='left'
           minW='400px'
           textAlign='center'
