@@ -10,6 +10,7 @@ import {
   Hat,
   HatDetails,
   HatEvent,
+  HatWearer,
   Hierarchy,
   LinkRequest,
 } from 'hats-types';
@@ -66,6 +67,7 @@ export interface TreeFormContext {
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
   linkedHatIds?: Hex[];
+  wearersAndControllers: HatWearer[] | undefined;
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
@@ -114,6 +116,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   isLoading: true,
   linkRequestFromTree: undefined,
   linkedHatIds: undefined,
+  wearersAndControllers: undefined,
   // local storage
   storedData: undefined,
   setStoredData: undefined,
@@ -265,11 +268,11 @@ export const TreeFormContextProvider = ({
       editMode,
       onchain: true,
     });
-  const onchainWearersAndControllers = useWearersControllersDetails({
-    hats: onchainHatDetails,
-    editMode,
-    onchain: true,
-  });
+  // const onchainWearersAndControllers = useWearersControllersDetails({
+  //   hats: onchainHatDetails,
+  //   editMode,
+  //   onchain: true,
+  // });
   const { data: onchainImagesData, isLoading: onchainImagesLoading } =
     useImageURIs({
       hats: onchainHatDetails,
@@ -282,7 +285,6 @@ export const TreeFormContextProvider = ({
     chainId,
     hatsData: onchainHatDetails,
     detailsData: onchainDetailsFields,
-    wearersAndControllers: onchainWearersAndControllers,
     imagesData: onchainImagesData,
     draftHats,
     imagesLoaded: !onchainImagesLoading,
@@ -323,7 +325,6 @@ export const TreeFormContextProvider = ({
     chainId,
     hatsData: hatDetails,
     detailsData: detailsFields,
-    wearersAndControllers,
     imagesData,
     draftHats,
     imagesLoaded: !imagesLoading,
@@ -422,6 +423,8 @@ export const TreeFormContextProvider = ({
     (id: Hex) => {
       if (isMobile) return;
       queryClient.invalidateQueries(['hatDetails', { chainId, id }]);
+      queryClient.invalidateQueries(['wearersList', id]);
+      // queryClient.invalidateQueries(['allWearers', id]);
       const allIds = _.map(orgChartTree, 'id');
       const hat = _.find(orgChartTree, ['id', id]);
       if (!_.includes(allIds, id) || !hat) return;
@@ -712,6 +715,7 @@ export const TreeFormContextProvider = ({
       isLoading: imagesLoading || detailsFieldsLoading,
       linkRequestFromTree,
       linkedHatIds,
+      wearersAndControllers,
       // local storage
       storedData,
       setStoredData,
@@ -760,6 +764,7 @@ export const TreeFormContextProvider = ({
       detailsFieldsLoading,
       linkRequestFromTree,
       linkedHatIds,
+      wearersAndControllers,
       // local storage
       storedData,
       setStoredData,

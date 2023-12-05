@@ -29,10 +29,9 @@ const MainAction = () => {
     chainId,
     editMode,
   });
-  const { wearers } = useAllWearers();
   const currentUserIsWearing = useMemo(
-    () => _.includes(_.map(wearers || [], 'id'), _.toLower(address)),
-    [wearers, address],
+    () => _.includes(_.map(wearer || [], 'id'), selectedHat?.id),
+    [wearer, selectedHat?.id],
   );
 
   const currentWearerHats = _.map(wearer, 'id');
@@ -48,7 +47,10 @@ const MainAction = () => {
   const { data: currentUserIsEligible } = useWearerEligibilityCheck({
     wearer: address,
   });
-  const maxWearersReached = _.gte(_.size(wearers), maxSupply);
+  const maxWearersReached = _.gte(
+    _.get(selectedHat, 'currentSupply'),
+    maxSupply,
+  );
 
   if (!isConnected) {
     return <ConnectWallet />;

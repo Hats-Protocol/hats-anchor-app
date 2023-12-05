@@ -74,7 +74,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const detailsObject = _.get(selectedHat, 'detailsObject');
   const currentSupply = _.get(selectedHat, 'currentSupply');
   // TODO handle more than 100 wearers
-  const currentWearers = _.get(selectedHat, 'extendedWearers');
+  const currentWearers = _.get(selectedHat, 'wearers');
   let hatName = selectedHat?.details;
   if (detailsObject?.data) {
     hatName = detailsObject.data.name;

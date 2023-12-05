@@ -41,7 +41,7 @@ import {
   filterWearers,
   getEligibleWearers,
   maxSupplyText,
-  sortWearers,
+  // sortWearers,
 } from '../../lib/wearers';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
@@ -66,7 +66,7 @@ const WearersList = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
+  const { setModals, modals } = localOverlay;
   const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -79,15 +79,12 @@ const WearersList = () => {
 
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
   const wearers = useMemo(() => {
-    return _.get(selectedHat, 'extendedWearers', []);
+    return _.get(selectedHat, 'wearers', []);
   }, [selectedHat]);
 
-  const { wearers: exportWearers } = useAllWearers();
-
-  const sortedWearers = useMemo(
-    () => sortWearers({ wearers, address }),
-    [wearers, address],
-  );
+  const { wearers: exportWearers } = useAllWearers({
+    enabled: _.get(modals, 'hatWearers'),
+  });
 
   const {
     paginatedWearers,
@@ -151,9 +148,8 @@ const WearersList = () => {
     });
 
   const filteredWearers = useMemo(
-    () =>
-      _.slice(filterWearers(searchTerm, sortedWearers), 0, 6) as HatWearer[],
-    [searchTerm, sortedWearers],
+    () => _.slice(filterWearers(searchTerm, wearers), 0, 6) as HatWearer[],
+    [searchTerm, wearers],
   );
 
   const maxWearersReached = _.gte(_.size(wearers), maxSupply);
@@ -189,7 +185,7 @@ const WearersList = () => {
           </Flex>
         </Flex>
 
-        {_.gt(_.size(sortedWearers), 5) && (
+        {_.gt(_.size(wearers), 5) && (
           <InputGroup>
             <InputLeftElement pointerEvents='none'>
               <FaSearch />
@@ -227,7 +223,7 @@ const WearersList = () => {
         )}
 
         <Flex justify='space-between' align='center'>
-          {_.gt(_.size(sortedWearers), 6) && (
+          {_.gt(_.size(wearers), 6) && (
             <Text
               onClick={() => setModals?.({ hatWearers: true })}
               cursor='pointer'

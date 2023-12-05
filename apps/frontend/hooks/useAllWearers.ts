@@ -29,7 +29,7 @@ const fetchHatWearersPage = async ({
   return res;
 };
 
-const useAllWearers = () => {
+const useAllWearers = ({ enabled = true }: { enabled?: boolean }) => {
   const { selectedHat, chainId } = useTreeForm();
   const supply = _.toNumber(selectedHat?.currentSupply);
 
@@ -48,7 +48,7 @@ const useAllWearers = () => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['allWearers', selectedHat?.id],
     queryFn: fetchAllWearers,
-    enabled: !!selectedHat?.id && !!chainId,
+    enabled: enabled && !!selectedHat?.id && !!chainId,
   });
 
   return { wearers: data, error, isLoading };

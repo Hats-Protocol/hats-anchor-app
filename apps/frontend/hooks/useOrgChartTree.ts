@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Hat, HatWearer, Tree } from 'hats-types';
+import { Hat, Tree } from 'hats-types';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
@@ -15,7 +15,6 @@ const useOrgChartTree = ({
   treeData,
   hatsData,
   detailsData,
-  wearersAndControllers,
   imagesData,
   draftHats,
   imagesLoaded,
@@ -45,13 +44,7 @@ const useOrgChartTree = ({
   }, [hatsData]);
 
   const fetchTree = async () => {
-    if (
-      !chainId ||
-      !hatsData ||
-      !detailsData ||
-      !wearersAndControllers ||
-      !imagesData
-    ) {
+    if (!chainId || !hatsData || !detailsData || !imagesData) {
       return undefined;
     }
 
@@ -59,7 +52,6 @@ const useOrgChartTree = ({
       treeData,
       hatsData,
       detailsData,
-      wearersAndControllers,
       imagesData,
       draftHats,
       chainId,
@@ -85,7 +77,6 @@ const useOrgChartTree = ({
       !!chainId &&
       !!hatsData &&
       !!detailsData &&
-      !!wearersAndControllers &&
       !!imagesData &&
       imagesLoaded &&
       detailsLoaded,
@@ -102,7 +93,6 @@ interface UseOrgChartTreeProps {
   treeData: Tree | null | undefined;
   hatsData: Hat[] | undefined;
   detailsData: { id: string; detailsObject: DetailsData }[] | undefined;
-  wearersAndControllers: HatWearer[] | undefined;
   imagesData: Hat[] | undefined;
   draftHats: Hat[] | undefined;
   imagesLoaded: boolean;
