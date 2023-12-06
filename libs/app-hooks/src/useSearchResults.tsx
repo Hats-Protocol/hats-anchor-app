@@ -7,16 +7,34 @@ import { ipToPrettyId, toTreeId } from 'shared-utils';
 
 // TODO refactor without prettyId
 
+const isValidSearch = (search: string | undefined) => {
+  if (
+    (search?.startsWith('0x') && search !== '0x') ||
+    (!_.isNaN(_.toNumber(search)) && _.toNumber(search) !== 0) ||
+    _.every(_.split(search, '.'), (v) => !_.isNaN(_.toNumber(v)))
+  )
+    return true;
+  return false;
+};
+
 const processSearchQuery = (search: string | undefined) => {
-  // standard hex search
+  if (!search) return { subgraphSearch: undefined, searchKey: undefined };
+  if (!isValidSearch(search))
+    return { subgraphSearch: search, searchKey: search };
+
+  // tree ID integer search
   let localSearch = toTreeId(search);
   let searchKey = search;
 
-  if (_.includes(search, '.')) {
+  if (_.startsWith(search, '0x')) {
+    // standard hex search
+    localSearch = search;
+    searchKey = hatIdDecimalToIp(BigInt(search));
+  } else if (_.includes(search, '.')) {
     // ip search
     localSearch = ipToPrettyId(search);
   } else if (_.gt(_.size(search), 10) && !_.startsWith(search, '0x')) {
-    // decimal search
+    // full decimal search
     localSearch = decimalIdToId(Number(search));
     searchKey = hatIdDecimalToIp(hatIdHexToDecimal(localSearch));
   }
@@ -24,19 +42,20 @@ const processSearchQuery = (search: string | undefined) => {
   return { subgraphSearch: localSearch, searchKey };
 };
 
-// app-hooks
 const useSearchResults = ({ search }: { search: string | undefined }) => {
   const { subgraphSearch: localSearch, searchKey } = processSearchQuery(search);
+  const valid = isValidSearch(localSearch);
 
   const { status, error, data, isLoading } = useQuery({
     queryKey: ['searchResults', localSearch],
     queryFn: () => searchQueryResult(localSearch),
-    enabled: !!localSearch && localSearch !== '0x',
+    enabled: !!localSearch && localSearch !== '0x' && valid,
     refetchInterval: 1000 * 60 * 60 * 24,
   });
 
   return {
     status,
+    isValid: valid,
     searchKey,
     error,
     data,

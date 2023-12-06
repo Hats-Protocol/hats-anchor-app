@@ -45,7 +45,7 @@ const processForCommandPalette = (key: string, record: any) => {
   };
 };
 
-export const searchQueryResult = async (search: string) => {
+export const searchQueryResult = async (search: string | undefined) => {
   if (!search) return { trees: [], hats: [] };
 
   const subgraphClient = createSubgraphClient();

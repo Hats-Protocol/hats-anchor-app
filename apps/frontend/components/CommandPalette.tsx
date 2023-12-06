@@ -2,7 +2,7 @@
 /* eslint-disable no-nested-ternary */
 import 'react-cmdk/dist/cmdk.css';
 
-import { Flex, Spinner } from '@chakra-ui/react';
+import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSearchResults } from 'app-hooks';
 import { Group, SearchResults } from 'hats-types';
 import _ from 'lodash';
@@ -43,7 +43,11 @@ const CommandPalette = () => {
     trees: SearchResults[];
     hats: SearchResults[];
   } | null>(null);
-  const { data: searchData, searchKey } = useSearchResults({
+  const {
+    data: searchData,
+    searchKey,
+    isValid,
+  } = useSearchResults({
     search: serverSearch,
   });
 
@@ -176,9 +180,23 @@ const CommandPalette = () => {
               ))}
             </CmdkCommandPalette.List>
           ))
-        ) : (
+        ) : isValid ? (
           <Flex justify='center' p={4}>
             <Spinner />
+          </Flex>
+        ) : (
+          <Flex justify='center' p={4}>
+            <Stack align='center' color='whiteAlpha.600'>
+              <Text fontSize='xl' fontWeight={700} color='whiteAlpha.700'>
+                Unsupported query!
+              </Text>
+              <Stack spacing='2px' textAlign='center'>
+                <Text fontSize='sm'>
+                  Try using the Hat or Tree ID to search
+                </Text>
+                <Text fontSize='sm'>(e.g. 1, 3.1, 0x123..., 5674234...)</Text>
+              </Stack>
+            </Stack>
           </Flex>
         )}
       </CmdkCommandPalette.Page>
