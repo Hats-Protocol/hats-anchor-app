@@ -25,14 +25,14 @@ const ModuleDetailsForm = ({
   localForm: UseFormReturn<any>;
   title: string;
 }) => {
-  const { onchainHats, treeToDisplay } = useTreeForm();
+  const { onchainTree, treeToDisplay } = useTreeForm();
   const { modules } = useHatsModules();
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
-    const modulesForType = _.filter(modules, (m: ModuleDetails) => {
-      const types = _.keys(_.pickBy(m.type, (value: any) => value));
+    const modulesForType = _.filter(modules, (m) => {
+      const types = _.keys(_.pickBy(m.type, (value) => value));
 
       return _.includes(types, _.toLower(title));
     });
@@ -56,7 +56,7 @@ const ModuleDetailsForm = ({
     );
   }, [selectedModule]);
 
-  if (!onchainHats || !treeToDisplay) return null;
+  if (!onchainTree || !treeToDisplay) return null;
 
   return (
     <Stack spacing={12}>
@@ -71,7 +71,7 @@ const ModuleDetailsForm = ({
             placeholder='Select a module type'
             localForm={localForm}
           >
-            {_.map(modulesToDisplay, ({ name, id }: ModuleDetails) => (
+            {_.map(modulesToDisplay, ({ name, id }) => (
               <option value={id} key={name}>
                 {name}
               </option>
@@ -148,9 +148,13 @@ const ModuleDetailsForm = ({
                 validate: (value) => transformAndVerify(value, arg.type),
               }}
             >
-              {_.map(onchainHats, ({ id, prettyId }: Hat) => (
+              {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => (
                 <option value={decimalId(id)} key={id}>
-                  {prettyIdToIp(prettyId)}
+                  {`${
+                    detailsObject?.data?.name
+                      ? `${detailsObject?.data?.name} - `
+                      : ''
+                  }${prettyIdToIp(prettyId)}`}
                 </option>
               ))}
             </Select>
