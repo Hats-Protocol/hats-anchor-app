@@ -58,6 +58,7 @@ const DatePicker = ({
           name={name}
           render={({ field: { onChange, value } }) => (
             <DatePickerComponent
+              wrapperClassName='chakra-datepicker'
               selected={value ? new Date(value) : new Date()}
               onChange={onChange}
             />
