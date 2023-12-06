@@ -147,6 +147,7 @@ const WearersList = () => {
 
   const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
     chainId,
+    selectedHat,
     onchainHats,
     storedData,
     editMode,
@@ -161,8 +162,7 @@ const WearersList = () => {
     chainId,
   });
 
-  const currentWearerHats = _.map(wearer, 'id');
-  const isAdminUser = isWearingAdminHat(currentWearerHats, selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
   const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
     useMultiClaimsHatterContractWrite({
@@ -237,7 +237,6 @@ const WearersList = () => {
                 ? _.includes(_.map(eligibleWearers, 'id'), w.id)
                 : true
             }
-            isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
           />
@@ -385,7 +384,6 @@ const WearersList = () => {
                 key={w.id}
                 wearer={w}
                 isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
-                isAdminUser={isAdminUser}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
               />

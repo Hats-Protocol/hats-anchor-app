@@ -37,6 +37,7 @@ const TopMenu = ({
   } = useTreeForm();
   const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
+    selectedHat,
     storedData,
     onchainHats,
     editMode,

@@ -69,11 +69,13 @@ const getHatterHat = async (
 
 const useMultiClaimsHatterCheck = ({
   chainId,
+  selectedHat,
   onchainHats,
   storedData,
   editMode,
 }: {
   chainId: SupportedChains;
+  selectedHat?: Hat;
   onchainHats: Hat[];
   storedData: Partial<FormData>[];
   editMode?: boolean;
@@ -166,7 +168,11 @@ const useMultiClaimsHatterCheck = ({
     address: hatterHat?.instanceAddress,
     chainId,
   });
-  const hatterIsAdmin = useIsAdmin(hatterHat?.instanceAddress);
+  const hatterIsAdmin = useIsAdmin({
+    address: hatterHat?.instanceAddress,
+    hatId: selectedHat?.id,
+    chainId,
+  });
 
   return {
     multiClaimsHatter: details,

@@ -46,7 +46,13 @@ const PermissionlessClaimingForm = ({
   );
 
   const { multiClaimsHatter, instanceAddress, claimableHats } =
-    useMultiClaimsHatterCheck({ chainId, onchainHats, storedData, editMode });
+    useMultiClaimsHatterCheck({
+      chainId,
+      selectedHat,
+      onchainHats,
+      storedData,
+      editMode,
+    });
 
   const isAdmin = useIsAdmin({
     address: instanceAddress,

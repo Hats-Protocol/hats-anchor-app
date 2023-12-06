@@ -72,6 +72,7 @@ const useModuleDeploy = ({
 
   const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck({
     chainId,
+    selectedHat,
     onchainHats,
     storedData,
     editMode,

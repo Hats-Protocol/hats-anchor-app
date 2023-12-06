@@ -64,7 +64,13 @@ const ClaimsHandler = ({
     hatterIsAdmin,
     wearingHat: wearingHatId,
     claimableHats,
-  } = useMultiClaimsHatterCheck({ chainId, storedData, onchainHats, editMode });
+  } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    storedData,
+    onchainHats,
+    editMode,
+  });
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
   const hatToMintTo = watch('hatToMintTo');

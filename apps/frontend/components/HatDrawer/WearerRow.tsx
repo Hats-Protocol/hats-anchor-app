@@ -14,9 +14,14 @@ import {
 import { CONFIG } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { formatAddress, isSameAddress } from 'app-utils';
-import { useHatBurn, useHatContractWrite, useModuleDetails } from 'hats-hooks';
+import {
+  useHatBurn,
+  useHatContractWrite,
+  useModuleDetails,
+  useWearerDetails,
+} from 'hats-hooks';
 import { HatWearer } from 'hats-types';
-import { decimalId, isTopHat } from 'hats-utils';
+import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
@@ -31,7 +36,6 @@ import TooltipWrapper from './TooltipWrapper';
 
 const WearerRow = ({
   wearer,
-  isAdminUser,
   setChangeStatusWearer,
   setWearerToTransferFrom,
   isEligible,
@@ -42,9 +46,21 @@ const WearerRow = ({
   const { address } = useAccount();
   const { chainId, selectedHat } = useTreeForm();
 
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
   const isEligibility = selectedHat?.eligibility === _.toLower(address);
+
+  // include current wearer for Top Hat
+  const isAdminUser = isWearingAdminHat(
+    _.map(wearerDetails, 'id'),
+    selectedHat?.id,
+    !!isTopHat(selectedHat),
+  );
 
   const { writeAsync: testEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
@@ -222,7 +238,6 @@ export default WearerRow;
 
 interface WearerRowProps {
   wearer: HatWearer;
-  isAdminUser: boolean;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
   isEligible: boolean;
