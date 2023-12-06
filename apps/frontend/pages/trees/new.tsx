@@ -12,7 +12,10 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-utils';
+import { CONFIG } from 'app-constants';
+import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
+import { chainsMap, fetchToken, pinJson } from 'app-utils';
+import { useTreeCreate } from 'hats-hooks';
 import { ImageFile } from 'hats-types';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -26,12 +29,6 @@ import DropZone from '../../components/atoms/DropZone';
 import Input from '../../components/atoms/Input';
 import Textarea from '../../components/atoms/Textarea';
 import Layout from '../../components/Layout';
-import useCid from '../../hooks/useCid';
-import useDebounce from '../../hooks/useDebounce';
-import usePinImageIpfs from '../../hooks/usePinImageIpfs';
-import useTreeCreate from '../../hooks/useTreeCreate';
-import { chainsMap } from '../../lib/chains/index';
-import { fetchToken, pinJson } from '../../lib/ipfs';
 
 const NewTree = () => {
   const [image, setImage] = useState<ImageFile>();

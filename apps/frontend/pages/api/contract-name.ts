@@ -1,7 +1,6 @@
+import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
-
-import { SupportedChains } from '../../lib/chains';
 
 const {
   ETHERSCAN_API_KEY,
@@ -70,7 +69,7 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     }
     const returnData = _.mapKeys(
       _.get(data, 'result[0]'),
-      (value: any, key: any) => _.camelCase(key),
+      (value: unknown, key: string) => _.camelCase(key),
     );
     const trimData = _.omit(returnData, ['abi', 'sourceCode']);
 

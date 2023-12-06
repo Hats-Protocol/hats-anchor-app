@@ -8,13 +8,11 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { ipfsUrl } from 'app-utils';
+import { getHostnameFromURL, ipfsUrl } from 'app-utils';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
 import { BsFileCheck } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-
-import { getHostnameFromURL } from '../../../lib/general';
 
 const ResponsibilityHeader = ({
   label,

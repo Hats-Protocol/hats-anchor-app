@@ -8,18 +8,18 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { useDebounce } from 'app-hooks';
+import { formatAddress } from 'app-utils';
+import { useHatContractWrite } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
+import { toTreeId } from 'shared-utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useDebounce from '../hooks/useDebounce';
-import useHatContractWrite from '../hooks/useHatContractWrite';
-import { formatAddress } from '../lib/general';
-import { toTreeId } from '../lib/hats';
 
 const HatWearerStatusForm = ({
   wearer,

@@ -1,0 +1,26 @@
+export type AuthorityType =
+  | 'protocol'
+  | 'modules'
+  | 'wallet'
+  | 'hsg'
+  | 'onchain'
+  | 'gate'
+  | 'manual';
+
+export type Authority = {
+  label: string;
+  link: string;
+  gate?: string | undefined;
+  description?: string;
+  imageUrl?: string;
+  type?: string | AuthorityType | undefined;
+  id?: string | number;
+  strategies?: SnapshotStrategy[];
+};
+
+export interface SnapshotStrategy {
+  name: string;
+  network: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: { [key: string]: any };
+}

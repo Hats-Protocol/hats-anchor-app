@@ -16,8 +16,16 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
+import { orderedChains } from 'app-constants';
+import { useImageURIs, useToast } from 'app-hooks';
+import { chainsMap, formatAddress } from 'app-utils';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
+import {
+  useControllerList,
+  useHatsAdminOf,
+  useWearerDetails,
+} from 'hats-hooks';
 import { Hat } from 'hats-types';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
@@ -29,13 +37,6 @@ import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import Layout from '../../components/Layout';
 import CoreHat from '../../components/WearerHatCard';
-import useControllerList from '../../hooks/useControllerList';
-import useHatsAdminOf from '../../hooks/useHatsAdminOf';
-import useImageURIs from '../../hooks/useImageURIs';
-import useToast from '../../hooks/useToast';
-import useWearerDetails from '../../hooks/useWearerDetails';
-import { chainsMap, orderedChains } from '../../lib/chains/index';
-import { formatAddress } from '../../lib/general';
 
 const WearerDetail = ({
   wearerAddress,

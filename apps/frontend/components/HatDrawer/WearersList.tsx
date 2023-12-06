@@ -14,7 +14,27 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { commify, extendWearers, wearersPerPage } from 'app-utils';
+import {
+  useAllWearers,
+  useHatClaim,
+  useHatPaginatedWearers,
+  useModuleDetails,
+  useMultiClaimsHatterCheck,
+  useMultiClaimsHatterContractWrite,
+  useWearerDetails,
+  useWearerEligibilityCheck,
+  useWearersEligibilityCheck,
+} from 'hats-hooks';
 import { HatWearer } from 'hats-types';
+import {
+  exportToCsv,
+  filterWearers,
+  getEligibleWearers,
+  isWearingAdminHat,
+  maxSupplyText,
+  // sortWearers,
+} from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
@@ -25,25 +45,6 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useAllWearers from '../../hooks/useAllWearers';
-import useHatClaim from '../../hooks/useHatClaim';
-import useHatPaginatedWearers from '../../hooks/useHatPaginatedWearers';
-import useModuleDetails from '../../hooks/useModuleDetails';
-import useMultiClaimsHatterCheck from '../../hooks/useMultiClaimsHatterCheck';
-import useMultiClaimsHatterContractWrite from '../../hooks/useMultiClaimsHatterContractWrite';
-import useWearerDetails from '../../hooks/useWearerDetails';
-import useWearerEligibilityCheck from '../../hooks/useWearerEligibilityCheck';
-import useWearersEligibilityCheck from '../../hooks/useWearersEligibilityCheck';
-import { extendWearers } from '../../lib/contract';
-import { commify } from '../../lib/general';
-import { exportToCsv, isWearingAdminHat } from '../../lib/hats';
-import { wearersPerPage } from '../../lib/subgraph/wearer';
-import {
-  filterWearers,
-  getEligibleWearers,
-  maxSupplyText,
-  // sortWearers,
-} from '../../lib/wearers';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
 
@@ -74,6 +75,8 @@ const WearersList = () => {
     selectedHatDetails,
     editMode,
     wearersAndControllers,
+    onchainHats,
+    storedData,
   } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -91,6 +94,8 @@ const WearersList = () => {
   );
 
   const { wearers: exportWearers } = useAllWearers({
+    selectedHat,
+    chainId,
     enabled: _.get(modals, 'hatWearers'),
   });
 
@@ -115,6 +120,8 @@ const WearersList = () => {
   );
   const { data: wearersEligibility } = useWearersEligibilityCheck({
     wearerIds,
+    selectedHat,
+    chainId,
   });
 
   const eligibleWearers = useMemo(
@@ -134,18 +141,28 @@ const WearersList = () => {
 
   const { data: currentUserIsEligible } = useWearerEligibilityCheck({
     wearer: address,
+    selectedHat,
+    chainId,
   });
 
-  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck();
+  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats,
+    storedData,
+    editMode,
+  });
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    selectedHat,
+    chainId,
     wearer: address,
   });
   const { details: eligibilityDetails } = useModuleDetails({
     address: selectedHat?.eligibility,
+    chainId,
   });
 
-  const currentWearerHats = _.map(wearer, 'id');
-  const isAdminUser = isWearingAdminHat(currentWearerHats, selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
   const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
     useMultiClaimsHatterContractWrite({
@@ -220,7 +237,6 @@ const WearersList = () => {
                 ? _.includes(_.map(eligibleWearers, 'id'), w.id)
                 : true
             }
-            isAdminUser={isAdminUser}
             setChangeStatusWearer={setChangeStatusWearer}
             setWearerToTransferFrom={setWearerToTransferFrom}
           />
@@ -368,7 +384,6 @@ const WearersList = () => {
                 key={w.id}
                 wearer={w}
                 isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
-                isAdminUser={isAdminUser}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
               />

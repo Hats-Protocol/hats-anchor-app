@@ -11,8 +11,17 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { FALLBACK_ADDRESS, MODULE_TYPES, ZERO_ADDRESS } from 'app-utils';
-import { HatWearer } from 'hats-types';
+import { FALLBACK_ADDRESS, MODULE_TYPES, ZERO_ADDRESS } from 'app-constants';
+import { useContractData, usePendHatterMint, useToast } from 'app-hooks';
+import {
+  useHatStatus,
+  useModuleDetails,
+  useMultiClaimsHatterCheck,
+  useWearerDetails,
+  useWearerEligibilityCheck,
+} from 'hats-hooks';
+import { HatWearer, SupportedChains } from 'hats-types';
+import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -22,17 +31,6 @@ import { TbCircleOff } from 'react-icons/tb';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import useContractData from '../../../hooks/useContractData';
-import useHatStatus from '../../../hooks/useHatStatus';
-import useModuleDetails from '../../../hooks/useModuleDetails';
-import useMultiClaimsHatterCheck from '../../../hooks/useMultiClaimsHatterCheck';
-import usePendHatterMint from '../../../hooks/usePendHatterMint';
-import useToast from '../../../hooks/useToast';
-import useWearerDetails from '../../../hooks/useWearerDetails';
-import useWearerEligibilityCheck from '../../../hooks/useWearerEligibilityCheck';
-import { SupportedChains } from '../../../lib/chains/index';
-import { getControllerNameAndLink } from '../../../lib/controllers';
-import { isWearingAdminHat } from '../../../lib/hats';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 
 const StatusCard = ({
@@ -45,7 +43,16 @@ const StatusCard = ({
   label: string;
 }) => {
   const { address } = useAccount();
-  const { chainId, selectedHat, wearersAndControllers } = useTreeForm();
+  const {
+    chainId,
+    selectedHat,
+    wearersAndControllers,
+    storedData,
+    setStoredData,
+    onchainHats,
+    editMode,
+    treeToDisplay,
+  } = useTreeForm();
   const { eligibility, toggle } = _.pick(selectedHat, [
     'eligibility',
     'toggle',
@@ -66,20 +73,33 @@ const StatusCard = ({
   });
   const { details: moduleDetails } = useModuleDetails({
     address: moduleAddress,
+    chainId,
   });
 
-  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck();
+  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats,
+    storedData,
+    editMode,
+  });
 
   const { hatToMintTo, hatToMintPended, pendMintHatForHatter } =
     usePendHatterMint({
       address: instanceAddress,
+      treeToDisplay,
+      selectedHat,
+      storedData,
+      setStoredData,
     });
 
   const { data: isEligible } = useWearerEligibilityCheck({
     wearer: address,
+    selectedHat,
+    chainId,
   });
 
-  const { data: isActive } = useHatStatus();
+  const { data: isActive } = useHatStatus({ selectedHat, chainId });
   const { data: contractData } = useContractData({
     chainId,
     address: extendedController?.id,

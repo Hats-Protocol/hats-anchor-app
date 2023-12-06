@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "nx run frontend:serve",
     "start": "nx run frontend:serve:production",
-    "build": "nx run frontend:build && ls -lh dist/apps/frontend/.next",
+    "build": "nx run frontend:build",
     "test": "nx test",
     "preinstall": "npx only-allow pnpm"
   },
@@ -66,6 +66,7 @@
     "@testing-library/react": "14.0.0",
     "@types/d3-org-chart": "^3.1.2",
     "@types/jest": "^29.4.0",
+    "@types/lodash": "^4.14.202",
     "@types/node": "18.14.2",
     "@types/react": "18.2.33",
     "@types/react-datepicker": "^4.15.0",

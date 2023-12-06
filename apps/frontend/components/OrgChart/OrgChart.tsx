@@ -10,25 +10,25 @@ import {
   Spinner,
   useDisclosure,
 } from '@chakra-ui/react';
-import { CONFIG, defaultHat, ZERO_ID } from 'app-utils';
+import { CONFIG, DEFAULT_HAT, ZERO_ID } from 'app-constants';
+import { useToast } from 'app-hooks';
+import { formatAddress } from 'app-utils';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
+import { useWearerDetails } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
+import {
+  calculateNextChildId,
+  isTopHatOrMutable,
+  maxSupplyText,
+} from 'hats-utils';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
+import { ipToHatId } from 'shared-utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useToast from '../../hooks/useToast';
-import useWearerDetails from '../../hooks/useWearerDetails';
-import { formatAddress } from '../../lib/general';
-import {
-  calculateNextChildId,
-  ipToHatId,
-  isTopHatOrMutable,
-} from '../../lib/hats';
-import { maxSupplyText } from '../../lib/wearers';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
@@ -121,7 +121,7 @@ const OrgChartComponent: React.FC = () => {
                 const newId = ipToHatId(nextChildId);
 
                 const newHat = {
-                  ...defaultHat,
+                  ...DEFAULT_HAT,
                   chainId,
                   id: newId,
                   admin: {

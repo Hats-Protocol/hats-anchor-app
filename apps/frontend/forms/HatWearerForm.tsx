@@ -18,7 +18,14 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
+import { chainsMap } from 'app-utils';
+import {
+  useHatContractWrite,
+  useWearerEligibilityCheck,
+  useWearerIsInGoodStanding,
+} from 'hats-hooks';
 import { FormWearer, HatWearer } from 'hats-types';
+import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
 import _ from 'lodash';
 import Papa from 'papaparse';
 import { useEffect, useMemo, useState } from 'react';
@@ -26,6 +33,7 @@ import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaCheck, FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
+import { toTreeId } from 'shared-utils';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -34,12 +42,6 @@ import Input from '../components/atoms/Input';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useHatContractWrite from '../hooks/useHatContractWrite';
-import useWearerEligibilityCheck from '../hooks/useWearerEligibilityCheck';
-import useWearerIsInGoodStanding from '../hooks/useWearerIsInGoodStanding';
-import { chainsMap } from '../lib/chains/index';
-import { decimalId, isMutable, toTreeId } from '../lib/hats';
-import { maxSupplyText } from '../lib/wearers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
@@ -97,6 +99,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const { data: isEligible, isLoading: isLoadingIsEligible } =
     useWearerEligibilityCheck({
       wearer: currentResolvedAddress,
+      selectedHat,
+      chainId,
     });
 
   const isAddressAlreadyAdded =
@@ -117,6 +121,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   const { data: isInGoodStanding } = useWearerIsInGoodStanding({
     wearer: currentResolvedAddress,
+    selectedHat,
+    chainId,
   });
 
   useEffect(() => {
@@ -223,7 +229,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const handleRemoveWearer = (index: number) => {
     const updateWearers = _.filter(
       localWearers,
-      (__: any, i: any) => _.toNumber(i) !== index,
+      (__: unknown, i: string) => _.toNumber(i) !== index,
     );
     setValue?.('wearers', updateWearers);
   };

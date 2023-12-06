@@ -7,8 +7,11 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { MUTABILITY } from 'app-utils';
+import { MUTABILITY } from 'app-constants';
+import { usePinImageIpfs } from 'app-hooks';
+import { formatImageUrl } from 'app-utils';
 import { ImageFile } from 'hats-types';
+import { isMutable, isTopHat } from 'hats-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -25,9 +28,6 @@ import FormRowWrapper from '../components/FormRowWrapper';
 import PlatformInput from '../components/PlatformInput';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { formatImageUrl } from '../lib/general';
-import { isMutable, isTopHat } from '../lib/hats';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },

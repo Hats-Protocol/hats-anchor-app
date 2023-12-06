@@ -11,25 +11,24 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-utils';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
+import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
+import { fetchToken, pinJson } from 'app-utils';
+import { useHatContractWrite } from 'hats-hooks';
 import { ImageFile } from 'hats-types';
+import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { prettyIdToIp, toTreeId } from 'shared-utils';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '../components/atoms/DropZone';
 import Input from '../components/atoms/Input';
 import Textarea from '../components/atoms/Textarea';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useCid from '../hooks/useCid';
-import useDebounce from '../hooks/useDebounce';
-import useHatContractWrite from '../hooks/useHatContractWrite';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { decimalId, prettyIdToIp, toTreeId } from '../lib/hats';
-import { fetchToken, pinJson } from '../lib/ipfs';
 
 // ! update links to use new docs links constants
 

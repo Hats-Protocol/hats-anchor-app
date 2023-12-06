@@ -23,7 +23,9 @@ import {
   useDisclosure,
   UseDisclosureReturn,
 } from '@chakra-ui/react';
-import { CONFIG, initialControls } from 'app-utils';
+import { CONFIG, initialControls } from 'app-constants';
+import { useIsClient } from 'app-hooks';
+import { chainsMap, explorerUrl } from 'app-utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Controls } from 'hats-types';
 import _ from 'lodash';
@@ -36,8 +38,6 @@ import { IoCloseCircleOutline } from 'react-icons/io5';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useIsClient from '../hooks/useIsClient';
-import { chainsMap, explorerUrl } from '../lib/chains/index';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import EventHistory from './EventHistory';
 

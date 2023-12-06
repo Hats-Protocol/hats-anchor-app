@@ -9,15 +9,14 @@ import {
   HStack,
   Icon,
   IconButton,
-  Link,
   Text,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from 'app-utils';
+import { AUTHORITY_TYPES, GUILD_PLATFORMS } from 'app-constants';
+import { getHostnameFromURL, validateURL } from 'app-utils';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
-import { getHostnameFromURL, validateURL } from '../../../lib/general';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Markdown from '../../atoms/Markdown';
 import AuthorityHeader from './AuthorityHeader';

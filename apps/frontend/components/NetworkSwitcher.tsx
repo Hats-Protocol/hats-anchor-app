@@ -1,9 +1,10 @@
 import { Button } from '@chakra-ui/react';
+import { chainsList } from 'app-utils';
+import { SupportedChains } from 'hats-types';
 import React from 'react';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
-import { chainsList, SupportedChains } from '../lib/chains';
 
 const NetworkSwitcher: React.FC = () => {
   const { chainId } = useTreeForm();

@@ -1,12 +1,12 @@
 import { Box } from '@chakra-ui/react';
+import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails } from 'hats-types';
+import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useHatsModules from '../../hooks/useHatsModules';
-import { decimalId } from '../../lib/hats';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
@@ -19,8 +19,8 @@ const ModuleDrawer = ({
   title: string;
   isStandaloneHatterDeploy?: boolean;
 }) => {
-  const { selectedHat } = useTreeForm();
-  const { modules } = useHatsModules();
+  const { selectedHat, chainId } = useTreeForm();
+  const { modules } = useHatsModules({ chainId });
 
   const localForm = useForm({
     mode: 'onBlur',

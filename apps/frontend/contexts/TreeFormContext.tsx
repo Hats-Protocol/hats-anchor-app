@@ -3,7 +3,27 @@ import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
-import { defaultHat, ipfsUrl } from 'app-utils';
+import { DEFAULT_HAT } from 'app-constants';
+import {
+  useBetterMediaQuery,
+  useGuilds,
+  useImageURIs,
+  useLocalStorage,
+  useOrgChartTree,
+  useSnapshotSpaces as useSpaces,
+} from 'app-hooks';
+import {
+  generateLocalStorageKey,
+  ipfsUrl,
+  removeAndHandleSiblings,
+  removeAndHandleSiblingsOrgChart,
+} from 'app-utils';
+import {
+  useManyHatsDetails,
+  useManyHatsDetailsField,
+  useTreeDetails,
+  useWearersControllersDetails,
+} from 'hats-hooks';
 import {
   Authority,
   FormData,
@@ -13,7 +33,9 @@ import {
   HatWearer,
   Hierarchy,
   LinkRequest,
+  SupportedChains,
 } from 'hats-types';
+import { combineAuthorities, translateDrafts } from 'hats-utils';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -25,29 +47,12 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { createHierarchy, ipToHatId, mapWithChainId } from 'shared-utils';
 import { Hex } from 'viem';
 import { useQueryClient } from 'wagmi';
 
-import useBetterMediaQuery from '../hooks/useBetterMediaQuery';
-import useGuilds from '../hooks/useGuilds';
-import useImageURIs from '../hooks/useImageURIs';
-import useLocalStorage from '../hooks/useLocalStorage';
-import useManyHatDetails from '../hooks/useManyHatsDetails';
-import useManyHatsDetailsField from '../hooks/useManyHatsDetailsField';
-import useOrgChartTree from '../hooks/useOrgChartTree';
-import useSpaces from '../hooks/useSnapshotSpaces';
-import useTreeDetails from '../hooks/useTreeDetails';
-import useWearersControllersDetails from '../hooks/useWearersControllersDetails';
-import { combineAuthorities } from '../lib/authorities';
-import {
-  removeAndHandleSiblings,
-  removeAndHandleSiblingsOrgChart,
-} from '../lib/form';
-import { generateLocalStorageKey, mapWithChainId } from '../lib/general';
-import { createHierarchy, ipToHatId, translateDrafts } from '../lib/hats';
-
 export interface TreeFormContext {
-  chainId: number | undefined;
+  chainId: SupportedChains | undefined;
   treeId: Hex | undefined;
   topHat: Hat | undefined;
   // tree
@@ -159,7 +164,7 @@ export const TreeFormContextProvider = ({
   children,
 }: {
   treeId: Hex;
-  chainId: number;
+  chainId: SupportedChains;
   // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
@@ -228,7 +233,7 @@ export const TreeFormContextProvider = ({
 
   const treeEvents = _.get(treeData, 'events');
 
-  const { data: onchainLinkedHats } = useManyHatDetails({
+  const { data: onchainLinkedHats } = useManyHatsDetails({
     hats: mapWithChainId(
       _.map(linkedHatIds, (id: Hex) => ({ id })),
       chainId,
@@ -256,7 +261,7 @@ export const TreeFormContextProvider = ({
   // * ONCHAIN TREE (ONCHAIN HATS)
   // *********************
   const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({ id }));
-  const { data: onchainHatDetails } = useManyHatDetails({
+  const { data: onchainHatDetails } = useManyHatsDetails({
     hats: mapWithChainId(onchainIds, chainId),
     initialHats: mapWithChainId(onchainIds, chainId),
     editMode,
@@ -296,7 +301,7 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TO DISPLAY (ORG CHART HATS)
   // *********************
-  const { data: hatDetails } = useManyHatDetails({
+  const { data: hatDetails } = useManyHatsDetails({
     hats: mapWithChainId(
       _.compact(_.concat(orgChartHats, onchainLinkedHats)),
       chainId,
@@ -553,7 +558,7 @@ export const TreeFormContextProvider = ({
       if (!editMode) return;
       // set updated tree array
       const newHat = {
-        ...defaultHat,
+        ...DEFAULT_HAT,
         ...hat, // handles treeId?
       };
       setOrgChartHats((prev) => {
