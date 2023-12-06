@@ -1,4 +1,5 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -66,6 +67,6 @@ export default TreeDetails;
 
 interface TreeDetailsProps {
   treeId: Hex;
-  chainId: number;
+  chainId: SupportedChains;
   exists: boolean;
 }

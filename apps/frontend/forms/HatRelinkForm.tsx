@@ -10,13 +10,18 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-utils';
+import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
+import { useDebounce, usePinImageIpfs } from 'app-hooks';
+import { fetchToken, pinJson } from 'app-utils';
+import { useHatContractWrite } from 'hats-hooks';
 import { ImageFile } from 'hats-types';
+import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { prettyIdToId, prettyIdToIp } from 'shared-utils';
 import { Hex } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -24,11 +29,6 @@ import DropZone from '../components/atoms/DropZone';
 import Input from '../components/atoms/Input';
 import Select from '../components/atoms/Select';
 import Textarea from '../components/atoms/Textarea';
-import useDebounce from '../hooks/useDebounce';
-import useHatContractWrite from '../hooks/useHatContractWrite';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { decimalId, prettyIdToId, prettyIdToIp } from '../lib/hats';
-import { fetchToken, pinJson } from '../lib/ipfs';
 
 // TODO refactor without prettyId
 // ! update links to use new docs links constants

@@ -8,7 +8,9 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG, FORM_FIELDS, MODULE_TYPES } from 'app-utils';
+import { CONFIG, FORM_FIELDS, MODULE_TYPES } from 'app-constants';
+import { useToast } from 'app-hooks';
+import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import _ from 'lodash';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
@@ -20,12 +22,6 @@ import HatBasicsForm from '../../forms/HatBasicsForm';
 import HatManagementForm from '../../forms/HatManagementForm';
 import HatWearerForm from '../../forms/HatWearerForm';
 import ResponsibilitiesForm from '../../forms/ResponsibilitiesForm';
-import useToast from '../../hooks/useToast';
-import {
-  isMutableNotTopHat,
-  isTopHat,
-  isTopHatOrMutable,
-} from '../../lib/hats';
 import Accordion from '../atoms/Accordion';
 import ChakraNextLink from '../atoms/ChakraNextLink';
 

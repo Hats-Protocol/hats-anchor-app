@@ -15,9 +15,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "@/*": ["apps/frontend/*"],
+      "app-constants": ["libs/app-constants/src/index.ts"],
+      "app-hooks": ["libs/app-hooks/src/index.ts"],
       "app-utils": ["libs/app-utils/src/index.ts"],
-      "hats-types": ["libs/hats-types/src/index.ts"]
+      "hats-hooks": ["libs/hats-hooks/src/index.ts"],
+      "hats-types": ["libs/hats-types/src/index.ts"],
+      "hats-utils": ["libs/hats-utils/src/index.ts"],
+      "shared-utils": ["libs/shared-utils/src/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

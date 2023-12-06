@@ -1,6 +1,7 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { explorerUrl, formatAddress } from 'app-utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
@@ -8,8 +9,6 @@ import { FiExternalLink } from 'react-icons/fi';
 import { formatUnits, Hex } from 'viem';
 import { erc20ABI, useContractReads } from 'wagmi';
 
-import { explorerUrl } from '../lib/chains';
-import { formatAddress } from '../lib/general';
 import ChakraNextLink from './atoms/ChakraNextLink';
 
 const numberTypes = [

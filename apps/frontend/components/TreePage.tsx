@@ -10,17 +10,18 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { chainsMap } from 'app-utils';
+import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
+import { prettyIdToId } from 'shared-utils';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import { chainsMap } from '../lib/chains';
-import { isTopHat, prettyIdToId } from '../lib/hats';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';

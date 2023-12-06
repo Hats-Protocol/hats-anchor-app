@@ -6,7 +6,7 @@
     "plugin:react/recommended",
     "../../.eslintrc.json"
   ],
-  "ignorePatterns": ["!**/*", ".next/**/*"],
+  "ignorePatterns": [".next/**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -40,5 +40,10 @@
         "jest": true
       }
     }
-  ]
+  ],
+  "settings": {
+    "eslint-plugin-next": {
+      "pagesDir": "apps/frontend/pages"
+    }
+  }
 }

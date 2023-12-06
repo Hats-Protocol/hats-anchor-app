@@ -16,6 +16,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { usePinImageIpfs } from 'app-hooks';
+import { formatImageUrl } from 'app-utils';
 import { id } from 'date-fns/locale';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
@@ -31,8 +33,6 @@ import Textarea from '../components/atoms/Textarea';
 import ResponsibilityHeader from '../components/HatDrawer/MainContent/ResponsibilityHeader';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { formatImageUrl } from '../lib/general';
 import ResponsibilitiesFormItem from './ResponsibilitiesFormItem';
 
 interface ItemDetailsFormProps {

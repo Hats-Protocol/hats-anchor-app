@@ -1,10 +1,10 @@
 import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from 'app-utils';
+import { AUTHORITY_TYPES } from 'app-constants';
+import { getHostnameFromURL } from 'app-utils';
 import _ from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 
 import { useHatForm } from '../contexts/HatFormContext';
-import { getHostnameFromURL } from '../lib/general';
 
 interface AuthoritiesFormItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

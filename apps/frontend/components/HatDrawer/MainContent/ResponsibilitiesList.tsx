@@ -1,4 +1,5 @@
 import { Accordion, Heading, Text } from '@chakra-ui/react';
+import { DetailsItem } from 'hats-types';
 import _ from 'lodash';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
@@ -17,7 +18,7 @@ const ResponsibilitiesList = () => {
         Responsibilities
       </Heading>
 
-      {_.map(responsibilities, (responsibility: any) => (
+      {_.map(responsibilities, (responsibility: DetailsItem) => (
         <ResponsibilitiesListCard
           key={responsibility.label}
           responsibility={responsibility}

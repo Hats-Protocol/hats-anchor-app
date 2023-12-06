@@ -10,24 +10,23 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useIsClient, useToast } from 'app-hooks';
 import { formatDistanceToNow } from 'date-fns';
+import { useAdminOfHats } from 'hats-hooks';
 import { Hat } from 'hats-types';
-import _ from 'lodash';
-import { BsChevronRight } from 'react-icons/bs';
-import { FiSave, FiShare2 } from 'react-icons/fi';
-import { Hex } from 'viem';
-
-import { useOverlay } from '../../contexts/OverlayContext';
-import { useTreeForm } from '../../contexts/TreeFormContext';
-import useAdminOfHats from '../../hooks/useAdminOfHats';
-import useIsClient from '../../hooks/useIsClient';
-import useToast from '../../hooks/useToast';
 import {
   getProposedChangesCount,
   handleExportBranch,
   isTopHatOrMutable,
-  prettyIdToId,
-} from '../../lib/hats';
+} from 'hats-utils';
+import _ from 'lodash';
+import { BsChevronRight } from 'react-icons/bs';
+import { FiSave, FiShare2 } from 'react-icons/fi';
+import { prettyIdToId } from 'shared-utils';
+import { Hex } from 'viem';
+
+import { useOverlay } from '../../contexts/OverlayContext';
+import { useTreeForm } from '../../contexts/TreeFormContext';
 import Markdown from '../atoms/Markdown';
 
 const isDraft = (hatId: string, onchainHats: Hat[]) =>
@@ -67,7 +66,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     _.map(storedData, 'id'),
     (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
-  const { adminHatIds } = useAdminOfHats(hatIds);
+  const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
   const handleExport = () =>
     handleExportBranch({

@@ -12,7 +12,15 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react';
-import { CONFIG, LEARN_MORE } from 'app-utils';
+import { CONFIG, LEARN_MORE, orderedChains } from 'app-constants';
+import {
+  useFeaturedTemplates,
+  useFeaturedTrees,
+  useFeaturedTreesData,
+  useImageURIs,
+} from 'app-hooks';
+import { formatAddress } from 'app-utils';
+import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
@@ -24,13 +32,6 @@ import Suspender from '../components/atoms/Suspender';
 import ForkableTemplateCard from '../components/ForkableTemplateCard';
 import Layout from '../components/Layout';
 import LearnMoreCard from '../components/LearnMoreCard';
-import useFeaturedTemplates from '../hooks/useFeaturedTemplates';
-import useFeaturedTrees from '../hooks/useFeaturedTrees';
-import useFeaturedTreesData from '../hooks/useFeaturedTreesData';
-import useImageURIs from '../hooks/useImageURIs';
-import useWearerDetails from '../hooks/useWearerDetails';
-import { orderedChains } from '../lib/chains/index';
-import { formatAddress } from '../lib/general';
 
 const DashboardHatCard = dynamic(
   () => import('../components/DashboardHatCard'),

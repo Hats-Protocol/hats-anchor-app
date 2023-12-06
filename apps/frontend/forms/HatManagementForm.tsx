@@ -7,8 +7,12 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { MODULE_TYPES, TRIGGER_OPTIONS } from 'app-utils';
+import { MODULE_TYPES, TRIGGER_OPTIONS } from 'app-constants';
+import { useContractData } from 'app-hooks';
+import { explorerUrl } from 'app-utils';
+import { useModuleDetails } from 'hats-hooks';
 import { DetailsItem } from 'hats-types';
+import { isMutable } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
@@ -32,10 +36,6 @@ import LabelWithLink from '../components/LabelWithLink';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useContractData from '../hooks/useContractData';
-import useModuleDetails from '../hooks/useModuleDetails';
-import { explorerUrl } from '../lib/chains/index';
-import { isMutable } from '../lib/hats';
 import ClaimsHandler from './ClaimsHandler';
 
 const ModuleDrawer = dynamic(() => import('../components/ModuleDrawer'), {
@@ -111,6 +111,7 @@ const HatManagementForm = ({
 
   const { details: moduleDetails } = useModuleDetails({
     address: moduleAddress,
+    chainId,
   });
   const { data: contractData } = useContractData({
     chainId,

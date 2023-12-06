@@ -1,4 +1,6 @@
 import { waitForTransaction } from '@wagmi/core';
+import { useLocalStorage, useToast } from 'app-hooks';
+import { checkTransactionStatus } from 'app-utils';
 import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -18,9 +20,6 @@ import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 
 import Suspender from '../components/atoms/Suspender';
-import useLocalStorage from '../hooks/useLocalStorage';
-import useToast from '../hooks/useToast';
-import { checkTransactionStatus } from '../lib/contract';
 
 const Modal = dynamic(() => import('../components/atoms/Modal'), {
   loading: () => <Suspender />,

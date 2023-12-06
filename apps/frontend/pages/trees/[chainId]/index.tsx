@@ -1,16 +1,16 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
+import { useImageURIs } from 'app-hooks';
+import { usePaginatedTreeList } from 'hats-hooks';
 import { Hat, Tree } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { mapWithChainId } from 'shared-utils';
 
 import Layout from '../../../components/Layout';
 import NetworkFilter from '../../../components/NetworkFilter';
 import TreeCard from '../../../components/TreeListCard';
-import useImageURIs from '../../../hooks/useImageURIs';
-import usePaginatedTreeList from '../../../hooks/usePaginatedTreeList';
-import { mapWithChainId } from '../../../lib/general';
 
 const Trees = ({ chainId }: { chainId: number }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =

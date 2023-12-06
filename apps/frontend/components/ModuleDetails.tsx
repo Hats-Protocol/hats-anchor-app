@@ -11,12 +11,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
 import React, { useMemo } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useModuleDetails from '../hooks/useModuleDetails';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import ModuleParameters from './ModuleParameters';
 
@@ -28,7 +28,10 @@ const ModuleDetails = ({ type }: { type: string }) => {
     [selectedHat, type],
   );
 
-  const { details: moduleDetails, parameters } = useModuleDetails({ address });
+  const { details: moduleDetails, parameters } = useModuleDetails({
+    address,
+    chainId,
+  });
 
   if (!moduleDetails) return null;
 

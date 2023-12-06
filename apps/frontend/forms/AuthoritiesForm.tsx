@@ -16,7 +16,9 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from 'app-utils';
+import { AUTHORITY_TYPES } from 'app-constants';
+import { usePinImageIpfs } from 'app-hooks';
+import { formatImageUrl, getHostnameFromURL } from 'app-utils';
 import { id } from 'date-fns/locale';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
@@ -32,8 +34,6 @@ import Textarea from '../components/atoms/Textarea';
 import AuthorityHeader from '../components/HatDrawer/MainContent/AuthorityHeader';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import usePinImageIpfs from '../hooks/usePinImageIpfs';
-import { formatImageUrl, getHostnameFromURL } from '../lib/general';
 import AuthoritiesFormItem from './AuthoritiesFormItem';
 
 interface AuthoritiesFormProps {
@@ -124,7 +124,7 @@ const AuthoritiesForm = ({
     );
     const newSpaces = _.filter(
       selectedHatSpaces,
-      (space: any) => !_.includes(existingLinks, space.link),
+      (space: Authority) => !_.includes(existingLinks, space.link),
     );
     if (_.isEmpty(newRoles) && _.isEmpty(newSpaces)) return;
 
