@@ -22,6 +22,7 @@ import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 import useToast from './useToast';
+import useTokenData from './useTokenData';
 
 // modules-hooks
 const useModuleDeploy = ({
@@ -36,7 +37,32 @@ const useModuleDeploy = ({
   deploymentType: DeploymentType;
 }) => {
   const { watch } = localForm;
-  const values = watch();
+  const originalValues = watch();
+  const tokenAddress = originalValues['Token Address'];
+  const { tokenDecimals } = useTokenData(tokenAddress);
+
+  const convertToDecimalAmount = (amount, decimals) => {
+    return String(amount * 10 ** decimals);
+  };
+
+  const values = useMemo(() => {
+    const newValues = { ...originalValues };
+
+    (selectedModuleDetails?.creationArgs?.immutable || []).forEach((arg) => {
+      if (arg.displayType === 'amountWithDecimals') {
+        const amountValue = newValues[arg.name];
+        if (amountValue !== undefined) {
+          newValues[arg.name] = convertToDecimalAmount(
+            amountValue,
+            tokenDecimals,
+          );
+        }
+      }
+    });
+
+    return newValues;
+  }, [originalValues, selectedModuleDetails, tokenDecimals]);
+
   const toast = useToast();
   const queryClient = useQueryClient();
   const { chainId, selectedHat, setStoredData, onchainHats, storedData } =
