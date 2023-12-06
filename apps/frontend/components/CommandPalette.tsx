@@ -2,7 +2,7 @@
 /* eslint-disable no-nested-ternary */
 import 'react-cmdk/dist/cmdk.css';
 
-import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Flex, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSearchResults } from 'app-hooks';
 import { Group, SearchResults } from 'hats-types';
 import _ from 'lodash';
@@ -163,21 +163,24 @@ const CommandPalette = () => {
         ) : localResults ? (
           _.map(searchResults, (group: Group) => (
             <CmdkCommandPalette.List key={group.id} heading={group.heading}>
-              {_.map(_.get(group, 'items'), ({ id, ...rest }: { id: any }) => (
-                <CmdkCommandPalette.ListItem
-                  key={id}
-                  index={getItemIndex(searchResults, id)}
-                  renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink
-                      href={href ?? ''}
-                      handleClose={handleClose}
-                    >
-                      {children}
-                    </CommandPaletteInternalLink>
-                  )}
-                  {...rest}
-                />
-              ))}
+              {_.map(
+                _.get(group, 'items'),
+                ({ id, ...rest }: { id: string }) => (
+                  <CmdkCommandPalette.ListItem
+                    key={id}
+                    index={getItemIndex(searchResults, id)}
+                    renderLink={({ href, children }) => (
+                      <CommandPaletteInternalLink
+                        href={href ?? ''}
+                        handleClose={handleClose}
+                      >
+                        {children}
+                      </CommandPaletteInternalLink>
+                    )}
+                    {...rest}
+                  />
+                ),
+              )}
             </CmdkCommandPalette.List>
           ))
         ) : isValid ? (
@@ -194,7 +197,9 @@ const CommandPalette = () => {
                 <Text fontSize='sm'>
                   Try using the Hat or Tree ID to search
                 </Text>
-                <Text fontSize='sm'>(e.g. 1, 3.1, 0x123..., 5674234...)</Text>
+                <Text fontSize='sm' fontFamily='monospace'>
+                  (e.g. 1, 3.1, 0x123..., 5674234...)
+                </Text>
               </Stack>
             </Stack>
           </Flex>
