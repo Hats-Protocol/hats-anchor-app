@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useToken } from 'wagmi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
 import { decimalId } from '../lib/hats';
@@ -22,7 +22,6 @@ import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 import useToast from './useToast';
-import useTokenData from './useTokenData';
 
 // modules-hooks
 const useModuleDeploy = ({
@@ -39,7 +38,8 @@ const useModuleDeploy = ({
   const { watch } = localForm;
   const originalValues = watch();
   const tokenAddress = originalValues['Token Address'];
-  const { tokenDecimals } = useTokenData(tokenAddress);
+  const { data } = useToken({ address: tokenAddress });
+  const tokenDecimals = data?.decimals;
 
   const convertToDecimalAmount = (amount, decimals) => {
     return String(amount * 10 ** decimals);

@@ -6,8 +6,8 @@ import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 import { formatUnits, Hex } from 'viem';
+import { useToken } from 'wagmi';
 
-import useTokenData from '../hooks/useTokenData';
 import { explorerUrl } from '../lib/chains';
 import { formatAddress } from '../lib/general';
 import ChakraNextLink from './atoms/ChakraNextLink';
@@ -33,7 +33,13 @@ const ModuleParameters = ({
     'value',
   ) as Hex;
 
-  const { tokenName, tokenDecimals, tokenSymbol } = useTokenData(tokenAddress);
+  const { data } = useToken({ address: tokenAddress });
+
+  const { tokenDecimals, tokenSymbol, tokenName } = _.pick(data, [
+    'decimals',
+    'symbol',
+    'name',
+  ]);
 
   return (
     <Stack>
