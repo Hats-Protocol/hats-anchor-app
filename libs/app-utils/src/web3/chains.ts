@@ -1,5 +1,5 @@
-import { alchemyProvider } from '@wagmi/core/providers/alchemy';
-import { publicProvider } from '@wagmi/core/providers/public';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
 import { chainsList } from 'app-constants';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
@@ -18,7 +18,11 @@ export const explorerUrl = (chainId?: number) =>
     _.get(chainsMap(chainId), 'blockExplorers.default.url'),
   );
 
-export const { chains, publicClient } = configureChains(_.values(chainsList), [
+const configuredChains: any = configureChains(_.values(chainsList), [
   alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
   publicProvider(),
 ]);
+
+const { chains, publicClient } = configuredChains;
+
+export { chains, publicClient };

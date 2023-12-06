@@ -1,4 +1,3 @@
-import { waitForTransaction } from '@wagmi/core';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
 import { Transaction } from 'hats-types';
@@ -18,6 +17,7 @@ import {
 } from 'react';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
+import { waitForTransaction } from 'wagmi/actions';
 
 import Suspender from '../components/atoms/Suspender';
 

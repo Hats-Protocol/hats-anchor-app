@@ -2,7 +2,7 @@ import {
   DEFAULT_ENDPOINTS_CONFIG,
   Wearer,
 } from '@hatsprotocol/sdk-v1-subgraph';
-import { fetchEnsName } from '@wagmi/core';
+import { fetchEnsName } from 'wagmi/actions';
 import { gql, GraphQLClient } from 'graphql-request';
 import { Hat, HatWearer } from 'hats-types';
 import _ from 'lodash';

@@ -43,18 +43,8 @@ const useMulticallCallManyHats = ({
 
   const { address } = useAccount();
   const currentChain = useChainId();
-  // const {
-  //   chainId,
-  //   treeId,
-  //   storedData,
-  //   onchainHats,
-  //   treeToDisplay,
-  //   setStoredData,
-  //   patchTree,
-  // } = useTreeForm();
 
   const toast = useToast();
-  // const { handlePendingTx } = useOverlay();
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
@@ -72,8 +62,10 @@ const useMulticallCallManyHats = ({
         storedData,
         (hat: Partial<FormData>) => _.includes(adminHatIds, hat.id),
       );
-      const allCallsPromises = _.map(deployableHatChanges, (hat: any) =>
-        processHatForCalls(hat, onlyOnchainHats, chainId),
+      const allCallsPromises = _.map(
+        deployableHatChanges,
+        (hat: Partial<FormData>) =>
+          processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
 
