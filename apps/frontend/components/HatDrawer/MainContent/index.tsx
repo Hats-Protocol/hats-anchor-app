@@ -1,10 +1,10 @@
 import { Box, Heading, Stack } from '@chakra-ui/react';
-import { MODULE_TYPES } from 'app-utils';
+import { MODULE_TYPES } from 'app-constants';
+import { checkAddressIsContract } from 'app-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import { checkAddressIsContract } from '../../../lib/contract';
 import EventHistory from '../../EventHistory';
 import ModuleDetails from '../../ModuleDetails';
 import WearersList from '../WearersList';

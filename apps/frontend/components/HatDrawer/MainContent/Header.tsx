@@ -10,15 +10,15 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { MUTABILITY, STATUS } from 'app-utils';
+import { MUTABILITY, STATUS } from 'app-constants';
+import { useToast } from 'app-hooks';
+import { useWearerDetails } from 'hats-hooks';
+import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import useToast from '../../../hooks/useToast';
-import useWearerDetails from '../../../hooks/useWearerDetails';
-import { decimalId } from '../../../lib/hats';
 import Markdown from '../../atoms/Markdown';
 
 const Header = () => {

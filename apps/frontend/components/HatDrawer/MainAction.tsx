@@ -1,5 +1,11 @@
 /* eslint-disable no-nested-ternary */
 import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
+import {
+  useHatClaim,
+  useWearerDetails,
+  useWearerEligibilityCheck,
+} from 'hats-hooks';
+import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 // import { FaPlus } from 'react-icons/fa';
@@ -7,10 +13,6 @@ import { useAccount, useChainId, useNetwork } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useHatClaim from '../../hooks/useHatClaim';
-import useWearerDetails from '../../hooks/useWearerDetails';
-import useWearerEligibilityCheck from '../../hooks/useWearerEligibilityCheck';
-import { isWearingAdminHat } from '../../lib/hats';
 import ConnectWallet from '../ConnectWallet';
 import NetworkSwitcher from '../NetworkSwitcher';
 
@@ -40,11 +42,15 @@ const MainAction = () => {
     true,
   );
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+    selectedHat,
+    chainId,
     wearer: address,
   });
 
   const { data: currentUserIsEligible } = useWearerEligibilityCheck({
     wearer: address,
+    selectedHat,
+    chainId,
   });
   const maxWearersReached = _.gte(
     _.get(selectedHat, 'currentSupply'),

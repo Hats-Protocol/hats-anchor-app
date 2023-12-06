@@ -1,0 +1,47 @@
+{
+  "name": "hats-hooks",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/hats-hooks/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/hats-hooks",
+        "main": "libs/hats-hooks/src/index.ts",
+        "packageJson": "libs/hats-hooks/package.json",
+        "tsConfig": "libs/hats-hooks/tsconfig.lib.json",
+        "assets": ["libs/hats-hooks/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs hats-hooks {args.ver} {args.tag}"
+      },
+      "dependsOn": [
+        {
+          "target": "build"
+        }
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/hats-hooks/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/hats-hooks"],
+      "options": {
+        "jestConfig": "libs/hats-hooks/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

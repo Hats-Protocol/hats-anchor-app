@@ -20,7 +20,10 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { CONFIG, getOperatingSystem } from 'app-utils';
+import { CONFIG } from 'app-constants';
+import { useLocalStorage } from 'app-hooks';
+import { containsUpperCase, getOperatingSystem } from 'app-utils';
+import { useHatDetailsField } from 'hats-hooks';
 import { Hat, Transaction } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -32,9 +35,6 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useHatDetailsField from '../hooks/useHatDetailsField';
-import useLocalStorage from '../hooks/useLocalStorage';
-import { containsUpperCase } from '../lib/general';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import ConnectWallet from './ConnectWallet';
 import TransactionHistory from './TransactionHistory';

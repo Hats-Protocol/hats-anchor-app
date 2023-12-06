@@ -1,11 +1,12 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
+import { useMultiClaimsHatterCheck } from 'hats-hooks';
+import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { prettyIdToIp } from 'shared-utils';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import useMultiClaimsHatterCheck from '../../../hooks/useMultiClaimsHatterCheck';
-import { getAllParents, prettyIdToIp } from '../../../lib/hats';
 import Accordion from '../../atoms/Accordion';
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
@@ -27,6 +28,9 @@ const MainContent = ({
     selectedHat,
     selectedHatDetails,
     topHatDetails,
+    chainId,
+    storedData,
+    editMode,
   } = useTreeForm();
 
   const parentHats = useMemo(() => {
@@ -37,7 +41,12 @@ const MainContent = ({
     );
   }, [selectedHat, treeToDisplay, topHat]);
 
-  const { claimableHats } = useMultiClaimsHatterCheck();
+  const { claimableHats } = useMultiClaimsHatterCheck({
+    chainId,
+    onchainHats,
+    storedData,
+    editMode,
+  });
 
   const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
     selectedHatDetails?.name

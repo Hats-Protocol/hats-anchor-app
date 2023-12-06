@@ -10,6 +10,13 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { usePendHatterMint } from 'app-hooks';
+import { formatAddress } from 'app-utils';
+import {
+  useMultiClaimsHatterCheck,
+  useMultiClaimsHatterContractWrite,
+} from 'hats-hooks';
+import { Hat } from 'hats-types';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -18,10 +25,6 @@ import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 import Select from '../components/atoms/Select';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useMultiClaimsHatterCheck from '../hooks/useMultiClaimsHatterCheck';
-import useMultiClaimsHatterContractWrite from '../hooks/useMultiClaimsHatterContractWrite';
-import usePendHatterMint from '../hooks/usePendHatterMint';
-import { formatAddress } from '../lib/general';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
   <FormRowWrapper>
@@ -47,13 +50,21 @@ const ClaimsHandler = ({
   onOpenModuleDrawer: () => void;
   setIsStandAloneHatterDeploy: (value: boolean) => void;
 }) => {
-  const { treeToDisplay, selectedHat } = useTreeForm();
+  const {
+    treeToDisplay,
+    selectedHat,
+    chainId,
+    storedData,
+    onchainHats,
+    editMode,
+    setStoredData,
+  } = useTreeForm();
   const {
     instanceAddress,
     hatterIsAdmin,
     wearingHat: wearingHatId,
     claimableHats,
-  } = useMultiClaimsHatterCheck();
+  } = useMultiClaimsHatterCheck({ chainId, storedData, onchainHats, editMode });
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
 
   const hatToMintTo = watch('hatToMintTo');
@@ -61,6 +72,10 @@ const ClaimsHandler = ({
     usePendHatterMint({
       address: instanceAddress,
       hatToMintTo,
+      treeToDisplay,
+      selectedHat,
+      storedData,
+      setStoredData,
     });
   const wearingHat = useMemo(() => {
     if (!wearingHatId) return undefined;
@@ -133,7 +148,7 @@ const ClaimsHandler = ({
             admin of this hat.
           </Text>
           <Select localForm={localForm} name='hatToMintTo'>
-            {_.map(availableAdmins, (a: any) => (
+            {_.map(availableAdmins, (a: Hat) => (
               <option value={a.id} key={a.id}>
                 {hatIdDecimalToIp(BigInt(a.id))} {a.detailsObject?.data.name}
               </option>

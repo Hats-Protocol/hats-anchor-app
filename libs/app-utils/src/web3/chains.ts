@@ -1,0 +1,24 @@
+import { alchemyProvider } from '@wagmi/core/providers/alchemy';
+import { publicProvider } from '@wagmi/core/providers/public';
+import { chainsList } from 'app-constants';
+import { SupportedChains } from 'hats-types';
+import _ from 'lodash';
+import { configureChains } from 'wagmi';
+
+const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+
+export const chainsMap = (chainId?: number) =>
+  chainId ? chainsList[chainId as SupportedChains] : chainsList[5];
+
+export const explorerUrl = (chainId?: number) =>
+  chainId &&
+  _.get(
+    chainsMap(chainId),
+    'blockExplorers.etherscan.url',
+    _.get(chainsMap(chainId), 'blockExplorers.default.url'),
+  );
+
+export const { chains, publicClient } = configureChains(_.values(chainsList), [
+  alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
+  publicProvider(),
+]);

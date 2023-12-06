@@ -1,7 +1,8 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
-import { Authority } from './form';
+import { Authority } from './authorities';
+import { SupportedChains } from './chains';
 import { Tree } from './tree';
 
 export interface HatEvent {
@@ -13,6 +14,8 @@ export interface HatEvent {
 export type DetailsItem = {
   link: string;
   label: string;
+  description?: string;
+  imageUri?: string;
 };
 
 export interface HatWearer {
@@ -42,7 +45,7 @@ export type HatDetails = {
 
 export interface Hat {
   id: Hex;
-  chainId: number;
+  chainId: SupportedChains;
   prettyId?: string;
   tree?: Partial<Tree>;
   status: boolean;

@@ -15,15 +15,15 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-utils';
+import { CONFIG } from 'app-constants';
+import { useToast } from 'app-hooks';
+import { useMulticallCallData } from 'hats-hooks';
+import { editHasUpdates } from 'hats-utils';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useMulticallCallData from '../../hooks/useMulticallCallData';
-import useToast from '../../hooks/useToast';
-import { editHasUpdates } from '../../lib/hats';
 
 // ! use Input component
 
@@ -34,8 +34,14 @@ const BottomMenu = ({
   isExpanded: boolean;
   setAccordionIndex: (index: number[]) => void;
 }) => {
-  const { storedData } = useTreeForm();
+  const { storedData, chainId, treeId, onchainHats, treeToDisplay } =
+    useTreeForm();
   const { data, isLoading } = useMulticallCallData({
+    chainId,
+    treeId,
+    storedData,
+    onchainHats,
+    treeToDisplay,
     isExpanded,
   });
   const callData = data ? data?.callData : null;

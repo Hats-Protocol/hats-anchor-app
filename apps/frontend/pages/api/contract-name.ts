@@ -1,7 +1,6 @@
+import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
-
-import { SupportedChains } from '../../lib/chains';
 
 const {
   ETHERSCAN_API_KEY,

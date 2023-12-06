@@ -1,6 +1,12 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
-// import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { formatAddress } from 'app-utils';
+import {
+  useHatDetails,
+  useHatDetailsField,
+  useIsAdmin,
+  useMultiClaimsHatterCheck,
+} from 'hats-hooks';
 import _ from 'lodash';
 import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -10,15 +16,10 @@ import {
   BsPersonAdd,
   BsPuzzle,
 } from 'react-icons/bs';
+import { idToPrettyId, prettyIdToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import useHatDetails from '../../../hooks/useHatDetails';
-import useHatDetailsField from '../../../hooks/useHatDetailsField';
-import useIsAdmin from '../../../hooks/useIsAdmin';
-import useMultiClaimsHatterCheck from '../../../hooks/useMultiClaimsHatterCheck';
-import { formatAddress } from '../../../lib/general';
-import { idToPrettyId, prettyIdToIp } from '../../../lib/hats';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import RadioBox from '../../atoms/RadioBox';
 import Select from '../../atoms/Select';
@@ -31,20 +32,32 @@ const PermissionlessClaimingForm = ({
   localForm: UseFormReturn;
   parentHats?: Hex[];
 }) => {
-  const { onchainHats, treeToDisplay, selectedHat } = useTreeForm();
+  const {
+    onchainHats,
+    treeToDisplay,
+    selectedHat,
+    chainId,
+    storedData,
+    editMode,
+  } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
   );
 
   const { multiClaimsHatter, instanceAddress, claimableHats } =
-    useMultiClaimsHatterCheck();
+    useMultiClaimsHatterCheck({ chainId, onchainHats, storedData, editMode });
 
-  const isAdmin = useIsAdmin(instanceAddress, selectedHat?.id);
+  const isAdmin = useIsAdmin({
+    address: instanceAddress,
+    hatId: selectedHat?.id,
+    chainId,
+  });
 
   const isClaimable = _.includes(claimableHats, selectedHat?.id);
   const { data: wearingHatDetails } = useHatDetails({
     hatId: String(adminHat),
+    chainId: selectedHat?.chainId,
   });
   const { data: wearingHatDetailsObject } = useHatDetailsField(
     wearingHatDetails?.details,

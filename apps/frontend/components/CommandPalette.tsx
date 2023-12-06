@@ -3,6 +3,7 @@
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Spinner } from '@chakra-ui/react';
+import { useSearchResults } from 'app-hooks';
 import { Group, SearchResults } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
@@ -14,7 +15,6 @@ import CmdkCommandPalette, {
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
-import useSearchResults from '../hooks/useSearchResults';
 import ChakraNextLink from './atoms/ChakraNextLink';
 
 const CommandPaletteInternalLink = ({

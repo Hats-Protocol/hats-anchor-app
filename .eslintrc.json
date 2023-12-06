@@ -29,7 +29,8 @@
               }
             ]
           }
-        ]
+        ],
+        "@typescript-eslint/no-explicit-any": "warn"
       }
     }
   ],
@@ -76,14 +77,14 @@
       "typescript": {
         "project": [
           "tsconfig.json",
-          "apps/frontend/tsconfig.json",
+          "apps/*/tsconfig.json",
           "libs/*/tsconfig.json"
         ]
       },
       "node": {
         "project": [
           "tsconfig.json",
-          "apps/frontend/tsconfig.json",
+          "apps/*/tsconfig.json",
           "libs/*/tsconfig.json"
         ]
       }

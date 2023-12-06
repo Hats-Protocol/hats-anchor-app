@@ -1,16 +1,17 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
-import { CONTACT_URL } from 'app-utils';
+import { CONTACT_URL } from 'app-constants';
+import { transformAndVerify } from 'app-utils';
+import { useHatsModules } from 'hats-hooks';
 import { Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
+import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
+import { prettyIdToIp } from 'shared-utils';
 import { isAddress } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import useHatsModules from '../../../hooks/useHatsModules';
-import { transformAndVerify } from '../../../lib/general';
-import { decimalId, prettyIdToIp } from '../../../lib/hats';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import DatePicker from '../../atoms/DatePicker';
 import Input from '../../atoms/Input';
@@ -25,14 +26,14 @@ const ModuleDetailsForm = ({
   localForm: UseFormReturn<any>;
   title: string;
 }) => {
-  const { onchainHats, treeToDisplay } = useTreeForm();
-  const { modules } = useHatsModules();
+  const { onchainHats, treeToDisplay, chainId } = useTreeForm();
+  const { modules } = useHatsModules({ chainId });
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
     const modulesForType = _.filter(modules, (m: ModuleDetails) => {
-      const types = _.keys(_.pickBy(m.type, (value: any) => value));
+      const types = _.keys(_.pickBy(m.type, (value: ModuleDetails) => value));
 
       return _.includes(types, _.toLower(title));
     });

@@ -11,22 +11,21 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-utils';
+import { CONFIG } from 'app-constants';
+import { useToast } from 'app-hooks';
+import { formatAddress, isSameAddress } from 'app-utils';
+import { useHatBurn, useHatContractWrite, useModuleDetails } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
+import { decimalId, isTopHat } from 'hats-utils';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
+import { toTreeId } from 'shared-utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useHatBurn from '../../hooks/useHatBurn';
-import useHatContractWrite from '../../hooks/useHatContractWrite';
-import useModuleDetails from '../../hooks/useModuleDetails';
-import useToast from '../../hooks/useToast';
-import { formatAddress, isSameAddress } from '../../lib/general';
-import { decimalId, isTopHat, toTreeId } from '../../lib/hats';
 import ChakraNextLink from '../atoms/ChakraNextLink';
 import TooltipWrapper from './TooltipWrapper';
 
@@ -79,6 +78,7 @@ const WearerRow = ({
   });
   const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,
+    chainId,
     enabled: wearer.isContract,
   });
 
@@ -86,7 +86,11 @@ const WearerRow = ({
     testEligibility?.();
   };
 
-  const { writeAsync: renounceHat } = useHatBurn();
+  const { writeAsync: renounceHat } = useHatBurn({
+    selectedHat,
+    chainId,
+    onSuccess: () => {},
+  });
 
   const handleRenounceHat = async () => {
     await renounceHat?.();

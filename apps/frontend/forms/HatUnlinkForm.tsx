@@ -1,14 +1,13 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { useDebounce } from 'app-hooks';
+import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { prettyIdToIp } from 'shared-utils';
 import { Hex, isAddress } from 'viem';
 
 import Select from '../components/atoms/Select';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import useDebounce from '../hooks/useDebounce';
-import useHatContractWrite from '../hooks/useHatContractWrite';
-import useHatDetails from '../hooks/useHatDetails';
-import { prettyIdToIp } from '../lib/hats';
 
 // TODO refactor without prettyId
 
@@ -28,6 +27,7 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
 
   const { data: topHatData } = useHatDetails({
     hatId: topHatPrettyId,
+    chainId,
   });
 
   const wearer = topHatData?.wearers?.[0]?.id || '0x';

@@ -8,11 +8,12 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
+import { networkImages } from 'app-constants';
+import { chainsList } from 'app-utils';
+import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { FaFilter } from 'react-icons/fa';
-
-import { chainsList, networkImages, SupportedChains } from '../lib/chains';
 
 const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
   const router = useRouter();

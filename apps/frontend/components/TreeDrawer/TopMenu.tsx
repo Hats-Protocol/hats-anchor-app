@@ -14,6 +14,9 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
+import { chainsMap } from 'app-utils';
+import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
+import { editHasUpdates } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
@@ -24,10 +27,6 @@ import { useAccount, useChainId } from 'wagmi';
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 import ImportTreeForm from '../../forms/ImportTreeForm';
-import useAdminOfHats from '../../hooks/useAdminOfHats';
-import useMulticallCallManyHats from '../../hooks/useMulticallManyHats';
-import { chainsMap } from '../../lib/chains';
-import { editHasUpdates } from '../../lib/hats';
 import Modal from '../atoms/Modal';
 import NetworkSwitcher from '../NetworkSwitcher';
 
@@ -76,7 +75,7 @@ const TopMenu = () => {
     (hatId: Hex) => hatId !== undefined,
   ) as Hex[];
 
-  const { adminHatIds } = useAdminOfHats(hatIds);
+  const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
   const isAdminOfAnyHatWithChanges = useMemo(() => {
     const hatsWithChangesIds = _.map(storedData, 'id');
@@ -88,7 +87,7 @@ const TopMenu = () => {
     return hasAdminOverAnyHat;
   }, [storedData, adminHatIds]);
 
-  const { writeAsync, isLoading } = useMulticallCallManyHats(
+  const { writeAsync, isLoading } = useMulticallManyHats(
     isAdminOfAnyHatWithChanges,
   );
 

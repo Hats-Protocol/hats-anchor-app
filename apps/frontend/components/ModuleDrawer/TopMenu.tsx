@@ -1,5 +1,10 @@
 import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
-import { DEPLOYMENT_TYPES } from 'app-utils';
+import { DEPLOYMENT_TYPES } from 'app-constants';
+import {
+  useHatDetails,
+  useModuleDeploy,
+  useMultiClaimsHatterCheck,
+} from 'hats-hooks';
 import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -8,9 +13,6 @@ import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import useHatDetails from '../../hooks/useHatDetails';
-import useModuleDeploy from '../../hooks/useModuleDeploy';
-import useMultiClaimsHatterCheck from '../../hooks/useMultiClaimsHatterCheck';
 
 const TopMenu = ({
   localForm,
@@ -25,15 +27,27 @@ const TopMenu = ({
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId, storedData } = useTreeForm();
-  const { instanceAddress } = useMultiClaimsHatterCheck();
+  const {
+    chainId,
+    storedData,
+    onchainHats,
+    editMode,
+    selectedHat,
+    setStoredData,
+  } = useTreeForm();
+  const { instanceAddress } = useMultiClaimsHatterCheck({
+    chainId,
+    storedData,
+    onchainHats,
+    editMode,
+  });
   const { watch } = localForm;
   const moduleType = watch('moduleType');
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
   const adminHat = watch('adminHat');
   const incrementWearers = watch('incrementWearers');
 
-  const { data: adminHatDetails } = useHatDetails({ hatId: adminHat });
+  const { data: adminHatDetails } = useHatDetails({ hatId: adminHat, chainId });
 
   const deploymentType = useMemo(() => {
     if (isStandaloneHatterDeploy) {
@@ -56,6 +70,11 @@ const TopMenu = ({
 
   const { deploy, isLoading } = useModuleDeploy({
     localForm,
+    selectedHat,
+    chainId,
+    storedData,
+    onchainHats,
+    setStoredData,
     selectedModuleDetails,
     onCloseModuleDrawer,
     deploymentType,
