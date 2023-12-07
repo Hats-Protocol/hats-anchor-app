@@ -35,11 +35,13 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
 
 export default LearnMoreCard;
 
+export type DocsLink = {
+  url: string;
+  icon: string;
+  name: string;
+  description: string;
+};
+
 interface FeatureDocsCardProps {
-  docsData: {
-    url: string;
-    icon: string;
-    name: string;
-    description: string;
-  };
+  docsData: DocsLink;
 }

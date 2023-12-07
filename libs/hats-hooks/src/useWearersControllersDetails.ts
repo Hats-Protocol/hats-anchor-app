@@ -1,5 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
-import { fetchEnsName } from '@wagmi/core';
+import { fetchEnsName } from 'wagmi/actions';
 import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
 import { checkAddressIsContract } from 'app-utils';
 import { Hat } from 'hats-types';

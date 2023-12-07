@@ -45,8 +45,8 @@
     ".nx/*",
     "dist/*",
     "tmp/*",
-    "lib/app-utils/src/lib/ipfs-misc.ts"
-  ], // `multiformats` breaking
+    "lib/app-utils/src/lib/ipfs-misc.ts" // `multiformats` breaking
+  ],
   "rules": {
     // gen
     "no-use-before-define": "off",

@@ -1,10 +1,10 @@
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
-import { waitForTransaction } from '@wagmi/core';
 import { MULTI_CLAIMS_HATTER_ABI } from 'app-constants';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { waitForTransaction } from 'wagmi/actions';
 
 interface ContractInteractionProps {
   functionName: string;
@@ -14,7 +14,6 @@ interface ContractInteractionProps {
   args: (string | number | bigint | undefined)[];
 }
 
-// modules-hooks
 const useMultiClaimsHatterContractWrite = ({
   functionName,
   chainId,
