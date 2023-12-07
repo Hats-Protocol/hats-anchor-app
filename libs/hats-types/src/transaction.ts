@@ -1,4 +1,4 @@
-import { TransactionReceipt } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 
 interface ToastData {
   title: string;
@@ -12,9 +12,9 @@ export type HandlePendingTx = ({
   toastData,
   onSuccess,
 }: {
-  hash: string;
+  hash: Hex;
   txChainId: number | undefined;
   fnName: string;
   toastData: ToastData | undefined;
   onSuccess?: (d?: TransactionReceipt) => void;
-}) => Promise<void>;
+}) => Promise<TransactionReceipt>;
