@@ -93,7 +93,7 @@ const HatManagementForm = ({
 
   const items = watch?.(formName);
   const isActionManual = watch?.(radioBoxConfig.name);
-  const moduleAddress = getValues?.(title);
+  const moduleAddress = getValues?.(_.toLower(title));
 
   const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
     'extendedEligibility',

@@ -1,3 +1,4 @@
+import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CONFIG, DEPLOYMENT_TYPES } from 'app-constants';
@@ -22,7 +23,7 @@ import _ from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { ipToHatId } from 'shared-utils';
-import { Hex } from 'viem';
+import { Hex, parseUnits } from 'viem';
 import { useAccount, useToken } from 'wagmi';
 
 import useHatsModules from './useHatsModules';
@@ -66,11 +67,11 @@ const useModuleDeploy = ({
       ...(selectedModuleDetails?.creationArgs?.mutable || []),
     ];
 
-    _.forEach(allArgs, (arg) => {
+    _.forEach(allArgs, (arg: ModuleCreationArg) => {
       if (arg.displayType === 'amountWithDecimals') {
         const amount = newValues[arg.name];
         if (amount !== undefined && tokenDecimals !== undefined) {
-          newValues[arg.name] = String(amount * 10 ** tokenDecimals);
+          newValues[arg.name] = parseUnits(amount, tokenDecimals);
         }
       }
       if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
@@ -146,13 +147,13 @@ const useModuleDeploy = ({
   }, [storedData, onchainHats, adminHat]);
 
   const handleSuccess = useCallback(
-    (data: { newInstance?: Hex | null; newInstances?: Hex[] | null }) => {
+    (localData: { newInstance?: Hex | null; newInstances?: Hex[] | null }) => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
           const moduleAddress = _.get(
-            data,
+            localData,
             'newInstance',
-            _.get(data, 'newInstances[0]'),
+            _.get(localData, 'newInstances[0]'),
           );
           if (moduleAddress && selectedModuleDetails) {
             let hatterHats: Partial<FormData>[] = [];
@@ -176,7 +177,7 @@ const useModuleDeploy = ({
             const hatIds = _.uniq(
               _.map(_.concat(moduleHats, hatterHats), 'id'),
             );
-            const updatedHats = _.map(hatIds, (id: any) =>
+            const updatedHats: any = _.map(hatIds, (id: Hex) =>
               _.merge(
                 {},
                 _.find(hatterHats, { id }),
@@ -193,7 +194,7 @@ const useModuleDeploy = ({
           break;
         }
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER: {
-          const instances = _.get(data, 'newInstances');
+          const instances = _.get(localData, 'newInstances');
           if (_.isArray(instances)) {
             const [moduleAddress, claimsHatterAddress] = instances;
 
@@ -214,10 +215,10 @@ const useModuleDeploy = ({
                 _.map(updatedHatsWithClaimsHatter, 'id'),
               ),
             );
-            const updatedHats = _.map(hatIds, (id: any) => {
+            const updatedHats: any = _.map(hatIds, (id: Hex) => {
               const hatterHat = _.find(updatedHatsWithClaimsHatter, ['id', id]);
               const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
-              return _.merge({}, hatterHat, moduleHat);
+              return _.merge({}, hatterHat, moduleHat) as Partial<FormData>;
             });
             setStoredData?.(updatedHats);
 
@@ -233,9 +234,9 @@ const useModuleDeploy = ({
         }
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
           const claimsHatterAddress: Hex | null | undefined = _.get(
-            data,
+            localData,
             'newInstance',
-            _.get(data, 'newInstances[0]', undefined),
+            _.get(localData, 'newInstances[0]', undefined),
           );
           if (!claimsHatterAddress) return;
           const updatedHats = processClaimsHatter({
@@ -331,9 +332,9 @@ const useModuleDeploy = ({
           return null;
       }
     },
-    onSuccess: (data) => {
-      if (!data) return;
-      handleSuccess(data);
+    onSuccess: (localData) => {
+      if (!localData) return;
+      handleSuccess(localData);
     },
     onError: (error: Error) => {
       // TODO catch rejected signature
