@@ -21,6 +21,7 @@ import {
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { ipToHatId } from 'shared-utils';
 import { Hex } from 'viem';
 import { useAccount, useToken } from 'wagmi';
 
@@ -57,22 +58,25 @@ const useModuleDeploy = ({
   const { data } = useToken({ address: tokenAddress });
   const tokenDecimals = data?.decimals;
 
-  const convertToDecimalAmount = (amount, decimals) => {
-    return String(amount * 10 ** decimals);
-  };
-
   const values = useMemo(() => {
     const newValues = { ...originalValues };
 
-    (selectedModuleDetails?.creationArgs?.immutable || []).forEach((arg) => {
+    const allArgs = [
+      ...(selectedModuleDetails?.creationArgs?.immutable || []),
+      ...(selectedModuleDetails?.creationArgs?.mutable || []),
+    ];
+
+    _.forEach(allArgs, (arg) => {
       if (arg.displayType === 'amountWithDecimals') {
-        const amountValue = newValues[arg.name];
-        if (amountValue !== undefined) {
-          newValues[arg.name] = convertToDecimalAmount(
-            amountValue,
-            tokenDecimals,
-          );
+        const amount = newValues[arg.name];
+        if (amount !== undefined && tokenDecimals !== undefined) {
+          newValues[arg.name] = String(amount * 10 ** tokenDecimals);
         }
+      }
+      if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
+        const value = newValues[`${arg.name}_custom`];
+        newValues[arg.name] = decimalId(ipToHatId(value));
+        delete newValues[`${arg.name}_custom`];
       }
     });
 

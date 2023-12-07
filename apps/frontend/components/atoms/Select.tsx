@@ -35,7 +35,14 @@ const Select = ({
   ...props
 }: SelectProps) => {
   if (!localForm) return null;
-  const { register } = localForm;
+  const { register, setValue } = localForm;
+
+  const handleChange = (e) => {
+    if (onChange) {
+      onChange(e);
+    }
+    setValue(name, e.target.value);
+  };
 
   return (
     <FormControl {...props}>
@@ -65,7 +72,7 @@ const Select = ({
           bg='white'
           color='gray.700'
           iconColor='gray.400'
-          onChange={onChange}
+          onChange={handleChange}
           {...props}
         >
           {children}

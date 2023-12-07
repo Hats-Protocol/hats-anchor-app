@@ -31,9 +31,21 @@ const ModuleDetailsForm = ({
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
 
-  const [isCustomHat, setIsCustomHat] = useState(false);
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setIsCustomHat(e.target.value === 'custom');
+  const [customHatSelections, setCustomHatSelections] = useState({});
+
+  const handleChange = (e, argName) => {
+    setCustomHatSelections((prevState) => {
+      const newState = { ...prevState };
+
+      if (e.target.value === 'custom') {
+        newState[argName] = true;
+      } else {
+        newState[argName] = false;
+        localForm.setValue(`${argName}_custom`, undefined);
+      }
+
+      return newState;
+    });
   };
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
@@ -63,7 +75,6 @@ const ModuleDetailsForm = ({
   }, [selectedModule]);
 
   if (!onchainTree || !treeToDisplay) return null;
-  console.log('selectedModuleArgs', selectedModuleArgs);
 
   return (
     <Stack spacing={12}>
@@ -143,41 +154,49 @@ const ModuleDetailsForm = ({
             />
           )}
           {arg.displayType === 'hat' && (
-            <Select
-              name={arg.name}
-              label={arg.name}
-              subLabel={arg.description}
-              localForm={localForm}
-              placeholder='Select a hat'
-              defaultValue={undefined}
-              options={{
-                required: true,
-                validate: (value) => transformAndVerify(value, arg.type),
-              }}
-              onChange={handleChange}
-            >
-              {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => (
-                <option value={decimalId(id)} key={id}>
-                  {`${
-                    detailsObject?.data?.name
-                      ? `${detailsObject?.data?.name} - `
-                      : ''
-                  }${prettyIdToIp(prettyId)}`}
-                </option>
-              ))}
-              <option value='custom'>Custom</option>
-            </Select>
-          )}
-          {isCustomHat && (
-            <Input
-              name={`${arg.name}_custom`}
-              label='Custom Hat ID'
-              localForm={localForm}
-              options={{
-                required: true,
-                // validate: validateHatId,
-              }}
-            />
+            <Stack>
+              <Select
+                name={arg.name}
+                label={arg.name}
+                subLabel={arg.description}
+                localForm={localForm}
+                placeholder='Select a hat'
+                defaultValue={undefined}
+                options={{
+                  required: true,
+                  validate: (value) => {
+                    if (String(value) === 'custom') {
+                      return true;
+                    }
+                    return transformAndVerify(value, arg.type);
+                  },
+                }}
+                onChange={(e) => handleChange(e, arg.name)}
+              >
+                {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => (
+                  <option value={decimalId(id)} key={id}>
+                    {`${
+                      detailsObject?.data?.name
+                        ? `${detailsObject?.data?.name} - `
+                        : ''
+                    }${prettyIdToIp(prettyId)}`}
+                  </option>
+                ))}
+                <option value='custom'>Custom</option>
+              </Select>
+              {customHatSelections[arg.name] && (
+                <Input
+                  name={`${arg.name}_custom`}
+                  label='Custom Hat ID'
+                  placeholder='e.g. 285.1.3'
+                  localForm={localForm}
+                  options={{
+                    required: true,
+                    // validation - check if the hat exists
+                  }}
+                />
+              )}
+            </Stack>
           )}
           {arg.displayType === 'timestamp' && (
             <DatePicker
