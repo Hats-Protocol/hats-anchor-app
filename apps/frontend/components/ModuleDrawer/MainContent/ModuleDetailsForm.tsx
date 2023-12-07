@@ -164,24 +164,22 @@ const ModuleDetailsForm = ({
                 defaultValue={undefined}
                 options={{
                   required: true,
-                  validate: (value) => {
-                    if (String(value) === 'custom') {
-                      return true;
-                    }
-                    return transformAndVerify(value, arg.type);
-                  },
+                  validate: (value) =>
+                    String(value) === 'custom' ||
+                    transformAndVerify(value, arg.type),
                 }}
                 onChange={(e) => handleChange(e, arg.name)}
               >
-                {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => (
-                  <option value={decimalId(id)} key={id}>
-                    {`${
-                      detailsObject?.data?.name
-                        ? `${detailsObject?.data?.name} - `
-                        : ''
-                    }${prettyIdToIp(prettyId)}`}
-                  </option>
-                ))}
+                {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => {
+                  const hatName = detailsObject?.data?.name;
+                  return (
+                    <option value={decimalId(id)} key={id}>
+                      {`${hatName ? `${hatName} - ` : ''}${prettyIdToIp(
+                        prettyId,
+                      )}`}
+                    </option>
+                  );
+                })}
                 <option value='custom'>Custom</option>
               </Select>
               {customHatSelections[arg.name] && (
