@@ -232,15 +232,14 @@ export const translateDrafts = ({
   return _.sortBy(defined, (hat) => BigInt(hat.id));
 };
 
-export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hex[] => {
-  const parents: Hex[] = [];
+export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hat[] => {
+  const parents: Hat[] = [];
   if (!hatId || !tree) return parents;
-  let currentHat = tree.find((hat) => hat.id === hatId);
+  let currentHat = _.find(tree, { id: hatId });
 
   while (currentHat?.parentId) {
-    const { parentId } = currentHat;
-    parents.push(parentId);
-    currentHat = tree.find((hat) => hat.id === parentId);
+    parents.push(currentHat);
+    currentHat = _.find(tree, { id: currentHat?.parentId });
   }
 
   return parents;
