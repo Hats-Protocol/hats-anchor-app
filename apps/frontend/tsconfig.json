@@ -10,9 +10,9 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true,
     "types": ["node"],
-    "lib": ["ES2021"]
+    "lib": ["ES2021"],
+    "incremental": true
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "*.d.ts"],
   "exclude": ["jest.config.ts"]
