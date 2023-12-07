@@ -287,11 +287,13 @@ const HatManagementForm = ({
         in={!!isOpenModuleDrawer}
         style={{ zIndex: 1001, width: '100%' }}
       >
-        <ModuleDrawer
-          onCloseModuleDrawer={onCloseModuleDrawer}
-          isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-          title={title}
-        />
+        {isOpenModuleDrawer && (
+          <ModuleDrawer
+            onCloseModuleDrawer={onCloseModuleDrawer}
+            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+            title={title}
+          />
+        )}
       </Slide>
     </form>
   );
