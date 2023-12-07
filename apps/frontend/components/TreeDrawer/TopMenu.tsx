@@ -44,7 +44,10 @@ const TopMenu = () => {
     resetTree,
     setSelectedOption,
     selectedHat,
+    treeToDisplay,
+    onchainHats,
   } = useTreeForm();
+  const { handlePendingTx } = useOverlay();
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
   const handleDeploy = async () => {
@@ -87,9 +90,14 @@ const TopMenu = () => {
     return hasAdminOverAnyHat;
   }, [storedData, adminHatIds]);
 
-  const { writeAsync, isLoading } = useMulticallManyHats(
+  const { writeAsync, isLoading } = useMulticallManyHats({
     isAdminOfAnyHatWithChanges,
-  );
+    storedData,
+    treeToDisplay,
+    onchainHats,
+    chainId,
+    handlePendingTx,
+  });
 
   const getDeployTooltipLabel = useMemo(() => {
     if (!storedData?.length) {
