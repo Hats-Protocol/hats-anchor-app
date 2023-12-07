@@ -21,7 +21,7 @@ import {
 
 import useAdminOfHats from './useAdminOfHats';
 
-const useMulticallCallManyHats = ({
+const useMulticallManyHats = ({
   isAdminOfAnyHatWithChanges,
   storedData,
   treeToDisplay,
@@ -211,4 +211,4 @@ export interface HatPinDetails {
   details: HatDetails;
 }
 
-export default useMulticallCallManyHats;
+export default useMulticallManyHats;

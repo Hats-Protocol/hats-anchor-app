@@ -1,4 +1,12 @@
-import { Box, Collapse, Flex, Heading, Icon, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Collapse,
+  Flex,
+  Heading,
+  Icon,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
 
@@ -22,27 +30,30 @@ const CustomAccordion = ({
   };
 
   return (
-    <Flex
-      direction='column'
-      w='100%'
-      onClick={handleToggle}
-      _hover={{ cursor: 'pointer' }}
-    >
-      <Flex flex='1' alignItems='center'>
-        <Icon
-          as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare}
-          boxSize={5}
-        />
-        <Heading size='md' fontWeight='medium' ml={2} color='blackAlpha.800'>
-          {title}
-        </Heading>
+    <Flex direction='column' w='100%'>
+      <Flex
+        direction='column'
+        onClick={handleToggle}
+        _hover={{ cursor: 'pointer' }}
+      >
+        <Flex alignItems='center'>
+          <Icon
+            as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare}
+            boxSize={5}
+          />
+          <Heading size='md' fontWeight='medium' ml={2} color='blackAlpha.800'>
+            {title}
+          </Heading>
+        </Flex>
+        <Stack>
+          {subtitle && (
+            <Text fontSize='md' ml={7} color='blackAlpha.800'>
+              {subtitle}
+            </Text>
+          )}
+        </Stack>
       </Flex>
 
-      {subtitle && (
-        <Text fontSize='md' ml={7} color='blackAlpha.800'>
-          {subtitle}
-        </Text>
-      )}
       {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
         <Box fontSize='sm' ml={7} color='cyan.900' mt={2}>
           <Text fontWeight='medium'>Edits:</Text>
