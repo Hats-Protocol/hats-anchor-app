@@ -31,6 +31,7 @@ const Select = ({
   children,
   subLabel,
   info,
+  onChange,
   ...props
 }: SelectProps) => {
   if (!localForm) return null;
@@ -64,6 +65,7 @@ const Select = ({
           bg='white'
           color='gray.700'
           iconColor='gray.400'
+          onChange={onChange}
           {...props}
         >
           {children}
@@ -93,4 +95,5 @@ interface SelectProps {
   children: ReactNode;
   subLabel?: string | ReactNode;
   info?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }

@@ -5,7 +5,7 @@ import { useHatsModules } from 'hats-hooks';
 import { Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { prettyIdToIp } from 'shared-utils';
@@ -30,6 +30,11 @@ const ModuleDetailsForm = ({
   const { modules } = useHatsModules({ chainId });
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
+
+  const [isCustomHat, setIsCustomHat] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setIsCustomHat(e.target.value === 'custom');
+  };
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
     const modulesForType = _.filter(modules, (m: ModuleDetails) => {
@@ -58,6 +63,7 @@ const ModuleDetailsForm = ({
   }, [selectedModule]);
 
   if (!onchainTree || !treeToDisplay) return null;
+  console.log('selectedModuleArgs', selectedModuleArgs);
 
   return (
     <Stack spacing={12}>
@@ -148,6 +154,7 @@ const ModuleDetailsForm = ({
                 required: true,
                 validate: (value) => transformAndVerify(value, arg.type),
               }}
+              onChange={handleChange}
             >
               {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => (
                 <option value={decimalId(id)} key={id}>
@@ -158,7 +165,19 @@ const ModuleDetailsForm = ({
                   }${prettyIdToIp(prettyId)}`}
                 </option>
               ))}
+              <option value='custom'>Custom</option>
             </Select>
+          )}
+          {isCustomHat && (
+            <Input
+              name={`${arg.name}_custom`}
+              label='Custom Hat ID'
+              localForm={localForm}
+              options={{
+                required: true,
+                // validate: validateHatId,
+              }}
+            />
           )}
           {arg.displayType === 'timestamp' && (
             <DatePicker
