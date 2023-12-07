@@ -1,4 +1,5 @@
 import { Box, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
+import { TemplateData } from 'app-constants';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
@@ -77,14 +78,7 @@ const FeaturedTreeCard = ({
 export default FeaturedTreeCard;
 
 interface FeatureTreeCardProps {
-  treeData: {
-    chainId: number;
-    id: number;
-    image: string;
-    name: string;
-    description: string;
-    avatar: string;
-  };
+  treeData: TemplateData;
   hatsAndWearers?: {
     treeId?: string;
     hats: number;

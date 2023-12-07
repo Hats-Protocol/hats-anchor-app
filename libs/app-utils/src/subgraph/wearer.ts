@@ -2,12 +2,12 @@ import {
   DEFAULT_ENDPOINTS_CONFIG,
   Wearer,
 } from '@hatsprotocol/sdk-v1-subgraph';
-import { fetchEnsName } from '@wagmi/core';
 import { gql, GraphQLClient } from 'graphql-request';
 import { Hat, HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared-utils';
 import { Hex } from 'viem';
+import { fetchEnsName } from 'wagmi/actions';
 
 import { checkAddressIsContract } from '../contract';
 import { chainsList, createSubgraphClient } from '../web3';

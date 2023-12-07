@@ -11,7 +11,6 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "@next/next/no-html-link-for-pages": ["error", "apps/frontend/pages"],
         // ts
         "@typescript-eslint/no-unused-vars": ["warn"],
         "@typescript-eslint/no-explicit-any": ["warn"],
@@ -43,7 +42,7 @@
   ],
   "settings": {
     "eslint-plugin-next": {
-      "pagesDir": "apps/frontend/pages"
+      "pagesDir": "pages"
     }
   }
 }

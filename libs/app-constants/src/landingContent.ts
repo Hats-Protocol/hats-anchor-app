@@ -31,6 +31,15 @@ export const LEARN_MORE = [
   },
 ];
 
+export type TemplateData = {
+  chainId: number;
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  avatar?: string;
+};
+
 export const FEATURED_TEMPLATES = ({
   ipfsUrl,
 }: {
