@@ -1,5 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
-import { readContract } from '@wagmi/core';
+import { readContract } from 'wagmi/actions';
 import { CONFIG } from 'app-constants';
 import { Hat } from 'hats-types';
 import _ from 'lodash';

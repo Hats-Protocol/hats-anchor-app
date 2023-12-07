@@ -5,15 +5,14 @@
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "strict": true,
-    "target": "ES2022"
+    "strict": true
   },
   "files": [],
   "include": ["**/*.ts"],
   "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
+    // {
+    //   "path": "./tsconfig.lib.json"
+    // }
   ],
   "extends": "../../tsconfig.base.json"
 }

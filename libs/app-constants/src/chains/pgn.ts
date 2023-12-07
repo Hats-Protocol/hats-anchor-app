@@ -1,6 +1,12 @@
-import { Chain } from '@wagmi/core';
+import { Chain } from 'wagmi';
 
-const pgn = {
+interface ExtendedChain extends Chain {
+  hasIcon: boolean;
+  iconUrl: string;
+  iconBackground: string;
+}
+
+const pgn: ExtendedChain = {
   id: 424,
   name: 'PGN',
   network: 'pgn',
@@ -32,9 +38,9 @@ const pgn = {
       blockCreated: 3_380_209,
     },
   },
-} as Chain;
+};
 
-export const pgnSepolia = {
+export const pgnSepolia: ExtendedChain = {
   id: 58008,
   name: 'Sepolia PGN',
   network: 'sepoliaPgn',
@@ -66,6 +72,6 @@ export const pgnSepolia = {
       blockCreated: 3_380_209, // TODO figure out actual block
     },
   },
-} as Chain;
+};
 
 export default pgn;
