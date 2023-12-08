@@ -17,6 +17,7 @@ import DatePicker from '../../atoms/DatePicker';
 import Input from '../../atoms/Input';
 import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
+import NumberInput from '../../atoms/NumberInput';
 
 const ModuleDetailsForm = ({
   localForm,
@@ -226,7 +227,7 @@ const ModuleDetailsForm = ({
           )}
           {(arg.displayType === 'seconds' ||
             arg.displayType === 'amountWithDecimals') && (
-            <Input
+            <NumberInput
               name={arg.name}
               label={arg.name}
               type='number'
@@ -236,8 +237,8 @@ const ModuleDetailsForm = ({
                   ? (arg.example as string[]).join(', ')
                   : (arg.example as string)
               }
-              options={{
-                required: true,
+              isRequired
+              customValidations={{
                 validate: (value) => transformAndVerify(value, arg.type),
               }}
               localForm={localForm}
