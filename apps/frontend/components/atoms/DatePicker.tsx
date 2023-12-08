@@ -50,7 +50,9 @@ const DatePicker = ({
           {typeof subLabel !== 'string' ? (
             subLabel
           ) : (
-            <Text color='blackAlpha.700'>{subLabel}</Text>
+            <Text color='blackAlpha.700' fontSize='xs'>
+              {subLabel}
+            </Text>
           )}
         </Box>
         <Controller
@@ -58,6 +60,7 @@ const DatePicker = ({
           name={name}
           render={({ field: { onChange, value } }) => (
             <DatePickerComponent
+              wrapperClassName='chakra-datepicker'
               selected={value ? new Date(value) : new Date()}
               onChange={onChange}
             />

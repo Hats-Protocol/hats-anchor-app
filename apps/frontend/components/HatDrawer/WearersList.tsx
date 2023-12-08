@@ -164,13 +164,16 @@ const WearersList = () => {
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
-  const { deploy: setHatClaimability, isLoading: isLoadingSetHatClaimability } =
-    useMultiClaimsHatterContractWrite({
-      functionName: 'setHatClaimability',
-      address: instanceAddress,
-      enabled: !!instanceAddress && isAdminUser,
-      args: [selectedHat?.id, 1],
-    });
+  const {
+    writeAsync: setHatClaimability,
+    isLoading: isLoadingSetHatClaimability,
+  } = useMultiClaimsHatterContractWrite({
+    functionName: 'setHatClaimability',
+    address: instanceAddress,
+    chainId,
+    enabled: !!instanceAddress && isAdminUser,
+    args: [selectedHat?.id, 1],
+  });
 
   const filteredWearers = useMemo(() => {
     if (!extendedWearers) return undefined;
@@ -272,7 +275,7 @@ const WearersList = () => {
                 colorScheme='blue.500'
                 onClick={setHatClaimability}
                 isLoading={isLoadingSetHatClaimability}
-                isDisabled={isLoadingSetHatClaimability}
+                isDisabled={isLoadingSetHatClaimability || !setHatClaimability}
               >
                 Set hat for claiming
               </Button>

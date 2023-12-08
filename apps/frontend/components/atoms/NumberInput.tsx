@@ -29,7 +29,7 @@ import { GrUndo } from 'react-icons/gr';
 export interface CustomNumberInputProps {
   customValidations?: RegisterOptions;
   label?: string | React.ReactNode;
-  helperText?: string;
+  sublabel?: string;
   name: string;
   localForm: UseFormReturn<any>; // UseFormReturn<FieldValues>;
   options?: {
@@ -51,7 +51,7 @@ const NumberInput = ({
   label,
   localForm,
   options,
-  helperText,
+  sublabel,
   customValidations,
   isRequired,
   step = 1,
@@ -82,7 +82,7 @@ const NumberInput = ({
         </FormLabel>
       )}
       <Stack spacing={2}>
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+        {sublabel && <FormHelperText>{sublabel}</FormHelperText>}
         <Controller
           control={control}
           name={name}

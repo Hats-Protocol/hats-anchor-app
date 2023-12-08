@@ -5,7 +5,7 @@ import { useHatsModules } from 'hats-hooks';
 import { Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { prettyIdToIp } from 'shared-utils';
@@ -26,10 +26,27 @@ const ModuleDetailsForm = ({
   localForm: UseFormReturn<any>;
   title: string;
 }) => {
-  const { onchainHats, treeToDisplay, chainId } = useTreeForm();
+  const { onchainTree, treeToDisplay, chainId } = useTreeForm();
   const { modules } = useHatsModules({ chainId });
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
+
+  const [customHatSelections, setCustomHatSelections] = useState({});
+
+  const handleChange = (e, argName) => {
+    setCustomHatSelections((prevState) => {
+      const newState = { ...prevState };
+
+      if (e.target.value === 'custom') {
+        newState[argName] = true;
+      } else {
+        newState[argName] = false;
+        localForm.setValue(`${argName}_custom`, undefined);
+      }
+
+      return newState;
+    });
+  };
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
     const modulesForType = _.filter(modules, (m: ModuleDetails) => {
@@ -57,7 +74,7 @@ const ModuleDetailsForm = ({
     );
   }, [selectedModule]);
 
-  if (!onchainHats || !treeToDisplay) return null;
+  if (!onchainTree || !treeToDisplay) return null;
 
   return (
     <Stack spacing={12}>
@@ -72,7 +89,7 @@ const ModuleDetailsForm = ({
             placeholder='Select a module type'
             localForm={localForm}
           >
-            {_.map(modulesToDisplay, ({ name, id }: ModuleDetails) => (
+            {_.map(modulesToDisplay, ({ name, id }) => (
               <option value={id} key={name}>
                 {name}
               </option>
@@ -137,24 +154,47 @@ const ModuleDetailsForm = ({
             />
           )}
           {arg.displayType === 'hat' && (
-            <Select
-              name={arg.name}
-              label={arg.name}
-              subLabel={arg.description}
-              localForm={localForm}
-              placeholder='Select a hat'
-              defaultValue={undefined}
-              options={{
-                required: true,
-                validate: (value) => transformAndVerify(value, arg.type),
-              }}
-            >
-              {_.map(onchainHats, ({ id, prettyId }: Hat) => (
-                <option value={decimalId(id)} key={id}>
-                  {prettyIdToIp(prettyId)}
-                </option>
-              ))}
-            </Select>
+            <Stack>
+              <Select
+                name={arg.name}
+                label={arg.name}
+                subLabel={arg.description}
+                localForm={localForm}
+                placeholder='Select a hat'
+                defaultValue={undefined}
+                options={{
+                  required: true,
+                  validate: (value) =>
+                    String(value) === 'custom' ||
+                    transformAndVerify(value, arg.type),
+                }}
+                onChange={(e) => handleChange(e, arg.name)}
+              >
+                {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => {
+                  const hatName = detailsObject?.data?.name;
+                  return (
+                    <option value={decimalId(id)} key={id}>
+                      {`${hatName ? `${hatName} - ` : ''}${prettyIdToIp(
+                        prettyId,
+                      )}`}
+                    </option>
+                  );
+                })}
+                <option value='custom'>Custom</option>
+              </Select>
+              {customHatSelections[arg.name] && (
+                <Input
+                  name={`${arg.name}_custom`}
+                  label='Custom Hat ID'
+                  placeholder='e.g. 285.1.3'
+                  localForm={localForm}
+                  options={{
+                    required: true,
+                    // validation - check if the hat exists
+                  }}
+                />
+              )}
+            </Stack>
           )}
           {arg.displayType === 'timestamp' && (
             <DatePicker

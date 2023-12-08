@@ -1,5 +1,6 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useMultiClaimsHatterCheck } from 'hats-hooks';
+import { Hat } from 'hats-types';
 import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -33,12 +34,16 @@ const MainContent = ({
     editMode,
   } = useTreeForm();
 
-  const parentHats = useMemo(() => {
+  const eligibleParentHats = useMemo(() => {
     const parents = getAllParents(selectedHat?.id, treeToDisplay);
+    // not top hat and (immutable with supply or mutable)
     return _.filter(
       parents,
-      (parent: string | undefined) => parent !== topHat?.id,
-    );
+      (parent: Hat) =>
+        parent.id !== topHat?.id &&
+        (parent.mutable ||
+          _.toNumber(parent.maxSupply) > _.toNumber(parent.currentSupply)),
+    ) as Hat[];
   }, [selectedHat, treeToDisplay, topHat]);
 
   const { claimableHats } = useMultiClaimsHatterCheck({
@@ -97,7 +102,7 @@ const MainContent = ({
         >
           <PermissionlessClaimingForm
             localForm={localForm}
-            parentHats={parentHats}
+            parentHats={eligibleParentHats}
           />
         </Accordion>
       )}

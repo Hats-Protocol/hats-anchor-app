@@ -7,7 +7,7 @@ import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 import { formatUnits, Hex } from 'viem';
-import { erc20ABI, useContractReads } from 'wagmi';
+import { useToken } from 'wagmi';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 
@@ -27,25 +27,18 @@ const ModuleParameters = ({
   parameters: ModuleParameter[] | undefined;
   chainId: number | undefined;
 }) => {
-  const moduleToken = _.get(
+  const tokenAddress = _.get(
     _.find(parameters, ['label', 'Token Address']),
     'value',
   ) as Hex;
 
-  const { data: tokenData } = useContractReads({
-    contracts: [
-      {
-        abi: erc20ABI,
-        address: moduleToken,
-        functionName: 'name',
-      },
-      { abi: erc20ABI, address: moduleToken, functionName: 'decimals' },
-      { abi: erc20ABI, address: moduleToken, functionName: 'symbol' },
-    ],
-    enabled: !!moduleToken,
-  });
-  const [tokenName, tokenDecimals, tokenSymbol] =
-    _.map(tokenData, 'result') || [];
+  const { data } = useToken({ address: tokenAddress });
+
+  const { tokenDecimals, tokenSymbol, tokenName } = _.pick(data, [
+    'decimals',
+    'symbol',
+    'name',
+  ]);
 
   return (
     <Stack>
