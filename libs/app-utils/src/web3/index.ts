@@ -66,9 +66,8 @@ export async function createHatsModulesClient(
 
   const walletClientHats = createWalletClient({
     chain,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    transport: custom(window.ethereum),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transport: custom((window as any).ethereum),
   });
 
   const publicClientHats = createPublicClient({

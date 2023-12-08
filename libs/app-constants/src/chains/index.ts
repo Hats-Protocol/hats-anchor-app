@@ -51,14 +51,17 @@ const customGnosis = {
 
 export const chainsList: { [key in SupportedChains]: Chain } = {
   1: mainnet,
-  5: goerli,
   10: optimism,
-  100: customGnosis,
-  137: polygon,
-  424: pgn,
-  // 8453: base,
   42161: arbitrum,
+  137: polygon,
+  100: customGnosis,
+  424: pgn,
+
+  // 8453: base,
   // 42220: celo,
-  // 84532: baseSepolia,
+
+  // TESTNETS
+  5: goerli,
   11155111: sepolia,
+  // 84532: baseSepolia,
 };
