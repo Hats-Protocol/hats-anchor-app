@@ -28,12 +28,16 @@ const ModuleDetailsForm = ({
 }) => {
   const { onchainTree, treeToDisplay, chainId } = useTreeForm();
   const { modules } = useHatsModules({ chainId });
-  const { watch } = localForm;
+  const { watch, setValue } = localForm;
   const selectedModuleField = watch('moduleType', '');
-
   const [customHatSelections, setCustomHatSelections] = useState({});
 
-  const handleChange = (e, argName) => {
+  const handleChangeAddress = (e, name) => {
+    const trimmedValue = e.target.value.trim();
+    setValue(name, trimmedValue);
+  };
+
+  const handleChangeHat = (e, argName) => {
     setCustomHatSelections((prevState) => {
       const newState = { ...prevState };
 
@@ -125,9 +129,24 @@ const ModuleDetailsForm = ({
       {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
         <FormRowWrapper key={arg.name}>
           <Icon as={BsTextLeft} boxSize={4} mt={1} />
-          {(arg.displayType === 'default' ||
-            arg.displayType === 'token' ||
-            arg.displayType === 'jokerace') && (
+          {arg.displayType === 'default' && (
+            <Input
+              name={arg.name}
+              label={arg.name}
+              subLabel={arg.description}
+              placeholder={
+                Array.isArray(arg.example)
+                  ? (arg.example as string[]).join(', ')
+                  : (arg.example as string)
+              }
+              options={{
+                required: true,
+                validate: (value) => transformAndVerify(value, arg.type),
+              }}
+              localForm={localForm}
+            />
+          )}
+          {(arg.displayType === 'token' || arg.displayType === 'jokerace') && (
             <Input
               name={arg.name}
               label={arg.name}
@@ -147,10 +166,11 @@ const ModuleDetailsForm = ({
                     return 'Invalid address';
                   }
 
-                  return transformAndVerify(value, arg.type);
+                  return true;
                 },
               }}
               localForm={localForm}
+              onChange={(e) => handleChangeAddress(e, arg.name)}
             />
           )}
           {arg.displayType === 'hat' && (
@@ -168,7 +188,7 @@ const ModuleDetailsForm = ({
                     String(value) === 'custom' ||
                     transformAndVerify(value, arg.type),
                 }}
-                onChange={(e) => handleChange(e, arg.name)}
+                onChange={(e) => handleChangeHat(e, arg.name)}
               >
                 {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => {
                   const hatName = detailsObject?.data?.name;

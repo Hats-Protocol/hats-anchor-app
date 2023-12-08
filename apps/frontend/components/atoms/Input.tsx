@@ -47,6 +47,7 @@ const Input = ({
   isDisabled,
   resetValue,
   addressButtons,
+  onChange,
   ...props
 }: InputProps) => {
   const { address } = useAccount();
@@ -82,6 +83,12 @@ const Input = ({
   const resetMe = () => {
     setValue(name, address, { shouldDirty: true });
   };
+
+  const defaultHandleChange = (e) => {
+    setValue(name, e.target.value);
+  };
+
+  const handleChange = onChange || defaultHandleChange;
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
@@ -136,6 +143,7 @@ const Input = ({
           <ChakraInput
             type={type}
             {...register(name, { ...options, validate: options?.validate })}
+            onChange={handleChange}
             {...props}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
@@ -193,4 +201,5 @@ interface InputProps extends ChakraInputProps {
   isDisabled?: boolean;
   resetValue?: string | number;
   addressButtons?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
