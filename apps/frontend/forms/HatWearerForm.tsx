@@ -38,7 +38,7 @@ import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '../components/atoms/DropZone';
-import Input from '../components/atoms/Input';
+import NumberInput from '../components/atoms/NumberInput';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
@@ -285,12 +285,12 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         {editMode && (
           <FormRowWrapper>
             <Icon as={BsBarChart} boxSize={4} mt='2px' />
-            <Input
+            <NumberInput
               name='maxSupply'
               label='MAX WEARERS'
-              subLabel='Total number of addresses that can wear this hat at the same time.'
-              placeholder='10'
-              options={{
+              helperText='Total number of addresses that can wear this hat at the same time.'
+              localForm={form}
+              customValidations={{
                 validate: {
                   maxWearers: (v) =>
                     !_.gt(
@@ -300,7 +300,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                 },
               }}
               isDisabled={!isMutable(selectedHat)}
-              localForm={form}
+              placeholder='10'
             />
           </FormRowWrapper>
         )}
