@@ -120,7 +120,7 @@ export const transformInput = (
           return undefined;
           // throw new Error('Must be an integer');
         }
-        return BigInt(input);
+        return BigInt(Math.floor(numberCheck));
       }
       break;
     case 'string':
