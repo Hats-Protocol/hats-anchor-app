@@ -1,8 +1,8 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   FormControl,
-  FormErrorMessage,
   FormHelperText,
   FormLabel,
   IconButton,
@@ -15,6 +15,7 @@ import {
   NumberInputField,
   NumberInputStepper,
   Stack,
+  Text,
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
@@ -29,7 +30,7 @@ import { GrUndo } from 'react-icons/gr';
 export interface CustomNumberInputProps {
   customValidations?: RegisterOptions;
   label?: string | React.ReactNode;
-  sublabel?: string;
+  subLabel?: string;
   name: string;
   localForm: UseFormReturn<any>; // UseFormReturn<FieldValues>;
   options?: {
@@ -51,7 +52,7 @@ const NumberInput = ({
   label,
   localForm,
   options,
-  sublabel,
+  subLabel,
   customValidations,
   isRequired,
   step = 1,
@@ -62,16 +63,20 @@ const NumberInput = ({
   const {
     control,
     resetField,
-    formState: { errors, dirtyFields, defaultValues },
+    formState: { errors, dirtyFields },
   } = localForm;
-
-  const error = name && errors[name] && errors[name]?.message;
 
   const isDirty = _.get(dirtyFields, name);
 
   const onReset = () => {
-    if (defaultValues) resetField(name, { keepDirty: false });
+    resetField(name, { keepDirty: false });
   };
+  const getErrorMessage = () => {
+    const errorMessage = _.get(errors, name)?.message;
+    return typeof errorMessage === 'string' ? errorMessage : null;
+  };
+
+  const isError = !!getErrorMessage();
 
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errors[name]}>
@@ -81,8 +86,8 @@ const NumberInput = ({
           {options?.required && '*'}
         </FormLabel>
       )}
-      <Stack spacing={2}>
-        {sublabel && <FormHelperText>{sublabel}</FormHelperText>}
+      <Stack spacing={2} w='full'>
+        {subLabel && <FormHelperText>{subLabel}</FormHelperText>}
         <Controller
           control={control}
           name={name}
@@ -90,10 +95,14 @@ const NumberInput = ({
           render={({ field: { ref, ...restField } }) => (
             <InputGroup>
               <ChakraNumberInput
+                w='full'
                 variant={variant}
                 step={step}
                 min={options?.min || 1}
                 max={options?.max}
+                borderColor={
+                  isError ? 'red.500' : isDirty ? 'cyan.500' : undefined
+                }
                 {...restField}
               >
                 <NumberInputField ref={ref} name={restField.name} />
@@ -118,8 +127,10 @@ const NumberInput = ({
         />
       </Stack>
 
-      {typeof error === 'string' && (
-        <FormErrorMessage>{error}</FormErrorMessage>
+      {getErrorMessage() && (
+        <Text color='red.500' fontSize='xs'>
+          {getErrorMessage()}
+        </Text>
       )}
     </FormControl>
   );

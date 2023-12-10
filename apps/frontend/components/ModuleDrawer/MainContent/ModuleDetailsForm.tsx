@@ -1,4 +1,5 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
+import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { CONTACT_URL } from 'app-constants';
 import { transformAndVerify } from 'app-utils';
 import { useHatsModules } from 'hats-hooks';
@@ -15,9 +16,9 @@ import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import DatePicker from '../../atoms/DatePicker';
 import Input from '../../atoms/Input';
+import NumberInput from '../../atoms/NumberInput';
 import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
-import NumberInput from '../../atoms/NumberInput';
 
 const ModuleDetailsForm = ({
   localForm,
@@ -35,7 +36,7 @@ const ModuleDetailsForm = ({
 
   const handleChangeAddress = (e, name) => {
     const trimmedValue = e.target.value.trim();
-    setValue(name, trimmedValue);
+    setValue(name, trimmedValue, { shouldDirty: true });
   };
 
   const handleChangeHat = (e, argName) => {
@@ -46,7 +47,9 @@ const ModuleDetailsForm = ({
         newState[argName] = true;
       } else {
         newState[argName] = false;
-        localForm.setValue(`${argName}_custom`, undefined);
+        localForm.setValue(`${argName}_custom`, undefined, {
+          shouldDirty: true,
+        });
       }
 
       return newState;
@@ -130,23 +133,40 @@ const ModuleDetailsForm = ({
       {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
         <FormRowWrapper key={arg.name}>
           <Icon as={BsTextLeft} boxSize={4} mt={1} />
-          {arg.displayType === 'default' && (
-            <Input
-              name={arg.name}
-              label={arg.name}
-              subLabel={arg.description}
-              placeholder={
-                Array.isArray(arg.example)
-                  ? (arg.example as string[]).join(', ')
-                  : (arg.example as string)
-              }
-              options={{
-                required: true,
-                validate: (value) => transformAndVerify(value, arg.type),
-              }}
-              localForm={localForm}
-            />
-          )}
+          {arg.displayType === 'default' &&
+            (solidityToTypescriptType(arg.type) === 'bigint' ? (
+              <NumberInput
+                name={arg.name}
+                label={arg.name}
+                subLabel={arg.description}
+                placeholder={
+                  Array.isArray(arg.example)
+                    ? (arg.example as string[]).join(', ')
+                    : (arg.example as string)
+                }
+                isRequired
+                localForm={localForm}
+                customValidations={{
+                  validate: (value) => transformAndVerify(value, arg.type),
+                }}
+              />
+            ) : (
+              <Input
+                name={arg.name}
+                label={arg.name}
+                subLabel={arg.description}
+                placeholder={
+                  Array.isArray(arg.example)
+                    ? (arg.example as string[]).join(', ')
+                    : (arg.example as string)
+                }
+                localForm={localForm}
+                options={{
+                  required: true,
+                  validate: (value) => transformAndVerify(value, arg.type),
+                }}
+              />
+            ))}
           {(arg.displayType === 'token' || arg.displayType === 'jokerace') && (
             <Input
               name={arg.name}

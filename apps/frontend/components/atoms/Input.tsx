@@ -85,14 +85,14 @@ const Input = ({
   };
 
   const defaultHandleChange = (e) => {
-    setValue(name, e.target.value);
+    setValue(name, e.target.value, { shouldDirty: true });
   };
 
   const handleChange = onChange || defaultHandleChange;
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
-      <Stack spacing={1} w='100%'>
+      <Stack spacing={1} w='full'>
         {label && (
           // disabled input lessens opacity of FormLabel
           <FormLabel mb={0}>
