@@ -288,7 +288,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
             <NumberInput
               name='maxSupply'
               label='MAX WEARERS'
-              helperText='Total number of addresses that can wear this hat at the same time.'
+              subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
               customValidations={{
                 validate: {
