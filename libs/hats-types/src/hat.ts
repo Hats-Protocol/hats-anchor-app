@@ -86,6 +86,7 @@ export type ModuleCreationArg = {
   type: string;
   example: unknown;
   displayType: string;
+  optional?: boolean;
 };
 
 export type ModuleCreationArgs = {

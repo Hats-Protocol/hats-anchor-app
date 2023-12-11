@@ -137,14 +137,14 @@ const ModuleDetailsForm = ({
             (solidityToTypescriptType(arg.type) === 'bigint' ? (
               <NumberInput
                 name={arg.name}
-                label={arg.name}
+                label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
                 subLabel={arg.description}
                 placeholder={
                   Array.isArray(arg.example)
                     ? (arg.example as string[]).join(', ')
                     : (arg.example as string)
                 }
-                isRequired
+                isRequired={!arg.optional}
                 localForm={localForm}
                 customValidations={{
                   validate: (value) => transformAndVerify(value, arg.type),
@@ -153,7 +153,7 @@ const ModuleDetailsForm = ({
             ) : (
               <Input
                 name={arg.name}
-                label={arg.name}
+                label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
                 subLabel={arg.description}
                 placeholder={
                   Array.isArray(arg.example)
@@ -162,7 +162,7 @@ const ModuleDetailsForm = ({
                 }
                 localForm={localForm}
                 options={{
-                  required: true,
+                  required: !arg.optional,
                   validate: (value) => transformAndVerify(value, arg.type),
                 }}
               />
@@ -170,7 +170,7 @@ const ModuleDetailsForm = ({
           {(arg.displayType === 'token' || arg.displayType === 'jokerace') && (
             <Input
               name={arg.name}
-              label={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               subLabel={arg.description}
               placeholder={
                 Array.isArray(arg.example)
@@ -178,7 +178,7 @@ const ModuleDetailsForm = ({
                   : (arg.example as string)
               }
               options={{
-                required: true,
+                required: !arg.optional,
                 validate: (value) => {
                   if (
                     ['token', 'jokerace'].includes(arg.displayType) &&
@@ -198,13 +198,13 @@ const ModuleDetailsForm = ({
             <Stack>
               <Select
                 name={arg.name}
-                label={arg.name}
+                label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
                 subLabel={arg.description}
                 localForm={localForm}
                 placeholder='Select a hat'
                 defaultValue={undefined}
                 options={{
-                  required: true,
+                  required: !arg.optional,
                   validate: (value) =>
                     String(value) === 'custom' ||
                     transformAndVerify(value, arg.type),
@@ -230,7 +230,7 @@ const ModuleDetailsForm = ({
                   placeholder='e.g. 285.1.3'
                   localForm={localForm}
                   options={{
-                    required: true,
+                    required: !arg.optional,
                     // validation - check if the hat exists
                   }}
                 />
@@ -240,7 +240,7 @@ const ModuleDetailsForm = ({
           {arg.displayType === 'timestamp' && (
             <DatePicker
               name={arg.name}
-              label={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               subLabel={arg.description}
               localForm={localForm}
             />
@@ -249,7 +249,7 @@ const ModuleDetailsForm = ({
             arg.displayType === 'amountWithDecimals') && (
             <NumberInput
               name={arg.name}
-              label={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               type='number'
               subLabel={arg.description}
               placeholder={
@@ -257,7 +257,7 @@ const ModuleDetailsForm = ({
                   ? (arg.example as string[]).join(', ')
                   : (arg.example as string)
               }
-              isRequired
+              isRequired={!arg.optional}
               customValidations={{
                 validate: (value) => transformAndVerify(value, arg.type),
               }}

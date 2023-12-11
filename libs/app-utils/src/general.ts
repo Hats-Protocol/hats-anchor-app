@@ -1,4 +1,8 @@
-import { solidityToTypescriptType, verify } from '@hatsprotocol/modules-sdk';
+import {
+  ArgumentTsType,
+  solidityToTypescriptType,
+  verify,
+} from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
 import _ from 'lodash';
@@ -210,3 +214,18 @@ export function getHostnameFromURL(urlString?: string) {
     return '';
   }
 }
+
+const defaultValuesMapping = {
+  number: 0,
+  bigint: BigInt(0),
+  string: '',
+  boolean: false,
+  'number[]': [],
+  'bigint[]': [],
+  'string[]': [],
+  'boolean[]': [],
+  unknown: null,
+};
+
+export const getDefaultValue = (type: ArgumentTsType) =>
+  defaultValuesMapping[type];
