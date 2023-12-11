@@ -60,11 +60,20 @@ const ModuleDetailsForm = ({
     });
   };
 
+  // might wanna implement something similar in the NumberInput component
   const handleAmountWithDecimalsChange = (e, argName) => {
     let { value } = e.target;
-    // Replace commas with dots and remove non-numeric characters except dot
-    value = value.replace(/,/g, '.').replace(/[^\d.]/g, '');
-    setValue(argName, value, { shouldDirty: true });
+
+    if (value.startsWith('-')) {
+      value = value.replace(/-/g, '');
+    }
+
+    // Remove any non-numeric characters except for a single decimal point
+    value = value.replace(/[^\d.]/g, '');
+
+    if (!_.isNaN(parseFloat(value)) && _.isFinite(value)) {
+      setValue(argName, value, { shouldDirty: true });
+    }
   };
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
@@ -277,6 +286,9 @@ const ModuleDetailsForm = ({
               name={arg.name}
               label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               subLabel={arg.description}
+              options={{
+                min: 0,
+              }}
               placeholder={
                 Array.isArray(arg.example)
                   ? (arg.example as string[]).join(', ')
@@ -284,11 +296,26 @@ const ModuleDetailsForm = ({
               }
               isRequired={!arg.optional}
               customValidations={{
-                validate: (value) =>
-                  transformAndVerify(
-                    parseUnits(value, tokenDecimals),
-                    arg.type,
-                  ),
+                validate: (value) => {
+                  if (!value) return false;
+                  const numericValue = parseFloat(value);
+
+                  if (!tokenDecimals) return 'No token selected';
+
+                  if (!_.isNaN(numericValue) && numericValue > 0) {
+                    try {
+                      return transformAndVerify(
+                        parseUnits(value, tokenDecimals),
+                        arg.type,
+                      );
+                    } catch (error) {
+                      console.error('Error parsing units:', error);
+                      return 'Error parsing units';
+                    }
+                  }
+
+                  return 'Not a valid number';
+                },
               }}
               onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
               localForm={localForm}

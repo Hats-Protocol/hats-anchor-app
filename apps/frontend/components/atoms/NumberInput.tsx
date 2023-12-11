@@ -36,6 +36,8 @@ export interface CustomNumberInputProps {
   };
   step?: number;
   variant?: string;
+  isRequired?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 type NumberInputProps = ChakraInputProps & CustomNumberInputProps;
@@ -54,12 +56,14 @@ const NumberInput = ({
   step = 1,
   variant = 'outline',
   placeholder,
+  onChange,
 }: NumberInputProps) => {
   if (!localForm) return null;
 
   const {
     control,
     resetField,
+    setValue,
     formState: { errors, dirtyFields },
   } = localForm;
 
@@ -75,6 +79,12 @@ const NumberInput = ({
 
   const isError = !!getErrorMessage();
 
+  const defaultHandleChange = (e) => {
+    setValue(name, e.target.value, { shouldDirty: true });
+  };
+
+  const handleChange = onChange || defaultHandleChange;
+
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errors[name]}>
       {label && (
@@ -83,7 +93,7 @@ const NumberInput = ({
           {options?.required && '*'}
         </FormLabel>
       )}
-      <Stack spacing={2} w='full'>
+      <Stack spacing={1} w='full'>
         {subLabel && <FormHelperText>{subLabel}</FormHelperText>}
         <Controller
           control={control}
@@ -95,7 +105,8 @@ const NumberInput = ({
                 w='full'
                 variant={variant}
                 step={step}
-                min={options?.min || 1}
+                onChange={handleChange}
+                min={options?.min !== undefined ? options?.min : 1}
                 max={options?.max}
                 borderColor={
                   isError ? 'red.500' : isDirty ? 'cyan.500' : undefined
@@ -126,13 +137,13 @@ const NumberInput = ({
             </InputGroup>
           )}
         />
-      </Stack>
 
-      {getErrorMessage() && (
-        <Text color='red.500' fontSize='xs'>
-          {getErrorMessage()}
-        </Text>
-      )}
+        {getErrorMessage() && (
+          <Text color='red.500' fontSize='xs'>
+            {getErrorMessage()}
+          </Text>
+        )}
+      </Stack>
     </FormControl>
   );
 };

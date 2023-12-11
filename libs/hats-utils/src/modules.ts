@@ -322,10 +322,20 @@ export const processValues = ({
 
     if (arg.displayType === 'amountWithDecimals') {
       const amount = newValues[arg.name];
-      if (amount !== undefined && tokenDecimals !== undefined) {
-        newValues[arg.name] = parseUnits(amount, tokenDecimals);
+      if (
+        amount !== undefined &&
+        !_.isNaN(parseFloat(amount)) &&
+        tokenDecimals !== undefined
+      ) {
+        try {
+          newValues[arg.name] = parseUnits(amount, tokenDecimals);
+        } catch (error) {
+          console.error(`Error parsing units: ${error}`);
+          newValues[arg.name] = defaultValue;
+        }
       }
     }
+
     if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
       const value = newValues[`${arg.name}_custom`];
       newValues[arg.name] = decimalId(ipToHatId(value));
