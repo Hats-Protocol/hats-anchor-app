@@ -180,13 +180,7 @@ const ModuleDetailsForm = ({
               options={{
                 required: !arg.optional,
                 validate: (value) => {
-                  if (
-                    ['token', 'jokerace'].includes(arg.displayType) &&
-                    !isAddress(value)
-                  ) {
-                    return 'Invalid address';
-                  }
-
+                  if (!isAddress(value)) return 'Invalid address';
                   return true;
                 },
               }}
