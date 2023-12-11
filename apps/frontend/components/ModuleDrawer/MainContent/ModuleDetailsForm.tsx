@@ -1,4 +1,5 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
+import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { CONTACT_URL } from 'app-constants';
 import { transformAndVerify } from 'app-utils';
 import { useHatsModules } from 'hats-hooks';
@@ -9,12 +10,14 @@ import { useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { prettyIdToIp } from 'shared-utils';
-import { isAddress } from 'viem';
+import { isAddress, parseUnits } from 'viem';
+import { useToken } from 'wagmi';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import DatePicker from '../../atoms/DatePicker';
 import Input from '../../atoms/Input';
+import NumberInput from '../../atoms/NumberInput';
 import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
 
@@ -28,12 +31,19 @@ const ModuleDetailsForm = ({
 }) => {
   const { onchainTree, treeToDisplay, chainId } = useTreeForm();
   const { modules } = useHatsModules({ chainId });
-  const { watch } = localForm;
+  const { watch, setValue } = localForm;
   const selectedModuleField = watch('moduleType', '');
-
   const [customHatSelections, setCustomHatSelections] = useState({});
+  const tokenAddress = watch('Token Address', '');
+  const { data } = useToken({ address: tokenAddress });
+  const tokenDecimals = data?.decimals;
 
-  const handleChange = (e, argName) => {
+  const handleChangeAddress = (e, name) => {
+    const trimmedValue = e.target.value.trim();
+    setValue(name, trimmedValue, { shouldDirty: true });
+  };
+
+  const handleChangeHat = (e, argName) => {
     setCustomHatSelections((prevState) => {
       const newState = { ...prevState };
 
@@ -41,11 +51,29 @@ const ModuleDetailsForm = ({
         newState[argName] = true;
       } else {
         newState[argName] = false;
-        localForm.setValue(`${argName}_custom`, undefined);
+        localForm.setValue(`${argName}_custom`, undefined, {
+          shouldDirty: true,
+        });
       }
 
       return newState;
     });
+  };
+
+  // might wanna implement something similar in the NumberInput component
+  const handleAmountWithDecimalsChange = (e, argName) => {
+    let { value } = e.target;
+
+    if (value.startsWith('-')) {
+      value = value.replace(/-/g, '');
+    }
+
+    // Remove any non-numeric characters except for a single decimal point
+    value = value.replace(/[^\d.]/g, '');
+
+    if (!_.isNaN(parseFloat(value)) && _.isFinite(value)) {
+      setValue(argName, value, { shouldDirty: true });
+    }
   };
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
@@ -125,12 +153,44 @@ const ModuleDetailsForm = ({
       {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
         <FormRowWrapper key={arg.name}>
           <Icon as={BsTextLeft} boxSize={4} mt={1} />
-          {(arg.displayType === 'default' ||
-            arg.displayType === 'token' ||
-            arg.displayType === 'jokerace') && (
+          {arg.displayType === 'default' &&
+            (solidityToTypescriptType(arg.type) === 'bigint' ? (
+              <NumberInput
+                name={arg.name}
+                label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+                subLabel={arg.description}
+                placeholder={
+                  Array.isArray(arg.example)
+                    ? (arg.example as string[]).join(', ')
+                    : (arg.example as string)
+                }
+                isRequired={!arg.optional}
+                localForm={localForm}
+                customValidations={{
+                  validate: (value) => transformAndVerify(value, arg.type),
+                }}
+              />
+            ) : (
+              <Input
+                name={arg.name}
+                label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+                subLabel={arg.description}
+                placeholder={
+                  Array.isArray(arg.example)
+                    ? (arg.example as string[]).join(', ')
+                    : (arg.example as string)
+                }
+                localForm={localForm}
+                options={{
+                  required: !arg.optional,
+                  validate: (value) => transformAndVerify(value, arg.type),
+                }}
+              />
+            ))}
+          {(arg.displayType === 'token' || arg.displayType === 'jokerace') && (
             <Input
               name={arg.name}
-              label={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               subLabel={arg.description}
               placeholder={
                 Array.isArray(arg.example)
@@ -138,37 +198,32 @@ const ModuleDetailsForm = ({
                   : (arg.example as string)
               }
               options={{
-                required: true,
+                required: !arg.optional,
                 validate: (value) => {
-                  if (
-                    ['token', 'jokerace'].includes(arg.displayType) &&
-                    !isAddress(value)
-                  ) {
-                    return 'Invalid address';
-                  }
-
-                  return transformAndVerify(value, arg.type);
+                  if (!isAddress(value)) return 'Invalid address';
+                  return true;
                 },
               }}
               localForm={localForm}
+              onChange={(e) => handleChangeAddress(e, arg.name)}
             />
           )}
           {arg.displayType === 'hat' && (
             <Stack>
               <Select
                 name={arg.name}
-                label={arg.name}
+                label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
                 subLabel={arg.description}
                 localForm={localForm}
                 placeholder='Select a hat'
                 defaultValue={undefined}
                 options={{
-                  required: true,
+                  required: !arg.optional,
                   validate: (value) =>
                     String(value) === 'custom' ||
                     transformAndVerify(value, arg.type),
                 }}
-                onChange={(e) => handleChange(e, arg.name)}
+                onChange={(e) => handleChangeHat(e, arg.name)}
               >
                 {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => {
                   const hatName = detailsObject?.data?.name;
@@ -189,7 +244,7 @@ const ModuleDetailsForm = ({
                   placeholder='e.g. 285.1.3'
                   localForm={localForm}
                   options={{
-                    required: true,
+                    required: !arg.optional,
                     // validation - check if the hat exists
                   }}
                 />
@@ -199,16 +254,15 @@ const ModuleDetailsForm = ({
           {arg.displayType === 'timestamp' && (
             <DatePicker
               name={arg.name}
-              label={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               subLabel={arg.description}
               localForm={localForm}
             />
           )}
-          {(arg.displayType === 'seconds' ||
-            arg.displayType === 'amountWithDecimals') && (
-            <Input
+          {arg.displayType === 'seconds' && (
+            <NumberInput
               name={arg.name}
-              label={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
               type='number'
               subLabel={arg.description}
               placeholder={
@@ -216,10 +270,54 @@ const ModuleDetailsForm = ({
                   ? (arg.example as string[]).join(', ')
                   : (arg.example as string)
               }
-              options={{
-                required: true,
-                validate: (value) => transformAndVerify(value, arg.type),
+              isRequired={!arg.optional}
+              customValidations={{
+                validate: (value) =>
+                  transformAndVerify(
+                    parseUnits(value, tokenDecimals),
+                    arg.type,
+                  ),
               }}
+              localForm={localForm}
+            />
+          )}
+          {arg.displayType === 'amountWithDecimals' && (
+            <NumberInput
+              name={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+              subLabel={arg.description}
+              options={{
+                min: 0,
+              }}
+              placeholder={
+                Array.isArray(arg.example)
+                  ? (arg.example as string[]).join(', ')
+                  : (arg.example as string)
+              }
+              isRequired={!arg.optional}
+              customValidations={{
+                validate: (value) => {
+                  if (!value) return false;
+                  const numericValue = parseFloat(value);
+
+                  if (!tokenDecimals) return 'No token selected';
+
+                  if (!_.isNaN(numericValue) && numericValue > 0) {
+                    try {
+                      return transformAndVerify(
+                        parseUnits(value, tokenDecimals),
+                        arg.type,
+                      );
+                    } catch (error) {
+                      console.error('Error parsing units:', error);
+                      return 'Error parsing units';
+                    }
+                  }
+
+                  return 'Not a valid number';
+                },
+              }}
+              onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
               localForm={localForm}
             />
           )}

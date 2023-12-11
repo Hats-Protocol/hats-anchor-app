@@ -1,4 +1,3 @@
-import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CONFIG, DEPLOYMENT_TYPES } from 'app-constants';
@@ -18,12 +17,12 @@ import {
   prepareDeployModuleAndRegisterWithClaimsHatterArgs,
   processClaimsHatter,
   processModule,
+  processValues,
 } from 'hats-utils';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { ipToHatId } from 'shared-utils';
-import { Hex, parseUnits } from 'viem';
+import { Hex } from 'viem';
 import { useAccount, useToken } from 'wagmi';
 
 import useHatsModules from './useHatsModules';
@@ -59,30 +58,15 @@ const useModuleDeploy = ({
   const { data } = useToken({ address: tokenAddress });
   const tokenDecimals = data?.decimals;
 
-  const values = useMemo(() => {
-    const newValues = { ...originalValues };
-
-    const allArgs = [
-      ...(selectedModuleDetails?.creationArgs?.immutable || []),
-      ...(selectedModuleDetails?.creationArgs?.mutable || []),
-    ];
-
-    _.forEach(allArgs, (arg: ModuleCreationArg) => {
-      if (arg.displayType === 'amountWithDecimals') {
-        const amount = newValues[arg.name];
-        if (amount !== undefined && tokenDecimals !== undefined) {
-          newValues[arg.name] = parseUnits(amount, tokenDecimals);
-        }
-      }
-      if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
-        const value = newValues[`${arg.name}_custom`];
-        newValues[arg.name] = decimalId(ipToHatId(value));
-        delete newValues[`${arg.name}_custom`];
-      }
-    });
-
-    return newValues;
-  }, [originalValues, selectedModuleDetails, tokenDecimals]);
+  const values = useMemo(
+    () =>
+      processValues({
+        originalValues,
+        selectedModuleDetails,
+        tokenDecimals,
+      }),
+    [originalValues, selectedModuleDetails, tokenDecimals],
+  );
 
   const toast = useToast();
   const queryClient = useQueryClient();

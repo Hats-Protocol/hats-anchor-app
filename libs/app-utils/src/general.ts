@@ -1,4 +1,8 @@
-import { solidityToTypescriptType, verify } from '@hatsprotocol/modules-sdk';
+import {
+  ArgumentTsType,
+  solidityToTypescriptType,
+  verify,
+} from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
 import _ from 'lodash';
@@ -95,6 +99,20 @@ export const formatImageUrl = (url?: string) => {
   return null;
 };
 
+const convertToBigInt = (input: any) => {
+  const numberCheck = _.toNumber(input);
+
+  if (_.isNaN(numberCheck)) {
+    return 'Invalid input: Not a valid number';
+  }
+
+  if (!_.isInteger(numberCheck)) {
+    return 'Invalid input: Decimal numbers are not accepted';
+  }
+
+  return BigInt(numberCheck);
+};
+
 export const transformInput = (
   input: unknown,
   solidityType: string,
@@ -108,19 +126,15 @@ export const transformInput = (
     case 'number':
       return Number(input);
     case 'bigint':
-      // handle dates
-      if (typeof input === 'object') {
-        return BigInt(_.toNumber(input) / 1000);
+      if (typeof input === 'bigint') {
+        return input;
       }
-      // handle floats before here
-      if (typeof input === 'string' || typeof input === 'number') {
-        const numberCheck = _.toNumber(input);
-
-        if (!_.isInteger(numberCheck)) {
-          return undefined;
-          // throw new Error('Must be an integer');
-        }
-        return BigInt(Math.floor(numberCheck));
+      if (_.isObject(input)) {
+        const numberFromObject = Math.floor(_.toNumber(input) / 1000);
+        return convertToBigInt(numberFromObject);
+      }
+      if (_.isString(input) || _.isNumber(input)) {
+        return convertToBigInt(input);
       }
       break;
     case 'string':
@@ -133,10 +147,9 @@ export const transformInput = (
     case 'number[]':
       return String(input).split(',').map(Number);
     case 'bigint[]':
-      // TODO  make sure these are valid bigints
       return String(input)
         .split(',')
-        .map((num) => BigInt(num.trim()));
+        .map((num) => convertToBigInt(num.trim()));
     case 'string[]':
       return String(input).split(',');
     case 'boolean[]':
@@ -160,7 +173,9 @@ export const transformAndVerify = (
   }
 
   // TODO pass a more specific error message for types
-  return 'This is not a valid input!';
+  return typeof transformedInput === 'string' && transformedInput !== ''
+    ? transformedInput
+    : 'This is not a valid input!';
 };
 
 export async function hash(string: string) {
@@ -202,3 +217,18 @@ export function getHostnameFromURL(urlString?: string) {
     return '';
   }
 }
+
+const defaultValuesMapping = {
+  number: 0,
+  bigint: BigInt(0),
+  string: '',
+  boolean: false,
+  'number[]': [],
+  'bigint[]': [],
+  'string[]': [],
+  'boolean[]': [],
+  unknown: null,
+};
+
+export const getDefaultValue = (type: ArgumentTsType) =>
+  defaultValuesMapping[type];

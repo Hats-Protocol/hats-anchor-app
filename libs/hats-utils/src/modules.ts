@@ -1,11 +1,19 @@
-import { checkAndEncodeArgs } from '@hatsprotocol/modules-sdk';
+import {
+  checkAndEncodeArgs,
+  solidityToTypescriptType,
+} from '@hatsprotocol/modules-sdk';
 import { CONFIG, TRIGGER_OPTIONS } from 'app-constants';
-import { createHatsModulesClient, transformInput } from 'app-utils';
+import {
+  createHatsModulesClient,
+  getDefaultValue,
+  transformInput,
+} from 'app-utils';
 import { FormData, Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import _ from 'lodash';
-import { Hex } from 'viem';
+import { ipToHatId } from 'shared-utils';
+import { Hex, parseUnits } from 'viem';
 
-import { decimalIdToId } from './hats';
+import { decimalId, decimalIdToId } from './hats';
 
 // modules-utils
 
@@ -286,4 +294,54 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     hatId,
     1,
   ];
+};
+
+export const processValues = ({
+  originalValues,
+  selectedModuleDetails,
+  tokenDecimals,
+}: {
+  originalValues: any;
+  selectedModuleDetails?: ModuleDetails;
+  tokenDecimals?: any;
+}) => {
+  const newValues = { ...originalValues };
+
+  const allArgs = [
+    ...(selectedModuleDetails?.creationArgs?.immutable || []),
+    ...(selectedModuleDetails?.creationArgs?.mutable || []),
+  ];
+
+  _.forEach(allArgs, (arg: ModuleCreationArg) => {
+    const tsType = solidityToTypescriptType(arg.type);
+    const defaultValue = getDefaultValue(tsType);
+
+    if (arg.optional && !newValues[arg.name]) {
+      newValues[arg.name] = defaultValue;
+    }
+
+    if (arg.displayType === 'amountWithDecimals') {
+      const amount = newValues[arg.name];
+      if (
+        amount !== undefined &&
+        !_.isNaN(parseFloat(amount)) &&
+        tokenDecimals !== undefined
+      ) {
+        try {
+          newValues[arg.name] = parseUnits(amount, tokenDecimals);
+        } catch (error) {
+          console.error(`Error parsing units: ${error}`);
+          newValues[arg.name] = defaultValue;
+        }
+      }
+    }
+
+    if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
+      const value = newValues[`${arg.name}_custom`];
+      newValues[arg.name] = decimalId(ipToHatId(value));
+      delete newValues[`${arg.name}_custom`];
+    }
+  });
+
+  return newValues;
 };
