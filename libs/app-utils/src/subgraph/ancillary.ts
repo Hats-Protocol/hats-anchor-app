@@ -3,10 +3,36 @@ import { gql, GraphQLClient } from 'graphql-request';
 import _ from 'lodash';
 
 const MODULES_QUERY = gql`
-  query GetModulesAuthorities($ids: [String!]!) {
-    jokeRaceEligibilities(where: { adminHat_in: $ids }) {
-      id
-      adminHat {
+  query GetModuleAuthorities($id: String!) {
+    hatAuthorities(where: { id: $id }) {
+      allowListOwner {
+        id
+      }
+      allowListArbitrator {
+        id
+      }
+      electionsAdmin {
+        id
+      }
+      electionsBallotBox {
+        id
+      }
+      eligibilityTogglePassthrough {
+        id
+      }
+      hsgOwner {
+        id
+      }
+      hsgSigner {
+        id
+      }
+      jokeraceAdmin {
+        id
+      }
+      stakingJudge {
+        id
+      }
+      stakingRecipient {
         id
       }
     }

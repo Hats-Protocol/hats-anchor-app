@@ -13,7 +13,6 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { MUTABILITY, STATUS } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { useWearerDetails } from 'hats-hooks';
-import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
@@ -25,7 +24,7 @@ const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
-  const { onCopy } = useClipboard(decimalId(selectedHat?.id));
+  const { onCopy } = useClipboard(selectedHat?.id);
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',

@@ -6,7 +6,7 @@ import { useHatsModules } from 'hats-hooks';
 import { Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { useMemo, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { prettyIdToIp } from 'shared-utils';
@@ -38,12 +38,18 @@ const ModuleDetailsForm = ({
   const { data } = useToken({ address: tokenAddress });
   const tokenDecimals = data?.decimals;
 
-  const handleChangeAddress = (e, name) => {
+  const handleChangeAddress = (
+    e: ChangeEvent<HTMLInputElement>,
+    name: string,
+  ) => {
     const trimmedValue = e.target.value.trim();
     setValue(name, trimmedValue, { shouldDirty: true });
   };
 
-  const handleChangeHat = (e, argName) => {
+  const handleChangeHat = (
+    e: ChangeEvent<HTMLSelectElement>,
+    argName: string,
+  ) => {
     setCustomHatSelections((prevState) => {
       const newState = { ...prevState };
 
@@ -309,6 +315,7 @@ const ModuleDetailsForm = ({
                         arg.type,
                       );
                     } catch (error) {
+                      // eslint-disable-next-line no-console
                       console.error('Error parsing units:', error);
                       return 'Error parsing units';
                     }
