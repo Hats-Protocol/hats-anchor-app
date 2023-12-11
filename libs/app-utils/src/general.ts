@@ -126,6 +126,9 @@ export const transformInput = (
     case 'number':
       return Number(input);
     case 'bigint':
+      if (typeof input === 'bigint') {
+        return input;
+      }
       if (_.isObject(input)) {
         const numberFromObject = Math.floor(_.toNumber(input) / 1000);
         return convertToBigInt(numberFromObject);

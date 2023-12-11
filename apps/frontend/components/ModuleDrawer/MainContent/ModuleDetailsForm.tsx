@@ -10,7 +10,8 @@ import { useMemo, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { prettyIdToIp } from 'shared-utils';
-import { isAddress } from 'viem';
+import { isAddress, parseUnits } from 'viem';
+import { useToken } from 'wagmi';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
@@ -33,6 +34,9 @@ const ModuleDetailsForm = ({
   const { watch, setValue } = localForm;
   const selectedModuleField = watch('moduleType', '');
   const [customHatSelections, setCustomHatSelections] = useState({});
+  const tokenAddress = watch('Token Address', '');
+  const { data } = useToken({ address: tokenAddress });
+  const tokenDecimals = data?.decimals;
 
   const handleChangeAddress = (e, name) => {
     const trimmedValue = e.target.value.trim();
@@ -54,6 +58,13 @@ const ModuleDetailsForm = ({
 
       return newState;
     });
+  };
+
+  const handleAmountWithDecimalsChange = (e, argName) => {
+    let { value } = e.target;
+    // Replace commas with dots and remove non-numeric characters except dot
+    value = value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+    setValue(argName, value, { shouldDirty: true });
   };
 
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
@@ -239,8 +250,7 @@ const ModuleDetailsForm = ({
               localForm={localForm}
             />
           )}
-          {(arg.displayType === 'seconds' ||
-            arg.displayType === 'amountWithDecimals') && (
+          {arg.displayType === 'seconds' && (
             <NumberInput
               name={arg.name}
               label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -253,8 +263,34 @@ const ModuleDetailsForm = ({
               }
               isRequired={!arg.optional}
               customValidations={{
-                validate: (value) => transformAndVerify(value, arg.type),
+                validate: (value) =>
+                  transformAndVerify(
+                    parseUnits(value, tokenDecimals),
+                    arg.type,
+                  ),
               }}
+              localForm={localForm}
+            />
+          )}
+          {arg.displayType === 'amountWithDecimals' && (
+            <NumberInput
+              name={arg.name}
+              label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+              subLabel={arg.description}
+              placeholder={
+                Array.isArray(arg.example)
+                  ? (arg.example as string[]).join(', ')
+                  : (arg.example as string)
+              }
+              isRequired={!arg.optional}
+              customValidations={{
+                validate: (value) =>
+                  transformAndVerify(
+                    parseUnits(value, tokenDecimals),
+                    arg.type,
+                  ),
+              }}
+              onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
               localForm={localForm}
             />
           )}

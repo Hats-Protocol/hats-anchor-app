@@ -19,12 +19,7 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
-import {
-  Controller,
-  // FieldValues,
-  RegisterOptions,
-  UseFormReturn,
-} from 'react-hook-form';
+import { Controller, RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { GrUndo } from 'react-icons/gr';
 
 export interface CustomNumberInputProps {
@@ -33,6 +28,7 @@ export interface CustomNumberInputProps {
   subLabel?: string;
   name: string;
   localForm: UseFormReturn<any>; // UseFormReturn<FieldValues>;
+  placeholder?: string;
   options?: {
     required?: boolean;
     min?: number;
@@ -57,6 +53,7 @@ const NumberInput = ({
   isRequired,
   step = 1,
   variant = 'outline',
+  placeholder,
 }: NumberInputProps) => {
   if (!localForm) return null;
 
@@ -105,7 +102,11 @@ const NumberInput = ({
                 }
                 {...restField}
               >
-                <NumberInputField ref={ref} name={restField.name} />
+                <NumberInputField
+                  ref={ref}
+                  name={restField.name}
+                  placeholder={placeholder}
+                />
                 {isDirty && (
                   <InputRightElement mr={6}>
                     <IconButton
