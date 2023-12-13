@@ -193,10 +193,12 @@ export const TreeFormContextProvider = ({
     [],
   );
 
-  const { hatAuthority } = useAncillaryModules({
+  const { hatAuthority, moduleDetails } = useAncillaryModules({
     id: selectedHatId,
+    chainId,
   });
   console.log('hatAuthority', hatAuthority);
+  console.log('moduleDetails', moduleDetails);
   console.log('selectedHatId', selectedHatId);
 
   const hatDisclosure = useDisclosure({

@@ -119,16 +119,18 @@ export interface HatExport {
 }
 
 export interface HatAuthorityResponse {
-  hatAuthority: {
-    allowListOwner: { id: string }[];
-    allowListArbitrator: { id: string }[];
-    electionsAdmin: { id: string }[];
-    electionsBallotBox: { id: string }[];
-    eligibilityTogglePassthrough: { id: string }[];
-    hsgOwner: { id: string }[];
-    hsgSigner: { id: string }[];
-    jokeraceAdmin: { id: string }[];
-    stakingJudge: { id: string }[];
-    stakingRecipient: { id: string }[];
-  };
+  hatAuthority: HatAuthority;
+}
+
+export interface HatAuthority {
+  allowListOwner: { id: Hex }[];
+  allowListArbitrator: { id: Hex }[];
+  electionsAdmin: { id: Hex }[];
+  electionsBallotBox: { id: Hex }[];
+  eligibilityTogglePassthrough: { id: Hex }[];
+  hsgOwner: { id: Hex }[];
+  hsgSigner: { id: Hex }[];
+  jokeraceAdmin: { id: Hex }[];
+  stakingJudge: { id: Hex }[];
+  stakingRecipient: { id: Hex }[];
 }
