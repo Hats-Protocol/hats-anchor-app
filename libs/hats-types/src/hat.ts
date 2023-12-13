@@ -96,6 +96,7 @@ export type ModuleCreationArgs = {
 
 export interface ModuleDetails extends Module {
   id: Hex;
+  customRoles: any[];
 }
 
 export interface HatExport {

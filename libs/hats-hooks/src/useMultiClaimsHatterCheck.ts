@@ -105,11 +105,11 @@ const useMultiClaimsHatterCheck = ({
     ),
   );
 
-  const { modulesDetails } = useModulesDetails({
+  const { modulesDetails, isLoading: modulesLoading } = useModulesDetails({
     moduleIds: storedAddresses,
     chainId,
   });
-  const modulesLoading = _.some(modulesDetails, 'isLoading');
+
   const storedDataClaimableHats = _.compact(
     _.map(modulesDetails, (data: ModuleDetails, index: number) => {
       if (data) {

@@ -5,7 +5,6 @@ import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
-// modules-hooks
 const useModulesDetails = ({
   moduleIds,
   chainId,
@@ -35,6 +34,7 @@ const useModulesDetails = ({
 
   return {
     modulesDetails: _.compact(_.map(result, 'data')) as ModuleDetails[],
+    isLoading: _.some(result, 'isLoading'),
   };
 };
 
