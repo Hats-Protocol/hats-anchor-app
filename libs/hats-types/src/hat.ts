@@ -117,3 +117,18 @@ export interface HatExport {
     data: HatDetails;
   };
 }
+
+export interface HatAuthorityResponse {
+  hatAuthority: {
+    allowListOwner: { id: string }[];
+    allowListArbitrator: { id: string }[];
+    electionsAdmin: { id: string }[];
+    electionsBallotBox: { id: string }[];
+    eligibilityTogglePassthrough: { id: string }[];
+    hsgOwner: { id: string }[];
+    hsgSigner: { id: string }[];
+    jokeraceAdmin: { id: string }[];
+    stakingJudge: { id: string }[];
+    stakingRecipient: { id: string }[];
+  };
+}

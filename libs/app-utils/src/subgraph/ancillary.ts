@@ -1,10 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 import { gql, GraphQLClient } from 'graphql-request';
-import _ from 'lodash';
+import { HatAuthorityResponse } from 'hats-types';
 
 const MODULES_QUERY = gql`
-  query GetModuleAuthorities($id: String!) {
-    hatAuthorities(where: { id: $id }) {
+  query GetModuleAuthorities($id: ID!) {
+    hatAuthority(id: $id) {
       allowListOwner {
         id
       }
@@ -45,13 +45,23 @@ const ANCILLARY_API_URL = {
 
 const ancillarySubgraphClient = new GraphQLClient(ANCILLARY_API_URL[5]);
 
-export const fetchAncillaryModules = async (ids: string[]) => {
-  const response = await ancillarySubgraphClient.request(MODULES_QUERY, {
-    ids,
-  });
+export const fetchAncillaryModules = async (
+  id?: string,
+): Promise<HatAuthorityResponse | null> => {
+  if (!id) return null;
 
-  const moduleLookups = ['jokeRaceEligibilities'];
-  const modules = _.pick(response, moduleLookups);
+  try {
+    const response =
+      await ancillarySubgraphClient.request<HatAuthorityResponse>(
+        MODULES_QUERY,
+        {
+          id,
+        },
+      );
 
-  return modules;
+    return response.hatAuthority ? response : null;
+  } catch (error) {
+    console.error('Error fetching ancillary modules:', error);
+    return null;
+  }
 };

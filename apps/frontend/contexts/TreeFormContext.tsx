@@ -5,6 +5,7 @@ import {
 } from '@hatsprotocol/sdk-v1-core';
 import { DEFAULT_HAT } from 'app-constants';
 import {
+  useAncillaryModules,
   useBetterMediaQuery,
   useGuilds,
   useImageURIs,
@@ -191,6 +192,12 @@ export const TreeFormContextProvider = ({
     localStorageKey,
     [],
   );
+
+  const { hatAuthority } = useAncillaryModules({
+    id: selectedHatId,
+  });
+  console.log('hatAuthority', hatAuthority);
+  console.log('selectedHatId', selectedHatId);
 
   const hatDisclosure = useDisclosure({
     onClose: () => {

@@ -21,8 +21,8 @@ importers:
         specifier: ^11.11.0
         version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.33)(react@18.2.0)
       '@hatsprotocol/modules-sdk':
-        specifier: 0.14.1
-        version: 0.14.1(typescript@5.3.3)(viem@1.19.11)
+        specifier: 0.15.0
+        version: 0.15.0(viem@1.19.11)
       '@hatsprotocol/sdk-v1-core':
         specifier: 0.7.0
         version: 0.7.0(viem@1.19.11)
@@ -2794,18 +2794,16 @@ packages:
       graphql: 16.8.1
     dev: false
 
-  /@hatsprotocol/modules-sdk@0.14.1(typescript@5.3.3)(viem@1.19.11):
-    resolution: {integrity: sha512-/eg2sCCv66hjDe+Y1lbjzlFso9XBdSWW8eSwoLP7aOyAwmvZN3hNhbAQsgCeptex7B4viBIwzvWdu+vJ2M8pkQ==}
+  /@hatsprotocol/modules-sdk@0.15.0(viem@1.19.11):
+    resolution: {integrity: sha512-RymAQpOvt5u6fFisAUc0EyfBTj8vWtwlnQnV5IKWbytojHI5PZBo1UGvUfXRM87xRwui7A82nf5Rc2JmvZEoDg==}
     peerDependencies:
       viem: ^1.11.0
     dependencies:
-      abitype: 0.9.10(typescript@5.3.3)(zod@3.22.4)
       axios: 1.6.2
       viem: 1.19.11(typescript@5.3.3)
       zod: 3.22.4
     transitivePeerDependencies:
       - debug
-      - typescript
     dev: false
 
   /@hatsprotocol/sdk-v1-core@0.7.0(viem@1.19.11):
@@ -6208,21 +6206,6 @@ packages:
         optional: true
     dependencies:
       typescript: 5.3.3
-    dev: false
-
-  /abitype@0.9.10(typescript@5.3.3)(zod@3.22.4):
-    resolution: {integrity: sha512-FIS7U4n7qwAT58KibwYig5iFG4K61rbhAqaQh/UWj8v1Y8mjX3F8TC9gd8cz9yT1TYel9f8nS5NO5kZp2RW0jQ==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.22.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-    dependencies:
-      typescript: 5.3.3
-      zod: 3.22.4
     dev: false
 
   /abitype@0.9.8(typescript@5.3.3):
