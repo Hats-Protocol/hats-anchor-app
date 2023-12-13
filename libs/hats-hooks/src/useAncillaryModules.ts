@@ -55,7 +55,8 @@ function populateHatAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
-  const updatedHatAuthorities = _.cloneDeep(hatAuthorities) || {};
+  const updatedHatAuthorities: { [key: string]: any } =
+    _.cloneDeep(hatAuthorities) || {};
 
   _.forEach(modulesDetails, (moduleDetail: ModuleDetails) => {
     _.forEach(
