@@ -1,18 +1,15 @@
 import { Module } from '@hatsprotocol/modules-sdk';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { CONFIG } from 'app-constants';
-import {
-  createHatsModulesClient,
-  createSubgraphClient,
-  fetchWearerDetails,
-} from 'app-utils';
-import { FormData, Hat, SupportedChains } from 'hats-types';
+import { createSubgraphClient, fetchWearerDetails } from 'app-utils';
+import { FormData, Hat, ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
 
 import useIsAdmin from './useIsAdmin';
 import useModuleDetails from './useModuleDetails';
+import useModulesDetails from './useModulesDetails';
 
 const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
   const subgraphClient = createSubgraphClient();
@@ -108,33 +105,14 @@ const useMultiClaimsHatterCheck = ({
     ),
   );
 
-  const getModuleData = async (address?: Hex) => {
-    if (!chainId || !address) return null;
-
-    const moduleClient = await createHatsModulesClient(chainId);
-    if (!moduleClient) return null;
-
-    const moduleData = await moduleClient.getModuleByInstance(address);
-    if (!moduleData) return null;
-
-    return moduleData as Module;
-  };
-
-  const storedModuleDetails = useQueries({
-    queries: storedAddresses.map((address: any) => ({
-      queryKey: ['otherModuleDetails', address],
-      queryFn: () => getModuleData(address),
-      enabled: !!address,
-    })),
+  const { modulesDetails } = useModulesDetails({
+    moduleIds: storedAddresses,
+    chainId,
   });
-  const storedModulesDetailsData = _.compact(
-    _.map(storedModuleDetails, 'data'),
-  );
-  const modulesLoading = _.some(storedModuleDetails, 'isLoading');
-
+  const modulesLoading = _.some(modulesDetails, 'isLoading');
   const storedDataClaimableHats = _.compact(
-    _.map(storedModuleDetails, (result: { data: any }, index: any) => {
-      if (result.data) {
+    _.map(modulesDetails, (data: ModuleDetails, index: number) => {
+      if (data) {
         return _.get(storedData, `[${index}].id`);
       }
       return null;
@@ -151,15 +129,10 @@ const useMultiClaimsHatterCheck = ({
     queryKey: [
       'hatterHat',
       { chainId, hats: _.map(claimsHatterData, 'id') },
-      { storedModulesDetailsData, storedData },
+      { storedModulesDetailsData: modulesDetails, storedData },
     ],
     queryFn: () =>
-      getHatterHat(
-        claimsHatterData,
-        storedModulesDetailsData,
-        storedData,
-        chainId,
-      ),
+      getHatterHat(claimsHatterData, modulesDetails, storedData, chainId),
     enabled: !!chainId && !!claimsHatterData,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });

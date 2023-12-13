@@ -5,7 +5,6 @@ import {
 } from '@hatsprotocol/sdk-v1-core';
 import { DEFAULT_HAT } from 'app-constants';
 import {
-  useAncillaryModules,
   useBetterMediaQuery,
   useGuilds,
   useImageURIs,
@@ -20,6 +19,7 @@ import {
   removeAndHandleSiblingsOrgChart,
 } from 'app-utils';
 import {
+  useAncillaryModules,
   useManyHatsDetails,
   useManyHatsDetailsField,
   useTreeDetails,
@@ -34,6 +34,7 @@ import {
   HatWearer,
   Hierarchy,
   LinkRequest,
+  ModuleDetails,
   SupportedChains,
 } from 'hats-types';
 import { combineAuthorities, translateDrafts } from 'hats-utils';
@@ -67,6 +68,7 @@ export interface TreeFormContext {
   selectedOnchainHatDetails: HatDetails | undefined;
   selectedHatGuildRoles: Authority[] | undefined;
   selectedHatSpaces: Authority[] | undefined;
+  selectedHatModuleDetails: ModuleDetails[] | undefined;
   combinedAuthorities: Authority[] | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
@@ -116,6 +118,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   selectedOnchainHatDetails: undefined,
   selectedHatGuildRoles: undefined,
   selectedHatSpaces: undefined,
+  selectedHatModuleDetails: undefined,
   combinedAuthorities: undefined,
   treeEvents: undefined,
   isLoading: true,
@@ -193,12 +196,13 @@ export const TreeFormContextProvider = ({
     [],
   );
 
-  const { hatAuthority, moduleDetails } = useAncillaryModules({
-    id: selectedHatId,
-    chainId,
-  });
+  const { hatAuthority, modulesDetails: selectedHatModuleDetails } =
+    useAncillaryModules({
+      id: selectedHatId,
+      chainId,
+    });
   console.log('hatAuthority', hatAuthority);
-  console.log('moduleDetails', moduleDetails);
+  console.log('moduleDetails', selectedHatModuleDetails);
   console.log('selectedHatId', selectedHatId);
 
   const hatDisclosure = useDisclosure({
@@ -741,6 +745,7 @@ export const TreeFormContextProvider = ({
       selectedOnchainHatDetails,
       selectedHatGuildRoles,
       selectedHatSpaces,
+      selectedHatModuleDetails,
       combinedAuthorities,
       setSelectedHatId,
       selectedOption,
@@ -790,6 +795,7 @@ export const TreeFormContextProvider = ({
       selectedOnchainHatDetails,
       selectedHatGuildRoles,
       selectedHatSpaces,
+      selectedHatModuleDetails,
       combinedAuthorities,
       setSelectedHatId,
       selectedOption,

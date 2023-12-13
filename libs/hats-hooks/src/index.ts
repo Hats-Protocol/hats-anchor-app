@@ -1,5 +1,6 @@
 export { default as useAdminOfHats } from './useAdminOfHats';
 export { default as useAllWearers } from './useAllWearers';
+export { default as useAncillaryModules } from './useAncillaryModules';
 export { default as useControllerList } from './useControllerList';
 export { default as useHatBurn } from './useHatBurn';
 export { default as useHatClaim } from './useHatClaim';
@@ -17,6 +18,7 @@ export { default as useManyHatsDetails } from './useManyHatsDetails';
 export { default as useManyHatsDetailsField } from './useManyHatsDetailsField';
 export { default as useModuleDeploy } from './useModuleDeploy';
 export { default as useModuleDetails } from './useModuleDetails';
+export { default as useModulesDetails } from './useModulesDetails';
 export { default as useMulticallCallData } from './useMulticallCallData';
 export { default as useMulticallManyHats } from './useMulticallManyHats';
 export { default as useMultiClaimsHatterCheck } from './useMultiClaimsHatterCheck';

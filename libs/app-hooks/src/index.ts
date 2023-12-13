@@ -1,4 +1,3 @@
-export { default as useAncillaryModules } from './useAncillaryModules';
 export { default as useBetterMediaQuery } from './useBetterMediaQuery';
 export { default as useCid } from './useCid';
 export { default as useContractData } from './useContractData';
