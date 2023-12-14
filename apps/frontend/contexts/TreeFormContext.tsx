@@ -202,7 +202,7 @@ export const TreeFormContextProvider = ({
       chainId,
     });
   console.log('hatAuthorities', hatAuthorities);
-  console.log('moduleDetails', selectedHatModuleDetails);
+  console.log('selectedHatModuleDetails', selectedHatModuleDetails);
   console.log('selectedHatId', selectedHatId);
 
   const hatDisclosure = useDisclosure({

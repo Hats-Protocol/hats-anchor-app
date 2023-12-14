@@ -21,8 +21,8 @@ importers:
         specifier: ^11.11.0
         version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.33)(react@18.2.0)
       '@hatsprotocol/modules-sdk':
-        specifier: 0.15.0
-        version: 0.15.0(viem@1.19.11)
+        specifier: 0.15.2
+        version: 0.15.2(viem@1.19.11)
       '@hatsprotocol/sdk-v1-core':
         specifier: 0.7.0
         version: 0.7.0(viem@1.19.11)
@@ -2794,8 +2794,8 @@ packages:
       graphql: 16.8.1
     dev: false
 
-  /@hatsprotocol/modules-sdk@0.15.0(viem@1.19.11):
-    resolution: {integrity: sha512-RymAQpOvt5u6fFisAUc0EyfBTj8vWtwlnQnV5IKWbytojHI5PZBo1UGvUfXRM87xRwui7A82nf5Rc2JmvZEoDg==}
+  /@hatsprotocol/modules-sdk@0.15.2(viem@1.19.11):
+    resolution: {integrity: sha512-PxABbhKM2ZlTfa2R0Z9CjMz3gzFE3/yxr6hLD3AgVrjQQcnuX3QSAKu3dRxvJhcLbXq5n5bhRTZWYLM1Qe7BZQ==}
     peerDependencies:
       viem: ^1.11.0
     dependencies:

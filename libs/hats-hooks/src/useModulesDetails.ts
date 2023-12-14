@@ -1,5 +1,4 @@
-import { Module } from '@hatsprotocol/modules-sdk';
-import { useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createHatsModulesClient } from 'app-utils';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
@@ -12,29 +11,23 @@ const useModulesDetails = ({
   moduleIds: Hex[];
   chainId: SupportedChains | undefined;
 }) => {
-  const getModuleData = async (address?: Hex) => {
-    if (!chainId || !address) return null;
-
+  const fetchModulesData = async () => {
     const moduleClient = await createHatsModulesClient(chainId);
-    if (!moduleClient) return null;
+    if (!moduleClient) return [];
 
-    const moduleData = await moduleClient.getModuleByInstance(address);
-    if (!moduleData) return null;
-
-    return moduleData as Module;
+    const modules = await moduleClient.getModulesByInstances(moduleIds);
+    return modules;
   };
 
-  const result = useQueries({
-    queries: moduleIds.map((address) => ({
-      queryKey: ['moduleDetails', address],
-      queryFn: () => getModuleData(address),
-      enabled: !!address,
-    })),
+  const { data, isLoading } = useQuery({
+    queryKey: ['modulesDetails', moduleIds],
+    queryFn: fetchModulesData,
+    enabled: !!chainId && !_.isEmpty(moduleIds),
   });
 
   return {
-    modulesDetails: _.compact(_.map(result, 'data')) as ModuleDetails[],
-    isLoading: _.some(result, 'isLoading'),
+    modulesDetails: data as ModuleDetails[],
+    isLoading,
   };
 };
 
