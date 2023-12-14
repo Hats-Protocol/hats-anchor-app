@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAncillaryModules } from 'app-utils';
+import { AUTHORITY_TYPES } from 'app-constants';
+import { fetchAncillaryModules, formatAddress } from 'app-utils';
 import { HatAuthority, ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
@@ -34,20 +35,23 @@ const useAncillaryModules = ({
     chainId,
   });
 
-  const populatedHatAuthorities = populateHatAuthorities({
+  const populatedModulesAuthorities = populateModulesAuthorities({
     hatAuthorities: data?.hatAuthority,
     modulesDetails,
   });
 
+  const modulesAuthorities = prepareModuleAuthorities(
+    populatedModulesAuthorities,
+  );
+
   return {
-    hatAuthorities: populatedHatAuthorities,
-    modulesDetails,
+    modulesAuthorities,
     error,
     isLoading,
   };
 };
 
-function populateHatAuthorities({
+function populateModulesAuthorities({
   hatAuthorities,
   modulesDetails,
 }: {
@@ -79,7 +83,9 @@ function populateHatAuthorities({
           (item: any) => ({
             ...item,
             ..._.head(matchingRoles),
+            details: details.details,
             functions: matchingFunctions,
+            instanceAddress: item.id,
           }),
         );
       },
@@ -87,6 +93,22 @@ function populateHatAuthorities({
   });
 
   return updatedHatAuthorities;
+}
+
+function prepareModuleAuthorities(auths: { [key: string]: any }) {
+  return _.flatMap(auths, (authorities: any) =>
+    authorities.map((authority: any) => ({
+      label: `${authority.name} (${formatAddress(authority.instanceAddress)})`,
+      link: authority.id,
+      description: Array.isArray(authority.details)
+        ? authority.details.join('\n')
+        : authority.details,
+      type: AUTHORITY_TYPES.modules,
+      id: authority.id,
+      functions: authority.functions,
+      instanceAddress: authority.instanceAddress,
+    })),
+  );
 }
 
 export default useAncillaryModules;

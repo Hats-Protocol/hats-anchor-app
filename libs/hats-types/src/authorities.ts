@@ -16,6 +16,7 @@ export type Authority = {
   type?: string | AuthorityType | undefined;
   id?: string | number;
   strategies?: SnapshotStrategy[];
+  functions?: any[];
 };
 
 export interface SnapshotStrategy {

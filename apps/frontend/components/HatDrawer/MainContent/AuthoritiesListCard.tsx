@@ -28,6 +28,7 @@ const AuthoritiesListCard = ({
   authority?: Authority;
   type: AuthorityType;
 }) => {
+  console.log('authority', authority);
   const { label, description, link, gate, imageUrl, id, strategies } =
     authority || {};
   const gateHostName = getHostnameFromURL(gate);

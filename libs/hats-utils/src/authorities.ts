@@ -7,10 +7,12 @@ export const combineAuthorities = ({
   authorities,
   guildRoles,
   spaces,
+  modulesAuthorities,
 }: {
   authorities: Authority[] | undefined;
   guildRoles: Authority[] | undefined;
   spaces: Authority[] | undefined;
+  modulesAuthorities: Authority[] | undefined;
 }) => {
   const socialAuthorities = _.map(authorities, (authority: Authority) => ({
     ...authority,
@@ -57,6 +59,7 @@ export const combineAuthorities = ({
     mergedAuthorities,
     nonMatchingAuthorities,
     filteredAuthorities,
+    modulesAuthorities,
   );
 
   return { data: _.compact(combined) };
