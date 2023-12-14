@@ -161,9 +161,12 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
-  let { hatId: initialHatId } = router.query;
-  if (_.isArray(initialHatId)) {
+  const { hatId: initialHatIdParam } = router.query;
+  let initialHatId: string | undefined;
+  if (_.isArray(initialHatIdParam)) {
     initialHatId = _.first(initialHatId);
+  } else {
+    initialHatId = initialHatIdParam;
   }
   const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
     ipToHatId(initialHatId),

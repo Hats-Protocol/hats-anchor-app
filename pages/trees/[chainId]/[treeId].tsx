@@ -1,18 +1,21 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import { Hex } from 'viem';
 
 import TreePage from '@/components/TreePage';
 import { TreeFormContextProvider } from '@/contexts/TreeFormContext';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
-  const router = useRouter();
-  let { hatId } = router.query;
-  if (_.isArray(hatId)) {
-    hatId = _.first(hatId);
-  }
+  // const router = useRouter();
+  // const { hatId: hatIdParam } = router.query;
+  // let hatId: string | undefined;
+  // if (_.isArray(hatIdParam)) {
+  //   hatId = _.first(hatIdParam);
+  // } else {
+  //   hatId = hatIdParam;
+  // }
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>
