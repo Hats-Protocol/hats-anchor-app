@@ -51,9 +51,9 @@ export interface IOverlayContext {
     txChainId,
     fnName,
     toastData,
-    redirect = null,
-    clearModals = true,
-    sendToast = true,
+    redirect,
+    clearModals,
+    sendToast,
     onSuccess,
   }: {
     hash: Hex;
