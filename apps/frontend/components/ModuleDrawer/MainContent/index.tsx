@@ -1,6 +1,6 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useMultiClaimsHatterCheck } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -39,11 +39,11 @@ const MainContent = ({
     // not top hat and (immutable with supply or mutable)
     return _.filter(
       parents,
-      (parent: Hat) =>
+      (parent: AppHat) =>
         parent.id !== topHat?.id &&
         (parent.mutable ||
           _.toNumber(parent.maxSupply) > _.toNumber(parent.currentSupply)),
-    ) as Hat[];
+    ) as AppHat[];
   }, [selectedHat, treeToDisplay, topHat]);
 
   const { claimableHats } = useMultiClaimsHatterCheck({

@@ -1,7 +1,8 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useImageURIs } from 'app-hooks';
 import { usePaginatedTreeList } from 'hats-hooks';
-import { Hat, Tree } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
@@ -20,11 +21,11 @@ const Trees = ({ chainId }: { chainId: number }) => {
 
   const trees = _.flatten(_.get(data, 'pages'));
 
-  const topHats: Hat[] = useMemo(() => {
+  const topHats = useMemo(() => {
     return mapWithChainId(
       _.map(_.flatten(_.get(data, 'pages')), 'hats[0]'),
       chainId,
-    );
+    ) as AppHat[];
   }, [data, chainId]);
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
@@ -59,13 +60,13 @@ const Trees = ({ chainId }: { chainId: number }) => {
               {_.map(trees, (tree: Tree) => {
                 const topHat = _.find(
                   topHats,
-                  (h: Hat) =>
+                  (h: AppHat) =>
                     _.get(h, 'id') ===
                     _.get(_.first(_.get(tree, 'hats')), 'id'),
                 );
                 const topHatImage = _.find(
                   topHatsWithImagesData,
-                  (h: Hat) =>
+                  (h: AppHat) =>
                     _.get(h, 'id') ===
                     _.get(_.first(_.get(tree, 'hats')), 'id'),
                 );

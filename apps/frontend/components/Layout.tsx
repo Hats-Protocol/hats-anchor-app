@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
@@ -95,6 +95,6 @@ export default Layout;
 
 interface LayoutProps {
   editMode?: boolean;
-  hatData?: Hat;
+  hatData?: AppHat;
   children: ReactNode;
 }

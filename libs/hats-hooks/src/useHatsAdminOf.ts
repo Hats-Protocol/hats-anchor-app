@@ -1,13 +1,14 @@
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { chainsList, fetchTreesById } from 'app-utils';
-import { Hat, Tree } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 
 const chains = _.keys(chainsList);
 
 // hats-hooks
-const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
+const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
   const adminOfHats = async () => {
     if (!hats) return {};
     // determine the trees to fetch for each network based on the currently worn hats
@@ -17,30 +18,33 @@ const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
       networkTrees[cId] = {
         trees: _.uniq(
           _.map(
-            _.filter(hats, (h: Hat) => h.chainId === _.toNumber(cId)),
-            (h: Hat) => h.tree?.id,
+            _.filter(hats, (h: AppHat) => h.chainId === _.toNumber(cId)),
+            (h: AppHat) => h.tree?.id,
           ),
         ),
       };
     });
 
-    const networksWithTrees = _.omitBy(networkTrees, (v: { trees: any }) =>
-      _.isEmpty(v.trees),
+    const networksWithTrees = _.omitBy(
+      networkTrees,
+      (v: { trees: (string | undefined)[] }) => _.isEmpty(v.trees),
     );
     const networkChains = _.keys(networksWithTrees);
 
     // fetch the trees for each network
-    const promises = _.map(networksWithTrees, (v: { trees: any }, k: any) => {
-      const trees = _.filter(v.trees, (t: any) => t !== undefined) as string[];
-      return fetchTreesById(trees, _.toNumber(k));
-    });
+    const promises = _.map(
+      networksWithTrees,
+      (v: { trees: Tree[] }, k: string) => {
+        return fetchTreesById(_.compact(_.map(v.trees, 'id')), _.toNumber(k));
+      },
+    );
     const data: unknown[] = await Promise.all(promises);
 
     // consolidate the associated hats for each tree
-    const test = _.map(data, (arr: Tree[], i: number) =>
+    const consolidateTrees = _.map(data, (arr: Tree[], i: number) =>
       _.flatten(
         _.map(arr, (tree: Tree) =>
-          _.map(tree.hats, (h: Hat) => ({
+          _.map(tree.hats, (h: AppHat) => ({
             ...h,
             chainId: _.toNumber(networkChains[i]),
           })),
@@ -50,8 +54,9 @@ const useHatsAdminOf = ({ hats }: { hats: Hat[] | undefined }) => {
 
     // TODO add another lookup for linked trees/hats
     // filter out the hats that the user is not an admin of
-    const filteredAdminHats = _.filter(_.flatten(test), (h: Hat) =>
-      isWearingAdminHat(_.map(hats, 'id'), h.id),
+    const filteredAdminHats = _.filter(
+      _.flatten(consolidateTrees),
+      (h: AppHat) => isWearingAdminHat(_.map(hats, 'id'), h.id),
     );
 
     return filteredAdminHats;

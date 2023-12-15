@@ -3,7 +3,7 @@ import {
   Wearer,
 } from '@hatsprotocol/sdk-v1-subgraph';
 import { gql, GraphQLClient } from 'graphql-request';
-import { Hat, HatWearer } from 'hats-types';
+import { AppHat, HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared-utils';
 import { Hex } from 'viem';
@@ -221,8 +221,8 @@ export const fetchControllersForUser = async (a: string) => {
 
   const data: unknown[] = await Promise.all(promises);
 
-  const mapWithChains = _.map(data, (d: { hats: Hat[] }, i: number) => {
-    const hats = _.map(d.hats, (h: Hat) => ({
+  const mapWithChains = _.map(data, (d: { hats: AppHat[] }, i: number) => {
+    const hats = _.map(d.hats, (h: AppHat) => ({
       ...h,
       chainId: _.toNumber(chains[i]),
     }));

@@ -3,6 +3,7 @@ import { MODULE_TYPES } from 'app-constants';
 import { checkAddressIsContract } from 'app-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import EventHistory from '../../EventHistory';
@@ -28,8 +29,8 @@ const MainContent = () => {
   useEffect(() => {
     const check = async () => {
       const checkPromises = [
-        await checkAddressIsContract(selectedHat?.eligibility, chainId),
-        await checkAddressIsContract(selectedHat?.toggle, chainId),
+        await checkAddressIsContract(selectedHat?.eligibility as Hex, chainId),
+        await checkAddressIsContract(selectedHat?.toggle as Hex, chainId),
       ];
       const data: boolean[] = await Promise.all(checkPromises);
       setIsEligibilityAContract(_.first(data) || false);

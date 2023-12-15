@@ -3,7 +3,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { createHatsModulesClient } from 'app-utils';
-import { HandlePendingTx, Hat, SupportedChains } from 'hats-types';
+import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { Hex } from 'viem';
@@ -26,7 +26,7 @@ const useHatClaim = ({
   wearer,
   handlePendingTx,
 }: {
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: SupportedChains;
   wearer: Hex | undefined;
   handlePendingTx?: HandlePendingTx;
@@ -43,12 +43,12 @@ const useHatClaim = ({
   );
 
   const claimsHatterAddress: Hex | undefined = useMemo(
-    () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id'),
+    () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id') as Hex,
     [selectedHat],
   );
 
   const claimableForAddress: Hex | undefined = useMemo(
-    () => _.get(_.first(_.get(selectedHat, 'claimableForBy')), 'id'),
+    () => _.get(_.first(_.get(selectedHat, 'claimableForBy')), 'id') as Hex,
     [selectedHat],
   );
 

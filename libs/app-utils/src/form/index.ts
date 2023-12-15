@@ -1,11 +1,11 @@
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
 import {
+  AppHat,
   FieldItem,
   FormData,
   FormDataDetails,
   FormFieldKeys,
-  Hat,
   HatDetails,
   HatDetailsKeys,
   InputObject,
@@ -20,7 +20,7 @@ import { createHatsClient, publicClient } from '../web3';
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
-  originalHat?: Hat,
+  originalHat?: AppHat,
 ) => {
   const originalHatDetails = _.get(originalHat, 'detailsObject.data');
   const {
@@ -78,7 +78,7 @@ const createDetailsData = ({
   originalHat,
 }: {
   hat: Partial<FormData>;
-  originalHat?: Hat;
+  originalHat?: AppHat;
 }): HatDetails => {
   const {
     isEligibilityManual,
@@ -173,6 +173,7 @@ interface ProcessCallForHatReturnProps {
     functionName: string;
     callData: Hex;
   }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hatChanges: any; // Partial<FormData>;
   detailsToPin?: { hatId: Hex; chainId: SupportedChains; details: HatDetails };
 }
@@ -196,7 +197,7 @@ const processNewDetailsCallForHat = async ({
   returnData,
 }: ProcessCallForHatProps): Promise<ProcessCallForHatReturnProps> => {
   const { calls } = returnData;
-  let newHatChanges = {} as Partial<Hat>;
+  let newHatChanges = {} as Partial<AppHat>;
   const { id, imageUrl } = hat;
 
   const detailsData = createDetailsData({ hat });
@@ -291,7 +292,7 @@ const processWearersCallForHat = ({
 };
 
 type ProcessDetailsChangeCallForHatProps = {
-  onchainHat: Hat | undefined;
+  onchainHat: AppHat | undefined;
 } & ProcessCallForHatProps;
 
 const processDetailsChangeCallForHat = async ({
@@ -333,7 +334,7 @@ const processDetailsChangeCallForHat = async ({
         (_.isArray(existingValue) && _.isArray(newValue)) ||
         (_.isObject(existingValue) && _.isObject(newValue))
       ) {
-        acc[localKey] = _.merge(existingValue, newValue);
+        acc[localKey] = newValue; // _.merge(existingValue, newValue);
       } else {
         acc[key] = newValue || existingValue;
       }
@@ -537,7 +538,7 @@ const processImageChangeCallForHat = async ({
 
 export const processHatForCalls = async (
   hat: Partial<FormData>,
-  onchainHats?: Hat[],
+  onchainHats?: AppHat[],
   chainId?: SupportedChains,
 ) => {
   const hatsClient = createHatsClient(chainId);
@@ -638,18 +639,18 @@ export const removeAndHandleSiblings = (
   );
 };
 
-export const removeAndHandleSiblingsOrgChart = (hats: Hat[], hatId: Hex) => {
+export const removeAndHandleSiblingsOrgChart = (hats: AppHat[], hatId: Hex) => {
   const orgChartHat = _.find(hats, ['id', hatId]);
   const newSiblings = _.filter(hats, ['parentId', orgChartHat?.parentId]);
 
-  const updateSiblings = _.map(newSiblings, (child: { id: any }, i: number) => {
+  const updateSiblings = _.map(newSiblings, (child: { id: Hex }, i: number) => {
     if (i + 1 === newSiblings.length) return undefined;
 
     // TODO do we need to handle left siblings here?
     return { ...newSiblings[i + 1], id: child.id };
   });
 
-  const filterSiblings = _.reject(hats, (child: Hat) =>
+  const filterSiblings = _.reject(hats, (child: AppHat) =>
     _.includes(_.concat(_.map(newSiblings, 'id'), [orgChartHat?.id]), child.id),
   );
 

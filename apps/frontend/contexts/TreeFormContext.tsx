@@ -25,9 +25,9 @@ import {
   useWearersControllersDetails,
 } from 'hats-hooks';
 import {
+  AppHat,
   Authority,
   FormData,
-  Hat,
   HatDetails,
   HatEvent,
   HatWearer,
@@ -54,15 +54,15 @@ import { useQueryClient } from 'wagmi';
 export interface TreeFormContext {
   chainId: SupportedChains | undefined;
   treeId: Hex | undefined;
-  topHat: Hat | undefined;
+  topHat: AppHat | undefined;
   // tree
   topHatDetails: HatDetails | undefined;
   selectedHatDetails: HatDetails | undefined;
   isDraft: boolean;
-  treeToDisplay: Hat[] | undefined;
-  onchainTree: Hat[] | undefined;
-  onchainHats: Hat[] | undefined;
-  selectedOnchainHat: Hat | undefined;
+  treeToDisplay: AppHat[] | undefined;
+  onchainTree: AppHat[] | undefined;
+  onchainHats: AppHat[] | undefined;
+  selectedOnchainHat: AppHat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
   selectedHatGuildRoles: Authority[] | undefined;
   selectedHatSpaces: Authority[] | undefined;
@@ -79,14 +79,14 @@ export interface TreeFormContext {
   editMode: boolean;
   setEditMode: ((v: boolean) => void) | undefined;
   toggleEditMode: (() => void) | undefined;
-  selectedHat: Hat | undefined;
+  selectedHat: AppHat | undefined;
   setSelectedHatId: ((id: Hex | undefined) => void) | undefined;
   selectedOption: string | undefined;
   setSelectedOption: ((v: string) => void) | undefined;
   showInactiveHats: boolean;
   setShowInactiveHats: ((v: boolean) => void) | undefined;
   // actions
-  addHat: ((hat: Hat, parentId: Hex) => void) | undefined;
+  addHat: ((hat: AppHat, parentId: Hex) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
   handleFlipChart: ((isFlipped: boolean) => void) | undefined;
   handleSetCompact: ((isCompact: boolean) => void) | undefined;
@@ -96,7 +96,7 @@ export interface TreeFormContext {
   // disclosures
   hatDisclosure: UseDisclosureReturn | undefined;
   treeDisclosure: UseDisclosureReturn | undefined;
-  patchTree: ((proposedHats: Hat[]) => void) | undefined;
+  patchTree: ((proposedHats: AppHat[]) => void) | undefined;
   hierarchy: Hierarchy | undefined;
 }
 
@@ -186,7 +186,7 @@ export const TreeFormContextProvider = ({
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     'wearers',
   );
-  const [orgChartHats, setOrgChartHats] = useState<Hat[] | undefined>();
+  const [orgChartHats, setOrgChartHats] = useState<AppHat[] | undefined>();
   const isMobile = useBetterMediaQuery('(max-width: 767px)');
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
@@ -231,7 +231,7 @@ export const TreeFormContextProvider = ({
   }, [treeData]);
 
   useEffect(() => {
-    setOrgChartHats(treeData?.hats);
+    setOrgChartHats(treeData?.hats as AppHat[]);
   }, [treeData?.hats]);
 
   const treeEvents = _.get(treeData, 'events');
@@ -253,7 +253,7 @@ export const TreeFormContextProvider = ({
     () =>
       _.reject(
         orgChartHats,
-        (hat: Hat) =>
+        (hat: AppHat) =>
           _.includes(_.map(onchainHats, 'id'), _.get(hat, 'id')) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       ),
@@ -348,23 +348,23 @@ export const TreeFormContextProvider = ({
 
     const inactiveHats = _.map(
       _.filter(orgChartTree, ['status', false]),
-      (h: Hat) => {
+      (h: AppHat) => {
         return _.get(h, 'prettyId');
       },
     );
     const inactiveAncestors = _.map(
-      _.filter(orgChartTree, (hat: Hat) =>
+      _.filter(orgChartTree, (hat: AppHat) =>
         _.some(inactiveHats, (h: Hex) => h && hat.prettyId?.includes(h)),
       ),
       'prettyId',
     );
 
-    return _.reject(orgChartTree, (h: Hat) =>
+    return _.reject(orgChartTree, (h: AppHat) =>
       _.includes(_.concat(inactiveHats, inactiveAncestors), h.prettyId),
     );
   }, [orgChartTree, showInactiveHats]);
   const overrideOrgChartData = useMemo(() => {
-    return _.map(filteredTree, (hat: Hat) => {
+    return _.map(filteredTree, (hat: AppHat) => {
       const matchingHat = _.find(storedData, { id: hat.id });
       const orgChartHat = _.find(filteredTree, { id: hat.id });
 
@@ -383,14 +383,14 @@ export const TreeFormContextProvider = ({
     const noHatsOutsideTree = _.reject(
       overrideOrgChartData,
       (hat: { id: string }) => treeData?.id && !hat.id.startsWith(treeData?.id),
-    ) as Hat[];
+    ) as AppHat[];
     return editMode ? noHatsOutsideTree : filteredTree;
   }, [editMode, overrideOrgChartData, treeData?.id, filteredTree]);
 
   // *********************
   // * TOP HAT
   // *********************
-  const topHat: Hat | undefined = useMemo(
+  const topHat: AppHat | undefined = useMemo(
     () => _.first(orgChartTree),
     [orgChartTree],
   );
@@ -557,7 +557,7 @@ export const TreeFormContextProvider = ({
   }, [onchainHats, editMode, storedData, chainId, treeId]);
 
   const addHat = useCallback(
-    (hat: Hat, parentId: Hex) => {
+    (hat: AppHat, parentId: Hex) => {
       if (!editMode) return;
       // set updated tree array
       const newHat = {
@@ -630,7 +630,7 @@ export const TreeFormContextProvider = ({
       setStoredData?.(translateImageUrl);
       const localDraftHats = _.reject(
         translateImageUrl,
-        (hat: Hat) =>
+        (hat: AppHat) =>
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
@@ -655,7 +655,7 @@ export const TreeFormContextProvider = ({
     onCloseTreeDrawer();
   }, [onchainHats, setStoredData, onCloseTreeDrawer]);
 
-  const patchTree = useCallback((proposedHats: Hat[]) => {
+  const patchTree = useCallback((proposedHats: AppHat[]) => {
     setOrgChartHats((prevHats) => {
       if (!prevHats) return [];
 
@@ -674,7 +674,7 @@ export const TreeFormContextProvider = ({
   }, []);
 
   const hierarchy = useMemo(() => {
-    const parentsAndIds = _.map(orgChartTree, (hat: Hat) => ({
+    const parentsAndIds = _.map(orgChartTree, (hat: AppHat) => ({
       id: hat.id,
       parentId: hat.admin?.id,
     }));

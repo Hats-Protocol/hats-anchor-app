@@ -1,7 +1,6 @@
 import { CONFIG } from 'app-constants';
 import { useEffect, useState } from 'react';
 
-// app-hooks
 function useDebounce<T>(value: T, delay?: number) {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 

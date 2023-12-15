@@ -1,6 +1,6 @@
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchPaginatedTrees } from 'app-utils';
-import { Tree } from 'hats-types';
 import _ from 'lodash';
 
 // hats-hooks

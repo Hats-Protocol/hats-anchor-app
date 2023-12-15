@@ -1,7 +1,6 @@
-import { ZERO_ADDRESS } from 'app-constants';
 import { HatWearer, Transaction } from 'hats-types';
 import _ from 'lodash';
-import { createPublicClient, custom, Hex, http } from 'viem';
+import { createPublicClient, custom, Hex, http, zeroAddress } from 'viem';
 
 import { chainsMap } from '../web3';
 
@@ -9,7 +8,7 @@ export const checkAddressIsContract = async (
   address?: Hex,
   chainId?: number,
 ) => {
-  if (!address || address === ZERO_ADDRESS || !chainId) {
+  if (!address || address === zeroAddress || !chainId) {
     return false;
   }
 
@@ -42,26 +41,28 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
     status: 'pending',
   });
   // handle the client with tx so chain is relative to tx
-  const transactionPromises = pendingTransactions.map(async (tx: any) => {
-    const publicClient = createPublicClient({
-      chain: chainsMap(tx.txChainId),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      transport: custom((window as any).ethereum) || http(),
-    });
-    try {
-      const transactionData = await publicClient.getTransaction({
-        hash: tx.hash as Hex,
+  const transactionPromises = pendingTransactions.map(
+    async (tx: Transaction) => {
+      const publicClient = createPublicClient({
+        chain: chainsMap(tx.txChainId),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transport: custom((window as any).ethereum) || http(),
       });
-      if (transactionData && transactionData.blockHash) {
-        return transactionData;
+      try {
+        const transactionData = await publicClient.getTransaction({
+          hash: tx.hash as Hex,
+        });
+        if (transactionData && transactionData.blockHash) {
+          return transactionData;
+        }
+        return null;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error fetching transaction data:', error);
+        return null;
       }
-      return null;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error fetching transaction data:', error);
-      return null;
-    }
-  });
+    },
+  );
 
   const results = await Promise.all(transactionPromises);
 

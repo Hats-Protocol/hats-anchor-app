@@ -1,6 +1,7 @@
 /* eslint-disable import/extensions */
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { Hat, SupportedChains, Tree } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import { DetailsData, toTreeStructure } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -68,8 +69,10 @@ const useOrgChartTree = ({
       { chainId, treeId: treeData?.id },
       hatsHashes,
       detailsHashes,
-      _.map(imagesData, (h: Hat) => _.pick(h, ['id', 'details', 'imageUri'])),
-      _.map(draftHats, (h: Hat) => _.pick(h, ['id', 'details', 'imageUri'])),
+      _.map(imagesData, (h: AppHat) =>
+        _.pick(h, ['id', 'details', 'imageUri']),
+      ),
+      _.map(draftHats, (h: AppHat) => _.pick(h, ['id', 'details', 'imageUri'])),
       { onchain },
     ],
     queryFn: fetchTree,
@@ -92,10 +95,10 @@ export default useOrgChartTree;
 
 interface UseOrgChartTreeProps {
   treeData: Tree | null | undefined;
-  hatsData: Hat[] | undefined;
+  hatsData: AppHat[] | undefined;
   detailsData: { id: string; detailsObject: DetailsData }[] | undefined;
-  imagesData: Hat[] | undefined;
-  draftHats: Hat[] | undefined;
+  imagesData: AppHat[] | undefined;
+  draftHats: AppHat[] | undefined;
   imagesLoaded: boolean;
   detailsLoaded: boolean;
   initialHatIds: Hex[];

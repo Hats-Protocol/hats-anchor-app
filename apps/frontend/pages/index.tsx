@@ -21,7 +21,7 @@ import {
 } from 'app-hooks';
 import { formatAddress } from 'app-utils';
 import { useWearerDetails } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
@@ -60,7 +60,7 @@ const Home = () => {
     chainId: 'all',
   });
 
-  const sortedHats = _.sortBy(_.compact(currentHats), (hat: Hat) => {
+  const sortedHats = _.sortBy(_.compact(currentHats), (hat: AppHat) => {
     return _.indexOf(orderedChains, hat?.chainId);
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
@@ -149,9 +149,12 @@ const Home = () => {
                   }}
                   spacing={6}
                 >
-                  {_.map(currentHatsWithImagesData, (hat: Hat, i: number) => (
-                    <DashboardHatCard hat={hat} key={i} />
-                  ))}
+                  {_.map(
+                    currentHatsWithImagesData,
+                    (hat: AppHat, i: number) => (
+                      <DashboardHatCard hat={hat} key={i} />
+                    ),
+                  )}
                 </SimpleGrid>
               )}
             </Card>

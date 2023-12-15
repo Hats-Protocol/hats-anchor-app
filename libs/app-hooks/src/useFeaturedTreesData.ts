@@ -1,13 +1,14 @@
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetails, fetchTreesById } from 'app-utils';
-import { Hat, Tree } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { ipToPrettyId, prettyIdToIp } from 'shared-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {
   const fetchFeaturedTrees = async () => {
-    const ids = _.map(featuredTrees, (tree: any) =>
+    const ids = _.map(featuredTrees, (tree: Tree) =>
       ipToPrettyId(String(tree.id)),
     );
 
@@ -20,8 +21,8 @@ const useFeaturedTreesData = (featuredTrees: any) => {
 
     const data = _.map(trees, (tree: Tree) => ({
       treeId: prettyIdToIp(tree.id),
-      hats: tree.hats.length,
-      wearers: _.sum(_.map(tree.hats, (hat: Hat) => hat.wearers.length)),
+      hats: _.size(tree.hats),
+      wearers: _.sum(_.map(tree.hats, (hat: AppHat) => _.size(hat.wearers))),
     }));
 
     return data;

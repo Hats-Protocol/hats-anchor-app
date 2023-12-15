@@ -12,7 +12,7 @@ import {
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { networkImages } from 'app-constants';
 import { useHatDetailsField } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
@@ -75,5 +75,5 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 export default DashboardHatCard;
 
 interface HatCardProps {
-  hat: Hat;
+  hat: AppHat;
 }

@@ -1,4 +1,4 @@
-import { Tree } from 'hats-types';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { mapWithChainId } from 'shared-utils';
 
 import { createSubgraphClient } from '../web3';
@@ -102,7 +102,7 @@ export const fetchPaginatedTrees = async (
     perPage,
   });
 
-  return mapWithChainId(res, chainId);
+  return mapWithChainId(res, chainId) as Tree[];
 };
 
 export const fetchTreesById = async (treeIds: string[], chainId: number) => {

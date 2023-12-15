@@ -26,7 +26,7 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
@@ -206,7 +206,7 @@ const WearerDetail = ({
                       _.filter(currentHatsWithImagesData, {
                         chainId: Number(chainId),
                       }),
-                      (hat: Hat) => (
+                      (hat: AppHat) => (
                         <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
                       ),
                     )}

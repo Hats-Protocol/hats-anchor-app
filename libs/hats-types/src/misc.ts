@@ -4,13 +4,13 @@ import { Hex } from 'viem';
 
 export type ImageFile = {
   path: string;
-  preview: string;
-  lastModified: number;
-  lastModifiedDate: Date;
-  name: string;
-  size: number;
-  type: string;
-  webkitRelativePath: string;
+  preview?: string;
+  lastModified?: number;
+  lastModifiedDate?: Date;
+  name?: string;
+  size?: number;
+  type?: string;
+  webkitRelativePath?: string;
 };
 
 export type Hierarchy = {

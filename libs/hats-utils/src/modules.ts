@@ -8,7 +8,7 @@ import {
   getDefaultValue,
   transformInput,
 } from 'app-utils';
-import { FormData, Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
+import { AppHat, FormData, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import _ from 'lodash';
 import { ipToHatId } from 'shared-utils';
 import { Hex, parseUnits } from 'viem';
@@ -26,7 +26,7 @@ export const deployModule = async ({
   hatId,
 }: {
   selectedModuleDetails?: ModuleDetails;
-  selectedHat?: Hat;
+  selectedHat?: AppHat;
   address?: Hex;
   values: any;
   chainId?: number;
@@ -63,7 +63,7 @@ export const deployModuleWithClaimsHatter = async ({
 }: {
   selectedModuleDetails?: ModuleDetails;
   claimsHatterId?: Hex;
-  selectedHat?: Hat;
+  selectedHat?: AppHat;
   address?: Hex;
   values: any;
   chainId?: number;
@@ -127,7 +127,7 @@ export const deployClaimsHatter = async ({
   adminHatId,
 }: {
   claimsHatterModule?: ModuleDetails;
-  selectedHat?: Hat;
+  selectedHat?: AppHat;
   address?: Hex;
   values: any;
   chainId?: number;
@@ -160,7 +160,7 @@ export const processModule = ({
 }: {
   moduleAddress: Hex;
   storedData?: Partial<FormData>[];
-  selectedHat?: Hat;
+  selectedHat?: AppHat;
 }) => {
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat: Partial<FormData>) =>
