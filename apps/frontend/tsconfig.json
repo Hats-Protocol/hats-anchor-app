@@ -10,7 +10,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node"],
+    "types": [],
     "lib": ["ES2021"],
     "incremental": true
   },

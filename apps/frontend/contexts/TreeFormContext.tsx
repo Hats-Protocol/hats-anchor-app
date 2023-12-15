@@ -170,10 +170,13 @@ export const TreeFormContextProvider = ({
 }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  let { hatId: initialHatId } = router.query;
+  const { hatId: initialHatIdParam } = router.query;
+  let initialHatId: string | undefined;
   const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
-  if (_.isArray(initialHatId)) {
+  if (_.isArray(initialHatIdParam)) {
     initialHatId = _.first(initialHatId);
+  } else {
+    initialHatId = initialHatIdParam as string;
   }
   const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
     initialHatId ? ipToHatId(initialHatId as string) : undefined,
