@@ -20,6 +20,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Markdown from '../../atoms/Markdown';
 import AuthorityHeader from './AuthorityHeader';
+import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
 const AuthoritiesListCard = ({
   authority,
@@ -28,7 +29,6 @@ const AuthoritiesListCard = ({
   authority?: Authority;
   type: AuthorityType;
 }) => {
-  console.log('authority', authority);
   const { label, description, link, gate, imageUrl, id, strategies } =
     authority || {};
   const gateHostName = getHostnameFromURL(gate);
@@ -71,6 +71,12 @@ const AuthoritiesListCard = ({
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel pb={4} pl={20}>
+          {type === AUTHORITY_TYPES.modules && (
+            <ModuleAuthorityToolbar
+              moduleAuthority={authority}
+              onFunctionCall={() => {}}
+            />
+          )}
           <HStack>
             {link && validateURL(link) && (
               <ChakraNextLink isExternal href={link} display='block'>
