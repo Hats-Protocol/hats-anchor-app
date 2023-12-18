@@ -105,7 +105,7 @@ function populateAndPrepareModulesAuthorities({
                 id: role.id,
                 functions: matchingFunctions,
                 instanceAddress: item.id,
-                moduleAddress: details.implementationAddress,
+                moduleAddress: details.implementationAddress as Hex,
               };
             }
             return null;
