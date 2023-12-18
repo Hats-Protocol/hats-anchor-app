@@ -1,7 +1,7 @@
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useWearerDetails } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -54,7 +54,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   const wearerTopHats = _.map(
     _.filter(
       wearer,
-      (hat: Hat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
+      (hat: AppHat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
     ),
     'id',
   );

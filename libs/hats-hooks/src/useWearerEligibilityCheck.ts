@@ -1,5 +1,5 @@
 import { CONFIG } from 'app-constants';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
@@ -32,6 +32,6 @@ export default useWearerEligibilityCheck;
 
 interface useWearerEligibilityCheckProps {
   wearer: Hex | undefined;
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: number;
 }

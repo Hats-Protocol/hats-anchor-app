@@ -1,5 +1,5 @@
 import { CONFIG } from 'app-constants';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
@@ -26,6 +26,6 @@ export default useWearerIsInGoodStanding;
 
 interface UseWearerIsInGoodStanding {
   wearer: Hex | undefined;
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: number;
 }

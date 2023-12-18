@@ -1,4 +1,4 @@
-import { FormData, Hat } from 'hats-types';
+import { AppHat, FormData } from 'hats-types';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { Hex } from 'viem';
@@ -13,8 +13,8 @@ const usePendHatterMint = ({
 }: {
   address?: Hex;
   hatToMintTo?: Hex;
-  treeToDisplay: Hat[];
-  selectedHat: Hat;
+  treeToDisplay: AppHat[];
+  selectedHat: AppHat;
   storedData: Partial<FormData>[];
   setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
 }) => {

@@ -4,8 +4,6 @@ import { HATS_ABI, MULTI_CLAIMS_HATTER_ABI } from './contracts';
 import { CONTACT_URL, DOCS_URL } from './landingContent';
 import { MINI_CONFIG } from './next-seo.config';
 
-// constants lib or sub of app-utils
-
 export * from './authorities';
 export * from './chains';
 export { HATS_ABI, MULTI_CLAIMS_HATTER_ABI };

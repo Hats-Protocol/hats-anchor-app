@@ -1,10 +1,10 @@
 import { useQueries } from '@tanstack/react-query';
-import { fetchEnsName } from 'wagmi/actions';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS } from 'app-constants';
 import { checkAddressIsContract } from 'app-utils';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
-import { Hex, isAddress } from 'viem';
+import { Hex, isAddress, zeroAddress } from 'viem';
+import { fetchEnsName } from 'wagmi/actions';
 
 const fetchWearerAndControllerDetails = async (
   wearer: Hex,
@@ -12,7 +12,7 @@ const fetchWearerAndControllerDetails = async (
 ) => {
   if (!wearer || !chainId) return undefined;
 
-  if (wearer === FALLBACK_ADDRESS || wearer === ZERO_ADDRESS) {
+  if (wearer === FALLBACK_ADDRESS || wearer === zeroAddress) {
     return {
       id: wearer,
       isContract: false,
@@ -47,15 +47,14 @@ const useWearersControllersDetails = ({
   editMode,
   onchain = false,
 }: {
-  hats: Hat[] | undefined;
+  hats: AppHat[] | undefined;
   editMode?: boolean;
   onchain?: boolean;
 }) => {
   const chainId = _.get(_.first(hats), 'chainId');
   // Don't spam the RPC with requests for wearers on individual hats. Handle OrgChart wearers + controllers
-  const hatsWithIndividualWearers = _.filter(
-    hats,
-    (hat: Hat) => _.size(hat.wearers) === 1,
+  const hatsWithIndividualWearers = _.filter(hats, (hat: AppHat) =>
+    _.eq(_.size(_.get(hat, 'wearers')), 1),
   );
 
   const wAndCs = _.uniq(
@@ -66,19 +65,21 @@ const useWearersControllersDetails = ({
           _.flatten(_.map(hats, 'toggle')), // not nested in objects here
           _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
         ),
-        ZERO_ADDRESS || FALLBACK_ADDRESS,
+        zeroAddress || FALLBACK_ADDRESS,
       ),
     ),
   );
 
   const wearerAndControllerDetails = useQueries({
-    queries: _.map(wAndCs, (wearer: Hex) => ({
-      queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
-      queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
-      enabled:
-        !!wearer && isAddress(wearer) && wearer !== ZERO_ADDRESS && !!chainId,
-      refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
-    })),
+    queries: _.compact(
+      _.map(wAndCs, (wearer: Hex) => ({
+        queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
+        queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
+        enabled:
+          !!wearer && isAddress(wearer) && wearer !== zeroAddress && !!chainId,
+        refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+      })) as any[],
+    ),
   });
   const isLoaded = _.every(wearerAndControllerDetails, ['fetchStatus', 'idle']);
 

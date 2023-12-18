@@ -16,7 +16,7 @@ import {
   useMultiClaimsHatterCheck,
   useMultiClaimsHatterContractWrite,
 } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -154,7 +154,7 @@ const ClaimsHandler = ({
             admin of this hat.
           </Text>
           <Select localForm={localForm} name='hatToMintTo'>
-            {_.map(availableAdmins, (a: Hat) => (
+            {_.map(availableAdmins, (a: AppHat) => (
               <option value={a.id} key={a.id}>
                 {hatIdDecimalToIp(BigInt(a.id))} {a.detailsObject?.data.name}
               </option>

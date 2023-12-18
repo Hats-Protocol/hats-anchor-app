@@ -6,7 +6,7 @@ import {
   createSubgraphClient,
   fetchWearerDetails,
 } from 'app-utils';
-import { FormData, Hat, SupportedChains } from 'hats-types';
+import { AppHat, FormData, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Hex } from 'viem';
@@ -24,7 +24,7 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
     },
   });
 
-  return res as unknown as Promise<Hat[]>;
+  return res as unknown as Promise<AppHat[]>;
 };
 
 const fetchHatters = async (
@@ -37,7 +37,7 @@ const fetchHatters = async (
 };
 
 const getHatterHat = async (
-  claimsHatterData: Hat[] | undefined,
+  claimsHatterData: AppHat[] | undefined,
   storedModuleDetails: Module[] | undefined,
   storedData: Partial<FormData>[] | undefined,
   chainId: number | undefined,
@@ -75,8 +75,8 @@ const useMultiClaimsHatterCheck = ({
   editMode,
 }: {
   chainId: SupportedChains;
-  selectedHat?: Hat;
-  onchainHats: Hat[];
+  selectedHat?: AppHat;
+  onchainHats: AppHat[];
   storedData: Partial<FormData>[];
   editMode?: boolean;
 }) => {

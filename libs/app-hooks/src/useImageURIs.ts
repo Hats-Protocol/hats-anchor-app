@@ -1,7 +1,8 @@
+// import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { CONFIG } from 'app-constants';
 import { chainsMap } from 'app-utils';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { checkImageForHat } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -36,14 +37,14 @@ const useImageURIs = ({
   editMode = false,
   onchain = false,
 }: {
-  hats: Hat[] | undefined;
-  onchainHats?: Hat[];
+  hats: AppHat[] | undefined;
+  onchainHats?: AppHat[];
   editMode?: boolean;
   onchain?: boolean;
 }) => {
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
-      return _.filter(hats, (hat: Hat) =>
+      return _.filter(hats, (hat: AppHat) =>
         _.includes(_.map(onchainHats, 'id'), hat?.id),
       );
     }
@@ -61,7 +62,7 @@ const useImageURIs = ({
           chainId: hat?.chainId,
           abi: CONFIG.hatsAbi,
           functionName: 'getImageURIForHat',
-          args: [hat?.id || hat],
+          args: [hat?.id],
         };
       });
     });
@@ -74,7 +75,7 @@ const useImageURIs = ({
       { hatIds: _.map(onlyOnchainHats, 'id'), chainIds, onchain },
     ],
     queryFn: () => {
-      const clients = _.map(chainIds, (cId: number) => tempClient(cId));
+      const clients: any[] = _.map(chainIds, (cId: number) => tempClient(cId));
 
       const clientCalls = _.map(calls, (call: any, i: number) => {
         return clients[i].multicall({ contracts: call });

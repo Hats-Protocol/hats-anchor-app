@@ -1,4 +1,4 @@
-import { Hat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import { mapWithChainId } from 'shared-utils';
 
 import { createSubgraphClient } from '../web3';
@@ -6,7 +6,7 @@ import { createSubgraphClient } from '../web3';
 export const fetchHatDetails = async (
   hatId: string | undefined,
   chainId?: number,
-): Promise<Hat | null> => {
+): Promise<AppHat | null> => {
   if (!hatId || !chainId) return null;
 
   const subgraphClient = createSubgraphClient();
@@ -49,13 +49,13 @@ export const fetchHatDetails = async (
   return {
     ...res,
     chainId,
-  } as unknown as Hat;
+  } as unknown as AppHat;
 };
 
 export const fetchManyHatDetails = async (
   hatIds: string[],
   chainId: SupportedChains,
-): Promise<Hat[]> => {
+): Promise<AppHat[]> => {
   const subgraphClient = createSubgraphClient();
 
   const res = await subgraphClient.getHatsByIds({
@@ -86,5 +86,5 @@ export const fetchManyHatDetails = async (
     },
   });
 
-  return mapWithChainId(res, chainId);
+  return mapWithChainId(res, chainId) as AppHat[];
 };

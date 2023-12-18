@@ -1,28 +1,27 @@
 import { useQueries } from '@tanstack/react-query';
 import { fetchHatDetails } from 'app-utils';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared-utils';
 
-// hats-hooks
 const useManyHatsDetails = ({
   hats,
   initialHats,
   editMode = false, // TODO is this a bad default?
 }: {
-  hats: Partial<Hat>[] | undefined;
-  initialHats?: Partial<Hat>[];
+  hats: Partial<AppHat>[] | undefined;
+  initialHats?: Partial<AppHat>[];
   editMode?: boolean;
-}): { data: Hat[] | undefined; isLoading: boolean } => {
-  const onlyOnchainHats = _.filter(hats, (hat: { id: any }) =>
+}): { data: AppHat[] | undefined; isLoading: boolean } => {
+  const onlyOnchainHats: AppHat[] = _.filter(hats, (hat: { id: string }) =>
     _.includes(_.map(initialHats, 'id'), hat.id),
-  );
+  ) as AppHat[];
 
   const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
   const hatsDetails = useQueries({
     queries: _.map(
       onlyOnchainHats,
-      (hat: { id: string | undefined; chainId: any }) => {
+      (hat: { id: string | undefined; chainId: number }) => {
         const hatDetails = _.pick(hat, ['id', 'chainId']);
 
         return {
@@ -32,7 +31,7 @@ const useManyHatsDetails = ({
           refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
         };
       },
-    ) as any,
+    ) as any[], // UseQueryOptions[]
   });
 
   const isLoading = _.some(hatsDetails, ['isLoading', true]);
@@ -43,7 +42,7 @@ const useManyHatsDetails = ({
   }
 
   return {
-    data: !isLoading ? (returnData as Hat[]) : undefined,
+    data: !isLoading ? (returnData as AppHat[]) : undefined,
     isLoading,
   };
 };

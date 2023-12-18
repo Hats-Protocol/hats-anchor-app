@@ -5,7 +5,7 @@ import {
   handleDetailsPin,
   processHatForCalls,
 } from 'app-utils';
-import { FormData, Hat, SupportedChains } from 'hats-types';
+import { AppHat, FormData, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
@@ -15,8 +15,8 @@ type useMulticallCallDataProps = {
   chainId: SupportedChains | undefined;
   treeId: Hex;
   storedData: Partial<FormData>[];
-  onchainHats: Hat[];
-  treeToDisplay: Hat[];
+  onchainHats: AppHat[];
+  treeToDisplay: AppHat[];
   isExpanded: boolean;
 };
 
@@ -33,7 +33,7 @@ const useMulticallCallData = ({
     if (!chainId || !treeId || !storedData) return undefined;
     const hatsClient = createHatsClient(chainId);
 
-    const onlyOnchainHats = _.filter(treeToDisplay, (hat: Hat) =>
+    const onlyOnchainHats = _.filter(treeToDisplay, (hat: AppHat) =>
       _.includes(_.map(onchainHats, 'id'), hat.id),
     );
     const allCallsPromises = _.map(storedData, (hat: Partial<FormData>) =>

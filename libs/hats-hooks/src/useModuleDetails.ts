@@ -1,9 +1,9 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS } from 'app-constants';
 import { createHatsModulesClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
-import { Hex } from 'viem';
+import { Hex, zeroAddress } from 'viem';
 
 interface ModuleParameters {
   label: string;
@@ -47,7 +47,7 @@ const useModuleDetails = ({
     enabled:
       !!address &&
       address !== FALLBACK_ADDRESS &&
-      address !== ZERO_ADDRESS &&
+      address !== zeroAddress &&
       enabled,
   });
 

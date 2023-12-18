@@ -3,9 +3,9 @@ import { CONFIG } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { fetchToken, handleDetailsPin, processHatForCalls } from 'app-utils';
 import {
+  AppHat,
   FormData,
   HandlePendingTx,
-  Hat,
   HatDetails,
   SupportedChains,
 } from 'hats-types';
@@ -31,13 +31,13 @@ const useMulticallManyHats = ({
 }: {
   isAdminOfAnyHatWithChanges: boolean;
   storedData: Partial<FormData>[];
-  treeToDisplay: Hat[];
-  onchainHats: Hat[];
+  treeToDisplay: AppHat[];
+  onchainHats: AppHat[];
   chainId: SupportedChains;
   handlePendingTx?: HandlePendingTx;
 }) => {
   const [calls, setCalls] = useState<unknown[]>();
-  const [proposedChanges, setProposedChanges] = useState<Hat[]>([]);
+  const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
 
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
@@ -54,7 +54,7 @@ const useMulticallManyHats = ({
 
   useEffect(() => {
     const prepareMulticallData = async () => {
-      const onlyOnchainHats = _.filter(treeToDisplay, (hat: Hat) =>
+      const onlyOnchainHats = _.filter(treeToDisplay, (hat: AppHat) =>
         _.includes(_.map(onchainHats, 'id'), hat.id),
       );
 

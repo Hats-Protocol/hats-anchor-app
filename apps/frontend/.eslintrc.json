@@ -42,7 +42,7 @@
   ],
   "settings": {
     "eslint-plugin-next": {
-      "pagesDir": "pages"
+      "pagesDir": "./pages"
     }
   }
 }

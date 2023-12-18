@@ -7,7 +7,7 @@ import {
   useIsAdmin,
   useMultiClaimsHatterCheck,
 } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -18,6 +18,7 @@ import {
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToPrettyId, prettyIdToIp } from 'shared-utils';
+import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
@@ -30,7 +31,7 @@ const PermissionlessClaimingForm = ({
   parentHats,
 }: {
   localForm: UseFormReturn;
-  parentHats?: Hat[];
+  parentHats?: AppHat[];
 }) => {
   const {
     onchainHats,
@@ -163,13 +164,14 @@ const PermissionlessClaimingForm = ({
                     required: isPermissionlesslyClaimable === 'Yes',
                   }}
                 >
-                  {_.map(_.sortBy(parentHats, 'id'), (h: Hat) => {
+                  {_.map(_.sortBy(parentHats, 'id'), (h: AppHat) => {
                     let displayName = h.details;
                     if (h.detailsObject?.data?.name)
                       displayName = h.detailsObject?.data?.name;
                     return (
                       <option value={h.id} key={h.id}>
-                        {prettyIdToIp(idToPrettyId(h.id))} - {displayName}
+                        {prettyIdToIp(idToPrettyId(h.id as Hex))} -{' '}
+                        {displayName}
                       </option>
                     );
                   })}

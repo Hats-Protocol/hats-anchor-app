@@ -3,7 +3,7 @@ import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { CONTACT_URL } from 'app-constants';
 import { transformAndVerify } from 'app-utils';
 import { useHatsModules } from 'hats-hooks';
-import { Hat, ModuleCreationArg, ModuleDetails } from 'hats-types';
+import { AppHat, ModuleCreationArg, ModuleDetails } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useMemo, useState } from 'react';
@@ -231,16 +231,19 @@ const ModuleDetailsForm = ({
                 }}
                 onChange={(e) => handleChangeHat(e, arg.name)}
               >
-                {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => {
-                  const hatName = detailsObject?.data?.name;
-                  return (
-                    <option value={decimalId(id)} key={id}>
-                      {`${hatName ? `${hatName} - ` : ''}${prettyIdToIp(
-                        prettyId,
-                      )}`}
-                    </option>
-                  );
-                })}
+                {_.map(
+                  onchainTree,
+                  ({ id, prettyId, detailsObject }: AppHat) => {
+                    const hatName = detailsObject?.data?.name;
+                    return (
+                      <option value={decimalId(id)} key={id}>
+                        {`${hatName ? `${hatName} - ` : ''}${prettyIdToIp(
+                          prettyId,
+                        )}`}
+                      </option>
+                    );
+                  },
+                )}
                 <option value='custom'>Custom</option>
               </Select>
               {customHatSelections[arg.name] && (

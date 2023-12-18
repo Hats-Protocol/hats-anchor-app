@@ -1,16 +1,18 @@
 import { Module } from '@hatsprotocol/modules-sdk';
+import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { Hex } from 'viem';
 
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
-import { Tree } from './tree';
 
+// sdk
 export interface HatEvent {
   id: string;
   timestamp: string;
   transactionID: string;
 }
 
+// details-mgr
 export type DetailsItem = {
   link: string;
   label: string;
@@ -26,6 +28,7 @@ export interface HatWearer {
 
 export type HatDetailsKeys = keyof HatDetails;
 
+// details-mgr
 export type HatDetails = {
   name: string;
   description?: string;
@@ -43,35 +46,17 @@ export type HatDetails = {
   };
 };
 
-export interface Hat {
-  id: Hex;
-  chainId: SupportedChains;
-  prettyId?: string;
-  tree?: Partial<Tree>;
-  status: boolean;
-  createdAt?: string;
-  details: string;
-  maxSupply: string;
-  eligibility: Hex;
-  toggle: Hex;
-  mutable: boolean;
-  imageUri: string;
-  imageUrl?: string | null;
-  levelAtLocalTree: number;
-  currentSupply: string;
-  events: HatEvent[];
-  wearers: HatWearer[];
-  admin?: Partial<Hat>;
-  claimableBy?: Hex[];
-  claimableForBy?: Hex[];
-  // app specific
+export interface AppHat extends Hat {
+  id: Hex; // Confirm `Hat` ID is Hex instead of string
+  chainId?: SupportedChains;
+  imageUrl?: string;
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: HatDetails;
   };
-  name: string;
-  parentId: Hex | undefined;
+  name?: string;
+  parentId?: Hex | undefined;
   treeId?: Hex;
   isLinked?: boolean;
   url?: string;

@@ -24,7 +24,7 @@ import { CONFIG } from 'app-constants';
 import { useLocalStorage } from 'app-hooks';
 import { containsUpperCase, getOperatingSystem } from 'app-utils';
 import { useHatDetailsField } from 'hats-hooks';
-import { Hat, Transaction } from 'hats-types';
+import { AppHat, Transaction } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
@@ -39,7 +39,7 @@ import ChakraNextLink from './atoms/ChakraNextLink';
 import ConnectWallet from './ConnectWallet';
 import TransactionHistory from './TransactionHistory';
 
-const Navbar = ({ hatData }: { hatData?: Hat }) => {
+const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const currentChainId = useChainId();
   const {
     setCommandPalette: setOpen,
