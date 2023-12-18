@@ -1,3 +1,5 @@
+import { Hex } from 'viem';
+
 export type AuthorityType =
   | 'protocol'
   | 'modules'
@@ -17,7 +19,8 @@ export type Authority = {
   id?: string | number;
   strategies?: SnapshotStrategy[];
   functions?: any[];
-  instanceAddress?: string;
+  instanceAddress?: Hex;
+  moduleAddress?: Hex;
 };
 
 export interface SnapshotStrategy {

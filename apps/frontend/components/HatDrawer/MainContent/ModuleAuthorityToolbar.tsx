@@ -8,50 +8,56 @@ import {
   MenuList,
   ModalFooter,
 } from '@chakra-ui/react';
+import { useCallModuleFunction } from 'hats-hooks';
 import { Authority } from 'hats-types';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV } from 'react-icons/fa';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
+import { useTreeForm } from '../../../contexts/TreeFormContext';
 import Modal from '../../atoms/Modal';
 import ModuleArgsInputs from '../../ModuleArgsInputs';
 
-const ModuleAuthorityToolbar = ({
-  moduleAuthority,
-  onFunctionCall,
-}: {
-  moduleAuthority: Authority;
-  onFunctionCall: any;
-}) => {
+const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
+  const { chainId } = useTreeForm(); // Make sure you have chainId from the context or props
 
-  const primaryFunction = moduleAuthority.functions.find(
-    (func) => func.primary,
-  );
-  const otherFunctions = moduleAuthority.functions.filter(
-    (func) => !func.primary,
-  );
+  const primaryFunction = authority.functions.find((func) => func.primary);
+  const otherFunctions = authority.functions.filter((func) => !func.primary);
+
+  const { mutate: callModuleFunction, isLoading } = useCallModuleFunction({
+    chainId,
+  });
 
   const [selectedFunction, setSelectedFunction] = useState(null);
-  const formMethods = useForm({
-    mode: 'onChange',
-  });
+  const formMethods = useForm({ mode: 'onChange' });
+  const { formState } = formMethods;
 
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
-      setModals?.({ [`functionCall-${moduleAuthority.label}`]: true });
+      setModals?.({ [`functionCall-${authority.label}`]: true });
     } else {
-      onFunctionCall(moduleAuthority.instanceAddress, func.label, []);
+      callModuleFunction({
+        moduleId: authority.moduleAddress,
+        instance: authority.instanceAddress,
+        func,
+        args: [],
+      });
     }
   };
 
   const handleSubmit = (data) => {
     const args = Object.values(data);
-    onFunctionCall(moduleAuthority.instanceAddress, selectedFunction, args);
-    setModals?.({ functionCall: false });
+    callModuleFunction({
+      moduleId: authority.moduleAddress,
+      instance: authority.instanceAddress,
+      func: selectedFunction,
+      args,
+    });
+    setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
   return (
@@ -66,7 +72,7 @@ const ModuleAuthorityToolbar = ({
       )}
       <Button
         as='a'
-        href={moduleAuthority.instanceAddress}
+        href={authority.instanceAddress}
         target='_blank'
         colorScheme='gray'
       >
@@ -84,7 +90,7 @@ const ModuleAuthorityToolbar = ({
       </Menu>
 
       <Modal
-        name={`functionCall-${moduleAuthority.label}`}
+        name={`functionCall-${authority.label}`}
         title={selectedFunction?.label}
         localOverlay={localOverlay}
       >
@@ -96,6 +102,8 @@ const ModuleAuthorityToolbar = ({
           <Button
             colorScheme='blue'
             onClick={formMethods.handleSubmit(handleSubmit)}
+            isDisabled={!formState.isValid}
+            isLoading={isLoading}
           >
             Call Function
           </Button>

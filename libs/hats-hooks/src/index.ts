@@ -1,6 +1,7 @@
 export { default as useAdminOfHats } from './useAdminOfHats';
 export { default as useAllWearers } from './useAllWearers';
 export { default as useAncillaryModules } from './useAncillaryModules';
+export { default as useCallModuleFunction } from './useCallModuleFunction';
 export { default as useControllerList } from './useControllerList';
 export { default as useHatBurn } from './useHatBurn';
 export { default as useHatClaim } from './useHatClaim';

@@ -1,7 +1,8 @@
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
-import { createHatsModulesClient } from 'app-utils';
+import { createHatsModulesClient, transformInput } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import _ from 'lodash';
 import { useCallback } from 'react';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -31,12 +32,18 @@ const useCallModuleFunction = ({
       const moduleClient = await createHatsModulesClient(chainId);
       if (!moduleClient) throw new Error('Failed to create module client');
 
+      const preparedArgs = _.map(func.args, (arg: any) => {
+        const value = args[arg.name];
+        const transformedValue = transformInput(value, arg.type);
+        return transformedValue;
+      });
+
       return moduleClient.callInstanceWriteFunction({
         account: address,
         moduleId,
         instance,
         func,
-        args,
+        args: preparedArgs,
       });
     },
     [address, chainId],

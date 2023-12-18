@@ -72,48 +72,47 @@ const AuthoritiesListCard = ({
         </AccordionButton>
         <AccordionPanel pb={4} pl={20}>
           {type === AUTHORITY_TYPES.modules && (
-            <ModuleAuthorityToolbar
-              moduleAuthority={authority}
-              onFunctionCall={() => {}}
-            />
+            <ModuleAuthorityToolbar authority={authority} />
           )}
-          <HStack>
-            {link && validateURL(link) && (
-              <ChakraNextLink isExternal href={link} display='block'>
-                {linkName || linkHostName ? (
+          {type !== AUTHORITY_TYPES.modules && (
+            <HStack>
+              {link && validateURL(link) && (
+                <ChakraNextLink isExternal href={link} display='block'>
+                  {linkName || linkHostName ? (
+                    <Button
+                      rightIcon={<Icon as={FaExternalLinkAlt} />}
+                      colorScheme='blue'
+                      size='sm'
+                      variant='solid'
+                    >
+                      {linkName || linkHostName}
+                    </Button>
+                  ) : (
+                    <IconButton
+                      icon={<Icon as={FaExternalLinkAlt} />}
+                      colorScheme='blue'
+                      aria-label='Authority Link'
+                      size='sm'
+                      variant='solid'
+                    />
+                  )}
+                </ChakraNextLink>
+              )}
+              {gate && validateURL(gate) && (
+                <ChakraNextLink isExternal href={gate} display='block'>
                   <Button
                     rightIcon={<Icon as={FaExternalLinkAlt} />}
-                    colorScheme='blue'
+                    color='blue.500'
+                    borderColor='blue.500'
+                    variant='outlineMatch'
                     size='sm'
-                    variant='solid'
                   >
-                    {linkName || linkHostName}
+                    {gateHostName}
                   </Button>
-                ) : (
-                  <IconButton
-                    icon={<Icon as={FaExternalLinkAlt} />}
-                    colorScheme='blue'
-                    aria-label='Authority Link'
-                    size='sm'
-                    variant='solid'
-                  />
-                )}
-              </ChakraNextLink>
-            )}
-            {gate && validateURL(gate) && (
-              <ChakraNextLink isExternal href={gate} display='block'>
-                <Button
-                  rightIcon={<Icon as={FaExternalLinkAlt} />}
-                  color='blue.500'
-                  borderColor='blue.500'
-                  variant='outlineMatch'
-                  size='sm'
-                >
-                  {gateHostName}
-                </Button>
-              </ChakraNextLink>
-            )}
-          </HStack>
+                </ChakraNextLink>
+              )}
+            </HStack>
+          )}
           {description && (
             <Box pt={link || gate ? 4 : 0}>
               <Text fontSize='sm' fontWeight={500}>
