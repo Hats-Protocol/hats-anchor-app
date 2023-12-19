@@ -1,6 +1,7 @@
 import {
   Button,
   HStack,
+  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -8,12 +9,15 @@ import {
   MenuList,
   ModalFooter,
 } from '@chakra-ui/react';
-import { useCallModuleFunction } from 'hats-hooks';
-import { Authority } from 'hats-types';
+import { useContractData } from 'app-hooks';
+import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
+import { Authority, HatWearer, SupportedChains } from 'hats-types';
+import { getControllerNameAndLink } from 'hats-utils';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV } from 'react-icons/fa';
+import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
@@ -25,7 +29,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, wearersAndControllers } = useTreeForm();
   const [selectedFunction, setSelectedFunction] = useState(null);
   const formMethods = useForm({ mode: 'onChange' });
   const { formState } = formMethods;
@@ -71,6 +75,27 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
+  const extendedController: HatWearer = _.find(wearersAndControllers, {
+    id: authority.instanceAddress,
+  });
+
+  const { details: moduleDetails } = useModuleDetails({
+    address: authority.moduleAddress,
+    chainId,
+  });
+
+  const { data: contractData } = useContractData({
+    chainId,
+    address: authority.instanceAddress,
+  });
+
+  const { controllerLink } = getControllerNameAndLink({
+    extendedController,
+    moduleDetails,
+    contractData,
+    chainId: chainId as SupportedChains,
+  });
+
   return (
     <HStack>
       {primaryFunction && (
@@ -78,20 +103,29 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
           colorScheme='blue'
           isDisabled={!isWearer}
           onClick={() => handleFunctionCall(primaryFunction)}
+          rightIcon={<FiPlusSquare />}
         >
           {primaryFunction.label}
         </Button>
       )}
       <Button
         as='a'
-        href={authority.instanceAddress}
+        href={`${controllerLink}#writeContract`}
         target='_blank'
-        colorScheme='gray'
+        colorScheme='blue.500'
+        rightIcon={<FiExternalLink />}
+        variant='outline'
+        color='blue.500'
       >
-        View Instance
+        Go to Module
       </Button>
       <Menu>
-        <MenuButton as={IconButton} icon={<FaEllipsisV />} />
+        <MenuButton
+          as={IconButton}
+          icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
+          borderColor='blue.500'
+          variant='outline'
+        />
         <MenuList>
           {otherFunctions.map((func) => (
             <MenuItem
