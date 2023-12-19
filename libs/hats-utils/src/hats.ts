@@ -434,7 +434,6 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
     }
 
     if (key === 'imageUrl') {
-      console.log(key, value, hatB[key]);
       // if imageUrl isn't set imageUri is usually set to ''
       if (!value) {
         return;
@@ -465,21 +464,21 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 
     if (_.isArray(value)) {
       if (_.isObject(_.first(value))) {
-        let resultArray = _.unionWith(value, hatB[key], _.isEqual);
+        // handle wearers separately to merge the lists
         if (key === 'wearers') {
-          resultArray = _.differenceBy(value, hatB[key], 'address');
-          if (_.isEmpty(resultArray)) {
-            return;
+          const wearersDiff = _.differenceBy(value, hatB[key], 'address');
+          if (!_.isEmpty(wearersDiff)) {
+            diffHat[key] = value; // set to combined wearers lists
           }
+          return;
         }
-        if (!_.isEqual(resultArray.sort(), hatB[key].sort())) {
-          diffHat[key] = resultArray;
-        }
-      } else {
-        const diffArray = _.differenceWith(value, hatB[key], _.isEqual);
-        if (!_.isEmpty(diffArray)) diffHat[key] = diffArray;
       }
-    } else if (!_.isEqual(value, hatB[key])) {
+      const diffArray = _.differenceWith(value, hatB[key], _.isEqual);
+      if (!_.isEmpty(diffArray)) diffHat[key] = value;
+      return;
+    }
+
+    if (!_.isEqual(value, hatB[key])) {
       diffHat[key] = value;
     }
   });
