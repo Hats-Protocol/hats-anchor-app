@@ -530,40 +530,58 @@ function patchHatIds(hats: HatExport[], newMainID?: Hex) {
   });
 }
 
+// interface ExtendedExport extends HatExport {
+//   imageUrl: string;
+//   parentId: Hex;
+// }
+
 // general helper functions for importing and exporting tree data
 export const flattenHatData = (data: any[]): FormData[] =>
-  _.map(data || [], (hat) => ({
-    id: hat.id,
-    status: hat.status,
-    createdAt: _.toNumber(hat.createdAt),
-    // details: hat.details,
-    maxSupply: _.toString(hat.maxSupply),
-    eligibility: hat.eligibility,
-    isEligibilityManual:
-      hat.detailsObject?.data?.eligibility?.manual !== false
-        ? TRIGGER_OPTIONS.MANUALLY
-        : TRIGGER_OPTIONS.AUTOMATICALLY,
-    revocationsCriteria: hat.detailsObject?.data?.eligibility?.criteria || [],
-    toggle: hat.toggle,
-    isToggleManual:
-      hat.detailsObject?.data?.toggle?.manual !== false
-        ? TRIGGER_OPTIONS.MANUALLY
-        : TRIGGER_OPTIONS.AUTOMATICALLY,
-    deactivationsCriteria: _.get(hat, 'detailsObject.data.toggle.criteria', []),
-    mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-    // imageUri: hat.imageUri,
-    currentSupply: _.toNumber(hat.currentSupply),
-    wearers: extractWearers(hat.wearers),
-    adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
-    imageUrl: hat.imageUrl,
-    imageUri: hat.imageUri,
-    name: _.get(hat, 'detailsObject.data.name'),
-    description: _.get(hat, 'detailsObject.data.description'),
-    responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
-    authorities: _.get(hat, 'detailsObject.data.authorities', []),
-    guilds: _.get(hat, 'detailsObject.data.guilds', []),
-    spaces: _.get(hat, 'detailsObject.data.spaces', []),
-  }));
+  _.map(
+    data || [],
+    (hat) =>
+      ({
+        id: hat.id,
+        status: hat.status,
+        createdAt: _.toNumber(hat.createdAt),
+        // details: hat.details,
+        maxSupply: _.toString(hat.maxSupply),
+        eligibility: hat.eligibility,
+        isEligibilityManual:
+          hat.detailsObject?.data?.eligibility?.manual !== false
+            ? TRIGGER_OPTIONS.MANUALLY
+            : TRIGGER_OPTIONS.AUTOMATICALLY,
+        revocationsCriteria:
+          hat.detailsObject?.data?.eligibility?.criteria || [],
+        toggle: hat.toggle,
+        isToggleManual:
+          hat.detailsObject?.data?.toggle?.manual !== false
+            ? TRIGGER_OPTIONS.MANUALLY
+            : TRIGGER_OPTIONS.AUTOMATICALLY,
+        deactivationsCriteria: _.get(
+          hat,
+          'detailsObject.data.toggle.criteria',
+          [],
+        ),
+        mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+        // imageUri: hat.imageUri,
+        currentSupply: _.toNumber(hat.currentSupply),
+        wearers: extractWearers(hat.wearers),
+        adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
+        imageUrl: hat.imageUrl,
+        imageUri: hat.imageUri,
+        name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
+        description: _.get(
+          hat,
+          'detailsObject.data.description',
+          'No description',
+        ),
+        responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
+        authorities: _.get(hat, 'detailsObject.data.authorities', []),
+        guilds: _.get(hat, 'detailsObject.data.guilds', []),
+        spaces: _.get(hat, 'detailsObject.data.spaces', []),
+      } as FormData),
+  );
 
 const extractWearers = (wearers: any[]): FormWearer[] => {
   if (

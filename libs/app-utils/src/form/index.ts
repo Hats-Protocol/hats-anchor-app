@@ -334,7 +334,13 @@ const processDetailsChangeCallForHat = async ({
         (_.isArray(existingValue) && _.isArray(newValue)) ||
         (_.isObject(existingValue) && _.isObject(newValue))
       ) {
-        acc[localKey] = newValue; // _.merge(existingValue, newValue);
+        if (!_.includes(_.keys(hat), key)) {
+          // skip update for non-"dirty" fields when values are arrays
+          acc[localKey] = existingValue;
+        } else {
+          // should catch reset to empty array
+          acc[localKey] = newValue;
+        }
       } else {
         acc[key] = newValue || existingValue;
       }
