@@ -10,9 +10,11 @@ import {
 } from '@chakra-ui/react';
 import { useCallModuleFunction } from 'hats-hooks';
 import { Authority } from 'hats-types';
-import React, { useState } from 'react';
+import _ from 'lodash';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV } from 'react-icons/fa';
+import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
@@ -21,8 +23,12 @@ import ModuleArgsInputs from '../../ModuleArgsInputs';
 
 const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const localOverlay = useOverlay();
+  const { address } = useAccount();
   const { setModals } = localOverlay;
-  const { chainId } = useTreeForm(); // Make sure you have chainId from the context or props
+  const { chainId, selectedHat } = useTreeForm();
+  const [selectedFunction, setSelectedFunction] = useState(null);
+  const formMethods = useForm({ mode: 'onChange' });
+  const { formState } = formMethods;
 
   const primaryFunction = authority.functions.find((func) => func.primary);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
@@ -31,9 +37,14 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     chainId,
   });
 
-  const [selectedFunction, setSelectedFunction] = useState(null);
-  const formMethods = useForm({ mode: 'onChange' });
-  const { formState } = formMethods;
+  const isWearer = useMemo(
+    () =>
+      _.includes(
+        _.map(selectedHat?.wearers, 'id'),
+        address.toLocaleLowerCase(),
+      ),
+    [selectedHat, address],
+  );
 
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
@@ -65,6 +76,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
       {primaryFunction && (
         <Button
           colorScheme='blue'
+          isDisabled={!isWearer}
           onClick={() => handleFunctionCall(primaryFunction)}
         >
           {primaryFunction.label}
@@ -82,7 +94,11 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         <MenuButton as={IconButton} icon={<FaEllipsisV />} />
         <MenuList>
           {otherFunctions.map((func) => (
-            <MenuItem key={func.label} onClick={() => handleFunctionCall(func)}>
+            <MenuItem
+              key={func.label}
+              onClick={() => handleFunctionCall(func)}
+              isDisabled={!isWearer}
+            >
               {func.label}
             </MenuItem>
           ))}
