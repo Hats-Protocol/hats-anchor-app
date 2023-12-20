@@ -18,6 +18,8 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
+import { CONFIG, HATS_ABI } from 'app-constants';
+import { useToast } from 'app-hooks';
 import { chainsMap } from 'app-utils';
 import {
   useHatContractWrite,
@@ -28,13 +30,13 @@ import { FormWearer, HatWearer } from 'hats-types';
 import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaCheck, FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { toTreeId } from 'shared-utils';
-import { Hex, isAddress } from 'viem';
+import { createPublicClient, Hex, http, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '../components/atoms/DropZone';
@@ -56,6 +58,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     hatDisclosure,
   } = useTreeForm();
   const { localForm: hatForm } = useHatForm();
+  const toast = useToast();
   const form = localForm || hatForm;
   const { handleSubmit, setValue, watch } = _.pick(form, [
     'handleSubmit',
@@ -235,6 +238,61 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   };
   const { isOpen, onToggle } = useDisclosure();
 
+  const handleWearerImport = useCallback(
+    async (results: { data: unknown[] }) => {
+      const csvAddresses = _.take(
+        _.differenceWith(
+          _.filter(_.flatten(results.data), isAddress),
+          localWearers,
+          (csvAddress: unknown, wearer: unknown) =>
+            csvAddress === _.get(wearer as HatWearer, 'address'),
+        ),
+        _.toNumber(maxSupply) -
+          _.size(currentWearerList) -
+          _.size(localWearers),
+      );
+      const publicClient = createPublicClient({
+        chain: chainsMap(chainId),
+        transport: http(),
+      });
+      const promises = _.map(csvAddresses, (a: Hex) =>
+        publicClient.readContract({
+          abi: HATS_ABI,
+          address: CONFIG.hatsAddress,
+          functionName: 'isEligible',
+          args: [a, selectedHat?.id],
+        }),
+      );
+      const eligibilityOfAddresses = await Promise.all(promises);
+      const eligibleAddresses = _.filter(
+        csvAddresses,
+        (v: Hex, i: number) => eligibilityOfAddresses[i],
+      );
+      const ineligibleWearersCount = _.size(
+        _.filter(eligibilityOfAddresses, (v: boolean) => !v),
+      );
+      const newWearers = _.map(eligibleAddresses, (address: unknown) => ({
+        address,
+        ens: '',
+      }));
+      if (ineligibleWearersCount > 0) {
+        toast.info({
+          title: `${ineligibleWearersCount} wearer${
+            ineligibleWearersCount > 1 ? 's' : ''
+          } ${
+            ineligibleWearersCount > 1 ? 'were' : 'was'
+          } not eligible to be added`,
+          description:
+            'Check the eligibility module to determine eligible wearers',
+        });
+      }
+
+      setValue?.('wearers', [...localWearers, ...newWearers]);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chainId, localWearers, currentWearerList, maxSupply, selectedHat?.id],
+  );
+
   const { getRootProps, getInputProps, isDragAccept, isDragReject } =
     useDropzone({
       accept: { 'text/csv': ['.csv'] },
@@ -242,23 +300,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         const file = droppedFiles[0];
         if (!file) return;
         Papa.parse(file, {
-          complete: (results: { data: unknown[] }) => {
-            const csvAddresses = _.take(
-              _.differenceWith(
-                _.filter(_.flatten(results.data), isAddress),
-                localWearers,
-                (csvAddress: unknown, wearer: unknown) =>
-                  csvAddress === _.get(wearer as HatWearer, 'address'),
-              ),
-              _.toNumber(maxSupply) -
-                _.size(currentWearerList) -
-                _.size(localWearers),
-            );
-            setValue?.('wearers', [
-              ...localWearers,
-              ...csvAddresses.map((address: unknown) => ({ address, ens: '' })),
-            ]);
-          },
+          complete: (data) => handleWearerImport(data),
           error: (error: Error) => {
             // eslint-disable-next-line no-console
             console.error('Error parsing CSV file: ', error);
@@ -438,35 +480,26 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                 }
                 onClick={handleAddWearer}
                 aria-label='Add Another Wallet'
-                variant='outline'
+                variant='outlineMatch'
+                colorScheme='gray.500'
               >
-                <Icon
-                  as={BsPersonBadge}
-                  ml={-1}
-                  mr={3}
-                  w={4}
-                  h={4}
-                  color='gray.500'
-                />
-                Add Another Wallet
+                <HStack>
+                  <Icon as={BsPersonBadge} w={4} h={4} />
+                  <Text>Add Another Wallet</Text>
+                </HStack>
               </Button>
             </Tooltip>
             <Box>
               <Button
                 aria-label='Toggle CSV Input'
                 onClick={onToggle}
-                bg='white'
-                border='1px solid #e8e8e8'
+                variant='outlineMatch'
+                colorScheme='blue.500'
               >
-                <Icon
-                  as={FaUpload}
-                  mr={2}
-                  color='gray.500'
-                  _hover={{ color: 'gray.600' }}
-                  w={3}
-                  h={3}
-                />
-                Upload CSV
+                <HStack>
+                  <Icon as={FaUpload} w={3} h={3} />
+                  <Text>Upload CSV</Text>
+                </HStack>
               </Button>
             </Box>
           </HStack>

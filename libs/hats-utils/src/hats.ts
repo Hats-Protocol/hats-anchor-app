@@ -1,5 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { DEFAULT_HAT, MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
+import { MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
   AppHat,
@@ -10,7 +10,7 @@ import {
   HatWearer,
 } from 'hats-types';
 import _ from 'lodash';
-import { ipToPrettyId, prettyIdToId } from 'shared-utils';
+import { prettyIdToId } from 'shared-utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
@@ -28,28 +28,6 @@ export function treeCreateEventIdToTreeId(id: string) {
   const hexString = id.slice(0, 10);
   return parseInt(hexString, 16);
 }
-
-// expects fullId
-export const hatIdToHex = (hatId: string | null) => {
-  if (!hatId || hatId === '0x') return '';
-  return `0x${BigInt(hatId).toString(16).padStart(64, '0')}`;
-};
-
-// treeId is a decimal string '5'
-// export const decimalToTreeId = (treeId: string) => {
-//   if (!treeId) return null;
-//   return `0x${BigInt(treeId).toString(16).padStart(8, '0')}`;
-// };
-
-export const decimalIdToId = (decimalId: number | string | undefined): Hex => {
-  if (!decimalId) return '0x';
-
-  try {
-    return `0x${BigInt(decimalId).toString(16).padStart(64, '0')}`;
-  } catch (err) {
-    return '0x';
-  }
-};
 
 export const decimalId = (hatId: string | undefined): string => {
   if (!hatId) return '';
@@ -176,61 +154,6 @@ export function getProposedChangesCount(
 
   return 0;
 }
-
-const calculateParentId = (hatId: Hex) => {
-  if (!hatId) return undefined;
-  const ipId = hatIdDecimalToIp(BigInt(hatId));
-  const splitIpId = _.split(ipId, '.');
-  const parentId = _.join(
-    _.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1)),
-    '.',
-  );
-  const parentHex = prettyIdToId(ipToPrettyId(parentId));
-
-  return parentHex;
-};
-
-export const translateDrafts = ({
-  chainId,
-  treeId,
-  drafts,
-}: {
-  chainId: number;
-  treeId: Hex;
-  drafts: Partial<FormData>[];
-}): AppHat[] => {
-  const extendDrafts = _.map(drafts, (hat) => {
-    if (!hat.id) return undefined;
-    return {
-      ..._.omit(hat, ['imageUrl']),
-      ...DEFAULT_HAT,
-      chainId,
-      name: hatIdDecimalToIp(BigInt(hat.id)),
-      detailsObject: {
-        type: '1.0',
-        data: {
-          name: hat.name || 'New AppHat',
-        },
-      },
-      imageUri: '',
-      parentId: calculateParentId(hat.id),
-      mutable: _.has(hat, 'mutable')
-        ? hat.mutable === MUTABILITY.MUTABLE
-        : true,
-      levelAtLocalTree: _.subtract(
-        _.size(_.split(hatIdDecimalToIp(BigInt(hat.id)), '.')),
-        2, // top hat = 0, so subtract 2 to get level
-      ),
-      tree: {
-        id: treeId,
-      },
-    };
-  });
-
-  const defined = _.reject(extendDrafts, _.isUndefined) as AppHat[];
-
-  return _.sortBy(defined, (hat) => BigInt(hat.id));
-};
 
 export const getAllParents = (hatId?: Hex, tree?: AppHat[]): AppHat[] => {
   const parents: AppHat[] = [];

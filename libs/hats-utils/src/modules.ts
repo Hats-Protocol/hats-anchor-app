@@ -2,6 +2,7 @@ import {
   checkAndEncodeArgs,
   solidityToTypescriptType,
 } from '@hatsprotocol/modules-sdk';
+import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
@@ -13,9 +14,7 @@ import _ from 'lodash';
 import { ipToHatId } from 'shared-utils';
 import { Hex, parseUnits } from 'viem';
 
-import { decimalId, decimalIdToId } from './hats';
-
-// modules-utils
+import { decimalId } from './hats';
 
 export const deployModule = async ({
   selectedModuleDetails,
@@ -201,7 +200,7 @@ export const processClaimsHatter = ({
   adminHat: Partial<any> | undefined; // Hat + FormData
   incrementWearers: string;
 }) => {
-  const adminId = decimalIdToId(adminHat?.id);
+  const adminId = hatIdDecimalToHex(BigInt(adminHat?.id));
   const claimsHatterWearer = {
     address: claimsHatterAddress,
     ens: '',
@@ -243,7 +242,7 @@ export const processClaimsHatter = ({
       );
     }
     updatedHats.push({
-      id: adminId,
+      id: adminId as Hex,
       wearers: [claimsHatterWearer],
       ...maxSupply,
     });

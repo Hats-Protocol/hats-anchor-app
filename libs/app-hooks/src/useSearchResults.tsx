@@ -1,7 +1,10 @@
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { searchQueryResult } from 'app-utils';
-import { decimalIdToId } from 'hats-utils';
 import _ from 'lodash';
 import { ipToPrettyId, toTreeId } from 'shared-utils';
 
@@ -35,7 +38,7 @@ const processSearchQuery = (search: string | undefined) => {
     localSearch = ipToPrettyId(search);
   } else if (_.gt(_.size(search), 10) && !_.startsWith(search, '0x')) {
     // full decimal search
-    localSearch = decimalIdToId(Number(search));
+    localSearch = hatIdDecimalToHex(BigInt(search));
     searchKey = hatIdDecimalToIp(hatIdHexToDecimal(localSearch));
   }
 
