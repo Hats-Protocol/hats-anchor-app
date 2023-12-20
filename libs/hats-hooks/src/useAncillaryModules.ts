@@ -128,6 +128,7 @@ function populateAndPrepareModulesAuthorities({
             if (role) {
               return {
                 label: `${role.name} (${formatAddress(item.id)})`,
+                link: role.id,
                 description: Array.isArray(details.details)
                   ? details.details.join('\n')
                   : details.details,
@@ -142,7 +143,8 @@ function populateAndPrepareModulesAuthorities({
           },
         );
 
-        updatedHatAuthorities.push(..._.compact(transformedAuthorities));
+        const filteredAuthorities = _.compact(transformedAuthorities);
+        updatedHatAuthorities.push(...filteredAuthorities);
       },
     );
   });

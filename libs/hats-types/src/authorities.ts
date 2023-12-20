@@ -12,7 +12,7 @@ export type AuthorityType =
 
 export type Authority = {
   label: string;
-  link: string;
+  link?: string;
   gate?: string | undefined;
   description?: string;
   imageUrl?: string;

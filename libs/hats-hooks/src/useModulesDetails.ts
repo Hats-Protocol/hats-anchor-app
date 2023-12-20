@@ -7,11 +7,11 @@ const useModulesDetails = ({
   moduleIds,
   chainId,
 }: {
-  moduleIds: Hex[];
+  moduleIds: Hex[] | null;
   chainId: SupportedChains | undefined;
 }) => {
   const fetchModulesData = async () => {
-    if (!chainId || moduleIds.length === 0) {
+    if (!chainId || !moduleIds) {
       return [];
     }
     const moduleClient = await createHatsModulesClient(chainId);

@@ -117,7 +117,7 @@ const populateHatsGatesAuthorities = ({
         : AUTHORITY_TYPES.hsgSigner;
 
     return {
-      label: `${customRole.name} (${formatAddress(gate.id)})`,
+      label: `${customRole?.name} (${formatAddress(gate.id)})`,
       type,
       id: gate.id,
       functions,
@@ -135,7 +135,7 @@ const populateHatsGatesAuthorities = ({
         : AUTHORITY_TYPES.hsgSigner;
 
     return {
-      label: `${customRole.name} (${formatAddress(gate.id)})`,
+      label: `${customRole?.name} (${formatAddress(gate.id)})`,
       type,
       id: gate.id,
       functions,
