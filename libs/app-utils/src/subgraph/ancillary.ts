@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { gql, GraphQLClient } from 'graphql-request';
-import { HatAuthorityResponse } from 'hats-types';
+import { HatAuthorityResponse, SupportedChains } from 'hats-types';
 
 const MODULES_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {
@@ -55,25 +55,38 @@ const MODULES_QUERY = gql`
   }
 `;
 
-const ANCILLARY_API_URL = {
+const ANCILLARY_API_URL: { [key in SupportedChains]: string | undefined } = {
+  1: 'https://api.studio.thegraph.com/query/55784/hats-v1-ethereum-ancillary/version/latest',
   5: 'https://api.studio.thegraph.com/query/55784/hats-v1-goerli-ancillary/version/latest',
+  10: 'https://api.studio.thegraph.com/query/55784/hats-v1-optimism-ancillary/version/latest',
+  100: 'https://api.studio.thegraph.com/query/55784/hats-v1-gnosis-chain-ancillary/version/latest',
+  137: 'https://api.studio.thegraph.com/query/55784/hats-v1-polygon-ancillary/version/latest',
+  424: undefined,
+  42161:
+    'https://api.studio.thegraph.com/query/55784/hats-v1-arbitrum-ancillary/version/latest',
+  11155111: undefined,
 };
 
-const ancillarySubgraphClient = new GraphQLClient(ANCILLARY_API_URL[5]);
+const ancillarySubgraphClient = (chainId: SupportedChains) => {
+  const url = ANCILLARY_API_URL[chainId];
+  if (url) {
+    return new GraphQLClient(url);
+  }
+  return undefined;
+};
 
 export const fetchAncillaryModules = async (
-  id?: string,
+  id: string,
+  chainId: SupportedChains,
 ): Promise<HatAuthorityResponse | null> => {
   if (!id) return null;
 
   try {
-    const response =
-      await ancillarySubgraphClient.request<HatAuthorityResponse>(
-        MODULES_QUERY,
-        {
-          id,
-        },
-      );
+    const client = ancillarySubgraphClient(chainId);
+    if (!client) return null;
+    const response = await client.request<HatAuthorityResponse>(MODULES_QUERY, {
+      id,
+    });
 
     return response.hatAuthority ? response : null;
   } catch (error) {
