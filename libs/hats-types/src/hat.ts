@@ -108,10 +108,6 @@ export interface HatAuthorityResponse {
   hatAuthority: HatAuthority;
 }
 
-export interface HatSignerGatesResponse {
-  hatsSignerGates: HatSignerGate[];
-}
-
 export interface HatSignerGate {
   id: Hex;
   type: string;
@@ -127,8 +123,8 @@ export interface HatAuthority {
   electionsAdmin: { id: Hex }[];
   electionsBallotBox: { id: Hex }[];
   eligibilityTogglePassthrough: { id: Hex }[];
-  hsgOwner: { id: Hex }[];
-  hsgSigner: { id: Hex }[];
+  hsgOwner: HatSignerGate[];
+  hsgSigner: HatSignerGate[];
   jokeraceAdmin: { id: Hex }[];
   stakingJudge: { id: Hex }[];
   stakingRecipient: { id: Hex }[];

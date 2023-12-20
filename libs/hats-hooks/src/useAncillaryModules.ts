@@ -51,29 +51,13 @@ const useAncillaryModules = ({
       chainId,
     });
 
-  const hsgOwnerIds = data?.hatAuthority
-    ? _.flatMap(data.hatAuthority.hsgOwner, 'id')
-    : [];
-
-  const hsgSignerIds = data?.hatAuthority
-    ? _.flatMap(data.hatAuthority.hsgSigner, 'id')
-    : [];
-
-  const {
-    hatsOwnerGates,
-    hatsSignerGates,
-    isLoading: isLoadingHatsGates,
-  } = useHatsSignerGatesDetails({
-    hsgOwnerIds,
-    hsgSignerIds,
+  const { hatsOwnerGates, hatsSignerGates } = useHatsSignerGatesDetails({
+    hatsOwnerGates: data?.hatAuthority.hsgOwner,
+    hatsSignerGates: data?.hatAuthority.hsgSigner,
     chainId,
   });
 
-  if (
-    isHatAuthoritiesLoading ||
-    isModulesDetailsLoading ||
-    isLoadingHatsGates
-  ) {
+  if (isHatAuthoritiesLoading || isModulesDetailsLoading) {
     return {
       modulesAuthorities: [],
       error,

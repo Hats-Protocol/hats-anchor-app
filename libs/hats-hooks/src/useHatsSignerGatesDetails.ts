@@ -1,42 +1,22 @@
 import { HsgMetadata } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
-import { useQuery } from '@tanstack/react-query';
 import { AUTHORITY_TYPES } from 'app-constants';
-import { fetchHatsSignerGates, formatAddress } from 'app-utils';
+import { formatAddress } from 'app-utils';
 import { HatSignerGate, SupportedChains } from 'hats-types';
 import _ from 'lodash';
-import { Hex } from 'viem';
 
 import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 
 const useHatsSignerGatesDetails = ({
-  hsgOwnerIds,
-  hsgSignerIds,
+  hatsOwnerGates,
+  hatsSignerGates,
   chainId,
 }: {
-  hsgOwnerIds: Hex[];
-  hsgSignerIds: Hex[];
+  hatsOwnerGates: HatSignerGate[] | undefined;
+  hatsSignerGates: HatSignerGate[] | undefined;
   chainId: SupportedChains | undefined;
 }) => {
   const { gates } = useHatsSignerGatesMetadata({ chainId });
-
-  const {
-    data: hatsOwnerGates,
-    error: hatsOwnerGatesError,
-    isLoading: isLoadingHatsOwnerGates,
-  } = useQuery({
-    queryKey: ['hatsOwnerGates', hsgOwnerIds],
-    queryFn: () => fetchHatsSignerGates(hsgOwnerIds),
-  });
-
-  const {
-    data: hatsSignerGates,
-    error: errorHatsSignerGates,
-    isLoading: isLoadingHatsSignerGates,
-  } = useQuery({
-    queryKey: ['hatsSignerGates', hsgSignerIds],
-    queryFn: () => fetchHatsSignerGates(hsgSignerIds),
-  });
 
   const hatsOwnerGatesAuthorities = populateHatsGatesAuthorities({
     details: hatsOwnerGates,
@@ -53,8 +33,6 @@ const useHatsSignerGatesDetails = ({
   return {
     hatsOwnerGates: hatsOwnerGatesAuthorities,
     hatsSignerGates: hatsSignerGatesAuthorities,
-    error: hatsOwnerGatesError || errorHatsSignerGates,
-    isLoading: isLoadingHatsOwnerGates || isLoadingHatsSignerGates,
   };
 };
 
