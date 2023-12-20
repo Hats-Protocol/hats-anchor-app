@@ -4,10 +4,11 @@ import {
   solidityToTypescriptType,
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
+  explorerUrl,
   formatAddress,
   getDefaultValue,
   transformInput,
@@ -26,7 +27,7 @@ import _ from 'lodash';
 import { ipToHatId } from 'shared-utils';
 import { Hex, parseUnits } from 'viem';
 
-import { formHatUrl } from './controllers';
+import { formHatUrl, safeUrl } from './controllers';
 import { decimalId } from './hats';
 
 export const deployModule = async ({
@@ -342,6 +343,7 @@ export const processValues = ({
         try {
           newValues[arg.name] = parseUnits(amount, tokenDecimals);
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(`Error parsing units: ${error}`);
           newValues[arg.name] = defaultValue;
         }
@@ -511,20 +513,52 @@ export const generateGateDescription = (
   const formattedSafe = formatAddress(safe);
   const formattedGate = formatAddress(gate.id);
 
-  let description = `Wearers of this hat are able to claim signing authority on the Safe at ${formattedSafe} via the attached HatsSignerGate (located at ${formattedGate}).\n\n`;
+  let description =
+    'Wearers of this hat are able to claim signing authority on the Safe ';
+  if (gate.signerHats) {
+    description =
+      'Wearers of this hat are able to update the Safe configuration ';
+  }
+  description += `([${formattedSafe}](${safeUrl(
+    chainId,
+    safe,
+  )})) via the attached HatsSignerGate ([${formattedGate}](${explorerUrl(
+    chainId,
+  )}/address/${gate.id})).\n\n`;
 
   description += `Based on the configuration of the HatsSignerGate, this Safe:\n\n`;
-  description += `Requires a minimum of ${minThreshold} signers to execute a transaction\n\n`;
-  description += `Can have a maximum of ${maxSigners} signers\n\n`;
-  description += `Will require ${targetThreshold} signatures to execute a transaction when the number of signers is ${targetThreshold} or more\n\n`;
+  description += `- Requires a minimum of ${minThreshold} signers to execute a transaction\n\n`;
+  description += `- Can have a maximum of ${maxSigners} signers\n\n`;
+  description += `- Will require ${targetThreshold} signatures to execute a transaction when the number of signers is ${targetThreshold} or more\n\n`;
 
   if (gate.ownerHat) {
-    description += `The owner of the HatsSignerGate is [Hat ID 2.3](${formHatUrl(
-      {
-        hatId: gate.ownerHat.id,
-        chainId,
-      },
-    )}) in this tree.`;
+    description += `The owner of the HatsSignerGate is [Hat ID ${hatIdDecimalToIp(
+      BigInt(gate.ownerHat.id),
+    )}](${formHatUrl({
+      hatId: gate.ownerHat.id,
+      chainId,
+    })}) in this tree.`;
+  }
+  if (gate.signerHats) {
+    if (_.gt(_.size(gate.signerHats), 1)) {
+      description += `The signers of the HSG Safe include Hats ${_.map(
+        gate.signerHats,
+        (h, i) =>
+          // [#123.1](link), [#123.2](link), and [#123.3](link)
+          `${
+            i === _.size(gate.signerHats) - 1 ? 'and ' : ''
+          }[#${hatIdDecimalToIp(BigInt(h.id))}](${formHatUrl({
+            hatId: h.id,
+            chainId,
+          })})${i === _.size(gate.signerHats) - 1 ? '.' : ', '}`,
+      )}`;
+    } else {
+      const signerHatId = _.get(_.first(gate.signerHats), 'id');
+      if (!signerHatId) return description;
+      description += `The signer of the HSG safe is [Hat #${hatIdDecimalToIp(
+        BigInt(signerHatId),
+      )}](${formHatUrl({ hatId: signerHatId, chainId })})`;
+    }
   }
 
   return description;

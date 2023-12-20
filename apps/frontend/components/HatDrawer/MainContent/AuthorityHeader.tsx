@@ -9,7 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { AUTHORITIES, AUTHORITY_TYPES } from 'app-constants';
+import { AUTHORITIES } from 'app-constants';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
 import { Authority, AuthorityType, SnapshotStrategy } from 'hats-types';
 import _ from 'lodash';

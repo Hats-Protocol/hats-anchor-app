@@ -90,6 +90,7 @@ export const fetchAncillaryModules = async (
 
     return response.hatAuthority ? response : null;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);
     return null;
   }
