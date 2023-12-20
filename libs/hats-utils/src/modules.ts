@@ -532,7 +532,7 @@ export const generateGateDescription = (
   description += `- Will require ${targetThreshold} signatures to execute a transaction when the number of signers is ${targetThreshold} or more\n\n`;
 
   if (gate.ownerHat) {
-    description += `The owner of the HatsSignerGate is [Hat ID ${hatIdDecimalToIp(
+    description += `The owner of the HatsSignerGate is [Hat #${hatIdDecimalToIp(
       BigInt(gate.ownerHat.id),
     )}](${formHatUrl({
       hatId: gate.ownerHat.id,
@@ -544,7 +544,7 @@ export const generateGateDescription = (
       description += `The signers of the HSG Safe include Hats ${_.map(
         gate.signerHats,
         (h, i) =>
-          // [#123.1](link), [#123.2](link), and [#123.3](link)
+          // [#123.1](link), [#123.2](link), and [#123.3](link).
           `${
             i === _.size(gate.signerHats) - 1 ? 'and ' : ''
           }[#${hatIdDecimalToIp(BigInt(h.id))}](${formHatUrl({

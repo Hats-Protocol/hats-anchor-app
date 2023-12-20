@@ -1,5 +1,6 @@
 import {
   Button,
+  Flex,
   HStack,
   Icon,
   IconButton,
@@ -11,20 +12,22 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITIES } from 'app-constants';
-import { explorerUrl } from 'app-utils';
+import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import { useCallHsgFunction, useCallModuleFunction } from 'hats-hooks';
-import { Authority } from 'hats-types';
+import { Authority, LinkObject } from 'hats-types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaEllipsisV } from 'react-icons/fa';
+import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
+import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Modal from '../../atoms/Modal';
 import ModuleArgsInputs from '../../ModuleArgsInputs';
 
@@ -39,6 +42,36 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
 
   const primaryFunction = authority.functions.find((func) => func.primary);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
+
+  const otherLinks = useMemo(() => {
+    const links = [];
+    if (authority.type === 'hsg') {
+      links.push({
+        link: `${explorerUrl(chainId)}/address/${authority.instanceAddress}`,
+        label: 'Go to HatsSignerGate',
+      });
+
+      if (authority.signerHats) {
+        _.forEach(authority.signerHats, (h) => {
+          links.push({
+            link: formHatUrl({ hatId: h.id, chainId }),
+            label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
+            icon: FaExternalLinkAlt,
+          });
+        });
+      }
+      if (authority.ownerHat) {
+        links.push({
+          link: formHatUrl({ hatId: authority.ownerHat.id, chainId }),
+          label: `Go to Owner Hat (#${hatIdDecimalToIp(
+            BigInt(authority.ownerHat.id),
+          )})`,
+          icon: FaExternalLinkAlt,
+        });
+      }
+    }
+    return links;
+  }, [authority, chainId]);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({
@@ -101,7 +134,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
-  console.log('authority', authority);
+  // console.log('authority', authority);
 
   return (
     <HStack mb={4}>
@@ -111,77 +144,36 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
           isDisabled={!isWearer}
           size='sm'
           onClick={() => handleFunctionCall(primaryFunction)}
-          rightIcon={<FiPlusSquare />}
+          rightIcon={<Icon as={FiPlusSquare} />}
         >
           {primaryFunction.label}
         </Button>
       )}
       {authority.type === 'modules' && (
-        <Button
-          as='a'
+        <ChakraNextLink
           href={`${explorerUrl(chainId)}/address/${authority.instanceAddress}`}
-          target='_blank'
-          colorScheme='blue.500'
-          size='sm'
-          rightIcon={<FiExternalLink />}
-          variant='outline'
-          color='blue.500'
+          isExternal
         >
-          Go to {AUTHORITIES[authority.type].name}
-        </Button>
-      )}
-      {authority.type !== 'modules' && (
-        <Menu>
-          <MenuButton
-            rightIcon={<FiExternalLink />}
-            borderColor='blue.500'
-            variant='outline'
+          <Button
+            colorScheme='blue.500'
             size='sm'
-            as={Button}
+            rightIcon={<Icon as={FiExternalLink} />}
+            variant='outline'
             color='blue.500'
           >
             Go to {AUTHORITIES[authority.type].name}
-          </MenuButton>
-          <MenuList>
-            <MenuItem
-              as='a'
-              href={safeUrl(chainId, authority.safe)}
-              target='_blank'
-            >
-              <HStack spacing={1}>
-                <FiPlusSquare />
-                <Text>Go to Safe</Text>
-              </HStack>
-            </MenuItem>
-            <MenuItem
-              as='a'
-              href={`${explorerUrl(chainId)}/address/${
-                authority.instanceAddress
-              }`}
-              target='_blank'
-            >
-              <HStack spacing={1}>
-                <FiExternalLink />
-                <Text>Go to HatsSignerGate</Text>
-              </HStack>
-            </MenuItem>
-            {authority.signerHats && (
-              <MenuItem
-                as='a'
-                href={formHatUrl({
-                  hatId: authority.signerHats[0].id,
-                  chainId,
-                })}
-                target='_blank'
-              >
-                <HStack spacing={1}>
-                  <FiExternalLink />
-                  <Text>Go to Signer Hat</Text>
-                </HStack>
-              </MenuItem>
-            )}
-          </MenuList>
-        </Menu>
+          </Button>
+        </ChakraNextLink>
+      )}
+      {authority.type === 'hsg' && (
+        <ChakraNextLink href={safeUrl(chainId, authority.safe)}>
+          <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
+            <HStack>
+              <Text> Go to Safe</Text>
+              <Icon as={FaExternalLinkAlt} boxSize={3} />
+            </HStack>
+          </Button>
+        </ChakraNextLink>
       )}
       {!_.isEmpty(otherFunctions) && (
         <Menu>
@@ -193,14 +185,30 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
             size='sm'
           />
           <MenuList>
-            {otherFunctions.map((func) => (
+            {_.map(otherFunctions, (func) => (
               <MenuItem
                 key={func.label}
                 onClick={() => handleFunctionCall(func)}
                 isDisabled={!isWearer}
               >
-                {func.label}
+                <Flex justify='space-between' align='center' w='100%' gap={1}>
+                  <Text>{func.label}</Text>
+                  <Icon as={FiPlusSquare} boxSize={4} />
+                </Flex>
               </MenuItem>
+            ))}
+            {_.map(otherLinks, (link: LinkObject) => (
+              <ChakraNextLink
+                href={link.link}
+                isExternal={!!getHostnameFromURL(link.link)}
+              >
+                <MenuItem>
+                  <Flex justify='space-between' align='center' w='100%' gap={1}>
+                    <Text>{link.label}</Text>
+                    <Icon as={link.icon || FaExternalLinkAlt} boxSize={3} />
+                  </Flex>
+                </MenuItem>
+              </ChakraNextLink>
             ))}
           </MenuList>
         </Menu>

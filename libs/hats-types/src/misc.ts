@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { IconName } from 'react-cmdk';
+import { IconType } from 'react-icons';
 import { Hex } from 'viem';
 
 export type ImageFile = {
@@ -22,6 +23,12 @@ export type Hierarchy = {
   leftSiblings?: Hex[];
   rightSiblings?: Hex[];
 };
+
+export interface LinkObject {
+  link: string;
+  label: string;
+  icon?: IconType;
+}
 
 export type InputObject = {
   id: Hex;

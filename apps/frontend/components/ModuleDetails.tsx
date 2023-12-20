@@ -12,6 +12,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useModuleDetails } from 'hats-hooks';
+import { LinkObject } from 'hats-types';
 import _ from 'lodash';
 import React, { useMemo } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
@@ -83,7 +84,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
         </AccordionButton>
         <AccordionPanel px={0}>
           <Stack>
-            {_.map(moduleDetails.links, (link: any) => (
+            {_.map(moduleDetails.links, (link: LinkObject) => (
               <ChakraNextLink
                 href={link.link || '#'}
                 key={link.link}
