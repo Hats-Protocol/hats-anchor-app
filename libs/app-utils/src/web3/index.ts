@@ -1,5 +1,6 @@
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
@@ -83,4 +84,29 @@ export async function createHatsModulesClient(
   await hatsModulesClient.prepare();
 
   return hatsModulesClient as HatsModulesClient;
+}
+
+export async function createHatsSignerGateClient(
+  chainId: number | undefined,
+): Promise<HatsSignerGateClient | undefined> {
+  if (!chainId) return undefined;
+  const chain = chainsMap(chainId);
+
+  const walletClientHats = createWalletClient({
+    chain,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transport: custom((window as any).ethereum),
+  });
+
+  const publicClientHats = createPublicClient({
+    chain,
+    transport: http(),
+  });
+
+  const hatsModulesClient = new HatsSignerGateClient({
+    publicClient: publicClientHats,
+    walletClient: walletClientHats,
+  });
+
+  return hatsModulesClient as HatsSignerGateClient;
 }

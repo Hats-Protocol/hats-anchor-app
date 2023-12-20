@@ -55,12 +55,21 @@ const Input = ({
   if (!localForm) return null;
   const {
     register,
+    trigger,
     resetField,
     setValue,
     formState: { dirtyFields, errors },
   } = localForm;
 
   const isDirty = _.get(dirtyFields, name);
+
+  const handlePaste = async (event) => {
+    event.preventDefault();
+    const pastedValue = event.clipboardData.getData('text');
+    setValue(name, pastedValue, { shouldDirty: true });
+
+    await trigger(name);
+  };
 
   const onReset = () => {
     if (resetValue) {
@@ -144,6 +153,7 @@ const Input = ({
             type={type}
             {...register(name, { ...options, validate: options?.validate })}
             onChange={handleChange}
+            onPaste={handlePaste}
             {...props}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'

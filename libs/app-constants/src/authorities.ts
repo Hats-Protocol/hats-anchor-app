@@ -14,18 +14,22 @@ type AuthorityInfo = {
   label: string;
   info: string;
   color: string;
+  name?: string;
+  imageUri?: string;
 };
 
 export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
   protocol: {
     label: 'Hats Protocol Authority',
-    info: '',
+    info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
+    imageUri: '/icon.jpeg',
   },
   modules: {
     label: 'Hats Modules Authority',
-    info: '',
+    info: 'Connected onchain via an eligibility or toggle module',
     color: 'green.300',
+    name: 'Module',
   },
   wallet: {
     label: 'HatsWallet Authority',
@@ -34,8 +38,10 @@ export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
   },
   hsg: {
     label: 'HatsSignerGate Authority',
-    info: '',
+    info: 'Connected onchain via HatsSignerGate',
     color: 'green.300',
+    name: 'HSG',
+    imageUri: 'ipfs://QmTPSzPCmi8w7fM7WhkWePH4mBV1WNFyT3G3goBg45UnGB',
   },
   onchain: {
     label: 'Connected Onchain Authority',

@@ -20,6 +20,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Markdown from '../../atoms/Markdown';
 import AuthorityHeader from './AuthorityHeader';
+import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
 const AuthoritiesListCard = ({
   authority,
@@ -44,6 +45,9 @@ const AuthoritiesListCard = ({
   } else if (linkHostName === 'snapshot.org') {
     linkName = 'Go to Space';
   }
+
+  const displayModulesToolbar =
+    type === AUTHORITY_TYPES.modules || type === AUTHORITY_TYPES.hsg;
 
   const img =
     type === AUTHORITY_TYPES.gate
@@ -70,43 +74,47 @@ const AuthoritiesListCard = ({
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel pb={4} pl={20}>
-          <HStack>
-            {link && validateURL(link) && (
-              <ChakraNextLink isExternal href={link} display='block'>
-                {linkName || linkHostName ? (
+          {displayModulesToolbar ? (
+            <ModuleAuthorityToolbar authority={authority} />
+          ) : (
+            <HStack>
+              {link && validateURL(link) && (
+                <ChakraNextLink isExternal href={link} display='block'>
+                  {linkName || linkHostName ? (
+                    <Button
+                      rightIcon={<Icon as={FaExternalLinkAlt} />}
+                      colorScheme='blue'
+                      size='sm'
+                      variant='solid'
+                    >
+                      {linkName || linkHostName}
+                    </Button>
+                  ) : (
+                    <IconButton
+                      icon={<Icon as={FaExternalLinkAlt} />}
+                      colorScheme='blue'
+                      aria-label='Authority Link'
+                      size='sm'
+                      variant='solid'
+                    />
+                  )}
+                </ChakraNextLink>
+              )}
+              {gate && validateURL(gate) && (
+                <ChakraNextLink isExternal href={gate} display='block'>
                   <Button
                     rightIcon={<Icon as={FaExternalLinkAlt} />}
-                    colorScheme='blue'
+                    color='blue.500'
+                    borderColor='blue.500'
+                    variant='outlineMatch'
                     size='sm'
-                    variant='solid'
                   >
-                    {linkName || linkHostName}
+                    {gateHostName}
                   </Button>
-                ) : (
-                  <IconButton
-                    icon={<Icon as={FaExternalLinkAlt} />}
-                    colorScheme='blue'
-                    aria-label='Authority Link'
-                    size='sm'
-                    variant='solid'
-                  />
-                )}
-              </ChakraNextLink>
-            )}
-            {gate && validateURL(gate) && (
-              <ChakraNextLink isExternal href={gate} display='block'>
-                <Button
-                  rightIcon={<Icon as={FaExternalLinkAlt} />}
-                  color='blue.500'
-                  borderColor='blue.500'
-                  variant='outlineMatch'
-                  size='sm'
-                >
-                  {gateHostName}
-                </Button>
-              </ChakraNextLink>
-            )}
-          </HStack>
+                </ChakraNextLink>
+              )}
+            </HStack>
+          )}
           {description && (
             <Box pt={link || gate ? 4 : 0}>
               <Text fontSize='sm' fontWeight={500}>

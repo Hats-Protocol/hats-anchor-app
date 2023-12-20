@@ -9,7 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { AUTHORITIES } from 'app-constants';
+import { AUTHORITIES, AUTHORITY_TYPES } from 'app-constants';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
 import { Authority, AuthorityType, SnapshotStrategy } from 'hats-types';
 import _ from 'lodash';
@@ -40,9 +40,15 @@ const AuthorityHeader = ({
     imageUrl: currentImageUrl,
     link: currentLink,
   } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
-  const localImageUrl = editingItem ? currentImageUrl : imageUrl;
-  const isIpfs = localImageUrl?.startsWith('ipfs://');
+
   const localLink = editingItem ? currentLink : link;
+  const authority = AUTHORITIES[type];
+
+  // set current image
+  let localImageUrl = imageUrl;
+  if (authority) localImageUrl = authority.imageUri;
+  if (editingItem) localImageUrl = currentImageUrl;
+  const isIpfs = localImageUrl?.startsWith('ipfs://');
 
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
@@ -51,7 +57,7 @@ const AuthorityHeader = ({
           src={
             isIpfs
               ? ipfsUrl(localImageUrl?.slice(7)) || ''
-              : localImageUrl || '/icons/authority.svg'
+              : localImageUrl || authority.imageUri || '/icons/authority.svg'
           }
           boxSize='50px'
           border='1px solid'
@@ -71,22 +77,22 @@ const AuthorityHeader = ({
                   ? `Automatically pulled in from Snapshot. Voting weight in ${_.size(
                       strategies,
                     )} strateg${_.size(strategies) === 1 ? 'y' : 'ies'}.`
-                  : AUTHORITIES[type].info
+                  : authority.info
               }
               placement='right'
               hasArrow
               shouldWrapChildren
             >
               <HStack>
-                <Circle size='10px' bg={AUTHORITIES[type].color} />
-                <Text fontSize='sm'>{AUTHORITIES[type].label}</Text>
+                <Circle size='10px' bg={authority.color} />
+                <Text fontSize='sm'>{authority.label}</Text>
                 <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
               </HStack>
             </Tooltip>
           ) : (
             <HStack>
-              <Circle size='10px' bg={AUTHORITIES[type].color} />
-              <Text fontSize='sm'>{AUTHORITIES[type].label}</Text>
+              <Circle size='10px' bg={authority.color} />
+              <Text fontSize='sm'>{authority.label}</Text>
             </HStack>
           )}
         </Box>

@@ -19,6 +19,7 @@ import {
   removeAndHandleSiblingsOrgChart,
 } from 'app-utils';
 import {
+  useAncillaryModules,
   useManyHatsDetails,
   useManyHatsDetailsField,
   useTreeDetails,
@@ -700,10 +701,16 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
+  const { modulesAuthorities } = useAncillaryModules({
+    id: selectedHatId,
+    chainId,
+  });
+
   const { data: combinedAuthorities } = combineAuthorities({
     authorities: _.get(selectedHatDetails, 'authorities'),
     guildRoles: selectedHatGuildRoles,
     spaces: selectedHatSpaces,
+    modulesAuthorities,
   });
 
   const returnValue = useMemo(
