@@ -12,14 +12,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { AUTHORITIES } from 'app-constants';
-import { useContractData } from 'app-hooks';
-import {
-  useCallHsgFunction,
-  useCallModuleFunction,
-  useModuleDetails,
-} from 'hats-hooks';
-import { Authority, HatWearer, SupportedChains } from 'hats-types';
-import { getControllerNameAndLink } from 'hats-utils';
+import { explorerUrl } from 'app-utils';
+import { useCallHsgFunction, useCallModuleFunction } from 'hats-hooks';
+import { Authority } from 'hats-types';
+import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -36,7 +32,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat, wearersAndControllers } = useTreeForm();
+  const { chainId, selectedHat } = useTreeForm();
   const [selectedFunction, setSelectedFunction] = useState(null);
   const formMethods = useForm({ mode: 'onChange' });
   const { formState } = formMethods;
@@ -105,26 +101,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
-  const extendedController: HatWearer = _.find(wearersAndControllers, {
-    id: authority.instanceAddress,
-  });
-
-  const { details: moduleDetails } = useModuleDetails({
-    address: authority.moduleAddress,
-    chainId,
-  });
-
-  const { data: contractData } = useContractData({
-    chainId,
-    address: authority.instanceAddress,
-  });
-
-  const { controllerLink } = getControllerNameAndLink({
-    extendedController,
-    moduleDetails,
-    contractData,
-    chainId: chainId as SupportedChains,
-  });
+  console.log('authority', authority);
 
   return (
     <HStack mb={4}>
@@ -138,17 +115,64 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
           {primaryFunction.label}
         </Button>
       )}
-      <Button
-        as='a'
-        href={`${controllerLink}#writeContract`}
-        target='_blank'
-        colorScheme='blue.500'
-        rightIcon={<FiExternalLink />}
-        variant='outline'
-        color='blue.500'
-      >
-        Go to {AUTHORITIES[authority.type].name}
-      </Button>
+      {authority.type === 'modules' && (
+        <Button
+          as='a'
+          href={`${explorerUrl(chainId)}/address/${authority.instanceAddress}`}
+          target='_blank'
+          colorScheme='blue.500'
+          rightIcon={<FiExternalLink />}
+          variant='outline'
+          color='blue.500'
+        >
+          Go to {AUTHORITIES[authority.type].name}
+        </Button>
+      )}
+      {authority.type !== 'modules' && (
+        <Menu>
+          <MenuButton
+            rightIcon={<FiExternalLink />}
+            borderColor='blue.500'
+            variant='outline'
+            as={Button}
+          >
+            Go to {AUTHORITIES[authority.type].name}
+          </MenuButton>
+          <MenuList>
+            <MenuItem
+              as='a'
+              href={safeUrl(chainId, authority.safe)}
+              target='_blank'
+              color='blue.500'
+            >
+              Go to Safe
+            </MenuItem>
+            <MenuItem
+              as='a'
+              href={`${explorerUrl(chainId)}/address/${
+                authority.instanceAddress
+              }`}
+              target='_blank'
+              color='blue.500'
+            >
+              Go to HatsSignerGate
+            </MenuItem>
+            {authority.signerHats && (
+              <MenuItem
+                as='a'
+                href={formHatUrl({
+                  hatId: authority.signerHats[0].id,
+                  chainId,
+                })}
+                target='_blank'
+                color='blue.500'
+              >
+                Go to Signer Hat
+              </MenuItem>
+            )}
+          </MenuList>
+        </Menu>
+      )}
       <Menu>
         <MenuButton
           as={IconButton}

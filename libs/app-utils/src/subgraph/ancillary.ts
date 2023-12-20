@@ -27,6 +27,9 @@ const MODULES_QUERY = gql`
         minThreshold
         targetThreshold
         maxSigners
+        signerHats {
+          id
+        }
       }
       hsgSigner {
         id
@@ -35,6 +38,9 @@ const MODULES_QUERY = gql`
         minThreshold
         targetThreshold
         maxSigners
+        ownerHat {
+          id
+        }
       }
       jokeraceAdmin {
         id
