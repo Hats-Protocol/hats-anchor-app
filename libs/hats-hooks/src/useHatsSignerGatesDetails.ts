@@ -123,6 +123,7 @@ const populateHatsGatesAuthorities = ({
       functions,
       description: generateGateDescription(gate),
       insanceAddress: gate.id,
+      hgsType: 'HSG',
     };
   });
 
@@ -141,6 +142,7 @@ const populateHatsGatesAuthorities = ({
       functions,
       description: generateGateDescription(gate),
       insanceAddress: gate.id,
+      hgsType: 'MHSG',
     };
   });
 

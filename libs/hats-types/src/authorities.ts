@@ -1,3 +1,4 @@
+import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { Hex } from 'viem';
 
 export type AuthorityType =
@@ -22,6 +23,7 @@ export type Authority = {
   functions?: any[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
+  hgsType?: HsgType;
 };
 
 export interface SnapshotStrategy {

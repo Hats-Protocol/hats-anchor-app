@@ -1,6 +1,6 @@
 import { HsgMetadata } from '@hatsprotocol/hsg-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { createHatsHSGClient } from 'app-utils';
+import { createHatsSignerGateClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 
 const useHatsSignerGatesMetadata = ({
@@ -9,7 +9,7 @@ const useHatsSignerGatesMetadata = ({
   chainId: SupportedChains | undefined;
 }) => {
   const fetchHsgData = async () => {
-    const HSGClient = await createHatsHSGClient(chainId);
+    const HSGClient = await createHatsSignerGateClient(chainId);
     if (!HSGClient) return [];
 
     const single = await HSGClient.getMetadata('HSG');

@@ -8,10 +8,16 @@ import {
   MenuItem,
   MenuList,
   ModalFooter,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
 import { AUTHORITIES } from 'app-constants';
 import { useContractData } from 'app-hooks';
-import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
+import {
+  useCallHsgFunction,
+  useCallModuleFunction,
+  useModuleDetails,
+} from 'hats-hooks';
 import { Authority, HatWearer, SupportedChains } from 'hats-types';
 import { getControllerNameAndLink } from 'hats-utils';
 import _ from 'lodash';
@@ -38,9 +44,15 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const primaryFunction = authority.functions.find((func) => func.primary);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
 
-  const { mutate: callModuleFunction, isLoading } = useCallModuleFunction({
-    chainId,
-  });
+  const { mutate: callModuleFunction, isLoading: isModuleLoading } =
+    useCallModuleFunction({
+      chainId,
+    });
+
+  const { mutate: callHsgFunction, isLoading: isHsgLoading } =
+    useCallHsgFunction({
+      chainId,
+    });
 
   const isWearer = useMemo(
     () =>
@@ -55,24 +67,41 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}`]: true });
-    } else {
+    } else if (authority.type === 'modules') {
       callModuleFunction({
         moduleId: authority.moduleAddress,
         instance: authority.instanceAddress,
         func,
         args: [],
       });
+    } else {
+      callHsgFunction({
+        func,
+        args: [],
+        instance: authority.instanceAddress,
+        type: authority.hgsType,
+      });
     }
   };
 
   const handleSubmit = (data) => {
     const args = Object.values(data);
-    callModuleFunction({
-      moduleId: authority.moduleAddress,
-      instance: authority.instanceAddress,
-      func: selectedFunction,
-      args,
-    });
+
+    if (authority.type === 'modules') {
+      callModuleFunction({
+        instance: authority.instanceAddress,
+        func: selectedFunction,
+        args,
+        moduleId: authority.moduleAddress,
+      });
+    } else {
+      callHsgFunction({
+        instance: authority.instanceAddress,
+        func: selectedFunction,
+        args,
+        type: authority.hgsType,
+      });
+    }
     setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
@@ -145,18 +174,23 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         title={selectedFunction?.label}
         localOverlay={localOverlay}
       >
-        <ModuleArgsInputs
-          selectedModuleArgs={selectedFunction?.args}
-          localForm={formMethods}
-        />
+        {selectedFunction?.description && (
+          <Text mb={3}>{selectedFunction?.description}</Text>
+        )}
+        <Stack>
+          <ModuleArgsInputs
+            selectedModuleArgs={selectedFunction?.args}
+            localForm={formMethods}
+          />
+        </Stack>
         <ModalFooter px={0}>
           <Button
             colorScheme='blue'
             onClick={formMethods.handleSubmit(handleSubmit)}
             isDisabled={!formState.isValid}
-            isLoading={isLoading}
+            isLoading={isModuleLoading || isHsgLoading}
           >
-            Call Function
+            {selectedFunction?.label}
           </Button>
         </ModalFooter>
       </Modal>

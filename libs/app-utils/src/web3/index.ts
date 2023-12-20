@@ -86,7 +86,7 @@ export async function createHatsModulesClient(
   return hatsModulesClient as HatsModulesClient;
 }
 
-export async function createHatsHSGClient(
+export async function createHatsSignerGateClient(
   chainId: number | undefined,
 ): Promise<HatsSignerGateClient | undefined> {
   if (!chainId) return undefined;

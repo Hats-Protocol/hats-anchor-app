@@ -100,10 +100,12 @@ const ModuleDetailsForm = ({
         </FormRowWrapper>
       )}
 
-      <ModuleArgsInputs
-        selectedModuleArgs={selectedModuleArgs}
-        localForm={localForm}
-      />
+      <Stack>
+        <ModuleArgsInputs
+          selectedModuleArgs={selectedModuleArgs}
+          localForm={localForm}
+        />
+      </Stack>
     </Stack>
   );
 };
