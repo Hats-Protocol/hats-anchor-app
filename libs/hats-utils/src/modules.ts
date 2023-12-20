@@ -1,15 +1,26 @@
+import { HsgMetadata, Role } from '@hatsprotocol/hsg-sdk';
 import {
   checkAndEncodeArgs,
   solidityToTypescriptType,
+  WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG, TRIGGER_OPTIONS } from 'app-constants';
+import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
+  formatAddress,
   getDefaultValue,
   transformInput,
 } from 'app-utils';
-import { AppHat, FormData, ModuleCreationArg, ModuleDetails } from 'hats-types';
+import {
+  AppHat,
+  Authority,
+  FormData,
+  HatAuthority,
+  HatSignerGate,
+  ModuleCreationArg,
+  ModuleDetails,
+} from 'hats-types';
 import _ from 'lodash';
 import { ipToHatId } from 'shared-utils';
 import { Hex, parseUnits } from 'viem';
@@ -344,3 +355,163 @@ export const processValues = ({
 
   return newValues;
 };
+
+export function populateModulesAuthorities({
+  hatAuthorities,
+  modulesDetails,
+}: {
+  hatAuthorities?: HatAuthority;
+  modulesDetails: ModuleDetails[];
+}) {
+  const updatedHatAuthorities: Authority[] = [];
+
+  _.forEach(modulesDetails, (details: ModuleDetails) => {
+    _.forEach(
+      hatAuthorities,
+      (authorityEntries: { id: Hex }[], authorityKey: string) => {
+        const matchingRoles = _.filter(
+          details?.customRoles,
+          (role: Role) => role.id === authorityKey,
+        );
+        const matchingFunctions = _.filter(
+          details.writeFunctions,
+          (func: WriteFunction) =>
+            _.some(matchingRoles, (role: Role) =>
+              _.includes(func.roles, role.id),
+            ),
+        );
+
+        const transformedAuthorities = authorityEntries.map(
+          (item: { id: Hex }) => {
+            const role = _.head(matchingRoles);
+            if (role) {
+              return {
+                label: `${role.name} (${formatAddress(item.id)})`,
+                link: role.id,
+                description: Array.isArray(details.details)
+                  ? details.details.join('\n')
+                  : details.details,
+                type: AUTHORITY_TYPES.modules,
+                id: role.id,
+                functions: matchingFunctions,
+                instanceAddress: item.id,
+                moduleAddress: details.implementationAddress as Hex,
+              };
+            }
+            return null;
+          },
+        );
+
+        const filteredAuthorities = _.compact(transformedAuthorities);
+        updatedHatAuthorities.push(...filteredAuthorities);
+      },
+    );
+  });
+
+  return updatedHatAuthorities;
+}
+
+export const populateHatsGatesAuthorities = ({
+  details,
+  gates,
+  role,
+}: {
+  details?: HatSignerGate[] | null;
+  gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
+  role: 'hsgOwner' | 'hsgSigner';
+}) => {
+  if (!details || !gates) return [];
+  const singleGates = _.filter(
+    details,
+    (gate: HatSignerGate) => gate.type === 'Single',
+  );
+
+  const multiGates = _.filter(
+    details,
+    (gate: HatSignerGate) => gate.type === 'Multi',
+  );
+
+  const ownerFunctions = _.map(
+    gates.single.writeFunctions,
+    (func: WriteFunction) => {
+      if (func.functionName === 'setMinThreshold') {
+        return { ...func, primary: true };
+      }
+      return func;
+    },
+  ).filter((func: WriteFunction) =>
+    [
+      'setOwnerHat',
+      'removeSigner',
+      'setMinThreshold',
+      'setTargetThreshold',
+    ].includes(func.functionName),
+  );
+
+  const signerFunctions = _.map(
+    gates.multi.writeFunctions,
+    (func: WriteFunction) => {
+      if (func.functionName === 'claimSigner') {
+        return { ...func, primary: true };
+      }
+      return func;
+    },
+  ).filter((func: WriteFunction) =>
+    ['claimSigner', 'removeSigner'].includes(func.functionName),
+  );
+
+  const singleGatesAuthorities = _.map(singleGates, (gate: HatSignerGate) => {
+    const customRole = _.find(gates.single.customRoles, { id: role });
+    const functions = role === 'hsgOwner' ? ownerFunctions : signerFunctions;
+    return {
+      label: `${customRole?.name} (${formatAddress(gate.id)})`,
+      type: AUTHORITY_TYPES.hsg,
+      id: gate.id,
+      functions,
+      description: generateGateDescription(gate),
+      instanceAddress: gate.id,
+      hgsType: 'HSG',
+      ownerHat: gate.ownerHat,
+      signerHats: gate.signerHats,
+      safe: gate.safe,
+    };
+  });
+
+  const multiGatesAuthorities = _.map(multiGates, (gate: HatSignerGate) => {
+    const customRole = _.find(gates.multi.customRoles, { id: role });
+    const functions = role === 'hsgOwner' ? ownerFunctions : signerFunctions;
+
+    return {
+      label: `${customRole?.name} (${formatAddress(gate.id)})`,
+      type: AUTHORITY_TYPES.hsg,
+      id: gate.id,
+      functions,
+      description: generateGateDescription(gate),
+      instanceAddress: gate.id,
+      hgsType: 'MHSG',
+      ownerHat: gate.ownerHat,
+      signerHats: gate.signerHats,
+      safe: gate.safe,
+    };
+  });
+
+  return [...singleGatesAuthorities, ...multiGatesAuthorities];
+};
+
+function generateGateDescription(gate: HatSignerGate) {
+  const { safe, minThreshold, targetThreshold, maxSigners } = gate;
+
+  const formattedSafe = formatAddress(safe);
+  const formattedGate = formatAddress(gate.id);
+
+  let description = `Wearers of this hat are able to claim signing authority on the Safe at ${formattedSafe} via the attached HatsSignerGate (located at ${formattedGate}).\n\n`;
+
+  description += `Based on the configuration of the HatsSignerGate, this Safe:\n\n`;
+  description += `Requires a minimum of ${minThreshold} signers to execute a transaction\n\n`;
+  description += `Can have a maximum of ${maxSigners} signers\n\n`;
+  description += `Will require ${targetThreshold} signatures to execute a transaction when the number of signers is ${targetThreshold} or more\n\n`;
+
+  // description += `The owner of the HatsSignerGate is Hat ID 2.3 in this tree.`;
+
+  return description;
+}
