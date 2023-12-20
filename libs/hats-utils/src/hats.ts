@@ -2,10 +2,10 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { DEFAULT_HAT, MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
+  AppHat,
   Controls,
   FormData,
   FormWearer,
-  Hat,
   HatExport,
   HatWearer,
 } from 'hats-types';
@@ -14,7 +14,7 @@ import { ipToPrettyId, prettyIdToId } from 'shared-utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
-export const calculateNextChildId = (id: string, hatsData: Hat[]) => {
+export const calculateNextChildId = (id: string, hatsData: AppHat[]) => {
   const children = _.filter(
     hatsData,
     (h) => h.admin?.id === id || h.parentId === id,
@@ -102,16 +102,16 @@ export const isWearingAdminHat = (
   return !!includesAny(wearerHatIds, hatIds);
 };
 
-export const isTopHat = (hatData: Hat | null | undefined) =>
+export const isTopHat = (hatData: AppHat | null | undefined) =>
   _.get(hatData, 'levelAtLocalTree') === 0 &&
   _.get(hatData, 'admin.id') === _.get(hatData, 'id');
 
-export const isMutable = (hatData?: Hat) => _.get(hatData, 'mutable');
+export const isMutable = (hatData?: AppHat) => _.get(hatData, 'mutable');
 
-export const isTopHatOrMutable = (hatData: Hat) =>
+export const isTopHatOrMutable = (hatData: AppHat) =>
   isTopHat(hatData) || isMutable(hatData);
 
-export const isMutableNotTopHat = (hatData: Hat) =>
+export const isMutableNotTopHat = (hatData: AppHat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
 // same as toTreeId??? similar but used to get full ID (for top hat ID)
@@ -121,21 +121,21 @@ export const getTreeId = (prettyHatId: Hex | null, full = false) => {
   return prettyHatId.slice(0, 10).padEnd(66, '0');
 };
 
-const checkNodeDetails = (node: Hat, type: string) =>
+const checkNodeDetails = (node: AppHat, type: string) =>
   node?.detailsObject?.data &&
   _.includes(_.keys(node.detailsObject.data), type);
 
 export const checkPermissionsResponsibilities = (
-  treeToDisplay: Hat[],
+  treeToDisplay: AppHat[],
   controls: Controls[],
 ) => {
   const hasPermissions = !_.isEmpty(
-    _.filter(treeToDisplay, (node: Hat) =>
+    _.filter(treeToDisplay, (node: AppHat) =>
       checkNodeDetails(node, 'permissions'),
     ),
   );
   const hasResponsibilities = !_.isEmpty(
-    _.filter(treeToDisplay, (node: Hat) =>
+    _.filter(treeToDisplay, (node: AppHat) =>
       checkNodeDetails(node, 'responsibilities'),
     ),
   );
@@ -198,7 +198,7 @@ export const translateDrafts = ({
   chainId: number;
   treeId: Hex;
   drafts: Partial<FormData>[];
-}): Hat[] => {
+}): AppHat[] => {
   const extendDrafts = _.map(drafts, (hat) => {
     if (!hat.id) return undefined;
     return {
@@ -209,7 +209,7 @@ export const translateDrafts = ({
       detailsObject: {
         type: '1.0',
         data: {
-          name: hat.name || 'New Hat',
+          name: hat.name || 'New AppHat',
         },
       },
       imageUri: '',
@@ -227,13 +227,13 @@ export const translateDrafts = ({
     };
   });
 
-  const defined = _.reject(extendDrafts, _.isUndefined) as Hat[];
+  const defined = _.reject(extendDrafts, _.isUndefined) as AppHat[];
 
   return _.sortBy(defined, (hat) => BigInt(hat.id));
 };
 
-export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hat[] => {
-  const parents: Hat[] = [];
+export const getAllParents = (hatId?: Hex, tree?: AppHat[]): AppHat[] => {
+  const parents: AppHat[] = [];
   if (!hatId || !tree) return parents;
   let currentHat = _.find(tree, { id: hatId });
 
@@ -245,7 +245,7 @@ export const getAllParents = (hatId?: Hex, tree?: Hat[]): Hat[] => {
   return parents;
 };
 
-export const getAllDescendants = (hatId: Hex, tree: Hat[]): Hat[] => {
+export const getAllDescendants = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   const children = _.filter(tree, (hat) => hat.parentId === hatId);
 
   const descendants = _.reduce(
@@ -253,13 +253,13 @@ export const getAllDescendants = (hatId: Hex, tree: Hat[]): Hat[] => {
     (acc, child) => {
       return _.concat(acc, child, getAllDescendants(child.id, tree));
     },
-    [] as Hat[],
+    [] as AppHat[],
   );
 
   return descendants;
 };
 
-export const getBranch = (hatId: Hex, tree: Hat[]): Hat[] => {
+export const getBranch = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   const targetHat = _.find(tree, { id: hatId });
   if (!targetHat) return [];
 
@@ -367,7 +367,7 @@ export const handleExportBranch = ({
   toast,
 }: {
   targetHatId?: Hex;
-  treeToDisplay?: Hat[];
+  treeToDisplay?: AppHat[];
   linkedHatIds?: Hex[];
   storedData?: Partial<FormData>[];
   decimalTreeId?: number;
@@ -502,7 +502,6 @@ export const prepareDraftHats = (
     hatsDifferences,
     (hat) => _.size(hat) > 1 && _.some(hat, (value) => value !== undefined),
   );
-  console.log(hatsWithUpdates);
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
     (hat: FormData) => hat.id !== prettyIdToId(treeId),
@@ -585,7 +584,7 @@ const extractWearers = (wearers: any[]): FormWearer[] => {
 
 export const checkMissingHats = (
   hats: Partial<FormData>[],
-  onchainHats: Hat[] | undefined,
+  onchainHats: AppHat[] | undefined,
 ) => {
   if (!onchainHats) return true;
   const onchainIds = _.map(onchainHats, 'id');

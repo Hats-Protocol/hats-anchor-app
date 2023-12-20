@@ -158,7 +158,7 @@ const WearersList = () => {
     wearer: address,
   });
   const { details: eligibilityDetails } = useModuleDetails({
-    address: selectedHat?.eligibility,
+    address: selectedHat?.eligibility as Hex,
     chainId,
   });
 

@@ -1,6 +1,7 @@
 import { Box, Card, CardBody, HStack, Stack, Text } from '@chakra-ui/react';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
-import { Hat, Tree } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 
@@ -12,8 +13,8 @@ const TreeListCard = ({
   topHatImage,
 }: {
   tree: Tree;
-  topHat: Hat;
-  topHatImage: Hat | undefined;
+  topHat: AppHat;
+  topHatImage: AppHat | undefined;
 }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
 

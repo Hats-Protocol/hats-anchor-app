@@ -1,5 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Hat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { toTreeId } from 'shared-utils';
@@ -48,7 +48,7 @@ const useHatMakeImmutable = ({
 export default useHatMakeImmutable;
 
 interface UseHatMakeImmutableProps {
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: SupportedChains | undefined;
   isAdminUser?: boolean;
   mutable?: boolean;

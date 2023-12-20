@@ -10,11 +10,12 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS } from 'app-constants';
 import { useDebounce, usePinImageIpfs } from 'app-hooks';
 import { fetchToken, pinJson } from 'app-utils';
 import { useHatContractWrite } from 'hats-hooks';
-import { ImageFile } from 'hats-types';
+import { AppHat, ImageFile } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -22,7 +23,7 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToId, prettyIdToIp } from 'shared-utils';
-import { Hex } from 'viem';
+import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '../components/atoms/DropZone';
@@ -39,18 +40,18 @@ const HatRelinkForm = ({
   parentTreeHats,
 }: {
   chainId: number;
-  hatData: any;
-  parentTreeHats: any;
+  hatData: AppHat;
+  parentTreeHats: AppHat[];
 }) => {
   const currentNetworkId = useChainId();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
       topHatDomain: hatData.prettyId,
-      newAdmin: parentTreeHats[0],
+      newAdmin: _.get(_.first(parentTreeHats), 'id') as Hex,
       description: '',
-      eligibility: ZERO_ADDRESS,
-      toggle: ZERO_ADDRESS,
+      eligibility: zeroAddress as Hex,
+      toggle: zeroAddress as Hex,
       imageUrl: '',
     },
   });
@@ -60,7 +61,9 @@ const HatRelinkForm = ({
   const [toggleChecked, setToggleChecked] = useState(false);
   const [newDetails, setNewDetails] = useState(false);
   const [newImage, setNewImage] = useState(false);
-  const [image, setImage] = useState<ImageFile>(hatData.imageUrl);
+  const [image, setImage] = useState<ImageFile>({
+    path: hatData.imageUrl,
+  });
 
   const {
     acceptedFiles,
@@ -80,10 +83,11 @@ const HatRelinkForm = ({
     },
   });
 
-  const newAdmin = useDebounce<Hex>(watch('newAdmin', parentTreeHats[0]));
-  const description = useDebounce(watch('description', ''));
-  const eligibility = useDebounce<Hex>(watch('eligibility', ZERO_ADDRESS));
-  const toggle = useDebounce<Hex>(watch('toggle', ZERO_ADDRESS));
+  const newParentId = _.get(_.first(parentTreeHats), 'id') as Hex;
+  const newAdmin = useDebounce<Hex>(watch('newAdmin', newParentId));
+  const description = useDebounce<string>(watch('description', ''));
+  const eligibility = useDebounce(watch('eligibility', zeroAddress));
+  const toggle = useDebounce(watch('toggle', zeroAddress));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = prettyIdToIp(hatData.prettyId);
@@ -168,9 +172,9 @@ const HatRelinkForm = ({
           name='newAdmin'
           localForm={localForm}
         >
-          {_.map(parentTreeHats, (hat: any) => (
-            <option value={hat} key={hat}>
-              {prettyIdToIp(hat)}
+          {_.map(parentTreeHats, (hat: AppHat) => (
+            <option value={hat.id} key={hat.id}>
+              {hatIdDecimalToIp(BigInt(hat.id))}
             </option>
           ))}
         </Select>

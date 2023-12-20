@@ -3,7 +3,7 @@ import {
   fetchWearerDetailsForAllChains,
   fetchWearerDetailsForChain,
 } from 'app-utils';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { Hex } from 'viem';
 
 // hats-hooks
@@ -31,7 +31,7 @@ export default useWearerDetails;
 
 interface UseWearerDetailsProps {
   wearerAddress: Hex | undefined;
-  initialData?: Hat[];
+  initialData?: AppHat[];
   chainId?: number | 'all' | undefined;
   editMode?: boolean;
 }

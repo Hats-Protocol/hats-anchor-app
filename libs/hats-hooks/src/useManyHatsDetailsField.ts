@@ -1,6 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import { fetchDetailsIpfs } from 'app-utils';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import { handleNestedDetails } from 'hats-utils';
 import _ from 'lodash';
 
@@ -13,26 +13,26 @@ const useManyHatsDetailsField = ({
   editMode,
   onchain,
 }: {
-  hats: Hat[] | undefined;
-  onchainHats?: Hat[];
+  hats: AppHat[] | undefined;
+  onchainHats?: AppHat[];
   editMode?: boolean;
   onchain?: boolean;
 }) => {
   let onlyOnchainHats = hats;
   if (onchainHats) {
-    onlyOnchainHats = _.filter(hats, (hat: Hat) =>
+    onlyOnchainHats = _.filter(hats, (hat: AppHat) =>
       _.includes(_.map(onchainHats, 'id'), hat?.id),
     );
   }
 
   const filteredDetails = _.reject(
     onlyOnchainHats,
-    (hat: Hat) =>
+    (hat: AppHat) =>
       !_.startsWith(_.get(hat, 'details'), 'ipfs://') && hat?.details !== '',
   );
 
   const detailsFields = useQueries({
-    queries: _.map(filteredDetails, (hat: Hat) => ({
+    queries: _.map(filteredDetails, (hat: AppHat) => ({
       queryKey: [
         'hatDetailsField',
         hat?.details,
@@ -46,7 +46,7 @@ const useManyHatsDetailsField = ({
 
   const result = {
     data: _.compact(
-      _.map(onlyOnchainHats, (hat: Hat) => {
+      _.map(onlyOnchainHats, (hat: AppHat) => {
         const detailsData =
           _.find(detailsFields, ['details', hat.details]) ||
           _.find(_.map(detailsFields, 'data'), ['details', hat.details]);

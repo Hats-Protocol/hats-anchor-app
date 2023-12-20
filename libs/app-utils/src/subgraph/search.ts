@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import { Hat, Tree } from 'hats-types';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { idToPrettyId, prettyIdToIp, toTreeId } from 'shared-utils';
@@ -65,7 +66,7 @@ export const searchQueryResult = async (search: string | undefined) => {
   // TODO surface errors, but don't fail all calls
   const result = await Promise.all(promises);
 
-  const allNetworkResults: { trees: Tree[]; hats: Hat[] } = {
+  const allNetworkResults: { trees: Tree[]; hats: AppHat[] } = {
     trees: [],
     hats: [],
   };
@@ -78,7 +79,7 @@ export const searchQueryResult = async (search: string | undefined) => {
       allNetworkResults?.trees || [],
     );
     allNetworkResults.hats = _.concat(
-      _.map(_.get(network, 'hats'), (hat: Hat) => ({
+      _.map(_.get(network, 'hats'), (hat: AppHat) => ({
         ...hat,
         network: _.values(chainsList)[i],
       })),
@@ -91,7 +92,7 @@ export const searchQueryResult = async (search: string | undefined) => {
     (
       o: {
         trees: Tree[];
-        hats: Hat[];
+        hats: AppHat[];
       },
       k: any,
     ) => _.map(o, (r: any) => processForCommandPalette(k, r)),

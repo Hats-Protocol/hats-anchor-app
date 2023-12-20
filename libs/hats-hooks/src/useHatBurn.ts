@@ -1,5 +1,5 @@
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { Hat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -10,7 +10,7 @@ const useHatBurn = ({
   chainId,
   onSuccess,
 }: {
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: SupportedChains;
   onSuccess?: () => void | undefined;
 }) => {

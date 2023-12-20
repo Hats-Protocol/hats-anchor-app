@@ -2,12 +2,23 @@ import { Hierarchy, InputObject } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
+/**
+ * Maps the provided objects with chainId as an additional parameter
+ * @param array objects to include the chainId property
+ * @param chainId current chainId to include with the objects
+ * @returns array of objects with additional chainId property
+ */
 export const mapWithChainId = (
   array: object[] | undefined,
   chainId: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
+): object[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
 
+/**
+ * Returns an object with the selected Hat's nearest siblings, parent and first child
+ * @param data array of Partial<Hats> for determining ID relations
+ * @param currentHatId the currently selected Hat ID
+ * @returns Hierarchy object with nearest siblings, parent and first child
+ */
 export function createHierarchy(
   data: InputObject[],
   currentHatId?: Hex,

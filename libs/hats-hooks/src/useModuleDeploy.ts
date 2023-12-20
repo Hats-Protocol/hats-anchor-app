@@ -3,9 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CONFIG, DEPLOYMENT_TYPES } from 'app-constants';
 import { useToast } from 'app-hooks';
 import {
+  AppHat,
   DeploymentType,
   FormData,
-  Hat,
   ModuleDetails,
   SupportedChains,
 } from 'hats-types';
@@ -42,11 +42,11 @@ const useModuleDeploy = ({
   deploymentType,
 }: {
   localForm: UseFormReturn;
-  selectedHat?: Hat;
+  selectedHat?: AppHat;
   chainId: SupportedChains;
   storedData: Partial<FormData>[];
   setStoredData?: Dispatch<SetStateAction<Partial<FormData>[]>>;
-  onchainHats: Hat[];
+  onchainHats: AppHat[];
   editMode?: boolean;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
@@ -161,12 +161,14 @@ const useModuleDeploy = ({
             const hatIds = _.uniq(
               _.map(_.concat(moduleHats, hatterHats), 'id'),
             );
-            const updatedHats: any = _.map(hatIds, (id: Hex) =>
-              _.merge(
-                {},
-                _.find(hatterHats, { id }),
-                _.find(moduleHats, { id }),
-              ),
+            const updatedHats: any[] = _.map(
+              hatIds,
+              (id: Hex) =>
+                _.merge(
+                  {},
+                  _.find(hatterHats, { id }),
+                  _.find(moduleHats, { id }),
+                ) as Partial<FormData>,
             );
             setStoredData?.(updatedHats);
             toast.success({
@@ -199,8 +201,10 @@ const useModuleDeploy = ({
                 _.map(updatedHatsWithClaimsHatter, 'id'),
               ),
             );
-            const updatedHats: any = _.map(hatIds, (id: Hex) => {
-              const hatterHat = _.find(updatedHatsWithClaimsHatter, ['id', id]);
+            const updatedHats: any[] = _.map(hatIds, (id: Hex) => {
+              const hatterHat = _.find(updatedHatsWithClaimsHatter, {
+                id,
+              });
               const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
               return _.merge({}, hatterHat, moduleHat) as Partial<FormData>;
             });

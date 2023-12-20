@@ -1,5 +1,6 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Hat, HatDetails, SupportedChains, Tree } from 'hats-types';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { AppHat, HatDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { idToPrettyId } from 'shared-utils';
 import { Hex } from 'viem';
@@ -7,17 +8,17 @@ import { Hex } from 'viem';
 import { decimalId } from './hats';
 
 const mapHat = (
-  hat: Hat | undefined,
+  hat: AppHat | undefined,
   chainId: SupportedChains,
-): Hat | undefined => {
+): AppHat | undefined => {
   if (!hat) return undefined;
 
   return {
     ...hat,
     chainId,
     name: hatIdDecimalToIp(BigInt(hat.id)),
-    parentId: hat.admin?.id === hat.id ? undefined : hat.admin?.id,
-    treeId: hat.tree?.id,
+    parentId: hat.admin?.id === hat.id ? undefined : (hat.admin?.id as Hex),
+    treeId: hat.tree?.id as Hex,
     isLinked: false,
     url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
   };
@@ -34,24 +35,24 @@ export async function toTreeStructure({
   initialHatIds,
 }: {
   treeData: Tree | null | undefined;
-  hatsData: Hat[] | undefined;
+  hatsData: AppHat[] | undefined;
   detailsData: {
     id: string;
     detailsObject: { type: string; data: HatDetails };
   }[];
-  imagesData: Hat[] | undefined;
-  draftHats: Hat[] | undefined;
+  imagesData: AppHat[] | undefined;
+  draftHats: AppHat[] | undefined;
   chainId: SupportedChains;
   initialHatIds: Hex[];
-}): Promise<Hat[] | undefined> {
+}): Promise<AppHat[] | undefined> {
   if (!treeData || !hatsData || !detailsData || !imagesData) {
     return Promise.resolve(undefined);
   }
-  const onlyOnchainHats = _.filter(hatsData, (hat: Hat) =>
+  const onlyOnchainHats = _.filter(hatsData, (hat: AppHat) =>
     _.includes(initialHatIds, hat?.id),
   );
 
-  const mergedHatsData = _.map(onlyOnchainHats, (hat: any) => {
+  const mergedHatsData = _.map(onlyOnchainHats, (hat: AppHat) => {
     const fullHat = _.find(hatsData, ['id', hat.id]);
     const details = _.find(detailsData, ['id', hat.details]);
     const image = _.find(imagesData, ['id', hat.id]);
@@ -71,34 +72,41 @@ export async function toTreeStructure({
 
   const hatsList = _.orderBy(
     _.compact(_.concat(hats, draftHats)),
-    (h: Hat) => {
+    (h: AppHat) => {
       return _.size(_.split(h.name, '.'));
     },
     'asc',
   );
-  const updatedHatsList = hatsList.map((hat: any) =>
-    updateHatProperties(hat, treeData.parentOfTrees, treeData.linkedToHat),
+  const updatedHatsList = hatsList.map((hat: AppHat) =>
+    updateHatProperties(
+      hat,
+      treeData.parentOfTrees,
+      (treeData.linkedToHat as AppHat) || null,
+    ),
   );
 
   return Promise.resolve(updatedHatsList);
 }
 
 const isHatInParentOfTrees = (
-  hat: Hat,
+  hat: AppHat,
   parentOfTrees: Tree[] | undefined,
 ): boolean => {
   return !!_.find(parentOfTrees, { id: idToPrettyId(hat.id) });
 };
 
-const isLinkedToHatFunc = (hat: Hat, linkedToHat: Hat | null): boolean => {
+const isLinkedToHatFunc = (
+  hat: AppHat,
+  linkedToHat: AppHat | null,
+): boolean => {
   return hat.id === linkedToHat?.id;
 };
 
 const updateHatProperties = (
-  hat: Hat,
+  hat: AppHat,
   parentOfTrees: Tree[] | undefined,
-  linkedToHat: Hat | null,
-): Hat => {
+  linkedToHat: AppHat | null,
+): AppHat => {
   const updatedHat = { ...hat };
 
   if (isHatInParentOfTrees(hat, parentOfTrees)) {

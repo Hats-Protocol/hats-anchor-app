@@ -1,9 +1,9 @@
 import { useQueries } from '@tanstack/react-query';
-import { readContract } from 'wagmi/actions';
 import { CONFIG } from 'app-constants';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
+import { readContract } from 'wagmi/actions';
 
 const useWearersEligibilityCheck = ({
   wearerIds,
@@ -46,6 +46,6 @@ export default useWearersEligibilityCheck;
 
 interface useWearersEligibilityCheckProps {
   wearerIds: Hex[];
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: number;
 }

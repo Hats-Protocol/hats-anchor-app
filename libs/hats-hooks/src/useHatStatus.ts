@@ -1,12 +1,12 @@
 import { CONFIG } from 'app-constants';
-import { Hat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import { useContractRead } from 'wagmi';
 
 const useHatStatus = ({
   selectedHat,
   chainId,
 }: {
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: SupportedChains | undefined;
 }) => {
   const hatId = selectedHat?.id || 'none';

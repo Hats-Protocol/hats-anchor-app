@@ -11,7 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { FALLBACK_ADDRESS, ZERO_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS } from 'app-constants';
 import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
 import { fetchToken, pinJson } from 'app-utils';
 import { useHatContractWrite } from 'hats-hooks';
@@ -23,6 +23,7 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToIp, toTreeId } from 'shared-utils';
+import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import DropZone from '../components/atoms/DropZone';
@@ -49,8 +50,8 @@ const HatLinkRequestApproveForm = ({
       details: '',
       topHatDomain,
       newAdmin: decimalId(newAdmin),
-      eligibility: ZERO_ADDRESS,
-      toggle: ZERO_ADDRESS,
+      eligibility: zeroAddress as Hex,
+      toggle: zeroAddress as Hex,
       description: '',
       imageUrl: '',
     },
@@ -86,10 +87,8 @@ const HatLinkRequestApproveForm = ({
   const name = useDebounce(watch('name', ''));
   const description = useDebounce(watch('description', ''));
   const details = useDebounce(watch('details', ''));
-  const eligibility = useDebounce<string>(
-    watch('eligibility', FALLBACK_ADDRESS),
-  );
-  const toggle = useDebounce<string>(watch('toggle', FALLBACK_ADDRESS));
+  const eligibility = useDebounce(watch('eligibility', FALLBACK_ADDRESS));
+  const toggle = useDebounce(watch('toggle', FALLBACK_ADDRESS));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
   const decimalAdmin = topHatDomain;

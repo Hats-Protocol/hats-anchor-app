@@ -1,7 +1,7 @@
 import { Icon, Stack } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { transformAndVerify } from 'app-utils';
-import { Hat, ModuleCreationArg } from 'hats-types';
+import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useState } from 'react';
@@ -152,7 +152,7 @@ const ModuleArgsInputs = ({
             }}
             onChange={(e) => handleChangeHat(e, arg.name)}
           >
-            {_.map(onchainTree, ({ id, prettyId, detailsObject }: Hat) => {
+            {_.map(onchainTree, ({ id, prettyId, detailsObject }: AppHat) => {
               const hatName = detailsObject?.data?.name;
               return (
                 <option value={decimalId(id)} key={id}>

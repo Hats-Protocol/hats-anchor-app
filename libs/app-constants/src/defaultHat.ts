@@ -4,8 +4,6 @@ import { FALLBACK_ADDRESS } from './misc';
 
 const DEFAULT_HAT = {
   status: true,
-  // "createdAt": "1690859700",
-  // details: 'ipfs://bafkreibiy5zoc3ijmbpz46pbkjwblgckkx7nenac2jboqi2575jikroxj4',
   maxSupply: '1',
   eligibility: FALLBACK_ADDRESS,
   toggle: FALLBACK_ADDRESS,

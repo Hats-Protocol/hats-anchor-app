@@ -11,7 +11,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { FALLBACK_ADDRESS, MODULE_TYPES, ZERO_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS, MODULE_TYPES } from 'app-constants';
 import { useContractData, usePendHatterMint, useToast } from 'app-hooks';
 import {
   useHatStatus,
@@ -28,6 +28,7 @@ import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { TbCircleOff } from 'react-icons/tb';
+import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
@@ -125,7 +126,7 @@ const StatusCard = ({
   let icon = FaCode;
   if (
     extendedController?.id === FALLBACK_ADDRESS ||
-    extendedController?.id === ZERO_ADDRESS
+    extendedController?.id === zeroAddress
   ) {
     icon = TbCircleOff;
   } else if (!extendedController?.isContract) {

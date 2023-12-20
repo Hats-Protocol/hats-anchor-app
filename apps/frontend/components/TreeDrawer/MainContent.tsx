@@ -13,7 +13,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useIsClient, useToast } from 'app-hooks';
 import { formatDistanceToNow } from 'date-fns';
 import { useAdminOfHats } from 'hats-hooks';
-import { Hat } from 'hats-types';
+import { AppHat } from 'hats-types';
 import {
   getProposedChangesCount,
   handleExportBranch,
@@ -29,7 +29,7 @@ import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 import Markdown from '../atoms/Markdown';
 
-const isDraft = (hatId: string, onchainHats: Hat[]) =>
+const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
 
 const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
@@ -159,7 +159,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         borderY='1px solid'
         borderColor='gray.200'
       >
-        {_.map(treeToDisplay, (hat: Hat) => {
+        {_.map(treeToDisplay, (hat: AppHat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
           // console.log(changes);

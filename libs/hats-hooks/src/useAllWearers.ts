@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createSubgraphClient } from 'app-utils';
-import { Hat, HatWearer, SupportedChains } from 'hats-types';
+import { AppHat, HatWearer, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
@@ -31,7 +31,7 @@ const useAllWearers = ({
   chainId,
   enabled = true,
 }: {
-  selectedHat: Hat;
+  selectedHat: AppHat;
   chainId: SupportedChains;
   enabled?: boolean;
 }) => {
@@ -40,7 +40,7 @@ const useAllWearers = ({
   const fetchAllWearers = async () => {
     if (!chainId || !selectedHat || !supply) return [];
     const pages = Math.ceil(supply / 1000);
-    const promises = _.map(_.range(pages), (page: any) => {
+    const promises = _.map(_.range(pages), (page: number) => {
       return fetchHatWearersPage({ hatId: selectedHat?.id, chainId, page });
     });
 
