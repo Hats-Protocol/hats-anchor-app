@@ -173,6 +173,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         name={`functionCall-${authority.label}`}
         title={selectedFunction?.label}
         localOverlay={localOverlay}
+        size='md'
       >
         {selectedFunction?.description && (
           <Text mb={3}>{selectedFunction?.description}</Text>
@@ -184,14 +185,19 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
           />
         </Stack>
         <ModalFooter px={0}>
-          <Button
-            colorScheme='blue'
-            onClick={formMethods.handleSubmit(handleSubmit)}
-            isDisabled={!formState.isValid}
-            isLoading={isModuleLoading || isHsgLoading}
-          >
-            {selectedFunction?.label}
-          </Button>
+          <HStack>
+            <Button variant='outline' onClick={() => setModals({})}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme='blue'
+              onClick={formMethods.handleSubmit(handleSubmit)}
+              isDisabled={!formState.isValid}
+              isLoading={isModuleLoading || isHsgLoading}
+            >
+              {selectedFunction?.label}
+            </Button>
+          </HStack>
         </ModalFooter>
       </Modal>
     </HStack>

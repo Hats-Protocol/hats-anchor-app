@@ -47,9 +47,7 @@ const AuthoritiesListCard = ({
   }
 
   const displayModulesToolbar =
-    type === AUTHORITY_TYPES.modules ||
-    type === AUTHORITY_TYPES.hsgOwner ||
-    type === AUTHORITY_TYPES.hsgSigner;
+    type === AUTHORITY_TYPES.modules || type === AUTHORITY_TYPES.hsg;
 
   const img =
     type === AUTHORITY_TYPES.gate
@@ -76,10 +74,9 @@ const AuthoritiesListCard = ({
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel pb={4} pl={20}>
-          {displayModulesToolbar && (
+          {displayModulesToolbar ? (
             <ModuleAuthorityToolbar authority={authority} />
-          )}
-          {!displayModulesToolbar && (
+          ) : (
             <HStack>
               {link && validateURL(link) && (
                 <ChakraNextLink isExternal href={link} display='block'>

@@ -111,14 +111,10 @@ const populateHatsGatesAuthorities = ({
   const singleGatesAuthorities = _.map(singleGates, (gate: HatSignerGate) => {
     const customRole = _.find(gates.single.customRoles, { id: role });
     const functions = role === 'hsgOwner' ? ownerFunctions : signerFunctions;
-    const type =
-      role === 'hsgOwner'
-        ? AUTHORITY_TYPES.hsgOwner
-        : AUTHORITY_TYPES.hsgSigner;
 
     return {
       label: `${customRole?.name} (${formatAddress(gate.id)})`,
-      type,
+      type: AUTHORITY_TYPES.hsg,
       id: gate.id,
       functions,
       description: generateGateDescription(gate),
@@ -130,14 +126,10 @@ const populateHatsGatesAuthorities = ({
   const multiGatesAuthorities = _.map(multiGates, (gate: HatSignerGate) => {
     const customRole = _.find(gates.multi.customRoles, { id: role });
     const functions = role === 'hsgOwner' ? ownerFunctions : signerFunctions;
-    const type =
-      role === 'hsgOwner'
-        ? AUTHORITY_TYPES.hsgOwner
-        : AUTHORITY_TYPES.hsgSigner;
 
     return {
       label: `${customRole?.name} (${formatAddress(gate.id)})`,
-      type,
+      type: AUTHORITY_TYPES.hsg,
       id: gate.id,
       functions,
       description: generateGateDescription(gate),

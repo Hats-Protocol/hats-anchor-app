@@ -4,8 +4,7 @@ export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   protocol: 'protocol',
   modules: 'modules',
   wallet: 'wallet',
-  hsgSigner: 'hsgSigner',
-  hsgOwner: 'hsgOwner',
+  hsg: 'hsg',
   onchain: 'onchain',
   gate: 'gate',
   manual: 'manual',
@@ -16,17 +15,19 @@ type AuthorityInfo = {
   info: string;
   color: string;
   name?: string;
+  imageUri?: string;
 };
 
 export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
   protocol: {
     label: 'Hats Protocol Authority',
-    info: '',
+    info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
+    imageUri: '/icon.jpeg',
   },
   modules: {
     label: 'Hats Modules Authority',
-    info: '',
+    info: 'Connected onchain via an eligibility or toggle module',
     color: 'green.300',
     name: 'Module',
   },
@@ -35,17 +36,12 @@ export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
     info: '',
     color: 'green.300',
   },
-  hsgSigner: {
-    label: 'Safe Multisig Signer',
-    info: '',
-    color: 'green.300',
-    name: 'Safe',
-  },
-  hsgOwner: {
-    label: 'HatsSignerGate Owner',
-    info: '',
+  hsg: {
+    label: 'HatsSignerGate Authority',
+    info: 'Connected onchain via HatsSignerGate',
     color: 'green.300',
     name: 'HSG',
+    imageUri: 'ipfs://QmTPSzPCmi8w7fM7WhkWePH4mBV1WNFyT3G3goBg45UnGB',
   },
   onchain: {
     label: 'Connected Onchain Authority',
