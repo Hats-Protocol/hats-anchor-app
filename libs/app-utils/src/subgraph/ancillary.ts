@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { gql, GraphQLClient } from 'graphql-request';
-import { HatAuthorityResponse } from 'hats-types';
+import { HatAuthorityResponse, HatSignerGatesResponse } from 'hats-types';
+import { Hex } from 'viem';
 
 const MODULES_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {
@@ -39,6 +40,19 @@ const MODULES_QUERY = gql`
   }
 `;
 
+const SIGNER_GATES_QUERY = gql`
+  query GetHatsSignerGates($ids: [ID!]) {
+    hatsSignerGates(where: { id_in: $ids }) {
+      id
+      type
+      safe
+      minThreshold
+      targetThreshold
+      maxSigners
+    }
+  }
+`;
+
 const ANCILLARY_API_URL = {
   5: 'https://api.studio.thegraph.com/query/55784/hats-v1-goerli-ancillary/version/latest',
 };
@@ -62,6 +76,27 @@ export const fetchAncillaryModules = async (
     return response.hatAuthority ? response : null;
   } catch (error) {
     console.error('Error fetching ancillary modules:', error);
+    return null;
+  }
+};
+
+export const fetchHatsSignerGates = async (
+  ids?: Hex[],
+): Promise<any | null> => {
+  if (!ids) return null;
+
+  try {
+    const response =
+      await ancillarySubgraphClient.request<HatSignerGatesResponse>(
+        SIGNER_GATES_QUERY,
+        {
+          ids,
+        },
+      );
+
+    return response.hatsSignerGates ? response.hatsSignerGates : null;
+  } catch (error) {
+    console.error('Error fetching hats signer gate:', error);
     return null;
   }
 };

@@ -9,6 +9,7 @@ import {
   MenuList,
   ModalFooter,
 } from '@chakra-ui/react';
+import { AUTHORITIES } from 'app-constants';
 import { useContractData } from 'app-hooks';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { Authority, HatWearer, SupportedChains } from 'hats-types';
@@ -97,7 +98,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   });
 
   return (
-    <HStack>
+    <HStack mb={4}>
       {primaryFunction && (
         <Button
           colorScheme='blue'
@@ -117,7 +118,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         variant='outline'
         color='blue.500'
       >
-        Go to Module
+        Go to {AUTHORITIES[authority.type].name}
       </Button>
       <Menu>
         <MenuButton

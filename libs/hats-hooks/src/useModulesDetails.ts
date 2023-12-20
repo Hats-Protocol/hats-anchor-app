@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createHatsModulesClient } from 'app-utils';
 import { ModuleDetails, SupportedChains } from 'hats-types';
-import _ from 'lodash';
 import { Hex } from 'viem';
 
 const useModulesDetails = ({
@@ -12,22 +11,26 @@ const useModulesDetails = ({
   chainId: SupportedChains | undefined;
 }) => {
   const fetchModulesData = async () => {
+    if (!chainId || moduleIds.length === 0) {
+      return [];
+    }
     const moduleClient = await createHatsModulesClient(chainId);
     if (!moduleClient) return [];
 
-    const modules = await moduleClient.getModulesByInstances(moduleIds);
-    return modules;
+    const result = await moduleClient.getModulesByInstances(moduleIds);
+
+    return result;
   };
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['modulesDetails', moduleIds],
+  const { data, isLoading, isSuccess } = useQuery({
+    queryKey: ['modulesDetails', moduleIds, chainId],
     queryFn: fetchModulesData,
-    enabled: !!chainId && !_.isEmpty(moduleIds),
+    enabled: !!chainId,
   });
 
   return {
-    modulesDetails: data as ModuleDetails[],
-    isLoading,
+    modulesDetails: isSuccess ? (data as ModuleDetails[]) : [],
+    isLoading: isLoading && !isSuccess,
   };
 };
 

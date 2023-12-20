@@ -4,7 +4,8 @@ export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   protocol: 'protocol',
   modules: 'modules',
   wallet: 'wallet',
-  hsg: 'hsg',
+  hsgSigner: 'hsgSigner',
+  hsgOwner: 'hsgOwner',
   onchain: 'onchain',
   gate: 'gate',
   manual: 'manual',
@@ -14,6 +15,7 @@ type AuthorityInfo = {
   label: string;
   info: string;
   color: string;
+  name?: string;
 };
 
 export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
@@ -26,16 +28,24 @@ export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
     label: 'Hats Modules Authority',
     info: '',
     color: 'green.300',
+    name: 'Module',
   },
   wallet: {
     label: 'HatsWallet Authority',
     info: '',
     color: 'green.300',
   },
-  hsg: {
-    label: 'HatsSignerGate Authority',
+  hsgSigner: {
+    label: 'Safe Multisig Signer',
     info: '',
     color: 'green.300',
+    name: 'Safe',
+  },
+  hsgOwner: {
+    label: 'HatsSignerGate Owner',
+    info: '',
+    color: 'green.300',
+    name: 'HSG',
   },
   onchain: {
     label: 'Connected Onchain Authority',

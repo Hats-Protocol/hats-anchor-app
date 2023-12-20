@@ -123,6 +123,19 @@ export interface HatAuthorityResponse {
   hatAuthority: HatAuthority;
 }
 
+export interface HatSignerGatesResponse {
+  hatsSignerGates: HatSignerGate[];
+}
+
+export interface HatSignerGate {
+  id: Hex;
+  type: string;
+  safe: Hex;
+  minThreshold: string;
+  targetThreshold: string;
+  maxSigners: string;
+}
+
 export interface HatAuthority {
   allowListOwner: { id: Hex }[];
   allowListArbitrator: { id: Hex }[];

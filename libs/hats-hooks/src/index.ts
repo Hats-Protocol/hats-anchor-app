@@ -12,6 +12,8 @@ export { default as useHatMakeImmutable } from './useHatMakeImmutable';
 export { default as useHatPaginatedWearers } from './useHatPaginatedWearers';
 export { default as useHatsAdminOf } from './useHatsAdminOf';
 export { default as useHatsModules } from './useHatsModules';
+export { default as useHatsSignerGatesDetails } from './useHatsSignerGatesDetails';
+export { default as useHatsSignerGatesMetadata } from './useHatsSignerGatesMetadata';
 export { default as useHatStatus } from './useHatStatus';
 export { default as useHatStatusCheck } from './useHatStatusCheck';
 export { default as useIsAdmin } from './useIsAdmin';

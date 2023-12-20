@@ -11,6 +11,7 @@ import {
 import _ from 'lodash';
 import { Hex } from 'viem';
 
+import useHatsSignerGatesDetails from './useHatsSignerGatesDetails';
 import useModulesDetails from './useModulesDetails';
 
 const useAncillaryModules = ({
@@ -31,14 +32,18 @@ const useAncillaryModules = ({
   });
 
   const extractModuleIds = (hatAuthorities: HatAuthority) => {
-    return _.flatMap(_.values(hatAuthorities), (items: { id: Hex }[]) =>
+    const filteredAuthorities = _.omit(hatAuthorities, [
+      'hsgOwner',
+      'hsgSigner',
+    ]);
+    return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) =>
       _.map(items, 'id'),
     );
   };
 
   const moduleIds = data?.hatAuthority
     ? _.uniq(extractModuleIds(data.hatAuthority))
-    : [];
+    : null;
 
   const { modulesDetails, isLoading: isModulesDetailsLoading } =
     useModulesDetails({
@@ -46,7 +51,29 @@ const useAncillaryModules = ({
       chainId,
     });
 
-  if (isHatAuthoritiesLoading || isModulesDetailsLoading) {
+  const hsgOwnerIds = data?.hatAuthority
+    ? _.flatMap(data.hatAuthority.hsgOwner, 'id')
+    : [];
+
+  const hsgSignerIds = data?.hatAuthority
+    ? _.flatMap(data.hatAuthority.hsgSigner, 'id')
+    : [];
+
+  const {
+    hatsOwnerGates,
+    hatsSignerGates,
+    isLoading: isLoadingHatsGates,
+  } = useHatsSignerGatesDetails({
+    hsgOwnerIds,
+    hsgSignerIds,
+    chainId,
+  });
+
+  if (
+    isHatAuthoritiesLoading ||
+    isModulesDetailsLoading ||
+    isLoadingHatsGates
+  ) {
     return {
       modulesAuthorities: [],
       error,
@@ -60,7 +87,11 @@ const useAncillaryModules = ({
   });
 
   return {
-    modulesAuthorities,
+    modulesAuthorities: [
+      ...modulesAuthorities,
+      ...hatsOwnerGates,
+      ...hatsSignerGates,
+    ],
     error,
     isLoading: false,
   };
@@ -80,7 +111,7 @@ function populateAndPrepareModulesAuthorities({
       hatAuthorities,
       (authorityEntries: { id: Hex }[], authorityKey: string) => {
         const matchingRoles = _.filter(
-          details.customRoles,
+          details?.customRoles,
           (role: Role) => role.id === authorityKey,
         );
         const matchingFunctions = _.filter(
@@ -97,7 +128,6 @@ function populateAndPrepareModulesAuthorities({
             if (role) {
               return {
                 label: `${role.name} (${formatAddress(item.id)})`,
-                link: role.id,
                 description: Array.isArray(details.details)
                   ? details.details.join('\n')
                   : details.details,

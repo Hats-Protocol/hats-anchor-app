@@ -4,7 +4,8 @@ export type AuthorityType =
   | 'protocol'
   | 'modules'
   | 'wallet'
-  | 'hsg'
+  | 'hsgSigner'
+  | 'hsgOwner'
   | 'onchain'
   | 'gate'
   | 'manual';

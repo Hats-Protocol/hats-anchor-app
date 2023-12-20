@@ -46,6 +46,11 @@ const AuthoritiesListCard = ({
     linkName = 'Go to Space';
   }
 
+  const displayModulesToolbar =
+    type === AUTHORITY_TYPES.modules ||
+    type === AUTHORITY_TYPES.hsgOwner ||
+    type === AUTHORITY_TYPES.hsgSigner;
+
   const img =
     type === AUTHORITY_TYPES.gate
       ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS].icon
@@ -71,10 +76,10 @@ const AuthoritiesListCard = ({
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel pb={4} pl={20}>
-          {type === AUTHORITY_TYPES.modules && (
+          {displayModulesToolbar && (
             <ModuleAuthorityToolbar authority={authority} />
           )}
-          {type !== AUTHORITY_TYPES.modules && (
+          {!displayModulesToolbar && (
             <HStack>
               {link && validateURL(link) && (
                 <ChakraNextLink isExternal href={link} display='block'>

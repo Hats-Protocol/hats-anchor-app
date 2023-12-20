@@ -20,6 +20,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.0
         version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.33)(react@18.2.0)
+      '@hatsprotocol/hsg-sdk':
+        specifier: ^0.0.5
+        version: 0.0.5(viem@1.20.1)
       '@hatsprotocol/modules-sdk':
         specifier: 0.15.2
         version: 0.15.2(viem@1.20.1)
@@ -2792,6 +2795,15 @@ packages:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       graphql: 16.8.1
+    dev: false
+
+  /@hatsprotocol/hsg-sdk@0.0.5(viem@1.20.1):
+    resolution: {integrity: sha512-PG+rG7yeio7MlGSB3RmWwA453sMiKNMa2WfnBgZ55tBxYU4Vm1hJ/xsAED9s33q5OcPr8/CWx+HnWBe1c6bJaw==}
+    peerDependencies:
+      viem: ^1.11.0
+    dependencies:
+      viem: 1.20.1(typescript@5.3.3)
+      zod: 3.22.4
     dev: false
 
   /@hatsprotocol/modules-sdk@0.15.2(viem@1.20.1):
