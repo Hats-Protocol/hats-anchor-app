@@ -109,6 +109,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         <Button
           colorScheme='blue'
           isDisabled={!isWearer}
+          size='sm'
           onClick={() => handleFunctionCall(primaryFunction)}
           rightIcon={<FiPlusSquare />}
         >
@@ -121,6 +122,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
           href={`${explorerUrl(chainId)}/address/${authority.instanceAddress}`}
           target='_blank'
           colorScheme='blue.500'
+          size='sm'
           rightIcon={<FiExternalLink />}
           variant='outline'
           color='blue.500'
@@ -134,7 +136,9 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
             rightIcon={<FiExternalLink />}
             borderColor='blue.500'
             variant='outline'
+            size='sm'
             as={Button}
+            color='blue.500'
           >
             Go to {AUTHORITIES[authority.type].name}
           </MenuButton>
@@ -143,9 +147,11 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
               as='a'
               href={safeUrl(chainId, authority.safe)}
               target='_blank'
-              color='blue.500'
             >
-              Go to Safe
+              <HStack spacing={1}>
+                <FiPlusSquare />
+                <Text>Go to Safe</Text>
+              </HStack>
             </MenuItem>
             <MenuItem
               as='a'
@@ -153,9 +159,11 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
                 authority.instanceAddress
               }`}
               target='_blank'
-              color='blue.500'
             >
-              Go to HatsSignerGate
+              <HStack spacing={1}>
+                <FiExternalLink />
+                <Text>Go to HatsSignerGate</Text>
+              </HStack>
             </MenuItem>
             {authority.signerHats && (
               <MenuItem
@@ -165,33 +173,38 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
                   chainId,
                 })}
                 target='_blank'
-                color='blue.500'
               >
-                Go to Signer Hat
+                <HStack spacing={1}>
+                  <FiExternalLink />
+                  <Text>Go to Signer Hat</Text>
+                </HStack>
               </MenuItem>
             )}
           </MenuList>
         </Menu>
       )}
-      <Menu>
-        <MenuButton
-          as={IconButton}
-          icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
-          borderColor='blue.500'
-          variant='outline'
-        />
-        <MenuList>
-          {otherFunctions.map((func) => (
-            <MenuItem
-              key={func.label}
-              onClick={() => handleFunctionCall(func)}
-              isDisabled={!isWearer}
-            >
-              {func.label}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
+      {!_.isEmpty(otherFunctions) && (
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
+            borderColor='blue.500'
+            variant='outline'
+            size='sm'
+          />
+          <MenuList>
+            {otherFunctions.map((func) => (
+              <MenuItem
+                key={func.label}
+                onClick={() => handleFunctionCall(func)}
+                isDisabled={!isWearer}
+              >
+                {func.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      )}
 
       <Modal
         name={`functionCall-${authority.label}`}
