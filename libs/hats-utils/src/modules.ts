@@ -20,11 +20,13 @@ import {
   HatSignerGate,
   ModuleCreationArg,
   ModuleDetails,
+  SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
 import { ipToHatId } from 'shared-utils';
 import { Hex, parseUnits } from 'viem';
 
+import { formHatUrl } from './controllers';
 import { decimalId } from './hats';
 
 export const deployModule = async ({
@@ -415,10 +417,12 @@ export const populateHatsGatesAuthorities = ({
   details,
   gates,
   role,
+  chainId,
 }: {
   details?: HatSignerGate[] | null;
   gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
   role: 'hsgOwner' | 'hsgSigner';
+  chainId: SupportedChains;
 }) => {
   if (!details || !gates) return [];
   const singleGates = _.filter(
@@ -468,7 +472,7 @@ export const populateHatsGatesAuthorities = ({
       type: AUTHORITY_TYPES.hsg,
       id: gate.id,
       functions,
-      description: generateGateDescription(gate),
+      description: generateGateDescription(gate, chainId),
       instanceAddress: gate.id,
       hgsType: 'HSG',
       ownerHat: gate.ownerHat,
@@ -486,7 +490,7 @@ export const populateHatsGatesAuthorities = ({
       type: AUTHORITY_TYPES.hsg,
       id: gate.id,
       functions,
-      description: generateGateDescription(gate),
+      description: generateGateDescription(gate, chainId),
       instanceAddress: gate.id,
       hgsType: 'MHSG',
       ownerHat: gate.ownerHat,
@@ -498,7 +502,10 @@ export const populateHatsGatesAuthorities = ({
   return [...singleGatesAuthorities, ...multiGatesAuthorities];
 };
 
-function generateGateDescription(gate: HatSignerGate) {
+export const generateGateDescription = (
+  gate: HatSignerGate,
+  chainId: SupportedChains,
+) => {
   const { safe, minThreshold, targetThreshold, maxSigners } = gate;
 
   const formattedSafe = formatAddress(safe);
@@ -511,7 +518,14 @@ function generateGateDescription(gate: HatSignerGate) {
   description += `Can have a maximum of ${maxSigners} signers\n\n`;
   description += `Will require ${targetThreshold} signatures to execute a transaction when the number of signers is ${targetThreshold} or more\n\n`;
 
-  // description += `The owner of the HatsSignerGate is Hat ID 2.3 in this tree.`;
+  if (gate.ownerHat) {
+    description += `The owner of the HatsSignerGate is [Hat ID 2.3](${formHatUrl(
+      {
+        hatId: gate.ownerHat.id,
+        chainId,
+      },
+    )}) in this tree.`;
+  }
 
   return description;
-}
+};

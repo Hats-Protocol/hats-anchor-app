@@ -61,12 +61,14 @@ const useAncillaryModules = ({
     details: data?.hatAuthority.hsgOwner,
     gates,
     role: 'hsgOwner',
+    chainId,
   });
 
   const hatsSignerGates = populateHatsGatesAuthorities({
     details: data?.hatAuthority.hsgSigner,
     gates,
     role: 'hsgSigner',
+    chainId,
   });
 
   const modulesAuthorities = populateModulesAuthorities({
