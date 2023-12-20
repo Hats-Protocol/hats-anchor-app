@@ -1,4 +1,5 @@
 /* eslint-disable no-restricted-syntax */
+import { useQueryClient } from '@tanstack/react-query';
 import { CONFIG } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { fetchToken, handleDetailsPin, processHatForCalls } from 'app-utils';
@@ -10,8 +11,8 @@ import {
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
-import { Hex } from 'viem';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Hex, TransactionReceipt } from 'viem';
 import {
   useAccount,
   useChainId,
@@ -24,17 +25,21 @@ import useAdminOfHats from './useAdminOfHats';
 const useMulticallManyHats = ({
   isAdminOfAnyHatWithChanges,
   storedData,
+  setStoredData,
   treeToDisplay,
   onchainHats,
   chainId,
   handlePendingTx,
+  patchTree,
 }: {
   isAdminOfAnyHatWithChanges: boolean;
   storedData: Partial<FormData>[];
+  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
   treeToDisplay: AppHat[];
   onchainHats: AppHat[];
   chainId: SupportedChains;
   handlePendingTx?: HandlePendingTx;
+  patchTree: (p: AppHat[]) => void;
 }) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
@@ -44,6 +49,7 @@ const useMulticallManyHats = ({
   const { address } = useAccount();
   const currentChain = useChainId();
 
+  const queryClient = useQueryClient();
   const toast = useToast();
 
   const hatIds = _.filter(
@@ -102,35 +108,35 @@ const useMulticallManyHats = ({
       isAdminOfAnyHatWithChanges,
   });
 
-  // const onSuccess = async () => {
-  //   queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-  //   queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
+  const onSuccess = async (d: TransactionReceipt | undefined) => {
+    queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
 
-  //   setTimeout(() => {
-  //     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-  //     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ['hatDetailsField'],
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ['hatDetails'],
-  //     });
-  //     queryClient.invalidateQueries({
-  //       queryKey: ['imageURIs'],
-  //     });
-  //   }, 1000);
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetailsField'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetails'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['imageURIs'],
+      });
+    }, 1000);
 
-  //   if (proposedChanges) {
-  //     patchTree?.(proposedChanges);
-  //   }
+    if (proposedChanges) {
+      patchTree?.(proposedChanges);
+    }
 
-  //   const newStoredData = _.filter(
-  //     storedData,
-  //     (hat: Partial<FormData>) => !_.includes(adminHatIds, hat.id),
-  //   );
+    const newStoredData = _.filter(
+      storedData,
+      (hat: Partial<FormData>) => !_.includes(adminHatIds, hat.id),
+    );
 
-  //   setStoredData?.(newStoredData);
-  // };
+    setStoredData?.(newStoredData);
+  };
 
   const {
     writeAsync,
@@ -152,7 +158,7 @@ const useMulticallManyHats = ({
           title: 'Transaction successful',
           description: 'Hats were successfully updated',
         },
-        // onSuccess,
+        onSuccess,
       });
     },
     onError: (error) => {

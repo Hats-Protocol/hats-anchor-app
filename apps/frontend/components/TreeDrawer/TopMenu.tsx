@@ -46,6 +46,8 @@ const TopMenu = () => {
     selectedHat,
     treeToDisplay,
     onchainHats,
+    setStoredData,
+    patchTree,
   } = useTreeForm();
   const { handlePendingTx } = useOverlay();
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
@@ -93,10 +95,12 @@ const TopMenu = () => {
   const { writeAsync, isLoading } = useMulticallManyHats({
     isAdminOfAnyHatWithChanges,
     storedData,
+    setStoredData,
     treeToDisplay,
     onchainHats,
     chainId,
     handlePendingTx,
+    patchTree,
   });
 
   const getDeployTooltipLabel = useMemo(() => {
