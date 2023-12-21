@@ -15,7 +15,7 @@ const useHatsModules = ({
       throw new Error('Unable to initialize hatsClient');
     }
 
-    return hatsClient.getAllModules();
+    return hatsClient.getAllActiveModules();
   };
 
   const { data, isLoading, isError, error } = useQuery({
