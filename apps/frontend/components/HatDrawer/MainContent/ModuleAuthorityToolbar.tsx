@@ -30,7 +30,7 @@ import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Modal from '../../atoms/Modal';
-import ModuleArgsInputs from '../../ModuleArgsInputs';
+import ModuleArgsInputs from '../../ModuleArgsForm';
 
 const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const localOverlay = useOverlay();
@@ -132,6 +132,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
 
   const handleSubmit = (args) => {
     console.log('args', args);
+    console.log(authority.type);
 
     if (authority.type === 'modules') {
       callModuleFunction({
@@ -256,6 +257,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
           <ModuleArgsInputs
             selectedModuleArgs={selectedFunction?.args}
             localForm={formMethods}
+            // ? need `tokenAddress` ?
           />
         </Stack>
         <ModalFooter px={0}>

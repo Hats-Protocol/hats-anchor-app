@@ -37,14 +37,16 @@ const useCallModuleFunction = ({
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });
+      console.log(preparedArgs);
 
-      moduleClient.callInstanceWriteFunction({
+      const result = await moduleClient.callInstanceWriteFunction({
         account: address,
         moduleId,
         instance,
         func,
         args: preparedArgs,
       });
+      console.log(result);
     },
     [address, chainId],
   );

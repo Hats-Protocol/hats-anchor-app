@@ -11,7 +11,7 @@ import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
-import ModuleArgsInputs from '../../ModuleArgsInputs';
+import ModuleArgsInputs from '../../ModuleArgsForm';
 
 const ModuleDetailsForm = ({
   localForm,

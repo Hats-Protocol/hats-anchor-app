@@ -25,7 +25,7 @@ import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Modal from './atoms/Modal';
-import ModuleArgsInputs from './ModuleArgsInputs';
+import ModuleArgsInputs from './ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
 const ModuleDetails = ({ type }: { type: string }) => {
@@ -46,6 +46,10 @@ const ModuleDetails = ({ type }: { type: string }) => {
     address,
     chainId,
   });
+  const tokenAddress = _.get(
+    _.find(parameters, { displayType: 'token' }),
+    'value',
+  );
 
   const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
     _.includes(fn.roles, 'public'),
@@ -93,6 +97,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <Stack>
               <ModuleArgsInputs
                 selectedModuleArgs={selectedFunction?.args}
+                tokenAddress={tokenAddress}
                 localForm={formMethods}
               />
             </Stack>
