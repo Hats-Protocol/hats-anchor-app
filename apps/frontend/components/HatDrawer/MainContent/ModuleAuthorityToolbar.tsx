@@ -154,7 +154,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   // fn for checking if the user has already claimed signer rights
 
   return (
-    <HStack mb={4}>
+    <HStack mb={4} wrap='wrap'>
       {primaryFunction && (
         <Tooltip
           label={

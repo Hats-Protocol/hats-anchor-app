@@ -12,6 +12,7 @@ import {
   ModalFooter,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
@@ -127,14 +128,17 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
                 {_.map(moduleActions, (action) => (
-                  <Button
-                    variant='outlineMatch'
-                    colorScheme='blue.500'
-                    size='sm'
-                    onClick={() => handleFunctionCall(action)}
-                  >
-                    {action.label}
-                  </Button>
+                  <Tooltip label={action.description}>
+                    <Button
+                      variant='outlineMatch'
+                      colorScheme='blue.500'
+                      size='sm'
+                      onClick={() => handleFunctionCall(action)}
+                      key={action.label}
+                    >
+                      {action.label}
+                    </Button>
+                  </Tooltip>
                 ))}
               </Flex>
             </AccordionPanel>
