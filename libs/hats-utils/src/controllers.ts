@@ -1,4 +1,5 @@
 import { Module } from '@hatsprotocol/modules-sdk';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { explorerUrl, formatAddress } from 'app-utils';
 import { ContractData, HatWearer, SupportedChains } from 'hats-types';
 import _ from 'lodash';
@@ -31,6 +32,21 @@ export const daohausUrl = (
 ) => {
   if (!chainId || !address) return '';
   return `${DAOHAUS_URL}/#/molochv3/0x${chainId.toString(16)}/${address}`;
+};
+
+export const formHatUrl = ({
+  hatId,
+  chainId,
+}: {
+  hatId: Hex;
+  chainId: SupportedChains;
+}) => {
+  const basePath = '/trees';
+  const id = BigInt(hatId);
+  const treeId = Number(hatIdToTreeId(id));
+  const hatIp = hatIdDecimalToIp(id);
+
+  return `${basePath}/${chainId}/${treeId}?hatId=${hatIp}`;
 };
 
 export const getControllerNameAndLink = ({

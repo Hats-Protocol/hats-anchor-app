@@ -115,6 +115,12 @@ export interface HatSignerGate {
   minThreshold: string;
   targetThreshold: string;
   maxSigners: string;
+  ownerHat?: {
+    id: Hex;
+  };
+  signerHats?: {
+    id: Hex;
+  }[];
 }
 
 export interface HatAuthority {

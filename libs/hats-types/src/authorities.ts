@@ -1,4 +1,4 @@
-import { HsgType } from '@hatsprotocol/hsg-sdk';
+import { HsgType, WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { Hex } from 'viem';
 
 export type AuthorityType =
@@ -10,6 +10,7 @@ export type AuthorityType =
   | 'gate'
   | 'manual';
 
+// might be worth splitting this into multiple types
 export type Authority = {
   label: string;
   link?: string;
@@ -19,10 +20,17 @@ export type Authority = {
   type?: string | AuthorityType | undefined;
   id?: string | number;
   strategies?: SnapshotStrategy[];
-  functions?: any[];
+  functions?: WriteFunction[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
   hgsType?: HsgType;
+  ownerHat?: {
+    id: Hex;
+  };
+  signerHats?: {
+    id: Hex;
+  }[];
+  safe?: Hex;
 };
 
 export interface SnapshotStrategy {
