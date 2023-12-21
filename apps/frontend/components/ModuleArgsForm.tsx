@@ -105,7 +105,9 @@ const ModuleFormInput = ({
   if (!arg) return null;
 
   if (
-    arg.displayType === 'token' ||
+    arg.displayType === 'erc20' ||
+    arg.displayType === 'erc721' ||
+    arg.displayType === 'erc1155' ||
     arg.displayType === 'jokerace' ||
     // TODO handle address/address[] separately
     arg.type === 'address' ||
