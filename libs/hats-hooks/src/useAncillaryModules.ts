@@ -27,6 +27,9 @@ const useAncillaryModules = ({
     queryFn: () => fetchAncillaryModules(id || 'none', chainId),
     enabled: !!id && !!chainId,
   });
+
+  console.log('data', data);
+
   const { gates } = useHatsSignerGatesMetadata({ chainId });
 
   const extractModuleIds = (hatAuthorities: HatAuthority) => {

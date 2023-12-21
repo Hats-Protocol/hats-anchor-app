@@ -38,7 +38,7 @@ const useCallModuleFunction = ({
         return transformedValue;
       });
 
-      return moduleClient.callInstanceWriteFunction({
+      moduleClient.callInstanceWriteFunction({
         account: address,
         moduleId,
         instance,

@@ -11,6 +11,7 @@ import {
   ModalFooter,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITIES } from 'app-constants';
@@ -23,7 +24,7 @@ import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
@@ -39,8 +40,15 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const formMethods = useForm({ mode: 'onChange' });
   const { formState } = formMethods;
+  const currentNetworkId = useChainId();
+  const isSameChain = chainId === currentNetworkId;
+  const isWearing = useMemo(
+    () => _.includes(_.map(selectedHat?.wearers, 'id'), address),
+    [selectedHat, address],
+  );
 
   const primaryFunction = authority.functions.find((func) => func.primary);
+  console.log('authority.functions', authority.functions);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
 
   const otherLinks = useMemo(() => {
@@ -87,12 +95,21 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     () =>
       _.includes(
         _.map(selectedHat?.wearers, 'id'),
-        address.toLocaleLowerCase(),
+        address?.toLocaleLowerCase(),
       ),
     [selectedHat, address],
   );
 
   const handleFunctionCall = (func) => {
+    // if (func.functionName === 'claimSigner') {
+    //   callHsgFunction({
+    //     func,
+    //     args: hatIdDecimalToIp(BigInt(selectedHat.id)),
+    //     instance: authority.instanceAddress,
+    //     type: authority.hgsType,
+    //   });
+    // }
+
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}`]: true });
@@ -113,8 +130,8 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     }
   };
 
-  const handleSubmit = (data) => {
-    const args = Object.values(data);
+  const handleSubmit = (args) => {
+    console.log('args', args);
 
     if (authority.type === 'modules') {
       callModuleFunction({
@@ -134,20 +151,32 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
-  // console.log('authority', authority);
+  // fn for checking if the user has already claimed signer rights
 
   return (
     <HStack mb={4}>
       {primaryFunction && (
-        <Button
-          colorScheme='blue'
-          isDisabled={!isWearer}
-          size='sm'
-          onClick={() => handleFunctionCall(primaryFunction)}
-          rightIcon={<Icon as={FiPlusSquare} />}
+        <Tooltip
+          label={
+            primaryFunction.functionName === 'claimSigner' && !isWearing
+              ? 'You are not wearing the hat'
+              : ''
+          }
         >
-          {primaryFunction.label}
-        </Button>
+          <Button
+            colorScheme='blue'
+            // isDisabled={
+            //   !isWearer ||
+            //   !isSameChain ||
+            //   (primaryFunction.functionName === 'claimSigner' && !isWearing)
+            // }
+            size='sm'
+            onClick={() => handleFunctionCall(primaryFunction)}
+            rightIcon={<Icon as={FiPlusSquare} />}
+          >
+            {primaryFunction.label}
+          </Button>
+        </Tooltip>
       )}
       {authority.type === 'modules' && (
         <ChakraNextLink
@@ -189,7 +218,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
               <MenuItem
                 key={func.label}
                 onClick={() => handleFunctionCall(func)}
-                isDisabled={!isWearer}
+                isDisabled={!isWearer || !isSameChain}
               >
                 <Flex justify='space-between' align='center' w='100%' gap={1}>
                   <Text>{func.label}</Text>
