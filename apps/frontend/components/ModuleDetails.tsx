@@ -58,10 +58,10 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
-      setModals?.({ [`functionCall-module`]: true });
+      setModals?.({ 'functionCall-module': true });
     } else {
       callModuleFunction({
-        moduleId: moduleDetails.id,
+        moduleId: moduleDetails.implementationAddress,
         instance: address,
         func,
         args: [],
@@ -69,7 +69,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
     }
   };
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = (values) => {
+    // eslint-disable-next-line no-console
     console.log(values);
   };
 
@@ -125,9 +126,10 @@ const ModuleDetails = ({ type }: { type: string }) => {
             </AccordionButton>
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
-                {_.map(moduleActions, (action: any) => (
+                {_.map(moduleActions, (action) => (
                   <Button
-                    variant='outline'
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
                     size='sm'
                     onClick={() => handleFunctionCall(action)}
                   >
