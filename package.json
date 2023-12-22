@@ -14,7 +14,7 @@
     "@chakra-ui/react": "^2.8.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@hatsprotocol/hsg-sdk": "^0.0.7",
+    "@hatsprotocol/hsg-sdk": "^0.0.8",
     "@hatsprotocol/modules-sdk": "0.15.2",
     "@hatsprotocol/sdk-v1-core": "0.7.0",
     "@hatsprotocol/sdk-v1-subgraph": "0.4.0",

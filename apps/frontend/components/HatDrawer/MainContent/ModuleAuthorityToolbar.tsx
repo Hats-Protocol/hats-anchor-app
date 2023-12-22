@@ -15,12 +15,16 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITIES } from 'app-constants';
-import { explorerUrl, getHostnameFromURL } from 'app-utils';
+import {
+  createHatsSignerGateClient,
+  explorerUrl,
+  getHostnameFromURL,
+} from 'app-utils';
 import { useCallHsgFunction, useCallModuleFunction } from 'hats-hooks';
 import { Authority, LinkObject } from 'hats-types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
@@ -56,7 +60,7 @@ const ModuleAuthorityToolbar = ({
       ),
     [selectedHat, address],
   );
-
+  const [claimedAndValid, setClaimedAndValid] = useState(null);
   const primaryFunction = authority.functions.find((func) => func.primary);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
 
@@ -154,15 +158,35 @@ const ModuleAuthorityToolbar = ({
     }
   };
 
-  // fn for checking if the user has already claimed signer rights
+  useEffect(() => {
+    const checkClaimedSignerRights = async () => {
+      const signerGateClient = await createHatsSignerGateClient(chainId);
+      if (!signerGateClient) throw new Error('Failed to create module client');
+
+      try {
+        const result = await signerGateClient.claimedAndStillValid({
+          instance: authority.instanceAddress,
+          address,
+        });
+        setClaimedAndValid(result);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    checkClaimedSignerRights();
+  }, [chainId, authority, address]);
 
   return (
     <HStack mb={4} wrap='wrap'>
       {primaryFunction && (
         <Tooltip
           label={
+            // eslint-disable-next-line no-nested-ternary
             primaryFunction.functionName === 'claimSigner' && !isWearing
               ? 'You are not wearing the hat'
+              : claimedAndValid
+              ? 'Signer rights have already been claimed'
               : ''
           }
         >
@@ -171,7 +195,8 @@ const ModuleAuthorityToolbar = ({
             isDisabled={
               !isWearer ||
               !isSameChain ||
-              (primaryFunction.functionName === 'claimSigner' && !isWearing)
+              (primaryFunction.functionName === 'claimSigner' &&
+                (!isWearing || claimedAndValid))
             }
             size='sm'
             onClick={() => handleFunctionCall(primaryFunction)}
@@ -217,9 +242,9 @@ const ModuleAuthorityToolbar = ({
             size='sm'
           />
           <MenuList>
-            {_.map(otherFunctions, (func) => (
+            {_.map(otherFunctions, (func, i) => (
               <MenuItem
-                key={func.label}
+                key={`${func.label}-${i}`}
                 onClick={() => handleFunctionCall(func)}
                 isDisabled={!isWearer || !isSameChain}
               >
