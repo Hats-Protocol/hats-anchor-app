@@ -1,4 +1,4 @@
-import { HsgMetadata, Role } from '@hatsprotocol/hsg-sdk';
+import { HsgMetadata, HsgType, Role } from '@hatsprotocol/hsg-sdk';
 import {
   checkAndEncodeArgs,
   solidityToTypescriptType,
@@ -466,7 +466,7 @@ const createHSG = ({
     functions,
     description: generateGateDescription(gate, chainId),
     instanceAddress: gate.id,
-    hgsType: gate.type === 'Single' ? 'HSG' : 'MHSG',
+    hgsType: (gate.type === 'Single' ? 'HSG' : 'MHSG') as HsgType,
     ownerHat: gate.ownerHat,
     signerHats: gate.signerHats,
     safe: gate.safe,
