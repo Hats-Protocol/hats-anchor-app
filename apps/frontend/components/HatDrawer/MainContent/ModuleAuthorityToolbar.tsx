@@ -43,12 +43,15 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
   const isWearing = useMemo(
-    () => _.includes(_.map(selectedHat?.wearers, 'id'), address),
+    () =>
+      _.includes(
+        _.map(selectedHat?.wearers, 'id'),
+        address?.toLocaleLowerCase(),
+      ),
     [selectedHat, address],
   );
 
   const primaryFunction = authority.functions.find((func) => func.primary);
-  console.log('authority.functions', authority.functions);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
 
   const otherLinks = useMemo(() => {
@@ -101,15 +104,6 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   );
 
   const handleFunctionCall = (func) => {
-    // if (func.functionName === 'claimSigner') {
-    //   callHsgFunction({
-    //     func,
-    //     args: hatIdDecimalToIp(BigInt(selectedHat.id)),
-    //     instance: authority.instanceAddress,
-    //     type: authority.hgsType,
-    //   });
-    // }
-
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}`]: true });
@@ -131,9 +125,6 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   };
 
   const handleSubmit = (args) => {
-    console.log('args', args);
-    console.log(authority.type);
-
     if (authority.type === 'modules') {
       callModuleFunction({
         instance: authority.instanceAddress,
@@ -166,11 +157,11 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         >
           <Button
             colorScheme='blue'
-            // isDisabled={
-            //   !isWearer ||
-            //   !isSameChain ||
-            //   (primaryFunction.functionName === 'claimSigner' && !isWearing)
-            // }
+            isDisabled={
+              !isWearer ||
+              !isSameChain ||
+              (primaryFunction.functionName === 'claimSigner' && !isWearing)
+            }
             size='sm'
             onClick={() => handleFunctionCall(primaryFunction)}
             rightIcon={<Icon as={FiPlusSquare} />}

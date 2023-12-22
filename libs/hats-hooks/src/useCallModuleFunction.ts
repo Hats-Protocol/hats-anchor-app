@@ -24,7 +24,7 @@ const useCallModuleFunction = ({
       moduleId: string;
       instance: Hex;
       func: WriteFunction;
-      args: unknown[];
+      args: any;
     }) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');

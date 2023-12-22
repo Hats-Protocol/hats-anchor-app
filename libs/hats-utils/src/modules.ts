@@ -437,38 +437,14 @@ export const populateHatsGatesAuthorities = ({
     (gate: HatSignerGate) => gate.type === 'Multi',
   );
 
-  const ownerFunctions = _.map(
-    gates.single.writeFunctions,
-    (func: WriteFunction) => {
-      if (func.functionName === 'setMinThreshold') {
-        return { ...func, primary: true };
-      }
-      return func;
-    },
-  ).filter((func: WriteFunction) =>
-    [
-      'setOwnerHat',
-      'removeSigner',
-      'setMinThreshold',
-      'setTargetThreshold',
-    ].includes(func.functionName),
-  );
-
-  const signerFunctions = _.map(
-    gates.multi.writeFunctions,
-    (func: WriteFunction) => {
-      if (func.functionName === 'claimSigner') {
-        return { ...func, primary: true };
-      }
-      return func;
-    },
-  ).filter((func: WriteFunction) =>
-    ['claimSigner', 'removeSigner'].includes(func.functionName),
-  );
-
   const singleGatesAuthorities = _.map(singleGates, (gate: HatSignerGate) => {
     const customRole = _.find(gates.single.customRoles, { id: role });
-    const functions = role === 'hsgOwner' ? ownerFunctions : signerFunctions;
+    const fns =
+      gate.type === 'Single'
+        ? gates.single.writeFunctions
+        : gates.multi.writeFunctions;
+    const functions =
+      role === 'hsgOwner' ? getOwnerFunctions(fns) : getSignerFunctions(fns);
     return {
       label: `${customRole?.name} (${formatAddress(gate.id)})`,
       type: AUTHORITY_TYPES.hsg,
@@ -485,7 +461,12 @@ export const populateHatsGatesAuthorities = ({
 
   const multiGatesAuthorities = _.map(multiGates, (gate: HatSignerGate) => {
     const customRole = _.find(gates.multi.customRoles, { id: role });
-    const functions = role === 'hsgOwner' ? ownerFunctions : signerFunctions;
+    const fns =
+      gate.type === 'Single'
+        ? gates.single.writeFunctions
+        : gates.multi.writeFunctions;
+    const functions =
+      role === 'hsgOwner' ? getOwnerFunctions(fns) : getSignerFunctions(fns);
 
     return {
       label: `${customRole?.name} (${formatAddress(gate.id)})`,
@@ -502,6 +483,33 @@ export const populateHatsGatesAuthorities = ({
   });
 
   return [...singleGatesAuthorities, ...multiGatesAuthorities];
+};
+
+const getOwnerFunctions = (functions: WriteFunction[]) => {
+  return _.map(functions, (func: WriteFunction) => {
+    if (func.functionName === 'setMinThreshold') {
+      return { ...func, primary: true };
+    }
+    return func;
+  }).filter((func: WriteFunction) =>
+    [
+      'setOwnerHat',
+      'removeSigner',
+      'setMinThreshold',
+      'setTargetThreshold',
+    ].includes(func.functionName),
+  );
+};
+
+const getSignerFunctions = (functions: WriteFunction[]) => {
+  return _.map(functions, (func: WriteFunction) => {
+    if (func.functionName === 'claimSigner') {
+      return { ...func, primary: true };
+    }
+    return func;
+  }).filter((func: WriteFunction) =>
+    ['claimSigner', 'removeSigner'].includes(func.functionName),
+  );
 };
 
 export const generateGateDescription = (
