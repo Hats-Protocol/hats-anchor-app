@@ -174,7 +174,7 @@ const ModuleAuthorityToolbar = ({
       }
     };
 
-    checkClaimedSignerRights();
+    if (authority.type === 'hsg') checkClaimedSignerRights();
   }, [chainId, authority, address]);
 
   return (
