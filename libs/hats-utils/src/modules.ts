@@ -427,62 +427,50 @@ export const populateHatsGatesAuthorities = ({
   chainId: SupportedChains;
 }) => {
   if (!details || !gates) return [];
-  const singleGates = _.filter(
-    details,
-    (gate: HatSignerGate) => gate.type === 'Single',
+
+  return details.map((gate) => createHSG({ gate, role, gates, chainId }));
+};
+
+const createHSG = ({
+  gate,
+  role,
+  gates,
+  chainId,
+}: {
+  gate: HatSignerGate;
+  role: 'hsgOwner' | 'hsgSigner';
+  gates: { single: HsgMetadata; multi: HsgMetadata };
+  chainId: SupportedChains;
+}) => {
+  const customRole = _.find(
+    gates[gate.type === 'Single' ? 'single' : 'multi'].customRoles,
+    { id: role },
   );
+  const functions =
+    role === 'hsgOwner'
+      ? getOwnerFunctions(
+          gate.type === 'Single'
+            ? gates.single.writeFunctions
+            : gates.multi.writeFunctions,
+        )
+      : getSignerFunctions(
+          gate.type === 'Single'
+            ? gates.single.writeFunctions
+            : gates.multi.writeFunctions,
+        );
 
-  const multiGates = _.filter(
-    details,
-    (gate: HatSignerGate) => gate.type === 'Multi',
-  );
-
-  const singleGatesAuthorities = _.map(singleGates, (gate: HatSignerGate) => {
-    const customRole = _.find(gates.single.customRoles, { id: role });
-    const fns =
-      gate.type === 'Single'
-        ? gates.single.writeFunctions
-        : gates.multi.writeFunctions;
-    const functions =
-      role === 'hsgOwner' ? getOwnerFunctions(fns) : getSignerFunctions(fns);
-    return {
-      label: `${customRole?.name} (${formatAddress(gate.id)})`,
-      type: AUTHORITY_TYPES.hsg,
-      id: gate.id,
-      functions,
-      description: generateGateDescription(gate, chainId),
-      instanceAddress: gate.id,
-      hgsType: 'HSG',
-      ownerHat: gate.ownerHat,
-      signerHats: gate.signerHats,
-      safe: gate.safe,
-    };
-  });
-
-  const multiGatesAuthorities = _.map(multiGates, (gate: HatSignerGate) => {
-    const customRole = _.find(gates.multi.customRoles, { id: role });
-    const fns =
-      gate.type === 'Single'
-        ? gates.single.writeFunctions
-        : gates.multi.writeFunctions;
-    const functions =
-      role === 'hsgOwner' ? getOwnerFunctions(fns) : getSignerFunctions(fns);
-
-    return {
-      label: `${customRole?.name} (${formatAddress(gate.id)})`,
-      type: AUTHORITY_TYPES.hsg,
-      id: gate.id,
-      functions,
-      description: generateGateDescription(gate, chainId),
-      instanceAddress: gate.id,
-      hgsType: 'MHSG',
-      ownerHat: gate.ownerHat,
-      signerHats: gate.signerHats,
-      safe: gate.safe,
-    };
-  });
-
-  return [...singleGatesAuthorities, ...multiGatesAuthorities];
+  return {
+    label: `${customRole?.name} (${formatAddress(gate.id)})`,
+    type: AUTHORITY_TYPES.hsg,
+    id: gate.id,
+    functions,
+    description: generateGateDescription(gate, chainId),
+    instanceAddress: gate.id,
+    hgsType: gate.type === 'Single' ? 'HSG' : 'MHSG',
+    ownerHat: gate.ownerHat,
+    signerHats: gate.signerHats,
+    safe: gate.safe,
+  };
 };
 
 const getOwnerFunctions = (functions: WriteFunction[]) => {
