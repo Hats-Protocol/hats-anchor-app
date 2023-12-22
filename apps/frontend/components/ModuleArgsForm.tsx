@@ -15,7 +15,7 @@ import { transformAndVerify } from 'app-utils';
 import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
 import { FaInfoCircle } from 'react-icons/fa';
@@ -102,6 +102,11 @@ const ModuleFormInput = ({
     }
   };
 
+  useEffect(() => {
+    // set default value(s)
+    if (arg.type === 'bool') setValue(arg.name, true);
+  }, []);
+
   if (!arg) return null;
 
   if (
@@ -137,12 +142,11 @@ const ModuleFormInput = ({
   }
 
   if (arg.type === 'bool') {
-    // set default value
-    setValue(arg.name, false);
+    const isChecked = watch(arg.name);
 
     return (
       <FormControl as={HStack} align='center'>
-        <Checkbox />
+        <Checkbox isChecked={isChecked} />
         <FormLabel m={0}>{arg.name}</FormLabel>
         <Box h='16px'>
           <Tooltip
@@ -177,6 +181,7 @@ const ModuleFormInput = ({
           }}
           onChange={(e) => handleChangeHat(e, arg.name)}
         >
+          <option value='custom'>Custom</option>
           {_.map(onchainTree, ({ id, prettyId, detailsObject }: AppHat) => {
             const hatName = detailsObject?.data?.name;
             return (
@@ -185,7 +190,6 @@ const ModuleFormInput = ({
               </option>
             );
           })}
-          <option value='custom'>Custom</option>
         </Select>
         {customHatSelections[arg.name] && (
           <Input
