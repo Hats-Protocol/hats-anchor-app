@@ -42,13 +42,8 @@ const useCallModuleFunction = ({
         return transformedValue;
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
-
       try {
-        await moduleClient.callInstanceWriteFunction({
+        const result = await moduleClient.callInstanceWriteFunction({
           account: address,
           moduleId,
           instance,
@@ -56,12 +51,14 @@ const useCallModuleFunction = ({
           args: preparedArgs,
         });
 
-        toast.success({
-          title: 'Transaction confirmed',
-          description: 'Your transaction has been confirmed',
-        });
+        if (result?.status === 'success') {
+          toast.success({
+            title: 'Transaction confirmed',
+            description: 'Your transaction has been confirmed',
+          });
 
-        onSuccess?.();
+          onSuccess?.();
+        }
       } catch (error) {
         const err = error as Error;
         toast.error({

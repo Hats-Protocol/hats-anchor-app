@@ -43,13 +43,8 @@ const useCallHsgFunction = ({
         return transformedValue;
       });
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
-
       try {
-        await signerGateClient.callInstanceWriteFunction({
+        const result = await signerGateClient.callInstanceWriteFunction({
           account: address,
           type,
           instance,
@@ -57,12 +52,14 @@ const useCallHsgFunction = ({
           args: preparedArgs,
         });
 
-        toast.success({
-          title: 'Transaction confirmed',
-          description: 'Your transaction has been confirmed',
-        });
+        if (result?.status === 'success') {
+          toast.success({
+            title: 'Transaction confirmed',
+            description: 'Your transaction has been confirmed',
+          });
 
-        onSuccess?.();
+          onSuccess?.();
+        }
       } catch (error) {
         const err = error as Error;
         toast.error({
