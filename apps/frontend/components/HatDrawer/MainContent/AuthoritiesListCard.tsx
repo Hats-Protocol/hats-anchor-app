@@ -1,4 +1,5 @@
 import {
+  Accordion,
   AccordionButton,
   AccordionIcon,
   AccordionItem,
@@ -25,9 +26,11 @@ import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 const AuthoritiesListCard = ({
   authority,
   type,
+  index,
 }: {
   authority?: Authority;
   type: AuthorityType;
+  index: number;
 }) => {
   const { label, description, link, gate, imageUrl, id, strategies } =
     authority || {};
@@ -63,68 +66,70 @@ const AuthoritiesListCard = ({
 
   return (
     <Card borderRadius='4px' mb={4}>
-      <AccordionItem border='none' mb={4} my={2}>
-        <AccordionButton _hover={{ bg: 'white' }}>
-          <AuthorityHeader
-            label={label}
-            type={type}
-            imageUrl={img}
-            strategies={strategies}
-          />
-          <AccordionIcon />
-        </AccordionButton>
-        <AccordionPanel pb={4} pl={20}>
-          {displayModulesToolbar ? (
-            <ModuleAuthorityToolbar authority={authority} />
-          ) : (
-            <HStack>
-              {link && validateURL(link) && (
-                <ChakraNextLink isExternal href={link} display='block'>
-                  {linkName || linkHostName ? (
+      <Accordion allowToggle>
+        <AccordionItem border='none' mb={4} my={2}>
+          <AccordionButton _hover={{ bg: 'white' }}>
+            <AuthorityHeader
+              label={label}
+              type={type}
+              imageUrl={img}
+              strategies={strategies}
+            />
+            <AccordionIcon />
+          </AccordionButton>
+          <AccordionPanel pb={4} pl={20}>
+            {displayModulesToolbar ? (
+              <ModuleAuthorityToolbar authority={authority} index={index} />
+            ) : (
+              <HStack>
+                {link && validateURL(link) && (
+                  <ChakraNextLink isExternal href={link} display='block'>
+                    {linkName || linkHostName ? (
+                      <Button
+                        rightIcon={<Icon as={FaExternalLinkAlt} />}
+                        colorScheme='blue'
+                        size='sm'
+                        variant='solid'
+                      >
+                        {linkName || linkHostName}
+                      </Button>
+                    ) : (
+                      <IconButton
+                        icon={<Icon as={FaExternalLinkAlt} />}
+                        colorScheme='blue'
+                        aria-label='Authority Link'
+                        size='sm'
+                        variant='solid'
+                      />
+                    )}
+                  </ChakraNextLink>
+                )}
+                {gate && validateURL(gate) && (
+                  <ChakraNextLink isExternal href={gate} display='block'>
                     <Button
                       rightIcon={<Icon as={FaExternalLinkAlt} />}
-                      colorScheme='blue'
+                      color='blue.500'
+                      borderColor='blue.500'
+                      variant='outlineMatch'
                       size='sm'
-                      variant='solid'
                     >
-                      {linkName || linkHostName}
+                      {gateHostName}
                     </Button>
-                  ) : (
-                    <IconButton
-                      icon={<Icon as={FaExternalLinkAlt} />}
-                      colorScheme='blue'
-                      aria-label='Authority Link'
-                      size='sm'
-                      variant='solid'
-                    />
-                  )}
-                </ChakraNextLink>
-              )}
-              {gate && validateURL(gate) && (
-                <ChakraNextLink isExternal href={gate} display='block'>
-                  <Button
-                    rightIcon={<Icon as={FaExternalLinkAlt} />}
-                    color='blue.500'
-                    borderColor='blue.500'
-                    variant='outlineMatch'
-                    size='sm'
-                  >
-                    {gateHostName}
-                  </Button>
-                </ChakraNextLink>
-              )}
-            </HStack>
-          )}
-          {description && (
-            <Box pt={link || gate ? 4 : 0}>
-              <Text fontSize='sm' fontWeight={500}>
-                Details
-              </Text>
-              <Markdown smallFont>{description}</Markdown>
-            </Box>
-          )}
-        </AccordionPanel>
-      </AccordionItem>
+                  </ChakraNextLink>
+                )}
+              </HStack>
+            )}
+            {description && (
+              <Box pt={link || gate ? 4 : 0}>
+                <Text fontSize='sm' fontWeight={500}>
+                  Details
+                </Text>
+                <Markdown smallFont>{description}</Markdown>
+              </Box>
+            )}
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </Card>
   );
 };

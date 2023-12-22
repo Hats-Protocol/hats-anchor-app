@@ -11,11 +11,16 @@ import {
   ModalFooter,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITIES } from 'app-constants';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
-import { useCallHsgFunction, useCallModuleFunction } from 'hats-hooks';
+import {
+  useCallHsgFunction,
+  useCallModuleFunction,
+  useHsgSigner,
+} from 'hats-hooks';
 import { Authority, LinkObject } from 'hats-types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
@@ -23,15 +28,21 @@ import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Modal from '../../atoms/Modal';
-import ModuleArgsInputs from '../../ModuleArgsInputs';
+import ModuleArgsInputs from '../../ModuleArgsForm';
 
-const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
+const ModuleAuthorityToolbar = ({
+  authority,
+  index,
+}: {
+  authority: Authority;
+  index: number;
+}) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const { setModals } = localOverlay;
@@ -39,7 +50,16 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const formMethods = useForm({ mode: 'onChange' });
   const { formState } = formMethods;
-
+  const currentNetworkId = useChainId();
+  const isSameChain = chainId === currentNetworkId;
+  const isWearing = useMemo(
+    () =>
+      _.includes(
+        _.map(selectedHat?.wearers, 'id'),
+        address?.toLocaleLowerCase(),
+      ),
+    [selectedHat, address],
+  );
   const primaryFunction = authority.functions.find((func) => func.primary);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
 
@@ -87,7 +107,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     () =>
       _.includes(
         _.map(selectedHat?.wearers, 'id'),
-        address.toLocaleLowerCase(),
+        address?.toLocaleLowerCase(),
       ),
     [selectedHat, address],
   );
@@ -95,7 +115,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
-      setModals?.({ [`functionCall-${authority.label}`]: true });
+      setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
     } else if (authority.type === 'modules') {
       callModuleFunction({
         moduleId: authority.moduleAddress,
@@ -113,15 +133,16 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
     }
   };
 
-  const handleSubmit = (data) => {
-    const args = Object.values(data);
-
+  const handleSubmit = (args) => {
     if (authority.type === 'modules') {
       callModuleFunction({
         instance: authority.instanceAddress,
         func: selectedFunction,
         args,
         moduleId: authority.moduleAddress,
+        onSuccess: () => {
+          setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
+        },
       });
     } else {
       callHsgFunction({
@@ -129,25 +150,48 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         func: selectedFunction,
         args,
         type: authority.hgsType,
+        onSuccess: () => {
+          setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
+        },
       });
     }
-    setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
-  // console.log('authority', authority);
+  const { data: claimed } = useHsgSigner({
+    instance: authority.instanceAddress,
+    signer: address,
+    chainId,
+    enabled: authority.type === 'hsg',
+  });
 
   return (
-    <HStack mb={4}>
+    <HStack mb={4} wrap='wrap'>
       {primaryFunction && (
-        <Button
-          colorScheme='blue'
-          isDisabled={!isWearer}
-          size='sm'
-          onClick={() => handleFunctionCall(primaryFunction)}
-          rightIcon={<Icon as={FiPlusSquare} />}
+        <Tooltip
+          label={
+            // eslint-disable-next-line no-nested-ternary
+            primaryFunction.functionName === 'claimSigner' && !isWearing
+              ? 'You are not wearing the hat'
+              : claimed
+              ? 'You are already a signer'
+              : ''
+          }
         >
-          {primaryFunction.label}
-        </Button>
+          <Button
+            colorScheme='blue'
+            isDisabled={
+              !isWearer ||
+              !isSameChain ||
+              (primaryFunction.functionName === 'claimSigner' &&
+                (!isWearing || claimed))
+            }
+            size='sm'
+            onClick={() => handleFunctionCall(primaryFunction)}
+            rightIcon={<Icon as={FiPlusSquare} />}
+          >
+            {primaryFunction.label}
+          </Button>
+        </Tooltip>
       )}
       {authority.type === 'modules' && (
         <ChakraNextLink
@@ -166,7 +210,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         </ChakraNextLink>
       )}
       {authority.type === 'hsg' && (
-        <ChakraNextLink href={safeUrl(chainId, authority.safe)}>
+        <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
           <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
             <HStack>
               <Text> Go to Safe</Text>
@@ -185,11 +229,11 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
             size='sm'
           />
           <MenuList>
-            {_.map(otherFunctions, (func) => (
+            {_.map(otherFunctions, (func, i) => (
               <MenuItem
-                key={func.label}
+                key={`${func.label}-${i}`}
                 onClick={() => handleFunctionCall(func)}
-                isDisabled={!isWearer}
+                isDisabled={!isWearer || !isSameChain}
               >
                 <Flex justify='space-between' align='center' w='100%' gap={1}>
                   <Text>{func.label}</Text>
@@ -215,7 +259,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
       )}
 
       <Modal
-        name={`functionCall-${authority.label}`}
+        name={`functionCall-${authority.label}-${index}`}
         title={selectedFunction?.label}
         localOverlay={localOverlay}
         size='md'
@@ -223,10 +267,12 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         {selectedFunction?.description && (
           <Text mb={3}>{selectedFunction?.description}</Text>
         )}
+        <Text>{authority.label}</Text>
         <Stack>
           <ModuleArgsInputs
             selectedModuleArgs={selectedFunction?.args}
             localForm={formMethods}
+            // ? need `tokenAddress` ?
           />
         </Stack>
         <ModalFooter px={0}>

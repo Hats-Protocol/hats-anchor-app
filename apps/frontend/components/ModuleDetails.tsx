@@ -12,6 +12,7 @@ import {
   ModalFooter,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
@@ -24,7 +25,7 @@ import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Modal from './atoms/Modal';
-import ModuleArgsInputs from './ModuleArgsInputs';
+import ModuleArgsInputs from './ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
 const ModuleDetails = ({ type }: { type: string }) => {
@@ -45,6 +46,10 @@ const ModuleDetails = ({ type }: { type: string }) => {
     address,
     chainId,
   });
+  const tokenAddress = _.get(
+    _.find(parameters, { displayType: 'token' }),
+    'value',
+  );
 
   const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
     _.includes(fn.roles, 'public'),
@@ -92,6 +97,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <Stack>
               <ModuleArgsInputs
                 selectedModuleArgs={selectedFunction?.args}
+                tokenAddress={tokenAddress}
                 localForm={formMethods}
               />
             </Stack>
@@ -127,14 +133,17 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
                 {_.map(moduleActions, (action) => (
-                  <Button
-                    variant='outlineMatch'
-                    colorScheme='blue.500'
-                    size='sm'
-                    onClick={() => handleFunctionCall(action)}
-                  >
-                    {action.label}
-                  </Button>
+                  <Tooltip label={action.description}>
+                    <Button
+                      variant='outlineMatch'
+                      colorScheme='blue.500'
+                      size='sm'
+                      onClick={() => handleFunctionCall(action)}
+                      key={action.label}
+                    >
+                      {action.label}
+                    </Button>
+                  </Tooltip>
                 ))}
               </Flex>
             </AccordionPanel>
