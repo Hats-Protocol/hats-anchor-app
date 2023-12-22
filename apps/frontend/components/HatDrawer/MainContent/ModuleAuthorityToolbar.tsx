@@ -1,6 +1,7 @@
 import {
   Button,
   Flex,
+  Heading,
   HStack,
   Icon,
   IconButton,
@@ -8,6 +9,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  ModalBody,
   ModalFooter,
   Stack,
   Text,
@@ -49,7 +51,7 @@ const ModuleAuthorityToolbar = ({
   const { chainId, selectedHat } = useTreeForm();
   const [selectedFunction, setSelectedFunction] = useState(null);
   const formMethods = useForm({ mode: 'onChange' });
-  const { formState } = formMethods;
+  const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
   const isWearing = useMemo(
@@ -133,7 +135,7 @@ const ModuleAuthorityToolbar = ({
     }
   };
 
-  const handleSubmit = (args) => {
+  const onSubmit = (args) => {
     if (authority.type === 'modules') {
       callModuleFunction({
         instance: authority.instanceAddress,
@@ -260,36 +262,43 @@ const ModuleAuthorityToolbar = ({
 
       <Modal
         name={`functionCall-${authority.label}-${index}`}
-        title={selectedFunction?.label}
+        title={`Interact with ${authority.moduleLabel}`}
         localOverlay={localOverlay}
-        size='md'
+        headingSize='sm'
       >
-        {selectedFunction?.description && (
-          <Text mb={3}>{selectedFunction?.description}</Text>
-        )}
-        <Text>{authority.label}</Text>
-        <Stack>
-          <ModuleArgsInputs
-            selectedModuleArgs={selectedFunction?.args}
-            localForm={formMethods}
-            // ? need `tokenAddress` ?
-          />
+        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={1}>
+            <Heading size='sm'>{selectedFunction?.label}</Heading>
+            {selectedFunction?.description && (
+              <Text>{selectedFunction?.description}</Text>
+            )}
+          </Stack>
+
+          <Stack>
+            <ModuleArgsInputs
+              selectedModuleArgs={selectedFunction?.args}
+              localForm={formMethods}
+              hideIcon
+              noMargin
+              // ? need `tokenAddress` ?
+            />
+          </Stack>
+          <Flex justify='flex-end'>
+            <HStack>
+              <Button variant='outline' onClick={() => setModals({})}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme='blue'
+                type='submit'
+                isDisabled={!formState.isValid}
+                isLoading={isModuleLoading || isHsgLoading}
+              >
+                {selectedFunction?.label}
+              </Button>
+            </HStack>
+          </Flex>
         </Stack>
-        <ModalFooter px={0}>
-          <HStack>
-            <Button variant='outline' onClick={() => setModals({})}>
-              Cancel
-            </Button>
-            <Button
-              colorScheme='blue'
-              onClick={formMethods.handleSubmit(handleSubmit)}
-              isDisabled={!formState.isValid}
-              isLoading={isModuleLoading || isHsgLoading}
-            >
-              {selectedFunction?.label}
-            </Button>
-          </HStack>
-        </ModalFooter>
       </Modal>
     </HStack>
   );

@@ -23,6 +23,7 @@ export type Authority = {
   functions?: WriteFunction[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
+  moduleLabel?: string;
   hgsType?: HsgType;
   ownerHat?: {
     id: Hex;

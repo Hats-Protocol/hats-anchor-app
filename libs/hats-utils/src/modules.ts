@@ -385,6 +385,13 @@ export function populateModulesAuthorities({
             ),
         );
 
+        let description: string;
+        if (_.isArray(details.details)) {
+          description = details.details.join('\n');
+        } else {
+          description = details.details;
+        }
+
         const transformedAuthorities = authorityEntries.map(
           (item: { id: Hex }) => {
             const role = _.head(matchingRoles);
@@ -392,14 +399,15 @@ export function populateModulesAuthorities({
               return {
                 label: `${role.name} (${formatAddress(item.id)})`,
                 link: role.id,
-                description: Array.isArray(details.details)
-                  ? details.details.join('\n')
-                  : details.details,
+                description,
                 type: AUTHORITY_TYPES.modules,
                 id: role.id,
                 functions: matchingFunctions,
                 instanceAddress: item.id,
                 moduleAddress: details.implementationAddress as Hex,
+                moduleLabel: `${details.name} (${formatAddress(
+                  item.id as Hex,
+                )})`,
               };
             }
             return null;

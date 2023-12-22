@@ -4,16 +4,17 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Box,
   Button,
   Flex,
   Heading,
   HStack,
   Icon,
-  ModalFooter,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { formatAddress } from 'app-utils';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
 import _ from 'lodash';
@@ -35,7 +36,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const { chainId, selectedHat } = useTreeForm();
 
   const formMethods = useForm({ mode: 'onChange' });
-  const { formState } = formMethods;
+  const { formState, handleSubmit } = formMethods;
 
   const address = useMemo(
     () => _.get(selectedHat, _.toLower(type)),
@@ -74,7 +75,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     }
   };
 
-  const handleSubmit = (values) => {
+  const onSubmit = (values) => {
     // eslint-disable-next-line no-console
     console.log(values);
   };
@@ -87,35 +88,41 @@ const ModuleDetails = ({ type }: { type: string }) => {
         <>
           <Modal
             name='functionCall-module'
-            title={selectedFunction?.label}
+            title={`Interact with ${moduleDetails?.name} (${formatAddress(
+              address,
+            )})`}
             localOverlay={localOverlay}
-            size='md'
+            headingSize='sm'
           >
-            {selectedFunction?.description && (
-              <Text mb={3}>{selectedFunction?.description}</Text>
-            )}
-            <Stack>
-              <ModuleArgsInputs
-                selectedModuleArgs={selectedFunction?.args}
-                tokenAddress={tokenAddress}
-                localForm={formMethods}
-              />
-            </Stack>
-            <ModalFooter px={0}>
-              <HStack>
-                <Button variant='outline' onClick={() => setModals({})}>
-                  Cancel
-                </Button>
-                <Button
-                  colorScheme='blue'
-                  onClick={() => handleSubmit(handleSubmit)}
-                  isDisabled={!formState.isValid}
-                  isLoading={isModuleLoading}
-                >
-                  {selectedFunction?.label}
-                </Button>
-              </HStack>
-            </ModalFooter>
+            <Box as='form' onSubmit={handleSubmit(onSubmit)}>
+              {selectedFunction?.description && (
+                <Text mb={3}>{selectedFunction?.description}</Text>
+              )}
+              <Stack>
+                <ModuleArgsInputs
+                  selectedModuleArgs={selectedFunction?.args}
+                  tokenAddress={tokenAddress}
+                  localForm={formMethods}
+                  hideIcon
+                  noMargin
+                />
+              </Stack>
+              <Flex justify='flex-end' mt={4}>
+                <HStack>
+                  <Button variant='outline' onClick={() => setModals({})}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme='blue'
+                    type='submit'
+                    isDisabled={!formState.isValid}
+                    isLoading={isModuleLoading}
+                  >
+                    {selectedFunction?.label}
+                  </Button>
+                </HStack>
+              </Flex>
+            </Box>
           </Modal>
           <AccordionItem border='0'>
             <AccordionButton px={0}>
@@ -133,13 +140,12 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
                 {_.map(moduleActions, (action) => (
-                  <Tooltip label={action.description}>
+                  <Tooltip label={action.description} key={action.label}>
                     <Button
                       variant='outlineMatch'
                       colorScheme='blue.500'
                       size='sm'
                       onClick={() => handleFunctionCall(action)}
-                      key={action.label}
                     >
                       {action.label}
                     </Button>
