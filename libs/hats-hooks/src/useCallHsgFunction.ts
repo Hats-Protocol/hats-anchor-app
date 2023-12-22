@@ -1,6 +1,7 @@
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
+import { useToast } from 'app-hooks';
 import { createHatsSignerGateClient, transformInput } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
@@ -14,39 +15,64 @@ const useCallHsgFunction = ({
   chainId: SupportedChains | undefined;
 }) => {
   const { address } = useAccount();
+  const toast = useToast();
 
   const callFunction = useCallback(
     async ({
       type,
       instance,
       func,
+      onSuccess,
       args,
     }: {
       type: HsgType;
       instance: Hex;
       func: WriteFunction;
       args: any;
+      onSuccess?: () => void;
     }) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
 
       const signerGateClient = await createHatsSignerGateClient(chainId);
       if (!signerGateClient) throw new Error('Failed to create module client');
+
       const preparedArgs = _.map(func.args, (arg: any) => {
         const value = args[arg.name];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });
 
-      signerGateClient.callInstanceWriteFunction({
-        account: address,
-        type,
-        instance,
-        func,
-        args: preparedArgs,
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
       });
+
+      try {
+        await signerGateClient.callInstanceWriteFunction({
+          account: address,
+          type,
+          instance,
+          func,
+          args: preparedArgs,
+        });
+
+        toast.success({
+          title: 'Transaction confirmed',
+          description: 'Your transaction has been confirmed',
+        });
+
+        onSuccess?.();
+      } catch (error) {
+        const err = error as Error;
+        toast.error({
+          title: 'Transaction failed',
+          description: err.message,
+        });
+        console.log(error);
+      }
     },
-    [address, chainId],
+    [address, chainId, toast],
   );
 
   return useMutation({ mutationFn: callFunction });

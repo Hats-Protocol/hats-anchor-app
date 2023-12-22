@@ -15,8 +15,9 @@ const AuthoritiesList = () => {
       <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={2}>
         Authorities
       </Heading>
-      {_.map(combinedAuthorities, (authority: Authority) => (
+      {_.map(combinedAuthorities, (authority: Authority, index: number) => (
         <AuthoritiesListCard
+          index={index}
           key={authority.label}
           authority={authority}
           type={authority.type as AuthorityType}

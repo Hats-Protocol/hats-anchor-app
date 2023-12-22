@@ -26,9 +26,11 @@ import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 const AuthoritiesListCard = ({
   authority,
   type,
+  index,
 }: {
   authority?: Authority;
   type: AuthorityType;
+  index: number;
 }) => {
   const { label, description, link, gate, imageUrl, id, strategies } =
     authority || {};
@@ -77,7 +79,7 @@ const AuthoritiesListCard = ({
           </AccordionButton>
           <AccordionPanel pb={4} pl={20}>
             {displayModulesToolbar ? (
-              <ModuleAuthorityToolbar authority={authority} />
+              <ModuleAuthorityToolbar authority={authority} index={index} />
             ) : (
               <HStack>
                 {link && validateURL(link) && (

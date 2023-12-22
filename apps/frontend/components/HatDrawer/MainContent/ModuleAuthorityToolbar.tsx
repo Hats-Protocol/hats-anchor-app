@@ -32,7 +32,13 @@ import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Modal from '../../atoms/Modal';
 import ModuleArgsInputs from '../../ModuleArgsForm';
 
-const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
+const ModuleAuthorityToolbar = ({
+  authority,
+  index,
+}: {
+  authority: Authority;
+  index: number;
+}) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const { setModals } = localOverlay;
@@ -106,7 +112,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
-      setModals?.({ [`functionCall-${authority.label}`]: true });
+      setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
     } else if (authority.type === 'modules') {
       callModuleFunction({
         moduleId: authority.moduleAddress,
@@ -131,6 +137,9 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         func: selectedFunction,
         args,
         moduleId: authority.moduleAddress,
+        onSuccess: () => {
+          setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
+        },
       });
     } else {
       callHsgFunction({
@@ -138,9 +147,11 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         func: selectedFunction,
         args,
         type: authority.hgsType,
+        onSuccess: () => {
+          setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
+        },
       });
     }
-    setModals?.({ [`functionCall-${authority.label}`]: false });
   };
 
   // fn for checking if the user has already claimed signer rights
@@ -236,7 +247,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
       )}
 
       <Modal
-        name={`functionCall-${authority.label}`}
+        name={`functionCall-${authority.label}-${index}`}
         title={selectedFunction?.label}
         localOverlay={localOverlay}
         size='md'
@@ -244,6 +255,7 @@ const ModuleAuthorityToolbar = ({ authority }: { authority: Authority }) => {
         {selectedFunction?.description && (
           <Text mb={3}>{selectedFunction?.description}</Text>
         )}
+        <Text>{authority.label}</Text>
         <Stack>
           <ModuleArgsInputs
             selectedModuleArgs={selectedFunction?.args}

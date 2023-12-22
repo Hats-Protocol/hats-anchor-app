@@ -1,5 +1,6 @@
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
+import { useToast } from 'app-hooks';
 import { createHatsModulesClient, transformInput } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
@@ -13,6 +14,7 @@ const useCallModuleFunction = ({
   chainId: SupportedChains | undefined;
 }) => {
   const { address } = useAccount();
+  const toast = useToast();
 
   const callFunction = useCallback(
     async ({
@@ -20,11 +22,13 @@ const useCallModuleFunction = ({
       instance,
       func,
       args,
+      onSuccess,
     }: {
       moduleId: string;
       instance: Hex;
       func: WriteFunction;
       args: any;
+      onSuccess?: () => void;
     }) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
@@ -37,18 +41,37 @@ const useCallModuleFunction = ({
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });
-      console.log(preparedArgs);
 
-      const result = await moduleClient.callInstanceWriteFunction({
-        account: address,
-        moduleId,
-        instance,
-        func,
-        args: preparedArgs,
+      toast.info({
+        title: 'Transaction submitted',
+        description: 'Waiting for your transaction to be accepted...',
       });
-      console.log(result);
+
+      try {
+        await moduleClient.callInstanceWriteFunction({
+          account: address,
+          moduleId,
+          instance,
+          func,
+          args: preparedArgs,
+        });
+
+        toast.success({
+          title: 'Transaction confirmed',
+          description: 'Your transaction has been confirmed',
+        });
+
+        onSuccess?.();
+      } catch (error) {
+        const err = error as Error;
+        toast.error({
+          title: 'Transaction failed',
+          description: err.message,
+        });
+        console.log(error);
+      }
     },
-    [address, chainId],
+    [address, chainId, toast],
   );
 
   return useMutation({ mutationFn: callFunction });
