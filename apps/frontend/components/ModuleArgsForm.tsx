@@ -7,7 +7,6 @@ import {
   HStack,
   Icon,
   Stack,
-  Text,
   Tooltip,
 } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
@@ -105,6 +104,7 @@ const ModuleFormInput = ({
   useEffect(() => {
     // set default value(s)
     if (arg.type === 'bool') setValue(arg.name, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!arg) return null;
@@ -333,8 +333,6 @@ const ModuleArgsForm = ({
   tokenAddress?: Hex;
   selectedModuleArgs: ModuleCreationArg[];
 }) => {
-  console.log(selectedModuleArgs);
-
   return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
     <FormRowWrapper key={arg.name}>
       <Icon as={BsTextLeft} boxSize={4} mt={1} />

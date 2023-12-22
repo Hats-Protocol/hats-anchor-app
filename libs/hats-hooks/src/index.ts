@@ -16,6 +16,7 @@ export { default as useHatsModules } from './useHatsModules';
 export { default as useHatsSignerGatesMetadata } from './useHatsSignerGatesMetadata';
 export { default as useHatStatus } from './useHatStatus';
 export { default as useHatStatusCheck } from './useHatStatusCheck';
+export { default as useHsgSigner } from './useHsgSigner';
 export { default as useIsAdmin } from './useIsAdmin';
 export { default as useManyHatsDetails } from './useManyHatsDetails';
 export { default as useManyHatsDetailsField } from './useManyHatsDetailsField';

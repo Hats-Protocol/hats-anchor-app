@@ -15,16 +15,16 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITIES } from 'app-constants';
+import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import {
-  createHatsSignerGateClient,
-  explorerUrl,
-  getHostnameFromURL,
-} from 'app-utils';
-import { useCallHsgFunction, useCallModuleFunction } from 'hats-hooks';
+  useCallHsgFunction,
+  useCallModuleFunction,
+  useHsgSigner,
+} from 'hats-hooks';
 import { Authority, LinkObject } from 'hats-types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
@@ -60,7 +60,6 @@ const ModuleAuthorityToolbar = ({
       ),
     [selectedHat, address],
   );
-  const [claimedAndValid, setClaimedAndValid] = useState(null);
   const primaryFunction = authority.functions.find((func) => func.primary);
   const otherFunctions = authority.functions.filter((func) => !func.primary);
 
@@ -158,24 +157,12 @@ const ModuleAuthorityToolbar = ({
     }
   };
 
-  useEffect(() => {
-    const checkClaimedSignerRights = async () => {
-      const signerGateClient = await createHatsSignerGateClient(chainId);
-      if (!signerGateClient) throw new Error('Failed to create module client');
-
-      try {
-        const result = await signerGateClient.claimedAndStillValid({
-          instance: authority.instanceAddress,
-          address,
-        });
-        setClaimedAndValid(result);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    if (authority.type === 'hsg') checkClaimedSignerRights();
-  }, [chainId, authority, address]);
+  const { data: claimed } = useHsgSigner({
+    instance: authority.instanceAddress,
+    signer: address,
+    chainId,
+    enabled: authority.type === 'hsg',
+  });
 
   return (
     <HStack mb={4} wrap='wrap'>
@@ -185,8 +172,8 @@ const ModuleAuthorityToolbar = ({
             // eslint-disable-next-line no-nested-ternary
             primaryFunction.functionName === 'claimSigner' && !isWearing
               ? 'You are not wearing the hat'
-              : claimedAndValid
-              ? 'Signer rights have already been claimed'
+              : claimed
+              ? 'You are already a signer'
               : ''
           }
         >
@@ -196,7 +183,7 @@ const ModuleAuthorityToolbar = ({
               !isWearer ||
               !isSameChain ||
               (primaryFunction.functionName === 'claimSigner' &&
-                (!isWearing || claimedAndValid))
+                (!isWearing || claimed))
             }
             size='sm'
             onClick={() => handleFunctionCall(primaryFunction)}
@@ -223,7 +210,7 @@ const ModuleAuthorityToolbar = ({
         </ChakraNextLink>
       )}
       {authority.type === 'hsg' && (
-        <ChakraNextLink href={safeUrl(chainId, authority.safe)}>
+        <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
           <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
             <HStack>
               <Text> Go to Safe</Text>
