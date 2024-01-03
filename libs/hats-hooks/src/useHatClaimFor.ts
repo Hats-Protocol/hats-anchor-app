@@ -76,9 +76,7 @@ const useHatClaimFor = ({
       if (result?.status === 'success') {
         toast.success({
           title: 'Hat claimed',
-          description: `Your hat has been claimed for ${formatAddress(
-            account,
-          )}`,
+          description: `Hat has been claimed for ${formatAddress(account)}`,
         });
       }
       setIsLoading(false);
