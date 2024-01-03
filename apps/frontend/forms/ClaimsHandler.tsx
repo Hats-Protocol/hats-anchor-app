@@ -93,6 +93,7 @@ const ClaimsHandler = ({
     address: instanceAddress,
     enabled: !!instanceAddress && !!selectedHat?.id,
     args: [selectedHat?.id, 1],
+    chainId,
   });
 
   useEffect(() => {

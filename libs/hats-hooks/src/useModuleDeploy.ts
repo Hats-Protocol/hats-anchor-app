@@ -111,6 +111,7 @@ const useModuleDeploy = ({
       !!instanceAddress &&
       !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
     args: deployModuleAndRegisterWithClaimsHatterArgs,
+    chainId,
   });
 
   const adminHatData = useMemo(() => {
