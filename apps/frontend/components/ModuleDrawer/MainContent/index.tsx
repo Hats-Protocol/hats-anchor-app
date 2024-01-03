@@ -96,7 +96,7 @@ const MainContent = ({
       )}
       {claimableHats && title !== 'toggle' && (
         <Accordion
-          title='Permissionless Claiming'
+          title='Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'
           open={_.includes(claimableHats, selectedHat?.id)}
         >
