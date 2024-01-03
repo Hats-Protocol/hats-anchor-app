@@ -29,6 +29,7 @@ import DropZone from '../../components/atoms/DropZone';
 import Input from '../../components/atoms/Input';
 import Textarea from '../../components/atoms/Textarea';
 import Layout from '../../components/Layout';
+import { useOverlay } from '../../contexts/OverlayContext';
 
 const NewTree = () => {
   const [image, setImage] = useState<ImageFile>();
@@ -51,6 +52,7 @@ const NewTree = () => {
   });
 
   const chainId = useChainId();
+  const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
   });
@@ -91,6 +93,7 @@ const NewTree = () => {
       : imageUrl,
     receiver,
     overrideReceiver,
+    handlePendingTx,
   });
 
   const onSubmit = async () => {

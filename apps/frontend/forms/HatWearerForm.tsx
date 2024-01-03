@@ -43,12 +43,13 @@ import DropZone from '../components/atoms/DropZone';
 import NumberInput from '../components/atoms/NumberInput';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useHatForm } from '../contexts/HatFormContext';
+import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
-
+  const { handlePendingTx } = useOverlay();
   const {
     chainId,
     selectedHat,
@@ -152,6 +153,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       title: `Hats Minted!`,
       description: `Successfully minted hats`,
     },
+    handlePendingTx,
     handleSuccess: () => {
       hatDisclosure?.onClose();
     },
@@ -176,6 +178,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         title: `Hat Minted!`,
         description: `Successfully minted hat`,
       },
+      handlePendingTx,
       handleSuccess: () => {
         hatDisclosure?.onClose();
       },
