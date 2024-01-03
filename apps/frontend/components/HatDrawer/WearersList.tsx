@@ -17,7 +17,8 @@ import {
 import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import {
   useAllWearers,
-  useHatClaim,
+  useHatClaimBy,
+  useHatClaimFor,
   useHatPaginatedWearers,
   useModuleDetails,
   useMultiClaimsHatterCheck,
@@ -45,6 +46,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
+import HatClaimForForm from '../../forms/HatClaimForForm';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
 
@@ -152,11 +154,19 @@ const WearersList = () => {
     storedData,
     editMode,
   });
-  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
     wearer: address,
   });
+
+  const { isClaimableFor } = useHatClaimFor({
+    selectedHat,
+    chainId,
+    wearer: address,
+  });
+
   const { details: eligibilityDetails } = useModuleDetails({
     address: selectedHat?.eligibility as Hex,
     chainId,
@@ -164,6 +174,7 @@ const WearersList = () => {
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
+  // add option to switch from 1 to 2 and vice versa
   const {
     writeAsync: setHatClaimability,
     isLoading: isLoadingSetHatClaimability,
@@ -280,6 +291,19 @@ const WearersList = () => {
                 Set hat for claiming
               </Button>
             )}
+          {isClaimableFor && isAdminUser && (
+            <Button
+              size='xs'
+              variant='outline'
+              colorScheme='blue.500'
+              isLoading={isLoading}
+              onClick={() =>
+                !maxWearersReached ? setModals?.({ claimFor: true }) : {}
+              }
+            >
+              Claim hat for wearer
+            </Button>
+          )}
           {(currentUserIsEligible as boolean) &&
             !!isClaimable &&
             !currentUserIsWearing && (
@@ -330,6 +354,15 @@ const WearersList = () => {
           )}
         </Flex>
       </Stack>
+
+      <Modal
+        name='claimFor'
+        title='Claim hat for wearer'
+        size='2xl'
+        localOverlay={localOverlay}
+      >
+        <HatClaimForForm />
+      </Modal>
 
       <Modal
         name='hatWearers'

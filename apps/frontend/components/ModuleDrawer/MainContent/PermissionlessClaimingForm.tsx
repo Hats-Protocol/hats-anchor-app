@@ -157,7 +157,7 @@ const PermissionlessClaimingForm = ({
                 <RadioBox
                   name='initialClaimabilityTypes'
                   label='Claim For Address'
-                  subLabel='Should this hat be claimable by admins for other wearers who meet the requirements of the accountability module?'
+                  subLabel='Should this hat be claimable on behalf of an account?'
                   localForm={localForm}
                   options={[
                     {
