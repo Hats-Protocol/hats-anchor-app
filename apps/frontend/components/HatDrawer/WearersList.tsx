@@ -9,6 +9,10 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Spinner,
   Stack,
   Text,
@@ -70,6 +74,7 @@ const WearersList = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
   const localOverlay = useOverlay();
+  const { handlePendingTx } = localOverlay;
   const { setModals, modals } = localOverlay;
   const {
     chainId,
@@ -174,16 +179,26 @@ const WearersList = () => {
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
-  // add option to switch from 1 to 2 and vice versa
+  const { writeAsync: setHatClaimable, isLoading: isLoadingSetHatClaimable } =
+    useMultiClaimsHatterContractWrite({
+      functionName: 'setHatClaimability',
+      address: instanceAddress,
+      chainId,
+      enabled: !!instanceAddress && isAdminUser,
+      args: [selectedHat?.id, 1],
+      handlePendingTx,
+    });
+
   const {
-    writeAsync: setHatClaimability,
-    isLoading: isLoadingSetHatClaimability,
+    writeAsync: setHatClaimableFor,
+    isLoading: isLoadingSetHatClaimableFor,
   } = useMultiClaimsHatterContractWrite({
     functionName: 'setHatClaimability',
     address: instanceAddress,
     chainId,
     enabled: !!instanceAddress && isAdminUser,
-    args: [selectedHat?.id, 1],
+    args: [selectedHat?.id, 2],
+    handlePendingTx,
   });
 
   const filteredWearers = useMemo(() => {
@@ -204,6 +219,22 @@ const WearersList = () => {
       return 'Hatter must be wearing an admin hat to claim this hat.';
     return undefined;
   }, [chainId, currentNetworkId, hatterIsAdmin]);
+
+  const isClaimableDisabled = useMemo(
+    () =>
+      !setHatClaimable ||
+      (selectedHat?.claimableBy?.length >= 1 &&
+        selectedHat?.claimableForBy.length === 0),
+    [selectedHat, setHatClaimable],
+  );
+
+  const isClaimableForDisabled = useMemo(
+    () =>
+      !setHatClaimableFor ||
+      (selectedHat?.claimableBy?.length >= 1 &&
+        selectedHat?.claimableForBy.length >= 1),
+    [selectedHat, setHatClaimableFor],
+  );
 
   return (
     <>
@@ -276,21 +307,56 @@ const WearersList = () => {
               Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>
           )}
-          {!!instanceAddress &&
-            !!eligibilityDetails &&
-            !_.includes(claimableHats, selectedHat?.id) &&
-            isAdminUser && (
-              <Button
+          {!!instanceAddress && !!eligibilityDetails && isAdminUser && (
+            <Menu>
+              <MenuButton
+                as={Button}
                 size='xs'
                 variant='outline'
                 colorScheme='blue.500'
-                onClick={setHatClaimability}
-                isLoading={isLoadingSetHatClaimability}
-                isDisabled={isLoadingSetHatClaimability || !setHatClaimability}
+                isLoading={
+                  isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
+                }
+                isDisabled={!setHatClaimable || !setHatClaimableFor}
               >
-                Set hat for claiming
-              </Button>
-            )}
+                {_.includes(claimableHats, selectedHat?.id)
+                  ? 'Set claiming type'
+                  : 'Set hat for claiming'}
+              </MenuButton>
+              <MenuList>
+                <Tooltip
+                  label={
+                    isClaimableDisabled ? 'This option is already selected' : ''
+                  }
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setHatClaimable();
+                    }}
+                    isDisabled={isClaimableDisabled}
+                  >
+                    Only Eligible Users
+                  </MenuItem>
+                </Tooltip>
+                <Tooltip
+                  label={
+                    isClaimableForDisabled
+                      ? 'This option is already selected'
+                      : ''
+                  }
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setHatClaimableFor();
+                    }}
+                    isDisabled={isClaimableForDisabled}
+                  >
+                    On Behalf of an Account
+                  </MenuItem>
+                </Tooltip>
+              </MenuList>
+            </Menu>
+          )}
           {isClaimableFor && isAdminUser && (
             <Button
               size='xs'

@@ -6,6 +6,7 @@ import {
   AppHat,
   DeploymentType,
   FormData,
+  HandlePendingTx,
   ModuleDetails,
   SupportedChains,
 } from 'hats-types';
@@ -40,6 +41,7 @@ const useModuleDeploy = ({
   selectedModuleDetails,
   onCloseModuleDrawer,
   deploymentType,
+  handlePendingTx,
 }: {
   localForm: UseFormReturn;
   selectedHat?: AppHat;
@@ -51,6 +53,7 @@ const useModuleDeploy = ({
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   deploymentType: DeploymentType;
+  handlePendingTx?: HandlePendingTx;
 }) => {
   const { watch } = localForm;
   const originalValues = watch();
@@ -112,6 +115,7 @@ const useModuleDeploy = ({
       !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
     args: deployModuleAndRegisterWithClaimsHatterArgs,
     chainId,
+    handlePendingTx,
   });
 
   const adminHatData = useMemo(() => {
