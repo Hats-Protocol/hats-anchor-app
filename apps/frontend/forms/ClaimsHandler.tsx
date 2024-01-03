@@ -97,6 +97,7 @@ const ClaimsHandler = ({
     args: [selectedHat?.id, 1],
     chainId,
     handlePendingTx,
+    hatId: selectedHat?.id,
   });
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
+import { useQueryClient } from '@tanstack/react-query';
 import { MULTI_CLAIMS_HATTER_ABI } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { HandlePendingTx } from 'hats-types';
@@ -15,6 +16,7 @@ interface ContractInteractionProps {
   enabled: boolean;
   args: (string | number | bigint | undefined)[];
   handlePendingTx?: HandlePendingTx;
+  hatId?: Hex;
 }
 
 const useMultiClaimsHatterContractWrite = ({
@@ -24,10 +26,12 @@ const useMultiClaimsHatterContractWrite = ({
   address,
   args,
   handlePendingTx,
+  hatId,
 }: ContractInteractionProps) => {
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] =
     useState(false);
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   // TODO fetch abi from modules sdk
 
@@ -67,6 +71,12 @@ const useMultiClaimsHatterContractWrite = ({
           description: 'Your transaction has been confirmed.',
         },
       });
+
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['hatDetails', { id: hatId, chainId }],
+        });
+      }, 1000);
     },
     onError: (error) => {
       if (

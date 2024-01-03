@@ -187,6 +187,7 @@ const WearersList = () => {
       enabled: !!instanceAddress && isAdminUser,
       args: [selectedHat?.id, 1],
       handlePendingTx,
+      hatId: selectedHat?.id,
     });
 
   const {
@@ -199,6 +200,7 @@ const WearersList = () => {
     enabled: !!instanceAddress && isAdminUser,
     args: [selectedHat?.id, 2],
     handlePendingTx,
+    hatId: selectedHat?.id,
   });
 
   const filteredWearers = useMemo(() => {

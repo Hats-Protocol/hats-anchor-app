@@ -116,6 +116,7 @@ const useModuleDeploy = ({
     args: deployModuleAndRegisterWithClaimsHatterArgs,
     chainId,
     handlePendingTx,
+    hatId: selectedHat?.id,
   });
 
   const adminHatData = useMemo(() => {
