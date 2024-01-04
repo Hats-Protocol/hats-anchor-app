@@ -38,6 +38,12 @@ import { useEnsAvatar, useEnsName } from 'wagmi';
 import Layout from '../../components/Layout';
 import CoreHat from '../../components/WearerHatCard';
 
+type HeadlineStat = {
+  label: string;
+  value: number;
+  loading: boolean;
+};
+
 const WearerDetail = ({
   wearerAddress,
   initialEnsName,
@@ -76,7 +82,6 @@ const WearerDetail = ({
   const { data: adminOfHats } = useHatsAdminOf({
     hats: currentHats,
   });
-  console.log(adminOfHats);
 
   useEffect(() => {
     setName(ensName || formatAddress(wearerAddress));
@@ -168,7 +173,7 @@ const WearerDetail = ({
             </Stack>
           </HStack>
           <HStack>
-            {_.map(headlineStats, (stat: any) => (
+            {_.map(headlineStats, (stat: HeadlineStat) => (
               <Card w='125px' key={stat.label}>
                 <CardBody>
                   <Stack align='center'>
@@ -198,7 +203,7 @@ const WearerDetail = ({
             <Text>Not wearing any hats</Text>
           ) : (
             <Stack>
-              {_.map(localOrderedChains, (chainId: any) => (
+              {_.map(localOrderedChains, (chainId: number) => (
                 <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 

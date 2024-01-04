@@ -78,6 +78,8 @@ const useWearersControllersDetails = ({
         enabled:
           !!wearer && isAddress(wearer) && wearer !== zeroAddress && !!chainId,
         refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+        // ? any better way to type this?
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       })) as any[],
     ),
   });

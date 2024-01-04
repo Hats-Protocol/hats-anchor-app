@@ -6,9 +6,12 @@ import {
   FormLabel,
   HStack,
   Icon,
+  Radio,
+  RadioGroup,
   Stack,
   Text,
   Tooltip,
+  VStack,
 } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { explorerUrl, formatAddress, transformAndVerify } from 'app-utils';
@@ -18,7 +21,7 @@ import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { FaInfoCircle } from 'react-icons/fa';
+import { FaInfoCircle, FaRegQuestionCircle } from 'react-icons/fa';
 import { prettyIdToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
@@ -67,6 +70,7 @@ const ModuleFormInput = ({
     const trimmedValue = e.target.value.trim();
     setValue(name, trimmedValue, { shouldDirty: true });
   };
+  console.log('arg', arg);
 
   const handleChangeHat = (
     e: ChangeEvent<HTMLSelectElement>,
@@ -146,24 +150,48 @@ const ModuleFormInput = ({
 
   if (arg.type === 'bool') {
     const isChecked = watch(arg.name);
+    const booleanOptions = {
+      standing: ['Good Standing', 'Bad Standing'],
+      eligibility: ['Eligible', 'Ineligible'],
+    };
 
     return (
-      <FormControl as={HStack} align='center'>
-        <Checkbox isChecked={isChecked} />
-        <FormLabel m={0}>{arg.name}</FormLabel>
-        <Box h='16px'>
-          <Tooltip
-            as={Flex}
-            align='center'
-            label={arg.description}
-            placement='right'
-            shouldWrapChildren
-            hasArrow
-          >
-            <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' />
-          </Tooltip>
-        </Box>
-      </FormControl>
+      <Box>
+        <VStack alignItems='start'>
+          <HStack>
+            <Text textTransform='uppercase'>{arg.name}</Text>
+            <FaRegQuestionCircle />
+          </HStack>
+          <Text color='gray.600'>{arg.description}</Text>
+        </VStack>
+
+        <RadioGroup
+          name='standing'
+          defaultValue='Good Standing'
+          onChange={(value) => setValue('standing', value)}
+        >
+          <HStack spacing={4}>
+            <Radio value='Good Standing'>Good Standing</Radio>
+            <Radio value='Bad Standing'>Bad Standing</Radio>
+          </HStack>
+        </RadioGroup>
+      </Box>
+      // <FormControl as={HStack} align='center'>
+      //   <Checkbox isChecked={isChecked} />
+      //   <FormLabel m={0}>{arg.name}</FormLabel>
+      //   <Box h='16px'>
+      //     <Tooltip
+      //       as={Flex}
+      //       align='center'
+      //       label={arg.description}
+      //       placement='right'
+      //       shouldWrapChildren
+      //       hasArrow
+      //     >
+      //       <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' />
+      //     </Tooltip>
+      //   </Box>
+      // </FormControl>
     );
   }
 

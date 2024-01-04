@@ -114,7 +114,7 @@ export const fetchWearerDetailsForAllChains = async (
 
   // * let errors fall through here
   return Promise.all(
-    _.map(promises, (p: any) => p.catch(() => undefined)),
+    _.map(promises, (p: Promise<() => void>) => p.catch(() => undefined)),
   ).then((data) => {
     // TODO handle errors on subgraph(s) with the user
     return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
@@ -220,7 +220,6 @@ export const fetchControllersForUser = async (a: string) => {
   });
 
   const data: unknown[] = await Promise.all(promises);
-  console.log(data);
 
   const mapWithChains = _.map(data, (d: { hats: AppHat[] }, i: number) => {
     const hats = _.map(d.hats, (h: AppHat) => ({
