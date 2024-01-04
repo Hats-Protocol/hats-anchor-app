@@ -73,8 +73,8 @@ const useModuleDeploy = ({
   const { modules } = useHatsModules({ chainId });
   const { address } = useAccount();
   const hatId = BigInt(decimalId(selectedHat?.id));
-  const adminHat = values?.adminHat;
-  const incrementWearers = values?.incrementWearers;
+  const adminHat = values?.adminHat as Hex | undefined;
+  const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
   const claimsHatterModule = _.find(modules, {
     name: CONFIG.claimsHatterModuleName,

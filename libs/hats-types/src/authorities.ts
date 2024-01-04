@@ -19,6 +19,7 @@ export type Authority = {
   imageUrl?: string;
   type?: string | AuthorityType | undefined;
   id?: string | number;
+  hatId?: Hex;
   strategies?: SnapshotStrategy[];
   functions?: WriteFunction[];
   instanceAddress?: Hex;

@@ -5,7 +5,7 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
+// import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
@@ -214,10 +214,10 @@ export const processClaimsHatter = ({
 }: {
   claimsHatterAddress: Hex;
   storedData: Partial<FormData>[] | undefined;
-  adminHat: Partial<Hat> | undefined; // Hat + FormData
-  incrementWearers: string;
+  adminHat: any | undefined; // Hat + FormData
+  incrementWearers: string | undefined;
 }) => {
-  if (!adminHat?.id) return storedData;
+  if (!adminHat?.id) return storedData || [];
 
   const adminId = hatIdDecimalToHex(BigInt(adminHat?.id));
   const claimsHatterWearer = {
@@ -377,7 +377,7 @@ export function populateModulesAuthorities({
   _.forEach(modulesDetails, (details: ModuleDetails) => {
     _.forEach(
       hatAuthorities,
-      (authorityEntries: { id: Hex }[], authorityKey: string) => {
+      (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) => {
         const matchingRoles = _.filter(
           details?.customRoles,
           (role: Role) => role.id === authorityKey,
@@ -398,7 +398,7 @@ export function populateModulesAuthorities({
         }
 
         const transformedAuthorities = authorityEntries.map(
-          (item: { id: Hex }) => {
+          (item: { id: Hex; hatId: Hex }) => {
             const role = _.head(matchingRoles);
             if (role) {
               return {
@@ -413,6 +413,7 @@ export function populateModulesAuthorities({
                 moduleLabel: `${details.name} (${formatAddress(
                   item.id as Hex,
                 )})`,
+                hatId: item.hatId,
               };
             }
             return null;
@@ -476,6 +477,7 @@ const createHSG = ({
     label: `${customRole?.name} (${formatAddress(gate.id)})`,
     type: AUTHORITY_TYPES.hsg,
     id: gate.id,
+    hatId: gate.hatId,
     functions,
     description: generateGateDescription(gate, chainId),
     instanceAddress: gate.id,

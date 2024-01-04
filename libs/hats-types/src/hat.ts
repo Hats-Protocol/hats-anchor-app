@@ -81,7 +81,6 @@ export type ModuleCreationArgs = {
 
 export interface ModuleDetails extends Module {
   id: Hex;
-  customRoles: any[];
 }
 
 export interface HatExport {
@@ -110,6 +109,7 @@ export interface HatAuthorityResponse {
 
 export interface HatSignerGate {
   id: Hex;
+  hatId: Hex;
   type: string;
   safe: Hex;
   minThreshold: string;
@@ -124,14 +124,14 @@ export interface HatSignerGate {
 }
 
 export interface HatAuthority {
-  allowListOwner: { id: Hex }[];
-  allowListArbitrator: { id: Hex }[];
-  electionsAdmin: { id: Hex }[];
-  electionsBallotBox: { id: Hex }[];
-  eligibilityTogglePassthrough: { id: Hex }[];
+  allowListOwner: { id: Hex; hatId: Hex }[];
+  allowListArbitrator: { id: Hex; hatId: Hex }[];
+  electionsAdmin: { id: Hex; hatId: Hex }[];
+  electionsBallotBox: { id: Hex; hatId: Hex }[];
+  eligibilityTogglePassthrough: { id: Hex; hatId: Hex }[];
   hsgOwner: HatSignerGate[];
   hsgSigner: HatSignerGate[];
-  jokeraceAdmin: { id: Hex }[];
-  stakingJudge: { id: Hex }[];
-  stakingRecipient: { id: Hex }[];
+  jokeraceAdmin: { id: Hex; hatId: Hex }[];
+  stakingJudge: { id: Hex; hatId: Hex }[];
+  stakingRecipient: { id: Hex; hatId: Hex }[];
 }

@@ -19,7 +19,7 @@ const useAncillaryModules = ({
   chainId: SupportedChains;
 }) => {
   const {
-    data,
+    data: ancillaryModules,
     error,
     isLoading: isHatAuthoritiesLoading,
   } = useQuery({
@@ -40,8 +40,8 @@ const useAncillaryModules = ({
     );
   };
 
-  const moduleIds = data?.hatAuthority
-    ? _.uniq(extractModuleIds(data.hatAuthority))
+  const moduleIds = ancillaryModules?.hatAuthority
+    ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
     : null;
 
   const { modulesDetails, isLoading: isModulesDetailsLoading } =
@@ -59,21 +59,21 @@ const useAncillaryModules = ({
   }
 
   const hatsOwnerGates = populateHatsGatesAuthorities({
-    details: data?.hatAuthority.hsgOwner,
+    details: ancillaryModules?.hatAuthority.hsgOwner,
     gates,
     role: 'hsgOwner',
     chainId,
   });
 
   const hatsSignerGates = populateHatsGatesAuthorities({
-    details: data?.hatAuthority.hsgSigner,
+    details: ancillaryModules?.hatAuthority.hsgSigner,
     gates,
     role: 'hsgSigner',
     chainId,
   });
 
   const modulesAuthorities = populateModulesAuthorities({
-    hatAuthorities: data?.hatAuthority,
+    hatAuthorities: ancillaryModules?.hatAuthority,
     modulesDetails,
   });
 

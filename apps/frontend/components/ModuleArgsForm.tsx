@@ -1,18 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  HStack,
-  Icon,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text,
-  Tooltip,
-  VStack,
-} from '@chakra-ui/react';
+import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { explorerUrl, formatAddress, transformAndVerify } from 'app-utils';
 import { AppHat, ModuleCreationArg } from 'hats-types';
@@ -21,7 +7,6 @@ import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { FaInfoCircle, FaRegQuestionCircle } from 'react-icons/fa';
 import { prettyIdToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
@@ -37,16 +22,25 @@ import FormRowWrapper from './FormRowWrapper';
 const fallbackExamples = {
   address: '0x3bc1A0Ad72417f2d41...',
   number: '10',
+  booleanOption: ['True', 'False'],
+};
+
+const booleanOptionSets = {
+  standing: ['Good Standing', 'Bad Standing'],
+  eligibility: ['Eligible', 'Ineligible'],
+  status: ['Active', 'Inactive'],
 };
 
 const ModuleFormInput = ({
   localForm,
   arg,
   tokenAddress,
+  isDeploy,
 }: {
   localForm: UseFormReturn;
   arg: ModuleCreationArg;
   tokenAddress: Hex;
+  isDeploy?: boolean;
 }) => {
   const { onchainTree, chainId } = useTreeForm();
   const [customHatSelections, setCustomHatSelections] = useState({});
@@ -70,7 +64,6 @@ const ModuleFormInput = ({
     const trimmedValue = e.target.value.trim();
     setValue(name, trimmedValue, { shouldDirty: true });
   };
-  console.log('arg', arg);
 
   const handleChangeHat = (
     e: ChangeEvent<HTMLSelectElement>,
@@ -149,53 +142,41 @@ const ModuleFormInput = ({
   }
 
   if (arg.type === 'bool') {
-    const isChecked = watch(arg.name);
-    const booleanOptions = {
-      standing: ['Good Standing', 'Bad Standing'],
-      eligibility: ['Eligible', 'Ineligible'],
-    };
+    const booleanOptions =
+      booleanOptionSets[_.toLower(arg.name)] || fallbackExamples.booleanOption;
 
     return (
-      <Box>
-        <VStack alignItems='start'>
+      <Stack spacing={1}>
+        <Stack alignItems='start' spacing={1}>
           <HStack>
             <Text textTransform='uppercase'>{arg.name}</Text>
-            <FaRegQuestionCircle />
+            {/* <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' /> */}
           </HStack>
-          <Text color='gray.600'>{arg.description}</Text>
-        </VStack>
+          <Text color='gray.600' fontSize='sm'>
+            {arg.description}
+          </Text>
+        </Stack>
 
         <RadioGroup
-          name='standing'
-          defaultValue='Good Standing'
-          onChange={(value) => setValue('standing', value)}
+          name={arg.name}
+          defaultValue={_.first(booleanOptions)}
+          onChange={(value) => setValue(arg.name, value)}
         >
           <HStack spacing={4}>
-            <Radio value='Good Standing'>Good Standing</Radio>
-            <Radio value='Bad Standing'>Bad Standing</Radio>
+            {_.map(booleanOptions, (option) => (
+              <Radio value={option} key={option}>
+                {option}
+              </Radio>
+            ))}
           </HStack>
         </RadioGroup>
-      </Box>
-      // <FormControl as={HStack} align='center'>
-      //   <Checkbox isChecked={isChecked} />
-      //   <FormLabel m={0}>{arg.name}</FormLabel>
-      //   <Box h='16px'>
-      //     <Tooltip
-      //       as={Flex}
-      //       align='center'
-      //       label={arg.description}
-      //       placement='right'
-      //       shouldWrapChildren
-      //       hasArrow
-      //     >
-      //       <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' />
-      //     </Tooltip>
-      //   </Box>
-      // </FormControl>
+      </Stack>
     );
   }
 
   if (arg.displayType === 'hat') {
+    if (!isDeploy) return null;
+
     return (
       <Stack w='100%'>
         <Select
@@ -372,6 +353,7 @@ const ModuleArgsForm = ({
   selectedModuleArgs,
   hideIcon,
   noMargin,
+  isDeploy = true,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
@@ -379,6 +361,7 @@ const ModuleArgsForm = ({
   selectedModuleArgs: ModuleCreationArg[];
   hideIcon?: boolean;
   noMargin?: boolean;
+  isDeploy?: boolean;
 }) => {
   return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
     <FormRowWrapper key={arg.name} noMargin={noMargin}>
@@ -387,6 +370,7 @@ const ModuleArgsForm = ({
         arg={arg}
         localForm={localForm}
         tokenAddress={tokenAddress}
+        isDeploy={isDeploy}
       />
     </FormRowWrapper>
   ));
