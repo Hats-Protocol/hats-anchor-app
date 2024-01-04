@@ -7,37 +7,35 @@ import _ from 'lodash';
 
 const chains = _.keys(chainsList);
 
-// hats-hooks
+type NetworkTrees = { trees: (string | undefined)[] };
+type NetworkTreesMap = { [key: string]: NetworkTrees };
+
 const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
   const adminOfHats = async () => {
     if (!hats) return {};
     // determine the trees to fetch for each network based on the currently worn hats
-    const networkTrees: { [key: string]: { trees: (string | undefined)[] } } =
-      {};
+    const networkTrees: NetworkTreesMap = {};
     _.forEach(chains, (cId: string) => {
       networkTrees[cId] = {
         trees: _.uniq(
           _.map(
             _.filter(hats, (h: AppHat) => h.chainId === _.toNumber(cId)),
-            (h: AppHat) => h.tree?.id,
+            (h: AppHat) => _.get(h, 'tree.id'),
           ),
         ),
       };
     });
 
-    const networksWithTrees = _.omitBy(
+    const networksWithTrees: NetworkTreesMap = _.omitBy(
       networkTrees,
-      (v: { trees: (string | undefined)[] }) => _.isEmpty(v.trees),
+      (v: NetworkTrees) => _.isEmpty(v.trees),
     );
     const networkChains = _.keys(networksWithTrees);
 
     // fetch the trees for each network
-    const promises = _.map(
-      networksWithTrees,
-      (v: { trees: Tree[] }, k: string) => {
-        return fetchTreesById(_.compact(_.map(v.trees, 'id')), _.toNumber(k));
-      },
-    );
+    const promises = _.map(networksWithTrees, (v: NetworkTrees, k: string) => {
+      return fetchTreesById(_.compact(v.trees), _.toNumber(k));
+    });
     const data: unknown[] = await Promise.all(promises);
 
     // consolidate the associated hats for each tree

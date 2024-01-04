@@ -26,8 +26,7 @@ const HatWearerStatusForm = ({
   eligibility,
 }: {
   wearer: Hex | undefined;
-  // TODO is there a reason for this to be passed from above?
-  eligibility: string;
+  eligibility: string; // form value
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();

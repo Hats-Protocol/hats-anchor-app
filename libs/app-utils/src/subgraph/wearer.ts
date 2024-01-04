@@ -220,6 +220,7 @@ export const fetchControllersForUser = async (a: string) => {
   });
 
   const data: unknown[] = await Promise.all(promises);
+  console.log(data);
 
   const mapWithChains = _.map(data, (d: { hats: AppHat[] }, i: number) => {
     const hats = _.map(d.hats, (h: AppHat) => ({

@@ -388,8 +388,8 @@ export function populateModulesAuthorities({
         let description: string;
         if (_.isArray(details.details)) {
           description = details.details.join('\n');
-        } else {
-          description = details.details;
+        } else if (typeof details.details === 'string') {
+          description = details.details as string;
         }
 
         const transformedAuthorities = authorityEntries.map(
