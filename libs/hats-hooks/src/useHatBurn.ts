@@ -1,5 +1,5 @@
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -8,10 +8,12 @@ import useHatContractWrite from './useHatContractWrite';
 const useHatBurn = ({
   selectedHat,
   chainId,
+  handlePendingTx,
   onSuccess,
 }: {
   selectedHat: AppHat;
   chainId: SupportedChains;
+  handlePendingTx?: HandlePendingTx;
   onSuccess?: () => void | undefined;
 }) => {
   const currentNetworkId = useChainId();
@@ -29,6 +31,7 @@ const useHatBurn = ({
       title: 'Hat removed!',
       description: 'Successfully removed hat',
     },
+    handlePendingTx,
     handleSuccess: () => {
       onSuccess?.();
     },

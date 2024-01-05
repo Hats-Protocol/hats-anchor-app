@@ -42,7 +42,7 @@ const WearerRow = ({
 }: WearerRowProps) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
-  const { setModals } = useOverlay();
+  const { setModals, handlePendingTx } = useOverlay();
   const { address } = useAccount();
   const { chainId, selectedHat } = useTreeForm();
 
@@ -76,6 +76,7 @@ const WearerRow = ({
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
+    handlePendingTx,
     handleSuccess: (data) => {
       if (!_.isEmpty(data?.logs)) {
         toast.info({

@@ -1,6 +1,7 @@
 import {
   Button,
   Flex,
+  Heading,
   HStack,
   Icon,
   IconButton,
@@ -8,7 +9,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  ModalFooter,
   Stack,
   Text,
   Tooltip,
@@ -34,7 +34,7 @@ import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Modal from '../../atoms/Modal';
-import ModuleArgsInputs from '../../ModuleArgsForm';
+import ModuleArgsForm from '../../ModuleArgsForm';
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -49,9 +49,10 @@ const ModuleAuthorityToolbar = ({
   const { chainId, selectedHat } = useTreeForm();
   const [selectedFunction, setSelectedFunction] = useState(null);
   const formMethods = useForm({ mode: 'onChange' });
-  const { formState } = formMethods;
+  const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
+  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
   const isWearing = useMemo(
     () =>
       _.includes(
@@ -89,6 +90,14 @@ const ModuleAuthorityToolbar = ({
           icon: FaExternalLinkAlt,
         });
       }
+    }
+    if (authority.type === 'modules') {
+      const hatId = hatIdDecimalToIp(BigInt(authority.hatId));
+      const treeId = _.first(hatId.split('.'));
+      links.push({
+        link: `/trees/${chainId}/${treeId}?hatId=${hatId}`,
+        label: `Go to Hat #${hatId}`,
+      });
     }
     return links;
   }, [authority, chainId]);
@@ -133,12 +142,17 @@ const ModuleAuthorityToolbar = ({
     }
   };
 
-  const handleSubmit = (args) => {
+  const onSubmit = (args) => {
     if (authority.type === 'modules') {
+      const localArgs = args;
+      // ! workaround for hat being an arg on Passthrough module
+      if (!_.isEmpty(_.filter(selectedFunction.args, { name: 'Hat' }))) {
+        localArgs.Hat = authority?.hatId;
+      }
       callModuleFunction({
         instance: authority.instanceAddress,
         func: selectedFunction,
-        args,
+        args: localArgs,
         moduleId: authority.moduleAddress,
         onSuccess: () => {
           setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
@@ -193,103 +207,122 @@ const ModuleAuthorityToolbar = ({
           </Button>
         </Tooltip>
       )}
-      {authority.type === 'modules' && (
-        <ChakraNextLink
-          href={`${explorerUrl(chainId)}/address/${authority.instanceAddress}`}
-          isExternal
-        >
-          <Button
-            colorScheme='blue.500'
-            size='sm'
-            rightIcon={<Icon as={FiExternalLink} />}
-            variant='outline'
-            color='blue.500'
+      <HStack>
+        {authority.type === 'modules' && (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${
+              authority.instanceAddress
+            }`}
+            isExternal
           >
-            Go to {AUTHORITIES[authority.type].name}
-          </Button>
-        </ChakraNextLink>
-      )}
-      {authority.type === 'hsg' && (
-        <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
-          <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
-            <HStack>
-              <Text> Go to Safe</Text>
-              <Icon as={FaExternalLinkAlt} boxSize={3} />
-            </HStack>
-          </Button>
-        </ChakraNextLink>
-      )}
-      {!_.isEmpty(otherFunctions) && (
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
-            borderColor='blue.500'
-            variant='outline'
-            size='sm'
-          />
-          <MenuList>
-            {_.map(otherFunctions, (func, i) => (
-              <MenuItem
-                key={`${func.label}-${i}`}
-                onClick={() => handleFunctionCall(func)}
-                isDisabled={!isWearer || !isSameChain}
-              >
-                <Flex justify='space-between' align='center' w='100%' gap={1}>
-                  <Text>{func.label}</Text>
-                  <Icon as={FiPlusSquare} boxSize={4} />
-                </Flex>
-              </MenuItem>
-            ))}
-            {_.map(otherLinks, (link: LinkObject) => (
-              <ChakraNextLink
-                href={link.link}
-                isExternal={!!getHostnameFromURL(link.link)}
-              >
-                <MenuItem>
+            <Button
+              colorScheme='blue.500'
+              size='sm'
+              rightIcon={<Icon as={FiExternalLink} />}
+              variant='outline'
+              color='blue.500'
+            >
+              Go to {AUTHORITIES[authority.type].name}
+            </Button>
+          </ChakraNextLink>
+        )}
+        {authority.type === 'hsg' && (
+          <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
+            <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
+              <HStack>
+                <Text> Go to Safe</Text>
+                <Icon as={FaExternalLinkAlt} boxSize={3} />
+              </HStack>
+            </Button>
+          </ChakraNextLink>
+        )}
+        {!_.isEmpty(otherFunctions) && (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
+              borderColor='blue.500'
+              variant='outline'
+              size='sm'
+            />
+            <MenuList>
+              {_.map(otherFunctions, (func, i) => (
+                <MenuItem
+                  key={`${func.label}-${i}`}
+                  onClick={() => handleFunctionCall(func)}
+                  isDisabled={!isWearer || !isSameChain}
+                >
                   <Flex justify='space-between' align='center' w='100%' gap={1}>
-                    <Text>{link.label}</Text>
-                    <Icon as={link.icon || FaExternalLinkAlt} boxSize={3} />
+                    <Text>{func.label}</Text>
+                    <Icon as={FiPlusSquare} boxSize={4} />
                   </Flex>
                 </MenuItem>
-              </ChakraNextLink>
-            ))}
-          </MenuList>
-        </Menu>
-      )}
+              ))}
+              {_.map(otherLinks, (link: LinkObject) => (
+                <ChakraNextLink
+                  href={link.link}
+                  isExternal={!!getHostnameFromURL(link.link)}
+                >
+                  <MenuItem>
+                    <Flex
+                      justify='space-between'
+                      align='center'
+                      w='100%'
+                      gap={1}
+                    >
+                      <Text>{link.label}</Text>
+                      <Icon as={link.icon || FaExternalLinkAlt} boxSize={3} />
+                    </Flex>
+                  </MenuItem>
+                </ChakraNextLink>
+              ))}
+            </MenuList>
+          </Menu>
+        )}
+      </HStack>
 
       <Modal
         name={`functionCall-${authority.label}-${index}`}
-        title={selectedFunction?.label}
+        title={`Interact with ${authority.moduleLabel}`}
         localOverlay={localOverlay}
-        size='md'
+        headingSize='sm'
       >
-        {selectedFunction?.description && (
-          <Text mb={3}>{selectedFunction?.description}</Text>
-        )}
-        <Text>{authority.label}</Text>
-        <Stack>
-          <ModuleArgsInputs
-            selectedModuleArgs={selectedFunction?.args}
-            localForm={formMethods}
-            // ? need `tokenAddress` ?
-          />
+        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={1}>
+            <Heading size='sm'>
+              {selectedFunction?.label} for Hat #{authorityHatId}
+            </Heading>
+            {selectedFunction?.description && (
+              <Text>{selectedFunction?.description}</Text>
+            )}
+          </Stack>
+
+          <Stack>
+            <ModuleArgsForm
+              selectedModuleArgs={selectedFunction?.args}
+              localForm={formMethods}
+              hideIcon
+              noMargin
+              isDeploy={false}
+              // ? need `tokenAddress` ?
+            />
+          </Stack>
+          <Flex justify='flex-end'>
+            <HStack>
+              <Button variant='outline' onClick={() => setModals({})}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme='blue'
+                type='submit'
+                isDisabled={!formState.isValid}
+                isLoading={isModuleLoading || isHsgLoading}
+              >
+                {selectedFunction?.label}
+              </Button>
+            </HStack>
+          </Flex>
         </Stack>
-        <ModalFooter px={0}>
-          <HStack>
-            <Button variant='outline' onClick={() => setModals({})}>
-              Cancel
-            </Button>
-            <Button
-              colorScheme='blue'
-              onClick={formMethods.handleSubmit(handleSubmit)}
-              isDisabled={!formState.isValid}
-              isLoading={isModuleLoading || isHsgLoading}
-            >
-              {selectedFunction?.label}
-            </Button>
-          </HStack>
-        </ModalFooter>
       </Modal>
     </HStack>
   );

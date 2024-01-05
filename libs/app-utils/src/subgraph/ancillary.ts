@@ -7,18 +7,23 @@ const MODULES_QUERY = gql`
     hatAuthority(id: $id) {
       allowListOwner {
         id
+        hatId
       }
       allowListArbitrator {
         id
+        hatId
       }
       electionsAdmin {
         id
+        hatId
       }
       electionsBallotBox {
         id
+        hatId
       }
       eligibilityTogglePassthrough {
         id
+        hatId
       }
       hsgOwner {
         id
@@ -44,12 +49,15 @@ const MODULES_QUERY = gql`
       }
       jokeraceAdmin {
         id
+        hatId
       }
       stakingJudge {
         id
+        hatId
       }
       stakingRecipient {
         id
+        hatId
       }
     }
   }

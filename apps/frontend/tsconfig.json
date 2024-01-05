@@ -15,5 +15,5 @@
     "incremental": true
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "*.d.ts"],
-  "exclude": ["jest.config.ts"]
+  "exclude": ["jest.config.ts", ".next"]
 }

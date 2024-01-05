@@ -1,28 +1,18 @@
-import {
-  Box,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  HStack,
-  Icon,
-  Stack,
-  Tooltip,
-} from '@chakra-ui/react';
+import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
-import { transformAndVerify } from 'app-utils';
+import { explorerUrl, formatAddress, transformAndVerify } from 'app-utils';
 import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { FaInfoCircle } from 'react-icons/fa';
 import { prettyIdToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
+import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
@@ -32,18 +22,27 @@ import FormRowWrapper from './FormRowWrapper';
 const fallbackExamples = {
   address: '0x3bc1A0Ad72417f2d41...',
   number: '10',
+  booleanOption: ['True', 'False'],
+};
+
+const booleanOptionSets = {
+  standing: ['Good Standing', 'Bad Standing'],
+  eligibility: ['Eligible', 'Ineligible'],
+  status: ['Active', 'Inactive'],
 };
 
 const ModuleFormInput = ({
   localForm,
   arg,
   tokenAddress,
+  isDeploy,
 }: {
   localForm: UseFormReturn;
   arg: ModuleCreationArg;
   tokenAddress: Hex;
+  isDeploy?: boolean;
 }) => {
-  const { onchainTree } = useTreeForm();
+  const { onchainTree, chainId } = useTreeForm();
   const [customHatSelections, setCustomHatSelections] = useState({});
 
   const { watch, setValue } = localForm;
@@ -56,6 +55,7 @@ const ModuleFormInput = ({
       (!!localTokenAddress && isAddress(localTokenAddress)),
   });
   const tokenDecimals = tokenDetails?.decimals;
+  const tokenLabel = `${tokenDetails?.name} (${formatAddress(tokenAddress)})`;
 
   const handleChangeAddress = (
     e: ChangeEvent<HTMLInputElement>,
@@ -142,31 +142,43 @@ const ModuleFormInput = ({
   }
 
   if (arg.type === 'bool') {
-    const isChecked = watch(arg.name);
+    const booleanOptions =
+      booleanOptionSets[_.toLower(arg.name)] || fallbackExamples.booleanOption;
 
     return (
-      <FormControl as={HStack} align='center'>
-        <Checkbox isChecked={isChecked} />
-        <FormLabel m={0}>{arg.name}</FormLabel>
-        <Box h='16px'>
-          <Tooltip
-            as={Flex}
-            align='center'
-            label={arg.description}
-            placement='right'
-            shouldWrapChildren
-            hasArrow
-          >
-            <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' />
-          </Tooltip>
-        </Box>
-      </FormControl>
+      <Stack spacing={1}>
+        <Stack alignItems='start' spacing={1}>
+          <HStack>
+            <Text textTransform='uppercase'>{arg.name}</Text>
+            {/* <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' /> */}
+          </HStack>
+          <Text color='gray.600' fontSize='sm'>
+            {arg.description}
+          </Text>
+        </Stack>
+
+        <RadioGroup
+          name={arg.name}
+          defaultValue={_.first(booleanOptions)}
+          onChange={(value) => setValue(arg.name, value)}
+        >
+          <HStack spacing={4}>
+            {_.map(booleanOptions, (option) => (
+              <Radio value={option} key={option}>
+                {option}
+              </Radio>
+            ))}
+          </HStack>
+        </RadioGroup>
+      </Stack>
     );
   }
 
   if (arg.displayType === 'hat') {
+    if (!isDeploy) return null;
+
     return (
-      <Stack>
+      <Stack w='100%'>
         <Select
           name={arg.name}
           label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -209,45 +221,57 @@ const ModuleFormInput = ({
 
   if (arg.displayType === 'amountWithDecimals') {
     return (
-      <NumberInput
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
-        options={{
-          min: 0,
-        }}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string) || fallbackExamples.number
-        }
-        isRequired={!arg.optional}
-        customValidations={{
-          validate: (value) => {
-            if (!value) return false;
-            const numericValue = parseFloat(value);
+      <Stack w='100%' spacing={1}>
+        <NumberInput
+          name={arg.name}
+          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+          subLabel={arg.description}
+          options={{
+            min: 0,
+          }}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string) || fallbackExamples.number
+          }
+          isRequired={!arg.optional}
+          customValidations={{
+            validate: (value) => {
+              if (!value) return false;
+              const numericValue = parseFloat(value);
 
-            if (!tokenDecimals) return 'No token selected';
+              if (!tokenDecimals) return 'No token selected';
 
-            if (!_.isNaN(numericValue) && numericValue > 0) {
-              try {
-                return transformAndVerify(
-                  parseUnits(value, tokenDecimals),
-                  arg.type,
-                );
-              } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error('Error parsing units:', error);
-                return 'Error parsing units';
+              if (!_.isNaN(numericValue) && numericValue > 0) {
+                try {
+                  return transformAndVerify(
+                    parseUnits(value, tokenDecimals),
+                    arg.type,
+                  );
+                } catch (error) {
+                  // eslint-disable-next-line no-console
+                  console.error('Error parsing units:', error);
+                  return 'Error parsing units';
+                }
               }
-            }
 
-            return 'Not a valid number';
-          },
-        }}
-        onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
-        localForm={localForm}
-      />
+              return 'Not a valid number';
+            },
+          }}
+          onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
+          localForm={localForm}
+        />
+        {tokenDetails && (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
+            isExternal
+          >
+            <Text fontSize='sm' color='gray.500'>
+              {tokenLabel}
+            </Text>
+          </ChakraNextLink>
+        )}
+      </Stack>
     );
   }
 
@@ -327,19 +351,26 @@ const ModuleArgsForm = ({
   localForm,
   tokenAddress,
   selectedModuleArgs,
+  hideIcon,
+  noMargin,
+  isDeploy = true,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   tokenAddress?: Hex;
   selectedModuleArgs: ModuleCreationArg[];
+  hideIcon?: boolean;
+  noMargin?: boolean;
+  isDeploy?: boolean;
 }) => {
   return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
-    <FormRowWrapper key={arg.name}>
-      <Icon as={BsTextLeft} boxSize={4} mt={1} />
+    <FormRowWrapper key={arg.name} noMargin={noMargin}>
+      {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
       <ModuleFormInput
         arg={arg}
         localForm={localForm}
         tokenAddress={tokenAddress}
+        isDeploy={isDeploy}
       />
     </FormRowWrapper>
   ));

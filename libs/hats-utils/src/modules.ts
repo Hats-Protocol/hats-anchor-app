@@ -5,6 +5,7 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+// import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
@@ -30,6 +31,8 @@ import { Hex, parseUnits } from 'viem';
 import { formHatUrl, safeUrl } from './controllers';
 import { decimalId } from './hats';
 
+type FormValues = { [key: string]: unknown };
+
 export const deployModule = async ({
   selectedModuleDetails,
   selectedHat,
@@ -41,7 +44,7 @@ export const deployModule = async ({
   selectedModuleDetails?: ModuleDetails;
   selectedHat?: AppHat;
   address?: Hex;
-  values: any;
+  values: FormValues;
   chainId?: number;
   hatId: bigint;
 }) => {
@@ -78,7 +81,7 @@ export const deployModuleWithClaimsHatter = async ({
   claimsHatterId?: Hex;
   selectedHat?: AppHat;
   address?: Hex;
-  values: any;
+  values: FormValues;
   chainId?: number;
   hatId: bigint;
   adminHatId: bigint;
@@ -113,7 +116,7 @@ export const deployModuleWithClaimsHatter = async ({
 };
 
 export const prepareArgs = (
-  values: any,
+  values: FormValues,
   selectedModuleDetails?: ModuleDetails,
 ) => {
   if (!selectedModuleDetails) {
@@ -142,7 +145,7 @@ export const deployClaimsHatter = async ({
   claimsHatterModule?: ModuleDetails;
   selectedHat?: AppHat;
   address?: Hex;
-  values: any;
+  values: FormValues;
   chainId?: number;
   adminHatId: bigint;
 }) => {
@@ -211,9 +214,11 @@ export const processClaimsHatter = ({
 }: {
   claimsHatterAddress: Hex;
   storedData: Partial<FormData>[] | undefined;
-  adminHat: Partial<any> | undefined; // Hat + FormData
-  incrementWearers: string;
+  adminHat: any | undefined; // Hat + FormData
+  incrementWearers: string | undefined;
 }) => {
+  if (!adminHat?.id) return storedData || [];
+
   const adminId = hatIdDecimalToHex(BigInt(adminHat?.id));
   const claimsHatterWearer = {
     address: claimsHatterAddress,
@@ -273,7 +278,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
 }: {
   selectedModuleDetails?: ModuleDetails;
   isLocalFormValid: boolean;
-  values: { [key: string]: unknown };
+  values: FormValues;
   hatId: bigint;
 }) => {
   let encodedImmutableArgs: string | undefined;
@@ -284,7 +289,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     selectedModuleDetails,
   );
 
-  const areArgsFilled = (args: any[]) => _.every(args, Boolean);
+  const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
   const allArgsFilled =
     areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
 
@@ -314,9 +319,9 @@ export const processValues = ({
   selectedModuleDetails,
   tokenDecimals,
 }: {
-  originalValues: any;
+  originalValues: FormValues;
   selectedModuleDetails?: ModuleDetails;
-  tokenDecimals?: any;
+  tokenDecimals?: number | undefined;
 }) => {
   const newValues = { ...originalValues };
 
@@ -334,7 +339,7 @@ export const processValues = ({
     }
 
     if (arg.displayType === 'amountWithDecimals') {
-      const amount = newValues[arg.name];
+      const amount = newValues[arg.name] as string;
       if (
         amount !== undefined &&
         !_.isNaN(parseFloat(amount)) &&
@@ -351,7 +356,7 @@ export const processValues = ({
     }
 
     if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
-      const value = newValues[`${arg.name}_custom`];
+      const value = newValues[`${arg.name}_custom`] as string;
       newValues[arg.name] = decimalId(ipToHatId(value));
       delete newValues[`${arg.name}_custom`];
     }
@@ -372,7 +377,7 @@ export function populateModulesAuthorities({
   _.forEach(modulesDetails, (details: ModuleDetails) => {
     _.forEach(
       hatAuthorities,
-      (authorityEntries: { id: Hex }[], authorityKey: string) => {
+      (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) => {
         const matchingRoles = _.filter(
           details?.customRoles,
           (role: Role) => role.id === authorityKey,
@@ -385,21 +390,30 @@ export function populateModulesAuthorities({
             ),
         );
 
+        let description: string;
+        if (_.isArray(details.details)) {
+          description = details.details.join('\n');
+        } else if (typeof details.details === 'string') {
+          description = details.details as string;
+        }
+
         const transformedAuthorities = authorityEntries.map(
-          (item: { id: Hex }) => {
+          (item: { id: Hex; hatId: Hex }) => {
             const role = _.head(matchingRoles);
             if (role) {
               return {
                 label: `${role.name} (${formatAddress(item.id)})`,
                 link: role.id,
-                description: Array.isArray(details.details)
-                  ? details.details.join('\n')
-                  : details.details,
+                description,
                 type: AUTHORITY_TYPES.modules,
                 id: role.id,
                 functions: matchingFunctions,
                 instanceAddress: item.id,
                 moduleAddress: details.implementationAddress as Hex,
+                moduleLabel: `${details.name} (${formatAddress(
+                  item.id as Hex,
+                )})`,
+                hatId: item.hatId,
               };
             }
             return null;
@@ -463,6 +477,7 @@ const createHSG = ({
     label: `${customRole?.name} (${formatAddress(gate.id)})`,
     type: AUTHORITY_TYPES.hsg,
     id: gate.id,
+    hatId: gate.hatId,
     functions,
     description: generateGateDescription(gate, chainId),
     instanceAddress: gate.id,

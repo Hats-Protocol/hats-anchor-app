@@ -9,12 +9,14 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { AUTHORITIES } from 'app-constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { AUTHORITIES, AUTHORITY_TYPES } from 'app-constants';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
 import { Authority, AuthorityType, SnapshotStrategy } from 'hats-types';
 import _ from 'lodash';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { Hex } from 'viem';
 
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 
@@ -26,6 +28,7 @@ const AuthorityHeader = ({
   strategies,
   link,
   editingItem,
+  hatId,
 }: {
   label?: string;
   type: AuthorityType;
@@ -34,6 +37,7 @@ const AuthorityHeader = ({
   strategies?: SnapshotStrategy[];
   link?: string;
   editingItem?: Authority;
+  hatId?: Hex;
 }) => {
   const {
     label: currentLabel,
@@ -49,6 +53,19 @@ const AuthorityHeader = ({
   if (authority) localImageUrl = authority.imageUri;
   if (editingItem) localImageUrl = currentImageUrl;
   const isIpfs = localImageUrl?.startsWith('ipfs://');
+
+  // set tooltip info
+  let tooltipInfo = authority.info;
+  if (strategies) {
+    tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
+      strategies,
+    )} strateg${_.size(strategies) === 1 ? 'y' : 'ies'}.`;
+  }
+  if (type === AUTHORITY_TYPES.modules && hatId) {
+    tooltipInfo = `Connected onchain via the ${label} module for Hat #${hatIdDecimalToIp(
+      BigInt(hatId),
+    )}`;
+  }
 
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
@@ -72,13 +89,7 @@ const AuthorityHeader = ({
 
           {!hideInfo ? (
             <Tooltip
-              label={
-                strategies
-                  ? `Automatically pulled in from Snapshot. Voting weight in ${_.size(
-                      strategies,
-                    )} strateg${_.size(strategies) === 1 ? 'y' : 'ies'}.`
-                  : authority.info
-              }
+              label={tooltipInfo}
               placement='right'
               hasArrow
               shouldWrapChildren
