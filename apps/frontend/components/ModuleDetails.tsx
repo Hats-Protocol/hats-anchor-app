@@ -54,6 +54,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
     _.includes(fn.roles, 'public'),
   );
+  console.log('moduleActions', moduleActions);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({
@@ -133,7 +134,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
                 {_.map(moduleActions, (action) => (
-                  <Tooltip label={action.description}>
+                  <Tooltip label={action.description} key={action.label}>
                     <Button
                       variant='outlineMatch'
                       colorScheme='blue.500'

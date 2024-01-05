@@ -3,7 +3,7 @@ import { AUTHORITY_TYPES } from 'app-constants';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 
-export const combineAuthorities = ({
+export const getTopHatAuthorities = ({
   authorities,
   guildRoles,
   spaces,

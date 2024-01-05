@@ -36,7 +36,7 @@ import {
   LinkRequest,
   SupportedChains,
 } from 'hats-types';
-import { combineAuthorities, translateDrafts } from 'hats-utils';
+import { getTopHatAuthorities, translateDrafts } from 'hats-utils';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -67,7 +67,8 @@ export interface TreeFormContext {
   selectedOnchainHatDetails: HatDetails | undefined;
   selectedHatGuildRoles: Authority[] | undefined;
   selectedHatSpaces: Authority[] | undefined;
-  combinedAuthorities: Authority[] | undefined;
+  topHatAuthorities: Authority[] | undefined;
+  nonTopHatAuthorities: Authority[] | undefined;
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
@@ -116,7 +117,8 @@ export const TreeFormContext = createContext<TreeFormContext>({
   selectedOnchainHatDetails: undefined,
   selectedHatGuildRoles: undefined,
   selectedHatSpaces: undefined,
-  combinedAuthorities: undefined,
+  topHatAuthorities: undefined,
+  nonTopHatAuthorities: undefined,
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -706,12 +708,19 @@ export const TreeFormContextProvider = ({
     chainId,
   });
 
-  const { data: combinedAuthorities } = combineAuthorities({
+  const { data: topHatAuthorities } = getTopHatAuthorities({
     authorities: _.get(selectedHatDetails, 'authorities'),
     guildRoles: selectedHatGuildRoles,
     spaces: selectedHatSpaces,
     modulesAuthorities,
   });
+
+  const nonTopHatAuthorities = useMemo(() => {
+    return _.concat(
+      _.get(selectedHatDetails, 'authorities'),
+      modulesAuthorities,
+    );
+  }, [selectedHatDetails, modulesAuthorities]);
 
   const returnValue = useMemo(
     () => ({
@@ -742,7 +751,8 @@ export const TreeFormContextProvider = ({
       selectedOnchainHatDetails,
       selectedHatGuildRoles,
       selectedHatSpaces,
-      combinedAuthorities,
+      topHatAuthorities,
+      nonTopHatAuthorities,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
@@ -791,7 +801,8 @@ export const TreeFormContextProvider = ({
       selectedOnchainHatDetails,
       selectedHatGuildRoles,
       selectedHatSpaces,
-      combinedAuthorities,
+      topHatAuthorities,
+      nonTopHatAuthorities,
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
