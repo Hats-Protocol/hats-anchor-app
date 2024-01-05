@@ -33,6 +33,7 @@ const Modal = ({
   isOpen,
   onClose,
   size = '2xl',
+  headingSize = '24px',
   localOverlay,
   children,
 }: ModalProps) => {
@@ -69,7 +70,9 @@ const Modal = ({
       >
         {customHeader || (
           <ModalHeader>
-            <Heading fontSize='24px'>{title}</Heading>
+            <Heading size={size} fontSize={!size && '24px'}>
+              {title}
+            </Heading>
           </ModalHeader>
         )}
         <ModalCloseButton />
@@ -91,6 +94,7 @@ interface ModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   size?: string;
+  headingSize?: string;
   localOverlay: IOverlayContext;
   children: ReactNode;
 }

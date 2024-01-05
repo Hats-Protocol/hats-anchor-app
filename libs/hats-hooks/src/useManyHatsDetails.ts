@@ -34,7 +34,7 @@ const useManyHatsDetails = ({
     ) as any[], // UseQueryOptions[]
   });
 
-  const isLoading = _.some(hatsDetails, ['isLoading', true]);
+  const isLoading = _.some(hatsDetails, { isLoading: true });
 
   let returnData = _.compact(_.map(hatsDetails, 'data'));
   if (chainId) {

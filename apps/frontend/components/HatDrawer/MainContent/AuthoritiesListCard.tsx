@@ -32,7 +32,7 @@ const AuthoritiesListCard = ({
   type: AuthorityType;
   index: number;
 }) => {
-  const { label, description, link, gate, imageUrl, id, strategies } =
+  const { label, description, link, gate, imageUrl, id, strategies, hatId } =
     authority || {};
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
@@ -74,6 +74,7 @@ const AuthoritiesListCard = ({
               type={type}
               imageUrl={img}
               strategies={strategies}
+              hatId={hatId}
             />
             <AccordionIcon />
           </AccordionButton>

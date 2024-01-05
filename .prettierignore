@@ -3,3 +3,4 @@
 /coverage
 /.nx
 /node_modules
+/apps/frontend/.next

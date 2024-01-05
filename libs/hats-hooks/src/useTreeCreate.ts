@@ -2,6 +2,7 @@ import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'app-hooks';
 import { fetchTreeDetails } from 'app-utils';
+import { HandlePendingTx } from 'hats-types';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
 import _ from 'lodash';
 import router from 'next/router';
@@ -48,6 +49,7 @@ const useTreeCreate = ({
   receiver,
   overrideReceiver,
   imageUrl,
+  handlePendingTx,
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
   const currentNetworkId = useChainId();
@@ -101,6 +103,7 @@ const useTreeCreate = ({
           : address || '',
       ) && chainId === currentNetworkId,
     handleSuccess,
+    handlePendingTx,
   });
 
   return {
@@ -117,4 +120,5 @@ interface UseTreeCreateProps {
   receiver: string;
   overrideReceiver: boolean;
   imageUrl?: string;
+  handlePendingTx: HandlePendingTx;
 }

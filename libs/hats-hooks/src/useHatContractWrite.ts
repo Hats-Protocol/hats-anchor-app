@@ -16,8 +16,8 @@ interface ContractInteractionProps {
   queryKeys?: (object | string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
-  handlePendingTx?: HandlePendingTx;
-  handleSuccess?: (data?: TransactionReceipt) => void;
+  handlePendingTx?: HandlePendingTx; // pass both handlePendingTx and handleSuccess to useHatContractWrite
+  handleSuccess?: (data?: TransactionReceipt) => void; // passed with handlePendingTx
 }
 
 const useHatContractWrite = ({
