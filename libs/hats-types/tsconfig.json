@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "strict": true
+  },
+  "files": [],
+  "include": ["**/*.ts"],
+  "references": [
+    // {
+    //   "path": "./tsconfig.lib.json"
+    // }
+  ],
+  "extends": "../../tsconfig.base.json"
+}
