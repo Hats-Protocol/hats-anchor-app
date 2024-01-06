@@ -52,7 +52,8 @@ const ModuleAuthorityToolbar = ({
   const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
-  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
+  const authorityHatId =
+    authority?.hatId && hatIdDecimalToIp(BigInt(authority?.hatId));
   const isWearing = useMemo(
     () =>
       _.includes(
@@ -290,7 +291,8 @@ const ModuleAuthorityToolbar = ({
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
             <Heading size='sm'>
-              {selectedFunction?.label} for Hat #{authorityHatId}
+              {selectedFunction?.label}
+              {authorityHatId ? ` for Hat #${authorityHatId}` : ''}
             </Heading>
             {selectedFunction?.description && (
               <Text>{selectedFunction?.description}</Text>
