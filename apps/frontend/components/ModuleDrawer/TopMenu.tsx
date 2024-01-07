@@ -12,6 +12,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
+import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 
 const TopMenu = ({
@@ -42,6 +43,7 @@ const TopMenu = ({
     onchainHats,
     editMode,
   });
+  const { handlePendingTx } = useOverlay();
   const { watch } = localForm;
   const moduleType = watch('moduleType');
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
@@ -79,6 +81,7 @@ const TopMenu = ({
     selectedModuleDetails,
     onCloseModuleDrawer,
     deploymentType,
+    handlePendingTx,
   });
 
   const isChainCorrect = currentNetworkId === chainId;
@@ -145,9 +148,7 @@ const TopMenu = ({
           variant='solid'
           isDisabled={isButtonDisabled}
           isLoading={isLoading}
-          onClick={() => {
-            deploy();
-          }}
+          onClick={() => deploy()}
         >
           Deploy & Return
         </Button>

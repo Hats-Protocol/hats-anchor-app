@@ -344,6 +344,9 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                     ) || 'Max supply exceeded',
                 },
               }}
+              options={{
+                min: Number(selectedHat.currentSupply),
+              }}
               isDisabled={!isMutable(selectedHat)}
               placeholder='10'
             />

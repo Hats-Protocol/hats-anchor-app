@@ -17,11 +17,9 @@ import {
 import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import {
   useAllWearers,
-  useHatClaim,
+  useHatClaimBy,
+  useHatClaimFor,
   useHatPaginatedWearers,
-  useModuleDetails,
-  useMultiClaimsHatterCheck,
-  useMultiClaimsHatterContractWrite,
   useWearerDetails,
   useWearerEligibilityCheck,
   useWearersEligibilityCheck,
@@ -45,6 +43,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
+import HatClaimForForm from '../../forms/HatClaimForForm';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
 
@@ -75,8 +74,6 @@ const WearersList = () => {
     selectedHatDetails,
     editMode,
     wearersAndControllers,
-    onchainHats,
-    storedData,
   } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -145,35 +142,19 @@ const WearersList = () => {
     chainId,
   });
 
-  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
-    chainId,
-    selectedHat,
-    onchainHats,
-    storedData,
-    editMode,
-  });
-  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
     wearer: address,
   });
-  const { details: eligibilityDetails } = useModuleDetails({
-    address: selectedHat?.eligibility as Hex,
+
+  const { isClaimableFor } = useHatClaimFor({
+    selectedHat,
     chainId,
+    wearer: address,
   });
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
-
-  const {
-    writeAsync: setHatClaimability,
-    isLoading: isLoadingSetHatClaimability,
-  } = useMultiClaimsHatterContractWrite({
-    functionName: 'setHatClaimability',
-    address: instanceAddress,
-    chainId,
-    enabled: !!instanceAddress && isAdminUser,
-    args: [selectedHat?.id, 1],
-  });
 
   const filteredWearers = useMemo(() => {
     if (!extendedWearers) return undefined;
@@ -265,21 +246,19 @@ const WearersList = () => {
               Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>
           )}
-          {!!instanceAddress &&
-            !!eligibilityDetails &&
-            !_.includes(claimableHats, selectedHat?.id) &&
-            isAdminUser && (
-              <Button
-                size='xs'
-                variant='outline'
-                colorScheme='blue.500'
-                onClick={setHatClaimability}
-                isLoading={isLoadingSetHatClaimability}
-                isDisabled={isLoadingSetHatClaimability || !setHatClaimability}
-              >
-                Set hat for claiming
-              </Button>
-            )}
+          {isClaimableFor && isAdminUser && (
+            <Button
+              size='xs'
+              variant='outline'
+              colorScheme='blue.500'
+              isLoading={isLoading}
+              onClick={() =>
+                !maxWearersReached ? setModals?.({ claimFor: true }) : {}
+              }
+            >
+              Claim hat for wearer
+            </Button>
+          )}
           {(currentUserIsEligible as boolean) &&
             !!isClaimable &&
             !currentUserIsWearing && (
@@ -330,6 +309,15 @@ const WearersList = () => {
           )}
         </Flex>
       </Stack>
+
+      <Modal
+        name='claimFor'
+        title='Claim hat for wearer'
+        size='2xl'
+        localOverlay={localOverlay}
+      >
+        <HatClaimForForm />
+      </Modal>
 
       <Modal
         name='hatWearers'

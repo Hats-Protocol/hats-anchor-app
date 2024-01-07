@@ -263,6 +263,7 @@ const ModuleAuthorityToolbar = ({
                 <ChakraNextLink
                   href={link.link}
                   isExternal={!!getHostnameFromURL(link.link)}
+                  key={link.link}
                 >
                   <MenuItem>
                     <Flex

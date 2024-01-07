@@ -15,6 +15,7 @@ import {
   BsBarChartLine,
   BsInfoCircle,
   BsPersonAdd,
+  BsPersonCheck,
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToPrettyId, prettyIdToIp } from 'shared-utils';
@@ -118,21 +119,6 @@ const PermissionlessClaimingForm = ({
             ]}
             isDisabled={!parentHats?.length}
           />
-
-          {multiClaimsHatter &&
-            !isClaimable &&
-            isAdmin &&
-            isPermissionlesslyClaimable === 'Yes' && (
-              <FormRowWrapper>
-                <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
-                <Text color='blue.500'>
-                  A claims hatter for this tree has already been set up at{' '}
-                  <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
-                  register this hat with the hatter during the module deploy
-                  transaction.
-                </Text>
-              </FormRowWrapper>
-            )}
         </Stack>
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
@@ -146,10 +132,44 @@ const PermissionlessClaimingForm = ({
         </FormRowWrapper>
       )}
 
-      {isPermissionlesslyClaimable === 'Yes' &&
-        (!multiClaimsHatter ||
-          (multiClaimsHatter && !isClaimable && !isAdmin)) && (
-          <Stack ref={scrollTargetRef}>
+      {isPermissionlesslyClaimable === 'Yes' && (
+        <Stack ref={scrollTargetRef} spacing={12}>
+          <FormRowWrapper>
+            <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
+
+            <RadioBox
+              name='initialClaimabilityType'
+              label='Claim For Account'
+              subLabel='Should this hat be claimable on behalf of an account?'
+              localForm={localForm}
+              options={[
+                {
+                  label: 'Yes',
+                  value: '2',
+                },
+                {
+                  label: 'No',
+                  value: '1',
+                },
+              ]}
+              defaultValue='2'
+              isDisabled={!parentHats?.length}
+            />
+          </FormRowWrapper>
+          {multiClaimsHatter &&
+          !isClaimable &&
+          isAdmin &&
+          isPermissionlesslyClaimable === 'Yes' ? (
+            <FormRowWrapper>
+              <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
+              <Text color='blue.500'>
+                A claims hatter for this tree has already been set up at{' '}
+                <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
+                register this hat with the hatter during the module deploy
+                transaction.
+              </Text>
+            </FormRowWrapper>
+          ) : (
             <FormRowWrapper>
               <Icon as={BsPuzzle} boxSize={4} mt='2px' />
               <Stack>
@@ -185,8 +205,9 @@ const PermissionlessClaimingForm = ({
                 )}
               </Stack>
             </FormRowWrapper>
-          </Stack>
-        )}
+          )}
+        </Stack>
+      )}
 
       {wearingHatDetails?.wearers?.length ===
         Number(wearingHatDetails?.maxSupply) && (

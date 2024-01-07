@@ -103,7 +103,7 @@ export const deployModuleWithClaimsHatter = async ({
 
   const claimsMutableArgs = [
     transformInput(values.initialClaimableHats, 'uint256[]'),
-    transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+    transformInput(values.initialClaimabilityType, 'uint8[]'),
   ];
 
   return hatsClient?.batchCreateNewInstances({
@@ -152,7 +152,7 @@ export const deployClaimsHatter = async ({
   if (claimsHatterModule && selectedHat?.id && address) {
     const claimsMutableArgs = [
       transformInput(values.initialClaimableHats, 'uint256[]'),
-      transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+      transformInput(values.initialClaimabilityType, 'uint8[]'),
     ];
 
     const hatsClient = await createHatsModulesClient(chainId);
@@ -275,11 +275,13 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   isLocalFormValid,
   values,
   hatId,
+  claimabilityType,
 }: {
   selectedModuleDetails?: ModuleDetails;
   isLocalFormValid: boolean;
   values: FormValues;
   hatId: bigint;
+  claimabilityType?: number;
 }) => {
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
@@ -310,7 +312,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     encodedImmutableArgs,
     encodedMutableArgs,
     hatId,
-    1,
+    claimabilityType,
   ];
 };
 
