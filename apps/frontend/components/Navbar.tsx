@@ -52,6 +52,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
+  const chainId = useChainId();
 
   const hasPendingTransactions = transactions.some(
     (tx: Transaction) => tx.status === 'pending',
@@ -60,7 +61,14 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const { data: hatDetails } = useHatDetailsField(hatData?.details, editMode);
   const tabName = hatDetails?.data?.name || hatData?.details;
 
-  const [clearBanner, setClearBanner] = useLocalStorage('clearBanner', false);
+  const [clearBanner, setClearBanner] = useLocalStorage(
+    'clearBanner-goerli',
+    false,
+  );
+  const showGoerliBanner = useMemo(() => {
+    return chainId === 5 || router.query.chainId === '5';
+  }, [chainId, router.query]);
+
   const isCtrl = useMemo(() => {
     if (typeof window === 'undefined') return false;
     return _.includes(['Windows', 'Linux', 'Unix'], getOperatingSystem(window));
@@ -129,31 +137,30 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
         </HStack>
       </HStack>
 
-      {!clearBanner && CONFIG.banner && (
+      {!clearBanner && CONFIG.banner && showGoerliBanner && (
         <Flex
           bg='blue.600'
           color='white'
-          h={10}
+          h={12}
           fontSize='xs'
-          pl={6}
+          pl={8}
           borderRadius={20}
           align='center'
         >
-          <HStack spacing={1}>
-            <Text fontWeight='bold'>Announcement:</Text>
+          <Stack spacing='1px'>
             <Text textAlign='center'>
-              We’re excited to share the brand new Hats App v2.0! 🎉
+              Goerli is deprecated and will shut down soon!
             </Text>
             <ChakraNextLink
-              href='https://app.charmverse.io/hats-protocol/page-8570460396062165'
+              href={CONFIG.docsLinks.forking}
               isExternal
               decoration
               _hover={{ color: 'whiteAlpha.800' }}
               textAlign='center'
             >
-              Read the launch post here.
+              Migrate Goerli trees to Sepolia by January 31
             </ChakraNextLink>
-          </HStack>
+          </Stack>
           <IconButton
             icon={<Icon as={IoCloseOutline} color='white' h='16px' w='16px' />}
             h='20px'

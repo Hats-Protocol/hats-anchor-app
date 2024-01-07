@@ -58,6 +58,7 @@ type Config = {
     authorities: string;
     eligibility: string;
     toggle: string;
+    forking: string;
   };
 };
 
@@ -71,7 +72,7 @@ export const CONFIG: Config = {
   ipfsGateway: process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://ipfs.io/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
-  banner: false,
+  banner: true,
   claimsHatterModuleName: 'Multi Claims Hatter',
   modulesRegistryFactory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
   DOCS_URL,
@@ -101,5 +102,6 @@ export const CONFIG: Config = {
     authorities: `${DOCS_URL}/hats-integrations/hat-gated-authorities`,
     eligibility: `${DOCS_URL}/using-hats/setting-accountabilities/eligibility-requirements-for-wearers`,
     toggle: `${DOCS_URL}/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats`,
+    forking: `${DOCS_URL}/using-hats/drafting-exporting-and-deploying-tree-changes#sharing`,
   },
 };
