@@ -28,7 +28,7 @@ const ModuleDrawer = ({
       moduleType: '',
       isPermissionlesslyClaimable: 'No',
       initialClaimableHats: decimalId(selectedHat?.id),
-      initialClaimabilityTypes: '2', // 0 for not claimable, 1 for "claimable", 2 for "claimable for"
+      initialClaimabilityType: '2', // 1 for "claimable", 2 for "claimable for"
     },
   });
   const { watch } = localForm;

@@ -148,9 +148,7 @@ const TopMenu = ({
           variant='solid'
           isDisabled={isButtonDisabled}
           isLoading={isLoading}
-          onClick={() => {
-            deploy();
-          }}
+          onClick={() => deploy()}
         >
           Deploy & Return
         </Button>

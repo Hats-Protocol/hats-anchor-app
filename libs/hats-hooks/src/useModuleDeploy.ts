@@ -79,6 +79,9 @@ const useModuleDeploy = ({
   const adminHat = values?.adminHat as Hex | undefined;
   const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
+  const claimabilityType = values?.initialClaimabilityType as
+    | number
+    | undefined;
   const claimsHatterModule = _.find(modules, {
     name: CONFIG.claimsHatterModuleName,
   });
@@ -102,6 +105,7 @@ const useModuleDeploy = ({
       isLocalFormValid: localForm.formState.isValid,
       values,
       hatId,
+      claimabilityType,
     });
 
   const {
@@ -331,11 +335,20 @@ const useModuleDeploy = ({
       handleSuccess(localData);
     },
     onError: (error: Error) => {
-      // TODO catch rejected signature
-      toast.error({
-        title: 'Error!',
-        description: `${error.message}`,
-      });
+      if (
+        error.name === 'TransactionExecutionError' &&
+        error.message.includes('User rejected the request')
+      ) {
+        toast.error({
+          title: 'Signature rejected!',
+          description: 'Please accept the transaction in your wallet',
+        });
+      } else {
+        toast.error({
+          title: 'Error!',
+          description: `${error.message}`,
+        });
+      }
     },
   });
 
