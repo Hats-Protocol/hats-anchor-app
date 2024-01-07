@@ -46,7 +46,7 @@ const AuthorityHeader = ({
   } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
 
   const localLink = editingItem ? currentLink : link;
-  const authority = AUTHORITIES[type];
+  const authority = AUTHORITIES[type] || AUTHORITIES.manual;
 
   // set current image
   let localImageUrl = imageUrl;

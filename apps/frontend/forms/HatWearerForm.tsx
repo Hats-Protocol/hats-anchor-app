@@ -345,7 +345,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                 },
               }}
               options={{
-                min: Number(selectedHat.maxSupply),
+                min: Number(selectedHat.currentSupply),
               }}
               isDisabled={!isMutable(selectedHat)}
               placeholder='10'
