@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AUTHORITIES } from 'app-constants';
+import { AUTHORITIES, AUTHORITY_TYPES } from 'app-constants';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import {
   useCallHsgFunction,
@@ -52,8 +52,7 @@ const ModuleAuthorityToolbar = ({
   const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
-  const authorityHatId =
-    authority?.hatId && hatIdDecimalToIp(BigInt(authority?.hatId));
+  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
   const isWearing = useMemo(
     () =>
       _.includes(
@@ -67,7 +66,7 @@ const ModuleAuthorityToolbar = ({
 
   const otherLinks = useMemo(() => {
     const links = [];
-    if (authority.type === 'hsg') {
+    if (authority.type === AUTHORITY_TYPES.hsg) {
       links.push({
         link: `${explorerUrl(chainId)}/address/${authority.instanceAddress}`,
         label: 'Go to HatsSignerGate',
@@ -92,7 +91,7 @@ const ModuleAuthorityToolbar = ({
         });
       }
     }
-    if (authority.type === 'modules') {
+    if (authority.type === AUTHORITY_TYPES.modules) {
       const hatId = hatIdDecimalToIp(BigInt(authority.hatId));
       const treeId = _.first(hatId.split('.'));
       links.push({
@@ -126,7 +125,7 @@ const ModuleAuthorityToolbar = ({
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
-    } else if (authority.type === 'modules') {
+    } else if (authority.type === AUTHORITY_TYPES.modules) {
       callModuleFunction({
         moduleId: authority.moduleAddress,
         instance: authority.instanceAddress,
@@ -144,7 +143,7 @@ const ModuleAuthorityToolbar = ({
   };
 
   const onSubmit = (args) => {
-    if (authority.type === 'modules') {
+    if (authority.type === AUTHORITY_TYPES.modules) {
       const localArgs = args;
       // ! workaround for hat being an arg on Passthrough module
       if (!_.isEmpty(_.filter(selectedFunction.args, { name: 'Hat' }))) {
@@ -176,7 +175,7 @@ const ModuleAuthorityToolbar = ({
     instance: authority.instanceAddress,
     signer: address,
     chainId,
-    enabled: authority.type === 'hsg',
+    enabled: authority.type === AUTHORITY_TYPES.hsg,
   });
 
   return (
@@ -209,7 +208,7 @@ const ModuleAuthorityToolbar = ({
         </Tooltip>
       )}
       <HStack>
-        {authority.type === 'modules' && (
+        {authority.type === AUTHORITY_TYPES.modules && (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${
               authority.instanceAddress
@@ -227,7 +226,7 @@ const ModuleAuthorityToolbar = ({
             </Button>
           </ChakraNextLink>
         )}
-        {authority.type === 'hsg' && (
+        {authority.type === AUTHORITY_TYPES.hsg && (
           <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
               <HStack>
@@ -263,7 +262,6 @@ const ModuleAuthorityToolbar = ({
                 <ChakraNextLink
                   href={link.link}
                   isExternal={!!getHostnameFromURL(link.link)}
-                  key={link.link}
                 >
                   <MenuItem>
                     <Flex
@@ -292,8 +290,7 @@ const ModuleAuthorityToolbar = ({
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
             <Heading size='sm'>
-              {selectedFunction?.label}
-              {authorityHatId ? ` for Hat #${authorityHatId}` : ''}
+              {selectedFunction?.label} for Hat #{authorityHatId}
             </Heading>
             {selectedFunction?.description && (
               <Text>{selectedFunction?.description}</Text>
