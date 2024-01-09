@@ -4,7 +4,8 @@ import {
   Flex,
   Heading,
   HStack,
-  Image,
+  Image as ChakraImage,
+  Skeleton,
   Stack,
   Text,
   Tooltip,
@@ -14,11 +15,20 @@ import { networkImages } from 'app-constants';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
+import { useEffect, useState } from 'react';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const image = _.get(hat, 'imageUrl');
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = image;
+    img.onload = () => setImageLoaded(true);
+  }, [image]);
 
   const hatName =
     _.get(hatDetails, 'type') === '1.0'
@@ -34,17 +44,22 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>
           <HStack spacing={4}>
-            <Image
-              src={_.get(hat, 'imageUrl') || '/icon.jpeg'}
-              bgSize='cover'
-              bgPosition='center'
-              h='72px'
-              w='72px'
-              borderRadius={4}
-              border='2px solid'
-              borderColor='gray.600'
-              alt={`${hatName} image`}
-            />
+            {!imageLoaded ? (
+              <Skeleton h='72px' w='72px' borderRadius={4} />
+            ) : (
+              <ChakraImage
+                src={image || '/icon.jpeg'}
+                bgSize='cover'
+                bgPosition='center'
+                h='72px'
+                w='72px'
+                borderRadius={4}
+                border='2px solid'
+                borderColor='gray.600'
+                alt={`${hatName} image`}
+                onLoad={() => setImageLoaded(true)}
+              />
+            )}
             <Stack maxW='75%'>
               <Tooltip label={hatName} placement='top'>
                 <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
@@ -58,7 +73,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                   bg='blackAlpha.100'
                   borderRadius='md'
                 >
-                  <Image src={networkImages[hat.chainId]} />
+                  <ChakraImage src={networkImages[hat.chainId]} />
                 </Flex>
                 <Text fontSize='md' fontWeight={600} noOfLines={1}>
                   #{Number(hatIdToTreeId(BigInt(hat.id)))}
