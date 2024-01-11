@@ -7,7 +7,6 @@ import {
   Heading,
   HStack,
   SimpleGrid,
-  Spinner,
   Stack,
   Text,
   useMediaQuery,
@@ -55,7 +54,7 @@ const Home = () => {
 
   const [isSmallerScreen] = useMediaQuery('(max-width: 1700px)');
 
-  const { data: currentHats, isLoading: detailsLoading } = useWearerDetails({
+  const { data: currentHats } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
   });
@@ -65,8 +64,9 @@ const Home = () => {
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
 
-  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({ hats: activeHats.splice(0, 8) });
+  const { data: currentHatsWithImagesData } = useImageURIs({
+    hats: activeHats ? activeHats.splice(0, 8) : [],
+  });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
@@ -135,28 +135,19 @@ const Home = () => {
                   </ChakraNextLink>
                 )}
               </Flex>
-              {imagesLoading || detailsLoading ? (
-                <Flex justify='center' align='center' pt={10}>
-                  <Spinner />
-                </Flex>
-              ) : (
-                <SimpleGrid
-                  columns={{
-                    base: 1,
-                    sm: 2,
-                    md: 3,
-                    lg: 4,
-                  }}
-                  spacing={6}
-                >
-                  {_.map(
-                    currentHatsWithImagesData,
-                    (hat: AppHat, i: number) => (
-                      <DashboardHatCard hat={hat} key={i} />
-                    ),
-                  )}
-                </SimpleGrid>
-              )}
+              <SimpleGrid
+                columns={{
+                  base: 1,
+                  sm: 2,
+                  md: 3,
+                  lg: 4,
+                }}
+                spacing={6}
+              >
+                {_.map(currentHatsWithImagesData, (hat: AppHat, i: number) => (
+                  <DashboardHatCard hat={hat} key={i} />
+                ))}
+              </SimpleGrid>
             </Card>
           ) : (
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>

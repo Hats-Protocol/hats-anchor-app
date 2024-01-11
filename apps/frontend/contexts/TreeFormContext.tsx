@@ -716,10 +716,9 @@ export const TreeFormContextProvider = ({
   });
 
   const nonTopHatAuthorities = useMemo(() => {
-    return _.concat(
-      _.get(selectedHatDetails, 'authorities'),
-      modulesAuthorities,
-    );
+    const selectedHatAuthorities =
+      _.get(selectedHatDetails, 'authorities') || [];
+    return _.concat(selectedHatAuthorities, modulesAuthorities);
   }, [selectedHatDetails, modulesAuthorities]);
 
   const returnValue = useMemo(

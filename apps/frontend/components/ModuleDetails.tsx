@@ -235,7 +235,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
               <Text fontSize='sm'>Claimability Type</Text>
               <HStack>
                 <Button
-                  as={Button}
                   size='xs'
                   variant='outline'
                   colorScheme='blue.500'
