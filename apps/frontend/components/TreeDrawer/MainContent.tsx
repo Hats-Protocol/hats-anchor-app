@@ -5,8 +5,14 @@ import {
   Flex,
   Heading,
   HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Stack,
+  Switch,
   Text,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -20,14 +26,17 @@ import {
   isTopHatOrMutable,
 } from 'hats-utils';
 import _ from 'lodash';
-import { BsChevronRight } from 'react-icons/bs';
+import { useState } from 'react';
+import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { prettyIdToId } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
+import ImportTreeForm from '../../forms/ImportTreeForm';
 import Markdown from '../atoms/Markdown';
+import Modal from '../atoms/Modal';
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
@@ -46,7 +55,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     treeId,
     chainId,
     linkedHatIds,
+    inactiveHats,
   } = useTreeForm();
+  const hasInactiveHats = inactiveHats.length > 0;
   const isClient = useIsClient();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
@@ -68,7 +79,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
-  const handleExport = () =>
+  const handleExport = (includeInactiveHats: boolean) =>
     handleExportBranch({
       targetHatId: prettyIdToId(treeId),
       treeToDisplay,
@@ -76,6 +87,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       storedData,
       chainId,
       toast,
+      withInactiveHats: includeInactiveHats, // Pass the state value
     });
 
   if (!onchainHats || !treeToDisplay) return null;
@@ -133,15 +145,41 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           >
             Import
           </Button>
-          <Button
-            leftIcon={<FiSave />}
-            colorScheme='twitter'
-            variant='solid'
-            isDisabled={treeToDisplay?.length === 1}
-            onClick={handleExport}
-          >
-            Export
-          </Button>
+          {hasInactiveHats ? (
+            <Menu>
+              <MenuButton
+                as={Button}
+                leftIcon={<FiSave />}
+                colorScheme='twitter'
+                variant='solid'
+                isDisabled={treeToDisplay?.length === 1}
+              >
+                Export
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => handleExport(true)}>
+                  <Tooltip label='This option should be used for applying changes to the same tree, to preserve its structure.'>
+                    Export all Hats
+                  </Tooltip>
+                </MenuItem>
+                <MenuItem onClick={() => handleExport(false)}>
+                  <Tooltip label='This option should be used when creating a new tree.'>
+                    Export only Active Hats
+                  </Tooltip>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          ) : (
+            <Button
+              leftIcon={<FiSave />}
+              colorScheme='twitter'
+              variant='solid'
+              isDisabled={treeToDisplay?.length === 1}
+              onClick={() => handleExport(false)}
+            >
+              Export
+            </Button>
+          )}
         </VStack>
       </HStack>
 
@@ -247,6 +285,14 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           );
         })}
       </Box>
+
+      <Modal
+        name='importFile'
+        title='Import Draft Tree Changes'
+        localOverlay={localOverlay}
+      >
+        <ImportTreeForm />
+      </Modal>
     </Stack>
   );
 };
