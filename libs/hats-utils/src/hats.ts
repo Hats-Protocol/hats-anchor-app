@@ -10,7 +10,7 @@ import {
   HatWearer,
 } from 'hats-types';
 import _ from 'lodash';
-import { idToPrettyId, prettyIdToId } from 'shared-utils';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
@@ -579,7 +579,7 @@ const extractWearers = (wearers: any[]): FormWearer[] => {
   }));
 };
 
-export const checkMissingHats = (
+export const checkMissingParents = (
   hats: Partial<FormData>[],
   onchainHats: AppHat[] | undefined,
 ) => {
@@ -595,4 +595,47 @@ export const checkMissingHats = (
   });
 
   return _.some(missingParent);
+};
+
+export const checkMissingSiblings = (
+  hats: Partial<FormData>[],
+  onchainHats: AppHat[] | undefined,
+) => {
+  if (!onchainHats || !hats || hats.length === 0)
+    return { hasMissing: false, missingSiblings: [] };
+
+  const onchainPrettyIds = _.map(_.filter(onchainHats, 'id'), (hat) =>
+    idToPrettyId(hat.id),
+  );
+  const hatsWithId = _.filter(hats, 'id');
+  const allIdsSet = new Set([
+    ...onchainPrettyIds,
+    ..._.map(hatsWithId, (hat) => idToPrettyId(hat.id)),
+  ]);
+
+  const missingSiblings: string[] = [];
+
+  _.forEach(hatsWithId, (hat) => {
+    const prettyId = idToPrettyId(hat.id);
+    const idSegments = prettyId.split('.');
+
+    if (idSegments.length < 2 || !idSegments[0]) return;
+
+    const siblingPrefix = idSegments.slice(0, -1).join('.');
+    const siblingNumber = parseInt(idSegments[idSegments.length - 1], 16);
+
+    if (siblingNumber > 1) {
+      const previousSibling = `${siblingPrefix}.${(siblingNumber - 1)
+        .toString(16)
+        .padStart(4, '0')}`;
+      if (!allIdsSet.has(previousSibling)) {
+        missingSiblings.push(prettyIdToIp(previousSibling));
+      }
+    }
+  });
+
+  return {
+    hasMissing: missingSiblings.length > 0,
+    missingSiblings,
+  };
 };

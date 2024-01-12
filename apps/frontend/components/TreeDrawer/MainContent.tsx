@@ -155,12 +155,12 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 Export
               </MenuButton>
               <MenuList>
-                <MenuItem onClick={() => handleExport(true)}>
+                <MenuItem onClick={() => handleExport(false)}>
                   <Tooltip label='This option should be used for applying changes to the same tree, to preserve its structure.'>
                     Template for current tree
                   </Tooltip>
                 </MenuItem>
-                <MenuItem onClick={() => handleExport(false)}>
+                <MenuItem onClick={() => handleExport(true)}>
                   <Tooltip label='This option should be used when creating a new tree.'>
                     Template for new tree
                   </Tooltip>
