@@ -342,7 +342,7 @@ export const handleExportBranch = ({
   storedData,
   chainId,
   toast,
-  withInactiveHats = false,
+  shouldPatchIds = false,
 }: {
   targetHatId?: Hex;
   treeToDisplay?: AppHat[];
@@ -351,7 +351,7 @@ export const handleExportBranch = ({
   decimalTreeId?: number;
   chainId?: number;
   toast: any;
-  withInactiveHats?: boolean;
+  shouldPatchIds?: boolean;
 }) => {
   if (
     !targetHatId ||
@@ -385,11 +385,11 @@ export const handleExportBranch = ({
   const preparedTree = prepareExportTree(mergedHats);
   const patchedData = patchDataToEnsureConsecutiveIds(preparedTree);
 
-  const fileData = JSON.stringify(withInactiveHats ? patchedData : onchainHats);
+  const fileData = JSON.stringify(shouldPatchIds ? patchedData : preparedTree);
   const blob = new Blob([fileData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.download = `chain-${chainId}-${type}-${hatId}.json`; // Change filename to denote branch
+  link.download = `chain-${chainId}-${type}-${hatId}.json`;
   link.href = url;
   link.click();
   toast.success({

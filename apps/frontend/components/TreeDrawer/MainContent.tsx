@@ -10,7 +10,6 @@ import {
   MenuItem,
   MenuList,
   Stack,
-  Switch,
   Text,
   Tooltip,
   VStack,
@@ -26,8 +25,7 @@ import {
   isTopHatOrMutable,
 } from 'hats-utils';
 import _ from 'lodash';
-import { useState } from 'react';
-import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
+import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { prettyIdToId } from 'shared-utils';
 import { Hex } from 'viem';
@@ -79,7 +77,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
-  const handleExport = (includeInactiveHats: boolean) =>
+  const handleExport = (shouldPatchIds: boolean) =>
     handleExportBranch({
       targetHatId: prettyIdToId(treeId),
       treeToDisplay,
@@ -87,7 +85,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       storedData,
       chainId,
       toast,
-      withInactiveHats: includeInactiveHats, // Pass the state value
+      shouldPatchIds,
     });
 
   if (!onchainHats || !treeToDisplay) return null;
@@ -159,12 +157,12 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
               <MenuList>
                 <MenuItem onClick={() => handleExport(true)}>
                   <Tooltip label='This option should be used for applying changes to the same tree, to preserve its structure.'>
-                    Export all Hats
+                    Template for current tree
                   </Tooltip>
                 </MenuItem>
                 <MenuItem onClick={() => handleExport(false)}>
                   <Tooltip label='This option should be used when creating a new tree.'>
-                    Export only Active Hats
+                    Template for new tree
                   </Tooltip>
                 </MenuItem>
               </MenuList>
