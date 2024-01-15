@@ -39,9 +39,7 @@ const FeaturedTreeCard = ({
         spacing={0}
       >
         <Box bg='gray.100' borderTopRadius={6} flex='1'>
-          {!imageLoaded ? (
-            <Skeleton height='150px' borderTopRadius={6} />
-          ) : (
+          <Skeleton height='150px' borderTopRadius={6} isLoaded={imageLoaded}>
             <ChakraImage
               loading='lazy'
               src={image}
@@ -52,7 +50,7 @@ const FeaturedTreeCard = ({
               fit='cover'
               borderTopRadius={6}
             />
-          )}
+          </Skeleton>
         </Box>
         <HStack
           px={4}

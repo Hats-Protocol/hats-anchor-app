@@ -26,13 +26,10 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import ImportTreeForm from '../../forms/ImportTreeForm';
-import Modal from '../atoms/Modal';
 import NetworkSwitcher from '../NetworkSwitcher';
 
 const TopMenu = () => {
   const currentChain = useChainId();
-  const localOverlay = useOverlay();
   const { address } = useAccount();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
@@ -188,13 +185,6 @@ const TopMenu = () => {
         </Tooltip>
       </HStack>
 
-      <Modal
-        name='importFile'
-        title='Import Draft Tree Changes'
-        localOverlay={localOverlay}
-      >
-        <ImportTreeForm />
-      </Modal>
       <ChakraModal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent>

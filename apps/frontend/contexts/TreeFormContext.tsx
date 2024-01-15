@@ -48,7 +48,12 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { createHierarchy, ipToHatId, mapWithChainId } from 'shared-utils';
+import {
+  createHierarchy,
+  ipToHatId,
+  mapWithChainId,
+  prettyIdToId,
+} from 'shared-utils';
 import { Hex } from 'viem';
 import { useQueryClient } from 'wagmi';
 
@@ -74,6 +79,7 @@ export interface TreeFormContext {
   linkRequestFromTree: LinkRequest[] | undefined;
   linkedHatIds?: Hex[];
   wearersAndControllers: HatWearer[] | undefined;
+  inactiveHats: string[] | undefined;
   // local storage
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
@@ -124,6 +130,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   linkRequestFromTree: undefined,
   linkedHatIds: undefined,
   wearersAndControllers: undefined,
+  inactiveHats: undefined,
   // local storage
   storedData: undefined,
   setStoredData: undefined,
@@ -346,15 +353,16 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
+  const inactiveHats = useMemo(() => {
+    return _.map(
+      _.filter(orgChartTree, ['status', false]),
+      (h: AppHat) => h.prettyId,
+    );
+  }, [orgChartTree]);
+
   const filteredTree = useMemo(() => {
     if (showInactiveHats) return orgChartTree;
 
-    const inactiveHats = _.map(
-      _.filter(orgChartTree, ['status', false]),
-      (h: AppHat) => {
-        return _.get(h, 'prettyId');
-      },
-    );
     const inactiveAncestors = _.map(
       _.filter(orgChartTree, (hat: AppHat) =>
         _.some(inactiveHats, (h: Hex) => h && hat.prettyId?.includes(h)),
@@ -365,7 +373,7 @@ export const TreeFormContextProvider = ({
     return _.reject(orgChartTree, (h: AppHat) =>
       _.includes(_.concat(inactiveHats, inactiveAncestors), h.prettyId),
     );
-  }, [orgChartTree, showInactiveHats]);
+  }, [inactiveHats, orgChartTree, showInactiveHats]);
   const overrideOrgChartData = useMemo(() => {
     return _.map(filteredTree, (hat: AppHat) => {
       const matchingHat = _.find(storedData, { id: hat.id });
@@ -738,6 +746,7 @@ export const TreeFormContextProvider = ({
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,
+      inactiveHats,
       // local storage
       storedData,
       setStoredData,
@@ -788,6 +797,7 @@ export const TreeFormContextProvider = ({
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,
+      inactiveHats,
       // local storage
       storedData,
       setStoredData,
