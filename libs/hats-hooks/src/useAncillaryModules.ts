@@ -63,6 +63,7 @@ const useAncillaryModules = ({
     gates,
     role: 'hsgOwner',
     chainId,
+    hatId: id as Hex,
   });
 
   const hatsSignerGates = populateHatsGatesAuthorities({
@@ -70,6 +71,7 @@ const useAncillaryModules = ({
     gates,
     role: 'hsgSigner',
     chainId,
+    hatId: id as Hex,
   });
 
   const modulesAuthorities = populateModulesAuthorities({

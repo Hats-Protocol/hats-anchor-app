@@ -436,15 +436,19 @@ export const populateHatsGatesAuthorities = ({
   gates,
   role,
   chainId,
+  hatId,
 }: {
   details?: HatSignerGate[] | null;
   gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
   role: 'hsgOwner' | 'hsgSigner';
   chainId: SupportedChains;
+  hatId?: Hex;
 }) => {
   if (!details || !gates) return [];
 
-  return details.map((gate) => createHSG({ gate, role, gates, chainId }));
+  return details.map((gate) =>
+    createHSG({ gate, role, gates, chainId, hatId }),
+  );
 };
 
 const createHSG = ({
@@ -452,11 +456,13 @@ const createHSG = ({
   role,
   gates,
   chainId,
+  hatId,
 }: {
   gate: HatSignerGate;
   role: 'hsgOwner' | 'hsgSigner';
   gates: { single: HsgMetadata; multi: HsgMetadata };
   chainId: SupportedChains;
+  hatId?: Hex;
 }) => {
   const customRole = _.find(
     gates[gate.type === 'Single' ? 'single' : 'multi'].customRoles,
@@ -479,7 +485,7 @@ const createHSG = ({
     label: `${customRole?.name} (${formatAddress(gate.id)})`,
     type: AUTHORITY_TYPES.hsg,
     id: gate.id,
-    hatId: gate.hatId,
+    hatId,
     functions,
     description: generateGateDescription(gate, chainId),
     instanceAddress: gate.id,
