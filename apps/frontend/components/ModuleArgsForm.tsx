@@ -114,9 +114,7 @@ const ModuleFormInput = ({
     arg.displayType === 'erc721' ||
     arg.displayType === 'erc1155' ||
     arg.displayType === 'jokerace' ||
-    // TODO handle address/address[] separately
-    arg.type === 'address' ||
-    arg.type === 'address[]'
+    arg.type === 'address'
   ) {
     return (
       <Input
@@ -131,6 +129,30 @@ const ModuleFormInput = ({
         options={{
           required: !arg.optional,
           validate: (value) => {
+            if (!isAddress(value)) return 'Invalid address';
+            return true;
+          },
+        }}
+        localForm={localForm}
+        onChange={(e) => handleChangeAddress(e, arg.name)}
+      />
+    );
+  }
+
+  if (arg.type === 'address[]') {
+    return (
+      <Input
+        name={arg.name}
+        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+        subLabel={arg.description}
+        placeholder={
+          Array.isArray(arg.example)
+            ? (arg.example as string[]).join(', ')
+            : (arg.example as string) || fallbackExamples.address
+        }
+        options={{
+          validate: (value) => {
+            if (!value) return true;
             if (!isAddress(value)) return 'Invalid address';
             return true;
           },
