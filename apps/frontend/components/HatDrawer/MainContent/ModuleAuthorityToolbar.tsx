@@ -53,7 +53,7 @@ const ModuleAuthorityToolbar = ({
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
   const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
-  const isWearing = useMemo(
+  const isWearer = useMemo(
     () =>
       _.includes(
         _.map(selectedHat?.wearers, 'id'),
@@ -112,15 +112,6 @@ const ModuleAuthorityToolbar = ({
       chainId,
     });
 
-  const isWearer = useMemo(
-    () =>
-      _.includes(
-        _.map(selectedHat?.wearers, 'id'),
-        address?.toLocaleLowerCase(),
-      ),
-    [selectedHat, address],
-  );
-
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
@@ -178,27 +169,36 @@ const ModuleAuthorityToolbar = ({
     enabled: authority.type === AUTHORITY_TYPES.hsg,
   });
 
+  const getDisabledReason = (isOnWrongNetwork, isNotWearer, isClaimed) => {
+    if (isOnWrongNetwork) {
+      return 'You are on the wrong network.';
+    }
+    if (isNotWearer) {
+      return 'You are not a wearer of the current hat.';
+    }
+    if (isClaimed) {
+      return 'You are already a signer';
+    }
+    return '';
+  };
+
+  const isDisabled = !isWearer || !isSameChain;
+  const isPrimaryFunctionDisabled =
+    isDisabled || (primaryFunction.functionName === 'claimSigner' && claimed);
+  const primaryDisabledReason = getDisabledReason(
+    !isSameChain,
+    !isWearer,
+    primaryFunction.functionName === 'claimSigner' && claimed,
+  );
+  const otherDisabledReason = getDisabledReason(!isSameChain, !isWearer, false);
+
   return (
     <HStack mb={4} wrap='wrap'>
       {primaryFunction && (
-        <Tooltip
-          label={
-            // eslint-disable-next-line no-nested-ternary
-            primaryFunction.functionName === 'claimSigner' && !isWearing
-              ? 'You are not wearing the hat'
-              : claimed
-              ? 'You are already a signer'
-              : ''
-          }
-        >
+        <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'
-            isDisabled={
-              !isWearer ||
-              !isSameChain ||
-              (primaryFunction.functionName === 'claimSigner' &&
-                (!isWearing || claimed))
-            }
+            isDisabled={isPrimaryFunctionDisabled}
             size='sm'
             onClick={() => handleFunctionCall(primaryFunction)}
             rightIcon={<Icon as={FiPlusSquare} />}
@@ -247,16 +247,23 @@ const ModuleAuthorityToolbar = ({
             />
             <MenuList>
               {_.map(otherFunctions, (func, i) => (
-                <MenuItem
-                  key={`${func.label}-${i}`}
-                  onClick={() => handleFunctionCall(func)}
-                  isDisabled={!isWearer || !isSameChain}
-                >
-                  <Flex justify='space-between' align='center' w='100%' gap={1}>
-                    <Text>{func.label}</Text>
-                    <Icon as={FiPlusSquare} boxSize={4} />
-                  </Flex>
-                </MenuItem>
+                <Tooltip label={otherDisabledReason}>
+                  <MenuItem
+                    key={`${func.label}-${i}`}
+                    onClick={() => handleFunctionCall(func)}
+                    isDisabled={isDisabled}
+                  >
+                    <Flex
+                      justify='space-between'
+                      align='center'
+                      w='100%'
+                      gap={1}
+                    >
+                      <Text>{func.label}</Text>
+                      <Icon as={FiPlusSquare} boxSize={4} />
+                    </Flex>
+                  </MenuItem>
+                </Tooltip>
               ))}
               {_.map(otherLinks, (link: LinkObject) => (
                 <ChakraNextLink
@@ -280,7 +287,6 @@ const ModuleAuthorityToolbar = ({
           </Menu>
         )}
       </HStack>
-
       <Modal
         name={`functionCall-${authority.label}-${index}`}
         title={`Interact with ${authority.moduleLabel}`}
