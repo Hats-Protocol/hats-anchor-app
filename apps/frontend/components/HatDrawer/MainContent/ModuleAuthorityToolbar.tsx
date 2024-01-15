@@ -52,7 +52,8 @@ const ModuleAuthorityToolbar = ({
   const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
-  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
+  const authorityHatId =
+    authority?.hatId && hatIdDecimalToIp(BigInt(authority?.hatId));
   const isWearing = useMemo(
     () =>
       _.includes(
@@ -214,6 +215,7 @@ const ModuleAuthorityToolbar = ({
               authority.instanceAddress
             }`}
             isExternal
+            key={`${authority.label}-${authority.instanceAddress}`}
           >
             <Button
               colorScheme='blue.500'
@@ -227,7 +229,11 @@ const ModuleAuthorityToolbar = ({
           </ChakraNextLink>
         )}
         {authority.type === AUTHORITY_TYPES.hsg && (
-          <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
+          <ChakraNextLink
+            href={safeUrl(chainId, authority.safe)}
+            isExternal
+            key={authority.safe}
+          >
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
               <HStack>
                 <Text> Go to Safe</Text>
@@ -262,6 +268,7 @@ const ModuleAuthorityToolbar = ({
                 <ChakraNextLink
                   href={link.link}
                   isExternal={!!getHostnameFromURL(link.link)}
+                  key={link.link}
                 >
                   <MenuItem>
                     <Flex
