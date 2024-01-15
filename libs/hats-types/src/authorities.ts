@@ -13,6 +13,7 @@ export type AuthorityType =
 // might be worth splitting this into multiple types
 export type Authority = {
   label: string;
+  subLabel?: string;
   link?: string;
   gate?: string | undefined;
   description?: string;

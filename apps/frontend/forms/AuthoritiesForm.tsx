@@ -20,7 +20,7 @@ import { AUTHORITY_TYPES } from 'app-constants';
 import { usePinImageIpfs } from 'app-hooks';
 import { formatImageUrl, getHostnameFromURL } from 'app-utils';
 import { id } from 'date-fns/locale';
-import { Authority, AuthorityType } from 'hats-types';
+import { Authority } from 'hats-types';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -228,14 +228,15 @@ const AuthoritiesForm = ({
               <Flex w='full' justifyContent='center'>
                 <Card borderRadius='4px' boxShadow='md' p={4} w='80%'>
                   <AuthorityHeader
-                    editingItem={item as Authority}
-                    label={authorityLabel}
-                    type={
-                      (isGate
+                    authority={{
+                      label: authorityLabel,
+                      link,
+                      type: isGate
                         ? AUTHORITY_TYPES.gate
-                        : AUTHORITY_TYPES.manual) as AuthorityType
-                    }
-                    imageUrl={item?.imageUrl}
+                        : AUTHORITY_TYPES.manual,
+                      imageUrl,
+                    }}
+                    editingItem={item as Authority}
                     hideInfo
                   />
                 </Card>

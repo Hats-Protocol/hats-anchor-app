@@ -48,12 +48,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import {
-  createHierarchy,
-  ipToHatId,
-  mapWithChainId,
-  prettyIdToId,
-} from 'shared-utils';
+import { createHierarchy, ipToHatId, mapWithChainId } from 'shared-utils';
 import { Hex } from 'viem';
 import { useQueryClient } from 'wagmi';
 

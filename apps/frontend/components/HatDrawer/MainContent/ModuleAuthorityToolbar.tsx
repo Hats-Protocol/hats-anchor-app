@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AUTHORITIES, AUTHORITY_TYPES } from 'app-constants';
+import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from 'app-constants';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import {
   useCallHsgFunction,
@@ -222,7 +222,7 @@ const ModuleAuthorityToolbar = ({
               variant='outline'
               color='blue.500'
             >
-              Go to {AUTHORITIES[authority.type].name}
+              Go to {AUTHORITY_ENFORCEMENT[authority.type].name}
             </Button>
           </ChakraNextLink>
         )}
@@ -230,7 +230,7 @@ const ModuleAuthorityToolbar = ({
           <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
               <HStack>
-                <Text> Go to Safe</Text>
+                <Text>Go to Safe</Text>
                 <Icon as={FaExternalLinkAlt} boxSize={3} />
               </HStack>
             </Button>

@@ -3,6 +3,7 @@ import { HatDetails } from 'hats-types';
 import _ from 'lodash';
 
 const includesKeys = (data: unknown, keys: string[]) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _.every(_.keys(data), (k: any) => _.includes(keys, k));
 
 export interface DetailsData {

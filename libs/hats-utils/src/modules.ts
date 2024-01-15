@@ -214,6 +214,7 @@ export const processClaimsHatter = ({
 }: {
   claimsHatterAddress: Hex;
   storedData: Partial<FormData>[] | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adminHat: any | undefined; // Hat + FormData
   incrementWearers: string | undefined;
 }) => {
@@ -482,14 +483,20 @@ const createHSG = ({
         );
 
   return {
-    label: `${customRole?.name} (${formatAddress(gate.id)})`,
+    label: `${customRole?.name}`,
+    subLabel: formatAddress(gate.id),
     type: AUTHORITY_TYPES.hsg,
     id: gate.id,
+    hsgConfig: {
+      type: (gate.type === 'Single' ? 'HSG' : 'MHSG') as HsgType,
+      minThreshold: gate.minThreshold,
+      targetThreshold: gate.targetThreshold,
+      maxSigners: gate.maxSigners,
+    },
     hatId,
     functions,
     description: generateGateDescription(gate, chainId),
     instanceAddress: gate.id,
-    hgsType: (gate.type === 'Single' ? 'HSG' : 'MHSG') as HsgType,
     ownerHat: gate.ownerHat,
     signerHats: gate.signerHats,
     safe: gate.safe,

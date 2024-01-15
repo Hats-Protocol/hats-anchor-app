@@ -18,7 +18,9 @@ type AuthorityInfo = {
   imageUri?: string;
 };
 
-export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
+export const AUTHORITY_ENFORCEMENT: {
+  [key in AuthorityType]: AuthorityInfo;
+} = {
   protocol: {
     label: 'Hats Protocol Authority',
     info: 'Connected onchain via Hats Protocol',
