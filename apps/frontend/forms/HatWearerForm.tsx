@@ -11,7 +11,6 @@ import {
   Input as ChakraInput,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
   Stack,
   Text,
   Tooltip,
@@ -34,11 +33,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
-import { FaCheck, FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
+import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { toTreeId } from 'shared-utils';
 import { createPublicClient, Hex, http, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
+import AddressInput from '../components/AddressInput';
 import DropZone from '../components/atoms/DropZone';
 import NumberInput from '../components/atoms/NumberInput';
 import FormRowWrapper from '../components/FormRowWrapper';
@@ -57,6 +57,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     selectedOnchainHat,
     storedData,
     hatDisclosure,
+    editMode,
   } = useTreeForm();
   const { localForm: hatForm } = useHatForm();
   const toast = useToast();
@@ -68,14 +69,12 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   ]);
 
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
-  const [currentInput, setCurrentInput] = useState('');
+  const currentInput = watch?.('currentAddress');
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<
     Hex | undefined
   >();
 
   const localWearers: FormWearer[] = watch?.('wearers', []);
-  const editMode = _.gt(_.size(_.keys(watch?.())), 1);
-
   const hatId = _.get(selectedHat, 'id');
   const detailsObject = _.get(selectedHat, 'detailsObject');
   const currentSupply = _.get(selectedHat, 'currentSupply');
@@ -131,6 +130,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   useEffect(() => {
     const localIsAddress = isAddress(currentInput);
+    console.log('currentInput', currentInput);
     setIsCurrentInputAddress(localIsAddress);
     if (localIsAddress) {
       setCurrentResolvedAddress(currentInput);
@@ -228,8 +228,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       ens: isEnsAddress ? currentInput : '',
     });
     setValue?.('wearers', newLocalWearers);
-    setCurrentInput('');
     setCurrentResolvedAddress(undefined);
+    setValue?.('currentAddress', ''); // Reset the value of the localForm's currentAddress
   };
 
   const handleRemoveWearer = (index: number) => {
@@ -402,36 +402,13 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
             </Box>
           ))}
           <Flex w='full' direction='column' gap={1}>
-            <InputGroup flexGrow={1}>
-              <InputLeftElement>
-                <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
-              </InputLeftElement>
-              <ChakraInput
-                w='full'
-                textOverflow='ellipsis'
-                type='address'
-                placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
-                value={currentInput}
-                isInvalid={
-                  (currentResolvedAddress && !isInGoodStanding) ||
-                  _.includes(
-                    currentWearerList,
-                    _.toLower(currentResolvedAddress),
-                  ) ||
-                  isAddressAlreadyAdded
-                }
-                isDisabled={wouldExceedMaxSupply}
-                onChange={(e) => {
-                  setCurrentInput(_.toLower(e.target.value) ?? '');
-                }}
-                onBlur={handleAddWearer}
-              />
-              {ensResolvedAddress && (
-                <InputRightElement right='1rem'>
-                  <FaCheck color='green' />
-                </InputRightElement>
-              )}
-            </InputGroup>
+            <AddressInput
+              name='currentAddress'
+              localForm={localForm}
+              showResolvedAddress={Boolean(currentResolvedAddress)}
+              isDisabled={wouldExceedMaxSupply}
+              resolvedAddress={String(currentResolvedAddress)}
+            />
 
             {currentResolvedAddress && !isInGoodStanding && (
               <Text fontSize='sm' color='red.500'>
@@ -447,12 +424,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                   This address is already (pending) wearing this hat
                 </Text>
               </HStack>
-            )}
-
-            {ensResolvedAddress && (
-              <Text fontSize='sm' color='gray.500' textAlign='left' w='full'>
-                {ensResolvedAddress}
-              </Text>
             )}
           </Flex>
 
