@@ -6,6 +6,7 @@ import {
   HStack,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useDebounce } from 'app-hooks';
@@ -45,7 +46,7 @@ const HatTransferForm = ({
 
   const isTopHat = hatId && !_.includes(hatIdDecimalToIp(BigInt(hatId)), '.');
 
-  const { writeAsync, isLoading } = useHatContractWrite({
+  const { writeAsync, isLoading, prepareErrorMessage } = useHatContractWrite({
     functionName: 'transferHat',
     args: [hatId, currentWearerAddress, newWearerAddress],
     chainId,
@@ -76,6 +77,9 @@ const HatTransferForm = ({
     await writeAsync?.();
   };
 
+  const isDisabled =
+    !writeAsync || isLoading || isLoadingNewWearerResolvedAddress;
+
   const showNewResolvedAddress =
     newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
 
@@ -103,14 +107,11 @@ const HatTransferForm = ({
           resolvedAddress={newWearerResolvedAddress}
         />
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={
-              !writeAsync || isLoading || isLoadingNewWearerResolvedAddress
-            }
-          >
-            Transfer
-          </Button>
+          <Tooltip label={prepareErrorMessage} isDisabled={!isDisabled}>
+            <Button type='submit' isDisabled={isDisabled}>
+              Transfer
+            </Button>
+          </Tooltip>
         </Flex>
       </Stack>
     </form>

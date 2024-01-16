@@ -96,10 +96,23 @@ const useHatContractWrite = ({
     },
   });
 
+  const extractErrorMessage = (error: Error | null) => {
+    if (!error) return '';
+
+    let errorMessage = error.message || '';
+    const errorMatch = errorMessage.match(/Error:\s*(.*)/);
+    const [, errorMessageMatch] = errorMatch || [];
+    errorMessage = errorMessageMatch || errorMessage;
+    errorMessage = errorMessage.replace(/\(.*\)/, '').trim();
+
+    return errorMessage || 'An unknown error occurred';
+  };
+
   return {
     writeAsync,
     isLoading: isLoading || writeLoading,
     prepareError,
+    prepareErrorMessage: extractErrorMessage(prepareError),
     writeError,
   };
 };
