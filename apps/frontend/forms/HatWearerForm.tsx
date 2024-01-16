@@ -130,7 +130,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   useEffect(() => {
     const localIsAddress = isAddress(currentInput);
-    console.log('currentInput', currentInput);
     setIsCurrentInputAddress(localIsAddress);
     if (localIsAddress) {
       setCurrentResolvedAddress(currentInput);
@@ -139,15 +138,21 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     }
   }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
+  const batchMintArgs = [
+    new Array(localWearers.length).fill(decimalId(hatId)),
+    _.map(localWearers, 'address'),
+  ];
+  if (isAddress(currentResolvedAddress)) {
+    batchMintArgs[0].push(decimalId(hatId));
+    batchMintArgs[1].push(currentResolvedAddress);
+  }
+
   const {
     writeAsync: writeAsyncBatchMintHats,
     isLoading: isLoadingBatchMintHats,
   } = useHatContractWrite({
     functionName: 'batchMintHats',
-    args: [
-      new Array(localWearers.length).fill(decimalId(hatId)),
-      _.map(localWearers, 'address'),
-    ],
+    args: batchMintArgs,
     chainId,
     onSuccessToastData: {
       title: `Hats Minted!`,
@@ -165,14 +170,15 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       Boolean(decimalId(hatId)) &&
       _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
-      _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
+      _.toNumber(selectedOnchainHat?.maxSupply) >
+        (currentWearerList.length + currentResolvedAddress ? 1 : 0) &&
       chainId === currentNetworkId,
   });
 
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [decimalId(hatId), _.get(_.first(localWearers), 'address')],
+      args: [decimalId(hatId), currentResolvedAddress],
       chainId,
       onSuccessToastData: {
         title: `Hat Minted!`,
@@ -189,13 +195,13 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       enabled:
         Boolean(decimalId(hatId)) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
-        _.eq(_.size(localWearers), 1) &&
+        Boolean(currentResolvedAddress) &&
         _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
         chainId === currentNetworkId,
     });
 
   const onSubmit = async () => {
-    if (_.eq(_.size(localWearers), 1)) {
+    if (isAddress(currentResolvedAddress) && _.size(localWearers) === 0) {
       await writeAsyncMintHat?.();
     } else {
       await writeAsyncBatchMintHats?.();
@@ -229,7 +235,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     });
     setValue?.('wearers', newLocalWearers);
     setCurrentResolvedAddress(undefined);
-    setValue?.('currentAddress', ''); // Reset the value of the localForm's currentAddress
+    setValue?.('currentAddress', '');
   };
 
   const handleRemoveWearer = (index: number) => {
