@@ -14,7 +14,7 @@ type AddressInputProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   showResolvedAddress: boolean;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   resolvedAddress: string;
 };
 
