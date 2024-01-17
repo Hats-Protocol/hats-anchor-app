@@ -12,8 +12,10 @@ import {
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import {
   AUTHORITY_ENFORCEMENT,
+  AUTHORITY_PLATFORMS,
   AUTHORITY_TYPES,
-  GUILD_PLATFORMS,
+  AuthorityInfo,
+  AuthorityPlatform,
 } from 'app-constants';
 import { useSafeDetails } from 'app-hooks';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
@@ -27,38 +29,59 @@ import { Hex } from 'viem';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 
+const checkIfIpfs = (url: string) => ({
+  isIpfs: url.startsWith('ipfs://'),
+  imageUrl: url,
+});
+
+const authorityImageHandler = ({
+  authority,
+  editingItem,
+  authorityEnforcement,
+  currentImageUrl,
+}: AuthorityImageHandlerProps) => {
+  const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
+
+  if (editingItem) return checkIfIpfs(currentImageUrl);
+  if (type === AUTHORITY_TYPES.gate) {
+    const platformById =
+      AUTHORITY_PLATFORMS[id as keyof typeof AUTHORITY_PLATFORMS];
+    const matchingPlatform = _.find(
+      _.values(AUTHORITY_PLATFORMS),
+      (v: AuthorityPlatform) =>
+        authority.gate?.includes(_.toLower(v.label)) ||
+        authority.link?.includes(_.toLower(v.label)) ||
+        _.toLower(authority.label)?.includes(_.toLower(v.label)),
+    );
+    if (platformById) return checkIfIpfs(platformById.icon);
+    if (matchingPlatform) return checkIfIpfs(matchingPlatform.icon);
+    if (authority.link?.includes('docs.google')) {
+      return checkIfIpfs(AUTHORITY_PLATFORMS[4].icon);
+    }
+  }
+  if (authority && authorityEnforcement.imageUri) {
+    return checkIfIpfs(authorityEnforcement.imageUri);
+  }
+
+  return checkIfIpfs(imageUrl);
+};
+
 const AuthorityHeader = ({
   authority,
   editingItem,
   hideInfo,
-}: {
-  authority: Authority;
-  editingItem?: Authority;
-  hideInfo?: boolean;
-}) => {
-  const {
-    label,
-    subLabel,
-    link,
-    type,
-    hsgConfig,
-    imageUrl,
-    safe,
-    id,
-    strategies,
-    hatId,
-  } = _.pick(authority, [
-    'label',
-    'subLabel',
-    'link',
-    'type',
-    'hsgConfig',
-    'imageUrl',
-    'safe',
-    'id',
-    'strategies',
-    'hatId',
-  ]);
+}: AuthorityHeaderProps) => {
+  const { label, subLabel, link, type, hsgConfig, safe, strategies, hatId } =
+    _.pick(authority, [
+      'label',
+      'subLabel',
+      'link',
+      'type',
+      'hsgConfig',
+      'safe',
+      'strategies',
+      'hatId',
+    ]);
   const {
     label: currentLabel,
     imageUrl: currentImageUrl,
@@ -69,18 +92,14 @@ const AuthorityHeader = ({
   const localLink = editingItem ? currentLink : link;
   const authorityEnforcement =
     AUTHORITY_ENFORCEMENT[type] || AUTHORITY_ENFORCEMENT.manual;
-  // console.log(type, id, GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS]);
 
   // set current image
-  const img =
-    type === AUTHORITY_TYPES.gate
-      ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS]?.icon
-      : imageUrl;
-  let localImageUrl = img;
-  if (authority && authorityEnforcement.imageUri)
-    localImageUrl = authorityEnforcement.imageUri;
-  if (editingItem) localImageUrl = currentImageUrl;
-  const isIpfs = localImageUrl?.startsWith('ipfs://');
+  const { isIpfs, imageUrl } = authorityImageHandler({
+    authority,
+    editingItem,
+    authorityEnforcement,
+    currentImageUrl,
+  });
 
   // set tooltip info
   let tooltipInfo = authorityEnforcement.info;
@@ -130,8 +149,8 @@ const AuthorityHeader = ({
         <Image
           src={
             isIpfs
-              ? ipfsUrl(localImageUrl?.slice(7)) || ''
-              : localImageUrl ||
+              ? ipfsUrl(imageUrl?.slice(7)) || ''
+              : imageUrl ||
                 authorityEnforcement.imageUri ||
                 '/icons/authority.svg'
           }
@@ -191,5 +210,18 @@ const AuthorityHeader = ({
     </Flex>
   );
 };
+
+interface AuthorityHeaderProps {
+  authority: Authority;
+  editingItem?: Authority;
+  hideInfo?: boolean;
+}
+
+interface AuthorityImageHandlerProps {
+  authority: Authority;
+  editingItem?: Authority;
+  authorityEnforcement: AuthorityInfo;
+  currentImageUrl?: string;
+}
 
 export default AuthorityHeader;
