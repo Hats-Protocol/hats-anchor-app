@@ -33,7 +33,7 @@
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
     "lodash": "^4.17.21",
-    "multiformats": "^12.0.1",
+    "multiformats": "^13.0.1",
     "next": "^13.4.19",
     "next-seo": "^5.15.0",
     "papaparse": "^5.4.1",
