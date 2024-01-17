@@ -484,7 +484,7 @@ const createHSG = ({
 
   return {
     label: `${customRole?.name}`,
-    subLabel: formatAddress(gate.id),
+    subLabel: formatAddress(gate.safe),
     type: AUTHORITY_TYPES.hsg,
     id: gate.id,
     hsgConfig: {

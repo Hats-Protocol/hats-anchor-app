@@ -3,10 +3,18 @@ import { GATEWAY_TOKEN, GATEWAY_URL } from 'app-constants';
 import axios from 'axios';
 import { FormDataDetails } from 'hats-types';
 import _ from 'lodash';
+import { CID } from 'multiformats/cid';
+import * as json from 'multiformats/codecs/json';
+import * as raw from 'multiformats/codecs/raw';
+import { sha256 } from 'multiformats/hashes/sha2';
 
-export * from './ipfs-misc';
+export const calculateCid = async (data: object): Promise<string> => {
+  const bytes = json.encode(data);
+  const hash = await sha256.digest(bytes);
+  const localCid = CID.create(1, raw.code, hash);
+  return `ipfs://${localCid.toString()}`;
+};
 
-// eslint-disable-next-line import/prefer-default-export
 export const ipfsUrl = (hash: string | undefined) => {
   if (!hash) return null;
   return `${GATEWAY_URL}${hash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
