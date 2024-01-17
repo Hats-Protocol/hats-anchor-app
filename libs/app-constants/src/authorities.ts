@@ -10,7 +10,7 @@ export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   manual: 'manual',
 };
 
-type AuthorityInfo = {
+export type AuthorityInfo = {
   label: string;
   info: string;
   color: string;
@@ -62,7 +62,14 @@ export const AUTHORITY_ENFORCEMENT: {
   },
 };
 
-export const GUILD_PLATFORMS = {
+export type AuthorityPlatform = {
+  label: string;
+  icon: string;
+};
+
+export const AUTHORITY_PLATFORMS: {
+  [key: number | string]: AuthorityPlatform;
+} = {
   1: {
     label: 'Discord',
     icon: 'ipfs://QmPqL5WeuKZod1EnS2jeNhocVe5a9sXLTzbvpo47ZRydLd',

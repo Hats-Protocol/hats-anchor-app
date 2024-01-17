@@ -1,6 +1,6 @@
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from 'app-constants';
+import { AUTHORITY_PLATFORMS, AUTHORITY_TYPES } from 'app-constants';
 import { gql, GraphQLClient } from 'graphql-request';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
@@ -226,7 +226,7 @@ const useSnapshotSpaces = ({
                 link: `https://snapshot.org/#/${space.id}`,
                 gate: `https://snapshot.org`,
                 description: space.about,
-                imageUrl: GUILD_PLATFORMS.snapshot.icon,
+                imageUrl: AUTHORITY_PLATFORMS.snapshot.icon,
                 type: AUTHORITY_TYPES.gate,
                 id: 'snapshot',
                 strategies: filteredStrategies,
