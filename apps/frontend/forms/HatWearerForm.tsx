@@ -376,6 +376,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           )}
         </Flex>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
+          {/* could be replaced with MultiAddressInput, but needs adjustments & additions */}
           {localWearers.map(({ address, ens }, index) => (
             <Box key={address} w='full'>
               <Flex align='center' w='full' justifyContent='space-between'>

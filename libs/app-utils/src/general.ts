@@ -151,8 +151,8 @@ export const transformInput = (
         .split(',')
         .map((num) => convertToBigInt(num.trim()));
     case 'string[]':
-      if (solidityType === 'address[]' && !input) {
-        return [];
+      if (solidityType === 'address[]') {
+        return Array.isArray(input) ? _.compact(input) : [];
       }
       return String(input).split(',');
     case 'boolean[]':
