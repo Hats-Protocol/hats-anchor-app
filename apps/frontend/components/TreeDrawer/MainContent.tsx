@@ -207,9 +207,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           };
 
           const hatId = hatIdDecimalToIp(BigInt(hat.id));
-          // get hat name for list display
+          // get hat name for list display, default to details name
           let displayName = _.get(hat, 'detailsObject.data.name') || hat.name;
-          if (!displayName && !_.startsWith(hat.details, 'ipfs://')) {
+          if (displayName === hatId && !_.startsWith(hat.details, 'ipfs://')) {
             displayName = hat.details;
           }
           const localDisplayName = _.get(hat, 'displayName', '');
@@ -237,7 +237,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
               >
                 <HStack>
                   <Text>{hatId}</Text>
-                  {displayName && (
+                  {displayName && displayName !== hatId && (
                     <Text
                       maxW={hat.mutable && !changes ? '300px' : '160px'}
                       isTruncated

@@ -69,14 +69,16 @@ const AuthorityHeader = ({
   const localLink = editingItem ? currentLink : link;
   const authorityEnforcement =
     AUTHORITY_ENFORCEMENT[type] || AUTHORITY_ENFORCEMENT.manual;
+  // console.log(type, id, GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS]);
 
   // set current image
   const img =
     type === AUTHORITY_TYPES.gate
-      ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS].icon
+      ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS]?.icon
       : imageUrl;
   let localImageUrl = img;
-  if (authority) localImageUrl = authorityEnforcement.imageUri;
+  if (authority && authorityEnforcement.imageUri)
+    localImageUrl = authorityEnforcement.imageUri;
   if (editingItem) localImageUrl = currentImageUrl;
   const isIpfs = localImageUrl?.startsWith('ipfs://');
 
