@@ -109,7 +109,7 @@ const AuthorityHeader = ({
     );
   }, [safeOwners, selectedHat?.wearers]);
   const currentThresholdConfig = useMemo(() => {
-    if (authority?.label === 'HSG Owner') return undefined;
+    if (authority?.label === 'HSG Owner' || !hsgConfig) return undefined;
     const minThreshold = _.toNumber(hsgConfig?.minThreshold);
     const maxThreshold = _.toNumber(hsgConfig?.maxThreshold);
     const currentSigners = _.size(eligibleSigners);
