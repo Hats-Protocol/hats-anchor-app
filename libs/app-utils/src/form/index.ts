@@ -98,11 +98,9 @@ const createDetailsData = ({
   if (name || displayName) updateName = name || displayName;
   if (!updateName) updateName = _.get(originalHat, 'details');
 
-  const detailsData = {
+  const detailsData: HatDetails = {
     name: updateName || '',
     description: description || '',
-    guilds: guilds || [],
-    spaces: spaces || [],
     responsibilities: _.reject(responsibilities, ['label', '']),
     authorities: _.reject(authorities, ['label', '']),
     eligibility: {
@@ -118,6 +116,13 @@ const createDetailsData = ({
       criteria: _.reject(deactivationsCriteria, ['label', '']) || [],
     },
   };
+
+  if (guilds) {
+    detailsData.guilds = guilds;
+  }
+  if (spaces) {
+    detailsData.spaces = spaces;
+  }
 
   return detailsData;
 };
