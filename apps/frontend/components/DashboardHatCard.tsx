@@ -44,10 +44,16 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>
           <HStack spacing={4}>
-            <Skeleton h='72px' w='72px' borderRadius={4} isLoaded={imageLoaded}>
+            <Skeleton
+              h='72px'
+              w='72px'
+              minW='72px'
+              borderRadius={4}
+              isLoaded={imageLoaded}
+            >
               <ChakraImage
                 src={image || '/icon.jpeg'}
-                bgSize='cover'
+                objectFit='cover'
                 bgPosition='center'
                 h='72px'
                 w='72px'
@@ -58,7 +64,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                 onLoad={() => setImageLoaded(true)}
               />
             </Skeleton>
-            <Stack maxW='75%'>
+            <Stack maxW='calc(100% - 72px - 16px)'>
               <Tooltip label={hatName} placement='top'>
                 <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
                   {hatName}
