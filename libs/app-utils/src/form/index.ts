@@ -383,7 +383,8 @@ const processMaxSupplyChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { maxSupply, id: hatId } = hat;
 
-  if (!hatId || !maxSupply) return returnData;
+  if (!hatId || maxSupply === undefined || maxSupply === null)
+    return returnData;
 
   const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
     hatId: BigInt(hatId),
