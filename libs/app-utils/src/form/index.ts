@@ -165,7 +165,7 @@ const createNewHatData = async ({
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
     details,
-    maxSupply: _.toNumber(maxSupply) || 1,
+    maxSupply: _.toNumber(maxSupply) || 0,
     eligibility: localEligibility || FALLBACK_ADDRESS,
     toggle: localToggle || FALLBACK_ADDRESS,
     mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
