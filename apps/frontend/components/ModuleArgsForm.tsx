@@ -1,5 +1,6 @@
 import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
+import { useDebounce } from 'app-hooks';
 import { explorerUrl, formatAddress, transformAndVerify } from 'app-utils';
 import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
@@ -9,15 +10,17 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
 import { prettyIdToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
-import { useToken } from 'wagmi';
+import { useEnsAddress, useToken } from 'wagmi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
+import AddressInput from './AddressInput';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
 import Select from './atoms/Select';
 import FormRowWrapper from './FormRowWrapper';
+import MultiAddressInput from './MultiAddressInput';
 
 const fallbackExamples = {
   address: '0x3bc1A0Ad72417f2d41...',
@@ -107,16 +110,23 @@ const ModuleFormInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const newWearer = useDebounce<string>(watch(arg.name, null));
+
+  const { data: newWearerResolvedAddress } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
+  });
+
+  const showNewResolvedAddress =
+    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
+
   if (!arg) return null;
 
   if (
     arg.displayType === 'erc20' ||
     arg.displayType === 'erc721' ||
     arg.displayType === 'erc1155' ||
-    arg.displayType === 'jokerace' ||
-    // TODO handle address/address[] separately
-    arg.type === 'address' ||
-    arg.type === 'address[]'
+    arg.displayType === 'jokerace'
   ) {
     return (
       <Input
@@ -141,6 +151,48 @@ const ModuleFormInput = ({
     );
   }
 
+  if (arg.type === 'address') {
+    return (
+      <AddressInput
+        name={arg.name}
+        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+        subLabel={arg.description}
+        showResolvedAddress={showNewResolvedAddress}
+        resolvedAddress={String(newWearerResolvedAddress)}
+        placeholder={
+          Array.isArray(arg.example)
+            ? (arg.example as string[]).join(', ')
+            : (arg.example as string) || fallbackExamples.address
+        }
+        options={{
+          required: !arg.optional,
+          validate: (value) => {
+            if (!isAddress(value)) return 'Invalid address';
+            return true;
+          },
+        }}
+        localForm={localForm}
+        onChange={(e) => handleChangeAddress(e, arg.name)}
+      />
+    );
+  }
+
+  if (arg.type === 'address[]') {
+    return (
+      <MultiAddressInput
+        name={arg.name}
+        label={`${arg.name} (Optional)`}
+        subLabel={arg.description}
+        placeholder={
+          Array.isArray(arg.example)
+            ? (arg.example as string[]).join(', ')
+            : (arg.example as string) || fallbackExamples.address
+        }
+        localForm={localForm}
+      />
+    );
+  }
+
   if (arg.type === 'bool') {
     const booleanOptions =
       booleanOptionSets[_.toLower(arg.name)] || fallbackExamples.booleanOption;
@@ -150,7 +202,6 @@ const ModuleFormInput = ({
         <Stack alignItems='start' spacing={1}>
           <HStack>
             <Text textTransform='uppercase'>{arg.name}</Text>
-            {/* <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' /> */}
           </HStack>
           <Text color='gray.600' fontSize='sm'>
             {arg.description}

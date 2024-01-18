@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Code,
   Flex,
@@ -7,6 +6,7 @@ import {
   HStack,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useDebounce } from 'app-hooks';
@@ -14,12 +14,11 @@ import { formatAddress } from 'app-utils';
 import { useHatContractWrite } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { FaCheck } from 'react-icons/fa';
 import { toTreeId } from 'shared-utils';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import Input from '../components/atoms/Input';
+import AddressInput from '../components/AddressInput';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 const HatTransferForm = ({
@@ -47,7 +46,7 @@ const HatTransferForm = ({
 
   const isTopHat = hatId && !_.includes(hatIdDecimalToIp(BigInt(hatId)), '.');
 
-  const { writeAsync, isLoading } = useHatContractWrite({
+  const { writeAsync, isLoading, prepareErrorMessage } = useHatContractWrite({
     functionName: 'transferHat',
     args: [hatId, currentWearerAddress, newWearerAddress],
     chainId,
@@ -78,6 +77,9 @@ const HatTransferForm = ({
     await writeAsync?.();
   };
 
+  const isDisabled =
+    !writeAsync || isLoading || isLoadingNewWearerResolvedAddress;
+
   const showNewResolvedAddress =
     newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
 
@@ -97,31 +99,19 @@ const HatTransferForm = ({
           <Text>Current wearer address: </Text>
           <Code>{currentWearerAddress}</Code>
         </HStack>
-        <Box>
-          <Input
-            localForm={localForm}
-            name='newWearer'
-            label='New Wearer Address'
-            placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
-            rightElement={showNewResolvedAddress && <FaCheck color='green' />}
-          />
-
-          {showNewResolvedAddress && (
-            <Text fontSize='sm' color='gray.500' mt={1}>
-              Resolved address: {newWearerResolvedAddress}
-            </Text>
-          )}
-        </Box>
-
+        <AddressInput
+          label='New Wearer Address'
+          name='newWearer'
+          localForm={localForm}
+          showResolvedAddress={showNewResolvedAddress}
+          resolvedAddress={newWearerResolvedAddress}
+        />
         <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isDisabled={
-              !writeAsync || isLoading || isLoadingNewWearerResolvedAddress
-            }
-          >
-            Transfer
-          </Button>
+          <Tooltip label={prepareErrorMessage} isDisabled={!isDisabled}>
+            <Button type='submit' isDisabled={isDisabled}>
+              Transfer
+            </Button>
+          </Tooltip>
         </Flex>
       </Stack>
     </form>

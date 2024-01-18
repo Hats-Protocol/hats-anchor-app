@@ -118,6 +118,10 @@ export const transformInput = (
   solidityType: string,
 ): unknown => {
   if (input === undefined || input === null) {
+    if (solidityType.includes('[]')) {
+      return [];
+    }
+
     return undefined;
   }
   const tsType = solidityToTypescriptType(solidityType);
@@ -151,6 +155,9 @@ export const transformInput = (
         .split(',')
         .map((num) => convertToBigInt(num.trim()));
     case 'string[]':
+      if (solidityType === 'address[]') {
+        return Array.isArray(input) ? _.compact(input) : [];
+      }
       return String(input).split(',');
     case 'boolean[]':
       return String(input)
