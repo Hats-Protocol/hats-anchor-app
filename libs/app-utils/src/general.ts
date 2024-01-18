@@ -118,6 +118,10 @@ export const transformInput = (
   solidityType: string,
 ): unknown => {
   if (input === undefined || input === null) {
+    if (solidityType.includes('[]')) {
+      return [];
+    }
+
     return undefined;
   }
   const tsType = solidityToTypescriptType(solidityType);
