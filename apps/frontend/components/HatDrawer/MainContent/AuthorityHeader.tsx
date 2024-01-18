@@ -29,10 +29,14 @@ import { Hex } from 'viem';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 
-const checkIfIpfs = (url: string) => ({
-  isIpfs: url.startsWith('ipfs://'),
-  imageUrl: url,
-});
+const checkIfIpfs = (url: string) => {
+  if (!url) return { isIpfs: false, imageUrl: '' };
+
+  return {
+    isIpfs: url.startsWith('ipfs://'),
+    imageUrl: url,
+  };
+};
 
 const authorityImageHandler = ({
   authority,

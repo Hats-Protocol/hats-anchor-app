@@ -85,6 +85,10 @@ const useHatGuilds = ({
             const platform = _.find(guild.guildPlatforms, {
               id: rolePlatform.guildPlatformId,
             });
+            // we index manual details against link/`invite`, so don't return if that is missing
+            // TODO check why guild might return reward without invite
+            if (!platform?.invite) return null;
+
             return {
               label: platform ? platform.platformGuildName : guild.name,
               link: platform ? platform.invite : 'No invite available',
@@ -100,7 +104,11 @@ const useHatGuilds = ({
     },
   ) as unknown[] as Authority[];
 
-  return { selectedHatGuildRoles, error, isLoading };
+  return {
+    selectedHatGuildRoles: _.compact(selectedHatGuildRoles),
+    error,
+    isLoading,
+  };
 };
 
 export default useHatGuilds;
