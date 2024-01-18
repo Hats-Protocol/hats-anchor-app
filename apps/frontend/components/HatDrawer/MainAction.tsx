@@ -53,8 +53,8 @@ const MainAction = () => {
     chainId,
   });
   const maxWearersReached = _.gte(
-    _.get(selectedHat, 'currentSupply'),
-    maxSupply,
+    _.toNumber(_.get(selectedHat, 'currentSupply')),
+    _.toNumber(maxSupply),
   );
 
   if (!isConnected) {
