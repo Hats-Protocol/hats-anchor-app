@@ -1,3 +1,4 @@
+import { OverlayContextProps } from 'app-constants';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
 import { Transaction } from 'hats-types';
@@ -6,9 +7,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
   createContext,
-  Dispatch,
   ReactNode,
-  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -39,36 +38,7 @@ const defaults = {
   hatSupply: false,
 };
 
-export interface IOverlayContext {
-  modals?: { [key: string]: boolean };
-  setModals?: (m: object) => void;
-  closeModals?: () => void;
-  commandPalette: boolean;
-  setCommandPalette: Dispatch<SetStateAction<boolean>>;
-  handlePendingTx?: ({
-    hash,
-    txChainId,
-    fnName,
-    toastData,
-    redirect,
-    clearModals,
-    sendToast,
-    onSuccess,
-  }: {
-    hash: Hex;
-    txChainId?: number;
-    fnName: string;
-    toastData: object | undefined;
-    redirect?: string | null;
-    clearModals?: boolean;
-    sendToast?: boolean;
-    onSuccess?: (d?: TransactionReceipt) => void;
-  }) => Promise<TransactionReceipt | undefined>;
-  transactions: Transaction[];
-  clearAllTransactions: () => void;
-}
-
-export const OverlayContext = createContext<IOverlayContext>({
+export const OverlayContext = createContext<OverlayContextProps>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: undefined,
   closeModals: undefined,
@@ -263,7 +233,7 @@ export const OverlayContextProvider = ({
           clearAllTransactions,
         }}
       >
-        <TransactionHistory />
+        <TransactionHistory transactions={transactions} />
       </Modal>
     </OverlayContext.Provider>
   );

@@ -5,12 +5,15 @@ import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 
-import { useOverlay } from '../contexts/OverlayContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 
-const TransactionHistory = ({ count }: { count?: number }) => {
-  const { transactions } = useOverlay();
-
+const TransactionHistory = ({
+  count,
+  transactions,
+}: {
+  count?: number;
+  transactions: Transaction[];
+}) => {
   let events = transactions;
 
   if (count) {
