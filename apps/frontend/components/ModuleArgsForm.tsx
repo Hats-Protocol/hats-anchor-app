@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { prettyIdToIp } from 'shared-utils';
+import { idToPrettyId, prettyIdToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
@@ -45,7 +45,7 @@ const ModuleFormInput = ({
   tokenAddress: Hex;
   isDeploy?: boolean;
 }) => {
-  const { onchainTree, chainId } = useTreeForm();
+  const { chainId, treeToDisplay } = useTreeForm();
   const [customHatSelections, setCustomHatSelections] = useState({});
 
   const { watch, setValue } = localForm;
@@ -245,11 +245,15 @@ const ModuleFormInput = ({
           onChange={(e) => handleChangeHat(e, arg.name)}
         >
           <option value='custom'>Custom</option>
-          {_.map(onchainTree, ({ id, prettyId, detailsObject }: AppHat) => {
-            const hatName = detailsObject?.data?.name;
+          {_.map(treeToDisplay, ({ id, detailsObject }: AppHat) => {
+            const currentName = _.find(treeToDisplay, ['id', id])?.displayName;
+            const detailsName = currentName || detailsObject?.data?.name;
+
             return (
               <option value={decimalId(id)} key={id}>
-                {`${hatName ? `${hatName} - ` : ''}${prettyIdToIp(prettyId)}`}
+                {`${detailsName ? `${detailsName} - ` : ''}${prettyIdToIp(
+                  idToPrettyId(id),
+                )}`}
               </option>
             );
           })}
