@@ -70,9 +70,13 @@ const ANCILLARY_API_URL: { [key in SupportedChains]: string | undefined } = {
   100: 'https://api.studio.thegraph.com/query/55784/hats-v1-gnosis-chain-ancillary/version/latest',
   137: 'https://api.studio.thegraph.com/query/55784/hats-v1-polygon-ancillary/version/latest',
   424: undefined,
+  8453: 'https://api.studio.thegraph.com/query/55784/hats-v1-base-ancillary/version/latest',
   42161:
     'https://api.studio.thegraph.com/query/55784/hats-v1-arbitrum-ancillary/version/latest',
-  11155111: undefined,
+  42220:
+    'https://api.studio.thegraph.com/query/55784/hats-v1-celo-ancillary/version/latest',
+  11155111:
+    'https://api.studio.thegraph.com/query/55784/hats-v1-sepolia-ancillary/version/latest',
 };
 
 const ancillarySubgraphClient = (chainId: SupportedChains) => {

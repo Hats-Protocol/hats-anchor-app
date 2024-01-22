@@ -223,7 +223,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
                       Clear
                     </Button>
                   </HStack>
-                  <TransactionHistory count={5} />
+                  <TransactionHistory count={5} transactions={transactions} />
                   {_.gt(_.size(transactions), 5) && (
                     <>
                       <Divider my={2} />

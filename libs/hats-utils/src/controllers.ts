@@ -15,9 +15,9 @@ export const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
   100: 'gno',
   137: 'matic',
   424: 'pgn', // NOT ACTUALLY SUPPORTED YET
-  // 8453: 'base',
+  8453: 'base',
   42161: 'arb1',
-  // 42220: 'celo',
+  42220: 'celo',
   11155111: 'sep',
 };
 
