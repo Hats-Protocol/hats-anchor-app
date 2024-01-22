@@ -1,12 +1,11 @@
 import { SupportedChains } from 'hats-types';
-import { Hex } from 'viem';
 import {
   arbitrum,
-  // base,
+  base,
+  celo as defaultCelo,
   // baseSepolia,
-  // celo,
   Chain,
-  gnosis,
+  gnosis as defaultGnosis,
   goerli,
   mainnet,
   optimism,
@@ -17,7 +16,21 @@ import {
 import pgn from './pgn';
 
 // ORDER HERE WILL BE USED IN THE UI
-export const orderedChains = [1, 10, 42161, 137, 100, 424, 11155111, 5]; // 42220, 8453 // 84532
+export const orderedChains = [
+  // main networks
+  1, // mainnet
+  10, // optimism
+  42161, // arbitrum
+  137, // polygon
+  100, // gnosis
+  8453, // base
+  42220, // celo
+  424, // pgn
+  // testnets
+  11155111, // sepolia
+  5, // goerli
+  // 84532 // baseSepolia
+];
 
 // can we use the defaults here again?
 export const networkImages: { [key in SupportedChains]: string } = {
@@ -27,25 +40,24 @@ export const networkImages: { [key in SupportedChains]: string } = {
   100: '/chains/gnosis.png',
   137: '/chains/polygon.svg',
   424: '/chains/pgn.png',
-  // 8453: '/chains/base.svg',
+  8453: '/chains/base.svg',
   42161: '/chains/arbitrum.svg',
-  // 42220: '/chains/celo.svg',
+  42220: '/chains/celo.svg',
   // 84532: '/chains/base-sepolia.svg',
   11155111: '/chains/ethereum.svg',
 };
 
-// TODO check if this got fixed, submit issue if not (should be fixed)
-// gnosis chain object from wagmi doesn't include multicall contract details. This is a temporary fix
-const customGnosis = {
-  ...gnosis,
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11' as Hex,
-      blockCreated: 21022491,
-    },
-  },
+const gnosis = {
+  ...defaultGnosis,
   hasIcon: true,
   iconUrl: networkImages[100],
+  iconBackground: 'none',
+};
+
+const celo = {
+  ...defaultCelo,
+  hasIcon: true,
+  iconUrl: networkImages[42220],
   iconBackground: 'none',
 };
 
@@ -54,11 +66,10 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   10: optimism,
   42161: arbitrum,
   137: polygon,
-  100: customGnosis,
+  100: gnosis,
   424: pgn,
-
-  // 8453: base,
-  // 42220: celo,
+  8453: base,
+  42220: celo,
 
   // TESTNETS
   5: goerli,
