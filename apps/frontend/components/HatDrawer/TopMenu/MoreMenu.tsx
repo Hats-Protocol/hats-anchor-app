@@ -20,7 +20,7 @@ import {
   useHatStatusCheck,
   useWearerDetails,
 } from 'hats-hooks';
-import { decimalId, handleExportBranch, isWearingAdminHat } from 'hats-utils';
+import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -94,7 +94,7 @@ const MoreMenu = () => {
     hatData: selectedHat,
   });
 
-  const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id);
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   const handleExport = () =>
