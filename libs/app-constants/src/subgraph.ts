@@ -33,7 +33,8 @@ const NETWORK_ENDPOINTS: EndpointsConfig = {
     endpoint: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk`,
   },
   42220: {
-    endpoint: '',
+    endpoint:
+      'https://api.studio.thegraph.com/query/55784/hats-v1-celo/version/latest',
   },
   11155111: {
     endpoint:
