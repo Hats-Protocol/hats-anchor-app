@@ -411,7 +411,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           <Flex w='full' direction='column' gap={1}>
             <AddressInput
               name='currentAddress'
-              localForm={localForm}
+              localForm={form}
               showResolvedAddress={Boolean(currentResolvedAddress)}
               isDisabled={wouldExceedMaxSupply}
               resolvedAddress={String(currentResolvedAddress)}
