@@ -76,6 +76,7 @@ export interface TreeFormContext {
   wearersAndControllers: HatWearer[] | undefined;
   inactiveHats: string[] | undefined;
   // local storage
+  storedConfig: { flipped?: boolean; compact?: boolean };
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
   // controls
@@ -127,6 +128,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   wearersAndControllers: undefined,
   inactiveHats: undefined,
   // local storage
+  storedConfig: {},
   storedData: undefined,
   setStoredData: undefined,
   // controls
@@ -198,6 +200,10 @@ export const TreeFormContextProvider = ({
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
     localStorageKey,
     [],
+  );
+  const [storedConfig, setStoredConfig] = useLocalStorage(
+    `${localStorageKey}-config`,
+    {},
   );
 
   const hatDisclosure = useDisclosure({
@@ -505,8 +511,13 @@ export const TreeFormContextProvider = ({
       };
 
       router.push(updatedUrl, undefined, { shallow: true });
+
+      setStoredConfig({
+        ...storedConfig,
+        flipped: isFlipped,
+      });
     },
-    [router],
+    [router, setStoredConfig, storedConfig],
   );
 
   const handleSetCompact = useCallback(
@@ -527,8 +538,13 @@ export const TreeFormContextProvider = ({
       };
 
       router.push(updatedUrl, undefined, { shallow: true });
+
+      setStoredConfig({
+        ...storedConfig,
+        compact: isCompact,
+      });
     },
-    [router],
+    [router, setStoredConfig, storedConfig],
   );
 
   const toggleEditMode = useCallback(() => {
@@ -738,6 +754,7 @@ export const TreeFormContextProvider = ({
       wearersAndControllers,
       inactiveHats,
       // local storage
+      storedConfig,
       storedData,
       setStoredData,
       // controls
@@ -790,6 +807,7 @@ export const TreeFormContextProvider = ({
       inactiveHats,
       // local storage
       storedData,
+      storedConfig,
       setStoredData,
       // controls
       editMode,
