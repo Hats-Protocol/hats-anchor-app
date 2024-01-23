@@ -162,10 +162,14 @@ const createNewHatData = async ({
     ? urlToIpfsUri(imageUrl)
     : imageUrl;
 
+  const numMaxSupply = _.toNumber(maxSupply);
+  const finalMaxSupply =
+    _.isNaN(numMaxSupply) || maxSupply === undefined ? 1 : numMaxSupply;
+
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
     details,
-    maxSupply: _.toNumber(maxSupply) || 0,
+    maxSupply: finalMaxSupply,
     eligibility: localEligibility || FALLBACK_ADDRESS,
     toggle: localToggle || FALLBACK_ADDRESS,
     mutable: mutable ? mutable === MUTABILITY.MUTABLE : true,
