@@ -1,6 +1,8 @@
+import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { createHatsModulesClient } from 'app-utils';
 import { ModuleDetails, SupportedChains } from 'hats-types';
+import _ from 'lodash';
 import { Hex } from 'viem';
 
 const useModulesDetails = ({
@@ -19,7 +21,19 @@ const useModulesDetails = ({
 
     const result = await moduleClient.getModulesByInstances(moduleIds);
 
-    return result;
+    // map with moduleIds
+    const mappedModules = _.map(result, (moduleInfo: Module, index: number) => {
+      if (!moduleInfo) return undefined;
+
+      const fullDetails = {
+        ...moduleInfo,
+        id: moduleIds[index],
+      } as ModuleDetails;
+      return fullDetails;
+    });
+
+    // thinks it's a true[]
+    return _.compact(mappedModules) as unknown as ModuleDetails[];
   };
 
   const { data, isLoading, isSuccess } = useQuery({
@@ -29,7 +43,7 @@ const useModulesDetails = ({
   });
 
   return {
-    modulesDetails: isSuccess ? (data as ModuleDetails[]) : [],
+    modulesDetails: isSuccess ? data : [],
     isLoading: isLoading && !isSuccess,
   };
 };

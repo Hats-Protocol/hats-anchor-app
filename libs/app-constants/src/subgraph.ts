@@ -22,12 +22,19 @@ const NETWORK_ENDPOINTS: EndpointsConfig = {
   137: {
     endpoint: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/7MxsRb1p4UQNET8AgrWd93h3GUgeQ7NWrk5SHLEPCxBP`,
   },
-  42161: {
-    endpoint: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk`,
-  },
   424: {
     endpoint:
       'https://api.goldsky.com/api/public/project_clp1niaem0pe001qjhju6b9sz/subgraphs/hats-v1-pgn/1.0.0/gn',
+  },
+  8453: {
+    endpoint: `https://api.studio.thegraph.com/query/55784/hats-v1-base/version/latest`,
+  },
+  42161: {
+    endpoint: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk`,
+  },
+  42220: {
+    endpoint:
+      'https://api.studio.thegraph.com/query/55784/hats-v1-celo/version/latest',
   },
   11155111: {
     endpoint:

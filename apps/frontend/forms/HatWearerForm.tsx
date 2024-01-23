@@ -91,7 +91,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       return currentMaxSupply;
     }
     const storedHat = _.find(storedData, { id: hatId });
-    if (storedHat) {
+    if (_.get(storedHat, 'maxSupply')) {
       return _.get(storedHat, 'maxSupply');
     }
     return _.get(selectedHat, 'maxSupply');

@@ -8,9 +8,8 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import { OverlayContextProps } from 'app-constants';
 import React, { ReactNode } from 'react';
-
-import { IOverlayContext } from '../../contexts/OverlayContext';
 
 /**
  * Modal component, wraps Chakra's default Modal
@@ -95,6 +94,6 @@ interface ModalProps {
   onClose?: () => void;
   size?: string;
   headingSize?: string;
-  localOverlay: IOverlayContext;
+  localOverlay: OverlayContextProps;
   children: ReactNode;
 }
