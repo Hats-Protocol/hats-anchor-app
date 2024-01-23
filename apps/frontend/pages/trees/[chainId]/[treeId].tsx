@@ -1,14 +1,21 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { useLocalStorage } from 'app-hooks';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
+import { useEffect } from 'react';
 // import { useRouter } from 'next/router';
 import { Hex } from 'viem';
 
 import TreePage from '../../../components/TreePage';
 import { TreeFormContextProvider } from '../../../contexts/TreeFormContext';
 
+const MAX_TREES = 3;
+
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
+  const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
+    Hex[]
+  >('recently-visited-trees', []);
   // const router = useRouter();
   // const { hatId: hatIdParam } = router.query;
   // let hatId: string | undefined;
@@ -17,6 +24,20 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   // } else {
   //   hatId = hatIdParam;
   // }
+
+  useEffect(() => {
+    if (treeId) {
+      const updatedRecentTrees = _.slice(
+        _.union([treeId], recentlyVisitedTrees),
+        0,
+        MAX_TREES,
+      );
+      if (!_.isEqual(updatedRecentTrees, recentlyVisitedTrees)) {
+        setRecentlyVisitedTrees(updatedRecentTrees);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [treeId]);
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>

@@ -34,6 +34,11 @@ export function prettyIdToIp(id: string | undefined) {
   return domains.join('.');
 }
 
+export function idToIp(id: Hex | undefined) {
+  if (!id) return '';
+  return prettyIdToIp(idToPrettyId(id));
+}
+
 export const toTreeId = (id: string | undefined) => {
   if (!id) return '0x';
   try {
