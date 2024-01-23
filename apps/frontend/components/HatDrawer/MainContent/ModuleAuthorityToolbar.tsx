@@ -247,9 +247,8 @@ const ModuleAuthorityToolbar = ({
             />
             <MenuList>
               {_.map(otherFunctions, (func, i) => (
-                <Tooltip label={otherDisabledReason}>
+                <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
                   <MenuItem
-                    key={`${func.label}-${i}`}
                     onClick={() => handleFunctionCall(func)}
                     isDisabled={isDisabled}
                   >

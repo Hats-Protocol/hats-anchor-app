@@ -5,7 +5,6 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-// import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
@@ -16,7 +15,6 @@ import {
 } from 'app-utils';
 import {
   AppHat,
-  Authority,
   FormData,
   HatAuthority,
   HatSignerGate,
@@ -375,61 +373,44 @@ export function populateModulesAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
-  const updatedHatAuthorities: Authority[] = [];
+  const updatedHatAuthorities = _.map(
+    hatAuthorities,
+    (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
+      _.map(authorityEntries, ({ id, hatId }: { id: Hex; hatId: Hex }) => {
+        const moduleInfo = _.find(modulesDetails, { id });
 
-  _.forEach(modulesDetails, (details: ModuleDetails) => {
-    _.forEach(
-      hatAuthorities,
-      (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) => {
-        const matchingRoles = _.filter(
-          details?.customRoles,
+        const matchingRole = _.find(
+          moduleInfo?.customRoles,
           (role: Role) => role.id === authorityKey,
         );
         const matchingFunctions = _.filter(
-          details.writeFunctions,
-          (func: WriteFunction) =>
-            _.some(matchingRoles, (role: Role) =>
-              _.includes(func.roles, role.id),
-            ),
+          moduleInfo?.writeFunctions,
+          (func: WriteFunction) => _.includes(func.roles, matchingRole?.id),
         );
 
-        let description: string;
-        if (_.isArray(details.details)) {
-          description = details.details.join('\n');
-        } else if (typeof details.details === 'string') {
-          description = details.details as string;
+        let description: string = '';
+        if (_.isArray(moduleInfo?.details)) {
+          description = moduleInfo.details.join('\n');
+        } else if (typeof moduleInfo?.details === 'string') {
+          description = moduleInfo.details as string;
         }
 
-        const transformedAuthorities = authorityEntries.map(
-          (item: { id: Hex; hatId: Hex }) => {
-            const role = _.head(matchingRoles);
-            if (role) {
-              return {
-                label: `${role.name} (${formatAddress(item.id)})`,
-                link: role.id,
-                description,
-                type: AUTHORITY_TYPES.modules,
-                id: role.id,
-                functions: matchingFunctions,
-                instanceAddress: item.id,
-                moduleAddress: details.implementationAddress as Hex,
-                moduleLabel: `${details.name} (${formatAddress(
-                  item.id as Hex,
-                )})`,
-                hatId: item.hatId,
-              };
-            }
-            return null;
-          },
-        );
+        return {
+          label: `${matchingRole?.name} (${formatAddress(id)})`,
+          link: matchingRole?.id,
+          description,
+          type: AUTHORITY_TYPES.modules,
+          id: matchingRole?.id,
+          functions: matchingFunctions,
+          instanceAddress: id,
+          moduleAddress: moduleInfo?.implementationAddress as Hex,
+          moduleLabel: `${moduleInfo?.name} (${formatAddress(id as Hex)})`,
+          hatId,
+        };
+      }),
+  );
 
-        const filteredAuthorities = _.compact(transformedAuthorities);
-        updatedHatAuthorities.push(...filteredAuthorities);
-      },
-    );
-  });
-
-  return updatedHatAuthorities;
+  return _.flatten(updatedHatAuthorities);
 }
 
 export const populateHatsGatesAuthorities = ({

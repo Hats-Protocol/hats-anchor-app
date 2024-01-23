@@ -40,7 +40,7 @@ export const networkImages: { [key in SupportedChains]: string } = {
   100: '/chains/gnosis.png',
   137: '/chains/polygon.svg',
   424: '/chains/pgn.png',
-  8453: '/chains/base.svg',
+  8453: '/chains/base.png',
   42161: '/chains/arbitrum.svg',
   42220: '/chains/celo.svg',
   // 84532: '/chains/base-sepolia.svg',
