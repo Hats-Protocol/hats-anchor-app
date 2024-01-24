@@ -104,6 +104,43 @@ const ModuleFormInput = ({
     }
   };
 
+  const timeUnits = [
+    { unit: 'seconds', value: 1 },
+    { unit: 'minutes', value: 60 },
+    { unit: 'hours', value: 3600 },
+    { unit: 'days', value: 86400 },
+    { unit: 'weeks', value: 604800 },
+    { unit: 'months', value: 2592000 }, // = 30 days
+    { unit: 'years', value: 31536000 },
+  ];
+
+  const getTimeUnitMultiplier = (unit) => {
+    const timeUnit =
+      _.find(timeUnits, (tu) => tu.value === Number(unit)) || timeUnits[0];
+    return timeUnit.value;
+  };
+
+  const calculateSeconds = (value, timeUnit) => {
+    const multiplier = getTimeUnitMultiplier(timeUnit);
+    return String(value * multiplier);
+  };
+
+  const handleTimeUnitChange = (event) => {
+    const timeUnit = event.target.value;
+    setValue(`${arg.name}-time-unit`, timeUnit, { shouldDirty: true });
+    const value = localForm.watch(`${arg.name}-time-value`) || 0;
+    const res = calculateSeconds(value, timeUnit);
+    setValue(arg.name, res, { shouldDirty: true });
+  };
+
+  const handleTimeValueChange = (event) => {
+    const { value } = event.target;
+    setValue(`${arg.name}-time-value`, value, { shouldDirty: true });
+    const timeUnit = localForm.watch(`${arg.name}-time-unit`);
+    const res = calculateSeconds(value, timeUnit);
+    setValue(arg.name, res, { shouldDirty: true });
+  };
+
   useEffect(() => {
     // set default value(s)
     if (arg.type === 'bool') setValue(arg.name, true);
@@ -343,23 +380,48 @@ const ModuleFormInput = ({
 
   if (arg.displayType === 'seconds') {
     return (
-      <NumberInput
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        type='number'
-        subLabel={arg.description}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string)
-        }
-        isRequired={!arg.optional}
-        customValidations={{
-          validate: (value) =>
-            transformAndVerify(parseUnits(value, tokenDecimals), arg.type),
-        }}
-        localForm={localForm}
-      />
+      <Stack>
+        <NumberInput
+          name={`${arg.name}-time-value`}
+          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+          type='number'
+          subLabel={arg.description}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string)
+          }
+          isRequired={!arg.optional}
+          customValidations={{
+            validate: (value) =>
+              transformAndVerify(
+                parseUnits(
+                  calculateSeconds(
+                    value,
+                    localForm.watch(`${arg.name}-time-unit`) || 'minutes',
+                  ),
+                  tokenDecimals,
+                ),
+                arg.type,
+              ),
+          }}
+          localForm={localForm}
+          onChange={handleTimeValueChange}
+        />
+        <Select
+          name={`${arg.name}-time-unit`}
+          label='Time Unit'
+          localForm={localForm}
+          defaultValue='seconds'
+          onChange={handleTimeUnitChange}
+        >
+          {_.map(timeUnits, ({ unit, value }) => (
+            <option key={unit} value={value}>
+              {unit}
+            </option>
+          ))}
+        </Select>
+      </Stack>
     );
   }
 
