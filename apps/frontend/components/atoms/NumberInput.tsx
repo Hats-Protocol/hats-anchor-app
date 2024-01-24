@@ -105,7 +105,6 @@ const NumberInput = ({
                 w='full'
                 variant={variant}
                 step={step}
-                onChange={handleChange}
                 min={options?.min !== undefined ? options?.min : 1}
                 max={options?.max}
                 borderColor={
@@ -115,6 +114,7 @@ const NumberInput = ({
               >
                 <NumberInputField
                   ref={ref}
+                  onChange={handleChange}
                   name={restField.name}
                   placeholder={placeholder}
                 />
