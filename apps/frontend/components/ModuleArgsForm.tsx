@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { idToPrettyId, prettyIdToIp } from 'shared-utils';
+import { idToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
@@ -293,9 +293,7 @@ const ModuleFormInput = ({
 
             return (
               <option value={decimalId(id)} key={id}>
-                {`${detailsName ? `${detailsName} - ` : ''}${prettyIdToIp(
-                  idToPrettyId(id),
-                )}`}
+                {`${detailsName ? `${detailsName} - ` : ''}${idToIp(id)}`}
               </option>
             );
           })}
