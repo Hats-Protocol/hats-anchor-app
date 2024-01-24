@@ -6,7 +6,7 @@ import { AppHat, HandlePendingTx } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
@@ -77,7 +77,7 @@ const useHatStatusCheck = ({
           const logs = _.get(d, 'logs');
           if (logs?.length === 0) {
             toast.success({
-              title: 'Status Check Completed',
+              title: `Checked status for hat ${idToIp(_.get(hatData, 'id'))}`,
               description: `No change: Hat Status remains ${
                 hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
               }`,
@@ -85,7 +85,7 @@ const useHatStatusCheck = ({
           } else {
             const logData = _.get(_.first(logs), 'data');
             toast.success({
-              title: 'Status Check Completed',
+              title: `Checked status for hat ${idToIp(_.get(hatData, 'id'))}`,
               description: `Hat Status Changed to ${
                 _.first(_.slice(logData, -1, _.size(logData))) === '1'
                   ? STATUS.ACTIVE

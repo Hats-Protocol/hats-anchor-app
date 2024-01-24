@@ -32,7 +32,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
-import { idToPrettyId, prettyIdToIp, toTreeId } from 'shared-utils';
+import { idToIp, idToPrettyId, prettyIdToIp, toTreeId } from 'shared-utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
@@ -73,7 +73,9 @@ const MoreMenu = () => {
       chainId,
       onSuccessToastData: {
         title: 'Hat Status Updated!',
-        description: 'Successfully updated hat',
+        description: `${
+          selectedHat?.status ? 'Deactivated' : 'Activated'
+        } hat ${idToIp(selectedHat?.id)}`,
       },
       queryKeys: [
         ['hatDetails', { id: selectedHat?.id, chainId }],

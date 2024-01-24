@@ -14,7 +14,7 @@ import { useHatContractWrite } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
-import { toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
@@ -30,7 +30,7 @@ const HatWearerStatusForm = ({
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
-  const { setModals } = useOverlay();
+  const { setModals, handlePendingTx } = useOverlay();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
   const { chainId, selectedHat } = useTreeForm();
@@ -43,6 +43,16 @@ const HatWearerStatusForm = ({
     chainId: 1,
   });
 
+  const getSuccessToastDescription = () => {
+    if (eligibility !== 'Eligible') {
+      return `Removed hat ${idToIp(hatId)} from ${formatAddress(wearerName)}${
+        standing === 'Good Standing' ? '' : ' and set bad standing'
+      }`;
+    }
+
+    return '';
+  };
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'setHatWearerStatus',
     args: [
@@ -52,14 +62,15 @@ const HatWearerStatusForm = ({
       standing === 'Good Standing',
     ],
     chainId,
-    onSuccessToastData: {
-      title: 'Wearer Status Updated',
-      description: 'Successfully updated hat',
-    },
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', _.toNumber(toTreeId(hatId))],
     ],
+    handlePendingTx,
+    onSuccessToastData: {
+      title: 'Wearer Status Updated',
+      description: getSuccessToastDescription(),
+    },
     enabled:
       !!wearer &&
       !!hatId &&

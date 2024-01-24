@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from 'app-constants';
 import { useToast } from 'app-hooks';
-import { chainsMap } from 'app-utils';
+import { chainsMap, formatAddress } from 'app-utils';
 import {
   useHatContractWrite,
   useWearerEligibilityCheck,
@@ -34,7 +34,7 @@ import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
-import { toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { createPublicClient, Hex, http, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -156,7 +156,9 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     chainId,
     onSuccessToastData: {
       title: `Hats Minted!`,
-      description: `Successfully minted hats`,
+      description: `Minted hat ${idToIp(selectedHat.id)} to ${
+        localWearers.length + (isAddress(currentResolvedAddress) ? 1 : 0)
+      } wearers`,
     },
     handlePendingTx,
     handleSuccess: () => {
@@ -182,7 +184,9 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       chainId,
       onSuccessToastData: {
         title: `Hat Minted!`,
-        description: `Successfully minted hat`,
+        description: `Minted hat ${idToIp(selectedHat.id)} to ${
+          isEnsAddress ? currentInput : formatAddress(currentResolvedAddress)
+        }`,
       },
       handlePendingTx,
       handleSuccess: () => {

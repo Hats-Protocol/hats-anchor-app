@@ -22,11 +22,6 @@ export function idToPrettyId(id: Hex | undefined): string {
   return _.join([treeId, ...dropEmpty], '.');
 }
 
-export function idToIp(id: Hex | undefined) {
-  if (!id) return '';
-  return prettyIdToIp(idToPrettyId(id));
-}
-
 export function prettyIdToIp(id: string | undefined) {
   if (!id) return '';
   const domains = id

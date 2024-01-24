@@ -49,7 +49,6 @@ const useAncillaryModules = ({
       moduleIds,
       chainId,
     });
-  console.log(modulesDetails);
 
   if (isHatAuthoritiesLoading || isModulesDetailsLoading) {
     return {

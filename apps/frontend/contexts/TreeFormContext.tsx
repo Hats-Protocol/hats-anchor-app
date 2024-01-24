@@ -726,7 +726,6 @@ export const TreeFormContextProvider = ({
     id: selectedHatId,
     chainId,
   });
-  console.log(modulesAuthorities);
 
   const { data: combinedAuthorities } = combineAuthorities({
     authorities: _.get(selectedHatDetails, 'authorities'),

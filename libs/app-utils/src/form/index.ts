@@ -616,7 +616,6 @@ export const processHatForCalls = async (
     hat,
     returnData: mutabilityResult,
   });
-  console.log('imageResult', imageResult);
 
   return imageResult;
 };

@@ -25,7 +25,7 @@ import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
-import { toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -62,7 +62,7 @@ const WearerRow = ({
     !!isTopHat(selectedHat),
   );
 
-  const { writeAsync: testEligibility, isLoading } = useHatContractWrite({
+  const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
@@ -77,31 +77,18 @@ const WearerRow = ({
       ['treeDetails', toTreeId(hatId)],
     ],
     handlePendingTx,
-    handleSuccess: (data) => {
-      if (!_.isEmpty(data?.logs)) {
-        toast.info({
-          title: `The status of ${formatAddress(
-            wearer.id,
-          )} was successfully updated.`,
-        });
-      }
-      // } else {
-      //   this shouldn't happen with disable states
-      //   toast.info({
-      //     title: `No change in status for wearer, ${formatAddress(wearer.id)}.`,
-      //   });
-      // }
+    onSuccessToastData: {
+      title: `Checked status for ${formatAddress(wearer.id)} on hat ${idToIp(
+        hatId,
+      )}}`,
     },
   });
+
   const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,
     chainId,
     enabled: wearer.isContract,
   });
-
-  const updateEligibility = async () => {
-    testEligibility?.();
-  };
 
   const { writeAsync: renounceHat } = useHatBurn({
     selectedHat,
@@ -207,8 +194,8 @@ const WearerRow = ({
             )}
 
             <MenuItem
-              isDisabled={!isSameChain || isLoading || !testEligibility}
-              onClick={updateEligibility}
+              isDisabled={!isSameChain || isLoading || !updateEligibility}
+              onClick={() => updateEligibility?.()}
             >
               <TooltipWrapper
                 isSameChain={isSameChain}

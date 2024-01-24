@@ -9,6 +9,7 @@ import {
 import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
+import { idToIp } from 'shared-utils';
 import { Hex } from 'viem';
 import { useAccount, useContractRead } from 'wagmi';
 
@@ -76,7 +77,9 @@ const useHatClaimFor = ({
       if (result?.status === 'success') {
         toast.success({
           title: 'Hat claimed',
-          description: `Hat has been claimed for ${formatAddress(account)}`,
+          description: `Hat ${idToIp(
+            selectedHat.id,
+          )} has been claimed for ${formatAddress(account)}`,
         });
       }
       setIsLoading(false);
