@@ -1,6 +1,6 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { explorerUrl, formatAddress } from 'app-utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
@@ -17,6 +17,7 @@ const numberTypes = [
   'uint16',
   'uint32',
   'uint64',
+  'uint128',
   'uint248',
 ];
 
@@ -75,9 +76,15 @@ const ModuleParameter = ({
     if (param.displayType === 'hat') {
       return (
         <ModuleParameterRow label={param.label}>
-          <Text fontSize='sm' color='gray.500'>
-            #{hatIdDecimalToIp(param.value as bigint)}
-          </Text>
+          <ChakraNextLink
+            href={`/trees/${chainId}/${hatIdToTreeId(
+              param.value as bigint,
+            )}?hatId=${hatIdDecimalToIp(param.value as bigint)}`}
+          >
+            <Text fontSize='sm' color='gray.500'>
+              #{hatIdDecimalToIp(param.value as bigint)}
+            </Text>
+          </ChakraNextLink>
         </ModuleParameterRow>
       );
     }
@@ -95,12 +102,24 @@ const ModuleParameter = ({
       );
     }
     if (param.displayType === 'timestamp') {
+      if (param.value === BigInt(0)) {
+        return (
+          <ModuleParameterRow label={param.label}>
+            <Text fontSize='sm' color='gray.500'>
+              Not Set
+            </Text>
+          </ModuleParameterRow>
+        );
+      }
       const date = new Date(
         _.toNumber((param.value as bigint).toString()) * 1000,
       );
       return (
         <ModuleParameterRow label={param.label}>
-          <Tooltip label={format(date, 'yyyy-MM-dd HH:mm:ss')} placement='left'>
+          <Tooltip
+            label={`${format(date, 'yyyy-MM-dd HH:mm:ss')} UTC`}
+            placement='left'
+          >
             <Text fontSize='sm' color='gray.500'>
               {formatDistanceToNow(date)}{' '}
               {new Date() > date ? 'ago' : 'from now'}
