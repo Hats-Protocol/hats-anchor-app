@@ -44,11 +44,11 @@ const ModuleParameter = ({
   chainId: number;
   tokenData: object;
 }) => {
-  const { tokenDecimals, tokenSymbol, tokenName } = _.pick(tokenData, [
-    'decimals',
-    'symbol',
-    'name',
-  ]);
+  const {
+    decimals: tokenDecimals,
+    symbol: tokenSymbol,
+    name: tokenName,
+  } = _.pick(tokenData, ['decimals', 'symbol', 'name']);
 
   if (param.solidityType === 'address') {
     // TODO handle joke race display type
@@ -141,14 +141,14 @@ const ModuleParameters = ({
 
   return (
     <Stack>
-      {_.map(parameters, (param: ModuleParameter) => {
+      {_.map(parameters, (param: ModuleParameter) => (
         <ModuleParameter
           param={param}
           chainId={chainId}
           tokenData={tokenData}
           key={`${param.label}-${param.value}`}
-        />;
-      })}
+        />
+      ))}
     </Stack>
   );
 };

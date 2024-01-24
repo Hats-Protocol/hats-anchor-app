@@ -100,7 +100,7 @@ const ModuleDetailsForm = ({
         </FormRowWrapper>
       )}
 
-      <Stack>
+      <Stack spacing={6}>
         <ModuleArgsInputs
           selectedModuleArgs={selectedModuleArgs}
           localForm={localForm}
