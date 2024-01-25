@@ -1,3 +1,4 @@
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { OverlayContextProps } from 'app-constants';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
@@ -38,6 +39,8 @@ const defaults = {
   hatSupply: false,
 };
 
+const MAX_TREES = 3;
+
 export const OverlayContext = createContext<OverlayContextProps>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: undefined,
@@ -48,6 +51,8 @@ export const OverlayContext = createContext<OverlayContextProps>({
   setCommandPalette: () => {},
   transactions: [],
   clearAllTransactions: () => {},
+  recentlyVisitedTrees: undefined,
+  updateRecentlyVisitedTrees: () => {},
 });
 
 export const OverlayContextProvider = ({
@@ -64,6 +69,36 @@ export const OverlayContextProvider = ({
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
     [],
+  );
+  const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
+    { treeId: number; chainId: number }[]
+  >('recently-visited-trees', undefined);
+
+  const updateRecentlyVisitedTrees = useCallback(
+    ({ treeId, chainId: cId }: { treeId: Hex; chainId: number }) => {
+      if (!treeId || !cId) return;
+      const treeIdDecimal = treeIdHexToDecimal(treeId);
+
+      const localRecentTrees = _.compact(
+        _.concat(
+          [{ treeId: treeIdDecimal, chainId: cId }],
+          recentlyVisitedTrees,
+        ),
+      );
+
+      const uniqueTrees = _.uniqWith(
+        localRecentTrees,
+        (treeA, treeB) =>
+          treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
+      );
+
+      if (!_.isEqual(uniqueTrees, recentlyVisitedTrees)) {
+        const updatedRecentTrees = _.slice(uniqueTrees, 0, MAX_TREES);
+        setRecentlyVisitedTrees(updatedRecentTrees);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [recentlyVisitedTrees],
   );
 
   const showModal = (m: object) => {
@@ -211,6 +246,8 @@ export const OverlayContextProvider = ({
       handlePendingTx,
       transactions,
       clearAllTransactions,
+      recentlyVisitedTrees,
+      updateRecentlyVisitedTrees,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],
@@ -231,6 +268,8 @@ export const OverlayContextProvider = ({
           setCommandPalette,
           transactions,
           clearAllTransactions,
+          recentlyVisitedTrees,
+          updateRecentlyVisitedTrees,
         }}
       >
         <TransactionHistory transactions={transactions} />

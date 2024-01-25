@@ -3,18 +3,17 @@
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Spinner, Stack, Text } from '@chakra-ui/react';
-import { useLocalStorage, useSearchResults } from 'app-hooks';
+import { useSearchResults } from 'app-hooks';
+import { chainsMap } from 'app-utils';
 import { Group, SearchResults } from 'hats-types';
 import _ from 'lodash';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CmdkCommandPalette, {
   filterItems,
   getItemIndex,
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
-import { idToIp } from 'shared-utils';
-import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
@@ -39,12 +38,12 @@ const CommandPaletteInternalLink = ({
 const CommandPalette = () => {
   const { address } = useAccount();
   const [page] = useState('root');
-  const { commandPalette: isOpen, setCommandPalette: setOpen } = useOverlay();
+  const {
+    commandPalette: isOpen,
+    setCommandPalette: setOpen,
+    recentlyVisitedTrees,
+  } = useOverlay();
   const [search, setSearch] = useState('');
-  const [recentlyVisitedTrees] = useLocalStorage<Hex[]>(
-    'recently-visited-trees',
-    [],
-  );
   const [serverSearch, setServerSearch] = useState<string | undefined>();
   const [localResults, setLocalResults] = useState<{
     trees: SearchResults[];
@@ -137,13 +136,18 @@ const CommandPalette = () => {
     searchKey || '',
   );
 
-  const recentlyVisitedTreesItems = (recentlyVisitedTrees || []).map(
-    (treeId) => ({
-      id: `recent-${idToIp(treeId)}`,
-      children: `Tree ${idToIp(treeId)}`,
-      href: `/trees/${idToIp(treeId)}`,
-      icon: FaSitemap,
-    }),
+  const recentlyVisitedTreesItems = useMemo(
+    () =>
+      _.map(
+        _.compact(recentlyVisitedTrees),
+        ({ treeId, chainId }: { treeId: number; chainId: number }) => ({
+          id: `recent-${treeId}-${chainId}`,
+          children: `Tree #${treeId} on ${chainsMap(chainId)?.name}`,
+          href: `/trees/${chainId}/${treeId}`,
+          icon: FaSitemap,
+        }),
+      ),
+    [recentlyVisitedTrees],
   );
 
   return (
@@ -156,9 +160,9 @@ const CommandPalette = () => {
       page={page}
     >
       <CmdkCommandPalette.Page id='root'>
-        {recentlyVisitedTrees.length > 0 && (
+        {!_.isEmpty(recentlyVisitedTrees) && (
           <CmdkCommandPalette.List heading='Recently Visited Trees'>
-            {recentlyVisitedTreesItems.map(({ id, ...rest }, index) => (
+            {_.map(recentlyVisitedTreesItems, ({ id, ...rest }, index) => (
               <CmdkCommandPalette.ListItem
                 key={id}
                 index={index}

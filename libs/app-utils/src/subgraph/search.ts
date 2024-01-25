@@ -1,9 +1,10 @@
 /* eslint-disable import/prefer-default-export */
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
-import { idToIp, toTreeId } from 'shared-utils';
+import { idToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { chainsList, createSubgraphClient } from '../web3';
@@ -19,27 +20,29 @@ const processForCommandPalette = (key: string, record: any) => {
   const { id: networkId, name: networkName } = network || {};
 
   const parts = id?.split('.');
-  const treeId = parts ? BigInt(toTreeId(parts[0] as Hex)) : '';
+  const treeId = parts ? hatIdToTreeId(BigInt(parts[0] as Hex)) : '';
 
   let href = '#';
+  let label = '';
   const hatIdIp = idToIp(id);
 
   // eslint-disable-next-line default-case
   switch (key) {
     case 'trees':
-      href = `/trees/${networkId}/${hatIdIp}`;
+      href = `/trees/${networkId}/${treeId}`;
+      label = `Tree #${treeId} on ${networkName}`;
       break;
     case 'hats':
       href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
+      label = `Hat #${hatIdIp} on ${networkName}`;
       break;
   }
 
-  const children = `${networkName} - #${hatIdIp}`;
   const icon = keyIcons[key] as IconName;
 
   return {
     id: `${key}-${id}-${networkId}`,
-    children,
+    children: label,
     icon,
     href,
   };
@@ -85,6 +88,7 @@ export const searchQueryResult = async (search: string | undefined) => {
       allNetworkResults?.hats || [],
     );
   });
+  // TODO seeing results here, but not in command palette
 
   return _.mapValues(
     allNetworkResults,
