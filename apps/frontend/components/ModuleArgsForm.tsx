@@ -16,6 +16,7 @@ import { useTreeForm } from '../contexts/TreeFormContext';
 import AddressInput from './AddressInput';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
+import DurationInput from './atoms/DurationInput';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
 import Select from './atoms/Select';
@@ -49,8 +50,10 @@ const ModuleFormInput = ({
   const [customHatSelections, setCustomHatSelections] = useState({});
 
   const { watch, setValue } = localForm;
+  console.log('watch', watch());
 
-  const localTokenAddress = watch('Token Address', '');
+  const tokenArgName = arg.displayType === 'token' ? arg.name : '';
+  const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
     address: tokenAddress || localTokenAddress,
     enabled:
@@ -79,7 +82,7 @@ const ModuleFormInput = ({
         newState[argName] = true;
       } else {
         newState[argName] = false;
-        localForm.setValue(`${argName}_custom`, undefined, {
+        setValue(`${argName}_custom`, undefined, {
           shouldDirty: true,
         });
       }
@@ -102,43 +105,6 @@ const ModuleFormInput = ({
     if (!_.isNaN(parseFloat(value)) && _.isFinite(value)) {
       setValue(argName, value, { shouldDirty: true });
     }
-  };
-
-  const timeUnits = [
-    { unit: 'seconds', value: 1 },
-    { unit: 'minutes', value: 60 },
-    { unit: 'hours', value: 3600 },
-    { unit: 'days', value: 86400 },
-    { unit: 'weeks', value: 604800 },
-    { unit: 'months', value: 2592000 }, // = 30 days
-    { unit: 'years', value: 31536000 },
-  ];
-
-  const getTimeUnitMultiplier = (unit) => {
-    const timeUnit =
-      _.find(timeUnits, (tu) => tu.value === Number(unit)) || timeUnits[0];
-    return timeUnit.value;
-  };
-
-  const calculateSeconds = (value, timeUnit) => {
-    const multiplier = getTimeUnitMultiplier(timeUnit);
-    return String(value * multiplier);
-  };
-
-  const handleTimeUnitChange = (event) => {
-    const timeUnit = event.target.value;
-    setValue(`${arg.name}-time-unit`, timeUnit, { shouldDirty: true });
-    const value = localForm.watch(`${arg.name}-time-value`) || 0;
-    const res = calculateSeconds(value, timeUnit);
-    setValue(arg.name, res, { shouldDirty: true });
-  };
-
-  const handleTimeValueChange = (event) => {
-    const { value } = event.target;
-    setValue(`${arg.name}-time-value`, value, { shouldDirty: true });
-    const timeUnit = localForm.watch(`${arg.name}-time-unit`);
-    const res = calculateSeconds(value, timeUnit);
-    setValue(arg.name, res, { shouldDirty: true });
   };
 
   useEffect(() => {
@@ -331,6 +297,7 @@ const ModuleFormInput = ({
             validate: (value) => {
               if (!value) return false;
               const numericValue = parseFloat(value);
+              console.log('tokenDecimals', tokenDecimals);
 
               if (!tokenDecimals) return 'No token selected';
 
@@ -380,48 +347,22 @@ const ModuleFormInput = ({
 
   if (arg.displayType === 'seconds') {
     return (
-      <Stack>
-        <NumberInput
-          name={`${arg.name}-time-value`}
-          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-          type='number'
-          subLabel={arg.description}
-          placeholder={
-            Array.isArray(arg.example)
-              ? (arg.example as string[]).join(', ')
-              : (arg.example as string)
-          }
-          isRequired={!arg.optional}
-          customValidations={{
-            validate: (value) =>
-              transformAndVerify(
-                parseUnits(
-                  calculateSeconds(
-                    value,
-                    localForm.watch(`${arg.name}-time-unit`) || 'minutes',
-                  ),
-                  tokenDecimals,
-                ),
-                arg.type,
-              ),
-          }}
-          localForm={localForm}
-          onChange={handleTimeValueChange}
-        />
-        <Select
-          name={`${arg.name}-time-unit`}
-          label='Time Unit'
-          localForm={localForm}
-          defaultValue='seconds'
-          onChange={handleTimeUnitChange}
-        >
-          {_.map(timeUnits, ({ unit, value }) => (
-            <option key={unit} value={value}>
-              {unit}
-            </option>
-          ))}
-        </Select>
-      </Stack>
+      <DurationInput
+        name={arg.name}
+        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+        subLabel={arg.description}
+        placeholder={
+          Array.isArray(arg.example)
+            ? (arg.example as string[]).join(', ')
+            : (arg.example as string)
+        }
+        isRequired={!arg.optional}
+        customValidations={{
+          validate: (value) =>
+            transformAndVerify(localForm.watch(arg.name), arg.type),
+        }}
+        localForm={localForm}
+      />
     );
   }
 
