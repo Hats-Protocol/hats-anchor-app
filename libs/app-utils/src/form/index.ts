@@ -12,7 +12,7 @@ import {
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
-import { createHierarchy, getDefaultAdminId } from 'shared-utils';
+import { createHierarchy, getDefaultAdminId, idToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { calculateCid, ipfsUrl, urlToIpfsUri } from '../ipfs';
@@ -523,21 +523,25 @@ const processImageChangeCallForHat = async ({
 }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { imageUrl, id: hatId } = hat;
+  const returnDataWithHatId = {
+    ...returnData,
+    hatId,
+  };
 
-  if (!hatId || !imageUrl) return returnData;
+  if (!hatId || !imageUrl) return returnDataWithHatId;
 
   const imageUri = imageUrl.startsWith('https://')
     ? urlToIpfsUri(imageUrl)
     : imageUrl;
 
-  if (!imageUri) return returnData;
+  if (!imageUri) return returnDataWithHatId;
 
   const changeHatImageUriData = hatsClient.changeHatImageURICallData({
     hatId: BigInt(hatId),
     newImageURI: imageUri,
   });
 
-  if (!changeHatImageUriData) return returnData;
+  if (!changeHatImageUriData) return returnDataWithHatId;
 
   const newHatChanges = {
     ...hatChanges,
@@ -546,7 +550,7 @@ const processImageChangeCallForHat = async ({
   };
 
   return {
-    ...returnData,
+    ...returnDataWithHatId,
     calls: _.concat(calls, changeHatImageUriData),
     hatChanges: newHatChanges,
   };
@@ -708,3 +712,73 @@ export const fieldsAreDirty = (
     'label',
   );
 };
+
+export function summarizeActions(data: any[]) {
+  if (_.isEmpty(data)) return 'No actions taken';
+
+  let createCount = 0;
+  let updateCount = 0;
+  let mintCount = 0;
+
+  _.forEach(data, (item) => {
+    let isCreated = false;
+
+    _.forEach(item.calls, (call) => {
+      switch (call.functionName) {
+        case 'createHat':
+          isCreated = true;
+          createCount += 1;
+          break;
+        case 'mintHat':
+          mintCount += 1;
+          break;
+        case 'batchMintHats':
+          {
+            const hatChanges = _.get(item, 'hatChanges');
+            const wearersCount = hatChanges ? hatChanges.wearers.length : 0;
+            mintCount += wearersCount;
+          }
+          break;
+        default:
+          // If the hat is not created in this item, count this call as an update
+          if (!isCreated) {
+            updateCount += 1;
+          }
+          break;
+      }
+    });
+  });
+
+  if (data.length === 1) {
+    let message = '';
+    if (createCount === 1) {
+      return `Created a hat`;
+    }
+    if (updateCount > 0) {
+      message += `Updated details of hat ${idToIp(data[0].hatId)}`;
+    }
+    if (mintCount > 0) {
+      const wearerS = `${
+        mintCount === 1 ? '1 wearer' : `${mintCount} wearers`
+      }`;
+      message +=
+        updateCount > 0 ? `& minted to ${wearerS}` : `Minted to ${wearerS}`;
+    }
+    return message;
+  }
+
+  const actionParts = [];
+  if (updateCount > 0)
+    actionParts.push(
+      `Updated ${updateCount} ${updateCount === 1 ? 'hat' : 'hats'}`,
+    );
+  if (createCount > 0)
+    actionParts.push(
+      `Created ${createCount} ${createCount === 1 ? 'hat' : 'hats'}`,
+    );
+  if (mintCount > 0)
+    actionParts.push(`Minted ${mintCount} ${mintCount === 1 ? 'hat' : 'hats'}`);
+  const multiMessage = `${actionParts.join(' & ')} (Multicall)`;
+
+  return multiMessage;
+}

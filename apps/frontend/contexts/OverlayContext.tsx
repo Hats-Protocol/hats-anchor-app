@@ -125,7 +125,7 @@ export const OverlayContextProvider = ({
   const handlePendingTx = async ({
     hash,
     txChainId,
-    fnName,
+    txDescription,
     toastData,
     redirect = null,
     clearModals = true,
@@ -134,7 +134,7 @@ export const OverlayContextProvider = ({
   }: {
     hash: Hex;
     txChainId?: number | undefined;
-    fnName: string;
+    txDescription: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
@@ -146,7 +146,7 @@ export const OverlayContextProvider = ({
       txChainId,
       timestamp: Date.now(),
       status: 'pending',
-      fnName,
+      txDescription,
     });
 
     const data = await waitForTransaction({ hash });

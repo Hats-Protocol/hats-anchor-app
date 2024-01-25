@@ -12,6 +12,7 @@ interface ContractInteractionProps {
   args: unknown[];
   chainId?: number;
   onSuccessToastData?: { title: string; description?: string };
+  txDescription?: string;
   onErrorToastData?: { title: string; description?: string };
   queryKeys?: (object | string | number)[][];
   transactionTimeout?: number;
@@ -25,6 +26,7 @@ const useHatContractWrite = ({
   args,
   chainId,
   onSuccessToastData,
+  txDescription,
   onErrorToastData,
   queryKeys = [],
   transactionTimeout = 500,
@@ -61,7 +63,7 @@ const useHatContractWrite = ({
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: formatFunctionName(functionName),
+        txDescription: txDescription || formatFunctionName(functionName),
         toastData: onSuccessToastData,
         onSuccess: (d?: TransactionReceipt) => {
           handleSuccess?.(d);

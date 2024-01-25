@@ -117,17 +117,19 @@ const useHatClaimBy = ({
         description: 'Waiting for your transaction to be accepted...',
       });
 
+      const txDescription = `You've claimed ${
+        selectedHat?.id
+          ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
+          : 'this hat'
+      }.`;
+
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: 'Claim Hat',
+        txDescription,
         toastData: {
           title: 'Hat claimed!',
-          description: `You've claimed ${
-            selectedHat?.id
-              ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-              : 'this hat'
-          }.`,
+          description: txDescription,
         },
       });
 
