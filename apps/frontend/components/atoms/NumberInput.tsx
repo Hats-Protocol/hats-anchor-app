@@ -24,7 +24,7 @@ import { GrUndo } from 'react-icons/gr';
 
 export interface CustomNumberInputProps {
   customValidations?: RegisterOptions;
-  label?: string | React.ReactNode;
+  label?: string;
   subLabel?: string;
   name: string;
   localForm: UseFormReturn<any>; // UseFormReturn<FieldValues>;
@@ -86,15 +86,17 @@ const NumberInput = ({
   const handleChange = onChange || defaultHandleChange;
 
   return (
-    <FormControl isRequired={isRequired} isInvalid={!!errors[name]}>
-      {label && (
-        <FormLabel>
-          {label}
-          {options?.required && '*'}
-        </FormLabel>
-      )}
-      <Stack spacing={1} w='full'>
-        {subLabel && <FormHelperText>{subLabel}</FormHelperText>}
+    <FormControl isInvalid={!!errors[name]}>
+      <Stack spacing={2} w='full'>
+        {label && (
+          <FormLabel mb={0}>
+            <Text fontSize='sm'>
+              {label.toUpperCase()}
+              {isRequired && '*'}
+            </Text>
+          </FormLabel>
+        )}
+        {subLabel && <FormHelperText mt={0}>{subLabel}</FormHelperText>}
         <Controller
           control={control}
           name={name}
@@ -105,7 +107,6 @@ const NumberInput = ({
                 w='full'
                 variant={variant}
                 step={step}
-                onChange={handleChange}
                 min={options?.min !== undefined ? options?.min : 1}
                 max={options?.max}
                 borderColor={
@@ -115,6 +116,7 @@ const NumberInput = ({
               >
                 <NumberInputField
                   ref={ref}
+                  onChange={handleChange}
                   name={restField.name}
                   placeholder={placeholder}
                 />

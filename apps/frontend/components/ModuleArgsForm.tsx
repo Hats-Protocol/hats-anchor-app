@@ -1,14 +1,14 @@
 import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { useDebounce } from 'app-hooks';
-import { explorerUrl, formatAddress, transformAndVerify } from 'app-utils';
+import { explorerUrl, transformAndVerify } from 'app-utils';
 import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { idToPrettyId, prettyIdToIp } from 'shared-utils';
+import { idToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
@@ -16,6 +16,7 @@ import { useTreeForm } from '../contexts/TreeFormContext';
 import AddressInput from './AddressInput';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
+import DurationInput from './atoms/DurationInput';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
 import Select from './atoms/Select';
@@ -50,15 +51,17 @@ const ModuleFormInput = ({
 
   const { watch, setValue } = localForm;
 
-  const localTokenAddress = watch('Token Address', '');
+  const tokenArgName = arg.displayType === 'token' ? arg.name : '';
+  const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
-    address: tokenAddress || localTokenAddress,
+    address: localTokenAddress || tokenAddress,
+    chainId,
     enabled:
       (!!tokenAddress && isAddress(tokenAddress)) ||
       (!!localTokenAddress && isAddress(localTokenAddress)),
   });
   const tokenDecimals = tokenDetails?.decimals;
-  const tokenLabel = `${tokenDetails?.name} (${formatAddress(tokenAddress)})`;
+  const tokenLabel = `${tokenDetails?.name} ($${tokenDetails?.symbol})`;
 
   const handleChangeAddress = (
     e: ChangeEvent<HTMLInputElement>,
@@ -79,7 +82,7 @@ const ModuleFormInput = ({
         newState[argName] = true;
       } else {
         newState[argName] = false;
-        localForm.setValue(`${argName}_custom`, undefined, {
+        setValue(`${argName}_custom`, undefined, {
           shouldDirty: true,
         });
       }
@@ -128,52 +131,93 @@ const ModuleFormInput = ({
     arg.displayType === 'erc1155' ||
     arg.displayType === 'jokerace'
   ) {
+    let argHelper = null;
+    // TODO separate ArgHelper?
+    if (
+      arg.displayType === 'erc20' &&
+      !tokenDetails &&
+      (localTokenAddress || tokenAddress)
+    ) {
+      if (!tokenDetails) {
+        argHelper = <Text color='red.500' />;
+      } else {
+        argHelper = (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
+            isExternal
+          >
+            <Text fontSize='sm' color='gray.500'>
+              {tokenLabel}
+            </Text>
+          </ChakraNextLink>
+        );
+      }
+    }
+
     return (
-      <Input
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string) || fallbackExamples.address
-        }
-        options={{
-          required: !arg.optional,
-          validate: (value) => {
-            if (!isAddress(value)) return 'Invalid address';
-            return true;
-          },
-        }}
-        localForm={localForm}
-        onChange={(e) => handleChangeAddress(e, arg.name)}
-      />
+      <Stack>
+        <Input
+          name={arg.name}
+          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+          subLabel={arg.description}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string) || fallbackExamples.address
+          }
+          options={{
+            required: !arg.optional,
+            validate: (value) => {
+              if (!isAddress(value)) return 'Invalid address';
+              return true;
+            },
+          }}
+          localForm={localForm}
+          onChange={(e) => handleChangeAddress(e, arg.name)}
+        />
+        {argHelper}
+      </Stack>
     );
   }
 
+  // TEMPORARILY added descriptor here while registry hasn't been updated for token types
   if (arg.type === 'address') {
     return (
-      <AddressInput
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
-        showResolvedAddress={showNewResolvedAddress}
-        resolvedAddress={String(newWearerResolvedAddress)}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string) || fallbackExamples.address
-        }
-        options={{
-          required: !arg.optional,
-          validate: (value) => {
-            if (!isAddress(value)) return 'Invalid address';
-            return true;
-          },
-        }}
-        localForm={localForm}
-        onChange={(e) => handleChangeAddress(e, arg.name)}
-      />
+      <Stack w='100%' spacing={1}>
+        <AddressInput
+          name={arg.name}
+          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+          subLabel={arg.description}
+          showResolvedAddress={showNewResolvedAddress}
+          resolvedAddress={String(newWearerResolvedAddress)}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string) || fallbackExamples.address
+          }
+          options={{
+            required: !arg.optional,
+            validate: (value) => {
+              if (!isAddress(value)) return 'Invalid address';
+              return true;
+            },
+          }}
+          localForm={localForm}
+          onChange={(e) => handleChangeAddress(e, arg.name)}
+        />
+        {tokenDetails && (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${
+              localTokenAddress || tokenAddress
+            }`}
+            isExternal
+          >
+            <Text fontSize='sm' color='gray.500'>
+              {tokenLabel}
+            </Text>
+          </ChakraNextLink>
+        )}
+      </Stack>
     );
   }
 
@@ -251,9 +295,7 @@ const ModuleFormInput = ({
 
             return (
               <option value={decimalId(id)} key={id}>
-                {`${detailsName ? `${detailsName} - ` : ''}${prettyIdToIp(
-                  idToPrettyId(id),
-                )}`}
+                {`${detailsName ? `${detailsName} - ` : ''}${idToIp(id)}`}
               </option>
             );
           })}
@@ -317,14 +359,9 @@ const ModuleFormInput = ({
           localForm={localForm}
         />
         {tokenDetails && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
-            isExternal
-          >
-            <Text fontSize='sm' color='gray.500'>
-              {tokenLabel}
-            </Text>
-          </ChakraNextLink>
+          <Text fontSize='sm' color='gray.500'>
+            ${tokenDetails?.symbol} uses {tokenDecimals} decimals
+          </Text>
         )}
       </Stack>
     );
@@ -343,10 +380,9 @@ const ModuleFormInput = ({
 
   if (arg.displayType === 'seconds') {
     return (
-      <NumberInput
+      <DurationInput
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        type='number'
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
@@ -356,7 +392,7 @@ const ModuleFormInput = ({
         isRequired={!arg.optional}
         customValidations={{
           validate: (value) =>
-            transformAndVerify(parseUnits(value, tokenDecimals), arg.type),
+            transformAndVerify(localForm.watch(arg.name), arg.type),
         }}
         localForm={localForm}
       />
@@ -418,17 +454,21 @@ const ModuleArgsForm = ({
   noMargin?: boolean;
   isDeploy?: boolean;
 }) => {
-  return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
-    <FormRowWrapper key={arg.name} noMargin={noMargin}>
-      {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
-      <ModuleFormInput
-        arg={arg}
-        localForm={localForm}
-        tokenAddress={tokenAddress}
-        isDeploy={isDeploy}
-      />
-    </FormRowWrapper>
-  ));
+  return (
+    <Stack spacing={3}>
+      {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
+        <FormRowWrapper key={arg.name} noMargin={noMargin}>
+          {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
+          <ModuleFormInput
+            arg={arg}
+            localForm={localForm}
+            tokenAddress={tokenAddress}
+            isDeploy={isDeploy}
+          />
+        </FormRowWrapper>
+      ))}
+    </Stack>
+  );
 };
 
 export default ModuleArgsForm;

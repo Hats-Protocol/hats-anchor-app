@@ -1,4 +1,4 @@
-import { Button, Flex, Icon, Tooltip } from '@chakra-ui/react';
+import { Button, Flex, HStack, Icon, Tooltip } from '@chakra-ui/react';
 import { DEPLOYMENT_TYPES } from 'app-constants';
 import {
   useHatDetails,
@@ -14,6 +14,7 @@ import { useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
+import NetworkSwitcher from '../NetworkSwitcher';
 
 const TopMenu = ({
   localForm,
@@ -136,23 +137,26 @@ const TopMenu = ({
         Cancel
       </Button>
 
-      <Tooltip
-        label={!isChainCorrect ? 'Please switch to the correct network' : ''}
-        isDisabled={isChainCorrect}
-        hasArrow
-        placement='top'
-      >
-        <Button
-          leftIcon={<BsBoxArrowRight />}
-          colorScheme='twitter'
-          variant='solid'
-          isDisabled={isButtonDisabled}
-          isLoading={isLoading}
-          onClick={() => deploy()}
+      <HStack>
+        {!isChainCorrect && <NetworkSwitcher />}
+        <Tooltip
+          label={!isChainCorrect ? 'Please switch to the correct network' : ''}
+          isDisabled={isChainCorrect}
+          hasArrow
+          placement='top'
         >
-          Deploy & Return
-        </Button>
-      </Tooltip>
+          <Button
+            leftIcon={<BsBoxArrowRight />}
+            colorScheme='twitter'
+            variant='solid'
+            isDisabled={isButtonDisabled}
+            isLoading={isLoading}
+            onClick={() => deploy()}
+          >
+            Deploy & Return
+          </Button>
+        </Tooltip>
+      </HStack>
     </Flex>
   );
 };

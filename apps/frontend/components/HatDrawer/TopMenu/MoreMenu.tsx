@@ -32,7 +32,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
-import { idToIp, idToPrettyId, prettyIdToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
@@ -178,9 +178,7 @@ const MoreMenu = () => {
         <MenuItem onClick={handleExport}>
           <HStack>
             <TbChartDots3 />
-            <Text>
-              Export branch {prettyIdToIp(idToPrettyId(selectedHat?.id))}
-            </Text>
+            <Text>Export branch {idToIp(selectedHat?.id)}</Text>
           </HStack>
         </MenuItem>
         {address && (

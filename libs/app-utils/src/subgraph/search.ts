@@ -3,7 +3,7 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
-import { idToPrettyId, prettyIdToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { chainsList, createSubgraphClient } from '../web3';
@@ -15,27 +15,26 @@ const keyIcons: { [key: string]: string } = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processForCommandPalette = (key: string, record: any) => {
-  const { id, network, prettyId } = record;
+  const { id, network } = record;
   const { id: networkId, name: networkName } = network || {};
 
   const parts = id?.split('.');
   const treeId = parts ? BigInt(toTreeId(parts[0] as Hex)) : '';
 
   let href = '#';
-  const ip = prettyIdToIp(prettyId || id);
-  const hatIdIp = prettyIdToIp(idToPrettyId(id));
+  const hatIdIp = idToIp(id);
 
   // eslint-disable-next-line default-case
   switch (key) {
     case 'trees':
-      href = `/trees/${networkId}/${ip}`;
+      href = `/trees/${networkId}/${hatIdIp}`;
       break;
     case 'hats':
       href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
       break;
   }
 
-  const children = `${networkName} - #${ip}`;
+  const children = `${networkName} - #${hatIdIp}`;
   const icon = keyIcons[key] as IconName;
 
   return {

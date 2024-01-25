@@ -26,7 +26,7 @@ import {
   BsPersonCheck,
   BsPuzzle,
 } from 'react-icons/bs';
-import { idToPrettyId, prettyIdToIp } from 'shared-utils';
+import { idToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
@@ -200,8 +200,7 @@ const PermissionlessClaimingForm = ({
                       displayName = h.detailsObject?.data?.name;
                     return (
                       <option value={h.id} key={h.id}>
-                        {prettyIdToIp(idToPrettyId(h.id as Hex))} -{' '}
-                        {displayName}
+                        {idToIp(h.id as Hex)} - {displayName}
                       </option>
                     );
                   })}
