@@ -53,6 +53,8 @@ const HatWearerStatusForm = ({
     return '';
   };
 
+  const txDescription = getSuccessToastDescription();
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'setHatWearerStatus',
     args: [
@@ -66,10 +68,11 @@ const HatWearerStatusForm = ({
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', _.toNumber(toTreeId(hatId))],
     ],
+    txDescription,
     handlePendingTx,
     onSuccessToastData: {
       title: 'Wearer Status Updated',
-      description: getSuccessToastDescription(),
+      description: txDescription,
     },
     enabled:
       !!wearer &&

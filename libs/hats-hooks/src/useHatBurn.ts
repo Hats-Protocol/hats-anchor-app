@@ -24,13 +24,16 @@ const useHatBurn = ({
   const wearers = selectedHat?.wearers || [];
   const currentlyWearing = _.findKey(wearers, ['id', _.toLower(address)]);
 
+  const txDescription = `Renounced hat ${idToIp(hatId)}`;
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'renounceHat',
     args: [hatId],
     chainId,
+    txDescription,
     onSuccessToastData: {
       title: 'Hat removed!',
-      description: `Renounced hat ${idToIp(hatId)}`,
+      description: txDescription,
     },
     handlePendingTx,
     handleSuccess: () => {

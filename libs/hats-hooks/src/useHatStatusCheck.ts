@@ -60,6 +60,10 @@ const useHatStatusCheck = ({
     onSuccess: async (data) => {
       setIsLoading(true);
 
+      const txDescription = `Check Hat Status for ${idToIp(
+        _.get(hatData, 'id'),
+      )}`;
+
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
@@ -68,7 +72,7 @@ const useHatStatusCheck = ({
       await handlePendingTx?.({
         hash: _.get(data, 'hash'),
         txChainId: chainId,
-        fnName: 'Check Hat Status',
+        txDescription,
         toastData: {
           title: 'Transaction Confirmed',
           description: 'Checking Hat Status...',
@@ -77,7 +81,7 @@ const useHatStatusCheck = ({
           const logs = _.get(d, 'logs');
           if (logs?.length === 0) {
             toast.success({
-              title: `Checked status for hat ${idToIp(_.get(hatData, 'id'))}`,
+              title: txDescription,
               description: `No change: Hat Status remains ${
                 hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
               }`,
@@ -85,7 +89,7 @@ const useHatStatusCheck = ({
           } else {
             const logData = _.get(_.first(logs), 'data');
             toast.success({
-              title: `Checked status for hat ${idToIp(_.get(hatData, 'id'))}`,
+              title: txDescription,
               description: `Hat Status Changed to ${
                 _.first(_.slice(logData, -1, _.size(logData))) === '1'
                   ? STATUS.ACTIVE

@@ -147,6 +147,10 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     batchMintArgs[1].push(currentResolvedAddress);
   }
 
+  const txDescriptionBatch = `Minted hat ${idToIp(selectedHat.id)} to ${
+    localWearers.length + (isAddress(currentResolvedAddress) ? 1 : 0)
+  } wearers`;
+
   const {
     writeAsync: writeAsyncBatchMintHats,
     isLoading: isLoadingBatchMintHats,
@@ -154,11 +158,10 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     functionName: 'batchMintHats',
     args: batchMintArgs,
     chainId,
+    txDescription: txDescriptionBatch,
     onSuccessToastData: {
       title: `Hats Minted!`,
-      description: `Minted hat ${idToIp(selectedHat.id)} to ${
-        localWearers.length + (isAddress(currentResolvedAddress) ? 1 : 0)
-      } wearers`,
+      description: txDescriptionBatch,
     },
     handlePendingTx,
     handleSuccess: () => {
@@ -177,16 +180,19 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       chainId === currentNetworkId,
   });
 
+  const txDescriptionSingle = `Minted hat ${idToIp(selectedHat.id)} to ${
+    isEnsAddress ? currentInput : formatAddress(currentResolvedAddress)
+  }`;
+
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
       args: [decimalId(hatId), currentResolvedAddress],
       chainId,
+      txDescription: txDescriptionSingle,
       onSuccessToastData: {
         title: `Hat Minted!`,
-        description: `Minted hat ${idToIp(selectedHat.id)} to ${
-          isEnsAddress ? currentInput : formatAddress(currentResolvedAddress)
-        }`,
+        description: txDescriptionSingle,
       },
       handlePendingTx,
       handleSuccess: () => {

@@ -45,7 +45,13 @@ const TransactionHistory = ({
     <Box>
       {_.map(
         events,
-        ({ hash, txChainId, status, timestamp, fnName }: Transaction) => (
+        ({
+          hash,
+          txChainId,
+          status,
+          timestamp,
+          txDescription,
+        }: Transaction) => (
           <ChakraNextLink
             isExternal
             href={
@@ -67,7 +73,7 @@ const TransactionHistory = ({
                 ) : (
                   <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
                 )}
-                <Text>{fnName}</Text>
+                <Text>{txDescription}</Text>
               </HStack>
 
               <HStack>

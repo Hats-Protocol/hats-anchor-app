@@ -16,7 +16,7 @@ export interface OverlayContextProps {
   handlePendingTx?: ({
     hash,
     txChainId,
-    fnName,
+    txDescription,
     toastData,
     redirect,
     clearModals,
@@ -25,7 +25,7 @@ export interface OverlayContextProps {
   }: {
     hash: Hex;
     txChainId?: number;
-    fnName: string;
+    txDescription: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;

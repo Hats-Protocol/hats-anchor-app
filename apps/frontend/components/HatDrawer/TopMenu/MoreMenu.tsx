@@ -66,16 +66,19 @@ const MoreMenu = () => {
     mutable: selectedHat?.mutable,
   });
 
+  const txDescription = `${
+    selectedHat?.status ? 'Deactivated' : 'Activated'
+  } hat ${idToIp(selectedHat?.id)}`;
+
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
       functionName: 'setHatStatus',
       args: [selectedHat?.id, !selectedHat?.status],
       chainId,
+      txDescription,
       onSuccessToastData: {
         title: 'Hat Status Updated!',
-        description: `${
-          selectedHat?.status ? 'Deactivated' : 'Activated'
-        } hat ${idToIp(selectedHat?.id)}`,
+        description: txDescription,
       },
       queryKeys: [
         ['hatDetails', { id: selectedHat?.id, chainId }],

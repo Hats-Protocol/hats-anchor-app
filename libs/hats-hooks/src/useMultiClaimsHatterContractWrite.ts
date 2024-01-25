@@ -65,7 +65,7 @@ const useMultiClaimsHatterContractWrite = ({
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: functionName,
+        txDescription: functionName,
         toastData: {
           title: 'Transaction successful',
           description: 'Your transaction has been confirmed.',

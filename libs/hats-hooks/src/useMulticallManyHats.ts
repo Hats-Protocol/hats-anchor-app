@@ -145,6 +145,8 @@ const useMulticallManyHats = ({
     setStoredData?.(newStoredData);
   };
 
+  const txDescription = summarizeActions(allCallsData as any[]);
+
   const {
     writeAsync,
     isLoading,
@@ -160,10 +162,10 @@ const useMulticallManyHats = ({
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: 'Multicall',
+        txDescription,
         toastData: {
           title: 'Transaction successful',
-          description: summarizeActions(allCallsData as any[]),
+          description: txDescription,
         },
         onSuccess,
       });

@@ -62,6 +62,10 @@ const WearerRow = ({
     !!isTopHat(selectedHat),
   );
 
+  const txDescription = `Checked status for ${formatAddress(
+    wearer.id,
+  )} on hat ${idToIp(hatId)}}`;
+
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
@@ -77,10 +81,9 @@ const WearerRow = ({
       ['treeDetails', toTreeId(hatId)],
     ],
     handlePendingTx,
+    txDescription,
     onSuccessToastData: {
-      title: `Checked status for ${formatAddress(wearer.id)} on hat ${idToIp(
-        hatId,
-      )}}`,
+      title: txDescription,
     },
   });
 
