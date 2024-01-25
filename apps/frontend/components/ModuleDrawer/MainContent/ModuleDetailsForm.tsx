@@ -51,6 +51,12 @@ const ModuleDetailsForm = ({
     );
   }, [selectedModule]);
 
+  const tokenArgName = _.get(
+    _.find(selectedModuleArgs, { displayType: 'token' }),
+    'name',
+  );
+  const tokenAddress = watch(tokenArgName);
+
   if (!onchainTree || !treeToDisplay) return null;
 
   return (
@@ -104,6 +110,7 @@ const ModuleDetailsForm = ({
         <ModuleArgsInputs
           selectedModuleArgs={selectedModuleArgs}
           localForm={localForm}
+          tokenAddress={tokenAddress}
         />
       </Stack>
     </Stack>

@@ -16,6 +16,7 @@ import { useTreeForm } from '../contexts/TreeFormContext';
 import AddressInput from './AddressInput';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
+import DurationInput from './atoms/DurationInput';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
 import Select from './atoms/Select';
@@ -50,7 +51,8 @@ const ModuleFormInput = ({
 
   const { watch, setValue } = localForm;
 
-  const localTokenAddress = watch('Token Address', '');
+  const tokenArgName = arg.displayType === 'token' ? arg.name : '';
+  const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
     address: localTokenAddress || tokenAddress,
     chainId,
@@ -80,7 +82,7 @@ const ModuleFormInput = ({
         newState[argName] = true;
       } else {
         newState[argName] = false;
-        localForm.setValue(`${argName}_custom`, undefined, {
+        setValue(`${argName}_custom`, undefined, {
           shouldDirty: true,
         });
       }
@@ -378,10 +380,9 @@ const ModuleFormInput = ({
 
   if (arg.displayType === 'seconds') {
     return (
-      <NumberInput
+      <DurationInput
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        type='number'
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
@@ -391,7 +392,7 @@ const ModuleFormInput = ({
         isRequired={!arg.optional}
         customValidations={{
           validate: (value) =>
-            transformAndVerify(parseUnits(value, tokenDecimals), arg.type),
+            transformAndVerify(localForm.watch(arg.name), arg.type),
         }}
         localForm={localForm}
       />
@@ -453,17 +454,21 @@ const ModuleArgsForm = ({
   noMargin?: boolean;
   isDeploy?: boolean;
 }) => {
-  return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
-    <FormRowWrapper key={arg.name} noMargin={noMargin}>
-      {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
-      <ModuleFormInput
-        arg={arg}
-        localForm={localForm}
-        tokenAddress={tokenAddress}
-        isDeploy={isDeploy}
-      />
-    </FormRowWrapper>
-  ));
+  return (
+    <Stack spacing={3}>
+      {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
+        <FormRowWrapper key={arg.name} noMargin={noMargin}>
+          {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
+          <ModuleFormInput
+            arg={arg}
+            localForm={localForm}
+            tokenAddress={tokenAddress}
+            isDeploy={isDeploy}
+          />
+        </FormRowWrapper>
+      ))}
+    </Stack>
+  );
 };
 
 export default ModuleArgsForm;

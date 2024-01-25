@@ -10,7 +10,9 @@ import _ from 'lodash';
 // app-utils mostly, some should move
 
 export const formatAddress = (address: string | null | undefined) =>
-  address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
+  address && typeof address === 'string'
+    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    : '';
 
 export const isSameAddress = (address1?: string, address2?: string) => {
   if (!address1 || !address2) return false;
