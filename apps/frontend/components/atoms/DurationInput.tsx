@@ -1,4 +1,12 @@
-import { Box, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -22,7 +30,7 @@ interface DurationInputProps {
   placeholder?: string;
   isRequired?: boolean;
   customValidations?: any;
-  label?: string | React.ReactNode;
+  label?: string;
   subLabel?: string;
 }
 
@@ -63,38 +71,55 @@ const DurationInput: React.FC<DurationInputProps> = ({
   };
 
   return (
-    <Stack>
-      <NumberInput
-        name={`${name}-time-value`}
-        label={label}
-        subLabel={subLabel}
-        localForm={localForm}
-        type='number'
-        defaultValue={0}
-        onChange={handleTimeValueChange}
-        placeholder={placeholder}
-        isRequired
-        customValidations={customValidations}
-      />
-      <Box>
-        <Select
-          name={`${name}-time-unit`}
-          label='Time Unit'
-          localForm={localForm}
-          defaultValue='seconds'
-          onChange={handleTimeUnitChange}
-        >
-          {timeUnits.map(({ unit, value }) => (
-            <option key={unit} value={unit}>
-              {unit}
-            </option>
-          ))}
-        </Select>
-        <Text fontSize='xs' color='gray.500' mt={1}>
-          ({localForm.watch(name)} seconds)
-        </Text>
-      </Box>
-    </Stack>
+    <FormControl>
+      <Stack spacing={2} w='100%'>
+        {label && (
+          <FormLabel mb={0}>
+            <Text fontSize='sm'>
+              {label.toUpperCase()}
+              {isRequired && '*'}
+            </Text>
+          </FormLabel>
+        )}
+        {typeof subLabel !== 'string' ? (
+          subLabel
+        ) : (
+          <FormHelperText mt={0} color='blackAlpha.700'>
+            {subLabel}
+          </FormHelperText>
+        )}
+        <HStack alignItems='end'>
+          <NumberInput
+            name={`${name}-time-value`}
+            localForm={localForm}
+            type='number'
+            defaultValue={0}
+            onChange={handleTimeValueChange}
+            placeholder={placeholder}
+            isRequired={isRequired}
+            customValidations={customValidations}
+          />
+          <Select
+            name={`${name}-time-unit`}
+            localForm={localForm}
+            defaultValue='seconds'
+            onChange={handleTimeUnitChange}
+          >
+            {timeUnits.map(({ unit, value }) => (
+              <option key={unit} value={unit}>
+                {unit}
+              </option>
+            ))}
+          </Select>
+        </HStack>
+        {!!Number(localForm.watch(name)) &&
+          localForm.watch(`${name}-time-unit`) !== 'seconds' && (
+            <Text fontSize='xs' color='gray.500' mt={1}>
+              ({localForm.watch(name)} seconds)
+            </Text>
+          )}
+      </Stack>
+    </FormControl>
   );
 };
 

@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   FormControl,
+  FormHelperText,
   FormLabel,
   HStack,
   Select as ChakraSelect,
@@ -46,7 +47,7 @@ const Select = ({
 
   return (
     <FormControl {...props}>
-      <Stack spacing={1} w='100%'>
+      <Stack spacing={2} w='100%'>
         {label && (
           <FormLabel mb={0}>
             <HStack>
@@ -65,7 +66,9 @@ const Select = ({
         {typeof subLabel !== 'string' ? (
           subLabel
         ) : (
-          <Text color='blackAlpha.700'>{subLabel}</Text>
+          <FormHelperText mt={0} color='blackAlpha.700'>
+            {subLabel}
+          </FormHelperText>
         )}
         <ChakraSelect
           {...register(name, { ...options, validate: options?.validate })}

@@ -50,7 +50,6 @@ const ModuleFormInput = ({
   const [customHatSelections, setCustomHatSelections] = useState({});
 
   const { watch, setValue } = localForm;
-  console.log('watch', watch());
 
   const tokenArgName = arg.displayType === 'token' ? arg.name : '';
   const localTokenAddress = watch(tokenArgName, '');
@@ -297,7 +296,6 @@ const ModuleFormInput = ({
             validate: (value) => {
               if (!value) return false;
               const numericValue = parseFloat(value);
-              console.log('tokenDecimals', tokenDecimals);
 
               if (!tokenDecimals) return 'No token selected';
 
@@ -421,17 +419,21 @@ const ModuleArgsForm = ({
   noMargin?: boolean;
   isDeploy?: boolean;
 }) => {
-  return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
-    <FormRowWrapper key={arg.name} noMargin={noMargin}>
-      {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
-      <ModuleFormInput
-        arg={arg}
-        localForm={localForm}
-        tokenAddress={tokenAddress}
-        isDeploy={isDeploy}
-      />
-    </FormRowWrapper>
-  ));
+  return (
+    <Stack spacing={3}>
+      {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
+        <FormRowWrapper key={arg.name} noMargin={noMargin}>
+          {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
+          <ModuleFormInput
+            arg={arg}
+            localForm={localForm}
+            tokenAddress={tokenAddress}
+            isDeploy={isDeploy}
+          />
+        </FormRowWrapper>
+      ))}
+    </Stack>
+  );
 };
 
 export default ModuleArgsForm;
