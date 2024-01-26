@@ -11,6 +11,13 @@ import { Hex } from 'viem';
 import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 import useModulesDetails from './useModulesDetails';
 
+const extractModuleIds = (hatAuthorities: HatAuthority) => {
+  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) =>
+    _.map(items, 'id'),
+  );
+};
+
 const useAncillaryModules = ({
   id,
   chainId,
@@ -29,16 +36,6 @@ const useAncillaryModules = ({
   });
 
   const { gates } = useHatsSignerGatesMetadata({ chainId });
-
-  const extractModuleIds = (hatAuthorities: HatAuthority) => {
-    const filteredAuthorities = _.omit(hatAuthorities, [
-      'hsgOwner',
-      'hsgSigner',
-    ]);
-    return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) =>
-      _.map(items, 'id'),
-    );
-  };
 
   const moduleIds = ancillaryModules?.hatAuthority
     ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
