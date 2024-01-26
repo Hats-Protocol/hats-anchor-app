@@ -10,10 +10,10 @@ import { Hex } from 'viem';
 export * from './hats';
 
 /**
- * ! DEPRECATED
+ * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
- * - Suggest `hatIdHexToDecimal`
+ * - Suggest `hatIdHexToDecimal` from core sdk
  */
 export function prettyIdToId(id: string | undefined): Hex {
   if (!id) return '0x';
@@ -24,10 +24,10 @@ export function prettyIdToId(id: string | undefined): Hex {
 }
 
 /**
- * ! DEPRECATED
+ * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
- * - Suggest `hatIdDecimalToHex`
+ * - Suggest `hatIdDecimalToHex` from core sdk
  */
 export function idToPrettyId(id: Hex | undefined): string {
   if (!id) return '0x';
@@ -40,10 +40,10 @@ export function idToPrettyId(id: Hex | undefined): string {
 }
 
 /**
- * ! DEPRECATED
+ * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
- * - Suggest `hatIdDecimalToIp`
+ * - Suggest `hatIdDecimalToIp` from core sdk
  */
 export function prettyIdToIp(id: string | undefined) {
   if (!id) return '';
@@ -58,7 +58,7 @@ export function prettyIdToIp(id: string | undefined) {
 }
 
 /**
- * HACK UNTIL FUNCTION AVAILABLE IN SDK
+ * @HACK UNTIL FUNCTION AVAILABLE IN SDK
  * - takes in a Hat ID Hex and returns a Hat ID IP
  * - `inverse` of `ipToHatId`
  */
@@ -67,6 +67,12 @@ export function idToIp(id: Hex | undefined) {
   return hatIdDecimalToIp(hatIdHexToDecimal(id));
 }
 
+/**
+ * ========== DEPRECATED ==========
+ * - DO NOT USE
+ * - to be removed
+ * - Suggest `hatIdToTreeId` from core sdk
+ */
 export const toTreeId = (id: string | undefined) => {
   if (!id) return '0x';
   try {
@@ -80,10 +86,10 @@ export const toTreeId = (id: string | undefined) => {
 };
 
 /**
- * ! DEPRECATED
+ * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
- * - Suggest `hatIdIpToDecimal`
+ * - Suggest `hatIdIpToDecimal` from core sdk
  */
 export function ipToPrettyId(id: string | undefined) {
   const parts = _.split(id, '.');
@@ -99,7 +105,7 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 /**
- * HACK UNTIL FUNCTION AVAILABLE IN SDK
+ * @HACK UNTIL FUNCTION AVAILABLE IN SDK
  * - takes in a Hat ID IP and returns a Hat ID Hex
  * - `inverse` of `idToIp`
  */

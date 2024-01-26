@@ -32,6 +32,16 @@ export interface OverlayContextProps {
     sendToast?: boolean;
     onSuccess?: (d?: TransactionReceipt) => void;
   }) => Promise<TransactionReceipt | undefined>;
+  // transaction history in navbar popover
   transactions: Transaction[];
   clearAllTransactions: () => void;
+  // recent trees in command palette
+  recentlyVisitedTrees: { treeId: number; chainId: number }[];
+  updateRecentlyVisitedTrees: ({
+    treeId,
+    chainId,
+  }: {
+    treeId: Hex;
+    chainId: number;
+  }) => void;
 }

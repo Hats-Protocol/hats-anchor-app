@@ -92,7 +92,12 @@ export const isTopHatOrMutable = (hatData: AppHat) =>
 export const isMutableNotTopHat = (hatData: AppHat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
-// same as toTreeId??? similar but used to get full ID (for top hat ID)
+/**
+ * ========== DEPRECATED ==========
+ * - DO NOT USE
+ * - to be removed
+ * - Suggest `hatIdToTreeId` from core sdk
+ */
 export const getTreeId = (prettyHatId: Hex | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);
