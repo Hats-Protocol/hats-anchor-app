@@ -90,6 +90,7 @@ const useHatClaimFor = ({
         title: 'Transaction failed',
         description: err.message,
       });
+      // eslint-disable-next-line no-console
       console.error(error);
     }
   };
