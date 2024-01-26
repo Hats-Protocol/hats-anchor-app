@@ -1,5 +1,4 @@
 import {
-  Box,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -7,9 +6,9 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import _ from 'lodash';
+// import _ from 'lodash';
 import React from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 
 import NumberInput from './NumberInput';
 import Select from './Select';
@@ -26,10 +25,11 @@ const timeUnits = [
 
 interface DurationInputProps {
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;
   isRequired?: boolean;
-  customValidations?: any;
+  customValidations?: RegisterOptions;
   label?: string;
   subLabel?: string;
 }

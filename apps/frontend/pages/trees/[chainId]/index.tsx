@@ -105,7 +105,7 @@ const Trees = ({ chainId }: { chainId: number }) => {
 };
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
-  const chainId = _.get(context, 'params.chainId');
+  const chainId = _.toNumber(_.get(context, 'params.chainId'));
 
   return {
     props: {

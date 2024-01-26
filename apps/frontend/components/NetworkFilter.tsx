@@ -7,9 +7,10 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Text,
 } from '@chakra-ui/react';
-import { networkImages } from 'app-constants';
-import { chainsList } from 'app-utils';
+import { networkImages, orderedChains } from 'app-constants';
+import { chainsMap } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -39,25 +40,30 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
         </HStack>
       </MenuButton>
       <MenuList>
-        {_.map(chainsList, ({ id, name }: any) => (
+        {_.map(orderedChains, (chainId: number) => (
           <MenuItem
-            key={id}
-            onClick={() => router.push(`/trees/${id}`)}
-            isDisabled={selectedNetwork === id}
-            color={selectedNetwork === id ? 'blue' : 'black'}
+            key={chainId}
+            onClick={() => router.push(`/trees/${chainId}`)}
+            isDisabled={selectedNetwork === chainId}
+            color={selectedNetwork === chainId ? 'blue' : 'black'}
             opacity='1 !important'
+            bg={selectedNetwork === chainId ? 'blackAlpha.100' : undefined}
             my={1}
+            justifyContent='space-between'
+            fontWeight={selectedNetwork === chainId ? 600 : 'normal'}
           >
-            <Image
-              loading='lazy'
-              src={networkImages[id as SupportedChains]}
-              alt='chain'
-              w={6}
-              h={6}
-              mr={4}
-            />
-            {name}
-            {selectedNetwork === id ? ' ✓' : ''}
+            <HStack spacing={1}>
+              <Image
+                loading='lazy'
+                src={networkImages[chainId as SupportedChains]}
+                alt='chain'
+                w={6}
+                h={6}
+                mr={4}
+              />
+              <Text>{chainsMap(chainId)?.name}</Text>
+            </HStack>
+            <Text>{selectedNetwork === chainId ? ' ✓' : ''}</Text>
           </MenuItem>
         ))}
       </MenuList>

@@ -69,9 +69,9 @@ const useHatClaimFor = ({
       setIsLoading(true);
 
       const result = await hatsClient.claimHatFor({
-        account,
+        account: address,
         hatId: BigInt(selectedHat.id),
-        wearer: address,
+        wearer: account,
       });
 
       if (result?.status === 'success') {
@@ -90,6 +90,7 @@ const useHatClaimFor = ({
         title: 'Transaction failed',
         description: err.message,
       });
+      // eslint-disable-next-line no-console
       console.error(error);
     }
   };

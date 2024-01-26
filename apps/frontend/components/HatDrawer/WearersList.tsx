@@ -18,8 +18,8 @@ import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import {
   useAllWearers,
   useHatClaimBy,
-  useHatClaimFor,
   useHatPaginatedWearers,
+  useMultiClaimsHatterCheck,
   useWearerDetails,
   useWearerEligibilityCheck,
   useWearersEligibilityCheck,
@@ -74,6 +74,8 @@ const WearersList = () => {
     selectedHatDetails,
     editMode,
     wearersAndControllers,
+    onchainHats,
+    storedData,
   } = useTreeForm();
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -148,10 +150,12 @@ const WearersList = () => {
     wearer: address,
   });
 
-  const { isClaimableFor } = useHatClaimFor({
+  const { currentHatIsClaimable } = useMultiClaimsHatterCheck({
     selectedHat,
     chainId,
-    wearer: address,
+    onchainHats,
+    editMode,
+    storedData,
   });
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
@@ -246,18 +250,22 @@ const WearersList = () => {
               Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>
           )}
-          {isClaimableFor && isAdminUser && (
-            <Button
-              size='xs'
-              variant='outline'
-              colorScheme='blue.500'
-              isLoading={isLoading}
-              onClick={() =>
-                !maxWearersReached ? setModals?.({ claimFor: true }) : {}
-              }
-            >
-              Claim hat for wearer
-            </Button>
+          {currentHatIsClaimable?.for && address && (
+            <Tooltip label={undefined} fontSize='md' shouldWrapChildren>
+              <Button
+                variant='unstyled'
+                isDisabled={!hatterIsAdmin || chainId !== currentNetworkId}
+                isLoading={isLoading}
+                onClick={() =>
+                  !maxWearersReached ? setModals?.({ claimFor: true }) : {}
+                }
+              >
+                <HStack color='blue.500'>
+                  <FaPlus />
+                  <Text>Claim hat for wearer</Text>
+                </HStack>
+              </Button>
+            </Tooltip>
           )}
           {(currentUserIsEligible as boolean) &&
             !!isClaimable &&
