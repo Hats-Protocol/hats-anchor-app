@@ -19,11 +19,28 @@ const { connectors } = getDefaultWallets({
   projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
 });
 
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const wagmiConfig: any = createConfig({
   connectors,
   publicClient,
 });
+
+// const transportsList = {
+//   5: http(),
+//   100: http(),
+//   137: http(),
+//   80001: http(),
+// };
+
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const viemPublicClient: any = (chainId: number) => {
+  return createPublicClient({
+    chain: chainsMap(chainId),
+    transport: http(),
+  });
+};
 
 export function createHatsClient(
   chainId: number | undefined,

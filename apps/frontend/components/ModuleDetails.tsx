@@ -23,12 +23,12 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
-import { findCurrentTermEndValue, isWearingAdminHat } from 'hats-utils';
+import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
@@ -37,13 +37,26 @@ import Modal from './atoms/Modal';
 import ModuleArgsForm from './ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
+const claimableToggleTip = (sameChain: boolean, isAdminUser: boolean) => {
+  if (!sameChain) {
+    return 'You must be on the same chain as the hat to make it claimable';
+  }
+  if (!isAdminUser) {
+    return 'You must be wearing the admin hat to make this hat claimable';
+  }
+  return '';
+};
+
 const ModuleDetails = ({ type }: { type: string }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
   const { setModals, handlePendingTx } = localOverlay;
   const { chainId, selectedHat, onchainHats, storedData, editMode } =
     useTreeForm();
+  const currentChainId = useChainId();
   const { address: currentUser } = useAccount();
+
+  const sameChain = chainId === currentChainId;
   const controllerAddress = useMemo(
     () => _.get(selectedHat, _.toLower(type)),
     [selectedHat, type],
@@ -54,14 +67,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
     chainId,
   });
 
-  // arg is named "Election's Term End", param is named 'Current Term End', so the solution is not as smooth
-  const currentTermEndDate = findCurrentTermEndValue(parameters);
-
   const formMethods = useForm({
     mode: 'onChange',
-    defaultValues: {
-      "Election's Term End": currentTermEndDate,
-    },
   });
 
   const { formState, handleSubmit } = formMethods;
@@ -244,24 +251,27 @@ const ModuleDetails = ({ type }: { type: string }) => {
             ))}
             <Flex justify='space-between'>
               <Text fontSize='sm'>Claimability Type</Text>
+
               <HStack>
-                <Button
-                  size='xs'
-                  variant='outline'
-                  colorScheme='blue.500'
-                  isLoading={
-                    isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
-                  }
-                  isDisabled={!setHatClaimable && !setHatClaimableFor}
-                  onClick={() =>
-                    isClaimable.for ? setHatClaimable() : setHatClaimableFor()
-                  }
-                >
-                  {_.includes(claimableHats, selectedHat?.id) &&
-                  !isClaimable.for
-                    ? 'Make claimable for'
-                    : 'Make claimable'}
-                </Button>
+                <Tooltip label={claimableToggleTip(sameChain, isAdminUser)}>
+                  <Button
+                    size='xs'
+                    variant='outline'
+                    colorScheme='blue.500'
+                    isLoading={
+                      isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
+                    }
+                    isDisabled={!setHatClaimable && !setHatClaimableFor}
+                    onClick={() =>
+                      isClaimable.for ? setHatClaimable() : setHatClaimableFor()
+                    }
+                  >
+                    {_.includes(claimableHats, selectedHat?.id) &&
+                    !isClaimable.for
+                      ? 'Make claimable for'
+                      : 'Make claimable'}
+                  </Button>
+                </Tooltip>
                 <Text color='gray.500' size='sm'>
                   {isClaimable.for ? 'Claimable For' : 'Claimable'}
                 </Text>

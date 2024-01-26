@@ -241,7 +241,7 @@ const ModuleFormInput = ({
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
+            ? _.first(arg.example as string[])
             : (arg.example as string) || fallbackExamples.address
         }
         localForm={localForm}

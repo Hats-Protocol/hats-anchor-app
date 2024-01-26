@@ -50,19 +50,19 @@ const useHatClaimFor = ({
 
   useEffect(() => {
     const getCanClaimForAccount = async () => {
-      const hatsClient = await createHatsClient(chainId);
-      if (!hatsClient || !address) return;
+      const hatsClient = createHatsClient(chainId);
+      if (!hatsClient || !wearer) return;
       const canClaimFor = await hatsClient.canClaimForAccount({
         hatId: BigInt(selectedHat.id),
-        account: address,
+        account: wearer,
       });
       setCanClaimForAccount(canClaimFor);
     };
     getCanClaimForAccount();
-  }, [chainId, selectedHat, address]);
+  }, [chainId, selectedHat, wearer]);
 
   const claimHatFor = async (account: Hex) => {
-    const hatsClient = await createHatsClient(chainId);
+    const hatsClient = createHatsClient(chainId);
     if (!hatsClient || !address) return;
 
     try {
