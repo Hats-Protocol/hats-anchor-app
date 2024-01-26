@@ -373,8 +373,9 @@ export function populateModulesAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
+  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
   const updatedHatAuthorities = _.map(
-    hatAuthorities,
+    filteredAuthorities,
     (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
       _.map(authorityEntries, ({ id, hatId }: { id: Hex; hatId: Hex }) => {
         const moduleInfo = _.find(modulesDetails, { id });
