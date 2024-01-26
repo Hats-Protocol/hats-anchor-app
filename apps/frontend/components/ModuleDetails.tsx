@@ -28,6 +28,7 @@ import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
@@ -42,17 +43,18 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const { setModals, handlePendingTx } = localOverlay;
   const { chainId, selectedHat, onchainHats, storedData, editMode } =
     useTreeForm();
+  const { address: currentUser } = useAccount();
 
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
 
-  const address = useMemo(
+  const controllerAddress = useMemo(
     () => _.get(selectedHat, _.toLower(type)),
     [selectedHat, type],
   );
 
   const { details: moduleDetails, parameters } = useModuleDetails({
-    address,
+    address: controllerAddress,
     chainId,
   });
   const tokenAddress = _.get(
@@ -76,7 +78,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     } else {
       callModuleFunction({
         moduleId: moduleDetails.implementationAddress,
-        instance: address,
+        instance: controllerAddress,
         func,
         args: [],
       });
@@ -84,7 +86,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   };
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: currentUser,
     chainId,
     editMode,
   });
@@ -148,7 +150,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
           <Modal
             name='functionCall-module'
             title={`Interact with ${moduleDetails?.name} (${formatAddress(
-              address,
+              controllerAddress,
             )})`}
             localOverlay={localOverlay}
             headingSize='sm'
@@ -241,7 +243,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                   isLoading={
                     isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
                   }
-                  isDisabled={!setHatClaimable || !setHatClaimableFor}
+                  isDisabled={!setHatClaimable && !setHatClaimableFor}
                   onClick={() =>
                     isClaimable.for ? setHatClaimable() : setHatClaimableFor()
                   }

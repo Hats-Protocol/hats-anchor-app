@@ -69,9 +69,9 @@ const useHatClaimFor = ({
       setIsLoading(true);
 
       const result = await hatsClient.claimHatFor({
-        account,
+        account: address,
         hatId: BigInt(selectedHat.id),
-        wearer: address,
+        wearer: account,
       });
 
       if (result?.status === 'success') {
