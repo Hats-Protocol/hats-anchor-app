@@ -41,6 +41,7 @@ const MainContent = ({
       parents,
       (parent: AppHat) =>
         parent.id !== topHat?.id &&
+        parent.id !== selectedHat?.id && // not top hat or selected hat
         (parent.mutable ||
           _.toNumber(parent.maxSupply) > _.toNumber(parent.currentSupply)),
     ) as AppHat[];

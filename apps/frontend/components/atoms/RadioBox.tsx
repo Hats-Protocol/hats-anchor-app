@@ -89,7 +89,7 @@ const RadioBox = ({
             )}
           </HStack>
 
-          {subLabel && <Text color='blackAlpha.700'>{subLabel}</Text>}
+          {subLabel && <FormHelperText>{subLabel}</FormHelperText>}
         </Box>
 
         <Controller
