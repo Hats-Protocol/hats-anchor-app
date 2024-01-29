@@ -13,6 +13,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from 'app-constants';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
@@ -128,7 +129,7 @@ const ModuleAuthorityToolbar = ({
         func,
         args: [],
         instance: authority.instanceAddress,
-        type: authority.hgsType,
+        type: authority.type as HsgType,
       });
     }
   };
@@ -154,7 +155,7 @@ const ModuleAuthorityToolbar = ({
         instance: authority.instanceAddress,
         func: selectedFunction,
         args,
-        type: authority.hgsType,
+        type: authority.type as HsgType,
         onSuccess: () => {
           setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
         },

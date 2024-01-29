@@ -18,7 +18,7 @@ export type Authority = {
   gate?: string | undefined;
   description?: string;
   imageUrl?: string;
-  type?: string | AuthorityType | undefined;
+  type?: string | AuthorityType | HsgType | undefined;
   id?: string | number;
   hatId?: Hex;
   strategies?: SnapshotStrategy[];
@@ -26,7 +26,6 @@ export type Authority = {
   instanceAddress?: Hex;
   moduleAddress?: Hex;
   moduleLabel?: string;
-  hgsType?: HsgType;
   ownerHat?: {
     id: Hex;
   };
