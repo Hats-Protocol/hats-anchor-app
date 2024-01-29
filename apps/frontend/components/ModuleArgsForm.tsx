@@ -43,6 +43,9 @@ const booleanOptionSets = {
   status: ['Active', 'Inactive'],
 };
 
+const isEns = (value: string) =>
+  value ? _.toString(value).endsWith('.eth') : false;
+
 const ModuleFormInput = ({
   localForm,
   arg,
@@ -126,6 +129,7 @@ const ModuleFormInput = ({
   const { data: newWearerResolvedAddress } = useEnsAddress({
     name: newWearer,
     chainId: 1,
+    enabled: !!newWearer && isEns(newWearer),
   });
 
   const showNewResolvedAddress =

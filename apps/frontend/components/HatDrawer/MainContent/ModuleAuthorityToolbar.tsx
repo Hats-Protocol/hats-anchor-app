@@ -133,7 +133,7 @@ const ModuleAuthorityToolbar = ({
     }
   };
 
-  const onSubmit = (args) => {
+  const onSubmit = (args: any) => {
     if (authority.type === AUTHORITY_TYPES.modules) {
       const localArgs = args;
       // ! workaround for hat being an arg on Passthrough module
@@ -169,12 +169,16 @@ const ModuleAuthorityToolbar = ({
     enabled: authority.type === AUTHORITY_TYPES.hsg,
   });
 
-  const getDisabledReason = (isOnWrongNetwork, isNotWearer, isClaimed) => {
+  const getDisabledReason = (
+    isOnWrongNetwork: boolean,
+    isNotWearer: boolean,
+    isClaimed: boolean,
+  ) => {
     if (isOnWrongNetwork) {
-      return 'You are on the wrong network.';
+      return 'You are on the wrong network';
     }
     if (isNotWearer) {
-      return 'You are not a wearer of the current hat.';
+      return 'You are not a wearer of the current hat';
     }
     if (isClaimed) {
       return 'You are already a signer';
@@ -203,7 +207,7 @@ const ModuleAuthorityToolbar = ({
             onClick={() => handleFunctionCall(primaryFunction)}
             rightIcon={<Icon as={FiPlusSquare} />}
           >
-            {primaryFunction.label}
+            {_.capitalize(primaryFunction.label)}
           </Button>
         </Tooltip>
       )}
@@ -246,7 +250,7 @@ const ModuleAuthorityToolbar = ({
               size='sm'
             />
             <MenuList>
-              {_.map(otherFunctions, (func, i) => (
+              {_.map(otherFunctions, (func: any, i: number) => (
                 <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
                   <MenuItem
                     onClick={() => handleFunctionCall(func)}
@@ -296,7 +300,7 @@ const ModuleAuthorityToolbar = ({
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
             <Heading size='sm'>
-              {selectedFunction?.label} for Hat #{authorityHatId}
+              {_.capitalize(selectedFunction?.label)} for Hat #{authorityHatId}
             </Heading>
             {selectedFunction?.description && (
               <Text>{selectedFunction?.description}</Text>
@@ -324,7 +328,7 @@ const ModuleAuthorityToolbar = ({
                 isDisabled={!formState.isValid}
                 isLoading={isModuleLoading || isHsgLoading}
               >
-                {selectedFunction?.label}
+                {_.capitalize(selectedFunction?.label)}
               </Button>
             </HStack>
           </Flex>

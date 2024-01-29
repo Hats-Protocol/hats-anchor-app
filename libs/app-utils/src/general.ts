@@ -101,7 +101,7 @@ export const formatImageUrl = (url?: string) => {
   return null;
 };
 
-const convertToBigInt = (input: any) => {
+const convertToBigInt = (input: unknown) => {
   const numberCheck = _.toNumber(input);
 
   if (_.isNaN(numberCheck)) {

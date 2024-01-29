@@ -2,6 +2,7 @@
 import {
   Box,
   FormControl,
+  FormHelperText,
   FormLabel,
   HStack,
   InputProps as ChakraInputProps,
@@ -14,6 +15,8 @@ import DatePickerComponent from 'react-datepicker';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
+// TODO more INTL friendly date formatting
+
 const DatePicker = ({
   label,
   subLabel,
@@ -23,6 +26,7 @@ const DatePicker = ({
   localForm,
   isDisabled,
   setToZeroUTC,
+  showLocalConversion = true,
   ...props
 }: DatePickerProps) => {
   const defaultValue = localForm?.getValues(name);
@@ -31,17 +35,18 @@ const DatePicker = ({
   if (!localForm) return null;
 
   const { setValue } = localForm;
+  const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const handleChange = (e) => {
+  const handleChange = (d: Date) => {
     if (setToZeroUTC) {
       const utcDate = new Date(
-        Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate()),
+        Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
       );
       setCurrentValue(utcDate);
       setValue(name, utcDate, { shouldDirty: true });
     } else {
-      setCurrentValue(e);
-      setValue(name, e, { shouldDirty: true });
+      setCurrentValue(d);
+      setValue(name, d, { shouldDirty: true });
     }
   };
 
@@ -69,6 +74,7 @@ const DatePicker = ({
           ) : (
             <Text color='blackAlpha.700' fontSize='xs'>
               {subLabel}
+              {setToZeroUTC ? '. Will use 0:00:00 UTC for timestamp.' : ''}
             </Text>
           )}
         </Box>
@@ -77,6 +83,19 @@ const DatePicker = ({
           selected={currentValue}
           onChange={handleChange}
         />
+        {showLocalConversion && (
+          <HStack color='blackAlpha.800' fontSize='xs' spacing={1}>
+            <Text fontWeight={600}>Local Timezone:</Text>
+            <Text>{userTz}</Text>
+            <Text fontWeight={600}>Current:</Text>
+            <Tooltip label={currentValue.toUTCString()} placement='top'>
+              <Text>
+                {currentValue.toLocaleString()}{' '}
+                {`UTC${-currentValue.getTimezoneOffset() / 60}`}
+              </Text>
+            </Tooltip>
+          </HStack>
+        )}
       </Stack>
     </FormControl>
   );
@@ -101,4 +120,5 @@ interface DatePickerProps extends ChakraInputProps {
   defaultValue?: string | number;
   isDisabled?: boolean;
   setToZeroUTC?: boolean;
+  showLocalConversion?: boolean;
 }
