@@ -134,27 +134,6 @@ const PermissionlessClaimingForm = ({
 
       {isPermissionlesslyClaimable === 'Yes' && (
         <Stack ref={scrollTargetRef} spacing={12}>
-          <FormRowWrapper>
-            <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
-            <Stack>
-              <RadioBox
-                name='initialClaimabilityType'
-                label='CLAIM FOR ACCOUNT'
-                subLabel='Should this hat be claimable on behalf of an account?'
-                localForm={localForm}
-                options={[
-                  {
-                    label: 'Yes',
-                    value: '2',
-                  },
-                  {
-                    label: 'No',
-                    value: '1',
-                  },
-                ]}
-              />
-            </Stack>
-          </FormRowWrapper>
           {multiClaimsHatter &&
           !isClaimable &&
           isAdmin &&
@@ -206,6 +185,28 @@ const PermissionlessClaimingForm = ({
           )}
         </Stack>
       )}
+
+      <FormRowWrapper>
+        <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
+        <Stack>
+          <RadioBox
+            name='initialClaimabilityType'
+            label='CLAIM FOR ACCOUNT'
+            subLabel='Should this hat be claimable on behalf of an account?'
+            localForm={localForm}
+            options={[
+              {
+                label: 'Yes',
+                value: '2',
+              },
+              {
+                label: 'No',
+                value: '1',
+              },
+            ]}
+          />
+        </Stack>
+      </FormRowWrapper>
 
       {wearingHatDetails?.wearers?.length ===
         Number(wearingHatDetails?.maxSupply) && (
