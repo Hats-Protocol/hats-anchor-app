@@ -9,9 +9,9 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import DatePickerComponent from 'react-datepicker';
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
 const DatePicker = ({
@@ -22,11 +22,28 @@ const DatePicker = ({
   options,
   localForm,
   isDisabled,
+  setToZeroUTC,
   ...props
 }: DatePickerProps) => {
+  const defaultValue = localForm?.getValues(name);
+  const [currentValue, setCurrentValue] = useState(defaultValue || new Date());
+
   if (!localForm) return null;
 
-  const { control } = localForm;
+  const { setValue } = localForm;
+
+  const handleChange = (e) => {
+    if (setToZeroUTC) {
+      const utcDate = new Date(
+        Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate()),
+      );
+      setCurrentValue(utcDate);
+      setValue(name, utcDate, { shouldDirty: true });
+    } else {
+      setCurrentValue(e);
+      setValue(name, e, { shouldDirty: true });
+    }
+  };
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
@@ -55,16 +72,10 @@ const DatePicker = ({
             </Text>
           )}
         </Box>
-        <Controller
-          control={control}
-          name={name}
-          render={({ field: { onChange, value } }) => (
-            <DatePickerComponent
-              wrapperClassName='chakra-datepicker'
-              selected={value ? new Date(value) : new Date()}
-              onChange={onChange}
-            />
-          )}
+        <DatePickerComponent
+          wrapperClassName='chakra-datepicker'
+          selected={currentValue}
+          onChange={handleChange}
         />
       </Stack>
     </FormControl>
@@ -89,4 +100,5 @@ interface DatePickerProps extends ChakraInputProps {
   placeholder?: string;
   defaultValue?: string | number;
   isDisabled?: boolean;
+  setToZeroUTC?: boolean;
 }

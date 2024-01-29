@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { AUTHORITY_TYPES } from 'app-constants';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
@@ -63,4 +64,14 @@ export const combineAuthorities = ({
   );
 
   return { data: _.compact(combined) };
+};
+
+export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
+  if (!parameters) return null;
+  const currentTermEndObj = parameters.find(
+    (param) => param.label === 'Current Term End',
+  );
+  return currentTermEndObj
+    ? new Date(Number(currentTermEndObj.value) * 1000)
+    : null;
 };

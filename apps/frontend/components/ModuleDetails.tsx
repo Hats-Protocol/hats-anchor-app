@@ -23,7 +23,7 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
-import { isWearingAdminHat } from 'hats-utils';
+import { findCurrentTermEndValue, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -34,7 +34,7 @@ import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Modal from './atoms/Modal';
-import ModuleArgsInputs from './ModuleArgsForm';
+import ModuleArgsForm from './ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
 const ModuleDetails = ({ type }: { type: string }) => {
@@ -44,10 +44,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const { chainId, selectedHat, onchainHats, storedData, editMode } =
     useTreeForm();
   const { address: currentUser } = useAccount();
-
-  const formMethods = useForm({ mode: 'onChange' });
-  const { formState, handleSubmit } = formMethods;
-
   const controllerAddress = useMemo(
     () => _.get(selectedHat, _.toLower(type)),
     [selectedHat, type],
@@ -57,6 +53,19 @@ const ModuleDetails = ({ type }: { type: string }) => {
     address: controllerAddress,
     chainId,
   });
+
+  // arg is named "Election's Term End", param is named 'Current Term End', so the solution is not as smooth
+  const currentTermEndDate = findCurrentTermEndValue(parameters);
+
+  const formMethods = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      "Election's Term End": currentTermEndDate,
+    },
+  });
+
+  const { formState, handleSubmit } = formMethods;
+
   const tokenAddress = _.get(
     _.find(parameters, { displayType: 'token' }),
     'value',
@@ -160,7 +169,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 <Text mb={3}>{selectedFunction?.description}</Text>
               )}
               <Stack>
-                <ModuleArgsInputs
+                <ModuleArgsForm
                   selectedModuleArgs={selectedFunction?.args}
                   tokenAddress={tokenAddress}
                   localForm={formMethods}
