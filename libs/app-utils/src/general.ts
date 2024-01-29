@@ -125,6 +125,11 @@ export const formatImageUrl = (url?: string) => {
 };
 
 const convertToBigInt = (input: unknown) => {
+  // directly convert, if string
+  if (_.isString(input)) {
+    return BigInt(input as string);
+  }
+  // handle numbers
   const numberCheck = _.toNumber(input);
 
   if (_.isNaN(numberCheck)) {
