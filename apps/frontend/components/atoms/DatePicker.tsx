@@ -2,7 +2,6 @@
 import {
   Box,
   FormControl,
-  FormHelperText,
   FormLabel,
   HStack,
   InputProps as ChakraInputProps,
@@ -10,6 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import React, { ReactNode, useState } from 'react';
 import DatePickerComponent from 'react-datepicker';
 import { UseFormReturn } from 'react-hook-form';
@@ -29,12 +29,23 @@ const DatePicker = ({
   showLocalConversion = true,
   ...props
 }: DatePickerProps) => {
-  const defaultValue = localForm?.getValues(name);
-  const [currentValue, setCurrentValue] = useState(defaultValue || new Date());
+  const { setValue, getValues } = _.pick(localForm, ['setValue', 'getValues']);
+  const defaultValue = getValues(name);
+  const formDate = new Date();
+  const formDefaultValue =
+    defaultValue || setToZeroUTC
+      ? new Date(
+          Date.UTC(
+            formDate.getUTCFullYear(),
+            formDate.getUTCMonth(),
+            formDate.getUTCDate() + 1,
+          ),
+        )
+      : formDate;
+  const [currentValue, setCurrentValue] = useState(formDefaultValue);
 
   if (!localForm) return null;
 
-  const { setValue } = localForm;
   const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const handleChange = (d: Date) => {
