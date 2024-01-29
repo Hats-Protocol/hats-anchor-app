@@ -38,7 +38,7 @@ const useCallHsgFunction = ({
       if (!signerGateClient) throw new Error('Failed to create module client');
 
       const preparedArgs = _.map(func.args, (arg: any) => {
-        const value = args[arg.name];
+        const value = args[`${arg.name}-resolved`] || args[arg.name];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });

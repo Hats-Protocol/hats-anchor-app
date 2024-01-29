@@ -127,6 +127,10 @@ const ModuleFormInput = ({
   const showNewResolvedAddress =
     newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
 
+  useEffect(() => {
+    setValue(`${arg.name}-resolved`, newWearerResolvedAddress);
+  }, [newWearerResolvedAddress]);
+
   if (!arg) return null;
 
   if (
@@ -201,10 +205,10 @@ const ModuleFormInput = ({
           }
           options={{
             required: !arg.optional,
-            validate: (value) => {
-              if (!isAddress(value)) return 'Invalid address';
-              return true;
-            },
+            // validate: (value) => {
+            //   if (!isAddress(value)) return 'Invalid address';
+            //   return true;
+            // },
           }}
           localForm={localForm}
           onChange={(e) => handleChangeAddress(e, arg.name)}
