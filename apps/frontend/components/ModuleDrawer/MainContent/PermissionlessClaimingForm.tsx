@@ -1,12 +1,4 @@
-import {
-  Code,
-  FormControl,
-  FormLabel,
-  Icon,
-  Stack,
-  Switch,
-  Text,
-} from '@chakra-ui/react';
+import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatAddress } from 'app-utils';
 import {
@@ -51,7 +43,6 @@ const PermissionlessClaimingForm = ({
     editMode,
   } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
-  const initialClaimabilityType = localForm.watch('initialClaimabilityType');
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
   );
@@ -143,29 +134,6 @@ const PermissionlessClaimingForm = ({
 
       {isPermissionlesslyClaimable === 'Yes' && (
         <Stack ref={scrollTargetRef} spacing={12}>
-          <FormRowWrapper>
-            <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
-
-            <FormControl alignItems='center'>
-              <FormLabel m='0' fontSize='sm'>
-                CLAIM FOR ACCOUNT
-              </FormLabel>
-
-              <Text color='blackAlpha.700' mb={2}>
-                Should this hat be claimable on behalf of an account?
-              </Text>
-
-              <Switch
-                name='initialClaimabilityType'
-                isChecked={initialClaimabilityType === '2'}
-                onChange={() => {
-                  const newValue = initialClaimabilityType === '2' ? '1' : '2';
-                  localForm.setValue('initialClaimabilityType', newValue);
-                }}
-                isDisabled={!parentHats?.length}
-              />
-            </FormControl>
-          </FormRowWrapper>
           {multiClaimsHatter &&
           !isClaimable &&
           isAdmin &&
@@ -180,40 +148,67 @@ const PermissionlessClaimingForm = ({
               </Text>
             </FormRowWrapper>
           ) : (
-            <FormRowWrapper>
-              <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-              <Stack>
-                <Select
-                  name='adminHat'
-                  label='ADMIN HAT'
-                  subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
-                  localForm={localForm}
-                  placeholder='Select a hat in this tree'
-                  defaultValue={undefined}
-                  options={{
-                    required: isPermissionlesslyClaimable === 'Yes',
-                  }}
-                >
-                  {_.map(_.sortBy(parentHats, 'id'), (h: AppHat) => {
-                    let displayName = h.details;
-                    if (h.detailsObject?.data?.name)
-                      displayName = h.detailsObject?.data?.name;
-                    return (
-                      <option value={h.id} key={h.id}>
-                        {idToIp(h.id as Hex)} - {displayName}
-                      </option>
-                    );
-                  })}
-                </Select>
-                {adminHat && selectedHat && (
-                  <Text color='blackAlpha.600'>
-                    Potential wearers will be able to claim this hat (#
-                    {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the
-                    requirements in new module above.
-                  </Text>
-                )}
-              </Stack>
-            </FormRowWrapper>
+            <>
+              <FormRowWrapper>
+                <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+                <Stack>
+                  <Select
+                    name='adminHat'
+                    label='ADMIN HAT'
+                    subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                    localForm={localForm}
+                    placeholder='Select a hat in this tree'
+                    defaultValue={
+                      _.size(parentHats) === 1
+                        ? _.get(_.first(parentHats), 'id')
+                        : undefined
+                    }
+                    options={{
+                      required: isPermissionlesslyClaimable === 'Yes',
+                    }}
+                  >
+                    {_.map(_.sortBy(parentHats, 'id'), (h: AppHat) => {
+                      let displayName = h.details;
+                      if (h.detailsObject?.data?.name)
+                        displayName = h.detailsObject?.data?.name;
+                      return (
+                        <option value={h.id} key={h.id}>
+                          {idToIp(h.id as Hex)} - {displayName}
+                        </option>
+                      );
+                    })}
+                  </Select>
+                  {selectedHat && (
+                    <Text color='blackAlpha.600'>
+                      Potential wearers will be able to claim this hat (#
+                      {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet
+                      the requirements in new module above.
+                    </Text>
+                  )}
+                </Stack>
+              </FormRowWrapper>
+              <FormRowWrapper>
+                <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
+                <Stack>
+                  <RadioBox
+                    name='initialClaimabilityType'
+                    label='CLAIM FOR ACCOUNT'
+                    subLabel='Should this hat be claimable on behalf of an account?'
+                    localForm={localForm}
+                    options={[
+                      {
+                        label: 'Yes',
+                        value: '2',
+                      },
+                      {
+                        label: 'No',
+                        value: '1',
+                      },
+                    ]}
+                  />
+                </Stack>
+              </FormRowWrapper>
+            </>
           )}
         </Stack>
       )}
