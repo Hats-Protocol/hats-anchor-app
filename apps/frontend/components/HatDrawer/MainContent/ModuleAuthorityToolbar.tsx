@@ -294,15 +294,17 @@ const ModuleAuthorityToolbar = ({
       </HStack>
       <Modal
         name={`functionCall-${authority.label}-${index}`}
-        title={`Interact with ${authority.moduleLabel}`}
+        title={`${_.capitalize(
+          selectedFunction?.label,
+        )} for Hat #${authorityHatId}`} // {`Interact with ${authority.moduleLabel}`}
         localOverlay={localOverlay}
         headingSize='sm'
       >
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
-            <Heading size='sm'>
+            {/* <Heading size='sm'>
               {_.capitalize(selectedFunction?.label)} for Hat #{authorityHatId}
-            </Heading>
+            </Heading> */}
             {selectedFunction?.description && (
               <Text>{selectedFunction?.description}</Text>
             )}

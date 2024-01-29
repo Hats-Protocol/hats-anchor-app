@@ -1,12 +1,4 @@
-import {
-  Box,
-  HStack,
-  Icon,
-  Radio,
-  RadioGroup,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl, transformAndVerify } from 'app-utils';
