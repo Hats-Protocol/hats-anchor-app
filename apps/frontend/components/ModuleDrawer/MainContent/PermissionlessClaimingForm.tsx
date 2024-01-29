@@ -1,12 +1,4 @@
-import {
-  Code,
-  FormControl,
-  FormLabel,
-  Icon,
-  Stack,
-  Switch,
-  Text,
-} from '@chakra-ui/react';
+import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatAddress } from 'app-utils';
 import {
@@ -51,7 +43,6 @@ const PermissionlessClaimingForm = ({
     editMode,
   } = useTreeForm();
   const adminHat = localForm.watch('adminHat');
-  const initialClaimabilityType = localForm.watch('initialClaimabilityType');
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',
   );
@@ -145,26 +136,24 @@ const PermissionlessClaimingForm = ({
         <Stack ref={scrollTargetRef} spacing={12}>
           <FormRowWrapper>
             <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
-
-            <FormControl alignItems='center'>
-              <FormLabel m='0' fontSize='sm'>
-                CLAIM FOR ACCOUNT
-              </FormLabel>
-
-              <Text color='blackAlpha.700' mb={2}>
-                Should this hat be claimable on behalf of an account?
-              </Text>
-
-              <Switch
+            <Stack>
+              <RadioBox
                 name='initialClaimabilityType'
-                isChecked={initialClaimabilityType === '2'}
-                onChange={() => {
-                  const newValue = initialClaimabilityType === '2' ? '1' : '2';
-                  localForm.setValue('initialClaimabilityType', newValue);
-                }}
-                isDisabled={!parentHats?.length}
+                label='CLAIM FOR ACCOUNT'
+                subLabel='Should this hat be claimable on behalf of an account?'
+                localForm={localForm}
+                options={[
+                  {
+                    label: 'Yes',
+                    value: '2',
+                  },
+                  {
+                    label: 'No',
+                    value: '1',
+                  },
+                ]}
               />
-            </FormControl>
+            </Stack>
           </FormRowWrapper>
           {multiClaimsHatter &&
           !isClaimable &&
