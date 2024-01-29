@@ -9,6 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { formatDate } from 'app-utils';
 import _ from 'lodash';
 import React, { ReactNode, useState } from 'react';
 import DatePickerComponent from 'react-datepicker';
@@ -99,11 +100,8 @@ const DatePicker = ({
             <Text fontWeight={600}>Local Timezone:</Text>
             <Text>{userTz}</Text>
             <Text fontWeight={600}>Current:</Text>
-            <Tooltip label={currentValue.toUTCString()} placement='top'>
-              <Text>
-                {currentValue.toLocaleString()}{' '}
-                {`UTC${-currentValue.getTimezoneOffset() / 60}`}
-              </Text>
+            <Tooltip label={formatDate(currentValue, true)} placement='top'>
+              <Text>{formatDate(currentValue)}</Text>
             </Tooltip>
           </HStack>
         )}
