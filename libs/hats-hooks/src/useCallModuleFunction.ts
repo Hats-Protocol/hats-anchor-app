@@ -39,7 +39,7 @@ const useCallModuleFunction = ({
       const preparedArgs = _.map(func.args, (arg: any) => {
         // strip apostrophes from arg names (react-hook-form, appears to automatically do this)
         const argName = arg.name.replace(/'/g, '');
-        const value = args[`${argName}-resolved` || argName];
+        const value = args[`${argName}-resolved`] || args[argName];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });
