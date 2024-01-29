@@ -1,4 +1,12 @@
-import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  HStack,
+  Icon,
+  Radio,
+  RadioGroup,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl, transformAndVerify } from 'app-utils';
@@ -34,6 +42,9 @@ const booleanOptionSets = {
   eligibility: ['Eligible', 'Ineligible'],
   status: ['Active', 'Inactive'],
 };
+
+const isEns = (value: string) =>
+  value ? _.toString(value).endsWith('.eth') : false;
 
 const ModuleFormInput = ({
   localForm,
@@ -118,6 +129,7 @@ const ModuleFormInput = ({
   const { data: newWearerResolvedAddress } = useEnsAddress({
     name: newWearer,
     chainId: 1,
+    enabled: !!newWearer && isEns(newWearer),
   });
 
   const showNewResolvedAddress =
@@ -229,7 +241,7 @@ const ModuleFormInput = ({
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
+            ? _.first(arg.example as string[])
             : (arg.example as string) || fallbackExamples.address
         }
         localForm={localForm}
@@ -374,6 +386,7 @@ const ModuleFormInput = ({
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
         subLabel={arg.description}
         localForm={localForm}
+        setToZeroUTC
       />
     );
   }

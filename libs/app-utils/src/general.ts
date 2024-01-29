@@ -5,6 +5,7 @@ import {
 } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
+import { format } from 'date-fns';
 import _ from 'lodash';
 
 // app-utils mostly, some should move
@@ -17,6 +18,28 @@ export const formatAddress = (address: string | null | undefined) =>
 export const isSameAddress = (address1?: string, address2?: string) => {
   if (!address1 || !address2) return false;
   return address1.toLowerCase() === address2.toLowerCase();
+};
+
+const dateFormatter = (date: Date | number) =>
+  format(date, 'yyyy-MM-dd HH:mm:ss');
+
+const offsetString = (date: Date) => {
+  const utcOffset = -date.getTimezoneOffset() / 60;
+  return `UTC${utcOffset > 0 ? '+' : ''}${utcOffset}`;
+};
+
+export const formatDate = (
+  date: Date | string | number | undefined,
+  toUtc: boolean = false,
+) => {
+  if (!date) return '';
+  if (toUtc)
+    return `${dateFormatter(
+      new Date(date).getTime() + new Date().getTimezoneOffset() * 60000,
+    )} UTC`;
+  if (typeof date === 'string' || typeof date === 'number')
+    return `${dateFormatter(new Date(date))} ${offsetString(new Date(date))}`;
+  return `${dateFormatter(date)} ${offsetString(date)}`;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,7 +124,7 @@ export const formatImageUrl = (url?: string) => {
   return null;
 };
 
-const convertToBigInt = (input: any) => {
+const convertToBigInt = (input: unknown) => {
   const numberCheck = _.toNumber(input);
 
   if (_.isNaN(numberCheck)) {
