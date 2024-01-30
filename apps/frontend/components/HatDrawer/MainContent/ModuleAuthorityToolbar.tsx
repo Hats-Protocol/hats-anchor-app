@@ -13,8 +13,9 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AUTHORITIES } from 'app-constants';
+import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from 'app-constants';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import {
   useCallHsgFunction,
@@ -52,9 +53,8 @@ const ModuleAuthorityToolbar = ({
   const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
-  const authorityHatId =
-    authority?.hatId && hatIdDecimalToIp(BigInt(authority?.hatId));
-  const isWearing = useMemo(
+  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
+  const isWearer = useMemo(
     () =>
       _.includes(
         _.map(selectedHat?.wearers, 'id'),
@@ -67,7 +67,7 @@ const ModuleAuthorityToolbar = ({
 
   const otherLinks = useMemo(() => {
     const links = [];
-    if (authority.type === 'hsg') {
+    if (authority.type === AUTHORITY_TYPES.hsg) {
       links.push({
         link: `${explorerUrl(chainId)}/address/${authority.instanceAddress}`,
         label: 'Go to HatsSignerGate',
@@ -92,7 +92,7 @@ const ModuleAuthorityToolbar = ({
         });
       }
     }
-    if (authority.type === 'modules') {
+    if (authority.type === AUTHORITY_TYPES.modules) {
       const hatId = hatIdDecimalToIp(BigInt(authority.hatId));
       const treeId = _.first(hatId.split('.'));
       links.push({
@@ -113,20 +113,11 @@ const ModuleAuthorityToolbar = ({
       chainId,
     });
 
-  const isWearer = useMemo(
-    () =>
-      _.includes(
-        _.map(selectedHat?.wearers, 'id'),
-        address?.toLocaleLowerCase(),
-      ),
-    [selectedHat, address],
-  );
-
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
-    } else if (authority.type === 'modules') {
+    } else if (authority.type === AUTHORITY_TYPES.modules) {
       callModuleFunction({
         moduleId: authority.moduleAddress,
         instance: authority.instanceAddress,
@@ -138,13 +129,13 @@ const ModuleAuthorityToolbar = ({
         func,
         args: [],
         instance: authority.instanceAddress,
-        type: authority.hgsType,
+        type: authority.type as HsgType,
       });
     }
   };
 
-  const onSubmit = (args) => {
-    if (authority.type === 'modules') {
+  const onSubmit = (args: any) => {
+    if (authority.type === AUTHORITY_TYPES.modules) {
       const localArgs = args;
       // ! workaround for hat being an arg on Passthrough module
       if (!_.isEmpty(_.filter(selectedFunction.args, { name: 'Hat' }))) {
@@ -164,7 +155,7 @@ const ModuleAuthorityToolbar = ({
         instance: authority.instanceAddress,
         func: selectedFunction,
         args,
-        type: authority.hgsType,
+        type: authority.type as HsgType,
         onSuccess: () => {
           setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
         },
@@ -176,40 +167,53 @@ const ModuleAuthorityToolbar = ({
     instance: authority.instanceAddress,
     signer: address,
     chainId,
-    enabled: authority.type === 'hsg',
+    enabled: authority.type === AUTHORITY_TYPES.hsg,
   });
+
+  const getDisabledReason = (
+    isOnWrongNetwork: boolean,
+    isNotWearer: boolean,
+    isClaimed: boolean,
+  ) => {
+    if (isOnWrongNetwork) {
+      return 'You are on the wrong network';
+    }
+    if (isNotWearer) {
+      return 'You are not a wearer of the current hat';
+    }
+    if (isClaimed) {
+      return 'You are already a signer';
+    }
+    return '';
+  };
+
+  const isDisabled = !isWearer || !isSameChain;
+  const isPrimaryFunctionDisabled =
+    isDisabled || (primaryFunction.functionName === 'claimSigner' && claimed);
+  const primaryDisabledReason = getDisabledReason(
+    !isSameChain,
+    !isWearer,
+    primaryFunction.functionName === 'claimSigner' && claimed,
+  );
+  const otherDisabledReason = getDisabledReason(!isSameChain, !isWearer, false);
 
   return (
     <HStack mb={4} wrap='wrap'>
       {primaryFunction && (
-        <Tooltip
-          label={
-            // eslint-disable-next-line no-nested-ternary
-            primaryFunction.functionName === 'claimSigner' && !isWearing
-              ? 'You are not wearing the hat'
-              : claimed
-              ? 'You are already a signer'
-              : ''
-          }
-        >
+        <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'
-            isDisabled={
-              !isWearer ||
-              !isSameChain ||
-              (primaryFunction.functionName === 'claimSigner' &&
-                (!isWearing || claimed))
-            }
+            isDisabled={isPrimaryFunctionDisabled}
             size='sm'
             onClick={() => handleFunctionCall(primaryFunction)}
             rightIcon={<Icon as={FiPlusSquare} />}
           >
-            {primaryFunction.label}
+            {_.capitalize(primaryFunction.label)}
           </Button>
         </Tooltip>
       )}
       <HStack>
-        {authority.type === 'modules' && (
+        {authority.type === AUTHORITY_TYPES.modules && (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${
               authority.instanceAddress
@@ -223,15 +227,15 @@ const ModuleAuthorityToolbar = ({
               variant='outline'
               color='blue.500'
             >
-              Go to {AUTHORITIES[authority.type].name}
+              Go to {AUTHORITY_ENFORCEMENT[authority.type].name}
             </Button>
           </ChakraNextLink>
         )}
-        {authority.type === 'hsg' && (
+        {authority.type === AUTHORITY_TYPES.hsg && (
           <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
               <HStack>
-                <Text> Go to Safe</Text>
+                <Text>Go to Safe</Text>
                 <Icon as={FaExternalLinkAlt} boxSize={3} />
               </HStack>
             </Button>
@@ -247,22 +251,29 @@ const ModuleAuthorityToolbar = ({
               size='sm'
             />
             <MenuList>
-              {_.map(otherFunctions, (func, i) => (
-                <MenuItem
-                  key={`${func.label}-${i}`}
-                  onClick={() => handleFunctionCall(func)}
-                  isDisabled={!isWearer || !isSameChain}
-                >
-                  <Flex justify='space-between' align='center' w='100%' gap={1}>
-                    <Text>{func.label}</Text>
-                    <Icon as={FiPlusSquare} boxSize={4} />
-                  </Flex>
-                </MenuItem>
+              {_.map(otherFunctions, (func: any, i: number) => (
+                <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
+                  <MenuItem
+                    onClick={() => handleFunctionCall(func)}
+                    isDisabled={isDisabled}
+                  >
+                    <Flex
+                      justify='space-between'
+                      align='center'
+                      w='100%'
+                      gap={1}
+                    >
+                      <Text>{func.label}</Text>
+                      <Icon as={FiPlusSquare} boxSize={4} />
+                    </Flex>
+                  </MenuItem>
+                </Tooltip>
               ))}
               {_.map(otherLinks, (link: LinkObject) => (
                 <ChakraNextLink
                   href={link.link}
                   isExternal={!!getHostnameFromURL(link.link)}
+                  key={link.link}
                 >
                   <MenuItem>
                     <Flex
@@ -281,19 +292,19 @@ const ModuleAuthorityToolbar = ({
           </Menu>
         )}
       </HStack>
-
       <Modal
         name={`functionCall-${authority.label}-${index}`}
-        title={`Interact with ${authority.moduleLabel}`}
+        title={`${_.capitalize(
+          selectedFunction?.label,
+        )} for Hat #${authorityHatId}`} // {`Interact with ${authority.moduleLabel}`}
         localOverlay={localOverlay}
         headingSize='sm'
       >
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
-            <Heading size='sm'>
-              {selectedFunction?.label}
-              {authorityHatId ? ` for Hat #${authorityHatId}` : ''}
-            </Heading>
+            {/* <Heading size='sm'>
+              {_.capitalize(selectedFunction?.label)} for Hat #{authorityHatId}
+            </Heading> */}
             {selectedFunction?.description && (
               <Text>{selectedFunction?.description}</Text>
             )}
@@ -320,7 +331,7 @@ const ModuleAuthorityToolbar = ({
                 isDisabled={!formState.isValid}
                 isLoading={isModuleLoading || isHsgLoading}
               >
-                {selectedFunction?.label}
+                {_.capitalize(selectedFunction?.label)}
               </Button>
             </HStack>
           </Flex>

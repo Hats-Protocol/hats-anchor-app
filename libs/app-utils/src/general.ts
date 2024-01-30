@@ -5,16 +5,41 @@ import {
 } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
+import { format } from 'date-fns';
 import _ from 'lodash';
 
 // app-utils mostly, some should move
 
 export const formatAddress = (address: string | null | undefined) =>
-  address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
+  address && typeof address === 'string'
+    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    : '';
 
 export const isSameAddress = (address1?: string, address2?: string) => {
   if (!address1 || !address2) return false;
   return address1.toLowerCase() === address2.toLowerCase();
+};
+
+const dateFormatter = (date: Date | number) =>
+  format(date, 'yyyy-MM-dd HH:mm:ss');
+
+const offsetString = (date: Date) => {
+  const utcOffset = -date.getTimezoneOffset() / 60;
+  return `UTC${utcOffset > 0 ? '+' : ''}${utcOffset}`;
+};
+
+export const formatDate = (
+  date: Date | string | number | undefined,
+  toUtc: boolean = false,
+) => {
+  if (!date) return '';
+  if (toUtc)
+    return `${dateFormatter(
+      new Date(date).getTime() + new Date().getTimezoneOffset() * 60000,
+    )} UTC`;
+  if (typeof date === 'string' || typeof date === 'number')
+    return `${dateFormatter(new Date(date))} ${offsetString(new Date(date))}`;
+  return `${dateFormatter(date)} ${offsetString(date)}`;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +124,12 @@ export const formatImageUrl = (url?: string) => {
   return null;
 };
 
-const convertToBigInt = (input: any) => {
+const convertToBigInt = (input: unknown) => {
+  // directly convert, if string
+  if (_.isString(input)) {
+    return BigInt(input as string);
+  }
+  // handle numbers
   const numberCheck = _.toNumber(input);
 
   if (_.isNaN(numberCheck)) {
@@ -118,6 +148,10 @@ export const transformInput = (
   solidityType: string,
 ): unknown => {
   if (input === undefined || input === null) {
+    if (solidityType.includes('[]')) {
+      return [];
+    }
+
     return undefined;
   }
   const tsType = solidityToTypescriptType(solidityType);
@@ -151,6 +185,9 @@ export const transformInput = (
         .split(',')
         .map((num) => convertToBigInt(num.trim()));
     case 'string[]':
+      if (solidityType === 'address[]') {
+        return Array.isArray(input) ? _.compact(input) : [];
+      }
       return String(input).split(',');
     case 'boolean[]':
       return String(input)

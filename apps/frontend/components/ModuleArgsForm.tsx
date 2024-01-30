@@ -1,23 +1,27 @@
 import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
-import { explorerUrl, formatAddress, transformAndVerify } from 'app-utils';
+import { useDebounce } from 'app-hooks';
+import { explorerUrl, transformAndVerify } from 'app-utils';
 import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { prettyIdToIp } from 'shared-utils';
+import { idToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
-import { useToken } from 'wagmi';
+import { useEnsAddress, useToken } from 'wagmi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
+import AddressInput from './AddressInput';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
+import DurationInput from './atoms/DurationInput';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
 import Select from './atoms/Select';
 import FormRowWrapper from './FormRowWrapper';
+import MultiAddressInput from './MultiAddressInput';
 
 const fallbackExamples = {
   address: '0x3bc1A0Ad72417f2d41...',
@@ -31,6 +35,9 @@ const booleanOptionSets = {
   status: ['Active', 'Inactive'],
 };
 
+const isEns = (value: string) =>
+  value ? _.toString(value).endsWith('.eth') : false;
+
 const ModuleFormInput = ({
   localForm,
   arg,
@@ -42,20 +49,22 @@ const ModuleFormInput = ({
   tokenAddress: Hex;
   isDeploy?: boolean;
 }) => {
-  const { onchainTree, chainId } = useTreeForm();
+  const { chainId, treeToDisplay } = useTreeForm();
   const [customHatSelections, setCustomHatSelections] = useState({});
 
   const { watch, setValue } = localForm;
 
-  const localTokenAddress = watch('Token Address', '');
+  const tokenArgName = arg.displayType === 'token' ? arg.name : '';
+  const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
-    address: tokenAddress || localTokenAddress,
+    address: localTokenAddress || tokenAddress,
+    chainId,
     enabled:
       (!!tokenAddress && isAddress(tokenAddress)) ||
       (!!localTokenAddress && isAddress(localTokenAddress)),
   });
   const tokenDecimals = tokenDetails?.decimals;
-  const tokenLabel = `${tokenDetails?.name} (${formatAddress(tokenAddress)})`;
+  const tokenLabel = `${tokenDetails?.name} ($${tokenDetails?.symbol})`;
 
   const handleChangeAddress = (
     e: ChangeEvent<HTMLInputElement>,
@@ -76,7 +85,7 @@ const ModuleFormInput = ({
         newState[argName] = true;
       } else {
         newState[argName] = false;
-        localForm.setValue(`${argName}_custom`, undefined, {
+        setValue(`${argName}_custom`, undefined, {
           shouldDirty: true,
         });
       }
@@ -107,36 +116,131 @@ const ModuleFormInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const newWearer = useDebounce<string>(watch(arg.name, null));
+
+  const { data: newWearerResolvedAddress } = useEnsAddress({
+    name: newWearer,
+    chainId: 1,
+    enabled: !!newWearer && isEns(newWearer),
+  });
+
+  const showNewResolvedAddress =
+    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
+
+  useEffect(() => {
+    setValue(`${arg.name}-resolved`, newWearerResolvedAddress);
+  }, [newWearerResolvedAddress]);
+
   if (!arg) return null;
 
   if (
     arg.displayType === 'erc20' ||
     arg.displayType === 'erc721' ||
     arg.displayType === 'erc1155' ||
-    arg.displayType === 'jokerace' ||
-    // TODO handle address/address[] separately
-    arg.type === 'address' ||
-    arg.type === 'address[]'
+    arg.displayType === 'jokerace'
   ) {
+    let argHelper = null;
+    // TODO separate ArgHelper?
+    if (
+      arg.displayType === 'erc20' &&
+      !tokenDetails &&
+      (localTokenAddress || tokenAddress)
+    ) {
+      if (!tokenDetails) {
+        argHelper = <Text color='red.500' />;
+      } else {
+        argHelper = (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
+            isExternal
+          >
+            <Text fontSize='sm' color='gray.500'>
+              {tokenLabel}
+            </Text>
+          </ChakraNextLink>
+        );
+      }
+    }
+
     return (
-      <Input
+      <Stack>
+        <Input
+          name={arg.name}
+          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+          subLabel={arg.description}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string) || fallbackExamples.address
+          }
+          options={{
+            required: !arg.optional,
+            validate: (value) => {
+              if (!isAddress(value)) return 'Invalid address';
+              return true;
+            },
+          }}
+          localForm={localForm}
+          onChange={(e) => handleChangeAddress(e, arg.name)}
+        />
+        {argHelper}
+      </Stack>
+    );
+  }
+
+  // TEMPORARILY added descriptor here while registry hasn't been updated for token types
+  if (arg.type === 'address') {
+    return (
+      <Stack w='100%' spacing={1}>
+        <AddressInput
+          name={arg.name}
+          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+          subLabel={arg.description}
+          showResolvedAddress={showNewResolvedAddress}
+          resolvedAddress={String(newWearerResolvedAddress)}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string) || fallbackExamples.address
+          }
+          options={{
+            required: !arg.optional,
+            // validate: (value) => {
+            //   if (!isAddress(value)) return 'Invalid address';
+            //   return true;
+            // },
+          }}
+          localForm={localForm}
+          onChange={(e) => handleChangeAddress(e, arg.name)}
+        />
+        {tokenDetails && (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${
+              localTokenAddress || tokenAddress
+            }`}
+            isExternal
+          >
+            <Text fontSize='sm' color='gray.500'>
+              {tokenLabel}
+            </Text>
+          </ChakraNextLink>
+        )}
+      </Stack>
+    );
+  }
+
+  if (arg.type === 'address[]') {
+    return (
+      <MultiAddressInput
         name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
+        label={`${arg.name} (Optional)`}
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
+            ? _.first(arg.example as string[])
             : (arg.example as string) || fallbackExamples.address
         }
-        options={{
-          required: !arg.optional,
-          validate: (value) => {
-            if (!isAddress(value)) return 'Invalid address';
-            return true;
-          },
-        }}
         localForm={localForm}
-        onChange={(e) => handleChangeAddress(e, arg.name)}
       />
     );
   }
@@ -150,7 +254,6 @@ const ModuleFormInput = ({
         <Stack alignItems='start' spacing={1}>
           <HStack>
             <Text textTransform='uppercase'>{arg.name}</Text>
-            {/* <Icon as={FaInfoCircle} my='auto' boxSize={4} color='blue.500' /> */}
           </HStack>
           <Text color='gray.600' fontSize='sm'>
             {arg.description}
@@ -194,11 +297,13 @@ const ModuleFormInput = ({
           onChange={(e) => handleChangeHat(e, arg.name)}
         >
           <option value='custom'>Custom</option>
-          {_.map(onchainTree, ({ id, prettyId, detailsObject }: AppHat) => {
-            const hatName = detailsObject?.data?.name;
+          {_.map(treeToDisplay, ({ id, detailsObject }: AppHat) => {
+            const currentName = _.find(treeToDisplay, ['id', id])?.displayName;
+            const detailsName = currentName || detailsObject?.data?.name;
+
             return (
               <option value={decimalId(id)} key={id}>
-                {`${hatName ? `${hatName} - ` : ''}${prettyIdToIp(prettyId)}`}
+                {`${detailsName ? `${detailsName} - ` : ''}${idToIp(id)}`}
               </option>
             );
           })}
@@ -262,14 +367,9 @@ const ModuleFormInput = ({
           localForm={localForm}
         />
         {tokenDetails && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
-            isExternal
-          >
-            <Text fontSize='sm' color='gray.500'>
-              {tokenLabel}
-            </Text>
-          </ChakraNextLink>
+          <Text fontSize='sm' color='gray.500'>
+            ${tokenDetails?.symbol} uses {tokenDecimals} decimals
+          </Text>
         )}
       </Stack>
     );
@@ -282,16 +382,16 @@ const ModuleFormInput = ({
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
         subLabel={arg.description}
         localForm={localForm}
+        setToZeroUTC
       />
     );
   }
 
   if (arg.displayType === 'seconds') {
     return (
-      <NumberInput
+      <DurationInput
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        type='number'
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
@@ -301,7 +401,7 @@ const ModuleFormInput = ({
         isRequired={!arg.optional}
         customValidations={{
           validate: (value) =>
-            transformAndVerify(parseUnits(value, tokenDecimals), arg.type),
+            transformAndVerify(localForm.watch(arg.name), arg.type),
         }}
         localForm={localForm}
       />
@@ -363,17 +463,21 @@ const ModuleArgsForm = ({
   noMargin?: boolean;
   isDeploy?: boolean;
 }) => {
-  return selectedModuleArgs?.map((arg: ModuleCreationArg) => (
-    <FormRowWrapper key={arg.name} noMargin={noMargin}>
-      {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
-      <ModuleFormInput
-        arg={arg}
-        localForm={localForm}
-        tokenAddress={tokenAddress}
-        isDeploy={isDeploy}
-      />
-    </FormRowWrapper>
-  ));
+  return (
+    <Stack spacing={3}>
+      {selectedModuleArgs?.map((arg: ModuleCreationArg) => (
+        <FormRowWrapper key={arg.name} noMargin={noMargin}>
+          {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
+          <ModuleFormInput
+            arg={arg}
+            localForm={localForm}
+            tokenAddress={tokenAddress}
+            isDeploy={isDeploy}
+          />
+        </FormRowWrapper>
+      ))}
+    </Stack>
+  );
 };
 
 export default ModuleArgsForm;

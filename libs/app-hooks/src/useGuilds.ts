@@ -19,6 +19,37 @@ const fetchGuildsData = async (guilds?: string[]) => {
   return guildData;
 };
 
+type GuildPlatform = {
+  id: string;
+  platformId: string;
+  platformGuildName: string;
+  invite: string;
+};
+
+type Guild = {
+  roles: Role[];
+  guildPlatforms: GuildPlatform[];
+  name: string;
+  urlName: string;
+  imageUrl: string;
+};
+
+type RolePlatform = {
+  guildPlatformId: string;
+};
+
+type Role = {
+  requirements: Requirement[];
+  description: string;
+  rolePlatforms: RolePlatform[];
+};
+
+type Requirement = {
+  data: {
+    id: string;
+  };
+};
+
 const useHatGuilds = ({
   hatId,
   guilds,
@@ -41,19 +72,23 @@ const useHatGuilds = ({
 
   const selectedHatGuildRoles: Authority[] = _.flatMap(
     guildData,
-    (guild: any) => {
+    (guild: Guild) => {
       return _.flatMap(
-        _.filter(guild.roles, (role: any) =>
+        _.filter(guild.roles, (role: Role) =>
           _.some(
             role.requirements,
-            (req: any) => req.data?.id === decimalId(hatId),
+            (req: Requirement) => req.data?.id === decimalId(hatId),
           ),
         ),
-        (role: any) => {
-          return role.rolePlatforms.map((rolePlatform: any) => {
+        (role: Role) => {
+          return role.rolePlatforms.map((rolePlatform: RolePlatform) => {
             const platform = _.find(guild.guildPlatforms, {
               id: rolePlatform.guildPlatformId,
             });
+            // we index manual details against link/`invite`, so don't return if that is missing
+            // TODO check why guild might return reward without invite
+            if (!platform?.invite) return null;
+
             return {
               label: platform ? platform.platformGuildName : guild.name,
               link: platform ? platform.invite : 'No invite available',
@@ -67,9 +102,13 @@ const useHatGuilds = ({
         },
       );
     },
-  );
+  ) as unknown[] as Authority[];
 
-  return { selectedHatGuildRoles, error, isLoading };
+  return {
+    selectedHatGuildRoles: _.compact(selectedHatGuildRoles),
+    error,
+    isLoading,
+  };
 };
 
 export default useHatGuilds;

@@ -10,7 +10,7 @@ import {
   HatWearer,
 } from 'hats-types';
 import _ from 'lodash';
-import { prettyIdToId } from 'shared-utils';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
@@ -92,7 +92,12 @@ export const isTopHatOrMutable = (hatData: AppHat) =>
 export const isMutableNotTopHat = (hatData: AppHat) =>
   isMutable(hatData) && !isTopHat(hatData);
 
-// same as toTreeId??? similar but used to get full ID (for top hat ID)
+/**
+ * ========== DEPRECATED ==========
+ * - DO NOT USE
+ * - to be removed
+ * - Suggest `hatIdToTreeId` from core sdk
+ */
 export const getTreeId = (prettyHatId: Hex | null, full = false) => {
   if (!prettyHatId) return '';
   if (!full) return prettyHatId.slice(0, 10);
@@ -281,6 +286,60 @@ const prepareExportTree = (data: any[]): HatExport[] => {
   }));
 };
 
+const patchDataToEnsureConsecutiveIds = (tree: HatExport[]) => {
+  const dataWithPrettyIds = _.map(tree, (hat) => ({
+    ...hat,
+    id: idToPrettyId(hat.id),
+    adminId: idToPrettyId(hat.adminId),
+  }));
+
+  const maxDepth =
+    _.max(
+      _.map(dataWithPrettyIds, (item) => (item.id.match(/\./g) || []).length),
+    ) || 1;
+
+  _.forEach(_.range(1, maxDepth + 1), (depth) => {
+    let expectedNumber = 1;
+    let lastSegment = '';
+
+    _.forEach(dataWithPrettyIds, (item, index) => {
+      const idSegments = item.id.split('.');
+      if (idSegments.length - 1 < depth) return;
+
+      const currentSegment = idSegments[depth];
+      if (currentSegment !== lastSegment) {
+        lastSegment = currentSegment;
+        expectedNumber += 1;
+      }
+
+      const currentNumber = parseInt(currentSegment, 16);
+      if (currentNumber !== expectedNumber - 1) {
+        const newSegment = (expectedNumber - 1).toString(16).padStart(4, '0');
+        idSegments[depth] = newSegment;
+        dataWithPrettyIds[index].id = idSegments.join('.');
+
+        if (idSegments.length > 1) {
+          const parentSegments = _.slice(idSegments, 0, -1);
+          dataWithPrettyIds[index].adminId = parentSegments.join('.');
+        }
+
+        _.forEach(dataWithPrettyIds, (child) => {
+          if (child.adminId === item.id) {
+            // eslint-disable-next-line no-param-reassign
+            child.adminId = dataWithPrettyIds[index].id;
+          }
+        });
+      }
+    });
+  });
+
+  return _.map(dataWithPrettyIds, (hat) => ({
+    ...hat,
+    id: prettyIdToId(hat.id),
+    adminId: prettyIdToId(hat.adminId),
+  }));
+};
+
 export const handleExportBranch = ({
   targetHatId,
   treeToDisplay,
@@ -288,6 +347,7 @@ export const handleExportBranch = ({
   storedData,
   chainId,
   toast,
+  shouldPatchIds = false,
 }: {
   targetHatId?: Hex;
   treeToDisplay?: AppHat[];
@@ -296,6 +356,7 @@ export const handleExportBranch = ({
   decimalTreeId?: number;
   chainId?: number;
   toast: any;
+  shouldPatchIds?: boolean;
 }) => {
   if (
     !targetHatId ||
@@ -320,19 +381,20 @@ export const handleExportBranch = ({
   ) {
     targetHatInBranch.admin.id = targetHatId;
   }
+  const hatId = hatIdDecimalToIp(BigInt(targetHatId));
   const targetHat = _.find(treeToDisplay, { id: targetHatId });
   const type = isTopHat(targetHat) ? 'tree' : 'branch';
 
   const onchainHats = flattenHatData(hatsWithoutLinkedHats);
   const mergedHats = mergeHatsWithStoredData(onchainHats, storedData);
   const preparedTree = prepareExportTree(mergedHats);
-  const fileData = JSON.stringify(preparedTree);
-  const hatId = hatIdDecimalToIp(BigInt(targetHatId));
+  const patchedData = patchDataToEnsureConsecutiveIds(preparedTree);
 
+  const fileData = JSON.stringify(shouldPatchIds ? patchedData : preparedTree);
   const blob = new Blob([fileData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.download = `chain-${chainId}-${type}-${hatId}.json`; // Change filename to denote branch
+  link.download = `chain-${chainId}-${type}-${hatId}.json`;
   link.href = url;
   link.click();
   toast.success({
@@ -522,7 +584,7 @@ const extractWearers = (wearers: any[]): FormWearer[] => {
   }));
 };
 
-export const checkMissingHats = (
+export const checkMissingParents = (
   hats: Partial<FormData>[],
   onchainHats: AppHat[] | undefined,
 ) => {
@@ -538,4 +600,47 @@ export const checkMissingHats = (
   });
 
   return _.some(missingParent);
+};
+
+export const checkMissingSiblings = (
+  hats: Partial<FormData>[],
+  onchainHats: AppHat[] | undefined,
+) => {
+  if (!onchainHats || !hats || hats.length === 0)
+    return { hasMissing: false, missingSiblings: [] };
+
+  const onchainPrettyIds = _.map(_.filter(onchainHats, 'id'), (hat) =>
+    idToPrettyId(hat.id),
+  );
+  const hatsWithId = _.filter(hats, 'id');
+  const allIdsSet = new Set([
+    ...onchainPrettyIds,
+    ..._.map(hatsWithId, (hat) => idToPrettyId(hat.id)),
+  ]);
+
+  const missingSiblings: string[] = [];
+
+  _.forEach(hatsWithId, (hat) => {
+    const prettyId = idToPrettyId(hat.id);
+    const idSegments = prettyId.split('.');
+
+    if (idSegments.length < 2 || !idSegments[0]) return;
+
+    const siblingPrefix = idSegments.slice(0, -1).join('.');
+    const siblingNumber = parseInt(idSegments[idSegments.length - 1], 16);
+
+    if (siblingNumber > 1) {
+      const previousSibling = `${siblingPrefix}.${(siblingNumber - 1)
+        .toString(16)
+        .padStart(4, '0')}`;
+      if (!allIdsSet.has(previousSibling)) {
+        missingSiblings.push(prettyIdToIp(previousSibling));
+      }
+    }
+  });
+
+  return {
+    hasMissing: missingSiblings.length > 0,
+    missingSiblings,
+  };
 };

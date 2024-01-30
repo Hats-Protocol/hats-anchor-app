@@ -60,6 +60,7 @@ const OrgChartComponent: React.FC = () => {
     handleFlipChart,
     handleSetCompact,
     isLoading,
+    storedConfig,
     storedData,
     setStoredData,
     addHat,
@@ -75,8 +76,11 @@ const OrgChartComponent: React.FC = () => {
     editMode,
   });
   const queryParams = new URLSearchParams(window.location.search);
-  const initialCompact = queryParams.get('compact') === 'true';
-  const initialFlipped = queryParams.get('flipped') === 'true';
+  const initialCompact =
+    queryParams.get('compact') === 'true' || storedConfig?.compact;
+  const initialFlipped =
+    queryParams.get('flipped') === 'true' || storedConfig?.flipped;
+
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
   });

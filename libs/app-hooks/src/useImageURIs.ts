@@ -42,6 +42,13 @@ const useImageURIs = ({
   editMode?: boolean;
   onchain?: boolean;
 }) => {
+  const initialHatsData = useMemo(() => {
+    return hats?.map((hat) => ({
+      ...hat,
+      imageUrl: '/icon.jpeg',
+    }));
+  }, [hats]);
+
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
       return _.filter(hats, (hat: AppHat) =>
@@ -127,7 +134,7 @@ const useImageURIs = ({
   const isLoaded = _.every(imageQueries, ['fetchStatus', 'idle']);
 
   const mergedWithHats = useMemo(() => {
-    if (imagesLoading || !isLoaded) return undefined;
+    if (imagesLoading || !isLoaded) return initialHatsData;
     return _.map(_.flatten(onlyOnchainHats), (hat: any, i: any) => {
       const imageIndex = _.findIndex(
         uniqueImageUris,
@@ -136,7 +143,7 @@ const useImageURIs = ({
 
       return {
         ...hat,
-        imageUrl: imageUrls[imageIndex],
+        imageUrl: imageUrls[imageIndex] || hat.imageUrl, // use loaded image URL or fallback to initial
       };
     });
   }, [
@@ -146,6 +153,7 @@ const useImageURIs = ({
     imageUrls,
     imagesLoading,
     isLoaded,
+    initialHatsData,
   ]);
 
   return {

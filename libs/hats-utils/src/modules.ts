@@ -5,7 +5,6 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-// import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
 import {
   createHatsModulesClient,
@@ -16,7 +15,6 @@ import {
 } from 'app-utils';
 import {
   AppHat,
-  Authority,
   FormData,
   HatAuthority,
   HatSignerGate,
@@ -103,7 +101,7 @@ export const deployModuleWithClaimsHatter = async ({
 
   const claimsMutableArgs = [
     transformInput(values.initialClaimableHats, 'uint256[]'),
-    transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+    transformInput(values.initialClaimabilityType, 'uint8[]'),
   ];
 
   return hatsClient?.batchCreateNewInstances({
@@ -152,7 +150,7 @@ export const deployClaimsHatter = async ({
   if (claimsHatterModule && selectedHat?.id && address) {
     const claimsMutableArgs = [
       transformInput(values.initialClaimableHats, 'uint256[]'),
-      transformInput(values.initialClaimabilityTypes, 'uint8[]'),
+      transformInput(values.initialClaimabilityType, 'uint8[]'),
     ];
 
     const hatsClient = await createHatsModulesClient(chainId);
@@ -214,6 +212,7 @@ export const processClaimsHatter = ({
 }: {
   claimsHatterAddress: Hex;
   storedData: Partial<FormData>[] | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adminHat: any | undefined; // Hat + FormData
   incrementWearers: string | undefined;
 }) => {
@@ -275,11 +274,13 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   isLocalFormValid,
   values,
   hatId,
+  claimabilityType,
 }: {
   selectedModuleDetails?: ModuleDetails;
   isLocalFormValid: boolean;
   values: FormValues;
   hatId: bigint;
+  claimabilityType?: number;
 }) => {
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
@@ -310,7 +311,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     encodedImmutableArgs,
     encodedMutableArgs,
     hatId,
-    1,
+    claimabilityType,
   ];
 };
 
@@ -372,61 +373,45 @@ export function populateModulesAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
-  const updatedHatAuthorities: Authority[] = [];
+  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const updatedHatAuthorities = _.map(
+    filteredAuthorities,
+    (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
+      _.map(authorityEntries, ({ id, hatId }: { id: Hex; hatId: Hex }) => {
+        const moduleInfo = _.find(modulesDetails, { id });
 
-  _.forEach(modulesDetails, (details: ModuleDetails) => {
-    _.forEach(
-      hatAuthorities,
-      (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) => {
-        const matchingRoles = _.filter(
-          details?.customRoles,
+        const matchingRole = _.find(
+          moduleInfo?.customRoles,
           (role: Role) => role.id === authorityKey,
         );
         const matchingFunctions = _.filter(
-          details.writeFunctions,
-          (func: WriteFunction) =>
-            _.some(matchingRoles, (role: Role) =>
-              _.includes(func.roles, role.id),
-            ),
+          moduleInfo?.writeFunctions,
+          (func: WriteFunction) => _.includes(func.roles, matchingRole?.id),
         );
 
-        let description: string;
-        if (_.isArray(details.details)) {
-          description = details.details.join('\n');
-        } else if (typeof details.details === 'string') {
-          description = details.details as string;
+        let description: string = '';
+        if (_.isArray(moduleInfo?.details)) {
+          description = moduleInfo.details.join('\n');
+        } else if (typeof moduleInfo?.details === 'string') {
+          description = moduleInfo.details as string;
         }
 
-        const transformedAuthorities = authorityEntries.map(
-          (item: { id: Hex; hatId: Hex }) => {
-            const role = _.head(matchingRoles);
-            if (role) {
-              return {
-                label: `${role.name} (${formatAddress(item.id)})`,
-                link: role.id,
-                description,
-                type: AUTHORITY_TYPES.modules,
-                id: role.id,
-                functions: matchingFunctions,
-                instanceAddress: item.id,
-                moduleAddress: details.implementationAddress as Hex,
-                moduleLabel: `${details.name} (${formatAddress(
-                  item.id as Hex,
-                )})`,
-                hatId: item.hatId,
-              };
-            }
-            return null;
-          },
-        );
+        return {
+          label: `${matchingRole?.name} (${formatAddress(id)})`,
+          link: matchingRole?.id,
+          description,
+          type: AUTHORITY_TYPES.modules,
+          id: matchingRole?.id,
+          functions: matchingFunctions,
+          instanceAddress: id,
+          moduleAddress: moduleInfo?.implementationAddress as Hex,
+          moduleLabel: `${moduleInfo?.name} (${formatAddress(id as Hex)})`,
+          hatId,
+        };
+      }),
+  );
 
-        const filteredAuthorities = _.compact(transformedAuthorities);
-        updatedHatAuthorities.push(...filteredAuthorities);
-      },
-    );
-  });
-
-  return updatedHatAuthorities;
+  return _.flatten(updatedHatAuthorities);
 }
 
 export const populateHatsGatesAuthorities = ({
@@ -434,15 +419,19 @@ export const populateHatsGatesAuthorities = ({
   gates,
   role,
   chainId,
+  hatId,
 }: {
   details?: HatSignerGate[] | null;
   gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
   role: 'hsgOwner' | 'hsgSigner';
   chainId: SupportedChains;
+  hatId?: Hex;
 }) => {
   if (!details || !gates) return [];
 
-  return details.map((gate) => createHSG({ gate, role, gates, chainId }));
+  return details.map((gate) =>
+    createHSG({ gate, role, gates, chainId, hatId }),
+  );
 };
 
 const createHSG = ({
@@ -450,11 +439,13 @@ const createHSG = ({
   role,
   gates,
   chainId,
+  hatId,
 }: {
   gate: HatSignerGate;
   role: 'hsgOwner' | 'hsgSigner';
   gates: { single: HsgMetadata; multi: HsgMetadata };
   chainId: SupportedChains;
+  hatId?: Hex;
 }) => {
   const customRole = _.find(
     gates[gate.type === 'Single' ? 'single' : 'multi'].customRoles,
@@ -474,14 +465,20 @@ const createHSG = ({
         );
 
   return {
-    label: `${customRole?.name} (${formatAddress(gate.id)})`,
+    label: `${customRole?.name}`,
+    subLabel: formatAddress(gate.safe),
     type: AUTHORITY_TYPES.hsg,
     id: gate.id,
-    hatId: gate.hatId,
+    hsgConfig: {
+      type: (gate.type === 'Single' ? 'HSG' : 'MHSG') as HsgType,
+      minThreshold: gate.minThreshold,
+      targetThreshold: gate.targetThreshold,
+      maxSigners: gate.maxSigners,
+    },
+    hatId,
     functions,
     description: generateGateDescription(gate, chainId),
     instanceAddress: gate.id,
-    hgsType: (gate.type === 'Single' ? 'HSG' : 'MHSG') as HsgType,
     ownerHat: gate.ownerHat,
     signerHats: gate.signerHats,
     safe: gate.safe,

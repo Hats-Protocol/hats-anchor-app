@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
-// app-hooks
 export default function useLocalStorage<T>(
-  key: string | undefined,
+  key: string,
   defaultValue: T,
 ): [T, Dispatch<SetStateAction<T>>] {
   const isMounted = useRef(false);
@@ -10,13 +9,11 @@ export default function useLocalStorage<T>(
 
   useEffect(() => {
     try {
-      if (!key) return undefined;
       const item = window.localStorage.getItem(key);
       if (item) {
         setValue(JSON.parse(item));
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.log(e);
     }
     return () => {
@@ -26,7 +23,6 @@ export default function useLocalStorage<T>(
 
   useEffect(() => {
     if (isMounted.current) {
-      if (!key) return;
       window.localStorage.setItem(key, JSON.stringify(value));
     } else {
       isMounted.current = true;

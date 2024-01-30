@@ -1,3 +1,5 @@
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { OverlayContextProps } from 'app-constants';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
 import { Transaction } from 'hats-types';
@@ -6,9 +8,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
   createContext,
-  Dispatch,
   ReactNode,
-  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -39,36 +39,9 @@ const defaults = {
   hatSupply: false,
 };
 
-export interface IOverlayContext {
-  modals?: { [key: string]: boolean };
-  setModals?: (m: object) => void;
-  closeModals?: () => void;
-  commandPalette: boolean;
-  setCommandPalette: Dispatch<SetStateAction<boolean>>;
-  handlePendingTx?: ({
-    hash,
-    txChainId,
-    fnName,
-    toastData,
-    redirect,
-    clearModals,
-    sendToast,
-    onSuccess,
-  }: {
-    hash: Hex;
-    txChainId?: number;
-    fnName: string;
-    toastData: object | undefined;
-    redirect?: string | null;
-    clearModals?: boolean;
-    sendToast?: boolean;
-    onSuccess?: (d?: TransactionReceipt) => void;
-  }) => Promise<TransactionReceipt | undefined>;
-  transactions: Transaction[];
-  clearAllTransactions: () => void;
-}
+const MAX_TREES = 3;
 
-export const OverlayContext = createContext<IOverlayContext>({
+export const OverlayContext = createContext<OverlayContextProps>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: undefined,
   closeModals: undefined,
@@ -78,6 +51,8 @@ export const OverlayContext = createContext<IOverlayContext>({
   setCommandPalette: () => {},
   transactions: [],
   clearAllTransactions: () => {},
+  recentlyVisitedTrees: undefined,
+  updateRecentlyVisitedTrees: () => {},
 });
 
 export const OverlayContextProvider = ({
@@ -94,6 +69,36 @@ export const OverlayContextProvider = ({
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
     [],
+  );
+  const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
+    { treeId: number; chainId: number }[]
+  >('recently-visited-trees', undefined);
+
+  const updateRecentlyVisitedTrees = useCallback(
+    ({ treeId, chainId: cId }: { treeId: Hex; chainId: number }) => {
+      if (!treeId || !cId) return;
+      const treeIdDecimal = treeIdHexToDecimal(treeId);
+
+      const localRecentTrees = _.compact(
+        _.concat(
+          [{ treeId: treeIdDecimal, chainId: cId }],
+          recentlyVisitedTrees,
+        ),
+      );
+
+      const uniqueTrees = _.uniqWith(
+        localRecentTrees,
+        (treeA, treeB) =>
+          treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
+      );
+
+      if (!_.isEqual(uniqueTrees, recentlyVisitedTrees)) {
+        const updatedRecentTrees = _.slice(uniqueTrees, 0, MAX_TREES);
+        setRecentlyVisitedTrees(updatedRecentTrees);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [recentlyVisitedTrees],
   );
 
   const showModal = (m: object) => {
@@ -155,7 +160,7 @@ export const OverlayContextProvider = ({
   const handlePendingTx = async ({
     hash,
     txChainId,
-    fnName,
+    txDescription,
     toastData,
     redirect = null,
     clearModals = true,
@@ -164,7 +169,7 @@ export const OverlayContextProvider = ({
   }: {
     hash: Hex;
     txChainId?: number | undefined;
-    fnName: string;
+    txDescription: string;
     toastData: object | undefined;
     redirect?: string | null;
     clearModals?: boolean;
@@ -176,7 +181,7 @@ export const OverlayContextProvider = ({
       txChainId,
       timestamp: Date.now(),
       status: 'pending',
-      fnName,
+      txDescription,
     });
 
     const data = await waitForTransaction({ hash });
@@ -241,6 +246,8 @@ export const OverlayContextProvider = ({
       handlePendingTx,
       transactions,
       clearAllTransactions,
+      recentlyVisitedTrees,
+      updateRecentlyVisitedTrees,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],
@@ -261,9 +268,11 @@ export const OverlayContextProvider = ({
           setCommandPalette,
           transactions,
           clearAllTransactions,
+          recentlyVisitedTrees,
+          updateRecentlyVisitedTrees,
         }}
       >
-        <TransactionHistory />
+        <TransactionHistory transactions={transactions} />
       </Modal>
     </OverlayContext.Provider>
   );

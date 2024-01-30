@@ -5,12 +5,15 @@ import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 
-import { useOverlay } from '../contexts/OverlayContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 
-const TransactionHistory = ({ count }: { count?: number }) => {
-  const { transactions } = useOverlay();
-
+const TransactionHistory = ({
+  count,
+  transactions,
+}: {
+  count?: number;
+  transactions: Transaction[];
+}) => {
   let events = transactions;
 
   if (count) {
@@ -42,7 +45,13 @@ const TransactionHistory = ({ count }: { count?: number }) => {
     <Box>
       {_.map(
         events,
-        ({ hash, txChainId, status, timestamp, fnName }: Transaction) => (
+        ({
+          hash,
+          txChainId,
+          status,
+          timestamp,
+          txDescription,
+        }: Transaction) => (
           <ChakraNextLink
             isExternal
             href={
@@ -64,7 +73,7 @@ const TransactionHistory = ({ count }: { count?: number }) => {
                 ) : (
                   <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
                 )}
-                <Text>{fnName}</Text>
+                <Text>{txDescription}</Text>
               </HStack>
 
               <HStack>

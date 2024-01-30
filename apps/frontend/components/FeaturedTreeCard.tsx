@@ -1,5 +1,14 @@
-import { Box, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  HStack,
+  Icon,
+  Image as ChakraImage,
+  Skeleton,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { TemplateData } from 'app-constants';
+import { useEffect, useState } from 'react';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import ChakraNextLink from './atoms/ChakraNextLink';
@@ -9,6 +18,13 @@ const FeaturedTreeCard = ({
   hatsAndWearers,
 }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, avatar } = treeData;
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = image;
+    img.onload = () => setImageLoaded(true);
+  }, [image]);
 
   return (
     <ChakraNextLink href={`/trees/${chainId}/${id}`} _hover={{}}>
@@ -23,16 +39,18 @@ const FeaturedTreeCard = ({
         spacing={0}
       >
         <Box bg='gray.100' borderTopRadius={6} flex='1'>
-          <Image
-            loading='lazy'
-            src={image}
-            alt={`${name} featured image`}
-            w='full'
-            maxH='150px'
-            h='full'
-            fit='cover'
-            borderTopRadius={6}
-          />
+          <Skeleton height='150px' borderTopRadius={6} isLoaded={imageLoaded}>
+            <ChakraImage
+              loading='lazy'
+              src={image}
+              alt={`${name} featured image`}
+              w='full'
+              maxH='150px'
+              h='full'
+              fit='cover'
+              borderTopRadius={6}
+            />
+          </Skeleton>
         </Box>
         <HStack
           px={4}
@@ -42,7 +60,7 @@ const FeaturedTreeCard = ({
           boxShadow='0px -1px 4px rgba(0, 0, 0, 0.14)'
           w='full'
         >
-          <Image
+          <ChakraImage
             loading='lazy'
             src={avatar}
             alt={`${name} featured avatar`}
@@ -60,7 +78,7 @@ const FeaturedTreeCard = ({
 
             <Stack align='flex-end' spacing='0.2rem'>
               <HStack spacing='5px'>
-                <Image src='/icons/hat.svg' alt='Hat' w={3} h={3} />
+                <ChakraImage src='/icons/hat.svg' alt='Hat' w={3} h={3} />
                 <Text fontSize='xs'>{hatsAndWearers?.hats}</Text>
               </HStack>
               <HStack spacing='5px'>

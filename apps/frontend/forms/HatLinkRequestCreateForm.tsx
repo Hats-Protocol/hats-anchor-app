@@ -5,7 +5,6 @@ import { useHatContractWrite } from 'hats-hooks';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { idToPrettyId, prettyIdToId } from 'shared-utils';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
@@ -36,7 +35,7 @@ const HatLinkRequestCreateForm = ({
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'requestLinkTopHatToTree',
-    args: [idToPrettyId(topHatDomain), decimalId(prettyIdToId(newAdmin))],
+    args: [topHatDomain, decimalId(newAdmin)],
     chainId,
     onSuccessToastData: {
       title: 'Successfully Requested to Link!',

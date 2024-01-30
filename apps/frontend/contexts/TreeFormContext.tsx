@@ -68,12 +68,15 @@ export interface TreeFormContext {
   selectedHatGuildRoles: Authority[] | undefined;
   selectedHatSpaces: Authority[] | undefined;
   combinedAuthorities: Authority[] | undefined;
+
   treeEvents: HatEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
   linkedHatIds?: Hex[];
   wearersAndControllers: HatWearer[] | undefined;
+  inactiveHats: string[] | undefined;
   // local storage
+  storedConfig: { flipped?: boolean; compact?: boolean };
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
   // controls
@@ -117,12 +120,15 @@ export const TreeFormContext = createContext<TreeFormContext>({
   selectedHatGuildRoles: undefined,
   selectedHatSpaces: undefined,
   combinedAuthorities: undefined,
+
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
   linkedHatIds: undefined,
   wearersAndControllers: undefined,
+  inactiveHats: undefined,
   // local storage
+  storedConfig: {},
   storedData: undefined,
   setStoredData: undefined,
   // controls
@@ -194,6 +200,10 @@ export const TreeFormContextProvider = ({
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
     localStorageKey,
     [],
+  );
+  const [storedConfig, setStoredConfig] = useLocalStorage(
+    `${localStorageKey}-config`,
+    {},
   );
 
   const hatDisclosure = useDisclosure({
@@ -344,15 +354,16 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
+  const inactiveHats = useMemo(() => {
+    return _.map(
+      _.filter(orgChartTree, ['status', false]),
+      (h: AppHat) => h.prettyId,
+    );
+  }, [orgChartTree]);
+
   const filteredTree = useMemo(() => {
     if (showInactiveHats) return orgChartTree;
 
-    const inactiveHats = _.map(
-      _.filter(orgChartTree, ['status', false]),
-      (h: AppHat) => {
-        return _.get(h, 'prettyId');
-      },
-    );
     const inactiveAncestors = _.map(
       _.filter(orgChartTree, (hat: AppHat) =>
         _.some(inactiveHats, (h: Hex) => h && hat.prettyId?.includes(h)),
@@ -363,7 +374,7 @@ export const TreeFormContextProvider = ({
     return _.reject(orgChartTree, (h: AppHat) =>
       _.includes(_.concat(inactiveHats, inactiveAncestors), h.prettyId),
     );
-  }, [orgChartTree, showInactiveHats]);
+  }, [inactiveHats, orgChartTree, showInactiveHats]);
   const overrideOrgChartData = useMemo(() => {
     return _.map(filteredTree, (hat: AppHat) => {
       const matchingHat = _.find(storedData, { id: hat.id });
@@ -500,8 +511,13 @@ export const TreeFormContextProvider = ({
       };
 
       router.push(updatedUrl, undefined, { shallow: true });
+
+      setStoredConfig({
+        ...storedConfig,
+        flipped: isFlipped,
+      });
     },
-    [router],
+    [router, setStoredConfig, storedConfig],
   );
 
   const handleSetCompact = useCallback(
@@ -522,8 +538,13 @@ export const TreeFormContextProvider = ({
       };
 
       router.push(updatedUrl, undefined, { shallow: true });
+
+      setStoredConfig({
+        ...storedConfig,
+        compact: isCompact,
+      });
     },
-    [router],
+    [router, setStoredConfig, storedConfig],
   );
 
   const toggleEditMode = useCallback(() => {
@@ -730,7 +751,9 @@ export const TreeFormContextProvider = ({
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,
+      inactiveHats,
       // local storage
+      storedConfig,
       storedData,
       setStoredData,
       // controls
@@ -743,6 +766,7 @@ export const TreeFormContextProvider = ({
       selectedHatGuildRoles,
       selectedHatSpaces,
       combinedAuthorities,
+
       setSelectedHatId,
       selectedOption,
       setSelectedOption,
@@ -779,8 +803,10 @@ export const TreeFormContextProvider = ({
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,
+      inactiveHats,
       // local storage
       storedData,
+      storedConfig,
       setStoredData,
       // controls
       editMode,
@@ -792,6 +818,7 @@ export const TreeFormContextProvider = ({
       selectedHatGuildRoles,
       selectedHatSpaces,
       combinedAuthorities,
+
       setSelectedHatId,
       selectedOption,
       setSelectedOption,

@@ -18,6 +18,7 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
     hatIds: hats.map((hat) => BigInt(hat)),
     props: {
       claimableBy: { props: {} },
+      claimableForBy: { props: {} },
     },
   });
 
@@ -95,6 +96,19 @@ const useMultiClaimsHatterCheck = ({
 
     return _.map(_.filter(claimsHatterData, 'claimableBy[0].id'), 'id');
   }, [claimsHatterData]);
+  const claimableForHats: Hex[] | undefined = useMemo(() => {
+    if (!claimsHatterData) return undefined;
+
+    return _.map(_.filter(claimsHatterData, 'claimableForBy[0].id'), 'id');
+  }, [claimsHatterData]);
+  const currentHatIsClaimable = useMemo(() => {
+    if (!selectedHat || !claimableHats) return undefined;
+
+    return {
+      for: _.includes(claimableForHats, selectedHat?.id) || false,
+      by: _.includes(claimableHats, selectedHat?.id) || false,
+    };
+  }, [selectedHat, claimableHats, claimableForHats]);
 
   const storedAddresses = _.uniq(
     _.compact(
@@ -152,7 +166,9 @@ const useMultiClaimsHatterCheck = ({
     wearingHat: hatterHat?.wearingHat,
     instanceAddress: hatterHat?.instanceAddress,
     hatterIsAdmin,
+    currentHatIsClaimable,
     claimableHats: hats,
+    claimableForHats,
     isLoading: claimsHatterLoading || hatterHatLoading || modulesLoading,
     error: claimsHatterError || hatterHatError,
   };

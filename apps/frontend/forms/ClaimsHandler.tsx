@@ -24,6 +24,7 @@ import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 
 import Select from '../components/atoms/Select';
 import FormRowWrapper from '../components/FormRowWrapper';
+import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
@@ -72,6 +73,7 @@ const ClaimsHandler = ({
     editMode,
   });
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
+  const { handlePendingTx } = useOverlay();
 
   const hatToMintTo = watch('hatToMintTo');
   const { availableAdmins, hatToMintPended, pendMintHatForHatter } =
@@ -93,6 +95,9 @@ const ClaimsHandler = ({
     address: instanceAddress,
     enabled: !!instanceAddress && !!selectedHat?.id,
     args: [selectedHat?.id, 1],
+    chainId,
+    handlePendingTx,
+    hatId: selectedHat?.id,
   });
 
   useEffect(() => {

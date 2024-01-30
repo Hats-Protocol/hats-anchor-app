@@ -1,16 +1,9 @@
-import { Module } from '@hatsprotocol/modules-sdk';
+import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { FALLBACK_ADDRESS } from 'app-constants';
 import { createHatsModulesClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import { Hex, zeroAddress } from 'viem';
-
-interface ModuleParameters {
-  label: string;
-  value: unknown;
-  solidityType: string;
-  displayType: string;
-}
 
 // modules-hooks
 const useModuleDetails = ({
@@ -37,7 +30,7 @@ const useModuleDetails = ({
 
     return {
       details: moduleData as Module,
-      parameters: localModuleParameters as ModuleParameters[],
+      parameters: localModuleParameters as ModuleParameter[],
     };
   };
 

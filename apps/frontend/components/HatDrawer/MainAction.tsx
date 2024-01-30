@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
 import {
-  useHatClaim,
+  useHatClaimBy,
   useWearerDetails,
   useWearerEligibilityCheck,
 } from 'hats-hooks';
@@ -41,7 +41,7 @@ const MainAction = () => {
     selectedHat?.id,
     true,
   );
-  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
     wearer: address,
@@ -53,8 +53,8 @@ const MainAction = () => {
     chainId,
   });
   const maxWearersReached = _.gte(
-    _.get(selectedHat, 'currentSupply'),
-    maxSupply,
+    _.toNumber(_.get(selectedHat, 'currentSupply')),
+    _.toNumber(maxSupply),
   );
 
   if (!isConnected) {

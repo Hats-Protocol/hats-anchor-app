@@ -20,7 +20,7 @@ import {
   useHatStatusCheck,
   useWearerDetails,
 } from 'hats-hooks';
-import { decimalId, handleExportBranch, isWearingAdminHat } from 'hats-utils';
+import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -32,7 +32,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
-import { idToPrettyId, prettyIdToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared-utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
@@ -66,14 +66,19 @@ const MoreMenu = () => {
     mutable: selectedHat?.mutable,
   });
 
+  const txDescription = `${
+    selectedHat?.status ? 'Deactivated' : 'Activated'
+  } hat ${idToIp(selectedHat?.id)}`;
+
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
       functionName: 'setHatStatus',
       args: [selectedHat?.id, !selectedHat?.status],
       chainId,
+      txDescription,
       onSuccessToastData: {
         title: 'Hat Status Updated!',
-        description: 'Successfully updated hat',
+        description: txDescription,
       },
       queryKeys: [
         ['hatDetails', { id: selectedHat?.id, chainId }],
@@ -94,7 +99,7 @@ const MoreMenu = () => {
     hatData: selectedHat,
   });
 
-  const { onCopy: copyHatId } = useClipboard(decimalId(selectedHat?.id));
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id);
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   const handleExport = () =>
@@ -173,9 +178,7 @@ const MoreMenu = () => {
         <MenuItem onClick={handleExport}>
           <HStack>
             <TbChartDots3 />
-            <Text>
-              Export branch {prettyIdToIp(idToPrettyId(selectedHat?.id))}
-            </Text>
+            <Text>Export branch {idToIp(selectedHat?.id)}</Text>
           </HStack>
         </MenuItem>
         {address && (

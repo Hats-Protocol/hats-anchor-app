@@ -11,7 +11,7 @@ import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
-import ModuleArgsInputs from '../../ModuleArgsForm';
+import ModuleArgsForm from '../../ModuleArgsForm';
 
 const ModuleDetailsForm = ({
   localForm,
@@ -50,6 +50,12 @@ const ModuleDetailsForm = ({
       null
     );
   }, [selectedModule]);
+
+  const tokenArgName = _.get(
+    _.find(selectedModuleArgs, { displayType: 'token' }),
+    'name',
+  );
+  const tokenAddress = watch(tokenArgName);
 
   if (!onchainTree || !treeToDisplay) return null;
 
@@ -100,10 +106,11 @@ const ModuleDetailsForm = ({
         </FormRowWrapper>
       )}
 
-      <Stack>
-        <ModuleArgsInputs
+      <Stack spacing={6}>
+        <ModuleArgsForm
           selectedModuleArgs={selectedModuleArgs}
           localForm={localForm}
+          tokenAddress={tokenAddress}
         />
       </Stack>
     </Stack>

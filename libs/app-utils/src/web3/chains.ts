@@ -1,4 +1,4 @@
-import { chainsList } from 'app-constants';
+import { chainsList, orderedChains } from 'app-constants';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { configureChains } from 'wagmi';
@@ -18,10 +18,12 @@ export const explorerUrl = (chainId?: number) =>
     _.get(chainsMap(chainId), 'blockExplorers.default.url'),
   );
 
-const configuredChains: any = configureChains(_.values(chainsList), [
-  alchemyProvider({ apiKey: ALCHEMY_ID || '' }),
-  publicProvider(),
-]);
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const configuredChains: any = configureChains(
+  _.map(orderedChains, (c) => chainsMap(c)),
+  [alchemyProvider({ apiKey: ALCHEMY_ID || '' }), publicProvider()],
+);
 
 const { chains, publicClient } = configuredChains;
 

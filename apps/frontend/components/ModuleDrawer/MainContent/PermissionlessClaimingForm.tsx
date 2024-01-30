@@ -15,9 +15,10 @@ import {
   BsBarChartLine,
   BsInfoCircle,
   BsPersonAdd,
+  BsPersonCheck,
   BsPuzzle,
 } from 'react-icons/bs';
-import { idToPrettyId, prettyIdToIp } from 'shared-utils';
+import { idToIp } from 'shared-utils';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
@@ -118,21 +119,6 @@ const PermissionlessClaimingForm = ({
             ]}
             isDisabled={!parentHats?.length}
           />
-
-          {multiClaimsHatter &&
-            !isClaimable &&
-            isAdmin &&
-            isPermissionlesslyClaimable === 'Yes' && (
-              <FormRowWrapper>
-                <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
-                <Text color='blue.500'>
-                  A claims hatter for this tree has already been set up at{' '}
-                  <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
-                  register this hat with the hatter during the module deploy
-                  transaction.
-                </Text>
-              </FormRowWrapper>
-            )}
         </Stack>
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
@@ -146,47 +132,86 @@ const PermissionlessClaimingForm = ({
         </FormRowWrapper>
       )}
 
-      {isPermissionlesslyClaimable === 'Yes' &&
-        (!multiClaimsHatter ||
-          (multiClaimsHatter && !isClaimable && !isAdmin)) && (
-          <Stack ref={scrollTargetRef}>
+      {isPermissionlesslyClaimable === 'Yes' && (
+        <Stack ref={scrollTargetRef} spacing={12}>
+          {multiClaimsHatter &&
+          !isClaimable &&
+          isAdmin &&
+          isPermissionlesslyClaimable === 'Yes' ? (
             <FormRowWrapper>
-              <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-              <Stack>
-                <Select
-                  name='adminHat'
-                  label='ADMIN HAT'
-                  subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
-                  localForm={localForm}
-                  placeholder='Select a hat in this tree'
-                  defaultValue={undefined}
-                  options={{
-                    required: isPermissionlesslyClaimable === 'Yes',
-                  }}
-                >
-                  {_.map(_.sortBy(parentHats, 'id'), (h: AppHat) => {
-                    let displayName = h.details;
-                    if (h.detailsObject?.data?.name)
-                      displayName = h.detailsObject?.data?.name;
-                    return (
-                      <option value={h.id} key={h.id}>
-                        {prettyIdToIp(idToPrettyId(h.id as Hex))} -{' '}
-                        {displayName}
-                      </option>
-                    );
-                  })}
-                </Select>
-                {adminHat && selectedHat && (
-                  <Text color='blackAlpha.600'>
-                    Potential wearers will be able to claim this hat (#
-                    {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the
-                    requirements in new module above.
-                  </Text>
-                )}
-              </Stack>
+              <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
+              <Text color='blue.500'>
+                A claims hatter for this tree has already been set up at{' '}
+                <Code>{formatAddress(instanceAddress)}</Code>. We&apos;ll
+                register this hat with the hatter during the module deploy
+                transaction.
+              </Text>
             </FormRowWrapper>
-          </Stack>
-        )}
+          ) : (
+            <>
+              <FormRowWrapper>
+                <Icon as={BsPuzzle} boxSize={4} mt='2px' />
+                <Stack>
+                  <Select
+                    name='adminHat'
+                    label='ADMIN HAT'
+                    subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
+                    localForm={localForm}
+                    placeholder='Select a hat in this tree'
+                    defaultValue={
+                      _.size(parentHats) === 1
+                        ? _.get(_.first(parentHats), 'id')
+                        : undefined
+                    }
+                    options={{
+                      required: isPermissionlesslyClaimable === 'Yes',
+                    }}
+                  >
+                    {_.map(_.sortBy(parentHats, 'id'), (h: AppHat) => {
+                      let displayName = h.details;
+                      if (h.detailsObject?.data?.name)
+                        displayName = h.detailsObject?.data?.name;
+                      return (
+                        <option value={h.id} key={h.id}>
+                          {idToIp(h.id as Hex)} - {displayName}
+                        </option>
+                      );
+                    })}
+                  </Select>
+                  {selectedHat && (
+                    <Text color='blackAlpha.600'>
+                      Potential wearers will be able to claim this hat (#
+                      {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet
+                      the requirements in new module above.
+                    </Text>
+                  )}
+                </Stack>
+              </FormRowWrapper>
+              <FormRowWrapper>
+                <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
+                <Stack>
+                  <RadioBox
+                    name='initialClaimabilityType'
+                    label='CLAIM FOR ACCOUNT'
+                    subLabel='Should this hat be claimable on behalf of an account?'
+                    localForm={localForm}
+                    options={[
+                      {
+                        label: 'Yes',
+                        value: '2',
+                      },
+                      {
+                        label: 'No',
+                        value: '1',
+                      },
+                    ]}
+                  />
+                </Stack>
+              </FormRowWrapper>
+            </>
+          )}
+        </Stack>
+      )}
 
       {wearingHatDetails?.wearers?.length ===
         Number(wearingHatDetails?.maxSupply) && (

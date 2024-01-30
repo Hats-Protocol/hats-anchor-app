@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import {
   Box,
   Button,
@@ -17,11 +16,9 @@ import {
 import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import {
   useAllWearers,
-  useHatClaim,
+  useHatClaimBy,
   useHatPaginatedWearers,
-  useModuleDetails,
   useMultiClaimsHatterCheck,
-  useMultiClaimsHatterContractWrite,
   useWearerDetails,
   useWearerEligibilityCheck,
   useWearersEligibilityCheck,
@@ -45,6 +42,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
+import HatClaimForForm from '../../forms/HatClaimForForm';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
 
@@ -63,6 +61,33 @@ const HatWearerStatusForm = dynamic(
     loading: () => <Suspender />,
   },
 );
+
+const claimTooltip = ({
+  claimFor,
+  sameChain,
+  hatterIsAdmin,
+}: {
+  claimFor: boolean;
+  sameChain: boolean;
+  hatterIsAdmin: boolean;
+}) => {
+  if (!sameChain)
+    return claimFor
+      ? "You can't claim this hat for a wearer from a different chain"
+      : "You can't claim a hat from a different chain.";
+  if (!hatterIsAdmin)
+    return claimFor
+      ? 'Hatter must be wearing an admin hat to claim this hat for a wearer.'
+      : 'Hatter must be wearing an admin hat to claim this hat.';
+  return undefined;
+};
+
+const addWearerTooltip = (sameChain, maxWearersReached) => {
+  if (!sameChain) return "You can't add a wearer from a different chain.";
+  if (maxWearersReached) return 'Maximum number of wearers reached.';
+
+  return undefined;
+};
 
 const WearersList = () => {
   const currentNetworkId = useChainId();
@@ -145,35 +170,21 @@ const WearersList = () => {
     chainId,
   });
 
-  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
-    chainId,
-    selectedHat,
-    onchainHats,
-    storedData,
-    editMode,
-  });
-  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaim({
+  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
     wearer: address,
   });
-  const { details: eligibilityDetails } = useModuleDetails({
-    address: selectedHat?.eligibility as Hex,
+
+  const { currentHatIsClaimable } = useMultiClaimsHatterCheck({
+    selectedHat,
     chainId,
+    onchainHats,
+    editMode,
+    storedData,
   });
 
   const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
-
-  const {
-    writeAsync: setHatClaimability,
-    isLoading: isLoadingSetHatClaimability,
-  } = useMultiClaimsHatterContractWrite({
-    functionName: 'setHatClaimability',
-    address: instanceAddress,
-    chainId,
-    enabled: !!instanceAddress && isAdminUser,
-    args: [selectedHat?.id, 1],
-  });
 
   const filteredWearers = useMemo(() => {
     if (!extendedWearers) return undefined;
@@ -185,14 +196,6 @@ const WearersList = () => {
   }, [searchTerm, extendedWearers]);
 
   const maxWearersReached = _.gte(_.size(extendedWearers), maxSupply);
-
-  const claimTooltip = useMemo(() => {
-    if (chainId !== currentNetworkId)
-      return "You can't claim a hat on a different chain.";
-    if (!hatterIsAdmin)
-      return 'Hatter must be wearing an admin hat to claim this hat.';
-    return undefined;
-  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   return (
     <>
@@ -265,29 +268,54 @@ const WearersList = () => {
               Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>
           )}
-          {!!instanceAddress &&
-            !!eligibilityDetails &&
-            !_.includes(claimableHats, selectedHat?.id) &&
-            isAdminUser && (
+          {currentHatIsClaimable?.for && address && (
+            <Tooltip
+              label={claimTooltip({
+                claimFor: true,
+                sameChain: chainId === currentNetworkId,
+                hatterIsAdmin,
+              })}
+              fontSize='md'
+              shouldWrapChildren
+            >
               <Button
-                size='xs'
-                variant='outline'
-                colorScheme='blue.500'
-                onClick={setHatClaimability}
-                isLoading={isLoadingSetHatClaimability}
-                isDisabled={isLoadingSetHatClaimability || !setHatClaimability}
+                variant='unstyled'
+                isDisabled={
+                  maxWearersReached ||
+                  !hatterIsAdmin ||
+                  chainId !== currentNetworkId
+                }
+                isLoading={isLoading}
+                onClick={() =>
+                  !maxWearersReached ? setModals?.({ claimFor: true }) : {}
+                }
               >
-                Set hat for claiming
+                <HStack color='blue.500'>
+                  <FaPlus />
+                  <Text>Claim hat for wearer</Text>
+                </HStack>
               </Button>
-            )}
+            </Tooltip>
+          )}
           {(currentUserIsEligible as boolean) &&
             !!isClaimable &&
             !currentUserIsWearing && (
-              <Tooltip label={claimTooltip} fontSize='md' shouldWrapChildren>
+              <Tooltip
+                label={claimTooltip({
+                  claimFor: false,
+                  sameChain: chainId === currentNetworkId,
+                  hatterIsAdmin,
+                })}
+                fontSize='md'
+                shouldWrapChildren
+              >
                 <Button
                   variant='unstyled'
                   isDisabled={
-                    !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+                    !claimHat ||
+                    maxWearersReached ||
+                    !hatterIsAdmin ||
+                    chainId !== currentNetworkId
                   }
                   onClick={claimHat}
                 >
@@ -300,13 +328,10 @@ const WearersList = () => {
             )}
           {isAdminUser && (
             <Tooltip
-              label={
-                maxWearersReached
-                  ? 'Maximum number of wearers reached.'
-                  : chainId !== currentNetworkId
-                  ? "You can't add a wearer on a different chain."
-                  : ''
-              }
+              label={addWearerTooltip(
+                chainId === currentNetworkId,
+                maxWearersReached,
+              )}
               fontSize='md'
               isDisabled={!maxWearersReached && chainId === currentNetworkId}
               shouldWrapChildren
@@ -330,6 +355,15 @@ const WearersList = () => {
           )}
         </Flex>
       </Stack>
+
+      <Modal
+        name='claimFor'
+        title='Claim hat for wearer'
+        size='2xl'
+        localOverlay={localOverlay}
+      >
+        <HatClaimForForm />
+      </Modal>
 
       <Modal
         name='hatWearers'

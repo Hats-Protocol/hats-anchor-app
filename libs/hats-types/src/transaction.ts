@@ -8,13 +8,13 @@ interface ToastData {
 export type HandlePendingTx = ({
   hash,
   txChainId,
-  fnName,
+  txDescription,
   toastData,
   onSuccess,
 }: {
   hash: Hex;
   txChainId: number | undefined;
-  fnName: string;
+  txDescription: string;
   toastData: ToastData | undefined;
   onSuccess?: (d?: TransactionReceipt) => void;
 }) => Promise<TransactionReceipt>;

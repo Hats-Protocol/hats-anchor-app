@@ -8,7 +8,12 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { HatExport } from 'hats-types';
-import { checkMissingHats, flattenHatData, prepareDraftHats } from 'hats-utils';
+import {
+  checkMissingParents,
+  checkMissingSiblings,
+  flattenHatData,
+  prepareDraftHats,
+} from 'hats-utils';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
@@ -51,6 +56,7 @@ const ImportTreeForm = () => {
   const [validImport, setValidImport] = useState(true);
   const [treeFile, setTreeFile] = useState<File | undefined>();
   const [fileReader, setFileReader] = useState<FileReader | undefined>();
+  const [importErrorMessage, setImportErrorMessage] = useState('');
 
   useEffect(() => {
     setFileReader(new FileReader());
@@ -91,12 +97,25 @@ const ImportTreeForm = () => {
         treeId,
       );
 
-      const missingHats = checkMissingHats(draftHats, onchainHats);
-      if (missingHats) {
+      const missingParents = checkMissingParents(draftHats, onchainHats);
+      if (missingParents) {
         setValidImport(false);
+        setImportErrorMessage(
+          'Missing parents in the tree! Please check the file to ensure all hats have valid parents.',
+        );
         return;
       }
-      // ? check for duplicate hats in done in importHats
+
+      const missingSiblings = checkMissingSiblings(draftHats, onchainHats);
+      if (missingSiblings.hasMissing) {
+        setValidImport(false);
+        setImportErrorMessage(
+          `Missing siblings in the tree! The following siblings are missing: ${missingSiblings.missingSiblings.join(
+            ', ',
+          )}`,
+        );
+        return;
+      }
 
       importHats?.(draftHats);
       setModals?.({});
@@ -132,7 +151,7 @@ const ImportTreeForm = () => {
             <Text fontSize='sm' color='red' maxW='70%'>
               <b>Error:</b>{' '}
               {_.get(_.first(fileRejections), 'errors[0].message') ||
-                'Missing hats in tree! Please check the file and onchain tree to ensure no hats are missing parents.'}
+                importErrorMessage}
             </Text>
           ) : (
             treeFile && (

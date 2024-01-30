@@ -10,7 +10,7 @@ export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   manual: 'manual',
 };
 
-type AuthorityInfo = {
+export type AuthorityInfo = {
   label: string;
   info: string;
   color: string;
@@ -18,7 +18,9 @@ type AuthorityInfo = {
   imageUri?: string;
 };
 
-export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
+export const AUTHORITY_ENFORCEMENT: {
+  [key in AuthorityType]: AuthorityInfo;
+} = {
   protocol: {
     label: 'Hats Protocol Authority',
     info: 'Connected onchain via Hats Protocol',
@@ -60,7 +62,14 @@ export const AUTHORITIES: { [key in AuthorityType]: AuthorityInfo } = {
   },
 };
 
-export const GUILD_PLATFORMS = {
+export type AuthorityPlatform = {
+  label: string;
+  icon: string;
+};
+
+export const AUTHORITY_PLATFORMS: {
+  [key: number | string]: AuthorityPlatform;
+} = {
   1: {
     label: 'Discord',
     icon: 'ipfs://QmPqL5WeuKZod1EnS2jeNhocVe5a9sXLTzbvpo47ZRydLd',

@@ -9,6 +9,7 @@ import {
   IconButton,
   Input as ChakraInput,
   InputGroup,
+  InputLeftElement,
   InputProps as ChakraInputProps,
   InputRightElement,
   Stack,
@@ -44,6 +45,7 @@ const Input = ({
   options,
   localForm,
   rightElement,
+  leftElement,
   isDisabled,
   resetValue,
   addressButtons,
@@ -149,6 +151,7 @@ const Input = ({
         )}
 
         <InputGroup {...props}>
+          {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>}
           <ChakraInput
             type={type}
             {...register(name, { ...options, validate: options?.validate })}
@@ -207,6 +210,7 @@ interface InputProps extends ChakraInputProps {
   localForm: UseFormReturn<any>;
   placeholder?: string;
   rightElement?: React.ReactNode;
+  leftElement?: React.ReactNode;
   defaultValue?: string | number;
   isDisabled?: boolean;
   resetValue?: string | number;

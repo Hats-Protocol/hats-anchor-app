@@ -2,7 +2,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { CONFIG } from 'app-constants';
 import { useToast } from 'app-hooks';
-import { fetchToken, handleDetailsPin, processHatForCalls } from 'app-utils';
+import {
+  fetchToken,
+  handleDetailsPin,
+  processHatForCalls,
+  summarizeActions,
+} from 'app-utils';
 import {
   AppHat,
   FormData,
@@ -43,6 +48,7 @@ const useMulticallManyHats = ({
 }) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
+  const [allCallsData, setAllCallsData] = useState<unknown[]>();
 
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
@@ -74,6 +80,7 @@ const useMulticallManyHats = ({
           processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
+      setAllCallsData(allCalls);
 
       const localCalls = _.flatten(_.map(allCalls, 'calls'));
       const localProposedChanges = _.map(allCalls, 'hatChanges');
@@ -138,6 +145,8 @@ const useMulticallManyHats = ({
     setStoredData?.(newStoredData);
   };
 
+  const txDescription = summarizeActions(allCallsData as any[]);
+
   const {
     writeAsync,
     isLoading,
@@ -153,10 +162,10 @@ const useMulticallManyHats = ({
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: 'Multicall',
+        txDescription,
         toastData: {
           title: 'Transaction successful',
-          description: 'Hats were successfully updated',
+          description: txDescription,
         },
         onSuccess,
       });

@@ -12,6 +12,7 @@ interface ContractInteractionProps {
   args: unknown[];
   chainId?: number;
   onSuccessToastData?: { title: string; description?: string };
+  txDescription?: string;
   onErrorToastData?: { title: string; description?: string };
   queryKeys?: (object | string | number)[][];
   transactionTimeout?: number;
@@ -25,6 +26,7 @@ const useHatContractWrite = ({
   args,
   chainId,
   onSuccessToastData,
+  txDescription,
   onErrorToastData,
   queryKeys = [],
   transactionTimeout = 500,
@@ -61,7 +63,7 @@ const useHatContractWrite = ({
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: formatFunctionName(functionName),
+        txDescription: txDescription || formatFunctionName(functionName),
         toastData: onSuccessToastData,
         onSuccess: (d?: TransactionReceipt) => {
           handleSuccess?.(d);
@@ -96,10 +98,23 @@ const useHatContractWrite = ({
     },
   });
 
+  const extractErrorMessage = (error: Error | null) => {
+    if (!error) return '';
+
+    let errorMessage = error.message || '';
+    const errorMatch = errorMessage.match(/Error:\s*(.*)/);
+    const [, errorMessageMatch] = errorMatch || [];
+    errorMessage = errorMessageMatch || errorMessage;
+    errorMessage = errorMessage.replace(/\(.*\)/, '').trim();
+
+    return errorMessage || 'An unknown error occurred';
+  };
+
   return {
     writeAsync,
     isLoading: isLoading || writeLoading,
     prepareError,
+    prepareErrorMessage: extractErrorMessage(prepareError),
     writeError,
   };
 };

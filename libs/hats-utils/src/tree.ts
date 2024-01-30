@@ -2,10 +2,9 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { AppHat, HatDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
-import { idToPrettyId } from 'shared-utils';
 import { Hex } from 'viem';
 
-import { decimalId } from './hats';
+import { decimalId, getTreeId } from './hats';
 
 const mapHat = (
   hat: AppHat | undefined,
@@ -92,7 +91,7 @@ const isHatInParentOfTrees = (
   hat: AppHat,
   parentOfTrees: Tree[] | undefined,
 ): boolean => {
-  return !!_.find(parentOfTrees, { id: idToPrettyId(hat.id) });
+  return !!_.find(parentOfTrees, { id: getTreeId(hat.id) });
 };
 
 const isLinkedToHatFunc = (

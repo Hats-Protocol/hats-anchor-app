@@ -15,12 +15,7 @@ import {
   usePrepareContractWrite,
 } from 'wagmi';
 
-const CLAIMS_HATTER_TYPES = {
-  claimableBy: 'CLAIMABLE_BY',
-  claimableFor: 'CLAIMABLE_FOR',
-};
-
-const useHatClaim = ({
+const useHatClaimBy = ({
   selectedHat,
   chainId,
   wearer,
@@ -47,39 +42,21 @@ const useHatClaim = ({
     [selectedHat],
   );
 
-  const claimableForAddress: Hex | undefined = useMemo(
-    () => _.get(_.first(_.get(selectedHat, 'claimableForBy')), 'id') as Hex,
-    [selectedHat],
-  );
-
-  const hatter = (type: string) => ({
-    address:
-      type === CLAIMS_HATTER_TYPES.claimableFor
-        ? claimableForAddress
-        : claimsHatterAddress,
+  const hatter = {
+    address: claimsHatterAddress,
     abi: claimsHatter?.abi,
     chainId,
-  });
+  };
 
   const { data: isClaimableData } = useContractReads({
     contracts: [
       {
-        ...hatter(
-          isCurrentWearer
-            ? CLAIMS_HATTER_TYPES.claimableBy
-            : CLAIMS_HATTER_TYPES.claimableFor,
-        ),
-        functionName: isCurrentWearer
-          ? 'accountCanClaim'
-          : 'canClaimForAccount',
+        ...hatter,
+        functionName: 'accountCanClaim',
         args: [wearer || '0x', selectedHat?.id || '0x'],
       },
       {
-        ...hatter(
-          isCurrentWearer
-            ? CLAIMS_HATTER_TYPES.claimableBy
-            : CLAIMS_HATTER_TYPES.claimableFor,
-        ),
+        ...hatter,
         functionName: 'wearsAdmin',
         args: [selectedHat?.id || '0x'],
       },
@@ -128,7 +105,11 @@ const useHatClaim = ({
       userChain === chainId,
   });
 
-  const { write, error: writeError } = useContractWrite({
+  const {
+    write,
+    error: writeError,
+    isLoading,
+  } = useContractWrite({
     ...config,
     onSuccess: async (data) => {
       toast.info({
@@ -136,17 +117,19 @@ const useHatClaim = ({
         description: 'Waiting for your transaction to be accepted...',
       });
 
+      const txDescription = `You've claimed ${
+        selectedHat?.id
+          ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
+          : 'this hat'
+      }.`;
+
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
-        fnName: 'Claim Hat',
+        txDescription,
         toastData: {
           title: 'Hat claimed!',
-          description: `You've claimed ${
-            selectedHat?.id
-              ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-              : 'this hat'
-          }.`,
+          description: txDescription,
         },
       });
 
@@ -173,13 +156,14 @@ const useHatClaim = ({
   return {
     claimHat: write,
     isClaimable,
-    hatterAddress: claimableForAddress || claimsHatterAddress,
+    hatterAddress: claimsHatterAddress,
     hatterIsAdmin: isClaimableAdmin,
     prepareError,
     writeError,
     canClaimFor: isClaimable && write,
     error: prepareError || writeError,
+    isLoading,
   };
 };
 
-export default useHatClaim;
+export default useHatClaimBy;

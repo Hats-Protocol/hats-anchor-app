@@ -10,56 +10,107 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AUTHORITIES, AUTHORITY_TYPES } from 'app-constants';
+import {
+  AUTHORITY_ENFORCEMENT,
+  AUTHORITY_PLATFORMS,
+  AUTHORITY_TYPES,
+  AuthorityInfo,
+  AuthorityPlatform,
+} from 'app-constants';
+import { useSafeDetails } from 'app-hooks';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
-import { Authority, AuthorityType, SnapshotStrategy } from 'hats-types';
+import { Authority } from 'hats-types';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Hex } from 'viem';
 
+import { useTreeForm } from '../../../contexts/TreeFormContext';
 import ChakraNextLink from '../../atoms/ChakraNextLink';
 
-const AuthorityHeader = ({
-  label,
-  type,
-  imageUrl,
-  hideInfo,
-  strategies,
-  link,
+const checkIfIpfs = (url: string) => {
+  if (!url) return { isIpfs: false, imageUrl: '' };
+
+  return {
+    isIpfs: url.startsWith('ipfs://'),
+    imageUrl: url,
+  };
+};
+
+const authorityImageHandler = ({
+  authority,
   editingItem,
-  hatId,
-}: {
-  label?: string;
-  type: AuthorityType;
-  imageUrl?: string;
-  hideInfo?: boolean;
-  strategies?: SnapshotStrategy[];
-  link?: string;
-  editingItem?: Authority;
-  hatId?: Hex;
-}) => {
+  authorityEnforcement,
+  currentImageUrl,
+}: AuthorityImageHandlerProps) => {
+  const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
+
+  if (editingItem) return checkIfIpfs(currentImageUrl);
+  if (type === AUTHORITY_TYPES.gate) {
+    const platformById =
+      AUTHORITY_PLATFORMS[id as keyof typeof AUTHORITY_PLATFORMS];
+    const matchingPlatform = _.find(
+      _.values(AUTHORITY_PLATFORMS),
+      (v: AuthorityPlatform) =>
+        authority.gate?.includes(_.toLower(v.label)) ||
+        authority.link?.includes(_.toLower(v.label)) ||
+        _.toLower(authority.label)?.includes(_.toLower(v.label)),
+    );
+    if (platformById) return checkIfIpfs(platformById.icon);
+    if (matchingPlatform) return checkIfIpfs(matchingPlatform.icon);
+    if (authority.link?.includes('docs.google')) {
+      return checkIfIpfs(AUTHORITY_PLATFORMS[4].icon);
+    }
+  }
+  if (authority && authorityEnforcement.imageUri) {
+    return checkIfIpfs(authorityEnforcement.imageUri);
+  }
+
+  return checkIfIpfs(imageUrl);
+};
+
+const AuthorityHeader = ({
+  authority,
+  editingItem,
+  hideInfo,
+}: AuthorityHeaderProps) => {
+  const { label, subLabel, link, type, hsgConfig, safe, strategies, hatId } =
+    _.pick(authority, [
+      'label',
+      'subLabel',
+      'link',
+      'type',
+      'hsgConfig',
+      'safe',
+      'strategies',
+      'hatId',
+    ]);
   const {
     label: currentLabel,
     imageUrl: currentImageUrl,
     link: currentLink,
   } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
+  const { chainId, selectedHat } = useTreeForm();
 
   const localLink = editingItem ? currentLink : link;
-  const authority = AUTHORITIES[type];
+  const authorityEnforcement =
+    AUTHORITY_ENFORCEMENT[type] || AUTHORITY_ENFORCEMENT.manual;
 
   // set current image
-  let localImageUrl = imageUrl;
-  if (authority) localImageUrl = authority.imageUri;
-  if (editingItem) localImageUrl = currentImageUrl;
-  const isIpfs = localImageUrl?.startsWith('ipfs://');
+  const { isIpfs, imageUrl } = authorityImageHandler({
+    authority,
+    editingItem,
+    authorityEnforcement,
+    currentImageUrl,
+  });
 
   // set tooltip info
-  let tooltipInfo = authority.info;
+  let tooltipInfo = authorityEnforcement.info;
   if (strategies) {
     tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
       strategies,
-    )} strateg${_.size(strategies) === 1 ? 'y' : 'ies'}.`;
+    )} ${_.size(strategies) === 1 ? 'strategy.' : 'strategies.'}`;
   }
   if (type === AUTHORITY_TYPES.modules && hatId) {
     tooltipInfo = `Connected onchain via the ${label} module for Hat #${hatIdDecimalToIp(
@@ -67,14 +118,45 @@ const AuthorityHeader = ({
     )}`;
   }
 
+  const { data: safeOwners } = useSafeDetails({
+    safeAddress: safe,
+    chainId,
+    enabled: !!safe,
+  });
+  const eligibleSigners = useMemo(() => {
+    if (!safeOwners || !selectedHat?.wearers) return [];
+    return _.filter(
+      safeOwners,
+      (owner: Hex) =>
+        !_.includes(
+          _.map(selectedHat.wearers, 'id').includes(_.toLower(owner)),
+        ),
+    );
+  }, [safeOwners, selectedHat?.wearers]);
+  const currentThresholdConfig = useMemo(() => {
+    if (authority?.label === 'HSG Owner' || !hsgConfig) return undefined;
+    const minThreshold = _.toNumber(hsgConfig?.minThreshold);
+    const maxThreshold = _.toNumber(hsgConfig?.maxThreshold);
+    const currentSigners = _.size(eligibleSigners);
+    if (currentSigners < minThreshold) {
+      return `${currentSigners}/${minThreshold}`;
+    }
+    if (currentSigners > maxThreshold) {
+      return `${maxThreshold}/${currentSigners}`;
+    }
+    return `${currentSigners}/${currentSigners}`;
+  }, [hsgConfig, eligibleSigners, authority?.label]);
+
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
       <HStack spacing={4}>
         <Image
           src={
             isIpfs
-              ? ipfsUrl(localImageUrl?.slice(7)) || ''
-              : localImageUrl || authority.imageUri || '/icons/authority.svg'
+              ? ipfsUrl(imageUrl?.slice(7)) || ''
+              : imageUrl ||
+                authorityEnforcement.imageUri ||
+                '/icons/authority.svg'
           }
           boxSize='50px'
           border='1px solid'
@@ -83,9 +165,17 @@ const AuthorityHeader = ({
           alt='authority image'
         />
         <Box textAlign='left'>
-          <Text fontSize='md' fontWeight='medium' noOfLines={1}>
-            {currentLabel || label || 'New Authority'}
-          </Text>
+          <HStack>
+            <Text fontSize='md' fontWeight='medium' noOfLines={1}>
+              {currentLabel || label || 'New Authority'}
+              {currentThresholdConfig && ` (${currentThresholdConfig} signers)`}
+            </Text>
+            {subLabel && (
+              <Text fontSize='xs' fontFamily='monospace' color='gray.700'>
+                {subLabel}
+              </Text>
+            )}
+          </HStack>
 
           {!hideInfo ? (
             <Tooltip
@@ -95,15 +185,15 @@ const AuthorityHeader = ({
               shouldWrapChildren
             >
               <HStack>
-                <Circle size='10px' bg={authority.color} />
-                <Text fontSize='sm'>{authority.label}</Text>
+                <Circle size='10px' bg={authorityEnforcement.color} />
+                <Text fontSize='sm'>{authorityEnforcement.label}</Text>
                 <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
               </HStack>
             </Tooltip>
           ) : (
             <HStack>
-              <Circle size='10px' bg={authority.color} />
-              <Text fontSize='sm'>{authority.label}</Text>
+              <Circle size='10px' bg={authorityEnforcement.color} />
+              <Text fontSize='sm'>{authorityEnforcement.label}</Text>
             </HStack>
           )}
         </Box>
@@ -124,5 +214,18 @@ const AuthorityHeader = ({
     </Flex>
   );
 };
+
+interface AuthorityHeaderProps {
+  authority: Authority;
+  editingItem?: Authority;
+  hideInfo?: boolean;
+}
+
+interface AuthorityImageHandlerProps {
+  authority: Authority;
+  editingItem?: Authority;
+  authorityEnforcement: AuthorityInfo;
+  currentImageUrl?: string;
+}
 
 export default AuthorityHeader;

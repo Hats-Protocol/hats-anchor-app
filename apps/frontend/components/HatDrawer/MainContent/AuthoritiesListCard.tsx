@@ -12,7 +12,7 @@ import {
   IconButton,
   Text,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES, GUILD_PLATFORMS } from 'app-constants';
+import { AUTHORITY_TYPES } from 'app-constants';
 import { getHostnameFromURL, validateURL } from 'app-utils';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
@@ -32,8 +32,11 @@ const AuthoritiesListCard = ({
   type: AuthorityType;
   index: number;
 }) => {
-  const { label, description, link, gate, imageUrl, id, strategies, hatId } =
-    authority || {};
+  const { description, link, gate } = _.pick(authority, [
+    'description',
+    'link',
+    'gate',
+  ]);
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
 
@@ -52,15 +55,10 @@ const AuthoritiesListCard = ({
   const displayModulesToolbar =
     type === AUTHORITY_TYPES.modules || type === AUTHORITY_TYPES.hsg;
 
-  const img =
-    type === AUTHORITY_TYPES.gate
-      ? GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS].icon
-      : imageUrl;
-
   if (!gate && !description)
     return (
       <Card borderRadius='4px' mb={4} p={4}>
-        <AuthorityHeader label={label} type={type} imageUrl={img} link={link} />
+        <AuthorityHeader authority={authority} />
       </Card>
     );
 
@@ -69,13 +67,7 @@ const AuthoritiesListCard = ({
       <Accordion allowToggle>
         <AccordionItem border='none' mb={4} my={2}>
           <AccordionButton _hover={{ bg: 'white' }}>
-            <AuthorityHeader
-              label={label}
-              type={type}
-              imageUrl={img}
-              strategies={strategies}
-              hatId={hatId}
-            />
+            <AuthorityHeader authority={authority} />
             <AccordionIcon />
           </AccordionButton>
           <AccordionPanel pb={4} pl={20}>

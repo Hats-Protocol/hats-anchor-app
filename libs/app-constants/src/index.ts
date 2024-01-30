@@ -1,12 +1,12 @@
 import { Abi, Hex } from 'viem';
 
-import { HATS_ABI, MULTI_CLAIMS_HATTER_ABI } from './contracts';
+import { HATS_ABI } from './contracts';
 import { CONTACT_URL, DOCS_URL } from './landingContent';
 import { MINI_CONFIG } from './next-seo.config';
 
 export * from './authorities';
 export * from './chains';
-export { HATS_ABI, MULTI_CLAIMS_HATTER_ABI };
+export * from './contracts';
 export { default as DEFAULT_HAT } from './defaultHat';
 export * from './form';
 export * from './ipfs';
