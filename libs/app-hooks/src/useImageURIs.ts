@@ -1,12 +1,12 @@
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { CONFIG } from 'app-constants';
-import { chainsMap } from 'app-utils';
+import { viemPublicClient } from 'app-utils';
 import { AppHat } from 'hats-types';
 import { checkImageForHat } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { Abi, createPublicClient, Hex, http, Narrow } from 'viem';
+import { Abi, Hex, Narrow } from 'viem';
 
 interface ContractCall {
   address: Hex;
@@ -15,14 +15,6 @@ interface ContractCall {
   functionName: string;
   args: Narrow<readonly unknown[] | undefined>;
 }
-
-const tempClient = (chainId: number) => {
-  const client = createPublicClient({
-    chain: chainsMap(chainId),
-    transport: http(),
-  });
-  return client;
-};
 
 // image-sdk/hooks
 /**
@@ -82,7 +74,9 @@ const useImageURIs = ({
       { hatIds: _.map(onlyOnchainHats, 'id'), chainIds, onchain },
     ],
     queryFn: () => {
-      const clients: any[] = _.map(chainIds, (cId: number) => tempClient(cId));
+      const clients: any[] = _.map(chainIds, (cId: number) =>
+        viemPublicClient(cId),
+      );
 
       const clientCalls = _.map(calls, (call: any, i: number) => {
         return clients[i].multicall({ contracts: call });

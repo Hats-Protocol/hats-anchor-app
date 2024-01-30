@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { orderedChains } from 'app-constants';
 import { useImageURIs, useToast } from 'app-hooks';
-import { chainsMap, formatAddress } from 'app-utils';
+import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
 import {
@@ -32,7 +32,7 @@ import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
-import { createPublicClient, Hex, http } from 'viem';
+import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import Layout from '../../components/Layout';
@@ -232,10 +232,7 @@ export const getStaticProps = async (context: GetServerSidePropsContext) => {
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
-  const publicClient = createPublicClient({
-    chain: chainsMap(1),
-    transport: http(),
-  });
+  const publicClient = viemPublicClient(1);
 
   try {
     const initialEnsName = await publicClient.getEnsName({
