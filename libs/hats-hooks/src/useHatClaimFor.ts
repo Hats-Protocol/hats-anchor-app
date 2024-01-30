@@ -10,7 +10,7 @@ import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { idToIp } from 'shared-utils';
-import { Hex } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useAccount, useContractRead } from 'wagmi';
 
 const useHatClaimFor = ({
@@ -51,7 +51,7 @@ const useHatClaimFor = ({
   useEffect(() => {
     const getCanClaimForAccount = async () => {
       const hatsClient = createHatsClient(chainId);
-      if (!hatsClient || !wearer) return;
+      if (!hatsClient || !wearer || !isAddress(wearer)) return;
       const canClaimFor = await hatsClient.canClaimForAccount({
         hatId: BigInt(selectedHat.id),
         account: wearer,
