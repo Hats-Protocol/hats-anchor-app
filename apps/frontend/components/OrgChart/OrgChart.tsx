@@ -669,7 +669,7 @@ const OrgChartComponent: React.FC = () => {
                         background: white;
                         border-radius: 2px;
                         height: 14px;
-                        width: 15px;
+                        width: 14px;
                       ">
                         <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
                       </div>
