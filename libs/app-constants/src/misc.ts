@@ -45,3 +45,40 @@ export interface OverlayContextProps {
     chainId: number;
   }) => void;
 }
+
+export interface OverlayContextPropsElection {
+  modals?: { [key: string]: boolean };
+  setModals?: (m: object) => void;
+  closeModals?: () => void;
+  commandPalette: boolean;
+  setCommandPalette: Dispatch<SetStateAction<boolean>>;
+  handlePendingTx?: ({
+    hash,
+    txChainId,
+    txDescription,
+    toastData,
+    redirect,
+    clearModals,
+    sendToast,
+    onSuccess,
+  }: {
+    hash: Hex;
+    txChainId?: number;
+    txDescription: string;
+    toastData: object | undefined;
+    redirect?: string | null;
+    clearModals?: boolean;
+    sendToast?: boolean;
+    onSuccess?: (d?: TransactionReceipt) => void;
+  }) => Promise<TransactionReceipt | undefined>;
+  // transaction history in navbar popover
+  // recent trees in command palette
+  recentlyVisitedHats: { hatId: string; chainId: number }[];
+  updateRecentlyVisitedHats: ({
+    hatId,
+    chainId,
+  }: {
+    hatId: Hex;
+    chainId: number;
+  }) => void;
+}
