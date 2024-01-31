@@ -1,7 +1,7 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { explorerUrl, formatAddress } from 'app-utils';
+import { explorerUrl, formatAddress, formatDate } from 'app-utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
@@ -116,10 +116,7 @@ const ModuleParameter = ({
       );
       return (
         <ModuleParameterRow label={param.label}>
-          <Tooltip
-            label={`${format(date, 'yyyy-MM-dd HH:mm:ss')} UTC`}
-            placement='left'
-          >
+          <Tooltip label={formatDate(date)} placement='left'>
             <Text fontSize='sm' color='gray.500'>
               {formatDistanceToNow(date)}{' '}
               {new Date() > date ? 'ago' : 'from now'}

@@ -35,6 +35,9 @@ const booleanOptionSets = {
   status: ['Active', 'Inactive'],
 };
 
+const isEns = (value: string) =>
+  value ? _.toString(value).endsWith('.eth') : false;
+
 const ModuleFormInput = ({
   localForm,
   arg,
@@ -118,10 +121,15 @@ const ModuleFormInput = ({
   const { data: newWearerResolvedAddress } = useEnsAddress({
     name: newWearer,
     chainId: 1,
+    enabled: !!newWearer && isEns(newWearer),
   });
 
   const showNewResolvedAddress =
     newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
+
+  useEffect(() => {
+    setValue(`${arg.name}-resolved`, newWearerResolvedAddress);
+  }, [newWearerResolvedAddress]);
 
   if (!arg) return null;
 
@@ -197,10 +205,10 @@ const ModuleFormInput = ({
           }
           options={{
             required: !arg.optional,
-            validate: (value) => {
-              if (!isAddress(value)) return 'Invalid address';
-              return true;
-            },
+            // validate: (value) => {
+            //   if (!isAddress(value)) return 'Invalid address';
+            //   return true;
+            // },
           }}
           localForm={localForm}
           onChange={(e) => handleChangeAddress(e, arg.name)}
@@ -229,7 +237,7 @@ const ModuleFormInput = ({
         subLabel={arg.description}
         placeholder={
           Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
+            ? _.first(arg.example as string[])
             : (arg.example as string) || fallbackExamples.address
         }
         localForm={localForm}
@@ -374,6 +382,7 @@ const ModuleFormInput = ({
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
         subLabel={arg.description}
         localForm={localForm}
+        setToZeroUTC
       />
     );
   }

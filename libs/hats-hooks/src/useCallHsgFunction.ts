@@ -38,7 +38,7 @@ const useCallHsgFunction = ({
       if (!signerGateClient) throw new Error('Failed to create module client');
 
       const preparedArgs = _.map(func.args, (arg: any) => {
-        const value = args[arg.name];
+        const value = args[`${arg.name}-resolved`] || args[arg.name];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });
@@ -46,7 +46,7 @@ const useCallHsgFunction = ({
       try {
         const result = await signerGateClient.callInstanceWriteFunction({
           account: address,
-          type,
+          type: _.toUpper(type) as HsgType,
           instance,
           func,
           args: preparedArgs,
@@ -66,6 +66,7 @@ const useCallHsgFunction = ({
           title: 'Transaction failed',
           description: err.message,
         });
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },

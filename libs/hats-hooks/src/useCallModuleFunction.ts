@@ -37,7 +37,9 @@ const useCallModuleFunction = ({
       if (!moduleClient) throw new Error('Failed to create module client');
 
       const preparedArgs = _.map(func.args, (arg: any) => {
-        const value = args[arg.name];
+        // strip apostrophes from arg names (react-hook-form, appears to automatically do this)
+        const argName = arg.name.replace(/'/g, '');
+        const value = args[`${argName}-resolved`] || args[argName];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });
@@ -65,6 +67,7 @@ const useCallModuleFunction = ({
           title: 'Transaction failed',
           description: err.message,
         });
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },

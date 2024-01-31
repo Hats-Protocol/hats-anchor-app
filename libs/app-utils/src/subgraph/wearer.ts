@@ -80,6 +80,9 @@ export const fetchWearerDetails = async (
               props: { timestamp: true, transactionID: true },
             },
           },
+          filters: {
+            first: 1000,
+          },
         },
       },
     });
