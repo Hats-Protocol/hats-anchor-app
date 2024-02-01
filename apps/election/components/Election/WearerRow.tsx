@@ -8,11 +8,11 @@ import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-import { useTreeForm } from '../../contexts/EligibilityContext';
+import { useEligibility } from '../../contexts/EligibilityContext';
 
 const WearerRow = ({ wearer }: WearerRowProps) => {
   const { address } = useAccount();
-  const { chainId } = useTreeForm();
+  const { chainId } = useEligibility();
 
   const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,

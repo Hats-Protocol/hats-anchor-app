@@ -2,24 +2,21 @@ import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl, transformAndVerify } from 'app-utils';
-import { AppHat, ModuleCreationArg } from 'hats-types';
-import { decimalId } from 'hats-utils';
+import { ModuleCreationArg } from 'hats-types';
 import _ from 'lodash';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { idToIp } from 'shared-utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
-import { useTreeForm } from '../contexts/EligibilityContext';
+import { useEligibility } from '../contexts/EligibilityContext';
 import AddressInput from './AddressInput';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import DatePicker from './atoms/DatePicker';
 import DurationInput from './atoms/DurationInput';
 import Input from './atoms/Input';
 import NumberInput from './atoms/NumberInput';
-import Select from './atoms/Select';
 import FormRowWrapper from './FormRowWrapper';
 import MultiAddressInput from './MultiAddressInput';
 
@@ -46,8 +43,7 @@ const ModuleFormInput = ({
   tokenAddress: Hex;
   isDeploy?: boolean;
 }) => {
-  const { chainId, treeToDisplay } = useTreeForm();
-  const [customHatSelections, setCustomHatSelections] = useState({});
+  const { chainId } = useEligibility();
 
   const { watch, setValue } = localForm;
 
@@ -69,26 +65,6 @@ const ModuleFormInput = ({
   ) => {
     const trimmedValue = e.target.value.trim();
     setValue(name, trimmedValue, { shouldDirty: true });
-  };
-
-  const handleChangeHat = (
-    e: ChangeEvent<HTMLSelectElement>,
-    argName: string,
-  ) => {
-    setCustomHatSelections((prevState) => {
-      const newState = { ...prevState };
-
-      if (e.target.value === 'custom') {
-        newState[argName] = true;
-      } else {
-        newState[argName] = false;
-        setValue(`${argName}_custom`, undefined, {
-          shouldDirty: true,
-        });
-      }
-
-      return newState;
-    });
   };
 
   // might wanna implement something similar in the NumberInput component
@@ -265,53 +241,6 @@ const ModuleFormInput = ({
             ))}
           </HStack>
         </RadioGroup>
-      </Stack>
-    );
-  }
-
-  if (arg.displayType === 'hat') {
-    if (!isDeploy) return null;
-
-    return (
-      <Stack w='100%'>
-        <Select
-          name={arg.name}
-          label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-          subLabel={arg.description}
-          localForm={localForm}
-          placeholder='Select a hat'
-          defaultValue={undefined}
-          options={{
-            required: !arg.optional,
-            validate: (value) =>
-              String(value) === 'custom' || transformAndVerify(value, arg.type),
-          }}
-          onChange={(e) => handleChangeHat(e, arg.name)}
-        >
-          <option value='custom'>Custom</option>
-          {_.map(treeToDisplay, ({ id, detailsObject }: AppHat) => {
-            const currentName = _.find(treeToDisplay, ['id', id])?.displayName;
-            const detailsName = currentName || detailsObject?.data?.name;
-
-            return (
-              <option value={decimalId(id)} key={id}>
-                {`${detailsName ? `${detailsName} - ` : ''}${idToIp(id)}`}
-              </option>
-            );
-          })}
-        </Select>
-        {customHatSelections[arg.name] && (
-          <Input
-            name={`${arg.name}_custom`}
-            label='Custom Hat ID'
-            placeholder='e.g. 285.1.3'
-            localForm={localForm}
-            options={{
-              required: !arg.optional,
-              // validation - check if the hat exists
-            }}
-          />
-        )}
       </Stack>
     );
   }

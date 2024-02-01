@@ -17,7 +17,7 @@ import { DetailsItem } from 'hats-types';
 import { ReactNode } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 
-import ChakraNextLink from '../../atoms/ChakraNextLink';
+import ChakraNextLink from '../atoms/ChakraNextLink';
 
 const AccordionWrap = ({
   title,

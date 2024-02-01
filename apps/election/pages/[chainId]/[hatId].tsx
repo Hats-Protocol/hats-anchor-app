@@ -14,8 +14,7 @@ const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   const { updateRecentlyVisitedHats } = useOverlay();
 
   useEffect(() => {
-    if (!treeId || !chainId) return;
-    console.log('hatId', hatId);
+    if (!hatId || !chainId) return;
 
     updateRecentlyVisitedHats({
       hatId,
@@ -25,7 +24,7 @@ const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   }, [treeId, chainId]);
 
   return (
-    <EligibilityContextProvider treeId={treeId} chainId={chainId}>
+    <EligibilityContextProvider treeId={treeId} hatId={hatId} chainId={chainId}>
       <HatPage />
     </EligibilityContextProvider>
   );

@@ -17,13 +17,13 @@ import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-import { useTreeForm } from '../../../contexts/EligibilityContext';
-import Markdown from '../../atoms/Markdown';
+import { useEligibility } from '../../contexts/EligibilityContext';
+import Markdown from '../atoms/Markdown';
 
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails } = useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id);
 
   const { name, description } = _.pick(selectedHatDetails, [
@@ -34,7 +34,6 @@ const Header = () => {
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,
-    editMode,
   });
   const isCurrentWearer = _.includes(_.map(wearer, 'id'), selectedHat?.id);
 

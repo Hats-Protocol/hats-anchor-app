@@ -5,13 +5,13 @@ import { AppHat } from 'hats-types';
 import { getTreeId } from 'hats-utils';
 import _ from 'lodash';
 
-import { useTreeForm } from '../contexts/EligibilityContext';
+import { useEligibility } from '../contexts/EligibilityContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 
 // TODO optimize top hat fetch
 const WearerHatCard = ({ hat }: { hat: AppHat }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
-  const { chainId } = useTreeForm();
+  const { chainId } = useEligibility();
 
   // TODO need topHatId from hatId
   const { data: topHat } = useHatDetails({

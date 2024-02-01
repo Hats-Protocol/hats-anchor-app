@@ -15,22 +15,14 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { formatAddress } from 'app-utils';
-import {
-  useCallModuleFunction,
-  useModuleDetails,
-  useMultiClaimsHatterCheck,
-  useMultiClaimsHatterContractWrite,
-  useWearerDetails,
-} from 'hats-hooks';
+import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
-import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
-import { useAccount } from 'wagmi';
 
-import { useTreeForm } from '../contexts/EligibilityContext';
+import { useEligibility } from '../contexts/EligibilityContext';
 import { useOverlay } from '../contexts/OverlayContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import Modal from './atoms/Modal';
@@ -40,10 +32,8 @@ import ModuleParameters from './ModuleParameters';
 const ModuleDetails = ({ type }: { type: string }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
-  const { setModals, handlePendingTx } = localOverlay;
-  const { chainId, selectedHat, onchainHats, storedData, editMode } =
-    useTreeForm();
-  const { address: currentUser } = useAccount();
+  const { setModals } = localOverlay;
+  const { chainId, selectedHat } = useEligibility();
 
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
@@ -84,57 +74,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
       });
     }
   };
-
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: currentUser,
-    chainId,
-    editMode,
-  });
-  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
-
-  const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
-    chainId,
-    selectedHat,
-    onchainHats,
-    storedData,
-    editMode,
-  });
-
-  const { writeAsync: setHatClaimable, isLoading: isLoadingSetHatClaimable } =
-    useMultiClaimsHatterContractWrite({
-      functionName: 'setHatClaimability',
-      address: instanceAddress,
-      chainId,
-      enabled: !!instanceAddress && isAdminUser,
-      args: [selectedHat?.id, 1],
-      handlePendingTx,
-      hatId: selectedHat?.id,
-    });
-
-  const {
-    writeAsync: setHatClaimableFor,
-    isLoading: isLoadingSetHatClaimableFor,
-  } = useMultiClaimsHatterContractWrite({
-    functionName: 'setHatClaimability',
-    address: instanceAddress,
-    chainId,
-    enabled: !!instanceAddress && isAdminUser,
-    args: [selectedHat?.id, 2],
-    handlePendingTx,
-    hatId: selectedHat?.id,
-  });
-
-  const isClaimable = useMemo(
-    () => ({
-      by:
-        selectedHat?.claimableBy?.length >= 1 &&
-        selectedHat?.claimableForBy.length === 0,
-      for:
-        selectedHat?.claimableBy?.length >= 1 &&
-        selectedHat?.claimableForBy.length >= 1,
-    }),
-    [selectedHat],
-  );
 
   const onSubmit = (values) => {
     // eslint-disable-next-line no-console
@@ -232,31 +171,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 {detail}
               </Text>
             ))}
-            <Flex justify='space-between'>
-              <Text fontSize='sm'>Claimability Type</Text>
-              <HStack>
-                <Button
-                  size='xs'
-                  variant='outline'
-                  colorScheme='blue.500'
-                  isLoading={
-                    isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
-                  }
-                  isDisabled={!setHatClaimable && !setHatClaimableFor}
-                  onClick={() =>
-                    isClaimable.for ? setHatClaimable() : setHatClaimableFor()
-                  }
-                >
-                  {_.includes(claimableHats, selectedHat?.id) &&
-                  !isClaimable.for
-                    ? 'Make claimable for'
-                    : 'Make claimable'}
-                </Button>
-                <Text color='gray.500' size='sm'>
-                  {isClaimable.for ? 'Claimable For' : 'Claimable'}
-                </Text>
-              </HStack>
-            </Flex>
           </Stack>
         </AccordionPanel>
       </AccordionItem>

@@ -7,23 +7,16 @@ import { NextSeo } from 'next-seo';
 import React from 'react';
 import { prettyIdToId } from 'shared-utils';
 
-import { useTreeForm } from '../contexts/EligibilityContext';
+import { useEligibility } from '../contexts/EligibilityContext';
 import Suspender from './atoms/Suspender';
 import Layout from './Layout';
 
-const HatDrawer = dynamic(() => import('./HatDrawer'), {
+const Election = dynamic(() => import('./Election'), {
   loading: () => <Suspender />,
 });
 
 const HatPage = () => {
-  const {
-    chainId,
-    treeId,
-    selectedHat,
-    selectedHatDetails,
-    topHat,
-    topHatDetails,
-  } = useTreeForm();
+  const { chainId, treeId, selectedHat, selectedHatDetails } = useEligibility();
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -35,9 +28,7 @@ const HatPage = () => {
   } else {
     title = 'Invalid Tree ID';
   }
-  if (!selectedHat && topHatDetails) {
-    title = `${topHatDetails.name} on ${chain.name}`;
-  } else if (selectedHat) {
+  if (selectedHat) {
     if (selectedHatDetails) {
       title = `${selectedHatDetails.name} on ${chain.name}`;
     } else {
@@ -48,9 +39,9 @@ const HatPage = () => {
   }
 
   return (
-    <Layout hatData={topHat}>
+    <Layout hatData={selectedHat}>
       <NextSeo title={title} />
-      <HatDrawer />
+      <Election />
     </Layout>
   );
 };

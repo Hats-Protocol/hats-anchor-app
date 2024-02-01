@@ -15,29 +15,20 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { commify, extendWearers, wearersPerPage } from 'app-utils';
-import {
-  useAllWearers,
-  useHatClaimBy,
-  useHatPaginatedWearers,
-  useMultiClaimsHatterCheck,
-  useWearerDetails,
-  useWearerEligibilityCheck,
-} from 'hats-hooks';
+import { useAllWearers, useHatPaginatedWearers } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
 import {
   exportToCsv,
   filterWearers,
-  isWearingAdminHat,
   maxSupplyText,
   // sortWearers,
 } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
-import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
-import { useAccount, useChainId } from 'wagmi';
+import { FaFileCsv, FaSearch } from 'react-icons/fa';
 
-import { useTreeForm } from '../../contexts/EligibilityContext';
+import { useEligibility } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';
 import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
@@ -47,19 +38,10 @@ const Modal = dynamic(() => import('../atoms/Modal'), {
 });
 
 const WearersList = () => {
-  const currentNetworkId = useChainId();
-  const { address } = useAccount();
   const localOverlay = useOverlay();
   const { setModals, modals } = localOverlay;
-  const {
-    chainId,
-    selectedHat,
-    selectedHatDetails,
-    editMode,
-    wearersAndControllers,
-    onchainHats,
-    storedData,
-  } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, wearersAndControllers } =
+    useEligibility();
   const [searchTerm, setSearchTerm] = useState('');
 
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
@@ -84,41 +66,7 @@ const WearersList = () => {
   } = useHatPaginatedWearers({
     hatId: selectedHat?.id,
     chainId,
-    editMode,
   });
-
-  const wearerIds = useMemo(() => _.map(exportWearers, 'id'), [exportWearers]);
-  const currentUserIsWearing = useMemo(
-    () => _.includes(wearerIds, _.toLower(address)),
-    [wearerIds, address],
-  );
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-    editMode,
-  });
-
-  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
-    wearer: address,
-    selectedHat,
-    chainId,
-  });
-
-  const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
-    selectedHat,
-    chainId,
-    wearer: address,
-  });
-
-  const { currentHatIsClaimable } = useMultiClaimsHatterCheck({
-    selectedHat,
-    chainId,
-    onchainHats,
-    editMode,
-    storedData,
-  });
-
-  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
 
   const filteredWearers = useMemo(() => {
     if (!extendedWearers) return undefined;
@@ -128,16 +76,6 @@ const WearersList = () => {
       6,
     ) as HatWearer[];
   }, [searchTerm, extendedWearers]);
-
-  const maxWearersReached = _.gte(_.size(extendedWearers), maxSupply);
-
-  const claimTooltip = useMemo(() => {
-    if (chainId !== currentNetworkId)
-      return "You can't claim a hat on a different chain.";
-    if (!hatterIsAdmin)
-      return 'Hatter must be wearing an admin hat to claim this hat.';
-    return undefined;
-  }, [chainId, currentNetworkId, hatterIsAdmin]);
 
   return (
     <>

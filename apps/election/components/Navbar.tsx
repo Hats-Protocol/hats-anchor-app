@@ -17,10 +17,8 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
-import { IoCloseOutline } from 'react-icons/io5';
 import { useAccount, useChainId } from 'wagmi';
 
-import { useTreeForm } from '../contexts/EligibilityContext';
 import { useOverlay } from '../contexts/OverlayContext';
 import ChakraNextLink from './atoms/ChakraNextLink';
 import ConnectWallet from './ConnectWallet';
@@ -28,13 +26,12 @@ import ConnectWallet from './ConnectWallet';
 const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const currentChainId = useChainId();
   const { setCommandPalette: setOpen } = useOverlay();
-  const { editMode } = useTreeForm();
 
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
 
-  const { data: hatDetails } = useHatDetailsField(hatData?.details, editMode);
+  const { data: hatDetails } = useHatDetailsField(hatData?.details);
   const tabName = hatDetails?.data?.name || hatData?.details;
 
   const isCtrl = useMemo(() => {
@@ -70,21 +67,20 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
               maxW='200px'
               variant='ghost'
               borderRadius={0}
-              _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-              isActive={_.includes(path, CONFIG.trees)}
             >
-              {!tabName ? (
-                <Text fontSize='lg'>{_.capitalize(CONFIG.trees)}</Text>
-              ) : (
-                <Stack align='start' w='90%' mx={2}>
-                  <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
-                  <Text fontSize='lg' color='gray.500' isTruncated maxW='170px'>
-                    {containsUpperCase(tabName)
-                      ? tabName
-                      : _.capitalize(tabName)}
-                  </Text>
-                </Stack>
-              )}
+              <Stack align='start' w='90%' mx={2}>
+                <Text
+                  fontSize='sm'
+                  textTransform='uppercase'
+                  fontWeight='medium'
+                  color='gray.800'
+                >
+                  Hats Election
+                </Text>
+                <Text fontSize='lg' isTruncated maxW='170px'>
+                  {containsUpperCase(tabName) ? tabName : _.capitalize(tabName)}
+                </Text>
+              </Stack>
             </Button>
           </ChakraNextLink>
           {address && (
