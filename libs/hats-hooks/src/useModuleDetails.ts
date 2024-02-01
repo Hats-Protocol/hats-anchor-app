@@ -10,10 +10,12 @@ const useModuleDetails = ({
   address,
   chainId,
   enabled = true,
+  editMode,
 }: {
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
   enabled?: boolean;
+  editMode?: boolean;
 }) => {
   const getModuleData = async () => {
     if (!chainId || !address) return null;
@@ -42,6 +44,7 @@ const useModuleDetails = ({
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return { details: data?.details, parameters: data?.parameters };

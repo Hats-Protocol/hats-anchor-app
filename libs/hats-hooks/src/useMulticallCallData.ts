@@ -75,6 +75,7 @@ const useMulticallCallData = ({
     queryKey: ['multicallData', { treeId, chainId }, storedData],
     queryFn: computeMulticallData,
     enabled: !!treeId && !!chainId && !!storedData && isExpanded,
+    staleTime: Infinity, // (only used in edit mode)
   });
 
   return { data, isLoading };

@@ -100,7 +100,10 @@ const WearerRow = ({
   });
 
   const handleRenounceHat = async () => {
-    await renounceHat?.();
+    renounceHat?.().catch((e) => {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    });
   };
 
   const { onCopy } = useClipboard(wearer.id);

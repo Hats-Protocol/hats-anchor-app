@@ -8,9 +8,11 @@ import { Hex } from 'viem';
 const useModulesDetails = ({
   moduleIds,
   chainId,
+  editMode,
 }: {
   moduleIds: Hex[] | null;
   chainId: SupportedChains | undefined;
+  editMode?: boolean;
 }) => {
   const fetchModulesData = async () => {
     if (!chainId || !moduleIds) {
@@ -40,6 +42,7 @@ const useModulesDetails = ({
     queryKey: ['modulesDetails', moduleIds, chainId],
     queryFn: fetchModulesData,
     enabled: !!chainId,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return {

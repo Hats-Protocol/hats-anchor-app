@@ -41,6 +41,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     handleRemoveHat,
     handleClearChanges,
     handleSave: onSave,
+    formLoading,
   } = useHatForm();
   const { address } = useAccount();
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
@@ -92,7 +93,11 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     >
       {editMode ? (
         <Tooltip label='Save and return to list'>
-          <Button onClick={handleReturnToList} variant='outline'>
+          <Button
+            onClick={handleReturnToList}
+            variant='outline'
+            isLoading={formLoading}
+          >
             <HStack>
               <Icon as={BsArrowLeft} />
               <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
@@ -153,7 +158,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
               colorScheme='twitter'
               variant='solid'
               onClick={handleSave}
-              isLoading={isLoading}
+              isLoading={isLoading || formLoading}
             >
               Save
             </Button>

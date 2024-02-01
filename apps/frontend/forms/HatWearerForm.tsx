@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from 'app-constants';
 import { useToast } from 'app-hooks';
-import { chainsMap, formatAddress } from 'app-utils';
+import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import {
   useHatContractWrite,
   useWearerEligibilityCheck,
@@ -35,7 +35,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared-utils';
-import { createPublicClient, Hex, http, isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import AddressInput from '../components/AddressInput';
@@ -270,10 +270,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           _.size(currentWearerList) -
           _.size(localWearers),
       );
-      const publicClient = createPublicClient({
-        chain: chainsMap(chainId),
-        transport: http(),
-      });
+      const publicClient = viemPublicClient(chainId);
       const promises = _.map(csvAddresses, (a: Hex) =>
         publicClient.readContract({
           abi: HATS_ABI,

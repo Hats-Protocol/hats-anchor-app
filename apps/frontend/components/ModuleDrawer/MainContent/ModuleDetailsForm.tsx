@@ -21,8 +21,8 @@ const ModuleDetailsForm = ({
   localForm: UseFormReturn<any>;
   title: string;
 }) => {
-  const { onchainTree, treeToDisplay, chainId } = useTreeForm();
-  const { modules } = useHatsModules({ chainId });
+  const { onchainTree, treeToDisplay, chainId, editMode } = useTreeForm();
+  const { modules } = useHatsModules({ chainId, editMode });
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {

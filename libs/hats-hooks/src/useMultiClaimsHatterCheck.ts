@@ -122,6 +122,7 @@ const useMultiClaimsHatterCheck = ({
   const { modulesDetails, isLoading: modulesLoading } = useModulesDetails({
     moduleIds: storedAddresses,
     chainId,
+    editMode,
   });
 
   const storedDataClaimableHats = _.compact(

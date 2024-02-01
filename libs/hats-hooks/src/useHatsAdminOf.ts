@@ -64,6 +64,7 @@ const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
     queryKey: ['hatsAdminOf', _.map(hats, 'id')],
     queryFn: adminOfHats,
     enabled: !!hats,
+    staleTime: 1000 * 60 * 60 * 6, // 6 hours
   });
 
   return { data, error, isLoading };

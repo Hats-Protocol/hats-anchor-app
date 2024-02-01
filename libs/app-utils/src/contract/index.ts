@@ -1,38 +1,34 @@
 import { HatWearer, Transaction } from 'hats-types';
 import _ from 'lodash';
-import { createPublicClient, custom, Hex, http, zeroAddress } from 'viem';
+import { Hex, zeroAddress } from 'viem';
 
-import { chainsMap } from '../web3';
+import { viemPublicClient } from '../web3';
 
 export const checkAddressIsContract = async (
   address?: Hex,
   chainId?: number,
 ) => {
   if (!address || address === zeroAddress || !chainId) {
-    return false;
+    return Promise.resolve(false);
   }
 
-  const publicClient = createPublicClient({
-    chain: chainsMap(chainId),
-    // ideally could use window.ethereum here, but result is cached also
-    //    custom((window as any).ethereum) ||
-    transport: http(),
-  });
+  const publicClient = viemPublicClient(chainId);
+  if (!publicClient) return Promise.resolve(false);
 
-  if (!publicClient) return false;
-
-  try {
-    const bytecode = await publicClient.getBytecode({
+  return publicClient
+    .getBytecode({
       address,
+    })
+    .then((bytecode: string | undefined) => {
+      if (bytecode) {
+        return Promise.resolve(true);
+      }
+      return Promise.resolve(false);
+    })
+    .catch(() => {
+      // throw away error here
+      return Promise.resolve(false);
     });
-
-    if (bytecode) {
-      return true;
-    }
-  } catch (err) {
-    return false;
-  }
-  return false;
 };
 
 export const checkTransactionStatus = async (transactions: Transaction[]) => {
@@ -43,11 +39,7 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
   // handle the client with tx so chain is relative to tx
   const transactionPromises = pendingTransactions.map(
     async (tx: Transaction) => {
-      const publicClient = createPublicClient({
-        chain: chainsMap(tx.txChainId),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        transport: custom((window as any).ethereum) || http(),
-      });
+      const publicClient = viemPublicClient(tx.txChainId);
       try {
         const transactionData = await publicClient.getTransaction({
           hash: tx.hash as Hex,
@@ -90,10 +82,7 @@ export const extendControllers = (
 };
 
 export const checkENSNames = async (wearers: HatWearer[]) => {
-  const publicClient = createPublicClient({
-    chain: chainsMap(1),
-    transport: http(),
-  });
+  const publicClient = viemPublicClient(1);
 
   const ensNamePromises = wearers?.map(async (wearer: HatWearer) => {
     const ensName = await publicClient.getEnsName({
