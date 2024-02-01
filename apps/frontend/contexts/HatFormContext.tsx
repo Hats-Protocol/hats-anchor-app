@@ -15,6 +15,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { Hex } from 'viem';
@@ -27,6 +28,8 @@ export interface IHatFormContext {
   localForm: UseFormReturn<any> | null;
   formValues: Partial<FormData> | undefined;
   isLoading: boolean;
+  formLoading: boolean;
+  setFormLoading: (loading: boolean) => void;
   handleSave: (sendToast?: boolean) => void;
   handleRemoveHat: () => void;
   handleClearChanges: () => void;
@@ -39,6 +42,8 @@ export const HatFormContext = createContext<IHatFormContext>({
   localForm: null,
   formValues: undefined,
   isLoading: false,
+  formLoading: false,
+  setFormLoading: () => {},
   handleSave: () => {},
   handleRemoveHat: () => {},
   handleClearChanges: () => {},
@@ -74,6 +79,7 @@ export const HatFormContextProvider = ({
   });
   const { watch, reset } = localForm;
 
+  const [formLoading, setFormLoading] = useState(false);
   const formName = useDebounce<string>(watch?.('name', ''));
   const formDescription = useDebounce<string>(watch?.('description', ''));
   const formGuilds = useDebounce<string[]>(watch?.('guilds', []));
@@ -352,6 +358,8 @@ export const HatFormContextProvider = ({
       formValues: debouncedFormValues,
       isLoading:
         isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress,
+      formLoading,
+      setFormLoading,
 
       // helpers
       getDirtyFieldsForAccordion,
@@ -369,6 +377,8 @@ export const HatFormContextProvider = ({
       debouncedFormValues,
       isLoadingEligibilityResolvedAddress,
       isLoadingToggleResolvedAddress,
+      formLoading,
+      setFormLoading,
 
       // helpers
       getDirtyFieldsForAccordion,

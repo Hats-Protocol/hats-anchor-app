@@ -15,10 +15,12 @@ const usePinImageIpfs = ({
   imageFile,
   enabled,
   metadata,
+  setLoading,
 }: {
   imageFile: File;
   enabled: boolean;
   metadata: object;
+  setLoading?: (loading: boolean) => void;
 }) => {
   const [currentImageFile, setCurrentImageFile] = useState<File>();
   const [currentImageCid, setCurrentImageCid] = useState();
@@ -29,6 +31,7 @@ const usePinImageIpfs = ({
 
   useEffect(() => {
     const pin = async (file: File) => {
+      setLoading?.(true);
       const token = await fetchToken();
       const cid = await mutateAsync({ file, metadata, token });
       if (cid !== undefined) {
@@ -39,6 +42,7 @@ const usePinImageIpfs = ({
         }
         setCurrentImageCid(cid);
       }
+      setLoading?.(false);
     };
 
     if (imageFile !== undefined && imageFile !== currentImageFile && enabled) {

@@ -33,11 +33,13 @@ export const wagmiConfig: any = createConfig({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const viemPublicClient: any = (chainId: number) => {
   const chain = chainsMap(chainId);
+  let transportUrl = _.first(_.get(chain, 'rpcUrls.default.http'));
+  if (chain.rpcUrls?.alchemy) {
+    transportUrl = `${_.first(chain.rpcUrls.alchemy.http)}/${ALCHEMY_ID}`;
+  }
   return createPublicClient({
     chain,
-    transport: http(`${_.first(chain.rpcUrls.alchemy.http)}/${ALCHEMY_ID}`, {
-      batch: true,
-    }),
+    transport: http(transportUrl, { batch: true }),
   });
 };
 
