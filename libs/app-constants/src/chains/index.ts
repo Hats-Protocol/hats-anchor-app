@@ -13,8 +13,6 @@ import {
   sepolia,
 } from 'wagmi/chains';
 
-import pgn from './pgn';
-
 // ORDER HERE WILL BE USED IN THE UI
 export const orderedChains = [
   // main networks
@@ -25,7 +23,6 @@ export const orderedChains = [
   100, // gnosis
   8453, // base
   42220, // celo
-  424, // pgn
   // testnets
   11155111, // sepolia
   5, // goerli
@@ -39,7 +36,6 @@ export const networkImages: { [key in SupportedChains]: string } = {
   10: '/chains/optimism.svg',
   100: '/chains/gnosis.png',
   137: '/chains/polygon.svg',
-  424: '/chains/pgn.png',
   8453: '/chains/base.png',
   42161: '/chains/arbitrum.svg',
   42220: '/chains/celo.svg',
@@ -67,7 +63,6 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   42161: arbitrum,
   137: polygon,
   100: gnosis,
-  424: pgn,
   8453: base,
   42220: celo,
 

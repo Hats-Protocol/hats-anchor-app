@@ -30,9 +30,6 @@ const LOCAL_NETWORK_ENDPOINTS = {
   // hosted service
   5: hostedServiceUrl('hats-v1-goerli'),
   10: hostedServiceUrl('hats-v1-optimism'),
-
-  // custom
-  424: 'https://api.goldsky.com/api/public/project_clp1niaem0pe001qjhju6b9sz/subgraphs/hats-v1-pgn/1.0.0/gn',
 };
 
 const NETWORK_ENDPOINTS: EndpointsConfig = {

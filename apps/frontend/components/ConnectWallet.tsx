@@ -133,7 +133,7 @@ const ConnectWallet = () => {
                         />
                       )}
 
-                      <Heading size='sm'>
+                      <Heading size='xs'>
                         {ensName || account.displayName}
                       </Heading>
                     </HStack>
