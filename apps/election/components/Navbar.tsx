@@ -9,6 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { ChakraNextLink } from 'app-components';
 import { CONFIG } from 'app-constants';
 import { containsUpperCase, getOperatingSystem } from 'app-utils';
 import { useHatDetailsField } from 'hats-hooks';
@@ -20,7 +21,6 @@ import { BsSearch } from 'react-icons/bs';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 import ConnectWallet from './ConnectWallet';
 
 const Navbar = ({ hatData }: { hatData?: AppHat }) => {

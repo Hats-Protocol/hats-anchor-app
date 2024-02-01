@@ -1,12 +1,12 @@
 import { Box, Card, Flex, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { ChakraNextLink } from 'app-components';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { getTreeId } from 'hats-utils';
 import _ from 'lodash';
 
 import { useEligibility } from '../contexts/EligibilityContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 
 // TODO optimize top hat fetch
 const WearerHatCard = ({ hat }: { hat: AppHat }) => {

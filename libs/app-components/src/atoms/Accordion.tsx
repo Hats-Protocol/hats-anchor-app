@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
 
-const CustomAccordion = ({
+const Accordion = ({
   title,
   subtitle,
   dirtyFieldsList,
@@ -72,4 +72,4 @@ const CustomAccordion = ({
   );
 };
 
-export default CustomAccordion;
+export default Accordion;

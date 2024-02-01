@@ -14,6 +14,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { Modal } from 'app-components';
 import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import { useAllWearers, useHatPaginatedWearers } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
@@ -24,18 +25,12 @@ import {
   // sortWearers,
 } from 'hats-utils';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { FaFileCsv, FaSearch } from 'react-icons/fa';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';
-import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
-
-const Modal = dynamic(() => import('../atoms/Modal'), {
-  loading: () => <Suspender />,
-});
 
 const WearersList = () => {
   const localOverlay = useOverlay();

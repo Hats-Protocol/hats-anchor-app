@@ -3,6 +3,7 @@
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Spinner, Stack, Text } from '@chakra-ui/react';
+import { ChakraNextLink } from 'app-components';
 import { useSearchResults } from 'app-hooks';
 import { chainsMap } from 'app-utils';
 import { Group, SearchResults } from 'hats-types';
@@ -19,7 +20,6 @@ import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 
 const CommandPaletteInternalLink = ({
   href,

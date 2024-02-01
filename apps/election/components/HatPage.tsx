@@ -1,4 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { Suspender } from 'app-components';
 import { chainsMap } from 'app-utils';
 import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
@@ -8,7 +9,6 @@ import React from 'react';
 import { prettyIdToId } from 'shared-utils';
 
 import { useEligibility } from '../contexts/EligibilityContext';
-import Suspender from './atoms/Suspender';
 import Layout from './Layout';
 
 const Election = dynamic(() => import('./Election'), {

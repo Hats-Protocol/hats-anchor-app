@@ -1,5 +1,12 @@
 import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
+import {
+  ChakraNextLink,
+  DatePicker,
+  DurationInput,
+  Input,
+  NumberInput,
+} from 'app-components';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl, transformAndVerify } from 'app-utils';
 import { ModuleCreationArg } from 'hats-types';
@@ -12,11 +19,6 @@ import { useEnsAddress, useToken } from 'wagmi';
 
 import { useEligibility } from '../contexts/EligibilityContext';
 import AddressInput from './AddressInput';
-import ChakraNextLink from './atoms/ChakraNextLink';
-import DatePicker from './atoms/DatePicker';
-import DurationInput from './atoms/DurationInput';
-import Input from './atoms/Input';
-import NumberInput from './atoms/NumberInput';
 import FormRowWrapper from './FormRowWrapper';
 import MultiAddressInput from './MultiAddressInput';
 
