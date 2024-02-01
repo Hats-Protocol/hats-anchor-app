@@ -4,6 +4,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Image,
   Stack,
   Text,
   Tooltip,
@@ -44,8 +45,26 @@ const Header = () => {
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   return (
-    <Stack spacing={4}>
-      <Flex align='start' justify='space-between'>
+    <HStack>
+      <Box
+        h='100px'
+        w='100px'
+        overflow='hidden'
+        border='3px solid'
+        borderColor='gray.700'
+        borderRadius='md'
+        top='110px'
+      >
+        <Image
+          loading='lazy'
+          src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+          alt='hat image'
+          background='white'
+          objectFit='cover'
+          h='100%'
+        />
+      </Box>
+      <Stack spacing={4} w='full'>
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
             <Tooltip label={name || selectedHat?.details}>
@@ -79,20 +98,20 @@ const Header = () => {
             </Box>
           )}
         </Stack>
-      </Flex>
-      <HStack>
-        {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-        <Badge
-          colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}
-        >
-          {mutableStatus}
-        </Badge>
-        <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
-          {activeStatus}
-        </Badge>
-        <Badge>Level {levelAtLocalTree}</Badge>
-      </HStack>
-    </Stack>
+        <HStack>
+          {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+          <Badge
+            colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}
+          >
+            {mutableStatus}
+          </Badge>
+          <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
+            {activeStatus}
+          </Badge>
+          <Badge>Level {levelAtLocalTree}</Badge>
+        </HStack>
+      </Stack>
+    </HStack>
   );
 };
 

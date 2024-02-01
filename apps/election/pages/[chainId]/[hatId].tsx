@@ -1,14 +1,19 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { Suspender } from 'app-components';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
+import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { ipToHatId } from 'shared-utils';
 import { Hex } from 'viem';
 
-import HatPage from '../../components/HatPage';
 import { EligibilityContextProvider } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';
+
+const Election = dynamic(() => import('../../components/Election'), {
+  loading: () => <Suspender />,
+});
 
 const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   const { updateRecentlyVisitedHats } = useOverlay();
@@ -25,7 +30,7 @@ const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
 
   return (
     <EligibilityContextProvider treeId={treeId} hatId={hatId} chainId={chainId}>
-      <HatPage />
+      <Election />
     </EligibilityContextProvider>
   );
 };
