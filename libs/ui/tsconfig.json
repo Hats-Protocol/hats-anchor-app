@@ -5,7 +5,8 @@
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "strict": true
+    "strict": true,
+    "noImplicitAny": false,
   },
   "files": [],
   "include": ["**/*.ts", "**/*.js"],
