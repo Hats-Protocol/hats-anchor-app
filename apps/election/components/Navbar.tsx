@@ -9,7 +9,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { ChakraNextLink } from 'app-components';
 import { CONFIG } from 'app-constants';
 import { containsUpperCase, getOperatingSystem } from 'app-utils';
 import { useHatDetailsField } from 'hats-hooks';
@@ -18,6 +17,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
+import { ChakraNextLink } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';

@@ -19,12 +19,10 @@ import {
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToIp } from 'shared-utils';
+import { ChakraNextLink, RadioBox, Select } from 'ui';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import ChakraNextLink from '../../atoms/ChakraNextLink';
-import RadioBox from '../../atoms/RadioBox';
-import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
 
 const PermissionlessClaimingForm = ({

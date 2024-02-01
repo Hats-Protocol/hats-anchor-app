@@ -23,13 +23,9 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToId, prettyIdToIp } from 'shared-utils';
+import { DropZone, Input, Select, Textarea } from 'ui';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
-
-import DropZone from '../components/atoms/DropZone';
-import Input from '../components/atoms/Input';
-import Select from '../components/atoms/Select';
-import Textarea from '../components/atoms/Textarea';
 
 // TODO refactor without prettyId
 // ! update links to use new docs links constants

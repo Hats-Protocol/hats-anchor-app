@@ -26,10 +26,8 @@ import { useDropzone } from 'react-dropzone';
 import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
+import { DropZone, Input, Textarea } from 'ui';
 
-import DropZone from '../components/atoms/DropZone';
-import Input from '../components/atoms/Input';
-import Textarea from '../components/atoms/Textarea';
 import ResponsibilityHeader from '../components/HatDrawer/MainContent/ResponsibilityHeader';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useTreeForm } from '../contexts/TreeFormContext';

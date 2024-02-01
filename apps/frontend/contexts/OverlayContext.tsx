@@ -15,15 +15,11 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { Modal, Suspender } from 'ui';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
 
-import Suspender from '../components/atoms/Suspender';
-
-const Modal = dynamic(() => import('../components/atoms/Modal'), {
-  loading: () => <Suspender />,
-});
 const TransactionHistory = dynamic(
   () => import('../components/TransactionHistory'),
   { loading: () => <Suspender /> },

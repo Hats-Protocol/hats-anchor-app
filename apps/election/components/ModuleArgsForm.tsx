@@ -1,12 +1,5 @@
 import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
-import {
-  ChakraNextLink,
-  DatePicker,
-  DurationInput,
-  Input,
-  NumberInput,
-} from 'app-components';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl, transformAndVerify } from 'app-utils';
 import { ModuleCreationArg } from 'hats-types';
@@ -14,6 +7,13 @@ import _ from 'lodash';
 import { ChangeEvent, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
+import {
+  ChakraNextLink,
+  DatePicker,
+  DurationInput,
+  Input,
+  NumberInput,
+} from 'ui';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 

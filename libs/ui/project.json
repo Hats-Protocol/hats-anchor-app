@@ -1,7 +1,7 @@
 {
-  "name": "app-components",
+  "name": "ui",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/app-components/src",
+  "sourceRoot": "libs/ui/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,18 +9,18 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/app-components",
-        "main": "libs/app-components/src/index.ts",
-        "packageJson": "libs/app-components/package.json",
-        "tsConfig": "libs/app-components/tsconfig.lib.json",
-        "assets": ["libs/app-components/*.md"],
+        "outputPath": "dist/libs/ui",
+        "main": "libs/ui/src/index.ts",
+        "packageJson": "libs/ui/package.json",
+        "tsConfig": "libs/ui/tsconfig.lib.json",
+        "assets": ["libs/ui/*.md"],
         "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs app-components {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs ui {args.ver} {args.tag}"
       },
       "dependsOn": [
         {
@@ -32,14 +32,14 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/app-components/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/app-components"],
+      "outputs": ["{workspaceRoot}/coverage/libs/ui"],
       "options": {
-        "jestConfig": "libs/app-components/jest.config.ts",
+        "jestConfig": "libs/ui/jest.config.ts",
         "passWithNoTests": true
       }
     }

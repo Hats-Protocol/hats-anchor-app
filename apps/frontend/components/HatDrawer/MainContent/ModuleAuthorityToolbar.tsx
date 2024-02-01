@@ -1,7 +1,6 @@
 import {
   Button,
   Flex,
-  Heading,
   HStack,
   Icon,
   IconButton,
@@ -29,12 +28,11 @@ import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
+import { ChakraNextLink, Modal } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import ChakraNextLink from '../../atoms/ChakraNextLink';
-import Modal from '../../atoms/Modal';
 import ModuleArgsForm from '../../ModuleArgsForm';
 
 const ModuleAuthorityToolbar = ({
@@ -298,7 +296,6 @@ const ModuleAuthorityToolbar = ({
           selectedFunction?.label,
         )} for Hat #${authorityHatId}`} // {`Interact with ${authority.moduleLabel}`}
         localOverlay={localOverlay}
-        headingSize='sm'
       >
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>

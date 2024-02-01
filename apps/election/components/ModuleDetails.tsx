@@ -14,7 +14,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { ChakraNextLink, Modal } from 'app-components';
 import { formatAddress } from 'app-utils';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
@@ -22,6 +21,7 @@ import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { ChakraNextLink, Modal } from 'ui';
 
 import { useEligibility } from '../contexts/EligibilityContext';
 import { useOverlay } from '../contexts/OverlayContext';

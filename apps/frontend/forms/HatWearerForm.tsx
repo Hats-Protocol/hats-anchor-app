@@ -35,12 +35,11 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared-utils';
+import { DropZone, NumberInput } from 'ui';
 import { createPublicClient, Hex, http, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import AddressInput from '../components/AddressInput';
-import DropZone from '../components/atoms/DropZone';
-import NumberInput from '../components/atoms/NumberInput';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useOverlay } from '../contexts/OverlayContext';

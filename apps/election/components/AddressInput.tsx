@@ -1,9 +1,9 @@
 import { Box, FormControl, Icon, Text } from '@chakra-ui/react';
-import { Input } from 'app-components';
 import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaCheck } from 'react-icons/fa';
+import { Input } from 'ui';
 
 type AddressInputProps = {
   name: string;

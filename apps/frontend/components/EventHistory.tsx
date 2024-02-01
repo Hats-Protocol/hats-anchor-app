@@ -14,9 +14,9 @@ import { HatEvent } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
+import { ChakraNextLink } from 'ui';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 
 const EventHistory = ({
   type,

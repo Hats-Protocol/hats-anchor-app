@@ -17,9 +17,9 @@ import { useWearerDetails } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { BsDiagram3 } from 'react-icons/bs';
+import { ChakraNextLink } from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 
-import ChakraNextLink from '../components/atoms/ChakraNextLink';
 import Layout from '../components/Layout';
 import CoreHat from '../components/WearerHatCard';
 

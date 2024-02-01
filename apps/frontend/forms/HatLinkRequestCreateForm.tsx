@@ -5,10 +5,10 @@ import { useHatContractWrite } from 'hats-hooks';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
+import { Select } from 'ui';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
-import Select from '../components/atoms/Select';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 const HatLinkRequestCreateForm = ({

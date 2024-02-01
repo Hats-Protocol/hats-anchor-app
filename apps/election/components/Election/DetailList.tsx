@@ -12,11 +12,11 @@ import {
   Text,
   UnorderedList,
 } from '@chakra-ui/react';
-import { ChakraNextLink } from 'app-components';
 import { validateURL } from 'app-utils';
 import { DetailsItem } from 'hats-types';
 import { ReactNode } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { ChakraNextLink } from 'ui';
 
 const AccordionWrap = ({
   title,

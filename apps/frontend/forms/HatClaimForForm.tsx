@@ -1,9 +1,9 @@
 import { Button, Flex, Stack } from '@chakra-ui/react';
 import { useHatClaimFor } from 'hats-hooks';
 import { useForm } from 'react-hook-form';
+import { Input } from 'ui';
 import { Hex } from 'viem';
 
-import Input from '../components/atoms/Input';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 const HatClaimForForm = () => {

@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
   Box,
@@ -85,7 +84,7 @@ const DropZone = ({
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => {
-      if (image !== undefined) {
+      if (image?.preview) {
         URL.revokeObjectURL(image.preview);
       }
     };
@@ -118,7 +117,7 @@ const DropZone = ({
                   width='auto'
                   height='100%'
                   onLoad={() => {
-                    if (image) URL.revokeObjectURL(image.preview);
+                    if (image?.preview) URL.revokeObjectURL(image.preview);
                   }}
                   alt='Uploaded item from user'
                 />

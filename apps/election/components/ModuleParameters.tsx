@@ -1,12 +1,12 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { ChakraNextLink } from 'app-components';
 import { explorerUrl, formatAddress } from 'app-utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
+import { ChakraNextLink } from 'ui';
 import { formatUnits, Hex } from 'viem';
 import { useToken } from 'wagmi';
 

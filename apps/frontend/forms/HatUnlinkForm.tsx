@@ -4,9 +4,9 @@ import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { prettyIdToIp } from 'shared-utils';
+import { Select } from 'ui';
 import { Hex, isAddress } from 'viem';
 
-import Select from '../components/atoms/Select';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 // TODO refactor without prettyId

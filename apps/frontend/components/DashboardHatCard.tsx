@@ -16,8 +16,7 @@ import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-
-import ChakraNextLink from './atoms/ChakraNextLink';
+import { ChakraNextLink } from 'ui';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));

@@ -45,6 +45,8 @@ export const EligibilityContextProvider = ({
     hats: [selectedHat],
   });
 
+  // get all module resolution in here as well
+
   const value = useMemo(
     () => ({
       chainId,

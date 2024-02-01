@@ -14,7 +14,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { Modal } from 'app-components';
 import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import { useAllWearers, useHatPaginatedWearers } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
@@ -27,6 +26,7 @@ import {
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { FaFileCsv, FaSearch } from 'react-icons/fa';
+import { Modal } from 'ui';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';

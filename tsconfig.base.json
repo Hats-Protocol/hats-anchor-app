@@ -15,8 +15,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "app-components": ["libs/app-components/src/index.ts"],
-      "app-components/server": ["libs/app-components/src/server.ts"],
+      "ui": ["libs/ui/src/index.ts"],
+      "ui/server": ["libs/ui/src/server.ts"],
       "app-constants": ["./libs/app-constants/src/index"],
       "app-hooks": ["./libs/app-hooks/src/index"],
       "app-utils": ["./libs/app-utils/src/index"],

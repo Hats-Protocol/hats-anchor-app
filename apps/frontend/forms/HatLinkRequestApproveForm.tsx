@@ -23,12 +23,10 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToIp, toTreeId } from 'shared-utils';
+import { DropZone, Input, Textarea } from 'ui';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import DropZone from '../components/atoms/DropZone';
-import Input from '../components/atoms/Input';
-import Textarea from '../components/atoms/Textarea';
 import { useTreeForm } from '../contexts/TreeFormContext';
 
 // ! update links to use new docs links constants

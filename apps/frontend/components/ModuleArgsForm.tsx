@@ -9,17 +9,19 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
 import { idToIp } from 'shared-utils';
+import {
+  ChakraNextLink,
+  DatePicker,
+  DurationInput,
+  Input,
+  NumberInput,
+  Select,
+} from 'ui';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
 import AddressInput from './AddressInput';
-import ChakraNextLink from './atoms/ChakraNextLink';
-import DatePicker from './atoms/DatePicker';
-import DurationInput from './atoms/DurationInput';
-import Input from './atoms/Input';
-import NumberInput from './atoms/NumberInput';
-import Select from './atoms/Select';
 import FormRowWrapper from './FormRowWrapper';
 import MultiAddressInput from './MultiAddressInput';
 

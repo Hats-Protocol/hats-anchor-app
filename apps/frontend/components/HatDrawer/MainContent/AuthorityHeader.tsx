@@ -24,10 +24,10 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import ChakraNextLink from '../../atoms/ChakraNextLink';
 
 const checkIfIpfs = (url: string) => {
   if (!url) return { isIpfs: false, imageUrl: '' };

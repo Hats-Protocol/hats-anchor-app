@@ -26,11 +26,9 @@ import {
 } from 'react-icons/bs';
 import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
+import { ChakraNextLink, RadioBox, Suspender } from 'ui';
 
 import AddressInput from '../components/AddressInput';
-import ChakraNextLink from '../components/atoms/ChakraNextLink';
-import RadioBox from '../components/atoms/RadioBox';
-import Suspender from '../components/atoms/Suspender';
 import FormRowWrapper from '../components/FormRowWrapper';
 import LabelWithLink from '../components/LabelWithLink';
 import { useHatForm } from '../contexts/HatFormContext';

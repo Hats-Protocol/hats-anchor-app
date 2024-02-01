@@ -21,8 +21,8 @@ import _ from 'lodash';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
+import { Select } from 'ui';
 
-import Select from '../components/atoms/Select';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';

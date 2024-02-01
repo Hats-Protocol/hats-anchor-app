@@ -22,12 +22,10 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { DropZone, Input, Textarea } from 'ui';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
-import DropZone from '../../components/atoms/DropZone';
-import Input from '../../components/atoms/Input';
-import Textarea from '../../components/atoms/Textarea';
 import Layout from '../../components/Layout';
 import { useOverlay } from '../../contexts/OverlayContext';
 

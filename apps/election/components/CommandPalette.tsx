@@ -3,7 +3,6 @@
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Spinner, Stack, Text } from '@chakra-ui/react';
-import { ChakraNextLink } from 'app-components';
 import { useSearchResults } from 'app-hooks';
 import { chainsMap } from 'app-utils';
 import { Group, SearchResults } from 'hats-types';
@@ -16,6 +15,7 @@ import CmdkCommandPalette, {
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
 import { idToIp } from 'shared-utils';
+import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 

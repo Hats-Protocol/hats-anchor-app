@@ -28,13 +28,12 @@ import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { prettyIdToId } from 'shared-utils';
+import { Markdown, Modal } from 'ui';
 import { Hex } from 'viem';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 import ImportTreeForm from '../../forms/ImportTreeForm';
-import Markdown from '../atoms/Markdown';
-import Modal from '../atoms/Modal';
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);

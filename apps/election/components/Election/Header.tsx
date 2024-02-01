@@ -11,12 +11,12 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Markdown } from 'app-components';
 import { MUTABILITY, STATUS } from 'app-constants';
 import { useToast } from 'app-hooks';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
+import { Markdown } from 'ui';
 import { useAccount } from 'wagmi';
 
 import { useEligibility } from '../../contexts/EligibilityContext';

@@ -6,10 +6,9 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
+import { ChakraNextLink, Select } from 'ui';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import ChakraNextLink from '../../atoms/ChakraNextLink';
-import Select from '../../atoms/Select';
 import FormRowWrapper from '../../FormRowWrapper';
 import ModuleArgsForm from '../../ModuleArgsForm';
 
