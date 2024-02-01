@@ -34,9 +34,9 @@ export const wagmiConfig: any = createConfig({
 export const viemPublicClient: any = (chainId: number) => {
   const chain = chainsMap(chainId);
   let transportUrl = _.first(_.get(chain, 'rpcUrls.default.http'));
-  if (chain.rpcUrls?.alchemy) {
-    transportUrl = `${_.first(chain.rpcUrls.alchemy.http)}/${ALCHEMY_ID}`;
-  }
+  const alchemyUrl = _.get(chain, 'rpcUrls.alchemy.http');
+  if (alchemyUrl) transportUrl = `${alchemyUrl}/${ALCHEMY_ID}`;
+
   return createPublicClient({
     chain,
     transport: http(transportUrl, { batch: true }),
