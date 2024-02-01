@@ -4,6 +4,8 @@ import { createPublicClient, custom, Hex, http, zeroAddress } from 'viem';
 
 import { chainsMap } from '../web3';
 
+export * from './ecosystem';
+
 export const checkAddressIsContract = async (
   address?: Hex,
   chainId?: number,

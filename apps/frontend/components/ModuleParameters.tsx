@@ -1,10 +1,9 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { explorerUrl, formatAddress, formatDate } from 'app-utils';
-import { format, formatDistanceToNow } from 'date-fns';
+import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'app-utils';
+import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
-import React, { ReactNode } from 'react';
 import { FiExternalLink } from 'react-icons/fi';
 import { formatUnits, Hex } from 'viem';
 import { useToken } from 'wagmi';
@@ -22,16 +21,37 @@ const numberTypes = [
 ];
 
 const ModuleParameterRow = ({
-  children,
   label,
+  link,
+  linkLabel,
+  tip,
 }: {
-  children: ReactNode;
   label: string;
+  link?: string;
+  linkLabel: string;
+  tip?: string;
 }) => {
+  const isExternal = link?.includes('http');
   return (
     <Flex key={label} justify='space-between' gap={3}>
       <Text fontSize='sm'>{label}</Text>
-      {children}
+
+      {link ? (
+        <Tooltip label={tip} placement='left'>
+          <ChakraNextLink href={link} isExternal={isExternal}>
+            <HStack spacing={1} color='gray.500'>
+              <Text fontSize='sm'>{linkLabel}</Text>
+              {isExternal && <Icon as={FiExternalLink} h='14px' />}
+            </HStack>
+          </ChakraNextLink>
+        </Tooltip>
+      ) : (
+        <Tooltip label={tip} placement='left'>
+          <Text fontSize='sm' color='gray.500'>
+            {linkLabel}
+          </Text>
+        </Tooltip>
+      )}
     </Flex>
   );
 };
@@ -53,91 +73,75 @@ const ModuleParameter = ({
 
   if (param.solidityType === 'address') {
     // TODO handle joke race display type
+    if (param.displayType === 'jokerace') {
+      return (
+        <ModuleParameterRow
+          label={param.label}
+          link={jokeRaceUrl({ chainId, address: param.value as string })}
+          linkLabel={`JokeRace (${formatAddress(param.value as string)})`}
+        />
+      );
+    }
+
+    let tokenLabel = formatAddress(param.value as string);
+    if (tokenName) {
+      tokenLabel = `${tokenName} (${formatAddress(param.value as string)})`;
+    }
+
     return (
-      <ModuleParameterRow label={param.label}>
-        <ChakraNextLink
-          href={`${explorerUrl(chainId)}/address/${param.value}`}
-          isExternal
-        >
-          <HStack spacing={1} color='gray.500'>
-            <Text fontSize='sm'>
-              {tokenName ? `${tokenName} ` : ''}
-              {tokenName
-                ? `(${formatAddress(param.value as string)})`
-                : formatAddress(param.value as string)}
-            </Text>
-            <Icon as={FiExternalLink} h='14px' />
-          </HStack>
-        </ChakraNextLink>
-      </ModuleParameterRow>
+      <ModuleParameterRow
+        label={param.label}
+        link={`${explorerUrl(chainId)}/address/${param.value}`}
+        linkLabel={tokenLabel}
+      />
     );
   }
   if (_.includes(numberTypes, param.solidityType)) {
     if (param.displayType === 'hat') {
       return (
-        <ModuleParameterRow label={param.label}>
-          <ChakraNextLink
-            href={`/trees/${chainId}/${hatIdToTreeId(
-              param.value as bigint,
-            )}?hatId=${hatIdDecimalToIp(param.value as bigint)}`}
-          >
-            <Text fontSize='sm' color='gray.500'>
-              #{hatIdDecimalToIp(param.value as bigint)}
-            </Text>
-          </ChakraNextLink>
-        </ModuleParameterRow>
+        <ModuleParameterRow
+          label={param.label}
+          link={`/trees/${chainId}/${hatIdToTreeId(
+            param.value as bigint,
+          )}?hatId=${hatIdDecimalToIp(param.value as bigint)}`}
+          linkLabel={`#${hatIdDecimalToIp(param.value as bigint)}`}
+        />
       );
     }
     if (tokenDecimals) {
-      return (
-        <ModuleParameterRow label={param.label}>
-          <Text fontSize='sm' color='gray.500'>
-            {formatUnits(
-              BigInt(param.value as bigint),
-              _.toNumber(tokenDecimals),
-            ).toString()}{' '}
-            {tokenSymbol as string}
-          </Text>
-        </ModuleParameterRow>
-      );
+      const amount = `${formatUnits(
+        BigInt(param.value as bigint),
+        _.toNumber(tokenDecimals),
+      ).toString()}
+      ${tokenSymbol as string}`;
+      return <ModuleParameterRow label={param.label} linkLabel={amount} />;
     }
     if (param.displayType === 'timestamp') {
       if (param.value === BigInt(0)) {
-        return (
-          <ModuleParameterRow label={param.label}>
-            <Text fontSize='sm' color='gray.500'>
-              Not Set
-            </Text>
-          </ModuleParameterRow>
-        );
+        return <ModuleParameterRow label={param.label} linkLabel='Not Set' />;
       }
       const date = new Date(
         _.toNumber((param.value as bigint).toString()) * 1000,
       );
       return (
-        <ModuleParameterRow label={param.label}>
-          <Tooltip label={formatDate(date)} placement='left'>
-            <Text fontSize='sm' color='gray.500'>
-              {formatDistanceToNow(date)}{' '}
-              {new Date() > date ? 'ago' : 'from now'}
-            </Text>
-          </Tooltip>
-        </ModuleParameterRow>
+        <ModuleParameterRow
+          label={param.label}
+          tip={formatDate(date)}
+          linkLabel={`${formatDistanceToNow(date)} 
+        ${new Date() > date ? 'ago' : 'from now'}`}
+        />
       );
     }
     return (
-      <ModuleParameterRow label={param.label}>
-        <Text fontSize='sm' color='gray.500'>
-          {BigInt(param.value as bigint).toString()}
-        </Text>
-      </ModuleParameterRow>
+      <ModuleParameterRow
+        label={param.label}
+        linkLabel={BigInt(param.value as bigint).toString()}
+      />
     );
   }
 
   return (
-    <ModuleParameterRow label={param.label}>
-      {param.value as string}
-    </ModuleParameterRow>
+    <ModuleParameterRow label={param.label} linkLabel={param.value as string} />
   );
 };
 
