@@ -6,6 +6,7 @@ const useControllerList = ({ address }: { address: string }) => {
     queryKey: ['controllerList', address],
     queryFn: () => fetchControllersForUser(address),
     enabled: !!address,
+    staleTime: 1000 * 60 * 15, // 15 minutes
   });
 
   return { data, isLoading };

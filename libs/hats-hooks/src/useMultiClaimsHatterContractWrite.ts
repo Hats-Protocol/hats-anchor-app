@@ -6,7 +6,7 @@ import { HandlePendingTx } from 'hats-types';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
 
 interface ContractInteractionProps {
@@ -31,6 +31,7 @@ const useMultiClaimsHatterContractWrite = ({
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] =
     useState(false);
   const toast = useToast();
+  const userChainId = useChainId();
   const queryClient = useQueryClient();
 
   // TODO fetch abi from modules sdk
@@ -45,6 +46,7 @@ const useMultiClaimsHatterContractWrite = ({
       enabled &&
       !!address &&
       !!chainId &&
+      chainId === userChainId &&
       !!functionName &&
       // module creation args could be optional in some cases
       (!_.isEmpty(args) ? !_.some(args, _.isUndefined) : true), // currently we're assuming not

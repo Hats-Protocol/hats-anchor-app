@@ -27,15 +27,18 @@ const useSafeDetails = ({
   safeAddress,
   chainId,
   enabled = true,
+  editMode = false,
 }: {
   safeAddress: Hex;
   chainId: SupportedChains;
   enabled?: boolean;
+  editMode?: boolean;
 }) => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['safeDetails', { safeAddress, chainId }],
     queryFn: () => fetchSafeDetails(safeAddress, chainId),
     enabled: !!safeAddress && !!chainId && !!enabled,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15,
   });
 
   return {

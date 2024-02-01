@@ -53,6 +53,7 @@ const useAllWearers = ({
     queryKey: ['allWearers', selectedHat?.id],
     queryFn: fetchAllWearers,
     enabled: enabled && !!selectedHat?.id && !!chainId,
+    staleTime: 1000 * 60 * 60 * 6, // 6 hours
   });
 
   return { wearers: data, error, isLoading };

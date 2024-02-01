@@ -8,11 +8,13 @@ const useHsgSigner = ({
   signer,
   chainId,
   enabled,
+  editMode,
 }: {
   instance: Hex;
   signer: Hex;
   chainId: SupportedChains;
   enabled: boolean;
+  editMode?: boolean;
 }) => {
   const checkClaimedSignerRights = async () => {
     const signerGateClient = await createHatsSignerGateClient(chainId);
@@ -35,6 +37,7 @@ const useHsgSigner = ({
     queryKey: ['hsgSigner', instance, signer],
     queryFn: checkClaimedSignerRights,
     enabled,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return { data, isLoading };

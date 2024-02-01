@@ -53,7 +53,7 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
     queryKey: ['searchResults', localSearch],
     queryFn: () => searchQueryResult(localSearch),
     enabled: !!localSearch && localSearch !== '0x' && valid,
-    refetchInterval: 1000 * 60 * 60 * 24,
+    refetchInterval: 1000 * 60 * 60 * 24, // 24 hours
   });
 
   return {
