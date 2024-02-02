@@ -25,10 +25,7 @@ const UpcomingSeason = () => {
   const { setModals } = localOverlay;
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
-
-  const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
-    _.includes(fn.roles, 'public'),
-  );
+  const moduleActions = _.get(moduleDetails, 'writeFunctions');
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({

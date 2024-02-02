@@ -1,7 +1,7 @@
 import {
+  AspectRatio,
   Badge,
   Box,
-  Flex,
   HStack,
   Icon,
   Image,
@@ -45,28 +45,22 @@ const Header = () => {
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   return (
-    <HStack>
-      <Box
-        h='100px'
-        w='100px'
-        overflow='hidden'
-        border='3px solid'
-        borderColor='gray.700'
-        borderRadius='md'
-        top='110px'
-      >
+    <HStack w='2xl' gap={10}>
+      <AspectRatio ratio={1} w='120px'>
         <Image
-          loading='lazy'
-          src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+          src={selectedHat?.imageUrl || '/icon.jpeg'}
           alt='hat image'
-          background='white'
+          loading='lazy'
           objectFit='cover'
-          h='100%'
+          boxSize='120px'
+          border='1px solid'
+          borderColor='gray.700'
+          borderRadius='md'
         />
-      </Box>
+      </AspectRatio>
       <Stack spacing={1} w='full'>
-        <Stack w='full' spacing={1}>
-          <HStack justifyContent='space-between'>
+        <Stack w='full' gap={1}>
+          <HStack justifyContent='space-between' lineHeight={6}>
             <Tooltip label={name || selectedHat?.details}>
               <Text fontSize={24} isTruncated fontWeight='semibold'>
                 {name || selectedHat?.details}
