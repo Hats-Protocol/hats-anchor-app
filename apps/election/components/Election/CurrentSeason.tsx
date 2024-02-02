@@ -1,10 +1,9 @@
-import { HStack, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
-import { BsQuestionCircle } from 'react-icons/bs';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
+import DateInfo from './DateInfo';
 
 const CurrentSeason = () => {
   const { moduleParameters } = useEligibility();
@@ -22,37 +21,13 @@ const CurrentSeason = () => {
   }
 
   return (
-    <Stack>
+    <Stack gap={4}>
       <Text fontWeight='bold'>Current Season</Text>
-      <HStack justifyContent='space-between'>
-        <HStack>
-          <Text>Term End</Text>
-          <Tooltip
-            label='The end of the current term.'
-            placement='bottom'
-            shouldWrapChildren
-          >
-            <BsQuestionCircle />
-          </Tooltip>
-        </HStack>
-        {currentTermEnd && currentTermEnd.value === BigInt(0) ? (
-          <Text fontSize='sm' color='gray.500'>
-            Not Set
-          </Text>
-        ) : (
-          currentTermEnd && (
-            <Tooltip
-              label={`${format(date, 'yyyy-MM-dd HH:mm:ss')} UTC`}
-              placement='left'
-            >
-              <Text fontSize='sm' color='gray.500'>
-                {formatDistanceToNow(date)}{' '}
-                {new Date() > date ? 'ago' : 'from now'}
-              </Text>
-            </Tooltip>
-          )
-        )}
-      </HStack>
+      <DateInfo
+        date={date}
+        tooltipValue='The end of the current term.'
+        label='Term End'
+      />
     </Stack>
   );
 };

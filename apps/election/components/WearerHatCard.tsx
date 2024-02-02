@@ -1,5 +1,5 @@
 import { Box, Card, Flex, Text } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { getTreeId } from 'hats-utils';
@@ -9,7 +9,7 @@ import { ChakraNextLink } from 'ui';
 import { useEligibility } from '../contexts/EligibilityContext';
 
 // TODO optimize top hat fetch
-const WearerHatCard = ({ hat }: { hat: AppHat }) => {
+const WearerHatCard = ({ hat, link }: { hat: AppHat; link: string }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
   const { chainId } = useEligibility();
 
@@ -31,11 +31,7 @@ const WearerHatCard = ({ hat }: { hat: AppHat }) => {
       : _.get(topHat, 'details');
 
   return (
-    <ChakraNextLink
-      href={`/trees/${_.get(hat, 'chainId')}/${Number(
-        hatIdToTreeId(BigInt(_.get(hat, 'id'))),
-      )}?hatId=${hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}`}
-    >
+    <ChakraNextLink href={link}>
       <Card
         key={_.get(hat, 'id')}
         overflow='hidden'

@@ -34,7 +34,7 @@ const useModuleDetails = ({
     };
   };
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['moduleDetails', address],
     queryFn: getModuleData,
     enabled:
@@ -44,7 +44,7 @@ const useModuleDetails = ({
       enabled,
   });
 
-  return { details: data?.details, parameters: data?.parameters };
+  return { details: data?.details, parameters: data?.parameters, isLoading };
 };
 
 export default useModuleDetails;

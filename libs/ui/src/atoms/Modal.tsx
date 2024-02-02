@@ -71,7 +71,7 @@ const Modal = ({
       >
         {customHeader || (
           <ModalHeader>
-            <Heading size={size} fontSize={size ? undefined : '24px'}>
+            <Heading size={size} fontSize='24px'>
               {title}
             </Heading>
           </ModalHeader>

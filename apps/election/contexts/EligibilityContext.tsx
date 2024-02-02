@@ -20,6 +20,8 @@ export interface EligibilityContextProps {
   moduleDetails: Module;
   moduleParameters: ModuleParameter[];
   controllerAddress: Hex;
+  isHatDetailsLoading: boolean;
+  isModuleDetailsLoading: boolean;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
@@ -31,6 +33,8 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   moduleDetails: undefined,
   moduleParameters: undefined,
   controllerAddress: undefined,
+  isHatDetailsLoading: false,
+  isModuleDetailsLoading: false,
 });
 
 export const EligibilityContextProvider = ({
@@ -49,7 +53,8 @@ export const EligibilityContextProvider = ({
     hatId,
   });
 
-  const { data: hatDetails } = useHatDetailsField(selectedHat?.details);
+  const { data: hatDetails, isLoading: isHatDetailsLoading } =
+    useHatDetailsField(selectedHat?.details);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: [selectedHat],
@@ -60,7 +65,11 @@ export const EligibilityContextProvider = ({
     _.toLower(MODULE_TYPES.eligibility),
   );
 
-  const { details, parameters } = useModuleDetails({
+  const {
+    details,
+    parameters,
+    isLoading: isModuleDetailsLoading,
+  } = useModuleDetails({
     address: controllerAddress,
     chainId,
   });
@@ -75,6 +84,8 @@ export const EligibilityContextProvider = ({
       moduleDetails: details,
       moduleParameters: parameters,
       controllerAddress,
+      isHatDetailsLoading,
+      isModuleDetailsLoading,
     }),
     [
       chainId,
@@ -85,6 +96,8 @@ export const EligibilityContextProvider = ({
       details,
       parameters,
       controllerAddress,
+      isHatDetailsLoading,
+      isModuleDetailsLoading,
     ],
   );
 

@@ -1,7 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import {
   Box,
-  Button,
   Divider,
   Flex,
   Heading,
@@ -10,14 +9,13 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { CONFIG, orderedChains } from 'app-constants';
+import { orderedChains } from 'app-constants';
 import { useImageURIs } from 'app-hooks';
 import { chainsMap, formatAddress } from 'app-utils';
 import { useWearerDetails } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
-import { BsDiagram3 } from 'react-icons/bs';
-import { ChakraNextLink } from 'ui';
+import { idToIp } from 'shared-utils';
 import { useAccount, useEnsName } from 'wagmi';
 
 import Layout from '../components/Layout';
@@ -69,17 +67,6 @@ const Home = () => {
                 </Text>
               )}
             </Stack>
-
-            <Box>
-              <ChakraNextLink href='/trees/new'>
-                <Button colorScheme='blue' py={6} px={8}>
-                  <BsDiagram3 />
-                  <Text fontSize={18} fontWeight='medium' noOfLines={1} ml={3}>
-                    Create a new {CONFIG.tree}
-                  </Text>
-                </Button>
-              </ChakraNextLink>
-            </Box>
           </Flex>
         ) : (
           <Stack>
@@ -120,7 +107,11 @@ const Home = () => {
                           chainId: Number(chainId),
                         }),
                         (hat: AppHat) => (
-                          <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
+                          <CoreHat
+                            hat={hat}
+                            key={`${chainId}-${hat.id}`}
+                            link={`/${hat.chainId}/${idToIp(hat.id)}`}
+                          />
                         ),
                       )}
                     </SimpleGrid>

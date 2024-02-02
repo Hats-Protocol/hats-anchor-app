@@ -146,6 +146,7 @@ export const OverlayContextProvider = ({
     () => ({
       modals,
       closeModals,
+      setModals,
       commandPalette,
       setCommandPalette,
       recentlyVisitedHats,

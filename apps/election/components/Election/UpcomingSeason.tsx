@@ -13,13 +13,44 @@ import _ from 'lodash';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Modal } from 'ui';
+import { useChainId } from 'wagmi';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';
 import ModuleArgsForm from '../ModuleArgsForm';
+import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {
-  const { moduleDetails, controllerAddress, chainId } = useEligibility();
+  const { moduleDetails, moduleParameters, controllerAddress, chainId } =
+    useEligibility();
+
+  const currentNetworkId = useChainId();
+  const isSameChain = chainId === currentNetworkId;
+
+  const currentTermEnd = _.find(moduleParameters, {
+    label: 'Current Term End',
+  });
+
+  const nextTermEnd = _.find(moduleParameters, {
+    label: 'Next Term End',
+  });
+
+  let currentTermEndDate;
+  if (typeof currentTermEnd?.value === 'bigint') {
+    currentTermEndDate = new Date(Number(currentTermEnd.value) * 1000);
+  } else {
+    console.error('Invalid value for currentTermEnd: ', currentTermEnd?.value);
+    currentTermEndDate = new Date();
+  }
+
+  let nextTermEndDate;
+  if (typeof nextTermEnd?.value === 'bigint') {
+    nextTermEndDate = new Date(Number(nextTermEnd.value) * 1000);
+  } else {
+    console.error('Invalid value for nextTermEnd: ', nextTermEnd?.value);
+    nextTermEndDate = new Date();
+  }
+
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
@@ -46,24 +77,52 @@ const UpcomingSeason = () => {
     }
   };
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
     // eslint-disable-next-line no-console
-    console.log(values);
+    await callModuleFunction({
+      moduleId: moduleDetails.implementationAddress,
+      instance: controllerAddress,
+      func: selectedFunction,
+      args: values,
+    });
+
+    setModals({});
   };
 
   return (
-    <Stack>
+    <Stack gap={4}>
       <Text fontWeight='bold'>Upcoming Season</Text>
+      <HStack justifyContent='space-between' gap={20}>
+        <DateInfo
+          date={currentTermEndDate}
+          tooltipValue='The end of the current term.'
+          label='Term End'
+        />
+        <DateInfo
+          date={nextTermEndDate}
+          tooltipValue='The end of the next term.'
+          label='Next Term End'
+        />
+      </HStack>
       <Flex gap={2} wrap='wrap'>
         {_.map(moduleActions, (action) => (
-          <Tooltip label={action.description} key={action.label}>
+          <Tooltip
+            label={
+              !isSameChain
+                ? 'Please switch to the correct network'
+                : action.description
+            }
+            key={action.label}
+          >
             <Button
-              variant='outlineMatch'
-              colorScheme='blue.500'
+              variant='outline'
+              borderColor='blackAlpha.300'
+              fontWeight='medium'
               size='sm'
+              isDisabled={!isSameChain}
               onClick={() => handleFunctionCall(action)}
             >
-              {action.label}
+              {action.label.charAt(0).toUpperCase() + action.label.slice(1)}
             </Button>
           </Tooltip>
         ))}
