@@ -64,7 +64,7 @@ const Header = () => {
           h='100%'
         />
       </Box>
-      <Stack spacing={4} w='full'>
+      <Stack spacing={1} w='full'>
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
             <Tooltip label={name || selectedHat?.details}>

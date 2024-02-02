@@ -1,9 +1,13 @@
+import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { MODULE_TYPES } from 'app-constants';
 import {
   useHatDetails,
   useHatDetailsField,
+  useModuleDetails,
   useWearersControllersDetails,
 } from 'hats-hooks';
 import { AppHat, HatDetails, HatWearer, SupportedChains } from 'hats-types';
+import _ from 'lodash';
 import { createContext, useContext, useMemo } from 'react';
 import { Hex } from 'viem';
 
@@ -13,6 +17,9 @@ export interface EligibilityContextProps {
   selectedHatDetails: HatDetails | undefined;
   wearersAndControllers: HatWearer[] | undefined;
   treeId: Hex;
+  moduleDetails: Module;
+  moduleParameters: ModuleParameter[];
+  controllerAddress: Hex;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
@@ -21,6 +28,9 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   selectedHatDetails: undefined,
   wearersAndControllers: undefined,
   treeId: undefined,
+  moduleDetails: undefined,
+  moduleParameters: undefined,
+  controllerAddress: undefined,
 });
 
 export const EligibilityContextProvider = ({
@@ -45,7 +55,15 @@ export const EligibilityContextProvider = ({
     hats: [selectedHat],
   });
 
-  // get all module resolution in here as well
+  const controllerAddress = _.get(
+    selectedHat,
+    _.toLower(MODULE_TYPES.eligibility),
+  );
+
+  const { details, parameters } = useModuleDetails({
+    address: controllerAddress,
+    chainId,
+  });
 
   const value = useMemo(
     () => ({
@@ -54,8 +72,20 @@ export const EligibilityContextProvider = ({
       selectedHatDetails: hatDetails?.data,
       wearersAndControllers,
       treeId,
+      moduleDetails: details,
+      moduleParameters: parameters,
+      controllerAddress,
     }),
-    [chainId, hatDetails, selectedHat, treeId, wearersAndControllers],
+    [
+      chainId,
+      hatDetails,
+      selectedHat,
+      treeId,
+      wearersAndControllers,
+      details,
+      parameters,
+      controllerAddress,
+    ],
   );
 
   return (
