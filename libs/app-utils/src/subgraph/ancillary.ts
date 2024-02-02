@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { ANCILLARY_API_URL } from 'app-constants';
 import { gql, GraphQLClient } from 'graphql-request';
 import { HatAuthorityResponse, SupportedChains } from 'hats-types';
 
@@ -62,21 +63,6 @@ const MODULES_QUERY = gql`
     }
   }
 `;
-
-const ANCILLARY_API_URL: { [key in SupportedChains]: string | undefined } = {
-  1: 'https://api.studio.thegraph.com/query/55784/hats-v1-ethereum-ancillary/version/latest',
-  5: 'https://api.studio.thegraph.com/query/55784/hats-v1-goerli-ancillary/version/latest',
-  10: 'https://api.studio.thegraph.com/query/55784/hats-v1-optimism-ancillary/version/latest',
-  100: 'https://api.studio.thegraph.com/query/55784/hats-v1-gnosis-chain-ancillary/version/latest',
-  137: 'https://api.studio.thegraph.com/query/55784/hats-v1-polygon-ancillary/version/latest',
-  8453: 'https://api.studio.thegraph.com/query/55784/hats-v1-base-ancillary/version/latest',
-  42161:
-    'https://api.studio.thegraph.com/query/55784/hats-v1-arbitrum-ancillary/version/latest',
-  42220:
-    'https://api.studio.thegraph.com/query/55784/hats-v1-celo-ancillary/version/latest',
-  11155111:
-    'https://api.studio.thegraph.com/query/55784/hats-v1-sepolia-ancillary/version/latest',
-};
 
 const ancillarySubgraphClient = (chainId: SupportedChains) => {
   const url = ANCILLARY_API_URL[chainId];

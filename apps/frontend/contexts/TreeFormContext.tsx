@@ -30,11 +30,11 @@ import {
   Authority,
   FormData,
   HatDetails,
-  HatEvent,
   HatWearer,
   Hierarchy,
   LinkRequest,
   SupportedChains,
+  TreeEvent,
 } from 'hats-types';
 import { combineAuthorities, translateDrafts } from 'hats-utils';
 import _ from 'lodash';
@@ -69,7 +69,7 @@ export interface TreeFormContext {
   selectedHatSpaces: Authority[] | undefined;
   combinedAuthorities: Authority[] | undefined;
 
-  treeEvents: HatEvent[] | undefined;
+  treeEvents: TreeEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
   linkedHatIds?: Hex[];

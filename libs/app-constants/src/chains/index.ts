@@ -2,10 +2,10 @@ import { SupportedChains } from 'hats-types';
 import {
   arbitrum,
   base,
-  celo as defaultCelo,
+  celo,
   // baseSepolia,
   Chain,
-  gnosis as defaultGnosis,
+  gnosis,
   goerli,
   mainnet,
   optimism,
@@ -14,7 +14,7 @@ import {
 } from 'wagmi/chains';
 
 // ORDER HERE WILL BE USED IN THE UI
-export const orderedChains = [
+export const orderedChains: SupportedChains[] = [
   // main networks
   1, // mainnet
   10, // optimism
@@ -29,7 +29,7 @@ export const orderedChains = [
   // 84532 // baseSepolia
 ];
 
-// can we use the defaults here again?
+// celo and gnosis are missing images, also used by NetworkFilter
 export const networkImages: { [key in SupportedChains]: string } = {
   1: '/chains/ethereum.svg',
   5: '/chains/ethereum.svg',
@@ -43,28 +43,21 @@ export const networkImages: { [key in SupportedChains]: string } = {
   11155111: '/chains/ethereum.svg',
 };
 
-const gnosis = {
-  ...defaultGnosis,
+const extendIcon = (chain: Chain) => ({
+  ...chain,
   hasIcon: true,
-  iconUrl: networkImages[100],
+  iconUrl: networkImages[chain.id as SupportedChains],
   iconBackground: 'none',
-};
-
-const celo = {
-  ...defaultCelo,
-  hasIcon: true,
-  iconUrl: networkImages[42220],
-  iconBackground: 'none',
-};
+});
 
 export const chainsList: { [key in SupportedChains]: Chain } = {
   1: mainnet,
   10: optimism,
   42161: arbitrum,
   137: polygon,
-  100: gnosis,
+  100: extendIcon(gnosis),
   8453: base,
-  42220: celo,
+  42220: extendIcon(celo),
 
   // TESTNETS
   5: goerli,
