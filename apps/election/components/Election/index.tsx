@@ -10,6 +10,7 @@ import Layout from '../Layout';
 import CurrentSeason from './CurrentSeason';
 import ElectionRoles from './ElectionRoles';
 import Header from './Header';
+import ProposalDetails from './ProposalDetails';
 import UpcomingSeason from './UpcomingSeason';
 import WearersList from './WearersList';
 
@@ -74,7 +75,9 @@ const Election = () => {
                     <Card p={6}>
                       <UpcomingSeason />
                     </Card>
-                    <Card p={6}>Snapshot</Card>
+                    <Card p={6}>
+                      <ProposalDetails />
+                    </Card>
                   </Stack>
                 </Box>
               </Flex>

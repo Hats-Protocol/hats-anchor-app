@@ -13,6 +13,7 @@ export * from './ipfs';
 export * from './landingContent';
 export * from './misc';
 export { default as SEO } from './next-seo.config';
+export { default as PROPOSALS } from './spaces';
 export { default as NETWORK_ENDPOINTS } from './subgraph';
 export * from './treeControls';
 
