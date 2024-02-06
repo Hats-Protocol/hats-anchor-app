@@ -4,7 +4,7 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { Hex } from 'viem';
 
 import { chainsList, createSubgraphClient } from '../web3';

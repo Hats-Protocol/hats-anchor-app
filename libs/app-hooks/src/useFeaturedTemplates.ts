@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { FEATURED_TEMPLATES } from 'app-constants';
+import { FEATURED_TEMPLATES } from '@hatsprotocol/constants';
 import { ipfsUrl } from 'app-utils';
 
 // app-hooks

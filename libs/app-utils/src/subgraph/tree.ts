@@ -1,5 +1,5 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { mapWithChainId } from 'shared-utils';
+import { mapWithChainId } from 'shared';
 
 import { createSubgraphClient } from '../web3';
 

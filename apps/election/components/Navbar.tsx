@@ -9,7 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { getOperatingSystem } from 'app-utils';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';

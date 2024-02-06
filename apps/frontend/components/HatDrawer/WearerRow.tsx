@@ -11,7 +11,7 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { formatAddress, isSameAddress } from 'app-utils';
 import {
@@ -25,7 +25,7 @@ import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
-import { idToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared';
 import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';

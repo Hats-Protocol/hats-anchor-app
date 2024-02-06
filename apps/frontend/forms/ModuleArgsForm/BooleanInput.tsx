@@ -3,7 +3,7 @@ import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import {
   FALLBACK_ARG_EXAMPLES,
   MODULE_ARG_BOOLEAN_OPTION_SETS,
-} from 'app-constants';
+} from '@hatsprotocol/constants';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';

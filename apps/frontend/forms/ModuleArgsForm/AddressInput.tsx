@@ -1,6 +1,6 @@
 import { Stack, Text } from '@chakra-ui/react';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
-import { FALLBACK_ARG_EXAMPLES } from 'app-constants';
+import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl } from 'app-utils';
 import _ from 'lodash';
@@ -44,8 +44,9 @@ const ModuleAddressInput = ({
     enabled: !!newWearer && isEns(newWearer),
   });
 
-  const showNewResolvedAddress =
-    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
+  const showNewResolvedAddress = newWearerResolvedAddress
+    ? newWearer !== newWearerResolvedAddress
+    : undefined;
 
   useEffect(() => {
     setValue(`${arg.name}-resolved`, newWearerResolvedAddress);

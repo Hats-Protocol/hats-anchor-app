@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
-import { ipToHatId } from 'shared-utils';
+import { ipToHatId } from 'shared';
 import { Suspender } from 'ui';
 import { Hex } from 'viem';
 

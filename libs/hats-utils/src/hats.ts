@@ -1,5 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
+import { MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
   AppHat,
@@ -10,7 +10,7 @@ import {
   HatWearer,
 } from 'hats-types';
 import _ from 'lodash';
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared-utils';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden

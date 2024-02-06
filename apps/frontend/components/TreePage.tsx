@@ -18,7 +18,7 @@ import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
-import { prettyIdToId } from 'shared-utils';
+import { prettyIdToId } from 'shared';
 import { ChakraNextLink, Modal, Suspender } from 'ui';
 
 import { useOverlay } from '../contexts/OverlayContext';

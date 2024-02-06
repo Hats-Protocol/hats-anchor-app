@@ -1,6 +1,6 @@
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
-import { prettyIdToIp } from 'shared-utils';
+import { prettyIdToIp } from 'shared';
 import { Modal } from 'ui';
 
 import { useOverlay } from '../../../contexts/OverlayContext';

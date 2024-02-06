@@ -4,7 +4,7 @@ import {
   verify,
 } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
+import { CONFIG, GATEWAY_TOKEN } from '@hatsprotocol/constants';
 import { format } from 'date-fns';
 import _ from 'lodash';
 import { isAddress } from 'viem';
@@ -126,7 +126,8 @@ export const formatImageUrl = (url?: string) => {
 
 const convertToBigInt = (input: unknown) => {
   // directly convert, if string (but make sure it's not a decimal or will crash)
-  if (_.isString(input) && !input.includes('.')) {
+  const localString = _.toString(input);
+  if (localString && !localString?.includes('.')) {
     return BigInt(input as string);
   }
   // handle numbers

@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { networkImages } from 'app-constants';
+import { networkImages } from '@hatsprotocol/constants';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';

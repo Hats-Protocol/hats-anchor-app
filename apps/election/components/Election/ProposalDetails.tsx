@@ -10,10 +10,10 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { PROPOSALS } from 'app-constants';
+import { PROPOSALS } from '@hatsprotocol/constants';
 import { useProposalDetails } from 'app-hooks';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 

@@ -5,7 +5,7 @@ import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { prettyIdToIp } from 'shared-utils';
+import { prettyIdToIp } from 'shared';
 import { Accordion } from 'ui';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';

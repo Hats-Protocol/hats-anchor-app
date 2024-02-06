@@ -7,7 +7,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { TemplateData } from 'app-constants';
+import { TemplateData } from '@hatsprotocol/constants';
 import { useEffect, useState } from 'react';
 import { BsPeopleFill } from 'react-icons/bs';
 import { ChakraNextLink } from 'ui';

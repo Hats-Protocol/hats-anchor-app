@@ -1,5 +1,5 @@
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { OverlayContextProps } from 'app-constants';
+import { OverlayContextProps } from '@hatsprotocol/constants';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
 import { Transaction } from 'hats-types';

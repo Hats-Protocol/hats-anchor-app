@@ -12,7 +12,7 @@ type AddressInputProps = {
   // docsLink?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
-  showResolvedAddress: boolean;
+  showResolvedAddress?: boolean;
   isDisabled?: boolean;
   resolvedAddress: string;
   placeholder?: string;

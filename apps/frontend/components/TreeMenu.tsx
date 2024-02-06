@@ -23,7 +23,7 @@ import {
   useDisclosure,
   UseDisclosureReturn,
 } from '@chakra-ui/react';
-import { CONFIG, initialControls } from 'app-constants';
+import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useIsClient } from 'app-hooks';
 import { chainsMap, explorerUrl } from 'app-utils';
 import { formatDistanceToNow } from 'date-fns';

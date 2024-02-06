@@ -5,7 +5,11 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
+import {
+  AUTHORITY_TYPES,
+  CONFIG,
+  TRIGGER_OPTIONS,
+} from '@hatsprotocol/constants';
 import {
   createHatsModulesClient,
   explorerUrl,
@@ -23,7 +27,7 @@ import {
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
-import { ipToHatId } from 'shared-utils';
+import { ipToHatId } from 'shared';
 import { Hex, parseUnits } from 'viem';
 
 import { formHatUrl, safeUrl } from './controllers';

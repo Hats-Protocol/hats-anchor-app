@@ -1,5 +1,5 @@
+import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { MODULE_TYPES } from 'app-constants';
 import {
   useAncillaryElection,
   useHatDetails,

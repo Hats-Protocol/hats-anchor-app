@@ -16,7 +16,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from 'app-constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { usePinImageIpfs } from 'app-hooks';
 import { formatImageUrl, getHostnameFromURL } from 'app-utils';
 import { id } from 'date-fns/locale';

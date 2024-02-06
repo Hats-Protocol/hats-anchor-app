@@ -12,7 +12,7 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { orderedChains } from 'app-constants';
+import { orderedChains } from '@hatsprotocol/constants';
 import { chainsMap, explorerUrl, formatAddress } from 'app-utils';
 import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails, SupportedChains } from 'hats-types';

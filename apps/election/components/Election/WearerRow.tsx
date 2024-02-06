@@ -1,5 +1,5 @@
 import { Flex, Icon, Image, Text } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { formatAddress, isSameAddress } from 'app-utils';
 import { useModuleDetails } from 'hats-hooks';
 import { HatWearer } from 'hats-types';

@@ -12,7 +12,7 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
 import { chainsMap, fetchToken, pinJson } from 'app-utils';
 import { useTreeCreate } from 'hats-hooks';

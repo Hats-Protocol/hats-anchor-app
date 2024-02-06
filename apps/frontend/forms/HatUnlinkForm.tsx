@@ -3,7 +3,7 @@ import { useDebounce } from 'app-hooks';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { prettyIdToIp } from 'shared-utils';
+import { prettyIdToIp } from 'shared';
 import { Select } from 'ui';
 import { Hex, isAddress } from 'viem';
 

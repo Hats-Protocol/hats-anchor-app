@@ -16,7 +16,7 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
-import { orderedChains } from 'app-constants';
+import { orderedChains } from '@hatsprotocol/constants';
 import { useImageURIs, useToast } from 'app-hooks';
 import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import blockies from 'blockies-ts';

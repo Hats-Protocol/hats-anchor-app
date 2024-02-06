@@ -1,6 +1,6 @@
 import { Stack, Text } from '@chakra-ui/react';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
-import { FALLBACK_ARG_EXAMPLES } from 'app-constants';
+import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { transformAndVerify } from 'app-utils';
 import _ from 'lodash';
 import React from 'react';

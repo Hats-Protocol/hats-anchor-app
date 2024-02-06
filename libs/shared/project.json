@@ -1,7 +1,7 @@
 {
-  "name": "app-constants",
+  "name": "shared",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/app-constants/src",
+  "sourceRoot": "libs/shared/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,18 +9,18 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/app-constants",
-        "main": "libs/app-constants/src/index.ts",
-        "packageJson": "libs/app-constants/package.json",
-        "tsConfig": "libs/app-constants/tsconfig.lib.json",
-        "assets": ["libs/app-constants/*.md"],
+        "outputPath": "dist/libs/shared",
+        "main": "libs/shared/src/index.ts",
+        "packageJson": "libs/shared/package.json",
+        "tsConfig": "libs/shared/tsconfig.lib.json",
+        "assets": ["libs/shared/*.md"],
         "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs app-constants {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs shared {args.ver} {args.tag}"
       },
       "dependsOn": [
         {
@@ -32,14 +32,14 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/app-constants/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/shared/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/app-constants"],
+      "outputs": ["{workspaceRoot}/coverage/libs/shared"],
       "options": {
-        "jestConfig": "libs/app-constants/jest.config.ts",
+        "jestConfig": "libs/shared/jest.config.ts",
         "passWithNoTests": true
       }
     }

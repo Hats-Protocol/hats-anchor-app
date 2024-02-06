@@ -17,7 +17,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { CONFIG, HATS_ABI } from 'app-constants';
+import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import {
@@ -34,7 +34,7 @@ import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
-import { idToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared';
 import { DropZone, NumberInput } from 'ui';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';

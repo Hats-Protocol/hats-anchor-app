@@ -10,7 +10,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { MUTABILITY, STATUS } from 'app-constants';
+import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';

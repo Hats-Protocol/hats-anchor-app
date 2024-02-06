@@ -1,5 +1,5 @@
 import { Box, Heading, Stack } from '@chakra-ui/react';
-import { MODULE_TYPES } from 'app-constants';
+import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { checkAddressIsContract } from 'app-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

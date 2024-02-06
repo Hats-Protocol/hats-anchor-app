@@ -6,7 +6,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { searchQueryResult } from 'app-utils';
 import _ from 'lodash';
-import { ipToPrettyId, toTreeId } from 'shared-utils';
+import { ipToPrettyId, toTreeId } from 'shared';
 
 // TODO refactor without prettyId
 

@@ -9,7 +9,7 @@ import {
   MenuList,
   Text,
 } from '@chakra-ui/react';
-import { networkImages, orderedChains } from 'app-constants';
+import { networkImages, orderedChains } from '@hatsprotocol/constants';
 import { chainsMap } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';

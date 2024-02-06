@@ -1,6 +1,6 @@
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { FALLBACK_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { createHatsModulesClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import { Hex, zeroAddress } from 'viem';

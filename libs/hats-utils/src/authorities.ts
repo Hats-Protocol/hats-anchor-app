@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { AUTHORITY_TYPES } from 'app-constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 

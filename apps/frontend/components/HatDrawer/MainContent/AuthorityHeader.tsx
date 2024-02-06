@@ -16,7 +16,7 @@ import {
   AUTHORITY_TYPES,
   AuthorityInfo,
   AuthorityPlatform,
-} from 'app-constants';
+} from '@hatsprotocol/constants';
 import { useSafeDetails } from 'app-hooks';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
 import { Authority } from 'hats-types';

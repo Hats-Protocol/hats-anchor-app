@@ -11,7 +11,7 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { CONFIG, MUTABILITY } from 'app-constants';
+import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { isSameAddress } from 'app-utils';
 import {
@@ -32,7 +32,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
-import { idToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../../contexts/OverlayContext';

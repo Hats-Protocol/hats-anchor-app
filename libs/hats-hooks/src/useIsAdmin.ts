@@ -1,4 +1,4 @@
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { Hex } from 'viem';
 import { useContractRead } from 'wagmi';
 

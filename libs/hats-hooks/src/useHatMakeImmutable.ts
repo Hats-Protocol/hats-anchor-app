@@ -2,7 +2,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AppHat, SupportedChains } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { toTreeId } from 'shared-utils';
+import { toTreeId } from 'shared';
 import { useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';

@@ -11,7 +11,7 @@ import {
 import {
   OverlayContextProps,
   OverlayContextPropsElection,
-} from 'app-constants';
+} from '@hatsprotocol/constants';
 import React, { ReactNode } from 'react';
 
 /**

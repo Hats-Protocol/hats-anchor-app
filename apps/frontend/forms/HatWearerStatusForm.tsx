@@ -14,7 +14,7 @@ import { useHatContractWrite } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
-import { idToIp, toTreeId } from 'shared-utils';
+import { idToIp, toTreeId } from 'shared';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 

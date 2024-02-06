@@ -1,5 +1,5 @@
 import { Button, Flex, HStack, Icon, Tooltip } from '@chakra-ui/react';
-import { DEPLOYMENT_TYPES } from 'app-constants';
+import { DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import {
   useHatDetails,
   useModuleDeploy,

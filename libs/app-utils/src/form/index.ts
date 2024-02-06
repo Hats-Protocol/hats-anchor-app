@@ -1,5 +1,9 @@
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
-import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
+import {
+  FALLBACK_ADDRESS,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@hatsprotocol/constants';
 import {
   AppHat,
   FieldItem,
@@ -12,7 +16,7 @@ import {
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
-import { createHierarchy, getDefaultAdminId, idToIp } from 'shared-utils';
+import { createHierarchy, getDefaultAdminId, idToIp } from 'shared';
 import { Hex } from 'viem';
 
 import { calculateCid, ipfsUrl, urlToIpfsUri } from '../ipfs';

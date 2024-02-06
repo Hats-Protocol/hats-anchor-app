@@ -9,13 +9,13 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { orderedChains } from 'app-constants';
+import { orderedChains } from '@hatsprotocol/constants';
 import { useImageURIs } from 'app-hooks';
 import { chainsMap, formatAddress } from 'app-utils';
 import { useWearerDetails } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { useAccount, useEnsName } from 'wagmi';
 
 import Layout from '../components/Layout';

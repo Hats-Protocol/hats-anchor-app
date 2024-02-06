@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { mapWithChainId } from 'shared-utils';
+import { mapWithChainId } from 'shared';
 
 import Layout from '../../../components/Layout';
 import NetworkFilter from '../../../components/NetworkFilter';

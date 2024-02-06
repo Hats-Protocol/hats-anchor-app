@@ -11,7 +11,12 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react';
-import { CONFIG, LEARN_MORE, orderedChains, TemplateData } from 'app-constants';
+import {
+  CONFIG,
+  LEARN_MORE,
+  orderedChains,
+  TemplateData,
+} from '@hatsprotocol/constants';
 import {
   useFeaturedTemplates,
   useFeaturedTrees,

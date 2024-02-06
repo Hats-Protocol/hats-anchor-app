@@ -1,5 +1,5 @@
 import { Module } from '@hatsprotocol/modules-sdk';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import {
   createHatsClient,
@@ -9,7 +9,7 @@ import {
 import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useContractRead } from 'wagmi';
 

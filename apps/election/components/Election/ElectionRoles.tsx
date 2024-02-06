@@ -1,5 +1,5 @@
 import { Stack, Text } from '@chakra-ui/react';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 

@@ -27,7 +27,7 @@ import {
 import _ from 'lodash';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
-import { prettyIdToId } from 'shared-utils';
+import { prettyIdToId } from 'shared';
 import { Markdown, Modal } from 'ui';
 import { Hex } from 'viem';
 

@@ -1,6 +1,6 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { createHatsModulesClient } from 'app-utils';
 import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';

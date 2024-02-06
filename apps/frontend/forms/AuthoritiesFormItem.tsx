@@ -1,5 +1,5 @@
 import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from 'app-constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { getHostnameFromURL } from 'app-utils';
 import _ from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';

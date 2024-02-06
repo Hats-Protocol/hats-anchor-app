@@ -20,7 +20,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useLocalStorage } from 'app-hooks';
 import { containsUpperCase, getOperatingSystem } from 'app-utils';
 import { useHatDetailsField } from 'hats-hooks';

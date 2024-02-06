@@ -3,7 +3,7 @@ import {
   FALLBACK_ADDRESS,
   MUTABILITY,
   TRIGGER_OPTIONS,
-} from 'app-constants';
+} from '@hatsprotocol/constants';
 import { useDebounce, useToast } from 'app-hooks';
 import { fieldsAreDirty, getDirtyFields } from 'app-utils';
 import { FieldItem, FormData, FormFieldKeys } from 'hats-types';

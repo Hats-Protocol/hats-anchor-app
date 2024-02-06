@@ -1,4 +1,4 @@
-import { OverlayContextPropsElection } from 'app-constants';
+import { OverlayContextPropsElection } from '@hatsprotocol/constants';
 import { useLocalStorage, useToast } from 'app-hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';

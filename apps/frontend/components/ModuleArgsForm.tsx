@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import {
   ChakraNextLink,
   DatePicker,

@@ -1,5 +1,5 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
-import { CONTACT_URL } from 'app-constants';
+import { CONTACT_URL } from '@hatsprotocol/constants';
 import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';

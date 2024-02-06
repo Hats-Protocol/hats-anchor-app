@@ -16,7 +16,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { FALLBACK_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';

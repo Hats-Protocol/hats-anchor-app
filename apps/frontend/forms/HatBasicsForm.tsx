@@ -7,7 +7,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { MUTABILITY } from 'app-constants';
+import { MUTABILITY } from '@hatsprotocol/constants';
 import { usePinImageIpfs } from 'app-hooks';
 import { formatImageUrl } from 'app-utils';
 import { ImageFile } from 'hats-types';

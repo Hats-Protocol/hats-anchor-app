@@ -4,7 +4,7 @@ import { AppHat } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import React, { ChangeEvent, useState } from 'react';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { Input, Select } from 'ui';
 
 import { useTreeForm } from '../../contexts/TreeFormContext';

@@ -18,7 +18,7 @@ import {
   BsPersonCheck,
   BsPuzzle,
 } from 'react-icons/bs';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { ChakraNextLink, RadioBox, Select } from 'ui';
 import { Hex } from 'viem';
 

@@ -25,7 +25,7 @@ const CurrentSeason = () => {
       <Text fontWeight='bold'>Current Season</Text>
       <DateInfo
         date={date}
-        tooltipValue='The end of the current term.'
+        // tooltipValue='The end of the current term.'
         label='Term End'
       />
     </Stack>

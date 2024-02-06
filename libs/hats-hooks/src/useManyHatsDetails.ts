@@ -2,7 +2,7 @@ import { useQueries } from '@tanstack/react-query';
 import { fetchHatDetails } from 'app-utils';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
-import { mapWithChainId } from 'shared-utils';
+import { mapWithChainId } from 'shared';
 
 const useManyHatsDetails = ({
   hats,

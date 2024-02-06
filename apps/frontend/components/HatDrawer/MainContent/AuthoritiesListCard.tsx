@@ -12,7 +12,7 @@ import {
   IconButton,
   Text,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from 'app-constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { getHostnameFromURL, validateURL } from 'app-utils';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';

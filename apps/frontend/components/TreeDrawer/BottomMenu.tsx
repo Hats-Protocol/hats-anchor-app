@@ -15,7 +15,7 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';

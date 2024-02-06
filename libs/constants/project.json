@@ -1,7 +1,7 @@
 {
-  "name": "shared-utils",
+  "name": "@hatsprotocol/constants",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared-utils/src",
+  "sourceRoot": "libs/constants/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,18 +9,18 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/shared-utils",
-        "main": "libs/shared-utils/src/index.ts",
-        "packageJson": "libs/shared-utils/package.json",
-        "tsConfig": "libs/shared-utils/tsconfig.lib.json",
-        "assets": ["libs/shared-utils/*.md"],
+        "outputPath": "dist/libs/constants",
+        "main": "libs/constants/src/index.ts",
+        "packageJson": "libs/constants/package.json",
+        "tsConfig": "libs/constants/tsconfig.lib.json",
+        "assets": ["libs/constants/*.md"],
         "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs shared-utils {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs constants {args.ver} {args.tag}"
       },
       "dependsOn": [
         {
@@ -32,14 +32,14 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/shared-utils/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/constants/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/shared-utils"],
+      "outputs": ["{workspaceRoot}/coverage/libs/constants"],
       "options": {
-        "jestConfig": "libs/shared-utils/jest.config.ts",
+        "jestConfig": "libs/constants/jest.config.ts",
         "passWithNoTests": true
       }
     }

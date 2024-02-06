@@ -3,7 +3,7 @@ import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
-import { DEFAULT_HAT } from 'app-constants';
+import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import {
   useBetterMediaQuery,
   useGuilds,
@@ -48,7 +48,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { createHierarchy, ipToHatId, mapWithChainId } from 'shared-utils';
+import { createHierarchy, ipToHatId, mapWithChainId } from 'shared';
 import { Hex } from 'viem';
 import { useQueryClient } from 'wagmi';
 

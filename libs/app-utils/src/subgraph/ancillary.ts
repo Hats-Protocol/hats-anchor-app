@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { ANCILLARY_API_URL } from 'app-constants';
+import { ANCILLARY_API_URL } from '@hatsprotocol/constants';
 import { gql, GraphQLClient } from 'graphql-request';
 import {
   ElectionsAuthority,

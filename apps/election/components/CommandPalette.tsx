@@ -14,7 +14,7 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';

@@ -14,7 +14,7 @@ import { formatAddress } from 'app-utils';
 import { useHatContractWrite } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { toTreeId } from 'shared-utils';
+import { toTreeId } from 'shared';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 

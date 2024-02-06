@@ -7,7 +7,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { MODULE_TYPES, TRIGGER_OPTIONS } from 'app-constants';
+import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useContractData } from 'app-hooks';
 import { explorerUrl } from 'app-utils';
 import { useModuleDetails } from 'hats-hooks';

@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { useQueryClient } from '@tanstack/react-query';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import {
   fetchToken,

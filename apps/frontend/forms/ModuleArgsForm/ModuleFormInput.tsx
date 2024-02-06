@@ -1,5 +1,5 @@
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
-import { FALLBACK_ARG_EXAMPLES } from 'app-constants';
+import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { transformAndVerify } from 'app-utils';
 import { ModuleCreationArg } from 'hats-types';
 import _ from 'lodash';
