@@ -25,7 +25,7 @@ const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails } = useEligibility();
-  const { onCopy } = useClipboard(selectedHat?.id);
+  const { onCopy } = useClipboard(selectedHat?.id as string);
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',

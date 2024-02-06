@@ -79,6 +79,20 @@ const ELECTION_QUERY = gql`
       ballotBoxHat {
         id
       }
+      terms {
+        id
+        termStartedAt
+        termEnd
+        electionCompletedAt
+        electedAccounts
+      }
+      currentTerm {
+        id
+        termStartedAt
+        termEnd
+        electionCompletedAt
+        electedAccounts
+      }
     }
   }
 `;

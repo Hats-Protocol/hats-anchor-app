@@ -2,15 +2,7 @@ import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { format, formatDistanceToNow } from 'date-fns';
 import React from 'react';
 
-const DateInfo = ({
-  date,
-  tooltipValue,
-  label,
-}: {
-  date: string;
-  tooltipValue: string;
-  label: string;
-}) => {
+const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
   const dateValue = new Date(date);
   const isNotSet = dateValue.getTime() === 0;
   const formattedDate = format(dateValue, 'yyyy-MM-dd HH:mm:ss');

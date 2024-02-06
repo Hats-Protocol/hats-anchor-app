@@ -10,7 +10,7 @@ import {
 import { formatAddress } from 'app-utils';
 import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Modal } from 'ui';
 import { useChainId } from 'wagmi';
@@ -63,6 +63,8 @@ const UpcomingSeason = () => {
       chainId,
     });
 
+  if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
+
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
@@ -78,7 +80,8 @@ const UpcomingSeason = () => {
   };
 
   const onSubmit = async (values) => {
-    // eslint-disable-next-line no-console
+    if (!selectedFunction) return;
+
     await callModuleFunction({
       moduleId: moduleDetails.implementationAddress,
       instance: controllerAddress,
@@ -86,23 +89,15 @@ const UpcomingSeason = () => {
       args: values,
     });
 
-    setModals({});
+    setModals?.({});
   };
 
   return (
     <Stack gap={4}>
       <Text fontWeight='bold'>Upcoming Season</Text>
       <HStack justifyContent='space-between' gap={20}>
-        <DateInfo
-          date={currentTermEndDate}
-          tooltipValue='The end of the current term.'
-          label='Term End'
-        />
-        <DateInfo
-          date={nextTermEndDate}
-          tooltipValue='The end of the next term.'
-          label='Next Term End'
-        />
+        <DateInfo date={currentTermEndDate} label='Term End' />
+        <DateInfo date={nextTermEndDate} label='Next Term End' />
       </HStack>
       <Flex gap={2} wrap='wrap'>
         {_.map(moduleActions, (action) => (
@@ -148,7 +143,7 @@ const UpcomingSeason = () => {
           </Stack>
           <Flex justify='flex-end' mt={4}>
             <HStack>
-              <Button variant='outline' onClick={() => setModals({})}>
+              <Button variant='outline' onClick={() => setModals?.({})}>
                 Cancel
               </Button>
               <Button
