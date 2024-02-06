@@ -1,6 +1,11 @@
 /* eslint-disable import/prefer-default-export */
 import { gql, GraphQLClient } from 'graphql-request';
-import { HatAuthorityResponse, SupportedChains } from 'hats-types';
+import {
+  ElectionsAuthority,
+  HatAuthorityResponse,
+  HatElectionResponse,
+  SupportedChains,
+} from 'hats-types';
 
 const MODULES_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {
@@ -63,6 +68,21 @@ const MODULES_QUERY = gql`
   }
 `;
 
+const ELECTION_QUERY = gql`
+  query GetElectionAuthorities($id: ID!) {
+    hatsElectionEligibility(id: $id) {
+      id
+      hatId
+      adminHat {
+        id
+      }
+      ballotBoxHat {
+        id
+      }
+    }
+  }
+`;
+
 const ANCILLARY_API_URL: { [key in SupportedChains]: string | undefined } = {
   1: 'https://api.studio.thegraph.com/query/55784/hats-v1-ethereum-ancillary/version/latest',
   5: 'https://api.studio.thegraph.com/query/55784/hats-v1-goerli-ancillary/version/latest',
@@ -101,6 +121,27 @@ export const fetchAncillaryModules = async (
     });
 
     return response.hatAuthority ? response : null;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching ancillary modules:', error);
+    return null;
+  }
+};
+
+export const fetchElectionData = async (
+  id: string,
+  chainId: SupportedChains,
+): Promise<ElectionsAuthority | null> => {
+  if (!id) return null;
+
+  try {
+    const client = ancillarySubgraphClient(chainId);
+    if (!client) return null;
+    const response = await client.request<HatElectionResponse>(ELECTION_QUERY, {
+      id,
+    });
+
+    return response?.hatsElectionEligibility || null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);

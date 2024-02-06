@@ -1,5 +1,6 @@
 export { default as useAdminOfHats } from './useAdminOfHats';
 export { default as useAllWearers } from './useAllWearers';
+export { default as useAncillaryElection } from './useAncillaryElection';
 export { default as useAncillaryModules } from './useAncillaryModules';
 export { default as useCallHsgFunction } from './useCallHsgFunction';
 export { default as useCallModuleFunction } from './useCallModuleFunction';

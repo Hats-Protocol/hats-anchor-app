@@ -95,6 +95,6 @@ export default Layout;
 
 interface LayoutProps {
   editMode?: boolean;
-  hatData?: AppHat;
+  hatData?: AppHat | null;
   children: ReactNode;
 }

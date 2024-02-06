@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from 'app-constants';
-import { containsUpperCase, getOperatingSystem } from 'app-utils';
+import { getOperatingSystem } from 'app-utils';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
@@ -23,7 +23,7 @@ import { useAccount, useChainId } from 'wagmi';
 import { useOverlay } from '../contexts/OverlayContext';
 import ConnectWallet from './ConnectWallet';
 
-const Navbar = ({ hatData }: { hatData?: AppHat }) => {
+const Navbar = ({ hatData }: { hatData?: AppHat | null }) => {
   const currentChainId = useChainId();
   const { setCommandPalette: setOpen } = useOverlay();
 
@@ -78,7 +78,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
                   Hats Election
                 </Text>
                 <Text fontSize='lg' isTruncated maxW='170px'>
-                  {containsUpperCase(tabName) ? tabName : _.capitalize(tabName)}
+                  {_.capitalize(tabName)}
                 </Text>
               </Stack>
             </Button>

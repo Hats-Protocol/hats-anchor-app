@@ -21,6 +21,8 @@ const ProposalDetails = () => {
   const { selectedHat } = useEligibility();
 
   // Assuming the structure of PROPOSALS is corrected as needed
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const proposalId = PROPOSALS[10][idToIp(selectedHat?.id)]?.[107187481].elect;
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
 

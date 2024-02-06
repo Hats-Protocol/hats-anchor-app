@@ -1,6 +1,8 @@
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { MODULE_TYPES } from 'app-constants';
 import {
+  useAncillaryElection,
+  useAncillaryModules,
   useHatDetails,
   useHatDetailsField,
   useModuleDetails,
@@ -13,15 +15,17 @@ import { Hex } from 'viem';
 
 export interface EligibilityContextProps {
   chainId: SupportedChains | undefined;
-  selectedHat: AppHat | undefined;
+  selectedHat: AppHat | null | undefined;
   selectedHatDetails: HatDetails | undefined;
   wearersAndControllers: HatWearer[] | undefined;
-  treeId: Hex;
-  moduleDetails: Module;
-  moduleParameters: ModuleParameter[];
-  controllerAddress: Hex;
-  isHatDetailsLoading: boolean;
-  isModuleDetailsLoading: boolean;
+  treeId: Hex | undefined;
+  moduleDetails: Module | undefined;
+  moduleParameters: ModuleParameter[] | undefined;
+  controllerAddress: Hex | undefined;
+  isHatDetailsLoading: boolean | undefined;
+  isModuleDetailsLoading: boolean | undefined;
+  electionsAuthority: any;
+  isElectionsAuthorityLoading: boolean;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
@@ -35,6 +39,8 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   controllerAddress: undefined,
   isHatDetailsLoading: false,
   isModuleDetailsLoading: false,
+  electionsAuthority: undefined,
+  isElectionsAuthorityLoading: false,
 });
 
 export const EligibilityContextProvider = ({
@@ -57,7 +63,7 @@ export const EligibilityContextProvider = ({
     useHatDetailsField(selectedHat?.details);
 
   const wearersAndControllers = useWearersControllersDetails({
-    hats: [selectedHat],
+    hats: selectedHat ? [selectedHat] : [],
   });
 
   const controllerAddress = _.get(
@@ -74,6 +80,12 @@ export const EligibilityContextProvider = ({
     chainId,
   });
 
+  const { data: electionsAuthority, isLoading: isElectionsAuthorityLoading } =
+    useAncillaryElection({
+      id: controllerAddress,
+      chainId,
+    });
+
   const value = useMemo(
     () => ({
       chainId,
@@ -86,6 +98,8 @@ export const EligibilityContextProvider = ({
       controllerAddress,
       isHatDetailsLoading,
       isModuleDetailsLoading,
+      electionsAuthority,
+      isElectionsAuthorityLoading,
     }),
     [
       chainId,
@@ -98,6 +112,8 @@ export const EligibilityContextProvider = ({
       controllerAddress,
       isHatDetailsLoading,
       isModuleDetailsLoading,
+      electionsAuthority,
+      isElectionsAuthorityLoading,
     ],
   );
 
