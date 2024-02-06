@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Flex,
-  Heading,
   HStack,
   Icon,
   Image,
@@ -10,6 +9,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Text,
   useMediaQuery,
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
@@ -133,9 +133,9 @@ const ConnectWallet = () => {
                         />
                       )}
 
-                      <Heading size='sm'>
+                      <Text variant='medium'>
                         {ensName || account.displayName}
-                      </Heading>
+                      </Text>
                     </HStack>
                   </MenuButton>
                   <MenuList bg='green.100' color='green.700'>

@@ -9,7 +9,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import {
   AUTHORITY_ENFORCEMENT,
   AUTHORITY_PLATFORMS,
@@ -17,6 +16,7 @@ import {
   AuthorityInfo,
   AuthorityPlatform,
 } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSafeDetails } from 'app-hooks';
 import { getHostnameFromURL, ipfsUrl, validateURL } from 'app-utils';
 import { Authority } from 'hats-types';

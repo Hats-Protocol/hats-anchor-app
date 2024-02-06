@@ -10,8 +10,8 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useDebounce, usePinImageIpfs } from 'app-hooks';
 import { fetchToken, pinJson } from 'app-utils';
 import { useHatContractWrite } from 'hats-hooks';

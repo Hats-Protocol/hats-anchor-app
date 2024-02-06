@@ -7,8 +7,8 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, FORM_FIELDS, MODULE_TYPES } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'app-hooks';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import _ from 'lodash';

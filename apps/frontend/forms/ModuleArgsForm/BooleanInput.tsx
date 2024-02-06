@@ -1,9 +1,9 @@
 import { HStack, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
-import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import {
   FALLBACK_ARG_EXAMPLES,
   MODULE_ARG_BOOLEAN_OPTION_SETS,
 } from '@hatsprotocol/constants';
+import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';

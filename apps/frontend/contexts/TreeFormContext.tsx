@@ -1,9 +1,9 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
+import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
-import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import {
   useBetterMediaQuery,
   useGuilds,

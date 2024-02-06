@@ -12,12 +12,12 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { HsgType } from '@hatsprotocol/hsg-sdk';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import {
   AUTHORITY_ENFORCEMENT,
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
+import { HsgType } from '@hatsprotocol/hsg-sdk';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import {
   useCallHsgFunction,

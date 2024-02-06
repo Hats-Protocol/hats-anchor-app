@@ -2,6 +2,7 @@ import {
   Badge,
   Box,
   Flex,
+  Heading,
   HStack,
   Icon,
   Stack,
@@ -9,8 +10,8 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'app-hooks';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
@@ -50,9 +51,7 @@ const Header = () => {
         <Stack w='full' spacing={1}>
           <HStack justifyContent='space-between'>
             <Tooltip label={name || selectedHat?.details}>
-              <Text fontSize={24} isTruncated fontWeight='semibold'>
-                {name || selectedHat?.details}
-              </Text>
+              <Heading isTruncated>{name || selectedHat?.details}</Heading>
             </Tooltip>
             {selectedHat?.id && (
               <HStack>

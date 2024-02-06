@@ -10,8 +10,8 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useContractData, usePendHatterMint, useToast } from 'app-hooks';
 import {
   useHatStatus,

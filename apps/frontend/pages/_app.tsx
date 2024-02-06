@@ -4,11 +4,11 @@ import '../components/OrgChart/OrgChart.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
+import { SEO } from '@hatsprotocol/constants';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
-import { SEO } from '@hatsprotocol/constants';
 import { chains, wagmiConfig } from 'app-utils';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';

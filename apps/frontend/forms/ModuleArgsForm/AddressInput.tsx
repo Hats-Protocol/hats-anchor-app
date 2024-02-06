@@ -1,6 +1,6 @@
 import { Stack, Text } from '@chakra-ui/react';
-import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
+import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl } from 'app-utils';
 import _ from 'lodash';
