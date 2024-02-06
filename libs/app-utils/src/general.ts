@@ -7,6 +7,7 @@ import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
 import { format } from 'date-fns';
 import _ from 'lodash';
+import { isAddress } from 'viem';
 
 // app-utils mostly, some should move
 
@@ -127,6 +128,7 @@ export const formatImageUrl = (url?: string) => {
 const convertToBigInt = (input: unknown) => {
   // directly convert, if string
   if (_.isString(input)) {
+    console.log(input);
     return BigInt(input as string);
   }
   // handle numbers
@@ -146,13 +148,18 @@ const convertToBigInt = (input: unknown) => {
 export const transformInput = (
   input: unknown,
   solidityType: string,
+  displayType?: string,
 ): unknown => {
+  console.log('transformInput', input, solidityType, displayType);
   if (input === undefined || input === null) {
     if (solidityType.includes('[]')) {
       return [];
     }
 
     return undefined;
+  }
+  if (solidityType === 'address') {
+    return isAddress(String(input)) ? String(input) : '';
   }
   const tsType = solidityToTypescriptType(solidityType);
 
@@ -203,6 +210,7 @@ export const transformAndVerify = (
   input: unknown,
   solidityType: string,
 ): string | boolean => {
+  console.log('transformAndVerify', input, solidityType);
   const transformedInput = transformInput(input, solidityType);
 
   if (verify(transformedInput, solidityType)) {

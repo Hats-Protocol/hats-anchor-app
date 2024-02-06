@@ -50,20 +50,22 @@ const ModuleDetailsForm = ({
       null
     );
   }, [selectedModule]);
+  // console.log(selectedModuleArgs, 'selectedModuleArgs');
 
   const tokenArgName = _.get(
-    _.find(selectedModuleArgs, { displayType: 'token' }),
+    _.find(selectedModuleArgs, { displayType: 'erc20' }),
     'name',
   );
-  const tokenAddress = watch(tokenArgName);
+  const tokenAddress = watch(tokenArgName, '');
+  // console.log(tokenArgName, tokenAddress, 'tokenAddress');
 
   if (!onchainTree || !treeToDisplay) return null;
 
   return (
-    <Stack spacing={12}>
+    <Stack spacing={12} w='100%'>
       <FormRowWrapper>
         <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-        <Box>
+        <Box w='100%'>
           <Select
             label='Module Type'
             subLabel='The category of prewritten module to connect to this hat.'
