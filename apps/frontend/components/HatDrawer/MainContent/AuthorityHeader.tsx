@@ -91,7 +91,7 @@ const AuthorityHeader = ({
     imageUrl: currentImageUrl,
     link: currentLink,
   } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId, selectedHat, editMode } = useTreeForm();
 
   const localLink = editingItem ? currentLink : link;
   const authorityEnforcement =
@@ -122,6 +122,7 @@ const AuthorityHeader = ({
     safeAddress: safe,
     chainId,
     enabled: !!safe,
+    editMode,
   });
   const eligibleSigners = useMemo(() => {
     if (!safeOwners || !selectedHat?.wearers) return [];

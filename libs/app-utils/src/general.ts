@@ -9,8 +9,6 @@ import { format } from 'date-fns';
 import _ from 'lodash';
 import { isAddress } from 'viem';
 
-// app-utils mostly, some should move
-
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -36,7 +34,8 @@ export const formatDate = (
   if (!date) return '';
   if (toUtc)
     return `${dateFormatter(
-      new Date(date).getTime() + new Date().getTimezoneOffset() * 60000,
+      // calculate UTC time based on user's local timezone offset
+      new Date(date).getTime() + new Date().getTimezoneOffset() * 60 * 1000,
     )} UTC`;
   if (typeof date === 'string' || typeof date === 'number')
     return `${dateFormatter(new Date(date))} ${offsetString(new Date(date))}`;
@@ -45,7 +44,7 @@ export const formatDate = (
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchWithTimeout(resource: any, options: any = {}) {
-  const { timeout = 8000 } = options;
+  const { timeout = 5000 } = options;
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);

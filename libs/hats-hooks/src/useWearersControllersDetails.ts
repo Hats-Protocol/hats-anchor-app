@@ -10,7 +10,7 @@ const fetchWearerAndControllerDetails = async (
   wearer: Hex,
   chainId: number | undefined,
 ) => {
-  if (!wearer || !chainId) return undefined;
+  if (!wearer || !chainId) return null;
 
   if (wearer === FALLBACK_ADDRESS || wearer === zeroAddress) {
     return {
@@ -31,7 +31,7 @@ const fetchWearerAndControllerDetails = async (
     console.log(err);
   });
 
-  if (!data) return undefined;
+  if (!data) return null;
 
   const [isContract, ensName] = data as [boolean, string];
 

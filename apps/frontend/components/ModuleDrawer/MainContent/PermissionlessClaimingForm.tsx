@@ -60,15 +60,18 @@ const PermissionlessClaimingForm = ({
     address: instanceAddress,
     hatId: selectedHat?.id,
     chainId,
+    editMode,
   });
 
   const isClaimable = _.includes(claimableHats, selectedHat?.id);
   const { data: wearingHatDetails } = useHatDetails({
     hatId: String(adminHat),
     chainId: selectedHat?.chainId,
+    editMode,
   });
   const { data: wearingHatDetailsObject } = useHatDetailsField(
     wearingHatDetails?.details,
+    editMode,
   );
 
   const scrollTargetRef = useRef<HTMLDivElement>(null);

@@ -725,6 +725,7 @@ export const TreeFormContextProvider = ({
   const { modulesAuthorities } = useAncillaryModules({
     id: selectedHatId,
     chainId,
+    editMode,
   });
 
   const { data: combinedAuthorities } = combineAuthorities({
