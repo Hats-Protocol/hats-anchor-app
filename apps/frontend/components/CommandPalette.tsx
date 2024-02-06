@@ -14,10 +14,10 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
+import { ChakraNextLink } from 'ui';
 import { useAccount } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 
 const CommandPaletteInternalLink = ({
   href,

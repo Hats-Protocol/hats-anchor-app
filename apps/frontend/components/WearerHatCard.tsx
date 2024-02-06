@@ -4,9 +4,9 @@ import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { getTreeId } from 'hats-utils';
 import _ from 'lodash';
+import { ChakraNextLink } from 'ui';
 
 import { useTreeForm } from '../contexts/TreeFormContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 
 // TODO optimize top hat fetch
 const WearerHatCard = ({ hat }: { hat: AppHat }) => {

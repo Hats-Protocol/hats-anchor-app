@@ -14,6 +14,7 @@ export * from './landingContent';
 export * from './misc';
 export * from './modules';
 export { default as SEO } from './next-seo.config';
+export { default as PROPOSALS } from './spaces';
 export { ANCILLARY_API_URL, default as NETWORK_ENDPOINTS } from './subgraph';
 export * from './treeControls';
 

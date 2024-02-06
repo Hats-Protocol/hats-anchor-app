@@ -4,12 +4,9 @@ import { transformAndVerify } from 'app-utils';
 import { ModuleCreationArg } from 'hats-types';
 import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { DatePicker, DurationInput, Input, NumberInput } from 'ui';
 import { Hex } from 'viem';
 
-import DatePicker from '../../components/atoms/DatePicker';
-import DurationInput from '../../components/atoms/DurationInput';
-import Input from '../../components/atoms/Input';
-import NumberInput from '../../components/atoms/NumberInput';
 import MultiAddressInput from '../../components/MultiAddressInput';
 import AddressInput from './AddressInput';
 import AmountWithDecimals from './AmountWithDecimals';
@@ -99,7 +96,7 @@ const ModuleFormInput = ({
             : (arg.example as string)
         }
         isRequired={!arg.optional}
-        customValidations={{
+        options={{
           validate: (value) =>
             transformAndVerify(localForm.watch(arg.name), arg.type),
         }}

@@ -5,10 +5,10 @@ import { transformAndVerify } from 'app-utils';
 import _ from 'lodash';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { NumberInput } from 'ui';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
-import NumberInput from '../../components/atoms/NumberInput';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 
 const AmountWithDecimals = ({

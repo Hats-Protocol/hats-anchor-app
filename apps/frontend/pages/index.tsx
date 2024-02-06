@@ -25,10 +25,9 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
+import { ChakraNextLink, Suspender } from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 
-import ChakraNextLink from '../components/atoms/ChakraNextLink';
-import Suspender from '../components/atoms/Suspender';
 import ForkableTemplateCard from '../components/ForkableTemplateCard';
 import Layout from '../components/Layout';
 import LearnMoreCard, { DocsLink } from '../components/LearnMoreCard';

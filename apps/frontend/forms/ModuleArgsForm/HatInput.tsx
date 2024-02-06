@@ -5,9 +5,8 @@ import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import React, { ChangeEvent, useState } from 'react';
 import { idToIp } from 'shared-utils';
+import { Input, Select } from 'ui';
 
-import Input from '../../components/atoms/Input';
-import Select from '../../components/atoms/Select';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 
 const HatInput = ({ arg, localForm }) => {

@@ -10,8 +10,7 @@ import {
 import { TemplateData } from 'app-constants';
 import { useEffect, useState } from 'react';
 import { BsPeopleFill } from 'react-icons/bs';
-
-import ChakraNextLink from './atoms/ChakraNextLink';
+import { ChakraNextLink } from 'ui';
 
 const FeaturedTreeCard = ({
   treeData,

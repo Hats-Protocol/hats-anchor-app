@@ -1,6 +1,5 @@
 import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react';
-
-import ChakraNextLink from './atoms/ChakraNextLink';
+import { ChakraNextLink } from 'ui';
 
 const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, description } = treeData;

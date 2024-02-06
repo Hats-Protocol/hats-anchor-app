@@ -6,9 +6,9 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { prettyIdToIp } from 'shared-utils';
+import { Accordion } from 'ui';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import Accordion from '../../atoms/Accordion';
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
 

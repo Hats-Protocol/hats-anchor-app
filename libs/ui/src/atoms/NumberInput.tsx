@@ -87,7 +87,7 @@ const NumberInput = ({
   return (
     <FormControl
       isInvalid={!!errors[name]}
-      isRequired={_.get(options, 'required')}
+      isRequired={!!_.get(options, 'required')}
     >
       <Stack spacing={2} w='full'>
         {label && (

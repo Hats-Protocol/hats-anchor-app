@@ -35,10 +35,10 @@ import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
+import { ChakraNextLink } from 'ui';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 import EventHistory from './EventHistory';
 
 const TreeMenu = ({

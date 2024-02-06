@@ -8,7 +8,10 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { OverlayContextProps } from 'app-constants';
+import {
+  OverlayContextProps,
+  OverlayContextPropsElection,
+} from 'app-constants';
 import React, { ReactNode } from 'react';
 
 /**
@@ -32,7 +35,6 @@ const Modal = ({
   isOpen,
   onClose,
   size = '2xl',
-  headingSize = '24px',
   localOverlay,
   children,
 }: ModalProps) => {
@@ -69,7 +71,7 @@ const Modal = ({
       >
         {customHeader || (
           <ModalHeader>
-            <Heading size={size} fontSize={!size && '24px'}>
+            <Heading size={size} fontSize='24px'>
               {title}
             </Heading>
           </ModalHeader>
@@ -93,7 +95,6 @@ interface ModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   size?: string;
-  headingSize?: string;
-  localOverlay: OverlayContextProps;
+  localOverlay: OverlayContextPropsElection | OverlayContextProps;
   children: ReactNode;
 }

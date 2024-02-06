@@ -26,12 +26,12 @@ import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared-utils';
+import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
-import ChakraNextLink from '../atoms/ChakraNextLink';
 import TooltipWrapper from './TooltipWrapper';
 
 const WearerRow = ({

@@ -5,10 +5,9 @@ import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'app-utils';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { FiExternalLink } from 'react-icons/fi';
+import { ChakraNextLink } from 'ui';
 import { formatUnits, Hex } from 'viem';
 import { useToken } from 'wagmi';
-
-import ChakraNextLink from './atoms/ChakraNextLink';
 
 const numberTypes = [
   'uint256',

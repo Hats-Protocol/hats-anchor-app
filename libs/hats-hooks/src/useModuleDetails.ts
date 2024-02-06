@@ -36,7 +36,7 @@ const useModuleDetails = ({
     };
   };
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['moduleDetails', address],
     queryFn: getModuleData,
     enabled:
@@ -47,7 +47,7 @@ const useModuleDetails = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  return { details: data?.details, parameters: data?.parameters };
+  return { details: data?.details, parameters: data?.parameters, isLoading };
 };
 
 export default useModuleDetails;

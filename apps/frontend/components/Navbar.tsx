@@ -31,11 +31,11 @@ import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { ChakraNextLink } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
 import ConnectWallet from './ConnectWallet';
 import TransactionHistory from './TransactionHistory';
 

@@ -15,10 +15,10 @@ import { useToast } from 'app-hooks';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
+import { Markdown } from 'ui';
 import { useAccount } from 'wagmi';
 
 import { useTreeForm } from '../../../contexts/TreeFormContext';
-import Markdown from '../../atoms/Markdown';
 
 const Header = () => {
   const toast = useToast();

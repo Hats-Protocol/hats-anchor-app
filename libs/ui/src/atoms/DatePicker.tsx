@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { formatDate } from 'app-utils';
 import _ from 'lodash';
-import React, { ReactNode, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import DatePickerComponent from 'react-datepicker';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';

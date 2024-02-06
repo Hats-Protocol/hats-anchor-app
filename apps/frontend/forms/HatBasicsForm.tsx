@@ -19,11 +19,8 @@ import { useFieldArray } from 'react-hook-form';
 import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
+import { DropZone, Input, RadioBox, Textarea } from 'ui';
 
-import DropZone from '../components/atoms/DropZone';
-import Input from '../components/atoms/Input';
-import RadioBox from '../components/atoms/RadioBox';
-import Textarea from '../components/atoms/Textarea';
 import FormRowWrapper from '../components/FormRowWrapper';
 import PlatformInput from '../components/PlatformInput';
 import { useHatForm } from '../contexts/HatFormContext';

@@ -28,12 +28,11 @@ import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { ChakraNextLink, Modal } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
-import Modal from './atoms/Modal';
 import ModuleArgsForm from './ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
@@ -169,7 +168,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
               controllerAddress,
             )})`}
             localOverlay={localOverlay}
-            headingSize='sm'
           >
             <Box as='form' onSubmit={handleSubmit(onSubmit)}>
               {selectedFunction?.description && (

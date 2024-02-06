@@ -17,9 +17,8 @@ import { getHostnameFromURL, validateURL } from 'app-utils';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { ChakraNextLink, Markdown } from 'ui';
 
-import ChakraNextLink from '../../atoms/ChakraNextLink';
-import Markdown from '../../atoms/Markdown';
 import AuthorityHeader from './AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 

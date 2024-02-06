@@ -19,11 +19,10 @@ import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { prettyIdToId } from 'shared-utils';
+import { ChakraNextLink, Modal, Suspender } from 'ui';
 
 import { useOverlay } from '../contexts/OverlayContext';
 import { useTreeForm } from '../contexts/TreeFormContext';
-import ChakraNextLink from './atoms/ChakraNextLink';
-import Suspender from './atoms/Suspender';
 import Layout from './Layout';
 
 const EventHistory = dynamic(() => import('./EventHistory'), {
@@ -39,9 +38,6 @@ const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
   loading: () => <Suspender />,
 });
 const TreeMenu = dynamic(() => import('./TreeMenu'), {
-  loading: () => <Suspender />,
-});
-const Modal = dynamic(() => import('./atoms/Modal'), {
   loading: () => <Suspender />,
 });
 

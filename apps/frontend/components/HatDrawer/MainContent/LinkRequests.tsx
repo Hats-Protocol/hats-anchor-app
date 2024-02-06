@@ -1,11 +1,11 @@
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
 import { prettyIdToIp } from 'shared-utils';
+import { Modal } from 'ui';
 
 import { useOverlay } from '../../../contexts/OverlayContext';
 import { useTreeForm } from '../../../contexts/TreeFormContext';
 import HatLinkRequestApproveForm from '../../../forms/HatLinkRequestApproveForm';
-import Modal from '../../atoms/Modal';
 
 // TODO RQ hook this
 // ? don't inline ternary

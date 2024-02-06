@@ -35,12 +35,11 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared-utils';
+import { DropZone, NumberInput } from 'ui';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import AddressInput from '../components/AddressInput';
-import DropZone from '../components/atoms/DropZone';
-import NumberInput from '../components/atoms/NumberInput';
 import FormRowWrapper from '../components/FormRowWrapper';
 import { useHatForm } from '../contexts/HatFormContext';
 import { useOverlay } from '../contexts/OverlayContext';
@@ -348,7 +347,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               label='MAX WEARERS'
               subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
-              customValidations={{
+              options={{
+                min: Number(selectedHat.currentSupply),
                 validate: {
                   maxWearers: (v) =>
                     !_.gt(
@@ -356,9 +356,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                       _.toNumber(v),
                     ) || 'Max supply exceeded',
                 },
-              }}
-              options={{
-                min: Number(selectedHat.currentSupply),
               }}
               isDisabled={!isMutable(selectedHat)}
               placeholder='10'

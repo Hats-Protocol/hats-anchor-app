@@ -37,18 +37,15 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
+import { Modal, Suspender } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { useOverlay } from '../../contexts/OverlayContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 import HatClaimForForm from '../../forms/HatClaimForForm';
-import Suspender from '../atoms/Suspender';
 import WearerRow from './WearerRow';
 
-const Modal = dynamic(() => import('../atoms/Modal'), {
-  loading: () => <Suspender />,
-});
 const HatTransferForm = dynamic(() => import('../../forms/HatTransferForm'), {
   loading: () => <Suspender />,
 });

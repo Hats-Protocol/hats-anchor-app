@@ -14,6 +14,7 @@ import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import _ from 'lodash';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
+import { Accordion, ChakraNextLink } from 'ui';
 
 import { useHatForm } from '../../contexts/HatFormContext';
 import { useTreeForm } from '../../contexts/TreeFormContext';
@@ -22,8 +23,6 @@ import HatBasicsForm from '../../forms/HatBasicsForm';
 import HatManagementForm from '../../forms/HatManagementForm';
 import HatWearerForm from '../../forms/HatWearerForm';
 import ResponsibilitiesForm from '../../forms/ResponsibilitiesForm';
-import Accordion from '../atoms/Accordion';
-import ChakraNextLink from '../atoms/ChakraNextLink';
 
 const EditMode = () => {
   const { selectedHat, isDraft, treeToDisplay } = useTreeForm();
