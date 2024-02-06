@@ -6,12 +6,11 @@ import { explorerUrl } from 'app-utils';
 import _ from 'lodash';
 import React, { ChangeEvent, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { ChakraNextLink, Input } from 'ui';
 import { Hex, isAddress } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
 import AddressInput from '../../components/AddressInput';
-import ChakraNextLink from '../../components/atoms/ChakraNextLink';
-import Input from '../../components/atoms/Input';
 import { useTreeForm } from '../../contexts/TreeFormContext';
 
 const isEns = (value: string) =>

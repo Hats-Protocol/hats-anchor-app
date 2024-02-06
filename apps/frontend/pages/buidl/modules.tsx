@@ -18,8 +18,8 @@ import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import React from 'react';
+import { ChakraNextLink } from 'ui';
 
-import ChakraNextLink from '../../components/atoms/ChakraNextLink';
 import Layout from '../../components/Layout';
 
 const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
