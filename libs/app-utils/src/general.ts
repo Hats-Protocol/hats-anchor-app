@@ -125,14 +125,12 @@ export const formatImageUrl = (url?: string) => {
 };
 
 const convertToBigInt = (input: unknown) => {
-  // directly convert, if string
-  if (_.isString(input)) {
-    console.log(input);
+  // directly convert, if string (but make sure it's not a decimal or will crash)
+  if (_.isString(input) && !input.includes('.')) {
     return BigInt(input as string);
   }
   // handle numbers
   const numberCheck = _.toNumber(input);
-
   if (_.isNaN(numberCheck)) {
     return 'Invalid input: Not a valid number';
   }
@@ -174,6 +172,7 @@ export const transformInput = (
         return convertToBigInt(numberFromObject);
       }
       if (_.isString(input) || _.isNumber(input)) {
+        // TODO handle decimal number as string, crashing BigInt conversion
         return convertToBigInt(input);
       }
       break;

@@ -41,7 +41,7 @@ const Accordion = ({
             as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare}
             boxSize={5}
           />
-          <Heading size='md' fontWeight='medium' ml={2} color='blackAlpha.800'>
+          <Heading fontWeight='medium' ml={2} color='blackAlpha.800'>
             {title}
           </Heading>
         </Flex>
