@@ -1,6 +1,6 @@
 # Hats Claims App
 
-The Claims app is a Next.js app relying on the Core & Subgraph SDK as well as the other libraries contained here.
+The Claims app is a Next.js app for handling standalone Elections on Elections Eligibility.
 
 ## Start the app
 
