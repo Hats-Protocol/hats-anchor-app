@@ -5,9 +5,9 @@
     "dev": "nx run frontend:serve",
     "start": "nx run frontend:serve:production",
     "build": "nx run frontend:build",
-    "dev:election": "nx run election:serve",
-    "start:election": "nx run election:serve:production",
-    "build:election": "nx run election:build",
+    "claims:dev": "nx run claims:serve",
+    "claims:start": "nx run claims:serve:production",
+    "claims:build": "nx run claims:build",
     "test": "nx test",
     "preinstall": "npx only-allow pnpm"
   },

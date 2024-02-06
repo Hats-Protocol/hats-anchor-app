@@ -1,7 +1,7 @@
 {
-  "name": "election",
+  "name": "claims",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/election",
+  "sourceRoot": "apps/claims",
   "projectType": "application",
   "targets": {
     "build": {
@@ -9,11 +9,11 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/election"
+        "outputPath": "dist/apps/claims"
       },
       "configurations": {
         "development": {
-          "outputPath": "apps/election"
+          "outputPath": "apps/claims"
         },
         "production": {}
       }
@@ -22,16 +22,16 @@
       "executor": "@nx/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "election:build",
+        "buildTarget": "claims:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "election:build:development",
+          "buildTarget": "claims:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "election:build:production",
+          "buildTarget": "claims:build:production",
           "dev": false
         }
       }
@@ -39,21 +39,21 @@
     "export": {
       "executor": "@nx/next:export",
       "options": {
-        "buildTarget": "election:build:production"
+        "buildTarget": "claims:build:production"
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/election/jest.config.ts"
+        "jestConfig": "apps/claims/jest.config.ts"
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/election/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/claims/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },
