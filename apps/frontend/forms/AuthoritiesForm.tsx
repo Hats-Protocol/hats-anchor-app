@@ -262,6 +262,7 @@ const AuthoritiesForm = ({
                   placeholder='https://example.com'
                   localForm={localForm}
                   isDisabled={guildOrSnapshot}
+                  options={{ required: 'Authority link is required' }}
                 />
 
                 <Input

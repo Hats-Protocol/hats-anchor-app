@@ -12,9 +12,10 @@ export * from './form';
 export * from './ipfs';
 export * from './landingContent';
 export * from './misc';
+export * from './modules';
 export { default as SEO } from './next-seo.config';
 export { default as PROPOSALS } from './spaces';
-export { default as NETWORK_ENDPOINTS } from './subgraph';
+export { ANCILLARY_API_URL, default as NETWORK_ENDPOINTS } from './subgraph';
 export * from './treeControls';
 
 type Config = {

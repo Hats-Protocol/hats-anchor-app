@@ -36,7 +36,7 @@ const MUTABILITY_OPTIONS = [
 
 const HatBasicsForm = () => {
   const { chainId, selectedHat, treeToDisplay } = useTreeForm();
-  const { localForm, formValues } = useHatForm();
+  const { localForm, formValues, setFormLoading } = useHatForm();
   const [image, setImage] = useState<ImageFile>();
   const { control, setValue } = _.pick(localForm, ['control', 'setValue']);
 
@@ -85,6 +85,7 @@ const HatBasicsForm = () => {
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: { name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}` },
+    setLoading: setFormLoading,
   });
 
   useEffect(() => {

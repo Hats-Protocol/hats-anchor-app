@@ -5,7 +5,7 @@ import { formatFunctionName } from 'app-utils';
 import { HandlePendingTx } from 'hats-types';
 import { useState } from 'react';
 import { TransactionReceipt } from 'viem';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 interface ContractInteractionProps {
   functionName: string;
@@ -35,6 +35,7 @@ const useHatContractWrite = ({
   handleSuccess,
 }: ContractInteractionProps) => {
   const toast = useToast();
+  const userChainId = useChainId();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,7 +45,7 @@ const useHatContractWrite = ({
     abi: CONFIG.hatsAbi,
     functionName,
     args,
-    enabled: enabled && !!chainId,
+    enabled: enabled && !!chainId && userChainId === chainId,
   });
 
   const {

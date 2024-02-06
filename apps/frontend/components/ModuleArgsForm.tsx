@@ -56,7 +56,7 @@ const ModuleFormInput = ({
 
   const { watch, setValue } = localForm;
 
-  const tokenArgName = arg.displayType === 'token' ? arg.name : '';
+  const tokenArgName = arg.displayType === 'erc20' ? arg.name : '';
   const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
     address: localTokenAddress || tokenAddress,
@@ -131,7 +131,8 @@ const ModuleFormInput = ({
 
   useEffect(() => {
     setValue(`${arg.name}-resolved`, newWearerResolvedAddress);
-  }, [newWearerResolvedAddress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newWearerResolvedAddress, arg.name]);
 
   if (!arg) return null;
 
@@ -148,9 +149,7 @@ const ModuleFormInput = ({
       !tokenDetails &&
       (localTokenAddress || tokenAddress)
     ) {
-      if (!tokenDetails) {
-        argHelper = <Text color='red.500' />;
-      } else {
+      if (tokenDetails) {
         argHelper = (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
@@ -165,7 +164,7 @@ const ModuleFormInput = ({
     }
 
     return (
-      <Stack>
+      <Stack w='100%'>
         <Input
           name={arg.name}
           label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -190,7 +189,6 @@ const ModuleFormInput = ({
     );
   }
 
-  // TEMPORARILY added descriptor here while registry hasn't been updated for token types
   if (arg.type === 'address') {
     return (
       <Stack w='100%' spacing={1}>
@@ -215,18 +213,6 @@ const ModuleFormInput = ({
           localForm={localForm}
           onChange={(e) => handleChangeAddress(e, arg.name)}
         />
-        {tokenDetails && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${
-              localTokenAddress || tokenAddress
-            }`}
-            isExternal
-          >
-            <Text fontSize='sm' color='gray.500'>
-              {tokenLabel}
-            </Text>
-          </ChakraNextLink>
-        )}
       </Stack>
     );
   }
@@ -333,16 +319,15 @@ const ModuleFormInput = ({
           name={arg.name}
           label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
           subLabel={arg.description}
-          options={{
-            min: 0,
-          }}
+          numOptions={{ min: 0 }}
+          isDisabled={!tokenDetails}
           placeholder={
             Array.isArray(arg.example)
               ? (arg.example as string[]).join(', ')
               : (arg.example as string) || fallbackExamples.number
           }
           isRequired={!arg.optional}
-          customValidations={{
+          options={{
             validate: (value) => {
               if (!value) return false;
               const numericValue = parseFloat(value);
@@ -350,9 +335,14 @@ const ModuleFormInput = ({
               if (!tokenDecimals) return 'No token selected';
 
               if (!_.isNaN(numericValue) && numericValue > 0) {
+                console.log(
+                  'parsing?',
+                  tokenDecimals,
+                  parseUnits(value, tokenDecimals || 18),
+                );
                 try {
                   return transformAndVerify(
-                    parseUnits(value, tokenDecimals),
+                    parseUnits(value, tokenDecimals || 18),
                     arg.type,
                   );
                 } catch (error) {
@@ -368,9 +358,13 @@ const ModuleFormInput = ({
           onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
           localForm={localForm}
         />
-        {tokenDetails && (
+        {tokenDetails ? (
           <Text fontSize='sm' color='gray.500'>
             ${tokenDetails?.symbol} uses {tokenDecimals} decimals
+          </Text>
+        ) : (
+          <Text fontSize='sm' color='gray.500'>
+            Input token address
           </Text>
         )}
       </Stack>
@@ -423,7 +417,7 @@ const ModuleFormInput = ({
         }
         isRequired={!arg.optional}
         localForm={localForm}
-        customValidations={{
+        options={{
           validate: (value) => transformAndVerify(value, arg.type),
         }}
       />

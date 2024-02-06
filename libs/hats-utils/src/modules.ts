@@ -122,11 +122,13 @@ export const prepareArgs = (
   }
   const immutableArgs = _.map(
     selectedModuleDetails.creationArgs.immutable,
-    ({ name, type }: ModuleCreationArg) => transformInput(values[name], type),
+    ({ name, type, displayType }: ModuleCreationArg) =>
+      transformInput(values[name], type, displayType),
   );
   const mutableArgs = _.map(
     selectedModuleDetails.creationArgs.mutable,
-    ({ name, type }: ModuleCreationArg) => transformInput(values[name], type),
+    ({ name, type, displayType }: ModuleCreationArg) =>
+      transformInput(values[name], type, displayType),
   );
 
   return { immutableArgs, mutableArgs };
@@ -285,14 +287,21 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
 
+  // console.log(values, selectedModuleDetails, hatId, claimabilityType);
   const { immutableArgs, mutableArgs } = prepareArgs(
     values,
     selectedModuleDetails,
   );
+  console.log(immutableArgs, mutableArgs);
 
   const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
   const allArgsFilled =
     areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
+  // console.log(
+  //   areArgsFilled(immutableArgs),
+  //   areArgsFilled(mutableArgs),
+  //   allArgsFilled,
+  // );
 
   if (selectedModuleDetails && isLocalFormValid && allArgsFilled) {
     const result = checkAndEncodeArgs({

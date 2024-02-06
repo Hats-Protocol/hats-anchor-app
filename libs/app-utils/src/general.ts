@@ -7,8 +7,7 @@ import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
 import { format } from 'date-fns';
 import _ from 'lodash';
-
-// app-utils mostly, some should move
+import { isAddress } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
@@ -35,7 +34,8 @@ export const formatDate = (
   if (!date) return '';
   if (toUtc)
     return `${dateFormatter(
-      new Date(date).getTime() + new Date().getTimezoneOffset() * 60000,
+      // calculate UTC time based on user's local timezone offset
+      new Date(date).getTime() + new Date().getTimezoneOffset() * 60 * 1000,
     )} UTC`;
   if (typeof date === 'string' || typeof date === 'number')
     return `${dateFormatter(new Date(date))} ${offsetString(new Date(date))}`;
@@ -44,7 +44,7 @@ export const formatDate = (
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchWithTimeout(resource: any, options: any = {}) {
-  const { timeout = 8000 } = options;
+  const { timeout = 5000 } = options;
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -127,6 +127,7 @@ export const formatImageUrl = (url?: string) => {
 const convertToBigInt = (input: unknown) => {
   // directly convert, if string
   if (_.isString(input)) {
+    console.log(input);
     return BigInt(input as string);
   }
   // handle numbers
@@ -146,13 +147,18 @@ const convertToBigInt = (input: unknown) => {
 export const transformInput = (
   input: unknown,
   solidityType: string,
+  displayType?: string,
 ): unknown => {
+  console.log('transformInput', input, solidityType, displayType);
   if (input === undefined || input === null) {
     if (solidityType.includes('[]')) {
       return [];
     }
 
     return undefined;
+  }
+  if (solidityType === 'address') {
+    return isAddress(String(input)) ? String(input) : '';
   }
   const tsType = solidityToTypescriptType(solidityType);
 
@@ -203,6 +209,7 @@ export const transformAndVerify = (
   input: unknown,
   solidityType: string,
 ): string | boolean => {
+  console.log('transformAndVerify', input, solidityType);
   const transformedInput = transformInput(input, solidityType);
 
   if (verify(transformedInput, solidityType)) {

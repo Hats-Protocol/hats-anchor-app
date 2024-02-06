@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from 'app-constants';
 import { useToast } from 'app-hooks';
-import { chainsMap, formatAddress } from 'app-utils';
+import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import {
   useHatContractWrite,
   useWearerEligibilityCheck,
@@ -36,7 +36,7 @@ import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared-utils';
 import { DropZone, NumberInput } from 'ui';
-import { createPublicClient, Hex, http, isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import AddressInput from '../components/AddressInput';
@@ -269,10 +269,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           _.size(currentWearerList) -
           _.size(localWearers),
       );
-      const publicClient = createPublicClient({
-        chain: chainsMap(chainId),
-        transport: http(),
-      });
+      const publicClient = viemPublicClient(chainId);
       const promises = _.map(csvAddresses, (a: Hex) =>
         publicClient.readContract({
           abi: HATS_ABI,
@@ -350,7 +347,8 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               label='MAX WEARERS'
               subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
-              customValidations={{
+              options={{
+                min: Number(selectedHat.currentSupply),
                 validate: {
                   maxWearers: (v) =>
                     !_.gt(
@@ -358,9 +356,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                       _.toNumber(v),
                     ) || 'Max supply exceeded',
                 },
-              }}
-              options={{
-                min: Number(selectedHat.currentSupply),
               }}
               isDisabled={!isMutable(selectedHat)}
               placeholder='10'

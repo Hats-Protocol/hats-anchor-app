@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { SAFE_ABI } from 'app-constants';
-import { chainsMap } from 'app-utils';
+import { viemPublicClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
-import { createPublicClient, Hex, http } from 'viem';
+import { Hex } from 'viem';
 
 const fetchSafeDetails = async (safeAddress: Hex, chainId: SupportedChains) => {
   // COULD USE SAFE SDK/API, BUT PREFERRING CONTRACT READS HERE
@@ -12,10 +12,7 @@ const fetchSafeDetails = async (safeAddress: Hex, chainId: SupportedChains) => {
   // const data = await response.json();
   // return data;
 
-  const client = createPublicClient({
-    chain: chainsMap(chainId),
-    transport: http(),
-  });
+  const client = viemPublicClient(chainId);
 
   const result = client.readContract({
     address: safeAddress,
@@ -30,15 +27,18 @@ const useSafeDetails = ({
   safeAddress,
   chainId,
   enabled = true,
+  editMode = false,
 }: {
   safeAddress: Hex;
   chainId: SupportedChains;
   enabled?: boolean;
+  editMode?: boolean;
 }) => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['safeDetails', { safeAddress, chainId }],
     queryFn: () => fetchSafeDetails(safeAddress, chainId),
     enabled: !!safeAddress && !!chainId && !!enabled,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15,
   });
 
   return {

@@ -32,6 +32,7 @@ const useFeaturedTreesData = (featuredTrees: any) => {
     queryKey: ['featuredTreesData'],
     queryFn: fetchFeaturedTrees,
     enabled: !!featuredTrees,
+    staleTime: 1_000_000,
   });
 
   return { data, isLoading };

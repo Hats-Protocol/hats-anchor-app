@@ -21,9 +21,11 @@ const extractModuleIds = (hatAuthorities: HatAuthority) => {
 const useAncillaryModules = ({
   id,
   chainId,
+  editMode,
 }: {
   id?: string;
   chainId: SupportedChains;
+  editMode?: boolean;
 }) => {
   const {
     data: ancillaryModules,
@@ -33,9 +35,10 @@ const useAncillaryModules = ({
     queryKey: ['ancillaryModules', id, chainId],
     queryFn: () => fetchAncillaryModules(id || 'none', chainId),
     enabled: !!id && !!chainId,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const { gates } = useHatsSignerGatesMetadata({ chainId });
+  const { gates } = useHatsSignerGatesMetadata({ chainId, editMode });
 
   const moduleIds = ancillaryModules?.hatAuthority
     ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
@@ -45,6 +48,7 @@ const useAncillaryModules = ({
     useModulesDetails({
       moduleIds,
       chainId,
+      editMode,
     });
 
   if (isHatAuthoritiesLoading || isModulesDetailsLoading) {

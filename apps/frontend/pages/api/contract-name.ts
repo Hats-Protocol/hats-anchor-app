@@ -18,7 +18,6 @@ const ETHERSCAN_API_URLS: { [key in SupportedChains]: string | undefined } = {
   10: 'https://api-optimistic.etherscan.io/api',
   100: 'https://api.gnosisscan.io/api',
   137: 'https://api.polygonscan.com/api',
-  424: undefined, // 'https://api.pgn.one/api', // TODO PGN explorer URL
   8453: 'https://api.basescan.org/api',
   42161: 'https://api.arbiscan.io/api',
   42220: 'https://api.celoscan.io/api',
@@ -31,7 +30,6 @@ const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
   10: OPSCAN_API_KEY,
   100: GNOSISSCAN_API_KEY,
   137: POLYGONSCAN_API_KEY,
-  424: ETHERSCAN_API_KEY, // TODO PGN Explorer Key
   8453: BASESCAN_API_KEY,
   42161: ARBISCAN_API_KEY,
   42220: CELOSCAN_API_KEY,
