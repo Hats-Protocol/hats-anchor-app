@@ -395,7 +395,7 @@ const ModuleFormInput = ({
             : (arg.example as string)
         }
         isRequired={!arg.optional}
-        customValidations={{
+        options={{
           validate: (value) =>
             transformAndVerify(localForm.watch(arg.name), arg.type),
         }}

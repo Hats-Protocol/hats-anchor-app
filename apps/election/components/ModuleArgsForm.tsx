@@ -256,14 +256,6 @@ const ModuleFormInput = ({
           subLabel={arg.description}
           options={{
             min: 0,
-          }}
-          placeholder={
-            Array.isArray(arg.example)
-              ? (arg.example as string[]).join(', ')
-              : (arg.example as string) || fallbackExamples.number
-          }
-          isRequired={!arg.optional}
-          customValidations={{
             validate: (value) => {
               if (!value) return false;
               const numericValue = parseFloat(value);
@@ -286,6 +278,12 @@ const ModuleFormInput = ({
               return 'Not a valid number';
             },
           }}
+          placeholder={
+            Array.isArray(arg.example)
+              ? (arg.example as string[]).join(', ')
+              : (arg.example as string) || fallbackExamples.number
+          }
+          isRequired={!arg.optional}
           onChange={(e) => handleAmountWithDecimalsChange(e, arg.name)}
           localForm={localForm}
         />
@@ -321,7 +319,7 @@ const ModuleFormInput = ({
             : (arg.example as string)
         }
         isRequired={!arg.optional}
-        customValidations={{
+        options={{
           validate: (value) =>
             transformAndVerify(localForm.watch(arg.name), arg.type),
         }}
@@ -343,7 +341,7 @@ const ModuleFormInput = ({
         }
         isRequired={!arg.optional}
         localForm={localForm}
-        customValidations={{
+        options={{
           validate: (value) => transformAndVerify(value, arg.type),
         }}
       />

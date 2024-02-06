@@ -29,7 +29,7 @@ interface DurationInputProps {
   localForm: UseFormReturn<any>;
   placeholder?: string;
   isRequired?: boolean;
-  customValidations?: RegisterOptions;
+  options?: RegisterOptions;
   label?: string;
   subLabel?: string;
 }
@@ -39,7 +39,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
   localForm,
   placeholder,
   isRequired,
-  customValidations,
+  options,
   label,
   subLabel,
 }) => {
@@ -97,7 +97,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
             onChange={handleTimeValueChange}
             placeholder={placeholder}
             isRequired={isRequired}
-            customValidations={customValidations}
+            options={options}
           />
           <Select
             name={`${name}-time-unit`}
