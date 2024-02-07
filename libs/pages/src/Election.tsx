@@ -13,16 +13,24 @@ import { useIsClient } from 'app-hooks';
 import { chainsMap } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
-import {
-  CurrentSeason,
-  ElectionRoles,
-  Header,
-  ProposalDetails,
-  StandaloneLayout as Layout,
-  UpcomingSeason,
-  WearersList,
-} from 'ui';
+
+const ProposalDetails = dynamic(() =>
+  import('ui').then((mod) => mod.ProposalDetails),
+);
+const CurrentSeason = dynamic(() =>
+  import('ui').then((mod) => mod.CurrentSeason),
+);
+const ElectionRoles = dynamic(() =>
+  import('ui').then((mod) => mod.ElectionRoles),
+);
+const UpcomingSeason = dynamic(() =>
+  import('ui').then((mod) => mod.UpcomingSeason),
+);
+const WearersList = dynamic(() => import('ui').then((mod) => mod.WearersList));
+const Header = dynamic(() => import('ui').then((mod) => mod.Header));
+const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 
 const Election = () => {
   const isClient = useIsClient();

@@ -16,7 +16,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 // import { idToIp } from 'shared';
-import { Layout, WearerHatCard as CoreHat } from 'ui';
+import { StandaloneLayout as Layout, WearerHatCard as CoreHat } from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 
 // TODO fix no nested ternary

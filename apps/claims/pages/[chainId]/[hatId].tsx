@@ -7,12 +7,9 @@ import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { Election } from 'pages';
-// import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { ipToHatId } from 'shared';
 import { Hex } from 'viem';
-
-// const Election = dynamic(() => import('../../components/Election'));
 
 const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   const { updateRecentlyVisitedHats } = useOverlay();
