@@ -13,12 +13,11 @@ import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Modal } from 'ui';
+import { Modal, ModuleArgsForm } from 'ui';
 import { useChainId } from 'wagmi';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';
-import ModuleArgsForm from '../ModuleArgsForm';
 import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {

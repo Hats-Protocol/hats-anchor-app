@@ -1,11 +1,10 @@
 import { Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
+import { Modal, useOverlay } from 'contexts';
 import { UseFormReturn } from 'react-hook-form';
 import { BsLink45Deg } from 'react-icons/bs';
 import { FaRegTrashAlt } from 'react-icons/fa';
-import { Input, Modal } from 'ui';
 
-import { useOverlay } from '../contexts/OverlayContext';
-import LinkInput from './LinkInput';
+import { Input, LinkInput } from '../forms';
 
 interface LabelWithLinkProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

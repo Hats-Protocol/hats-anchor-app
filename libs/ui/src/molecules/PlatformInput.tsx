@@ -1,11 +1,11 @@
 import { HStack, IconButton, Spinner } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { useHatForm } from 'contexts';
 import _, { debounce } from 'lodash';
 import { useEffect, useState } from 'react';
 import { FaCheck, FaTrash } from 'react-icons/fa';
-import { Input } from 'ui';
 
-import { useHatForm } from '../contexts/HatFormContext';
+import { Input } from '../forms';
 
 const fetchGuild = async (guildName: string) => {
   const response = await fetch(`https://api.guild.xyz/v1/guild/${guildName}`);

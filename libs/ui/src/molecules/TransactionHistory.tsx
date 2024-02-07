@@ -4,7 +4,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
+
+import { ChakraNextLink } from '../atoms';
 
 const TransactionHistory = ({
   count,

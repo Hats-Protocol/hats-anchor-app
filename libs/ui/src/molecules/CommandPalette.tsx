@@ -5,6 +5,7 @@ import 'react-cmdk/dist/cmdk.css';
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSearchResults } from 'app-hooks';
 import { chainsMap } from 'app-utils';
+import { useOverlay } from 'contexts';
 import { Group, SearchResults } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -14,10 +15,9 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
 import { useAccount } from 'wagmi';
 
-import { useOverlay } from '../contexts/OverlayContext';
+import { ChakraNextLink } from '../atoms';
 
 const CommandPaletteInternalLink = ({
   href,

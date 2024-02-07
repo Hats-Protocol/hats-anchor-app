@@ -2,6 +2,7 @@ import { HStack, Icon, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { useDebounce } from 'app-hooks';
 import { explorerUrl, transformAndVerify } from 'app-utils';
+import { useTreeForm } from 'contexts';
 import { AppHat, ModuleCreationArg } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
@@ -9,21 +10,20 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
 import { idToIp } from 'shared';
-import {
-  ChakraNextLink,
-  DatePicker,
-  DurationInput,
-  Input,
-  NumberInput,
-  Select,
-} from 'ui';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
-import { useTreeForm } from '../contexts/TreeFormContext';
-import AddressInput from './AddressInput';
+import { ChakraNextLink } from '../atoms';
+import {
+  AddressInput,
+  DatePicker,
+  DurationInput,
+  Input,
+  MultiAddressInput,
+  NumberInput,
+  Select,
+} from '../forms';
 import FormRowWrapper from './FormRowWrapper';
-import MultiAddressInput from './MultiAddressInput';
 
 const fallbackExamples = {
   address: '0x3bc1A0Ad72417f2d41...',

@@ -9,14 +9,14 @@ import {
 } from '@chakra-ui/react';
 import { useIsClient } from 'app-hooks';
 import { explorerUrl } from 'app-utils';
+import { useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { HatEvent } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { ChakraNextLink } from 'ui';
 
-import { useTreeForm } from '../contexts/TreeFormContext';
+import { ChakraNextLink } from '../atoms';
 
 const EventHistory = ({
   type,

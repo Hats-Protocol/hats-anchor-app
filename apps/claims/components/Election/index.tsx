@@ -12,9 +12,9 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { chainsMap } from 'app-utils';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
+import { Layout } from 'ui';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
-import Layout from '../Layout';
 import CurrentSeason from './CurrentSeason';
 import ElectionRoles from './ElectionRoles';
 import Header from './Header';

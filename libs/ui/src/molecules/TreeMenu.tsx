@@ -26,6 +26,7 @@ import {
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useIsClient } from 'app-hooks';
 import { chainsMap, explorerUrl } from 'app-utils';
+import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { Controls } from 'hats-types';
 import _ from 'lodash';
@@ -35,10 +36,8 @@ import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
-import { ChakraNextLink } from 'ui';
 
-import { useOverlay } from '../contexts/OverlayContext';
-import { useTreeForm } from '../contexts/TreeFormContext';
+import { ChakraNextLink } from '../atoms';
 import EventHistory from './EventHistory';
 
 const TreeMenu = ({

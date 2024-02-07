@@ -13,6 +13,7 @@ import {
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { formatAddress } from 'app-utils';
+import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
@@ -27,8 +28,6 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { ipToHatId } from 'shared';
 import { useAccount, useChainId } from 'wagmi';
-
-import { useTreeForm } from '../../contexts/TreeFormContext';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;

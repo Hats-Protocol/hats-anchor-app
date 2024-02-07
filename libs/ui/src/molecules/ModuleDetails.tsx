@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { formatAddress } from 'app-utils';
+import { Modal, useOverlay, useTreeForm } from 'contexts';
 import {
   useCallModuleFunction,
   useModuleDetails,
@@ -25,14 +26,12 @@ import {
 import { LinkObject } from 'hats-types';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
-import { ChakraNextLink, Modal } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
 
-import { useOverlay } from '../contexts/OverlayContext';
-import { useTreeForm } from '../contexts/TreeFormContext';
+import { ChakraNextLink } from '../atoms';
 import ModuleArgsForm from './ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
@@ -92,7 +91,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
       setModals?.({ 'functionCall-module': true });
     } else {
       callModuleFunction({
-        moduleId: moduleDetails.implementationAddress,
+        moduleId: moduleDetails?.implementationAddress,
         instance: controllerAddress,
         func,
         args: [],
@@ -184,7 +183,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
               </Stack>
               <Flex justify='flex-end' mt={4}>
                 <HStack>
-                  <Button variant='outline' onClick={() => setModals({})}>
+                  <Button variant='outline' onClick={() => setModals?.({})}>
                     Cancel
                   </Button>
                   <Button

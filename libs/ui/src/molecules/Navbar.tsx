@@ -23,6 +23,7 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useLocalStorage } from 'app-hooks';
 import { containsUpperCase, getOperatingSystem } from 'app-utils';
+import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat, Transaction } from 'hats-types';
 import _ from 'lodash';
@@ -31,11 +32,9 @@ import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
-import { ChakraNextLink } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
 
-import { useOverlay } from '../contexts/OverlayContext';
-import { useTreeForm } from '../contexts/TreeFormContext';
+import { ChakraNextLink } from '../atoms';
 import ConnectWallet from './ConnectWallet';
 import TransactionHistory from './TransactionHistory';
 

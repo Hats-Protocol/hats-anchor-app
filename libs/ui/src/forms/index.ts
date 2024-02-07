@@ -1,5 +1,6 @@
 export { default as AddressInput } from './AddressInput';
 export { default as DatePicker } from './DatePicker';
+export { default as DurationInput } from './DurationInput';
 export { default as Input } from './Input';
 export { default as LinkInput } from './LinkInput';
 export { default as MultiAddressInput } from './MultiAddressInput';
