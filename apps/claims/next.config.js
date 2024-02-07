@@ -32,7 +32,28 @@ const nextConfig = {
   },
 
   experimental: {
-    optimizePackageImports: ['@chakra-ui/react', 'd3-org-chart', 'viem'],
+    optimizePackageImports: [
+      // external pkgs
+      '@chakra-ui/react',
+      '@hatsprotocol/sdk-v1-core',
+      '@rainbow-me/rainbowkit',
+      '@tanstack/react-query',
+      'd3-org-chart',
+      'react-datepicker',
+      'viem',
+      // internal packages
+      'app-hooks',
+      'app-utils',
+      '@hatsprotocol/constants',
+      'contexts',
+      'forms',
+      'hats-hooks',
+      'hats-types',
+      'hats-utils',
+      'pages',
+      'shared',
+      'ui',
+    ],
   },
 };
 
