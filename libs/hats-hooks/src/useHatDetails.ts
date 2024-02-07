@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ZERO_ID } from 'app-constants';
+import { ZERO_ID } from '@hatsprotocol/constants';
 import { fetchHatDetails } from 'app-utils';
 import { AppHat, SupportedChains } from 'hats-types';
 

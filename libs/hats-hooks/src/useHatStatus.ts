@@ -1,4 +1,4 @@
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat, SupportedChains } from 'hats-types';
 import { useContractRead } from 'wagmi';
 

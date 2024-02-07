@@ -6,7 +6,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { searchQueryResult } from 'app-utils';
 import _ from 'lodash';
-import { ipToPrettyId, toTreeId } from 'shared-utils';
+import { ipToPrettyId, toTreeId } from 'shared';
 
 // TODO refactor without prettyId
 
@@ -14,7 +14,7 @@ const isValidSearch = (search: string | undefined) => {
   if (
     (search?.startsWith('0x') && search !== '0x') ||
     (!_.isNaN(_.toNumber(search)) && _.toNumber(search) !== 0) ||
-    _.every(_.split(search, '.'), (v) => !_.isNaN(_.toNumber(v)))
+    _.every(_.split(search, '.'), (v: any) => !_.isNaN(_.toNumber(v)))
   )
     return true;
   return false;
@@ -61,7 +61,7 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
     isValid: valid,
     searchKey,
     error,
-    data,
+    data: data as any,
     isLoading,
   };
 };

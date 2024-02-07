@@ -1,5 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
-import { FALLBACK_ADDRESS } from 'app-constants';
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { checkAddressIsContract } from 'app-utils';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';

@@ -1,14 +1,15 @@
-import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import {
+  treeIdDecimalToHex,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
+import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
+import { TreePage } from 'pages';
 import { useEffect } from 'react';
 // import { useRouter } from 'next/router';
 import { Hex } from 'viem';
-
-import TreePage from '../../../components/TreePage';
-import { useOverlay } from '../../../contexts/OverlayContext';
-import { TreeFormContextProvider } from '../../../contexts/TreeFormContext';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   const { updateRecentlyVisitedTrees } = useOverlay();
@@ -25,7 +26,7 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
     if (!treeId || !chainId) return;
 
     updateRecentlyVisitedTrees({
-      treeId,
+      treeId: treeIdHexToDecimal(treeId),
       chainId,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

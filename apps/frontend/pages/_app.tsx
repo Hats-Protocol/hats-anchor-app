@@ -1,21 +1,20 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import '../public/style.css';
-import '../components/OrgChart/OrgChart.css';
+import '../public/styles/style.css';
+import '../public/styles/OrgChart.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
+import { SEO } from '@hatsprotocol/constants';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
-import { SEO } from 'app-constants';
 import { chains, wagmiConfig } from 'app-utils';
+import { OverlayContextProvider } from 'contexts';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
+import { theme } from 'ui';
 import { WagmiConfig } from 'wagmi';
-
-import { OverlayContextProvider } from '../contexts/OverlayContext';
-import theme from '../theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {

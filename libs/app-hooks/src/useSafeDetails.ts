@@ -1,5 +1,5 @@
+import { SAFE_ABI } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { SAFE_ABI } from 'app-constants';
 import { viemPublicClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import { Hex } from 'viem';
@@ -29,14 +29,15 @@ const useSafeDetails = ({
   enabled = true,
   editMode = false,
 }: {
-  safeAddress: Hex;
-  chainId: SupportedChains;
+  safeAddress: Hex | undefined;
+  chainId: SupportedChains | undefined;
   enabled?: boolean;
   editMode?: boolean;
 }) => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['safeDetails', { safeAddress, chainId }],
-    queryFn: () => fetchSafeDetails(safeAddress, chainId),
+    queryFn: () =>
+      chainId && safeAddress && fetchSafeDetails(safeAddress, chainId),
     enabled: !!safeAddress && !!chainId && !!enabled,
     staleTime: editMode ? Infinity : 1000 * 60 * 15,
   });

@@ -16,7 +16,7 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
-import { orderedChains } from 'app-constants';
+import { orderedChains } from '@hatsprotocol/constants';
 import { useImageURIs, useToast } from 'app-hooks';
 import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import blockies from 'blockies-ts';
@@ -26,17 +26,15 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
+import { Layout, WearerHatCard as CoreHat } from 'ui';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
-
-import Layout from '../../components/Layout';
-import CoreHat from '../../components/WearerHatCard';
 
 type HeadlineStat = {
   label: string;
@@ -141,7 +139,7 @@ const WearerDetail = ({
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
               <HStack>
-                <Heading size='lg' fontWeight='medium'>
+                <Heading size='lg' variant='medium'>
                   {name}
                 </Heading>
                 <IconButton
@@ -190,7 +188,7 @@ const WearerDetail = ({
 
         <Stack width='100%' justify='left' padding={6} spacing={4}>
           <Stack>
-            <Heading size='lg' fontWeight='medium'>
+            <Heading size='lg' variant='medium'>
               Wearer of
             </Heading>
             <Divider borderColor='black' />
@@ -203,7 +201,7 @@ const WearerDetail = ({
             <Text>Not wearing any hats</Text>
           ) : (
             <Stack>
-              {_.map(localOrderedChains, (chainId: number) => (
+              {_.map(localOrderedChains, (chainId: SupportedChains) => (
                 <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
@@ -213,7 +211,11 @@ const WearerDetail = ({
                         chainId: Number(chainId),
                       }),
                       (hat: AppHat) => (
-                        <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
+                        <CoreHat
+                          hat={hat}
+                          key={`${chainId}-${hat.id}`}
+                          chainId={chainId}
+                        />
                       ),
                     )}
                   </SimpleGrid>

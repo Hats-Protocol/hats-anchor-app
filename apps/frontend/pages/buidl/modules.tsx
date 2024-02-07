@@ -12,15 +12,13 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { orderedChains } from 'app-constants';
+import { orderedChains } from '@hatsprotocol/constants';
 import { chainsMap, explorerUrl, formatAddress } from 'app-utils';
 import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import React from 'react';
-
-import ChakraNextLink from '../../components/atoms/ChakraNextLink';
-import Layout from '../../components/Layout';
+import { ChakraNextLink, Layout } from 'ui';
 
 const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
   const { modules } = useHatsModules({ chainId });

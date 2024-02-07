@@ -14,14 +14,16 @@ export const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
   10: 'oeth',
   100: 'gno',
   137: 'matic',
-  424: 'pgn', // NOT ACTUALLY SUPPORTED YET
   8453: 'base',
   42161: 'arb1',
   42220: 'celo',
   11155111: 'sep',
 };
 
-export const safeUrl = (chainId: SupportedChains, address: Hex | undefined) => {
+export const safeUrl = (
+  chainId: SupportedChains | undefined,
+  address: Hex | undefined,
+) => {
   if (!chainId || !address) return '';
   return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
 };
@@ -39,7 +41,7 @@ export const formHatUrl = ({
   chainId,
 }: {
   hatId: Hex;
-  chainId: SupportedChains;
+  chainId: SupportedChains | undefined;
 }) => {
   const basePath = '/trees';
   const id = BigInt(hatId);

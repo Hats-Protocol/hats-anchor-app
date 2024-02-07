@@ -1,6 +1,6 @@
+import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { CONFIG } from 'app-constants';
 import { createSubgraphClient, fetchWearerDetails } from 'app-utils';
 import { AppHat, FormData, ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
@@ -72,10 +72,10 @@ const useMultiClaimsHatterCheck = ({
   storedData,
   editMode,
 }: {
-  chainId: SupportedChains;
+  chainId: SupportedChains | undefined;
   selectedHat?: AppHat;
-  onchainHats: AppHat[];
-  storedData: Partial<FormData>[];
+  onchainHats: AppHat[] | undefined;
+  storedData: Partial<FormData>[] | undefined;
   editMode?: boolean;
 }) => {
   const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);

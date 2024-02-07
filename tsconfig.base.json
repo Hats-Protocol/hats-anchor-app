@@ -15,15 +15,19 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "app-constants": ["./libs/app-constants/src/index"],
-      "app-hooks": ["./libs/app-hooks/src/index"],
-      "app-utils": ["./libs/app-utils/src/index"],
+      "@hatsprotocol/constants": ["./libs/constants/src/index"],
+      "contexts": ["./libs/contexts/src/index"],
+      "forms": ["./libs/forms/src/index"],
       "hats-hooks": ["./libs/hats-hooks/src/index"],
-      "hats-types": ["./libs/hats-types/src/index"],
       "hats-utils": ["./libs/hats-utils/src/index"],
-      "shared-utils": ["./libs/shared-utils/src/index"]
+      "app-hooks": ["./libs/app-hooks/src/index"], // TODO rename
+      "pages": ["./libs/pages/src/index"],
+      "shared": ["./libs/shared/src/index"],
+      "hats-types": ["./libs/hats-types/src/index"],
+      "ui": ["./libs/ui/src/index.ts"],
+      "app-utils": ["./libs/app-utils/src/index"] // TODO rename
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "*.d.ts"],
   "exclude": ["node_modules", "tmp", "dist", ".nx"]
 }

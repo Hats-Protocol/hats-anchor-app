@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetails, fetchTreesById } from 'app-utils';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
-import { ipToPrettyId, prettyIdToIp } from 'shared-utils';
+import { ipToPrettyId, prettyIdToIp } from 'shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {

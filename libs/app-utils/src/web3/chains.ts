@@ -1,4 +1,4 @@
-import { chainsList, orderedChains } from 'app-constants';
+import { chainsList, orderedChains } from '@hatsprotocol/constants';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { configureChains } from 'wagmi';

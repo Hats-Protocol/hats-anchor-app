@@ -5,13 +5,6 @@ import { Hex } from 'viem';
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
 
-// sdk
-export interface HatEvent {
-  id: string;
-  timestamp: string;
-  transactionID: string;
-}
-
 // details-mgr
 export type DetailsItem = {
   link: string;
@@ -63,6 +56,8 @@ export interface AppHat extends Hat {
   active?: boolean;
   type?: string;
   displayName?: string;
+  extendedEligibility?: HatWearer;
+  extendedToggle?: HatWearer;
 }
 
 export type ModuleCreationArg = {
@@ -107,6 +102,10 @@ export interface HatAuthorityResponse {
   hatAuthority: HatAuthority;
 }
 
+export interface HatElectionResponse {
+  hatsElectionEligibility: ElectionsAuthority;
+}
+
 export interface HatSignerGate {
   id: Hex;
   hatId: Hex;
@@ -134,4 +133,11 @@ export interface HatAuthority {
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];
+}
+
+export interface ElectionsAuthority {
+  adminHat: { id: Hex }[];
+  ballotBoxHat: { id: Hex };
+  hatId: Hex;
+  id: Hex;
 }

@@ -4,3 +4,4 @@
 /.nx
 /node_modules
 /apps/frontend/.next
+/apps/election/.next

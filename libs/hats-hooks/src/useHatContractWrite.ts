@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { formatFunctionName } from 'app-utils';
 import { HandlePendingTx } from 'hats-types';

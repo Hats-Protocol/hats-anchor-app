@@ -4,9 +4,10 @@ import {
   verify,
 } from '@hatsprotocol/modules-sdk';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG, GATEWAY_TOKEN } from 'app-constants';
+import { CONFIG, GATEWAY_TOKEN } from '@hatsprotocol/constants';
 import { format } from 'date-fns';
 import _ from 'lodash';
+import { isAddress } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
@@ -124,13 +125,13 @@ export const formatImageUrl = (url?: string) => {
 };
 
 const convertToBigInt = (input: unknown) => {
-  // directly convert, if string
-  if (_.isString(input)) {
+  // directly convert, if string (but make sure it's not a decimal or will crash)
+  const localString = _.toString(input);
+  if (localString && !localString?.includes('.')) {
     return BigInt(input as string);
   }
   // handle numbers
   const numberCheck = _.toNumber(input);
-
   if (_.isNaN(numberCheck)) {
     return 'Invalid input: Not a valid number';
   }
@@ -145,13 +146,18 @@ const convertToBigInt = (input: unknown) => {
 export const transformInput = (
   input: unknown,
   solidityType: string,
+  displayType?: string,
 ): unknown => {
+  console.log('transformInput', input, solidityType, displayType);
   if (input === undefined || input === null) {
     if (solidityType.includes('[]')) {
       return [];
     }
 
     return undefined;
+  }
+  if (solidityType === 'address') {
+    return isAddress(String(input)) ? String(input) : '';
   }
   const tsType = solidityToTypescriptType(solidityType);
 
@@ -167,6 +173,7 @@ export const transformInput = (
         return convertToBigInt(numberFromObject);
       }
       if (_.isString(input) || _.isNumber(input)) {
+        // TODO handle decimal number as string, crashing BigInt conversion
         return convertToBigInt(input);
       }
       break;
@@ -202,6 +209,7 @@ export const transformAndVerify = (
   input: unknown,
   solidityType: string,
 ): string | boolean => {
+  console.log('transformAndVerify', input, solidityType);
   const transformedInput = transformInput(input, solidityType);
 
   if (verify(transformedInput, solidityType)) {

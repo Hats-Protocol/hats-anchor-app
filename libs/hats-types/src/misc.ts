@@ -14,6 +14,13 @@ export type ImageFile = {
   webkitRelativePath?: string;
 };
 
+export type DocsLink = {
+  url: string;
+  icon: string;
+  name: string;
+  description: string;
+};
+
 export type Hierarchy = {
   id: string;
   parentId?: Hex;

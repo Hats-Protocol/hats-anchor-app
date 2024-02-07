@@ -1,6 +1,6 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CONFIG, DEPLOYMENT_TYPES } from 'app-constants';
+import { CONFIG, DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import {
   AppHat,

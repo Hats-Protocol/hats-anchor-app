@@ -17,4 +17,4 @@ export type HandlePendingTx = ({
   txDescription: string;
   toastData: ToastData | undefined;
   onSuccess?: (d?: TransactionReceipt) => void;
-}) => Promise<TransactionReceipt>;
+}) => Promise<TransactionReceipt | undefined>;
