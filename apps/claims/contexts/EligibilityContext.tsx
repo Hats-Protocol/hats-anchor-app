@@ -84,7 +84,6 @@ export const EligibilityContextProvider = ({
       id: controllerAddress,
       chainId,
     });
-  console.log(electionsAuthority);
 
   const value = useMemo(
     () => ({

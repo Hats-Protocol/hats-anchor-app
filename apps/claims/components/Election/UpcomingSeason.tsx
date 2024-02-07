@@ -95,9 +95,9 @@ const UpcomingSeason = () => {
   return (
     <Stack gap={4}>
       <Text fontWeight='bold'>Upcoming Season</Text>
-      <HStack justifyContent='space-between' gap={20}>
-        <DateInfo date={currentTermEndDate} label='Term End' />
-        <DateInfo date={nextTermEndDate} label='Next Term End' />
+      <HStack justifyContent='space-between' gap={4}>
+        <DateInfo date={currentTermEndDate} label='Next Season Starts' />
+        <DateInfo date={nextTermEndDate} label='Next Season End' />
       </HStack>
       <Flex gap={2} wrap='wrap'>
         {_.map(moduleActions, (action) => (

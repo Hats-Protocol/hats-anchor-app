@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Heading,
   HStack,
   Icon,
@@ -12,6 +13,8 @@ import {
 } from '@chakra-ui/react';
 import { PROPOSALS } from '@hatsprotocol/constants';
 import { useProposalDetails } from 'app-hooks';
+import _ from 'lodash';
+import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { idToIp } from 'shared';
 import { useChainId } from 'wagmi';
@@ -29,6 +32,31 @@ const ProposalDetails = () => {
     PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481]?.elect;
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
 
+  const proposalDetails = useMemo(() => {
+    if (!proposal) return [];
+    return [
+      {
+        label: 'Strategies:',
+        value:
+          proposal.strategies.length === 1
+            ? '1 strategy'
+            : `${proposal.strategies.length} strategies`,
+      },
+      {
+        label: 'Voting system:',
+        value: 'Ranked Choice',
+      },
+      {
+        label: 'Started:',
+        value: new Date(proposal.start * 1000).toLocaleString(),
+      },
+      {
+        label: 'Ends:',
+        value: new Date(proposal.end * 1000).toLocaleString(),
+      },
+    ];
+  }, [proposal]);
+
   if (isLoading) return <Spinner />;
   if (error || !proposal) return <Text>Failed to load proposal details.</Text>;
 
@@ -41,37 +69,27 @@ const ProposalDetails = () => {
       </Box>
       <HStack gap={6} align='start'>
         <VStack spacing={4} align='start' flex='1'>
-          <Heading size='md'>{proposal.title}</Heading>
-          <Text noOfLines={[3, 5]}>{proposal.body}</Text>
+          <Heading size='lg'>{proposal.title}</Heading>
+          <Text noOfLines={[3, 5]} size='sm'>
+            {proposal.body}
+          </Text>
         </VStack>
-        <VStack spacing={4} align='start' flex='1' fontSize='sm'>
-          <Text fontWeight='bold'>About</Text>
-          <HStack justifyContent='space-between' width='100%'>
-            <Text>Strategies:</Text>
-            <Text fontWeight='bold' textAlign='right'>
-              {proposal.strategies.length === 1
-                ? '1 strategy'
-                : `${proposal.strategies.length} strategies`}
-            </Text>
-          </HStack>
-          <HStack justifyContent='space-between' width='100%'>
-            <Text>Voting system:</Text>
-            <Text fontWeight='bold' textAlign='right'>
-              Ranked Choice
-            </Text>
-          </HStack>
-          <HStack justifyContent='space-between' width='100%'>
-            <Text>Started:</Text>
-            <Text fontWeight='bold' textAlign='right'>
-              {new Date(proposal.start * 1000).toLocaleString()}
-            </Text>
-          </HStack>
-          <HStack justifyContent='space-between' width='100%'>
-            <Text>Ends:</Text>
-            <Text fontWeight='bold' textAlign='right'>
-              {new Date(proposal.end * 1000).toLocaleString()}
-            </Text>
-          </HStack>
+        <VStack align='start' flex='1' fontSize='sm'>
+          <Heading size='sm'>About</Heading>
+
+          {_.map(_.compact(proposalDetails), (detail: any) => (
+            <Flex
+              justifyContent='space-between'
+              width='100%'
+              gap={1}
+              key={detail.label}
+            >
+              <Text size='sm'>{detail.label}</Text>
+              <Text size='sm' variant='medium'>
+                {detail.value}
+              </Text>
+            </Flex>
+          ))}
         </VStack>
       </HStack>
       <Box alignSelf='center'>

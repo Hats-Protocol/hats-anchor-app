@@ -11,10 +11,10 @@ import { Analytics } from '@vercel/analytics/react';
 import { chains, wagmiConfig } from 'app-utils';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
+import { theme } from 'ui';
 import { WagmiConfig } from 'wagmi';
 
 import { OverlayContextProvider } from '../contexts/OverlayContext';
-import theme from '../theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {

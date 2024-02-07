@@ -1,29 +1,29 @@
 import { Flex, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
-import { formatAddress } from 'app-utils';
+import { explorerUrl, formatAddress } from 'app-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
+import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useEnsName } from 'wagmi';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 
-const WearerCard = ({
-  account,
-  wearers,
-}: {
-  account: Hex;
-  wearers: Wearer[];
-}) => {
+const WearerCard = ({ account }: { account: Hex }) => {
+  const { chainId, selectedHat } = useEligibility();
   const { data: name } = useEnsName({ address: account, chainId: 1 });
   const isWearing = useMemo(() => {
-    return _.some(wearers, { id: account });
-  }, [wearers, account]);
+    return _.some(selectedHat?.wearers, { id: account });
+  }, [selectedHat?.wearers, account]);
 
   return (
     <Flex justify='space-between' w='100%'>
-      <Text>{name || formatAddress(account)}</Text>
+      <ChakraNextLink
+        href={`${explorerUrl(chainId)}/address/${account}`}
+        decoration
+      >
+        <Text size='sm'>{name || formatAddress(account)}</Text>
+      </ChakraNextLink>
 
       {isWearing && (
         <Tooltip label='is wearing hat' shouldWrapChildren>
@@ -35,7 +35,7 @@ const WearerCard = ({
 };
 
 const WearersList = () => {
-  const { electionsAuthority, selectedHat } = useEligibility();
+  const { electionsAuthority } = useEligibility();
 
   const electedAccounts = useMemo(() => {
     const allElectedAccounts = _.flatMap(
@@ -52,11 +52,7 @@ const WearersList = () => {
       {!_.isEmpty(electedAccounts) ? (
         <Stack spacing={2} align='start' w='100%'>
           {_.map(electedAccounts, (account: Hex) => (
-            <WearerCard
-              key={account}
-              account={account}
-              wearers={selectedHat?.wearers}
-            />
+            <WearerCard key={account} account={account} />
           ))}
         </Stack>
       ) : (

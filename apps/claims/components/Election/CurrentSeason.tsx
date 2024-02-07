@@ -1,4 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react';
+import { Heading, Stack } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
 
@@ -22,7 +22,7 @@ const CurrentSeason = () => {
 
   return (
     <Stack gap={4}>
-      <Text fontWeight='bold'>Current Season</Text>
+      <Heading size='md'>Current Season</Heading>
       <DateInfo
         date={date}
         // tooltipValue='The end of the current term.'
