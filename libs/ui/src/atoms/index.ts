@@ -1,13 +1,7 @@
 export { default as Accordion } from './Accordion';
 export { default as ChakraNextLink } from './ChakraNextLink';
-export { default as DatePicker } from './DatePicker';
 export { default as DropZone } from './DropZone';
 export { default as DurationInput } from './DurationInput';
-export { default as Input } from './Input';
 export { default as Markdown } from './Markdown';
 export { default as Modal } from './Modal';
-export { default as NumberInput } from './NumberInput';
-export { default as RadioBox } from './RadioBox';
-export { default as Select } from './Select';
 export { default as Suspender } from './Suspender';
-export { default as Textarea } from './Textarea';

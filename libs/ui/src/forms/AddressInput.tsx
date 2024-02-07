@@ -3,7 +3,8 @@ import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaCheck } from 'react-icons/fa';
-import { Input } from 'ui';
+
+import Input from './Input';
 
 type AddressInputProps = {
   name: string;

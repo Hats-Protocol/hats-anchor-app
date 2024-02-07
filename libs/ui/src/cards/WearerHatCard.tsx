@@ -1,17 +1,21 @@
 import { Box, Card, Flex, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import { getTreeId } from 'hats-utils';
 import _ from 'lodash';
-import { ChakraNextLink } from 'ui';
 
-import { useTreeForm } from '../contexts/TreeFormContext';
+import { ChakraNextLink } from '../atoms';
 
 // TODO optimize top hat fetch
-const WearerHatCard = ({ hat }: { hat: AppHat }) => {
+const WearerHatCard = ({
+  hat,
+  chainId,
+}: {
+  hat: AppHat;
+  chainId: SupportedChains | undefined;
+}) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
-  const { chainId } = useTreeForm();
 
   // TODO need topHatId from hatId
   const { data: topHat } = useHatDetails({

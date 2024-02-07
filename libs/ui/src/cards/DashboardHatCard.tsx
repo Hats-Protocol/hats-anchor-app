@@ -16,7 +16,8 @@ import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { ChakraNextLink } from 'ui';
+
+import { ChakraNextLink } from '../atoms';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
@@ -76,7 +77,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                   bg='blackAlpha.100'
                   borderRadius='md'
                 >
-                  <ChakraImage src={networkImages[hat.chainId]} />
+                  <ChakraImage src={networkImages[hat.chainId || 1]} />
                 </Flex>
                 <Text fontSize='md' fontWeight={600} noOfLines={1}>
                   #{Number(hatIdToTreeId(BigInt(hat.id)))}

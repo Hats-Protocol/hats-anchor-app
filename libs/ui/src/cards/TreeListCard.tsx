@@ -4,7 +4,8 @@ import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { ChakraNextLink } from 'ui';
+
+import { ChakraNextLink } from '../atoms';
 
 const TreeListCard = ({
   tree,

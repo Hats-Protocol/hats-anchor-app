@@ -6,10 +6,8 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "strict": true,
-    "noImplicitAny": false,
+    "noImplicitAny": false
   },
-  "files": [],
-  "include": ["**/*.ts", "**/*.js"],
   "references": [
     // {
     //   "path": "./tsconfig.lib.json"

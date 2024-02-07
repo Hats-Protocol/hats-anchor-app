@@ -1,5 +1,6 @@
 import { HStack, Image, Stack, Text } from '@chakra-ui/react';
-import { ChakraNextLink } from 'ui';
+
+import { ChakraNextLink } from '../atoms';
 
 const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
   const { url, name, icon, description } = docsData;
