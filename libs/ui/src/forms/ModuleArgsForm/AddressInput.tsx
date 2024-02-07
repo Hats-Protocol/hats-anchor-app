@@ -7,9 +7,11 @@ import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import { ChangeEvent, ReactNode, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { AddressInput, ChakraNextLink, Input } from 'ui';
 import { Hex, isAddress } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
+
+import { ChakraNextLink } from '../../atoms';
+import { AddressInput, Input } from '..';
 
 const isEns = (value: string) =>
   value ? _.toString(value).endsWith('.eth') : false;

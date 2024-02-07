@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 
@@ -14,7 +14,7 @@ export const combineAuthorities = ({
   guildRoles: Authority[] | undefined;
   spaces: Authority[] | undefined;
   modulesAuthorities: Authority[] | undefined;
-}) => {
+}): { data: Authority[] | undefined } => {
   const socialAuthorities = _.map(authorities, (authority: Authority) => ({
     ...authority,
     type: AUTHORITY_TYPES.manual as AuthorityType,
@@ -63,7 +63,7 @@ export const combineAuthorities = ({
     modulesAuthorities,
   );
 
-  return { data: _.compact(combined) };
+  return { data: _.compact(combined) as Authority[] };
 };
 
 export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {

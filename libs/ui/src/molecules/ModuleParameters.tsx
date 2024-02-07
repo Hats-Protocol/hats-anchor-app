@@ -3,6 +3,7 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'app-utils';
 import { formatDistanceToNow } from 'date-fns';
+import { TokenData } from 'hats-types';
 import _ from 'lodash';
 import { FiExternalLink } from 'react-icons/fi';
 import { formatUnits, Hex } from 'viem';
@@ -63,7 +64,7 @@ const ModuleParameter = ({
 }: {
   param: ModuleParameter;
   chainId: number;
-  tokenData: object;
+  tokenData: TokenData | undefined;
 }) => {
   const {
     decimals: tokenDecimals,
@@ -150,7 +151,7 @@ const ModuleParameters = ({
   chainId,
 }: {
   parameters: ModuleParameter[] | undefined;
-  chainId: number | undefined;
+  chainId: number;
 }) => {
   const tokenAddress = _.get(
     _.find(parameters, ['label', 'Token Address']),

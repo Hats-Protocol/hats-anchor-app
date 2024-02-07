@@ -26,6 +26,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 
   useEffect(() => {
     const img = new Image();
+    if (!image) return;
     img.src = image;
     img.onload = () => setImageLoaded(true);
   }, [image]);

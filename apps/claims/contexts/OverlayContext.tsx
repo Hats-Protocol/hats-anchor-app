@@ -1,5 +1,5 @@
-import { OverlayContextPropsElection } from '@hatsprotocol/constants';
 import { useLocalStorage, useToast } from 'app-hooks';
+import { OverlayContextPropsElection } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {

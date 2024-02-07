@@ -11,5 +11,6 @@ export { default as NetworkFilter } from './NetworkFilter';
 export { default as NetworkSwitcher } from './NetworkSwitcher';
 export { default as OrgChart } from './OrgChart';
 export { default as PlatformInput } from './PlatformInput';
+export * from './standalone';
 export { default as TransactionHistory } from './TransactionHistory';
 export { default as TreeMenu } from './TreeMenu';

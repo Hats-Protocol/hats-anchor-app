@@ -12,7 +12,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { chainsMap } from 'app-utils';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
-import { Layout } from 'ui';
+import { StandaloneLayout as Layout } from 'ui';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 import CurrentSeason from './CurrentSeason';

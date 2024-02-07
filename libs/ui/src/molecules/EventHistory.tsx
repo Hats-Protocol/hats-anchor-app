@@ -7,11 +7,11 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useIsClient } from 'app-hooks';
 import { explorerUrl } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
-import { HatEvent } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
@@ -50,7 +50,7 @@ const EventHistory = ({
 
   return (
     <Box>
-      {_.map(displayedEvents, (event: HatEvent) => (
+      {_.map(displayedEvents, (event: HatsEvent) => (
         <Event
           key={`${event.transactionID}-${event.id}`}
           event={event}
@@ -77,7 +77,7 @@ const EventHistory = ({
   );
 };
 
-const Event = ({ event, chainId }: { event: HatEvent; chainId?: number }) => {
+const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
   return (
     <Flex
       key={`${event.transactionID}-${event.id}`}

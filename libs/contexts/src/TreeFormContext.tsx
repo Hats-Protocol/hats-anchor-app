@@ -4,6 +4,7 @@ import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
+import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import {
   useBetterMediaQuery,
   useGuilds,
@@ -34,7 +35,6 @@ import {
   Hierarchy,
   LinkRequest,
   SupportedChains,
-  TreeEvent,
 } from 'hats-types';
 import { combineAuthorities, translateDrafts } from 'hats-utils';
 import _ from 'lodash';
@@ -69,7 +69,7 @@ export interface TreeFormContext {
   selectedHatSpaces: Authority[] | undefined;
   combinedAuthorities: Authority[] | undefined;
 
-  treeEvents: TreeEvent[] | undefined;
+  treeEvents: HatsEvent[] | undefined;
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
   linkedHatIds?: Hex[];
@@ -231,7 +231,7 @@ export const TreeFormContextProvider = ({
     chainId,
     editMode,
   });
-  const linkedHatIds = useMemo(() => {
+  const linkedHatIds: Hex[] = useMemo(() => {
     const { linkedToHat, parentOfTrees } = _.pick(treeData, [
       'linkedToHat',
       'parentOfTrees',
@@ -274,7 +274,9 @@ export const TreeFormContextProvider = ({
   // *********************
   // * ONCHAIN TREE (ONCHAIN HATS)
   // *********************
-  const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({ id }));
+  const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({
+    id,
+  })) as unknown as object[]; // TODO fix type
   const { data: onchainHatDetails } = useManyHatsDetails({
     hats: mapWithChainId(onchainIds, chainId),
     initialHats: mapWithChainId(onchainIds, chainId),
@@ -358,7 +360,7 @@ export const TreeFormContextProvider = ({
     return _.map(
       _.filter(orgChartTree, ['status', false]),
       (h: AppHat) => h.prettyId,
-    );
+    ) as Hex[];
   }, [orgChartTree]);
 
   const filteredTree = useMemo(() => {

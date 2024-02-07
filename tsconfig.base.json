@@ -28,6 +28,6 @@
       "app-utils": ["./libs/app-utils/src/index"] // TODO rename
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "*.d.ts"],
   "exclude": ["node_modules", "tmp", "dist", ".nx"]
 }

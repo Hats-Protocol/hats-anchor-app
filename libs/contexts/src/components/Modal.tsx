@@ -8,11 +8,8 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import {
-  OverlayContextProps,
-  OverlayContextPropsElection,
-} from '@hatsprotocol/constants';
-import React, { ReactNode } from 'react';
+import { OverlayContextProps, OverlayContextPropsElection } from 'hats-types';
+import { ReactNode } from 'react';
 
 /**
  * Modal component, wraps Chakra's default Modal

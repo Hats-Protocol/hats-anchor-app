@@ -1,6 +1,6 @@
+import { MULTI_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
-import { MULTI_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import { HandlePendingTx } from 'hats-types';
 import _ from 'lodash';
@@ -15,7 +15,7 @@ interface ContractInteractionProps {
   chainId?: number;
   enabled: boolean;
   args: (string | number | bigint | undefined)[];
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx?: HandlePendingTx | undefined;
   hatId?: Hex;
 }
 

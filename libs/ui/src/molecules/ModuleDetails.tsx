@@ -90,8 +90,9 @@ const ModuleDetails = ({ type }: { type: string }) => {
       setSelectedFunction(func);
       setModals?.({ 'functionCall-module': true });
     } else {
+      if (!moduleDetails?.implementationAddress) return;
       callModuleFunction({
-        moduleId: moduleDetails?.implementationAddress,
+        moduleId: moduleDetails.implementationAddress,
         instance: controllerAddress,
         func,
         args: [],
@@ -141,11 +142,11 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const isClaimable = useMemo(
     () => ({
       by:
-        selectedHat?.claimableBy?.length >= 1 &&
-        selectedHat?.claimableForBy.length === 0,
+        !_.isEmpty(selectedHat?.claimableBy) &&
+        _.isEmpty(selectedHat?.claimableForBy),
       for:
-        selectedHat?.claimableBy?.length >= 1 &&
-        selectedHat?.claimableForBy.length >= 1,
+        _.isEmpty(selectedHat?.claimableBy) &&
+        !_.isEmpty(selectedHat?.claimableForBy),
     }),
     [selectedHat],
   );
@@ -155,7 +156,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     console.log(values);
   };
 
-  if (!moduleDetails) return null;
+  if (!moduleDetails || !chainId) return null;
 
   return (
     <Accordion allowMultiple>
@@ -169,17 +170,19 @@ const ModuleDetails = ({ type }: { type: string }) => {
             localOverlay={localOverlay}
           >
             <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-              {selectedFunction?.description && (
-                <Text mb={3}>{selectedFunction?.description}</Text>
+              {_.get(selectedFunction, 'description') && (
+                <Text mb={3}>{_.get(selectedFunction, 'description')}</Text>
               )}
               <Stack>
-                <ModuleArgsForm
-                  selectedModuleArgs={selectedFunction?.args}
-                  tokenAddress={tokenAddress}
-                  localForm={formMethods}
-                  hideIcon
-                  noMargin
-                />
+                {_.get(selectedFunction, 'args') && (
+                  <ModuleArgsForm
+                    selectedModuleArgs={_.get(selectedFunction, 'args', [])}
+                    tokenAddress={tokenAddress}
+                    localForm={formMethods}
+                    hideIcon
+                    noMargin
+                  />
+                )}
               </Stack>
               <Flex justify='flex-end' mt={4}>
                 <HStack>
@@ -192,7 +195,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                     isDisabled={!formState.isValid}
                     isLoading={isModuleLoading}
                   >
-                    {selectedFunction?.label}
+                    {_.get(selectedFunction, 'label')}
                   </Button>
                 </HStack>
               </Flex>
@@ -256,7 +259,9 @@ const ModuleDetails = ({ type }: { type: string }) => {
                     }
                     isDisabled={!setHatClaimable && !setHatClaimableFor}
                     onClick={() =>
-                      isClaimable.for ? setHatClaimable() : setHatClaimableFor()
+                      isClaimable.for
+                        ? setHatClaimable?.()
+                        : setHatClaimableFor?.()
                     }
                   >
                     {_.includes(claimableHats, selectedHat?.id) &&

@@ -1,8 +1,7 @@
-import { OverlayContextProps } from '@hatsprotocol/constants';
-import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+// import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
-import { Transaction } from 'hats-types';
+import { OverlayContextProps, Transaction } from 'hats-types';
 import _ from 'lodash';
 // import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -74,15 +73,13 @@ export const OverlayContextProvider = ({
   >('recently-visited-trees', undefined);
 
   const updateRecentlyVisitedTrees = useCallback(
-    ({ treeId, chainId: cId }: { treeId: Hex; chainId: number }) => {
+    ({ treeId, chainId: cId }: { treeId: number; chainId: number }) => {
       if (!treeId || !cId) return;
-      const treeIdDecimal = treeIdHexToDecimal(treeId);
+      // const treeIdDecimal = treeIdHexToDecimal(treeId);
+      // TODO confirm is decimal
 
       const localRecentTrees = _.compact(
-        _.concat(
-          [{ treeId: treeIdDecimal, chainId: cId }],
-          recentlyVisitedTrees,
-        ),
+        _.concat([{ treeId, chainId: cId }], recentlyVisitedTrees),
       );
 
       const uniqueTrees = _.uniqWith(

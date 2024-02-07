@@ -5,13 +5,6 @@ import { Hex } from 'viem';
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
 
-// sdk
-export interface HatEvent {
-  id: string;
-  timestamp: string;
-  transactionID: string;
-}
-
 // details-mgr
 export type DetailsItem = {
   link: string;

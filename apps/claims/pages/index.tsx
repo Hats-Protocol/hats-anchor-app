@@ -13,7 +13,7 @@ import { orderedChains } from '@hatsprotocol/constants';
 import { useImageURIs } from 'app-hooks';
 import { chainsMap, formatAddress } from 'app-utils';
 import { useWearerDetails } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { idToIp } from 'shared';
 import { Layout, WearerHatCard as CoreHat } from 'ui';
@@ -91,7 +91,7 @@ const Home = () => {
               <Text>Not wearing any hats</Text>
             ) : (
               <Stack>
-                {_.map(localOrderedChains, (chainId: number) => (
+                {_.map(localOrderedChains, (chainId: SupportedChains) => (
                   <Stack mt={4} spacing={4} key={chainId}>
                     <Heading size='sm'>
                       {chainsMap(Number(chainId)).name}
@@ -106,7 +106,8 @@ const Home = () => {
                           <CoreHat
                             hat={hat}
                             key={`${chainId}-${hat.id}`}
-                            link={`/${hat.chainId}/${idToIp(hat.id)}`}
+                            chainId={chainId}
+                            // link={`/${hat.chainId}/${idToIp(hat.id)}`}
                           />
                         ),
                       )}

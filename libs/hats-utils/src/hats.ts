@@ -1,5 +1,5 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
   AppHat,
