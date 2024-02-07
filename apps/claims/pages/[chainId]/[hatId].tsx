@@ -5,15 +5,12 @@ import { GetStaticPropsContext } from 'next';
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { ipToHatId } from 'shared';
-import { Suspender } from 'ui';
 import { Hex } from 'viem';
 
 import { EligibilityContextProvider } from '../../contexts/EligibilityContext';
 import { useOverlay } from '../../contexts/OverlayContext';
 
-const Election = dynamic(() => import('../../components/Election'), {
-  loading: () => <Suspender />,
-});
+const Election = dynamic(() => import('../../components/Election'));
 
 const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   const { updateRecentlyVisitedHats } = useOverlay();

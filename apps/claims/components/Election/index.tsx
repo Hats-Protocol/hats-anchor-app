@@ -41,7 +41,7 @@ const Election = () => {
   return (
     <Layout hatData={selectedHat}>
       <NextSeo title={title} />
-      <Stack position='relative' top='76px' px={32} pt={20} gap={10}>
+      <Stack position='relative' top='76px' px={32} py={20} gap={10}>
         {isHatDetailsLoading ? (
           <Flex justifyContent='center'>
             <Spinner />

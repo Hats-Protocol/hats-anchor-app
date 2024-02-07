@@ -1,11 +1,41 @@
-import { Stack, Tag, Text, VStack } from '@chakra-ui/react';
+import { Flex, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
+import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
+import { formatAddress } from 'app-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { FaRegCheckCircle } from 'react-icons/fa';
+import { Hex } from 'viem';
+import { useEnsName } from 'wagmi';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 
+const WearerCard = ({
+  account,
+  wearers,
+}: {
+  account: Hex;
+  wearers: Wearer[];
+}) => {
+  const { data: name } = useEnsName({ address: account, chainId: 1 });
+  const isWearing = useMemo(() => {
+    return _.some(wearers, { id: account });
+  }, [wearers, account]);
+
+  return (
+    <Flex justify='space-between' w='100%'>
+      <Text>{name || formatAddress(account)}</Text>
+
+      {isWearing && (
+        <Tooltip label='is wearing hat' shouldWrapChildren>
+          <Icon as={FaRegCheckCircle} color='green.500' />
+        </Tooltip>
+      )}
+    </Flex>
+  );
+};
+
 const WearersList = () => {
-  const { electionsAuthority } = useEligibility();
+  const { electionsAuthority, selectedHat } = useEligibility();
 
   const electedAccounts = useMemo(() => {
     const allElectedAccounts = _.flatMap(
@@ -18,16 +48,17 @@ const WearersList = () => {
 
   return (
     <Stack spacing={4}>
-      <Text fontWeight='bold'>Current wearers</Text>
-      {electedAccounts && electedAccounts.length > 0 ? (
-        <VStack spacing={2} align='start'>
-          {electedAccounts.map((account: string, index: number) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <Tag key={index} size='md' variant='outline' colorScheme='blue'>
-              {account}
-            </Tag>
+      <Text fontWeight='bold'>Current electees</Text>
+      {!_.isEmpty(electedAccounts) ? (
+        <Stack spacing={2} align='start' w='100%'>
+          {_.map(electedAccounts, (account: Hex) => (
+            <WearerCard
+              key={account}
+              account={account}
+              wearers={selectedHat?.wearers}
+            />
           ))}
-        </VStack>
+        </Stack>
       ) : (
         <Text>No elected accounts currently</Text>
       )}

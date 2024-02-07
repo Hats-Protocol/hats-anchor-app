@@ -14,16 +14,19 @@ import { PROPOSALS } from '@hatsprotocol/constants';
 import { useProposalDetails } from 'app-hooks';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { idToIp } from 'shared';
+import { useChainId } from 'wagmi';
 
 import { useEligibility } from '../../contexts/EligibilityContext';
 
 const ProposalDetails = () => {
-  const { selectedHat } = useEligibility();
+  const { selectedHat, chainId } = useEligibility();
+  const currentChainId = useChainId();
 
+  // TODO handle election term end
   // Assuming the structure of PROPOSALS is corrected as needed
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const proposalId = PROPOSALS[10][idToIp(selectedHat?.id)]?.[107187481].elect;
+  const proposalId =
+    chainId &&
+    PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481]?.elect;
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
 
   if (isLoading) return <Spinner />;

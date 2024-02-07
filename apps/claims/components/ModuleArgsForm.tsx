@@ -303,6 +303,7 @@ const ModuleFormInput = ({
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
         subLabel={arg.description}
         localForm={localForm}
+        setToZeroUTC
       />
     );
   }

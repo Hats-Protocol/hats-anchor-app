@@ -44,6 +44,7 @@ const useProposalDetails = (proposalId: string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['proposalDetails', proposalId],
     queryFn: () => fetchProposalDetails(proposalId),
+    enabled: !!proposalId,
   });
 
   return { data, isLoading, error };
