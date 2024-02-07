@@ -1,4 +1,4 @@
-import { Accordion, Heading, Text } from '@chakra-ui/react';
+import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 
@@ -12,22 +12,24 @@ const AuthoritiesList = () => {
 
   return (
     <Accordion allowMultiple>
-      <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={2}>
-        Authorities
-      </Heading>
-      {_.map(combinedAuthorities, (authority: Authority, index: number) => (
-        <AuthoritiesListCard
-          index={index}
-          key={authority.label}
-          authority={authority}
-          type={authority.type as AuthorityType}
-        />
-      ))}
-      {!combinedAuthorities.length && (
-        <Text color='gray.500' fontSize='sm'>
-          None
-        </Text>
-      )}
+      <Stack>
+        <Heading size='sm' variant='medium' textTransform='uppercase'>
+          Authorities
+        </Heading>
+        {_.map(combinedAuthorities, (authority: Authority, index: number) => (
+          <AuthoritiesListCard
+            index={index}
+            key={authority.label}
+            authority={authority}
+            type={authority.type as AuthorityType}
+          />
+        ))}
+        {!combinedAuthorities.length && (
+          <Text color='gray.500' fontSize='sm'>
+            None
+          </Text>
+        )}
+      </Stack>
     </Accordion>
   );
 };

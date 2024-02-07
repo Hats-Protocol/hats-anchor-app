@@ -65,7 +65,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
             </Skeleton>
             <Stack maxW='calc(100% - 72px - 16px)'>
               <Tooltip label={hatName} placement='top'>
-                <Heading as='h1' size='md' fontWeight='medium' noOfLines={1}>
+                <Heading as='h1' size='md' variant='medium' noOfLines={1}>
                   {hatName}
                 </Heading>
               </Tooltip>

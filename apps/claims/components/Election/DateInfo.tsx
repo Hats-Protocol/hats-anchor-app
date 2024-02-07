@@ -11,18 +11,18 @@ const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
   return (
     <HStack justifyContent='space-between' w='full'>
       <HStack>
-        <Text fontSize='sm'>{label}: </Text>
+        <Text size='sm'>{label}: </Text>
         {/* <Tooltip label={tooltipValue} placement='bottom' shouldWrapChildren>
           <BsQuestionCircle />
         </Tooltip> */}
       </HStack>
       {isNotSet ? (
-        <Text fontSize='sm' color='gray.500'>
+        <Text size='sm' variant='light'>
           Not Set
         </Text>
       ) : (
         <Tooltip label={`${formattedDate} UTC`} placement='left'>
-          <Text fontSize='sm' variant='medium'>
+          <Text size='sm' variant='medium'>
             {timeDistance} {new Date() > dateValue ? 'ago' : 'from now'}
           </Text>
         </Tooltip>

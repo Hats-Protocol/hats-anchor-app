@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   HStack,
   Stack,
   Text,
@@ -94,7 +95,7 @@ const UpcomingSeason = () => {
 
   return (
     <Stack gap={4}>
-      <Text fontWeight='bold'>Upcoming Season</Text>
+      <Heading size='md'>Upcoming Season</Heading>
       <HStack justifyContent='space-between' gap={4}>
         <DateInfo date={currentTermEndDate} label='Next Season Starts' />
         <DateInfo date={nextTermEndDate} label='Next Season End' />
@@ -130,32 +131,34 @@ const UpcomingSeason = () => {
         localOverlay={localOverlay}
       >
         <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-          {selectedFunction?.description && (
-            <Text mb={3}>{selectedFunction?.description}</Text>
-          )}
-          <Stack>
-            <ModuleArgsForm
-              selectedModuleArgs={selectedFunction?.args}
-              localForm={formMethods}
-              hideIcon
-              noMargin
-            />
+          <Stack spacing={4}>
+            {selectedFunction?.description && (
+              <Text>{selectedFunction?.description}</Text>
+            )}
+            <Stack>
+              <ModuleArgsForm
+                selectedModuleArgs={selectedFunction?.args}
+                localForm={formMethods}
+                hideIcon
+                noMargin
+              />
+            </Stack>
+            <Flex justify='flex-end'>
+              <HStack>
+                <Button variant='outline' onClick={() => setModals?.({})}>
+                  Cancel
+                </Button>
+                <Button
+                  colorScheme='blue'
+                  type='submit'
+                  isDisabled={!formState.isValid}
+                  isLoading={isModuleLoading}
+                >
+                  {selectedFunction?.label}
+                </Button>
+              </HStack>
+            </Flex>
           </Stack>
-          <Flex justify='flex-end' mt={4}>
-            <HStack>
-              <Button variant='outline' onClick={() => setModals?.({})}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme='blue'
-                type='submit'
-                isDisabled={!formState.isValid}
-                isLoading={isModuleLoading}
-              >
-                {selectedFunction?.label}
-              </Button>
-            </HStack>
-          </Flex>
         </Box>
       </Modal>
     </Stack>

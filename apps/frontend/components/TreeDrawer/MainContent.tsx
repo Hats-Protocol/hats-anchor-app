@@ -102,7 +102,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     >
       <HStack alignItems='flex-start' justifyContent='space-between'>
         <Stack w='75%'>
-          <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
+          <Heading variant='lightMedium'>
             {topHatDetails?.name ||
               topHat?.details ||
               topHat?.name ||

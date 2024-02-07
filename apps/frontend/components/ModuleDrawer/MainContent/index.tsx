@@ -74,7 +74,7 @@ const MainContent = ({
       pos='relative'
     >
       <Stack>
-        <Heading color='blackAlpha.800' fontSize={24} fontWeight='medium'>
+        <Heading size='2xl' variant='lightMedium'>
           {isStandaloneHatterDeploy
             ? `Deploy a Claims Hatter contract to make hat ${hatTitle} claimable`
             : `Create a new Accountability Module for hat ${hatTitle}`}

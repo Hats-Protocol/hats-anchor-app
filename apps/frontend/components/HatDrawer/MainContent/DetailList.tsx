@@ -32,7 +32,7 @@ const AccordionWrap = ({
       <AccordionButton px={inline ? 0 : undefined}>
         <Heading
           size={inline ? 'xs' : 'sm'}
-          fontWeight='medium'
+          variant='medium'
           textTransform='uppercase'
         >
           {title || 'Qualifications'}
@@ -61,7 +61,7 @@ const DetailList = ({
       {!toggleOrEligibility && (
         <Heading
           size={toggleOrEligibility ? 'xs' : 'sm'}
-          fontWeight='medium'
+          variant='medium'
           textTransform='uppercase'
         >
           {title}

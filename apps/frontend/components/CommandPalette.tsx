@@ -2,7 +2,7 @@
 /* eslint-disable no-nested-ternary */
 import 'react-cmdk/dist/cmdk.css';
 
-import { Flex, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSearchResults } from 'app-hooks';
 import { chainsMap } from 'app-utils';
 import { Group, SearchResults } from 'hats-types';
@@ -229,14 +229,12 @@ const CommandPalette = () => {
         ) : (
           <Flex justify='center' p={4}>
             <Stack align='center' color='whiteAlpha.600'>
-              <Text fontSize='xl' fontWeight={700} color='whiteAlpha.700'>
+              <Heading size='xl' color='whiteAlpha.700'>
                 Unsupported query!
-              </Text>
+              </Heading>
               <Stack spacing='2px' textAlign='center'>
-                <Text fontSize='sm'>
-                  Try using the Hat or Tree ID to search
-                </Text>
-                <Text fontSize='sm' fontFamily='monospace'>
+                <Text size='sm'>Try using the Hat or Tree ID to search</Text>
+                <Text size='sm' variant='mono'>
                   (e.g. 1, 3.1, 0x123..., 5674234...)
                 </Text>
               </Stack>

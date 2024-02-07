@@ -19,7 +19,11 @@ const theme = extendTheme({
     Text,
     Textarea,
   },
-  fonts: {},
+  global: {
+    body: {
+      fontFamily: 'Inter',
+    },
+  },
 });
 
 export default theme;

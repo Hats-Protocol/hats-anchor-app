@@ -124,7 +124,7 @@ const ModuleFormInput = ({
             href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
             isExternal
           >
-            <Text fontSize='sm' color='gray.500'>
+            <Text size='sm' variant='light'>
               {tokenLabel}
             </Text>
           </ChakraNextLink>
@@ -190,7 +190,7 @@ const ModuleFormInput = ({
             }`}
             isExternal
           >
-            <Text fontSize='sm' color='gray.500'>
+            <Text size='sm' variant='light'>
               {tokenLabel}
             </Text>
           </ChakraNextLink>
@@ -225,7 +225,7 @@ const ModuleFormInput = ({
           <HStack>
             <Text textTransform='uppercase'>{arg.name}</Text>
           </HStack>
-          <Text color='gray.600' fontSize='sm'>
+          <Text size='sm' variant='light'>
             {arg.description}
           </Text>
         </Stack>
@@ -288,7 +288,7 @@ const ModuleFormInput = ({
           localForm={localForm}
         />
         {tokenDetails && (
-          <Text fontSize='sm' color='gray.500'>
+          <Text size='sm' variant='light'>
             ${tokenDetails?.symbol} uses {tokenDecimals} decimals
           </Text>
         )}

@@ -1,4 +1,4 @@
-import { Box, Heading, Stack } from '@chakra-ui/react';
+import { Heading, Stack } from '@chakra-ui/react';
 import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { checkAddressIsContract } from 'app-utils';
 import _ from 'lodash';
@@ -89,12 +89,12 @@ const MainContent = () => {
 
       <LinkRequests />
 
-      <Box>
-        <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={1}>
+      <Stack spacing={1}>
+        <Heading size='sm' variant='medium' textTransform='uppercase'>
           Event history
         </Heading>
         <EventHistory type='hat' />
-      </Box>
+      </Stack>
     </Stack>
   );
 };

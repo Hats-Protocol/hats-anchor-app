@@ -69,15 +69,10 @@ const Navbar = ({ hatData }: { hatData?: AppHat | null }) => {
               borderRadius={0}
             >
               <Stack align='start' w='90%' mx={2}>
-                <Text
-                  fontSize='sm'
-                  textTransform='uppercase'
-                  fontWeight='medium'
-                  color='gray.800'
-                >
+                <Text size='sm' textTransform='uppercase' variant='lightMedium'>
                   Hats Election
                 </Text>
-                <Text fontSize='lg' isTruncated maxW='170px'>
+                <Text size='lg' maxW='170px' isTruncated>
                   {_.capitalize(tabName)}
                 </Text>
               </Stack>

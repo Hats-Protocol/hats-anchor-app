@@ -1,4 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react';
+import { Heading, Stack, Text } from '@chakra-ui/react';
 import { idToIp } from 'shared';
 import { ChakraNextLink } from 'ui';
 
@@ -16,7 +16,7 @@ const ElectionRoles = () => {
 
   return (
     <Stack gap={4}>
-      <Text fontWeight='bold'>Election Roles</Text>
+      <Heading size='md'>Election Roles</Heading>
       <Stack fontSize='sm'>
         {adminHatId && (
           <Text>

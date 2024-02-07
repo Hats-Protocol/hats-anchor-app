@@ -198,7 +198,7 @@ const WearersList = () => {
     <>
       <Stack spacing={4}>
         <Flex justify='space-between' alignItems='center'>
-          <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+          <Heading size='sm' variant='medium' textTransform='uppercase'>
             Hat Wearers
           </Heading>
 
@@ -373,7 +373,7 @@ const WearersList = () => {
             px={6}
             pb={4}
           >
-            <Heading fontSize='24px'>Hat Wearers</Heading>
+            <Heading size='2xl'>Hat Wearers</Heading>
             <Button
               onClick={() =>
                 exportWearers &&

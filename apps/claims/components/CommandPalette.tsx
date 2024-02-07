@@ -220,14 +220,12 @@ const CommandPalette = () => {
         ) : (
           <Flex justify='center' p={4}>
             <Stack align='center' color='whiteAlpha.600'>
-              <Text fontSize='xl' fontWeight={700} color='whiteAlpha.700'>
+              <Text size='xl' variant='medium' color='whiteAlpha.700'>
                 Unsupported query!
               </Text>
               <Stack spacing='2px' textAlign='center'>
-                <Text fontSize='sm'>
-                  Try using the Hat or Tree ID to search
-                </Text>
-                <Text fontSize='sm' fontFamily='monospace'>
+                <Text size='sm'>Try using the Hat or Tree ID to search</Text>
+                <Text size='sm' variant='mono'>
                   (e.g. 1, 3.1, 0x123..., 5674234...)
                 </Text>
               </Stack>

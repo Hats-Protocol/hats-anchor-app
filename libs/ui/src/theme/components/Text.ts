@@ -1,3 +1,4 @@
+// rule of thumb -> 2xl = 24px, md = 16px (heading default, text default)
 export const textSizes = {
   '6xl': {
     fontSize: '60px',
@@ -48,6 +49,13 @@ const Text = {
     default: {},
     medium: {
       fontWeight: 'medium',
+    },
+    lightMedium: {
+      color: 'blackAlpha.800',
+      fontWeight: 'medium',
+    },
+    light: {
+      color: 'gray.500',
     },
   },
   defaultProps: {

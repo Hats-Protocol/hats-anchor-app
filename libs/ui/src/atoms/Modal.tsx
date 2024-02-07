@@ -71,9 +71,7 @@ const Modal = ({
       >
         {customHeader || (
           <ModalHeader>
-            <Heading size={size} fontSize='24px'>
-              {title}
-            </Heading>
+            <Heading size={size}>{title}</Heading>
           </ModalHeader>
         )}
         <ModalCloseButton />

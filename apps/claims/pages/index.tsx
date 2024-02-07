@@ -21,6 +21,8 @@ import { useAccount, useEnsName } from 'wagmi';
 import Layout from '../components/Layout';
 import CoreHat from '../components/WearerHatCard';
 
+// TODO fix no nested ternary
+
 const Home = () => {
   const { address: wearerAddress } = useAccount();
 
@@ -58,11 +60,11 @@ const Home = () => {
         {wearerAddress ? (
           <Flex justifyContent='space-between'>
             <Stack>
-              <Text fontSize={24} fontWeight='medium'>
+              <Heading variant='medium'>
                 gm {ensName || formatAddress(wearerAddress)} 👋
-              </Text>
+              </Heading>
               {!_.isEmpty(sortedHats) && (
-                <Text fontSize={18}>
+                <Text size='lg'>
                   Here&apos;s what&apos;s happening with your hats
                 </Text>
               )}
@@ -70,19 +72,15 @@ const Home = () => {
           </Flex>
         ) : (
           <Stack>
-            <Text fontSize={24} fontWeight='medium'>
-              Welcome to Hats Protocol! 🧢
-            </Text>
-            <Text fontSize={18}>
-              Please connect your wallet to get started.
-            </Text>
+            <Heading variant='medium'>Welcome to Hats Protocol! 🧢</Heading>
+            <Text size='lg'>Please connect your wallet to get started.</Text>
           </Stack>
         )}
 
         {wearerAddress && currentHatsWithImagesData && (
           <Stack width='100%' justify='left' spacing={4}>
             <Stack>
-              <Heading size='lg' fontWeight='medium'>
+              <Heading size='lg' variant='medium'>
                 Wearer of
               </Heading>
               <Divider borderColor='black' />

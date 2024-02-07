@@ -143,7 +143,7 @@ const StatusCard = ({
   return (
     <Stack>
       <Flex justifyContent='space-between'>
-        <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+        <Heading size='sm' variant='medium' textTransform='uppercase'>
           {_.capitalize(_.toString(status))}
         </Heading>
         <Tooltip

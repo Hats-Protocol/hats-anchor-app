@@ -28,7 +28,7 @@ const LinkRequests = () => {
     (linkRequest) => linkRequest.requestedLinkToHat?.id === selectedHat?.id,
   ) ? (
     <Stack wrap='wrap'>
-      <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+      <Heading size='sm' variant='medium' textTransform='uppercase'>
         Link Requests
       </Heading>
       <Flex justifyContent='space-between'>

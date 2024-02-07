@@ -243,7 +243,7 @@ const TreeMenu = ({
                         <Box>
                           <Heading
                             size='sm'
-                            fontWeight='medium'
+                            variant='medium'
                             textTransform='uppercase'
                             mb={1}
                           >

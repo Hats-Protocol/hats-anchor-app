@@ -90,7 +90,7 @@ const HatTransferForm = ({
         <Stack>
           <Text>Tree Domain</Text>
           {hatId && (
-            <Heading size='md' fontFamily='mono'>
+            <Heading size='md' variant='mono'>
               #{hatIdDecimalToIp(BigInt(hatId))}
             </Heading>
           )}

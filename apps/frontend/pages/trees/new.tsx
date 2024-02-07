@@ -119,7 +119,7 @@ const NewTree = () => {
       />
 
       <Flex pt={125} direction='column' align='center'>
-        <Heading size='lg' fontWeight='medium'>
+        <Heading size='lg' variant='medium'>
           New {_.capitalize(CONFIG.tree)}
         </Heading>
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>

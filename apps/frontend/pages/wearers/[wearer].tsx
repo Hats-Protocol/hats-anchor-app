@@ -141,7 +141,7 @@ const WearerDetail = ({
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
               <HStack>
-                <Heading size='lg' fontWeight='medium'>
+                <Heading size='lg' variant='medium'>
                   {name}
                 </Heading>
                 <IconButton
@@ -190,7 +190,7 @@ const WearerDetail = ({
 
         <Stack width='100%' justify='left' padding={6} spacing={4}>
           <Stack>
-            <Heading size='lg' fontWeight='medium'>
+            <Heading size='lg' variant='medium'>
               Wearer of
             </Heading>
             <Divider borderColor='black' />

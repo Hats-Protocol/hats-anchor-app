@@ -56,11 +56,11 @@ const WearerHatCard = ({ hat, link }: { hat: AppHat; link: string }) => {
           mt={-1}
           bg='white'
         >
-          <Flex justify='space-between'>
-            <Text fontSize='xs' mr={2} fontWeight='semibold'>
+          <Flex justify='space-between' gap={2}>
+            <Text size='xs' variant='medium'>
               {topHatName}
             </Text>
-            <Text fontSize='xs' color='gray.500'>
+            <Text size='xs' variant='light'>
               {hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}
             </Text>
           </Flex>

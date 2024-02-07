@@ -203,12 +203,11 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
               <PopoverCloseButton />
               <PopoverBody>
                 <Box>
-                  <HStack w='full' justify='space-between' align='center'>
+                  <Flex w='full' justify='space-between' align='center'>
                     <Heading
                       size='sm'
-                      fontWeight='medium'
+                      variant='medium'
                       textTransform='uppercase'
-                      mb={1}
                     >
                       History
                     </Heading>
@@ -222,7 +221,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
                     >
                       Clear
                     </Button>
-                  </HStack>
+                  </Flex>
                   <TransactionHistory count={5} transactions={transactions} />
                   {_.gt(_.size(transactions), 5) && (
                     <>

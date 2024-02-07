@@ -202,11 +202,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
           <AccordionItem border='0'>
             <AccordionButton px={0}>
               <HStack>
-                <Heading
-                  size='xs'
-                  fontWeight='medium'
-                  textTransform='uppercase'
-                >
+                <Heading size='xs' variant='medium' textTransform='uppercase'>
                   Module Actions
                 </Heading>
                 <AccordionIcon />
@@ -234,7 +230,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
       <AccordionItem border='0'>
         <AccordionButton px={0}>
           <HStack>
-            <Heading size='xs' fontWeight='medium' textTransform='uppercase'>
+            <Heading size='xs' variant='medium' textTransform='uppercase'>
               Module Details
             </Heading>
             <AccordionIcon />
@@ -282,7 +278,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
         <AccordionItem border='0'>
           <AccordionButton px={0}>
             <HStack>
-              <Heading size='xs' fontWeight='medium' textTransform='uppercase'>
+              <Heading size='xs' variant='medium' textTransform='uppercase'>
                 Module Parameters
               </Heading>
               <AccordionIcon />

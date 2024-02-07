@@ -1,4 +1,4 @@
-import { Flex, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
+import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { explorerUrl, formatAddress } from 'app-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -48,7 +48,7 @@ const WearersList = () => {
 
   return (
     <Stack spacing={4}>
-      <Text fontWeight='bold'>Current Electees</Text>
+      <Heading size='md'>Current Electees</Heading>
       {!_.isEmpty(electedAccounts) ? (
         <Stack spacing={2} align='start' w='100%'>
           {_.map(electedAccounts, (account: Hex) => (

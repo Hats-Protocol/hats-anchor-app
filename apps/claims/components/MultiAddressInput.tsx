@@ -115,7 +115,7 @@ const MultiAddressInput = ({
       {label && (
         <FormLabel mb={0}>
           <HStack>
-            <Text fontSize='sm'>{_.toUpper(label)}</Text>
+            <Text size='sm'>{_.toUpper(label)}</Text>
           </HStack>
         </FormLabel>
       )}

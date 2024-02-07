@@ -2,6 +2,7 @@ import {
   AspectRatio,
   Badge,
   Box,
+  Heading,
   HStack,
   Icon,
   Image,
@@ -62,9 +63,9 @@ const Header = () => {
         <Stack w='full' gap={1}>
           <HStack justifyContent='space-between' lineHeight={6}>
             <Tooltip label={name || selectedHat?.details}>
-              <Text fontSize={24} isTruncated fontWeight='semibold'>
+              <Heading size='2xl' variant='medium' isTruncated>
                 {name || selectedHat?.details}
-              </Text>
+              </Heading>
             </Tooltip>
             {selectedHat?.id && (
               <HStack>

@@ -3,6 +3,7 @@ import {
   Collapse,
   Flex,
   Heading,
+  HStack,
   Icon,
   Stack,
   Text,
@@ -37,13 +38,13 @@ const Accordion = ({
         _hover={{ cursor: 'pointer' }}
       >
         <Flex alignItems='center'>
-          <Icon
-            as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare}
-            boxSize={5}
-          />
-          <Heading fontWeight='medium' ml={2} color='blackAlpha.800'>
-            {title}
-          </Heading>
+          <HStack>
+            <Icon
+              as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare}
+              boxSize={5}
+            />
+            <Heading variant='lightMedium'>{title}</Heading>
+          </HStack>
         </Flex>
         <Stack>
           {subtitle && (

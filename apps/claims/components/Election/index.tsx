@@ -98,7 +98,9 @@ const Election = () => {
                 </Box>
               </Flex>
             ) : (
-              <Text textAlign='center'>No compatible module found</Text>
+              <Flex justify='center'>
+                <Text>No compatible module found</Text>
+              </Flex>
             )}
           </>
         )}

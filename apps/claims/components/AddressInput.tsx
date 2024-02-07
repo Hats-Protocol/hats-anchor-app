@@ -1,4 +1,4 @@
-import { Box, FormControl, Icon, Text } from '@chakra-ui/react';
+import { FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -34,13 +34,13 @@ const AddressInput: React.FC<AddressInputProps> = ({
   onChange,
 }) => (
   <FormControl>
-    <Box>
+    <Stack spacing={1}>
       <Input
         name={name}
         label={label}
         subLabel={subLabel}
         placeholder={placeholder}
-        leftElement={<Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />}
+        leftElement={<Icon as={BsPersonBadge} boxSize={4} color='gray.500' />}
         rightElement={showResolvedAddress && <FaCheck color='green' />}
         localForm={localForm}
         isDisabled={isDisabled}
@@ -49,11 +49,11 @@ const AddressInput: React.FC<AddressInputProps> = ({
         onChange={onChange}
       />
       {showResolvedAddress && (
-        <Text fontSize='sm' color='gray.500' mt={1}>
+        <Text size='sm' variant='light'>
           Resolved address: {resolvedAddress}
         </Text>
       )}
-    </Box>
+    </Stack>
   </FormControl>
 );
 
