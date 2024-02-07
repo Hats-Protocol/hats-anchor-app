@@ -26,13 +26,15 @@ const useCallHsgFunction = ({
       args,
     }: {
       type: HsgType;
-      instance: Hex;
-      func: WriteFunction;
+      instance?: Hex;
+      func?: WriteFunction;
       args: any;
       onSuccess?: () => void;
     }) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
+      if (!instance) throw new Error('Instance is undefined');
+      if (!func) throw new Error('Function is undefined');
 
       const signerGateClient = await createHatsSignerGateClient(chainId);
       if (!signerGateClient) throw new Error('Failed to create module client');

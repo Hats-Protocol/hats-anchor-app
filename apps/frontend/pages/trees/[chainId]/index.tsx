@@ -8,10 +8,7 @@ import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
-
-import Layout from '../../../components/Layout';
-import NetworkFilter from '../../../components/NetworkFilter';
-import TreeCard from '../../../components/TreeListCard';
+import { Layout, NetworkFilter, TreeListCard as TreeCard } from 'ui';
 
 const Trees = ({ chainId }: { chainId: number }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =

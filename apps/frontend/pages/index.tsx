@@ -25,30 +25,34 @@ import {
 } from 'app-hooks';
 import { formatAddress } from 'app-utils';
 import { useWearerDetails } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat, DocsLink } from 'hats-types';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
-import { ChakraNextLink, Suspender } from 'ui';
+import {
+  ChakraNextLink,
+  DashboardHatCard,
+  FeaturedTreeCard,
+  ForkableTemplateCard,
+  Layout,
+  LearnMoreCard,
+  // Suspender,
+} from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 
-import ForkableTemplateCard from '../components/ForkableTemplateCard';
-import Layout from '../components/Layout';
-import LearnMoreCard, { DocsLink } from '../components/LearnMoreCard';
-
-const DashboardHatCard = dynamic(
-  () => import('../components/DashboardHatCard'),
-  {
-    loading: () => <Suspender />,
-  },
-);
-const FeaturedTreeCard = dynamic(
-  () => import('../components/FeaturedTreeCard'),
-  {
-    loading: () => <Suspender />,
-  },
-);
+// const DashboardHatCard = dynamic(
+//   () => import('../components/DashboardHatCard'),
+//   {
+//     loading: () => <Suspender />,
+//   },
+// );
+// const FeaturedTreeCard = dynamic(
+//   () => import('../components/FeaturedTreeCard'),
+//   {
+//     loading: () => <Suspender />,
+//   },
+// );
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();

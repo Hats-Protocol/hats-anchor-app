@@ -15,6 +15,7 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
 import { chainsMap, fetchToken, pinJson } from 'app-utils';
+import { useOverlay } from 'contexts';
 import { useTreeCreate } from 'hats-hooks';
 import { ImageFile } from 'hats-types';
 import _ from 'lodash';
@@ -22,12 +23,9 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { DropZone, Input, Textarea } from 'ui';
+import { DropZone, Input, Layout, Textarea } from 'ui';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
-
-import Layout from '../../components/Layout';
-import { useOverlay } from '../../contexts/OverlayContext';
 
 const NewTree = () => {
   const [image, setImage] = useState<ImageFile>();

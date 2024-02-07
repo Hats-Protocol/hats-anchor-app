@@ -1,4 +1,5 @@
 import { HStack, Image, Stack, Text } from '@chakra-ui/react';
+import { DocsLink } from 'hats-types';
 
 import { ChakraNextLink } from '../atoms';
 
@@ -34,13 +35,6 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
 };
 
 export default LearnMoreCard;
-
-export type DocsLink = {
-  url: string;
-  icon: string;
-  name: string;
-  description: string;
-};
 
 interface FeatureDocsCardProps {
   docsData: DocsLink;

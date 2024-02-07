@@ -2,8 +2,7 @@ import { Accordion, Heading, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { DetailsItem } from 'hats-types';
 import _ from 'lodash';
-
-import ResponsibilitiesListCard from './ResponsibilitiesListCard';
+import { ResponsibilitiesListCard } from 'ui';
 
 const ResponsibilitiesList = () => {
   const { selectedHatDetails } = useTreeForm();

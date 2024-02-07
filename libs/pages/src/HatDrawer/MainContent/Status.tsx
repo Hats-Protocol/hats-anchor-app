@@ -13,6 +13,7 @@ import {
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useContractData, usePendHatterMint, useToast } from 'app-hooks';
+import { useTreeForm } from 'contexts';
 import {
   useHatStatus,
   useModuleDetails,
@@ -31,8 +32,6 @@ import { TbCircleOff } from 'react-icons/tb';
 import { ChakraNextLink } from 'ui';
 import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
-
-import { useTreeForm } from '../../../contexts/TreeFormContext';
 
 const StatusCard = ({
   status,

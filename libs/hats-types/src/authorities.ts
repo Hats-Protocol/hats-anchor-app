@@ -33,6 +33,10 @@ export type Authority = {
     id: Hex;
   }[];
   safe?: Hex;
+  hsgConfig?: {
+    minThreshold: number;
+    maxThreshold: number;
+  };
 };
 
 export interface SnapshotStrategy {

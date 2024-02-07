@@ -26,17 +26,15 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
+import { Layout, WearerHatCard as CoreHat } from 'ui';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
-
-import Layout from '../../components/Layout';
-import CoreHat from '../../components/WearerHatCard';
 
 type HeadlineStat = {
   label: string;
@@ -203,7 +201,7 @@ const WearerDetail = ({
             <Text>Not wearing any hats</Text>
           ) : (
             <Stack>
-              {_.map(localOrderedChains, (chainId: number) => (
+              {_.map(localOrderedChains, (chainId: SupportedChains) => (
                 <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
@@ -213,7 +211,11 @@ const WearerDetail = ({
                         chainId: Number(chainId),
                       }),
                       (hat: AppHat) => (
-                        <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
+                        <CoreHat
+                          hat={hat}
+                          key={`${chainId}-${hat.id}`}
+                          chainId={chainId}
+                        />
                       ),
                     )}
                   </SimpleGrid>

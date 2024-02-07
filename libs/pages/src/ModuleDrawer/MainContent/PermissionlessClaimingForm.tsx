@@ -1,6 +1,7 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatAddress } from 'app-utils';
+import { useTreeForm } from 'contexts';
 import {
   useHatDetails,
   useHatDetailsField,
@@ -19,11 +20,8 @@ import {
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToIp } from 'shared';
-import { ChakraNextLink, RadioBox, Select } from 'ui';
+import { ChakraNextLink, FormRowWrapper, RadioBox, Select } from 'ui';
 import { Hex } from 'viem';
-
-import { useTreeForm } from '../../../contexts/TreeFormContext';
-import FormRowWrapper from '../../FormRowWrapper';
 
 const PermissionlessClaimingForm = ({
   localForm,

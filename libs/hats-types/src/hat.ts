@@ -56,6 +56,8 @@ export interface AppHat extends Hat {
   active?: boolean;
   type?: string;
   displayName?: string;
+  extendedEligibility?: HatWearer;
+  extendedToggle?: HatWearer;
 }
 
 export type ModuleCreationArg = {

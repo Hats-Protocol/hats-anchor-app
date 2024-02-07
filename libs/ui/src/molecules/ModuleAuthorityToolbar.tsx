@@ -20,7 +20,6 @@ import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { explorerUrl, getHostnameFromURL } from 'app-utils';
 import { useOverlay, useTreeForm } from 'contexts';
-import { ModuleArgsForm } from 'forms';
 import {
   useCallHsgFunction,
   useCallModuleFunction,
@@ -33,26 +32,28 @@ import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
-import { ChakraNextLink, Modal } from 'ui';
 import { useAccount, useChainId } from 'wagmi';
+
+import { ModuleArgsForm } from '../forms';
+import { ChakraNextLink, Modal } from '../index';
 
 const ModuleAuthorityToolbar = ({
   authority,
   index,
 }: {
-  authority: Authority;
+  authority: Authority | undefined;
   index: number;
 }) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const { setModals } = localOverlay;
   const { chainId, selectedHat } = useTreeForm();
-  const [selectedFunction, setSelectedFunction] = useState(null);
+  const [selectedFunction, setSelectedFunction] = useState();
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
-  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId));
+  const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId || '0'));
   const isWearer = useMemo(
     () =>
       _.includes(
@@ -61,11 +62,16 @@ const ModuleAuthorityToolbar = ({
       ),
     [selectedHat, address],
   );
-  const primaryFunction = authority.functions.find((func) => func.primary);
-  const otherFunctions = authority.functions.filter((func) => !func.primary);
+  const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
+  const otherFunctions = _.find(
+    _.get(authority, 'functions'),
+    (func: any) => !func.primary,
+  );
 
   const otherLinks = useMemo(() => {
-    const links = [];
+    const links: any[] = [];
+    if (!authority) return links;
+
     if (authority.type === AUTHORITY_TYPES.hsg) {
       links.push({
         link: `${explorerUrl(chainId)}/address/${authority.instanceAddress}`,
@@ -92,7 +98,7 @@ const ModuleAuthorityToolbar = ({
       }
     }
     if (authority.type === AUTHORITY_TYPES.modules) {
-      const hatId = hatIdDecimalToIp(BigInt(authority.hatId));
+      const hatId = hatIdDecimalToIp(BigInt(authority.hatId || '0'));
       const treeId = _.first(hatId.split('.'));
       links.push({
         link: `/trees/${chainId}/${treeId}?hatId=${hatId}`,
@@ -113,6 +119,7 @@ const ModuleAuthorityToolbar = ({
     });
 
   const handleFunctionCall = (func) => {
+    if (!authority) return;
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
@@ -134,15 +141,18 @@ const ModuleAuthorityToolbar = ({
   };
 
   const onSubmit = (args: any) => {
+    if (!authority || !selectedFunction) return;
     if (authority.type === AUTHORITY_TYPES.modules) {
       const localArgs = args;
       // ! workaround for hat being an arg on Passthrough module
-      if (!_.isEmpty(_.filter(selectedFunction.args, { name: 'Hat' }))) {
+      if (
+        !_.isEmpty(_.filter(_.get(selectedFunction, 'args'), { name: 'Hat' }))
+      ) {
         localArgs.Hat = authority?.hatId;
       }
       callModuleFunction({
         instance: authority.instanceAddress,
-        func: selectedFunction,
+        func: selectedFunction || undefined,
         args: localArgs,
         moduleId: authority.moduleAddress,
         onSuccess: () => {
@@ -152,7 +162,7 @@ const ModuleAuthorityToolbar = ({
     } else {
       callHsgFunction({
         instance: authority.instanceAddress,
-        func: selectedFunction,
+        func: selectedFunction || undefined,
         args,
         type: authority.type as HsgType,
         onSuccess: () => {
@@ -163,10 +173,10 @@ const ModuleAuthorityToolbar = ({
   };
 
   const { data: claimed } = useHsgSigner({
-    instance: authority.instanceAddress,
+    instance: authority?.instanceAddress,
     signer: address,
     chainId,
-    enabled: authority.type === AUTHORITY_TYPES.hsg,
+    enabled: authority?.type === AUTHORITY_TYPES.hsg,
   });
 
   const getDisabledReason = (
@@ -188,13 +198,15 @@ const ModuleAuthorityToolbar = ({
 
   const isDisabled = !isWearer || !isSameChain;
   const isPrimaryFunctionDisabled =
-    isDisabled || (primaryFunction.functionName === 'claimSigner' && claimed);
+    isDisabled || (primaryFunction?.functionName === 'claimSigner' && claimed);
   const primaryDisabledReason = getDisabledReason(
     !isSameChain,
     !isWearer,
-    primaryFunction.functionName === 'claimSigner' && claimed,
+    primaryFunction?.functionName === 'claimSigner' && !!claimed,
   );
   const otherDisabledReason = getDisabledReason(!isSameChain, !isWearer, false);
+
+  if (!authority) return null;
 
   return (
     <HStack mb={4} wrap='wrap'>
@@ -202,7 +214,7 @@ const ModuleAuthorityToolbar = ({
         <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'
-            isDisabled={isPrimaryFunctionDisabled}
+            isDisabled={!!isPrimaryFunctionDisabled}
             size='sm'
             onClick={() => handleFunctionCall(primaryFunction)}
             rightIcon={<Icon as={FiPlusSquare} />}
@@ -212,7 +224,7 @@ const ModuleAuthorityToolbar = ({
         </Tooltip>
       )}
       <HStack>
-        {authority.type === AUTHORITY_TYPES.modules && (
+        {authority?.type === AUTHORITY_TYPES.modules && (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${
               authority.instanceAddress
@@ -292,22 +304,22 @@ const ModuleAuthorityToolbar = ({
         )}
       </HStack>
       <Modal
-        name={`functionCall-${authority.label}-${index}`}
+        name={`functionCall-${authority?.label}-${index}`}
         title={`${_.capitalize(
-          selectedFunction?.label,
+          _.get(selectedFunction, 'label'),
         )} for Hat #${authorityHatId}`}
         localOverlay={localOverlay}
       >
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
-            {selectedFunction?.description && (
-              <Text>{selectedFunction?.description}</Text>
+            {_.get(selectedFunction, 'description') && (
+              <Text>{_.get(selectedFunction, 'description')}</Text>
             )}
           </Stack>
 
           <Stack>
             <ModuleArgsForm
-              selectedModuleArgs={selectedFunction?.args}
+              selectedModuleArgs={_.get(selectedFunction, 'args', [])}
               localForm={formMethods}
               hideIcon
               noMargin
@@ -317,7 +329,7 @@ const ModuleAuthorityToolbar = ({
           </Stack>
           <Flex justify='flex-end'>
             <HStack>
-              <Button variant='outline' onClick={() => setModals({})}>
+              <Button variant='outline' onClick={() => setModals?.({})}>
                 Cancel
               </Button>
               <Button
@@ -326,7 +338,7 @@ const ModuleAuthorityToolbar = ({
                 isDisabled={!formState.isValid}
                 isLoading={isModuleLoading || isHsgLoading}
               >
-                {_.capitalize(selectedFunction?.label)}
+                {_.capitalize(_.get(selectedFunction, 'label'))}
               </Button>
             </HStack>
           </Flex>

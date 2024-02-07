@@ -1,12 +1,4 @@
-import {
-  Button,
-  HStack,
-  Icon,
-  Slide,
-  Stack,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useContractData } from 'app-hooks';
 import { explorerUrl } from 'app-utils';
@@ -31,7 +23,6 @@ import {
   ChakraNextLink,
   FormRowWrapper,
   LabelWithLink,
-  ModuleDrawer,
   RadioBox,
 } from 'ui';
 
@@ -61,6 +52,8 @@ interface HatManagementFormProps {
     label: string;
     description: string;
   };
+  onOpenModuleDrawer: () => void;
+  setIsStandAloneHatterDeploy: (value: boolean) => void;
 }
 const HatManagementForm = ({
   title,
@@ -68,6 +61,8 @@ const HatManagementForm = ({
   radioBoxConfig,
   inputConfig,
   criteriaConfig,
+  onOpenModuleDrawer,
+  setIsStandAloneHatterDeploy,
 }: HatManagementFormProps) => {
   const { selectedHat, chainId, editMode } = useTreeForm();
   const { localForm, eligibilityResolvedAddress, toggleResolvedAddress } =
@@ -78,8 +73,6 @@ const HatManagementForm = ({
     'setValue',
     'getValues',
   ]);
-  const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
-    useState(false);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -140,12 +133,6 @@ const HatManagementForm = ({
       [`editLabel-${title}`]: false,
     });
   };
-
-  const {
-    onOpen: onOpenModuleDrawer,
-    onClose: onCloseModuleDrawer,
-    isOpen: isOpenModuleDrawer,
-  } = useDisclosure();
 
   const newAddress = watch?.(title);
 
@@ -276,20 +263,6 @@ const HatManagementForm = ({
           </Stack>
         </FormRowWrapper>
       </Stack>
-
-      <Slide
-        direction='right'
-        in={!!isOpenModuleDrawer}
-        style={{ zIndex: 1001, width: '100%' }}
-      >
-        {isOpenModuleDrawer && (
-          <ModuleDrawer
-            onCloseModuleDrawer={onCloseModuleDrawer}
-            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-            title={title}
-          />
-        )}
-      </Slide>
     </form>
   );
 };

@@ -25,10 +25,11 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 
-const checkIfIpfs = (url: string) => {
+import { ChakraNextLink } from '../atoms';
+
+const checkIfIpfs = (url: string | undefined) => {
   if (!url) return { isIpfs: false, imageUrl: '' };
 
   return {
@@ -44,6 +45,8 @@ const authorityImageHandler = ({
   currentImageUrl,
 }: AuthorityImageHandlerProps) => {
   const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
+
+  if (!authority) return checkIfIpfs('');
 
   if (editingItem) return checkIfIpfs(currentImageUrl);
   if (type === AUTHORITY_TYPES.gate) {
@@ -93,8 +96,9 @@ const AuthorityHeader = ({
   const { chainId, selectedHat, editMode } = useTreeForm();
 
   const localLink = editingItem ? currentLink : link;
-  const authorityEnforcement =
-    AUTHORITY_ENFORCEMENT[type] || AUTHORITY_ENFORCEMENT.manual;
+  const authorityEnforcement = type
+    ? AUTHORITY_ENFORCEMENT[type]
+    : AUTHORITY_ENFORCEMENT.manual;
 
   // set current image
   const { isIpfs, imageUrl } = authorityImageHandler({
@@ -128,9 +132,7 @@ const AuthorityHeader = ({
     return _.filter(
       safeOwners,
       (owner: Hex) =>
-        !_.includes(
-          _.map(selectedHat.wearers, 'id').includes(_.toLower(owner)),
-        ),
+        !_.includes(_.map(selectedHat.wearers, 'id'), _.toLower(owner)),
     );
   }, [safeOwners, selectedHat?.wearers]);
   const currentThresholdConfig = useMemo(() => {
@@ -216,13 +218,13 @@ const AuthorityHeader = ({
 };
 
 interface AuthorityHeaderProps {
-  authority: Authority;
+  authority: Authority | undefined;
   editingItem?: Authority;
   hideInfo?: boolean;
 }
 
 interface AuthorityImageHandlerProps {
-  authority: Authority;
+  authority: Authority | undefined;
   editingItem?: Authority;
   authorityEnforcement: AuthorityInfo;
   currentImageUrl?: string;
