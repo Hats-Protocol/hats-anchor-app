@@ -24,28 +24,14 @@ const nextConfig = {
       // You might need to adjust these paths based on the actual paths in your Nx workspace
     ],
   },
-  transpilePackages: [
-    'd3-org-chart',
-    'app-hooks',
-    'app-utils',
-    'constants',
-    'contexts',
-    'forms',
-    'pages',
-    'shared',
-    'ui',
-  ],
+  transpilePackages: ['d3-org-chart'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     return config;
   },
-  modularizeImports: {
-    // ui: {
-    //   transform: 'ui/src/{{member}}',
-    // },
-    // '@chakra-ui/react': {
-    //   transform: '@chakra-ui/{{ kebabCase member }}',
-    // },
+
+  experimental: {
+    optimizePackageImports: ['@chakra-ui/react', 'd3-org-chart', 'viem'],
   },
 };
 
