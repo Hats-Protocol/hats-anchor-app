@@ -1,8 +1,7 @@
 import { Heading, Stack } from '@chakra-ui/react';
+import { useEligibility } from 'contexts';
 import _ from 'lodash';
-import React from 'react';
 
-import { useEligibility } from '../../contexts/EligibilityContext';
 import DateInfo from './DateInfo';
 
 const CurrentSeason = () => {
@@ -16,6 +15,7 @@ const CurrentSeason = () => {
   if (typeof currentTermEnd?.value === 'bigint') {
     date = new Date(Number(currentTermEnd.value) * 1000);
   } else {
+    // eslint-disable-next-line no-console
     console.error('Invalid value for currentTermEnd: ', currentTermEnd?.value);
     date = new Date();
   }

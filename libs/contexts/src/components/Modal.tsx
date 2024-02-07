@@ -8,7 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { OverlayContextProps, OverlayContextPropsElection } from 'hats-types';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
 import { ReactNode } from 'react';
 
 /**
@@ -90,6 +90,6 @@ interface ModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   size?: string;
-  localOverlay: OverlayContextPropsElection | OverlayContextProps;
+  localOverlay: StandaloneOverlayContextProps | OverlayContextProps;
   children: ReactNode;
 }

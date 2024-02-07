@@ -13,17 +13,16 @@ import {
 } from '@chakra-ui/react';
 import { PROPOSALS } from '@hatsprotocol/constants';
 import { useProposalDetails } from 'app-hooks';
+import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { idToIp } from 'shared';
-import { useChainId } from 'wagmi';
-
-import { useEligibility } from '../../contexts/EligibilityContext';
+// import { useChainId } from 'wagmi';
 
 const ProposalDetails = () => {
   const { selectedHat, chainId } = useEligibility();
-  const currentChainId = useChainId();
+  // const currentChainId = useChainId();
 
   // TODO handle election term end
   // Assuming the structure of PROPOSALS is corrected as needed

@@ -60,6 +60,7 @@ export const EligibilityContextProvider = ({
 
   const { data: hatDetails, isLoading: isHatDetailsLoading } =
     useHatDetailsField(selectedHat?.details);
+  console.log('hatDetails', hatDetails);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: selectedHat ? [selectedHat] : [],

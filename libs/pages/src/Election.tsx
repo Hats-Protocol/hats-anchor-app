@@ -9,20 +9,23 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useIsClient } from 'app-hooks';
 import { chainsMap } from 'app-utils';
+import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { NextSeo } from 'next-seo';
-import { StandaloneLayout as Layout } from 'ui';
-
-import { useEligibility } from '../../contexts/EligibilityContext';
-import CurrentSeason from './CurrentSeason';
-import ElectionRoles from './ElectionRoles';
-import Header from './Header';
-import ProposalDetails from './ProposalDetails';
-import UpcomingSeason from './UpcomingSeason';
-import WearersList from './WearersList';
+import {
+  CurrentSeason,
+  ElectionRoles,
+  Header,
+  ProposalDetails,
+  StandaloneLayout as Layout,
+  UpcomingSeason,
+  WearersList,
+} from 'ui';
 
 const Election = () => {
+  const isClient = useIsClient();
   const {
     chainId,
     selectedHat,
@@ -46,8 +49,10 @@ const Election = () => {
     }`;
   }
 
+  if (!isClient) return null;
+
   return (
-    <Layout hatData={selectedHat}>
+    <Layout>
       <NextSeo title={title} />
       <Stack position='relative' top='76px' px={32} py={20} gap={10}>
         {isHatDetailsLoading ? (

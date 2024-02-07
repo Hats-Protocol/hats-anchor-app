@@ -1,13 +1,13 @@
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { explorerUrl, formatAddress } from 'app-utils';
+import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useEnsName } from 'wagmi';
 
-import { useEligibility } from '../../contexts/EligibilityContext';
+import { ChakraNextLink } from '../atoms';
 
 const WearerCard = ({ account }: { account: Hex }) => {
   const { chainId, selectedHat } = useEligibility();

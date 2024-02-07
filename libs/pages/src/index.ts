@@ -1,3 +1,4 @@
+export { default as Election } from './Election';
 export { default as HatDrawer } from './HatDrawer';
 export { default as ModuleDrawer } from './ModuleDrawer';
 export { default as TreeDrawer } from './TreeDrawer';

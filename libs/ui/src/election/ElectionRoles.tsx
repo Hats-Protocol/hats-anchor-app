@@ -1,8 +1,9 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
+import { useEligibility } from 'contexts';
+import _ from 'lodash';
 import { idToIp } from 'shared';
-import { ChakraNextLink } from 'ui';
 
-import { useEligibility } from '../../contexts/EligibilityContext';
+import { ChakraNextLink } from '../atoms';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
 
@@ -11,8 +12,8 @@ const ElectionRoles = () => {
 
   const chainId = 1;
   const treeId = 22;
-  const adminHatId = idToIp(electionsAuthority.adminHat[0].id);
-  const ballotBoxHatId = idToIp(electionsAuthority.ballotBoxHat.id);
+  const adminHatId = idToIp(_.get(electionsAuthority, 'adminHat[0].id'));
+  const ballotBoxHatId = idToIp(_.get(electionsAuthority, 'ballotBoxHat.id'));
 
   return (
     <Stack gap={4}>

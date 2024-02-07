@@ -14,13 +14,13 @@ import {
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'app-hooks';
+import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
-import { Markdown } from 'ui';
 import { useAccount } from 'wagmi';
 
-import { useEligibility } from '../../contexts/EligibilityContext';
+import { Markdown } from '../atoms';
 
 const Header = () => {
   const toast = useToast();

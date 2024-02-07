@@ -1,5 +1,9 @@
 import { useLocalStorage, useToast } from 'app-hooks';
-import { OverlayContextPropsElection } from 'hats-types';
+import {
+  ClaimsModals,
+  HatRecord,
+  StandaloneOverlayContextProps,
+} from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -13,45 +17,47 @@ import {
 import { Hex, TransactionReceipt } from 'viem';
 import { waitForTransaction } from 'wagmi/actions';
 
-const defaults = {
+const defaults: ClaimsModals = {
   newWearer: false,
   editModule: false,
   createHat: false,
   hatDetails: false,
   hatImage: false,
   hatSupply: false,
+  'functionCall-module': false,
 };
 
 const MAX_TREES = 3;
 
-export const OverlayContext = createContext<OverlayContextPropsElection>({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setModals: undefined,
-  closeModals: undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handlePendingTx: undefined,
-  commandPalette: false,
-  setCommandPalette: () => {},
-  recentlyVisitedHats: undefined,
-  updateRecentlyVisitedHats: () => {},
-});
+export const StandaloneOverlayContext =
+  createContext<StandaloneOverlayContextProps>({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setModals: undefined,
+    closeModals: undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    handlePendingTx: undefined,
+    commandPalette: false,
+    setCommandPalette: () => {},
+    recentlyVisitedHats: undefined,
+    updateRecentlyVisitedHats: () => {},
+  });
 
-export const OverlayContextProvider = ({
+export const StandaloneOverlayContextProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  const [modals, setModals] = useState(defaults);
+  const [modals, setModals] = useState<Partial<ClaimsModals>>(defaults);
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
   const [recentlyVisitedHats, setRecentlyVisitedHats] = useLocalStorage<
-    { hatId: string; chainId: number }[]
+    { hatId: Hex; chainId: number }[] | undefined
   >('recently-visited-hats', undefined);
 
   const updateRecentlyVisitedHats = useCallback(
-    ({ hatId, chainId: cId }: { hatId: Hex; chainId: number }) => {
+    ({ hatId, chainId: cId }: HatRecord) => {
       if (!hatId || !cId) return;
       const hatIdDecimal = hatId;
 
@@ -158,10 +164,10 @@ export const OverlayContextProvider = ({
   );
 
   return (
-    <OverlayContext.Provider value={returnValue}>
+    <StandaloneOverlayContext.Provider value={returnValue}>
       {children}
-    </OverlayContext.Provider>
+    </StandaloneOverlayContext.Provider>
   );
 };
 
-export const useOverlay = () => useContext(OverlayContext);
+export const useStandaloneOverlay = () => useContext(StandaloneOverlayContext);

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
+import { Hex } from 'viem';
 
-// import { Hex } from 'viem';
 import { Transaction } from './misc';
 import { HandlePendingTx } from './transaction';
 
@@ -8,7 +8,7 @@ interface AppModals {
   [key: string]: boolean;
 }
 
-interface ClaimsModals {
+export interface ClaimsModals {
   newWearer: boolean;
   editModule: boolean;
   createHat: boolean;
@@ -18,11 +18,11 @@ interface ClaimsModals {
   'functionCall-module': boolean;
 }
 
-type TreeRecord = { treeId: number; chainId: number };
-type HatRecord = { hatId: string; chainId: number };
+export type TreeRecord = { treeId: number; chainId: number };
+export type HatRecord = { hatId: Hex; chainId: number };
 
 export interface OverlayContextProps {
-  modals?: { [key: string]: boolean };
+  modals?: Partial<AppModals>;
   setModals?: Dispatch<SetStateAction<Partial<AppModals>>>;
   closeModals?: () => void;
   commandPalette: boolean;
@@ -34,8 +34,8 @@ export interface OverlayContextProps {
   updateRecentlyVisitedTrees: (tree: TreeRecord) => void;
 }
 
-export interface OverlayContextPropsElection {
-  modals?: { [key: string]: boolean };
+export interface StandaloneOverlayContextProps {
+  modals?: Partial<ClaimsModals>;
   setModals?: Dispatch<SetStateAction<Partial<ClaimsModals>>>;
   closeModals?: () => void;
   commandPalette: boolean;

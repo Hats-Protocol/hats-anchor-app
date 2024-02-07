@@ -1,22 +1,19 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
-import { AppHat } from 'hats-types';
-import dynamic from 'next/dynamic';
+import { Box } from '@chakra-ui/react';
+// import { AppHat } from 'hats-types';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import CommandPalette from '../CommandPalette';
+import Navbar from './Navbar';
 
-const Navbar = dynamic(() => import('./Navbar'));
-
-const Layout = ({ editMode, hatData, children }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
-  const [upTo780] = useMediaQuery('(max-width: 780px)');
+  // const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   useEffect(() => {
     if (isAutoConnecting) return;
@@ -48,7 +45,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
   return (
     <Box>
       <Box
-        bgColor={editMode ? 'cyan.100' : 'gray.100'}
+        bgColor='gray.100'
         backgroundImage='/bg-topography.svg'
         backgroundRepeat='repeat'
         position='fixed'
@@ -56,37 +53,11 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         w='100%'
         zIndex={-1}
       />
-      <CommandPalette />
-      {!upTo780 ? (
-        <>
-          <Navbar hatData={hatData} />
-          <Box h='100vh' w='100vw'>
-            {children}
-          </Box>
-        </>
-      ) : (
-        <Stack
-          textAlign='center'
-          h='100vh'
-          justifyContent='center'
-          px={10}
-          alignItems='center'
-          spacing={4}
-        >
-          <Image src='/icons/hats.svg' alt='Hat' h={150} w={150} mb={4} />
-          <Text fontWeight={600} fontSize={20}>
-            Hello, Hat Wearer 🧢
-          </Text>
-          <Text fontWeight={500} fontSize={20}>
-            The Hats App is not currently optimized for mobile usage.
-          </Text>
-          <Text fontWeight={500} fontSize={20}>
-            Please visit{' '}
-            <a href='https://app.hatsprotocol.xyz'>app.hatsprotocol.xyz</a> from
-            a desktop device.
-          </Text>
-        </Stack>
-      )}
+
+      <Navbar />
+      <Box h='100vh' w='100vw'>
+        {children}
+      </Box>
     </Box>
   );
 };
@@ -94,7 +65,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
 export default Layout;
 
 interface LayoutProps {
-  editMode?: boolean;
-  hatData?: AppHat;
+  // editMode?: boolean;
+  // hatData?: AppHat;
   children: ReactNode;
 }

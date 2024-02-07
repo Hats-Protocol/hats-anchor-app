@@ -15,7 +15,7 @@ import { chainsMap, formatAddress } from 'app-utils';
 import { useWearerDetails } from 'hats-hooks';
 import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
-import { idToIp } from 'shared';
+// import { idToIp } from 'shared';
 import { Layout, WearerHatCard as CoreHat } from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 

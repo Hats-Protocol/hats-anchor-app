@@ -1,6 +1,5 @@
 import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { format, formatDistanceToNow } from 'date-fns';
-import React from 'react';
 
 const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
   const dateValue = new Date(date);

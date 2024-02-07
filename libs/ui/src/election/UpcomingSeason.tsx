@@ -16,8 +16,7 @@ import { useForm } from 'react-hook-form';
 import { Modal, ModuleArgsForm } from 'ui';
 import { useChainId } from 'wagmi';
 
-import { useEligibility } from '../../contexts/EligibilityContext';
-import { useOverlay } from '../../contexts/OverlayContext';
+import { useEligibility, useStandaloneOverlay as useOverlay } from 'contexts';
 import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {
@@ -131,12 +130,12 @@ const UpcomingSeason = () => {
       >
         <Box as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={4}>
-            {selectedFunction?.description && (
-              <Text>{selectedFunction?.description}</Text>
+            {_.get(selectedFunction, 'description') && (
+              <Text>{_.get(selectedFunction, 'description')}</Text>
             )}
             <Stack>
               <ModuleArgsForm
-                selectedModuleArgs={selectedFunction?.args}
+                selectedModuleArgs={_.get(selectedFunction, 'args', [])}
                 localForm={formMethods}
                 hideIcon
                 noMargin
@@ -153,7 +152,7 @@ const UpcomingSeason = () => {
                   isDisabled={!formState.isValid}
                   isLoading={isModuleLoading}
                 >
-                  {selectedFunction?.label}
+                  {_.get(selectedFunction, 'label')}
                 </Button>
               </HStack>
             </Flex>

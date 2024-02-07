@@ -9,12 +9,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
 import { chains, wagmiConfig } from 'app-utils';
+import { StandaloneOverlayContextProvider as OverlayContextProvider } from 'contexts';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
 import { theme } from 'ui';
 import { WagmiConfig } from 'wagmi';
-
-import { OverlayContextProvider } from '../contexts/OverlayContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
