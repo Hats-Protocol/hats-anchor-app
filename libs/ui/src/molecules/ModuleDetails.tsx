@@ -32,7 +32,7 @@ import { FiExternalLink } from 'react-icons/fi';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
-import ModuleArgsForm from './ModuleArgsForm';
+import ModuleArgsForm from '../forms/ModuleArgsForm';
 import ModuleParameters from './ModuleParameters';
 
 const claimableToggleTip = (sameChain: boolean, isAdminUser: boolean) => {

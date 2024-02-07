@@ -4,7 +4,6 @@ export { default as EventHistory } from './EventHistory';
 export { default as FormRowWrapper } from './FormRowWrapper';
 export { default as LabelWithLink } from './LabelWithLink';
 export { default as Layout } from './Layout';
-export { default as ModuleArgsForm } from './ModuleArgsForm';
 export { default as ModuleDetails } from './ModuleDetails';
 export { default as ModuleParameters } from './ModuleParameters';
 export { default as Navbar } from './Navbar';
