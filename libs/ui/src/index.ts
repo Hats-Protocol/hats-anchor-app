@@ -2,5 +2,8 @@
 
 export * from './atoms';
 export * from './cards';
+export * from './drawers';
 export * from './forms';
+export * from './molecules';
+export * from './pages';
 export { default as theme } from './theme';

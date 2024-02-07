@@ -36,7 +36,7 @@ export interface OverlayContextProps {
   transactions: Transaction[];
   clearAllTransactions: () => void;
   // recent trees in command palette
-  recentlyVisitedTrees: { treeId: number; chainId: number }[];
+  recentlyVisitedTrees: { treeId: number; chainId: number }[] | undefined;
   updateRecentlyVisitedTrees: ({
     treeId,
     chainId,

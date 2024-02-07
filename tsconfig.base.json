@@ -16,13 +16,15 @@
     "skipDefaultLibCheck": true,
     "paths": {
       "@hatsprotocol/constants": ["./libs/constants/src/index"],
-      "app-hooks": ["./libs/app-hooks/src/index"],
-      "app-utils": ["./libs/app-utils/src/index"],
+      "contexts": ["./libs/contexts/src/index"],
+      "forms": ["./libs/forms/src/index"],
       "hats-hooks": ["./libs/hats-hooks/src/index"],
+      "hats-utils": ["./libs/hats-utils/src/index"],
+      "app-hooks": ["./libs/app-hooks/src/index"], // TODO rename
       "shared": ["./libs/shared/src/index"],
       "hats-types": ["./libs/hats-types/src/index"],
       "ui": ["./libs/ui/src/index.ts"],
-      "hats-utils": ["./libs/hats-utils/src/index"]
+      "app-utils": ["./libs/app-utils/src/index"] // TODO rename
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
