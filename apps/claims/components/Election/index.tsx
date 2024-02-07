@@ -1,5 +1,13 @@
 /* eslint-disable no-nested-ternary */
-import { Box, Card, Flex, Spinner, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Card,
+  CardBody,
+  Flex,
+  Spinner,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { chainsMap } from 'app-utils';
 import _ from 'lodash';
@@ -59,11 +67,15 @@ const Election = () => {
               <Flex gap={6}>
                 <Box flexBasis={['100%', '35%']}>
                   <Stack gap={6}>
-                    <Card p={6}>
-                      <CurrentSeason />
+                    <Card>
+                      <CardBody>
+                        <CurrentSeason />
+                      </CardBody>
                     </Card>
-                    <Card p={6}>
-                      <WearersList />
+                    <Card>
+                      <CardBody>
+                        <WearersList />
+                      </CardBody>
                     </Card>
                     <Card p={6}>
                       <ElectionRoles />
@@ -72,11 +84,15 @@ const Election = () => {
                 </Box>
                 <Box flexBasis={['100%', '65%']}>
                   <Stack gap={6}>
-                    <Card p={6}>
-                      <UpcomingSeason />
+                    <Card>
+                      <CardBody>
+                        <UpcomingSeason />
+                      </CardBody>
                     </Card>
-                    <Card p={6}>
-                      <ProposalDetails />
+                    <Card>
+                      <CardBody>
+                        <ProposalDetails />
+                      </CardBody>
                     </Card>
                   </Stack>
                 </Box>

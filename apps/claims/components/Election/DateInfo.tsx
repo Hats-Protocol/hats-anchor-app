@@ -1,4 +1,4 @@
-import { HStack, Text, Tooltip, useTheme } from '@chakra-ui/react';
+import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { format, formatDistanceToNow } from 'date-fns';
 import React from 'react';
 
@@ -7,8 +7,6 @@ const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
   const isNotSet = dateValue.getTime() === 0;
   const formattedDate = format(dateValue, 'yyyy-MM-dd HH:mm:ss');
   const timeDistance = formatDistanceToNow(dateValue);
-  const theme = useTheme();
-  console.log(theme);
 
   return (
     <HStack justifyContent='space-between' w='full'>

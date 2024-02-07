@@ -48,7 +48,7 @@ const WearersList = () => {
 
   return (
     <Stack spacing={4}>
-      <Text fontWeight='bold'>Current electees</Text>
+      <Text fontWeight='bold'>Current Electees</Text>
       {!_.isEmpty(electedAccounts) ? (
         <Stack spacing={2} align='start' w='100%'>
           {_.map(electedAccounts, (account: Hex) => (

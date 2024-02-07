@@ -1,6 +1,7 @@
 import { extendTheme } from '@chakra-ui/react';
 
 import Button from './components/Button';
+import Card from './components/Card';
 import Heading from './components/Heading';
 import Input from './components/Input';
 import RadioBox from './components/RadioBox';
@@ -11,6 +12,7 @@ const theme = extendTheme({
   colors: {},
   components: {
     Button,
+    Card,
     Heading,
     Input,
     RadioBox,
