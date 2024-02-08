@@ -1,11 +1,11 @@
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { chainsList, NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
 import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { chainsList, NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import { createConfig } from 'wagmi';

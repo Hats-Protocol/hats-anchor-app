@@ -16,9 +16,11 @@ import { useToast } from 'app-hooks';
 import { useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { FaCopy } from 'react-icons/fa';
-import { Markdown } from 'ui';
 import { useAccount } from 'wagmi';
+
+const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 
 const Header = () => {
   const toast = useToast();

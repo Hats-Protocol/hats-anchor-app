@@ -4,13 +4,15 @@ import { useMultiClaimsHatterCheck } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { prettyIdToIp } from 'shared';
-import { Accordion } from 'ui';
 
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
+
+const Accordion = dynamic(() => import('ui').then((mod) => mod.Accordion));
 
 const MainContent = ({
   localForm,

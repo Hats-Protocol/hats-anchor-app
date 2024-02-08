@@ -10,6 +10,7 @@ import {
 } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import {
@@ -20,8 +21,16 @@ import {
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToIp } from 'shared';
-import { ChakraNextLink, FormRowWrapper, RadioBox, Select } from 'ui';
 import { Hex } from 'viem';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+const FormRowWrapper = dynamic(() =>
+  import('ui').then((mod) => mod.FormRowWrapper),
+);
+const RadioBox = dynamic(() => import('ui').then((mod) => mod.RadioBox));
+const Select = dynamic(() => import('ui').then((mod) => mod.Select));
 
 const PermissionlessClaimingForm = ({
   localForm,

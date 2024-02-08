@@ -175,7 +175,7 @@ const WearerDetail = ({
               <Card w='125px' key={stat.label}>
                 <CardBody>
                   <Stack align='center'>
-                    <Text fontSize='sm'>{stat.label}</Text>
+                    <Text size='sm'>{stat.label}</Text>
                     <Skeleton isLoaded={stat.loading}>
                       <Heading size='lg'>{stat.value}</Heading>
                     </Skeleton>

@@ -2,7 +2,11 @@ import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
-import { AuthoritiesListCard } from 'ui';
+import dynamic from 'next/dynamic';
+
+const AuthoritiesListCard = dynamic(() =>
+  import('ui').then((mod) => mod.AuthoritiesListCard),
+);
 
 const AuthoritiesList = () => {
   const { combinedAuthorities } = useTreeForm();

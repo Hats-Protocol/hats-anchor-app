@@ -4,10 +4,21 @@ import { useTreeForm } from 'contexts';
 import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
-import { ChakraNextLink, FormRowWrapper, ModuleArgsForm, Select } from 'ui';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+const FormRowWrapper = dynamic(() =>
+  import('ui').then((mod) => mod.FormRowWrapper),
+);
+const ModuleArgsForm = dynamic(() =>
+  import('ui').then((mod) => mod.ModuleArgsForm),
+);
+const Select = dynamic(() => import('ui').then((mod) => mod.Select));
 
 const ModuleDetailsForm = ({
   localForm,

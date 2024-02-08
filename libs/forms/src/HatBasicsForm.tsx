@@ -107,9 +107,8 @@ const HatBasicsForm = () => {
         <Stack spacing={8}>
           <FormRowWrapper>
             <Icon as={BsImage} boxSize={4} mt='2px' />
-            <Box w='100%'>
-              <Text fontSize='sm' fontWeight='medium' mb={2}>
-                {' '}
+            <Stack w='100%'>
+              <Text size='sm' variant='medium'>
                 IMAGE
               </Text>
               <DropZone
@@ -123,7 +122,7 @@ const HatBasicsForm = () => {
                 imageUrl={currentImageUrl}
                 isNewImage={isNewImage}
               />
-            </Box>
+            </Stack>
           </FormRowWrapper>
           <FormRowWrapper>
             <Image src='/icons/hat.svg' alt='Hat' boxSize={4} mt='2px' />
@@ -147,7 +146,7 @@ const HatBasicsForm = () => {
             <FormRowWrapper>
               <FaHouseUser />
               <Stack w='full'>
-                <Text fontSize='sm' textTransform='uppercase'>
+                <Text size='sm' textTransform='uppercase'>
                   Guilds
                 </Text>
                 {fieldsGuilds.map((field, index) => (
@@ -183,7 +182,7 @@ const HatBasicsForm = () => {
             <FormRowWrapper>
               <Icon as={FaCube} boxSize={4} mt='2px' />
               <Stack w='full'>
-                <Text fontSize='sm' textTransform='uppercase'>
+                <Text size='sm' textTransform='uppercase'>
                   Snapshot Spaces
                 </Text>
                 {fieldsSpaces.map((field, index) => (
@@ -217,7 +216,7 @@ const HatBasicsForm = () => {
 
           <FormRowWrapper>
             <Icon as={GrEdit} boxSize={4} mt='2px' />
-            <Box>
+            <Stack spacing={3}>
               <RadioBox
                 name='mutable'
                 label='EDITABLE'
@@ -229,12 +228,12 @@ const HatBasicsForm = () => {
               />
               {localForm.watch('mutable') === MUTABILITY.IMMUTABLE &&
                 !isTopHat(selectedHat) && (
-                  <Text color='red.500' fontSize='sm' mt={3}>
+                  <Text color='red.500' size='sm'>
                     Warning: This will make the hat immutable. It can never be
                     changed again. This cannot be undone.
                   </Text>
                 )}
-            </Box>
+            </Stack>
           </FormRowWrapper>
         </Stack>
       </FormControl>

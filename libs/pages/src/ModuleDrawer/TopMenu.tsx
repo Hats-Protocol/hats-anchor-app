@@ -8,11 +8,15 @@ import {
 } from 'hats-hooks';
 import { ModuleDetails } from 'hats-types';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
-import { NetworkSwitcher } from 'ui';
 import { useChainId } from 'wagmi';
+
+const NetworkSwitcher = dynamic(() =>
+  import('ui').then((mod) => mod.NetworkSwitcher),
+);
 
 const TopMenu = ({
   localForm,

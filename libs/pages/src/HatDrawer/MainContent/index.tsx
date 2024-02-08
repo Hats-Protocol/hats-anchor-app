@@ -3,8 +3,8 @@ import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { checkAddressIsContract } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import { EventHistory, ModuleDetails } from 'ui';
 import { Hex } from 'viem';
 
 import WearersList from '../WearersList';
@@ -14,6 +14,13 @@ import Header from './Header';
 import LinkRequests from './LinkRequests';
 import ResponsibilitiesList from './ResponsibilitiesList';
 import StatusCard from './Status';
+
+const EventHistory = dynamic(() =>
+  import('ui').then((mod) => mod.EventHistory),
+);
+const ModuleDetails = dynamic(() =>
+  import('ui').then((mod) => mod.ModuleDetails),
+);
 
 const MainContent = () => {
   const { chainId, selectedHat, selectedHatDetails } = useTreeForm();

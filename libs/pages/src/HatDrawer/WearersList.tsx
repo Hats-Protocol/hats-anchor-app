@@ -40,14 +40,16 @@ import {
   // sortWearers,
 } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
-import { Modal } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import WearerRow from './WearerRow';
+
+const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const claimTooltip = ({
   claimFor,

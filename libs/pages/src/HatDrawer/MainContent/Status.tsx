@@ -24,14 +24,18 @@ import {
 import { HatWearer, SupportedChains } from 'hats-types';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { TbCircleOff } from 'react-icons/tb';
-import { ChakraNextLink } from 'ui';
 import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const StatusCard = ({
   status,

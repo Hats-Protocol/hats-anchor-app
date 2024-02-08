@@ -1,9 +1,11 @@
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { useOverlay, useTreeForm } from 'contexts';
 import { HatLinkRequestApproveForm } from 'forms';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { prettyIdToIp } from 'shared';
-import { Modal } from 'ui';
+
+const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 // TODO RQ hook this
 // ? don't inline ternary

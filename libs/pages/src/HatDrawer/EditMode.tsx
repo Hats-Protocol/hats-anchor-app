@@ -22,13 +22,18 @@ import {
 } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { title } from 'process';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
-import { Accordion, ChakraNextLink } from 'ui';
 
 import ModuleDrawer from '../ModuleDrawer';
+
+const Accordion = dynamic(() => import('ui').then((mod) => mod.Accordion));
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const EditMode = () => {
   const { selectedHat, isDraft, treeToDisplay } = useTreeForm();
