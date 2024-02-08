@@ -1,5 +1,6 @@
 import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { useImageURIs } from 'app-hooks';
 import {
   useAncillaryElection,
   useHatDetails,
@@ -60,7 +61,6 @@ export const EligibilityContextProvider = ({
 
   const { data: hatDetails, isLoading: isHatDetailsLoading } =
     useHatDetailsField(selectedHat?.details);
-  console.log('hatDetails', hatDetails);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: selectedHat ? [selectedHat] : [],
@@ -70,6 +70,10 @@ export const EligibilityContextProvider = ({
     selectedHat,
     _.toLower(MODULE_TYPES.eligibility),
   );
+
+  const { data: selectedHatWithImageUrl } = useImageURIs({
+    hats: selectedHat ? [selectedHat] : [],
+  });
 
   const {
     details,
@@ -89,7 +93,7 @@ export const EligibilityContextProvider = ({
   const value = useMemo(
     () => ({
       chainId,
-      selectedHat,
+      selectedHat: selectedHatWithImageUrl?.[0] || selectedHat,
       selectedHatDetails: hatDetails?.data,
       wearersAndControllers,
       treeId,
@@ -104,6 +108,7 @@ export const EligibilityContextProvider = ({
     [
       chainId,
       hatDetails,
+      selectedHatWithImageUrl,
       selectedHat,
       treeId,
       wearersAndControllers,
