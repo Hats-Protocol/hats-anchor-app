@@ -7,12 +7,11 @@ import {
   Text,
   Tooltip,
   useClipboard,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, FORM_FIELDS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'app-hooks';
-import { useHatForm, useTreeForm } from 'contexts';
+import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import {
   AuthoritiesForm,
   HatBasicsForm,
@@ -23,7 +22,6 @@ import {
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { title } from 'process';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
@@ -36,6 +34,7 @@ const ChakraNextLink = dynamic(() =>
 );
 
 const EditMode = () => {
+  const { drawers, setDrawers } = useOverlay();
   const { selectedHat, isDraft, treeToDisplay } = useTreeForm();
   const { getDirtyFieldsForAccordion, localForm } = useHatForm();
   const toast = useToast();
@@ -48,12 +47,6 @@ const EditMode = () => {
     onCopy();
     toast.success({ title: 'Copied Hat ID to clipboard' });
   };
-
-  const {
-    onOpen: onOpenModuleDrawer,
-    onClose: onCloseModuleDrawer,
-    isOpen: isOpenModuleDrawer,
-  } = useDisclosure();
 
   const name = _.get(
     _.find(treeToDisplay, ['id', selectedHat?.id]),
@@ -237,7 +230,7 @@ const EditMode = () => {
                   description:
                     'A written description of the logic in the Accountability Contract',
                 }}
-                onOpenModuleDrawer={onOpenModuleDrawer}
+                onOpenModuleDrawer={() => setDrawers({ eligibility: true })}
                 setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
               />
             </Stack>
@@ -296,7 +289,7 @@ const EditMode = () => {
                   description:
                     'List any criteria that should be considered in the process of deactivating or reactivating this hat',
                 }}
-                onOpenModuleDrawer={onOpenModuleDrawer}
+                onOpenModuleDrawer={() => setDrawers({ toggle: true })}
                 setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
               />
             </Stack>
@@ -306,14 +299,21 @@ const EditMode = () => {
 
       <Slide
         direction='right'
-        in={!!isOpenModuleDrawer}
+        in={drawers?.eligibility || drawers?.toggle}
         style={{ zIndex: 1001, width: '100%' }}
       >
-        {isOpenModuleDrawer && (
+        {(drawers?.eligibility || drawers?.toggle) && (
           <ModuleDrawer
-            onCloseModuleDrawer={onCloseModuleDrawer}
+            onCloseModuleDrawer={() => setDrawers({})}
             isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-            title={title}
+            title={
+              // eslint-disable-next-line no-nested-ternary
+              drawers?.eligibility
+                ? 'eligibility'
+                : drawers?.toggle
+                ? 'toggle'
+                : undefined
+            }
           />
         )}
       </Slide>

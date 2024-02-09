@@ -98,7 +98,7 @@ const Toast: React.FC<ToastProps> = ({
           icon && <Icon as={icon} width='35px' height='35px' />
         )}
         <Stack spacing={1}>
-          <Heading size='sm' color='white'>
+          <Heading size='lg' color='white'>
             {title}
           </Heading>
           {description && (

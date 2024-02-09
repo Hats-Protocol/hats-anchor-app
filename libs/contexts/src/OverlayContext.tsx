@@ -1,7 +1,7 @@
 // import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useLocalStorage, useToast } from 'app-hooks';
 import { checkTransactionStatus } from 'app-utils';
-import { OverlayContextProps, Transaction } from 'hats-types';
+import { AppModals, OverlayContextProps, Transaction } from 'hats-types';
 import _ from 'lodash';
 // import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -27,7 +27,7 @@ import { waitForTransaction } from 'wagmi/actions';
 
 // TODO re-enable transaction history modal
 
-const defaults = {
+const defaultModals: AppModals = {
   createTree: false,
   newWearer: false,
   editModule: false,
@@ -37,12 +37,21 @@ const defaults = {
   hatSupply: false,
 };
 
+const defaultDrawers: AppModals = {
+  eligibility: false,
+  toggle: false,
+  tree: false,
+  hat: false,
+};
+
 const MAX_TREES = 3;
 
 export const OverlayContext = createContext<OverlayContextProps>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: undefined,
   closeModals: undefined,
+  drawers: undefined,
+  setDrawers: undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePendingTx: undefined,
   commandPalette: false,
@@ -58,7 +67,8 @@ export const OverlayContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [modals, setModals] = useState(defaults);
+  const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
+  const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
@@ -97,14 +107,14 @@ export const OverlayContextProvider = ({
     [recentlyVisitedTrees],
   );
 
-  const showModal = (m: object) => {
+  const showModal = (m: Partial<AppModals>) => {
     // This allows to show only one modal at a time.
     // In addition, this reset any true value for other modals.
-    setModals({ ...defaults, ...m });
+    setModals({ ...defaultModals, ...m } as Partial<AppModals>);
   };
 
   const closeModals = () => {
-    setModals(defaults);
+    setModals(defaultModals);
   };
 
   const addTransaction = useCallback(
@@ -200,7 +210,7 @@ export const OverlayContextProvider = ({
     }
 
     if (clearModals) {
-      setModals(defaults);
+      setModals(defaultModals);
     }
 
     if (redirect) {
@@ -236,6 +246,8 @@ export const OverlayContextProvider = ({
     () => ({
       modals,
       setModals: showModal,
+      drawers,
+      setDrawers,
       closeModals,
       commandPalette,
       setCommandPalette,
