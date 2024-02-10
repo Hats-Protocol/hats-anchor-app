@@ -11,7 +11,7 @@ import {
 import { formatAddress } from 'app-utils';
 import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Modal, ModuleArgsForm } from 'ui';
 import { useChainId } from 'wagmi';
@@ -20,8 +20,13 @@ import { useEligibility, useStandaloneOverlay as useOverlay } from 'contexts';
 import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {
-  const { moduleDetails, moduleParameters, controllerAddress, chainId } =
-    useEligibility();
+  const {
+    moduleDetails,
+    moduleParameters,
+    controllerAddress,
+    chainId,
+    electionsAuthority,
+  } = useEligibility();
 
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
@@ -56,6 +61,19 @@ const UpcomingSeason = () => {
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
   const moduleActions = _.get(moduleDetails, 'writeFunctions');
+  const accessibleActions = useMemo(() => {
+    return _.filter(moduleActions, (action) => {
+      if (action.functionName === 'setNextTerm' && !!nextTermEnd?.value) {
+        return false;
+      }
+
+      return _.some(
+        action.roles,
+        (role) =>
+          _.includes(electionsAuthority.userRoles, role) || role === 'public',
+      );
+    });
+  }, [moduleActions, electionsAuthority.userRoles, nextTermEnd?.value]);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({
@@ -98,8 +116,8 @@ const UpcomingSeason = () => {
         <DateInfo date={currentTermEndDate} label='Next Season Starts' />
         <DateInfo date={nextTermEndDate} label='Next Season End' />
       </HStack>
-      <Flex gap={2} wrap='wrap'>
-        {_.map(moduleActions, (action) => (
+      <Flex gap={2} wrap='wrap' justifyContent='center'>
+        {_.map(accessibleActions, (action) => (
           <Tooltip
             label={
               !isSameChain

@@ -140,4 +140,5 @@ export interface ElectionsAuthority {
   ballotBoxHat: { id: Hex };
   hatId: Hex;
   id: Hex;
+  userRoles: string[];
 }
