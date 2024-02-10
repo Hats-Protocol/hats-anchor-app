@@ -56,6 +56,8 @@ const ProposalDetails = () => {
     ];
   }, [proposal]);
 
+  const hasProposalEnded = proposal.end * 1000 < Date.now();
+
   if (isLoading) return <Spinner />;
   if (error || !proposal) return <Text>Failed to load proposal details.</Text>;
 
@@ -91,18 +93,20 @@ const ProposalDetails = () => {
           ))}
         </VStack>
       </HStack>
-      <Box alignSelf='center'>
-        <Button
-          as='a'
-          href={`https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`}
-          target='_blank'
-          colorScheme='blue'
-          size='sm'
-          rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
-        >
-          Vote now on Snapshot
-        </Button>
-      </Box>
+      {!hasProposalEnded && (
+        <Box alignSelf='center'>
+          <Button
+            as='a'
+            href={`https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`}
+            target='_blank'
+            colorScheme='blue'
+            size='sm'
+            rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
+          >
+            Vote now on Snapshot
+          </Button>
+        </Box>
+      )}
     </Stack>
   );
 };
