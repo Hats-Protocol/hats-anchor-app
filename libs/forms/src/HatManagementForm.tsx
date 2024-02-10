@@ -196,7 +196,7 @@ const HatManagementForm = ({
                     ) : (
                       <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                     )}
-                    <Text color='gray.500' fontSize='sm'>
+                    <Text size='sm' variant='light'>
                       {contractData?.contractName || moduleDetails?.name}
                     </Text>
                   </HStack>

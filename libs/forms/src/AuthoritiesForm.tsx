@@ -170,14 +170,14 @@ const AuthoritiesForm = ({
       <Box mb={3}>
         <HStack alignItems='center' ml={-6}>
           {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
-          <Text fontSize='sm' color='blackAlpha.800' fontWeight='medium'>
+          <Text size='sm' variant='lightMedium'>
             {title}
           </Text>
         </HStack>
         {subtitle && typeof subtitle !== 'string' ? (
           subtitle
         ) : (
-          <Text color='blackAlpha.700'>{subtitle}</Text>
+          <Text variant='light'>{subtitle}</Text>
         )}
       </Box>
       {fields.map((field, i) => (

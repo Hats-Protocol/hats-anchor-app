@@ -20,23 +20,22 @@ import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { prettyIdToId } from 'shared';
-import { ChakraNextLink, EventHistory, Layout, OrgChart, TreeMenu } from 'ui';
 
-// const EventHistory = dynamic(() => import('../molecules/EventHistory'), {
-//   loading: () => <Suspender />,
-// });
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+const EventHistory = dynamic(() =>
+  import('ui').then((mod) => mod.EventHistory),
+);
 const HatDrawer = dynamic(() => import('./HatDrawer'), {
   loading: () => <Suspender />,
 });
-// const OrgChart = dynamic(() => import('./OrgChart'), {
-//   loading: () => <Suspender />,
-// });
+const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
+const OrgChart = dynamic(() => import('ui').then((mod) => mod.OrgChart));
 const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
   loading: () => <Suspender />,
 });
-// const TreeMenu = dynamic(() => import('../molecules/TreeMenu'), {
-//   loading: () => <Suspender />,
-// });
+const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
 const TreePage = ({ exists = true }: { exists: boolean }) => {
   const [initialLoad, setInitialLoad] = useState(true);

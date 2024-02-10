@@ -8,10 +8,17 @@ import {
 } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-import { ConnectWallet, NetworkSwitcher } from 'ui';
 // import { FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId, useNetwork } from 'wagmi';
+
+const ConnectWallet = dynamic(() =>
+  import('ui').then((mod) => mod.ConnectWallet),
+);
+const NetworkSwitcher = dynamic(() =>
+  import('ui').then((mod) => mod.NetworkSwitcher),
+);
 
 const MainAction = () => {
   const currentNetworkId = useChainId();

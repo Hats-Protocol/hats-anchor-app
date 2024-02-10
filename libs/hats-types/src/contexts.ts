@@ -4,7 +4,7 @@ import { Hex } from 'viem';
 import { Transaction } from './misc';
 import { HandlePendingTx } from './transaction';
 
-interface AppModals {
+export interface AppModals {
   [key: string]: boolean;
 }
 
@@ -23,8 +23,10 @@ export type HatRecord = { hatId: Hex; chainId: number };
 
 export interface OverlayContextProps {
   modals?: Partial<AppModals>;
-  setModals?: Dispatch<SetStateAction<Partial<AppModals>>>;
+  setModals?: (m: Partial<AppModals>) => void;
   closeModals?: () => void;
+  drawers?: Partial<AppModals>;
+  setDrawers?: Dispatch<SetStateAction<Partial<AppModals>>>;
   commandPalette: boolean;
   setCommandPalette: Dispatch<SetStateAction<boolean>>;
   handlePendingTx?: HandlePendingTx;
@@ -36,7 +38,7 @@ export interface OverlayContextProps {
 
 export interface StandaloneOverlayContextProps {
   modals?: Partial<ClaimsModals>;
-  setModals?: Dispatch<SetStateAction<Partial<ClaimsModals>>>;
+  setModals?: (m: Partial<ClaimsModals>) => void;
   closeModals?: () => void;
   commandPalette: boolean;
   setCommandPalette: Dispatch<SetStateAction<boolean>>;

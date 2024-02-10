@@ -19,12 +19,16 @@ import { useOverlay, useTreeForm } from 'contexts';
 import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
-import { NetworkSwitcher } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
+
+const NetworkSwitcher = dynamic(() =>
+  import('ui').then((mod) => mod.NetworkSwitcher),
+);
 
 const TopMenu = () => {
   const currentChain = useChainId();

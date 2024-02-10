@@ -33,7 +33,7 @@ const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
           >
             <Flex key={m.id} justify='space-between'>
               <Heading size='xs'>{m.name}</Heading>
-              <Text fontFamily='monospace'>
+              <Text variant='mono'>
                 {formatAddress(m.implementationAddress)}
               </Text>
             </Flex>

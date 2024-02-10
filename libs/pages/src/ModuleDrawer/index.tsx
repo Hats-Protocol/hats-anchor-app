@@ -16,7 +16,7 @@ const ModuleDrawer = ({
   isStandaloneHatterDeploy,
 }: {
   onCloseModuleDrawer: () => void;
-  title: string;
+  title?: string;
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const { selectedHat, chainId } = useTreeForm();

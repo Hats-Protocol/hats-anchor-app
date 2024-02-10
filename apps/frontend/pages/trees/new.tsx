@@ -123,7 +123,7 @@ const NewTree = () => {
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>
           <Stack mt={10} spacing={6}>
             <Stack>
-              <Text fontWeight='semibold'>{_.toUpper('Top Hat Image')}</Text>
+              <Text variant='medium'>{_.toUpper('Top Hat Image')}</Text>
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
@@ -177,7 +177,7 @@ const NewTree = () => {
                   }
                 />
                 {receiverResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500'>
+                  <Text size='sm' variant='light'>
                     Resolved address: {receiverResolvedAddress}
                   </Text>
                 )}
@@ -185,7 +185,7 @@ const NewTree = () => {
             )}
 
             <Stack>
-              <Text fontWeight='semibold'>{_.toUpper('Network')}</Text>
+              <Text variant='medium'>{_.toUpper('Network')}</Text>
               <Text>
                 This Tree will be minted on{' '}
                 {_.capitalize(chainsMap(chainId).name)}

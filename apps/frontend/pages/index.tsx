@@ -92,11 +92,11 @@ const Home = () => {
         {wearerAddress ? (
           <Flex justifyContent='space-between'>
             <Stack>
-              <Text fontSize={24} fontWeight='medium'>
+              <Heading variant='medium'>
                 gm {ensName || formatAddress(wearerAddress)} 👋
-              </Text>
+              </Heading>
               {!_.isEmpty(sortedHats) && (
-                <Text fontSize={18}>
+                <Text size='lg'>
                   Here&apos;s what&apos;s happening with your hats
                 </Text>
               )}
@@ -105,22 +105,20 @@ const Home = () => {
             <Box>
               <ChakraNextLink href='/trees/new'>
                 <Button colorScheme='blue' py={6} px={8}>
-                  <BsDiagram3 />
-                  <Text fontSize={18} fontWeight='medium' noOfLines={1} ml={3}>
-                    Create a new {CONFIG.tree}
-                  </Text>
+                  <HStack gap={3}>
+                    <BsDiagram3 />
+                    <Text size='lg' variant='medium' noOfLines={1}>
+                      Create a new {CONFIG.tree}
+                    </Text>
+                  </HStack>
                 </Button>
               </ChakraNextLink>
             </Box>
           </Flex>
         ) : (
           <Stack>
-            <Text fontSize={24} fontWeight='medium'>
-              Welcome to Hats Protocol! 🧢
-            </Text>
-            <Text fontSize={18}>
-              Please connect your wallet to get started.
-            </Text>
+            <Heading variant='medium'>Welcome to Hats Protocol! 🧢</Heading>
+            <Text size='lg'>Please connect your wallet to get started.</Text>
           </Stack>
         )}
 
@@ -129,16 +127,15 @@ const Home = () => {
           (!_.isEmpty(sortedHats) ? (
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Flex justifyContent='space-between' alignItems='center'>
-                <Text fontSize={24} fontWeight='medium'>
-                  Your hats
-                </Text>
+                <Heading variant='medium'>Your hats</Heading>
                 {sortedHats.length > 8 && (
                   <ChakraNextLink
                     as={ChakraNextLink}
                     href={`/wearers/${wearerAddress}`}
                   >
                     <HStack alignItems='center'>
-                      <Text>View all of your hats</Text> <FaArrowRight />
+                      <Text>View all of your hats</Text>
+                      <FaArrowRight />
                     </HStack>
                   </ChakraNextLink>
                 )}
@@ -177,9 +174,7 @@ const Home = () => {
         >
           <Stack spacing={10} flex={1}>
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Text fontSize={24} fontWeight='medium'>
-                Explore featured trees
-              </Text>
+              <Heading variant='medium'>Explore featured trees</Heading>
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                   <FeaturedTreeCard
@@ -195,9 +190,9 @@ const Home = () => {
             </Card>
 
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Text fontSize={24} fontWeight='medium'>
+              <Heading variant='medium'>
                 Jump right in with a forkable template
-              </Text>
+              </Heading>
               <SimpleGrid columns={3} spacing={6}>
                 {_.map(featuredTemplates, (tree: TemplateData, i: number) => (
                   <ForkableTemplateCard key={i} treeData={tree} />
@@ -213,9 +208,7 @@ const Home = () => {
             gap={4}
             maxW={isSmallerScreen ? '100%' : '427px'}
           >
-            <Text fontSize={24} fontWeight='medium'>
-              Learn more about Hats
-            </Text>
+            <Heading variant='medium'>Learn more about Hats</Heading>
             {isSmallerScreen ? (
               <Grid templateColumns='repeat(2, 1fr)' gap={6}>
                 {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (

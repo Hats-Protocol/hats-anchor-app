@@ -1,4 +1,4 @@
-import { Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useDebounce } from 'app-hooks';
 import { useTreeForm } from 'contexts';
@@ -88,12 +88,10 @@ const HatLinkRequestCreateForm = ({
           Ask the wearer of this hat to become the admin of a Top Hat that you
           are wearing. You will lose admin control of this Top Hat!
         </Text>
-        <Flex>
-          <Text fontWeight='medium' mr={2}>
-            New Admin:
-          </Text>
+        <HStack>
+          <Text variant='medium'>New Admin:</Text>
           <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>
-        </Flex>
+        </HStack>
         <Select
           label='Enter domain of the Top Hat to be linked'
           name='topHatDomain'

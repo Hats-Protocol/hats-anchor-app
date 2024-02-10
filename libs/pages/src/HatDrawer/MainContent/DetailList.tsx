@@ -14,9 +14,13 @@ import {
 } from '@chakra-ui/react';
 import { validateURL } from 'app-utils';
 import { DetailsItem } from 'hats-types';
+import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const AccordionWrap = ({
   title,

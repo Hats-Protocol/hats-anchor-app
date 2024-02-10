@@ -33,7 +33,7 @@ const AuthoritiesFormItem = ({
     <Box borderBottom='1px solid' borderColor='blackAlpha.300' pb={2}>
       <HStack justifyContent='space-between' w='full' alignItems='center'>
         <Stack flex={1} spacing='1px'>
-          <Text mb={0} fontSize='sm' color='blackAlpha.800'>
+          <Text size='sm' variant='lightMedium'>
             {label || 'New Authority'}
           </Text>
           {isGate && (

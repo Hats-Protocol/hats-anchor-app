@@ -6,13 +6,15 @@ import { useWearerDetails } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
-import { Modal } from 'ui';
 import { useAccount } from 'wagmi';
 
 import MainAction from '../MainAction';
 import MoreMenu from './MoreMenu';
+
+const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 // const HatLinkRequestCreateForm = dynamic(
 //   () => import('../../../forms'),

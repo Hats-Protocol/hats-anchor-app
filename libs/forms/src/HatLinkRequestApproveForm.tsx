@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -182,18 +181,14 @@ const HatLinkRequestApproveForm = ({
           admin. Optionally update details, image, eligibility, and toggle of
           the Top Hat now that it will be a child hat.
         </Text>
-        <Flex>
-          <Text fontWeight='medium' mr={2}>
-            New Admin:
-          </Text>
+        <HStack>
+          <Text variant='medium'>New Admin:</Text>
           <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>
-        </Flex>
-        <Flex>
-          <Text fontWeight='medium' mr={2}>
-            Domain of the Top Hat to be linked:
-          </Text>
+        </HStack>
+        <HStack>
+          <Text variant='medium'>Domain of the Top Hat to be linked:</Text>
           <Text>ID {prettyIdToIp(topHatDomain)}</Text>
-        </Flex>
+        </HStack>
         <FormControl>
           <Stack>
             <HStack>
@@ -291,7 +286,7 @@ const HatLinkRequestApproveForm = ({
             />
             {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Box>
+              <Stack w='100%'>
                 <Input
                   name='eligibility'
                   label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -302,11 +297,11 @@ const HatLinkRequestApproveForm = ({
                   localForm={localForm}
                 />
                 {showEligibilityResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500' mt={1}>
+                  <Text size='sm' variant='light'>
                     Resolved address: {eligibilityResolvedAddress}
                   </Text>
                 )}
-              </Box>
+              </Stack>
             )}
           </HStack>
         </FormControl>
@@ -318,7 +313,7 @@ const HatLinkRequestApproveForm = ({
             />
             {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
             {toggleChecked && (
-              <Box>
+              <Stack spacing={1}>
                 <Input
                   name='toggle'
                   label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
@@ -329,11 +324,11 @@ const HatLinkRequestApproveForm = ({
                   localForm={localForm}
                 />
                 {showToggleResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500' mt={1}>
+                  <Text size='sm' variant='light'>
                     Resolved address: {toggleResolvedAddress}
                   </Text>
                 )}
-              </Box>
+              </Stack>
             )}
           </HStack>
         </FormControl>

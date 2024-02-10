@@ -24,14 +24,18 @@ import {
 import { HatWearer } from 'hats-types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import TooltipWrapper from './TooltipWrapper';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const WearerRow = ({
   wearer,

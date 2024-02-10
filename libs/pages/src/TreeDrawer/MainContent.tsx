@@ -27,11 +27,14 @@ import {
   isTopHatOrMutable,
 } from 'hats-utils';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { prettyIdToId } from 'shared';
-import { Markdown, Modal } from 'ui';
 import { Hex } from 'viem';
+
+const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
+const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);

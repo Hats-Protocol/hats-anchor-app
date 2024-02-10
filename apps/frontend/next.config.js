@@ -53,6 +53,28 @@ const nextConfig = {
       },
     ];
   },
+  experimental: {
+    optimizePackageImports: [
+      // external pkgs
+      '@chakra-ui/react',
+      '@rainbow-me/rainbowkit',
+      '@tanstack/react-query',
+      'd3-org-chart',
+      'react-datepicker',
+      'viem',
+      // internal packages
+      'app-hooks',
+      '@hatsprotocol/constants',
+      'contexts',
+      'forms',
+      'hats-hooks',
+      'hats-types',
+      'hats-utils',
+      'pages',
+      'shared',
+      // 'ui',
+    ],
+  },
 };
 
 const plugins = [

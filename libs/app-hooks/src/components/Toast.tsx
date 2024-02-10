@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Icon,
+  Stack,
   Text,
   ToastProps as ChakraToastProps,
 } from '@chakra-ui/react';
@@ -96,8 +97,8 @@ const Toast: React.FC<ToastProps> = ({
         ) : (
           icon && <Icon as={icon} width='35px' height='35px' />
         )}
-        <Box>
-          <Heading size='sm' color='white'>
+        <Stack spacing={1}>
+          <Heading size='lg' color='white'>
             {title}
           </Heading>
           {description && (
@@ -105,7 +106,7 @@ const Toast: React.FC<ToastProps> = ({
               {description}
             </Text>
           )}
-        </Box>
+        </Stack>
       </HStack>
       {isClosable && (
         <Flex
