@@ -58,7 +58,7 @@ const useAncillaryElection = ({
 
   return {
     data: {
-      ...data,
+      ...(data || {}),
       userRoles,
     },
     error,
