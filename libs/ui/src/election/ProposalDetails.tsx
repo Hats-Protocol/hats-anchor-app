@@ -5,31 +5,22 @@ import {
   Heading,
   HStack,
   Icon,
-  Spinner,
   Stack,
   Tag,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { PROPOSALS } from '@hatsprotocol/constants';
-import { useProposalDetails } from 'app-hooks';
+import { explorerUrl } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { idToIp } from 'shared';
-// import { useChainId } from 'wagmi';
 
-const ProposalDetails = () => {
-  const { selectedHat, chainId } = useEligibility();
-  // const currentChainId = useChainId();
+import { ChakraNextLink } from '../atoms';
 
-  // TODO handle election term end
-  // Assuming the structure of PROPOSALS is corrected as needed
-  const proposalId =
-    chainId &&
-    PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481]?.elect;
-  const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
+const ProposalDetails = ({ proposal }: { proposal: any }) => {
+  const { chainId, moduleDetails } = useEligibility();
 
   const proposalDetails = useMemo(() => {
     if (!proposal) return [];
@@ -56,10 +47,7 @@ const ProposalDetails = () => {
     ];
   }, [proposal]);
 
-  const hasProposalEnded = proposal.end * 1000 < Date.now();
-
-  if (isLoading) return <Spinner />;
-  if (error || !proposal) return <Text>Failed to load proposal details.</Text>;
+  const hasProposalEnded = proposal && proposal.end * 1000 < Date.now();
 
   return (
     <Stack spacing={4}>
@@ -68,7 +56,7 @@ const ProposalDetails = () => {
           {proposal.state.toUpperCase()}
         </Tag>
       </Box>
-      <HStack gap={6} align='start'>
+      <HStack gap={6} align='start' w='full'>
         <VStack spacing={4} align='start' flex='1'>
           <Heading size='lg'>{proposal.title}</Heading>
           <Text noOfLines={[3, 5]} size='sm'>
@@ -76,7 +64,24 @@ const ProposalDetails = () => {
           </Text>
         </VStack>
         <VStack align='start' flex='1' fontSize='sm'>
-          <Heading size='sm'>About</Heading>
+          <HStack justify='space-between' w='full'>
+            <Heading size='sm'>About</Heading>
+            {moduleDetails && (
+              <ChakraNextLink
+                href={`${explorerUrl(chainId)}/address/${
+                  moduleDetails?.implementationAddress
+                }`}
+                isExternal
+              >
+                <HStack gap={1}>
+                  <Icon as={BsFileCode} w={4} h={4} color='teal' />
+                  <Text color='teal' fontSize='sm'>
+                    Election
+                  </Text>
+                </HStack>
+              </ChakraNextLink>
+            )}
+          </HStack>
 
           {_.map(_.compact(proposalDetails), (detail: any) => (
             <Flex

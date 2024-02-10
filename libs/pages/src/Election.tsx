@@ -16,8 +16,8 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 
-const ProposalDetails = dynamic(() =>
-  import('ui').then((mod) => mod.ProposalDetails),
+const ProposalView = dynamic(() =>
+  import('ui').then((mod) => mod.ProposalView),
 );
 const CurrentSeason = dynamic(() =>
   import('ui').then((mod) => mod.CurrentSeason),
@@ -104,7 +104,7 @@ const Election = () => {
                     </Card>
                     <Card>
                       <CardBody>
-                        <ProposalDetails />
+                        <ProposalView />
                       </CardBody>
                     </Card>
                   </Stack>
