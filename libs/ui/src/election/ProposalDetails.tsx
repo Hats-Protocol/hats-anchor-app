@@ -5,6 +5,7 @@ import {
   Heading,
   HStack,
   Icon,
+  Progress,
   Stack,
   Tag,
   Text,
@@ -49,6 +50,17 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
 
   const hasProposalEnded = proposal && proposal.end * 1000 < Date.now();
 
+  const voteResults = useMemo(() => {
+    if (!proposal) return [];
+    const totalVotes = proposal.scores_total;
+    return proposal.choices.map((choice: string, index: number) => {
+      const votes = proposal.scores[index];
+      const percentage =
+        totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(2) : 0;
+      return { choice, votes, percentage };
+    });
+  }, [proposal]);
+
   return (
     <Stack spacing={4}>
       <Box>
@@ -82,7 +94,6 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
               </ChakraNextLink>
             )}
           </HStack>
-
           {_.map(_.compact(proposalDetails), (detail: any) => (
             <Flex
               justifyContent='space-between'
@@ -98,6 +109,35 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
           ))}
         </VStack>
       </HStack>
+
+      {!_.isEmpty(voteResults) && (
+        <VStack spacing={2} align='stretch'>
+          <Heading size='sm'>Current Results</Heading>
+
+          {_.map(voteResults, (result: any) => (
+            <Stack key={result.choice} width='100%' gap={1}>
+              <HStack justify='space-between' w='full'>
+                <Text>{result.choice}</Text>
+                <Text
+                  color='gray.500'
+                  fontSize='sm'
+                  fontWeight='medium'
+                  textAlign='right'
+                >
+                  {result.votes} VOTES ({result.percentage}%)
+                </Text>
+              </HStack>
+              <Progress
+                colorScheme='blue'
+                borderRadius={4}
+                size='sm'
+                value={Number(result.percentage)}
+              />
+            </Stack>
+          ))}
+        </VStack>
+      )}
+
       {!hasProposalEnded && (
         <Box alignSelf='center'>
           <Button
