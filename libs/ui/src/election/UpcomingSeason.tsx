@@ -49,10 +49,13 @@ const UpcomingSeason = () => {
 
   let nextTermEndDate;
   if (typeof nextTermEnd?.value === 'bigint') {
-    nextTermEndDate = new Date(Number(nextTermEnd.value) * 1000);
+    nextTermEndDate =
+      nextTermEnd.value === BigInt(0)
+        ? null
+        : new Date(Number(nextTermEnd.value) * 1000);
   } else {
     console.error('Invalid value for nextTermEnd: ', nextTermEnd?.value);
-    nextTermEndDate = new Date();
+    nextTermEndDate = null;
   }
 
   const [selectedFunction, setSelectedFunction] = useState(null);
@@ -63,22 +66,36 @@ const UpcomingSeason = () => {
   const moduleActions = _.get(moduleDetails, 'writeFunctions');
   const accessibleActions = useMemo(() => {
     return _.filter(moduleActions, (action) => {
-      if (action.functionName === 'setNextTerm' && !!nextTermEnd?.value) {
+      if (
+        action.functionName === 'setNextTerm' &&
+        (nextTermEndDate === null ||
+          nextTermEndDate.getTime() > new Date().getTime())
+      ) {
         return false;
       }
 
-      return _.some(
-        action.roles,
-        (role) =>
-          _.includes(electionsAuthority.userRoles, role) || role === 'public',
+      const canElect =
+        action.functionName === 'elect' &&
+        electionsAuthority.isWearingBallotBoxHat &&
+        !!nextTermEnd?.value;
+
+      const canStartNextTerm =
+        action.functionName === 'startNextTerm' && !!nextTermEnd?.value;
+
+      return (
+        _.some(
+          action.roles,
+          (role) =>
+            _.includes(electionsAuthority.userRoles, role) || role === 'public',
+        ) ||
+        canElect ||
+        canStartNextTerm
       );
     });
-  }, [moduleActions, electionsAuthority.userRoles, nextTermEnd?.value]);
+  }, [moduleActions, electionsAuthority, nextTermEnd?.value]);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
-    useCallModuleFunction({
-      chainId,
-    });
+    useCallModuleFunction({ chainId });
 
   if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
 
@@ -98,14 +115,12 @@ const UpcomingSeason = () => {
 
   const onSubmit = async (values) => {
     if (!selectedFunction) return;
-
     await callModuleFunction({
       moduleId: moduleDetails.implementationAddress,
       instance: controllerAddress,
       func: selectedFunction,
       args: values,
     });
-
     setModals?.({});
   };
 
@@ -113,8 +128,14 @@ const UpcomingSeason = () => {
     <Stack gap={4}>
       <Heading size='md'>Upcoming Season</Heading>
       <HStack justifyContent='space-between' gap={4}>
-        <DateInfo date={currentTermEndDate} label='Next Season Starts' />
-        <DateInfo date={nextTermEndDate} label='Next Season End' />
+        <Box w='50%'>
+          <DateInfo date={currentTermEndDate} label='Current Season End' />
+        </Box>
+        {nextTermEndDate && (
+          <Box w='50%'>
+            <DateInfo date={nextTermEndDate} label='Next Season End' />
+          </Box>
+        )}
       </HStack>
       <Flex gap={2} wrap='wrap' justifyContent='center'>
         {_.map(accessibleActions, (action) => (

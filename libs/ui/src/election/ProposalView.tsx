@@ -17,7 +17,6 @@ const ProposalView = () => {
 
   const proposalId = chainId && (execute || elect);
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
-
   const hasProposalStarted = proposal && proposal.start * 1000 <= Date.now();
 
   if (isLoading) return <Spinner />;
