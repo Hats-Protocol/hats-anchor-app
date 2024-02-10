@@ -11,9 +11,11 @@ const ProposalView = () => {
   const { selectedHat, chainId } = useEligibility();
 
   // Assuming the structure of PROPOSALS is corrected as needed
-  const proposalId =
-    chainId &&
-    PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481]?.elect;
+  const { execute, elect } =
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    chainId && PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481];
+
+  const proposalId = chainId && (execute || elect);
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
 
   const hasProposalStarted = proposal && proposal.start * 1000 <= Date.now();
