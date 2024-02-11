@@ -8,15 +8,20 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { formatAddress } from 'app-utils';
+import {
+  Modal,
+  useEligibility,
+  useStandaloneOverlay as useOverlay,
+} from 'contexts';
 import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Modal, ModuleArgsForm } from 'ui';
 import { useChainId } from 'wagmi';
 
-import { useEligibility, useStandaloneOverlay as useOverlay } from 'contexts';
+import ModuleArgsForm from '../forms/ModuleArgsForm';
 import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {
@@ -63,9 +68,12 @@ const UpcomingSeason = () => {
   const { setModals } = localOverlay;
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
-  const moduleActions = _.get(moduleDetails, 'writeFunctions');
+  const moduleActions: WriteFunction[] | undefined = _.get(
+    moduleDetails,
+    'writeFunctions',
+  );
   const accessibleActions = useMemo(() => {
-    return _.filter(moduleActions, (action) => {
+    return _.filter(moduleActions, (action: WriteFunction) => {
       if (
         action.functionName === 'setNextTerm' &&
         (nextTermEndDate === null ||
@@ -92,7 +100,7 @@ const UpcomingSeason = () => {
         canStartNextTerm
       );
     });
-  }, [moduleActions, electionsAuthority, nextTermEnd?.value]);
+  }, [moduleActions, electionsAuthority, nextTermEnd?.value, nextTermEndDate]);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({ chainId });
@@ -138,7 +146,7 @@ const UpcomingSeason = () => {
         )}
       </HStack>
       <Flex gap={2} wrap='wrap' justifyContent='center'>
-        {_.map(accessibleActions, (action) => (
+        {_.map(accessibleActions, (action: WriteFunction) => (
           <Tooltip
             label={
               !isSameChain
