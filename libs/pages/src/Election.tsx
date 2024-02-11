@@ -60,16 +60,16 @@ const Election = () => {
   if (!isClient) return null;
 
   return (
-    <Layout>
+    <Layout title='Claims'>
       <NextSeo title={title} />
-      <Stack position='relative' top='76px' px={32} py={20} gap={10}>
+      <Stack position='relative' top='76px' px={32} py={10} gap={10}>
         {isHatDetailsLoading ? (
           <Flex justifyContent='center'>
             <Spinner />
           </Flex>
         ) : (
           <>
-            <Flex w='full' justifyContent='center' mb={10}>
+            <Flex w='full' justifyContent='center'>
               <Header />
             </Flex>
             {isModuleDetailsLoading ? (

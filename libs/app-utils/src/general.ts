@@ -1,13 +1,17 @@
+import { CONFIG, GATEWAY_TOKEN } from '@hatsprotocol/constants';
 import {
   ArgumentTsType,
   solidityToTypescriptType,
   verify,
 } from '@hatsprotocol/modules-sdk';
-import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG, GATEWAY_TOKEN } from '@hatsprotocol/constants';
+import {
+  hatIdDecimalToIp,
+  hatIdToTreeId,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
 import _ from 'lodash';
-import { isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
@@ -62,6 +66,20 @@ export const validateURL = (textVal: string) => {
   const urlRegex =
     /^((http|https):\/\/)(www\.)?[a-zA-Z0-9\-.]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;%=]*)?$/;
   return urlRegex.test(textVal);
+};
+
+export const hatLink = ({
+  chainId,
+  hatId,
+}: {
+  chainId: number | undefined;
+  hatId: Hex | undefined;
+}) => {
+  if (!chainId || !hatId) return '#';
+  const treeId = hatIdToTreeId(BigInt(hatId));
+  return `https://app.hatsprotocol.xyz/trees/${chainId}/${treeId}/${hatIdDecimalToIp(
+    BigInt(hatId),
+  )}`;
 };
 
 export const generateLocalStorageKey = (
@@ -148,7 +166,6 @@ export const transformInput = (
   solidityType: string,
   displayType?: string,
 ): unknown => {
-  console.log('transformInput', input, solidityType, displayType);
   if (input === undefined || input === null) {
     if (solidityType.includes('[]')) {
       return [];
@@ -209,7 +226,6 @@ export const transformAndVerify = (
   input: unknown,
   solidityType: string,
 ): string | boolean => {
-  console.log('transformAndVerify', input, solidityType);
   const transformedInput = transformInput(input, solidityType);
 
   if (verify(transformedInput, solidityType)) {

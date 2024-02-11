@@ -63,7 +63,8 @@ const UpcomingSeason = () => {
     nextTermEndDate = null;
   }
 
-  const [selectedFunction, setSelectedFunction] = useState(null);
+  const [selectedFunction, setSelectedFunction] =
+    useState<WriteFunction | null>(null);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const formMethods = useForm({ mode: 'onChange' });
@@ -88,16 +89,17 @@ const UpcomingSeason = () => {
         !!nextTermEnd?.value;
 
       const canStartNextTerm =
-        action.functionName === 'startNextTerm' && !!nextTermEnd?.value;
+        action.functionName === 'startNextTerm' &&
+        !!nextTermEnd?.value &&
+        nextTermEnd.value > BigInt(0);
 
       return (
         _.some(
           action.roles,
-          (role) =>
-            _.includes(electionsAuthority.userRoles, role) || role === 'public',
-        ) ||
-        canElect ||
-        canStartNextTerm
+          (role: string) =>
+            _.includes(electionsAuthority.userRoles, role) ||
+            (role === 'public' && canStartNextTerm),
+        ) || canElect
       );
     });
   }, [moduleActions, electionsAuthority, nextTermEnd?.value, nextTermEndDate]);
@@ -107,7 +109,7 @@ const UpcomingSeason = () => {
 
   if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
 
-  const handleFunctionCall = (func) => {
+  const handleFunctionCall = (func: WriteFunction) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ 'functionCall-module': true });
@@ -145,29 +147,32 @@ const UpcomingSeason = () => {
           </Box>
         )}
       </HStack>
-      <Flex gap={2} wrap='wrap' justifyContent='center'>
-        {_.map(accessibleActions, (action: WriteFunction) => (
-          <Tooltip
-            label={
-              !isSameChain
-                ? 'Please switch to the correct network'
-                : action.description
-            }
-            key={action.label}
-          >
-            <Button
-              variant='outline'
-              borderColor='blackAlpha.300'
-              fontWeight='medium'
-              size='sm'
-              isDisabled={!isSameChain}
-              onClick={() => handleFunctionCall(action)}
+      {!_.isEmpty(accessibleActions) && (
+        <Flex gap={2} wrap='wrap' justifyContent='center'>
+          {_.map(accessibleActions, (action: WriteFunction) => (
+            <Tooltip
+              label={
+                !isSameChain
+                  ? 'Please switch to the correct network'
+                  : action.description
+              }
+              key={action.label}
             >
-              {action.label.charAt(0).toUpperCase() + action.label.slice(1)}
-            </Button>
-          </Tooltip>
-        ))}
-      </Flex>
+              <Button
+                variant='outline'
+                borderColor='blackAlpha.300'
+                fontWeight='medium'
+                size='sm'
+                isDisabled={!isSameChain}
+                onClick={() => handleFunctionCall(action)}
+              >
+                {_.capitalize(action.label)}
+              </Button>
+            </Tooltip>
+          ))}
+        </Flex>
+      )}
+
       <Modal
         name='functionCall-module'
         title={`Interact with ${moduleDetails?.name} (${formatAddress(

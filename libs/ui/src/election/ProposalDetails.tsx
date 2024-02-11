@@ -38,6 +38,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
         value: 'Ranked Choice',
       },
       {
+        // TODO handle different relative time labels
         label: 'Started:',
         value: new Date(proposal.start * 1000).toLocaleString(),
       },
@@ -53,13 +54,17 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const voteResults = useMemo(() => {
     if (!proposal) return [];
     const totalVotes = proposal.scores_total;
-    return proposal.choices.map((choice: string, index: number) => {
-      const votes = proposal.scores[index];
+    const choices = _.map(proposal.choices, (choice: string, index: number) => {
+      const votes = _.toNumber(proposal.scores[index].toFixed(2));
       const percentage =
         totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(2) : 0;
       return { choice, votes, percentage };
     });
+
+    return _.orderBy(choices, ['votes'], ['desc']);
   }, [proposal]);
+
+  const snapshotLink = `https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`;
 
   return (
     <Stack spacing={4}>
@@ -70,7 +75,9 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
       </Box>
       <HStack gap={6} align='start' w='full'>
         <VStack spacing={4} align='start' flex='1'>
-          <Heading size='lg'>{proposal.title}</Heading>
+          <ChakraNextLink href={snapshotLink} isExternal>
+            <Heading size='lg'>{proposal.title}</Heading>
+          </ChakraNextLink>
           <Text noOfLines={[3, 5]} size='sm'>
             {proposal.body}
           </Text>
@@ -138,20 +145,17 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
         </VStack>
       )}
 
-      {!hasProposalEnded && (
-        <Box alignSelf='center'>
+      <Box alignSelf='center'>
+        <ChakraNextLink href={snapshotLink}>
           <Button
-            as='a'
-            href={`https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`}
-            target='_blank'
             colorScheme='blue'
             size='sm'
             rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
           >
-            Vote now on Snapshot
+            {!hasProposalEnded ? 'Vote now' : 'View'} on Snapshot
           </Button>
-        </Box>
-      )}
+        </ChakraNextLink>
+      </Box>
     </Stack>
   );
 };
