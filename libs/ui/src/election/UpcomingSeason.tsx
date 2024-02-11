@@ -63,8 +63,7 @@ const UpcomingSeason = () => {
     nextTermEndDate = null;
   }
 
-  const [selectedFunction, setSelectedFunction] =
-    useState<WriteFunction | null>(null);
+  const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
   const formMethods = useForm({ mode: 'onChange' });
@@ -77,8 +76,8 @@ const UpcomingSeason = () => {
     return _.filter(moduleActions, (action: WriteFunction) => {
       if (
         action.functionName === 'setNextTerm' &&
-        (nextTermEndDate === null ||
-          nextTermEndDate.getTime() > new Date().getTime())
+        (nextTermEndDate === BigInt(0) ||
+          nextTermEndDate?.getTime() > new Date().getTime())
       ) {
         return false;
       }
@@ -90,8 +89,9 @@ const UpcomingSeason = () => {
 
       const canStartNextTerm =
         action.functionName === 'startNextTerm' &&
+        new Date().getTime() > currentTermEndDate.getTime() &&
         !!nextTermEnd?.value &&
-        nextTermEnd.value > BigInt(0);
+        (nextTermEnd.value as bigint) > BigInt(0);
 
       return (
         _.some(
@@ -109,7 +109,7 @@ const UpcomingSeason = () => {
 
   if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
 
-  const handleFunctionCall = (func: WriteFunction) => {
+  const handleFunctionCall = (func: any) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ 'functionCall-module': true });
@@ -204,7 +204,7 @@ const UpcomingSeason = () => {
                   isDisabled={!formState.isValid}
                   isLoading={isModuleLoading}
                 >
-                  {_.get(selectedFunction, 'label')}
+                  {_.capitalize(_.get(selectedFunction, 'label'))}
                 </Button>
               </HStack>
             </Flex>

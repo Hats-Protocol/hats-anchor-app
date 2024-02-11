@@ -1,10 +1,13 @@
 import {
+  Badge,
   Box,
   Button,
+  Flex,
   Grid,
   Heading,
   HStack,
   Icon,
+  Stack,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -64,8 +67,11 @@ const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
 
   return (
     <VStack spacing={4}>
-      <HStack justify='space-between' w='full'>
-        <Heading size='md'>Upcoming {title}</Heading>
+      <Flex justify='space-between' w='full'>
+        <Stack>
+          <Badge>{_.toUpper('Upcoming')}</Badge>
+          <Heading size='md'>{title}</Heading>
+        </Stack>
         {moduleDetails && (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${
@@ -81,7 +87,7 @@ const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
             </HStack>
           </ChakraNextLink>
         )}
-      </HStack>
+      </Flex>
       <Grid templateColumns='repeat(3, 1fr)' gap={4}>
         {timeUntilStart &&
           _.map(timeUntilStart, (value, unit) => (

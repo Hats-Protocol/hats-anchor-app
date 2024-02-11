@@ -21,8 +21,8 @@ const useHatClaimBy = ({
   wearer,
   handlePendingTx,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   wearer: Hex | undefined;
   handlePendingTx?: HandlePendingTx;
 }) => {

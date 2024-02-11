@@ -16,7 +16,7 @@ import DatePickerComponent from 'react-datepicker';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
-// TODO more INTL friendly date formatting
+// TODO more INTL friendly date formatting on button
 
 const DatePicker = ({
   label,
@@ -47,7 +47,7 @@ const DatePicker = ({
 
   if (!localForm) return null;
 
-  const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const handleChange = (d: Date) => {
     if (setToZeroUTC) {
@@ -97,8 +97,8 @@ const DatePicker = ({
         />
         {showLocalConversion && (
           <HStack color='blackAlpha.800' fontSize='xs' spacing={1}>
-            <Text fontWeight={600}>Local Timezone:</Text>
-            <Text>{userTz}</Text>
+            {/* <Text fontWeight={600}>Local Timezone:</Text>
+            <Text>{userTz}</Text> */}
             <Text fontWeight={600}>Current:</Text>
             <Tooltip label={formatDate(currentValue, true)} placement='top'>
               <Text>{formatDate(currentValue)}</Text>

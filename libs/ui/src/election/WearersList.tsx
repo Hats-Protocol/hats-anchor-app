@@ -1,20 +1,30 @@
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { explorerUrl, formatAddress } from 'app-utils';
 import { useEligibility } from 'contexts';
+import { useHatClaimBy } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { Hex } from 'viem';
-import { useEnsName } from 'wagmi';
+import { useAccount, useEnsName } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
 const WearerCard = ({ account }: { account: Hex }) => {
   const { chainId, selectedHat } = useEligibility();
+  const { address } = useAccount();
   const { data: name } = useEnsName({ address: account, chainId: 1 });
+
   const isWearing = useMemo(() => {
     return _.some(selectedHat?.wearers, { id: account });
   }, [selectedHat?.wearers, account]);
+  const isUser = account === _.toLower(address);
+
+  const { claimHat } = useHatClaimBy({
+    selectedHat: selectedHat || undefined,
+    chainId,
+    wearer: account,
+  });
 
   return (
     <Flex justify='space-between' w='100%'>
@@ -29,6 +39,17 @@ const WearerCard = ({ account }: { account: Hex }) => {
         <Tooltip label='is wearing hat' shouldWrapChildren>
           <Icon as={FaRegCheckCircle} color='green.500' />
         </Tooltip>
+      )}
+      {!isWearing && isUser && (
+        <Text
+          size='sm'
+          onClick={claimHat}
+          color='blue.500'
+          textDecoration='underline'
+          _hover={{ color: 'blue.400', cursor: 'pointer' }}
+        >
+          Claim
+        </Text>
       )}
     </Flex>
   );
