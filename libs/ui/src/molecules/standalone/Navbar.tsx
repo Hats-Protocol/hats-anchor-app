@@ -1,9 +1,9 @@
-import { Flex, HStack, Image } from '@chakra-ui/react';
+import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
 
 import { ChakraNextLink } from '../../atoms';
 import ConnectWallet from '../ConnectWallet';
 
-const Navbar = () => {
+const Navbar = ({ title }: { title?: string }) => {
   return (
     <Flex
       w='100%'
@@ -20,7 +20,16 @@ const Navbar = () => {
     >
       <HStack spacing={6}>
         <ChakraNextLink href='/'>
-          <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
+          {title ? (
+            <HStack>
+              <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
+              <Heading size='2xl' variant='medium'>
+                {title}
+              </Heading>
+            </HStack>
+          ) : (
+            <Image src='/icon.jpeg' h='70px' w='70px' alt='Hats Logo' />
+          )}
         </ChakraNextLink>
       </HStack>
 

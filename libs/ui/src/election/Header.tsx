@@ -14,13 +14,14 @@ import {
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'app-hooks';
+import { hatLink } from 'app-utils';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
-import { Markdown } from '../atoms';
+import { ChakraNextLink, Markdown } from '../atoms';
 
 const Header = () => {
   const toast = useToast();
@@ -47,18 +48,24 @@ const Header = () => {
 
   return (
     <HStack w='2xl' gap={10}>
-      <AspectRatio ratio={1} w='120px'>
-        <Image
-          src={selectedHat?.imageUrl || '/icon.jpeg'}
-          alt='hat image'
-          loading='lazy'
-          objectFit='cover'
-          boxSize='120px'
-          border='1px solid'
-          borderColor='gray.700'
-          borderRadius='md'
-        />
-      </AspectRatio>
+      <ChakraNextLink
+        href={hatLink({ chainId, hatId: selectedHat?.id })}
+        boxSize='120px'
+        isExternal
+      >
+        <AspectRatio ratio={1}>
+          <Image
+            src={selectedHat?.imageUrl || '/icon.jpeg'}
+            alt='hat image'
+            loading='lazy'
+            objectFit='cover'
+            boxSize='120px'
+            border='1px solid'
+            borderColor='gray.700'
+            borderRadius='md'
+          />
+        </AspectRatio>
+      </ChakraNextLink>
       <Stack spacing={1} w='full'>
         <Stack w='full' gap={1}>
           <HStack justifyContent='space-between' lineHeight={6}>

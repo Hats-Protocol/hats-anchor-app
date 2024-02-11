@@ -1,9 +1,9 @@
-import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import {
   FALLBACK_ADDRESS,
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
+import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import {
   AppHat,
   FieldItem,

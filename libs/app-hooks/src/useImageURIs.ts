@@ -1,6 +1,6 @@
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
-import { useQueries, useQuery } from '@tanstack/react-query';
 import { CONFIG } from '@hatsprotocol/constants';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { viemPublicClient } from 'app-utils';
 import { AppHat } from 'hats-types';
 import { checkImageForHat } from 'hats-utils';

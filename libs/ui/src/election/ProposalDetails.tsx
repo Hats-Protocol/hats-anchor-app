@@ -5,31 +5,23 @@ import {
   Heading,
   HStack,
   Icon,
-  Spinner,
+  Progress,
   Stack,
   Tag,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { PROPOSALS } from '@hatsprotocol/constants';
-import { useProposalDetails } from 'app-hooks';
+import { explorerUrl } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { idToIp } from 'shared';
-// import { useChainId } from 'wagmi';
 
-const ProposalDetails = () => {
-  const { selectedHat, chainId } = useEligibility();
-  // const currentChainId = useChainId();
+import { ChakraNextLink } from '../atoms';
 
-  // TODO handle election term end
-  // Assuming the structure of PROPOSALS is corrected as needed
-  const proposalId =
-    chainId &&
-    PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481]?.elect;
-  const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
+const ProposalDetails = ({ proposal }: { proposal: any }) => {
+  const { chainId, moduleDetails } = useEligibility();
 
   const proposalDetails = useMemo(() => {
     if (!proposal) return [];
@@ -46,6 +38,7 @@ const ProposalDetails = () => {
         value: 'Ranked Choice',
       },
       {
+        // TODO handle different relative time labels
         label: 'Started:',
         value: new Date(proposal.start * 1000).toLocaleString(),
       },
@@ -56,8 +49,22 @@ const ProposalDetails = () => {
     ];
   }, [proposal]);
 
-  if (isLoading) return <Spinner />;
-  if (error || !proposal) return <Text>Failed to load proposal details.</Text>;
+  const hasProposalEnded = proposal && proposal.end * 1000 < Date.now();
+
+  const voteResults = useMemo(() => {
+    if (!proposal) return [];
+    const totalVotes = proposal.scores_total;
+    const choices = _.map(proposal.choices, (choice: string, index: number) => {
+      const votes = _.toNumber(proposal.scores[index].toFixed(2));
+      const percentage =
+        totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(2) : 0;
+      return { choice, votes, percentage };
+    });
+
+    return _.orderBy(choices, ['votes'], ['desc']);
+  }, [proposal]);
+
+  const snapshotLink = `https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`;
 
   return (
     <Stack spacing={4}>
@@ -66,16 +73,34 @@ const ProposalDetails = () => {
           {proposal.state.toUpperCase()}
         </Tag>
       </Box>
-      <HStack gap={6} align='start'>
+      <HStack gap={6} align='start' w='full'>
         <VStack spacing={4} align='start' flex='1'>
-          <Heading size='lg'>{proposal.title}</Heading>
+          <ChakraNextLink href={snapshotLink} isExternal>
+            <Heading size='lg'>{proposal.title}</Heading>
+          </ChakraNextLink>
           <Text noOfLines={[3, 5]} size='sm'>
             {proposal.body}
           </Text>
         </VStack>
         <VStack align='start' flex='1' fontSize='sm'>
-          <Heading size='sm'>About</Heading>
-
+          <HStack justify='space-between' w='full'>
+            <Heading size='sm'>About</Heading>
+            {moduleDetails && (
+              <ChakraNextLink
+                href={`${explorerUrl(chainId)}/address/${
+                  moduleDetails?.implementationAddress
+                }`}
+                isExternal
+              >
+                <HStack gap={1}>
+                  <Icon as={BsFileCode} w={4} h={4} color='teal' />
+                  <Text color='teal' fontSize='sm'>
+                    Election
+                  </Text>
+                </HStack>
+              </ChakraNextLink>
+            )}
+          </HStack>
           {_.map(_.compact(proposalDetails), (detail: any) => (
             <Flex
               justifyContent='space-between'
@@ -91,17 +116,45 @@ const ProposalDetails = () => {
           ))}
         </VStack>
       </HStack>
+
+      {!_.isEmpty(voteResults) && (
+        <VStack spacing={2} align='stretch'>
+          <Heading size='sm'>Current Results</Heading>
+
+          {_.map(voteResults, (result: any) => (
+            <Stack key={result.choice} width='100%' gap={1}>
+              <HStack justify='space-between' w='full'>
+                <Text>{result.choice}</Text>
+                <Text
+                  color='gray.500'
+                  fontSize='sm'
+                  fontWeight='medium'
+                  textAlign='right'
+                >
+                  {result.votes} VOTES ({result.percentage}%)
+                </Text>
+              </HStack>
+              <Progress
+                colorScheme='blue'
+                borderRadius={4}
+                size='sm'
+                value={Number(result.percentage)}
+              />
+            </Stack>
+          ))}
+        </VStack>
+      )}
+
       <Box alignSelf='center'>
-        <Button
-          as='a'
-          href={`https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`}
-          target='_blank'
-          colorScheme='blue'
-          size='sm'
-          rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
-        >
-          Vote now on Snapshot
-        </Button>
+        <ChakraNextLink href={snapshotLink}>
+          <Button
+            colorScheme='blue'
+            size='sm'
+            rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
+          >
+            {!hasProposalEnded ? 'Vote now' : 'View'} on Snapshot
+          </Button>
+        </ChakraNextLink>
       </Box>
     </Stack>
   );

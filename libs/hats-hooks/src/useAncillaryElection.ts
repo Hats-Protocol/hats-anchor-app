@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchElectionData } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import _ from 'lodash';
+import { useMemo } from 'react';
+import { useAccount } from 'wagmi';
+
+import useManyHatsDetails from './useManyHatsDetails';
 
 const useAncillaryElection = ({
   id,
@@ -9,14 +14,53 @@ const useAncillaryElection = ({
   id?: string;
   chainId: SupportedChains;
 }) => {
+  const { address } = useAccount();
+
   const { data, error, isLoading } = useQuery({
     queryKey: ['electionData', id, chainId],
     queryFn: () => fetchElectionData(id || 'none', chainId),
     enabled: !!id && !!chainId,
   });
 
+  const adminHatId = _.get(data, 'adminHat[0].id');
+  const ballotBoxHatId = _.get(data, 'ballotBoxHat.id');
+
+  const hatsDetails = useManyHatsDetails({
+    hats: [
+      { id: adminHatId, chainId },
+      { id: ballotBoxHatId, chainId },
+    ],
+    initialHats: [
+      { id: adminHatId, chainId },
+      { id: ballotBoxHatId, chainId },
+    ],
+  });
+
+  const isWearingAdminHat = useMemo(
+    () =>
+      _.some(_.get(hatsDetails, 'data[0].wearers'), {
+        id: address?.toLocaleLowerCase(),
+      }),
+    [hatsDetails, address],
+  );
+
+  const isWearingBallotBoxHat = useMemo(
+    () =>
+      _.some(_.get(hatsDetails, 'data[1].wearers'), {
+        id: address?.toLocaleLowerCase(),
+      }),
+    [hatsDetails, address],
+  );
+
+  const userRoles = [];
+  if (isWearingAdminHat) userRoles.push('electionsAdmin');
+  if (isWearingBallotBoxHat) userRoles.push('electionsBallotBox');
+
   return {
-    data,
+    data: {
+      ...(data || {}),
+      userRoles,
+    },
     error,
     isLoading,
   };

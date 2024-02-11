@@ -8,7 +8,7 @@ import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import Navbar from './Navbar';
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, title }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
@@ -54,7 +54,7 @@ const Layout = ({ children }: LayoutProps) => {
         zIndex={-1}
       />
 
-      <Navbar />
+      <Navbar title={title} />
       <Box h='100vh' w='100vw'>
         {children}
       </Box>
@@ -65,7 +65,6 @@ const Layout = ({ children }: LayoutProps) => {
 export default Layout;
 
 interface LayoutProps {
-  // editMode?: boolean;
-  // hatData?: AppHat;
+  title?: string;
   children: ReactNode;
 }
