@@ -10,7 +10,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import _ from 'lodash';
 import { ChangeEvent, ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
@@ -46,25 +45,22 @@ const Select = ({
     }
     setValue(name, e.target.value);
   };
-  const localProps = _.omit(props, ['onCopy']);
 
   return (
-    <FormControl {...localProps}>
+    <FormControl isRequired={options?.required}>
       <Stack spacing={2} w='100%'>
         {label && (
-          <FormLabel mb={0}>
-            <HStack>
-              <Text size='sm'>
-                {label.toUpperCase()}
-                {options?.required && '*'}
-              </Text>
-              {info && (
-                <Tooltip shouldWrapChildren label={info}>
-                  <FaRegQuestionCircle />
-                </Tooltip>
-              )}
-            </HStack>
-          </FormLabel>
+          <HStack>
+            <FormLabel mb={0}>
+              <Text size='sm'>{label.toUpperCase()}</Text>
+            </FormLabel>
+
+            {info && (
+              <Tooltip shouldWrapChildren label={info}>
+                <FaRegQuestionCircle />
+              </Tooltip>
+            )}
+          </HStack>
         )}
         {typeof subLabel !== 'string' ? (
           subLabel
