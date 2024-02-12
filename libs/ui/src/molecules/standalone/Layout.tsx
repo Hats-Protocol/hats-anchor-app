@@ -55,7 +55,12 @@ const Layout = ({ children, title }: LayoutProps) => {
       />
 
       <Navbar title={title} />
-      <Box h={{ base: 'auto', md: '100vh' }} w={{ base: 'auto', md: '100vw' }}>
+      <Box
+        h={{ base: 'auto', md: '100vh' }}
+        w={{ base: 'auto', md: '100vw' }}
+        maxW='1200px'
+        mx='auto'
+      >
         {children}
       </Box>
     </Box>

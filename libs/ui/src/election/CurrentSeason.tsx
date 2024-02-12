@@ -1,4 +1,5 @@
 import { Heading, Stack } from '@chakra-ui/react';
+import { parsedSeconds } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 
@@ -11,14 +12,9 @@ const CurrentSeason = () => {
     label: 'Current Term End',
   });
 
-  let date;
-  if (typeof currentTermEnd?.value === 'bigint') {
-    date = new Date(Number(currentTermEnd.value) * 1000);
-  } else {
-    // eslint-disable-next-line no-console
-    console.error('Invalid value for currentTermEnd: ', currentTermEnd?.value);
-    date = new Date();
-  }
+  const date = parsedSeconds(currentTermEnd?.value);
+
+  if (!date) return null;
 
   return (
     <Stack gap={4}>
@@ -26,7 +22,7 @@ const CurrentSeason = () => {
       <DateInfo
         date={date}
         // tooltipValue='The end of the current term.'
-        label='Term End'
+        label='Season End'
       />
     </Stack>
   );

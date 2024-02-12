@@ -37,7 +37,7 @@ const ElectionRoles = () => {
         )}
         {ballotBoxHatId && (
           <Text>
-            Ballot Box set by Hat{' '}
+            Results submitted by{' '}
             <ChakraNextLink
               href={`${APP_URL}/${chainId}/${treeId}${
                 ballotBoxHatId ? `?hatId=${ballotBoxHatId}` : ''

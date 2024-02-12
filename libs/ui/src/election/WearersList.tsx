@@ -59,13 +59,12 @@ const WearersList = () => {
   const { electionsAuthority } = useEligibility();
 
   const electedAccounts = useMemo(() => {
-    const allElectedAccounts = _.flatMap(
-      electionsAuthority?.terms,
-      'electedAccounts',
+    if (!electionsAuthority?.currentTerm) return [];
+    const uniqueElectedAccounts = _.uniq(
+      electionsAuthority.currentTerm.electedAccounts,
     );
-    const uniqueElectedAccounts = _.uniq(allElectedAccounts);
-    return _.compact(uniqueElectedAccounts);
-  }, [electionsAuthority?.terms]);
+    return uniqueElectedAccounts;
+  }, [electionsAuthority.currentTerm]);
 
   return (
     <Stack spacing={4}>

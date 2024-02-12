@@ -59,19 +59,24 @@ const Election = () => {
   if (!isClient) return null;
 
   if (isHatDetailsLoading || isModuleDetailsLoading) {
-    <Layout title='Claims'>
-      <Flex justifyContent='center'>
-        <Spinner />
-      </Flex>
-    </Layout>;
+    return (
+      <Layout title='Claims'>
+        <Flex justify='center'>
+          <Spinner />
+        </Flex>
+      </Layout>
+    );
   }
 
+  // TODO handle this the next level higher? or move the election component down a level
   if (!isElectionEligibility) {
-    <Layout title='Claims'>
-      <Flex justify='center'>
-        <Text>No compatible module found</Text>
-      </Flex>
-    </Layout>;
+    return (
+      <Layout title='Claims'>
+        <Flex justify='center'>
+          <Text>No compatible module found</Text>
+        </Flex>
+      </Layout>
+    );
   }
 
   return (
@@ -80,7 +85,7 @@ const Election = () => {
       <Stack
         position='relative'
         top='76px'
-        px={{ base: 6, md: 32 }}
+        px={{ base: 6, md: 10, lg: 32 }}
         py={10}
         gap={10}
       >
