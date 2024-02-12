@@ -212,7 +212,7 @@ const TreeMenu = ({
                     isExternal
                   >
                     <HStack spacing={1}>
-                      <Text fontWeight='medium'>{chain?.name}</Text>
+                      <Text variant='medium'>{chain?.name}</Text>
                       <IconButton
                         aria-label='Explorer contract address'
                         icon={<Icon as={FiExternalLink} />}
@@ -228,7 +228,7 @@ const TreeMenu = ({
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
                       <Text>Last event: </Text>
-                      <Text mr={2} fontWeight='medium'>
+                      <Text mr={2} variant='medium'>
                         {localLastTimestamp}
                       </Text>
                       <Image src='/icons/ago.svg' alt='History icon' />

@@ -16,6 +16,8 @@ import { AddressInput, Input } from '..';
 const isEns = (value: string) =>
   value ? _.toString(value).endsWith('.eth') : false;
 
+const TOKEN_TYPES = ['erc20', 'token'];
+
 const ModuleAddressInput = ({
   arg,
   localForm,
@@ -53,7 +55,11 @@ const ModuleAddressInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newWearerResolvedAddress, arg.name]);
 
-  const tokenArgName = arg.displayType === 'erc20' ? arg.name : '';
+  let tokenArgName = '';
+  // shouldn't need to check other args here like in AmountWithDecimals
+  if (_.includes(TOKEN_TYPES, arg.displayType)) {
+    tokenArgName = arg.name;
+  }
   const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
     address: localTokenAddress || tokenAddress,
@@ -83,7 +89,7 @@ const ModuleAddressInput = ({
             href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
             isExternal
           >
-            <Text fontSize='sm' color='gray.500'>
+            <Text size='sm' variant='gray'>
               {tokenLabel}
             </Text>
           </ChakraNextLink>

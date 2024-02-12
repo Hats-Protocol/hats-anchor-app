@@ -95,7 +95,7 @@ const DropZone = ({
     <Stack spacing={2} w='full'>
       {label && (
         <FormLabel mb={0}>
-          <Text fontSize='sm'>{label.toUpperCase()}</Text>
+          <Text size='sm'>{label.toUpperCase()}</Text>
         </FormLabel>
       )}
       <Flex gap={3}>

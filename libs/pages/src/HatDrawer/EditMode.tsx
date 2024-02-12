@@ -67,7 +67,7 @@ const EditMode = () => {
       >
         <Stack>
           <Flex justify='space-between' align='center'>
-            <Text fontSize={32} fontWeight='medium'>
+            <Text size='3xl' variant='medium'>
               {name ||
                 (isDraft
                   ? `Add hat ${hatIdDecimalToIp(

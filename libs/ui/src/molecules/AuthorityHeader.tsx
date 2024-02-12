@@ -168,12 +168,12 @@ const AuthorityHeader = ({
         />
         <Box textAlign='left'>
           <HStack>
-            <Text fontSize='md' fontWeight='medium' noOfLines={1}>
+            <Text size='md' variant='medium' noOfLines={1}>
               {currentLabel || label || 'New Authority'}
               {currentThresholdConfig && ` (${currentThresholdConfig} signers)`}
             </Text>
             {subLabel && (
-              <Text fontSize='xs' fontFamily='monospace' color='gray.700'>
+              <Text size='xs' fontFamily='monospace' color='gray.700'>
                 {subLabel}
               </Text>
             )}
@@ -188,14 +188,14 @@ const AuthorityHeader = ({
             >
               <HStack>
                 <Circle size='10px' bg={authorityEnforcement.color} />
-                <Text fontSize='sm'>{authorityEnforcement.label}</Text>
+                <Text size='sm'>{authorityEnforcement.label}</Text>
                 <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
               </HStack>
             </Tooltip>
           ) : (
             <HStack>
               <Circle size='10px' bg={authorityEnforcement.color} />
-              <Text fontSize='sm'>{authorityEnforcement.label}</Text>
+              <Text size='sm'>{authorityEnforcement.label}</Text>
             </HStack>
           )}
         </Box>

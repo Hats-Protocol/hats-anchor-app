@@ -5,26 +5,37 @@ import { transformAndVerify } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
-import { NumberInput } from 'ui';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
+import NumberInput from '../NumberInput';
+
+const TOKEN_ARG_TYPES = ['erc20', 'token'];
+
 const AmountWithDecimals = ({
   arg,
+  fullArgs,
   localForm,
   tokenAddress,
 }: {
   arg: ModuleCreationArg;
+  fullArgs: ModuleCreationArg[];
   localForm: UseFormReturn;
-  tokenAddress: Hex;
+  tokenAddress: Hex | undefined;
 }) => {
   const { chainId } = useTreeForm();
   const { watch, setValue } = localForm;
 
-  const tokenArgName = arg.displayType === 'erc20' ? arg.name : '';
+  let tokenArgName = '';
+  const tokenArg = _.find(fullArgs, (a: ModuleCreationArg) =>
+    _.includes(TOKEN_ARG_TYPES, a.displayType),
+  );
+  if (tokenArg) tokenArgName = tokenArg.name;
+
+  console.log(tokenAddress);
   const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
-    address: localTokenAddress || tokenAddress,
+    address: tokenAddress || localTokenAddress,
     chainId,
     enabled:
       (!!tokenAddress && isAddress(tokenAddress)) ||
@@ -43,10 +54,13 @@ const AmountWithDecimals = ({
     // Remove any non-numeric characters except for a single decimal point
     value = value.replace(/[^\d.]/g, '');
 
-    if (!_.isNaN(parseFloat(value)) && _.isFinite(value)) {
-      setValue(argName, value, { shouldDirty: true });
+    if (!_.isNaN(parseFloat(value)) && _.isFinite(parseFloat(value))) {
+      setValue(`${argName}-parsed`, parseUnits(value, tokenDecimals || 18), {
+        shouldDirty: true,
+      });
     }
   };
+  console.log(watch(), tokenDecimals);
 
   return (
     <Stack w='100%' spacing={1}>
@@ -56,13 +70,9 @@ const AmountWithDecimals = ({
         subLabel={arg.description}
         numOptions={{ min: 0 }}
         isDisabled={!tokenDetails}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string) || FALLBACK_ARG_EXAMPLES.number
-        }
-        isRequired={!arg.optional}
+        placeholder={FALLBACK_ARG_EXAMPLES.number}
         options={{
+          required: !arg.optional,
           validate: (value) => {
             if (!value) return false;
             const numericValue = parseFloat(value);
@@ -71,11 +81,6 @@ const AmountWithDecimals = ({
             if (!tokenDecimals) return 'No token selected';
 
             if (!_.isNaN(numericValue) && numericValue > 0) {
-              console.log(
-                'parsing?',
-                tokenDecimals,
-                parseUnits(value, tokenDecimals || 18),
-              );
               try {
                 return transformAndVerify(
                   parseUnits(value, tokenDecimals || 18),
@@ -95,11 +100,11 @@ const AmountWithDecimals = ({
         localForm={localForm}
       />
       {tokenDetails ? (
-        <Text fontSize='sm' color='gray.500'>
+        <Text size='sm' variant='gray'>
           ${tokenDetails?.symbol} uses {tokenDecimals} decimals
         </Text>
       ) : (
-        <Text fontSize='sm' color='gray.500'>
+        <Text size='sm' variant='gray'>
           Input token address
         </Text>
       )}

@@ -50,7 +50,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         onChange={onChange}
       />
       {showResolvedAddress && (
-        <Text fontSize='sm' color='gray.500' mt={1}>
+        <Text size='sm' variant='gray' mt={1}>
           Resolved address: {resolvedAddress}
         </Text>
       )}

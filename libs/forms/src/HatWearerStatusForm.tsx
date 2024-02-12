@@ -92,11 +92,13 @@ const HatWearerStatusForm = ({
         </Text>
 
         <VStack alignItems='start'>
-          <Text fontSize='sm'>REVOKING HAT OF:</Text>
+          <Text size='sm' textTransform='uppercase'>
+            Revoking hat of:
+          </Text>
           <HStack>
             <FaRegUserCircle />
             <Text>{wearerName || formatAddress(wearer)}</Text>
-            {wearerName && <Text fontSize='sm'>({formatAddress(wearer)})</Text>}
+            {wearerName && <Text size='sm'>({formatAddress(wearer)})</Text>}
           </HStack>
         </VStack>
 
@@ -105,7 +107,7 @@ const HatWearerStatusForm = ({
             <Text>WEARER STANDING</Text>
             <FaRegQuestionCircle />
           </HStack>
-          <Text color='gray.600'>
+          <Text variant='gray'>
             Changes of wearer standing are being recorded on chain. To change it
             back to good you will have to submit a smart contract transaction.
           </Text>

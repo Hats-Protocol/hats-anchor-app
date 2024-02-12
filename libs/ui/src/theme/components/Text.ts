@@ -55,7 +55,13 @@ const Text = {
       fontWeight: 'medium',
     },
     light: {
+      color: 'blackAlpha.700',
+    },
+    gray: {
       color: 'gray.500',
+    },
+    mono: {
+      fontFamily: 'mono',
     },
   },
   defaultProps: {

@@ -113,7 +113,7 @@ const AuthoritiesListCard = ({
             )}
             {description && (
               <Box pt={link || gate ? 4 : 0}>
-                <Text fontSize='sm' fontWeight={500}>
+                <Text size='sm' variant='medium'>
                   Details
                 </Text>
                 <Markdown smallFont>{description}</Markdown>

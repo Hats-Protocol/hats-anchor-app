@@ -5,11 +5,12 @@ import {
   FormLabel,
   HStack,
   Select as ChakraSelect,
+  SelectFieldProps as ChakraSelectProps,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { ChangeEvent, ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
@@ -46,22 +47,20 @@ const Select = ({
   };
 
   return (
-    <FormControl {...props}>
+    <FormControl isRequired={options?.required}>
       <Stack spacing={2} w='100%'>
         {label && (
-          <FormLabel mb={0}>
-            <HStack>
-              <Text fontSize='sm'>
-                {label.toUpperCase()}
-                {options?.required && '*'}
-              </Text>
-              {info && (
-                <Tooltip shouldWrapChildren label={info}>
-                  <FaRegQuestionCircle />
-                </Tooltip>
-              )}
-            </HStack>
-          </FormLabel>
+          <HStack>
+            <FormLabel mb={0}>
+              <Text size='sm'>{label.toUpperCase()}</Text>
+            </FormLabel>
+
+            {info && (
+              <Tooltip shouldWrapChildren label={info}>
+                <FaRegQuestionCircle />
+              </Tooltip>
+            )}
+          </HStack>
         )}
         {typeof subLabel !== 'string' ? (
           subLabel
@@ -87,7 +86,7 @@ const Select = ({
 
 export default Select;
 
-interface SelectProps {
+interface SelectProps extends ChakraSelectProps {
   label?: string;
   name: string;
   options?: {
@@ -105,5 +104,5 @@ interface SelectProps {
   children: ReactNode;
   subLabel?: string | ReactNode;
   info?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
 }

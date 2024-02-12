@@ -20,6 +20,7 @@ import {
   useHatContractWrite,
   useModuleDetails,
   useWearerDetails,
+  useWearerEligibilityCheck,
 } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
@@ -90,6 +91,13 @@ const WearerRow = ({
     },
   });
 
+  const { data: isEligibleRead } = useWearerEligibilityCheck({
+    wearer: wearer.id,
+    selectedHat,
+    chainId,
+  });
+  console.log(isEligibleRead, 'isEligibleRead');
+
   const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,
     chainId,
@@ -142,8 +150,8 @@ const WearerRow = ({
         </Text>
       </Flex>
       <Flex alignItems='center' gap={2}>
-        {!isEligible && (
-          <Badge colorScheme='gray' fontSize='sm' variant='outline'>
+        {(!isEligible || !isEligibleRead) && (
+          <Badge colorScheme='gray' fontSize='xs' variant='outline'>
             INELIGIBLE
           </Badge>
         )}

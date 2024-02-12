@@ -58,7 +58,7 @@ const Textarea = ({
               fontSize='sm'
             >
               <Text>{label.toUpperCase()}</Text>
-              <Text color='gray.400'>{headerNote}</Text>
+              <Text variant='gray'>{headerNote}</Text>
             </FormLabel>
           )}
           {tooltip && (

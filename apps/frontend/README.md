@@ -11,3 +11,7 @@ To start the development server run `pnpm dev` from the root of the project (not
 To test your local instance for a production build run `pnpm build` from the root of the project (not this directory).
 
 The build artifacts will be stored in the `{ROOT_DIR}/dist/` directory, ready to be deployed. Build cache for libraries is also stored in `{ROOT_DIR}/tmp/` so they don't need to rebuilt each time without changes.
+
+## Caveat
+
+Building with the libraries requires a change in the app also to actually build the respective app deploy.

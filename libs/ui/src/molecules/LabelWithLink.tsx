@@ -78,7 +78,7 @@ const LabelWithLink = ({
       </HStack>
 
       {linkValue && (
-        <Text fontSize='sm' color='gray.500'>
+        <Text size='sm' variant='gray'>
           {linkValue}
         </Text>
       )}

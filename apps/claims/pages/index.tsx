@@ -62,7 +62,7 @@ const Home = () => {
                 gm {ensName || formatAddress(wearerAddress)} 👋
               </Heading>
               {!_.isEmpty(sortedHats) && (
-                <Text size='lg'>
+                <Text size='xl'>
                   Here&apos;s what&apos;s happening with your hats
                 </Text>
               )}

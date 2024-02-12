@@ -186,7 +186,7 @@ const PermissionlessClaimingForm = ({
                   })}
                 </Select>
                 {selectedHat && (
-                  <Text color='blackAlpha.600'>
+                  <Text variant='light'>
                     Potential wearers will be able to claim this hat (#
                     {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the
                     requirements in new module above.

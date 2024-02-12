@@ -29,7 +29,7 @@ const HatCreateCard = ({
           border='1px solid'
         />
         <Box p={1}>
-          <Text fontSize='sm'>{nextChild}</Text>
+          <Text size='sm'>{nextChild}</Text>
           <Heading size='sm' variant='medium' noOfLines={2}>
             {name || 'Enter name below'}
           </Heading>

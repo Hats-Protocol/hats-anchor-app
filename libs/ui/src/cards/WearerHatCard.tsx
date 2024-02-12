@@ -1,4 +1,4 @@
-import { Box, Card, Flex, Text } from '@chakra-ui/react';
+import { Box, Card, Flex, Heading, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { AppHat, SupportedChains } from 'hats-types';
@@ -64,18 +64,16 @@ const WearerHatCard = ({
           mt={-1}
           bg='white'
         >
-          <Flex justify='space-between'>
-            <Text fontSize='xs' mr={2} fontWeight='semibold'>
-              {topHatName}
-            </Text>
-            <Text fontSize='xs' color='gray.500'>
+          <Flex justify='space-between' gap={2}>
+            <Heading size='xs'>{topHatName}</Heading>
+            <Text size='xs' variant='gray'>
               {hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}
             </Text>
           </Flex>
 
-          <Text as='b' noOfLines={1}>
+          <Heading size='md' noOfLines={1}>
             {hatName}
-          </Text>
+          </Heading>
         </Box>
       </Card>
     </ChakraNextLink>

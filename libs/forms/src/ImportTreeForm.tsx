@@ -83,10 +83,11 @@ const ImportTreeForm = () => {
   const handleImport = () => {
     if (!treeFile || !fileReader) return;
     fileReader.onload = function readFile(e: ProgressEvent<FileReader>) {
+      if (!onchainTree) return;
+
       const fileContents = e.target?.result;
       const treeFromJson = JSON.parse(fileContents as string);
       const importedTree = flattenHatData(treeFromJson);
-      if (!onchainTree) return;
       const onchainTreeData = flattenHatData(onchainTree);
       const draftHats = prepareDraftHats(
         // TODO prepareDraftHats is expecting HatExport[], flattenHatData returns FormData[]
@@ -146,14 +147,14 @@ const ImportTreeForm = () => {
             isFullWidth
           />
           {!validImport ? (
-            <Text fontSize='sm' color='red' maxW='70%'>
+            <Text size='sm' color='red.500' maxW='70%'>
               <b>Error:</b>{' '}
               {_.get(_.first(fileRejections), 'errors[0].message') ||
                 importErrorMessage}
             </Text>
           ) : (
             treeFile && (
-              <Text fontSize='sm' color='gray.700'>
+              <Text size='sm' variant='gray'>
                 {_.get(treeFile, 'name')}
               </Text>
             )

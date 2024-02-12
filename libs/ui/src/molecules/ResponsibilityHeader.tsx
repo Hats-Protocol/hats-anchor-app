@@ -58,7 +58,7 @@ const ResponsibilityHeader = ({
         </Flex>
       )}
       <Box flex={1} minW={0} w='full'>
-        <Text fontSize='md' fontWeight='medium' noOfLines={1} textAlign='left'>
+        <Text size='md' variant='medium' noOfLines={1}>
           {currentLabel || label || 'New Responsibility'}
         </Text>
       </Box>
@@ -85,7 +85,7 @@ const ResponsibilityHeader = ({
             color='blue.500'
             size='sm'
           >
-            <Text fontSize='md' fontWeight='medium'>
+            <Text size='md' variant='medium'>
               {hostname}
             </Text>
           </Button>

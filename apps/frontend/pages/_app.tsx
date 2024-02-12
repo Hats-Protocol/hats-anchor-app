@@ -13,7 +13,7 @@ import { chains, wagmiConfig } from 'app-utils';
 import { OverlayContextProvider } from 'contexts';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
-import { theme } from 'ui';
+import { ErrorBoundary, theme } from 'ui';
 import { WagmiConfig } from 'wagmi';
 
 const queryClient = new QueryClient({
@@ -38,7 +38,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
             <ReactQueryDevtools initialIsOpen={false} />
             <Analytics />
             <OverlayContextProvider>
-              <Component {...pageProps} />
+              <ErrorBoundary>
+                <Component {...pageProps} />
+              </ErrorBoundary>
             </OverlayContextProvider>
           </QueryClientProvider>
         </RainbowKitProvider>

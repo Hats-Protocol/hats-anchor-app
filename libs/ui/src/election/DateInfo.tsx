@@ -16,7 +16,7 @@ const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
         </Tooltip> */}
       </HStack>
       {isNotSet ? (
-        <Text size='sm' variant='light'>
+        <Text size='sm' variant='gray'>
           Not Set
         </Text>
       ) : (

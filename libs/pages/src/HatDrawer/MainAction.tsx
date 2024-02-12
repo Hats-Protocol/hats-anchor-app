@@ -124,7 +124,7 @@ const MainAction = () => {
           // cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
           // color={maxWearersReached ? 'gray.500' : 'blue.500'}
           >
-            <Text variant='ghost'>Add wearer</Text>
+            <Text variant='gray'>Add wearer</Text>
           </HStack>
         </Button>
       </Tooltip>

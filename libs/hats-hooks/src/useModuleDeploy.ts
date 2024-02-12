@@ -1,6 +1,6 @@
+import { CONFIG, DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CONFIG, DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { useToast } from 'app-hooks';
 import {
   AppHat,
@@ -99,6 +99,13 @@ const useModuleDeploy = ({
     editMode,
   });
 
+  // console.log(
+  //   selectedModuleDetails,
+  //   localForm.formState.isValid,
+  //   values,
+  //   hatId,
+  //   claimabilityType,
+  // );
   const deployModuleAndRegisterWithClaimsHatterArgs =
     prepareDeployModuleAndRegisterWithClaimsHatterArgs({
       selectedModuleDetails,

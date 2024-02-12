@@ -177,7 +177,7 @@ const AuthoritiesForm = ({
         {subtitle && typeof subtitle !== 'string' ? (
           subtitle
         ) : (
-          <Text variant='light'>{subtitle}</Text>
+          <Text variant='gray'>{subtitle}</Text>
         )}
       </Box>
       {fields.map((field, i) => (

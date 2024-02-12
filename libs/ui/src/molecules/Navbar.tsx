@@ -105,11 +105,13 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
               isActive={_.includes(path, CONFIG.trees)}
             >
               {!tabName ? (
-                <Text fontSize='lg'>{_.capitalize(CONFIG.trees)}</Text>
+                <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>
               ) : (
                 <Stack align='start' w='90%' mx={2}>
-                  <Text fontSize='sm'>{_.toUpper(CONFIG.trees)}</Text>
-                  <Text fontSize='lg' color='gray.500' isTruncated maxW='170px'>
+                  <Text size='sm' textTransform='uppercase'>
+                    {CONFIG.trees}
+                  </Text>
+                  <Text size='lg' variant='gray' maxW='170px' isTruncated>
                     {containsUpperCase(tabName)
                       ? tabName
                       : _.capitalize(tabName)}

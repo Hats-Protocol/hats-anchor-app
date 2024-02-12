@@ -360,15 +360,17 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         <Flex justify='space-between' align='flex-end'>
           <Stack gap={0} maxW='60%'>
             <HStack>
-              <Text fontSize='sm'>NEW WEARER ADDRESSES</Text>
+              <Text size='sm' textTransform='uppercase'>
+                New Wearer Addresses
+              </Text>
             </HStack>
-            <Text fontSize='sm' color='blackAlpha.700'>
+            <Text size='sm' variant='light'>
               This address will receive a {hatName} hat token on{' '}
               {chainId && chainsMap(chainId).name}
             </Text>
           </Stack>
           {!editMode && (
-            <Text fontSize='sm' color='blackAlpha.700'>
+            <Text size='sm' variant='light'>
               {_.toNumber(currentSupply) + _.size(localWearers)} of{' '}
               {maxSupplyText(maxSupply)} wearers
             </Text>
@@ -377,7 +379,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         <VStack borderRadius={8} alignItems='start' spacing={3}>
           {/* could be replaced with MultiAddressInput, but needs adjustments & additions */}
           {localWearers.map(({ address, ens }, index) => (
-            <Box key={address} w='full'>
+            <Stack key={address} w='full' spacing={1}>
               <Flex align='center' w='full' justifyContent='space-between'>
                 <InputGroup flexGrow={1}>
                   <InputLeftElement>
@@ -401,11 +403,11 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               </Flex>
 
               {ens && (
-                <Text fontSize='sm' color='gray.500' mt={1}>
+                <Text size='sm' variant='gray'>
                   {address}
                 </Text>
               )}
-            </Box>
+            </Stack>
           ))}
           <Flex w='full' direction='column' gap={1}>
             <AddressInput
@@ -417,16 +419,18 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
             />
 
             {currentResolvedAddress && !isInGoodStanding && (
-              <Text fontSize='sm' color='red.500'>
-                <Icon as={FaInfoCircle} mr={1} />
-                This address was set as in bad standing
-              </Text>
+              <HStack align='center' spacing={1}>
+                <Icon as={FaInfoCircle} color='red.500' />
+                <Text size='sm' color='red.500'>
+                  This address was set as in bad standing
+                </Text>
+              </HStack>
             )}
 
             {isAddressAlreadyAdded && (
               <HStack align='center' spacing={1}>
-                <Icon as={FaInfoCircle} mr={1} color='red.500' />
-                <Text fontSize='sm' color='red.500'>
+                <Icon as={FaInfoCircle} color='red.500' />
+                <Text size='sm' color='red.500'>
                   This address is already (pending) wearing this hat
                 </Text>
               </HStack>
@@ -434,14 +438,16 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           </Flex>
 
           {typeof isEligible === 'boolean' && !isEligible && (
-            <Text fontSize='sm' color='red.500'>
-              <Icon as={FaInfoCircle} mr={1} />
-              This address is not eligible to wear this hat
-            </Text>
+            <HStack spacing={1}>
+              <Icon as={FaInfoCircle} color='red.500' />
+              <Text size='sm' color='red.500'>
+                This address is not eligible to wear this hat
+              </Text>
+            </HStack>
           )}
 
           {wouldExceedMaxSupply && (
-            <Text fontSize='sm' color='yellow.500'>
+            <Text size='sm' color='yellow.500'>
               Max supply reached
             </Text>
           )}
@@ -489,14 +495,14 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           <Collapse in={isOpen}>
             <FormControl id='csvFile'>
               <Text
-                fontSize='sm'
+                size='sm'
                 textTransform='uppercase'
                 fontWeight='medium'
                 mt={6}
               >
                 Upload CSV
               </Text>
-              <Text fontSize='md' mt={1} color='blackAlpha.700' mb={4}>
+              <Text size='md' mt={1} variant='light' mb={4}>
                 The CSV file must only contain Ethereum addresses, one per line.
                 ENS is currently not supported. Any additional data will be
                 ignored.

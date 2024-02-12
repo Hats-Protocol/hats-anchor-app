@@ -196,14 +196,16 @@ const WearersList = () => {
 
           <Flex gap={1}>
             <Text>{_.get(selectedHat, 'currentSupply')}</Text>
-            <HStack color='gray.400' spacing={1}>
-              <Text>of</Text>
+            <HStack spacing={1}>
+              <Text variant='light'>of</Text>
               <Tooltip
                 label={maxSupply && commify(maxSupply)}
                 placement='left'
                 hasArrow
               >
-                <Text fontFamily='mono'>{maxSupplyText(maxSupply)}</Text>
+                <Text fontFamily='monospace' color='blackAlpha.700'>
+                  {maxSupplyText(maxSupply)}
+                </Text>
               </Tooltip>
             </HStack>
           </Flex>
@@ -337,7 +339,7 @@ const WearersList = () => {
                   color={maxWearersReached ? 'gray.500' : 'blue.500'}
                 >
                   <FaPlus />
-                  <Text variant='ghost'>Add a wearer</Text>
+                  <Text variant='light'>Add a wearer</Text>
                 </HStack>
               </Button>
             </Tooltip>

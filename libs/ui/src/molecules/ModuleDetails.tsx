@@ -45,6 +45,8 @@ const claimableToggleTip = (sameChain: boolean, isAdminUser: boolean) => {
   return '';
 };
 
+const TOKEN_ARG_TYPES = ['erc20', 'token'];
+
 const ModuleDetails = ({ type }: { type: string }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
@@ -72,9 +74,12 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const { formState, handleSubmit } = formMethods;
 
   const tokenAddress = _.get(
-    _.find(parameters, { displayType: 'token' }),
+    _.find(parameters, (param) =>
+      _.includes(TOKEN_ARG_TYPES, param.displayType),
+    ),
     'value',
   );
+  console.log(parameters);
 
   const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
     _.includes(fn.roles, 'public'),
@@ -153,7 +158,14 @@ const ModuleDetails = ({ type }: { type: string }) => {
 
   const onSubmit = (values) => {
     // eslint-disable-next-line no-console
+    if (!moduleDetails?.implementationAddress) return;
     console.log(values);
+    callModuleFunction({
+      moduleId: moduleDetails.implementationAddress,
+      instance: controllerAddress,
+      func: selectedFunction || undefined,
+      args: values,
+    });
   };
 
   if (!moduleDetails || !chainId) return null;
@@ -241,12 +253,12 @@ const ModuleDetails = ({ type }: { type: string }) => {
         <AccordionPanel px={0}>
           <Stack>
             {_.map(moduleDetails.details, (detail: string) => (
-              <Text key={detail} fontSize='sm'>
+              <Text key={detail} size='sm'>
                 {detail}
               </Text>
             ))}
             <Flex justify='space-between'>
-              <Text fontSize='sm'>Claimability Type</Text>
+              <Text size='sm'>Claimability Type</Text>
 
               <HStack>
                 <Tooltip label={claimableToggleTip(sameChain, isAdminUser)}>
@@ -270,7 +282,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                       : 'Make claimable'}
                   </Button>
                 </Tooltip>
-                <Text color='gray.500' size='sm'>
+                <Text size='sm' variant='gray'>
                   {isClaimable.for ? 'Claimable For' : 'Claimable'}
                 </Text>
               </HStack>
@@ -312,7 +324,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 isExternal
               >
                 <Flex justify='space-between'>
-                  <Text fontSize='sm'>{link.label}</Text>
+                  <Text size='sm'>{link.label}</Text>
                   <Icon as={FiExternalLink} h='14px' color='gray.500' />
                 </Flex>
               </ChakraNextLink>

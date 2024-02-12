@@ -174,7 +174,7 @@ const StatusCard = ({
             <ChakraNextLink href={controllerLink} isExternal>
               <HStack>
                 <Icon as={icon} ml={2} w={4} h={4} color='gray.500' />
-                <Text color='gray.500' fontSize='sm'>
+                <Text variant='gray' size='sm'>
                   {controllerName}
                 </Text>
               </HStack>

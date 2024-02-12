@@ -19,7 +19,7 @@ const Heading = {
   },
   sizes: textSizes,
   defaultProps: {
-    size: 'xl',
+    size: '2xl',
     variant: 'default',
   },
 };

@@ -39,7 +39,10 @@ const useCallModuleFunction = ({
       const preparedArgs = _.map(_.get(func, 'args'), (arg: any) => {
         // strip apostrophes from arg names (react-hook-form, appears to automatically do this)
         const argName = arg.name.replace(/'/g, '');
-        const value = args[`${argName}-resolved`] || args[argName];
+        const value =
+          args[`${argName}-resolved`] || // handle ENS resolution
+          args[`${argName}-parsed`] || // handle number parsing
+          args[argName];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
       });

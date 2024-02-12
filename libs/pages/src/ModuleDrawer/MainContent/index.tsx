@@ -82,7 +82,7 @@ const MainContent = ({
             : `Create a new Accountability Module for hat ${hatTitle}`}
         </Heading>
         {topHatDetails?.description && (
-          <Text color='blackAlpha.700' noOfLines={2}>
+          <Text variant='light' noOfLines={2}>
             {topHatDetails?.description}
           </Text>
         )}

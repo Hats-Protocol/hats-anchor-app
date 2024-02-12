@@ -1,3 +1,8 @@
+import {
+  AUTHORITY_TYPES,
+  CONFIG,
+  TRIGGER_OPTIONS,
+} from '@hatsprotocol/constants';
 import { HsgMetadata, HsgType, Role } from '@hatsprotocol/hsg-sdk';
 import {
   checkAndEncodeArgs,
@@ -5,11 +10,6 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import {
-  AUTHORITY_TYPES,
-  CONFIG,
-  TRIGGER_OPTIONS,
-} from '@hatsprotocol/constants';
 import {
   createHatsModulesClient,
   explorerUrl,
@@ -126,13 +126,13 @@ export const prepareArgs = (
   }
   const immutableArgs = _.map(
     selectedModuleDetails.creationArgs.immutable,
-    ({ name, type, displayType }: ModuleCreationArg) =>
-      transformInput(values[name], type, displayType),
+    ({ name, type }: ModuleCreationArg) =>
+      transformInput(values[`${name}-parsed`] || values[name], type),
   );
   const mutableArgs = _.map(
     selectedModuleDetails.creationArgs.mutable,
-    ({ name, type, displayType }: ModuleCreationArg) =>
-      transformInput(values[name], type, displayType),
+    ({ name, type }: ModuleCreationArg) =>
+      transformInput(values[`${name}-parsed`] || values[name], type),
   );
 
   return { immutableArgs, mutableArgs };
@@ -296,7 +296,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     values,
     selectedModuleDetails,
   );
-  console.log(immutableArgs, mutableArgs);
+  // console.log(immutableArgs, mutableArgs);
 
   const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
   const allArgsFilled =

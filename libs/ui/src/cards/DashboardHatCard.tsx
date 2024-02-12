@@ -80,7 +80,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                 >
                   <ChakraImage src={networkImages[hat.chainId || 1]} />
                 </Flex>
-                <Text fontSize='md' fontWeight={600} noOfLines={1}>
+                <Text size='md' variant='medium' noOfLines={1}>
                   #{Number(hatIdToTreeId(BigInt(hat.id)))}
                 </Text>
               </HStack>

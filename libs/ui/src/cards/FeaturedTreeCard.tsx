@@ -72,18 +72,18 @@ const FeaturedTreeCard = ({
             borderRadius={4}
           />
           <HStack justifyContent='space-between' w='full' h='full' mb={1}>
-            <Text fontWeight='medium' fontSize={18}>
+            <Text variant='medium' size='lg'>
               {name}
             </Text>
 
             <Stack align='flex-end' spacing='0.2rem'>
               <HStack spacing='5px'>
                 <ChakraImage src='/icons/hat.svg' alt='Hat' w={3} h={3} />
-                <Text fontSize='xs'>{hatsAndWearers?.hats}</Text>
+                <Text size='xs'>{hatsAndWearers?.hats}</Text>
               </HStack>
               <HStack spacing='5px'>
                 <Icon as={BsPeopleFill} w={3} h={3} />
-                <Text fontSize='xs'>{hatsAndWearers?.wearers}</Text>
+                <Text size='xs'>{hatsAndWearers?.wearers}</Text>
               </HStack>
             </Stack>
           </HStack>
