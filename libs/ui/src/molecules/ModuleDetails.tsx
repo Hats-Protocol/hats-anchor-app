@@ -79,7 +79,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
     ),
     'value',
   );
-  console.log(parameters);
 
   const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
     _.includes(fn.roles, 'public'),

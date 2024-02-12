@@ -9,6 +9,7 @@ import {
   Stack,
   Tag,
   Text,
+  useMediaQuery,
   VStack,
 } from '@chakra-ui/react';
 import { explorerUrl } from 'app-utils';
@@ -22,6 +23,7 @@ import { ChakraNextLink } from '../atoms';
 
 const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, moduleDetails } = useEligibility();
+  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   const proposalDetails = useMemo(() => {
     if (!proposal) return [];
@@ -73,7 +75,12 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
           {proposal.state}
         </Tag>
       </Box>
-      <HStack gap={6} align='start' w='full'>
+      <Flex
+        gap={6}
+        align='start'
+        w='full'
+        direction={{ base: 'column', md: 'row' }}
+      >
         <VStack spacing={4} align='start' flex='1'>
           <ChakraNextLink href={snapshotLink} isExternal>
             <Heading size='lg'>{proposal.title}</Heading>
@@ -82,7 +89,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
             {proposal.body}
           </Text>
         </VStack>
-        <VStack align='start' flex='1'>
+        <VStack align='start' flex='1' w={{ base: '100%', md: 'auto' }}>
           <HStack justify='space-between' w='full'>
             <Heading size='sm'>About</Heading>
             {moduleDetails && (
@@ -115,7 +122,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
             </Flex>
           ))}
         </VStack>
-      </HStack>
+      </Flex>
 
       {!_.isEmpty(voteResults) && (
         <VStack spacing={2} align='stretch'>
@@ -125,14 +132,25 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
             <Stack key={result.choice} width='100%' gap={1}>
               <HStack justify='space-between' w='full'>
                 <Text>{result.choice}</Text>
-                <Text
-                  color='gray.500'
-                  fontSize='sm'
-                  fontWeight='medium'
-                  textAlign='right'
-                >
-                  {result.votes} VOTES ({result.percentage}%)
-                </Text>
+                {!upTo780 ? (
+                  <Text
+                    color='gray.500'
+                    fontSize='sm'
+                    fontWeight='medium'
+                    textAlign='right'
+                  >
+                    {result.votes} VOTES ({result.percentage}%)
+                  </Text>
+                ) : (
+                  <Text
+                    color='gray.500'
+                    fontSize='sm'
+                    fontWeight='medium'
+                    textAlign='right'
+                  >
+                    {result.percentage}%
+                  </Text>
+                )}
               </HStack>
               <Progress
                 colorScheme='blue'

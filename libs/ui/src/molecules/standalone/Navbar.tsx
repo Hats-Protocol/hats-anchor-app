@@ -1,15 +1,29 @@
-import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
+import {
+  Flex,
+  Heading,
+  HStack,
+  Icon,
+  IconButton,
+  Image,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { FiMenu } from 'react-icons/fi';
+import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../../atoms';
+import MobileDrawer from '../../atoms/MobileDrawer';
 import ConnectWallet from '../ConnectWallet';
 
 const Navbar = ({ title }: { title?: string }) => {
+  const { isOpen, onToggle } = useDisclosure();
+  const { address } = useAccount();
+
   return (
     <Flex
       w='100%'
       justify='space-between'
       align='center'
-      px={8}
+      px={{ base: 2, md: 8 }}
       bg='white'
       borderBottom='1px solid'
       borderColor='gray.400'
@@ -33,9 +47,19 @@ const Navbar = ({ title }: { title?: string }) => {
         </ChakraNextLink>
       </HStack>
 
-      <HStack spacing={2}>
+      <Flex display={{ base: 'none', md: 'flex' }}>
         <ConnectWallet />
-      </HStack>
+      </Flex>
+      <Flex display={{ base: 'flex', md: 'none' }}>
+        <IconButton
+          bg={address ? 'green.200' : 'gray.200'}
+          icon={<Icon as={FiMenu} />}
+          aria-label='mobile menu'
+          onClick={onToggle}
+        />
+      </Flex>
+
+      <MobileDrawer isOpen={isOpen} onToggle={onToggle} />
     </Flex>
   );
 };

@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import {
   Box,
   Card,
@@ -59,64 +58,80 @@ const Election = () => {
 
   if (!isClient) return null;
 
+  if (isHatDetailsLoading || isModuleDetailsLoading) {
+    <Layout title='Claims'>
+      <Flex justifyContent='center'>
+        <Spinner />
+      </Flex>
+    </Layout>;
+  }
+
+  if (!isElectionEligibility) {
+    <Layout title='Claims'>
+      <Flex justify='center'>
+        <Text>No compatible module found</Text>
+      </Flex>
+    </Layout>;
+  }
+
   return (
     <Layout title='Claims'>
       <NextSeo title={title} />
-      <Stack position='relative' top='76px' px={32} py={10} gap={10}>
-        {isHatDetailsLoading ? (
-          <Flex justifyContent='center'>
-            <Spinner />
-          </Flex>
-        ) : (
-          <>
-            <Flex w='full' justifyContent='center'>
-              <Header />
-            </Flex>
-            {isModuleDetailsLoading ? (
-              <Flex justifyContent='center'>
-                <Spinner />
-              </Flex>
-            ) : isElectionEligibility ? (
-              <Flex gap={6}>
-                <Box flexBasis={['100%', '35%']}>
-                  <Stack gap={6}>
-                    <Card>
-                      <CardBody>
-                        <CurrentSeason />
-                      </CardBody>
-                    </Card>
-                    <Card>
-                      <CardBody>
-                        <WearersList />
-                      </CardBody>
-                    </Card>
-                    <Card p={6}>
-                      <ElectionRoles />
-                    </Card>
-                  </Stack>
-                </Box>
-                <Box flexBasis={['100%', '65%']}>
-                  <Stack gap={6}>
-                    <Card>
-                      <CardBody>
-                        <UpcomingSeason />
-                      </CardBody>
-                    </Card>
-                    <Card>
-                      <CardBody>
-                        <ProposalView />
-                      </CardBody>
-                    </Card>
-                  </Stack>
-                </Box>
-              </Flex>
-            ) : (
-              <Flex justify='center'>
-                <Text>No compatible module found</Text>
-              </Flex>
-            )}
-          </>
-        )}
+      <Stack
+        position='relative'
+        top='76px'
+        px={{ base: 6, md: 32 }}
+        py={10}
+        gap={10}
+      >
+        <Flex maxW='100%' justifyContent='center'>
+          <Header />
+        </Flex>
+        <Flex gap={6} direction={{ base: 'column', md: 'row' }}>
+          <Box flexBasis={{ base: '100%', md: '35%' }}>
+            <Stack gap={6}>
+              <Card>
+                <CardBody>
+                  <CurrentSeason />
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody>
+                  <WearersList />
+                </CardBody>
+              </Card>
+              <Card display={{ base: 'none', md: 'inherit' }}>
+                <CardBody>
+                  <ElectionRoles />
+                </CardBody>
+              </Card>
+            </Stack>
+          </Box>
+          <Box flexBasis={['100%', '65%']}>
+            <Stack gap={6}>
+              <Card display={{ base: 'none', md: 'inherit' }}>
+                <CardBody>
+                  <UpcomingSeason />
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody>
+                  <ProposalView />
+                </CardBody>
+              </Card>
+            </Stack>
+          </Box>
+        </Flex>
+        <Card display={{ base: 'inherit', md: 'none' }}>
+          <CardBody>
+            <UpcomingSeason />
+          </CardBody>
+        </Card>
+        <Card display={{ base: 'inherit', md: 'none' }}>
+          <CardBody>
+            <ElectionRoles />
+          </CardBody>
+        </Card>
       </Stack>
     </Layout>
   );
