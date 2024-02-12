@@ -74,13 +74,13 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
           spacing={4}
         >
           <Image src='/icons/hats.svg' alt='Hat' h={150} w={150} mb={4} />
-          <Text fontWeight={600} fontSize={20}>
+          <Text size='xl' variant='medium'>
             Hello, Hat Wearer 🧢
           </Text>
-          <Text fontWeight={500} fontSize={20}>
+          <Text size='xl' variant='medium'>
             The Hats App is not currently optimized for mobile usage.
           </Text>
-          <Text fontWeight={500} fontSize={20}>
+          <Text size='xl' variant='medium'>
             Please visit{' '}
             <a href='https://app.hatsprotocol.xyz'>app.hatsprotocol.xyz</a> from
             a desktop device.

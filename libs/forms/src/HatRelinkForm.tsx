@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Flex,
   FormControl,
@@ -156,12 +155,10 @@ const HatRelinkForm = ({
           admin. Optionally update details, image, eligibility, and toggle of
           the Top Hat now that it will be a child hat.
         </Text>
-        <Flex>
-          <Text fontWeight='medium' mr={2}>
-            Hat to be relinked:
-          </Text>
+        <HStack>
+          <Text variant='medium'>Hat to be relinked:</Text>
           <Text>ID {prettyIdToIp(hatData?.prettyId)}</Text>
-        </Flex>
+        </HStack>
 
         <Select
           label='Select new Admin Hat'
@@ -224,7 +221,7 @@ const HatRelinkForm = ({
             />
             {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Box>
+              <Stack spacing={1}>
                 <Input
                   name='eligibility'
                   label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -235,11 +232,11 @@ const HatRelinkForm = ({
                   localForm={localForm}
                 />
                 {showEligilityResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500' mt={1}>
+                  <Text size='sm' variant='gray'>
                     Resolved address: {eligibilityResolvedAddress}
                   </Text>
                 )}
-              </Box>
+              </Stack>
             )}
           </HStack>
         </FormControl>
@@ -251,7 +248,7 @@ const HatRelinkForm = ({
             />
             {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
             {toggleChecked && (
-              <Box>
+              <Stack spacing={1}>
                 <Input
                   name='toggle'
                   label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
@@ -262,11 +259,11 @@ const HatRelinkForm = ({
                   localForm={localForm}
                 />
                 {showToggleResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500' mt={1}>
+                  <Text size='sm' variant='gray'>
                     Resolved address: {toggleResolvedAddress}
                   </Text>
                 )}
-              </Box>
+              </Stack>
             )}
           </HStack>
         </FormControl>

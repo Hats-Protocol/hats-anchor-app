@@ -253,12 +253,12 @@ const ModuleDetails = ({ type }: { type: string }) => {
         <AccordionPanel px={0}>
           <Stack>
             {_.map(moduleDetails.details, (detail: string) => (
-              <Text key={detail} fontSize='sm'>
+              <Text key={detail} size='sm'>
                 {detail}
               </Text>
             ))}
             <Flex justify='space-between'>
-              <Text fontSize='sm'>Claimability Type</Text>
+              <Text size='sm'>Claimability Type</Text>
 
               <HStack>
                 <Tooltip label={claimableToggleTip(sameChain, isAdminUser)}>
@@ -282,7 +282,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                       : 'Make claimable'}
                   </Button>
                 </Tooltip>
-                <Text color='gray.500' size='sm'>
+                <Text size='sm' variant='gray'>
                   {isClaimable.for ? 'Claimable For' : 'Claimable'}
                 </Text>
               </HStack>
@@ -324,7 +324,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 isExternal
               >
                 <Flex justify='space-between'>
-                  <Text fontSize='sm'>{link.label}</Text>
+                  <Text size='sm'>{link.label}</Text>
                   <Icon as={FiExternalLink} h='14px' color='gray.500' />
                 </Flex>
               </ChakraNextLink>

@@ -100,11 +100,11 @@ const AmountWithDecimals = ({
         localForm={localForm}
       />
       {tokenDetails ? (
-        <Text fontSize='sm' color='gray.500'>
+        <Text size='sm' variant='gray'>
           ${tokenDetails?.symbol} uses {tokenDecimals} decimals
         </Text>
       ) : (
-        <Text fontSize='sm' color='gray.500'>
+        <Text size='sm' variant='gray'>
           Input token address
         </Text>
       )}

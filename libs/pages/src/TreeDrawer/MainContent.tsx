@@ -114,7 +114,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           )}
 
           {isClient && (
-            <Text color='blackAlpha.600' maxW='80%'>
+            <Text variant='light' maxW='80%'>
               Created{' '}
               {topHatCreated &&
                 formatDistanceToNow(
@@ -182,7 +182,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       </HStack>
 
       <Stack>
-        <Text color='blackAlpha.800' fontSize='xl' fontWeight='medium'>
+        <Text variant='lightMedium' size='xl'>
           Drafted Changes
         </Text>
         <Text>

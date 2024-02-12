@@ -48,7 +48,7 @@ const Accordion = ({
         </Flex>
         <Stack>
           {subtitle && (
-            <Text fontSize='md' ml={7} color='blackAlpha.800'>
+            <Text size='md' ml={7} variant='light'>
               {subtitle}
             </Text>
           )}
@@ -57,7 +57,7 @@ const Accordion = ({
 
       {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
         <Box fontSize='sm' ml={7} color='cyan.900' mt={2}>
-          <Text fontWeight='medium'>Edits:</Text>
+          <Text size='medium'>Edits:</Text>
           {dirtyFieldsList?.map((field) => (
             <Text key={field}>- {field} changed</Text>
           ))}

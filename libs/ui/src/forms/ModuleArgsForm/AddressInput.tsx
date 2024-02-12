@@ -89,7 +89,7 @@ const ModuleAddressInput = ({
             href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
             isExternal
           >
-            <Text fontSize='sm' color='gray.500'>
+            <Text size='sm' variant='gray'>
               {tokenLabel}
             </Text>
           </ChakraNextLink>

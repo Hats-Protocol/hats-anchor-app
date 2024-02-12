@@ -74,7 +74,7 @@ const BottomMenu = ({
 
             <AccordionPanel pb={8} px={8}>
               <Stack>
-                <Text color='blackAlpha.700'>Hats contract address</Text>
+                <Text variant='light'>Hats contract address</Text>
                 <HStack spacing={4}>
                   <Input
                     value={CONFIG.hatsAddress}
@@ -99,7 +99,7 @@ const BottomMenu = ({
                   </Button>
                 </HStack>
                 <HStack>
-                  <Text color='blackAlpha.700'>
+                  <Text variant='light'>
                     Transaction call data (hex encoded)
                   </Text>
                   <Tooltip

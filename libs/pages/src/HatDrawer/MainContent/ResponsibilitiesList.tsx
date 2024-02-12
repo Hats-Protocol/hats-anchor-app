@@ -29,7 +29,7 @@ const ResponsibilitiesList = () => {
       ))}
 
       {!responsibilities.length && (
-        <Text color='gray.500' fontSize='sm'>
+        <Text variant='gray' size='sm'>
           None
         </Text>
       )}

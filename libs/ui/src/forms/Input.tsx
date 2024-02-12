@@ -108,7 +108,7 @@ const Input = ({
           // disabled input lessens opacity of FormLabel
           <FormLabel mb={0}>
             <HStack>
-              <Text fontSize='sm'>
+              <Text size='sm'>
                 {_.toUpper(label)}
                 {options?.required && ' *'}
               </Text>
@@ -123,7 +123,7 @@ const Input = ({
         {typeof subLabel !== 'string' ? (
           subLabel
         ) : (
-          <Text color='blackAlpha.700' fontSize='sm'>
+          <Text size='sm' variant='light'>
             {subLabel}
           </Text>
         )}
@@ -182,12 +182,12 @@ const Input = ({
         {typeof subInput !== 'string' ? (
           subInput
         ) : (
-          <Text color='blackAlpha.700' fontSize='xs'>
+          <Text size='xs' variant='light'>
             {subInput}
           </Text>
         )}
         {getErrorMessage() && (
-          <Text color='red.500' fontSize='xs'>
+          <Text color='red.500' size='xs'>
             {getErrorMessage()}
           </Text>
         )}

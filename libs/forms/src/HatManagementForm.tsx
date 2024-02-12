@@ -196,7 +196,7 @@ const HatManagementForm = ({
                     ) : (
                       <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                     )}
-                    <Text size='sm' variant='light'>
+                    <Text size='sm' variant='gray'>
                       {contractData?.contractName || moduleDetails?.name}
                     </Text>
                   </HStack>
@@ -228,12 +228,10 @@ const HatManagementForm = ({
           <Icon as={BsListTask} boxSize={4} mt='2px' />
           <Stack>
             <HStack fontSize='sm'>
-              <Text color='blackAlpha.800' fontWeight='medium'>
-                {criteriaConfig.label}
-              </Text>
-              <Text color='blackAlpha.600'>optional</Text>
+              <Text variant='lightMedium'>{criteriaConfig.label}</Text>
+              <Text variant='light'>optional</Text>
             </HStack>
-            <Text color='blackAlpha.700'>{criteriaConfig.description}</Text>
+            <Text variant='light'>{criteriaConfig.description}</Text>
             {fields.map((field, index) => (
               <LabelWithLink
                 key={field.id}

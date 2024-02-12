@@ -123,7 +123,9 @@ const NewTree = () => {
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>
           <Stack mt={10} spacing={6}>
             <Stack>
-              <Text variant='medium'>{_.toUpper('Top Hat Image')}</Text>
+              <Text variant='medium' textTransform='uppercase'>
+                Top Hat Image
+              </Text>
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
@@ -177,7 +179,7 @@ const NewTree = () => {
                   }
                 />
                 {receiverResolvedAddress && (
-                  <Text size='sm' variant='light'>
+                  <Text size='sm' variant='gray'>
                     Resolved address: {receiverResolvedAddress}
                   </Text>
                 )}

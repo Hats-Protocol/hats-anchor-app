@@ -297,7 +297,7 @@ const HatLinkRequestApproveForm = ({
                   localForm={localForm}
                 />
                 {showEligibilityResolvedAddress && (
-                  <Text size='sm' variant='light'>
+                  <Text size='sm' variant='gray'>
                     Resolved address: {eligibilityResolvedAddress}
                   </Text>
                 )}
@@ -324,7 +324,7 @@ const HatLinkRequestApproveForm = ({
                   localForm={localForm}
                 />
                 {showToggleResolvedAddress && (
-                  <Text size='sm' variant='light'>
+                  <Text size='sm' variant='gray'>
                     Resolved address: {toggleResolvedAddress}
                   </Text>
                 )}

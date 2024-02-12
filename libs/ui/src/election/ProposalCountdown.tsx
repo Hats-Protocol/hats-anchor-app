@@ -69,7 +69,7 @@ const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
     <VStack spacing={4}>
       <Flex justify='space-between' w='full'>
         <Stack>
-          <Badge>{_.toUpper('Upcoming')}</Badge>
+          <Badge textTransform='uppercase'>Upcoming</Badge>
           <Heading size='md'>{title}</Heading>
         </Stack>
         {moduleDetails && (
@@ -81,7 +81,7 @@ const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
           >
             <HStack gap={1}>
               <Icon as={BsFileCode} w={4} h={4} color='teal' />
-              <Text color='teal' fontSize='sm'>
+              <Text color='teal' size='sm'>
                 Election
               </Text>
             </HStack>
@@ -99,9 +99,9 @@ const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
                 py={4}
                 borderRadius='md'
               >
-                <Text fontSize='4xl'>{value}</Text>
+                <Text size='4xl'>{value}</Text>
               </Box>
-              <Text fontSize='sm'>{unit}</Text>
+              <Text size='sm'>{unit}</Text>
             </VStack>
           ))}
       </Grid>

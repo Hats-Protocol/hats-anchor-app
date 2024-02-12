@@ -105,7 +105,7 @@ const ModuleDetailsForm = ({
         <FormRowWrapper>
           <Icon as={BsTextLeft} boxSize={4} mt='2px' />
           <Stack spacing={3}>
-            <Text fontSize='sm' fontWeight='medium'>
+            <Text size='sm' variant='medium'>
               MODULE TYPE DETAILS
             </Text>
             {selectedModuleDetails.details.map((detail: string) => (

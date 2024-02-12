@@ -69,7 +69,7 @@ const DatePicker = ({
           {label && (
             <FormLabel mb={0}>
               <HStack>
-                <Text fontSize='sm'>
+                <Text size='sm'>
                   {label.toUpperCase()}
                   {options?.required && '*'}
                 </Text>
@@ -84,7 +84,7 @@ const DatePicker = ({
           {typeof subLabel !== 'string' ? (
             subLabel
           ) : (
-            <Text color='blackAlpha.700' fontSize='xs'>
+            <Text size='xs' variant='light'>
               {subLabel}
               {setToZeroUTC ? '. Will use 0:00:00 UTC for timestamp.' : ''}
             </Text>
@@ -97,9 +97,9 @@ const DatePicker = ({
         />
         {showLocalConversion && (
           <HStack color='blackAlpha.800' fontSize='xs' spacing={1}>
-            {/* <Text fontWeight={600}>Local Timezone:</Text>
+            {/* <Text variant='medium'>Local Timezone:</Text>
             <Text>{userTz}</Text> */}
-            <Text fontWeight={600}>Current:</Text>
+            <Text variant='medium'>Current:</Text>
             <Tooltip label={formatDate(currentValue, true)} placement='top'>
               <Text>{formatDate(currentValue)}</Text>
             </Tooltip>

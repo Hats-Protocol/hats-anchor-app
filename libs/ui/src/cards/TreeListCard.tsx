@@ -1,4 +1,12 @@
-import { Box, Card, CardBody, HStack, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Card,
+  CardBody,
+  Heading,
+  HStack,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
@@ -51,9 +59,9 @@ const TreeListCard = ({
               borderColor='gray.200'
             />
             <Stack spacing={1} maxW='110px'>
-              <Text fontWeight='bold' noOfLines={2}>
+              <Heading size='md' noOfLines={2}>
                 {hatName}
-              </Text>
+              </Heading>
               <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
             </Stack>
           </HStack>

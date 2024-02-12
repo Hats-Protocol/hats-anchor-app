@@ -148,7 +148,7 @@ const NumberInput = ({
         />
 
         {getErrorMessage() && (
-          <Text color='red.500' fontSize='xs'>
+          <Text color='red.500' size='xs'>
             {getErrorMessage()}
           </Text>
         )}

@@ -104,7 +104,7 @@ const RadioBox = ({
               <HStack spacing={4}>
                 {options?.map((option) => (
                   <Radio key={option.value} value={option.value} maxW={maxW}>
-                    <Text fontSize='sm'>{option.label}</Text>
+                    <Text size='sm'>{option.label}</Text>
                   </Radio>
                 ))}
               </HStack>

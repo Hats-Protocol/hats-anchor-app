@@ -44,11 +44,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
   label,
   subLabel,
 }) => {
-  const {
-    setValue,
-    watch,
-    formState: { errors },
-  } = _.pick(localForm, ['setValue', 'watch', 'formState']);
+  const { setValue, watch } = _.pick(localForm, ['setValue', 'watch']);
   const calculateSeconds = (value: number, timeUnit: string) => {
     const unitValue = timeUnits.find((tu) => tu.unit === timeUnit)?.value || 1;
     return String(value * unitValue);
@@ -65,14 +61,12 @@ const DurationInput: React.FC<DurationInputProps> = ({
     }
   }, [timeValue, timeUnit]);
 
-  console.log(watch(), errors);
-
   return (
     <FormControl>
       <Stack w='100%'>
         {label && (
           <FormLabel mb={0}>
-            <Text fontSize='sm'>
+            <Text size='sm'>
               {label.toUpperCase()}
               {isRequired && '*'}
             </Text>
@@ -112,7 +106,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
             />
           </HStack>
           {timeUnit !== 'seconds' && finalValue && (
-            <Text fontSize='xs' color='gray.500'>
+            <Text size='xs' variant='gray'>
               ({finalValue} seconds)
             </Text>
           )}

@@ -54,7 +54,7 @@ const Select = ({
         {label && (
           <FormLabel mb={0}>
             <HStack>
-              <Text fontSize='sm'>
+              <Text size='sm'>
                 {label.toUpperCase()}
                 {options?.required && '*'}
               </Text>

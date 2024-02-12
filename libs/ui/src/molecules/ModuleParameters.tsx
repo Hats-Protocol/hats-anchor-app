@@ -35,20 +35,24 @@ const ModuleParameterRow = ({
   const isExternal = link?.includes('http');
   return (
     <Flex key={label} justify='space-between' gap={3}>
-      <Text fontSize='sm'>{label}</Text>
+      <Text size='sm'>{label}</Text>
 
       {link ? (
         <Tooltip label={tip} placement='left'>
           <ChakraNextLink href={link} isExternal={isExternal}>
-            <HStack spacing={1} color='gray.500'>
-              <Text fontSize='sm'>{linkLabel}</Text>
-              {isExternal && <Icon as={FiExternalLink} h='14px' />}
+            <HStack spacing={1}>
+              <Text size='sm' variant='gray'>
+                {linkLabel}
+              </Text>
+              {isExternal && (
+                <Icon as={FiExternalLink} h='14px' color='gray.500' />
+              )}
             </HStack>
           </ChakraNextLink>
         </Tooltip>
       ) : (
         <Tooltip label={tip} placement='left'>
-          <Text fontSize='sm' color='gray.500'>
+          <Text size='sm' variant='gray'>
             {linkLabel}
           </Text>
         </Tooltip>

@@ -33,7 +33,7 @@ const BooleanInput = ({
         <HStack>
           <Text textTransform='uppercase'>{arg.name}</Text>
         </HStack>
-        <Text color='gray.600' fontSize='sm'>
+        <Text size='sm' variant='gray'>
           {arg.description}
         </Text>
       </Stack>

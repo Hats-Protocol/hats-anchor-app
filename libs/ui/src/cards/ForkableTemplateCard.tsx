@@ -1,4 +1,4 @@
-import { Box, HStack, Image, Stack, Text } from '@chakra-ui/react';
+import { Box, Heading, HStack, Image, Stack, Text } from '@chakra-ui/react';
 
 import { ChakraNextLink } from '../atoms';
 
@@ -25,8 +25,8 @@ const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
           w='full'
           h='full'
         >
-          <Text fontWeight='semibold'>{name}</Text>
-          <Text fontWeight='medium' fontSize='sm'>
+          <Heading size='md'>{name}</Heading>
+          <Text variant='medium' size='sm'>
             {description}
           </Text>
         </Stack>

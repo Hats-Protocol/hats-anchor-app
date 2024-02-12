@@ -132,7 +132,7 @@ const ClaimsHandler = ({
             module.
           </Text>
           {wearingHat && instanceAddress && (
-            <Text size='sm' variant='light'>
+            <Text size='sm' variant='gray'>
               🧢 Claims hatter contract{' '}
               <Code fontSize='xs'>{formatAddress(instanceAddress)}</Code> is
               wearing hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} (
@@ -192,7 +192,7 @@ const ClaimsHandler = ({
 
   return (
     <ClaimsHandlerWrapper>
-      <Text size='sm' variant='light' mt={1}>
+      <Text size='sm' variant='gray' mt={1}>
         To enable permissionless claiming of this hat, deploy a claims hatter
         contract and give that contract an admin hat in this tree.
       </Text>

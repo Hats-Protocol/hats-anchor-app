@@ -29,7 +29,7 @@ const ResponsibilitiesFormItem = ({
     <Box borderBottom='1px solid' borderColor='blackAlpha.300' pb={2}>
       <HStack justifyContent='space-between' alignItems='center'>
         <Stack flex={1}>
-          <Text mb={0} fontSize='sm' color='blackAlpha.800'>
+          <Text mb={0} size='sm' variant='lightMedium'>
             {label || 'New Responsibility'}
           </Text>
         </Stack>

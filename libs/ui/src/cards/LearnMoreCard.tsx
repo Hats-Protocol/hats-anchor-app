@@ -1,4 +1,4 @@
-import { HStack, Image, Stack, Text } from '@chakra-ui/react';
+import { Heading, HStack, Image, Stack, Text } from '@chakra-ui/react';
 import { DocsLink } from 'hats-types';
 
 import { ChakraNextLink } from '../atoms';
@@ -26,8 +26,8 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
           w={8}
         />
         <Stack>
-          <Text fontWeight='semibold'>{name}</Text>
-          <Text fontSize='sm'>{description}</Text>
+          <Heading size='md'>{name}</Heading>
+          <Text size='sm'>{description}</Text>
         </Stack>
       </HStack>
     </ChakraNextLink>

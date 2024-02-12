@@ -69,8 +69,8 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
   return (
     <Stack spacing={4}>
       <Box>
-        <Tag borderRadius={0} size='sm'>
-          {_.toUpper(proposal.state)}
+        <Tag borderRadius={0} size='sm' textTransform='uppercase'>
+          {proposal.state}
         </Tag>
       </Box>
       <HStack gap={6} align='start' w='full'>
@@ -82,7 +82,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
             {proposal.body}
           </Text>
         </VStack>
-        <VStack align='start' flex='1' fontSize='sm'>
+        <VStack align='start' flex='1'>
           <HStack justify='space-between' w='full'>
             <Heading size='sm'>About</Heading>
             {moduleDetails && (
@@ -94,7 +94,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
               >
                 <HStack gap={1}>
                   <Icon as={BsFileCode} w={4} h={4} color='teal' />
-                  <Text color='teal' fontSize='sm'>
+                  <Text color='teal' size='sm'>
                     Election
                   </Text>
                 </HStack>

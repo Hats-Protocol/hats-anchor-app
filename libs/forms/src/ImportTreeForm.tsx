@@ -146,14 +146,14 @@ const ImportTreeForm = () => {
             isFullWidth
           />
           {!validImport ? (
-            <Text fontSize='sm' color='red' maxW='70%'>
+            <Text size='sm' color='red.500' maxW='70%'>
               <b>Error:</b>{' '}
               {_.get(_.first(fileRejections), 'errors[0].message') ||
                 importErrorMessage}
             </Text>
           ) : (
             treeFile && (
-              <Text fontSize='sm' color='gray.700'>
+              <Text size='sm' variant='gray'>
                 {_.get(treeFile, 'name')}
               </Text>
             )
