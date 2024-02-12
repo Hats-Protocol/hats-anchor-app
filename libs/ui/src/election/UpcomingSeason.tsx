@@ -137,16 +137,16 @@ const UpcomingSeason = () => {
   return (
     <Stack gap={4}>
       <Heading size='md'>Upcoming Season</Heading>
-      <HStack justifyContent='space-between' gap={4}>
-        <Box w='50%'>
+      <Flex justifyContent='space-between' gap={4} wrap='wrap'>
+        <Box w={{ base: '100%', md: '50%' }}>
           <DateInfo date={currentTermEndDate} label='Current Season End' />
         </Box>
         {nextTermEndDate && (
-          <Box w='50%'>
+          <Box w={{ base: '100%', md: '50%' }}>
             <DateInfo date={nextTermEndDate} label='Next Season End' />
           </Box>
         )}
-      </HStack>
+      </Flex>
       {!_.isEmpty(accessibleActions) && (
         <Flex gap={2} wrap='wrap' justifyContent='center'>
           {_.map(accessibleActions, (action: WriteFunction) => (

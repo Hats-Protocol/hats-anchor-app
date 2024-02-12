@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi';
@@ -33,7 +34,7 @@ const ConnectWallet = () => {
 
   useEffect(() => {
     if (address) {
-      setBlockie(blockies.create({ seed: address.toLowerCase() }).toDataURL());
+      setBlockie(blockies.create({ seed: _.toLower(address) }).toDataURL());
     }
   }, [address]);
 
@@ -126,14 +127,14 @@ const ConnectWallet = () => {
                         </Box>
                       ) : (
                         <Box
-                          height='28px'
-                          width='28px'
+                          height='14px'
+                          width='14px'
                           borderRadius='50%'
                           bg='green.700'
                         />
                       )}
 
-                      <Text variant='medium'>
+                      <Text variant='medium' noOfLines={1}>
                         {ensName || account.displayName}
                       </Text>
                     </HStack>

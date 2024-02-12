@@ -47,10 +47,11 @@ const Header = () => {
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   return (
-    <HStack w='2xl' gap={10}>
+    <HStack w={{ base: '100%', md: '2xl' }} gap={10}>
       <ChakraNextLink
         href={hatLink({ chainId, hatId: selectedHat?.id })}
-        boxSize='120px'
+        boxSize={{ base: '65px', md: '120px' }}
+        display={{ base: 'none', md: 'block' }}
         isExternal
       >
         <AspectRatio ratio={1}>
@@ -59,18 +60,26 @@ const Header = () => {
             alt='hat image'
             loading='lazy'
             objectFit='cover'
-            boxSize='120px'
+            width='100%'
             border='1px solid'
             borderColor='gray.700'
             borderRadius='md'
           />
         </AspectRatio>
       </ChakraNextLink>
-      <Stack spacing={1} w='full'>
+      <Stack spacing={1} w={{ base: '60%', md: 'full' }}>
         <Stack w='full' gap={1}>
-          <HStack justifyContent='space-between' lineHeight={6}>
+          <HStack
+            justifyContent='space-between'
+            lineHeight={6}
+            wrap={{ base: 'wrap', md: 'unset' }}
+          >
             <Tooltip label={name || selectedHat?.details}>
-              <Heading size='2xl' variant='medium' isTruncated>
+              <Heading
+                size='2xl'
+                variant='medium'
+                noOfLines={{ base: 2, md: 1 }}
+              >
                 {name || selectedHat?.details}
               </Heading>
             </Tooltip>
