@@ -21,6 +21,7 @@ import {
   AppHat,
   FormData,
   HatAuthority,
+  HatsAccount1ofN,
   HatSignerGate,
   ModuleCreationArg,
   ModuleDetails,
@@ -386,7 +387,11 @@ export function populateModulesAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const filteredAuthorities = _.omit(hatAuthorities, [
+    'hsgOwner',
+    'hsgSigner',
+    'hatsAccount1ofN',
+  ]);
   const updatedHatAuthorities = _.map(
     filteredAuthorities,
     (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
@@ -426,6 +431,29 @@ export function populateModulesAuthorities({
 
   return _.flatten(updatedHatAuthorities);
 }
+
+export const populateHatsAccountsAuthorities = ({
+  details,
+  hatId,
+}: {
+  details?: HatsAccount1ofN[];
+  hatId: Hex;
+}) => {
+  if (!details) return [];
+
+  return details.map((wallet) => ({
+    label: `Shared control over 1/N HatsWallet (${formatAddress(wallet.id)})`,
+    link: wallet.accountOfHat?.id,
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at 0xB43A...EF69. This account has not yet been deployed and can be deployed permissionlessly.
+    Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.
+    For more information about HatsWallet, see the Hats documentation.`, // fix with link
+    type: AUTHORITY_TYPES.modules, // fix to wallet
+    id: wallet.id,
+    functions: wallet.operations,
+    instanceAddress: wallet.id,
+    hatId,
+  }));
+};
 
 export const populateHatsGatesAuthorities = ({
   details,

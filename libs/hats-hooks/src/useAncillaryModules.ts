@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchAncillaryModules } from 'app-utils';
 import { HatAuthority, SupportedChains } from 'hats-types';
 import {
+  populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
 } from 'hats-utils';
@@ -75,6 +76,11 @@ const useAncillaryModules = ({
     hatId: id as Hex,
   });
 
+  const hatsAccounts1ofN = populateHatsAccountsAuthorities({
+    details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
+    hatId: id as Hex,
+  });
+
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
     modulesDetails,
@@ -85,6 +91,7 @@ const useAncillaryModules = ({
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
+      ...hatsAccounts1ofN,
     ],
     error,
     isLoading: false,
