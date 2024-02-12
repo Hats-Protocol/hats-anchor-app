@@ -1,4 +1,9 @@
-import { MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
+import {
+  GATEWAY_TOKEN,
+  GATEWAY_URL,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
@@ -250,40 +255,49 @@ const mergeHatsWithStoredData = (
 };
 
 const prepareExportTree = (data: any[]): HatExport[] => {
-  return _.map(data, (hat) => ({
-    id: hat.id,
-    status: hat.status,
-    createdAt: parseInt(hat.createdAt, 10),
-    details: hat.details,
-    maxSupply: parseInt(hat.maxSupply, 10),
-    eligibility: hat.eligibility,
-    toggle: hat.toggle,
-    mutable: hat.mutable === MUTABILITY.MUTABLE,
-    currentSupply: parseInt(hat.currentSupply, 10),
-    wearers: hat.wearers,
-    adminId: hat.adminId || hat.parentId,
-    imageUri: hat.imageUri || '',
-    // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
-    detailsObject: {
-      type: '1.0',
-      data: {
-        name: hat.name,
-        description: hat.description,
-        responsibilities: hat.responsibilities,
-        authorities: hat.authorities,
-        guilds: hat.guilds,
-        spaces: hat.spaces,
-        eligibility: {
-          manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-          criteria: hat.revocationsCriteria,
-        },
-        toggle: {
-          manual: hat.isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-          criteria: hat.deactivationsCriteria,
+  return _.map(data, (hat) => {
+    let imageUrl = hat.imageUri;
+    // ! don't want to export image URL with our gateway and token string on it
+    if (imageUrl.startsWith('https://')) {
+      imageUrl = imageUrl.replace(`${GATEWAY_URL}`, 'ipfs://');
+      imageUrl = imageUrl.replace(`?pinataGatewayToken=${GATEWAY_TOKEN}`, '');
+    }
+
+    return {
+      id: hat.id,
+      status: hat.status,
+      createdAt: parseInt(hat.createdAt, 10),
+      details: hat.details,
+      maxSupply: parseInt(hat.maxSupply, 10),
+      eligibility: hat.eligibility,
+      toggle: hat.toggle,
+      mutable: hat.mutable === MUTABILITY.MUTABLE,
+      currentSupply: parseInt(hat.currentSupply, 10),
+      wearers: hat.wearers,
+      adminId: hat.adminId || hat.parentId,
+      imageUri: imageUrl || '',
+      // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
+      detailsObject: {
+        type: '1.0',
+        data: {
+          name: hat.name,
+          description: hat.description,
+          responsibilities: hat.responsibilities,
+          authorities: hat.authorities,
+          guilds: hat.guilds,
+          spaces: hat.spaces,
+          eligibility: {
+            manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+            criteria: hat.revocationsCriteria,
+          },
+          toggle: {
+            manual: hat.isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+            criteria: hat.deactivationsCriteria,
+          },
         },
       },
-    },
-  }));
+    };
+  });
 };
 
 const patchDataToEnsureConsecutiveIds = (tree: HatExport[]) => {
@@ -552,7 +566,8 @@ export const flattenHatData = (data: any[]): FormData[] =>
         currentSupply: _.toNumber(hat.currentSupply),
         wearers: extractWearers(hat.wearers),
         adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
-        imageUrl: hat.imageUrl,
+        // imported as imageUri from export data, likely imageUrl from `storedData`
+        imageUrl: hat.imageUrl || ipfsUrl(hat.imageUri.slice(7)),
         imageUri: hat.imageUri,
         name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
         description: _.get(

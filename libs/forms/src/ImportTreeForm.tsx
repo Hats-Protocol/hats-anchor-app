@@ -83,10 +83,11 @@ const ImportTreeForm = () => {
   const handleImport = () => {
     if (!treeFile || !fileReader) return;
     fileReader.onload = function readFile(e: ProgressEvent<FileReader>) {
+      if (!onchainTree) return;
+
       const fileContents = e.target?.result;
       const treeFromJson = JSON.parse(fileContents as string);
       const importedTree = flattenHatData(treeFromJson);
-      if (!onchainTree) return;
       const onchainTreeData = flattenHatData(onchainTree);
       const draftHats = prepareDraftHats(
         // TODO prepareDraftHats is expecting HatExport[], flattenHatData returns FormData[]
