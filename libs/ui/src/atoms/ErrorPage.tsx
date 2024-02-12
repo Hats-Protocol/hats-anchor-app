@@ -1,0 +1,39 @@
+import { Button, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import { useParams } from 'next/navigation';
+import { FaArrowRight } from 'react-icons/fa';
+
+import ChakraNextLink from './ChakraNextLink';
+
+const ErrorPage = () => {
+  const { chainId, treeId, hatId } = useParams();
+
+  let link = `/trees/${chainId}/${treeId}`;
+  if (hatId) {
+    link = `${link}?hatId=${hatId}`;
+  }
+
+  return (
+    <Stack spacing={6}>
+      <Heading>Bummer, there was an issue</Heading>
+      <Text>
+        Check the console or report in the community channel if you hit an issue
+      </Text>
+      <HStack>
+        <ChakraNextLink href='/'>
+          <Button variant={!hatId && !treeId ? 'primary' : 'outline'}>
+            Home
+          </Button>
+        </ChakraNextLink>
+        {hatId || treeId ? (
+          <ChakraNextLink href={link}>
+            <Button rightIcon={<Icon as={FaArrowRight} />}>
+              Back to {hatId ? 'Hat' : 'Tree'}
+            </Button>
+          </ChakraNextLink>
+        ) : null}
+      </HStack>
+    </Stack>
+  );
+};
+
+export default ErrorPage;

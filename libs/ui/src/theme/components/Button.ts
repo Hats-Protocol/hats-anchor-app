@@ -9,6 +9,13 @@ const Button = {
       border: props.border || '1px solid',
       borderColor: props.borderColor || props.colorScheme || 'gray.700',
     }),
+    primary: (props: StyleFunctionProps) => ({
+      background: props.background || props.bg || 'blue.500',
+      color: props.color || 'white',
+      _hover: {
+        background: props.hoverBackground || props.hoverBg || 'blue.700',
+      },
+    }),
     outline: (props: StyleFunctionProps) => ({
       color: props.color || 'gray.700',
       borderColor: props.borderColor || props.colorScheme || 'gray.700',
