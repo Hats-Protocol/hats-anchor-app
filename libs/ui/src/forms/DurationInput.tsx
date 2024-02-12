@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   FormControl,
   FormHelperText,
@@ -6,7 +7,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import React from 'react';
+import _ from 'lodash';
+import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 
 import NumberInput from './NumberInput';
@@ -42,36 +44,32 @@ const DurationInput: React.FC<DurationInputProps> = ({
   label,
   subLabel,
 }) => {
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = _.pick(localForm, ['setValue', 'watch', 'formState']);
   const calculateSeconds = (value: number, timeUnit: string) => {
     const unitValue = timeUnits.find((tu) => tu.unit === timeUnit)?.value || 1;
     return String(value * unitValue);
   };
 
-  const handleTimeValueChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const { value } = event.target;
-    localForm.setValue(`${name}-time-value`, value, { shouldDirty: true });
-    const timeUnit = localForm.watch(`${name}-time-unit`) || 'minutes';
-    const res = calculateSeconds(Number(value), timeUnit);
-    localForm.setValue(name, res, { shouldDirty: true });
-  };
+  const timeValue = watch(`${name}-time-value`);
+  const timeUnit = watch(`${name}-time-unit`);
+  const finalValue = watch(name);
 
-  const handleTimeUnitChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const { value: timeUnit } = event.target;
-    localForm.setValue(`${name}-time-unit`, timeUnit, {
-      shouldDirty: true,
-    });
-    const value = localForm.watch(`${name}-time-value`);
-    const res = calculateSeconds(Number(value), timeUnit);
-    localForm.setValue(name, res, { shouldDirty: true });
-  };
+  useEffect(() => {
+    if (timeValue && timeUnit !== 'seconds') {
+      const res = calculateSeconds(_.toNumber(timeValue), timeUnit);
+      setValue(name, res, { shouldDirty: true });
+    }
+  }, [timeValue, timeUnit]);
+
+  console.log(watch(), errors);
 
   return (
     <FormControl>
-      <Stack spacing={2} w='100%'>
+      <Stack w='100%'>
         {label && (
           <FormLabel mb={0}>
             <Text fontSize='sm'>
@@ -87,36 +85,38 @@ const DurationInput: React.FC<DurationInputProps> = ({
             {subLabel}
           </FormHelperText>
         )}
-        <HStack alignItems='end'>
-          <NumberInput
-            name={`${name}-time-value`}
-            localForm={localForm}
-            type='number'
-            defaultValue={0}
-            onChange={handleTimeValueChange}
-            placeholder={placeholder}
-            isRequired={isRequired}
-            options={options}
-          />
-          <Select
-            name={`${name}-time-unit`}
-            localForm={localForm}
-            defaultValue='seconds'
-            onChange={handleTimeUnitChange}
-          >
-            {timeUnits.map(({ unit, value }) => (
-              <option key={unit} value={unit}>
-                {unit}
-              </option>
-            ))}
-          </Select>
-        </HStack>
-        {!!Number(localForm.watch(name)) &&
-          localForm.watch(`${name}-time-unit`) !== 'seconds' && (
-            <Text fontSize='xs' color='gray.500' mt={1}>
-              ({localForm.watch(name)} seconds)
+        <Stack spacing={1}>
+          <HStack alignItems='end'>
+            <NumberInput
+              name={`${name}-time-value`}
+              localForm={localForm}
+              type='number'
+              defaultValue={0}
+              placeholder={placeholder}
+              isRequired={isRequired}
+              options={options}
+              rightAddon={
+                <Select
+                  name={`${name}-time-unit`}
+                  localForm={localForm}
+                  defaultValue='seconds'
+                  w='100%'
+                >
+                  {timeUnits.map(({ unit, value }) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </Select>
+              }
+            />
+          </HStack>
+          {timeUnit !== 'seconds' && finalValue && (
+            <Text fontSize='xs' color='gray.500'>
+              ({finalValue} seconds)
             </Text>
           )}
+        </Stack>
       </Stack>
     </FormControl>
   );

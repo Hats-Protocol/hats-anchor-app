@@ -4,15 +4,15 @@ import { transformAndVerify } from 'app-utils';
 import { ModuleCreationArg } from 'hats-types';
 import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { Hex } from 'viem';
+
 import {
   DatePicker,
   DurationInput,
   Input,
   MultiAddressInput,
   NumberInput,
-} from 'ui';
-import { Hex } from 'viem';
-
+} from '..';
 import AddressInput from './AddressInput';
 import AmountWithDecimals from './AmountWithDecimals';
 import BooleanInput from './BooleanInput';
@@ -21,11 +21,13 @@ import HatInput from './HatInput';
 const ModuleFormInput = ({
   localForm,
   arg,
+  fullArgs,
   tokenAddress,
   isDeploy,
 }: {
   localForm: UseFormReturn;
   arg: ModuleCreationArg;
+  fullArgs: ModuleCreationArg[];
   tokenAddress: Hex | undefined;
   isDeploy?: boolean;
 }) => {
@@ -73,8 +75,9 @@ const ModuleFormInput = ({
     return (
       <AmountWithDecimals
         arg={arg}
+        fullArgs={fullArgs}
         localForm={localForm}
-        tokenAddress={tokenAddress || '0x'}
+        tokenAddress={tokenAddress}
       />
     );
   }
@@ -102,11 +105,6 @@ const ModuleFormInput = ({
             ? (arg.example as string[]).join(', ')
             : (arg.example as string)
         }
-        isRequired={!arg.optional}
-        options={{
-          validate: (value) =>
-            transformAndVerify(localForm.watch(arg.name), arg.type),
-        }}
         localForm={localForm}
       />
     );

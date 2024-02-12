@@ -70,7 +70,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
     <Stack spacing={4}>
       <Box>
         <Tag borderRadius={0} size='sm'>
-          {proposal.state.toUpperCase()}
+          {_.toUpper(proposal.state)}
         </Tag>
       </Box>
       <HStack gap={6} align='start' w='full'>

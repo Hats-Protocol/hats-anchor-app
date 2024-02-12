@@ -5,11 +5,13 @@ import {
   FormLabel,
   HStack,
   Select as ChakraSelect,
+  SelectFieldProps as ChakraSelectProps,
   Stack,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import _ from 'lodash';
+import { ChangeEvent, ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
@@ -44,9 +46,10 @@ const Select = ({
     }
     setValue(name, e.target.value);
   };
+  const localProps = _.omit(props, ['onCopy']);
 
   return (
-    <FormControl {...props}>
+    <FormControl {...localProps}>
       <Stack spacing={2} w='100%'>
         {label && (
           <FormLabel mb={0}>
@@ -87,7 +90,7 @@ const Select = ({
 
 export default Select;
 
-interface SelectProps {
+interface SelectProps extends ChakraSelectProps {
   label?: string;
   name: string;
   options?: {
@@ -105,5 +108,5 @@ interface SelectProps {
   children: ReactNode;
   subLabel?: string | ReactNode;
   info?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
 }

@@ -164,7 +164,7 @@ const convertToBigInt = (input: unknown) => {
 export const transformInput = (
   input: unknown,
   solidityType: string,
-  displayType?: string,
+  // displayType?: string,
 ): unknown => {
   if (input === undefined || input === null) {
     if (solidityType.includes('[]')) {
