@@ -49,9 +49,9 @@ const nextConfig = {
       'hats-hooks',
       'hats-types',
       'hats-utils',
-      'pages',
+      // 'pages',
       'shared',
-      'ui',
+      // 'ui',
     ],
   },
 };

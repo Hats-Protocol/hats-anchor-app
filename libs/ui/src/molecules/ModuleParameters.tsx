@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { TokenData } from 'hats-types';
 import _ from 'lodash';
 import { FiExternalLink } from 'react-icons/fi';
-import { formatUnits } from 'viem';
+import { formatUnits, Hex } from 'viem';
 import { useToken } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
@@ -153,7 +153,7 @@ const ModuleParameters = ({
   );
 
   const { data: tokenData } = useToken({
-    address: _.get(tokenParameter, 'value'),
+    address: _.get(tokenParameter, 'value') as Hex,
   });
 
   return (

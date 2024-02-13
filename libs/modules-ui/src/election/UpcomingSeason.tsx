@@ -44,8 +44,8 @@ const UpcomingSeason = () => {
     label: 'Next Term End',
   });
 
-  const currentTermEndDate = parsedSeconds(currentTermEnd?.value);
-  const nextTermEndDate = parsedSeconds(nextTermEnd?.value);
+  const currentTermEndDate = parsedSeconds(currentTermEnd?.value as bigint);
+  const nextTermEndDate = parsedSeconds(nextTermEnd?.value as bigint);
 
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();

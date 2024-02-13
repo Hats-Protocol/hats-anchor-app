@@ -1,4 +1,5 @@
 import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { useIsClient } from 'app-hooks';
 import { formatAddress } from 'app-utils';
 import {
   ChakraNextLink,
@@ -26,8 +27,36 @@ const LookingForHat = () => (
 );
 
 const Home = () => {
+  const isClient = useIsClient();
   const { address: wearerAddress } = useAccount();
-  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+  const { data: ensName } = useEnsName({
+    address: wearerAddress,
+    chainId: 1,
+    enabled: !!wearerAddress && isClient,
+  });
+
+  if (!isClient || !wearerAddress) {
+    return (
+      <Layout title='Claims'>
+        <Box
+          w='100%'
+          h='100%'
+          bg='blue'
+          position='fixed'
+          opacity={0.07}
+          zIndex={-1}
+        />
+        <Flex px={20} py={120}>
+          <Stack spacing={10}>
+            <Heading variant='medium'>
+              Welcome to the Hats Protocol Claims app! 🧢
+            </Heading>
+            <LookingForHat />
+          </Stack>
+        </Flex>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title='Claims'>
@@ -39,26 +68,15 @@ const Home = () => {
         opacity={0.07}
         zIndex={-1}
       />
-      <Stack spacing={10} px={20} py={120}>
-        {wearerAddress ? (
-          <Flex justifyContent='space-between'>
-            <Stack spacing={50}>
-              <Heading variant='medium'>
-                gm {ensName || formatAddress(wearerAddress)}, welcome to the
-                claims app
-              </Heading>
-              <LookingForHat />
-            </Stack>
-          </Flex>
-        ) : (
-          <Stack>
-            <Heading variant='medium'>
-              Welcome to the Hats Protocol Claims app! 🧢
-            </Heading>
-            <LookingForHat />
-          </Stack>
-        )}
-      </Stack>
+      <Flex px={20} py={120}>
+        <Stack spacing={50}>
+          <Heading variant='medium'>
+            gm {ensName || formatAddress(wearerAddress)}, welcome to the claims
+            app
+          </Heading>
+          <LookingForHat />
+        </Stack>
+      </Flex>
     </Layout>
   );
 };
