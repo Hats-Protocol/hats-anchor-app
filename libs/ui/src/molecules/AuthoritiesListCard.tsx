@@ -52,7 +52,9 @@ const AuthoritiesListCard = ({
   }
 
   const displayModulesToolbar =
-    type === AUTHORITY_TYPES.modules || type === AUTHORITY_TYPES.hsg;
+    type === AUTHORITY_TYPES.modules ||
+    type === AUTHORITY_TYPES.hsg ||
+    type === AUTHORITY_TYPES.wallet;
 
   if (!gate && !description)
     return (

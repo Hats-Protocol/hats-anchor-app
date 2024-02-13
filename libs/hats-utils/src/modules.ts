@@ -28,6 +28,7 @@ import {
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
+import { FiCopy } from 'react-icons/fi';
 import { ipToHatId } from 'shared';
 import { Hex, parseUnits } from 'viem';
 
@@ -435,19 +436,30 @@ export function populateModulesAuthorities({
 export const populateHatsAccountsAuthorities = ({
   details,
   hatId,
+  toast,
 }: {
   details?: HatsAccount1ofN[];
   hatId: Hex;
+  toast: any;
 }) => {
   const undeployedWalletAuth = {
     label: `Shared control over 1/N HatsWallet (Deploy required)`,
     link: undefined,
-    description: `This account has not yet been deployed and can be deployed permissionlessly.
-      Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.
-      For more information about HatsWallet, see the Hats documentation.`,
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at (to be calculated). This account has not yet been deployed and can be deployed permissionlessly.  
+      Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
+      For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
     id: `not-deployed-${hatId}`,
-    functions: [],
+    functions: [
+      {
+        functionName: 'deploy',
+        label: 'Deploy',
+        roles: [],
+        args: [],
+        description: 'Deploy the HatsWallet contract',
+        primary: true,
+      },
+    ],
     hatId,
     isDeployed: false,
   };
@@ -461,11 +473,29 @@ export const populateHatsAccountsAuthorities = ({
     link: wallet.accountOfHat?.id,
     description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
       wallet.id,
-    )}. This account has been deployed and any of the wearers of this hat can take full control of the assets associated with the shared account.
-      For more information about HatsWallet, see the Hats documentation.`,
+    )}. 
+    This account has been deployed and any of the wearers of this hat can take full control of the assets associated with the shared account.
+      For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
     id: wallet.id,
-    functions: wallet.operations,
+    // functions: wallet.operations,
+    functions: [
+      {
+        functionName: 'copyAddress',
+        label: 'Copy Address',
+        roles: [],
+        args: [],
+        description: 'Copy the address of the HatsWallet',
+        isCustom: true,
+        onClick: () => {
+          navigator.clipboard.writeText(wallet.id);
+          toast.info({
+            title: 'Successfully copied wearer address to clipboard',
+          });
+        },
+        icon: FiCopy,
+      },
+    ],
     instanceAddress: wallet.id,
     hatId,
     isDeployed: true,

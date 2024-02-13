@@ -37,6 +37,7 @@ export const AUTHORITY_ENFORCEMENT: {
     label: 'HatsWallet Authority',
     info: '',
     color: 'green.300',
+    name: 'HatsWallet',
   },
   hsg: {
     label: 'HatsSignerGate Authority',

@@ -63,8 +63,9 @@ const ModuleAuthorityToolbar = ({
     [selectedHat, address],
   );
   const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
-  const otherFunctions = _.find(
-    _.get(authority, 'functions'),
+
+  const otherFunctions = _.filter(
+    _.get(authority, 'functions', []),
     (func: any) => !func.primary,
   );
 
@@ -242,6 +243,24 @@ const ModuleAuthorityToolbar = ({
             </Button>
           </ChakraNextLink>
         )}
+        {authority?.type === AUTHORITY_TYPES.wallet && (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${
+              authority.instanceAddress
+            }`}
+            isExternal
+          >
+            <Button
+              colorScheme='blue.500'
+              size='sm'
+              rightIcon={<Icon as={FiExternalLink} />}
+              variant='outline'
+              color='blue.500'
+            >
+              Go to {AUTHORITY_ENFORCEMENT[authority.type].name}
+            </Button>
+          </ChakraNextLink>
+        )}
         {authority.type === AUTHORITY_TYPES.hsg && (
           <ChakraNextLink href={safeUrl(chainId, authority.safe)} isExternal>
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
@@ -265,8 +284,11 @@ const ModuleAuthorityToolbar = ({
               {_.map(otherFunctions, (func: any, i: number) => (
                 <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
                   <MenuItem
-                    onClick={() => handleFunctionCall(func)}
-                    isDisabled={isDisabled}
+                    onClick={() => {
+                      if (func.isCustom) func.onClick();
+                      else handleFunctionCall(func);
+                    }}
+                    isDisabled={isDisabled && !func.isCustom}
                   >
                     <Flex
                       justify='space-between'
@@ -275,7 +297,7 @@ const ModuleAuthorityToolbar = ({
                       gap={1}
                     >
                       <Text>{func.label}</Text>
-                      <Icon as={FiPlusSquare} boxSize={4} />
+                      <Icon as={func.icon || FiPlusSquare} boxSize={4} />
                     </Flex>
                   </MenuItem>
                 </Tooltip>

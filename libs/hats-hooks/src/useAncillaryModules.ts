@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from 'app-hooks';
 import { fetchAncillaryModules } from 'app-utils';
 import { HatAuthority, SupportedChains } from 'hats-types';
 import {
@@ -28,6 +29,8 @@ const useAncillaryModules = ({
   chainId: SupportedChains;
   editMode?: boolean;
 }) => {
+  const toast = useToast();
+
   const {
     data: ancillaryModules,
     error,
@@ -79,6 +82,7 @@ const useAncillaryModules = ({
   const hatsAccounts1ofN = populateHatsAccountsAuthorities({
     details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
     hatId: id as Hex,
+    toast,
   });
 
   const modulesAuthorities = populateModulesAuthorities({
