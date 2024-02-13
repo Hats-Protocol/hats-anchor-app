@@ -439,19 +439,36 @@ export const populateHatsAccountsAuthorities = ({
   details?: HatsAccount1ofN[];
   hatId: Hex;
 }) => {
-  if (!details) return [];
+  const undeployedWalletAuth = {
+    label: `Shared control over 1/N HatsWallet (Deploy required)`,
+    link: undefined,
+    description: `This account has not yet been deployed and can be deployed permissionlessly.
+      Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.
+      For more information about HatsWallet, see the Hats documentation.`,
+    type: AUTHORITY_TYPES.wallet,
+    id: `not-deployed-${hatId}`,
+    functions: [],
+    hatId,
+    isDeployed: false,
+  };
+
+  if (!details || details.length === 0) {
+    return [undeployedWalletAuth];
+  }
 
   return details.map((wallet) => ({
     label: `Shared control over 1/N HatsWallet (${formatAddress(wallet.id)})`,
     link: wallet.accountOfHat?.id,
-    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at 0xB43A...EF69. This account has not yet been deployed and can be deployed permissionlessly.
-    Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.
-    For more information about HatsWallet, see the Hats documentation.`, // fix with link
-    type: AUTHORITY_TYPES.modules, // fix to wallet
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+      wallet.id,
+    )}. This account has been deployed and any of the wearers of this hat can take full control of the assets associated with the shared account.
+      For more information about HatsWallet, see the Hats documentation.`,
+    type: AUTHORITY_TYPES.wallet,
     id: wallet.id,
     functions: wallet.operations,
     instanceAddress: wallet.id,
     hatId,
+    isDeployed: true,
   }));
 };
 
