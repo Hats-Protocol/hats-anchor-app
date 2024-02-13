@@ -19,9 +19,8 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
+import { ChakraNextLink, Markdown } from 'ui';
 import { useAccount } from 'wagmi';
-
-import { ChakraNextLink, Markdown } from '../atoms';
 
 const Header = () => {
   const toast = useToast();

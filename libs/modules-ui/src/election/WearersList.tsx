@@ -5,10 +5,9 @@ import { useHatClaimBy } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
+import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
-
-import { ChakraNextLink } from '../atoms';
 
 const WearerCard = ({ account }: { account: Hex }) => {
   const { chainId, selectedHat } = useEligibility();

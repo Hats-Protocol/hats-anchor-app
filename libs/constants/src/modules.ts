@@ -9,3 +9,15 @@ export const MODULE_ARG_BOOLEAN_OPTION_SETS = {
   eligibility: ['Eligible', 'Ineligible'],
   status: ['Active', 'Inactive'],
 };
+
+export const TOKEN_ARG_TYPES = ['erc20', 'token'];
+
+export const numberTypes = [
+  'uint256',
+  'uint8',
+  'uint16',
+  'uint32',
+  'uint64',
+  'uint128',
+  'uint248',
+];

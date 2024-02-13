@@ -19,9 +19,9 @@ import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { ModuleArgsForm } from 'ui';
 import { useChainId } from 'wagmi';
 
-import ModuleArgsForm from '../forms/ModuleArgsForm';
 import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {
@@ -130,14 +130,9 @@ const UpcomingSeason = () => {
     <Stack gap={4}>
       <Heading size='md'>Upcoming Season</Heading>
       <Flex justifyContent='space-between' gap={2} wrap='wrap'>
-        {/* <Box w={{ base: '100%', md: '48%' }}>
-          <DateInfo date={currentTermEndDate} label='Current Season End' />
-        </Box> */}
-        {nextTermEndDate && (
-          <Box w={{ base: '100%', md: '48%' }}>
-            <DateInfo date={nextTermEndDate} label='Next Season End' />
-          </Box>
-        )}
+        <Box w={{ base: '100%', md: '48%' }}>
+          <DateInfo date={nextTermEndDate} label='Next Season End' />
+        </Box>
       </Flex>
       {!_.isEmpty(accessibleActions) && (
         <Flex gap={2} wrap='wrap' justifyContent='center'>
