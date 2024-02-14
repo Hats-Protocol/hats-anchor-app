@@ -1,4 +1,5 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
+import { numberTypes, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'app-utils';
@@ -10,16 +11,6 @@ import { formatUnits, Hex } from 'viem';
 import { useToken } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
-
-const numberTypes = [
-  'uint256',
-  'uint8',
-  'uint16',
-  'uint32',
-  'uint64',
-  'uint128',
-  'uint248',
-];
 
 const ModuleParameterRow = ({
   label,
@@ -157,12 +148,13 @@ const ModuleParameters = ({
   parameters: ModuleParameter[] | undefined;
   chainId: number;
 }) => {
-  const tokenAddress = _.get(
-    _.find(parameters, ['label', 'Token Address']),
-    'value',
-  ) as Hex;
+  const tokenParameter = _.find(parameters, (a: ModuleParameter) =>
+    _.includes(TOKEN_ARG_TYPES, a.displayType),
+  );
 
-  const { data: tokenData } = useToken({ address: tokenAddress });
+  const { data: tokenData } = useToken({
+    address: _.get(tokenParameter, 'value') as Hex,
+  });
 
   return (
     <Stack>

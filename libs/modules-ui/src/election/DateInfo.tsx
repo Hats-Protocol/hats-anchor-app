@@ -1,11 +1,20 @@
 import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { format, formatDistanceToNow } from 'date-fns';
 
-const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
-  const dateValue = new Date(date);
-  const isNotSet = dateValue.getTime() === 0;
-  const formattedDate = format(dateValue, 'yyyy-MM-dd HH:mm:ss');
-  const timeDistance = formatDistanceToNow(dateValue);
+const DateInfo = ({
+  date,
+  label,
+}: {
+  date: Date | string | undefined;
+  label: string;
+}) => {
+  let dateValue: Date | undefined;
+
+  if (date) {
+    dateValue = new Date(date);
+  }
+  const formattedDate = dateValue && format(dateValue, 'yyyy-MM-dd HH:mm:ss');
+  const timeDistance = dateValue && formatDistanceToNow(dateValue);
 
   return (
     <HStack justifyContent='space-between' w='full'>
@@ -15,16 +24,16 @@ const DateInfo = ({ date, label }: { date: Date | string; label: string }) => {
           <BsQuestionCircle />
         </Tooltip> */}
       </HStack>
-      {isNotSet ? (
-        <Text size='sm' variant='gray'>
-          Not Set
-        </Text>
-      ) : (
+      {timeDistance && dateValue ? (
         <Tooltip label={`${formattedDate} UTC`} placement='left'>
           <Text size='sm' variant='medium'>
             {timeDistance} {new Date() > dateValue ? 'ago' : 'from now'}
           </Text>
         </Tooltip>
+      ) : (
+        <Text size='sm' variant='gray'>
+          Not Set
+        </Text>
       )}
     </HStack>
   );

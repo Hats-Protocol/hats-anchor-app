@@ -18,8 +18,7 @@ import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-
-import { ChakraNextLink } from '../atoms';
+import { ChakraNextLink } from 'ui';
 
 const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, moduleDetails } = useEligibility();

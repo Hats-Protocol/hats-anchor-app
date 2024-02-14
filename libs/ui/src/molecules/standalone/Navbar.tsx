@@ -10,8 +10,10 @@ import {
 import { FiMenu } from 'react-icons/fi';
 import { useAccount } from 'wagmi';
 
-import { ChakraNextLink } from '../../atoms';
-import MobileDrawer from '../../atoms/MobileDrawer';
+import {
+  ChakraNextLink,
+  StandaloneMobileDrawer as MobileDrawer,
+} from '../../atoms';
 import ConnectWallet from '../ConnectWallet';
 
 const Navbar = ({ title }: { title?: string }) => {

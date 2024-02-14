@@ -51,13 +51,13 @@ const WearerRow = ({
   const { chainId, selectedHat } = useTreeForm();
 
   const { data: wearerDetails } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: wearer.id,
     chainId,
   });
 
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
-  const isEligibility = selectedHat?.eligibility === _.toLower(address);
+  const isEligibility = selectedHat?.eligibility === _.toLower(wearer.id);
 
   // include current wearer for Top Hat
   const isAdminUser = isWearingAdminHat(
@@ -78,7 +78,7 @@ const WearerRow = ({
       Boolean(hatId) &&
       Boolean(wearer) &&
       isEligible !== undefined &&
-      !isEligible &&
+      isEligible &&
       chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],

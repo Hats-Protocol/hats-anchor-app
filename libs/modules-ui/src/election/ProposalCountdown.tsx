@@ -17,8 +17,7 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-
-import { ChakraNextLink } from '../atoms';
+import { ChakraNextLink } from 'ui';
 
 interface TimeUntilStart {
   days: number;

@@ -1,5 +1,8 @@
 import { Stack, Text } from '@chakra-ui/react';
-import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
+import {
+  FALLBACK_ARG_EXAMPLES,
+  TOKEN_ARG_TYPES,
+} from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { transformAndVerify } from 'app-utils';
 import { useTreeForm } from 'contexts';
@@ -9,8 +12,6 @@ import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
 import NumberInput from '../NumberInput';
-
-const TOKEN_ARG_TYPES = ['erc20', 'token'];
 
 const AmountWithDecimals = ({
   arg,
@@ -32,7 +33,6 @@ const AmountWithDecimals = ({
   );
   if (tokenArg) tokenArgName = tokenArg.name;
 
-  console.log(tokenAddress);
   const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
     address: tokenAddress || localTokenAddress,
@@ -60,7 +60,6 @@ const AmountWithDecimals = ({
       });
     }
   };
-  console.log(watch(), tokenDecimals);
 
   return (
     <Stack w='100%' spacing={1}>
