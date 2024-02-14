@@ -4,7 +4,7 @@ The Anchor app is a Next.js app relying on the Core & Subgraph SDK as well as th
 
 ## Start the app
 
-To start the development server run `pnpm dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/. 
+To start the development server run `pnpm dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/.
 
 ## Build production application
 
