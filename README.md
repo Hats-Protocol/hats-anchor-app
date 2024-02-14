@@ -43,3 +43,4 @@ The build artifacts will be stored in the `dist/` directory, ready to be deploye
 ## Nx & Code integration
 
 Have a look at the [Nx Console extensions](https://nx.dev/nx-console). It provides autocomplete support, a UI for exploring and running tasks & generators, and more! Available for VSCode, IntelliJ and comes with a LSP for Vim users.
+
