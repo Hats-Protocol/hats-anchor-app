@@ -56,11 +56,11 @@ const ModuleAddressInput = ({
   }, [newWearerResolvedAddress, arg.name]);
 
   let tokenArgName = '';
-  // shouldn't need to check other args here like in AmountWithDecimals
   if (_.includes(TOKEN_TYPES, arg.displayType)) {
     tokenArgName = arg.name;
   }
-  const localTokenAddress = watch(tokenArgName, '');
+  // watch() by default returns whole object, so not good fallback
+  const localTokenAddress = tokenArgName ? watch(tokenArgName) : undefined;
   const { data: tokenDetails } = useToken({
     address: localTokenAddress || tokenAddress,
     chainId,

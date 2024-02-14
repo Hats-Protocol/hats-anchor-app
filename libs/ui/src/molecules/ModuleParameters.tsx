@@ -43,7 +43,7 @@ const ModuleParameterRow = ({
         </Tooltip>
       ) : (
         <Tooltip label={tip} placement='left'>
-          <Text size='sm' variant='gray'>
+          <Text size='sm' variant='gray' maxW='250px' noOfLines={1}>
             {linkLabel}
           </Text>
         </Tooltip>
@@ -67,8 +67,8 @@ const ModuleParameter = ({
     name: tokenName,
   } = _.pick(tokenData, ['decimals', 'symbol', 'name']);
 
+  // handle addresses
   if (param.solidityType === 'address') {
-    // TODO handle joke race display type
     if (param.displayType === 'jokerace') {
       return (
         <ModuleParameterRow
@@ -92,6 +92,8 @@ const ModuleParameter = ({
       />
     );
   }
+
+  // handle numbers
   if (_.includes(numberTypes, param.solidityType)) {
     if (param.displayType === 'hat') {
       return (
@@ -132,6 +134,21 @@ const ModuleParameter = ({
       <ModuleParameterRow
         label={param.label}
         linkLabel={BigInt(param.value as bigint).toString()}
+      />
+    );
+  }
+
+  // handle number arrays
+  // TODO handle large number values
+  // TODO include other numbers here
+  if (param.solidityType === 'uint256[]') {
+    return (
+      <ModuleParameterRow
+        label={param.label}
+        linkLabel={_.join(
+          _.map(param.value, (v: bigint) => v.toString()),
+          ', ',
+        )}
       />
     );
   }

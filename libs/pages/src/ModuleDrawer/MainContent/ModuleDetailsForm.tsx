@@ -1,5 +1,5 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
-import { CONTACT_URL } from '@hatsprotocol/constants';
+import { CONTACT_URL, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails } from 'hats-types';
@@ -57,14 +57,15 @@ const ModuleDetailsForm = ({
       null
     );
   }, [selectedModule]);
-  // console.log(selectedModuleArgs, 'selectedModuleArgs');
 
   const tokenArgName = _.get(
-    _.find(selectedModuleArgs, { displayType: 'erc20' }),
+    _.find(selectedModuleArgs, (a) =>
+      _.includes(TOKEN_ARG_TYPES, a.displayType),
+    ),
     'name',
   );
-  const tokenAddress = watch(tokenArgName, '');
-  // console.log(tokenArgName, tokenAddress, 'tokenAddress');
+  // watch() by default returns whole object, so not good fallback
+  const tokenAddress = tokenArgName ? watch(tokenArgName) : undefined;
 
   if (!onchainTree || !treeToDisplay) return null;
 

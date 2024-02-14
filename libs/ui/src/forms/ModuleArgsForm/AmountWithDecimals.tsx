@@ -33,7 +33,8 @@ const AmountWithDecimals = ({
   );
   if (tokenArg) tokenArgName = tokenArg.name;
 
-  const localTokenAddress = watch(tokenArgName, '');
+  // watch() by default returns whole object, so not good fallback
+  const localTokenAddress = tokenArgName ? watch(tokenArgName) : undefined;
   const { data: tokenDetails } = useToken({
     address: tokenAddress || localTokenAddress,
     chainId,
