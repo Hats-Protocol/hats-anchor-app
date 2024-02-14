@@ -461,12 +461,9 @@ export const populateHatsAccountsAuthorities = ({
     instanceAddress: predictedAddress,
     functions: [
       {
-        functionName: 'deploy',
-        label: 'Deploy',
-        roles: [],
-        args: [],
-        description: 'Deploy the HatsWallet authority',
         isCustom: true,
+        label: 'Deploy',
+        description: 'Deploy the HatsWallet authority',
         onClick: deployFn,
         primary: true,
       },
@@ -492,10 +489,7 @@ export const populateHatsAccountsAuthorities = ({
     // functions: wallet.operations,
     functions: [
       {
-        functionName: 'copyAddress',
         label: 'Copy Address',
-        roles: [],
-        args: [],
         description: 'Copy the address of the HatsWallet',
         isCustom: true,
         onClick: () => {

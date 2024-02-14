@@ -22,7 +22,7 @@ export type Authority = {
   id?: string | number;
   hatId?: Hex;
   strategies?: SnapshotStrategy[];
-  functions?: WriteFunction[];
+  functions?: (WriteFunction & { isCustom?: boolean })[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
   moduleLabel?: string;
