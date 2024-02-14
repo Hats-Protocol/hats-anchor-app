@@ -17,10 +17,13 @@ const LookingForHat = () => (
     <Text>
       You&apos;re probably looking for a specific hat. Look out for a link here
       with a specific hat ID on it:{' '}
-      <ChakraNextLink href='/1/22.1.2' decoration>
-        <Text variant='mono' display='inline-block'>
-          /1/22.1.2
-        </Text>
+      <ChakraNextLink
+        href='/1/22.1.2'
+        decoration
+        fontFamily='monospace'
+        display='inline-block'
+      >
+        /1/22.1.2
       </ChakraNextLink>
     </Text>
   </Stack>

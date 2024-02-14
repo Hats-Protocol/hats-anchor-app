@@ -155,8 +155,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
   );
 
   const onSubmit = (values) => {
-    // eslint-disable-next-line no-console
     if (!moduleDetails?.implementationAddress) return;
+    // eslint-disable-next-line no-console
     console.log(values);
     callModuleFunction({
       moduleId: moduleDetails.implementationAddress,

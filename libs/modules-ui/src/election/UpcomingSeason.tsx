@@ -39,11 +39,9 @@ const UpcomingSeason = () => {
   const currentTermEnd = _.find(moduleParameters, {
     label: 'Current Term End',
   });
-
   const nextTermEnd = _.find(moduleParameters, {
     label: 'Next Term End',
   });
-
   const currentTermEndDate = parsedSeconds(currentTermEnd?.value as bigint);
   const nextTermEndDate = parsedSeconds(nextTermEnd?.value as bigint);
 
@@ -96,7 +94,7 @@ const UpcomingSeason = () => {
     currentTermEndDate,
   ]);
 
-  const { mutate: callModuleFunction, isLoading: isModuleLoading } =
+  const { mutateAsync: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({ chainId });
 
   if (!moduleDetails || !moduleParameters || !controllerAddress) return null;

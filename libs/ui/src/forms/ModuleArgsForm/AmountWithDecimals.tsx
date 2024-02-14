@@ -33,7 +33,6 @@ const AmountWithDecimals = ({
   );
   if (tokenArg) tokenArgName = tokenArg.name;
 
-  console.log(tokenAddress);
   const localTokenAddress = watch(tokenArgName, '');
   const { data: tokenDetails } = useToken({
     address: tokenAddress || localTokenAddress,
@@ -61,7 +60,6 @@ const AmountWithDecimals = ({
       });
     }
   };
-  console.log(watch(), tokenDecimals);
 
   return (
     <Stack w='100%' spacing={1}>

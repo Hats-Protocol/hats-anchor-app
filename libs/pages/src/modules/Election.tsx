@@ -1,4 +1,11 @@
-import { Box, Card, CardBody, Flex, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Card,
+  CardBody,
+  Flex,
+  Stack,
+  useMediaQuery,
+} from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useIsClient } from 'app-hooks';
 import { chainsMap } from 'app-utils';
@@ -34,6 +41,7 @@ const Election = () => {
     isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
+  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -85,11 +93,13 @@ const Election = () => {
           </Box>
           <Box flexBasis={['100%', '65%']}>
             <Stack gap={6}>
-              <Card display={{ base: 'none', md: 'inherit' }}>
-                <CardBody>
-                  <UpcomingSeason />
-                </CardBody>
-              </Card>
+              {!upTo780 && (
+                <Card display={{ base: 'none', md: 'inherit' }}>
+                  <CardBody>
+                    <UpcomingSeason />
+                  </CardBody>
+                </Card>
+              )}
               <Card>
                 <CardBody>
                   <ProposalView />
@@ -98,16 +108,20 @@ const Election = () => {
             </Stack>
           </Box>
         </Flex>
-        <Card display={{ base: 'inherit', md: 'none' }}>
-          <CardBody>
-            <UpcomingSeason />
-          </CardBody>
-        </Card>
-        <Card display={{ base: 'inherit', md: 'none' }}>
-          <CardBody>
-            <ElectionRoles />
-          </CardBody>
-        </Card>
+        {upTo780 && (
+          <>
+            <Card display={{ base: 'inherit', md: 'none' }}>
+              <CardBody>
+                <UpcomingSeason />
+              </CardBody>
+            </Card>
+            <Card display={{ base: 'inherit', md: 'none' }}>
+              <CardBody>
+                <ElectionRoles />
+              </CardBody>
+            </Card>
+          </>
+        )}
       </Stack>
     </Layout>
   );
