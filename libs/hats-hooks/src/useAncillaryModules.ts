@@ -14,7 +14,11 @@ import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 import useModulesDetails from './useModulesDetails';
 
 const extractModuleIds = (hatAuthorities: HatAuthority) => {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const filteredAuthorities = _.omit(hatAuthorities, [
+    'hsgOwner',
+    'hsgSigner',
+    'hatsAccount1ofN',
+  ]);
   return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) =>
     _.map(items, 'id'),
   );
