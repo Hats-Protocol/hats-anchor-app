@@ -63,9 +63,8 @@ const Election = () => {
       <NextSeo title={title} />
       <Stack
         position='relative'
-        top='76px'
         px={{ base: 6, md: 10, lg: 32 }}
-        py={10}
+        py={120}
         gap={10}
       >
         <Flex maxW='100%' justifyContent='center'>

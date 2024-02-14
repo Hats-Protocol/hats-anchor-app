@@ -77,7 +77,7 @@ export const hatLink = ({
 }) => {
   if (!chainId || !hatId) return '#';
   const treeId = hatIdToTreeId(BigInt(hatId));
-  return `https://app.hatsprotocol.xyz/trees/${chainId}/${treeId}/${hatIdDecimalToIp(
+  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}/${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
 };

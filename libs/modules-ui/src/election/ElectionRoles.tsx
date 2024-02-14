@@ -1,11 +1,10 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { idToIp } from 'shared';
 import { ChakraNextLink } from 'ui';
-
-const APP_URL = 'https://app.hatsprotocol.xyz';
 
 const ElectionRoles = () => {
   const { electionsAuthority, selectedHat } = useEligibility();
@@ -25,7 +24,7 @@ const ElectionRoles = () => {
           <Text>
             Set up by Hat{' '}
             <ChakraNextLink
-              href={`${APP_URL}/trees/${chainId}/${treeId}${
+              href={`${CONFIG.APP_URL}/trees/${chainId}/${treeId}${
                 adminHatId ? `?hatId=${adminHatId}` : ''
               }`}
               decoration
@@ -38,7 +37,7 @@ const ElectionRoles = () => {
           <Text>
             Results submitted by{' '}
             <ChakraNextLink
-              href={`${APP_URL}/${chainId}/${treeId}${
+              href={`${CONFIG.APP_URL}/${chainId}/${treeId}${
                 ballotBoxHatId ? `?hatId=${ballotBoxHatId}` : ''
               }`}
               decoration

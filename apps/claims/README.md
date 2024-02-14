@@ -1,6 +1,6 @@
 # Hats Claims App
 
-The Claims app is a Next.js app for handling standalone eligibility for hats with supported eligibility modules.
+The Claims app is a Next.js app for handling standalone eligibility for [Hats](https://app.hatsprotocol.xyz) with supported eligibility modules.
 
 ## Start the app
 

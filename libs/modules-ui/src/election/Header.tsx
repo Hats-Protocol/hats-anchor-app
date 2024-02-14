@@ -70,7 +70,7 @@ const Header = () => {
         </ChakraNextLink>
       </AspectRatio>
 
-      <Stack spacing={1} w={{ base: '60%', md: '80%' }}>
+      <Stack spacing={1} w={{ base: '100%', md: '80%' }}>
         <Stack w='full' gap={1}>
           <HStack
             justifyContent='space-between'

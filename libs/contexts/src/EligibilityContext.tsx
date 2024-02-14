@@ -24,7 +24,8 @@ export interface EligibilityContextProps {
   controllerAddress: Hex | undefined;
   isHatDetailsLoading: boolean | undefined;
   isModuleDetailsLoading: boolean | undefined;
-  electionsAuthority: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  electionsAuthority: any | undefined;
   isElectionsAuthorityLoading: boolean;
 }
 

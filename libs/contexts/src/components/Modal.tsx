@@ -66,8 +66,9 @@ const Modal = ({
         display='flex'
         flexDirection='column'
         // set mobile modal fixed to bottom of screen
-        marginTop={{ base: 'auto', md: 'auto' }}
+        marginTop={{ base: 'auto', md: '3.75rem' }}
         marginBottom={{ base: '0', md: 'auto' }}
+        borderBottomRadius={{ base: '0', md: 'md' }}
       >
         {customHeader || (
           <ModalHeader>
