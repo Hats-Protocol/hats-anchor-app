@@ -9,14 +9,14 @@ import {
   Heading,
 } from '@chakra-ui/react';
 
-import { ConnectWallet } from '../molecules';
+import { ConnectWallet } from '../../molecules';
 
-const MobileDrawer = ({
+const StandaloneMobileDrawer = ({
   isOpen,
   onToggle,
 }: {
   isOpen: boolean;
-  onToggle: any;
+  onToggle: () => void;
 }) => {
   return (
     <Drawer placement='right' isOpen={isOpen} onClose={onToggle}>
@@ -37,4 +37,4 @@ const MobileDrawer = ({
   );
 };
 
-export default MobileDrawer;
+export default StandaloneMobileDrawer;

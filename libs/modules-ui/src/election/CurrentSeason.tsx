@@ -1,4 +1,6 @@
 import { Heading, Stack } from '@chakra-ui/react';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { parsedSeconds } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 
@@ -7,18 +9,13 @@ import DateInfo from './DateInfo';
 const CurrentSeason = () => {
   const { moduleParameters } = useEligibility();
 
-  const currentTermEnd = _.find(moduleParameters, {
+  const currentTermEnd: ModuleParameter | undefined = _.find(moduleParameters, {
     label: 'Current Term End',
   });
 
-  let date;
-  if (typeof currentTermEnd?.value === 'bigint') {
-    date = new Date(Number(currentTermEnd.value) * 1000);
-  } else {
-    // eslint-disable-next-line no-console
-    console.error('Invalid value for currentTermEnd: ', currentTermEnd?.value);
-    date = new Date();
-  }
+  const date = parsedSeconds(currentTermEnd?.value as bigint);
+
+  if (!date) return null;
 
   return (
     <Stack gap={4}>
@@ -26,7 +23,7 @@ const CurrentSeason = () => {
       <DateInfo
         date={date}
         // tooltipValue='The end of the current term.'
-        label='Term End'
+        label='Season End'
       />
     </Stack>
   );

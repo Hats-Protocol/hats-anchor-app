@@ -6,7 +6,7 @@ import {
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { Election } from 'pages';
+import { Claims } from 'pages';
 import { useEffect } from 'react';
 import { ipToHatId } from 'shared';
 import { Hex } from 'viem';
@@ -26,7 +26,7 @@ const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
 
   return (
     <EligibilityContextProvider treeId={treeId} hatId={hatId} chainId={chainId}>
-      <Election />
+      <Claims />
     </EligibilityContextProvider>
   );
 };

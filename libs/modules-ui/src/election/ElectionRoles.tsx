@@ -3,8 +3,7 @@ import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { idToIp } from 'shared';
-
-import { ChakraNextLink } from '../atoms';
+import { ChakraNextLink } from 'ui';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
 
@@ -37,7 +36,7 @@ const ElectionRoles = () => {
         )}
         {ballotBoxHatId && (
           <Text>
-            Ballot Box set by Hat{' '}
+            Results submitted by{' '}
             <ChakraNextLink
               href={`${APP_URL}/${chainId}/${treeId}${
                 ballotBoxHatId ? `?hatId=${ballotBoxHatId}` : ''

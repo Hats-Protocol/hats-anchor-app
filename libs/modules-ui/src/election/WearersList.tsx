@@ -5,10 +5,9 @@ import { useHatClaimBy } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
+import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
-
-import { ChakraNextLink } from '../atoms';
 
 const WearerCard = ({ account }: { account: Hex }) => {
   const { chainId, selectedHat } = useEligibility();
@@ -59,13 +58,12 @@ const WearersList = () => {
   const { electionsAuthority } = useEligibility();
 
   const electedAccounts = useMemo(() => {
-    const allElectedAccounts = _.flatMap(
-      electionsAuthority?.terms,
-      'electedAccounts',
+    if (!electionsAuthority?.currentTerm) return [];
+    const uniqueElectedAccounts = _.uniq(
+      electionsAuthority.currentTerm.electedAccounts,
     );
-    const uniqueElectedAccounts = _.uniq(allElectedAccounts);
-    return _.compact(uniqueElectedAccounts);
-  }, [electionsAuthority?.terms]);
+    return uniqueElectedAccounts;
+  }, [electionsAuthority.currentTerm]);
 
   return (
     <Stack spacing={4}>

@@ -1,51 +1,65 @@
-/* eslint-disable no-nested-ternary */
+import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { useIsClient } from 'app-hooks';
+import { formatAddress } from 'app-utils';
 import {
-  Box,
-  Divider,
-  Flex,
-  Heading,
-  SimpleGrid,
-  Spinner,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { orderedChains } from '@hatsprotocol/constants';
-import { useImageURIs } from 'app-hooks';
-import { chainsMap, formatAddress } from 'app-utils';
-import { useWearerDetails } from 'hats-hooks';
-import { AppHat, SupportedChains } from 'hats-types';
-import _ from 'lodash';
-// import { idToIp } from 'shared';
-import { StandaloneLayout as Layout, WearerHatCard as CoreHat } from 'ui';
+  ChakraNextLink,
+  StandaloneLayout as Layout,
+  // WearerHatCard as CoreHat,
+} from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 
-// TODO fix no nested ternary
+const LookingForHat = () => (
+  <Stack>
+    <Text>
+      This app is here to help you claim hats based on their eligibility
+      module(s).
+    </Text>
+    <Text>
+      You&apos;re probably looking for a specific hat. Look out for a link here
+      with a specific hat ID on it:{' '}
+      <ChakraNextLink href='/1/22.1.2' decoration>
+        <Text variant='mono' display='inline-block'>
+          /1/22.1.2
+        </Text>
+      </ChakraNextLink>
+    </Text>
+  </Stack>
+);
 
 const Home = () => {
+  const isClient = useIsClient();
   const { address: wearerAddress } = useAccount();
-
-  const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
-    wearerAddress,
-    chainId: 'all',
+  const { data: ensName } = useEnsName({
+    address: wearerAddress,
+    chainId: 1,
+    enabled: !!wearerAddress && isClient,
   });
 
-  const sortedHats = _.sortBy(_.compact(currentHats), (hat: AppHat) => {
-    return _.indexOf(orderedChains, hat?.chainId);
-  });
-
-  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({
-      hats: currentHats,
-    });
-
-  const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
-  const groupedHats = _.groupBy(currentHatsWithImagesData, 'chainId');
-  const localOrderedChains = _.filter(orderedChains, (k: number) =>
-    _.includes(_.keys(groupedHats), String(k)),
-  );
+  if (!isClient || !wearerAddress) {
+    return (
+      <Layout title='Claims'>
+        <Box
+          w='100%'
+          h='100%'
+          bg='blue'
+          position='fixed'
+          opacity={0.07}
+          zIndex={-1}
+        />
+        <Flex px={20} py={120}>
+          <Stack spacing={10}>
+            <Heading variant='medium'>
+              Welcome to the Hats Protocol Claims app! 🧢
+            </Heading>
+            <LookingForHat />
+          </Stack>
+        </Flex>
+      </Layout>
+    );
+  }
 
   return (
-    <Layout>
+    <Layout title='Claims'>
       <Box
         w='100%'
         h='100%'
@@ -54,72 +68,15 @@ const Home = () => {
         opacity={0.07}
         zIndex={-1}
       />
-      <Stack spacing={10} px={20} py={120}>
-        {wearerAddress ? (
-          <Flex justifyContent='space-between'>
-            <Stack>
-              <Heading variant='medium'>
-                gm {ensName || formatAddress(wearerAddress)} 👋
-              </Heading>
-              {!_.isEmpty(sortedHats) && (
-                <Text size='xl'>
-                  Here&apos;s what&apos;s happening with your hats
-                </Text>
-              )}
-            </Stack>
-          </Flex>
-        ) : (
-          <Stack>
-            <Heading variant='medium'>Welcome to Hats Protocol! 🧢</Heading>
-            <Text size='lg'>Please connect your wallet to get started.</Text>
-          </Stack>
-        )}
-
-        {wearerAddress && currentHatsWithImagesData && (
-          <Stack width='100%' justify='left' spacing={4}>
-            <Stack>
-              <Heading size='lg' variant='medium'>
-                Wearer of
-              </Heading>
-              <Divider borderColor='black' />
-            </Stack>
-            {wearerLoading || imagesLoading ? (
-              <Flex w='100%' justify='center' pt='100px'>
-                <Spinner />
-              </Flex>
-            ) : _.isEmpty(_.keys(localOrderedChains)) ? (
-              <Text>Not wearing any hats</Text>
-            ) : (
-              <Stack>
-                {_.map(localOrderedChains, (chainId: SupportedChains) => (
-                  <Stack mt={4} spacing={4} key={chainId}>
-                    <Heading size='sm'>
-                      {chainsMap(Number(chainId)).name}
-                    </Heading>
-
-                    <SimpleGrid columns={4} gap={5} key={chainId}>
-                      {_.map(
-                        _.filter(currentHatsWithImagesData, {
-                          chainId: Number(chainId),
-                        }),
-                        (hat: AppHat) => (
-                          <CoreHat
-                            hat={hat}
-                            key={`${chainId}-${hat.id}`}
-                            chainId={chainId}
-                            // link={`/${hat.chainId}/${idToIp(hat.id)}`}
-                          />
-                        ),
-                      )}
-                    </SimpleGrid>
-                    <Divider border='1px solid' borderColor='gray.400' />
-                  </Stack>
-                ))}
-              </Stack>
-            )}
-          </Stack>
-        )}
-      </Stack>
+      <Flex px={20} py={120}>
+        <Stack spacing={50}>
+          <Heading variant='medium'>
+            gm {ensName || formatAddress(wearerAddress)}, welcome to the claims
+            app
+          </Heading>
+          <LookingForHat />
+        </Stack>
+      </Flex>
     </Layout>
   );
 };

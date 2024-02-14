@@ -19,9 +19,8 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
+import { ChakraNextLink, Markdown } from 'ui';
 import { useAccount } from 'wagmi';
-
-import { ChakraNextLink, Markdown } from '../atoms';
 
 const Header = () => {
   const toast = useToast();
@@ -47,14 +46,16 @@ const Header = () => {
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   return (
-    <HStack w={{ base: '100%', md: '2xl' }} gap={10}>
-      <ChakraNextLink
-        href={hatLink({ chainId, hatId: selectedHat?.id })}
-        boxSize={{ base: '65px', md: '120px' }}
+    <HStack w={{ base: '100%', md: '2xl' }} h={{ md: '120px' }} gap={10}>
+      <AspectRatio
+        ratio={1}
+        boxSize='120px'
         display={{ base: 'none', md: 'block' }}
-        isExternal
       >
-        <AspectRatio ratio={1}>
+        <ChakraNextLink
+          href={hatLink({ chainId, hatId: selectedHat?.id })}
+          isExternal
+        >
           <Image
             src={selectedHat?.imageUrl || '/icon.jpeg'}
             alt='hat image'
@@ -64,10 +65,12 @@ const Header = () => {
             border='1px solid'
             borderColor='gray.700'
             borderRadius='md'
+            bg='white'
           />
-        </AspectRatio>
-      </ChakraNextLink>
-      <Stack spacing={1} w={{ base: '60%', md: 'full' }}>
+        </ChakraNextLink>
+      </AspectRatio>
+
+      <Stack spacing={1} w={{ base: '60%', md: '80%' }}>
         <Stack w='full' gap={1}>
           <HStack
             justifyContent='space-between'

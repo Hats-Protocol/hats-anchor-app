@@ -222,6 +222,13 @@ export const transformInput = (
   return undefined;
 };
 
+export const parsedSeconds = (value: bigint | undefined) => {
+  if (!value) return undefined;
+  if (typeof value === 'bigint') return new Date(Number(value) * 1000);
+
+  return new Date();
+};
+
 export const transformAndVerify = (
   input: unknown,
   solidityType: string,

@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { WriteFunction } from '@hatsprotocol/hsg-sdk';
-import { formatAddress } from 'app-utils';
+import { formatAddress, parsedSeconds } from 'app-utils';
 import {
   Modal,
   useEligibility,
@@ -19,9 +19,9 @@ import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { ModuleArgsForm } from 'ui';
 import { useChainId } from 'wagmi';
 
-import ModuleArgsForm from '../forms/ModuleArgsForm';
 import DateInfo from './DateInfo';
 
 const UpcomingSeason = () => {
@@ -44,24 +44,8 @@ const UpcomingSeason = () => {
     label: 'Next Term End',
   });
 
-  let currentTermEndDate;
-  if (typeof currentTermEnd?.value === 'bigint') {
-    currentTermEndDate = new Date(Number(currentTermEnd.value) * 1000);
-  } else {
-    console.error('Invalid value for currentTermEnd: ', currentTermEnd?.value);
-    currentTermEndDate = new Date();
-  }
-
-  let nextTermEndDate;
-  if (typeof nextTermEnd?.value === 'bigint') {
-    nextTermEndDate =
-      nextTermEnd.value === BigInt(0)
-        ? null
-        : new Date(Number(nextTermEnd.value) * 1000);
-  } else {
-    console.error('Invalid value for nextTermEnd: ', nextTermEnd?.value);
-    nextTermEndDate = null;
-  }
+  const currentTermEndDate = parsedSeconds(currentTermEnd?.value as bigint);
+  const nextTermEndDate = parsedSeconds(nextTermEnd?.value as bigint);
 
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
@@ -72,12 +56,13 @@ const UpcomingSeason = () => {
     moduleDetails,
     'writeFunctions',
   );
+
   const accessibleActions = useMemo(() => {
     return _.filter(moduleActions, (action: WriteFunction) => {
       if (
         action.functionName === 'setNextTerm' &&
-        (nextTermEndDate === BigInt(0) ||
-          nextTermEndDate?.getTime() > new Date().getTime())
+        ((nextTermEnd?.value && nextTermEnd.value === BigInt(0)) ||
+          (nextTermEndDate && nextTermEndDate > new Date()))
       ) {
         return false;
       }
@@ -89,7 +74,8 @@ const UpcomingSeason = () => {
 
       const canStartNextTerm =
         action.functionName === 'startNextTerm' &&
-        new Date().getTime() > currentTermEndDate.getTime() &&
+        currentTermEndDate &&
+        new Date().getTime() > currentTermEndDate?.getTime() &&
         !!nextTermEnd?.value &&
         (nextTermEnd.value as bigint) > BigInt(0);
 
@@ -102,7 +88,13 @@ const UpcomingSeason = () => {
         ) || canElect
       );
     });
-  }, [moduleActions, electionsAuthority, nextTermEnd?.value, nextTermEndDate]);
+  }, [
+    moduleActions,
+    electionsAuthority,
+    nextTermEnd?.value,
+    nextTermEndDate,
+    currentTermEndDate,
+  ]);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({ chainId });
@@ -137,15 +129,10 @@ const UpcomingSeason = () => {
   return (
     <Stack gap={4}>
       <Heading size='md'>Upcoming Season</Heading>
-      <Flex justifyContent='space-between' gap={4} wrap='wrap'>
-        <Box w={{ base: '100%', md: '50%' }}>
-          <DateInfo date={currentTermEndDate} label='Current Season End' />
+      <Flex justifyContent='space-between' gap={2} wrap='wrap'>
+        <Box w={{ base: '100%', md: '48%' }}>
+          <DateInfo date={nextTermEndDate} label='Next Season End' />
         </Box>
-        {nextTermEndDate && (
-          <Box w={{ base: '100%', md: '50%' }}>
-            <DateInfo date={nextTermEndDate} label='Next Season End' />
-          </Box>
-        )}
       </Flex>
       {!_.isEmpty(accessibleActions) && (
         <Flex gap={2} wrap='wrap' justifyContent='center'>
