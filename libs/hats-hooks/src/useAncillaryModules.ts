@@ -10,6 +10,7 @@ import {
 import _ from 'lodash';
 import { Hex } from 'viem';
 
+import useHatsAccounts from './useHatsAccounts';
 import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 import useModulesDetails from './useModulesDetails';
 
@@ -34,6 +35,7 @@ const useAncillaryModules = ({
   editMode?: boolean;
 }) => {
   const toast = useToast();
+  const { predictedAddress, createAccount } = useHatsAccounts({ id, chainId });
 
   const {
     data: ancillaryModules,
@@ -86,7 +88,9 @@ const useAncillaryModules = ({
   const hatsAccounts1ofN = populateHatsAccountsAuthorities({
     details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
     hatId: id as Hex,
+    predictedAddress,
     toast,
+    deployFn: createAccount,
   });
 
   const modulesAuthorities = populateModulesAuthorities({

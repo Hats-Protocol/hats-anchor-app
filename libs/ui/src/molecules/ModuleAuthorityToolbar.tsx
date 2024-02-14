@@ -28,7 +28,7 @@ import {
 import { Authority, LinkObject } from 'hats-types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
@@ -199,7 +199,9 @@ const ModuleAuthorityToolbar = ({
 
   const isDisabled = !isWearer || !isSameChain;
   const isPrimaryFunctionDisabled =
-    isDisabled || (primaryFunction?.functionName === 'claimSigner' && claimed);
+    (isDisabled ||
+      (primaryFunction?.functionName === 'claimSigner' && claimed)) &&
+    !primaryFunction?.isCustom;
   const primaryDisabledReason = getDisabledReason(
     !isSameChain,
     !isWearer,

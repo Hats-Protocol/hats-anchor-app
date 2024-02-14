@@ -34,7 +34,7 @@ export const AUTHORITY_ENFORCEMENT: {
     name: 'Module',
   },
   wallet: {
-    label: 'HatsWallet Authority',
+    label: 'Connected Onchain Authority',
     info: '',
     color: 'green.300',
     name: 'HatsWallet',

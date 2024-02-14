@@ -436,27 +436,38 @@ export function populateModulesAuthorities({
 export const populateHatsAccountsAuthorities = ({
   details,
   hatId,
+  predictedAddress,
+  deployFn,
   toast,
 }: {
   details?: HatsAccount1ofN[];
   hatId: Hex;
+  predictedAddress?: Hex | null;
+  deployFn: () => void;
   toast: any;
 }) => {
   const undeployedWalletAuth = {
-    label: `Shared control over 1/N HatsWallet (Deploy required)`,
-    link: undefined,
-    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at (to be calculated). This account has not yet been deployed and can be deployed permissionlessly.  
+    label: `Shared control over 1/N HatsWallet (${formatAddress(
+      predictedAddress,
+    )})`,
+    link: predictedAddress,
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+      predictedAddress,
+    )}. This account has not yet been deployed and can be deployed permissionlessly.  
       Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
       For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
-    id: `not-deployed-${hatId}`,
+    id: predictedAddress,
+    instanceAddress: predictedAddress,
     functions: [
       {
         functionName: 'deploy',
         label: 'Deploy',
         roles: [],
         args: [],
-        description: 'Deploy the HatsWallet contract',
+        description: 'Deploy the HatsWallet authority',
+        isCustom: true,
+        onClick: deployFn,
         primary: true,
       },
     ],
@@ -474,8 +485,8 @@ export const populateHatsAccountsAuthorities = ({
     description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
       wallet.id,
     )}. 
-    This account has been deployed and any of the wearers of this hat can take full control of the assets associated with the shared account.
-      For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+    Any of the wearers of this hat can take full control of the assets associated with the shared account.  
+    For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
     id: wallet.id,
     // functions: wallet.operations,
