@@ -121,7 +121,9 @@ const ModuleAuthorityToolbar = ({
 
   const handleFunctionCall = (func) => {
     if (!authority) return;
-    if (func.args && func.args.length > 0) {
+    if (func.isCustom) {
+      func.onClick();
+    } else if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
     } else if (authority.type === AUTHORITY_TYPES.modules) {
@@ -184,9 +186,13 @@ const ModuleAuthorityToolbar = ({
     isOnWrongNetwork: boolean,
     isNotWearer: boolean,
     isClaimed: boolean,
+    isCustom: boolean,
   ) => {
     if (isOnWrongNetwork) {
       return 'You are on the wrong network';
+    }
+    if (isCustom) {
+      return '';
     }
     if (isNotWearer) {
       return 'You are not a wearer of the current hat';
@@ -206,8 +212,14 @@ const ModuleAuthorityToolbar = ({
     !isSameChain,
     !isWearer,
     primaryFunction?.functionName === 'claimSigner' && !!claimed,
+    primaryFunction?.isCustom,
   );
-  const otherDisabledReason = getDisabledReason(!isSameChain, !isWearer, false);
+  const otherDisabledReason = getDisabledReason(
+    !isSameChain,
+    !isWearer,
+    false,
+    false,
+  );
 
   if (!authority) return null;
 

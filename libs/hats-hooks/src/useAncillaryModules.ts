@@ -93,6 +93,8 @@ const useAncillaryModules = ({
     deployFn: createAccount,
   });
 
+  console.log('hatsAccounts1ofN', hatsAccounts1ofN);
+
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
     modulesDetails,

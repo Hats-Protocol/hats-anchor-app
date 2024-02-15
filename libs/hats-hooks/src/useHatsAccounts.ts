@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { useAccount, useQueryClient } from 'wagmi';
 
-const SALT = BigInt(12);
+const SALT = BigInt(1);
 
 const useHatsAccounts = ({
   id,
@@ -46,6 +46,10 @@ const useHatsAccounts = ({
     const hatsAccountClient = await createHatsAccountClient(chainId);
     if (!hatsAccountClient) return;
 
+    console.log('address', address);
+    console.log('BigInt(id)', BigInt(id));
+    console.log('id', id);
+    console.log('SALT', SALT);
     try {
       await hatsAccountClient.createAccount({
         account: address as Hex,

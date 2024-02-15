@@ -96,7 +96,6 @@ const WearerRow = ({
     selectedHat,
     chainId,
   });
-  console.log(isEligibleRead, 'isEligibleRead');
 
   const { details: moduleDetails } = useModuleDetails({
     address: wearer.id,
