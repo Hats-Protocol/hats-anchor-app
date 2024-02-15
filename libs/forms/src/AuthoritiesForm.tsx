@@ -20,7 +20,6 @@ import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { usePinImageIpfs } from 'app-hooks';
 import { formatImageUrl, getHostnameFromURL } from 'app-utils';
 import { useHatForm, useTreeForm } from 'contexts';
-import { id } from 'date-fns/locale';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -31,6 +30,8 @@ import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { AuthorityHeader, DropZone, Input, Textarea } from 'ui';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
+
+const AUTHORITY_NAME_LENGTH = 40;
 
 interface AuthoritiesFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,7 +78,8 @@ const AuthoritiesForm = ({
   );
   const items = hatWatch?.(formName);
   const item = watch();
-  const { errors, isDirty } = _.pick(formState, ['errors', 'isDirty']);
+  const { errors, isValid } = _.pick(formState, ['errors', 'isValid']);
+  console.log(formState, errors, isValid);
 
   const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
@@ -142,9 +144,9 @@ const AuthoritiesForm = ({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
-      name: `image_${_.toString(chainId)}_hat_${
-        selectedHat?.id
-      }_authorities_${id}`,
+      name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}_authorities_${
+        item.name
+      }`,
     },
   });
 
@@ -250,6 +252,10 @@ const AuthoritiesForm = ({
                   localForm={localForm}
                   options={{
                     required: 'Authority name is required',
+                    maxLength: {
+                      value: AUTHORITY_NAME_LENGTH,
+                      message: 'Authority name is too long',
+                    },
                   }}
                 />
 
@@ -304,7 +310,7 @@ const AuthoritiesForm = ({
                       colorScheme='blue'
                       leftIcon={<BsSave />}
                       isLoading={isLoading}
-                      isDisabled={_.some(errors) || !isDirty}
+                      isDisabled={_.some(errors) || !isValid}
                       type='submit'
                     >
                       Save
