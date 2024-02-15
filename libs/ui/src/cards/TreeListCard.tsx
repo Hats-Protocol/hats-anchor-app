@@ -6,6 +6,7 @@ import {
   HStack,
   Stack,
   Text,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
@@ -25,6 +26,7 @@ const TreeListCard = ({
   topHatImage: AppHat | undefined;
 }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
+  const isMobile = useBreakpointValue({ base: true, sm: false });
 
   const hatName =
     hatDetails?.type === '1.0'
@@ -37,9 +39,17 @@ const TreeListCard = ({
       key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
-        <CardBody>
+        <CardBody
+          p={isMobile ? '0 !important' : 6}
+          w='100%'
+          h='100%'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          flexDirection='column'
+        >
           <HStack
-            h='100px'
+            h={{ base: 85, sm: '100px' }}
             w='100%'
             justify='left'
             align='center'

@@ -25,7 +25,6 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
       w='100%'
       justify='space-between'
       align='center'
-      boxShadow='md'
       position='fixed'
       zIndex={10}
       px={2}
