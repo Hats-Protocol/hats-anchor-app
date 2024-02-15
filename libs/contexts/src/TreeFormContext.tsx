@@ -728,6 +728,7 @@ export const TreeFormContextProvider = ({
     id: selectedHatId,
     chainId,
     editMode,
+    tree: orgChartTree,
   });
 
   const { data: combinedAuthorities } = combineAuthorities({

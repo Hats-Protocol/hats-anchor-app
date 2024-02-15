@@ -25,7 +25,7 @@ const ModuleExplorer = () => {
 
   return (
     <StandaloneLayout>
-      <Stack py={100} w='80%' maxW='1200px' mx='auto' align='center'>
+      <Stack py={120} w='80%' maxW='1200px' mx='auto' align='center'>
         <Heading>Module Explorer</Heading>
         <Tabs w='100%'>
           <TabList overflow='scroll'>
