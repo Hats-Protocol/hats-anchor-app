@@ -6,7 +6,7 @@ import { chainsMap } from 'app-utils';
 import { useEligibility } from 'contexts';
 import dynamic from 'next/dynamic';
 
-import { Agreement, Election, KnownModule } from './modules';
+import { Agreement, AgreementV0, Election, KnownModule } from './modules';
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 const ChakraNextLink = dynamic(() =>
@@ -42,6 +42,10 @@ const Claims = () => {
         </Flex>
       </Layout>
     );
+  }
+
+  if (chainId === 10 && selectedHat?.id === CONFIG.communityHatId) {
+    return <AgreementV0 />;
   }
 
   // handle specific modules found

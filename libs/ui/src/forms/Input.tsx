@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
-import React, { ReactNode } from 'react';
+import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
@@ -99,15 +99,15 @@ const Input = ({
     setValue(name, address, { shouldDirty: true });
   };
 
-  const defaultHandleChange = (e) => {
+  // allow override onChange handler
+  const defaultHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(name, e.target.value, { shouldDirty: true });
   };
-  console.log(options, options?.maxLength?.valueOf());
   const handleChange = onChange || defaultHandleChange;
+
   const inputLength = watch(name)?.length || 0;
   const maxLength =
     (options?.maxLength?.valueOf() as { value: number })?.value || 0;
-  console.log('maxLength', maxLength, inputLength);
 
   let rightElementWidth = 0;
   if (isDirty) rightElementWidth += 35;

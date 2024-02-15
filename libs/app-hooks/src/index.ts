@@ -1,3 +1,4 @@
+export { default as useAgreementClaimsHatterContractWrite } from './useAgreementClaimsHatterContractWrite';
 export { default as useBetterMediaQuery } from './useBetterMediaQuery';
 export { default as useCid } from './useCid';
 export { default as useContractData } from './useContractData';

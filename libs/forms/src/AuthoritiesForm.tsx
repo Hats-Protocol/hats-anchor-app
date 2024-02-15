@@ -79,7 +79,6 @@ const AuthoritiesForm = ({
   const items = hatWatch?.(formName);
   const item = watch();
   const { errors, isValid } = _.pick(formState, ['errors', 'isValid']);
-  console.log(formState, errors, isValid);
 
   const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
