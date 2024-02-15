@@ -6,7 +6,7 @@ import { Box } from '@chakra-ui/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import Navbar from './Navbar';
+import NavbarMobile from './NavbarMobile';
 
 const Layout = ({ children, title }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
@@ -54,7 +54,7 @@ const Layout = ({ children, title }: LayoutProps) => {
         zIndex={-1}
       />
 
-      <Navbar title={title} />
+      <NavbarMobile />
       <Box
         h={{ base: 'auto', md: '100vh' }}
         w={{ base: 'auto', md: '100vw' }}

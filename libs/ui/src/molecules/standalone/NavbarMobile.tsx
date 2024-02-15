@@ -1,15 +1,24 @@
-import { Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  HStack,
+  Image,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { BsDiagram3Fill } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
-import { ChakraNextLink } from '../atoms';
-import ConnectWallet from './ConnectWallet';
+import { ChakraNextLink } from '../../atoms';
+import MobileDrawer from '../../atoms/standalone/MobileDrawer';
+import ConnectWallet from '../ConnectWallet';
 
 const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
   const currentChainId = useChainId();
+  const { isOpen, onToggle } = useDisclosure();
 
   return (
     <Flex
@@ -36,6 +45,8 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
       </HStack>
 
       <ConnectWallet />
+
+      <MobileDrawer isOpen={isOpen} onToggle={onToggle} />
     </Flex>
   );
 };

@@ -8,7 +8,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import CommandPalette from './CommandPalette';
-import NavbarMobile from './NavbarMobile';
+import NavbarMobile from './standalone/NavbarMobile';
 
 const Navbar = dynamic(() => import('./Navbar'));
 
