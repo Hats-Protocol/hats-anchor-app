@@ -1,14 +1,14 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { Box, useMediaQuery } from '@chakra-ui/react';
 import { AppHat } from 'hats-types';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import CommandPalette from './CommandPalette';
+import NavbarMobile from './NavbarMobile';
 
 const Navbar = dynamic(() => import('./Navbar'));
 
@@ -58,35 +58,14 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         zIndex={-1}
       />
       <CommandPalette />
-      {!upTo780 ? (
-        <>
-          <Navbar hatData={hatData} />
-          <Box h='100vh' w='100vw'>
-            {children}
-          </Box>
-        </>
+      {upTo780 ? (
+        <NavbarMobile hatData={hatData} />
       ) : (
-        <Stack
-          textAlign='center'
-          h='100vh'
-          justifyContent='center'
-          px={10}
-          alignItems='center'
-          spacing={4}
-        >
-          <Image src='/icons/hats.svg' alt='Hat' h={150} w={150} mb={4} />
-          <Text size='xl' variant='medium'>
-            Hello, Hat Wearer 🧢
-          </Text>
-          <Text size='xl' variant='medium'>
-            The Hats App is not currently optimized for mobile usage.
-          </Text>
-          <Text size='xl' variant='medium'>
-            Please visit <a href={CONFIG.APP_URL}>app.hatsprotocol.xyz</a> from
-            a desktop device.
-          </Text>
-        </Stack>
+        <Navbar hatData={hatData} />
       )}
+      <Box h='100vh' w='100vw'>
+        {children}
+      </Box>
     </Box>
   );
 };

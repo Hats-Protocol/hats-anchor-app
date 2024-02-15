@@ -103,7 +103,9 @@ const ConnectWallet = () => {
                 <Menu placement='bottom-end' isLazy>
                   <MenuButton
                     as={Button}
-                    rightIcon={<Icon as={FaChevronDown} />}
+                    rightIcon={
+                      upTo780 ? undefined : <Icon as={FaChevronDown} />
+                    }
                     bg='green.200'
                     _hover={{ bg: 'green.300' }}
                     color='green.700'
@@ -126,12 +128,14 @@ const ConnectWallet = () => {
                           />
                         </Box>
                       ) : (
-                        <Box
-                          height='14px'
-                          width='14px'
-                          borderRadius='50%'
-                          bg='green.700'
-                        />
+                        !upTo780 && (
+                          <Box
+                            height='14px'
+                            width='14px'
+                            borderRadius='50%'
+                            bg='green.700'
+                          />
+                        )
                       )}
 
                       <Text variant='medium' noOfLines={1}>
