@@ -146,7 +146,9 @@ const ModuleParameter = ({
       <ModuleParameterRow
         label={param.label}
         linkLabel={_.join(
-          _.map(param.value, (v: bigint) => v.toString()),
+          _.map(param.value as unknown[], (v: unknown) =>
+            (v as bigint).toString(),
+          ),
           ', ',
         )}
       />

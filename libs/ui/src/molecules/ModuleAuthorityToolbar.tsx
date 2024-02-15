@@ -63,7 +63,7 @@ const ModuleAuthorityToolbar = ({
     [selectedHat, address],
   );
   const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
-  const otherFunctions = _.find(
+  const otherFunctions = _.filter(
     _.get(authority, 'functions'),
     (func: any) => !func.primary,
   );
