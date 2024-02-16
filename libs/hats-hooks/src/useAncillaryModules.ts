@@ -93,8 +93,6 @@ const useAncillaryModules = ({
     deployFn: createAccount,
   });
 
-  console.log('hatsAccounts1ofN', hatsAccounts1ofN);
-
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
     modulesDetails,
@@ -105,7 +103,8 @@ const useAncillaryModules = ({
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
-      ...hatsAccounts1ofN,
+      // temp fix
+      ...(chainId === 11155111 ? hatsAccounts1ofN : []),
     ],
     error,
     isLoading: false,
