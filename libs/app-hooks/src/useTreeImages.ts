@@ -54,7 +54,10 @@ const useTreeImages = ({
   editMode?: boolean;
 }) => {
   const images = _.uniq(_.map(hats, 'imageUri'));
-  const actualImages = _.filter(images, (image: string) => image !== '');
+  const actualImages = _.filter(
+    images,
+    (image: string) => image && image !== '',
+  ) as string[];
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeImages', actualImages, hats],
