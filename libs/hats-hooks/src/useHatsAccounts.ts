@@ -46,10 +46,6 @@ const useHatsAccounts = ({
     const hatsAccountClient = await createHatsAccountClient(chainId);
     if (!hatsAccountClient) return;
 
-    console.log('address', address);
-    console.log('BigInt(id)', BigInt(id));
-    console.log('id', id);
-    console.log('SALT', SALT);
     try {
       await hatsAccountClient.createAccount({
         account: address as Hex,
@@ -62,7 +58,7 @@ const useHatsAccounts = ({
         description: 'The hats wallet account has been successfully deployed',
       });
 
-      queryClient.invalidateQueries(['ancillaryModules', id, chainId]);
+      queryClient.invalidateQueries(['hatDetails', { id, chainId }]);
     } catch (error) {
       toast.error({
         title: 'Transaction failed',
