@@ -133,6 +133,7 @@ export interface HatAuthority {
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];
+  hatsAccount1ofN: HatsAccount1ofN[];
 }
 
 export interface ElectionsAuthority {
@@ -142,3 +143,21 @@ export interface ElectionsAuthority {
   id: Hex;
   userRoles: string[];
 }
+
+export type HatsAccount1ofN = {
+  id: string;
+  accountOfHat: {
+    id: string;
+  };
+  operations: HatsAccount1ofNOperation[];
+};
+
+type HatsAccount1ofNOperation = {
+  id: string;
+  hatsAccount: HatsAccount1ofN;
+  signer: string;
+  to: string;
+  value: bigint;
+  callData: Uint8Array;
+  operationType: string;
+};

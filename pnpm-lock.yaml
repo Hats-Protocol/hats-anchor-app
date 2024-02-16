@@ -20,6 +20,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.0
         version: 11.11.0(@emotion/react@11.11.3)(@types/react@18.2.33)(react@18.2.0)
+      '@hatsprotocol/hats-account-sdk':
+        specifier: ^0.0.2
+        version: 0.0.2(viem@1.21.4)
       '@hatsprotocol/hsg-sdk':
         specifier: ^0.0.9
         version: 0.0.9(viem@1.21.4)
@@ -126,7 +129,7 @@ importers:
         specifier: ^2
         version: 2.79.1
       viem:
-        specifier: ^1.19.15
+        specifier: ^1.21.4
         version: 1.21.4(typescript@5.3.3)
       view:
         specifier: ^1.1.1
@@ -2800,6 +2803,14 @@ packages:
       graphql: 16.8.1
     dev: false
 
+  /@hatsprotocol/hats-account-sdk@0.0.2(viem@1.21.4):
+    resolution: {integrity: sha512-VNmoYTHWF2kESo+TumY6PGZoxuUw2Vy2QSTqM5qtggc2tkG2I0o99stwgckAG1KKTrm9P/UlPwQoZvDgPzFc1A==}
+    peerDependencies:
+      viem: ^1.11.0
+    dependencies:
+      viem: 1.21.4(typescript@5.3.3)
+    dev: false
+
   /@hatsprotocol/hsg-sdk@0.0.9(viem@1.21.4):
     resolution: {integrity: sha512-S0NcGENo051lZqL5Y6ITa66fJierl+8KPwf89bQmSAckzevo2ZzbPMI5LAlbXHoUVs9bH0v+mAXtkisfNf4VHQ==}
     peerDependencies:
@@ -4110,6 +4121,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
+      napi-wasm: 1.1.0
     dev: false
     bundledDependencies:
       - napi-wasm
@@ -11531,6 +11543,10 @@ packages:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
+    dev: false
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}

@@ -17,6 +17,7 @@
     "@chakra-ui/react": "^2.8.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@hatsprotocol/hats-account-sdk": "^0.0.2",
     "@hatsprotocol/hsg-sdk": "^0.0.9",
     "@hatsprotocol/modules-sdk": "^0.15.2",
     "@hatsprotocol/sdk-v1-core": "^0.8.1",
@@ -52,7 +53,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-markdown": "^8.0.7",
     "rollup": "^2",
-    "viem": "^1.19.15",
+    "viem": "^1.21.4",
     "view": "^1.1.1",
     "wagmi": "^1.4.13",
     "webpack": "^5"

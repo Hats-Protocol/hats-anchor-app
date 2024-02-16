@@ -21,12 +21,14 @@ import {
   AppHat,
   FormData,
   HatAuthority,
+  HatsAccount1ofN,
   HatSignerGate,
   ModuleCreationArg,
   ModuleDetails,
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
+import { FiCopy } from 'react-icons/fi';
 import { ipToHatId } from 'shared';
 import { Hex, parseUnits } from 'viem';
 
@@ -386,7 +388,11 @@ export function populateModulesAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const filteredAuthorities = _.omit(hatAuthorities, [
+    'hsgOwner',
+    'hsgSigner',
+    'hatsAccount1ofN',
+  ]);
   const updatedHatAuthorities = _.map(
     filteredAuthorities,
     (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
@@ -426,6 +432,80 @@ export function populateModulesAuthorities({
 
   return _.flatten(updatedHatAuthorities);
 }
+
+export const populateHatsAccountsAuthorities = ({
+  details,
+  hatId,
+  predictedAddress,
+  deployFn,
+  toast,
+}: {
+  details?: HatsAccount1ofN[];
+  hatId: Hex;
+  predictedAddress?: Hex | null;
+  deployFn: () => void;
+  toast: any;
+}) => {
+  const undeployedWalletAuth = {
+    label: `Shared control over 1/N HatsWallet (${formatAddress(
+      predictedAddress,
+    )})`,
+    link: predictedAddress,
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+      predictedAddress,
+    )}. This account has not yet been deployed and can be deployed permissionlessly.  
+      Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
+      For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+    type: AUTHORITY_TYPES.wallet,
+    id: predictedAddress,
+    instanceAddress: predictedAddress,
+    functions: [
+      {
+        isCustom: true,
+        label: 'Deploy',
+        description: 'Deploy the HatsWallet authority',
+        onClick: deployFn,
+        primary: true,
+      },
+    ],
+    hatId,
+    isDeployed: false,
+  };
+
+  if (!details || details.length === 0) {
+    return [undeployedWalletAuth];
+  }
+
+  return details.map((wallet) => ({
+    label: `Shared control over 1/N HatsWallet (${formatAddress(wallet.id)})`,
+    link: wallet.accountOfHat?.id,
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+      wallet.id,
+    )}. 
+    Any of the wearers of this hat can take full control of the assets associated with the shared account.  
+    For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+    type: AUTHORITY_TYPES.wallet,
+    id: wallet.id,
+    // functions: wallet.operations,
+    functions: [
+      {
+        label: 'Copy Address',
+        description: 'Copy the address of the HatsWallet',
+        isCustom: true,
+        onClick: () => {
+          navigator.clipboard.writeText(wallet.id);
+          toast.info({
+            title: 'Successfully copied wearer address to clipboard',
+          });
+        },
+        icon: FiCopy,
+      },
+    ],
+    instanceAddress: wallet.id,
+    hatId,
+    isDeployed: true,
+  }));
+};
 
 export const populateHatsGatesAuthorities = ({
   details,

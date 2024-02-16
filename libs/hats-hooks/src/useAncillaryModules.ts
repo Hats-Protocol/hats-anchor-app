@@ -1,18 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from 'app-hooks';
 import { fetchAncillaryModules } from 'app-utils';
 import { HatAuthority, SupportedChains } from 'hats-types';
 import {
+  populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
 } from 'hats-utils';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
+import useHatsAccounts from './useHatsAccounts';
 import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 import useModulesDetails from './useModulesDetails';
 
 const extractModuleIds = (hatAuthorities: HatAuthority) => {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const filteredAuthorities = _.omit(hatAuthorities, [
+    'hsgOwner',
+    'hsgSigner',
+    'hatsAccount1ofN',
+  ]);
   return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) =>
     _.map(items, 'id'),
   );
@@ -27,6 +34,9 @@ const useAncillaryModules = ({
   chainId: SupportedChains;
   editMode?: boolean;
 }) => {
+  const toast = useToast();
+  const { predictedAddress, createAccount } = useHatsAccounts({ id, chainId });
+
   const {
     data: ancillaryModules,
     error,
@@ -75,6 +85,14 @@ const useAncillaryModules = ({
     hatId: id as Hex,
   });
 
+  const hatsAccounts1ofN = populateHatsAccountsAuthorities({
+    details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
+    hatId: id as Hex,
+    predictedAddress,
+    toast,
+    deployFn: createAccount,
+  });
+
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
     modulesDetails,
@@ -85,6 +103,8 @@ const useAncillaryModules = ({
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
+      // temp fix
+      ...(chainId === 11155111 ? hatsAccounts1ofN : []),
     ],
     error,
     isLoading: false,
