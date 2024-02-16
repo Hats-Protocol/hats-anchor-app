@@ -19,3 +19,4 @@ export { default as useSafeDetails } from './useSafeDetails';
 export { default as useSearchResults } from './useSearchResults';
 export { default as useSnapshotSpaces } from './useSnapshotSpaces';
 export { default as useToast } from './useToast';
+export { default as useTreeImages } from './useTreeImages';

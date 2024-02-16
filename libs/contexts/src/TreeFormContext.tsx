@@ -12,6 +12,7 @@ import {
   useLocalStorage,
   useOrgChartTree,
   useSnapshotSpaces as useSpaces,
+  useTreeImages,
 } from 'app-hooks';
 import {
   generateLocalStorageKey,
@@ -335,9 +336,8 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     editMode,
   });
-  const { data: imagesData, isLoading: imagesLoading } = useImageURIs({
+  const { data: imagesData, isLoading: imagesLoading } = useTreeImages({
     hats: hatDetails,
-    onchainHats,
     editMode,
   });
   const { orgChartTree } = useOrgChartTree({

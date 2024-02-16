@@ -201,7 +201,7 @@ export const getBranch = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   return [targetHat, ...descendants];
 };
 
-export const checkImageForHat = async (img?: string) => {
+export const checkImageIsValid = async (img?: string) => {
   const isValidImage = await isImageUrl(formatImageUrl(img));
 
   if (isValidImage) {
