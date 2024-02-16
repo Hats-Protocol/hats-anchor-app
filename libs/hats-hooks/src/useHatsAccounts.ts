@@ -22,6 +22,8 @@ const useHatsAccounts = ({
   useEffect(() => {
     const predictAddress = async () => {
       if (!id || !chainId) return;
+      // TODO temp workaround
+      if (chainId !== 11155111) return;
 
       const hatsAccountClient = await createHatsAccountClient(chainId);
       if (!hatsAccountClient) return;
@@ -33,6 +35,7 @@ const useHatsAccounts = ({
         });
         setPredictedAddress(predictedAccount);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error predicting Hats account address:', error);
       }
     };

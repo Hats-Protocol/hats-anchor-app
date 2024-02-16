@@ -3,7 +3,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { viemPublicClient } from 'app-utils';
 import { AppHat } from 'hats-types';
-import { checkImageForHat } from 'hats-utils';
+import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Abi, Hex, Narrow } from 'viem';
@@ -40,6 +40,7 @@ const useImageURIs = ({
       imageUrl: '/icon.jpeg',
     }));
   }, [hats]);
+  // console.log(hats, onchainHats);
 
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {
@@ -116,7 +117,7 @@ const useImageURIs = ({
   const imageQueries = useQueries({
     queries: _.map(uniqueImageUris, (img: string | undefined) => ({
       queryKey: ['imageUrl', img],
-      queryFn: () => checkImageForHat(img),
+      queryFn: () => checkImageIsValid(img),
       enabled: enabled && !!img && img !== '',
       timeout: 2000,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

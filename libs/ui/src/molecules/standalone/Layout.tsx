@@ -59,7 +59,7 @@ const Layout = ({ children, title }: LayoutProps) => {
         h={{ base: 'auto', md: '100vh' }}
         w={{ base: 'auto', md: '100vw' }}
         maxW='1200px'
-        px='auto'
+        mx='auto'
       >
         {children}
       </Box>

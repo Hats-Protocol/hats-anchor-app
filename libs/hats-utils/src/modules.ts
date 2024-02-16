@@ -398,6 +398,7 @@ export function populateModulesAuthorities({
     (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
       _.map(authorityEntries, ({ id, hatId }: { id: Hex; hatId: Hex }) => {
         const moduleInfo = _.find(modulesDetails, { id });
+        if (!moduleInfo) return null;
 
         const matchingRole = _.find(
           moduleInfo?.customRoles,

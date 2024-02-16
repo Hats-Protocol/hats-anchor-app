@@ -1,13 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from 'app-hooks';
 import { fetchAncillaryModules } from 'app-utils';
-import { HatAuthority, SupportedChains } from 'hats-types';
+import {
+  AppHat,
+  HatAuthority,
+  ModuleDetails,
+  // HatAuthorityResponse,
+  SupportedChains,
+} from 'hats-types';
 import {
   populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
 } from 'hats-utils';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { Hex } from 'viem';
 
 import useHatsAccounts from './useHatsAccounts';
@@ -29,10 +36,12 @@ const useAncillaryModules = ({
   id,
   chainId,
   editMode,
+  tree,
 }: {
   id?: string;
   chainId: SupportedChains;
   editMode?: boolean;
+  tree?: AppHat[] | undefined;
 }) => {
   const toast = useToast();
   const { predictedAddress, createAccount } = useHatsAccounts({ id, chainId });
@@ -60,6 +69,17 @@ const useAncillaryModules = ({
       chainId,
       editMode,
     });
+
+  const activeModules = useMemo(() => {
+    if (!modulesDetails) return [];
+    if (!tree) return modulesDetails;
+    const controllers = _.flatten(
+      _.map(tree, (h: AppHat) => [h.toggle, h.eligibility]),
+    );
+    return _.filter(modulesDetails, (m: ModuleDetails) =>
+      _.includes(controllers, m.id),
+    );
+  }, [modulesDetails, tree]);
 
   if (isHatAuthoritiesLoading || isModulesDetailsLoading) {
     return {
@@ -95,7 +115,7 @@ const useAncillaryModules = ({
 
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
-    modulesDetails,
+    modulesDetails: activeModules,
   });
 
   return {

@@ -21,7 +21,7 @@ export const explorerUrl = (chainId?: number) =>
 // workaround for https://github.com/microsoft/TypeScript/issues/48212
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const configuredChains: any = configureChains(
-  _.map(orderedChains, (c) => chainsMap(c)),
+  _.map(orderedChains, (c: SupportedChains) => chainsMap(c)),
   [alchemyProvider({ apiKey: ALCHEMY_ID || '' }), publicProvider()],
 );
 

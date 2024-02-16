@@ -33,6 +33,8 @@ export const CONFIG: Config = {
   banner: true,
   claimsHatterModuleName: 'Multi Claims Hatter',
   modulesRegistryFactory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
+  communityHatId: '1.2.1.1',
+  // urls
   APP_URL,
   CONTACT_URL,
   DOCS_URL,
@@ -80,6 +82,7 @@ type Config = {
   debounce: number;
   banner: boolean;
   claimsHatterModuleName: string;
+  communityHatId: string;
 
   // terminology
   hat: string;

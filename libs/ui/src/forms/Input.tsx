@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import {
+  Box,
   Button,
   Flex,
   FormControl,
@@ -18,11 +19,13 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
-import React, { ReactNode } from 'react';
+import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
 import { useAccount } from 'wagmi';
+
+// TODO errors aren't being bubbled up to formState for some reason
 
 /**
  * Primary Input component for React Hook Form
@@ -60,6 +63,7 @@ const Input = ({
     trigger,
     resetField,
     setValue,
+    watch,
     formState: { dirtyFields, errors },
   } = localForm;
 
@@ -95,11 +99,20 @@ const Input = ({
     setValue(name, address, { shouldDirty: true });
   };
 
-  const defaultHandleChange = (e) => {
+  // allow override onChange handler
+  const defaultHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(name, e.target.value, { shouldDirty: true });
   };
-
   const handleChange = onChange || defaultHandleChange;
+
+  const inputLength = watch(name)?.length || 0;
+  const maxLength =
+    (options?.maxLength?.valueOf() as { value: number })?.value || 0;
+
+  let rightElementWidth = 0;
+  if (isDirty) rightElementWidth += 35;
+  if (rightElement) rightElementWidth += 40;
+  if (maxLength > 0) rightElementWidth += 30;
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
@@ -154,30 +167,37 @@ const Input = ({
           {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>}
           <ChakraInput
             type={type}
-            {...register(name, { ...options, validate: options?.validate })}
+            {...register(name, options)}
             onChange={handleChange}
             onPaste={handlePaste}
             {...props}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
-          {rightElement && (
-            <InputRightElement mr={isDirty ? '28px' : ''}>
-              {rightElement}
-            </InputRightElement>
-          )}
-          {isDirty && (
-            <InputRightElement>
-              <IconButton
-                icon={<GrUndo />}
-                aria-label='Reset'
-                onClick={onReset}
-                size='xs'
-                isDisabled={isDisabled}
-                colorScheme='cyan'
-              />
-            </InputRightElement>
-          )}
+          <InputRightElement w={`${rightElementWidth}px`}>
+            <Flex w='100%' align='center' justify='space-between' pr={4}>
+              {rightElement && <Box>{rightElement}</Box>}
+              {isDirty && (
+                <IconButton
+                  icon={<GrUndo />}
+                  aria-label='Reset'
+                  onClick={onReset}
+                  size='xs'
+                  isDisabled={isDisabled}
+                  colorScheme='cyan'
+                />
+              )}
+              {maxLength > 0 && (
+                <Text
+                  size='xs'
+                  color={maxLength - inputLength < 0 ? 'red.500' : 'inherit'}
+                  variant='light'
+                >
+                  {maxLength - inputLength}
+                </Text>
+              )}
+            </Flex>
+          </InputRightElement>
         </InputGroup>
         {typeof subInput !== 'string' ? (
           subInput
