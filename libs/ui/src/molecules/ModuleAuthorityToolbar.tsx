@@ -212,7 +212,7 @@ const ModuleAuthorityToolbar = ({
     !isSameChain,
     !isWearer,
     primaryFunction?.functionName === 'claimSigner' && !!claimed,
-    primaryFunction?.isCustom,
+    primaryFunction?.isCustom || false,
   );
   const otherDisabledReason = getDisabledReason(
     !isSameChain,
