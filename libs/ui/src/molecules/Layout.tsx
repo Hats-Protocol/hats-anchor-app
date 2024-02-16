@@ -2,6 +2,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Box, Image, Stack, Text, useMediaQuery } from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat } from 'hats-types';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
@@ -81,8 +82,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
             The Hats App is not currently optimized for mobile usage.
           </Text>
           <Text size='xl' variant='medium'>
-            Please visit{' '}
-            <a href='https://app.hatsprotocol.xyz'>app.hatsprotocol.xyz</a> from
+            Please visit <a href={CONFIG.APP_URL}>app.hatsprotocol.xyz</a> from
             a desktop device.
           </Text>
         </Stack>

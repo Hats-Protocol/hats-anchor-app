@@ -10,7 +10,7 @@ const SlimModuleDetails = dynamic(() =>
 const KnownModule = () => {
   return (
     <Layout title='Claims'>
-      <Stack w='60%' maxW='1200px' mx='auto' py={100} spacing={10}>
+      <Stack w='60%' maxW='1200px' mx='auto' py={120} spacing={10}>
         <Box w='90%' mx='auto'>
           <Header />
         </Box>

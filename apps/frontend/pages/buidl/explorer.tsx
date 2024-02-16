@@ -52,7 +52,7 @@ const ModuleExplorer = () => {
                 pb={50}
               >
                 <Stack spacing={4}>
-                  <Accordion title='Details'>
+                  <Accordion title='Details' open>
                     <Stack>
                       <Stack>
                         {_.map(m.details, (d) => (
@@ -108,7 +108,7 @@ const ModuleExplorer = () => {
                     </UnorderedList>
                   </Accordion>
                   {!_.isEmpty(m.customRoles) && (
-                    <Accordion title='Roles'>
+                    <Accordion title='Roles' open>
                       <Stack>
                         {_.map(m.customRoles, (r) => {
                           const functionsForRole = _.filter(

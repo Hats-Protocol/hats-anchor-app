@@ -1,6 +1,6 @@
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { createHatsModulesClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import { Hex, zeroAddress } from 'viem';
@@ -36,7 +36,7 @@ const useModuleDetails = ({
     };
   };
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', address],
     queryFn: getModuleData,
     enabled:
@@ -47,7 +47,11 @@ const useModuleDetails = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  return { details: data?.details, parameters: data?.parameters, isLoading };
+  return {
+    details: data?.details,
+    parameters: data?.parameters,
+    isLoading: isLoading && fetchStatus !== 'idle',
+  };
 };
 
 export default useModuleDetails;

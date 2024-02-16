@@ -7,7 +7,6 @@ import {
   Select as ChakraSelect,
   SelectFieldProps as ChakraSelectProps,
   Stack,
-  Text,
   Tooltip,
 } from '@chakra-ui/react';
 import { ChangeEvent, ReactNode } from 'react';
@@ -51,8 +50,8 @@ const Select = ({
       <Stack spacing={2} w='100%'>
         {label && (
           <HStack>
-            <FormLabel mb={0}>
-              <Text size='sm'>{label.toUpperCase()}</Text>
+            <FormLabel mb={0} fontSize='sm'>
+              {label.toUpperCase()}
             </FormLabel>
 
             {info && (
