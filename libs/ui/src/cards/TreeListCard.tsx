@@ -43,17 +43,25 @@ const TreeListCard = ({
           p={isMobile ? '0 !important' : 6}
           w='100%'
           h='100%'
+          border={isMobile ? '1px solid #4A5568' : ''}
           display='flex'
           alignItems='center'
           justifyContent='center'
           flexDirection='column'
+          borderRadius={6}
         >
           <HStack
             h={{ base: 85, sm: '100px' }}
             w='100%'
             justify='left'
-            align='center'
-            spacing='16px'
+            align={{
+              base: 'flex-start',
+              sm: 'center',
+            }}
+            spacing={{
+              base: 2,
+              sm: 4,
+            }}
           >
             <Box
               bgImage={
@@ -65,15 +73,32 @@ const TreeListCard = ({
               bgPosition='center'
               w='85px'
               h='85px'
-              border='1px solid'
-              borderColor='gray.200'
+              borderRight={isMobile ? '1px solid #4A5568' : ''}
+              border={isMobile ? '' : '1px solid #4A5568'}
+              borderRadius={5}
             />
-            <Stack spacing={1} maxW='110px'>
-              <Heading size='md' noOfLines={2}>
-                {hatName}
-              </Heading>
-              <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
-            </Stack>
+            {isMobile ? (
+              <Stack spacing={1} maxW='110px' pt={isMobile ? 2 : 0}>
+                <Text>{decimalId(_.get(tree, 'id'))}</Text>
+                <Heading size='md' noOfLines={2}>
+                  {hatName}
+                </Heading>
+              </Stack>
+            ) : (
+              <Stack
+                spacing={1}
+                maxW={{
+                  base: 'auto',
+                  sm: '110px',
+                }}
+                pt={isMobile ? 2 : 0}
+              >
+                <Heading size='md' noOfLines={2}>
+                  {hatName}
+                </Heading>
+                <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
+              </Stack>
+            )}
           </HStack>
         </CardBody>
       </Card>
