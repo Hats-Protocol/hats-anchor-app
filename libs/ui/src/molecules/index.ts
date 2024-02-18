@@ -16,5 +16,6 @@ export { default as PlatformInput } from './PlatformInput';
 export { default as ResponsibilitiesListCard } from './ResponsibilitiesListCard';
 export { default as ResponsibilityHeader } from './ResponsibilityHeader';
 export * from './standalone';
+export { default as TooltipWrapper } from './TooltipWrapper';
 export { default as TransactionHistory } from './TransactionHistory';
 export { default as TreeMenu } from './TreeMenu';
