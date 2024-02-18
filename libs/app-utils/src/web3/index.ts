@@ -1,6 +1,7 @@
 import '@rainbow-me/rainbowkit/styles.css';
 
 import { chainsList, NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
+import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
 import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
@@ -118,4 +119,26 @@ export async function createHatsSignerGateClient(
   });
 
   return hatsModulesClient as HatsSignerGateClient;
+}
+
+export async function createHatsAccountClient(
+  chainId: number | undefined,
+): Promise<HatsAccount1ofNClient | undefined> {
+  if (!chainId) return undefined;
+  const chain = chainsMap(chainId);
+
+  const localWalletClient = createWalletClient({
+    chain,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transport: custom((window as any).ethereum),
+  });
+
+  const localPublicClient = viemPublicClient(chainId);
+
+  const hatsAccountClient = new HatsAccount1ofNClient({
+    publicClient: localPublicClient,
+    walletClient: localWalletClient,
+  });
+
+  return hatsAccountClient as HatsAccount1ofNClient;
 }

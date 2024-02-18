@@ -54,7 +54,7 @@ const NumberInput = ({
   numOptions,
   subLabel,
   step = 1,
-  variant = 'outline',
+  variant = 'filled',
   placeholder,
   onChange,
   isDisabled,

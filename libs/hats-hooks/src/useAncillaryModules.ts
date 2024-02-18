@@ -1,18 +1,32 @@
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from 'app-hooks';
 import { fetchAncillaryModules } from 'app-utils';
-import { HatAuthority, SupportedChains } from 'hats-types';
 import {
+  AppHat,
+  HatAuthority,
+  ModuleDetails,
+  // HatAuthorityResponse,
+  SupportedChains,
+} from 'hats-types';
+import {
+  populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
 } from 'hats-utils';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { Hex } from 'viem';
 
+import useHatsAccounts from './useHatsAccounts';
 import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 import useModulesDetails from './useModulesDetails';
 
 const extractModuleIds = (hatAuthorities: HatAuthority) => {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const filteredAuthorities = _.omit(hatAuthorities, [
+    'hsgOwner',
+    'hsgSigner',
+    'hatsAccount1ofN',
+  ]);
   return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) =>
     _.map(items, 'id'),
   );
@@ -22,11 +36,16 @@ const useAncillaryModules = ({
   id,
   chainId,
   editMode,
+  tree,
 }: {
   id?: string;
   chainId: SupportedChains;
   editMode?: boolean;
+  tree?: AppHat[] | undefined;
 }) => {
+  const toast = useToast();
+  const { predictedAddress, createAccount } = useHatsAccounts({ id, chainId });
+
   const {
     data: ancillaryModules,
     error,
@@ -50,6 +69,17 @@ const useAncillaryModules = ({
       chainId,
       editMode,
     });
+
+  const activeModules = useMemo(() => {
+    if (!modulesDetails) return [];
+    if (!tree) return modulesDetails;
+    const controllers = _.flatten(
+      _.map(tree, (h: AppHat) => [h.toggle, h.eligibility]),
+    );
+    return _.filter(modulesDetails, (m: ModuleDetails) =>
+      _.includes(controllers, m.id),
+    );
+  }, [modulesDetails, tree]);
 
   if (isHatAuthoritiesLoading || isModulesDetailsLoading) {
     return {
@@ -75,9 +105,17 @@ const useAncillaryModules = ({
     hatId: id as Hex,
   });
 
+  const hatsAccounts1ofN = populateHatsAccountsAuthorities({
+    details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
+    hatId: id as Hex,
+    predictedAddress,
+    toast,
+    deployFn: createAccount,
+  });
+
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
-    modulesDetails,
+    modulesDetails: activeModules,
   });
 
   return {
@@ -85,6 +123,8 @@ const useAncillaryModules = ({
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
+      // temp fix
+      ...(chainId === 11155111 ? hatsAccounts1ofN : []),
     ],
     error,
     isLoading: false,

@@ -28,7 +28,7 @@ import {
 import { Authority, LinkObject } from 'hats-types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
@@ -63,8 +63,9 @@ const ModuleAuthorityToolbar = ({
     [selectedHat, address],
   );
   const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
+
   const otherFunctions = _.filter(
-    _.get(authority, 'functions'),
+    _.get(authority, 'functions', []),
     (func: any) => !func.primary,
   );
 
@@ -120,7 +121,9 @@ const ModuleAuthorityToolbar = ({
 
   const handleFunctionCall = (func) => {
     if (!authority) return;
-    if (func.args && func.args.length > 0) {
+    if (func.isCustom) {
+      func.onClick();
+    } else if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
     } else if (authority.type === AUTHORITY_TYPES.modules) {
@@ -183,9 +186,13 @@ const ModuleAuthorityToolbar = ({
     isOnWrongNetwork: boolean,
     isNotWearer: boolean,
     isClaimed: boolean,
+    isCustom: boolean,
   ) => {
     if (isOnWrongNetwork) {
       return 'You are on the wrong network';
+    }
+    if (isCustom) {
+      return '';
     }
     if (isNotWearer) {
       return 'You are not a wearer of the current hat';
@@ -198,13 +205,21 @@ const ModuleAuthorityToolbar = ({
 
   const isDisabled = !isWearer || !isSameChain;
   const isPrimaryFunctionDisabled =
-    isDisabled || (primaryFunction?.functionName === 'claimSigner' && claimed);
+    (isDisabled ||
+      (primaryFunction?.functionName === 'claimSigner' && claimed)) &&
+    !primaryFunction?.isCustom;
   const primaryDisabledReason = getDisabledReason(
     !isSameChain,
     !isWearer,
     primaryFunction?.functionName === 'claimSigner' && !!claimed,
+    primaryFunction?.isCustom || false,
   );
-  const otherDisabledReason = getDisabledReason(!isSameChain, !isWearer, false);
+  const otherDisabledReason = getDisabledReason(
+    !isSameChain,
+    !isWearer,
+    false,
+    false,
+  );
 
   if (!authority) return null;
 
@@ -225,6 +240,24 @@ const ModuleAuthorityToolbar = ({
       )}
       <HStack>
         {authority?.type === AUTHORITY_TYPES.modules && (
+          <ChakraNextLink
+            href={`${explorerUrl(chainId)}/address/${
+              authority.instanceAddress
+            }`}
+            isExternal
+          >
+            <Button
+              colorScheme='blue.500'
+              size='sm'
+              rightIcon={<Icon as={FiExternalLink} />}
+              variant='outline'
+              color='blue.500'
+            >
+              Go to {AUTHORITY_ENFORCEMENT[authority.type].name}
+            </Button>
+          </ChakraNextLink>
+        )}
+        {authority?.type === AUTHORITY_TYPES.wallet && (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${
               authority.instanceAddress
@@ -265,8 +298,11 @@ const ModuleAuthorityToolbar = ({
               {_.map(otherFunctions, (func: any, i: number) => (
                 <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
                   <MenuItem
-                    onClick={() => handleFunctionCall(func)}
-                    isDisabled={isDisabled}
+                    onClick={() => {
+                      if (func.isCustom) func.onClick();
+                      else handleFunctionCall(func);
+                    }}
+                    isDisabled={isDisabled && !func.isCustom}
                   >
                     <Flex
                       justify='space-between'
@@ -275,7 +311,7 @@ const ModuleAuthorityToolbar = ({
                       gap={1}
                     >
                       <Text>{func.label}</Text>
-                      <Icon as={FiPlusSquare} boxSize={4} />
+                      <Icon as={func.icon || FiPlusSquare} boxSize={4} />
                     </Flex>
                   </MenuItem>
                 </Tooltip>
