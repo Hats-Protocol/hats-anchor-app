@@ -35,6 +35,7 @@ const defaultModals: AppModals = {
   hatDetails: false,
   hatImage: false,
   hatSupply: false,
+  account: false,
 };
 
 const defaultDrawers: AppModals = {
@@ -264,24 +265,6 @@ export const OverlayContextProvider = ({
   return (
     <OverlayContext.Provider value={returnValue}>
       {children}
-
-      {/* <Modal
-        name='transactions'
-        title='Transactions'
-        size='xl'
-        localOverlay={{
-          modals,
-          closeModals,
-          commandPalette,
-          setCommandPalette,
-          transactions,
-          clearAllTransactions,
-          recentlyVisitedTrees,
-          updateRecentlyVisitedTrees,
-        }}
-      >
-        <TransactionHistory transactions={transactions} />
-      </Modal> */}
     </OverlayContext.Provider>
   );
 };

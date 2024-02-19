@@ -1,6 +1,7 @@
 export { default as useAgreementClaimsHatterContractWrite } from './useAgreementClaimsHatterContractWrite';
 export { default as useBetterMediaQuery } from './useBetterMediaQuery';
 export { default as useCid } from './useCid';
+export { default as useClipboard } from './useClipboard';
 export { default as useContractData } from './useContractData';
 export { default as useDebounce } from './useDebounce';
 export { default as useDeepCompareEffect } from './useDeepCompareEffect';

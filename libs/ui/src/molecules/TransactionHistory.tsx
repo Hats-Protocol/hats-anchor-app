@@ -1,4 +1,12 @@
-import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  HStack,
+  Icon,
+  Spinner,
+  Text,
+  useMediaQuery,
+} from '@chakra-ui/react';
 import { explorerUrl } from 'app-utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Transaction } from 'hats-types';
@@ -7,12 +15,73 @@ import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 
 import { ChakraNextLink } from '../atoms';
 
+// Utility function to get abbreviated hash
+const abbreviateHash = (hash: string) => {
+  if (!hash || hash.length < 12) return hash;
+  return `${hash.slice(0, 3)}...${hash.slice(-3)}`;
+};
+
+interface TransactionHistoryProps extends Transaction {
+  hideHash: boolean;
+}
+
+const TransactionHistoryRow = ({
+  hash,
+  hideHash,
+  txChainId,
+  status,
+  timestamp,
+  txDescription,
+}: TransactionHistoryProps) => {
+  const [upTo780] = useMediaQuery('(max-width: 780px)');
+
+  return (
+    <ChakraNextLink
+      isExternal
+      href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'}
+      display='block'
+      key={hash}
+    >
+      <HStack
+        key={hash}
+        align='center'
+        justify='space-between'
+        py={2}
+        spacing={4}
+      >
+        <HStack maxW={{ base: '55%', md: '50%' }}>
+          {status === 'pending' ? (
+            <Spinner color='blue.500' size='xs' />
+          ) : (
+            <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
+          )}
+          <Text size={{ base: 'sm', md: 'md' }} wordBreak='break-word'>
+            {txDescription}
+          </Text>
+        </HStack>
+
+        <HStack>
+          {!hideHash && !upTo780 && (
+            <Text size='sm' variant='gray'>{`(${abbreviateHash(hash)})`}</Text>
+          )}
+          <Text size={{ base: 'xs', md: 'sm' }}>
+            {formatDistanceToNow(new Date(timestamp))} ago
+          </Text>
+          <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+        </HStack>
+      </HStack>
+    </ChakraNextLink>
+  );
+};
+
 const TransactionHistory = ({
   count,
   transactions,
+  hideHash = false,
 }: {
   count?: number;
   transactions: Transaction[];
+  hideHash?: boolean;
 }) => {
   let events = transactions;
 
@@ -35,12 +104,6 @@ const TransactionHistory = ({
     );
   }
 
-  // Utility function to get abbreviated hash
-  const abbreviateHash = (hash: string) => {
-    if (!hash || hash.length < 12) return hash;
-    return `${hash.slice(0, 3)}...${hash.slice(-3)}`;
-  };
-
   return (
     <Box>
       {_.map(
@@ -52,37 +115,14 @@ const TransactionHistory = ({
           timestamp,
           txDescription,
         }: Transaction) => (
-          <ChakraNextLink
-            isExternal
-            href={
-              txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'
-            }
-            display='block'
-            key={hash}
-          >
-            <HStack
-              key={hash}
-              align='center'
-              justify='space-between'
-              py={2}
-              spacing={4}
-            >
-              <HStack>
-                {status === 'pending' ? (
-                  <Spinner color='blue.500' size='xs' />
-                ) : (
-                  <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
-                )}
-                <Text>{txDescription}</Text>
-              </HStack>
-
-              <HStack>
-                <Text>{`(${abbreviateHash(hash)})`}</Text>
-                <Text>{formatDistanceToNow(new Date(timestamp))} ago</Text>
-                <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
-              </HStack>
-            </HStack>
-          </ChakraNextLink>
+          <TransactionHistoryRow
+            hash={hash}
+            hideHash={hideHash}
+            txChainId={txChainId}
+            status={status}
+            timestamp={timestamp}
+            txDescription={txDescription}
+          />
         ),
       )}
     </Box>

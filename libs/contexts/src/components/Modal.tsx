@@ -93,7 +93,7 @@ interface ModalProps {
   customHeader?: ReactNode;
   isOpen?: boolean;
   onClose?: () => void;
-  size?: string;
+  size?: string | object;
   localOverlay: StandaloneOverlayContextProps | OverlayContextProps;
   children: ReactNode;
 }

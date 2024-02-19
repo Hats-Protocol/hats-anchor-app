@@ -1,0 +1,145 @@
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Icon,
+  Image,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+import { networkImages } from '@hatsprotocol/constants';
+import { useChainModal } from '@rainbow-me/rainbowkit';
+import { useClipboard } from 'app-hooks';
+import { chainsMap, formatAddress } from 'app-utils';
+import { useOverlay } from 'contexts';
+import _ from 'lodash';
+import { BsBoxArrowRight } from 'react-icons/bs';
+import { FaCaretRight, FaCopy, FaPenSquare } from 'react-icons/fa';
+import { Hex } from 'viem';
+import { useBalance, useChainId, useDisconnect } from 'wagmi';
+
+import { ChakraNextLink } from '../atoms';
+import TransactionHistory from './TransactionHistory';
+
+const OblongAvatar = ({
+  image,
+  height = 96,
+}: {
+  image: string;
+  height?: number;
+}) => {
+  return (
+    <Box
+      backgroundImage={image}
+      backgroundSize='cover'
+      backgroundPosition='center'
+      h={`${height}px`}
+      w={`${height * 0.75}px`}
+      borderRadius='md'
+    />
+  );
+};
+
+const WalletProfile = ({
+  address,
+  name,
+  avatar,
+}: {
+  address: Hex;
+  name: string;
+  avatar: string | undefined;
+}) => {
+  const chainId = useChainId();
+  const { transactions, setModals } = useOverlay();
+  const { data: balance } = useBalance({ address, chainId });
+  const { openChainModal } = useChainModal();
+  const { disconnect } = useDisconnect();
+
+  const { handleCopy } = useClipboard(address, {
+    toastData: { title: 'Address copied' },
+  });
+
+  const toggleNetworkModal = () => {
+    setModals?.({});
+    openChainModal?.();
+  };
+
+  const toggleTransactionHistoryModal = () => {
+    setModals?.({ transactions: true });
+  };
+
+  const handleDisconnect = () => {
+    setModals?.({});
+    disconnect();
+  };
+
+  return (
+    <Stack>
+      <HStack spacing={6}>
+        {avatar && <OblongAvatar image={avatar} />}
+        <Stack>
+          <Heading size='xl'>{name}</Heading>
+          <HStack gap={4}>
+            <Text size='sm'>
+              {_.toNumber(balance?.formatted).toFixed(2)} {balance?.symbol}
+            </Text>
+            <Button
+              size='xs'
+              variant='ghost'
+              rightIcon={<Icon as={FaCopy} />}
+              color='blue.500'
+              onClick={handleCopy}
+            >
+              {formatAddress(address)}
+            </Button>
+          </HStack>
+        </Stack>
+      </HStack>
+      <Flex justify='space-between' gap={2} mb={2}>
+        <Button w='full' variant='outline' onClick={toggleNetworkModal}>
+          <HStack>
+            <Image src={networkImages[chainId]} boxSize='20px' />
+            <Text>{chainsMap(chainId)?.name}</Text>
+          </HStack>
+        </Button>
+        <ChakraNextLink href={`/wearers/${address}`} w='full'>
+          <Button w='100%' variant='outline'>
+            <HStack spacing={1}>
+              <Icon as={FaPenSquare} />
+              <Text>Profile</Text>
+            </HStack>
+          </Button>
+        </ChakraNextLink>
+      </Flex>
+      <Stack>
+        <Heading size='md'>Transaction History</Heading>
+        <TransactionHistory count={2} transactions={transactions} hideHash />
+        <Flex>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={toggleTransactionHistoryModal}
+            rightIcon={<Icon as={FaCaretRight} />}
+          >
+            Show full history
+          </Button>
+        </Flex>
+      </Stack>
+      <Flex>
+        <Button
+          variant='outlineMatch'
+          colorScheme='red.500'
+          onClick={handleDisconnect}
+          leftIcon={<Icon as={BsBoxArrowRight} />}
+          w='full'
+        >
+          Sign Out
+        </Button>
+      </Flex>
+    </Stack>
+  );
+};
+
+export default WalletProfile;
