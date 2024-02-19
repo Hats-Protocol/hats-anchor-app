@@ -138,8 +138,13 @@ const HatManagementForm = ({
 
   // ? better way to handle checking "manual/automatic" radio box?
   useEffect(() => {
-    if (moduleDetails) {
+    if (moduleDetails && title === MODULE_TYPES.eligibility) {
       setValue?.('isEligibilityManual', TRIGGER_OPTIONS.AUTOMATICALLY, {
+        shouldDirty: true,
+      });
+    }
+    if (moduleDetails && title === MODULE_TYPES.toggle) {
+      setValue?.('isToggleManual', TRIGGER_OPTIONS.AUTOMATICALLY, {
         shouldDirty: true,
       });
     }

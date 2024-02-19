@@ -6,7 +6,6 @@ import {
   // baseSepolia,
   Chain,
   gnosis,
-  goerli,
   mainnet,
   optimism,
   polygon,
@@ -25,14 +24,12 @@ export const orderedChains: SupportedChains[] = [
   42220, // celo
   // testnets
   11155111, // sepolia
-  5, // goerli
   // 84532 // baseSepolia
 ];
 
 // celo and gnosis are missing images, also used by NetworkFilter
 export const networkImages: { [key in SupportedChains]: string } = {
   1: '/chains/ethereum.svg',
-  5: '/chains/ethereum.svg',
   10: '/chains/optimism.svg',
   100: '/chains/gnosis.png',
   137: '/chains/polygon.svg',
@@ -60,7 +57,6 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   42220: extendIcon(celo),
 
   // TESTNETS
-  5: goerli,
   11155111: sepolia,
   // 84532: baseSepolia,
 };

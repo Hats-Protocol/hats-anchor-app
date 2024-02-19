@@ -122,20 +122,16 @@ const NewTree = () => {
         </Heading>
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>
           <Stack mt={10} spacing={6}>
-            <Stack>
-              <Text variant='medium' textTransform='uppercase'>
-                Top Hat Image
-              </Text>
-              <DropZone
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                image={image}
-                isFullWidth
-              />
-            </Stack>
+            <DropZone
+              label='Top Hat Image'
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              isFocused={isFocused}
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
+              image={image}
+              isFullWidth
+            />
             <Input
               name='name'
               label={_.toUpper('Top Hat name')}
@@ -187,7 +183,9 @@ const NewTree = () => {
             )}
 
             <Stack>
-              <Text variant='medium'>{_.toUpper('Network')}</Text>
+              <Text variant='medium' size='sm'>
+                {_.toUpper('Network')}
+              </Text>
               <Text>
                 This Tree will be minted on{' '}
                 {_.capitalize(chainsMap(chainId).name)}

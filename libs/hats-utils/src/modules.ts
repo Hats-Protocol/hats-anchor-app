@@ -1,6 +1,8 @@
 import {
   AUTHORITY_TYPES,
   CONFIG,
+  MODULE_TYPES,
+  // MODULE_TYPES,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
 import { HsgMetadata, HsgType, Role } from '@hatsprotocol/hsg-sdk';
@@ -179,37 +181,38 @@ export const processModule = ({
   moduleAddress,
   storedData,
   selectedHat,
+  type,
 }: {
   moduleAddress: Hex;
   storedData?: Partial<FormData>[];
   selectedHat?: AppHat;
+  type: string; // ValueOf<MODULE_TYPES>;
 }) => {
-  const updatedHats = _.isArray(storedData)
-    ? _.map(storedData, (hat: Partial<FormData>) =>
-        hat.id === _.get(selectedHat, 'id') && moduleAddress
-          ? {
-              ...hat,
-              isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
-              eligibility: moduleAddress,
-            }
-          : hat,
-      )
-    : [...(storedData || [])];
+  if (!selectedHat?.id || !moduleAddress) return storedData || [];
+  const eligibilityValues = {
+    isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+    eligibility: moduleAddress as Hex,
+  };
+  const toggleValues = {
+    isToggleManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+    toggle: moduleAddress as Hex,
+  };
+  const hatHasChanges = _.find(storedData, { id: _.get(selectedHat, 'id') });
+  // combine updated hat values, select module values by type
+  const updatedHat = {
+    id: _.get(selectedHat, 'id'),
+    ...hatHasChanges,
+    ...(type === MODULE_TYPES.eligibility && eligibilityValues),
+    ...(type === MODULE_TYPES.toggle && toggleValues),
+  };
+  // remove current hat from stared data
+  const updateStoredData = storedData?.splice(
+    _.findIndex(storedData, { id: _.get(selectedHat, 'id') }),
+    1,
+  );
 
-  const updatedHatExists = _.some(updatedHats, [
-    'id',
-    _.get(selectedHat, 'id'),
-  ]);
-
-  if (!updatedHatExists && _.get(selectedHat, 'id') && moduleAddress) {
-    updatedHats.push({
-      id: _.get(selectedHat, 'id'),
-      isEligibilityManual: 'Automatically',
-      eligibility: moduleAddress as Hex,
-    });
-  }
-
-  return updatedHats;
+  // return stored data with updated hat
+  return _.flatten(_.concat(updateStoredData, [updatedHat]));
 };
 
 export const processClaimsHatter = ({
@@ -448,15 +451,13 @@ export const populateHatsAccountsAuthorities = ({
   toast: any;
 }) => {
   const undeployedWalletAuth = {
-    label: `Shared control over 1/N HatsWallet (${formatAddress(
-      predictedAddress,
-    )})`,
+    label: `Control 1/N HatsAccount (${formatAddress(predictedAddress)})`,
     link: predictedAddress,
-    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount at ${formatAddress(
       predictedAddress,
     )}. This account has not yet been deployed and can be deployed permissionlessly.  
       Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
-      For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+      For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
     id: predictedAddress,
     instanceAddress: predictedAddress,
@@ -478,7 +479,7 @@ export const populateHatsAccountsAuthorities = ({
   }
 
   return details.map((wallet) => ({
-    label: `Shared control over 1/N HatsWallet (${formatAddress(wallet.id)})`,
+    label: `Control over 1/N HatsAccount (${formatAddress(wallet.id)})`,
     link: wallet.accountOfHat?.id,
     description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
       wallet.id,
