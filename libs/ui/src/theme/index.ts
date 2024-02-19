@@ -2,6 +2,7 @@ import { extendTheme } from '@chakra-ui/react';
 
 import Button from './components/Button';
 import Card from './components/Card';
+import FormLabel from './components/FormLabel';
 import Heading from './components/Heading';
 import Input from './components/Input';
 import NumberInput from './components/NumberInput';
@@ -14,6 +15,7 @@ const theme = extendTheme({
   components: {
     Button,
     Card,
+    FormLabel,
     Heading,
     Input,
     NumberInput,
