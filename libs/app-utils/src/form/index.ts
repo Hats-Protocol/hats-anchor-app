@@ -12,6 +12,7 @@ import {
   FormFieldKeys,
   HatDetails,
   HatDetailsKeys,
+  HatsCalls,
   InputObject,
   SupportedChains,
 } from 'hats-types';
@@ -41,6 +42,7 @@ const hasDetailsChanged = (
   } = currentHat;
 
   const namePlainText = !_.startsWith(_.get(originalHat, 'details'), 'ipfs://');
+  // TODO these checks could be more robust
   const hasGuildsChanged =
     _.gt(_.size(guilds), 0) ||
     _.size(guilds) !== _.size(originalHatDetails?.guilds);
@@ -48,10 +50,10 @@ const hasDetailsChanged = (
     _.gt(_.size(spaces), 0) ||
     _.size(spaces) !== _.size(originalHatDetails?.spaces);
   const hasResponsibilitiesChanged =
-    _.gt(_.size(responsibilities), 0) ||
+    _.gt(_.size(responsibilities), 0) &&
     _.size(responsibilities) !== _.size(originalHatDetails?.responsibilities);
   const hasAuthoritiesChanged =
-    _.gt(_.size(authorities), 0) ||
+    _.gt(_.size(authorities), 0) &&
     _.size(authorities) !== _.size(originalHatDetails?.authorities);
   const hasRevocationsCriteriaChanged =
     _.gt(_.size(revocationsCriteria), 0) ||
@@ -717,17 +719,18 @@ export const fieldsAreDirty = (
   );
 };
 
-export function summarizeActions(data: any[]) {
+export function summarizeActions(data: HatsCalls[]) {
   if (_.isEmpty(data)) return 'No actions taken';
 
   let createCount = 0;
   let updateCount = 0;
   let mintCount = 0;
 
-  _.forEach(data, (item) => {
+  _.forEach(data, (item: HatsCalls) => {
     let isCreated = false;
+    // const
 
-    _.forEach(item.calls, (call) => {
+    _.forEach(item.calls, (call: { functionName: string }) => {
       switch (call.functionName) {
         case 'createHat':
           isCreated = true;
@@ -756,10 +759,11 @@ export function summarizeActions(data: any[]) {
   if (data.length === 1) {
     let message = '';
     if (createCount === 1) {
+      // TODO which hat
       return `Created a hat`;
     }
     if (updateCount > 0) {
-      message += `Updated details of hat ${idToIp(data[0].hatId)}`;
+      message += `Updated details of hat #${idToIp(data[0].hatId)}`;
     }
     if (mintCount > 0) {
       const wearerS = `${

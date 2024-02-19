@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
-import { useQueryClient } from '@tanstack/react-query';
 import { CONFIG } from '@hatsprotocol/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'app-hooks';
 import {
   fetchToken,
@@ -13,6 +13,7 @@ import {
   FormData,
   HandlePendingTx,
   HatDetails,
+  HatsCalls,
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
@@ -48,7 +49,7 @@ const useMulticallManyHats = ({
 }) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
-  const [allCallsData, setAllCallsData] = useState<unknown[]>();
+  const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
 
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
@@ -60,7 +61,7 @@ const useMulticallManyHats = ({
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
-    (hatId: undefined) => hatId !== undefined,
+    (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
@@ -145,7 +146,7 @@ const useMulticallManyHats = ({
     setStoredData?.(newStoredData);
   };
 
-  const txDescription = summarizeActions(allCallsData as any[]);
+  const txDescription = summarizeActions(allCallsData as HatsCalls[]);
 
   const {
     writeAsync,

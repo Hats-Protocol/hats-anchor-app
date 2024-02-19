@@ -31,21 +31,22 @@ const MODULES_QUERY = gql`
         id
         hatId
       }
-      hatsAccount1ofN {
-        id
-        accountOfHat {
-          id
-        }
-        operations {
-          id
-          hatsAccount
-          signer
-          to
-          value
-          callData
-          operationType
-        }
-      }
+      # TODO fix this
+      # hatsAccount1ofN {
+      #   id
+      #   accountOfHat {
+      #     id
+      #   }
+      #   operations {
+      #     id
+      #     hatsAccount
+      #     signer
+      #     to
+      #     value
+      #     callData
+      #     operationType
+      #   }
+      # }
       hsgOwner {
         id
         type

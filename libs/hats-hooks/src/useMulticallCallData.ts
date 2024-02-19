@@ -36,7 +36,12 @@ const useMulticallCallData = ({
     const onlyOnchainHats = _.filter(treeToDisplay, (hat: AppHat) =>
       _.includes(_.map(onchainHats, 'id'), hat.id),
     );
-    const allCallsPromises = _.map(storedData, (hat: Partial<FormData>) =>
+    const removeEmptyData = _.filter(
+      storedData,
+      (hat: Partial<FormData>) => !_.isEmpty(_.keys(_.omit(hat, ['id']))),
+    );
+
+    const allCallsPromises = _.map(removeEmptyData, (hat: Partial<FormData>) =>
       processHatForCalls(hat, onlyOnchainHats, chainId),
     );
     const allCalls = await Promise.all(allCallsPromises);
