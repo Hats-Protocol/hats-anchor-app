@@ -31,13 +31,12 @@ const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   42220: studioUrl('hats-v1-celo'),
   11155111: studioUrl('hats-v1-sepolia'),
   // hosted service
-  5: hostedServiceUrl('hats-v1-goerli'),
   10: hostedServiceUrl('hats-v1-optimism'),
 };
 
 const NETWORK_ENDPOINTS: EndpointsConfig = {
   ...DEFAULT_ENDPOINTS_CONFIG,
-  ..._.mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint) => ({ endpoint })),
+  ..._.mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({ endpoint })),
 };
 
 export default NETWORK_ENDPOINTS;
@@ -46,7 +45,6 @@ export const ANCILLARY_API_URL: {
   [key in SupportedChains]: string | undefined;
 } = {
   1: studioUrl('hats-v1-ethereum-ancillary'),
-  5: studioUrl('hats-v1-goerli-ancillary'),
   10: studioUrl('hats-v1-optimism-ancillary'),
   100: studioUrl('hats-v1-gnosis-chain-ancillary'),
   137: studioUrl('hats-v1-polygon-ancillary'),

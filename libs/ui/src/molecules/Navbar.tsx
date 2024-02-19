@@ -38,6 +38,12 @@ import { ChakraNextLink } from '../atoms';
 import ConnectWallet from './ConnectWallet';
 import TransactionHistory from './TransactionHistory';
 
+const BANNER = {
+  message: 'Goerli is deprecated and will shut down soon!',
+  label: 'Migrate Goerli trees to Sepolia by January 31',
+  linkTo: CONFIG.docsLinks.forking,
+};
+
 const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const currentChainId = useChainId();
   const {
@@ -51,7 +57,6 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
-  const chainId = useChainId();
 
   const hasPendingTransactions = transactions.some(
     (tx: Transaction) => tx.status === 'pending',
@@ -61,12 +66,9 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const tabName = hatDetails?.data?.name || hatData?.details;
 
   const [clearBanner, setClearBanner] = useLocalStorage(
-    'clearBanner-goerli',
+    'clearBanner-new',
     false,
   );
-  const showGoerliBanner = useMemo(() => {
-    return chainId === 5 || router.query.chainId === '5';
-  }, [chainId, router.query]);
 
   const isCtrl = useMemo(() => {
     if (typeof window === 'undefined') return false;
@@ -138,7 +140,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
         </HStack>
       </HStack>
 
-      {!clearBanner && CONFIG.banner && showGoerliBanner && (
+      {!clearBanner && CONFIG.banner && (
         <Flex
           bg='blue.600'
           color='white'
@@ -149,17 +151,15 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
           align='center'
         >
           <Stack spacing='1px'>
-            <Text textAlign='center'>
-              Goerli is deprecated and will shut down soon!
-            </Text>
+            <Text textAlign='center'>{BANNER.message}</Text>
             <ChakraNextLink
-              href={CONFIG.docsLinks.forking}
+              href={BANNER.linkTo}
               isExternal
               decoration
               _hover={{ color: 'whiteAlpha.800' }}
               textAlign='center'
             >
-              Migrate Goerli trees to Sepolia by January 31
+              {BANNER.label}
             </ChakraNextLink>
           </Stack>
           <IconButton

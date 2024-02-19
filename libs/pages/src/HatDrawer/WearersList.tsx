@@ -339,7 +339,7 @@ const WearersList = () => {
                   color={maxWearersReached ? 'gray.500' : 'blue.500'}
                 >
                   <FaPlus />
-                  <Text variant='light'>Add a wearer</Text>
+                  <Text>Add a wearer</Text>
                 </HStack>
               </Button>
             </Tooltip>

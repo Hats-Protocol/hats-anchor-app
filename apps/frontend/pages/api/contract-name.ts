@@ -14,7 +14,6 @@ const {
 
 const ETHERSCAN_API_URLS: { [key in SupportedChains]: string | undefined } = {
   1: 'https://api.etherscan.io/api',
-  5: 'https://api-goerli.etherscan.io/api',
   10: 'https://api-optimistic.etherscan.io/api',
   100: 'https://api.gnosisscan.io/api',
   137: 'https://api.polygonscan.com/api',
@@ -26,7 +25,6 @@ const ETHERSCAN_API_URLS: { [key in SupportedChains]: string | undefined } = {
 
 const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
   1: ETHERSCAN_API_KEY,
-  5: ETHERSCAN_API_KEY,
   10: OPSCAN_API_KEY,
   100: GNOSISSCAN_API_KEY,
   137: POLYGONSCAN_API_KEY,
