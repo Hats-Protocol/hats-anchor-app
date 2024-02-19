@@ -34,8 +34,8 @@ import { FiCopy } from 'react-icons/fi';
 import { ipToHatId } from 'shared';
 import { Hex, parseUnits } from 'viem';
 
-import { formHatUrl, safeUrl } from './controllers';
-import { decimalId } from './hats';
+import { safeUrl } from './authorities';
+import { decimalId, formHatUrl } from './hats';
 
 type FormValues = { [key: string]: unknown };
 

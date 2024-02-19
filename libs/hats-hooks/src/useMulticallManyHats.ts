@@ -81,7 +81,7 @@ const useMulticallManyHats = ({
           processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
-      setAllCallsData(allCalls);
+      setAllCallsData(allCalls as HatsCalls[]);
 
       const localCalls = _.flatten(_.map(allCalls, 'calls'));
       const localProposedChanges = _.map(allCalls, 'hatChanges');

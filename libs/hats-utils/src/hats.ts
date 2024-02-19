@@ -4,7 +4,7 @@ import {
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
   AppHat,
@@ -13,6 +13,7 @@ import {
   FormWearer,
   HatExport,
   HatWearer,
+  SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
 import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
@@ -190,6 +191,21 @@ export const getAllDescendants = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   );
 
   return descendants;
+};
+
+export const formHatUrl = ({
+  hatId,
+  chainId,
+}: {
+  hatId: Hex;
+  chainId: SupportedChains | undefined;
+}) => {
+  const basePath = '/trees';
+  const id = BigInt(hatId);
+  const treeId = Number(hatIdToTreeId(id));
+  const hatIp = hatIdDecimalToIp(id);
+
+  return `${basePath}/${chainId}/${treeId}?hatId=${hatIp}`;
 };
 
 export const getBranch = (hatId: Hex, tree: AppHat[]): AppHat[] => {

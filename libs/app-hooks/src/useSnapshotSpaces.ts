@@ -1,25 +1,14 @@
-import { AUTHORITY_PLATFORMS, AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import {
+  AUTHORITY_PLATFORMS,
+  AUTHORITY_TYPES,
+  SNAPSHOT_API_URLS,
+} from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
-import { SupportedChains } from 'hats-types';
+import { SnapshotSpace, SnapshotStrategy, SupportedChains } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-
-type SnapshotApiUrls = { [key in SupportedChains]: string };
-
-const MAINNET_SNAPSHOT_API_URL = 'https://hub.snapshot.org/graphql';
-const SNAPSHOT_API_URLS: SnapshotApiUrls = {
-  1: MAINNET_SNAPSHOT_API_URL,
-  10: MAINNET_SNAPSHOT_API_URL,
-  100: MAINNET_SNAPSHOT_API_URL,
-  137: MAINNET_SNAPSHOT_API_URL,
-  8453: MAINNET_SNAPSHOT_API_URL,
-  42161: MAINNET_SNAPSHOT_API_URL,
-  42220: MAINNET_SNAPSHOT_API_URL,
-  // testnet
-  11155111: 'https://testnet.hub.snapshot.org/graphql',
-};
 
 const SNAPSHOT_QUERY = gql`
   query GetSpaces($ids: [String!]!) {
@@ -38,23 +27,6 @@ const SNAPSHOT_QUERY = gql`
     }
   }
 `;
-
-export interface SnapshotStrategy {
-  name: string;
-  network: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: { [key: string]: any };
-}
-
-interface SnapshotSpace {
-  id: string;
-  name: string;
-  about: string;
-  network: string;
-  symbol: string;
-  members: number;
-  strategies: SnapshotStrategy[];
-}
 
 const snapshotClient = async (chainId: SupportedChains | undefined) => {
   if (!chainId) return undefined;

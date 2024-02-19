@@ -730,8 +730,8 @@ export function summarizeActions(data: HatsCalls[]) {
     let isCreated = false;
     // const
 
-    _.forEach(item.calls, (call: { functionName: string }) => {
-      switch (call.functionName) {
+    _.forEach(item.calls, (call: unknown) => {
+      switch ((call as { functionName: string }).functionName) {
         case 'createHat':
           isCreated = true;
           createCount += 1;
@@ -742,7 +742,9 @@ export function summarizeActions(data: HatsCalls[]) {
         case 'batchMintHats':
           {
             const hatChanges = _.get(item, 'hatChanges');
-            const wearersCount = hatChanges ? hatChanges.wearers.length : 0;
+            const wearersCount = hatChanges
+              ? _.size(_.get(hatChanges as { wearers: unknown[] }, 'wearers'))
+              : 0;
             mintCount += wearersCount;
           }
           break;

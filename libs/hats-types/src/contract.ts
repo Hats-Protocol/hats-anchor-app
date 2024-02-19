@@ -20,8 +20,8 @@ export type ContractData = {
 };
 
 export type HatsCalls = {
-  hatId: Hex;
+  hatId?: Hex;
   calls: unknown[];
   hatChanges: { [key: string]: unknown };
-  detailsToPin: HatDetails;
+  detailsToPin?: HatDetails;
 };
