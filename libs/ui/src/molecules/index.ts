@@ -16,6 +16,7 @@ export { default as OrgChart } from './OrgChart';
 export { default as PlatformInput } from './PlatformInput';
 export { default as ResponsibilitiesListCard } from './ResponsibilitiesListCard';
 export { default as ResponsibilityHeader } from './ResponsibilityHeader';
+export { default as ResponsibilityItemMobile } from './ResponsibilityItemMobile';
 export * from './standalone';
 export { default as TooltipWrapper } from './TooltipWrapper';
 export { default as TransactionHistory } from './TransactionHistory';

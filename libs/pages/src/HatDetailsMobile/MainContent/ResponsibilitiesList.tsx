@@ -1,11 +1,11 @@
-import { Accordion, Heading, Text } from '@chakra-ui/react';
+import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { DetailsItem } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
-const ResponsibilitiesListCard = dynamic(() =>
-  import('ui').then((mod) => mod.ResponsibilitiesListCard),
+const ResponsibilityItemMobile = dynamic(() =>
+  import('ui').then((mod) => mod.ResponsibilityItemMobile),
 );
 
 const ResponsibilitiesList = () => {
@@ -16,13 +16,13 @@ const ResponsibilitiesList = () => {
   if (!responsibilities) return null;
 
   return (
-    <Accordion allowMultiple>
-      <Heading size='sm' fontWeight='medium' textTransform='uppercase' mb={2}>
-        Responsibilities
+    <Stack gap={4}>
+      <Heading size='sm' variant='medium'>
+        {responsibilities.length} Responsibilities expected of Hat Hearers
       </Heading>
 
       {_.map(responsibilities, (responsibility: DetailsItem) => (
-        <ResponsibilitiesListCard
+        <ResponsibilityItemMobile
           key={responsibility.label}
           responsibility={responsibility}
         />
@@ -33,7 +33,7 @@ const ResponsibilitiesList = () => {
           None
         </Text>
       )}
-    </Accordion>
+    </Stack>
   );
 };
 

@@ -7,8 +7,8 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
-import { Markdown } from 'ui';
 
+import { Markdown } from '../atoms';
 import ResponsibilityHeader from './ResponsibilityHeader';
 
 const ResponsibilitiesListCard = ({

@@ -1,4 +1,4 @@
-import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
+import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
@@ -14,21 +14,19 @@ const AuthoritiesList = () => {
   if (!combinedAuthorities) return null;
 
   return (
-    <Accordion allowMultiple>
-      <Stack>
-        <Heading size='sm' variant='medium'>
-          {combinedAuthorities.length} Authorities granted by this hat
-        </Heading>
-        {_.map(combinedAuthorities, (authority: Authority, index: number) => (
-          <AuthorityItemMobile key={authority.label} authority={authority} />
-        ))}
-        {!combinedAuthorities.length && (
-          <Text variant='gray' size='sm'>
-            None
-          </Text>
-        )}
-      </Stack>
-    </Accordion>
+    <Stack gap={4}>
+      <Heading size='sm' variant='medium'>
+        {combinedAuthorities.length} Authorities granted by this Hat
+      </Heading>
+      {_.map(combinedAuthorities, (authority: Authority, index: number) => (
+        <AuthorityItemMobile key={authority.label} authority={authority} />
+      ))}
+      {!combinedAuthorities.length && (
+        <Text variant='gray' size='sm'>
+          None
+        </Text>
+      )}
+    </Stack>
   );
 };
 
