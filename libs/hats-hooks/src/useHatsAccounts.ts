@@ -1,6 +1,8 @@
+import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useToast } from 'app-hooks';
 import { createHatsAccountClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 import { useAccount, useQueryClient } from 'wagmi';
@@ -18,12 +20,12 @@ const useHatsAccounts = ({
   const queryClient = useQueryClient();
   const toast = useToast();
   const { address } = useAccount();
+  const isSupportedChain = _.has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, chainId);
 
   useEffect(() => {
     const predictAddress = async () => {
       if (!id || !chainId) return;
-      // TODO temp workaround
-      if (chainId !== 11155111) return;
+      if (!isSupportedChain) return;
 
       const hatsAccountClient = await createHatsAccountClient(chainId);
       if (!hatsAccountClient) return;
@@ -41,10 +43,11 @@ const useHatsAccounts = ({
     };
 
     predictAddress();
-  }, [id, chainId]);
+  }, [id, chainId, isSupportedChain]);
 
   async function createAccount() {
     if (!id || !chainId) return;
+    if (!isSupportedChain) return;
 
     const hatsAccountClient = await createHatsAccountClient(chainId);
     if (!hatsAccountClient) return;
