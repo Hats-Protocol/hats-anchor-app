@@ -1,9 +1,10 @@
+import { KeyRestrictions } from 'hats-types';
 import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const date = new Date();
 
-// TODO handle distinguishing between file and json tokens
+// TODO [low] handle distinguishing between file and json tokens
 export const PIN_TYPE = {
   FILE: 'FILE',
   JSON: 'JSON',
@@ -33,27 +34,6 @@ const generateApiKey = async (keyRestrictions: KeyRestrictions) => {
       console.log(error);
       return null;
     });
-};
-
-// TODO move type
-type KeyRestrictions = {
-  keyName: string;
-  maxUses: number;
-  permissions: {
-    endpoints: {
-      data: {
-        pinList: boolean;
-        userPinnedDataTotal: boolean;
-      };
-      pinning: {
-        pinFileToIPFS: boolean;
-        pinJSONToIPFS: boolean;
-        pinJobs: boolean;
-        unpin: boolean;
-        userPinPolicy: boolean;
-      };
-    };
-  };
 };
 
 const keyRestrictions = {

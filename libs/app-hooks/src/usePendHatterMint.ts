@@ -20,9 +20,9 @@ const usePendHatterMint = ({
 }) => {
   const availableAdmins = useMemo(() => {
     const noTopHat = _.slice(treeToDisplay, 1);
-    const removeCurrentHat = _.reject(noTopHat, ['id', selectedHat?.id]);
-    // todo remove hats where current supply = max supply
-    // todo remove non lineage
+    const removeCurrentHat = _.reject(noTopHat, { id: selectedHat?.id });
+    // TODO remove hats where current supply = max supply
+    // TODO remove non lineage
     return removeCurrentHat;
   }, [treeToDisplay, selectedHat]);
 

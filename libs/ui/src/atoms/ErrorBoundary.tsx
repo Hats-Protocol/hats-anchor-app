@@ -15,6 +15,9 @@ const ErrorBoundary = ({ children }: { children: ReactNode }) => (
 
       // record the error in an APM tool...
     }}
+    onReset={() => {
+      // reset the state of your app so the error doesn't happen again
+    }}
   >
     {children}
   </EB>

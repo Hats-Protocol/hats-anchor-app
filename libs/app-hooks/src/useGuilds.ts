@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import { useQuery } from '@tanstack/react-query';
 import { Authority } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
@@ -86,7 +86,7 @@ const useHatGuilds = ({
               id: rolePlatform.guildPlatformId,
             });
             // we index manual details against link/`invite`, so don't return if that is missing
-            // TODO check why guild might return reward without invite
+            // an invite might be invalid if the platform connection has expired but not been removed
             if (!platform?.invite) return null;
 
             return {

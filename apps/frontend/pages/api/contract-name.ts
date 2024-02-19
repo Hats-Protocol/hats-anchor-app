@@ -30,7 +30,7 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).json({ error: 'Missing chainId or address' });
   }
 
-  // TODO more auth, do fetch requests pass next session?
+  // TODO [low] more auth, do fetch requests pass next session?
   if (!_.has(ETHERSCAN_API_URLS, chainId) || !_.has(ETHERSCAN_KEYS, chainId)) {
     return res.status(400).json({ error: 'Chain not supported' });
   }

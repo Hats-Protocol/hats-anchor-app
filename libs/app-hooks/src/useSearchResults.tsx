@@ -2,19 +2,18 @@ import {
   hatIdDecimalToHex,
   hatIdDecimalToIp,
   hatIdHexToDecimal,
+  hatIdIpToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { searchQueryResult } from 'app-utils';
 import _ from 'lodash';
-import { ipToPrettyId, toTreeId } from 'shared';
-
-// TODO refactor without prettyId
+import { numberToHex } from 'viem';
 
 const isValidSearch = (search: string | undefined) => {
   if (
     (search?.startsWith('0x') && search !== '0x') ||
     (!_.isNaN(_.toNumber(search)) && _.toNumber(search) !== 0) ||
-    _.every(_.split(search, '.'), (v: any) => !_.isNaN(_.toNumber(v)))
+    _.every(_.split(search, '.'), (v: string) => !_.isNaN(_.toNumber(v)))
   )
     return true;
   return false;
@@ -26,7 +25,7 @@ const processSearchQuery = (search: string | undefined) => {
     return { subgraphSearch: search, searchKey: search };
 
   // tree ID integer search
-  let localSearch = toTreeId(search);
+  let localSearch = numberToHex(_.toNumber(search), { size: 4 }) as string;
   let searchKey = search;
 
   if (_.startsWith(search, '0x')) {
@@ -35,7 +34,7 @@ const processSearchQuery = (search: string | undefined) => {
     searchKey = hatIdDecimalToIp(BigInt(search));
   } else if (_.includes(search, '.')) {
     // ip search
-    localSearch = ipToPrettyId(search);
+    localSearch = hatIdDecimalToHex(hatIdIpToDecimal(search));
   } else if (_.gt(_.size(search), 10) && !_.startsWith(search, '0x')) {
     // full decimal search
     localSearch = hatIdDecimalToHex(BigInt(search));
@@ -61,7 +60,7 @@ const useSearchResults = ({ search }: { search: string | undefined }) => {
     isValid: valid,
     searchKey,
     error,
-    data: data as any,
+    data: data as unknown,
     isLoading,
   };
 };

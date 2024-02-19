@@ -1,11 +1,10 @@
 /* eslint-disable import/prefer-default-export */
-import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { idToIp } from 'shared';
-import { Hex } from 'viem';
+import { hexToNumber } from 'viem';
 
 import { chainsList, createSubgraphClient } from '../web3';
 
@@ -16,15 +15,18 @@ const keyIcons: { [key: string]: string } = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processForCommandPalette = (key: string, record: any) => {
-  const { id, network } = record;
+  const { id: recordId, network } = record;
   const { id: networkId, name: networkName } = network || {};
 
-  const parts = id?.split('.');
-  const treeId = parts ? hatIdToTreeId(BigInt(parts[0] as Hex)) : '';
-
-  let href = '#';
-  let label = '';
-  const hatIdIp = idToIp(id);
+  let treeId;
+  let href;
+  let label;
+  if (key === 'trees') {
+    treeId = hexToNumber(recordId, { size: 8 });
+  }
+  const id = `${key}-${recordId}-${networkId}`;
+  const hatIdIp = idToIp(recordId);
+  const icon = keyIcons[key] as IconName;
 
   // eslint-disable-next-line default-case
   switch (key) {
@@ -36,16 +38,12 @@ const processForCommandPalette = (key: string, record: any) => {
       href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
       label = `Hat #${hatIdIp} on ${networkName}`;
       break;
+    default:
+      href = '#';
+      label = '';
   }
 
-  const icon = keyIcons[key] as IconName;
-
-  return {
-    id: `${key}-${id}-${networkId}`,
-    children: label,
-    icon,
-    href,
-  };
+  return { id, children: label, icon, href };
 };
 
 export const searchQueryResult = async (search: string | undefined) => {
@@ -54,20 +52,22 @@ export const searchQueryResult = async (search: string | undefined) => {
   const subgraphClient = createSubgraphClient();
 
   const promises = _.map(_.keys(chainsList), (chainId: number) =>
-    subgraphClient.searchTreesHatsWearers({
-      chainId,
-      search,
-      treeProps: {},
-      hatProps: {
-        prettyId: true,
-      },
-      wearerProps: {},
-    }),
+    subgraphClient
+      .searchTreesHatsWearers({
+        chainId,
+        search,
+        treeProps: {},
+        hatProps: {
+          prettyId: true,
+        },
+        wearerProps: {},
+      })
+      .catch((e) => console.error(e)),
   );
 
-  // TODO surface errors, but don't fail all calls
   const result = await Promise.all(promises);
 
+  // sort
   const allNetworkResults: { trees: Tree[]; hats: AppHat[] } = {
     trees: [],
     hats: [],
@@ -76,6 +76,7 @@ export const searchQueryResult = async (search: string | undefined) => {
     allNetworkResults.trees = _.concat(
       _.map(_.get(network, 'trees'), (tree: Tree) => ({
         ...tree,
+        // id: hexToNumber(tree.id, { size: 8 }),
         network: _.values(chainsList)[i],
       })),
       allNetworkResults?.trees || [],
@@ -89,6 +90,7 @@ export const searchQueryResult = async (search: string | undefined) => {
     );
   });
   // TODO seeing results here, but not in command palette
+  console.log('allNetworkResults', allNetworkResults);
 
   return _.mapValues(
     allNetworkResults,

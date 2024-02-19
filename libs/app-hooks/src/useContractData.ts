@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { ContractData } from 'hats-types';
+import { ContractData, SupportedChains } from 'hats-types';
 import { Hex } from 'viem';
 
 const fetchContractData = async (
-  chainId: number | undefined,
+  chainId: SupportedChains | undefined,
   address: Hex | undefined,
 ) => {
   try {
@@ -29,15 +29,13 @@ const fetchContractData = async (
   }
 };
 
-// TODO disable if not supported on chain
-
 const useContractData = ({
   chainId,
   address,
   enabled = true,
   editMode = false,
 }: {
-  chainId: number | undefined;
+  chainId: SupportedChains | undefined;
   address: Hex | undefined;
   enabled?: boolean;
   editMode?: boolean;
