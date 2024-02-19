@@ -58,9 +58,9 @@ const MainContent = () => {
       height='calc(100% - 73px)'
     >
       <Header />
-      <WearersList />
-      <ResponsibilitiesList />
       <AuthoritiesList />
+      <ResponsibilitiesList />
+      <WearersList />
 
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (

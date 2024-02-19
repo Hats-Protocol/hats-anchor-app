@@ -1,11 +1,11 @@
 import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import { Authority, AuthorityType } from 'hats-types';
+import { Authority } from 'hats-types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
-const AuthoritiesListCard = dynamic(() =>
-  import('ui').then((mod) => mod.AuthoritiesListCard),
+const AuthorityItemMobile = dynamic(() =>
+  import('ui').then((mod) => mod.AuthorityItemMobile),
 );
 
 const AuthoritiesList = () => {
@@ -16,16 +16,11 @@ const AuthoritiesList = () => {
   return (
     <Accordion allowMultiple>
       <Stack>
-        <Heading size='sm' variant='medium' textTransform='uppercase'>
-          Authorities
+        <Heading size='sm' variant='medium'>
+          {combinedAuthorities.length} Authorities granted by this hat
         </Heading>
         {_.map(combinedAuthorities, (authority: Authority, index: number) => (
-          <AuthoritiesListCard
-            index={index}
-            key={authority.label}
-            authority={authority}
-            type={authority.type as AuthorityType}
-          />
+          <AuthorityItemMobile key={authority.label} authority={authority} />
         ))}
         {!combinedAuthorities.length && (
           <Text variant='gray' size='sm'>

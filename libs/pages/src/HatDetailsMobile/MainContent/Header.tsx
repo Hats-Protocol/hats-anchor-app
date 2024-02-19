@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Flex,
   Heading,
   HStack,
   Icon,
@@ -49,7 +48,7 @@ const Header = () => {
 
   return (
     <Stack spacing={4}>
-      <Flex align='start' justify='space-between'>
+      <HStack align='start' justify='space-between' alignItems='center' gap={4}>
         <Image
           loading='lazy'
           src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
@@ -57,6 +56,8 @@ const Header = () => {
           background='white'
           objectFit='cover'
           h='100px'
+          borderRadius='md'
+          border='1px solid #E2E8F0'
         />
         <Stack w='full' spacing={1}>
           <Stack justifyContent='space-between'>
@@ -82,14 +83,14 @@ const Header = () => {
               </HStack>
             )}
           </Stack>
-          {description && (
-            <Box opacity={0.6}>
-              <Markdown>{description}</Markdown>
-            </Box>
-          )}
         </Stack>
-      </Flex>
-      <HStack>
+      </HStack>
+      {description && (
+        <Box color='blackAlpha.800'>
+          <Markdown>{description}</Markdown>
+        </Box>
+      )}
+      <HStack justifyContent='center'>
         {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
         <Badge
           colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}

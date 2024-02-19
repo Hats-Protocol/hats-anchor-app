@@ -1,5 +1,6 @@
 export { default as AuthoritiesListCard } from './AuthoritiesListCard';
 export { default as AuthorityHeader } from './AuthorityHeader';
+export { default as AuthorityItemMobile } from './AuthorityItemMobile';
 export { default as CommandPalette } from './CommandPalette';
 export { default as ConnectWallet } from './ConnectWallet';
 export { default as EventHistory } from './EventHistory';
