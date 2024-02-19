@@ -37,7 +37,8 @@ const treeImages = async (
     // get image url from ancestor
     const imageIndex = _.findIndex(
       images,
-      (v: string) => v === image?.imageUri,
+      (v: string) =>
+        v === (hat?.imageUri !== '' ? hat?.imageUri : image?.imageUri),
     );
     const imageUrl = imageUrls[imageIndex] || '/icon.jpeg';
     return { ...hat, imageUrl };

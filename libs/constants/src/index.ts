@@ -28,7 +28,6 @@ export const CONFIG: Config = {
   protocolVersion: 'v1',
   shortName: 'Hats',
   ipfsGateway: process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://ipfs.io/ipfs/',
-  chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
   banner: false,
   claimsHatterModuleName: 'Multi Claims Hatter',
@@ -78,7 +77,6 @@ type Config = {
   url: string;
   logoUrl: string;
   ipfsGateway: string;
-  chains: number[];
   debounce: number;
   banner: boolean;
   claimsHatterModuleName: string;
