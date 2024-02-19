@@ -1,5 +1,4 @@
-/* eslint-disable no-nested-ternary */
-import { Button, HStack, Text, Tooltip } from '@chakra-ui/react';
+import { Button, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useHatClaimBy,
@@ -10,7 +9,6 @@ import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-// import { FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId, useNetwork } from 'wagmi';
 
 const ConnectWallet = dynamic(() =>
@@ -90,24 +88,22 @@ const MainAction = () => {
           }
           onClick={claimHat}
         >
-          <HStack>
-            {/* <FaPlus /> */}
-            <Text>Claim Hat</Text>
-          </HStack>
+          Claim Hat
         </Button>
       </Tooltip>
     );
 
   if (isAdminUser) {
+    let adminTooltip = '';
+    if (maxWearersReached) {
+      adminTooltip = 'Maximum number of wearers reached.';
+    } else if (chainId !== currentNetworkId) {
+      adminTooltip = "You can't add a wearer on a different chain.";
+    }
+
     return (
       <Tooltip
-        label={
-          maxWearersReached
-            ? 'Maximum number of wearers reached.'
-            : chainId !== currentNetworkId
-            ? "You can't add a wearer on a different chain."
-            : ''
-        }
+        label={adminTooltip}
         fontSize='md'
         isDisabled={!maxWearersReached && chainId === currentNetworkId}
         shouldWrapChildren
@@ -120,12 +116,7 @@ const MainAction = () => {
             !maxWearersReached ? setModals?.({ newWearer: true }) : {}
           }
         >
-          <HStack
-          // cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-          // color={maxWearersReached ? 'gray.500' : 'blue.500'}
-          >
-            <Text variant='gray'>Add wearer</Text>
-          </HStack>
+          Add wearer
         </Button>
       </Tooltip>
     );

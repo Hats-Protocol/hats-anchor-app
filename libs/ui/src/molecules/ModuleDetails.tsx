@@ -14,7 +14,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
+import { MODULE_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { formatAddress } from 'app-utils';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
 import {
@@ -255,36 +255,38 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 {detail}
               </Text>
             ))}
-            <Flex justify='space-between'>
-              <Text size='sm'>Claimability Type</Text>
+            {type === MODULE_TYPES.eligibility && (
+              <Flex justify='space-between'>
+                <Text size='sm'>Claimability Type</Text>
 
-              <HStack>
-                <Tooltip label={claimableToggleTip(sameChain, isAdminUser)}>
-                  <Button
-                    size='xs'
-                    variant='outline'
-                    colorScheme='blue.500'
-                    isLoading={
-                      isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
-                    }
-                    isDisabled={!setHatClaimable && !setHatClaimableFor}
-                    onClick={() =>
-                      isClaimable.for
-                        ? setHatClaimable?.()
-                        : setHatClaimableFor?.()
-                    }
-                  >
-                    {_.includes(claimableHats, selectedHat?.id) &&
-                    !isClaimable.for
-                      ? 'Make claimable for'
-                      : 'Make claimable'}
-                  </Button>
-                </Tooltip>
-                <Text size='sm' variant='gray'>
-                  {isClaimable.for ? 'Claimable For' : 'Claimable'}
-                </Text>
-              </HStack>
-            </Flex>
+                <HStack>
+                  <Tooltip label={claimableToggleTip(sameChain, isAdminUser)}>
+                    <Button
+                      size='xs'
+                      variant='outline'
+                      colorScheme='blue.500'
+                      isLoading={
+                        isLoadingSetHatClaimable || isLoadingSetHatClaimableFor
+                      }
+                      isDisabled={!setHatClaimable && !setHatClaimableFor}
+                      onClick={() =>
+                        isClaimable.for
+                          ? setHatClaimable?.()
+                          : setHatClaimableFor?.()
+                      }
+                    >
+                      {_.includes(claimableHats, selectedHat?.id) &&
+                      !isClaimable.for
+                        ? 'Make claimable for'
+                        : 'Make claimable'}
+                    </Button>
+                  </Tooltip>
+                  <Text size='sm' variant='gray'>
+                    {isClaimable.for ? 'Claimable For' : 'Claimable'}
+                  </Text>
+                </HStack>
+              </Flex>
+            )}
           </Stack>
         </AccordionPanel>
       </AccordionItem>

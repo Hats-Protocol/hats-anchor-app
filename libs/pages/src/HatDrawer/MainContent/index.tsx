@@ -81,17 +81,23 @@ const MainContent = () => {
         )}
       </Stack>
 
-      {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
-        <StatusCard
-          status={MODULE_TYPES.toggle}
-          isAContract={isToggleAContract}
-          label='Is this hat active?'
-        />
-      )}
-      {/* MODULE DETAILS */}
-      {!_.isEmpty(toggle?.criteria) && (
-        <DetailList title='Toggle Criteria' details={toggle?.criteria} inline />
-      )}
+      <Stack spacing={4}>
+        {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
+          <StatusCard
+            status={MODULE_TYPES.toggle}
+            isAContract={isToggleAContract}
+            label='Is this hat active?'
+          />
+        )}
+        <ModuleDetails type={MODULE_TYPES.toggle} />
+        {!_.isEmpty(toggle?.criteria) && (
+          <DetailList
+            title='Toggle Criteria'
+            details={toggle?.criteria}
+            inline
+          />
+        )}
+      </Stack>
 
       <LinkRequests />
 

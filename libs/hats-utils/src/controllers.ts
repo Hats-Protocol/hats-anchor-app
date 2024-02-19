@@ -10,7 +10,6 @@ export const DAOHAUS_URL = 'https://admin.daohaus.club';
 
 export const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
   1: 'eth',
-  5: 'gor',
   10: 'oeth',
   100: 'gno',
   137: 'matic',

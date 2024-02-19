@@ -16,6 +16,7 @@ import {
   TextareaProps as ChakraTextareaProps,
   Tooltip,
 } from '@chakra-ui/react';
+import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { GrUndo } from 'react-icons/gr';
@@ -51,13 +52,8 @@ const Textarea = ({
       <Stack spacing={2}>
         <HStack align='center'>
           {label && (
-            <FormLabel
-              m='0'
-              display='contents'
-              alignItems='baseline'
-              fontSize='sm'
-            >
-              <Text>{label.toUpperCase()}</Text>
+            <FormLabel m='0' display='contents' alignItems='baseline' size='sm'>
+              {_.toUpper(label)}
               <Text variant='gray'>{headerNote}</Text>
             </FormLabel>
           )}

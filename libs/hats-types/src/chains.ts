@@ -1,6 +1,5 @@
 export type SupportedChains =
   | 1
-  | 5
   | 10
   | 100
   | 137

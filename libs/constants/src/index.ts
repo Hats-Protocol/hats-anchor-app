@@ -30,7 +30,7 @@ export const CONFIG: Config = {
   ipfsGateway: process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://ipfs.io/ipfs/',
   chains: [1, 5, 10, 100, 137, 42161, 11155111],
   debounce: 350,
-  banner: true,
+  banner: false,
   claimsHatterModuleName: 'Multi Claims Hatter',
   modulesRegistryFactory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
   communityHatId: '1.2.1.1',
