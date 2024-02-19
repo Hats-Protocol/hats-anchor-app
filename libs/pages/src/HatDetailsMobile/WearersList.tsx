@@ -13,7 +13,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { commify, extendWearers, wearersPerPage } from 'app-utils';
+import { extendWearers, wearersPerPage } from 'app-utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   HatClaimForForm,
@@ -189,26 +189,20 @@ const WearersList = () => {
   return (
     <>
       <Stack spacing={4}>
-        <Flex justify='space-between' alignItems='center'>
-          <Heading size='sm' variant='medium' textTransform='uppercase'>
-            Hat Wearers
+        <Flex alignItems='center' flexDirection='row'>
+          <Heading size='sm' variant='medium' display='inline'>
+            {extendedWearers.length} Wearer{extendedWearers.length !== 1 && 's'}{' '}
+            of this Hat
           </Heading>
-
-          <Flex gap={1}>
-            <Text>{_.get(selectedHat, 'currentSupply')}</Text>
-            <HStack spacing={1}>
-              <Text variant='light'>of</Text>
-              <Tooltip
-                label={maxSupply && commify(maxSupply)}
-                placement='left'
-                hasArrow
-              >
-                <Text fontFamily='monospace' color='blackAlpha.700'>
-                  {maxSupplyText(maxSupply)}
-                </Text>
-              </Tooltip>
-            </HStack>
-          </Flex>
+          <Text
+            display='inline'
+            ml={1}
+            fontSize='sm'
+            color='gray.500'
+            lineHeight={5}
+          >
+            of {maxSupplyText(maxSupply)} max
+          </Text>
         </Flex>
 
         {_.gt(_.size(extendedWearers), 5) && (
