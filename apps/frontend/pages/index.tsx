@@ -41,18 +41,8 @@ import {
 } from 'ui';
 import { useAccount, useEnsName } from 'wagmi';
 
-// const DashboardHatCard = dynamic(
-//   () => import('../components/DashboardHatCard'),
-//   {
-//     loading: () => <Suspender />,
-//   },
-// );
-// const FeaturedTreeCard = dynamic(
-//   () => import('../components/FeaturedTreeCard'),
-//   {
-//     loading: () => <Suspender />,
-//   },
-// );
+const HATS_TO_SHOW = 8;
+const MOBILE_HATS_TO_SHOW = 4;
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
@@ -60,7 +50,8 @@ const Home = () => {
   const { data: featuredTrees } = useFeaturedTrees();
   const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
 
-  const [isSmallerScreen] = useMediaQuery('(max-width: 1700px)');
+  const [upto780] = useMediaQuery('(max-width: 780px)');
+  const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
   const { data: currentHats } = useWearerDetails({
     wearerAddress,
@@ -73,7 +64,9 @@ const Home = () => {
   const activeHats = _.filter(sortedHats, ['status', true]);
 
   const { data: currentHatsWithImagesData } = useImageURIs({
-    hats: activeHats ? activeHats.splice(0, 8) : [],
+    hats: activeHats
+      ? activeHats.splice(0, upto780 ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
+      : [],
   });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
@@ -88,9 +81,13 @@ const Home = () => {
         opacity={0.07}
         zIndex={-1}
       />
-      <Stack spacing={10} px={20} py={120}>
+      <Stack spacing={10} px={{ base: 5, md: 20 }} py={{ base: 100, md: 120 }}>
         {wearerAddress ? (
-          <Flex justifyContent='space-between'>
+          <Flex
+            direction={{ base: 'column', md: 'row' }}
+            justifyContent='space-between'
+            gap={10}
+          >
             <Stack>
               <Heading variant='medium'>
                 gm {ensName || formatAddress(wearerAddress)} 👋
@@ -128,13 +125,14 @@ const Home = () => {
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Flex justifyContent='space-between' alignItems='center'>
                 <Heading variant='medium'>Your hats</Heading>
-                {sortedHats.length > 8 && (
+                {_.size(sortedHats) >
+                  (upto780 ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
                   <ChakraNextLink
                     as={ChakraNextLink}
                     href={`/wearers/${wearerAddress}`}
                   >
                     <HStack alignItems='center'>
-                      <Text>View all of your hats</Text>
+                      <Text>View {!upto780 ? 'all of ' : ''}your hats</Text>
                       <FaArrowRight />
                     </HStack>
                   </ChakraNextLink>
@@ -170,12 +168,12 @@ const Home = () => {
         <Flex
           alignItems='start'
           gap={10}
-          direction={isSmallerScreen ? 'column' : 'row'}
+          direction={upTo1700 ? 'column' : 'row'}
         >
           <Stack spacing={10} flex={1}>
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Heading variant='medium'>Explore featured trees</Heading>
-              <SimpleGrid columns={3} spacing={6}>
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
                 {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                   <FeaturedTreeCard
                     key={i}
@@ -193,7 +191,7 @@ const Home = () => {
               <Heading variant='medium'>
                 Jump right in with a forkable template
               </Heading>
-              <SimpleGrid columns={3} spacing={6}>
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
                 {_.map(featuredTemplates, (tree: TemplateData, i: number) => (
                   <ForkableTemplateCard key={i} treeData={tree} />
                 ))}
@@ -206,11 +204,17 @@ const Home = () => {
             px={9}
             background='whiteAlpha.600'
             gap={4}
-            maxW={isSmallerScreen ? '100%' : '427px'}
+            maxW={upTo1700 ? '100%' : '427px'}
           >
             <Heading variant='medium'>Learn more about Hats</Heading>
-            {isSmallerScreen ? (
-              <Grid templateColumns='repeat(2, 1fr)' gap={6}>
+            {upTo1700 ? (
+              <Grid
+                templateColumns={{
+                  base: 'repeat(1, 1fr)',
+                  md: 'repeat(2, 1fr)',
+                }}
+                gap={6}
+              >
                 {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}

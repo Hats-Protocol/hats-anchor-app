@@ -109,9 +109,10 @@ const ConnectWallet = () => {
                     bg='green.200'
                     _hover={{ bg: 'green.300' }}
                     color='green.700'
+                    px={{ base: 2, md: 4 }}
                   >
                     <HStack spacing={2} align='center'>
-                      {(ensAvatar || blockie) && !upTo780 ? (
+                      {ensAvatar || blockie ? (
                         <Box
                           height={ensAvatar ? '28px' : '20px'}
                           width={ensAvatar ? '28px' : '20px'}
@@ -128,19 +129,19 @@ const ConnectWallet = () => {
                           />
                         </Box>
                       ) : (
-                        !upTo780 && (
-                          <Box
-                            height='14px'
-                            width='14px'
-                            borderRadius='50%'
-                            bg='green.700'
-                          />
-                        )
+                        <Box
+                          height='14px'
+                          width='14px'
+                          borderRadius='50%'
+                          bg='green.700'
+                        />
                       )}
 
-                      <Text variant='medium' noOfLines={1}>
-                        {ensName || account.displayName}
-                      </Text>
+                      {!upTo780 && (
+                        <Text variant='medium' noOfLines={1}>
+                          {ensName || account.displayName}
+                        </Text>
+                      )}
                     </HStack>
                   </MenuButton>
                   <MenuList bg='green.100' color='green.700'>
