@@ -18,7 +18,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { explorerUrl, getHostnameFromURL } from 'app-utils';
+import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useCallHsgFunction,

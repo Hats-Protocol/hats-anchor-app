@@ -1,5 +1,5 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
 import { FormDataDetails } from 'hats-types';
 import _ from 'lodash';
@@ -116,7 +116,7 @@ export const handleDetailsPin = async ({
     BigInt(hatId),
   )}`;
 
-  // TODO handle different details schemas
+  // TODO [low] handle different details schemas
   const cid = `ipfs://${await pinJson(
     { type: '1.0', data: details },
     { name: detailsName },

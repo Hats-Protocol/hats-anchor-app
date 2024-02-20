@@ -17,8 +17,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
-import { usePinImageIpfs } from 'app-hooks';
-import { formatImageUrl, getHostnameFromURL } from 'app-utils';
+import { usePinImageIpfs } from 'hooks';
 import { useHatForm, useTreeForm } from 'contexts';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
@@ -28,6 +27,7 @@ import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { AuthorityHeader, DropZone, Input, Textarea } from 'ui';
+import { formatImageUrl, getHostnameFromURL } from 'utils';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
 

@@ -1,13 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'app-hooks';
-import {
-  fetchToken,
-  handleDetailsPin,
-  processHatForCalls,
-  summarizeActions,
-} from 'app-utils';
 import {
   AppHat,
   FormData,
@@ -16,8 +9,15 @@ import {
   HatsCalls,
   SupportedChains,
 } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+  fetchToken,
+  handleDetailsPin,
+  processHatForCalls,
+  summarizeActions,
+} from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import {
   useAccount,
@@ -194,7 +194,7 @@ const useMulticallManyHats = ({
       // ? check to see if any objects are already pinned
 
       const token = await fetchToken(_.size(detailsToPin));
-      // TODO handle no token/empty string
+      // TODO [low] handle no token/empty string
 
       const promises = _.map(
         _.compact(detailsToPin),

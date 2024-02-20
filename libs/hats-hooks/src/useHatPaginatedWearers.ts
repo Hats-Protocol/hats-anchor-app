@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchPaginatedWearersForHat } from 'app-utils';
 import { HatWearer, SupportedChains } from 'hats-types';
 import { sortWearers } from 'hats-utils';
 import { useState } from 'react';
+import { fetchPaginatedWearersForHat } from 'utils';
 import { useAccount } from 'wagmi';
 
 const useHatPaginatedWearers = ({

@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { fetchToken, pinImage, unpinImage } from 'app-utils';
 import { useEffect, useState } from 'react';
+import { fetchToken, pinImage, unpinImage } from 'utils';
 
-// app-hooks/image-sdk
+// hooks/image-sdk
 
 /**
  * Pins an image file to ipfs. If image file is updated, then unpins previous and pins updated image

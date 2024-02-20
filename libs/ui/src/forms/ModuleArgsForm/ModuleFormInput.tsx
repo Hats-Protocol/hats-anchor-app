@@ -1,9 +1,9 @@
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
-import { transformAndVerify } from 'app-utils';
 import { ModuleCreationArg } from 'hats-types';
 import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { transformAndVerify } from 'utils';
 import { Hex } from 'viem';
 
 import {
@@ -34,7 +34,6 @@ const ModuleFormInput = ({
   if (!arg) return null;
 
   if (arg.type === 'address') {
-    // TODO handle undefined tokenAddress
     return (
       <AddressInput
         arg={arg}
@@ -71,7 +70,6 @@ const ModuleFormInput = ({
   }
 
   if (arg.displayType === 'amountWithDecimals') {
-    // TODO handle undefined tokenAddress
     return (
       <AmountWithDecimals
         arg={arg}

@@ -1,6 +1,6 @@
 import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { PROPOSALS } from '@hatsprotocol/constants';
-import { useProposalDetails } from 'app-hooks';
+import { useProposalDetails } from 'hooks';
 import { useEligibility } from 'contexts';
 import { idToIp } from 'shared';
 

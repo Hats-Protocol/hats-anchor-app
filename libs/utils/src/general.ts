@@ -190,7 +190,6 @@ export const transformInput = (
         return convertToBigInt(numberFromObject);
       }
       if (_.isString(input) || _.isNumber(input)) {
-        // TODO handle decimal number as string, crashing BigInt conversion
         return convertToBigInt(input);
       }
       break;
@@ -239,7 +238,7 @@ export const transformAndVerify = (
     return true;
   }
 
-  // TODO pass a more specific error message for types
+  // TODO [low] pass a more specific error message for types
   return typeof transformedInput === 'string' && transformedInput !== ''
     ? transformedInput
     : 'This is not a valid input!';

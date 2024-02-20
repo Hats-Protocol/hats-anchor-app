@@ -5,8 +5,8 @@ import {
   hatIdIpToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
-import { searchQueryResult } from 'app-utils';
 import _ from 'lodash';
+import { searchQueryResult } from 'utils';
 import { numberToHex } from 'viem';
 
 const isValidSearch = (search: string | undefined) => {

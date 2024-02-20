@@ -1,7 +1,7 @@
 import { SAFE_ABI } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { viemPublicClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import { viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 
 const fetchSafeDetails = async (safeAddress: Hex, chainId: SupportedChains) => {

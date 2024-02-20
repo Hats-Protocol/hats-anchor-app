@@ -2,7 +2,7 @@ import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { numberTypes, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'app-utils';
+import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'utils';
 import { formatDistanceToNow } from 'date-fns';
 import { TokenData } from 'hats-types';
 import _ from 'lodash';

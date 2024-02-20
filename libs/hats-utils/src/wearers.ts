@@ -1,6 +1,6 @@
-import { isSameAddress } from 'app-utils';
 import { HatWearer } from 'hats-types';
 import _ from 'lodash';
+import { isSameAddress } from 'utils';
 import { Hex } from 'viem';
 
 export const getEligibleWearers = ({

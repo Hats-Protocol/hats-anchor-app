@@ -10,7 +10,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { networkImages, orderedChains } from '@hatsprotocol/constants';
-import { chainsMap } from 'app-utils';
+import { chainsMap } from 'utils';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';

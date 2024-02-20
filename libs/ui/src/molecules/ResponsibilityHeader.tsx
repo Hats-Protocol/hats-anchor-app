@@ -8,7 +8,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { getHostnameFromURL, ipfsUrl } from 'app-utils';
+import { getHostnameFromURL, ipfsUrl } from 'utils';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
 import { BsFileCheck } from 'react-icons/bs';

@@ -13,13 +13,13 @@ import {
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useToast } from 'app-hooks';
-import { hatLink } from 'app-utils';
+import { useToast } from 'hooks';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { ChakraNextLink, Markdown } from 'ui';
+import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
 
 const Header = () => {

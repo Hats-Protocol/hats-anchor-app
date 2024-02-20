@@ -13,13 +13,6 @@ import {
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import {
-  createHatsModulesClient,
-  explorerUrl,
-  formatAddress,
-  getDefaultValue,
-  transformInput,
-} from 'app-utils';
-import {
   AppHat,
   FormData,
   HatAuthority,
@@ -32,6 +25,13 @@ import {
 import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
 import { ipToHatId } from 'shared';
+import {
+  createHatsModulesClient,
+  explorerUrl,
+  formatAddress,
+  getDefaultValue,
+  transformInput,
+} from 'utils';
 import { Hex, parseUnits } from 'viem';
 
 import { safeUrl } from './authorities';
@@ -176,7 +176,6 @@ export const deployClaimsHatter = async ({
   return null;
 };
 
-// TODO handle better return strategy in these two
 export const processModule = ({
   moduleAddress,
   storedData,
@@ -215,6 +214,7 @@ export const processModule = ({
   return _.flatten(_.concat(updateStoredData, [updatedHat]));
 };
 
+// TODO better return strategy
 export const processClaimsHatter = ({
   claimsHatterAddress,
   storedData,
@@ -237,7 +237,7 @@ export const processClaimsHatter = ({
 
   const updatedHatExists = _.find(storedData, ['id', adminId]);
 
-  // TODO handle draft case with increment wearers
+  // TODO [md - edge case] handle draft case with increment wearers
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat: Partial<FormData>) => {
         if (hat.id === adminId && claimsHatterAddress) {

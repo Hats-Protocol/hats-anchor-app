@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import { FEATURED_TREES } from '@hatsprotocol/constants';
-import { ipfsUrl } from 'app-utils';
+import { useQuery } from '@tanstack/react-query';
+import { ipfsUrl } from 'utils';
 
-// app-hooks
+// hooks
 const useFeaturedTrees = () => {
   const returnFeaturedTrees = () => FEATURED_TREES({ ipfsUrl });
 

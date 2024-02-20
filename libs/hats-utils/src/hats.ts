@@ -5,7 +5,6 @@ import {
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
 import {
   AppHat,
   Controls,
@@ -17,6 +16,7 @@ import {
 } from 'hats-types';
 import _ from 'lodash';
 import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
+import { formatImageUrl, ipfsUrl, isImageUrl } from 'utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
@@ -79,7 +79,7 @@ export const isWearingAdminHat = (
   if (!includeCurrent) {
     hatIds = _.reject(hatIds, (id) => id === hatId);
   }
-  // TODO handle linked trees
+  // TODO [md] handle linked trees
 
   if (!wearerHatIds) return false;
   // check if any of the wearer hats' IDs are admin of any parent hat IDs

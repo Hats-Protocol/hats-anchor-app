@@ -1,9 +1,9 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { fetchTreeDetails, fetchTreesById } from 'app-utils';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { ipToPrettyId, prettyIdToIp } from 'shared';
+import { fetchTreeDetails, fetchTreesById } from 'utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {

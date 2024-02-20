@@ -1,11 +1,11 @@
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { viemPublicClient } from 'app-utils';
 import { AppHat } from 'hats-types';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { viemPublicClient } from 'utils';
 import { Abi, Hex, Narrow } from 'viem';
 
 interface ContractCall {

@@ -7,12 +7,12 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useIsClient } from 'app-hooks';
-import { chainsMap } from 'app-utils';
 import { useEligibility } from 'contexts';
+import { useIsClient } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
+import { chainsMap } from 'utils';
 
 const ProposalView = dynamic(() =>
   import('modules-ui').then((mod) => mod.ProposalView),

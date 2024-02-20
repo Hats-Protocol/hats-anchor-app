@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchControllersForUser } from 'app-utils';
+import { fetchControllersForUser } from 'utils';
 
 const useControllerList = ({ address }: { address: string }) => {
   const { data, isLoading } = useQuery({

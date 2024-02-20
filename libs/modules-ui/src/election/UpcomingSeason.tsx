@@ -9,7 +9,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { WriteFunction } from '@hatsprotocol/hsg-sdk';
-import { formatAddress, parsedSeconds } from 'app-utils';
 import {
   Modal,
   useEligibility,
@@ -20,6 +19,7 @@ import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ModuleArgsForm } from 'ui';
+import { formatAddress, parsedSeconds } from 'utils';
 import { useChainId } from 'wagmi';
 
 import DateInfo from './DateInfo';

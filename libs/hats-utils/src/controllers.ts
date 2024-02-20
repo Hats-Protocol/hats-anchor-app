@@ -1,8 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import { Module } from '@hatsprotocol/modules-sdk';
-import { explorerUrl, formatAddress } from 'app-utils';
 import { ContractData, HatWearer, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { explorerUrl, formatAddress } from 'utils';
 
 import { daohausUrl, safeUrl } from './authorities';
 

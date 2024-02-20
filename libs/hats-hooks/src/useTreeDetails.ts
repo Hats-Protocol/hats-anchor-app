@@ -1,6 +1,6 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { fetchTreeDetails } from 'app-utils';
+import { fetchTreeDetails } from 'utils';
 
 // hats-hooks
 const useTreeDetails = ({

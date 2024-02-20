@@ -21,8 +21,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useLocalStorage } from 'app-hooks';
-import { containsUpperCase, getOperatingSystem } from 'app-utils';
+import { useLocalStorage } from 'hooks';
+import { containsUpperCase, getOperatingSystem } from 'utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat, Transaction } from 'hats-types';

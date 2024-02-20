@@ -60,8 +60,6 @@ export const fetchTreeDetails = async (
             prettyId: true,
           },
           hats: {
-            // TODO do we need more keys here?
-            // ? ID is not an option?
             props: { prettyId: true },
           },
         },

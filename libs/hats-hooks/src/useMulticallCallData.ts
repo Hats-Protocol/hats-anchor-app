@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
+import { AppHat, FormData, SupportedChains } from 'hats-types';
+import _ from 'lodash';
 import {
   createHatsClient,
   fetchToken,
   handleDetailsPin,
   processHatForCalls,
-} from 'app-utils';
-import { AppHat, FormData, SupportedChains } from 'hats-types';
-import _ from 'lodash';
+} from 'utils';
 import { Hex } from 'viem';
 
 import { HatPinDetails } from './useMulticallManyHats';
@@ -51,7 +51,7 @@ const useMulticallCallData = ({
     const detailsToPin = _.map(allCalls, 'detailsToPin');
 
     const token = await fetchToken(_.size(detailsToPin));
-    // TODO handle no token
+    // TODO [low] handle no token
 
     const detailsPromises = _.map(
       _.compact(detailsToPin),

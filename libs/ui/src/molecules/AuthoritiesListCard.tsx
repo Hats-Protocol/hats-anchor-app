@@ -13,10 +13,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
-import { getHostnameFromURL, validateURL } from 'app-utils';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ChakraNextLink, Markdown } from '../atoms';
 import AuthorityHeader from './AuthorityHeader';

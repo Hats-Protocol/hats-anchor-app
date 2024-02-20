@@ -44,7 +44,7 @@ const ToastBase = ({
   });
 };
 
-// app-hooks
+// hooks
 const useCustomToast = () => {
   const toast = useChakraToast();
   const toastIdRef = useRef<ToastId | null>(null);

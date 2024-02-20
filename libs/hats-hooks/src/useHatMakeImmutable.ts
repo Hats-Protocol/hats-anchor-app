@@ -9,6 +9,7 @@ import useHatContractWrite from './useHatContractWrite';
 
 const useHatMakeImmutable = ({
   selectedHat,
+  onchainHats,
   chainId,
   isAdminUser,
   mutable,
@@ -37,7 +38,7 @@ const useHatMakeImmutable = ({
       Boolean(decimalId(selectedHatId)) &&
       !!mutable &&
       _.gt(selectedHat?.levelAtLocalTree, 0) &&
-      // TODO hat is onchain
+      _.includes(_.map(onchainHats, 'id'), selectedHatId) &&
       !!isAdminUser &&
       chainId === currentNetworkId,
   });
@@ -49,6 +50,7 @@ export default useHatMakeImmutable;
 
 interface UseHatMakeImmutableProps {
   selectedHat: AppHat;
+  onchainHats: AppHat[];
   chainId: SupportedChains | undefined;
   isAdminUser?: boolean;
   mutable?: boolean;

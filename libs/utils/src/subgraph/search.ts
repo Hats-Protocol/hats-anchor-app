@@ -89,7 +89,7 @@ export const searchQueryResult = async (search: string | undefined) => {
       allNetworkResults?.hats || [],
     );
   });
-  // TODO seeing results here, but not in command palette
+  // TODO sort these results
   console.log('allNetworkResults', allNetworkResults);
 
   return _.mapValues(

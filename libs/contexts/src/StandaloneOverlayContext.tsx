@@ -1,4 +1,4 @@
-import { useLocalStorage, useToast } from 'app-hooks';
+import { useLocalStorage, useToast } from 'hooks';
 import {
   ClaimsModals,
   HatRecord,

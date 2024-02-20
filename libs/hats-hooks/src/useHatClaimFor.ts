@@ -1,15 +1,15 @@
-import { Module } from '@hatsprotocol/modules-sdk';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useToast } from 'app-hooks';
-import {
-  createHatsClient,
-  createHatsModulesClient,
-  formatAddress,
-} from 'app-utils';
+import { Module } from '@hatsprotocol/modules-sdk';
+import { useToast } from 'hooks';
 import { AppHat, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { idToIp } from 'shared';
+import {
+  createHatsClient,
+  createHatsModulesClient,
+  formatAddress,
+} from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useContractRead } from 'wagmi';
 

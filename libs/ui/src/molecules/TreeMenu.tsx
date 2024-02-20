@@ -24,8 +24,8 @@ import {
   UseDisclosureReturn,
 } from '@chakra-ui/react';
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
-import { useIsClient } from 'app-hooks';
-import { chainsMap, explorerUrl } from 'app-utils';
+import { useIsClient } from 'hooks';
+import { chainsMap, explorerUrl } from 'utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { Controls } from 'hats-types';

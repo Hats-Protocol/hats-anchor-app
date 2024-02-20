@@ -4,8 +4,7 @@ import {
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
-import { useDebounce, useToast } from 'app-hooks';
-import { fieldsAreDirty, getDirtyFields } from 'app-utils';
+import { useDebounce, useToast } from 'hooks';
 import { FieldItem, FormData, FormFieldKeys } from 'hats-types';
 import _ from 'lodash';
 import {
@@ -18,6 +17,7 @@ import {
   useState,
 } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import { fieldsAreDirty, getDirtyFields } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 

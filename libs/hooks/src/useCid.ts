@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
-import { calculateCid } from 'app-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { calculateCid } from 'utils';
 
 // image-sdk/hooks
 /**

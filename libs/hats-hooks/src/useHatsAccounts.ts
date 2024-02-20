@@ -1,9 +1,9 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
-import { useToast } from 'app-hooks';
-import { createHatsAccountClient } from 'app-utils';
+import { useToast } from 'hooks';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { createHatsAccountClient } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useQueryClient } from 'wagmi';
 

@@ -12,13 +12,13 @@ import {
   useMediaQuery,
   VStack,
 } from '@chakra-ui/react';
-import { explorerUrl } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { ChakraNextLink } from 'ui';
+import { explorerUrl } from 'utils';
 
 const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, moduleDetails } = useEligibility();

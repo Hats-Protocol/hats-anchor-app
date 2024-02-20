@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-// app-hooks
+// hooks
 function useBetterMediaQuery(mediaQueryString: string) {
   const [matches, setMatches] = useState<boolean>();
 

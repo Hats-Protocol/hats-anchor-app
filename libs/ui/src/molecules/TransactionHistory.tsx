@@ -1,5 +1,5 @@
 import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
-import { explorerUrl } from 'app-utils';
+import { explorerUrl } from 'utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Transaction } from 'hats-types';
 import _ from 'lodash';

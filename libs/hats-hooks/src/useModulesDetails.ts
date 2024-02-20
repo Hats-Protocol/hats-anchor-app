@@ -1,8 +1,8 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { createHatsModulesClient } from 'app-utils';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 
 const useModulesDetails = ({

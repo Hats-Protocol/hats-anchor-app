@@ -12,7 +12,7 @@ import useDeepCompareEffect from './useDeepCompareEffect';
 // @ts-ignore next-line
 import { sha256 } from './utils/sha256.js';
 
-// app-hooks
+// hooks
 const useOrgChartTree = ({
   treeData,
   hatsData,

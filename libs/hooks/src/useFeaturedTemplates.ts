@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import { FEATURED_TEMPLATES } from '@hatsprotocol/constants';
-import { ipfsUrl } from 'app-utils';
+import { useQuery } from '@tanstack/react-query';
+import { ipfsUrl } from 'utils';
 
-// app-hooks
+// hooks
 const useFeaturedTemplates = () => {
   const returnFeaturedTemplates = () => FEATURED_TEMPLATES({ ipfsUrl });
 

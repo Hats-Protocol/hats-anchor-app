@@ -119,7 +119,7 @@ export const fetchWearerDetailsForAllChains = async (
   return Promise.all(
     _.map(promises, (p: Promise<() => void>) => p.catch(() => undefined)),
   ).then((data) => {
-    // TODO handle errors on subgraph(s) with the user
+    // TODO [low] handle errors on subgraph(s) with the user
     return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
   });
 };
@@ -147,7 +147,6 @@ export const fetchPaginatedWearersForHat = async (
   return wearersWithDetails;
 };
 
-// TODO replace with where stmt in subgraph client
 export const EVENT_DETAILS_FRAGMENT = gql`
   fragment EventDetails on HatsEvent {
     id
@@ -169,7 +168,6 @@ const HAT_DETAILS_WITHOUT_EVENTS_FRAGMENT = gql`
     mutable
     imageUri
     levelAtLocalTree
-    # TODO need to handle more than 1 "registered" hatter instance?
     claimableBy(first: 1) {
       id
     }
@@ -209,6 +207,7 @@ export const GET_CONTROLLERS_FOR_USER = gql`
   ${HAT_DETAILS_FRAGMENT}
 `;
 
+// TODO use subgraph client directly
 export const fetchControllersForUser = async (a: string) => {
   const promises = _.map(chains, (cId: number) => {
     const subgraphClient = new GraphQLClient(

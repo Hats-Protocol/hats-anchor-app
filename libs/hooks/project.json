@@ -1,7 +1,7 @@
 {
-  "name": "app-utils",
+  "name": "hooks",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/app-utils/src",
+  "sourceRoot": "libs/hooks/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,18 +9,18 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/app-utils",
-        "main": "libs/app-utils/src/index.ts",
-        "packageJson": "libs/app-utils/package.json",
-        "tsConfig": "libs/app-utils/tsconfig.lib.json",
-        "assets": ["libs/app-utils/*.md"],
+        "outputPath": "dist/libs/hooks",
+        "main": "libs/hooks/src/index.ts",
+        "packageJson": "libs/hooks/package.json",
+        "tsConfig": "libs/hooks/tsconfig.lib.json",
+        "assets": ["libs/hooks/*.md"],
         "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs app-utils {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs hooks {args.ver} {args.tag}"
       },
       "dependsOn": [
         {
@@ -32,14 +32,14 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/app-utils/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/hooks/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/app-utils"],
+      "outputs": ["{workspaceRoot}/coverage/libs/hooks"],
       "options": {
-        "jestConfig": "libs/app-utils/jest.config.ts",
+        "jestConfig": "libs/hooks/jest.config.ts",
         "passWithNoTests": true
       }
     }

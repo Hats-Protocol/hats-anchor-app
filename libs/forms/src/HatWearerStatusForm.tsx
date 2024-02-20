@@ -8,14 +8,14 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useDebounce } from 'app-hooks';
-import { formatAddress } from 'app-utils';
+import { useDebounce } from 'hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
+import { formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 

@@ -17,7 +17,6 @@ export * from './hats';
  */
 export function prettyIdToId(id: string | undefined): Hex {
   if (!id) return '0x';
-  // TODO fix library type requirements for replaceAll
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore next-line
   return id?.replaceAll('.', '').padEnd(66, '0') as Hex;
