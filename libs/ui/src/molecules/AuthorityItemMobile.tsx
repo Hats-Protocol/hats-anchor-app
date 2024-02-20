@@ -1,11 +1,11 @@
 import { Box, HStack, Image, Text } from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
-import { useSafeDetails } from 'app-hooks';
-import { authorityImageHandler, ipfsUrl } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import { Authority } from 'hats-types';
+import { useSafeDetails } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { authorityImageHandler, ipfsUrl } from 'utils';
 import { Hex } from 'viem';
 
 const AuthorityItemMobile = ({ authority }: AuthorityItemMobileProps) => {

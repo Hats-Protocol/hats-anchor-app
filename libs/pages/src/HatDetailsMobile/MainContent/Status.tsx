@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useContractData, usePendHatterMint, useToast } from 'app-hooks';
 import { useTreeForm } from 'contexts';
 import {
   useHatStatus,
@@ -23,6 +22,7 @@ import {
 } from 'hats-hooks';
 import { HatWearer, SupportedChains } from 'hats-types';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
+import { useContractData, usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';

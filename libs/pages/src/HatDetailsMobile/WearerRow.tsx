@@ -12,8 +12,6 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useToast } from 'app-hooks';
-import { formatAddress, isSameAddress } from 'app-utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useHatBurn,
@@ -24,11 +22,13 @@ import {
 } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH, FaUser } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
+import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 

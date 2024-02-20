@@ -50,8 +50,6 @@ const Modal = ({
     }
   };
 
-  // TODO flexible heading size
-
   return (
     <ChakraModal
       isOpen={isOpen || modals?.[name] || false}

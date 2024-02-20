@@ -9,11 +9,11 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
-import { chains, wagmiConfig } from 'app-utils';
 import { OverlayContextProvider } from 'contexts';
 import type { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
 import { ErrorBoundary, theme } from 'ui';
+import { chains, wagmiConfig } from 'utils';
 import { WagmiConfig } from 'wagmi';
 
 const queryClient = new QueryClient({

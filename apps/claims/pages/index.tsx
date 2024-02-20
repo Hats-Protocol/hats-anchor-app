@@ -1,11 +1,11 @@
 import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { useIsClient } from 'app-hooks';
-import { formatAddress } from 'app-utils';
+import { useIsClient } from 'hooks';
 import {
   ChakraNextLink,
   StandaloneLayout as Layout,
   // WearerHatCard as CoreHat,
 } from 'ui';
+import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
 const LookingForHat = () => (

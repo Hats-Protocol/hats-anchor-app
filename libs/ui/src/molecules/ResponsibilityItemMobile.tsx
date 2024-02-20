@@ -8,10 +8,10 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { getHostnameFromURL, ipfsUrl } from 'app-utils';
 import { Authority } from 'hats-types';
 import { BsFileCheck } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { getHostnameFromURL, ipfsUrl } from 'utils';
 
 const ResponsibilitiesItemMobile = ({
   responsibility,

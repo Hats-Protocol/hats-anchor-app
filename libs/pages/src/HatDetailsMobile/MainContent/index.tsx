@@ -1,10 +1,10 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { MODULE_TYPES } from '@hatsprotocol/constants';
-import { checkAddressIsContract } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { checkAddressIsContract } from 'utils';
 import { Hex } from 'viem';
 
 import WearersList from '../WearersList';

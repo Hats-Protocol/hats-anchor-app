@@ -14,7 +14,6 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { chainsMap } from 'app-utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
@@ -23,6 +22,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
+import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 

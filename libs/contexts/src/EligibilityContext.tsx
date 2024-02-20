@@ -1,6 +1,6 @@
 import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { useImageURIs } from 'app-hooks';
+import { useImageURIs } from 'hooks';
 import {
   useAncillaryElection,
   useHatDetails,

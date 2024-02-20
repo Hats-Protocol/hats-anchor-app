@@ -12,11 +12,11 @@ import {
   Text,
   UnorderedList,
 } from '@chakra-ui/react';
-import { validateURL } from 'app-utils';
 import { DetailsItem } from 'hats-types';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { validateURL } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),

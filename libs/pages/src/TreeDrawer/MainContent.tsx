@@ -15,7 +15,6 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useIsClient, useToast } from 'app-hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
@@ -26,11 +25,11 @@ import {
   handleExportBranch,
   isTopHatOrMutable,
 } from 'hats-utils';
+import { useIsClient, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
-import { prettyIdToId } from 'shared';
 import { Hex } from 'viem';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -79,7 +78,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
   const handleExport = (shouldPatchIds: boolean) =>
     handleExportBranch({
-      targetHatId: prettyIdToId(treeId),
+      targetHatId: treeId,
       treeToDisplay,
       linkedHatIds,
       storedData,

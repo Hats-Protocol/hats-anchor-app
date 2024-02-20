@@ -7,11 +7,11 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react';
-import { explorerUrl } from 'app-utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Transaction } from 'hats-types';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
+import { explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 

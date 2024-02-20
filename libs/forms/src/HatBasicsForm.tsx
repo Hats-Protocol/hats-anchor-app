@@ -8,11 +8,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
-import { usePinImageIpfs } from 'app-hooks';
-import { formatImageUrl } from 'app-utils';
 import { useHatForm, useTreeForm } from 'contexts';
 import { ImageFile } from 'hats-types';
 import { isMutable, isTopHat } from 'hats-utils';
+import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -28,6 +27,7 @@ import {
   RadioBox,
   Textarea,
 } from 'ui';
+import { formatImageUrl } from 'utils';
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },

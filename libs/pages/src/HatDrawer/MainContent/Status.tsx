@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useContractData, usePendHatterMint, useToast } from 'app-hooks';
+import { useContractData, usePendHatterMint, useToast } from 'hooks';
 import { useTreeForm } from 'contexts';
 import {
   useHatStatus,

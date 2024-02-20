@@ -17,15 +17,14 @@ import {
   orderedChains,
   TemplateData,
 } from '@hatsprotocol/constants';
+import { useWearerDetails } from 'hats-hooks';
+import { AppHat, DocsLink } from 'hats-types';
 import {
   useFeaturedTemplates,
   useFeaturedTrees,
   useFeaturedTreesData,
   useImageURIs,
-} from 'app-hooks';
-import { formatAddress } from 'app-utils';
-import { useWearerDetails } from 'hats-hooks';
-import { AppHat, DocsLink } from 'hats-types';
+} from 'hooks';
 import _ from 'lodash';
 // import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
@@ -39,6 +38,7 @@ import {
   LearnMoreCard,
   // Suspender,
 } from 'ui';
+import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
 const HATS_TO_SHOW = 8;

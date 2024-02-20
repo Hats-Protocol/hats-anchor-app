@@ -1,7 +1,6 @@
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
-import { useContractData } from 'app-hooks';
-import { explorerUrl } from 'app-utils';
+import { useContractData } from 'hooks';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import { DetailsItem } from 'hats-types';
@@ -25,6 +24,7 @@ import {
   LabelWithLink,
   RadioBox,
 } from 'ui';
+import { explorerUrl } from 'utils';
 
 import ClaimsHandler from './ClaimsHandler';
 

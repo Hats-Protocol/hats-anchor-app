@@ -1,9 +1,6 @@
-// import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useLocalStorage, useToast } from 'app-hooks';
-import { checkTransactionStatus } from 'app-utils';
 import { AppModals, OverlayContextProps, Transaction } from 'hats-types';
+import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-// import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -14,18 +11,10 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { checkTransactionStatus } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
-
-// import { Modal, Suspender } from './components';
-
-// const TransactionHistory = dynamic(
-//   () => import('../components/TransactionHistory'),
-//   { loading: () => <Suspender /> },
-// );
-
-// TODO re-enable transaction history modal
 
 const defaultModals: AppModals = {
   createTree: false,
@@ -86,9 +75,6 @@ export const OverlayContextProvider = ({
   const updateRecentlyVisitedTrees = useCallback(
     ({ treeId, chainId: cId }: { treeId: number; chainId: number }) => {
       if (!treeId || !cId) return;
-      // const treeIdDecimal = treeIdHexToDecimal(treeId);
-      // TODO confirm is decimal
-
       const localRecentTrees = _.compact(
         _.concat([{ treeId, chainId: cId }], recentlyVisitedTrees),
       );

@@ -1,11 +1,11 @@
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { explorerUrl, formatAddress } from 'app-utils';
 import { useEligibility } from 'contexts';
 import { useHatClaimBy } from 'hats-hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { ChakraNextLink } from 'ui';
+import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
 

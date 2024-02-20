@@ -14,19 +14,19 @@ import {
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useSafeDetails } from 'app-hooks';
+import { useTreeForm } from 'contexts';
+import { Authority } from 'hats-types';
+import { useSafeDetails } from 'hooks';
+import _ from 'lodash';
+import { useMemo } from 'react';
+import { BsInfoCircle } from 'react-icons/bs';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
   authorityImageHandler,
   getHostnameFromURL,
   ipfsUrl,
   validateURL,
-} from 'app-utils';
-import { useTreeForm } from 'contexts';
-import { Authority } from 'hats-types';
-import _ from 'lodash';
-import { useMemo } from 'react';
-import { BsInfoCircle } from 'react-icons/bs';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+} from 'utils';
 import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../atoms';

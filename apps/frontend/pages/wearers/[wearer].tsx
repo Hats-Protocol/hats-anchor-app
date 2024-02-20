@@ -17,8 +17,6 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { orderedChains } from '@hatsprotocol/constants';
-import { useImageURIs, useToast } from 'app-hooks';
-import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
 import {
@@ -27,12 +25,14 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { AppHat, SupportedChains } from 'hats-types';
+import { useImageURIs, useToast } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { Layout, WearerHatCard as CoreHat } from 'ui';
+import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 

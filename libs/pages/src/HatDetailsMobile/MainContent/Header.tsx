@@ -12,9 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useToast } from 'app-hooks';
 import { useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { FaCopy } from 'react-icons/fa';

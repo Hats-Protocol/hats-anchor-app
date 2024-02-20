@@ -11,13 +11,13 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { explorerUrl } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { ChakraNextLink } from 'ui';
+import { explorerUrl } from 'utils';
 
 interface TimeUntilStart {
   days: number;

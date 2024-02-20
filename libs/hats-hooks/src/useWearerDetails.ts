@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { AppHat } from 'hats-types';
 import {
   fetchWearerDetailsForAllChains,
   fetchWearerDetailsForChain,
-} from 'app-utils';
-import { AppHat } from 'hats-types';
+} from 'utils';
 import { Hex } from 'viem';
 
 // hats-hooks

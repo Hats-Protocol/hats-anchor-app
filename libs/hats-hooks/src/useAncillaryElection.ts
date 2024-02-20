@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchElectionData } from 'app-utils';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { fetchElectionData } from 'utils';
 import { useAccount } from 'wagmi';
 
 import useManyHatsDetails from './useManyHatsDetails';

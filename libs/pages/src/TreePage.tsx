@@ -9,8 +9,7 @@ import {
   Spinner,
   Stack,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { chainsMap } from 'app-utils';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Modal, Suspender, useOverlay, useTreeForm } from 'contexts';
 import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
@@ -19,7 +18,7 @@ import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
-import { prettyIdToId } from 'shared';
+import { chainsMap } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
@@ -82,9 +81,8 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   const chain = chainsMap(chainId);
 
   let title = '';
-  const prettyId = prettyIdToId(treeId);
-  if (_.isFinite(_.toNumber(prettyId))) {
-    title = `Tree #${hatIdDecimalToIp(BigInt(prettyId))} on ${chain.name}`;
+  if (_.isFinite(_.toNumber(treeId))) {
+    title = `Tree #${hatIdToTreeId(BigInt(treeId))} on ${chain.name}`;
   } else {
     title = 'Invalid Tree ID';
   }

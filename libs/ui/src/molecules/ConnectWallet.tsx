@@ -8,11 +8,11 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
-import { formatAddress } from 'app-utils';
 import blockies from 'blockies-ts';
 import { Modal, useOverlay } from 'contexts';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { formatAddress } from 'utils';
 import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 
 import WalletProfile from './WalletProfile';

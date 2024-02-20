@@ -11,12 +11,12 @@ import {
   Text,
   UnorderedList,
 } from '@chakra-ui/react';
-import { chainsMap, explorerUrl, formatAddress } from 'app-utils';
 import { useHatsModules } from 'hats-hooks';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import React from 'react';
 import { Accordion, ChakraNextLink, StandaloneLayout } from 'ui';
+import { chainsMap, explorerUrl, formatAddress } from 'utils';
 import { useChainId } from 'wagmi';
 
 const ModuleExplorer = () => {

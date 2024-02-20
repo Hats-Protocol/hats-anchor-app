@@ -1,11 +1,11 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'app-hooks';
-import { fetchTreeDetails } from 'app-utils';
+import { useToast } from 'hooks';
 import { HandlePendingTx } from 'hats-types';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
 import _ from 'lodash';
 import router from 'next/router';
+import { fetchTreeDetails } from 'utils';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 

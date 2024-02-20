@@ -9,12 +9,12 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { formatDate } from 'app-utils';
 import _ from 'lodash';
 import { ReactNode, useState } from 'react';
 import DatePickerComponent from 'react-datepicker';
 import { UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
+import { formatDate } from 'utils';
 
 // TODO more INTL friendly date formatting on button
 
