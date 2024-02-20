@@ -1,16 +1,16 @@
-import { Box, Button, Flex, HStack } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
 import {
-  FaRegArrowAltCircleDown,
-  FaRegArrowAltCircleLeft,
-  FaRegArrowAltCircleRight,
-  FaRegArrowAltCircleUp,
-} from 'react-icons/fa';
+  Box,
+  Button,
+  Flex,
+  Image,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from '@chakra-ui/react';
+import { FaEllipsisV } from 'react-icons/fa';
 
 const BottomMenu = () => {
-  const { setSelectedHatId, hierarchy } = useTreeForm();
-
   return (
     <Box
       w='100%'
@@ -25,59 +25,22 @@ const BottomMenu = () => {
         borderTop='1px solid'
         borderColor='gray.200'
       >
-        {hierarchy?.leftSibling ? (
-          <Button
-            variant='outline'
-            onClick={() => setSelectedHatId?.(hierarchy?.leftSibling)}
-            gap={1}
-          >
-            <FaRegArrowAltCircleLeft />
-            {hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}
-          </Button>
-        ) : (
-          <Box w={16} />
-        )}
+        <Button
+          colorScheme='blue'
+          leftIcon={<Image src='/icons/hat.svg' alt='Hat' color='white' />}
+        >
+          Claim this hat
+        </Button>
 
-        <HStack>
-          {hierarchy?.parentId ? (
-            <Button
-              variant='outline'
-              onClick={() => setSelectedHatId?.(hierarchy?.parentId)}
-              gap={1}
-            >
-              <FaRegArrowAltCircleUp />
-              {hatIdDecimalToIp(BigInt(hierarchy?.parentId))}
-            </Button>
-          ) : (
-            <Box w={16} />
-          )}
-
-          {hierarchy?.firstChild ? (
-            <Button
-              variant='outline'
-              onClick={() => setSelectedHatId?.(hierarchy?.firstChild)}
-              gap={1}
-            >
-              {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
-              <FaRegArrowAltCircleDown />
-            </Button>
-          ) : (
-            <Box w={16} />
-          )}
-        </HStack>
-
-        {hierarchy?.rightSibling ? (
-          <Button
-            variant='outline'
-            onClick={() => setSelectedHatId?.(hierarchy?.rightSibling)}
-            gap={1}
-          >
-            {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}
-            <FaRegArrowAltCircleRight />
-          </Button>
-        ) : (
-          <Box w={16} />
-        )}
+        <Menu>
+          <MenuButton as={Button} leftIcon={<FaEllipsisV />}>
+            More
+          </MenuButton>
+          <MenuList>
+            <MenuItem>Item 1</MenuItem>
+            <MenuItem>Item 2</MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
     </Box>
   );

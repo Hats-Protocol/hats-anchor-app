@@ -72,7 +72,7 @@ const AuthorityHeader = ({ authority }: AuthorityHeaderProps) => {
       />
       <Box textAlign='left'>
         <HStack>
-          <Text size='md' variant='medium' noOfLines={1}>
+          <Text size='md' variant='medium' noOfLines={2}>
             {label || 'New Authority'}
             {currentThresholdConfig && ` (${currentThresholdConfig} signers)`}
           </Text>

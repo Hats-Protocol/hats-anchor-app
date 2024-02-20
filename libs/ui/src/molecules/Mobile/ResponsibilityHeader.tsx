@@ -49,7 +49,7 @@ const ResponsibilitiesItemMobile = ({
         </HStack>
       )}
       <Box flex={1} minW={0} w='full'>
-        <Text size='md' variant='medium' noOfLines={1}>
+        <Text size='md' variant='medium' noOfLines={1} textAlign='left'>
           {label || 'New Responsibility'}
         </Text>
       </Box>
