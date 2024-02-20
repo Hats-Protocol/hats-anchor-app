@@ -12,7 +12,6 @@ import { useEffect } from 'react';
 import { Hex } from 'viem';
 
 const HatDetails = ({ chainId, treeId, hatId }: HatDetailsProps) => {
-  console.log('hatId', hatId);
   const { updateRecentlyVisitedTrees } = useOverlay();
   // const router = useRouter();
   // const { hatId: hatIdParam } = router.query;

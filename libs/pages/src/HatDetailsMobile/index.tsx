@@ -13,7 +13,7 @@ const HatDetailsMobile = () => {
   if (!selectedHat) return null;
 
   return (
-    <Layout>
+    <Layout hatData={selectedHat}>
       <Box
         w='full'
         h='100%'
