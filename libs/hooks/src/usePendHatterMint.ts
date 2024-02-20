@@ -1,6 +1,6 @@
 import { AppHat, FormData } from 'hats-types';
 import _ from 'lodash';
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Hex } from 'viem';
 
 const usePendHatterMint = ({
@@ -13,10 +13,10 @@ const usePendHatterMint = ({
 }: {
   address?: Hex;
   hatToMintTo?: Hex;
-  treeToDisplay: AppHat[];
-  selectedHat: AppHat;
-  storedData: Partial<FormData>[];
-  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
+  treeToDisplay?: AppHat[];
+  selectedHat?: AppHat;
+  storedData?: Partial<FormData>[];
+  setStoredData?: (v: Partial<FormData>[]) => void;
 }) => {
   const availableAdmins = useMemo(() => {
     const noTopHat = _.slice(treeToDisplay, 1);

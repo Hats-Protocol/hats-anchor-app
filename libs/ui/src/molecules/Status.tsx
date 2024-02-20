@@ -59,9 +59,12 @@ const StatusCard = ({
     'toggle',
   ]);
   const controller = status === MODULE_TYPES.eligibility ? eligibility : toggle;
-  const extendedController: HatWearer = _.find(wearersAndControllers, {
-    id: controller,
-  });
+  const extendedController: HatWearer | undefined = _.find(
+    wearersAndControllers,
+    {
+      id: controller,
+    },
+  );
 
   const moduleAddress = useMemo(
     () => _.get(selectedHat, _.toLower(status)),

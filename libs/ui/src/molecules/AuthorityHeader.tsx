@@ -27,7 +27,6 @@ import {
   ipfsUrl,
   validateURL,
 } from 'utils';
-import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../atoms';
 
@@ -88,15 +87,17 @@ const AuthorityHeader = ({
   });
   const eligibleSigners = useMemo(() => {
     if (!safeOwners || !selectedHat?.wearers) return [];
+
+    const wearersLowercased = _.map(selectedHat.wearers, (wearer) =>
+      _.toLower(wearer.id),
+    );
+
     return _.filter(
       safeOwners,
-      (owner: Hex) =>
-        !_.includes(
-          _.map(selectedHat.wearers, (w: string) => _.toLower(w)),
-          _.toLower(owner),
-        ),
+      (owner) => !_.includes(wearersLowercased, _.toLower(owner)),
     );
-  }, [safeOwners, selectedHat?.wearers]);
+  }, [safeOwners, selectedHat]);
+
   const currentThresholdConfig = useMemo(() => {
     if (authority?.label === 'HSG Owner' || !hsgConfig) return undefined;
     const minThreshold = _.toNumber(hsgConfig?.minThreshold);
