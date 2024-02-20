@@ -7,7 +7,6 @@ import {
   Image,
   Stack,
   Text,
-  Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';

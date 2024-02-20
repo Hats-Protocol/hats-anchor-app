@@ -1,15 +1,12 @@
 import {
   Card,
-  Flex,
   Heading,
   HStack,
   Image as ChakraImage,
   Skeleton,
   Stack,
   Text,
-  Tooltip,
 } from '@chakra-ui/react';
-import { networkImages } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
