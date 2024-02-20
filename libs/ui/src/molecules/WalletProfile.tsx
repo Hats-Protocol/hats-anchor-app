@@ -15,7 +15,7 @@ import { useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import _ from 'lodash';
 import { BsBoxArrowRight } from 'react-icons/bs';
-import { FaCaretRight, FaCopy, FaPenSquare } from 'react-icons/fa';
+import { FaCaretRight, FaCopy } from 'react-icons/fa';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
@@ -106,8 +106,8 @@ const WalletProfile = ({
         </Button>
         <ChakraNextLink href={`/wearers/${address}`} w='full'>
           <Button w='100%' variant='outline'>
-            <HStack spacing={1}>
-              <Icon as={FaPenSquare} />
+            <HStack>
+              <Image src='/icons/wearers.svg' />
               <Text>Profile</Text>
             </HStack>
           </Button>

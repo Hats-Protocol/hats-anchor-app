@@ -1,6 +1,5 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from 'hooks';
 import {
   AppHat,
   HatAuthority,
@@ -13,6 +12,7 @@ import {
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
 } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { fetchAncillaryModules } from 'utils';

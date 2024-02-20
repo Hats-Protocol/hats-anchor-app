@@ -40,7 +40,6 @@ const TransactionHistoryRow = ({
       isExternal
       href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'}
       display='block'
-      key={hash}
     >
       <HStack
         key={hash}
@@ -122,6 +121,7 @@ const TransactionHistory = ({
             status={status}
             timestamp={timestamp}
             txDescription={txDescription}
+            key={hash}
           />
         ),
       )}

@@ -91,7 +91,10 @@ const AuthorityHeader = ({
     return _.filter(
       safeOwners,
       (owner: Hex) =>
-        !_.includes(_.map(selectedHat.wearers, 'id'), _.toLower(owner)),
+        !_.includes(
+          _.map(selectedHat.wearers, (w: string) => _.toLower(w)),
+          _.toLower(owner),
+        ),
     );
   }, [safeOwners, selectedHat?.wearers]);
   const currentThresholdConfig = useMemo(() => {
