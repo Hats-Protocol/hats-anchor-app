@@ -24,7 +24,6 @@ const Button = {
       color: props.color || props.colorScheme || 'gray.700',
       border: props.border || '1px solid',
       borderColor: props.borderColor || props.colorScheme || 'gray.700',
-      // TODO adjust these slightly on hover
       _hover: {
         background: props.background || props.bg || 'blackAlpha.100',
         color: props.color || props.colorScheme || 'gray.700',

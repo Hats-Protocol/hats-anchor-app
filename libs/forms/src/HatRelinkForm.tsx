@@ -11,23 +11,20 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useDebounce, usePinImageIpfs } from 'app-hooks';
-import { fetchToken, pinJson } from 'app-utils';
+import { useDebounce, usePinImageIpfs } from 'hooks';
 import { useHatContractWrite } from 'hats-hooks';
 import { AppHat, ImageFile } from 'hats-types';
-import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { prettyIdToId, prettyIdToIp } from 'shared';
 import { DropZone, Input, Select, Textarea } from 'ui';
+import { fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-// TODO refactor without prettyId
-// ! update links to use new docs links constants
+// TODO [low] update links to use new docs links constants
 
 const HatRelinkForm = ({
   chainId,
@@ -85,12 +82,12 @@ const HatRelinkForm = ({
   const toggle = useDebounce(watch('toggle', zeroAddress));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
-  const decimalAdmin = prettyIdToIp(hatData.prettyId);
-
   const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: newImage,
-    metadata: { name: `image_${chainId.toString()}_${decimalAdmin}` },
+    metadata: {
+      name: `image_${chainId.toString()}_${hatIdDecimalToIp(BigInt(newAdmin))}`,
+    },
   });
 
   const {
@@ -108,8 +105,8 @@ const HatRelinkForm = ({
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'relinkTopHatWithinTree',
     args: [
-      hatData.prettyId,
-      decimalId(prettyIdToId(newAdmin)),
+      hatData.id,
+      newAdmin,
       eligibilityAddress,
       toggleAddress,
       description,
@@ -123,9 +120,9 @@ const HatRelinkForm = ({
     chainId,
     onSuccessToastData: {
       title: 'Top Hat Relinked!',
-      description: `Successfully relinked top hat ${prettyIdToIp(
-        hatData.prettyId,
-      )} to ${prettyIdToIp(newAdmin)}`,
+      description: `Successfully relinked top hat ${hatIdDecimalToIp(
+        BigInt(hatData.id),
+      )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
     enabled: !!hatData.prettyId && !!newAdmin && chainId === currentNetworkId,
   });
@@ -141,7 +138,11 @@ const HatRelinkForm = ({
       const token = await fetchToken();
       await pinJson(
         { type: '1.0', data: { description } },
-        { name: `details_${chainId.toString()}_${decimalAdmin}` },
+        {
+          name: `details_${chainId.toString()}_${hatIdDecimalToIp(
+            BigInt(newAdmin),
+          )}`,
+        },
         token,
       );
     }
@@ -157,7 +158,7 @@ const HatRelinkForm = ({
         </Text>
         <HStack>
           <Text variant='medium'>Hat to be relinked:</Text>
-          <Text>ID {prettyIdToIp(hatData?.prettyId)}</Text>
+          <Text>ID {hatIdDecimalToIp(BigInt(hatData?.id))}</Text>
         </HStack>
 
         <Select

@@ -11,8 +11,8 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
-import { fetchToken, pinJson } from 'app-utils';
+import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
+import { fetchToken, pinJson } from 'utils';
 import { useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { ImageFile } from 'hats-types';

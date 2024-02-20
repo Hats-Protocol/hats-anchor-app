@@ -1,6 +1,5 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { formatAddress } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import {
   useHatDetails,
@@ -21,6 +20,7 @@ import {
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToIp } from 'shared';
+import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 const ChakraNextLink = dynamic(() =>

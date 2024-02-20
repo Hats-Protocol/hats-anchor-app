@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { createHatsSignerGateClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import { createHatsSignerGateClient } from 'utils';
 import { Hex } from 'viem';
 
 const useHsgSigner = ({

@@ -1,8 +1,8 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { parsedSeconds } from 'app-utils';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
+import { parsedSeconds } from 'utils';
 
 import DateInfo from './DateInfo';
 

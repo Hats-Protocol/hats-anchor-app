@@ -1,14 +1,12 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
-import { useDebounce } from 'app-hooks';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
+import { useDebounce } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { prettyIdToIp } from 'shared';
 import { Select } from 'ui';
 import { Hex, isAddress } from 'viem';
-
-// TODO refactor without prettyId
 
 const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
   const { chainId } = useTreeForm();
@@ -37,8 +35,8 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
     chainId,
     onSuccessToastData: {
       title: `Top Hat Unlinked!`,
-      description: `Successfully unlinked top hat #${prettyIdToIp(
-        topHatPrettyId,
+      description: `Successfully unlinked top hat #${hatIdDecimalToIp(
+        BigInt(topHatPrettyId),
       )}`,
     },
     queryKeys: [['topHat', topHatPrettyId]],
@@ -64,7 +62,7 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
         >
           {_.map(parentOfTrees, (hat: Hex) => (
             <option value={hat} key={hat}>
-              {prettyIdToIp(hat)}
+              {hatIdDecimalToIp(BigInt(hat))}
             </option>
           ))}
         </Select>

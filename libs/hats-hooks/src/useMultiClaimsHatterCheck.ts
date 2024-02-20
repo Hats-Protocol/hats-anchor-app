@@ -1,10 +1,10 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { createSubgraphClient, fetchWearerDetails } from 'app-utils';
 import { AppHat, FormData, ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { createSubgraphClient, fetchWearerDetails } from 'utils';
 import { Hex } from 'viem';
 
 import useIsAdmin from './useIsAdmin';

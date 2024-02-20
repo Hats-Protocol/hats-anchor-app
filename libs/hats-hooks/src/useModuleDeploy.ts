@@ -5,7 +5,7 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'app-hooks';
+import { useToast } from 'hooks';
 import {
   AppHat,
   DeploymentType,

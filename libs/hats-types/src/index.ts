@@ -4,6 +4,7 @@ export * from './contexts';
 export * from './contract';
 export * from './form';
 export * from './hat';
+export * from './infra';
 export * from './misc';
 export * from './modules';
 export * from './tokens';

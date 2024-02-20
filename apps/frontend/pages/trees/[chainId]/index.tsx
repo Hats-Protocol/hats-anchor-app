@@ -1,8 +1,8 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { useImageURIs } from 'app-hooks';
 import { usePaginatedTreeList } from 'hats-hooks';
 import { AppHat } from 'hats-types';
+import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';

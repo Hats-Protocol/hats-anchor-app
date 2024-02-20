@@ -4,10 +4,10 @@ import {
   TOKEN_ARG_TYPES,
 } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
-import { transformAndVerify } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { transformAndVerify } from 'utils';
 import { Hex, isAddress, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
@@ -77,7 +77,6 @@ const AmountWithDecimals = ({
             if (!value) return false;
             const numericValue = parseFloat(value);
 
-            // TODO edge case when decimals isn't set
             if (!tokenDecimals) return 'No token selected';
 
             if (!_.isNaN(numericValue) && numericValue > 0) {

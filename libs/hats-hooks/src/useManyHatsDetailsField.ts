@@ -1,8 +1,8 @@
 import { useQueries } from '@tanstack/react-query';
-import { fetchDetailsIpfs } from 'app-utils';
 import { AppHat } from 'hats-types';
 import { handleNestedDetails } from 'hats-utils';
 import _ from 'lodash';
+import { fetchDetailsIpfs } from 'utils';
 
 // * should keep fetching strategy inline with `useHatDetailsField.ts`
 

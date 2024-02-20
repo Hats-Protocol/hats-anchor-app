@@ -1,7 +1,6 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from 'app-hooks';
-import { fetchAncillaryModules } from 'app-utils';
+import { useToast } from 'hooks';
 import {
   AppHat,
   HatAuthority,
@@ -16,6 +15,7 @@ import {
 } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { fetchAncillaryModules } from 'utils';
 import { Hex } from 'viem';
 
 import useHatsAccounts from './useHatsAccounts';

@@ -15,7 +15,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { MODULE_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
-import { formatAddress } from 'app-utils';
+import { formatAddress } from 'utils';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
 import {
   useCallModuleFunction,

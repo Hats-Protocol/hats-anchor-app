@@ -1,10 +1,10 @@
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useIsClient } from 'app-hooks';
-import { chainsMap } from 'app-utils';
 import { useEligibility } from 'contexts';
+import { useIsClient } from 'hooks';
 import dynamic from 'next/dynamic';
+import { chainsMap } from 'utils';
 
 import { Agreement, AgreementV0, Election, KnownModule } from './modules';
 

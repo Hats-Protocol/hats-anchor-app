@@ -12,8 +12,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
-import { useToast } from 'app-hooks';
-import { isSameAddress } from 'app-utils';
+import { useToast } from 'hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
@@ -34,13 +33,20 @@ import {
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
 import { idToIp, toTreeId } from 'shared';
+import { isSameAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat, treeToDisplay, storedData, linkedHatIds } =
-    useTreeForm();
+  const {
+    chainId,
+    selectedHat,
+    treeToDisplay,
+    storedData,
+    linkedHatIds,
+    onchainHats,
+  } = useTreeForm();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
@@ -59,6 +65,7 @@ const MoreMenu = () => {
     isLoading: isLoadingUpdateImmutability,
   } = useHatMakeImmutable({
     selectedHat,
+    onchainHats,
     chainId,
     isAdminUser,
     mutable: selectedHat?.mutable,

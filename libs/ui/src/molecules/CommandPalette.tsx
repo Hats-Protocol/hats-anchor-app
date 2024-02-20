@@ -3,10 +3,9 @@
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
-import { useSearchResults } from 'app-hooks';
-import { chainsMap } from 'app-utils';
 import { useOverlay } from 'contexts';
 import { Group, SearchResults } from 'hats-types';
+import { useSearchResults } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import CmdkCommandPalette, {
@@ -15,6 +14,7 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
+import { chainsMap } from 'utils';
 import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
@@ -59,7 +59,12 @@ const CommandPalette = () => {
 
   useEffect(() => {
     if (serverSearch && searchData) {
-      setLocalResults(searchData);
+      setLocalResults(
+        searchData as {
+          trees: SearchResults[];
+          hats: SearchResults[];
+        },
+      );
     } else {
       setLocalResults(null);
     }

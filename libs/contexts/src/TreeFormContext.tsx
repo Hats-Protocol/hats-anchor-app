@@ -13,13 +13,7 @@ import {
   useOrgChartTree,
   useSnapshotSpaces as useSpaces,
   useTreeImages,
-} from 'app-hooks';
-import {
-  generateLocalStorageKey,
-  ipfsUrl,
-  removeAndHandleSiblings,
-  removeAndHandleSiblingsOrgChart,
-} from 'app-utils';
+} from 'hooks';
 import {
   useAncillaryModules,
   useManyHatsDetails,
@@ -50,6 +44,12 @@ import {
   useState,
 } from 'react';
 import { createHierarchy, ipToHatId, mapWithChainId } from 'shared';
+import {
+  generateLocalStorageKey,
+  ipfsUrl,
+  removeAndHandleSiblings,
+  removeAndHandleSiblingsOrgChart,
+} from 'utils';
 import { Hex } from 'viem';
 import { useQueryClient } from 'wagmi';
 
@@ -277,7 +277,7 @@ export const TreeFormContextProvider = ({
   // *********************
   const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({
     id,
-  })) as unknown as object[]; // TODO fix type
+  })) as unknown as object[];
   const { data: onchainHatDetails } = useManyHatsDetails({
     hats: mapWithChainId(onchainIds, chainId),
     initialHats: mapWithChainId(onchainIds, chainId),

@@ -90,7 +90,7 @@ const ImportTreeForm = () => {
       const importedTree = flattenHatData(treeFromJson);
       const onchainTreeData = flattenHatData(onchainTree);
       const draftHats = prepareDraftHats(
-        // TODO prepareDraftHats is expecting HatExport[], flattenHatData returns FormData[]
+        // prepareDraftHats is expecting HatExport[], flattenHatData returns FormData[]
         importedTree as unknown as HatExport[],
         onchainTreeData,
         treeId,

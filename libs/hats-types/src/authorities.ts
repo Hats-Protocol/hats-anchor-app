@@ -45,3 +45,13 @@ export interface SnapshotStrategy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any };
 }
+
+export interface SnapshotSpace {
+  id: string;
+  name: string;
+  about: string;
+  network: string;
+  symbol: string;
+  members: number;
+  strategies: SnapshotStrategy[];
+}

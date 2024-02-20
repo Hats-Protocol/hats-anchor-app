@@ -16,8 +16,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { usePinImageIpfs } from 'app-hooks';
-import { formatImageUrl } from 'app-utils';
+import { usePinImageIpfs } from 'hooks';
 import { useHatForm, useTreeForm } from 'contexts';
 import { id } from 'date-fns/locale';
 import { Authority } from 'hats-types';
@@ -28,6 +27,7 @@ import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { DropZone, Input, ResponsibilityHeader, Textarea } from 'ui';
+import { formatImageUrl } from 'utils';
 
 import ResponsibilitiesFormItem from './ResponsibilitiesFormItem';
 

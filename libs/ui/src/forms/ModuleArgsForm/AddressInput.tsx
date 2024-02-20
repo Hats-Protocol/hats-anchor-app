@@ -1,12 +1,12 @@
 import { Stack, Text } from '@chakra-ui/react';
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
-import { useDebounce } from 'app-hooks';
-import { explorerUrl } from 'app-utils';
 import { useTreeForm } from 'contexts';
+import { useDebounce } from 'hooks';
 import _ from 'lodash';
 import { ChangeEvent, ReactNode, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { explorerUrl } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useEnsAddress, useToken } from 'wagmi';
 
@@ -77,7 +77,7 @@ const ModuleAddressInput = ({
     arg.displayType === 'jokerace'
   ) {
     let argHelper: ReactNode | null = null;
-    // TODO separate ArgHelper?
+    // TODO [low] separate ArgHelper?
     if (
       arg.displayType === 'erc20' &&
       !tokenDetails &&

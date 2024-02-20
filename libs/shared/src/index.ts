@@ -17,7 +17,6 @@ export * from './hats';
  */
 export function prettyIdToId(id: string | undefined): Hex {
   if (!id) return '0x';
-  // TODO fix library type requirements for replaceAll
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore next-line
   return id?.replaceAll('.', '').padEnd(66, '0') as Hex;
@@ -35,7 +34,10 @@ export function idToPrettyId(id: Hex | undefined): string {
   if (id.length === 10) return treeId;
   const children = id?.slice(10);
   const childArray = children?.match(/.{1,4}/g);
-  const dropEmpty = _.dropRightWhile(childArray, (child) => child === '0000');
+  const dropEmpty = _.dropRightWhile(
+    childArray,
+    (child: string) => child === '0000',
+  );
   return _.join([treeId, ...dropEmpty], '.');
 }
 
@@ -94,7 +96,7 @@ export const toTreeId = (id: string | undefined) => {
 export function ipToPrettyId(id: string | undefined) {
   const parts = _.split(id, '.');
   const treeId = toTreeId(_.first(parts));
-  const children = parts.slice(1).map((child) => {
+  const children = parts.slice(1).map((child: string) => {
     if (child.length < 4) {
       return child.padStart(4, '0');
     }

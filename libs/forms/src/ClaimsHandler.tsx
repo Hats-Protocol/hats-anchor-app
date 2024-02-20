@@ -10,8 +10,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { usePendHatterMint } from 'app-hooks';
-import { formatAddress } from 'app-utils';
+import { usePendHatterMint } from 'hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useMultiClaimsHatterCheck,
@@ -23,6 +22,7 @@ import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 import { FormRowWrapper, Select } from 'ui';
+import { formatAddress } from 'utils';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
   <FormRowWrapper>

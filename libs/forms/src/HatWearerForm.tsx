@@ -18,8 +18,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
-import { useToast } from 'app-hooks';
-import { chainsMap, formatAddress, viemPublicClient } from 'app-utils';
+import { useToast } from 'hooks';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
@@ -37,6 +36,7 @@ import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
+import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 

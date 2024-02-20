@@ -8,13 +8,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
-import { useIsClient } from 'app-hooks';
-import { explorerUrl } from 'app-utils';
 import { useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
+import { useIsClient } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
+import { explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 

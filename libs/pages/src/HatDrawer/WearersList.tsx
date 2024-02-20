@@ -13,7 +13,6 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { commify, extendWearers, wearersPerPage } from 'app-utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   HatClaimForForm,
@@ -44,6 +43,7 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
+import { commify, extendWearers, wearersPerPage } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
