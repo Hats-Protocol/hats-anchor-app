@@ -20,13 +20,13 @@ const ResponsibilitiesListCard = ({
 
   if (!description) {
     return (
-      <Card borderRadius='4px' mb={4} p={4}>
+      <Card borderRadius='4px' p={4}>
         <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
       </Card>
     );
   }
   return (
-    <Card borderRadius='4px' mb={4}>
+    <Card borderRadius='4px'>
       <AccordionItem border='none' mb={4} my={2}>
         <AccordionButton _hover={{ bg: 'white' }}>
           <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />

@@ -6,9 +6,9 @@ import {
   HStack,
   Stack,
   Text,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { useOverlay } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { decimalId } from 'hats-utils';
@@ -26,7 +26,7 @@ const TreeListCard = ({
   topHatImage: AppHat | undefined;
 }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
-  const isMobile = useBreakpointValue({ base: true, sm: false });
+  const { isMobile } = useOverlay();
 
   const hatName =
     hatDetails?.type === '1.0'

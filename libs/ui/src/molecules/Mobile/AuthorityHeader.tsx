@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { authorityImageHandler, ipfsUrl } from 'utils';
 import { Hex } from 'viem';
 
-const AuthorityItemMobile = ({ authority }: AuthorityItemMobileProps) => {
+const AuthorityHeader = ({ authority }: AuthorityHeaderProps) => {
   const { label, type, hsgConfig, safe } = _.pick(authority, [
     'label',
     'type',
@@ -82,8 +82,8 @@ const AuthorityItemMobile = ({ authority }: AuthorityItemMobileProps) => {
   );
 };
 
-interface AuthorityItemMobileProps {
+interface AuthorityHeaderProps {
   authority: Authority | undefined;
 }
 
-export default AuthorityItemMobile;
+export default AuthorityHeader;

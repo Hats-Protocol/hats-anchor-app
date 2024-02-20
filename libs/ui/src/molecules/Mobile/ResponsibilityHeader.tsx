@@ -8,18 +8,19 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { Authority } from 'hats-types';
 import { BsFileCheck } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, ipfsUrl } from 'utils';
 
 const ResponsibilitiesItemMobile = ({
-  responsibility,
+  label,
+  link,
+  imageUrl,
 }: {
-  responsibility?: Authority;
+  label?: string;
+  link?: string;
+  imageUrl?: string;
 }) => {
-  const { label, link, imageUrl } = responsibility || {};
-
   const localImageUrl = imageUrl;
   const isIpfs = localImageUrl?.startsWith('ipfs://');
   const hostname = getHostnameFromURL(link);
