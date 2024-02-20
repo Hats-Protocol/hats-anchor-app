@@ -8,7 +8,7 @@ import MainContent from './MainContent';
 const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 
 const HatDetailsMobile = () => {
-  const { selectedHat, editMode } = useTreeForm();
+  const { selectedHat } = useTreeForm();
 
   if (!selectedHat) return null;
 
@@ -18,8 +18,8 @@ const HatDetailsMobile = () => {
         w='full'
         h='100%'
         position='fixed'
-        background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
-        pt={12}
+        background='whiteAlpha.900'
+        pt={16}
       >
         <Box w='100%' h='100%' position='relative' zIndex={14}>
           <HatFormContextProvider>

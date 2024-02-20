@@ -61,9 +61,7 @@ const Header = () => {
         />
         <Stack w='full' spacing={1}>
           <Stack justifyContent='space-between'>
-            <Tooltip label={name || selectedHat?.details}>
-              <Heading isTruncated>{name || selectedHat?.details}</Heading>
-            </Tooltip>
+            <Heading isTruncated>{name || selectedHat?.details}</Heading>
             {selectedHat?.id && (
               <HStack>
                 <Text color='blue.500'>

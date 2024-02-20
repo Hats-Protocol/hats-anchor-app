@@ -6,13 +6,13 @@ import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { TreePage } from 'pages';
+import { TreePage, TreePageMobile } from 'pages';
 import { useEffect } from 'react';
 // import { useRouter } from 'next/router';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
-  const { updateRecentlyVisitedTrees } = useOverlay();
+  const { updateRecentlyVisitedTrees, isMobile } = useOverlay();
   // const router = useRouter();
   // const { hatId: hatIdParam } = router.query;
   // let hatId: string | undefined;
@@ -34,7 +34,11 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>
-      <TreePage exists={exists} />
+      {isMobile ? (
+        <TreePageMobile exists={exists} />
+      ) : (
+        <TreePage exists={exists} />
+      )}
     </TreeFormContextProvider>
   );
 };
