@@ -34,6 +34,8 @@ import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
+// TODO rename component: ControllerDetails
+
 const StatusCard = ({
   status,
   isAContract,
@@ -144,7 +146,7 @@ const StatusCard = ({
   });
 
   return (
-    <Stack>
+    <Stack px={{ base: 4, md: 10 }}>
       <Flex justifyContent='space-between'>
         <Heading size='sm' variant='medium' textTransform='uppercase'>
           {_.capitalize(_.toString(status))}

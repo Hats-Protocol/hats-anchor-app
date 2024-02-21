@@ -36,7 +36,7 @@ const BottomMenu = () => {
         </Button>
 
         <Menu>
-          <MenuButton as={Button} leftIcon={<FaEllipsisV />}>
+          <MenuButton as={Button} leftIcon={<FaEllipsisV />} variant='outline'>
             More
           </MenuButton>
           <MenuList>

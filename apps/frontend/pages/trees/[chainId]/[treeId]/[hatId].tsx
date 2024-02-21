@@ -6,7 +6,7 @@ import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { HatDetailsMobile } from 'pages';
+import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
 // import { useRouter } from 'next/router';
 import { Hex } from 'viem';
@@ -34,7 +34,7 @@ const HatDetails = ({ chainId, treeId, hatId }: HatDetailsProps) => {
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>
-      <HatDetailsMobile />
+      <HatDrawer returnToList={() => undefined} />
     </TreeFormContextProvider>
   );
 };

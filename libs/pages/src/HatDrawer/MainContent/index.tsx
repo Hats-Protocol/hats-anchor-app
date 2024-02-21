@@ -1,6 +1,7 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -30,6 +31,7 @@ const MainContent = () => {
   const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
+  const { isMobile } = useMediaStyles();
 
   const { toggle, eligibility } = _.pick(selectedHatDetails, [
     'toggle',
@@ -53,26 +55,31 @@ const MainContent = () => {
 
   return (
     <Stack
-      p={10}
+      // apply x padding on components for section background handling
       spacing={10}
       w='100%'
       overflow='scroll'
-      height='calc(100% - 150px)'
-      pb={400}
+      height={{ base: '100vh', md: 'calc(100% - 150px)' }}
+      pb={{ base: 100, md: 400 }}
       pos='relative'
       color='blackAlpha.800'
+      bg={{ base: 'white' }}
     >
       <Header />
-      <WearersList />
-      <ResponsibilitiesList />
       <AuthoritiesList />
+      <ResponsibilitiesList />
+      <WearersList />
 
       <Stack spacing={4}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
           <StatusCard
             status={MODULE_TYPES.eligibility}
             isAContract={isEligibilityAContract}
-            label='Do I meet the requirements to wear this Hat?'
+            label={
+              isMobile
+                ? 'Can I wear this Hat?'
+                : 'Do I meet the requirements to wear this Hat?'
+            }
           />
         )}
         <ModuleDetails type={MODULE_TYPES.eligibility} />
@@ -105,7 +112,7 @@ const MainContent = () => {
 
       <LinkRequests />
 
-      <Stack spacing={1}>
+      <Stack spacing={1} px={{ base: 4, md: 10 }}>
         <Heading size='sm' variant='medium' textTransform='uppercase'>
           Event history
         </Heading>

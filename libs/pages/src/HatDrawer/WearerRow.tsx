@@ -22,11 +22,11 @@ import {
 } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
-import { useToast } from 'hooks';
+import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
-import { FaEllipsisH, FaUser } from 'react-icons/fa';
+import { FaEllipsisH } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
@@ -51,6 +51,8 @@ const WearerRow = ({
   const { setModals, handlePendingTx } = useOverlay();
   const { address } = useAccount();
   const { chainId, selectedHat } = useTreeForm();
+  const { isMobile } = useMediaStyles();
+  const { onCopy } = useClipboard(wearer.id);
 
   const { data: wearerDetails } = useWearerDetails({
     wearerAddress: wearer.id,
@@ -118,9 +120,7 @@ const WearerRow = ({
     });
   };
 
-  const { onCopy } = useClipboard(wearer.id);
-
-  let icon = <Icon as={FaUser} color='gray.500' />;
+  let icon = <Image src='/icons/wearers.svg' color='gray.500' />;
   if (isSameAddress(wearer.id, address)) {
     icon = <Image src='/icons/hat.svg' alt='Hat' />;
   } else if (wearer.isContract) {
@@ -159,82 +159,84 @@ const WearerRow = ({
         <ChakraNextLink href={`/wearers/${wearer.id}`}>
           <Text color='blue.500'>View</Text>
         </ChakraNextLink>
-        <Menu isLazy>
-          <MenuButton
-            as={IconButton}
-            aria-label='Options'
-            icon={<FaEllipsisH />}
-            size='xs'
-            variant='outline'
-          />
-          <MenuList>
-            <MenuItem
-              isDisabled={!isSameChain || !isAdminUser}
-              onClick={() => {
-                setModals?.({ transferHat: true });
-                setWearerToTransferFrom(wearer.id);
-              }}
-            >
-              <TooltipWrapper
-                isSameChain={isSameChain}
-                label="You can't transfer a hat on a different chain"
-              >
-                <Text>Transfer</Text>
-              </TooltipWrapper>
-            </MenuItem>
-
-            {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
-              <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't renounce a hat on a different chain"
-                >
-                  <Text>Renounce</Text>
-                </TooltipWrapper>
-              </MenuItem>
-            )}
-
-            {!isSameAddress(wearer.id, address) && isEligibility && (
+        {!isMobile && (
+          <Menu isLazy>
+            <MenuButton
+              as={IconButton}
+              aria-label='Options'
+              icon={<FaEllipsisH />}
+              size='xs'
+              variant='outline'
+            />
+            <MenuList>
               <MenuItem
-                isDisabled={!isSameChain}
+                isDisabled={!isSameChain || !isAdminUser}
                 onClick={() => {
-                  setModals?.({ hatWearerStatus: true });
-                  setChangeStatusWearer(wearer.id);
+                  setModals?.({ transferHat: true });
+                  setWearerToTransferFrom(wearer.id);
                 }}
               >
                 <TooltipWrapper
                   isSameChain={isSameChain}
-                  label="You can't revoke a hat on a different chain"
+                  label="You can't transfer a hat on a different chain"
                 >
-                  <Text>Revoke Hat</Text>
+                  <Text>Transfer</Text>
                 </TooltipWrapper>
               </MenuItem>
-            )}
 
-            <MenuItem
-              isDisabled={!isSameChain || isLoading || !updateEligibility}
-              onClick={() => updateEligibility?.()}
-            >
-              <TooltipWrapper
-                isSameChain={isSameChain}
-                label="You can't update eligibility of a hat on a different chain"
+              {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
+                <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
+                  <TooltipWrapper
+                    isSameChain={isSameChain}
+                    label="You can't renounce a hat on a different chain"
+                  >
+                    <Text>Renounce</Text>
+                  </TooltipWrapper>
+                </MenuItem>
+              )}
+
+              {!isSameAddress(wearer.id, address) && isEligibility && (
+                <MenuItem
+                  isDisabled={!isSameChain}
+                  onClick={() => {
+                    setModals?.({ hatWearerStatus: true });
+                    setChangeStatusWearer(wearer.id);
+                  }}
+                >
+                  <TooltipWrapper
+                    isSameChain={isSameChain}
+                    label="You can't revoke a hat on a different chain"
+                  >
+                    <Text>Revoke Hat</Text>
+                  </TooltipWrapper>
+                </MenuItem>
+              )}
+
+              <MenuItem
+                isDisabled={!isSameChain || isLoading || !updateEligibility}
+                onClick={() => updateEligibility?.()}
               >
-                <Text>Update Eligibility</Text>
-              </TooltipWrapper>
-            </MenuItem>
+                <TooltipWrapper
+                  isSameChain={isSameChain}
+                  label="You can't update eligibility of a hat on a different chain"
+                >
+                  <Text>Update Eligibility</Text>
+                </TooltipWrapper>
+              </MenuItem>
 
-            <MenuItem
-              onClick={() => {
-                onCopy();
-                toast.info({
-                  title: 'Successfully copied address to clipboard',
-                });
-              }}
-            >
-              <Text>Copy Address</Text>
-            </MenuItem>
-          </MenuList>
-        </Menu>
+              <MenuItem
+                onClick={() => {
+                  onCopy();
+                  toast.info({
+                    title: 'Successfully copied address to clipboard',
+                  });
+                }}
+              >
+                <Text>Copy Address</Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        )}
       </Flex>
     </Flex>
   );

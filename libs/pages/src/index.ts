@@ -1,5 +1,4 @@
 export { default as Claims } from './Claims';
-export { default as HatDetailsMobile } from './HatDetailsMobile';
 export { default as HatDrawer } from './HatDrawer';
 export { default as ModuleDrawer } from './ModuleDrawer';
 export * from './modules';

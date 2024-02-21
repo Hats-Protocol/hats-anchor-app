@@ -13,7 +13,7 @@ const AuthoritiesList = () => {
   if (!combinedAuthorities) return null;
 
   return (
-    <Accordion allowMultiple>
+    <Accordion allowMultiple px={{ base: 4, md: 10 }}>
       <Stack>
         {isMobile ? (
           <Heading size='sm' variant='medium'>

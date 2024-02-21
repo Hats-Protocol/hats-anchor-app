@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG, FORM_FIELDS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useToast } from 'hooks';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import {
   AuthoritiesForm,
@@ -20,6 +19,7 @@ import {
   ResponsibilitiesForm,
 } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';

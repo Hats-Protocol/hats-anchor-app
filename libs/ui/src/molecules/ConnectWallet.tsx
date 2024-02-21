@@ -145,7 +145,7 @@ const ConnectWallet = () => {
         name='account'
         localOverlay={localOverlay}
         onClose={() => setModals?.({})}
-        size={{ base: 'full', md: 'md' }}
+        size='md'
       >
         {address && (
           <WalletProfile

@@ -12,14 +12,12 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { Authority, AuthorityType } from 'hats-types';
-import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ChakraNextLink, Markdown } from '../atoms';
 import AuthorityHeader from './AuthorityHeader';
-import AuthorityHeaderMobile from './Mobile/AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
 const AuthoritiesListCard = ({
@@ -38,7 +36,6 @@ const AuthoritiesListCard = ({
   ]);
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
-  const { isMobile } = useMediaStyles();
 
   const discordHosts = ['discord.gg', 'discord.com'];
   let linkName = '';
@@ -62,11 +59,7 @@ const AuthoritiesListCard = ({
   return (
     <AccordionItem border='none'>
       <AccordionButton _hover={{ bg: 'white' }} p={0}>
-        {isMobile ? (
-          <AuthorityHeaderMobile authority={authority} />
-        ) : (
-          <AuthorityHeader authority={authority} />
-        )}
+        <AuthorityHeader authority={authority} />
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel pb={4} px={0}>

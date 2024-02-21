@@ -21,17 +21,17 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useLocalStorage } from 'hooks';
-import { containsUpperCase, getOperatingSystem } from 'utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat, Transaction } from 'hats-types';
+import { useLocalStorage } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { containsUpperCase, getOperatingSystem } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';

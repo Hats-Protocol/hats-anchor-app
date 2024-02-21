@@ -5,6 +5,7 @@ import {
   Heading,
   HStack,
   Icon,
+  Image,
   Stack,
   Text,
   Tooltip,
@@ -12,9 +13,9 @@ import {
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useToast } from 'hooks';
 import { useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
+import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { FaCopy } from 'react-icons/fa';
@@ -25,13 +26,19 @@ const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails, editMode } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, editMode, treeToDisplay } =
+    useTreeForm();
   const { onCopy } = useClipboard(selectedHat?.id || '');
+  const { isMobile } = useMediaStyles();
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',
     'description',
   ]);
+  const imageUrl = _.get(
+    _.find(treeToDisplay, { id: selectedHat?.id }),
+    'imageUrl',
+  );
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -46,17 +53,50 @@ const Header = () => {
     : MUTABILITY.IMMUTABLE;
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
+  if (!selectedHat) return null;
+
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} px={{ base: 4, md: 10 }}>
       <Flex align='start' justify='space-between'>
         <Stack w='full' spacing={1}>
-          <HStack justifyContent='space-between'>
-            <Tooltip label={name || selectedHat?.details}>
-              <Heading isTruncated>{name || selectedHat?.details}</Heading>
-            </Tooltip>
-            {selectedHat?.id && (
+          <HStack spacing={4} minH='150px' align='end'>
+            {isMobile && (
+              <Box
+                boxSize='120px'
+                borderRadius='md'
+                overflow='hidden'
+                objectFit='contain'
+                border='1px solid'
+                borderColor='blackAlpha.200'
+              >
+                <Image
+                  loading='lazy'
+                  src={
+                    (editMode && imageUrl) ||
+                    _.get(selectedHat, 'imageUrl') ||
+                    '/icon.jpeg'
+                  }
+                  alt='hat image'
+                  background='white'
+                  objectFit='cover'
+                  boxSize='122px'
+                />
+              </Box>
+            )}
+
+            <Flex
+              justify='space-between'
+              gap={2}
+              direction={{ base: 'column', md: 'row' }}
+              maxW='60%'
+            >
+              <Tooltip label={name || selectedHat?.details}>
+                <Heading noOfLines={{ base: 2, md: 1 }}>
+                  {name || selectedHat?.details}
+                </Heading>
+              </Tooltip>
+
               <HStack>
-                <Text whiteSpace='nowrap'>Hat ID:</Text>
                 <Text color='blue.500'>
                   {hatIdDecimalToIp(BigInt(selectedHat.id))}
                 </Text>
@@ -72,7 +112,7 @@ const Header = () => {
                   }}
                 />
               </HStack>
-            )}
+            </Flex>
           </HStack>
           {description && (
             <Box opacity={0.6}>

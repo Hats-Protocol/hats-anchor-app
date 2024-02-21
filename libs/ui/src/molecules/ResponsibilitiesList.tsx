@@ -4,7 +4,6 @@ import { DetailsItem } from 'hats-types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 
-import ResponsibilitiesListCardMobile from './Mobile/ResponsibilitiesListCard';
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
 const ResponsibilitiesList = () => {
@@ -16,7 +15,7 @@ const ResponsibilitiesList = () => {
   if (!responsibilities) return null;
 
   return (
-    <Accordion allowMultiple>
+    <Accordion px={{ base: 4, md: 10 }} allowMultiple>
       {isMobile ? (
         <Heading size='sm' variant='medium'>
           {responsibilities.length} Responsibilities expected of Hat Hearers
@@ -28,19 +27,12 @@ const ResponsibilitiesList = () => {
       )}
 
       <Stack mt={4} gap={4}>
-        {_.map(responsibilities, (responsibility: DetailsItem) =>
-          isMobile ? (
-            <ResponsibilitiesListCardMobile
-              key={responsibility.label}
-              responsibility={responsibility}
-            />
-          ) : (
-            <ResponsibilitiesListCard
-              key={responsibility.label}
-              responsibility={responsibility}
-            />
-          ),
-        )}
+        {_.map(responsibilities, (responsibility: DetailsItem) => (
+          <ResponsibilitiesListCard
+            key={responsibility.label}
+            responsibility={responsibility}
+          />
+        ))}
       </Stack>
 
       {!responsibilities.length && (

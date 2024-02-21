@@ -5,6 +5,7 @@ import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { isTopHat } from 'hats-utils';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
@@ -41,6 +42,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     formLoading,
   } = useHatForm();
   const { address } = useAccount();
+  const { isMobile } = useMediaStyles();
   const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const { data: wearer } = useWearerDetails({
@@ -73,7 +75,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     !onchainHat &&
     !_.isEmpty(_.filter(treeToDisplay, { parentId: selectedHat?.id }));
 
-  if (!selectedHat) return null;
+  if (!selectedHat || isMobile) return null;
 
   return (
     <Flex

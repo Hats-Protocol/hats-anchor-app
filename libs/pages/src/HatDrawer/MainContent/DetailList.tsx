@@ -31,7 +31,7 @@ const AccordionWrap = ({
   children: ReactNode;
   inline?: boolean;
 }) => (
-  <Accordion allowToggle>
+  <Accordion allowToggle px={{ base: 4, md: 10 }}>
     <AccordionItem border={inline ? '0' : undefined}>
       <AccordionButton px={inline ? 0 : undefined}>
         <Heading
@@ -61,7 +61,7 @@ const DetailList = ({
     title === 'Eligibility Criteria' || title === 'Toggle Criteria';
 
   const renderDetails = () => (
-    <Stack>
+    <Stack px={{ base: 4, md: 10 }}>
       {!toggleOrEligibility && (
         <Heading
           size={toggleOrEligibility ? 'xs' : 'sm'}
@@ -98,6 +98,7 @@ const DetailList = ({
     </Stack>
   );
 
+  // TODO stable component render
   return toggleOrEligibility ? (
     <AccordionWrap title={title} inline={inline}>
       {renderDetails()}

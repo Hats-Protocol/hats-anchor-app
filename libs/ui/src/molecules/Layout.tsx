@@ -16,7 +16,6 @@ import TransactionHistory from './TransactionHistory';
 const Navbar = dynamic(() => import('./Navbar'));
 
 const Layout = ({ editMode, hatData, children }: LayoutProps) => {
-  console.log('hatData', hatData);
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const localOverlay = useOverlay();

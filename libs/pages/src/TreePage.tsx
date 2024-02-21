@@ -58,7 +58,6 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
     onClose: onCloseHatDrawer,
     isOpen: isOpenHatDrawer,
   } = _.pick(hatDisclosure, ['onOpen', 'onClose', 'isOpen']);
-
   const { onOpen: onOpenTreeDrawer, isOpen: isOpenTreeDrawer } = _.pick(
     treeDisclosure,
     ['onOpen', 'onClose', 'isOpen'],

@@ -1,11 +1,15 @@
 import { Box, Image } from '@chakra-ui/react';
 import { HatFormContextProvider, useTreeForm } from 'contexts';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
+
+const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const { selectedHat, editMode, treeToDisplay } = useTreeForm();
@@ -14,8 +18,23 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     _.find(treeToDisplay, { id: selectedHatId }),
     'imageUrl',
   );
+  const { isMobile } = useMediaStyles();
 
   if (!selectedHat) return null;
+
+  if (isMobile) {
+    return (
+      <Layout hatData={selectedHat}>
+        <Box w='100%' pt='58px' h='100%' position='relative'>
+          <HatFormContextProvider>
+            <TopMenu returnToList={returnToList} />
+            {!editMode ? <MainContent /> : <EditMode />}
+            <BottomMenu />
+          </HatFormContextProvider>
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
     <Box
@@ -59,11 +78,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
         <HatFormContextProvider>
           <TopMenu returnToList={returnToList} />
-
-          {!editMode && <MainContent />}
-
-          {editMode && <EditMode />}
-
+          {!editMode ? <MainContent /> : <EditMode />}
           <BottomMenu />
         </HatFormContextProvider>
       </Box>
