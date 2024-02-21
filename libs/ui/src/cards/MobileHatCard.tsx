@@ -1,22 +1,17 @@
 import {
   Card,
-  Heading,
   HStack,
   Image as ChakraImage,
   Skeleton,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useHatDetailsField } from 'hats-hooks';
-import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 import { ChakraNextLink } from '../atoms';
 
 const MobileHatCard = ({ hat }: HatCardProps) => {
-  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
   const [imageLoaded, setImageLoaded] = useState(false);
   const image = _.get(hat, 'imageUrl');
 
@@ -27,17 +22,11 @@ const MobileHatCard = ({ hat }: HatCardProps) => {
     img.onload = () => setImageLoaded(true);
   }, [image]);
 
-  const hatName =
-    _.get(hatDetails, 'type') === '1.0'
-      ? _.get(hatDetails, 'data.name')
-      : _.get(hat, 'details');
-
   return (
     <ChakraNextLink
-      href={`trees/${hat.chainId}/${Number(
-        hatIdToTreeId(BigInt(hat.id)),
-      )}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`}
+      href={`/trees/${hat.chainId}/${hat.treeId}/${hat.id}`}
       w='full'
+      pl={hat.depth * 2}
     >
       <Card overflow='hidden' w='full'>
         <HStack
@@ -57,17 +46,17 @@ const MobileHatCard = ({ hat }: HatCardProps) => {
               borderRight='1px solid'
               borderColor='gray.600'
               borderLeftRadius={5}
-              alt={`${hatName} image`}
+              alt={`${hat.name} image`}
               onLoad={() => setImageLoaded(true)}
             />
           </Skeleton>
           <Stack maxW='calc(100% - 72px - 16px)' gap={1} pt={1}>
-            <Text size='sm' noOfLines={1}>
-              {Number(hatIdToTreeId(BigInt(hat.id)))}
+            <Text size='xs' noOfLines={1} fontWeight='medium'>
+              {hat.id}
             </Text>
-            <Heading as='h1' size='md' variant='medium' noOfLines={2}>
-              {hatName}
-            </Heading>
+            <Text size='md' variant='medium' noOfLines={2} lineHeight={4}>
+              {hat.name}
+            </Text>
           </Stack>
         </HStack>
       </Card>
@@ -78,5 +67,12 @@ const MobileHatCard = ({ hat }: HatCardProps) => {
 export default MobileHatCard;
 
 interface HatCardProps {
-  hat: AppHat;
+  hat: {
+    id: string;
+    imageUrl: string;
+    name: string;
+    chainId: string;
+    treeId: string;
+    depth: number;
+  };
 }

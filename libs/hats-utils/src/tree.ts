@@ -1,7 +1,8 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { AppHat, HatDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { idToIp } from 'shared';
 import { Hex } from 'viem';
 
 import { decimalId, getTreeId } from './hats';
@@ -119,3 +120,28 @@ const updateHatProperties = (
 
   return updatedHat;
 };
+
+export function prepareMobileTreeHats(tree) {
+  const simplifiedTree = _.map(tree, (hat) => ({
+    ...hat,
+    id: idToIp(hat.id),
+    treeId: hatIdToTreeId(BigInt(hat.id)),
+  }));
+
+  const sortedTree = _.sortBy(simplifiedTree, [
+    (hat) => {
+      return _.map(hat.id.split('.'), Number);
+    },
+  ]);
+
+  const treeWithDepth = _.map(sortedTree, (hat) => ({
+    id: hat.id,
+    treeId: hat.treeId,
+    name: _.get(hat, 'detailsObject.data.name', hat.details),
+    imageUrl: hat.imageUrl || '/icon.jpeg',
+    depth: hat.id.split('.').length - 1,
+    chainId: hat.chainId,
+  }));
+
+  return treeWithDepth;
+}

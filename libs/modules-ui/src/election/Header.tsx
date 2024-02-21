@@ -13,9 +13,9 @@ import {
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useToast } from 'hooks';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { FaCopy } from 'react-icons/fa';
 import { ChakraNextLink, Markdown } from 'ui';

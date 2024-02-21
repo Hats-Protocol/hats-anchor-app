@@ -9,6 +9,7 @@ export { default as LabelWithLink } from './LabelWithLink';
 export { default as Layout } from './Layout';
 export { default as AuthorityHeaderMobile } from './Mobile/AuthorityHeader';
 export { default as ResponsibilityHeaderMobile } from './Mobile/ResponsibilityHeader';
+export { default as VerticalDividers } from './Mobile/VerticalDividers';
 export { default as ModuleDetails } from './ModuleDetails';
 export { default as ModuleParameters } from './ModuleParameters';
 export { default as Navbar } from './Navbar';
