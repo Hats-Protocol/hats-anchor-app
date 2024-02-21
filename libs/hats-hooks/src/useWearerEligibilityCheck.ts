@@ -32,6 +32,6 @@ export default useWearerEligibilityCheck;
 
 interface useWearerEligibilityCheckProps {
   wearer: Hex | undefined;
-  selectedHat: AppHat;
-  chainId: number;
+  selectedHat?: AppHat;
+  chainId?: number;
 }

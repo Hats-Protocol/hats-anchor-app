@@ -24,11 +24,10 @@ import {
   UseDisclosureReturn,
 } from '@chakra-ui/react';
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
-import { useIsClient } from 'hooks';
-import { chainsMap, explorerUrl } from 'utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { Controls } from 'hats-types';
+import { useIsClient } from 'hooks';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
@@ -36,6 +35,7 @@ import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
+import { chainsMap, explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 import EventHistory from './EventHistory';

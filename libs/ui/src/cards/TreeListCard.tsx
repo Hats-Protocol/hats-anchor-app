@@ -11,6 +11,7 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { decimalId } from 'hats-utils';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 
 import { ChakraNextLink } from '../atoms';
@@ -25,6 +26,7 @@ const TreeListCard = ({
   topHatImage: AppHat | undefined;
 }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
+  const { isMobile } = useMediaStyles();
 
   const hatName =
     hatDetails?.type === '1.0'
@@ -37,13 +39,29 @@ const TreeListCard = ({
       key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
-        <CardBody>
+        <CardBody
+          p={isMobile ? '0 !important' : 6}
+          w='100%'
+          h='100%'
+          border={isMobile ? '1px solid #4A5568' : ''}
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          flexDirection='column'
+          borderRadius={6}
+        >
           <HStack
-            h='100px'
+            h={{ base: 85, sm: '100px' }}
             w='100%'
             justify='left'
-            align='center'
-            spacing='16px'
+            align={{
+              base: 'flex-start',
+              sm: 'center',
+            }}
+            spacing={{
+              base: 2,
+              sm: 4,
+            }}
           >
             <Box
               bgImage={
@@ -55,15 +73,32 @@ const TreeListCard = ({
               bgPosition='center'
               w='85px'
               h='85px'
-              border='1px solid'
-              borderColor='gray.200'
+              borderRight={isMobile ? '1px solid #4A5568' : ''}
+              border={isMobile ? '' : '1px solid #4A5568'}
+              borderRadius={5}
             />
-            <Stack spacing={1} maxW='110px'>
-              <Heading size='md' noOfLines={2}>
-                {hatName}
-              </Heading>
-              <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
-            </Stack>
+            {isMobile ? (
+              <Stack spacing={1} maxW='110px' pt={isMobile ? 2 : 0}>
+                <Text>{decimalId(_.get(tree, 'id'))}</Text>
+                <Heading size='md' noOfLines={2}>
+                  {hatName}
+                </Heading>
+              </Stack>
+            ) : (
+              <Stack
+                spacing={1}
+                maxW={{
+                  base: 'auto',
+                  sm: '110px',
+                }}
+                pt={isMobile ? 2 : 0}
+              >
+                <Heading size='md' noOfLines={2}>
+                  {hatName}
+                </Heading>
+                <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
+              </Stack>
+            )}
           </HStack>
         </CardBody>
       </Card>

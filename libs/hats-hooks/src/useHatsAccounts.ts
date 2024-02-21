@@ -1,6 +1,6 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
-import { useToast } from 'hooks';
 import { SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { createHatsAccountClient } from 'utils';
@@ -46,11 +46,11 @@ const useHatsAccounts = ({
   }, [id, chainId, isSupportedChain]);
 
   async function createAccount() {
-    if (!id || !chainId) return;
-    if (!isSupportedChain) return;
+    if (!id || !address || !chainId) return undefined;
+    if (!isSupportedChain) return undefined;
 
     const hatsAccountClient = await createHatsAccountClient(chainId);
-    if (!hatsAccountClient) return;
+    if (!hatsAccountClient) return undefined;
 
     try {
       await hatsAccountClient.createAccount({
@@ -65,11 +65,13 @@ const useHatsAccounts = ({
       });
 
       queryClient.invalidateQueries(['hatDetails', { id, chainId }]);
+      return true;
     } catch (error) {
       toast.error({
         title: 'Transaction failed',
         description: 'The hats wallet account deployment failed',
       });
+      return undefined;
     }
   }
 

@@ -42,6 +42,9 @@ type HeadlineStat = {
   loading: boolean;
 };
 
+// TODO use new tree list cards on mobile
+// could also consider using tabs for the networks on mobile to reduce the scroll end-to-end
+
 const WearerDetail = ({
   wearerAddress,
   initialEnsName,
@@ -133,8 +136,14 @@ const WearerDetail = ({
         zIndex={-1}
       />
 
-      <Stack align='center' spacing={6} p={20} pt={100}>
-        <Flex w='100%' justify='space-between'>
+      <Stack align='center' spacing={6} p={{ base: 5, md: 20 }}>
+        <Flex
+          mt={{ base: 20, md: 10 }}
+          w='100%'
+          direction={{ base: 'column', md: 'row' }}
+          justify='space-between'
+          gap={10}
+        >
           <HStack spacing={6}>
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
@@ -170,14 +179,14 @@ const WearerDetail = ({
               </Skeleton>
             </Stack>
           </HStack>
-          <HStack>
+          <HStack wrap='wrap' justify='center'>
             {_.map(headlineStats, (stat: HeadlineStat) => (
-              <Card w='125px' key={stat.label}>
+              <Card w={{ base: '45%', md: '135px' }} key={stat.label}>
                 <CardBody>
                   <Stack align='center'>
                     <Text size='sm'>{stat.label}</Text>
                     <Skeleton isLoaded={stat.loading}>
-                      <Heading size='lg'>{stat.value}</Heading>
+                      <Heading size='2xl'>{stat.value}</Heading>
                     </Skeleton>
                   </Stack>
                 </CardBody>
@@ -205,7 +214,11 @@ const WearerDetail = ({
                 <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
-                  <SimpleGrid columns={4} gap={5} key={chainId}>
+                  <SimpleGrid
+                    columns={{ base: 1, md: 4 }}
+                    gap={5}
+                    key={chainId}
+                  >
                     {_.map(
                       _.filter(currentHatsWithImagesData, {
                         chainId: Number(chainId),

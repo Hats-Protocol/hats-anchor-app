@@ -18,7 +18,6 @@ import {
 } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useCallHsgFunction,
@@ -32,6 +31,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
+import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ModuleArgsForm } from '../forms';
@@ -63,6 +63,7 @@ const ModuleAuthorityToolbar = ({
     [selectedHat, address],
   );
   const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
+  console.log('authority', authority);
 
   const otherFunctions = _.filter(
     _.get(authority, 'functions', []),
@@ -183,11 +184,15 @@ const ModuleAuthorityToolbar = ({
   });
 
   const getDisabledReason = (
+    isNotConnected: boolean,
     isOnWrongNetwork: boolean,
     isNotWearer: boolean,
     isClaimed: boolean,
     isCustom: boolean,
   ) => {
+    if (isNotConnected) {
+      return 'You are not connected';
+    }
     if (isOnWrongNetwork) {
       return 'You are on the wrong network';
     }
@@ -203,18 +208,21 @@ const ModuleAuthorityToolbar = ({
     return '';
   };
 
-  const isDisabled = !isWearer || !isSameChain;
+  const isDisabled = !isWearer || !isSameChain || !address;
   const isPrimaryFunctionDisabled =
-    (isDisabled ||
-      (primaryFunction?.functionName === 'claimSigner' && claimed)) &&
-    !primaryFunction?.isCustom;
+    isDisabled ||
+    (primaryFunction?.functionName === 'claimSigner' &&
+      claimed &&
+      !primaryFunction?.isCustom);
   const primaryDisabledReason = getDisabledReason(
+    !address,
     !isSameChain,
     !isWearer,
     primaryFunction?.functionName === 'claimSigner' && !!claimed,
     primaryFunction?.isCustom || false,
   );
   const otherDisabledReason = getDisabledReason(
+    !address,
     !isSameChain,
     !isWearer,
     false,
@@ -222,6 +230,11 @@ const ModuleAuthorityToolbar = ({
   );
 
   if (!authority) return null;
+  console.log(
+    primaryFunction,
+    isPrimaryFunctionDisabled,
+    primaryDisabledReason,
+  );
 
   return (
     <HStack mb={4} wrap='wrap'>

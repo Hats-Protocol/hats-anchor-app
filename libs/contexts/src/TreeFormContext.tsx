@@ -6,15 +6,6 @@ import {
 } from '@hatsprotocol/sdk-v1-core';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import {
-  useBetterMediaQuery,
-  useGuilds,
-  useImageURIs,
-  useLocalStorage,
-  useOrgChartTree,
-  useSnapshotSpaces as useSpaces,
-  useTreeImages,
-} from 'hooks';
-import {
   useAncillaryModules,
   useManyHatsDetails,
   useManyHatsDetailsField,
@@ -32,6 +23,15 @@ import {
   SupportedChains,
 } from 'hats-types';
 import { combineAuthorities, translateDrafts } from 'hats-utils';
+import {
+  useGuilds,
+  useImageURIs,
+  useLocalStorage,
+  useMediaStyles,
+  useOrgChartTree,
+  useSnapshotSpaces as useSpaces,
+  useTreeImages,
+} from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -177,6 +177,7 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
+
   const queryClient = useQueryClient();
   const { hatId: initialHatIdParam } = router.query;
   let initialHatId: string | undefined;
@@ -195,7 +196,7 @@ export const TreeFormContextProvider = ({
     'wearers',
   );
   const [orgChartHats, setOrgChartHats] = useState<AppHat[] | undefined>();
-  const isMobile = useBetterMediaQuery('(max-width: 767px)');
+  const { isMobile } = useMediaStyles();
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(

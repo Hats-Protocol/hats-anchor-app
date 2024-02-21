@@ -1,14 +1,7 @@
-import {
-  Box,
-  Card,
-  CardBody,
-  Flex,
-  Stack,
-  useMediaQuery,
-} from '@chakra-ui/react';
+import { Box, Card, CardBody, Flex, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
-import { useIsClient } from 'hooks';
+import { useIsClient, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
@@ -41,7 +34,7 @@ const Election = () => {
     isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
-  const [upTo780] = useMediaQuery('(max-width: 780px)');
+  const { isMobile } = useMediaStyles();
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -92,7 +85,7 @@ const Election = () => {
           </Box>
           <Box flexBasis={['100%', '65%']}>
             <Stack gap={6}>
-              {!upTo780 && (
+              {!isMobile && (
                 <Card display={{ base: 'none', md: 'inherit' }}>
                   <CardBody>
                     <UpcomingSeason />
@@ -107,7 +100,7 @@ const Election = () => {
             </Stack>
           </Box>
         </Flex>
-        {upTo780 && (
+        {isMobile && (
           <>
             <Card display={{ base: 'inherit', md: 'none' }}>
               <CardBody>

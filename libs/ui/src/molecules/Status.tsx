@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useContractData, usePendHatterMint, useToast } from 'hooks';
 import { useTreeForm } from 'contexts';
 import {
   useHatStatus,
@@ -23,8 +22,8 @@ import {
 } from 'hats-hooks';
 import { HatWearer, SupportedChains } from 'hats-types';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
+import { useContractData, usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
@@ -33,9 +32,7 @@ import { TbCircleOff } from 'react-icons/tb';
 import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+import { ChakraNextLink } from '../atoms';
 
 const StatusCard = ({
   status,
@@ -62,9 +59,12 @@ const StatusCard = ({
     'toggle',
   ]);
   const controller = status === MODULE_TYPES.eligibility ? eligibility : toggle;
-  const extendedController: HatWearer = _.find(wearersAndControllers, {
-    id: controller,
-  });
+  const extendedController: HatWearer | undefined = _.find(
+    wearersAndControllers,
+    {
+      id: controller,
+    },
+  );
 
   const moduleAddress = useMemo(
     () => _.get(selectedHat, _.toLower(status)),

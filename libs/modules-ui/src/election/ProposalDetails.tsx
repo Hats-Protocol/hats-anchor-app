@@ -9,10 +9,10 @@ import {
   Stack,
   Tag,
   Text,
-  useMediaQuery,
   VStack,
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
@@ -22,7 +22,7 @@ import { explorerUrl } from 'utils';
 
 const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, moduleDetails } = useEligibility();
-  const [upTo780] = useMediaQuery('(max-width: 780px)');
+  const { isMobile } = useMediaStyles();
 
   const proposalDetails = useMemo(() => {
     if (!proposal) return [];
@@ -131,7 +131,7 @@ const ProposalDetails = ({ proposal }: { proposal: any }) => {
             <Stack key={result.choice} width='100%' gap={1}>
               <HStack justify='space-between' w='full'>
                 <Text>{result.choice}</Text>
-                {!upTo780 ? (
+                {!isMobile ? (
                   <Text
                     color='gray.500'
                     fontSize='sm'

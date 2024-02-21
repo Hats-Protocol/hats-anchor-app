@@ -1,7 +1,14 @@
-import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/constants';
+import {
+  AUTHORITY_PLATFORMS,
+  AUTHORITY_TYPES,
+  AuthorityInfo,
+  AuthorityPlatform,
+  GATEWAY_TOKEN,
+  GATEWAY_URL,
+} from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import { FormDataDetails } from 'hats-types';
+import { Authority, FormDataDetails } from 'hats-types';
 import _ from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
@@ -153,3 +160,54 @@ export const fetchToken = async (count: number = 0) => {
 
   return token;
 };
+
+export const authorityImageHandler = ({
+  authority,
+  authorityEnforcement,
+  editingItem,
+  currentImageUrl,
+}: AuthorityImageHandlerProps) => {
+  const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
+
+  if (!authority) return checkIfIpfs('');
+
+  if (editingItem) return checkIfIpfs(currentImageUrl);
+
+  if (type === AUTHORITY_TYPES.gate) {
+    const platformById =
+      AUTHORITY_PLATFORMS[id as keyof typeof AUTHORITY_PLATFORMS];
+    const matchingPlatform = _.find(
+      _.values(AUTHORITY_PLATFORMS),
+      (v: AuthorityPlatform) =>
+        authority.gate?.includes(_.toLower(v.label)) ||
+        authority.link?.includes(_.toLower(v.label)) ||
+        _.toLower(authority.label)?.includes(_.toLower(v.label)),
+    );
+    if (platformById) return checkIfIpfs(platformById.icon);
+    if (matchingPlatform) return checkIfIpfs(matchingPlatform.icon);
+    if (authority.link?.includes('docs.google')) {
+      return checkIfIpfs(AUTHORITY_PLATFORMS[4].icon);
+    }
+  }
+  if (authority && authorityEnforcement.imageUri) {
+    return checkIfIpfs(authorityEnforcement.imageUri);
+  }
+
+  return checkIfIpfs(imageUrl);
+};
+
+const checkIfIpfs = (url: string | undefined) => {
+  if (!url) return { isIpfs: false, imageUrl: '' };
+
+  return {
+    isIpfs: url.startsWith('ipfs://'),
+    imageUrl: url,
+  };
+};
+
+interface AuthorityImageHandlerProps {
+  authority: Authority | undefined;
+  authorityEnforcement: AuthorityInfo;
+  currentImageUrl?: string;
+  editingItem?: Authority;
+}

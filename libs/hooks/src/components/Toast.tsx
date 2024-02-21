@@ -27,7 +27,8 @@ type CustomToastProps = {
   isClosable?: boolean;
 };
 
-export type ToastProps = ChakraToastProps & CustomToastProps;
+// ! different ToastProps from useToast is confusing, keeping local for now
+type ToastProps = ChakraToastProps & CustomToastProps;
 
 const icons: {
   [name: string]: { icon: IconType; color: ColorProps['color'] };

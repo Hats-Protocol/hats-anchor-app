@@ -1,12 +1,10 @@
 import {
-  Accordion,
   AccordionButton,
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
   Box,
   Button,
-  Card,
   HStack,
   Icon,
   IconButton,
@@ -14,12 +12,14 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { Authority, AuthorityType } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ChakraNextLink, Markdown } from '../atoms';
 import AuthorityHeader from './AuthorityHeader';
+import AuthorityHeaderMobile from './Mobile/AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
 const AuthoritiesListCard = ({
@@ -38,6 +38,7 @@ const AuthoritiesListCard = ({
   ]);
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
+  const { isMobile } = useMediaStyles();
 
   const discordHosts = ['discord.gg', 'discord.com'];
   let linkName = '';
@@ -56,75 +57,70 @@ const AuthoritiesListCard = ({
     type === AUTHORITY_TYPES.hsg ||
     type === AUTHORITY_TYPES.wallet;
 
-  if (!gate && !description)
-    return (
-      <Card borderRadius='4px' mb={4} p={4}>
-        <AuthorityHeader authority={authority} />
-      </Card>
-    );
+  if (!gate && !description) return <AuthorityHeader authority={authority} />;
 
   return (
-    <Card borderRadius='4px' mb={4}>
-      <Accordion allowToggle>
-        <AccordionItem border='none' mb={4} my={2}>
-          <AccordionButton _hover={{ bg: 'white' }}>
-            <AuthorityHeader authority={authority} />
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4} pl={20}>
-            {displayModulesToolbar ? (
-              <ModuleAuthorityToolbar authority={authority} index={index} />
-            ) : (
-              <HStack>
-                {link && validateURL(link) && (
-                  <ChakraNextLink isExternal href={link} display='block'>
-                    {linkName || linkHostName ? (
-                      <Button
-                        rightIcon={<Icon as={FaExternalLinkAlt} />}
-                        colorScheme='blue'
-                        size='sm'
-                        variant='solid'
-                      >
-                        {linkName || linkHostName}
-                      </Button>
-                    ) : (
-                      <IconButton
-                        icon={<Icon as={FaExternalLinkAlt} />}
-                        colorScheme='blue'
-                        aria-label='Authority Link'
-                        size='sm'
-                        variant='solid'
-                      />
-                    )}
-                  </ChakraNextLink>
+    <AccordionItem border='none'>
+      <AccordionButton _hover={{ bg: 'white' }} p={0}>
+        {isMobile ? (
+          <AuthorityHeaderMobile authority={authority} />
+        ) : (
+          <AuthorityHeader authority={authority} />
+        )}
+        <AccordionIcon />
+      </AccordionButton>
+      <AccordionPanel pb={4} px={0}>
+        {displayModulesToolbar ? (
+          <ModuleAuthorityToolbar authority={authority} index={index} />
+        ) : (
+          <HStack>
+            {link && validateURL(link) && (
+              <ChakraNextLink isExternal href={link} display='block'>
+                {linkName || linkHostName ? (
+                  <Button
+                    rightIcon={<Icon as={FaExternalLinkAlt} />}
+                    colorScheme='blue'
+                    size='sm'
+                    variant='solid'
+                  >
+                    {linkName || linkHostName}
+                  </Button>
+                ) : (
+                  <IconButton
+                    icon={<Icon as={FaExternalLinkAlt} />}
+                    colorScheme='blue'
+                    aria-label='Authority Link'
+                    size='sm'
+                    variant='solid'
+                  />
                 )}
-                {gate && validateURL(gate) && (
-                  <ChakraNextLink isExternal href={gate} display='block'>
-                    <Button
-                      rightIcon={<Icon as={FaExternalLinkAlt} />}
-                      color='blue.500'
-                      borderColor='blue.500'
-                      variant='outlineMatch'
-                      size='sm'
-                    >
-                      {gateHostName}
-                    </Button>
-                  </ChakraNextLink>
-                )}
-              </HStack>
+              </ChakraNextLink>
             )}
-            {description && (
-              <Box pt={link || gate ? 4 : 0}>
-                <Text size='sm' variant='medium'>
-                  Details
-                </Text>
-                <Markdown smallFont>{description}</Markdown>
-              </Box>
+            {gate && validateURL(gate) && (
+              <ChakraNextLink isExternal href={gate} display='block'>
+                <Button
+                  rightIcon={<Icon as={FaExternalLinkAlt} />}
+                  color='blue.500'
+                  borderColor='blue.500'
+                  variant='outlineMatch'
+                  size='sm'
+                >
+                  {gateHostName}
+                </Button>
+              </ChakraNextLink>
             )}
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
-    </Card>
+          </HStack>
+        )}
+        {description && (
+          <Box pt={link || gate ? 4 : 0}>
+            <Text size='sm' variant='medium'>
+              Details
+            </Text>
+            <Markdown smallFont>{description}</Markdown>
+          </Box>
+        )}
+      </AccordionPanel>
+    </AccordionItem>
   );
 };
 

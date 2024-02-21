@@ -8,12 +8,9 @@ import { checkAddressIsContract } from 'utils';
 import { Hex } from 'viem';
 
 import WearersList from '../WearersList';
-import AuthoritiesList from './AuthoritiesList';
 import DetailList from './DetailList';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
-import ResponsibilitiesList from './ResponsibilitiesList';
-import StatusCard from './Status';
 
 const EventHistory = dynamic(() =>
   import('ui').then((mod) => mod.EventHistory),
@@ -21,6 +18,13 @@ const EventHistory = dynamic(() =>
 const ModuleDetails = dynamic(() =>
   import('ui').then((mod) => mod.ModuleDetails),
 );
+const AuthoritiesList = dynamic(() =>
+  import('ui').then((mod) => mod.AuthoritiesList),
+);
+const ResponsibilitiesList = dynamic(() =>
+  import('ui').then((mod) => mod.ResponsibilitiesList),
+);
+const StatusCard = dynamic(() => import('ui').then((mod) => mod.StatusCard));
 
 const MainContent = () => {
   const { chainId, selectedHat, selectedHatDetails } = useTreeForm();

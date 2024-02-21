@@ -11,66 +11,24 @@ import {
 } from '@chakra-ui/react';
 import {
   AUTHORITY_ENFORCEMENT,
-  AUTHORITY_PLATFORMS,
   AUTHORITY_TYPES,
-  AuthorityInfo,
-  AuthorityPlatform,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useSafeDetails } from 'hooks';
 import { useTreeForm } from 'contexts';
 import { Authority } from 'hats-types';
+import { useSafeDetails } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { getHostnameFromURL, ipfsUrl, validateURL } from 'utils';
-import { Hex } from 'viem';
+import {
+  authorityImageHandler,
+  getHostnameFromURL,
+  ipfsUrl,
+  validateURL,
+} from 'utils';
 
 import { ChakraNextLink } from '../atoms';
-
-const checkIfIpfs = (url: string | undefined) => {
-  if (!url) return { isIpfs: false, imageUrl: '' };
-
-  return {
-    isIpfs: url.startsWith('ipfs://'),
-    imageUrl: url,
-  };
-};
-
-const authorityImageHandler = ({
-  authority,
-  editingItem,
-  authorityEnforcement,
-  currentImageUrl,
-}: AuthorityImageHandlerProps) => {
-  const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
-
-  if (!authority) return checkIfIpfs('');
-
-  if (editingItem) return checkIfIpfs(currentImageUrl);
-  if (type === AUTHORITY_TYPES.gate) {
-    const platformById =
-      AUTHORITY_PLATFORMS[id as keyof typeof AUTHORITY_PLATFORMS];
-    const matchingPlatform = _.find(
-      _.values(AUTHORITY_PLATFORMS),
-      (v: AuthorityPlatform) =>
-        authority.gate?.includes(_.toLower(v.label)) ||
-        authority.link?.includes(_.toLower(v.label)) ||
-        _.toLower(authority.label)?.includes(_.toLower(v.label)),
-    );
-    if (platformById) return checkIfIpfs(platformById.icon);
-    if (matchingPlatform) return checkIfIpfs(matchingPlatform.icon);
-    if (authority.link?.includes('docs.google')) {
-      return checkIfIpfs(AUTHORITY_PLATFORMS[4].icon);
-    }
-  }
-  if (authority && authorityEnforcement.imageUri) {
-    return checkIfIpfs(authorityEnforcement.imageUri);
-  }
-
-  return checkIfIpfs(imageUrl);
-};
 
 const AuthorityHeader = ({
   authority,
@@ -129,12 +87,17 @@ const AuthorityHeader = ({
   });
   const eligibleSigners = useMemo(() => {
     if (!safeOwners || !selectedHat?.wearers) return [];
+
+    const wearersLowercased = _.map(selectedHat.wearers, (wearer) =>
+      _.toLower(wearer.id),
+    );
+
     return _.filter(
       safeOwners,
-      (owner: Hex) =>
-        !_.includes(_.map(selectedHat.wearers, 'id'), _.toLower(owner)),
+      (owner) => !_.includes(wearersLowercased, _.toLower(owner)),
     );
-  }, [safeOwners, selectedHat?.wearers]);
+  }, [safeOwners, selectedHat]);
+
   const currentThresholdConfig = useMemo(() => {
     if (authority?.label === 'HSG Owner' || !hsgConfig) return undefined;
     const minThreshold = _.toNumber(hsgConfig?.minThreshold);
@@ -221,13 +184,6 @@ interface AuthorityHeaderProps {
   authority: Authority | undefined;
   editingItem?: Authority;
   hideInfo?: boolean;
-}
-
-interface AuthorityImageHandlerProps {
-  authority: Authority | undefined;
-  editingItem?: Authority;
-  authorityEnforcement: AuthorityInfo;
-  currentImageUrl?: string;
 }
 
 export default AuthorityHeader;

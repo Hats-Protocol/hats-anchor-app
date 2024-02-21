@@ -123,7 +123,7 @@ interface ToastBaseProps {
   isClosable?: boolean;
 }
 
-interface ToastProps {
+export interface ToastProps {
   title: string;
   description?: string;
   // icon: React.ReactNode;

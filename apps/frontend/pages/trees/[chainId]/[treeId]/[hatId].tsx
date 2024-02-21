@@ -6,12 +6,12 @@ import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { TreePage } from 'pages';
+import { HatDetailsMobile } from 'pages';
 import { useEffect } from 'react';
 // import { useRouter } from 'next/router';
 import { Hex } from 'viem';
 
-const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
+const HatDetails = ({ chainId, treeId, hatId }: HatDetailsProps) => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   // const router = useRouter();
   // const { hatId: hatIdParam } = router.query;
@@ -34,7 +34,7 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>
-      <TreePage exists={exists} />
+      <HatDetailsMobile />
     </TreeFormContextProvider>
   );
 };
@@ -47,6 +47,7 @@ const defaultProps = {
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const treeIdParam = _.get(context, 'params.treeId');
   const chainIdParam = _.get(context, 'params.chainId');
+  const hatIdParam = _.get(context, 'params.hatId');
   const treeId = _.isArray(treeIdParam) ? _.first(treeIdParam) : treeIdParam;
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
@@ -56,12 +57,14 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     return { props: defaultProps };
   }
   const treeHex = treeIdDecimalToHex(_.toNumber(treeId));
+  const hatIdHex = _.isArray(hatIdParam) ? _.first(hatIdParam) : hatIdParam;
 
   return {
     props: {
       ...defaultProps,
       treeId: treeHex,
       chainId: _.toNumber(chainId),
+      hatId: hatIdHex,
       // initialTreeData: {
       //   ..._.omit(treeData, ['events']),
       //   hats: hatsWithoutEvents,
@@ -80,10 +83,10 @@ export const getStaticPaths = async () => {
   };
 };
 
-export default TreeDetails;
+export default HatDetails;
 
-interface TreeDetailsProps {
+interface HatDetailsProps {
   treeId: Hex;
   chainId: SupportedChains;
-  exists: boolean;
+  hatId: boolean;
 }

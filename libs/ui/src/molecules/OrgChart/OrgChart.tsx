@@ -11,8 +11,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { useToast } from 'hooks';
-import { formatAddress } from 'utils';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
@@ -23,10 +21,12 @@ import {
   isTopHatOrMutable,
   maxSupplyText,
 } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { ipToHatId } from 'shared';
+import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 function checkParentElementForClass(e: any, name: string) {

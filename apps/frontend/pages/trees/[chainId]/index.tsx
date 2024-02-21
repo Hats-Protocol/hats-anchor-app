@@ -31,7 +31,17 @@ const Trees = ({ chainId }: { chainId: number }) => {
   return (
     <Layout>
       <Box w='100%' h='100%' bg='blue' position='fixed' opacity={0.05} />
-      <Box py={100} px={100}>
+      <Box
+        py={{
+          base: 16,
+          lg: 100,
+        }}
+        px={{
+          base: 4,
+          md: 20,
+          lg: 100,
+        }}
+      >
         <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
           <NetworkFilter selectedNetwork={chainId} />
         </Flex>
@@ -48,9 +58,16 @@ const Trees = ({ chainId }: { chainId: number }) => {
             }
           >
             <SimpleGrid
-              gap={8}
+              gap={{
+                base: 4,
+                sm: 8,
+              }}
               justifyContent='center'
-              columns={4}
+              columns={{
+                base: 1,
+                md: 3,
+                lg: 4,
+              }}
               maxW='1200px'
               mx='auto'
             >

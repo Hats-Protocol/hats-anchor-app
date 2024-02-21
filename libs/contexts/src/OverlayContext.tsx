@@ -24,6 +24,7 @@ const defaultModals: AppModals = {
   hatDetails: false,
   hatImage: false,
   hatSupply: false,
+  account: false,
 };
 
 const defaultDrawers: AppModals = {
