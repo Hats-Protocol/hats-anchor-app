@@ -1,7 +1,7 @@
 import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
-import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { Transaction } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 import { explorerUrl } from 'utils';
@@ -26,7 +26,7 @@ const TransactionHistoryRow = ({
   timestamp,
   txDescription,
 }: TransactionHistoryProps) => {
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
 
   return (
     <ChakraNextLink

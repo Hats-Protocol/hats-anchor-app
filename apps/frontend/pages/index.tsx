@@ -17,7 +17,6 @@ import {
   orderedChains,
   TemplateData,
 } from '@hatsprotocol/constants';
-import { useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { AppHat, DocsLink } from 'hats-types';
 import {
@@ -25,6 +24,7 @@ import {
   useFeaturedTrees,
   useFeaturedTreesData,
   useImageURIs,
+  useMediaStyles,
 } from 'hooks';
 import _ from 'lodash';
 // import dynamic from 'next/dynamic';
@@ -51,7 +51,7 @@ const Home = () => {
   const { data: featuredTrees } = useFeaturedTrees();
   const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
 
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
   const { data: currentHats } = useWearerDetails({

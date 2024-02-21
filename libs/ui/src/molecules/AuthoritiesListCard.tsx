@@ -11,8 +11,8 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
-import { useOverlay } from 'contexts';
 import { Authority, AuthorityType } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, validateURL } from 'utils';
@@ -38,7 +38,7 @@ const AuthoritiesListCard = ({
   ]);
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
 
   const discordHosts = ['discord.gg', 'discord.com'];
   let linkName = '';

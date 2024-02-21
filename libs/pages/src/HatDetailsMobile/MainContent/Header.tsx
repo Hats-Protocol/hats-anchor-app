@@ -46,7 +46,7 @@ const Header = () => {
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} background='whiteAlpha.900' p={4}>
       <HStack align='start' justify='space-between' alignItems='center' gap={4}>
         <Image
           loading='lazy'

@@ -8,10 +8,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { useOverlay } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
 import { AppHat } from 'hats-types';
 import { decimalId } from 'hats-utils';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 
 import { ChakraNextLink } from '../atoms';
@@ -26,7 +26,7 @@ const TreeListCard = ({
   topHatImage: AppHat | undefined;
 }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
 
   const hatName =
     hatDetails?.type === '1.0'

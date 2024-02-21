@@ -1,6 +1,7 @@
 import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useTreeForm } from 'contexts';
 import { DetailsItem } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 
 import ResponsibilitiesListCardMobile from './Mobile/ResponsibilitiesListCard';
@@ -8,7 +9,7 @@ import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
 const ResponsibilitiesList = () => {
   const { selectedHatDetails } = useTreeForm();
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
 
   const responsibilities = _.get(selectedHatDetails, 'responsibilities');
 

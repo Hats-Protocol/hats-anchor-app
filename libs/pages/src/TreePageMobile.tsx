@@ -8,6 +8,7 @@ import {
   Image,
   Spinner,
   Stack,
+  VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
@@ -65,51 +66,60 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   return (
     <>
       <NextSeo title={title} />
-
       <Layout>
-        <Box w='full' h='100%' position='fixed' pt={16} overflowY='scroll'>
+        <Flex direction='column' w='full' h='full' pt={16}>
           {exists ? (
             _.isEmpty(sortedTree) ? (
-              <Flex justify='center' align='center' w='full' h='full'>
+              <Flex justify='center' align='center' w='full' flexGrow={1}>
                 <Spinner />
               </Flex>
             ) : (
-              <Stack>
-                <Box w='full' px={2} position='relative'>
+              <>
+                <Box px={2} zIndex='sticky' mb={2}>
                   {sortedTree.length > 0 && (
                     <MobileHatCard hat={sortedTree[0]} key={sortedTree[0].id} />
                   )}
                 </Box>
-                {sortedTree.length > 1 && (
-                  <Stack w='full' px={2} position='relative' pb={4}>
+
+                <Flex
+                  direction='column'
+                  overflowY='auto'
+                  flexGrow={1}
+                  bg='white'
+                >
+                  <VStack
+                    w='full'
+                    px={2}
+                    position='relative'
+                    py={2}
+                    spacing={2}
+                  >
                     <VerticalDividers count={maxDepth + 2} />
 
                     {_.map(sortedTree.slice(1), (hat) => (
                       <MobileHatCard hat={hat} key={hat.id} />
                     ))}
-                  </Stack>
-                )}
-              </Stack>
+                  </VStack>
+                </Flex>
+              </>
             )
           ) : (
-            <Flex justify='center' align='center' w='full' h='full' pt={20}>
+            <Flex justify='center' align='center' w='full' flexGrow={1}>
               <Stack spacing={8} align='center'>
                 <Heading size='md'>Tree not found!</Heading>
                 <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
-                <Flex>
-                  <ChakraNextLink href='/'>
-                    <Button
-                      variant='outline'
-                      rightIcon={<Icon as={BsArrowRight} />}
-                    >
-                      🧢 Head home
-                    </Button>
-                  </ChakraNextLink>
-                </Flex>
+                <ChakraNextLink href='/'>
+                  <Button
+                    variant='outline'
+                    rightIcon={<Icon as={BsArrowRight} />}
+                  >
+                    🧢 Head home
+                  </Button>
+                </ChakraNextLink>
               </Stack>
             </Flex>
           )}
-        </Box>
+        </Flex>
       </Layout>
     </>
   );

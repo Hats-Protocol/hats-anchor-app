@@ -24,10 +24,10 @@ import {
 } from 'hats-types';
 import { combineAuthorities, translateDrafts } from 'hats-utils';
 import {
-  useBetterMediaQuery,
   useGuilds,
   useImageURIs,
   useLocalStorage,
+  useMediaStyles,
   useOrgChartTree,
   useSnapshotSpaces as useSpaces,
   useTreeImages,
@@ -196,7 +196,7 @@ export const TreeFormContextProvider = ({
     'wearers',
   );
   const [orgChartHats, setOrgChartHats] = useState<AppHat[] | undefined>();
-  const isMobile = useBetterMediaQuery('(max-width: 767px)');
+  const { isMobile } = useMediaStyles();
 
   const localStorageKey = generateLocalStorageKey(chainId, treeId);
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(

@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Button,
   Flex,
@@ -11,6 +12,7 @@ import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
+import { useRouter } from 'next/router';
 import { BsArrowLeft, BsDiagram3Fill } from 'react-icons/bs';
 import { useChainId } from 'wagmi';
 
@@ -23,6 +25,9 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
   const { chainId } = useTreeForm();
   const { isOpen, onToggle } = useDisclosure();
   const treeId = hatIdToTreeId(BigInt(hatData?.id || 0));
+  const router = useRouter();
+  const pathSegments = _.split(router.pathname, '/').filter(Boolean);
+  const isTreesRoute = pathSegments.length === 2 && pathSegments[0] === 'trees';
 
   return (
     <Flex
@@ -33,6 +38,7 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
       zIndex={10}
       px={2}
       minH='56px'
+      bg={hatData ? 'whiteAlpha.900' : 'transparent'}
     >
       <HStack spacing={2}>
         <ChakraNextLink href='/'>
@@ -48,7 +54,7 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
               <Text size='lg'>{treeId}</Text>
             </Button>
           </ChakraNextLink>
-        ) : (
+        ) : !isTreesRoute ? (
           <ChakraNextLink
             href={`/${CONFIG.trees}/${chainId || currentChainId || 1}`}
           >
@@ -56,7 +62,7 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
               <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>
             </Button>
           </ChakraNextLink>
-        )}
+        ) : null}
       </HStack>
 
       <ConnectWallet />

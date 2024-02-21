@@ -1,7 +1,7 @@
 import { Box, Card, CardBody, Flex, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useEligibility, useOverlay } from 'contexts';
-import { useIsClient } from 'hooks';
+import { useEligibility } from 'contexts';
+import { useIsClient, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
@@ -34,7 +34,7 @@ const Election = () => {
     isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);

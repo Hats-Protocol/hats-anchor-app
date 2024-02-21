@@ -4,6 +4,7 @@
 import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { AppHat } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
@@ -15,10 +16,12 @@ import TransactionHistory from './TransactionHistory';
 const Navbar = dynamic(() => import('./Navbar'));
 
 const Layout = ({ editMode, hatData, children }: LayoutProps) => {
+  console.log('hatData', hatData);
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { transactions, isMobile } = localOverlay;
+  const { transactions } = localOverlay;
+  const { isMobile } = useMediaStyles();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
 

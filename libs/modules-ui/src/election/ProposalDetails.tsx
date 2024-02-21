@@ -11,7 +11,8 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useEligibility, useOverlay } from 'contexts';
+import { useEligibility } from 'contexts';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
@@ -21,7 +22,7 @@ import { explorerUrl } from 'utils';
 
 const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, moduleDetails } = useEligibility();
-  const { isMobile } = useOverlay();
+  const { isMobile } = useMediaStyles();
 
   const proposalDetails = useMemo(() => {
     if (!proposal) return [];

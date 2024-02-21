@@ -1,4 +1,3 @@
-import { useBreakpointValue } from '@chakra-ui/react';
 import { AppModals, OverlayContextProps, Transaction } from 'hats-types';
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
@@ -51,7 +50,6 @@ export const OverlayContext = createContext<OverlayContextProps>({
   clearAllTransactions: () => {},
   recentlyVisitedTrees: undefined,
   updateRecentlyVisitedTrees: () => {},
-  isMobile: undefined,
 });
 
 export const OverlayContextProvider = ({
@@ -65,7 +63,6 @@ export const OverlayContextProvider = ({
   const toast = useToast();
   const router = useRouter();
   const chainId = useChainId();
-  const isMobile = useBreakpointValue({ base: true, sm: false });
 
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
@@ -246,7 +243,6 @@ export const OverlayContextProvider = ({
       clearAllTransactions,
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
-      isMobile,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],

@@ -34,7 +34,6 @@ export interface OverlayContextProps {
   clearAllTransactions: () => void;
   recentlyVisitedTrees: TreeRecord[] | undefined;
   updateRecentlyVisitedTrees: (tree: TreeRecord) => void;
-  isMobile?: boolean;
 }
 
 export interface StandaloneOverlayContextProps {

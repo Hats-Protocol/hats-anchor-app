@@ -4,6 +4,7 @@ import {
 } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { SupportedChains } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { TreePage, TreePageMobile } from 'pages';
@@ -12,7 +13,8 @@ import { useEffect } from 'react';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
-  const { updateRecentlyVisitedTrees, isMobile } = useOverlay();
+  const { updateRecentlyVisitedTrees } = useOverlay();
+  const { isMobile } = useMediaStyles();
   // const router = useRouter();
   // const { hatId: hatIdParam } = router.query;
   // let hatId: string | undefined;

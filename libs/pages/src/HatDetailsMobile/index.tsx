@@ -14,19 +14,11 @@ const HatDetailsMobile = () => {
 
   return (
     <Layout hatData={selectedHat}>
-      <Box
-        w='full'
-        h='100%'
-        position='fixed'
-        background='whiteAlpha.900'
-        pt={16}
-      >
-        <Box w='100%' h='100%' position='relative' zIndex={14}>
-          <HatFormContextProvider>
-            <MainContent />
-            <BottomMenu />
-          </HatFormContextProvider>
-        </Box>
+      <Box w='100%' h='100%' position='relative'>
+        <HatFormContextProvider>
+          <MainContent />
+          <BottomMenu />
+        </HatFormContextProvider>
       </Box>
     </Layout>
   );

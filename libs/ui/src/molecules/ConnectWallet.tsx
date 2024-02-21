@@ -2,6 +2,7 @@ import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
 import { Modal, useOverlay } from 'contexts';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { formatAddress } from 'utils';
@@ -13,7 +14,8 @@ const ConnectWallet = () => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { setModals, isMobile } = localOverlay;
+  const { setModals } = localOverlay;
+  const { isMobile } = useMediaStyles();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName,

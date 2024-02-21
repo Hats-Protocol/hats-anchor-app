@@ -12,6 +12,7 @@ export { default as useGuilds } from './useGuilds';
 export { default as useImageURIs } from './useImageURIs';
 export { default as useIsClient } from './useIsClient';
 export { default as useLocalStorage } from './useLocalStorage';
+export { default as useMediaStyles } from './useMediaStyles';
 export { default as useOrgChartTree } from './useOrgChartTree';
 export { default as usePendHatterMint } from './usePendHatterMint';
 export { default as usePinImageIpfs } from './usePinImageIpfs';

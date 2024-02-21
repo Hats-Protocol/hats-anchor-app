@@ -5,7 +5,6 @@ const VerticalDividers = ({ count }: { count: number }) => {
   return (
     <Box
       position='absolute'
-      zIndex={-1}
       style={{ top: 0, bottom: 0, left: 0, right: 0 }}
       bg='white'
     >

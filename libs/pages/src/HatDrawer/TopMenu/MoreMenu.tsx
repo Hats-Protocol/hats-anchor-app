@@ -12,7 +12,6 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
-import { useToast } from 'hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
@@ -21,6 +20,7 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import {
   FaCopy,
