@@ -36,8 +36,6 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
     selectedHat,
     selectedHatDetails,
     treeToDisplay,
-    editMode,
-    topHat,
     topHatDetails,
   } = useTreeForm();
 
@@ -68,7 +66,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
     <>
       <NextSeo title={title} />
 
-      <Layout editMode={editMode} hatData={topHat}>
+      <Layout>
         <Box w='full' h='100%' position='fixed' pt={16} overflowY='scroll'>
           {exists ? (
             _.isEmpty(sortedTree) ? (
