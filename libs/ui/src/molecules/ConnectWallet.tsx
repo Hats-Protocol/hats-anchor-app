@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Image,
-  Text,
-  useMediaQuery,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
 import { Modal, useOverlay } from 'contexts';
@@ -21,15 +13,13 @@ const ConnectWallet = () => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
+  const { setModals, isMobile } = localOverlay;
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName,
     chainId: 1,
     cacheTime: 60,
   });
-
-  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   useEffect(() => {
     if (address) {
@@ -136,7 +126,7 @@ const ConnectWallet = () => {
                         />
                       )}
 
-                      {!upTo780 && (
+                      {!isMobile && (
                         <Text variant='medium' noOfLines={1}>
                           {ensName || account.displayName}
                         </Text>

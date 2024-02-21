@@ -1,12 +1,5 @@
-import {
-  Box,
-  Flex,
-  HStack,
-  Icon,
-  Spinner,
-  Text,
-  useMediaQuery,
-} from '@chakra-ui/react';
+import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
+import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { Transaction } from 'hats-types';
 import _ from 'lodash';
@@ -33,7 +26,7 @@ const TransactionHistoryRow = ({
   timestamp,
   txDescription,
 }: TransactionHistoryProps) => {
-  const [upTo780] = useMediaQuery('(max-width: 780px)');
+  const { isMobile } = useOverlay();
 
   return (
     <ChakraNextLink
@@ -60,7 +53,7 @@ const TransactionHistoryRow = ({
         </HStack>
 
         <HStack>
-          {!hideHash && !upTo780 && (
+          {!hideHash && !isMobile && (
             <Text size='sm' variant='gray'>{`(${abbreviateHash(hash)})`}</Text>
           )}
           <Text size={{ base: 'xs', md: 'sm' }}>

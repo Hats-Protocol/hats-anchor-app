@@ -13,7 +13,6 @@ const Layout = ({ children, title }: LayoutProps) => {
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
-  // const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   useEffect(() => {
     if (isAutoConnecting) return;

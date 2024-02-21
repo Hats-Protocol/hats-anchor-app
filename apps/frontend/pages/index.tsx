@@ -17,6 +17,7 @@ import {
   orderedChains,
   TemplateData,
 } from '@hatsprotocol/constants';
+import { useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { AppHat, DocsLink } from 'hats-types';
 import {
@@ -50,7 +51,7 @@ const Home = () => {
   const { data: featuredTrees } = useFeaturedTrees();
   const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
 
-  const [upto780] = useMediaQuery('(max-width: 780px)');
+  const { isMobile } = useOverlay();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
   const { data: currentHats } = useWearerDetails({
@@ -65,7 +66,7 @@ const Home = () => {
 
   const { data: currentHatsWithImagesData } = useImageURIs({
     hats: activeHats
-      ? activeHats.splice(0, upto780 ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
+      ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
       : [],
   });
 
@@ -126,13 +127,13 @@ const Home = () => {
               <Flex justifyContent='space-between' alignItems='center'>
                 <Heading variant='medium'>Your hats</Heading>
                 {_.size(sortedHats) >
-                  (upto780 ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
+                  (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
                   <ChakraNextLink
                     as={ChakraNextLink}
                     href={`/wearers/${wearerAddress}`}
                   >
                     <HStack alignItems='center'>
-                      <Text>View {!upto780 ? 'all of ' : ''}your hats</Text>
+                      <Text>View {!isMobile ? 'all of ' : ''}your hats</Text>
                       <FaArrowRight />
                     </HStack>
                   </ChakraNextLink>

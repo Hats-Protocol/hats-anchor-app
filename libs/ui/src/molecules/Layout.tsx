@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Box, useMediaQuery } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { AppHat } from 'hats-types';
 import dynamic from 'next/dynamic';
@@ -18,10 +18,9 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const localOverlay = useOverlay();
-  const { transactions } = localOverlay;
+  const { transactions, isMobile } = localOverlay;
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
-  const [upTo780] = useMediaQuery('(max-width: 780px)');
 
   useEffect(() => {
     if (isAutoConnecting) return;
@@ -64,7 +63,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         />
 
         <CommandPalette />
-        {upTo780 ? (
+        {isMobile ? (
           <NavbarMobile hatData={hatData} />
         ) : (
           <Navbar hatData={hatData} />
