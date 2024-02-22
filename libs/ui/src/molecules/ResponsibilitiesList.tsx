@@ -23,14 +23,14 @@ const ResponsibilitiesList = () => {
   }
 
   return (
-    <Accordion px={{ base: 0, md: 10 }} py={4} allowMultiple>
+    <Accordion px={{ base: 4, md: 10 }} allowMultiple>
       <Heading size='sm' mx={{ base: 4, md: 0 }}>
         {_.size(responsibilities)}{' '}
         {_.size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'}{' '}
         expected of Hat Wearers
       </Heading>
 
-      <Stack mt={4} gap={4}>
+      <Stack spacing={0}>
         {_.map(responsibilities, (responsibility: DetailsItem) => (
           <ResponsibilitiesListCard
             key={responsibility.label}

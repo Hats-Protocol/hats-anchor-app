@@ -16,10 +16,10 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { usePinImageIpfs } from 'hooks';
 import { useHatForm, useTreeForm } from 'contexts';
 import { id } from 'date-fns/locale';
 import { Authority } from 'hats-types';
+import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';

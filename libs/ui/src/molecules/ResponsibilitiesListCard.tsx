@@ -3,7 +3,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
-  Card,
+  Box,
   Flex,
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
@@ -18,27 +18,34 @@ const ResponsibilitiesListCard = ({
 }) => {
   const { label, description, link, imageUrl } = responsibility || {};
 
-  if (!description) {
-    return (
-      <Card borderRadius='4px' p={4}>
-        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-      </Card>
-    );
-  }
   return (
-    <Card borderRadius='4px'>
-      <AccordionItem border='none' mb={4} my={2}>
-        <AccordionButton _hover={{ bg: 'white' }}>
-          <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-          <AccordionIcon ml={2} />
-        </AccordionButton>
-        <AccordionPanel pb={4} pl={20}>
-          <Flex>
-            {description && <Markdown smallFont>{description}</Markdown>}
-          </Flex>
-        </AccordionPanel>
-      </AccordionItem>
-    </Card>
+    <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
+      {({ isExpanded }) => (
+        <>
+          <AccordionButton
+            borderBottom='1px solid'
+            borderColor='transparent'
+            _hover={{ borderColor: 'blue.300', bg: 'white' }}
+            borderRadius={8}
+          >
+            <Box flex='1' textAlign='left'>
+              <ResponsibilityHeader
+                label={label}
+                imageUrl={imageUrl}
+                link={link}
+                isExpanded={isExpanded}
+              />
+            </Box>
+            <AccordionIcon ml={2} />
+          </AccordionButton>
+          <AccordionPanel px={4}>
+            <Flex>
+              {description && <Markdown smallFont>{description}</Markdown>}
+            </Flex>
+          </AccordionPanel>
+        </>
+      )}
+    </AccordionItem>
   );
 };
 

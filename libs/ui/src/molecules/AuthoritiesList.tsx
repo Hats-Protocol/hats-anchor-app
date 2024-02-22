@@ -27,7 +27,7 @@ const AuthoritiesList = () => {
           granted by this Hat
         </Heading>
 
-        <Stack mt={4} gap={4}>
+        <Stack spacing={0}>
           {_.map(combinedAuthorities, (authority: Authority, index: number) => (
             <AuthoritiesListCard
               index={index}
