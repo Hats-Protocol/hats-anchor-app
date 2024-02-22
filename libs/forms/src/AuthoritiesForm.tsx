@@ -17,9 +17,9 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
-import { usePinImageIpfs } from 'hooks';
 import { useHatForm, useTreeForm } from 'contexts';
 import { Authority } from 'hats-types';
+import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';

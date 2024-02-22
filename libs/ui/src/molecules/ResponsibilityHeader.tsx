@@ -1,6 +1,6 @@
 import {
   Box,
-  Flex,
+  HStack,
   Icon,
   IconButton,
   Image,
@@ -10,8 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
 import _ from 'lodash';
-import { BsFileCheck } from 'react-icons/bs';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { BsBoxArrowUpRight, BsCheck2Square } from 'react-icons/bs';
 import { getHostnameFromURL, ipfsUrl } from 'utils';
 
 const ResponsibilityHeader = ({
@@ -34,31 +33,28 @@ const ResponsibilityHeader = ({
   const hostname = getHostnameFromURL(currentLink || link);
 
   return (
-    <Flex alignItems='center' justifyContent='space-between' w='full' gap={4}>
+    <HStack w='100%' align='center'>
       {localImageUrl ? (
         <Image
-          boxSize='50px'
           src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
+          boxSize='24px'
+          border='1px solid'
+          borderColor='blackAlpha.300'
           borderRadius='full'
-          border='2px solid'
-          borderColor='gray.300'
-          alt='responsibility image'
+          alt='authority image'
         />
       ) : (
-        <Flex
-          borderRadius='6px'
-          border='1px solid var(--gray-300, #CBD5E0)'
-          background='var(--gray-100, #EDF2F7)'
-          boxSize='45px'
-          mx='2px'
+        <HStack
+          borderRadius='full'
+          boxSize='24px'
           alignItems='center'
           justifyContent='center'
         >
-          <Icon as={BsFileCheck} boxSize={4} color='gray.500' />
-        </Flex>
+          <Icon as={BsCheck2Square} boxSize={4} color='gray.500' />
+        </HStack>
       )}
       <Box flex={1} minW={0} w='full'>
-        <Text size='md' variant='medium' noOfLines={1}>
+        <Text size='md' variant='normal' noOfLines={1} textAlign='left'>
           {currentLabel || label || 'New Responsibility'}
         </Text>
       </Box>
@@ -67,31 +63,16 @@ const ResponsibilityHeader = ({
           <Tooltip label={hostname}>
             <IconButton
               as='span'
-              icon={<Icon as={FaExternalLinkAlt} />}
-              variant='outlineMatch'
+              icon={<Icon as={BsBoxArrowUpRight} />}
+              variant='ghost'
               aria-label='Responsibility Link'
-              borderColor='blue.500'
               color='blue.500'
-              size='sm'
+              size='xs'
             />
           </Tooltip>
         </Link>
       )}
-      {/* {hostname && (
-        <Link href={link} isExternal>
-          <Button
-            variant='outlineMatch'
-            borderColor='blue.500'
-            color='blue.500'
-            size='sm'
-          >
-            <Text size='md' variant='medium'>
-              {hostname}
-            </Text>
-          </Button>
-        </Link>
-      )} */}
-    </Flex>
+    </HStack>
   );
 };
 

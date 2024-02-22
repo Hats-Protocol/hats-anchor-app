@@ -3,7 +3,6 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
-  Card,
   Flex,
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
@@ -20,25 +19,21 @@ const ResponsibilitiesListCard = ({
 
   if (!description) {
     return (
-      <Card borderRadius='4px' p={4}>
-        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-      </Card>
+      <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
     );
   }
   return (
-    <Card borderRadius='4px'>
-      <AccordionItem border='none' mb={4} my={2}>
-        <AccordionButton _hover={{ bg: 'white' }}>
-          <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-          <AccordionIcon ml={2} />
-        </AccordionButton>
-        <AccordionPanel pb={4} pl={20}>
-          <Flex>
-            {description && <Markdown smallFont>{description}</Markdown>}
-          </Flex>
-        </AccordionPanel>
-      </AccordionItem>
-    </Card>
+    <AccordionItem border='none' mb={4} my={2}>
+      <AccordionButton _hover={{ bg: 'white' }} px={0}>
+        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
+        <AccordionIcon ml={2} />
+      </AccordionButton>
+      <AccordionPanel px={0}>
+        <Flex>
+          {description && <Markdown smallFont>{description}</Markdown>}
+        </Flex>
+      </AccordionPanel>
+    </AccordionItem>
   );
 };
 

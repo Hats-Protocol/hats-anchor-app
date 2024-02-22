@@ -16,7 +16,7 @@ const AuthoritiesList = () => {
     <Accordion allowMultiple px={{ base: 4, md: 10 }}>
       <Stack>
         {isMobile ? (
-          <Heading size='sm' variant='medium'>
+          <Heading size='sm' variant='bold'>
             {combinedAuthorities.length} Authorities granted by this Hat
           </Heading>
         ) : (

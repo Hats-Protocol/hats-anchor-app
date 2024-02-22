@@ -1,14 +1,12 @@
 import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { DetailsItem } from 'hats-types';
-import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
 const ResponsibilitiesList = () => {
   const { selectedHatDetails } = useTreeForm();
-  const { isMobile } = useMediaStyles();
 
   const responsibilities = _.get(selectedHatDetails, 'responsibilities');
 
@@ -16,17 +14,11 @@ const ResponsibilitiesList = () => {
 
   return (
     <Accordion px={{ base: 4, md: 10 }} allowMultiple>
-      {isMobile ? (
-        <Heading size='sm' variant='medium'>
-          {responsibilities.length} Responsibilities expected of Hat Hearers
-        </Heading>
-      ) : (
-        <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-          Responsibilities
-        </Heading>
-      )}
+      <Heading size='sm' variant='bold'>
+        {responsibilities.length} Responsibilities expected of Hat Hearers
+      </Heading>
 
-      <Stack mt={4} gap={4}>
+      <Stack mt={4}>
         {_.map(responsibilities, (responsibility: DetailsItem) => (
           <ResponsibilitiesListCard
             key={responsibility.label}
