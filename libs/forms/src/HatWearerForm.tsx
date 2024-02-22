@@ -7,7 +7,6 @@ import {
   HStack,
   Icon,
   IconButton,
-  Image,
   Input as ChakraInput,
   InputGroup,
   InputLeftElement,
@@ -18,7 +17,6 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
-import { useToast } from 'hooks';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
@@ -27,6 +25,7 @@ import {
 } from 'hats-hooks';
 import { FormWearer, HatWearer } from 'hats-types';
 import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -35,7 +34,13 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
+import {
+  AddressInput,
+  BoxArrowUpRightIn,
+  DropZone,
+  FormRowWrapper,
+  NumberInput,
+} from 'ui';
 import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
@@ -534,8 +539,9 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                 isLoadingBatchMintHats
               }
             >
-              <Image src='/icons/mint.svg' w={4} h={4} alt='Mint' mr={2} /> Mint
-              Hat{localWearers.length > 0 && 's'}
+              <Icon as={BoxArrowUpRightIn} boxSize={4} alt='Mint' mr={2} /> Mint
+              Hat
+              {localWearers.length > 0 && 's'}
             </Button>
           </Flex>
         )}

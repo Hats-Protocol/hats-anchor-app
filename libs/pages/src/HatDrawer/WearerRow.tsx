@@ -3,7 +3,6 @@ import {
   Flex,
   Icon,
   IconButton,
-  Image,
   Menu,
   MenuButton,
   MenuItem,
@@ -35,10 +34,11 @@ import { useAccount, useChainId } from 'wagmi';
 const TooltipWrapper = dynamic(() =>
   import('ui').then((mod) => mod.TooltipWrapper),
 );
-
+const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
+const WearerIcon = dynamic(() => import('ui').then((mod) => mod.WearerIcon));
 
 const WearerRow = ({
   wearer,
@@ -120,10 +120,20 @@ const WearerRow = ({
     });
   };
 
-  let icon = <Image src='/icons/wearers.svg' color='gray.500' />;
-  if (isSameAddress(wearer.id, address)) {
-    icon = <Image src='/icons/hat.svg' alt='Hat' />;
-  } else if (wearer.isContract) {
+  const copyAddress = () => {
+    onCopy();
+    toast.info({
+      title: 'Successfully copied address to clipboard',
+    });
+  };
+
+  let icon = (
+    <Icon
+      as={WearerIcon}
+      color={isSameAddress(wearer.id, address) ? 'green.500' : 'gray.500'}
+    />
+  );
+  if (wearer.isContract) {
     icon = <Icon as={BsFileCode} color='gray.500' />;
   }
 
@@ -135,30 +145,40 @@ const WearerRow = ({
 
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
-      <Flex
-        alignItems='center'
-        gap={2}
-        backgroundColor={
-          isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
-        }
-      >
-        {icon}
+      <ChakraNextLink href={`/wearers/${wearer.id}`}>
+        <Flex
+          alignItems='center'
+          gap={2}
+          backgroundColor={
+            isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
+          }
+        >
+          {icon}
 
-        <Text>
-          {_.get(wearer, 'ensName') ||
-            moduleName ||
-            formatAddress(_.get(wearer, 'id'))}
-        </Text>
-      </Flex>
+          <Text>
+            {_.get(wearer, 'ensName') ||
+              moduleName ||
+              formatAddress(_.get(wearer, 'id'))}
+          </Text>
+        </Flex>
+      </ChakraNextLink>
       <Flex alignItems='center' gap={2}>
         {(!isEligible || !isEligibleRead) && (
           <Badge colorScheme='gray' fontSize='xs' variant='outline'>
             INELIGIBLE
           </Badge>
         )}
-        <ChakraNextLink href={`/wearers/${wearer.id}`}>
-          <Text color='blue.500'>View</Text>
-        </ChakraNextLink>
+
+        {/* TODO handle wearer is current user to renounce */}
+        <IconButton
+          icon={<Icon as={CopyHash} boxSize={4} color='blackAlpha.500' />}
+          p={0}
+          size='xs'
+          variant='ghost'
+          aria-label='Copy wearer address'
+          onClick={copyAddress}
+        />
+
         {!isMobile && (
           <Menu isLazy>
             <MenuButton
@@ -224,14 +244,7 @@ const WearerRow = ({
                 </TooltipWrapper>
               </MenuItem>
 
-              <MenuItem
-                onClick={() => {
-                  onCopy();
-                  toast.info({
-                    title: 'Successfully copied address to clipboard',
-                  });
-                }}
-              >
+              <MenuItem onClick={copyAddress}>
                 <Text>Copy Address</Text>
               </MenuItem>
             </MenuList>

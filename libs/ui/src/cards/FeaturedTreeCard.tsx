@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import { ChakraNextLink } from '../atoms';
+import { HatIcon } from '../icons';
 
 const FeaturedTreeCard = ({
   treeData,
@@ -78,11 +79,11 @@ const FeaturedTreeCard = ({
 
             <Stack align='flex-end' spacing='0.2rem'>
               <HStack spacing='5px'>
-                <ChakraImage src='/icons/hat.svg' alt='Hat' w={3} h={3} />
+                <Icon as={HatIcon} boxSize={3} />
                 <Text size='xs'>{hatsAndWearers?.hats}</Text>
               </HStack>
               <HStack spacing='5px'>
-                <Icon as={BsPeopleFill} w={3} h={3} />
+                <Icon as={BsPeopleFill} boxSize={3} />
                 <Text size='xs'>{hatsAndWearers?.wearers}</Text>
               </HStack>
             </Stack>

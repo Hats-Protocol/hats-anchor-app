@@ -1,4 +1,4 @@
-import { Flex, Icon, Image, Text } from '@chakra-ui/react';
+import { Flex, Icon, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
@@ -6,6 +6,7 @@ import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
+import { HatIcon } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -21,7 +22,7 @@ const WearerRow = ({ wearer }: WearerRowProps) => {
 
   let icon = <Icon as={FaUser} color='gray.500' />;
   if (isSameAddress(wearer.id, address)) {
-    icon = <Image src='/icons/hat.svg' alt='Hat' />;
+    icon = <Icon as={HatIcon} color='gray.500' />;
   } else if (wearer.isContract) {
     icon = <Icon as={BsFileCode} color='gray.500' />;
   }

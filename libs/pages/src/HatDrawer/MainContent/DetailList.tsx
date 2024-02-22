@@ -61,7 +61,7 @@ const DetailList = ({
     title === 'Eligibility Criteria' || title === 'Toggle Criteria';
 
   const renderDetails = () => (
-    <Stack px={{ base: 4, md: 10 }}>
+    <Stack px={{ base: 4, md: 0 }}>
       {!toggleOrEligibility && (
         <Heading
           size={toggleOrEligibility ? 'xs' : 'sm'}
@@ -78,10 +78,10 @@ const DetailList = ({
               <Flex justifyContent='space-between'>
                 {link && validateURL(link) ? (
                   <ChakraNextLink isExternal href={link}>
-                    <Text>{label}</Text>
+                    <Text size='sm'>{label}</Text>
                   </ChakraNextLink>
                 ) : (
-                  <Text>{label}</Text>
+                  <Text size='sm'>{label}</Text>
                 )}
                 {link && validateURL(link) && (
                   <ChakraNextLink isExternal href={link} display='block'>

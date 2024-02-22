@@ -193,8 +193,10 @@ const WearersList = () => {
         <Flex justify='space-between' alignItems='center'>
           <HStack spacing={1}>
             <Heading size='sm'>{_.get(selectedHat, 'currentSupply')}</Heading>
-
-            <Heading size='sm'>Wearers of this Hat</Heading>
+            <Heading size='sm'>
+              Wearer{_.toNumber(_.get(selectedHat, 'currentSupply')) > 1 && 's'}{' '}
+              of this Hat
+            </Heading>
             <Tooltip
               label={maxSupply && commify(maxSupply)}
               placement='left'
@@ -217,6 +219,7 @@ const WearersList = () => {
               placeholder='Find by address (0x) or ens (.eth)'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              size={{ base: 'sm', md: 'md' }}
             />
           </InputGroup>
         )}

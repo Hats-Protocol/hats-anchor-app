@@ -28,7 +28,8 @@ const useManyHatsDetailsField = ({
   const filteredDetails = _.reject(
     onlyOnchainHats,
     (hat: AppHat) =>
-      !_.startsWith(_.get(hat, 'details'), 'ipfs://') && hat?.details !== '',
+      !_.startsWith(_.get(hat, 'details'), 'ipfs://') ||
+      _.get(hat, 'details') === '',
   );
 
   const detailsFields = useQueries({

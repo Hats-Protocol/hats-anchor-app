@@ -3,7 +3,6 @@ import {
   Flex,
   HStack,
   Icon,
-  IconButton,
   Image,
   Text,
   Tooltip,
@@ -14,7 +13,6 @@ import { Authority } from 'hats-types';
 import { useSafeDetails } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
   authorityImageHandler,
   getHostnameFromURL,
@@ -23,6 +21,21 @@ import {
 } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
+import { BoxArrowUpRightOut, HatIcon } from '../icons';
+
+const hostnameLabels = {
+  'charmverse.io': 'Charmverse',
+  'telegram.me': 'Telegram',
+  'deform.cc': 'Deform',
+};
+
+const getHostnameLabel = (hostname: string) => {
+  const hostnameLabel = _.find(_.keys(hostnameLabels), (k: string) =>
+    hostname.includes(k),
+  );
+  if (hostnameLabel) return hostnameLabels[hostnameLabel];
+  return undefined;
+};
 
 const AuthorityHeader = ({
   authority,
@@ -90,23 +103,27 @@ const AuthorityHeader = ({
     return `${currentSigners}/${currentSigners}`;
   }, [hsgConfig, eligibleSigners, authority?.label]);
 
+  // TODO was {Key} the right icon here?
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
-      <HStack spacing={3}>
-        <Image
-          src={
-            isIpfs
-              ? ipfsUrl(imageUrl?.slice(7)) || ''
-              : imageUrl ||
-                authorityEnforcement.imageUri ||
-                '/icons/authority.svg'
-          }
-          boxSize='24px'
-          border='1px solid'
-          borderColor='blackAlpha.300'
-          borderRadius='full'
-          alt='authority image'
-        />
+      <HStack spacing={4}>
+        {imageUrl || authorityEnforcement.imageUri ? (
+          <Image
+            src={
+              isIpfs
+                ? ipfsUrl(imageUrl?.slice(7)) || ''
+                : imageUrl || authorityEnforcement.imageUri
+            }
+            boxSize='24px'
+            border='1px solid'
+            borderColor='blackAlpha.300'
+            borderRadius='full'
+            alt='authority image'
+          />
+        ) : (
+          <Icon as={HatIcon} boxSize={4} color='blackAlpha.700' />
+        )}
+
         <Box textAlign='left'>
           <HStack>
             <Text
@@ -128,13 +145,12 @@ const AuthorityHeader = ({
       {localLink && validateURL(localLink) && (
         <ChakraNextLink isExternal href={localLink} display='block'>
           <Tooltip label={getHostnameFromURL(localLink)}>
-            <IconButton
-              icon={<Icon as={FaExternalLinkAlt} />}
-              aria-label='Authority Link'
-              colorScheme='blue'
-              size='sm'
-              variant='solid'
-            />
+            <HStack spacing={1}>
+              <Text size='sm'>
+                {getHostnameLabel(getHostnameFromURL(localLink))}
+              </Text>
+              <Icon as={BoxArrowUpRightOut} boxSize={3} />
+            </HStack>
           </Tooltip>
         </ChakraNextLink>
       )}

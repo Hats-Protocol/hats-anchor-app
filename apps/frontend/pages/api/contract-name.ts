@@ -1,8 +1,13 @@
-import { ETHERSCAN_API_URLS, ETHERSCAN_KEYS } from '@hatsprotocol/constants';
+import {
+  ETHERSCAN_API_URLS,
+  ETHERSCAN_KEYS,
+  FALLBACK_ADDRESS,
+} from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { Hex } from 'viem';
 
-const etherscanUrl = (chainId, address) => {
+const etherscanUrl = (chainId: number, address: Hex) => {
   return `${_.get(
     ETHERSCAN_API_URLS,
     chainId,
@@ -12,9 +17,12 @@ const etherscanUrl = (chainId, address) => {
   )}`;
 };
 
-const fetchContractData = async (chainId: string, address: string) =>
+const fetchContractData = async (chainId: number, address: Hex) =>
   fetch(etherscanUrl(chainId, address))
-    .then((result) => result.json())
+    .then((result) => {
+      if (!result) return undefined;
+      return result.json();
+    })
     .catch((error) => {
       throw new Error(error);
     });
@@ -35,8 +43,17 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).json({ error: 'Chain not supported' });
   }
 
+  if (_.toLower(address) === FALLBACK_ADDRESS) {
+    return res.status(201).json({ ContractName: 'Fallback Zero' });
+  }
+
   try {
     const data = await fetchContractData(chainId, address);
+    // eslint-disable-next-line no-console
+    console.log(
+      address,
+      _.omit(_.get(data, 'result[0]'), ['abi', 'sourceCode']),
+    );
 
     // force error if not verified
     if (_.get(data, 'result[0].ABI') === 'Contract source code not verified') {

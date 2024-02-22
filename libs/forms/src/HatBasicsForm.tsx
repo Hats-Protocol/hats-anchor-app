@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  Icon,
-  Image,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useTreeForm } from 'contexts';
 import { ImageFile } from 'hats-types';
@@ -22,6 +14,7 @@ import { GrEdit } from 'react-icons/gr';
 import {
   DropZone,
   FormRowWrapper,
+  HatIcon,
   Input,
   PlatformInput,
   RadioBox,
@@ -125,7 +118,7 @@ const HatBasicsForm = () => {
             </Stack>
           </FormRowWrapper>
           <FormRowWrapper>
-            <Image src='/icons/hat.svg' alt='Hat' boxSize={4} mt='2px' />
+            <Icon as={HatIcon} alt='Hat' boxSize={4} mt='2px' />
             <Input
               localForm={localForm}
               name='name'

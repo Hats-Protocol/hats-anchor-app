@@ -260,11 +260,10 @@ const OrgChartComponent: React.FC = () => {
             const wearer: HatWearer | undefined = _.first(wearers);
             let wearerContent = 'No Wearers';
             let wearerAccent: string = `0 of ${maxSupplyText(maxSupply)}`;
-            let wearerIcon: string = `<img src="/icons/wearers.svg" alt="wearer" />`;
+            let wearerIcon: string = `<img src="/icons/wearer.svg" alt="wearer" />`;
 
             if (_.toNumber(currentSupply) > 1) {
               wearersColor = '#FFFFF0';
-              wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
               wearerContent = `${currentSupply} Wallets`;
               wearerAccent = `out of ${maxSupplyText(maxSupply)}`;
             }
@@ -281,7 +280,6 @@ const OrgChartComponent: React.FC = () => {
                 wearersColor = '#F0FFF4';
                 wearerIcon = `<img src="/icons/contract.svg" alt="wearer contract">`;
               } else {
-                wearerIcon = `<img src="/icons/wearers.svg" alt="wearer" />`;
                 wearersColor = '#FFFAF0';
               }
             }
@@ -602,7 +600,7 @@ const OrgChartComponent: React.FC = () => {
                     </div>
                     ${
                       isInWearerHats
-                        ? `<img src='/icons/wearer.svg'
+                        ? `<img src='/icons/hat.svg'
                             style="
                               width: 16px;
                               height: 12px;

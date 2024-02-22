@@ -1,3 +1,4 @@
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { ContractData, SupportedChains } from 'hats-types';
 import { Hex } from 'viem';
@@ -43,7 +44,7 @@ const useContractData = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['contractData', chainId, address],
     queryFn: () => fetchContractData(chainId, address),
-    enabled: !!chainId && !!address && enabled,
+    enabled: !!chainId && !!address && enabled && address !== FALLBACK_ADDRESS,
     staleTime: editMode ? Infinity : 1000 * 60 * 60 * 24, // 24 hours
   });
 

@@ -7,6 +7,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 
 import { Markdown } from '../atoms';
 import ResponsibilityHeader from './ResponsibilityHeader';
@@ -17,6 +18,7 @@ const ResponsibilitiesListCard = ({
   responsibility?: Authority;
 }) => {
   const { label, description, link, imageUrl } = responsibility || {};
+  const { isMobile } = useMediaStyles();
 
   return (
     <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
@@ -36,7 +38,7 @@ const ResponsibilitiesListCard = ({
                 isExpanded={isExpanded}
               />
             </Box>
-            <AccordionIcon ml={2} />
+            {isMobile && <AccordionIcon ml={2} />}
           </AccordionButton>
           <AccordionPanel px={4}>
             <Flex>

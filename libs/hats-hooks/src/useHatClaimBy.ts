@@ -1,8 +1,8 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useToast } from 'hooks';
 import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { createHatsModulesClient } from 'utils';

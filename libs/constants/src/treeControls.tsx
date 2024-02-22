@@ -12,38 +12,38 @@ export const initialControls: Controls[] = [
   {
     label: 'Title Only',
     value: 'title',
-    icon: <Icon as={BsFileFont} w={4} h={4} color='gray.500' />,
+    icon: <Icon as={BsFileFont} boxSize={4} color='gray.500' />,
   },
   // {
   //   label: 'Stats',
   //   value: 'stats',
-  //   icon: <Image src='/icons/stats' alt='Stats Icon' />,
+  //   icon: <Icon as={Stats} boxSize={4} color='gray.500' />,
   // },
   {
     label: 'Wearers',
     value: 'wearers',
-    icon: <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />,
+    icon: <Icon as={BsPersonBadge} boxSize={4} color='gray.500' />,
   },
   // {
   //   label: 'Permissions',
   //   value: 'permissions',
-  //   icon: <Image src='/icons/permissions.svg' alt='Permissions Icon' />,
+  //   icon: <Icon as={Key} boxSize={4} color='gray.500' />,
   // },
   // {
   //   label: 'Responsibilities',
   //   value: 'responsibilities',
   //   icon: (
-  //     <Image src='/icons/responsibilities.svg' alt='Responsibilities Icon' />
+  //     <Icon as={TaskList} boxSize={4} color='gray.500' />
   //   ),
   // },
   {
     label: 'Eligibility',
     value: 'eligibility',
-    icon: <Icon as={BsShieldLock} w={4} h={4} color='gray.500' />,
+    icon: <Icon as={BsShieldLock} boxSize={4} color='gray.500' />,
   },
   {
     label: 'Toggle',
     value: 'toggle',
-    icon: <Icon as={BsToggles2} w={4} h={4} color='gray.500' />,
+    icon: <Icon as={BsToggles2} boxSize={4} color='gray.500' />,
   },
 ];

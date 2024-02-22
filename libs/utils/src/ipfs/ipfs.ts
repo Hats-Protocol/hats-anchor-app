@@ -144,8 +144,15 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!url) return null;
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
-  const res = await axios.get(url, { timeout: 5000 });
-  return Promise.resolve({ details: detailsField, data: _.get(res, 'data') });
+  return (
+    axios
+      .get(url, { timeout: 5000 })
+      .then((res) =>
+        Promise.resolve({ details: detailsField, data: _.get(res, 'data') }),
+      )
+      // eslint-disable-next-line no-console
+      .catch((err) => console.log(err))
+  );
 };
 
 export const fetchToken = async (count: number = 0) => {

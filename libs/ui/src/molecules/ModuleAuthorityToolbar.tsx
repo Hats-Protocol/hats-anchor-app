@@ -32,12 +32,12 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
-import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
+import { FiPlusSquare } from 'react-icons/fi';
 import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ModuleArgsForm } from '../forms';
-import { ChakraNextLink, Modal } from '../index';
+import { BoxArrowUpRightOut, ChakraNextLink, Modal } from '../index';
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -263,7 +263,7 @@ const ModuleAuthorityToolbar = ({
             <Button
               colorScheme='blue.500'
               size='sm'
-              rightIcon={<Icon as={FiExternalLink} />}
+              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
               variant='outline'
               color='blue.500'
             >
@@ -281,7 +281,7 @@ const ModuleAuthorityToolbar = ({
             <Button
               colorScheme='blue.500'
               size='sm'
-              rightIcon={<Icon as={FiExternalLink} />}
+              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
               variant='outline'
               color='blue.500'
             >
@@ -294,7 +294,7 @@ const ModuleAuthorityToolbar = ({
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
               <HStack>
                 <Text>Go to Safe</Text>
-                <Icon as={FaExternalLinkAlt} boxSize={3} />
+                <Icon as={BoxArrowUpRightOut} boxSize={3} />
               </HStack>
             </Button>
           </ChakraNextLink>

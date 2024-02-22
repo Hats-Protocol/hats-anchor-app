@@ -21,6 +21,7 @@ import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
+import { WearerIcon } from '../icons';
 import TransactionHistory from './TransactionHistory';
 
 const OblongAvatar = ({
@@ -107,7 +108,7 @@ const WalletProfile = ({
         <ChakraNextLink href={`/wearers/${address}`} w='full'>
           <Button w='100%' variant='outline'>
             <HStack>
-              <Image src='/icons/wearers.svg' />
+              <Icon as={WearerIcon} color='blackAlpha.700' />
               <Text>Profile</Text>
             </HStack>
           </Button>

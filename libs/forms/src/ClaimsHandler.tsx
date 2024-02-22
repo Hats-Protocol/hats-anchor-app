@@ -10,13 +10,13 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { usePendHatterMint } from 'hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   useMultiClaimsHatterCheck,
   useMultiClaimsHatterContractWrite,
 } from 'hats-hooks';
 import { AppHat } from 'hats-types';
+import { usePendHatterMint } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';

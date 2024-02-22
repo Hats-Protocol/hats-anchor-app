@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   Flex,
-  Image,
+  Icon,
   Menu,
   MenuButton,
   MenuItem,
@@ -13,8 +13,11 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useHatClaimBy } from 'hats-hooks';
 import { useToast } from 'hooks';
+import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
+
+const HatIcon = dynamic(() => import('ui').then((mod) => mod.HatIcon));
 
 const BottomMenu = () => {
   const currentNetworkId = useChainId();
@@ -45,7 +48,7 @@ const BottomMenu = () => {
               !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
             }
             onClick={claimHat}
-            leftIcon={<Image src='/icons/hat.svg' alt='Hat' color='white' />}
+            leftIcon={<Icon as={HatIcon} color='white' />}
           >
             Claim Hat
           </Button>

@@ -8,7 +8,6 @@ import {
   HStack,
   Icon,
   IconButton,
-  Image,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -38,6 +37,7 @@ import { IoCloseCircleOutline } from 'react-icons/io5';
 import { chainsMap, explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
+import { History } from '../icons';
 import EventHistory from './EventHistory';
 
 const TreeMenu = ({
@@ -231,7 +231,7 @@ const TreeMenu = ({
                       <Text mr={2} variant='medium'>
                         {localLastTimestamp}
                       </Text>
-                      <Image src='/icons/ago.svg' alt='History icon' />
+                      <Icon as={History} boxSize={4} />
                     </Flex>
                   </PopoverTrigger>
                   <PopoverContent width='400px' mr={4}>

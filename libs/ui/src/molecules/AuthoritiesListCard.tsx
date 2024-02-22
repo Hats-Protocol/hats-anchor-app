@@ -5,6 +5,7 @@ import {
   AccordionPanel,
   Box,
   Button,
+  Flex,
   HStack,
   Icon,
   IconButton,
@@ -18,12 +19,14 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Authority, AuthorityType } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ChakraNextLink, Markdown } from '../atoms';
+import { BoxArrowUpRightOut } from '../icons';
 import AuthorityHeader from './AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
@@ -42,7 +45,9 @@ const AuthoritiesListCard = ({
   );
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
+  const { isMobile } = useMediaStyles();
 
+  // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
   let linkName = '';
   if (_.includes(discordHosts, linkHostName)) {
@@ -77,8 +82,12 @@ const AuthoritiesListCard = ({
     )}`;
   }
 
-  if (!gate && !description) return <AuthorityHeader authority={authority} />;
-  console.log(authority);
+  if (!gate && !description)
+    return (
+      <Flex py={2}>
+        <AuthorityHeader authority={authority} />
+      </Flex>
+    );
 
   return (
     <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
@@ -87,13 +96,23 @@ const AuthoritiesListCard = ({
           <AccordionButton
             borderBottom='1px solid'
             borderColor='transparent'
-            _hover={{ borderColor: 'blue.300', bg: 'white' }}
-            borderRadius={8}
+            _hover={{
+              borderColor: !isExpanded && 'blue.300',
+              bg: 'white',
+              borderRadius: !isExpanded && 8,
+            }}
+            bg={isExpanded ? 'white' : undefined}
+            borderTopRadius={isExpanded ? 8 : undefined}
           >
             <AuthorityHeader authority={authority} isExpanded={isExpanded} />
-            <AccordionIcon />
+            {isMobile && <AccordionIcon />}
           </AccordionButton>
-          <AccordionPanel px={4}>
+          <AccordionPanel
+            px={4}
+            pb={2}
+            bg={isExpanded ? 'white' : undefined}
+            borderBottomRadius={8}
+          >
             <Tooltip
               label={tooltipInfo}
               placement='right'
@@ -116,16 +135,17 @@ const AuthoritiesListCard = ({
                   <ChakraNextLink isExternal href={link} display='block'>
                     {linkName || linkHostName ? (
                       <Button
-                        rightIcon={<Icon as={FaExternalLinkAlt} />}
+                        rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
                         colorScheme='blue'
                         size='sm'
+                        fontWeight='normal'
                         variant='solid'
                       >
                         {linkName || linkHostName}
                       </Button>
                     ) : (
                       <IconButton
-                        icon={<Icon as={FaExternalLinkAlt} />}
+                        icon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
                         colorScheme='blue'
                         aria-label='Authority Link'
                         size='sm'
@@ -151,9 +171,6 @@ const AuthoritiesListCard = ({
             )}
             {description && (
               <Box pt={link || gate ? 2 : 0}>
-                <Text size='sm' variant='medium'>
-                  Details
-                </Text>
                 <Markdown smallFont>{description}</Markdown>
               </Box>
             )}
