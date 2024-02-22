@@ -63,7 +63,6 @@ const AuthoritiesListCard = ({
   const authorityEnforcement = type
     ? AUTHORITY_ENFORCEMENT[type]
     : AUTHORITY_ENFORCEMENT.manual;
-  console.log('authorityEnforcement', authorityEnforcement);
 
   // set tooltip info
   let tooltipInfo = authorityEnforcement.info;
@@ -82,80 +81,84 @@ const AuthoritiesListCard = ({
 
   return (
     <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
-      <AccordionButton
-        borderBottom='1px solid'
-        borderColor='transparent'
-        _hover={{ borderColor: 'blue.300', bg: 'white' }}
-        borderRadius={8}
-      >
-        <AuthorityHeader authority={authority} />
-        <AccordionIcon />
-      </AccordionButton>
-      <AccordionPanel px={4}>
-        <Tooltip
-          label={tooltipInfo}
-          placement='right'
-          hasArrow
-          shouldWrapChildren
-        >
-          <HStack pb={2}>
-            {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
-            <Image src={authorityEnforcement.icon} alt='Hat' w={5} />
-            <Text size='sm'>{authorityEnforcement.label}</Text>
-            <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
-          </HStack>
-        </Tooltip>
+      {({ isExpanded }) => (
+        <>
+          <AccordionButton
+            borderBottom='1px solid'
+            borderColor='transparent'
+            _hover={{ borderColor: 'blue.300', bg: 'white' }}
+            borderRadius={8}
+          >
+            <AuthorityHeader authority={authority} isExpanded={isExpanded} />
+            <AccordionIcon />
+          </AccordionButton>
+          <AccordionPanel px={4}>
+            <Tooltip
+              label={tooltipInfo}
+              placement='right'
+              hasArrow
+              shouldWrapChildren
+            >
+              <HStack pb={2}>
+                {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
+                <Image src={authorityEnforcement.icon} alt='Hat' w={5} />
+                <Text size='sm'>{authorityEnforcement.label}</Text>
+                <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
+              </HStack>
+            </Tooltip>
 
-        {displayModulesToolbar ? (
-          <ModuleAuthorityToolbar authority={authority} index={index} />
-        ) : (
-          <HStack>
-            {link && validateURL(link) && (
-              <ChakraNextLink isExternal href={link} display='block'>
-                {linkName || linkHostName ? (
-                  <Button
-                    rightIcon={<Icon as={FaExternalLinkAlt} />}
-                    colorScheme='blue'
-                    size='sm'
-                    variant='solid'
-                  >
-                    {linkName || linkHostName}
-                  </Button>
-                ) : (
-                  <IconButton
-                    icon={<Icon as={FaExternalLinkAlt} />}
-                    colorScheme='blue'
-                    aria-label='Authority Link'
-                    size='sm'
-                    variant='solid'
-                  />
+            {displayModulesToolbar ? (
+              <ModuleAuthorityToolbar authority={authority} index={index} />
+            ) : (
+              <HStack>
+                {link && validateURL(link) && (
+                  <ChakraNextLink isExternal href={link} display='block'>
+                    {linkName || linkHostName ? (
+                      <Button
+                        rightIcon={<Icon as={FaExternalLinkAlt} />}
+                        colorScheme='blue'
+                        size='sm'
+                        variant='solid'
+                      >
+                        {linkName || linkHostName}
+                      </Button>
+                    ) : (
+                      <IconButton
+                        icon={<Icon as={FaExternalLinkAlt} />}
+                        colorScheme='blue'
+                        aria-label='Authority Link'
+                        size='sm'
+                        variant='solid'
+                      />
+                    )}
+                  </ChakraNextLink>
                 )}
-              </ChakraNextLink>
+                {gate && validateURL(gate) && (
+                  <ChakraNextLink isExternal href={gate} display='block'>
+                    <Button
+                      rightIcon={<Icon as={FaExternalLinkAlt} />}
+                      color='blue.500'
+                      borderColor='blue.500'
+                      variant='outlineMatch'
+                      size='sm'
+                    >
+                      {gateHostName}
+                    </Button>
+                  </ChakraNextLink>
+                )}
+              </HStack>
             )}
-            {gate && validateURL(gate) && (
-              <ChakraNextLink isExternal href={gate} display='block'>
-                <Button
-                  rightIcon={<Icon as={FaExternalLinkAlt} />}
-                  color='blue.500'
-                  borderColor='blue.500'
-                  variant='outlineMatch'
-                  size='sm'
-                >
-                  {gateHostName}
-                </Button>
-              </ChakraNextLink>
+            {description && (
+              <Box pt={link || gate ? 2 : 0}>
+                <Text size='sm' variant='medium'>
+                  Details
+                </Text>
+                <Markdown smallFont>{description}</Markdown>
+              </Box>
             )}
-          </HStack>
-        )}
-        {description && (
-          <Box pt={link || gate ? 2 : 0}>
-            <Text size='sm' variant='medium'>
-              Details
-            </Text>
-            <Markdown smallFont>{description}</Markdown>
-          </Box>
-        )}
-      </AccordionPanel>
+          </AccordionPanel>
+        </>
+      )}
     </AccordionItem>
   );
 };

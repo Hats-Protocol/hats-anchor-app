@@ -18,11 +18,13 @@ const ResponsibilityHeader = ({
   imageUrl,
   link,
   editingItem,
+  isExpanded,
 }: {
   label?: string;
   imageUrl?: string;
   link?: string;
   editingItem?: Authority;
+  isExpanded?: boolean;
 }) => {
   const localImageUrl = editingItem ? editingItem.imageUrl : imageUrl;
   const isIpfs = localImageUrl?.startsWith('ipfs://');
@@ -54,7 +56,12 @@ const ResponsibilityHeader = ({
         </HStack>
       )}
       <Box flex={1} minW={0} w='full'>
-        <Text size='md' variant='normal' noOfLines={1} textAlign='left'>
+        <Text
+          size='md'
+          fontWeight={isExpanded ? 'medium' : 'normal'}
+          noOfLines={2}
+          textAlign='left'
+        >
           {currentLabel || label || 'New Responsibility'}
         </Text>
       </Box>

@@ -18,29 +18,33 @@ const ResponsibilitiesListCard = ({
 }) => {
   const { label, description, link, imageUrl } = responsibility || {};
 
-  if (!description) {
-    return (
-      <Box py={2}>
-        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-      </Box>
-    );
-  }
   return (
     <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
-      <AccordionButton
-        borderBottom='1px solid'
-        borderColor='transparent'
-        _hover={{ borderColor: 'blue.300', bg: 'white' }}
-        borderRadius={8}
-      >
-        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
-        <AccordionIcon ml={2} />
-      </AccordionButton>
-      <AccordionPanel px={4}>
-        <Flex>
-          {description && <Markdown smallFont>{description}</Markdown>}
-        </Flex>
-      </AccordionPanel>
+      {({ isExpanded }) => (
+        <>
+          <AccordionButton
+            borderBottom='1px solid'
+            borderColor='transparent'
+            _hover={{ borderColor: 'blue.300', bg: 'white' }}
+            borderRadius={8}
+          >
+            <Box flex='1' textAlign='left'>
+              <ResponsibilityHeader
+                label={label}
+                imageUrl={imageUrl}
+                link={link}
+                isExpanded={isExpanded}
+              />
+            </Box>
+            <AccordionIcon ml={2} />
+          </AccordionButton>
+          <AccordionPanel px={4}>
+            <Flex>
+              {description && <Markdown smallFont>{description}</Markdown>}
+            </Flex>
+          </AccordionPanel>
+        </>
+      )}
     </AccordionItem>
   );
 };

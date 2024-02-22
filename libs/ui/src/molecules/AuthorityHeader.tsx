@@ -24,7 +24,11 @@ import {
 
 import { ChakraNextLink } from '../atoms';
 
-const AuthorityHeader = ({ authority, editingItem }: AuthorityHeaderProps) => {
+const AuthorityHeader = ({
+  authority,
+  editingItem,
+  isExpanded,
+}: AuthorityHeaderProps) => {
   const { label, subLabel, link, type, hsgConfig, safe } = _.pick(authority, [
     'label',
     'subLabel',
@@ -105,7 +109,11 @@ const AuthorityHeader = ({ authority, editingItem }: AuthorityHeaderProps) => {
         />
         <Box textAlign='left'>
           <HStack>
-            <Text size='sm' fontWeight='normal' noOfLines={2}>
+            <Text
+              size='sm'
+              fontWeight={isExpanded ? 'medium' : 'normal'}
+              noOfLines={2}
+            >
               {currentLabel || label || 'New Authority'}
               {currentThresholdConfig && ` (${currentThresholdConfig} signers)`}
             </Text>
@@ -137,6 +145,7 @@ const AuthorityHeader = ({ authority, editingItem }: AuthorityHeaderProps) => {
 interface AuthorityHeaderProps {
   authority: Authority | undefined;
   editingItem?: Authority;
+  isExpanded?: boolean;
 }
 
 export default AuthorityHeader;
