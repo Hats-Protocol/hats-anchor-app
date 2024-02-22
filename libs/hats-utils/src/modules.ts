@@ -448,7 +448,7 @@ export const populateHatsAccountsAuthorities = ({
   hatId: Hex;
   predictedAddress?: Hex | null;
   deployFn: () => void;
-  toast: any;
+  toast: any; // ToastProps; // TODO is circular?
 }) => {
   const undeployedWalletAuth = {
     label: `Control 1/N HatsAccount (${formatAddress(predictedAddress)})`,

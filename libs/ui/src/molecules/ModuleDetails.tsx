@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { MODULE_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
+import { WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
 import {
   useCallModuleFunction,
@@ -25,6 +26,7 @@ import {
 } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
 import { isWearingAdminHat } from 'hats-utils';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -54,6 +56,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     useTreeForm();
   const currentChainId = useChainId();
   const { address: currentUser } = useAccount();
+  const { isMobile } = useMediaStyles();
 
   const sameChain = chainId === currentChainId;
   const controllerAddress = useMemo(
@@ -82,6 +85,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
     _.includes(fn.roles, 'public'),
   );
+  const sortedModuleActions = _.sortBy(moduleActions, (a) => _.size(a.label));
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({
@@ -169,7 +173,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   if (!moduleDetails || !chainId) return null;
 
   return (
-    <Accordion allowMultiple px={{ base: 4, md: 10 }}>
+    <Accordion px={{ base: 4, md: 10 }} allowMultiple>
       {!_.isEmpty(moduleActions) && (
         <>
           <Modal
@@ -222,12 +226,12 @@ const ModuleDetails = ({ type }: { type: string }) => {
             </AccordionButton>
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
-                {_.map(moduleActions, (action) => (
+                {_.map(sortedModuleActions, (action: WriteFunction) => (
                   <Tooltip label={action.description} key={action.label}>
                     <Button
                       variant='outlineMatch'
                       colorScheme='blue.500'
-                      size='sm'
+                      size={{ base: 'xs', md: 'sm' }}
                       onClick={() => handleFunctionCall(action)}
                     >
                       {action.label}
@@ -255,7 +259,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 {detail}
               </Text>
             ))}
-            {type === MODULE_TYPES.eligibility && (
+            {type === MODULE_TYPES.eligibility && !isMobile && (
               <Flex justify='space-between'>
                 <Text size='sm'>Claimability Type</Text>
 

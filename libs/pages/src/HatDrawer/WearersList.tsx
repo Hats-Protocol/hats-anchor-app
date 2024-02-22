@@ -191,25 +191,20 @@ const WearersList = () => {
     <>
       <Stack spacing={4} px={{ base: 4, md: 10 }}>
         <Flex justify='space-between' alignItems='center'>
-          <Heading size='sm' variant='medium' textTransform='uppercase'>
-            Hat Wearers
-          </Heading>
+          <HStack spacing={1}>
+            <Heading size='sm'>{_.get(selectedHat, 'currentSupply')}</Heading>
 
-          <Flex gap={1}>
-            <Text>{_.get(selectedHat, 'currentSupply')}</Text>
-            <HStack spacing={1}>
-              <Text variant='light'>of</Text>
-              <Tooltip
-                label={maxSupply && commify(maxSupply)}
-                placement='left'
-                hasArrow
-              >
-                <Text fontFamily='monospace' color='blackAlpha.700'>
-                  {maxSupplyText(maxSupply)}
-                </Text>
-              </Tooltip>
-            </HStack>
-          </Flex>
+            <Heading size='sm'>Wearers of this Hat</Heading>
+            <Tooltip
+              label={maxSupply && commify(maxSupply)}
+              placement='left'
+              hasArrow
+            >
+              <Text size='sm' color='blackAlpha.500'>
+                of {maxSupplyText(maxSupply)} max
+              </Text>
+            </Tooltip>
+          </HStack>
         </Flex>
 
         {_.gt(_.size(extendedWearers), 5) && (
@@ -248,54 +243,24 @@ const WearersList = () => {
           </Box>
         )}
 
-        {!isMobile && (
-          <Flex justify='space-between' align='center'>
-            {_.gt(_.size(extendedWearers), 6) && (
-              <Text
-                onClick={() => setModals?.({ hatWearers: true })}
-                cursor='pointer'
-                _hover={{
-                  textDecor: 'underline',
-                }}
-              >
-                Show all {_.get(selectedHat, 'currentSupply')} wearers
-              </Text>
-            )}
-            {currentHatIsClaimable?.for && address && (
-              <Tooltip
-                label={claimTooltip({
-                  claimFor: true,
-                  sameChain: chainId === currentNetworkId,
-                  hatterIsAdmin,
-                })}
-                fontSize='md'
-                shouldWrapChildren
-              >
-                <Button
-                  variant='unstyled'
-                  isDisabled={
-                    maxWearersReached ||
-                    !hatterIsAdmin ||
-                    chainId !== currentNetworkId
-                  }
-                  isLoading={isLoading}
-                  onClick={() =>
-                    !maxWearersReached ? setModals?.({ claimFor: true }) : {}
-                  }
-                >
-                  <HStack color='blue.500'>
-                    <FaPlus />
-                    <Text>Claim hat for wearer</Text>
-                  </HStack>
-                </Button>
-              </Tooltip>
-            )}
-            {(currentUserIsEligible as boolean) &&
-              !!isClaimable &&
-              !currentUserIsWearing && (
+        <Flex justify='space-between' align='center'>
+          {_.gt(_.size(extendedWearers), 6) && (
+            <Text
+              onClick={() => setModals?.({ hatWearers: true })}
+              cursor='pointer'
+              _hover={{
+                textDecor: 'underline',
+              }}
+            >
+              Show all {_.get(selectedHat, 'currentSupply')} wearers
+            </Text>
+          )}
+          {!isMobile && (
+            <>
+              {currentHatIsClaimable?.for && address && (
                 <Tooltip
                   label={claimTooltip({
-                    claimFor: false,
+                    claimFor: true,
                     sameChain: chainId === currentNetworkId,
                     hatterIsAdmin,
                   })}
@@ -305,49 +270,85 @@ const WearersList = () => {
                   <Button
                     variant='unstyled'
                     isDisabled={
-                      !claimHat ||
                       maxWearersReached ||
                       !hatterIsAdmin ||
                       chainId !== currentNetworkId
                     }
-                    onClick={claimHat}
+                    isLoading={isLoading}
+                    onClick={() =>
+                      !maxWearersReached ? setModals?.({ claimFor: true }) : {}
+                    }
                   >
                     <HStack color='blue.500'>
                       <FaPlus />
-                      <Text>Claim Hat</Text>
+                      <Text>Claim hat for wearer</Text>
                     </HStack>
                   </Button>
                 </Tooltip>
               )}
-            {isAdminUser && (
-              <Tooltip
-                label={addWearerTooltip(
-                  chainId === currentNetworkId,
-                  maxWearersReached,
-                )}
-                fontSize='md'
-                isDisabled={!maxWearersReached && chainId === currentNetworkId}
-                shouldWrapChildren
-              >
-                <Button
-                  variant='unstyled'
-                  isDisabled={maxWearersReached || chainId !== currentNetworkId}
-                  onClick={() =>
-                    !maxWearersReached ? setModals?.({ newWearer: true }) : {}
-                  }
-                >
-                  <HStack
-                    cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-                    color={maxWearersReached ? 'gray.500' : 'blue.500'}
+              {(currentUserIsEligible as boolean) &&
+                !!isClaimable &&
+                !currentUserIsWearing && (
+                  <Tooltip
+                    label={claimTooltip({
+                      claimFor: false,
+                      sameChain: chainId === currentNetworkId,
+                      hatterIsAdmin,
+                    })}
+                    fontSize='md'
+                    shouldWrapChildren
                   >
-                    <FaPlus />
-                    <Text>Add a wearer</Text>
-                  </HStack>
-                </Button>
-              </Tooltip>
-            )}
-          </Flex>
-        )}
+                    <Button
+                      variant='unstyled'
+                      isDisabled={
+                        !claimHat ||
+                        maxWearersReached ||
+                        !hatterIsAdmin ||
+                        chainId !== currentNetworkId
+                      }
+                      onClick={claimHat}
+                    >
+                      <HStack color='blue.500'>
+                        <FaPlus />
+                        <Text>Claim Hat</Text>
+                      </HStack>
+                    </Button>
+                  </Tooltip>
+                )}
+              {isAdminUser && (
+                <Tooltip
+                  label={addWearerTooltip(
+                    chainId === currentNetworkId,
+                    maxWearersReached,
+                  )}
+                  fontSize='md'
+                  isDisabled={
+                    !maxWearersReached && chainId === currentNetworkId
+                  }
+                  shouldWrapChildren
+                >
+                  <Button
+                    variant='unstyled'
+                    isDisabled={
+                      maxWearersReached || chainId !== currentNetworkId
+                    }
+                    onClick={() =>
+                      !maxWearersReached ? setModals?.({ newWearer: true }) : {}
+                    }
+                  >
+                    <HStack
+                      cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
+                      color={maxWearersReached ? 'gray.500' : 'blue.500'}
+                    >
+                      <FaPlus />
+                      <Text>Add a wearer</Text>
+                    </HStack>
+                  </Button>
+                </Tooltip>
+              )}
+            </>
+          )}
+        </Flex>
       </Stack>
 
       {!isMobile && (

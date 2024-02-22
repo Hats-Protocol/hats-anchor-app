@@ -113,9 +113,7 @@ const MainContent = () => {
       <LinkRequests />
 
       <Stack spacing={1} px={{ base: 4, md: 10 }}>
-        <Heading size='sm' variant='medium' textTransform='uppercase'>
-          Event history
-        </Heading>
+        <Heading size='sm'>Hat History</Heading>
         <EventHistory type='hat' />
       </Stack>
     </Stack>

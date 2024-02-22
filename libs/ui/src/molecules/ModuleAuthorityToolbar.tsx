@@ -17,6 +17,7 @@ import {
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
+import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
@@ -29,6 +30,7 @@ import { formHatUrl, safeUrl } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiExternalLink, FiPlusSquare } from 'react-icons/fi';
 import { explorerUrl, getHostnameFromURL } from 'utils';
@@ -63,15 +65,14 @@ const ModuleAuthorityToolbar = ({
     [selectedHat, address],
   );
   const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
-  console.log('authority', authority);
 
   const otherFunctions = _.filter(
     _.get(authority, 'functions', []),
-    (func: any) => !func.primary,
+    (func: WriteFunction) => !func.primary,
   );
 
   const otherLinks = useMemo(() => {
-    const links: any[] = [];
+    const links: { link: string; label: string; icon?: IconType }[] = [];
     if (!authority) return links;
 
     if (authority.type === AUTHORITY_TYPES.hsg) {
@@ -196,11 +197,11 @@ const ModuleAuthorityToolbar = ({
     if (isOnWrongNetwork) {
       return 'You are on the wrong network';
     }
-    if (isCustom) {
-      return '';
-    }
     if (isNotWearer) {
       return 'You are not a wearer of the current hat';
+    }
+    if (isCustom) {
+      return ''; // TODO is there a better message we can show for this?
     }
     if (isClaimed) {
       return 'You are already a signer';

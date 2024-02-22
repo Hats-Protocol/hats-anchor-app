@@ -78,6 +78,7 @@ const AuthoritiesListCard = ({
   }
 
   if (!gate && !description) return <AuthorityHeader authority={authority} />;
+  console.log(authority);
 
   return (
     <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
