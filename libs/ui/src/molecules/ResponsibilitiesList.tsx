@@ -1,30 +1,34 @@
-import { Accordion, Heading, Stack, Text } from '@chakra-ui/react';
+import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { DetailsItem } from 'hats-types';
-import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
 const ResponsibilitiesList = () => {
   const { selectedHatDetails } = useTreeForm();
-  const { isMobile } = useMediaStyles();
 
   const responsibilities = _.get(selectedHatDetails, 'responsibilities');
 
   if (!responsibilities) return null;
 
+  if (_.isEmpty(responsibilities)) {
+    return (
+      <Flex px={{ base: 0, md: 10 }} py={4}>
+        <Heading size='sm' mx={{ base: 4, md: 0 }}>
+          No Responsibilities found for Wearers currently
+        </Heading>
+      </Flex>
+    );
+  }
+
   return (
-    <Accordion px={{ base: 4, md: 10 }} allowMultiple>
-      {isMobile ? (
-        <Heading size='sm' variant='medium'>
-          {responsibilities.length} Responsibilities expected of Hat Hearers
-        </Heading>
-      ) : (
-        <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-          Responsibilities
-        </Heading>
-      )}
+    <Accordion px={{ base: 0, md: 10 }} py={4} allowMultiple>
+      <Heading size='sm' mx={{ base: 4, md: 0 }}>
+        {_.size(responsibilities)}{' '}
+        {_.size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'}{' '}
+        expected of Hat Wearers
+      </Heading>
 
       <Stack mt={4} gap={4}>
         {_.map(responsibilities, (responsibility: DetailsItem) => (

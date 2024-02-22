@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { ANCILLARY_API_URL } from '@hatsprotocol/constants';
 import { gql, GraphQLClient } from 'graphql-request';
 import {
@@ -31,22 +30,21 @@ const MODULES_QUERY = gql`
         id
         hatId
       }
-      # TODO fix this
-      # hatsAccount1ofN {
-      #   id
-      #   accountOfHat {
-      #     id
-      #   }
-      #   operations {
-      #     id
-      #     hatsAccount
-      #     signer
-      #     to
-      #     value
-      #     callData
-      #     operationType
-      #   }
-      # }
+      hatsAccount1ofN {
+        id
+        accountOfHat {
+          id
+        }
+        operations {
+          id
+          hatsAccount
+          signer
+          to
+          value
+          callData
+          operationType
+        }
+      }
       hsgOwner {
         id
         type

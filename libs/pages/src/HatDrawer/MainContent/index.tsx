@@ -63,7 +63,7 @@ const MainContent = () => {
       pb={{ base: 100, md: 400 }}
       pos='relative'
       color='blackAlpha.800'
-      bg={{ base: 'white' }}
+      bg={{ base: 'gray.50' }}
     >
       <Header />
       <AuthoritiesList />
@@ -113,9 +113,7 @@ const MainContent = () => {
       <LinkRequests />
 
       <Stack spacing={1} px={{ base: 4, md: 10 }}>
-        <Heading size='sm' variant='medium' textTransform='uppercase'>
-          Event history
-        </Heading>
+        <Heading size='sm'>Hat History</Heading>
         <EventHistory type='hat' />
       </Stack>
     </Stack>

@@ -56,10 +56,15 @@ const Header = () => {
   if (!selectedHat) return null;
 
   return (
-    <Stack spacing={4} px={{ base: 4, md: 10 }}>
+    <Stack spacing={4} px={{ base: 4, md: 10 }} pb={4} bg='white'>
       <Flex align='start' justify='space-between'>
         <Stack w='full' spacing={1}>
-          <HStack spacing={4} minH='150px' align='end'>
+          <HStack
+            spacing={4}
+            minH={{ base: '150px', md: 'auto' }}
+            pt={{ md: '50px' }}
+            align='end'
+          >
             {isMobile && (
               <Box
                 boxSize='120px'

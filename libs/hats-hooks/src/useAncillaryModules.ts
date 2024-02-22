@@ -106,6 +106,7 @@ const useAncillaryModules = ({
     hatId: id as Hex,
   });
 
+  console.log(ancillaryModules?.hatAuthority.hatsAccount1ofN);
   const hatsAccounts1ofN = populateHatsAccountsAuthorities({
     details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
     hatId: id as Hex,

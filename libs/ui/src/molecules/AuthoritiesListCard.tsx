@@ -55,6 +55,7 @@ const AuthoritiesListCard = ({
     type === AUTHORITY_TYPES.wallet;
 
   if (!gate && !description) return <AuthorityHeader authority={authority} />;
+  console.log(authority);
 
   return (
     <AccordionItem border='none'>
