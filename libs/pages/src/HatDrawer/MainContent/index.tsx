@@ -63,7 +63,7 @@ const MainContent = () => {
       pb={{ base: 100, md: 400 }}
       pos='relative'
       color='blackAlpha.800'
-      bg={{ base: 'white' }}
+      bg='gray.50'
     >
       <Header />
       <AuthoritiesList />

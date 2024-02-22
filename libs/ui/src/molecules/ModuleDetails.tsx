@@ -15,7 +15,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { MODULE_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
-import { formatAddress } from 'utils';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
 import {
   useCallModuleFunction,
@@ -30,6 +29,7 @@ import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
@@ -169,7 +169,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   if (!moduleDetails || !chainId) return null;
 
   return (
-    <Accordion allowMultiple>
+    <Accordion allowMultiple px={{ base: 4, md: 10 }}>
       {!_.isEmpty(moduleActions) && (
         <>
           <Modal

@@ -18,7 +18,7 @@ const ResponsibilitiesList = () => {
         {responsibilities.length} Responsibilities expected of Hat Hearers
       </Heading>
 
-      <Stack mt={4}>
+      <Stack mt={4} spacing={2}>
         {_.map(responsibilities, (responsibility: DetailsItem) => (
           <ResponsibilitiesListCard
             key={responsibility.label}

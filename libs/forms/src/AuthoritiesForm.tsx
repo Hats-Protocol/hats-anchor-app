@@ -234,7 +234,6 @@ const AuthoritiesForm = ({
                       imageUrl,
                     }}
                     editingItem={item as Authority}
-                    hideInfo
                   />
                 </Card>
               </Flex>

@@ -5,14 +5,21 @@ import {
   AccordionPanel,
   Box,
   Button,
+  Circle,
   HStack,
   Icon,
   IconButton,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import {
+  AUTHORITY_ENFORCEMENT,
+  AUTHORITY_TYPES,
+} from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Authority, AuthorityType } from 'hats-types';
 import _ from 'lodash';
+import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, validateURL } from 'utils';
 
@@ -29,11 +36,10 @@ const AuthoritiesListCard = ({
   type: AuthorityType;
   index: number;
 }) => {
-  const { description, link, gate } = _.pick(authority, [
-    'description',
-    'link',
-    'gate',
-  ]);
+  const { label, description, link, gate, strategies, hatId } = _.pick(
+    authority,
+    ['label', 'description', 'link', 'gate', 'strategies', 'hatId'],
+  );
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
 
@@ -54,15 +60,50 @@ const AuthoritiesListCard = ({
     type === AUTHORITY_TYPES.hsg ||
     type === AUTHORITY_TYPES.wallet;
 
+  const authorityEnforcement = type
+    ? AUTHORITY_ENFORCEMENT[type]
+    : AUTHORITY_ENFORCEMENT.manual;
+
+  // set tooltip info
+  let tooltipInfo = authorityEnforcement.info;
+  if (strategies) {
+    tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
+      strategies,
+    )} ${_.size(strategies) === 1 ? 'strategy.' : 'strategies.'}`;
+  }
+  if (type === AUTHORITY_TYPES.modules && hatId) {
+    tooltipInfo = `Connected onchain via the ${label} module for Hat #${hatIdDecimalToIp(
+      BigInt(hatId),
+    )}`;
+  }
+
   if (!gate && !description) return <AuthorityHeader authority={authority} />;
 
   return (
-    <AccordionItem border='none'>
-      <AccordionButton _hover={{ bg: 'white' }} p={0}>
+    <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
+      <AccordionButton
+        borderBottom='1px solid'
+        borderColor='transparent'
+        _hover={{ borderColor: 'blue.300', bg: 'white' }}
+        borderRadius={8}
+      >
         <AuthorityHeader authority={authority} />
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel pb={4} px={0}>
+        <Tooltip
+          label={tooltipInfo}
+          placement='right'
+          hasArrow
+          shouldWrapChildren
+        >
+          <HStack mb={2}>
+            <Circle size='10px' bg={authorityEnforcement.color} />
+            <Text size='sm'>{authorityEnforcement.label}</Text>
+            <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
+          </HStack>
+        </Tooltip>
+
         {displayModulesToolbar ? (
           <ModuleAuthorityToolbar authority={authority} index={index} />
         ) : (
@@ -105,7 +146,7 @@ const AuthoritiesListCard = ({
           </HStack>
         )}
         {description && (
-          <Box pt={link || gate ? 4 : 0}>
+          <Box pt={link || gate ? 2 : 0}>
             <Text size='sm' variant='medium'>
               Details
             </Text>

@@ -23,8 +23,13 @@ const ResponsibilitiesListCard = ({
     );
   }
   return (
-    <AccordionItem border='none' mb={4} my={2}>
-      <AccordionButton _hover={{ bg: 'white' }} px={0}>
+    <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
+      <AccordionButton
+        borderBottom='1px solid'
+        borderColor='transparent'
+        _hover={{ borderColor: 'blue.300', bg: 'white' }}
+        borderRadius={8}
+      >
         <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
         <AccordionIcon ml={2} />
       </AccordionButton>

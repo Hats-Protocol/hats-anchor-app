@@ -59,7 +59,12 @@ const Header = () => {
     <Stack spacing={4} px={{ base: 4, md: 10 }}>
       <Flex align='start' justify='space-between'>
         <Stack w='full' spacing={1}>
-          <HStack spacing={4} minH='150px' align='end'>
+          <HStack
+            spacing={4}
+            minH={isMobile ? '150px' : 'auto'}
+            align='end'
+            pt={isMobile ? 0 : 8}
+          >
             {isMobile && (
               <Box
                 boxSize='120px'
