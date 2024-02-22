@@ -3,6 +3,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Box,
   Flex,
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
@@ -19,7 +20,9 @@ const ResponsibilitiesListCard = ({
 
   if (!description) {
     return (
-      <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
+      <Box py={2}>
+        <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
+      </Box>
     );
   }
   return (
@@ -33,7 +36,7 @@ const ResponsibilitiesListCard = ({
         <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} />
         <AccordionIcon ml={2} />
       </AccordionButton>
-      <AccordionPanel px={0}>
+      <AccordionPanel px={4}>
         <Flex>
           {description && <Markdown smallFont>{description}</Markdown>}
         </Flex>

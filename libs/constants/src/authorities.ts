@@ -16,6 +16,7 @@ export type AuthorityInfo = {
   color: string;
   name?: string;
   imageUri?: string;
+  icon: string;
 };
 
 export const AUTHORITY_ENFORCEMENT: {
@@ -26,40 +27,47 @@ export const AUTHORITY_ENFORCEMENT: {
     info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
     imageUri: '/icon.jpeg',
+    icon: '/icons/on-chain.svg',
   },
   modules: {
-    label: 'Hats Modules Authority',
+    label: 'Onchain Authority',
     info: 'Connected onchain via an eligibility or toggle module',
     color: 'green.300',
     name: 'Module',
+    icon: '/icons/on-chain.svg',
   },
   wallet: {
-    label: 'Connected Onchain Authority',
+    label: 'Hats Protocol Authority',
     info: '',
     color: 'green.300',
     name: 'HatsWallet',
+    icon: '/icons/on-chain.svg',
   },
   hsg: {
-    label: 'HatsSignerGate Authority',
+    label: 'Hats Protocol Authority',
     info: 'Connected onchain via HatsSignerGate',
     color: 'green.300',
     name: 'HSG',
     imageUri: 'ipfs://QmTPSzPCmi8w7fM7WhkWePH4mBV1WNFyT3G3goBg45UnGB',
+    icon: '/icons/onchain.svg',
   },
   onchain: {
-    label: 'Connected Onchain Authority',
+    label: 'Onchain Authority',
     info: '',
     color: 'green.300',
+    icon: '/icons/on-chain.svg',
   },
   gate: {
-    label: 'Connected Token-gated Authority',
+    label: 'Token-gated Authority',
     info: 'Pulled directly from the gate API',
     color: 'green.300',
+    icon: '/icons/token-gated.svg',
   },
   manual: {
     label: 'Social Authority',
     info: 'Appended off-chain for clarity',
     color: 'purple.300',
+    icon: '/icons/off-chain.svg',
   },
 };
 

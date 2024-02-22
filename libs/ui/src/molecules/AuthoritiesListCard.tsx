@@ -5,10 +5,10 @@ import {
   AccordionPanel,
   Box,
   Button,
-  Circle,
   HStack,
   Icon,
   IconButton,
+  Image,
   Text,
   Tooltip,
 } from '@chakra-ui/react';
@@ -63,6 +63,7 @@ const AuthoritiesListCard = ({
   const authorityEnforcement = type
     ? AUTHORITY_ENFORCEMENT[type]
     : AUTHORITY_ENFORCEMENT.manual;
+  console.log('authorityEnforcement', authorityEnforcement);
 
   // set tooltip info
   let tooltipInfo = authorityEnforcement.info;
@@ -90,15 +91,16 @@ const AuthoritiesListCard = ({
         <AuthorityHeader authority={authority} />
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel pb={4} px={0}>
+      <AccordionPanel px={4}>
         <Tooltip
           label={tooltipInfo}
           placement='right'
           hasArrow
           shouldWrapChildren
         >
-          <HStack mb={2}>
-            <Circle size='10px' bg={authorityEnforcement.color} />
+          <HStack pb={2}>
+            {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
+            <Image src={authorityEnforcement.icon} alt='Hat' w={5} />
             <Text size='sm'>{authorityEnforcement.label}</Text>
             <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
           </HStack>
