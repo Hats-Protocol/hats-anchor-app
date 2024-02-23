@@ -23,7 +23,7 @@ const ResponsibilitiesList = () => {
   }
 
   return (
-    <Accordion px={{ base: 4, md: 10 }} allowMultiple>
+    <Accordion px={{ base: 0, md: 10 }} allowMultiple>
       <Stack>
         <Heading size='sm' mx={{ base: 4, md: 0 }}>
           {_.size(responsibilities)}{' '}

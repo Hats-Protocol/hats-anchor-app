@@ -10,7 +10,7 @@ import {
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { Authority } from 'hats-types';
-import { useSafeDetails } from 'hooks';
+import { useMediaStyles, useSafeDetails } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import {
@@ -56,6 +56,7 @@ const AuthorityHeader = ({
     link: currentLink,
   } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
   const { chainId, selectedHat, editMode } = useTreeForm();
+  const { isMobile } = useMediaStyles();
 
   const localLink = editingItem ? currentLink : link;
   const authorityEnforcement = type
@@ -106,7 +107,7 @@ const AuthorityHeader = ({
   // TODO was {Key} the right icon here?
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
-      <HStack spacing={4}>
+      <HStack spacing={4} align='start'>
         {imageUrl || authorityEnforcement.imageUri ? (
           <Image
             src={
@@ -142,7 +143,7 @@ const AuthorityHeader = ({
           </HStack>
         </Box>
       </HStack>
-      {localLink && validateURL(localLink) && (
+      {!isMobile && localLink && validateURL(localLink) && (
         <ChakraNextLink isExternal href={localLink} display='block'>
           <Tooltip label={getHostnameFromURL(localLink)}>
             <HStack spacing={1}>

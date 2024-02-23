@@ -35,7 +35,7 @@ const BottomMenu = () => {
   return (
     <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900'>
       <Flex
-        justify='space-between'
+        justify={isClaimable ? 'space-between' : 'end'}
         p={4}
         borderTop='1px solid'
         borderColor='gray.200'

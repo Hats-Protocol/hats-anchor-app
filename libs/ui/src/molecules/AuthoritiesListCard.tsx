@@ -84,13 +84,17 @@ const AuthoritiesListCard = ({
 
   if (!gate && !description)
     return (
-      <Flex py={2}>
+      <Flex py={2} px={{ base: 4, md: 0 }}>
         <AuthorityHeader authority={authority} />
       </Flex>
     );
 
   return (
-    <AccordionItem border='none' w='calc(100% + 32px)' ml={-4}>
+    <AccordionItem
+      border='none'
+      w={{ base: '100%', md: 'calc(100% + 32px)' }}
+      ml={{ md: -4 }}
+    >
       {({ isExpanded }) => (
         <>
           <AccordionButton

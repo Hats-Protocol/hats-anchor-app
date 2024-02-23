@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { Authority } from 'hats-types';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { BsBoxArrowUpRight, BsCheck2Square } from 'react-icons/bs';
 import { getHostnameFromURL, ipfsUrl } from 'utils';
@@ -26,6 +27,8 @@ const ResponsibilityHeader = ({
   editingItem?: Authority;
   isExpanded?: boolean;
 }) => {
+  const { isMobile } = useMediaStyles();
+
   const localImageUrl = editingItem ? editingItem.imageUrl : imageUrl;
   const isIpfs = localImageUrl?.startsWith('ipfs://');
   const { label: currentLabel, link: currentLink } = _.pick(editingItem, [
@@ -65,7 +68,8 @@ const ResponsibilityHeader = ({
           {currentLabel || label || 'New Responsibility'}
         </Text>
       </Box>
-      {(currentLink || link) && (
+      {!isMobile && (currentLink || link) && (
+        // TODO convert to text
         <Link href={currentLink || link} isExternal>
           <Tooltip label={hostname}>
             <IconButton
