@@ -28,6 +28,7 @@ const customComponents = {
 const Markdown = ({ children, smallFont }: MarkdownProps) => (
   <ReactMarkdown
     components={ChakraUIRenderer(customComponents)}
+    // TODO small-font is not having effect
     className={smallFont ? 'small-font' : ''}
   >
     {children}

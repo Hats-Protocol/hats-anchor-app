@@ -231,11 +231,6 @@ const ModuleAuthorityToolbar = ({
   );
 
   if (!authority) return null;
-  console.log(
-    primaryFunction,
-    isPrimaryFunctionDisabled,
-    primaryDisabledReason,
-  );
 
   return (
     <HStack my={2} wrap='wrap'>

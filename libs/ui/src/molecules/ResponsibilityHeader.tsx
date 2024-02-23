@@ -1,5 +1,6 @@
 import {
   Box,
+  Flex,
   HStack,
   Icon,
   IconButton,
@@ -49,19 +50,23 @@ const ResponsibilityHeader = ({
           alt='authority image'
         />
       ) : (
-        <HStack
+        <Flex
           borderRadius='full'
           boxSize='24px'
           alignItems='center'
           justifyContent='center'
+          bg='gray.200'
+          border='1px solid'
+          borderColor='gray.300'
         >
-          <Icon as={BsCheck2Square} boxSize={4} color='gray.500' />
-        </HStack>
+          <Icon as={BsCheck2Square} boxSize={3} color='gray.500' />
+        </Flex>
       )}
       <Box flex={1} minW={0} w='full'>
         <Text
-          size='md'
-          fontWeight={isExpanded ? 'medium' : 'normal'}
+          size='sm'
+          // TODO ideally this is a heading when expanded
+          fontWeight={isExpanded ? 'bold' : 'normal'}
           noOfLines={2}
           textAlign='left'
         >

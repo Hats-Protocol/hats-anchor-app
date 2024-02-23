@@ -98,15 +98,29 @@ const AuthoritiesListCard = ({
       {({ isExpanded }) => (
         <>
           <AccordionButton
-            borderBottom='1px solid'
+            borderY='1px solid'
             borderColor='transparent'
             _hover={{
-              borderColor: !isExpanded && 'blue.300',
+              borderColor: 'blue.300',
+              borderTopColor: 'transparent',
               bg: 'white',
-              borderRadius: !isExpanded && 8,
+              borderRadius: !isMobile ? 8 : 0,
             }}
-            bg={isExpanded ? 'white' : undefined}
-            borderTopRadius={isExpanded ? 8 : undefined}
+            _focus={{
+              borderBottomColor: 'transparent',
+            }}
+            _expanded={{
+              bg: 'white',
+              pb: 0,
+              borderTopColor: 'gray.200',
+              boxShadow:
+                '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
+              _hover: {
+                borderColor: 'transparent',
+                borderRadius: 0,
+                borderTopRadius: !isMobile ? 8 : 0,
+              },
+            }}
           >
             <AuthorityHeader authority={authority} isExpanded={isExpanded} />
             {isMobile && <AccordionIcon />}
@@ -114,8 +128,12 @@ const AuthoritiesListCard = ({
           <AccordionPanel
             px={4}
             pb={2}
+            // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
             bg={isExpanded ? 'white' : undefined}
-            borderBottomRadius={8}
+            borderBottomRadius={{ md: 8 }}
+            boxShadow={
+              isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'
+            }
           >
             <Tooltip
               label={tooltipInfo}
@@ -125,7 +143,7 @@ const AuthoritiesListCard = ({
             >
               <HStack pb={2}>
                 {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
-                <Image src={authorityEnforcement.icon} alt='Hat' w={5} />
+                <Image src={authorityEnforcement.icon} alt='Hat' boxSize={6} />
                 <Text size='sm'>{authorityEnforcement.label}</Text>
                 <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
               </HStack>

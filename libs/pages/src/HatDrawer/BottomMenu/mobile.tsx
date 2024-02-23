@@ -36,13 +36,14 @@ const BottomMenu = () => {
     <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900'>
       <Flex
         justify={isClaimable ? 'space-between' : 'end'}
-        p={4}
+        p={2}
         borderTop='1px solid'
         borderColor='gray.200'
       >
         {isClaimable && (
           <Button
             variant='outlineMatch'
+            size={{ base: 'md', md: 'md' }}
             colorScheme='blue.500'
             isDisabled={
               !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
@@ -55,7 +56,12 @@ const BottomMenu = () => {
         )}
 
         <Menu>
-          <MenuButton as={Button} leftIcon={<FaEllipsisV />} variant='outline'>
+          <MenuButton
+            as={Button}
+            leftIcon={<FaEllipsisV />}
+            variant='outline'
+            size={{ base: 'sm', md: 'md' }}
+          >
             More
           </MenuButton>
           <MenuList>

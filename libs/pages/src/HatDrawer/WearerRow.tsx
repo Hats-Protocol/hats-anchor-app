@@ -130,7 +130,7 @@ const WearerRow = ({
   let icon = (
     <Icon
       as={WearerIcon}
-      color={isSameAddress(wearer.id, address) ? 'green.500' : 'gray.500'}
+      color={isSameAddress(wearer.id, address) ? 'green.700' : 'gray.500'}
     />
   );
   if (wearer.isContract) {
@@ -155,7 +155,9 @@ const WearerRow = ({
         >
           {icon}
 
-          <Text>
+          <Text
+            color={isSameAddress(wearer.id, address) ? 'green.700' : 'inherit'}
+          >
             {_.get(wearer, 'ensName') ||
               moduleName ||
               formatAddress(_.get(wearer, 'id'))}

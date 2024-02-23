@@ -52,7 +52,7 @@ const ContractName = async (req: NextApiRequest, res: NextApiResponse) => {
     // eslint-disable-next-line no-console
     console.log(
       address,
-      _.omit(_.get(data, 'result[0]'), ['abi', 'sourceCode']),
+      _.omit(_.get(data, 'result[0]'), ['ABI', 'SourceCode']),
     );
 
     // force error if not verified

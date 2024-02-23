@@ -107,7 +107,7 @@ const AuthorityHeader = ({
   // TODO was {Key} the right icon here?
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
-      <HStack spacing={4} align='start'>
+      <HStack align='start'>
         {imageUrl || authorityEnforcement.imageUri ? (
           <Image
             src={
@@ -122,14 +122,26 @@ const AuthorityHeader = ({
             alt='authority image'
           />
         ) : (
-          <Icon as={HatIcon} boxSize={4} color='blackAlpha.700' />
+          <Flex boxSize={6} justify='center' align='center' position='relative'>
+            {!isExpanded && (
+              <Image
+                src='/icons/onchain.svg'
+                alt='onchain authority'
+                position='absolute'
+                top={0}
+                left={0}
+              />
+            )}
+            <Icon as={HatIcon} boxSize={4} color='blackAlpha.700' zIndex={5} />
+          </Flex>
         )}
 
         <Box textAlign='left'>
           <HStack>
             <Text
-              size='sm'
-              fontWeight={isExpanded ? 'medium' : 'normal'}
+              size={{ base: 'sm', md: 'md' }}
+              // TODO should be a Heading component when expanded
+              fontWeight={isExpanded ? 'bold' : 'normal'}
               noOfLines={2}
             >
               {currentLabel || label || 'New Authority'}

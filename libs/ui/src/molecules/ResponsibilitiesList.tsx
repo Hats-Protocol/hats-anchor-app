@@ -15,7 +15,7 @@ const ResponsibilitiesList = () => {
   if (_.isEmpty(responsibilities)) {
     return (
       <Flex px={{ base: 0, md: 10 }} py={4}>
-        <Heading size='sm' mx={{ base: 4, md: 0 }}>
+        <Heading size='sm' mx={{ base: 4, md: 0 }} variant='medium'>
           No Responsibilities found for Wearers currently
         </Heading>
       </Flex>
@@ -25,7 +25,7 @@ const ResponsibilitiesList = () => {
   return (
     <Accordion px={{ base: 0, md: 10 }} allowMultiple>
       <Stack>
-        <Heading size='sm' mx={{ base: 4, md: 0 }}>
+        <Heading size='sm' mx={{ base: 4, md: 0 }} variant='medium'>
           {_.size(responsibilities)}{' '}
           {_.size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'}{' '}
           expected of Hat Wearers

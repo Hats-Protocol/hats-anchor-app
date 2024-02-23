@@ -13,7 +13,9 @@ const AuthoritiesList = () => {
   if (_.isEmpty(combinedAuthorities)) {
     return (
       <Flex px={{ base: 4, md: 10 }}>
-        <Heading size='sm'>No Authorities found for Wearers currently</Heading>
+        <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+          No Authorities found for Wearers currently
+        </Heading>
       </Flex>
     );
   }
@@ -21,7 +23,11 @@ const AuthoritiesList = () => {
   return (
     <Accordion px={{ base: 0, md: 10 }} allowMultiple>
       <Stack>
-        <Heading size='sm' mx={{ base: 4, md: 0 }}>
+        <Heading
+          size={{ base: 'sm', md: 'md' }}
+          mx={{ base: 4, md: 0 }}
+          variant='medium'
+        >
           {_.size(combinedAuthorities)}{' '}
           {_.size(combinedAuthorities) > 1 ? 'Authorities' : 'Authority'}{' '}
           granted by this Hat

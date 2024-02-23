@@ -27,21 +27,21 @@ export const AUTHORITY_ENFORCEMENT: {
     info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
     imageUri: '/icon.jpeg',
-    icon: '/icons/on-chain.svg',
+    icon: '/icons/onchain.svg',
   },
   modules: {
     label: 'Onchain Authority',
     info: 'Connected onchain via an eligibility or toggle module',
     color: 'green.300',
     name: 'Module',
-    icon: '/icons/on-chain.svg',
+    icon: '/icons/onchain.svg',
   },
   wallet: {
     label: 'Hats Protocol Authority',
     info: '',
     color: 'green.300',
     name: 'HatsWallet',
-    icon: '/icons/on-chain.svg',
+    icon: '/icons/onchain.svg',
   },
   hsg: {
     label: 'Hats Protocol Authority',
@@ -55,7 +55,7 @@ export const AUTHORITY_ENFORCEMENT: {
     label: 'Onchain Authority',
     info: '',
     color: 'green.300',
-    icon: '/icons/on-chain.svg',
+    icon: '/icons/onchain.svg',
   },
   gate: {
     label: 'Token-gated Authority',
