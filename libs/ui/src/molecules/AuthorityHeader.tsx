@@ -104,37 +104,46 @@ const AuthorityHeader = ({
     return `${currentSigners}/${currentSigners}`;
   }, [hsgConfig, eligibleSigners, authority?.label]);
 
+  const typeIcon =
+    authority?.type && AUTHORITY_ENFORCEMENT[authority.type].icon;
+
   // TODO was {Key} the right icon here?
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
       <HStack align='start'>
-        {imageUrl || authorityEnforcement.imageUri ? (
-          <Image
-            src={
-              isIpfs
-                ? ipfsUrl(imageUrl?.slice(7)) || ''
-                : imageUrl || authorityEnforcement.imageUri
-            }
-            boxSize='24px'
-            border='1px solid'
-            borderColor='blackAlpha.300'
-            borderRadius='full'
-            alt='authority image'
-          />
-        ) : (
-          <Flex boxSize={6} justify='center' align='center' position='relative'>
-            {!isExpanded && (
-              <Image
-                src='/icons/onchain.svg'
-                alt='onchain authority'
-                position='absolute'
-                top={0}
-                left={0}
-              />
-            )}
-            <Icon as={HatIcon} boxSize={4} color='blackAlpha.700' zIndex={5} />
-          </Flex>
-        )}
+        <Flex boxSize={6} justify='center' align='center' position='relative'>
+          {!isExpanded && (
+            <Image
+              src={typeIcon}
+              alt='authority enforcement indicator'
+              position='absolute'
+              top={0}
+              left={0}
+            />
+          )}
+          {imageUrl || authorityEnforcement.imageUri ? (
+            <Image
+              src={
+                isIpfs
+                  ? ipfsUrl(imageUrl?.slice(7)) || ''
+                  : imageUrl || authorityEnforcement.imageUri
+              }
+              boxSize={5}
+              border='1px solid'
+              borderColor='blackAlpha.300'
+              borderRadius='full'
+              alt='authority image'
+              zIndex={5}
+            />
+          ) : (
+            <Icon
+              as={HatIcon}
+              boxSize='14px'
+              color='blackAlpha.700'
+              zIndex={5}
+            />
+          )}
+        </Flex>
 
         <Box textAlign='left'>
           <HStack>

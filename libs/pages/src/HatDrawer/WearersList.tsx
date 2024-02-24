@@ -192,9 +192,11 @@ const WearersList = () => {
       <Stack spacing={4} px={{ base: 4, md: 10 }}>
         <Flex justify='space-between' alignItems='center'>
           <HStack spacing={1}>
-            <Heading size='sm'>{_.get(selectedHat, 'currentSupply')}</Heading>
-            <Heading size='sm'>
-              Wearer{_.toNumber(_.get(selectedHat, 'currentSupply')) > 1 && 's'}{' '}
+            <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+              {_.get(selectedHat, 'currentSupply')} Wearer
+              {(_.toNumber(_.get(selectedHat, 'currentSupply')) > 1 ||
+                _.toNumber(_.get(selectedHat, 'currentSupply')) === 0) &&
+                's'}{' '}
               of this Hat
             </Heading>
             <Tooltip

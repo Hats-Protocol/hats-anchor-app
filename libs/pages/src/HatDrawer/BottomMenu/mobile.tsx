@@ -11,8 +11,9 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
-import { useHatClaimBy } from 'hats-hooks';
+import { useHatClaimBy, useWearerDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
+import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
@@ -32,6 +33,12 @@ const BottomMenu = () => {
     chainId,
     wearer: address,
   });
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const isWearing = _.find(_.map(wearer, 'id'), selectedHat?.id);
+
   return (
     <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900'>
       <Flex
@@ -40,10 +47,9 @@ const BottomMenu = () => {
         borderTop='1px solid'
         borderColor='gray.200'
       >
-        {isClaimable && (
+        {isClaimable && !isWearing && hatterIsAdmin && (
           <Button
             variant='outlineMatch'
-            size={{ base: 'md', md: 'md' }}
             colorScheme='blue.500'
             isDisabled={
               !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
@@ -56,12 +62,7 @@ const BottomMenu = () => {
         )}
 
         <Menu>
-          <MenuButton
-            as={Button}
-            leftIcon={<FaEllipsisV />}
-            variant='outline'
-            size={{ base: 'sm', md: 'md' }}
-          >
+          <MenuButton as={Button} leftIcon={<FaEllipsisV />} variant='outline'>
             More
           </MenuButton>
           <MenuList>

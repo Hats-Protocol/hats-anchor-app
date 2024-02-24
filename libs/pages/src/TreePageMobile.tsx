@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
+import { HatWithDepth } from 'hats-types';
 import { isTopHat, prepareMobileTreeHats } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -96,7 +97,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
                   >
                     <VerticalDividers count={maxDepth + 2} />
 
-                    {_.map(sortedTree.slice(1), (hat) => (
+                    {_.map(sortedTree.slice(1), (hat: HatWithDepth) => (
                       <MobileHatCard hat={hat} key={hat.id} />
                     ))}
                   </VStack>

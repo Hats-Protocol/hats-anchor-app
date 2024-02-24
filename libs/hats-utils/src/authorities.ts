@@ -48,7 +48,7 @@ export const combineAuthorities = ({
     },
   );
   // authorities without matching link
-  const nonMatchingAuthorities = _.reject(
+  const ecosystemAuthorities = _.reject(
     _.concat(guildRoles, spaces),
     (authority: Authority) =>
       _.includes(_.map(socialAuthorities, 'link'), authority?.link),
@@ -64,9 +64,9 @@ export const combineAuthorities = ({
   // combine authorities
   const combined = _.concat(
     mergedAuthorities,
-    nonMatchingAuthorities,
-    filteredAuthorities,
     modulesAuthorities,
+    ecosystemAuthorities,
+    filteredAuthorities,
   );
 
   return { data: _.compact(combined) as Authority[] };

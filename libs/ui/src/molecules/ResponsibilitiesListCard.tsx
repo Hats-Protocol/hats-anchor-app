@@ -83,20 +83,23 @@ const ResponsibilitiesListCard = ({
             }
           >
             <Stack>
-              <Flex>
-                <Link href={link} isExternal>
-                  <Tooltip label={hostname}>
-                    <Button
-                      rightIcon={<Icon boxSize={3} as={BsBoxArrowUpRight} />}
-                      variant='outlineMatch'
-                      colorScheme='blue.500'
-                      size={{ base: 'xs', md: 'sm' }}
-                    >
-                      <Text size='sm'>{hostname}</Text>
-                    </Button>
-                  </Tooltip>
-                </Link>
-              </Flex>
+              {link && (
+                <Flex>
+                  <Link href={link} isExternal>
+                    <Tooltip label={hostname}>
+                      <Button
+                        rightIcon={<Icon boxSize={3} as={BsBoxArrowUpRight} />}
+                        variant='outlineMatch'
+                        colorScheme='blue.500'
+                        size={{ base: 'xs', md: 'sm' }}
+                      >
+                        <Text size='sm'>{hostname}</Text>
+                      </Button>
+                    </Tooltip>
+                  </Link>
+                </Flex>
+              )}
+
               <Flex>
                 {description && <Markdown smallFont>{description}</Markdown>}
               </Flex>

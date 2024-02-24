@@ -148,7 +148,9 @@ const StatusCard = ({
   return (
     <Stack px={{ base: 4, md: 10 }}>
       <Flex justifyContent='space-between'>
-        <Heading size='sm'>{_.capitalize(_.toString(status))}</Heading>
+        <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+          {_.capitalize(_.toString(status))}
+        </Heading>
         <Tooltip
           label={_.get(extendedController, 'id')}
           placement='left'

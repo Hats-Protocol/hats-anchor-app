@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Flex,
   Icon,
   IconButton,
@@ -171,15 +172,29 @@ const WearerRow = ({
           </Badge>
         )}
 
-        {/* TODO handle wearer is current user to renounce */}
-        <IconButton
-          icon={<Icon as={CopyHash} boxSize={4} color='blackAlpha.500' />}
-          p={0}
-          size='xs'
-          variant='ghost'
-          aria-label='Copy wearer address'
-          onClick={copyAddress}
-        />
+        {!isSameAddress(wearer.id, address) ? (
+          <IconButton
+            icon={<Icon as={CopyHash} boxSize={4} color='blackAlpha.500' />}
+            p={0}
+            size='xs'
+            variant='ghost'
+            aria-label='Copy wearer address'
+            onClick={copyAddress}
+          />
+        ) : (
+          isMobile && (
+            <Button
+              variant='ghost'
+              size='xs'
+              fontWeight='normal'
+              bg='transparent'
+              isDisabled={!isSameChain}
+              onClick={handleRenounceHat}
+            >
+              Renounce
+            </Button>
+          )
+        )}
 
         {!isMobile && (
           <Menu isLazy>

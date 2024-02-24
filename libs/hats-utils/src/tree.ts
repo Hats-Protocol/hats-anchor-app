@@ -1,6 +1,6 @@
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { AppHat, HatDetails, SupportedChains } from 'hats-types';
+import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { idToIp } from 'shared';
 import { Hex } from 'viem';
@@ -121,27 +121,63 @@ const updateHatProperties = (
   return updatedHat;
 };
 
-export function prepareMobileTreeHats(tree) {
-  const simplifiedTree = _.map(tree, (hat) => ({
+export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
+  const simplifiedTree: HatWithDepth[] = _.map(tree, (hat: AppHat) => ({
     ...hat,
-    id: idToIp(hat.id),
-    treeId: hatIdToTreeId(BigInt(hat.id)),
+    ipId: idToIp(hat.id),
   }));
 
-  const sortedTree = _.sortBy(simplifiedTree, [
-    (hat) => {
-      return _.map(hat.id.split('.'), Number);
-    },
-  ]);
+  // * tricky sort ahead, follow each branch to their conclusion
+  // * before returning to next sibling at previous level
+  const newIdList = simplifiedTree
+    ? // start with the top hat
+      [_.get(_.first(simplifiedTree), 'ipId')]
+    : [];
 
-  const treeWithDepth = _.map(sortedTree, (hat) => ({
-    id: hat.id,
-    treeId: hat.treeId,
+  _.each(simplifiedTree, (hat: HatWithDepth) => {
+    if (_.includes(newIdList, hat.ipId)) return;
+
+    // find the initial hat and all of its children
+    const hatAndChildren = _.map(
+      _.filter(simplifiedTree, (h: HatWithDepth) => {
+        return !_.includes(newIdList, h.ipId) && h.ipId.startsWith(hat.ipId);
+      }),
+      'id',
+    );
+
+    // narrow down the immediate children of the current hat and their respective descendants
+    const immediateChildren = _.filter(
+      hatAndChildren,
+      (id: string) => _.size(hat.ipId.split('.')) + 1 === _.size(id.split('.')),
+    );
+    const descendantsOfChildren = _.map(immediateChildren, (hId: string) =>
+      _.filter(hatAndChildren, (id: string) => id.includes(hId)),
+    );
+
+    // TODO does this work for 5 and 6 level deep? guessing no
+    // early return on those sets and catch the further ones in the next iteration
+    if (!_.isEmpty(descendantsOfChildren)) {
+      newIdList.push(
+        hat.ipId,
+        ...(_.flatten(descendantsOfChildren) as unknown as string[]),
+      );
+      return;
+    }
+
+    newIdList.push(...hatAndChildren);
+  });
+
+  // map to sorted array from above
+  const sortedTree = _.map(newIdList, (id: string) =>
+    _.find(simplifiedTree, (h: AppHat) => h.id === id),
+  );
+
+  const treeWithDepth = _.map(_.compact(sortedTree), (hat: AppHat) => ({
+    ...hat,
     name: _.get(hat, 'detailsObject.data.name', hat.details),
     imageUrl: hat.imageUrl || '/icon.jpeg',
     depth: hat.id.split('.').length - 1,
-    chainId: hat.chainId,
-  }));
+  })) as unknown as HatWithDepth[];
 
   return treeWithDepth;
 }

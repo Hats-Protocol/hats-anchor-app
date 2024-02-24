@@ -1,4 +1,3 @@
-import { Module } from '@hatsprotocol/modules-sdk';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { Hex } from 'viem';
 
@@ -60,22 +59,9 @@ export interface AppHat extends Hat {
   extendedToggle?: HatWearer;
 }
 
-export type ModuleCreationArg = {
-  name: string;
-  description: string;
-  type: string;
-  example: unknown;
-  displayType: string;
-  optional?: boolean;
-};
-
-export type ModuleCreationArgs = {
-  immutable: ModuleCreationArg[];
-  mutable: ModuleCreationArg[];
-};
-
-export interface ModuleDetails extends Module {
-  id: Hex;
+export interface HatWithDepth extends AppHat {
+  ipId: string;
+  depth?: number;
 }
 
 export interface HatExport {

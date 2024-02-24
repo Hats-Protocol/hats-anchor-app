@@ -6,6 +6,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { HatWithDepth } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
@@ -24,9 +26,9 @@ const MobileHatCard = ({ hat }: HatCardProps) => {
 
   return (
     <ChakraNextLink
-      href={`/trees/${hat.chainId}/${hat.treeId}/${hat.id}`}
+      href={`/trees/${hat.chainId}/${hatIdToTreeId(BigInt(hat.id))}/${hat.id}`}
       w='full'
-      pl={hat.depth * 2}
+      pl={hat?.depth || 0 * 2}
     >
       <Card overflow='hidden' w='full'>
         <HStack
@@ -67,12 +69,5 @@ const MobileHatCard = ({ hat }: HatCardProps) => {
 export default MobileHatCard;
 
 interface HatCardProps {
-  hat: {
-    id: string;
-    imageUrl: string;
-    name: string;
-    chainId: string;
-    treeId: string;
-    depth: number;
-  };
+  hat: HatWithDepth;
 }
