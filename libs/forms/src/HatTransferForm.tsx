@@ -9,9 +9,9 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useDebounce } from 'hooks';
 import { useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
+import { useDebounce } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';

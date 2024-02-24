@@ -168,11 +168,13 @@ export const TreeFormContext = createContext<TreeFormContext>({
 export const TreeFormContextProvider = ({
   treeId,
   chainId,
+  hatId,
   // linkedHatIds,
   children,
 }: {
   treeId: Hex;
   chainId: SupportedChains;
+  hatId?: string | undefined;
   // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
@@ -188,7 +190,7 @@ export const TreeFormContextProvider = ({
     initialHatId = initialHatIdParam as string;
   }
   const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
-    initialHatId ? ipToHatId(initialHatId as string) : undefined,
+    ipToHatId(hatId) || ipToHatId(initialHatId as string) || undefined,
   );
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
@@ -619,17 +621,17 @@ export const TreeFormContextProvider = ({
   );
 
   const removeHat = useCallback(
-    (hatId: Hex) => {
+    (hId: Hex) => {
       setStoredData((prev) => {
         const tempData = _.cloneDeep(prev);
         if (!tempData) return [];
-        const result = removeAndHandleSiblings(tempData, hatId);
+        const result = removeAndHandleSiblings(tempData, hId);
         return result;
       });
       setOrgChartHats((prev) => {
         const tempHats = _.cloneDeep(prev);
         if (!tempHats) return [];
-        const result = removeAndHandleSiblingsOrgChart(tempHats, hatId);
+        const result = removeAndHandleSiblingsOrgChart(tempHats, hId);
         return result;
       });
       onOpenTreeDrawer();

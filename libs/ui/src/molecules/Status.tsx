@@ -186,12 +186,15 @@ const StatusCard = ({
       </Flex>
       <Flex justifyContent='space-between'>
         <HStack>
-          <Text>{label}</Text>
+          <Text size={{ base: 'sm', md: 'md' }}>{label}</Text>
         </HStack>
 
         <HStack color={statusCheck ? 'green.500' : 'red.500'} ml={2}>
           <Text>{statusCheck ? 'Yes' : 'No'}</Text>
-          {statusCheck ? <FaCheck /> : <FaBan />}
+          <Icon
+            as={statusCheck ? FaCheck : FaBan}
+            boxSize={{ base: '14px', md: 'md' }}
+          />
         </HStack>
       </Flex>
       {moduleDetails &&

@@ -3,6 +3,7 @@ import { HatFormContextProvider, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 
 import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
@@ -12,6 +13,7 @@ import TopMenu from './TopMenu';
 const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
+  const [showBottomMenu, setShowBottomMenu] = useState(false);
   const { selectedHat, editMode, treeToDisplay } = useTreeForm();
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
@@ -25,11 +27,18 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   if (isMobile) {
     return (
       <Layout hatData={selectedHat}>
-        <Box w='100%' pt='58px' h='100%' position='relative'>
+        <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />
-            {!editMode ? <MainContent /> : <EditMode />}
-            <BottomMenu />
+            {!editMode ? (
+              <MainContent
+                showBottomMenu={showBottomMenu}
+                setShowBottomMenu={setShowBottomMenu}
+              />
+            ) : (
+              <EditMode />
+            )}
+            <BottomMenu show={showBottomMenu} />
           </HatFormContextProvider>
         </Box>
       </Layout>
@@ -89,5 +98,5 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 export default SelectedHatDrawer;
 
 interface SelectedHatDrawerProps {
-  returnToList: () => void;
+  returnToList?: () => void;
 }

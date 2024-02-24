@@ -30,7 +30,7 @@ const useHsgSigner = ({
       // eslint-disable-next-line no-console
       console.error(e);
     }
-    return undefined;
+    return null;
   };
 
   const { data, isLoading } = useQuery({

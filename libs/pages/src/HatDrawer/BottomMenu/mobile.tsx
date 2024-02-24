@@ -20,7 +20,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 const HatIcon = dynamic(() => import('ui').then((mod) => mod.HatIcon));
 
-const BottomMenu = () => {
+const BottomMenu = ({ show }: { show: boolean }) => {
   const currentNetworkId = useChainId();
   const { selectedHat, chainId } = useTreeForm();
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id);
@@ -37,12 +37,21 @@ const BottomMenu = () => {
     wearerAddress: address,
     chainId,
   });
-  const isWearing = _.find(_.map(wearer, 'id'), selectedHat?.id);
+  const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
 
   return (
-    <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900'>
+    <Box
+      w='100%'
+      position='fixed'
+      bottom={0}
+      zIndex={14}
+      bg='whiteAlpha.900'
+      display={show ? 'block' : 'none'}
+    >
       <Flex
-        justify={isClaimable ? 'space-between' : 'end'}
+        justify={
+          isClaimable && !isWearing && hatterIsAdmin ? 'space-between' : 'end'
+        }
         p={2}
         borderTop='1px solid'
         borderColor='gray.200'

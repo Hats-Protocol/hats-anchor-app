@@ -60,7 +60,7 @@ export interface AppHat extends Hat {
 }
 
 export interface HatWithDepth extends AppHat {
-  ipId: string;
+  ipId?: string;
   depth?: number;
 }
 

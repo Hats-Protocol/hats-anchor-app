@@ -77,8 +77,11 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
             ) : (
               <>
                 <Box px={2} zIndex='sticky' mb={2}>
-                  {sortedTree.length > 0 && (
-                    <MobileHatCard hat={sortedTree[0]} key={sortedTree[0].id} />
+                  {!_.isEmpty(sortedTree) && (
+                    <MobileHatCard
+                      hat={_.first(sortedTree)}
+                      key={_.get(_.first(sortedTree), 'id')}
+                    />
                   )}
                 </Box>
 

@@ -18,6 +18,7 @@ export { default as usePendHatterMint } from './usePendHatterMint';
 export { default as usePinImageIpfs } from './usePinImageIpfs';
 export { default as useProposalDetails } from './useProposalDetails';
 export { default as useSafeDetails } from './useSafeDetails';
+export { default as useScrollPosition } from './useScrollPosition';
 export { default as useSearchResults } from './useSearchResults';
 export { default as useSnapshotSpaces } from './useSnapshotSpaces';
 export { default as useToast } from './useToast';

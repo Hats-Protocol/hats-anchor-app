@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
-import { Authority } from 'hats-types';
+import { Authority, HatWearer } from 'hats-types';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -19,22 +19,30 @@ import {
   ipfsUrl,
   validateURL,
 } from 'utils';
+import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../atoms';
 import { BoxArrowUpRightOut, HatIcon } from '../icons';
 
-const hostnameLabels = {
+const HOSTNAME_LABELS = {
   'charmverse.io': 'Charmverse',
   'telegram.me': 'Telegram',
   'deform.cc': 'Deform',
+  'github.com': 'GitHub',
+  'twitter.com': 'Twitter',
+  'discord.com': 'Discord',
+  'medium.com': 'Medium',
+  'paragraph.xyz': 'Paragraph',
+  'substack.com': 'Substack',
+  'mirror.xyz': 'Mirror',
 };
 
 const getHostnameLabel = (hostname: string) => {
-  const hostnameLabel = _.find(_.keys(hostnameLabels), (k: string) =>
+  const hostnameLabel = _.find(_.keys(HOSTNAME_LABELS), (k: string) =>
     hostname.includes(k),
   );
-  if (hostnameLabel) return hostnameLabels[hostnameLabel];
-  return undefined;
+  if (!hostnameLabel) return undefined;
+  return HOSTNAME_LABELS[hostnameLabel];
 };
 
 const AuthorityHeader = ({
@@ -77,18 +85,19 @@ const AuthorityHeader = ({
     enabled: !!safe,
     editMode,
   });
+
   const eligibleSigners = useMemo(() => {
     if (!safeOwners || !selectedHat?.wearers) return [];
 
-    const wearersLowercased = _.map(selectedHat.wearers, (wearer) =>
+    const wearersLowercased = _.map(selectedHat.wearers, (wearer: HatWearer) =>
       _.toLower(wearer.id),
     );
 
-    return _.filter(
+    return _.reject(
       safeOwners,
-      (owner) => !_.includes(wearersLowercased, _.toLower(owner)),
+      (owner: Hex) => !_.includes(wearersLowercased, _.toLower(owner)),
     );
-  }, [safeOwners, selectedHat]);
+  }, [safeOwners, selectedHat?.wearers]);
 
   const currentThresholdConfig = useMemo(() => {
     if (authority?.label === 'HSG Owner' || !hsgConfig) return undefined;

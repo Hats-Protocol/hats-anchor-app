@@ -1,26 +1,45 @@
-import {
-  treeIdDecimalToHex,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { SupportedChains } from 'hats-types';
+import { useIsClient } from 'hooks';
 import _ from 'lodash';
-import { GetStaticPropsContext } from 'next';
+import { useParams } from 'next/navigation';
 import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
-// import { useRouter } from 'next/router';
-import { Hex } from 'viem';
+import { numberToHex } from 'viem';
 
-const HatDetails = ({ chainId, treeId, hatId }: HatDetailsProps) => {
+const checkParamForArray = (param: string | string[] | undefined) => {
+  let result: string | undefined;
+  if (_.isArray(param)) {
+    result = _.first(param);
+  } else {
+    result = param as string;
+  }
+  return result;
+};
+
+const numberParam = (param: string | string[] | undefined) => {
+  const result = checkParamForArray(param);
+  return result ? parseInt(result, 10) : undefined;
+};
+
+const hexParam = (param: string | string[] | undefined, size: number = 8) => {
+  const result = checkParamForArray(param);
+  return result ? numberToHex(_.toNumber(result), { size: 4 }) : undefined;
+};
+
+const HatDetails = () => {
   const { updateRecentlyVisitedTrees } = useOverlay();
-  // const router = useRouter();
-  // const { hatId: hatIdParam } = router.query;
-  // let hatId: string | undefined;
-  // if (_.isArray(hatIdParam)) {
-  //   hatId = _.first(hatIdParam);
-  // } else {
-  //   hatId = hatIdParam;
-  // }
+  const params = useParams();
+  const isClient = useIsClient();
+  const {
+    treeId: treeIdParam,
+    chainId: chainIdParam,
+    hatId: hatIdParam,
+  } = _.pick(params, ['treeId', 'chainId', 'hatId']);
+  const treeId = hexParam(treeIdParam);
+  const chainId = numberParam(chainIdParam);
+  const hatId = checkParamForArray(hatIdParam);
 
   useEffect(() => {
     if (!treeId || !chainId) return;
@@ -33,60 +52,14 @@ const HatDetails = ({ chainId, treeId, hatId }: HatDetailsProps) => {
   }, [treeId, chainId]);
 
   return (
-    <TreeFormContextProvider treeId={treeId} chainId={chainId}>
-      <HatDrawer returnToList={() => undefined} />
+    <TreeFormContextProvider
+      treeId={treeId}
+      chainId={chainId as SupportedChains}
+      hatId={hatId}
+    >
+      {isClient && <HatDrawer />}
     </TreeFormContextProvider>
   );
 };
 
-const defaultProps = {
-  treeId: null,
-  chainId: null,
-};
-
-export const getStaticProps = async (context: GetStaticPropsContext) => {
-  const treeIdParam = _.get(context, 'params.treeId');
-  const chainIdParam = _.get(context, 'params.chainId');
-  const hatIdParam = _.get(context, 'params.hatId');
-  const treeId = _.isArray(treeIdParam) ? _.first(treeIdParam) : treeIdParam;
-  const chainId = _.isArray(chainIdParam)
-    ? _.toNumber(_.first(chainIdParam))
-    : _.toNumber(chainIdParam);
-
-  if (!treeId || treeId === 'undefined' || !chainId) {
-    return { props: defaultProps };
-  }
-  const treeHex = treeIdDecimalToHex(_.toNumber(treeId));
-  const hatIdHex = _.isArray(hatIdParam) ? _.first(hatIdParam) : hatIdParam;
-
-  return {
-    props: {
-      ...defaultProps,
-      treeId: treeHex,
-      chainId: _.toNumber(chainId),
-      hatId: hatIdHex,
-      // initialTreeData: {
-      //   ..._.omit(treeData, ['events']),
-      //   hats: hatsWithoutEvents,
-      // },
-      // linkedHatIds,
-    },
-    revalidate: 5,
-  };
-};
-
-export const getStaticPaths = async () => {
-  // lookup trees for chain
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
-
 export default HatDetails;
-
-interface HatDetailsProps {
-  treeId: Hex;
-  chainId: SupportedChains;
-  hatId: boolean;
-}

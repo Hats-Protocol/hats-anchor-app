@@ -1,7 +1,7 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
-import { useMediaStyles } from 'hooks';
+import { useMediaStyles, useScrollPosition } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -27,7 +27,13 @@ const ResponsibilitiesList = dynamic(() =>
 );
 const StatusCard = dynamic(() => import('ui').then((mod) => mod.StatusCard));
 
-const MainContent = () => {
+const MainContent = ({
+  showBottomMenu,
+  setShowBottomMenu,
+}: {
+  showBottomMenu?: boolean;
+  setShowBottomMenu?: (b: boolean) => void;
+}) => {
   const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
@@ -37,6 +43,16 @@ const MainContent = () => {
     'toggle',
     'eligibility',
   ]);
+
+  useScrollPosition(
+    ({ prevPos, currPos }) => {
+      const isShow = currPos.y > prevPos.y;
+      // eslint-disable-next-line no-console
+      console.debug('prevPos', prevPos, 'currPos', currPos, 'isShow', isShow);
+      if (isShow !== showBottomMenu) setShowBottomMenu?.(isShow);
+    },
+    [showBottomMenu],
+  );
 
   useEffect(() => {
     const check = async () => {
@@ -58,7 +74,6 @@ const MainContent = () => {
       // apply x padding on components for section background handling
       spacing={10}
       w='100%'
-      overflow='scroll'
       height={{ base: '100vh', md: 'calc(100% - 150px)' }}
       pb={{ base: 100, md: 400 }}
       pos='relative'

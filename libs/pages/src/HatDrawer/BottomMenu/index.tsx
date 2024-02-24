@@ -11,12 +11,12 @@ import {
 
 import MobileBottomMenu from './mobile';
 
-const BottomMenu = () => {
+const BottomMenu = ({ show }: { show?: boolean }) => {
   const { setSelectedHatId, hierarchy } = useTreeForm();
   const { isMobile } = useMediaStyles();
 
   if (isMobile) {
-    return <MobileBottomMenu />;
+    return <MobileBottomMenu show={show} />;
   }
 
   return (

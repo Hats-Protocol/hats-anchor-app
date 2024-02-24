@@ -25,13 +25,13 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { AppHat, SupportedChains } from 'hats-types';
-import { useImageURIs, useToast } from 'hooks';
+import { useImageURIs, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
-import { Layout, WearerHatCard as CoreHat } from 'ui';
+import { Layout, MobileHatCard, WearerHatCard as CoreHat } from 'ui';
 import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
@@ -59,7 +59,7 @@ const WearerDetail = ({
     wearerAddress,
     chainId: 'all',
   });
-
+  const { isMobile } = useMediaStyles();
   const toast = useToast();
   const { onCopy } = useClipboard(wearerAddress);
 
@@ -181,12 +181,14 @@ const WearerDetail = ({
           </HStack>
           <HStack wrap='wrap' justify='center'>
             {_.map(headlineStats, (stat: HeadlineStat) => (
-              <Card w={{ base: '45%', md: '135px' }} key={stat.label}>
-                <CardBody>
+              <Card w={{ base: '22%', md: '135px' }} key={stat.label}>
+                <CardBody px={{ base: 0, md: 6 }} py={{ base: 2, md: 4 }}>
                   <Stack align='center'>
-                    <Text size='sm'>{stat.label}</Text>
+                    <Text size={{ base: 'xs', md: 'sm' }}>{stat.label}</Text>
                     <Skeleton isLoaded={stat.loading}>
-                      <Heading size='2xl'>{stat.value}</Heading>
+                      <Heading size={{ base: 'md', md: '2xl' }}>
+                        {stat.value}
+                      </Heading>
                     </Skeleton>
                   </Stack>
                 </CardBody>
@@ -223,13 +225,20 @@ const WearerDetail = ({
                       _.filter(currentHatsWithImagesData, {
                         chainId: Number(chainId),
                       }),
-                      (hat: AppHat) => (
-                        <CoreHat
-                          hat={hat}
-                          key={`${chainId}-${hat.id}`}
-                          chainId={chainId}
-                        />
-                      ),
+                      (hat: AppHat) =>
+                        isMobile ? (
+                          <MobileHatCard
+                            hat={hat}
+                            key={`${chainId}-${hat.id}`}
+                            chainId={chainId}
+                          />
+                        ) : (
+                          <CoreHat
+                            hat={hat}
+                            key={`${chainId}-${hat.id}`}
+                            chainId={chainId}
+                          />
+                        ),
                     )}
                   </SimpleGrid>
                   <Divider border='1px solid' borderColor='gray.400' />

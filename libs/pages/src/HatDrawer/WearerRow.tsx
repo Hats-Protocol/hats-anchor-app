@@ -128,14 +128,9 @@ const WearerRow = ({
     });
   };
 
-  let icon = (
-    <Icon
-      as={WearerIcon}
-      color={isSameAddress(wearer.id, address) ? 'green.700' : 'gray.500'}
-    />
-  );
+  let icon = WearerIcon;
   if (wearer.isContract) {
-    icon = <Icon as={BsFileCode} color='gray.500' />;
+    icon = BsFileCode;
   }
 
   // could look up by Id to be more resilient?
@@ -154,10 +149,15 @@ const WearerRow = ({
             isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
           }
         >
-          {icon}
+          <Icon
+            as={icon}
+            color={isSameAddress(wearer.id, address) ? 'green.700' : 'gray.500'}
+            boxSize={{ base: '14px', md: 4 }}
+          />
 
           <Text
             color={isSameAddress(wearer.id, address) ? 'green.700' : 'inherit'}
+            size={{ base: 'sm', md: 'md' }}
           >
             {_.get(wearer, 'ensName') ||
               moduleName ||
