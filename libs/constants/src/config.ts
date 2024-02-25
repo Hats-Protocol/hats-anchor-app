@@ -1,8 +1,8 @@
 import { Abi, Hex } from 'viem';
 
-import { CONTACT_URL, DOCS_URL } from './content';
 import { HATS_ABI } from './contracts';
 import { MINI_CONFIG } from './next-seo.config';
+import { CONTACT_URL, DOCS_URL } from './temp-content';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
 const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';

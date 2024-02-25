@@ -23,7 +23,7 @@ const nextConfig = {
     dirs: [
       'pages',
       'components',
-      'constants',
+      // '@hatsprotocol/constants',
       'contexts',
       'forms',
       'gql',

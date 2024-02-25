@@ -1,7 +1,6 @@
 export * from './authorities';
 export * from './chains';
 export { default as CONFIG } from './config';
-export * from './content';
 export * from './contracts';
 export { default as DEFAULT_HAT } from './defaultHat';
 export * from './ecosystem';
@@ -13,4 +12,5 @@ export * from './modules';
 export { default as SEO } from './next-seo.config';
 export { default as PROPOSALS } from './spaces';
 export { ANCILLARY_API_URL, default as NETWORK_ENDPOINTS } from './subgraph';
+export * from './temp-content';
 export * from './treeControls';

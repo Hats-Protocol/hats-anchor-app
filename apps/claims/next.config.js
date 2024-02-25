@@ -41,7 +41,7 @@ const nextConfig = {
       'react-datepicker',
       'viem',
       // internal packages
-      '@hatsprotocol/constants',
+      // '@hatsprotocol/constants',
       'contexts',
       'forms',
       'hats-hooks',
