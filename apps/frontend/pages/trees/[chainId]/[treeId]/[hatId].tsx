@@ -20,7 +20,7 @@ const checkParamForArray = (param: string | string[] | undefined) => {
 
 const numberParam = (param: string | string[] | undefined) => {
   const result = checkParamForArray(param);
-  return result ? parseInt(result, 10) : undefined;
+  return result ? _.toNumber(result) : undefined;
 };
 
 const hexParam = (param: string | string[] | undefined, size: number = 8) => {
@@ -50,6 +50,8 @@ const HatDetails = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treeId, chainId]);
+
+  if (!treeId || chainId === '0x' || !chainId) return null;
 
   return (
     <TreeFormContextProvider
