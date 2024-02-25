@@ -128,16 +128,18 @@ const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
   const newArray = [hat.id];
   if (!_.isEmpty(getChildren(hat, tree))) {
     newArray.push(
-      _.map(getChildren(hat, tree), (child: AppHat) => {
-        if (!_.isEmpty(getChildren(child, tree))) {
-          // TODO not working at 4+ levels, need recursive solution
-          return _.flatten(
-            _.concat([child.id], _.map(getChildren(child, tree), 'id')),
-          );
-        }
+      ..._.flatten(
+        _.map(getChildren(hat, tree), (child: AppHat) => {
+          if (!_.isEmpty(getChildren(child, tree))) {
+            // TODO not working at 4+ levels, need recursive solution
+            return _.flatten(
+              _.concat([child.id], _.map(getChildren(child, tree), 'id')),
+            );
+          }
 
-        return [child.id];
-      }),
+          return [child.id];
+        }),
+      ),
     );
   }
 

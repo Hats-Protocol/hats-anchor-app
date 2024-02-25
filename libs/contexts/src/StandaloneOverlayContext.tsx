@@ -26,6 +26,7 @@ const defaults: ClaimsModals = {
   hatSupply: false,
   'functionCall-module': false,
   account: false,
+  transactions: false,
 };
 
 const MAX_TREES = 3;

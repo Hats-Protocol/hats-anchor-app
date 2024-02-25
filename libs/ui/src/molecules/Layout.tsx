@@ -1,56 +1,26 @@
-/* eslint-disable no-continue */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { AppHat } from 'hats-types';
+import { useAttemptAutoConnect, useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
-import { ReactNode, useEffect, useState } from 'react';
-import { useAccount, useConfig, useConnect } from 'wagmi';
+import { ReactNode } from 'react';
 
 import CommandPalette from './CommandPalette';
+import { StandaloneNavbar } from './standalone';
 import TransactionHistory from './TransactionHistory';
 
 const Navbar = dynamic(() => import('./Navbar'));
 
 const Layout = ({ editMode, hatData, children }: LayoutProps) => {
-  const [isAutoConnecting, setIsAutoConnecting] = useState(false);
-  const { address } = useAccount();
   const localOverlay = useOverlay();
   const { transactions } = localOverlay;
-  const { connectAsync, connectors } = useConnect();
-  const client = useConfig();
+  const { isMobile } = useMediaStyles();
 
-  useEffect(() => {
-    if (isAutoConnecting) return;
-    if (address) return;
-
-    setIsAutoConnecting(true);
-
-    const autoConnect = async () => {
-      const lastUsedConnector = client.storage?.getItem('wallet');
-
-      const sorted = lastUsedConnector
-        ? [...connectors].sort((x) => (x.id === lastUsedConnector ? -1 : 1))
-        : connectors;
-
-      for (const connector of sorted) {
-        if (!connector.ready || !connector.isAuthorized) continue;
-        const isAuthorized = await connector.isAuthorized();
-        if (!isAuthorized) continue;
-
-        await connectAsync({ connector });
-        break;
-      }
-    };
-
-    autoConnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useAttemptAutoConnect();
 
   return (
     <>
-      <Box>
+      <Box position='relative'>
         <Box
           bgColor={editMode ? 'cyan.100' : 'gray.100'}
           backgroundImage='/bg-topography.svg'
@@ -62,7 +32,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         />
 
         <CommandPalette />
-        <Navbar hatData={hatData} />
+        {isMobile ? <StandaloneNavbar /> : <Navbar hatData={hatData} />}
         <Box h='100vh' w='100vw'>
           {children}
         </Box>

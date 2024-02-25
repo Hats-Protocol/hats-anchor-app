@@ -17,8 +17,7 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import _ from 'lodash';
-import { FaCopy } from 'react-icons/fa';
-import { ChakraNextLink, Markdown } from 'ui';
+import { ChakraNextLink, CopyHash, Markdown } from 'ui';
 import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -93,7 +92,7 @@ const Header = () => {
                   {hatIdDecimalToIp(BigInt(selectedHat.id))}
                 </Text>
                 <Icon
-                  as={FaCopy}
+                  as={CopyHash}
                   color='blue.500'
                   cursor='pointer'
                   onClick={() => {
@@ -122,7 +121,7 @@ const Header = () => {
           <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
             {activeStatus}
           </Badge>
-          <Badge>Level {levelAtLocalTree}</Badge>
+          <Badge colorScheme='purple'>Level {levelAtLocalTree}</Badge>
         </HStack>
       </Stack>
     </HStack>

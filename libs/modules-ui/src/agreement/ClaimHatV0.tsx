@@ -10,15 +10,13 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-// import { fetchWearerDetails } from '@/gql/helpers';
-import { CONFIG } from '@hatsprotocol/constants';
-// import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG, TOASTS } from '@hatsprotocol/constants';
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-// import useAgreementClaimsHatterContractWrite from '@/hooks/useAgreementClaimsHatterContractWrite';
 import { useWearerDetails } from 'hats-hooks';
+import { useAgreementClaimsHatterContractWrite } from 'hooks';
 import _ from 'lodash';
 import NextLink from 'next/link';
-import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
 import { ChakraNextLink } from 'ui';
@@ -27,14 +25,6 @@ import { useAccount, useNetwork } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 // import Hat from './Hat';
-
-// TODO get hatId from URL params
-const communityMemberHat = '1.2.1';
-
-// get authority link from hat details/authorities
-const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';
-const TELEGRAM_LINK = `https://telegram.me/collablandbot?start=${TELEGRAM_KEY}`;
-const HATS_APP_LINK = `${CONFIG.url}/trees/10/1?hatId=${communityMemberHat}`;
 
 async function waitForClaim(address: Hex, chainId: number) {
   // return new Promise((resolve) => {
@@ -66,17 +56,19 @@ async function waitForClaim(address: Hex, chainId: number) {
 }
 
 const ClaimHat = ({ agreement }: { agreement: string }) => {
-  // const hatId = hatIdDecimalToHex(hatIdIpToDecimal(communityMemberHat)); // TODO handle IP from URL params
+  const hatId = hatIdDecimalToHex(
+    hatIdIpToDecimal(CONFIG.agreementV0.communityHatId),
+  ); // TODO handle IP from URL params
   const { address } = useAccount();
   const { chain } = useNetwork();
   const queryClient = useQueryClient();
   const chainId = chain?.id;
 
-  const { data: wearerDetails } = useWearerDetails({
+  const { data: wearerDetails, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress: address,
     chainId,
   });
-  const wearing = !!_.find(wearerDetails, ['id', communityMemberHat]);
+  const wearing = !!_.find(wearerDetails, ['id', hatId]);
 
   const printDocumentAsPDF = () => {
     const newWindow = window.open('', '_blank');
@@ -95,25 +87,22 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     };
   };
 
-  // const {
-  //   writeAsync: claimHat,
-  //   prepareError,
-  //   isLoading: isClaiming,
-  // } = useAgreementClaimsHatterContractWrite({
-  //   functionName: 'claimHatWithAgreement',
-  //   address: AGREEMENT_CLAIMS_HATTER_ADDRESS,
-  //   chainId,
-  //   enabled: Boolean(hatId) && !wearerLoading && !wearing,
-  //   onSuccessToastData: {
-  //     title: 'Hat Claimed',
-  //     description: 'Claimed with signature',
-  //   },
-  // });
+  const {
+    writeAsync: claimHat,
+    prepareError,
+    isLoading: isClaiming,
+  } = useAgreementClaimsHatterContractWrite({
+    functionName: 'claimHatWithAgreement',
+    address: CONFIG.agreementV0.hatterAddress,
+    chainId,
+    enabled: Boolean(hatId) && !wearerLoading && !wearing,
+    onSuccessToastData: TOASTS.claimHatWithAgreement,
+  });
 
   const handleClaim = async () => {
     // eslint-disable-next-line no-console
-    // if (!claimHat) console.log('no claim hat fn');
-    // await claimHat?.();
+    if (!claimHat) console.log('no claim hat fn');
+    await claimHat?.();
 
     if (!address || !chainId) {
       // eslint-disable-next-line no-console
@@ -182,7 +171,11 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
           </ListItem>
           <ListItem>
             Start by joining the{' '}
-            <ChakraNextLink href={TELEGRAM_LINK} isExternal decoration>
+            <ChakraNextLink
+              href={CONFIG.agreementV0.telegramLink}
+              isExternal
+              decoration
+            >
               Hats Community Telegram group here
             </ChakraNextLink>
             . Welcome to the community!
@@ -203,8 +196,8 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
             placement='top'
           >
             <Button
-              // isDisabled={!claimHat || !chainId || !!prepareError}
-              // isLoading={isClaiming}
+              isDisabled={!claimHat || !chainId || !!prepareError}
+              isLoading={isClaiming}
               colorScheme='blue'
               leftIcon={<BsPen />}
               onClick={handleClaim}
@@ -220,12 +213,20 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
               Claimed!
             </Heading>
             <HStack>
-              <NextLink href={HATS_APP_LINK} passHref target='_blank'>
+              <NextLink
+                href={CONFIG.agreementV0.hatsAppLink}
+                passHref
+                target='_blank'
+              >
                 <Button colorScheme='blue.500' variant='outlineMatch'>
                   View in Hats
                 </Button>
               </NextLink>
-              <NextLink href={TELEGRAM_LINK} passHref target='_blank'>
+              <NextLink
+                href={CONFIG.agreementV0.telegramLink}
+                passHref
+                target='_blank'
+              >
                 <Button colorScheme='blue' leftIcon={<BsTelegram />}>
                   Join the chat
                 </Button>

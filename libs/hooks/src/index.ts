@@ -1,4 +1,5 @@
 export { default as useAgreementClaimsHatterContractWrite } from './useAgreementClaimsHatterContractWrite';
+export { default as useAttemptAutoConnect } from './useAttemptAutoConnect';
 export { default as useBetterMediaQuery } from './useBetterMediaQuery';
 export { default as useCid } from './useCid';
 export { default as useClipboard } from './useClipboard';

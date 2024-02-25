@@ -1,10 +1,12 @@
 import { Abi, Hex } from 'viem';
 
+import { CONTACT_URL, DOCS_URL } from './content';
 import { HATS_ABI } from './contracts';
-import { CONTACT_URL, DOCS_URL } from './landingContent';
 import { MINI_CONFIG } from './next-seo.config';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
+const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';
+const COMMUNITY_HAT_ID = '1.2.1.1';
 
 const CONFIG: Config = {
   ...MINI_CONFIG,
@@ -18,7 +20,14 @@ const CONFIG: Config = {
   banner: false,
   claimsHatterModuleName: 'Multi Claims Hatter',
   modulesRegistryFactory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
-  communityHatId: '1.2.1.1',
+  agreementV0: {
+    hatterAddress: '0xD0929e6Ae5406cBee08604De99F83CF2Ce52d903',
+    ipfsHash: 'QmPK856cK97JH74S3VCo8v2UNPdE6TAzHcizzG3mpCJdpp',
+    communityHatId: COMMUNITY_HAT_ID,
+    telegramLink: `https://telegram.me/collablandbot?start=${TELEGRAM_KEY}`,
+    hatsAppLink: `${APP_URL}/trees/10/1?hatId=${COMMUNITY_HAT_ID}`,
+  },
+
   // urls
   APP_URL,
   CONTACT_URL,
@@ -68,7 +77,15 @@ type Config = {
   debounce: number;
   banner: boolean;
   claimsHatterModuleName: string;
-  communityHatId: string;
+
+  // agreement v0
+  agreementV0: {
+    hatterAddress: string;
+    ipfsHash: string;
+    communityHatId: string;
+    telegramLink: string;
+    hatsAppLink: string;
+  };
 
   // terminology
   hat: string;

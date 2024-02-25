@@ -1,10 +1,6 @@
-import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useIsClient } from 'hooks';
-import {
-  ChakraNextLink,
-  StandaloneLayout as Layout,
-  // WearerHatCard as CoreHat,
-} from 'ui';
+import { ChakraNextLink, StandaloneLayout as Layout } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
@@ -41,14 +37,6 @@ const Home = () => {
   if (!isClient || !wearerAddress) {
     return (
       <Layout title='Claims'>
-        <Box
-          w='100%'
-          h='100%'
-          bg='blue'
-          position='fixed'
-          opacity={0.07}
-          zIndex={-1}
-        />
         <Flex px={20} py={120}>
           <Stack spacing={10}>
             <Heading variant='medium'>
@@ -63,14 +51,6 @@ const Home = () => {
 
   return (
     <Layout title='Claims'>
-      <Box
-        w='100%'
-        h='100%'
-        bg='blue'
-        position='fixed'
-        opacity={0.07}
-        zIndex={-1}
-      />
       <Flex px={20} py={120}>
         <Stack spacing={50}>
           <Heading variant='medium'>

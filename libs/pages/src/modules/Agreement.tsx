@@ -1,26 +1,28 @@
 import { Box, HStack } from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/constants';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { fetchIpfs } from 'utils';
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 const ClaimHat = dynamic(() =>
   import('modules-ui').then((mod) => mod.ClaimHat),
 );
-const Agreement = dynamic(() =>
-  import('modules-ui').then((mod) => mod.Agreement),
+const AgreementContent = dynamic(() =>
+  import('modules-ui').then((mod) => mod.AgreementContent),
 );
 
-const AgreementPage = () => {
-  const [agreement] = useState('');
-
-  const fetchIPFS = async () => {
-    // const res = await fetchIpfs(AGREEMENT_IPFS_HASH);
-    // if (res) {
-    //   setAgreement(res.data);
-    // }
-  };
+const Agreement = () => {
+  const [agreement, setAgreement] = useState('');
 
   useEffect(() => {
+    const fetchIPFS = async () => {
+      const res = await fetchIpfs(CONFIG.agreementV0.ipfsHash);
+      if (res) {
+        setAgreement(res.data);
+      }
+    };
+
     fetchIPFS();
   }, []);
 
@@ -53,7 +55,7 @@ const AgreementPage = () => {
           backgroundColor='white'
           border='1px solid #cbcbcb'
         >
-          <Agreement agreement={agreement} />
+          <AgreementContent agreement={agreement} />
         </Box>
 
         <ClaimHat agreement={agreement} />
@@ -62,4 +64,4 @@ const AgreementPage = () => {
   );
 };
 
-export default AgreementPage;
+export default Agreement;

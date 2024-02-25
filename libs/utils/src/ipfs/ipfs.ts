@@ -168,6 +168,16 @@ export const fetchToken = async (count: number = 0) => {
   return token;
 };
 
+export const fetchIpfs = async (hash: string | undefined) => {
+  if (!hash) return null;
+  const url = ipfsUrl(hash);
+  if (!url) return null;
+
+  // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
+  const res = await axios.get(url, { timeout: 5000 });
+  return Promise.resolve({ details: hash, data: _.get(res, 'data') });
+};
+
 export const authorityImageHandler = ({
   authority,
   authorityEnforcement,

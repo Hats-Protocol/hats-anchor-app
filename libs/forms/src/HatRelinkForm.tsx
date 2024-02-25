@@ -11,9 +11,9 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useDebounce, usePinImageIpfs } from 'hooks';
 import { useHatContractWrite } from 'hats-hooks';
 import { AppHat, ImageFile } from 'hats-types';
+import { useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';

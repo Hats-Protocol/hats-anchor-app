@@ -19,15 +19,10 @@ const Claims = () => {
   const {
     chainId,
     selectedHat,
-    moduleDetails,
+    moduleDetails: m,
     isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
-
-  const isElectionEligibility =
-    moduleDetails?.name === 'Hats Election Eligibility';
-  const isAgreementEligibility =
-    moduleDetails?.name === 'Agreement Eligibility';
 
   if (!isClient) return null;
 
@@ -44,16 +39,22 @@ const Claims = () => {
     );
   }
 
-  if (chainId === 10 && selectedHat?.id === CONFIG.communityHatId) {
+  if (
+    selectedHat?.id &&
+    chainId === 10 &&
+    hatIdDecimalToIp(BigInt(selectedHat.id)) ===
+      CONFIG.agreementV0.communityHatId
+  ) {
     return <AgreementV0 />;
   }
 
   // handle specific modules found
-  if (isElectionEligibility) return <Election />;
-  if (isAgreementEligibility) return <Agreement />;
+  // TODO migrate to ID and CONSTs
+  if (m?.name === 'Hats Election Eligibility') return <Election />;
+  if (m?.name === 'Agreement Eligibility') return <Agreement />;
 
   // fallback for other known modules
-  if (moduleDetails) return <KnownModule />;
+  if (m) return <KnownModule />;
 
   // fallback for unknown modules
   return (

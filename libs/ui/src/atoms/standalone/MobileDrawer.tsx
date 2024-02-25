@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 
 import { ConnectWallet } from '../../molecules';
+import { useStandaloneOverlay } from 'contexts';
 
 const StandaloneMobileDrawer = ({
   isOpen,
@@ -18,6 +19,7 @@ const StandaloneMobileDrawer = ({
   isOpen: boolean;
   onToggle: () => void;
 }) => {
+  const localOverlay = useStandaloneOverlay();
   return (
     <Drawer placement='right' isOpen={isOpen} onClose={onToggle}>
       <DrawerOverlay>
@@ -28,7 +30,7 @@ const StandaloneMobileDrawer = ({
           </DrawerHeader>
           <DrawerBody>
             <Flex direction='column' justify='end' h='100%' py={6}>
-              <ConnectWallet />
+              <ConnectWallet overlay={localOverlay} />
             </Flex>
           </DrawerBody>
         </DrawerContent>

@@ -1,13 +1,13 @@
 export * from './authorities';
 export * from './chains';
 export { default as CONFIG } from './config';
+export * from './content';
 export * from './contracts';
 export { default as DEFAULT_HAT } from './defaultHat';
 export * from './ecosystem';
 export * from './etherscan';
 export * from './form';
 export * from './ipfs';
-export * from './landingContent';
 export * from './misc';
 export * from './modules';
 export { default as SEO } from './next-seo.config';

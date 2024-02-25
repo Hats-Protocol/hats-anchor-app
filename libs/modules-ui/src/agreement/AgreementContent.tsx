@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 
-const Agreement = ({ agreement }: { agreement: string }) => {
+const AgreementContent = ({ agreement }: { agreement: string }) => {
   const formattedAgreement = agreement
     .replace(/{\.underline}/g, '') // replace weird format provided in original agreement copy
     .replace(/\[\*\[|\[\[/g, '[') // replace escaped brackets
@@ -14,4 +14,4 @@ const Agreement = ({ agreement }: { agreement: string }) => {
     </Box>
   );
 };
-export default Agreement;
+export default AgreementContent;

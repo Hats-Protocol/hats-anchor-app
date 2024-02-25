@@ -95,7 +95,9 @@ const AuthorityHeader = ({
 
     return _.reject(
       safeOwners,
-      (owner: Hex) => !_.includes(wearersLowercased, _.toLower(owner)),
+      (owner: Hex) =>
+        // TODO temp type workaround
+        !_.includes(wearersLowercased, _.toLower(owner) as any),
     );
   }, [safeOwners, selectedHat?.wearers]);
 

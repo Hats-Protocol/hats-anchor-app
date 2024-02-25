@@ -7,10 +7,6 @@
   /* this sets the color of the line */
 }
 
-.small-font {
-  font-size: 14px;
-}
-
 .chakra-datepicker .react-datepicker__input-container input {
   padding: 0.5rem;
   padding-left: 1rem;
@@ -27,4 +23,30 @@
 
 .chakra-collapse {
   overflow: visible !important;
+}
+
+.markdown .small-font {
+  font-size: 14px;
+}
+
+.markdown-content h1 {
+  font-size: 2rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+}
+
+.markdown-content p {
+  margin: 0.7rem 0;
+}
+
+.markdown-content li {
+  margin-left: 1rem;
+}
+
+.markdown-content a {
+  color: #3182ce;
+  text-decoration: underline;
+  font-style: italic;
 }

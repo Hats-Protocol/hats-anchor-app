@@ -60,7 +60,7 @@ const MainAction = () => {
   );
 
   if (!isConnected) {
-    return <ConnectWallet />;
+    return <ConnectWallet overlay={localOverlay} />;
   }
 
   if (chainId !== chain?.id) return <NetworkSwitcher />;
