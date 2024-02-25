@@ -16,6 +16,7 @@ export interface ClaimsModals {
   hatImage: boolean;
   hatSupply: boolean;
   'functionCall-module': boolean;
+  account: boolean;
 }
 
 export type TreeRecord = { treeId: number; chainId: number };

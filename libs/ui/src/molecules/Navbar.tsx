@@ -57,6 +57,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
+  const localOverlay = useOverlay();
 
   const hasPendingTransactions = transactions.some(
     (tx: Transaction) => tx.status === 'pending',
@@ -241,7 +242,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
             </PopoverContent>
           </Portal>
         </Popover>
-        <ConnectWallet />
+        <ConnectWallet overlay={localOverlay} />
       </HStack>
     </Flex>
   );

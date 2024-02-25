@@ -18,10 +18,10 @@ import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { FaCopy } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
+const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
 
 const Header = () => {
   const toast = useToast();
@@ -106,7 +106,7 @@ const Header = () => {
                   {hatIdDecimalToIp(BigInt(selectedHat.id))}
                 </Text>
                 <Icon
-                  as={FaCopy}
+                  as={CopyHash}
                   color='blue.500'
                   cursor='pointer'
                   onClick={() => {
@@ -126,18 +126,20 @@ const Header = () => {
           )}
         </Stack>
       </Flex>
-      <HStack>
-        {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-        <Badge
-          colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}
-        >
-          {mutableStatus}
-        </Badge>
-        <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
-          {activeStatus}
-        </Badge>
-        <Badge>Level {levelAtLocalTree}</Badge>
-      </HStack>
+      <Flex justify={isMobile ? 'center' : 'start'}>
+        <HStack>
+          {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+          <Badge
+            colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}
+          >
+            {mutableStatus}
+          </Badge>
+          <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
+            {activeStatus}
+          </Badge>
+          <Badge>Level {levelAtLocalTree}</Badge>
+        </HStack>
+      </Flex>
     </Stack>
   );
 };

@@ -74,9 +74,9 @@ const MainContent = ({
       // apply x padding on components for section background handling
       spacing={10}
       w='100%'
-      height={{ base: '100vh', md: 'calc(100% - 150px)' }}
+      overflowY={{ base: 'auto', md: 'scroll' }}
+      height={{ base: 'auto', md: 'calc(100% - 150px)' }}
       pb={{ base: 100, md: 400 }}
-      pos='relative'
       color='blackAlpha.800'
       bg='gray.50'
     >
@@ -85,7 +85,7 @@ const MainContent = ({
       <ResponsibilitiesList />
       <WearersList />
 
-      <Stack spacing={4}>
+      <Stack spacing={4} bg='gray.50'>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
           <StatusCard
             status={MODULE_TYPES.eligibility}

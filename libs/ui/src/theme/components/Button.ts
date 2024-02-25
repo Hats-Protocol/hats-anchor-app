@@ -9,6 +9,12 @@ const Button = {
       border: props.border || '1px solid',
       borderColor: props.borderColor || props.colorScheme || 'gray.700',
     }),
+    whiteFilled: (props: StyleFunctionProps) => ({
+      background: props.background || props.bg || 'white',
+      color: props.color || 'gray.700',
+      border: props.border || '1px solid',
+      borderColor: 'blackAlpha.300',
+    }),
     primary: (props: StyleFunctionProps) => ({
       background: props.background || props.bg || 'blue.500',
       color: props.color || 'white',

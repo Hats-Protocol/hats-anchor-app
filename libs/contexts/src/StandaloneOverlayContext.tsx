@@ -1,9 +1,9 @@
-import { useLocalStorage, useToast } from 'hooks';
 import {
   ClaimsModals,
   HatRecord,
   StandaloneOverlayContextProps,
 } from 'hats-types';
+import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -25,6 +25,7 @@ const defaults: ClaimsModals = {
   hatImage: false,
   hatSupply: false,
   'functionCall-module': false,
+  account: false,
 };
 
 const MAX_TREES = 3;

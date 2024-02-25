@@ -9,6 +9,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
+import _ from 'lodash';
 import { ReactNode } from 'react';
 
 /**
@@ -35,12 +36,10 @@ const Modal = ({
   localOverlay,
   children,
 }: ModalProps) => {
-  let modals;
-  let closeModals: (() => void) | undefined;
-  if (localOverlay) {
-    modals = localOverlay.modals;
-    closeModals = localOverlay.closeModals;
-  }
+  const { modals, closeModals } = _.pick(localOverlay, [
+    'modals',
+    'closeModals',
+  ]);
 
   const handleClose = () => {
     if (onClose) {
@@ -92,6 +91,6 @@ interface ModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   size?: string | object;
-  localOverlay: StandaloneOverlayContextProps | OverlayContextProps;
+  localOverlay: StandaloneOverlayContextProps | OverlayContextProps | undefined;
   children: ReactNode;
 }

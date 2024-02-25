@@ -1,7 +1,8 @@
 import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
-import { Modal, useOverlay } from 'contexts';
+import { Modal } from 'contexts';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -10,11 +11,10 @@ import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 
 import WalletProfile from './WalletProfile';
 
-const ConnectWallet = () => {
+const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
-  const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
+  const { setModals } = _.pick(overlay, ['setModals']);
   const { isMobile } = useMediaStyles();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -83,6 +83,7 @@ const ConnectWallet = () => {
                     display='flex'
                     alignItems='center'
                     px={2}
+                    variant='whiteFilled'
                   >
                     {chain.hasIcon && chain.iconUrl && (
                       <Image
@@ -96,29 +97,22 @@ const ConnectWallet = () => {
                   </Button>
 
                   <Button
-                    bg='green.200'
+                    variant='whiteFilled'
                     onClick={openAccountModal}
-                    _hover={{ bg: 'green.300' }}
-                    color='green.700'
                     px={{ base: 2, md: 4 }}
                   >
                     <HStack spacing={2} align='center'>
                       {ensAvatar || blockie ? (
                         <Box
-                          height={ensAvatar ? '28px' : '20px'}
-                          width={ensAvatar ? '28px' : '20px'}
-                          borderRadius='50%'
+                          height='26px'
+                          width='16px'
                           overflow='hidden'
-                          borderColor='green.700'
-                          borderWidth='3px'
-                        >
-                          <Image
-                            src={ensAvatar || blockie}
-                            alt='User Avatar'
-                            height='25px'
-                            width='25px'
-                          />
-                        </Box>
+                          backgroundImage={ensAvatar || blockie}
+                          backgroundSize='cover'
+                          backgroundClip='content-box'
+                          backgroundPosition='center'
+                          borderRadius='sm'
+                        />
                       ) : (
                         <Box
                           height='14px'
@@ -143,7 +137,7 @@ const ConnectWallet = () => {
       </RainbowConnectButton.Custom>
       <Modal
         name='account'
-        localOverlay={localOverlay}
+        localOverlay={overlay}
         onClose={() => setModals?.({})}
         size='md'
       >
@@ -152,6 +146,7 @@ const ConnectWallet = () => {
             address={address}
             name={ensName || formatAddress(address)}
             avatar={ensAvatar || blockie}
+            localOverlay={overlay}
           />
         )}
       </Modal>
@@ -160,3 +155,7 @@ const ConnectWallet = () => {
 };
 
 export default ConnectWallet;
+
+interface ConnectWalletProps {
+  overlay: StandaloneOverlayContextProps | OverlayContextProps;
+}

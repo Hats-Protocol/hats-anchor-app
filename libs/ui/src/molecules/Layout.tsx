@@ -4,13 +4,11 @@
 import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { AppHat } from 'hats-types';
-import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
 import CommandPalette from './CommandPalette';
-import NavbarMobile from './standalone/NavbarMobile';
 import TransactionHistory from './TransactionHistory';
 
 const Navbar = dynamic(() => import('./Navbar'));
@@ -20,7 +18,6 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { transactions } = localOverlay;
-  const { isMobile } = useMediaStyles();
   const { connectAsync, connectors } = useConnect();
   const client = useConfig();
 
@@ -65,11 +62,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         />
 
         <CommandPalette />
-        {isMobile ? (
-          <NavbarMobile hatData={hatData} />
-        ) : (
-          <Navbar hatData={hatData} />
-        )}
+        <Navbar hatData={hatData} />
         <Box h='100vh' w='100vw'>
           {children}
         </Box>

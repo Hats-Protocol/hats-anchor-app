@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
-import { useOverlay } from 'contexts';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
 import { useClipboard } from 'hooks';
 import _ from 'lodash';
 import { BsBoxArrowRight } from 'react-icons/bs';
@@ -47,13 +47,18 @@ const WalletProfile = ({
   address,
   name,
   avatar,
+  localOverlay,
 }: {
   address: Hex;
   name: string;
   avatar: string | undefined;
+  localOverlay: StandaloneOverlayContextProps | OverlayContextProps | undefined;
 }) => {
   const chainId = useChainId();
-  const { transactions, setModals } = useOverlay();
+  const { transactions, setModals } = _.pick(localOverlay, [
+    'transactions',
+    'setModals',
+  ]);
   const { data: balance } = useBalance({ address, chainId });
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();
@@ -101,7 +106,7 @@ const WalletProfile = ({
       <Flex justify='space-between' gap={2} mb={2}>
         <Button w='full' variant='outline' onClick={toggleNetworkModal}>
           <HStack>
-            <Image src={networkImages[chainId]} boxSize='20px' />
+            <Image src={networkImages[chainId]} boxSize={5} />
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>

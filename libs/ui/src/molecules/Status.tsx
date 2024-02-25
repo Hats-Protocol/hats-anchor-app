@@ -193,7 +193,7 @@ const StatusCard = ({
           <Text>{statusCheck ? 'Yes' : 'No'}</Text>
           <Icon
             as={statusCheck ? FaCheck : FaBan}
-            boxSize={{ base: '14px', md: 'md' }}
+            boxSize={{ base: '14px', md: 4 }}
           />
         </HStack>
       </Flex>

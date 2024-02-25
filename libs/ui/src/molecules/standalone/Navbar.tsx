@@ -1,7 +1,7 @@
 import { Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useStandaloneOverlay, useTreeForm } from 'contexts';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -11,9 +11,10 @@ import { useChainId } from 'wagmi';
 import { ChakraNextLink } from '../../atoms';
 import ConnectWallet from '../ConnectWallet';
 
-const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
+const StandaloneNavbar = ({ hatData }: StandaloneNavbarProps) => {
   const currentChainId = useChainId();
   const { chainId } = useTreeForm();
+  const localOverlay = useStandaloneOverlay();
   const treeId = hatIdToTreeId(BigInt(hatData?.id || 0));
   const router = useRouter();
   const pathSegments = _.split(router.pathname, '/').filter(Boolean);
@@ -49,7 +50,7 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
             <ChakraNextLink
               href={`/${CONFIG.trees}/${chainId || currentChainId || 1}`}
             >
-              <Button leftIcon={<BsDiagram3Fill />}>
+              <Button leftIcon={<BsDiagram3Fill />} variant='whiteFilled'>
                 <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>
               </Button>
             </ChakraNextLink>
@@ -57,9 +58,13 @@ const NavbarMobile = ({ hatData }: { hatData?: AppHat }) => {
         )}
       </HStack>
 
-      <ConnectWallet />
+      <ConnectWallet overlay={localOverlay} />
     </Flex>
   );
 };
 
-export default NavbarMobile;
+export default StandaloneNavbar;
+
+interface StandaloneNavbarProps {
+  hatData?: AppHat;
+}

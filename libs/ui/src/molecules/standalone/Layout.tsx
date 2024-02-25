@@ -6,9 +6,9 @@ import { Box } from '@chakra-ui/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
-import NavbarMobile from './NavbarMobile';
+import Navbar from './Navbar';
 
-const Layout = ({ children, title }: LayoutProps) => {
+const StandaloneLayout = ({ children, title }: StandaloneLayoutProps) => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();
   const { connectAsync, connectors } = useConnect();
@@ -42,7 +42,7 @@ const Layout = ({ children, title }: LayoutProps) => {
   }, []);
 
   return (
-    <Box>
+    <Box h='100%' w='100%'>
       <Box
         bgColor='gray.100'
         backgroundImage='/bg-topography.svg'
@@ -53,7 +53,7 @@ const Layout = ({ children, title }: LayoutProps) => {
         zIndex={-1}
       />
 
-      <NavbarMobile />
+      <Navbar />
       <Box
         h={{ base: 'auto', md: '100vh' }}
         w={{ base: 'auto', md: '100vw' }}
@@ -66,9 +66,9 @@ const Layout = ({ children, title }: LayoutProps) => {
   );
 };
 
-export default Layout;
+export default StandaloneLayout;
 
-interface LayoutProps {
+interface StandaloneLayoutProps {
   title?: string;
   children: ReactNode;
 }
