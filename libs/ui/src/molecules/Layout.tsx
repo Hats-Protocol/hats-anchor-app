@@ -32,7 +32,11 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
         />
 
         <CommandPalette />
-        {isMobile ? <StandaloneNavbar /> : <Navbar hatData={hatData} />}
+        {isMobile ? (
+          <StandaloneNavbar hatData={hatData} />
+        ) : (
+          <Navbar hatData={hatData} />
+        )}
         <Box h='100vh' w='100vw'>
           {children}
         </Box>

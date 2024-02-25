@@ -20,7 +20,7 @@ const StandaloneLayout = ({ children, title }: StandaloneLayoutProps) => {
         zIndex={-1}
       />
 
-      <Navbar />
+      <Navbar showLink={false} />
       <Box
         h={{ base: 'auto', md: '100vh' }}
         w={{ base: 'auto', md: '100vw' }}

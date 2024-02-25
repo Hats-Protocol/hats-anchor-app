@@ -14,17 +14,17 @@ import { CONFIG, TOASTS } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
-import { useAgreementClaimsHatterContractWrite } from 'hooks';
+import { useAgreementClaimsHatterContractWrite, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
-import { ChakraNextLink } from 'ui';
+import { ChakraNextLink, HatCreateCard } from 'ui';
+import { hatLink } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
-// import Hat from './Hat';
 
 async function waitForClaim(address: Hex, chainId: number) {
   // return new Promise((resolve) => {
@@ -60,9 +60,9 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     hatIdIpToDecimal(CONFIG.agreementV0.communityHatId),
   ); // TODO handle IP from URL params
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const chainId = useChainId();
   const queryClient = useQueryClient();
-  const chainId = chain?.id;
+  const { isMobile } = useMediaStyles();
 
   const { data: wearerDetails, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress: address,
@@ -136,14 +136,18 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
         Sign to claim your Community Member Hat
       </Text>
       <Flex w='full' justifyContent='center' py={4}>
-        {/* <NextLink href={HATS_APP_LINK} passHref target='_blank'>
+        <NextLink
+          href={hatLink({ chainId, hatId, isMobile })}
+          passHref
+          target='_blank'
+        >
           <HatCreateCard
             name='test'
             supply={10}
             nextChild='1.1'
-            image='/icon.jpeg'
+            image={{ path: '/icon.jpeg' }}
           />
-        </NextLink> */}
+        </NextLink>
       </Flex>
 
       <Box mb={5}>
@@ -155,13 +159,13 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
             Connect your wallet and claim this hat via the button below to
             verify that you have signed the Hats Community Agreements and Code
             of Conduct (
-            {/* <ChakraNextLink
-              href={`https://ipfs.io/ipfs/${AGREEMENT_IPFS_HASH}`}
+            <ChakraNextLink
+              href={`https://ipfs.io/ipfs/${CONFIG.agreementV0.ipfsHash}`}
               isExternal
               decoration
             >
               pinned to IPFS here
-            </ChakraNextLink> */}
+            </ChakraNextLink>
             )
           </ListItem>
           <ListItem>

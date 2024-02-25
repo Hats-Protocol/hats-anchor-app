@@ -256,6 +256,7 @@ const WearersList = () => {
               _hover={{
                 textDecor: 'underline',
               }}
+              size={{ base: 'sm', md: 'md' }}
             >
               Show all {_.get(selectedHat, 'currentSupply')} wearers
             </Text>

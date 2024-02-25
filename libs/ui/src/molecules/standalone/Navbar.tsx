@@ -11,7 +11,10 @@ import { useChainId } from 'wagmi';
 import { ChakraNextLink } from '../../atoms';
 import ConnectWallet from '../ConnectWallet';
 
-const StandaloneNavbar = ({ hatData }: StandaloneNavbarProps) => {
+const StandaloneNavbar = ({
+  hatData,
+  showLink = true,
+}: StandaloneNavbarProps) => {
   const currentChainId = useChainId();
   const { chainId } = useTreeForm();
   const localOverlay = useStandaloneOverlay();
@@ -35,27 +38,28 @@ const StandaloneNavbar = ({ hatData }: StandaloneNavbarProps) => {
         <ChakraNextLink href='/'>
           <Image src='/hats.png' h='40px' w='40px' alt='Hats Logo' />
         </ChakraNextLink>
-        {hatData ? (
-          <ChakraNextLink
-            href={`/${CONFIG.trees}/${
-              hatData?.chainId || chainId || currentChainId || 1
-            }/${treeId}`}
-          >
-            <Button leftIcon={<BsArrowLeft />}>
-              <Text size='lg'>{treeId}</Text>
-            </Button>
-          </ChakraNextLink>
-        ) : (
-          !isTreesRoute && (
+        {showLink &&
+          (hatData ? (
             <ChakraNextLink
-              href={`/${CONFIG.trees}/${chainId || currentChainId || 1}`}
+              href={`/${CONFIG.trees}/${
+                hatData?.chainId || chainId || currentChainId || 1
+              }/${treeId}`}
             >
-              <Button leftIcon={<BsDiagram3Fill />} variant='whiteFilled'>
-                <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>
+              <Button leftIcon={<BsArrowLeft />} variant='whiteFilled'>
+                <Text size='lg'>{treeId}</Text>
               </Button>
             </ChakraNextLink>
-          )
-        )}
+          ) : (
+            !isTreesRoute && (
+              <ChakraNextLink
+                href={`/${CONFIG.trees}/${chainId || currentChainId || 1}`}
+              >
+                <Button leftIcon={<BsDiagram3Fill />} variant='whiteFilled'>
+                  <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>
+                </Button>
+              </ChakraNextLink>
+            )
+          ))}
       </HStack>
 
       <ConnectWallet overlay={localOverlay} />
@@ -67,4 +71,5 @@ export default StandaloneNavbar;
 
 interface StandaloneNavbarProps {
   hatData?: AppHat;
+  showLink?: boolean;
 }

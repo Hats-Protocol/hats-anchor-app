@@ -62,7 +62,7 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
             (() => {
               if (!connected) {
                 return (
-                  <Button onClick={openConnectModal} variant='outline'>
+                  <Button onClick={openConnectModal} variant='whiteFilled'>
                     Connect Wallet
                   </Button>
                 );
@@ -70,7 +70,11 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
 
               if (chain.unsupported) {
                 return (
-                  <Button onClick={openChainModal} type='button'>
+                  <Button
+                    onClick={openChainModal}
+                    type='button'
+                    variant='whiteFilled'
+                  >
                     Wrong network
                   </Button>
                 );

@@ -71,15 +71,17 @@ export const validateURL = (textVal: string) => {
 export const hatLink = ({
   chainId,
   hatId,
+  isMobile = false,
 }: {
   chainId: number | undefined;
   hatId: Hex | undefined;
+  isMobile?: boolean;
 }) => {
   if (!chainId || !hatId) return '#';
   const treeId = hatIdToTreeId(BigInt(hatId));
-  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}/${hatIdDecimalToIp(
-    BigInt(hatId),
-  )}`;
+  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${
+    isMobile ? '/' : '?hatId='
+  }${hatIdDecimalToIp(BigInt(hatId))}`;
 };
 
 export const generateLocalStorageKey = (

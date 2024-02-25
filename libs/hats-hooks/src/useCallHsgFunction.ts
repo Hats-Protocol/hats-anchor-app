@@ -1,8 +1,8 @@
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
-import { useToast } from 'hooks';
 import { SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
 import { createHatsSignerGateClient, transformInput } from 'utils';

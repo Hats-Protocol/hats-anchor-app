@@ -15,7 +15,7 @@ import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useToast } from 'hooks';
+import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import { ChakraNextLink, CopyHash, Markdown } from 'ui';
 import { hatLink } from 'utils';
@@ -26,6 +26,7 @@ const Header = () => {
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails } = useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string);
+  const { isMobile } = useMediaStyles();
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',
@@ -52,7 +53,7 @@ const Header = () => {
         display={{ base: 'none', md: 'block' }}
       >
         <ChakraNextLink
-          href={hatLink({ chainId, hatId: selectedHat?.id })}
+          href={hatLink({ chainId, hatId: selectedHat?.id, isMobile })}
           isExternal
         >
           <Image
