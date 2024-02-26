@@ -1,7 +1,11 @@
+import {
+  CONFIG,
+  DEPLOYMENT_TYPES,
+  MODULE_TYPES,
+} from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CONFIG, DEPLOYMENT_TYPES } from 'app-constants';
-import { useToast } from 'app-hooks';
+import { useToast } from 'hooks';
 import {
   AppHat,
   DeploymentType,
@@ -99,6 +103,13 @@ const useModuleDeploy = ({
     editMode,
   });
 
+  // console.log(
+  //   selectedModuleDetails,
+  //   localForm.formState.isValid,
+  //   values,
+  //   hatId,
+  //   claimabilityType,
+  // );
   const deployModuleAndRegisterWithClaimsHatterArgs =
     prepareDeployModuleAndRegisterWithClaimsHatterArgs({
       selectedModuleDetails,
@@ -163,10 +174,15 @@ const useModuleDeploy = ({
                 incrementWearers,
               });
             }
+            let type = MODULE_TYPES.eligibility;
+            if (selectedModuleDetails.type.toggle) {
+              type = MODULE_TYPES.toggle;
+            }
             const moduleHats = processModule({
               moduleAddress,
               storedData,
               selectedHat,
+              type,
             });
             const hatIds = _.uniq(
               _.map(_.concat(moduleHats, hatterHats), 'id'),
@@ -183,7 +199,7 @@ const useModuleDeploy = ({
             setStoredData?.(updatedHats);
             toast.success({
               title: 'Saved',
-              description: `Module ${selectedModuleDetails?.name} has been successfully deployed!`,
+              description: `${selectedModuleDetails?.name} has been successfully deployed!`,
               duration: 1500,
             });
           }
@@ -198,6 +214,7 @@ const useModuleDeploy = ({
               moduleAddress,
               storedData,
               selectedHat,
+              type: MODULE_TYPES.eligibility,
             });
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,

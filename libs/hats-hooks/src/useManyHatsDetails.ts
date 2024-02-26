@@ -1,13 +1,13 @@
 import { useQueries } from '@tanstack/react-query';
-import { fetchHatDetails } from 'app-utils';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
-import { mapWithChainId } from 'shared-utils';
+import { mapWithChainId } from 'shared';
+import { fetchHatDetails } from 'utils';
 
 const useManyHatsDetails = ({
   hats,
   initialHats,
-  editMode = false, // TODO is this a bad default?
+  editMode = false,
 }: {
   hats: Partial<AppHat>[] | undefined;
   initialHats?: Partial<AppHat>[];

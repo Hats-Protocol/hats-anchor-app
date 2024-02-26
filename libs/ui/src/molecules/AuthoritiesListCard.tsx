@@ -1,0 +1,206 @@
+import {
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  IconButton,
+  Image,
+  Text,
+  Tooltip,
+} from '@chakra-ui/react';
+import {
+  AUTHORITY_ENFORCEMENT,
+  AUTHORITY_TYPES,
+} from '@hatsprotocol/constants';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { Authority, AuthorityType } from 'hats-types';
+import { useMediaStyles } from 'hooks';
+import _ from 'lodash';
+import { BsInfoCircle } from 'react-icons/bs';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import { getHostnameFromURL, validateURL } from 'utils';
+
+import { ChakraNextLink, Markdown } from '../atoms';
+import { BoxArrowUpRightOut } from '../icons';
+import AuthorityHeader from './AuthorityHeader';
+import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
+
+const AuthoritiesListCard = ({
+  authority,
+  type,
+  index,
+}: {
+  authority?: Authority;
+  type: AuthorityType;
+  index: number;
+}) => {
+  const { label, description, link, gate, strategies, hatId } = _.pick(
+    authority,
+    ['label', 'description', 'link', 'gate', 'strategies', 'hatId'],
+  );
+  const gateHostName = getHostnameFromURL(gate);
+  const linkHostName = getHostnameFromURL(link);
+  const { isMobile } = useMediaStyles();
+
+  // consolidate with util in AuthorityHeader
+  const discordHosts = ['discord.gg', 'discord.com'];
+  let linkName = '';
+  if (_.includes(discordHosts, linkHostName)) {
+    linkName = 'Go to Discord';
+  } else if (linkHostName === 'docs.google.com') {
+    linkName = 'Open Doc';
+  } else if (linkHostName === 'github.com') {
+    linkName = 'Go to Repo';
+  } else if (linkHostName === 'snapshot.org') {
+    linkName = 'Go to Space';
+  }
+
+  const displayModulesToolbar =
+    type === AUTHORITY_TYPES.modules ||
+    type === AUTHORITY_TYPES.hsg ||
+    type === AUTHORITY_TYPES.wallet;
+
+  const authorityEnforcement = type
+    ? AUTHORITY_ENFORCEMENT[type]
+    : AUTHORITY_ENFORCEMENT.manual;
+
+  // set tooltip info
+  let tooltipInfo = authorityEnforcement.info;
+  if (strategies) {
+    tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
+      strategies,
+    )} ${_.size(strategies) === 1 ? 'strategy.' : 'strategies.'}`;
+  }
+  if (type === AUTHORITY_TYPES.modules && hatId) {
+    tooltipInfo = `Connected onchain via the ${label} module for Hat #${hatIdDecimalToIp(
+      BigInt(hatId),
+    )}`;
+  }
+
+  if (!gate && !description)
+    return (
+      <Flex py={2} px={{ base: 4, md: 0 }}>
+        <AuthorityHeader authority={authority} />
+      </Flex>
+    );
+
+  return (
+    <AccordionItem
+      border='none'
+      w={{ base: '100%', md: 'calc(100% + 32px)' }}
+      ml={{ md: -4 }}
+    >
+      {({ isExpanded }) => (
+        <>
+          <AccordionButton
+            borderY='1px solid'
+            borderColor='transparent'
+            _hover={{
+              borderColor: 'blue.300',
+              borderTopColor: 'transparent',
+              bg: 'white',
+              borderRadius: !isMobile ? 8 : 0,
+            }}
+            _focus={{
+              borderBottomColor: 'transparent',
+            }}
+            _expanded={{
+              bg: 'white',
+              pb: 0,
+              borderTopColor: 'gray.200',
+              boxShadow:
+                '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
+              _hover: {
+                borderColor: 'transparent',
+                borderRadius: 0,
+                borderTopRadius: !isMobile ? 8 : 0,
+              },
+            }}
+          >
+            <AuthorityHeader authority={authority} isExpanded={isExpanded} />
+            {isMobile && <AccordionIcon />}
+          </AccordionButton>
+          <AccordionPanel
+            px={4}
+            pb={2}
+            // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
+            bg={isExpanded ? 'white' : undefined}
+            borderBottomRadius={{ md: 8 }}
+            boxShadow={
+              isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'
+            }
+          >
+            <Tooltip
+              label={tooltipInfo}
+              placement='right'
+              hasArrow
+              shouldWrapChildren
+            >
+              <HStack pb={2}>
+                {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
+                <Image src={authorityEnforcement.icon} alt='Hat' boxSize={6} />
+                <Text size='sm'>{authorityEnforcement.label}</Text>
+                <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
+              </HStack>
+            </Tooltip>
+
+            {displayModulesToolbar ? (
+              <ModuleAuthorityToolbar authority={authority} index={index} />
+            ) : (
+              <HStack>
+                {link && validateURL(link) && (
+                  <ChakraNextLink isExternal href={link} display='block'>
+                    {linkName || linkHostName ? (
+                      <Button
+                        rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
+                        colorScheme='blue'
+                        size='sm'
+                        fontWeight='normal'
+                        variant='solid'
+                      >
+                        {linkName || linkHostName}
+                      </Button>
+                    ) : (
+                      <IconButton
+                        icon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
+                        colorScheme='blue'
+                        aria-label='Authority Link'
+                        size='sm'
+                        variant='solid'
+                      />
+                    )}
+                  </ChakraNextLink>
+                )}
+                {gate && validateURL(gate) && (
+                  <ChakraNextLink isExternal href={gate} display='block'>
+                    <Button
+                      rightIcon={<Icon as={FaExternalLinkAlt} />}
+                      color='blue.500'
+                      borderColor='blue.500'
+                      variant='outlineMatch'
+                      size='sm'
+                    >
+                      {gateHostName}
+                    </Button>
+                  </ChakraNextLink>
+                )}
+              </HStack>
+            )}
+            {description && (
+              <Box pt={link || gate ? 2 : 0}>
+                <Markdown smallFont>{description}</Markdown>
+              </Box>
+            )}
+          </AccordionPanel>
+        </>
+      )}
+    </AccordionItem>
+  );
+};
+
+export default AuthoritiesListCard;

@@ -22,7 +22,7 @@ export type Authority = {
   id?: string | number;
   hatId?: Hex;
   strategies?: SnapshotStrategy[];
-  functions?: WriteFunction[];
+  functions?: (WriteFunction & { isCustom?: boolean })[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
   moduleLabel?: string;
@@ -33,6 +33,10 @@ export type Authority = {
     id: Hex;
   }[];
   safe?: Hex;
+  hsgConfig?: {
+    minThreshold: number;
+    maxThreshold: number;
+  };
 };
 
 export interface SnapshotStrategy {
@@ -40,4 +44,14 @@ export interface SnapshotStrategy {
   network: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any };
+}
+
+export interface SnapshotSpace {
+  id: string;
+  name: string;
+  about: string;
+  network: string;
+  symbol: string;
+  members: number;
+  strategies: SnapshotStrategy[];
 }

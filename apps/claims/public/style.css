@@ -1,0 +1,52 @@
+.dotted-link {
+  stroke-dasharray: 5, 5;
+  /* change these values to adjust the length and spacing of the dots */
+  stroke-dashoffset: 0;
+  /* this sets the starting point of the dashed line */
+  stroke: black;
+  /* this sets the color of the line */
+}
+
+.chakra-datepicker .react-datepicker__input-container input {
+  padding: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid #E2E8F0;
+  width: 100%;
+
+  &:focus {
+    box-shadow: 0 0 0 1px #3182CE;
+    border-color: #3182CE;
+  }
+}
+
+.chakra-collapse {
+  overflow: visible !important;
+}
+
+.markdown .small-font {
+  font-size: 14px;
+}
+
+.markdown-content h1 {
+  font-size: 2rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+}
+
+.markdown-content p {
+  margin: 0.7rem 0;
+}
+
+.markdown-content li {
+  margin-left: 1rem;
+}
+
+.markdown-content a {
+  color: #3182ce;
+  text-decoration: underline;
+  font-style: italic;
+}

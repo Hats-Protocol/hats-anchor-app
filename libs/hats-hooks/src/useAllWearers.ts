@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { createSubgraphClient } from 'app-utils';
 import { AppHat, HatWearer, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { createSubgraphClient } from 'utils';
 import { Hex } from 'viem';
 
 const fetchHatWearersPage = async ({
@@ -53,6 +53,7 @@ const useAllWearers = ({
     queryKey: ['allWearers', selectedHat?.id],
     queryFn: fetchAllWearers,
     enabled: enabled && !!selectedHat?.id && !!chainId,
+    staleTime: 1000 * 60 * 60 * 6, // 6 hours
   });
 
   return { wearers: data, error, isLoading };

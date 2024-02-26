@@ -1,11 +1,11 @@
+import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG } from 'app-constants';
-import { useToast } from 'app-hooks';
-import { createHatsModulesClient } from 'app-utils';
 import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
+import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 import {
   useAccount,
@@ -21,8 +21,8 @@ const useHatClaimBy = ({
   wearer,
   handlePendingTx,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   wearer: Hex | undefined;
   handlePendingTx?: HandlePendingTx;
 }) => {

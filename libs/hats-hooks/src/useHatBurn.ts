@@ -1,7 +1,7 @@
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
 import _ from 'lodash';
-import { idToIp } from 'shared-utils';
+import { idToIp } from 'shared';
 import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';

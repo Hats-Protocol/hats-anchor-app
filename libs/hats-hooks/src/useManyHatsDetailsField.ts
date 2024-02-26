@@ -1,8 +1,8 @@
 import { useQueries } from '@tanstack/react-query';
-import { fetchDetailsIpfs } from 'app-utils';
 import { AppHat } from 'hats-types';
 import { handleNestedDetails } from 'hats-utils';
 import _ from 'lodash';
+import { fetchDetailsIpfs } from 'utils';
 
 // * should keep fetching strategy inline with `useHatDetailsField.ts`
 
@@ -28,7 +28,8 @@ const useManyHatsDetailsField = ({
   const filteredDetails = _.reject(
     onlyOnchainHats,
     (hat: AppHat) =>
-      !_.startsWith(_.get(hat, 'details'), 'ipfs://') && hat?.details !== '',
+      !_.startsWith(_.get(hat, 'details'), 'ipfs://') ||
+      _.get(hat, 'details') === '',
   );
 
   const detailsFields = useQueries({

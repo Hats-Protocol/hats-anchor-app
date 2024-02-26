@@ -1,11 +1,11 @@
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
-import { useToast } from 'app-hooks';
-import { createHatsSignerGateClient, transformInput } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
+import { createHatsSignerGateClient, transformInput } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -26,13 +26,15 @@ const useCallHsgFunction = ({
       args,
     }: {
       type: HsgType;
-      instance: Hex;
-      func: WriteFunction;
+      instance?: Hex;
+      func?: WriteFunction;
       args: any;
       onSuccess?: () => void;
     }) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
+      if (!instance) throw new Error('Instance is undefined');
+      if (!func) throw new Error('Function is undefined');
 
       const signerGateClient = await createHatsSignerGateClient(chainId);
       if (!signerGateClient) throw new Error('Failed to create module client');

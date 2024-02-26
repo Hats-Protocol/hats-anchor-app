@@ -1,8 +1,14 @@
 /* eslint-disable import/prefer-default-export */
+import {
+  AUTHORITY_TYPES,
+  DAOHAUS_URL,
+  SAFE_CHAIN_MAP,
+  SAFE_URL,
+} from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { AUTHORITY_TYPES } from 'app-constants';
-import { Authority, AuthorityType } from 'hats-types';
+import { Authority, AuthorityType, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { Hex } from 'viem';
 
 export const combineAuthorities = ({
   authorities,
@@ -14,7 +20,7 @@ export const combineAuthorities = ({
   guildRoles: Authority[] | undefined;
   spaces: Authority[] | undefined;
   modulesAuthorities: Authority[] | undefined;
-}) => {
+}): { data: Authority[] | undefined } => {
   const socialAuthorities = _.map(authorities, (authority: Authority) => ({
     ...authority,
     type: AUTHORITY_TYPES.manual as AuthorityType,
@@ -42,7 +48,7 @@ export const combineAuthorities = ({
     },
   );
   // authorities without matching link
-  const nonMatchingAuthorities = _.reject(
+  const ecosystemAuthorities = _.reject(
     _.concat(guildRoles, spaces),
     (authority: Authority) =>
       _.includes(_.map(socialAuthorities, 'link'), authority?.link),
@@ -58,12 +64,12 @@ export const combineAuthorities = ({
   // combine authorities
   const combined = _.concat(
     mergedAuthorities,
-    nonMatchingAuthorities,
-    filteredAuthorities,
     modulesAuthorities,
+    ecosystemAuthorities,
+    filteredAuthorities,
   );
 
-  return { data: _.compact(combined) };
+  return { data: _.compact(combined) as Authority[] };
 };
 
 export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
@@ -74,4 +80,20 @@ export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
   return currentTermEndObj
     ? new Date(Number(currentTermEndObj.value) * 1000)
     : null;
+};
+
+export const safeUrl = (
+  chainId: SupportedChains | undefined,
+  address: Hex | undefined,
+) => {
+  if (!chainId || !address) return '';
+  return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
+};
+
+export const daohausUrl = (
+  chainId: SupportedChains,
+  address: Hex | undefined,
+) => {
+  if (!chainId || !address) return '';
+  return `${DAOHAUS_URL}/#/molochv3/0x${chainId.toString(16)}/${address}`;
 };

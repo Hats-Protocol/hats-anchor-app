@@ -1,13 +1,15 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { createHatsModulesClient } from 'app-utils';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { createHatsModulesClient } from 'utils';
 
 const useHatsModules = ({
   chainId,
+  editMode,
 }: {
   chainId: SupportedChains | undefined;
+  editMode?: boolean;
 }) => {
   const fetchModules = async () => {
     const hatsClient = await createHatsModulesClient(chainId);
@@ -22,6 +24,7 @@ const useHatsModules = ({
     queryKey: ['hatsModules', chainId],
     queryFn: fetchModules,
     enabled: !!chainId,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   const modules: ModuleDetails[] = _.map(

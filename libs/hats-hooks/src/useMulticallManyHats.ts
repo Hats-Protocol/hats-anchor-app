@@ -1,22 +1,23 @@
 /* eslint-disable no-restricted-syntax */
+import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { CONFIG } from 'app-constants';
-import { useToast } from 'app-hooks';
-import {
-  fetchToken,
-  handleDetailsPin,
-  processHatForCalls,
-  summarizeActions,
-} from 'app-utils';
 import {
   AppHat,
   FormData,
   HandlePendingTx,
   HatDetails,
+  HatsCalls,
   SupportedChains,
 } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+  fetchToken,
+  handleDetailsPin,
+  processHatForCalls,
+  summarizeActions,
+} from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import {
   useAccount,
@@ -48,7 +49,7 @@ const useMulticallManyHats = ({
 }) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
-  const [allCallsData, setAllCallsData] = useState<unknown[]>();
+  const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
 
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
 
@@ -60,7 +61,7 @@ const useMulticallManyHats = ({
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
-    (hatId: undefined) => hatId !== undefined,
+    (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
@@ -80,7 +81,7 @@ const useMulticallManyHats = ({
           processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
-      setAllCallsData(allCalls);
+      setAllCallsData(allCalls as HatsCalls[]);
 
       const localCalls = _.flatten(_.map(allCalls, 'calls'));
       const localProposedChanges = _.map(allCalls, 'hatChanges');
@@ -145,7 +146,7 @@ const useMulticallManyHats = ({
     setStoredData?.(newStoredData);
   };
 
-  const txDescription = summarizeActions(allCallsData as any[]);
+  const txDescription = summarizeActions(allCallsData as HatsCalls[]);
 
   const {
     writeAsync,
@@ -193,7 +194,7 @@ const useMulticallManyHats = ({
       // ? check to see if any objects are already pinned
 
       const token = await fetchToken(_.size(detailsToPin));
-      // TODO handle no token/empty string
+      // TODO [low] handle no token/empty string
 
       const promises = _.map(
         _.compact(detailsToPin),

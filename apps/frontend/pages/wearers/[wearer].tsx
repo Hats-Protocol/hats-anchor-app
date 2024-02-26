@@ -16,9 +16,7 @@ import {
   Text,
   useClipboard,
 } from '@chakra-ui/react';
-import { orderedChains } from 'app-constants';
-import { useImageURIs, useToast } from 'app-hooks';
-import { chainsMap, formatAddress } from 'app-utils';
+import { orderedChains } from '@hatsprotocol/constants';
 import blockies from 'blockies-ts';
 import { format } from 'date-fns';
 import {
@@ -26,23 +24,26 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat, SupportedChains } from 'hats-types';
+import { useImageURIs, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
-import { createPublicClient, Hex, http } from 'viem';
+import { Layout, MobileHatCard, WearerHatCard as CoreHat } from 'ui';
+import { chainsMap, formatAddress, viemPublicClient } from 'utils';
+import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
-
-import Layout from '../../components/Layout';
-import CoreHat from '../../components/WearerHatCard';
 
 type HeadlineStat = {
   label: string;
   value: number;
   loading: boolean;
 };
+
+// TODO use new tree list cards on mobile
+// could also consider using tabs for the networks on mobile to reduce the scroll end-to-end
 
 const WearerDetail = ({
   wearerAddress,
@@ -58,7 +59,7 @@ const WearerDetail = ({
     wearerAddress,
     chainId: 'all',
   });
-
+  const { isMobile } = useMediaStyles();
   const toast = useToast();
   const { onCopy } = useClipboard(wearerAddress);
 
@@ -135,13 +136,19 @@ const WearerDetail = ({
         zIndex={-1}
       />
 
-      <Stack align='center' spacing={6} p={20} pt={100}>
-        <Flex w='100%' justify='space-between'>
+      <Stack align='center' spacing={6} p={{ base: 5, md: 20 }}>
+        <Flex
+          mt={{ base: 20, md: 10 }}
+          w='100%'
+          direction={{ base: 'column', md: 'row' }}
+          justify='space-between'
+          gap={10}
+        >
           <HStack spacing={6}>
             <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
             <Stack>
               <HStack>
-                <Heading size='lg' fontWeight='medium'>
+                <Heading size='lg' variant='medium'>
                   {name}
                 </Heading>
                 <IconButton
@@ -172,14 +179,16 @@ const WearerDetail = ({
               </Skeleton>
             </Stack>
           </HStack>
-          <HStack>
+          <HStack wrap='wrap' justify='center'>
             {_.map(headlineStats, (stat: HeadlineStat) => (
-              <Card w='125px' key={stat.label}>
-                <CardBody>
+              <Card w={{ base: '22%', md: '135px' }} key={stat.label}>
+                <CardBody px={{ base: 0, md: 6 }} py={{ base: 2, md: 4 }}>
                   <Stack align='center'>
-                    <Text fontSize='sm'>{stat.label}</Text>
+                    <Text size={{ base: 'xs', md: 'sm' }}>{stat.label}</Text>
                     <Skeleton isLoaded={stat.loading}>
-                      <Heading size='lg'>{stat.value}</Heading>
+                      <Heading size={{ base: 'md', md: '2xl' }}>
+                        {stat.value}
+                      </Heading>
                     </Skeleton>
                   </Stack>
                 </CardBody>
@@ -190,7 +199,7 @@ const WearerDetail = ({
 
         <Stack width='100%' justify='left' padding={6} spacing={4}>
           <Stack>
-            <Heading size='lg' fontWeight='medium'>
+            <Heading size='lg' variant='medium'>
               Wearer of
             </Heading>
             <Divider borderColor='black' />
@@ -203,18 +212,33 @@ const WearerDetail = ({
             <Text>Not wearing any hats</Text>
           ) : (
             <Stack>
-              {_.map(localOrderedChains, (chainId: number) => (
+              {_.map(localOrderedChains, (chainId: SupportedChains) => (
                 <Stack mt={4} spacing={4} key={chainId}>
                   <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
-                  <SimpleGrid columns={4} gap={5} key={chainId}>
+                  <SimpleGrid
+                    columns={{ base: 1, md: 4 }}
+                    gap={5}
+                    key={chainId}
+                  >
                     {_.map(
                       _.filter(currentHatsWithImagesData, {
                         chainId: Number(chainId),
                       }),
-                      (hat: AppHat) => (
-                        <CoreHat hat={hat} key={`${chainId}-${hat.id}`} />
-                      ),
+                      (hat: AppHat) =>
+                        isMobile ? (
+                          <MobileHatCard
+                            hat={hat}
+                            key={`${chainId}-${hat.id}`}
+                            chainId={chainId}
+                          />
+                        ) : (
+                          <CoreHat
+                            hat={hat}
+                            key={`${chainId}-${hat.id}`}
+                            chainId={chainId}
+                          />
+                        ),
                     )}
                   </SimpleGrid>
                   <Divider border='1px solid' borderColor='gray.400' />
@@ -232,10 +256,7 @@ export const getStaticProps = async (context: GetServerSidePropsContext) => {
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
-  const publicClient = createPublicClient({
-    chain: chainsMap(1),
-    transport: http(),
-  });
+  const publicClient = viemPublicClient(1);
 
   try {
     const initialEnsName = await publicClient.getEnsName({

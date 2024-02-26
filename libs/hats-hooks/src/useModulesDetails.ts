@@ -1,16 +1,18 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { createHatsModulesClient } from 'app-utils';
 import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 
 const useModulesDetails = ({
   moduleIds,
   chainId,
+  editMode,
 }: {
   moduleIds: Hex[] | null;
   chainId: SupportedChains | undefined;
+  editMode?: boolean;
 }) => {
   const fetchModulesData = async () => {
     if (!chainId || !moduleIds) {
@@ -40,6 +42,7 @@ const useModulesDetails = ({
     queryKey: ['modulesDetails', moduleIds, chainId],
     queryFn: fetchModulesData,
     enabled: !!chainId,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return {

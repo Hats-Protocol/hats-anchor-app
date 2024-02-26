@@ -1,6 +1,6 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { AppHat, HatDetails, SupportedChains } from 'hats-types';
+import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
@@ -119,3 +119,58 @@ const updateHatProperties = (
 
   return updatedHat;
 };
+
+const getChildren = (hat: AppHat, tree: AppHat[]) => {
+  return _.filter(tree, (h: AppHat) => h.admin?.id === hat.id);
+};
+
+const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
+  const newArray = [hat.id];
+  if (!_.isEmpty(getChildren(hat, tree))) {
+    newArray.push(
+      ..._.flatten(
+        _.map(getChildren(hat, tree), (child: AppHat) => {
+          if (!_.isEmpty(getChildren(child, tree))) {
+            // TODO not working at 4+ levels, need recursive solution
+            return _.flatten(
+              _.concat([child.id], _.map(getChildren(child, tree), 'id')),
+            );
+          }
+
+          return [child.id];
+        }),
+      ),
+    );
+  }
+
+  return _.flatten(newArray);
+};
+
+export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
+  // * tricky sort ahead, follow each branch to their conclusion
+  // * before returning to next sibling at previous level
+  let newIdList = tree
+    ? // start with the top hat
+      [_.get(_.first(tree), 'id')]
+    : [];
+
+  _.each(tree.slice(1), (hat: AppHat) => {
+    if (_.includes(newIdList, hat.id)) return;
+    const hats = checkChildrenForDescendants(hat, tree);
+    newIdList = _.concat(newIdList, ...hats);
+  });
+
+  // make sure we have a unique list and map to sorted array of IDs
+  const sortedTree = _.map(_.uniq(newIdList), (id: string) =>
+    _.find(tree, (h: AppHat) => h.id === id),
+  );
+
+  const treeWithDepth = _.map(_.compact(sortedTree), (hat: AppHat) => ({
+    ...hat,
+    name: _.get(hat, 'detailsObject.data.name', hat.details),
+    imageUrl: hat.imageUrl || '/icon.jpeg',
+    depth: hatIdDecimalToIp(BigInt(hat.id)).split('.').length - 1,
+  })) as unknown as HatWithDepth[];
+
+  return treeWithDepth;
+}

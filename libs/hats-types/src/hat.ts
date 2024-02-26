@@ -1,16 +1,8 @@
-import { Module } from '@hatsprotocol/modules-sdk';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { Hex } from 'viem';
 
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
-
-// sdk
-export interface HatEvent {
-  id: string;
-  timestamp: string;
-  transactionID: string;
-}
 
 // details-mgr
 export type DetailsItem = {
@@ -63,24 +55,13 @@ export interface AppHat extends Hat {
   active?: boolean;
   type?: string;
   displayName?: string;
+  extendedEligibility?: HatWearer;
+  extendedToggle?: HatWearer;
 }
 
-export type ModuleCreationArg = {
-  name: string;
-  description: string;
-  type: string;
-  example: unknown;
-  displayType: string;
-  optional?: boolean;
-};
-
-export type ModuleCreationArgs = {
-  immutable: ModuleCreationArg[];
-  mutable: ModuleCreationArg[];
-};
-
-export interface ModuleDetails extends Module {
-  id: Hex;
+export interface HatWithDepth extends AppHat {
+  ipId?: string;
+  depth?: number;
 }
 
 export interface HatExport {
@@ -105,6 +86,10 @@ export interface HatExport {
 
 export interface HatAuthorityResponse {
   hatAuthority: HatAuthority;
+}
+
+export interface HatElectionResponse {
+  hatsElectionEligibility: ElectionsAuthority;
 }
 
 export interface HatSignerGate {
@@ -134,4 +119,31 @@ export interface HatAuthority {
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];
+  hatsAccount1ofN: HatsAccount1ofN[];
 }
+
+export interface ElectionsAuthority {
+  adminHat: { id: Hex }[];
+  ballotBoxHat: { id: Hex };
+  hatId: Hex;
+  id: Hex;
+  userRoles: string[];
+}
+
+export type HatsAccount1ofN = {
+  id: string;
+  accountOfHat: {
+    id: string;
+  };
+  operations: HatsAccount1ofNOperation[];
+};
+
+type HatsAccount1ofNOperation = {
+  id: string;
+  hatsAccount: HatsAccount1ofN;
+  signer: string;
+  to: string;
+  value: bigint;
+  callData: Uint8Array;
+  operationType: string;
+};

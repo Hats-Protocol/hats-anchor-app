@@ -1,6 +1,10 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { MUTABILITY, TRIGGER_OPTIONS } from 'app-constants';
-import { formatImageUrl, ipfsUrl, isImageUrl } from 'app-utils';
+import {
+  GATEWAY_TOKEN,
+  GATEWAY_URL,
+  MUTABILITY,
+  TRIGGER_OPTIONS,
+} from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import {
   AppHat,
   Controls,
@@ -8,9 +12,11 @@ import {
   FormWearer,
   HatExport,
   HatWearer,
+  SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared-utils';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
+import { formatImageUrl, ipfsUrl, isImageUrl } from 'utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
@@ -73,7 +79,7 @@ export const isWearingAdminHat = (
   if (!includeCurrent) {
     hatIds = _.reject(hatIds, (id) => id === hatId);
   }
-  // TODO handle linked trees
+  // TODO [md] handle linked trees
 
   if (!wearerHatIds) return false;
   // check if any of the wearer hats' IDs are admin of any parent hat IDs
@@ -187,6 +193,21 @@ export const getAllDescendants = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   return descendants;
 };
 
+export const formHatUrl = ({
+  hatId,
+  chainId,
+}: {
+  hatId: Hex;
+  chainId: SupportedChains | undefined;
+}) => {
+  const basePath = '/trees';
+  const id = BigInt(hatId);
+  const treeId = Number(hatIdToTreeId(id));
+  const hatIp = hatIdDecimalToIp(id);
+
+  return `${basePath}/${chainId}/${treeId}?hatId=${hatIp}`;
+};
+
 export const getBranch = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   const targetHat = _.find(tree, { id: hatId });
   if (!targetHat) return [];
@@ -196,7 +217,7 @@ export const getBranch = (hatId: Hex, tree: AppHat[]): AppHat[] => {
   return [targetHat, ...descendants];
 };
 
-export const checkImageForHat = async (img?: string) => {
+export const checkImageIsValid = async (img?: string) => {
   const isValidImage = await isImageUrl(formatImageUrl(img));
 
   if (isValidImage) {
@@ -250,40 +271,49 @@ const mergeHatsWithStoredData = (
 };
 
 const prepareExportTree = (data: any[]): HatExport[] => {
-  return _.map(data, (hat) => ({
-    id: hat.id,
-    status: hat.status,
-    createdAt: parseInt(hat.createdAt, 10),
-    details: hat.details,
-    maxSupply: parseInt(hat.maxSupply, 10),
-    eligibility: hat.eligibility,
-    toggle: hat.toggle,
-    mutable: hat.mutable === MUTABILITY.MUTABLE,
-    currentSupply: parseInt(hat.currentSupply, 10),
-    wearers: hat.wearers,
-    adminId: hat.adminId || hat.parentId,
-    imageUri: hat.imageUri || '',
-    // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
-    detailsObject: {
-      type: '1.0',
-      data: {
-        name: hat.name,
-        description: hat.description,
-        responsibilities: hat.responsibilities,
-        authorities: hat.authorities,
-        guilds: hat.guilds,
-        spaces: hat.spaces,
-        eligibility: {
-          manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
-          criteria: hat.revocationsCriteria,
-        },
-        toggle: {
-          manual: hat.isToggleManual === TRIGGER_OPTIONS.MANUALLY,
-          criteria: hat.deactivationsCriteria,
+  return _.map(data, (hat) => {
+    let imageUrl = hat.imageUri;
+    // ! don't want to export image URL with our gateway and token string on it
+    if (imageUrl.startsWith('https://')) {
+      imageUrl = imageUrl.replace(`${GATEWAY_URL}`, 'ipfs://');
+      imageUrl = imageUrl.replace(`?pinataGatewayToken=${GATEWAY_TOKEN}`, '');
+    }
+
+    return {
+      id: hat.id,
+      status: hat.status,
+      createdAt: parseInt(hat.createdAt, 10),
+      details: hat.details,
+      maxSupply: parseInt(hat.maxSupply, 10),
+      eligibility: hat.eligibility,
+      toggle: hat.toggle,
+      mutable: hat.mutable === MUTABILITY.MUTABLE,
+      currentSupply: parseInt(hat.currentSupply, 10),
+      wearers: hat.wearers,
+      adminId: hat.adminId || hat.parentId,
+      imageUri: imageUrl || '',
+      // imageUrl: hat.imageUrl || '', // don't export imageUrl rn
+      detailsObject: {
+        type: '1.0',
+        data: {
+          name: hat.name,
+          description: hat.description,
+          responsibilities: hat.responsibilities,
+          authorities: hat.authorities,
+          guilds: hat.guilds,
+          spaces: hat.spaces,
+          eligibility: {
+            manual: hat.isEligibilityManual === TRIGGER_OPTIONS.MANUALLY,
+            criteria: hat.revocationsCriteria,
+          },
+          toggle: {
+            manual: hat.isToggleManual === TRIGGER_OPTIONS.MANUALLY,
+            criteria: hat.deactivationsCriteria,
+          },
         },
       },
-    },
-  }));
+    };
+  });
 };
 
 const patchDataToEnsureConsecutiveIds = (tree: HatExport[]) => {
@@ -552,7 +582,8 @@ export const flattenHatData = (data: any[]): FormData[] =>
         currentSupply: _.toNumber(hat.currentSupply),
         wearers: extractWearers(hat.wearers),
         adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
-        imageUrl: hat.imageUrl,
+        // imported as imageUri from export data, likely imageUrl from `storedData`
+        imageUrl: hat.imageUrl || ipfsUrl(hat.imageUri.slice(7)),
         imageUri: hat.imageUri,
         name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
         description: _.get(

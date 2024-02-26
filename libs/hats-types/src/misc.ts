@@ -14,6 +14,13 @@ export type ImageFile = {
   webkitRelativePath?: string;
 };
 
+export type DocsLink = {
+  url: string;
+  icon: string;
+  name: string;
+  description: string;
+};
+
 export type Hierarchy = {
   id: string;
   parentId?: Hex;
@@ -61,6 +68,7 @@ export interface Group {
   heading: string;
   items: Array<{
     id: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   }>;
 }

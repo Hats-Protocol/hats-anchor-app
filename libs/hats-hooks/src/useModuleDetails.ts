@@ -1,8 +1,8 @@
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { FALLBACK_ADDRESS } from 'app-constants';
-import { createHatsModulesClient } from 'app-utils';
 import { SupportedChains } from 'hats-types';
+import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 
 // modules-hooks
@@ -10,10 +10,12 @@ const useModuleDetails = ({
   address,
   chainId,
   enabled = true,
+  editMode,
 }: {
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
   enabled?: boolean;
+  editMode?: boolean;
 }) => {
   const getModuleData = async () => {
     if (!chainId || !address) return null;
@@ -34,7 +36,7 @@ const useModuleDetails = ({
     };
   };
 
-  const { data } = useQuery({
+  const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', address],
     queryFn: getModuleData,
     enabled:
@@ -42,9 +44,14 @@ const useModuleDetails = ({
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  return { details: data?.details, parameters: data?.parameters };
+  return {
+    details: data?.details,
+    parameters: data?.parameters,
+    isLoading: isLoading && fetchStatus !== 'idle',
+  };
 };
 
 export default useModuleDetails;

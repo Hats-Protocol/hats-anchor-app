@@ -12,24 +12,20 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { CONFIG } from 'app-constants';
-import { useCid, useDebounce, usePinImageIpfs } from 'app-hooks';
-import { chainsMap, fetchToken, pinJson } from 'app-utils';
+import { CONFIG } from '@hatsprotocol/constants';
+import { useOverlay } from 'contexts';
 import { useTreeCreate } from 'hats-hooks';
 import { ImageFile } from 'hats-types';
+import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { DropZone, Input, Layout, Textarea } from 'ui';
+import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
-
-import DropZone from '../../components/atoms/DropZone';
-import Input from '../../components/atoms/Input';
-import Textarea from '../../components/atoms/Textarea';
-import Layout from '../../components/Layout';
-import { useOverlay } from '../../contexts/OverlayContext';
 
 const NewTree = () => {
   const [image, setImage] = useState<ImageFile>();
@@ -121,23 +117,21 @@ const NewTree = () => {
       />
 
       <Flex pt={125} direction='column' align='center'>
-        <Heading size='lg' fontWeight='medium'>
+        <Heading size='lg' variant='medium'>
           New {_.capitalize(CONFIG.tree)}
         </Heading>
         <Box as='form' onSubmit={handleSubmit(onSubmit)} w='50%'>
           <Stack mt={10} spacing={6}>
-            <Stack>
-              <Text fontWeight='semibold'>{_.toUpper('Top Hat Image')}</Text>
-              <DropZone
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                image={image}
-                isFullWidth
-              />
-            </Stack>
+            <DropZone
+              label='Top Hat Image'
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              isFocused={isFocused}
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
+              image={image}
+              isFullWidth
+            />
             <Input
               name='name'
               label={_.toUpper('Top Hat name')}
@@ -181,7 +175,7 @@ const NewTree = () => {
                   }
                 />
                 {receiverResolvedAddress && (
-                  <Text fontSize='sm' color='gray.500'>
+                  <Text size='sm' variant='gray'>
                     Resolved address: {receiverResolvedAddress}
                   </Text>
                 )}
@@ -189,7 +183,9 @@ const NewTree = () => {
             )}
 
             <Stack>
-              <Text fontWeight='semibold'>{_.toUpper('Network')}</Text>
+              <Text variant='medium' size='sm'>
+                {_.toUpper('Network')}
+              </Text>
               <Text>
                 This Tree will be minted on{' '}
                 {_.capitalize(chainsMap(chainId).name)}

@@ -2,13 +2,14 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { AppHat, SupportedChains } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { toTreeId } from 'shared-utils';
+import { toTreeId } from 'shared';
 import { useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 
 const useHatMakeImmutable = ({
   selectedHat,
+  onchainHats,
   chainId,
   isAdminUser,
   mutable,
@@ -37,7 +38,7 @@ const useHatMakeImmutable = ({
       Boolean(decimalId(selectedHatId)) &&
       !!mutable &&
       _.gt(selectedHat?.levelAtLocalTree, 0) &&
-      // TODO hat is onchain
+      _.includes(_.map(onchainHats, 'id'), selectedHatId) &&
       !!isAdminUser &&
       chainId === currentNetworkId,
   });
@@ -49,6 +50,7 @@ export default useHatMakeImmutable;
 
 interface UseHatMakeImmutableProps {
   selectedHat: AppHat;
+  onchainHats: AppHat[];
   chainId: SupportedChains | undefined;
   isAdminUser?: boolean;
   mutable?: boolean;

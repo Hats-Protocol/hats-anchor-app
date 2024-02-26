@@ -1,21 +1,24 @@
+import { CONFIG } from '@hatsprotocol/constants';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
-import { MULTI_CLAIMS_HATTER_ABI } from 'app-constants';
-import { useToast } from 'app-hooks';
-import { HandlePendingTx } from 'hats-types';
+import { HandlePendingTx, SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
+
+import useHatsModules from './useHatsModules';
+import useModulesDetails from './useModulesDetails';
 
 interface ContractInteractionProps {
   functionName: string;
   address?: Hex;
-  chainId?: number;
+  chainId?: SupportedChains;
   enabled: boolean;
   args: (string | number | bigint | undefined)[];
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx?: HandlePendingTx | undefined;
   hatId?: Hex;
 }
 
@@ -31,20 +34,30 @@ const useMultiClaimsHatterContractWrite = ({
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] =
     useState(false);
   const toast = useToast();
+  const userChainId = useChainId();
   const queryClient = useQueryClient();
 
-  // TODO fetch abi from modules sdk
+  const { modules } = useHatsModules({ chainId });
+  const mch = _.find(modules, { name: CONFIG.claimsHatterModuleName });
+  const {
+    modulesDetails: [mchDetails],
+  } = useModulesDetails({
+    moduleIds: mch?.id ? [mch?.id] : null,
+    chainId,
+  });
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address,
     chainId: Number(chainId),
-    abi: MULTI_CLAIMS_HATTER_ABI,
+    abi: mchDetails?.abi,
     functionName,
     args,
     enabled:
       enabled &&
       !!address &&
       !!chainId &&
+      chainId === userChainId &&
+      !!mchDetails?.abi &&
       !!functionName &&
       // module creation args could be optional in some cases
       (!_.isEmpty(args) ? !_.some(args, _.isUndefined) : true), // currently we're assuming not

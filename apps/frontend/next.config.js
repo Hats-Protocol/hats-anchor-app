@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
 // @ts-check
 
@@ -22,7 +23,7 @@ const nextConfig = {
     dirs: [
       'pages',
       'components',
-      'constants',
+      // '@hatsprotocol/constants',
       'contexts',
       'forms',
       'gql',
@@ -40,17 +41,40 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      {
-        source: '/trees/:chainId/:treeId/:hatId',
-        destination: '/trees/:chainId/:treeId?hatId=:hatId',
-        permanent: true,
-      },
+      // {
+      //   source: '/trees/:chainId/:treeId/:hatId',
+      //   destination: '/trees/:chainId/:treeId?hatId=:hatId',
+      //   permanent: true,
+      // },
       {
         source: '/trees',
         destination: '/trees/1',
         permanent: true,
       },
     ];
+  },
+  experimental: {
+    optimizePackageImports: [
+      // external pkgs
+      '@chakra-ui/react',
+      '@rainbow-me/rainbowkit',
+      '@tanstack/react-query',
+      'd3-org-chart',
+      'react-datepicker',
+      'viem',
+      // internal packages
+      '@hatsprotocol/constants',
+      'contexts',
+      'forms',
+      'hats-hooks',
+      'hats-types',
+      'hats-utils',
+      'hooks',
+      'pages',
+      'shared',
+      // 'ui',
+      'utils',
+    ],
   },
 };
 

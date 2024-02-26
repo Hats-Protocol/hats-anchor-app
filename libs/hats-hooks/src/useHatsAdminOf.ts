@@ -1,9 +1,9 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { chainsList, fetchTreesById } from 'app-utils';
 import { AppHat } from 'hats-types';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
+import { chainsList, fetchTreesById } from 'utils';
 
 const chains = _.keys(chainsList);
 
@@ -50,7 +50,7 @@ const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
       ),
     );
 
-    // TODO add another lookup for linked trees/hats
+    // TODO [md - linked] add another lookup for linked trees/hats
     // filter out the hats that the user is not an admin of
     const filteredAdminHats = _.filter(
       _.flatten(consolidateTrees),
@@ -64,6 +64,7 @@ const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
     queryKey: ['hatsAdminOf', _.map(hats, 'id')],
     queryFn: adminOfHats,
     enabled: !!hats,
+    staleTime: 1000 * 60 * 60 * 6, // 6 hours
   });
 
   return { data, error, isLoading };

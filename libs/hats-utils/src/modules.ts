@@ -1,3 +1,10 @@
+import {
+  AUTHORITY_TYPES,
+  CONFIG,
+  MODULE_TYPES,
+  // MODULE_TYPES,
+  TRIGGER_OPTIONS,
+} from '@hatsprotocol/constants';
 import { HsgMetadata, HsgType, Role } from '@hatsprotocol/hsg-sdk';
 import {
   checkAndEncodeArgs,
@@ -5,29 +12,30 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AUTHORITY_TYPES, CONFIG, TRIGGER_OPTIONS } from 'app-constants';
-import {
-  createHatsModulesClient,
-  explorerUrl,
-  formatAddress,
-  getDefaultValue,
-  transformInput,
-} from 'app-utils';
 import {
   AppHat,
   FormData,
   HatAuthority,
+  HatsAccount1ofN,
   HatSignerGate,
   ModuleCreationArg,
   ModuleDetails,
   SupportedChains,
 } from 'hats-types';
 import _ from 'lodash';
-import { ipToHatId } from 'shared-utils';
+import { FiCopy } from 'react-icons/fi';
+import { ipToHatId } from 'shared';
+import {
+  createHatsModulesClient,
+  explorerUrl,
+  formatAddress,
+  getDefaultValue,
+  transformInput,
+} from 'utils';
 import { Hex, parseUnits } from 'viem';
 
-import { formHatUrl, safeUrl } from './controllers';
-import { decimalId } from './hats';
+import { safeUrl } from './authorities';
+import { decimalId, formHatUrl } from './hats';
 
 type FormValues = { [key: string]: unknown };
 
@@ -122,11 +130,13 @@ export const prepareArgs = (
   }
   const immutableArgs = _.map(
     selectedModuleDetails.creationArgs.immutable,
-    ({ name, type }: ModuleCreationArg) => transformInput(values[name], type),
+    ({ name, type }: ModuleCreationArg) =>
+      transformInput(values[`${name}-parsed`] || values[name], type),
   );
   const mutableArgs = _.map(
     selectedModuleDetails.creationArgs.mutable,
-    ({ name, type }: ModuleCreationArg) => transformInput(values[name], type),
+    ({ name, type }: ModuleCreationArg) =>
+      transformInput(values[`${name}-parsed`] || values[name], type),
   );
 
   return { immutableArgs, mutableArgs };
@@ -166,44 +176,45 @@ export const deployClaimsHatter = async ({
   return null;
 };
 
-// TODO handle better return strategy in these two
 export const processModule = ({
   moduleAddress,
   storedData,
   selectedHat,
+  type,
 }: {
   moduleAddress: Hex;
   storedData?: Partial<FormData>[];
   selectedHat?: AppHat;
+  type: string; // ValueOf<MODULE_TYPES>;
 }) => {
-  const updatedHats = _.isArray(storedData)
-    ? _.map(storedData, (hat: Partial<FormData>) =>
-        hat.id === _.get(selectedHat, 'id') && moduleAddress
-          ? {
-              ...hat,
-              isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
-              eligibility: moduleAddress,
-            }
-          : hat,
-      )
-    : [...(storedData || [])];
+  if (!selectedHat?.id || !moduleAddress) return storedData || [];
+  const eligibilityValues = {
+    isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+    eligibility: moduleAddress as Hex,
+  };
+  const toggleValues = {
+    isToggleManual: TRIGGER_OPTIONS.AUTOMATICALLY,
+    toggle: moduleAddress as Hex,
+  };
+  const hatHasChanges = _.find(storedData, { id: _.get(selectedHat, 'id') });
+  // combine updated hat values, select module values by type
+  const updatedHat = {
+    id: _.get(selectedHat, 'id'),
+    ...hatHasChanges,
+    ...(type === MODULE_TYPES.eligibility && eligibilityValues),
+    ...(type === MODULE_TYPES.toggle && toggleValues),
+  };
+  // remove current hat from stared data
+  const updateStoredData = storedData?.splice(
+    _.findIndex(storedData, { id: _.get(selectedHat, 'id') }),
+    1,
+  );
 
-  const updatedHatExists = _.some(updatedHats, [
-    'id',
-    _.get(selectedHat, 'id'),
-  ]);
-
-  if (!updatedHatExists && _.get(selectedHat, 'id') && moduleAddress) {
-    updatedHats.push({
-      id: _.get(selectedHat, 'id'),
-      isEligibilityManual: 'Automatically',
-      eligibility: moduleAddress as Hex,
-    });
-  }
-
-  return updatedHats;
+  // return stored data with updated hat
+  return _.flatten(_.concat(updateStoredData, [updatedHat]));
 };
 
+// TODO better return strategy
 export const processClaimsHatter = ({
   claimsHatterAddress,
   storedData,
@@ -226,7 +237,7 @@ export const processClaimsHatter = ({
 
   const updatedHatExists = _.find(storedData, ['id', adminId]);
 
-  // TODO handle draft case with increment wearers
+  // TODO [md - edge case] handle draft case with increment wearers
   const updatedHats = _.isArray(storedData)
     ? _.map(storedData, (hat: Partial<FormData>) => {
         if (hat.id === adminId && claimsHatterAddress) {
@@ -285,14 +296,21 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
 
+  // console.log(values, selectedModuleDetails, hatId, claimabilityType);
   const { immutableArgs, mutableArgs } = prepareArgs(
     values,
     selectedModuleDetails,
   );
+  // console.log(immutableArgs, mutableArgs);
 
   const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
   const allArgsFilled =
     areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
+  // console.log(
+  //   areArgsFilled(immutableArgs),
+  //   areArgsFilled(mutableArgs),
+  //   allArgsFilled,
+  // );
 
   if (selectedModuleDetails && isLocalFormValid && allArgsFilled) {
     const result = checkAndEncodeArgs({
@@ -373,12 +391,17 @@ export function populateModulesAuthorities({
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
 }) {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner']);
+  const filteredAuthorities = _.omit(hatAuthorities, [
+    'hsgOwner',
+    'hsgSigner',
+    'hatsAccount1ofN',
+  ]);
   const updatedHatAuthorities = _.map(
     filteredAuthorities,
     (authorityEntries: { id: Hex; hatId: Hex }[], authorityKey: string) =>
       _.map(authorityEntries, ({ id, hatId }: { id: Hex; hatId: Hex }) => {
         const moduleInfo = _.find(modulesDetails, { id });
+        if (!moduleInfo) return null;
 
         const matchingRole = _.find(
           moduleInfo?.customRoles,
@@ -413,6 +436,78 @@ export function populateModulesAuthorities({
 
   return _.flatten(updatedHatAuthorities);
 }
+
+export const populateHatsAccountsAuthorities = ({
+  details,
+  hatId,
+  predictedAddress,
+  deployFn,
+  toast,
+}: {
+  details?: HatsAccount1ofN[];
+  hatId: Hex;
+  predictedAddress?: Hex | null;
+  deployFn: () => void;
+  toast: any; // ToastProps; // TODO is circular?
+}) => {
+  const undeployedWalletAuth = {
+    label: `Control 1/N HatsAccount (${formatAddress(predictedAddress)})`,
+    link: predictedAddress,
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount at ${formatAddress(
+      predictedAddress,
+    )}. This account has not yet been deployed and can be deployed permissionlessly.  
+      Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
+      For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+    type: AUTHORITY_TYPES.wallet,
+    id: predictedAddress,
+    instanceAddress: predictedAddress,
+    functions: [
+      {
+        isCustom: true,
+        label: 'Deploy',
+        description: 'Deploy the HatsWallet authority',
+        onClick: deployFn,
+        primary: true,
+      },
+    ],
+    hatId,
+    isDeployed: false,
+  };
+
+  if (!details || details.length === 0) {
+    return [undeployedWalletAuth];
+  }
+
+  return details.map((wallet) => ({
+    label: `Control over 1/N HatsAccount (${formatAddress(wallet.id)})`,
+    link: wallet.accountOfHat?.id,
+    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+      wallet.id,
+    )}. 
+    Any of the wearers of this hat can take full control of the assets associated with the shared account.  
+    For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+    type: AUTHORITY_TYPES.wallet,
+    id: wallet.id,
+    // functions: wallet.operations,
+    functions: [
+      {
+        label: 'Copy Address',
+        description: 'Copy the address of the HatsWallet',
+        isCustom: true,
+        onClick: () => {
+          navigator.clipboard.writeText(wallet.id);
+          toast.info({
+            title: 'Successfully copied wearer address to clipboard',
+          });
+        },
+        icon: FiCopy,
+      },
+    ],
+    instanceAddress: wallet.id,
+    hatId,
+    isDeployed: true,
+  }));
+};
 
 export const populateHatsGatesAuthorities = ({
   details,

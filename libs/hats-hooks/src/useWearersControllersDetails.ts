@@ -1,8 +1,8 @@
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
-import { FALLBACK_ADDRESS } from 'app-constants';
-import { checkAddressIsContract } from 'app-utils';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
+import { checkAddressIsContract } from 'utils';
 import { Hex, isAddress, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
 
@@ -10,7 +10,7 @@ const fetchWearerAndControllerDetails = async (
   wearer: Hex,
   chainId: number | undefined,
 ) => {
-  if (!wearer || !chainId) return undefined;
+  if (!wearer || !chainId) return null;
 
   if (wearer === FALLBACK_ADDRESS || wearer === zeroAddress) {
     return {
@@ -31,7 +31,7 @@ const fetchWearerAndControllerDetails = async (
     console.log(err);
   });
 
-  if (!data) return undefined;
+  if (!data) return null;
 
   const [isContract, ensName] = data as [boolean, string];
 

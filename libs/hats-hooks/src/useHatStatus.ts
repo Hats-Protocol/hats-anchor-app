@@ -1,4 +1,4 @@
-import { CONFIG } from 'app-constants';
+import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat, SupportedChains } from 'hats-types';
 import { useContractRead } from 'wagmi';
 
@@ -6,7 +6,7 @@ const useHatStatus = ({
   selectedHat,
   chainId,
 }: {
-  selectedHat: AppHat;
+  selectedHat?: AppHat;
   chainId: SupportedChains | undefined;
 }) => {
   const hatId = selectedHat?.id || 'none';

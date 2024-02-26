@@ -1,7 +1,4 @@
-import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { Hex } from 'viem';
-
-import { HatEvent } from './hat';
 
 // sdk
 export type LinkRequest = {
@@ -11,11 +8,6 @@ export type LinkRequest = {
     prettyId: Hex;
   };
 };
-
-// sdk
-export interface TreeEvent extends HatEvent {
-  hat: Partial<Hat>;
-}
 
 export interface FeaturedTree {
   chainId: number;

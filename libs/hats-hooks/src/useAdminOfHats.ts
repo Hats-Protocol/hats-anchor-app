@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { createHatsClient } from 'app-utils';
 import _ from 'lodash';
+import { createHatsClient } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
