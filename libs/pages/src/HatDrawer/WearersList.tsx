@@ -357,6 +357,70 @@ const WearersList = () => {
         </Flex>
       </Stack>
 
+      <Modal
+        name='hatWearers'
+        localOverlay={localOverlay}
+        customHeader={
+          <Flex
+            justify='space-between'
+            alignItems='center'
+            mt={8}
+            px={6}
+            pb={4}
+          >
+            <Heading size='2xl'>Hat Wearers</Heading>
+            <Button
+              onClick={() =>
+                exportWearers &&
+                exportToCsv(exportWearers, selectedHatDetails?.name)
+              }
+              leftIcon={<FaFileCsv />}
+              colorScheme='blue'
+            >
+              Export
+            </Button>
+          </Flex>
+        }
+        footer={
+          <Flex justify='center' px={6} pb={6} w='full'>
+            <Button
+              variant='ghost'
+              onClick={() => {
+                prevPage();
+              }}
+              isDisabled={currentPage === 0}
+            >
+              {currentPage > 1 ? `Previous (${currentPage - 1})` : 'Previous'}
+            </Button>
+            <Button
+              variant='ghost'
+              onClick={() => {
+                nextPage();
+              }}
+              isDisabled={_.size(paginatedWearers) < wearersPerPage}
+            >
+              {`Next (${currentPage + 1})`}
+            </Button>
+          </Flex>
+        }
+      >
+        <Flex direction='column' gap={4}>
+          {isLoading || isFetching ? (
+            <Spinner />
+          ) : (
+            paginatedWearers?.map((w: HatWearer) => (
+              <WearerRow
+                key={w.id}
+                wearer={w}
+                isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
+                setChangeStatusWearer={setChangeStatusWearer}
+                setWearerToTransferFrom={setWearerToTransferFrom}
+              />
+            ))
+          )}
+        </Flex>
+      </Modal>
+
       {!isMobile && (
         <>
           <Modal
@@ -366,72 +430,6 @@ const WearersList = () => {
             localOverlay={localOverlay}
           >
             <HatClaimForForm />
-          </Modal>
-
-          <Modal
-            name='hatWearers'
-            localOverlay={localOverlay}
-            customHeader={
-              <Flex
-                justify='space-between'
-                alignItems='center'
-                mt={8}
-                px={6}
-                pb={4}
-              >
-                <Heading size='2xl'>Hat Wearers</Heading>
-                <Button
-                  onClick={() =>
-                    exportWearers &&
-                    exportToCsv(exportWearers, selectedHatDetails?.name)
-                  }
-                  leftIcon={<FaFileCsv />}
-                  colorScheme='blue'
-                >
-                  Export
-                </Button>
-              </Flex>
-            }
-            footer={
-              <Flex justify='center' px={6} pb={6} w='full'>
-                <Button
-                  variant='ghost'
-                  onClick={() => {
-                    prevPage();
-                  }}
-                  isDisabled={currentPage === 0}
-                >
-                  {currentPage > 1
-                    ? `Previous (${currentPage - 1})`
-                    : 'Previous'}
-                </Button>
-                <Button
-                  variant='ghost'
-                  onClick={() => {
-                    nextPage();
-                  }}
-                  isDisabled={_.size(paginatedWearers) < wearersPerPage}
-                >
-                  {`Next (${currentPage + 1})`}
-                </Button>
-              </Flex>
-            }
-          >
-            <Flex direction='column' gap={4}>
-              {isLoading || isFetching ? (
-                <Spinner />
-              ) : (
-                paginatedWearers?.map((w: HatWearer) => (
-                  <WearerRow
-                    key={w.id}
-                    wearer={w}
-                    isEligible={_.includes(_.map(eligibleWearers, 'id'), w.id)}
-                    setChangeStatusWearer={setChangeStatusWearer}
-                    setWearerToTransferFrom={setWearerToTransferFrom}
-                  />
-                ))
-              )}
-            </Flex>
           </Modal>
 
           <Modal

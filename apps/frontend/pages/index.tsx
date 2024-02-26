@@ -73,7 +73,7 @@ const Home = () => {
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
   return (
-    <Layout>
+    <Layout hideBackLink>
       <Box
         w='100%'
         h='100%'

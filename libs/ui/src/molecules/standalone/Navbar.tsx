@@ -22,6 +22,11 @@ const StandaloneNavbar = ({
   const router = useRouter();
   const pathSegments = _.split(router.pathname, '/').filter(Boolean);
   const isTreesRoute = pathSegments.length === 2 && pathSegments[0] === 'trees';
+  const topHatName = _.get(
+    hatData,
+    'detailsObject.data.name',
+    hatData?.details,
+  );
 
   return (
     <Flex
@@ -45,8 +50,12 @@ const StandaloneNavbar = ({
                 hatData?.chainId || chainId || currentChainId || 1
               }/${treeId}`}
             >
-              <Button leftIcon={<BsArrowLeft />} variant='whiteFilled'>
-                <Text size='lg'>{treeId}</Text>
+              <Button
+                leftIcon={<BsArrowLeft />}
+                variant='whiteFilled'
+                maxW='175px'
+              >
+                <Text isTruncated>{topHatName}</Text>
               </Button>
             </ChakraNextLink>
           ) : (

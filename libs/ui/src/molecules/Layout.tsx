@@ -11,7 +11,7 @@ import TransactionHistory from './TransactionHistory';
 
 const Navbar = dynamic(() => import('./Navbar'));
 
-const Layout = ({ editMode, hatData, children }: LayoutProps) => {
+const Layout = ({ editMode, hatData, hideBackLink, children }: LayoutProps) => {
   const localOverlay = useOverlay();
   const { transactions } = localOverlay;
   const { isMobile } = useMediaStyles();
@@ -33,7 +33,7 @@ const Layout = ({ editMode, hatData, children }: LayoutProps) => {
 
         <CommandPalette />
         {isMobile ? (
-          <StandaloneNavbar hatData={hatData} />
+          <StandaloneNavbar hatData={hatData} showLink={!hideBackLink} />
         ) : (
           <Navbar hatData={hatData} />
         )}
@@ -58,5 +58,6 @@ export default Layout;
 interface LayoutProps {
   editMode?: boolean;
   hatData?: AppHat;
+  hideBackLink?: boolean;
   children: ReactNode;
 }
