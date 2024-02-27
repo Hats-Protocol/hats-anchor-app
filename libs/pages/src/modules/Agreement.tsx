@@ -15,11 +15,13 @@ const AgreementContent = dynamic(() =>
 const HatDetails = dynamic(() =>
   import('modules-ui').then((mod) => mod.HatDetails),
 );
+const BottomMenu = dynamic(() =>
+  import('modules-ui').then((mod) => mod.BottomMenu),
+);
 
 const Agreement = () => {
   const [agreement, setAgreement] = useState('');
   const { isMobile } = useMediaStyles();
-
   useEffect(() => {
     const fetchIPFS = async () => {
       const res = await fetchIpfs(CONFIG.agreementV0.ipfsHash);
@@ -72,6 +74,8 @@ const Agreement = () => {
         <HatDetails />
 
         {/* <ClaimHat agreement={agreement} /> */}
+
+        <BottomMenu />
       </HStack>
     </Layout>
   );
