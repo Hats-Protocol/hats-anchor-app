@@ -124,7 +124,7 @@ const WearerDetail = ({
   );
 
   return (
-    <Layout>
+    <Layout hideBackLink>
       <NextSeo title={`${name || formatAddress(wearerAddress)}'s Hats`} />
 
       <Box

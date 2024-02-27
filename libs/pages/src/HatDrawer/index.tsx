@@ -14,7 +14,7 @@ const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
-  const { selectedHat, editMode, treeToDisplay } = useTreeForm();
+  const { selectedHat, topHat, editMode, treeToDisplay } = useTreeForm();
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
     _.find(treeToDisplay, { id: selectedHatId }),
@@ -26,7 +26,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
   if (isMobile) {
     return (
-      <Layout hatData={selectedHat}>
+      <Layout hatData={topHat}>
         <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />

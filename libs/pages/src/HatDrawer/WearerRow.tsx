@@ -190,6 +190,7 @@ const WearerRow = ({
               bg='transparent'
               isDisabled={!isSameChain}
               onClick={handleRenounceHat}
+              color='blackAlpha.500'
             >
               Renounce
             </Button>
