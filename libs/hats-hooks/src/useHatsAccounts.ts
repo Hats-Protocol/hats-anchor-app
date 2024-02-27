@@ -24,7 +24,7 @@ const useHatsAccounts = ({
 
   useEffect(() => {
     const predictAddress = async () => {
-      if (!id || !chainId) return;
+      if (!id || id === '0x' || !chainId) return;
       if (!isSupportedChain) return;
 
       const hatsAccountClient = await createHatsAccountClient(chainId);

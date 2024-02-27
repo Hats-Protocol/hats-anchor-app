@@ -126,7 +126,7 @@ const useAncillaryModules = ({
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
-      ...(shouldIncludeHA ? hatsAccounts1ofN : []),
+      ...(shouldIncludeHA && predictedAddress ? hatsAccounts1ofN : []),
     ],
     error,
     isLoading: false,
