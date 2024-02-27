@@ -17,16 +17,19 @@ import { useQueryClient } from '@tanstack/react-query';
 // import useAgreementClaimsHatterContractWrite from '@/hooks/useAgreementClaimsHatterContractWrite';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
-import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useNetwork } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 // import Hat from './Hat';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 // TODO get hatId from URL params
 const communityMemberHat = '1.2.1';
