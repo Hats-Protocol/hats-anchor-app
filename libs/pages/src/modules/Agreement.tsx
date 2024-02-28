@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 import { fetchIpfs } from 'utils';
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
-// const ClaimHat = dynamic(() =>
-//   import('modules-ui').then((mod) => mod.ClaimHat),
-// );
+const ClaimHat = dynamic(() =>
+  import('modules-ui').then((mod) => mod.ClaimHat),
+);
 const AgreementContent = dynamic(() =>
   import('modules-ui').then((mod) => mod.AgreementContent),
 );
@@ -24,6 +24,7 @@ const Agreement = () => {
   const { isMobile } = useMediaStyles();
   useEffect(() => {
     const fetchIPFS = async () => {
+      // get the module ipfs details
       const res = await fetchIpfs(CONFIG.agreementV0.ipfsHash);
       if (res) {
         setAgreement(res.data);
@@ -73,7 +74,7 @@ const Agreement = () => {
 
         <HatDetails />
 
-        {/* <ClaimHat agreement={agreement} /> */}
+        {!isMobile && <ClaimHat agreement={agreement} />}
 
         <BottomMenu />
       </HStack>
