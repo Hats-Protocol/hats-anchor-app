@@ -1,7 +1,7 @@
 import { Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useStandaloneOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useStandaloneOverlay, useTreeForm } from 'contexts';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -17,7 +17,9 @@ const StandaloneNavbar = ({
 }: StandaloneNavbarProps) => {
   const currentChainId = useChainId();
   const { chainId } = useTreeForm();
-  const localOverlay = useStandaloneOverlay();
+  const standaloneOverlay = useStandaloneOverlay();
+  const stdOverlay = useOverlay();
+  const localOverlay = stdOverlay || standaloneOverlay;
   const treeId = hatIdToTreeId(BigInt(hatData?.id || 0));
   const router = useRouter();
   const pathSegments = _.split(router.pathname, '/').filter(Boolean);
