@@ -10,7 +10,6 @@ import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
 
 import useHatsModules from './useHatsModules';
-import useModulesDetails from './useModulesDetails';
 
 interface ContractInteractionProps {
   functionName: string;
@@ -39,17 +38,11 @@ const useMultiClaimsHatterContractWrite = ({
 
   const { modules } = useHatsModules({ chainId });
   const mch = _.find(modules, { name: CONFIG.claimsHatterModuleName });
-  const {
-    modulesDetails: [mchDetails],
-  } = useModulesDetails({
-    moduleIds: mch?.id ? [mch?.id] : null,
-    chainId,
-  });
 
   const { config, error: prepareError } = usePrepareContractWrite({
     address,
     chainId: Number(chainId),
-    abi: mchDetails?.abi,
+    abi: mch?.abi,
     functionName,
     args,
     enabled:
@@ -57,7 +50,7 @@ const useMultiClaimsHatterContractWrite = ({
       !!address &&
       !!chainId &&
       chainId === userChainId &&
-      !!mchDetails?.abi &&
+      !!mch?.abi &&
       !!functionName &&
       // module creation args could be optional in some cases
       (!_.isEmpty(args) ? !_.some(args, _.isUndefined) : true), // currently we're assuming not
