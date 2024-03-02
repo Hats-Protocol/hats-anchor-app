@@ -38,13 +38,15 @@ const Conditions = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const { moduleParameters, moduleDetails, chainId } = useEligibility();
+  const { moduleParameters, moduleDetails, controllerAddress, chainId } =
+    useEligibility();
   const allConditionsMet = isSigned;
 
   const { agreement, signAgreement, isSignAgreementLoading } =
     useAgreementEligibility({
       moduleParameters,
       moduleDetails,
+      controllerAddress,
       chainId,
       onSuccessfulSign: () => {
         setIsSigned(true);

@@ -60,7 +60,7 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent height='calc(100% - 80px)' width='calc(100% - 40px)'>
-          <ModalHeader>Agreement</ModalHeader>
+          <ModalHeader>Claiming your hat</ModalHeader>
           <ModalCloseButton />
           <ModalBody overflowY='scroll'>Claiming</ModalBody>
           <ModalFooter>

@@ -11,6 +11,7 @@ interface ContractInteractionProps {
   moduleParameters: ModuleParameter[] | undefined;
   moduleDetails?: Module | undefined;
   chainId?: SupportedChains | undefined;
+  controllerAddress?: string | undefined;
   onSuccessfulSign?: () => void;
 }
 
@@ -18,6 +19,7 @@ const useAgreementEligibility = ({
   moduleParameters,
   moduleDetails,
   chainId,
+  controllerAddress,
   onSuccessfulSign,
 }: ContractInteractionProps) => {
   const ipfsHash = _.find(moduleParameters, {
@@ -43,12 +45,11 @@ const useAgreementEligibility = ({
     useCallModuleFunction({
       chainId,
     });
-  console.log('isLoading', isSignAgreementLoading);
 
   const handleFunctionCall = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
-      instance: moduleDetails?.implementationAddress as Hex,
+      instance: controllerAddress as Hex,
       func: signFn,
       args: [],
       onSuccess: onSuccessfulSign,
