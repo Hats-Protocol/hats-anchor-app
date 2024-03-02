@@ -2,11 +2,11 @@ import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { numberTypes, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'utils';
 import { formatDistanceToNow } from 'date-fns';
 import { TokenData } from 'hats-types';
 import _ from 'lodash';
 import { FiExternalLink } from 'react-icons/fi';
+import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'utils';
 import { formatUnits, Hex } from 'viem';
 import { useToken } from 'wagmi';
 

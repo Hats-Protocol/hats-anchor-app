@@ -1,9 +1,8 @@
 import { Box, HStack } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
-import { useMediaStyles } from 'hooks';
+import { useEligibility } from 'contexts';
+import { useAgreementEligibility, useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
-import { fetchIpfs } from 'utils';
+import { useState } from 'react';
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 const ClaimHat = dynamic(() =>
@@ -20,19 +19,12 @@ const BottomMenu = dynamic(() =>
 );
 
 const Agreement = () => {
-  const [agreement, setAgreement] = useState('');
   const { isMobile } = useMediaStyles();
-  useEffect(() => {
-    const fetchIPFS = async () => {
-      // get the module ipfs details
-      const res = await fetchIpfs(CONFIG.agreementV0.ipfsHash);
-      if (res) {
-        setAgreement(res.data);
-      }
-    };
-
-    fetchIPFS();
-  }, []);
+  const { moduleParameters } = useEligibility();
+  const { agreement } = useAgreementEligibility({
+    moduleParameters,
+  });
+  const [isSigned, setIsSigned] = useState(false);
 
   return (
     <Layout title='Claims'>
@@ -72,11 +64,13 @@ const Agreement = () => {
           </Box>
         )}
 
-        <HatDetails />
+        {isMobile && (
+          <HatDetails isSigned={isSigned} setIsSigned={setIsSigned} />
+        )}
 
         {!isMobile && <ClaimHat agreement={agreement} />}
 
-        <BottomMenu />
+        {isMobile && <BottomMenu isSigned={isSigned} />}
       </HStack>
     </Layout>
   );

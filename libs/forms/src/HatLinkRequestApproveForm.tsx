@@ -11,12 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
-import { fetchToken, pinJson } from 'utils';
 import { useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { ImageFile } from 'hats-types';
 import { decimalId } from 'hats-utils';
+import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -24,6 +23,7 @@ import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToIp, toTreeId } from 'shared';
 import { DropZone, Input, Textarea } from 'ui';
+import { fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 

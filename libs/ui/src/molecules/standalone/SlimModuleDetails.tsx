@@ -15,7 +15,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
-import { formatAddress } from 'utils';
 import { Modal, useEligibility, useOverlay } from 'contexts';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
 import { LinkObject } from 'hats-types';
@@ -23,6 +22,7 @@ import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { formatAddress } from 'utils';
 
 import { ChakraNextLink } from '../../atoms';
 import ModuleArgsForm from '../../forms/ModuleArgsForm';
