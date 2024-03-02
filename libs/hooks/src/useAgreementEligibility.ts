@@ -12,7 +12,7 @@ const useAgreementEligibility = ({
 }: ContractInteractionProps) => {
   const ipfsHash = _.find(moduleParameters, {
     label: 'Current Agreement',
-  })?.value;
+  })?.value as string;
 
   const {
     data: agreement,
