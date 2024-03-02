@@ -1,6 +1,7 @@
 import { Box, HStack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility, useMediaStyles } from 'hooks';
+import { useAgreementEligibility } from 'hats-hooks';
+import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 

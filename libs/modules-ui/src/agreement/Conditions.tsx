@@ -16,10 +16,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility } from 'hooks';
+import { useAgreementEligibility } from 'hats-hooks';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
@@ -37,12 +38,18 @@ const Conditions = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const { moduleParameters } = useEligibility();
+  const { moduleParameters, moduleDetails, chainId } = useEligibility();
   const allConditionsMet = isSigned;
 
-  const { agreement } = useAgreementEligibility({
-    moduleParameters,
-  });
+  const { agreement, signAgreement, isSignAgreementLoading } =
+    useAgreementEligibility({
+      moduleParameters,
+      moduleDetails,
+      chainId,
+      onSuccessfulSign: () => {
+        setIsSigned(true);
+      },
+    });
 
   const handleScroll = (e) => {
     const bottom =
@@ -62,10 +69,14 @@ const Conditions = ({
           <AccordionButton w='full' justifyContent='space-between' px={0}>
             <Box>Comply with all Rules to claim this Hat</Box>
             <AccordionIcon />
-            <Icon
-              as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
-              color={allConditionsMet ? 'green.500' : 'red.500'}
-            />
+            {isSignAgreementLoading ? (
+              <Spinner size='sm' color='blue.500' />
+            ) : (
+              <Icon
+                as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
+                color={allConditionsMet ? 'green.500' : 'red.500'}
+              />
+            )}
           </AccordionButton>
           <AccordionPanel pb={4} px={0}>
             <HStack w='full' justifyContent='space-between'>
@@ -75,10 +86,14 @@ const Conditions = ({
                   Agreement
                 </Button>
               </Box>
-              <Icon
-                as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
-                color={isSigned ? 'green.500' : 'red.500'}
-              />
+              {isSignAgreementLoading ? (
+                <Spinner size='sm' color='blue.500' />
+              ) : (
+                <Icon
+                  as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
+                  color={isSigned ? 'green.500' : 'red.500'}
+                />
+              )}
             </HStack>
           </AccordionPanel>
         </AccordionItem>
@@ -96,7 +111,7 @@ const Conditions = ({
             <Button
               colorScheme='blue'
               onClick={() => {
-                setIsSigned(true);
+                signAgreement();
                 onClose();
               }}
               isDisabled={!isButtonEnabled}

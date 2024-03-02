@@ -1,0 +1,67 @@
+import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { useQuery } from '@tanstack/react-query';
+import { SupportedChains } from 'hats-types';
+import _ from 'lodash';
+import { fetchIpfs } from 'utils';
+import { Hex } from 'viem';
+
+import useCallModuleFunction from './useCallModuleFunction';
+
+interface ContractInteractionProps {
+  moduleParameters: ModuleParameter[] | undefined;
+  moduleDetails?: Module | undefined;
+  chainId?: SupportedChains | undefined;
+  onSuccessfulSign?: () => void;
+}
+
+const useAgreementEligibility = ({
+  moduleParameters,
+  moduleDetails,
+  chainId,
+  onSuccessfulSign,
+}: ContractInteractionProps) => {
+  const ipfsHash = _.find(moduleParameters, {
+    label: 'Current Agreement',
+  })?.value as string;
+
+  const {
+    data: agreement,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['agreement', ipfsHash],
+    queryFn: () => fetchIpfs(ipfsHash).then((res) => res?.data),
+    enabled: !!ipfsHash,
+  });
+
+  const signFn = _.find(
+    _.get(moduleDetails, 'writeFunctions'),
+    (fn: any) => fn.functionName === 'signAgreement',
+  );
+
+  const { mutate: callModuleFunction, isLoading: isSignAgreementLoading } =
+    useCallModuleFunction({
+      chainId,
+    });
+  console.log('isLoading', isSignAgreementLoading);
+
+  const handleFunctionCall = async () => {
+    callModuleFunction({
+      moduleId: moduleDetails?.implementationAddress,
+      instance: moduleDetails?.implementationAddress as Hex,
+      func: signFn,
+      args: [],
+      onSuccess: onSuccessfulSign,
+    });
+  };
+
+  return {
+    agreement,
+    isLoading,
+    error,
+    signAgreement: handleFunctionCall,
+    isSignAgreementLoading,
+  };
+};
+
+export default useAgreementEligibility;
