@@ -28,7 +28,7 @@ import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
-const HatIcon = dynamic(() => import('ui').then((mod) => mod.HatIcon));
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const MobileHatCard = dynamic(() =>
   import('ui').then((mod) => mod.MobileHatCard),
 );

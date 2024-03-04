@@ -26,6 +26,7 @@ import {
 import { FormWearer, HatWearer } from 'hats-types';
 import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
 import { useToast } from 'hooks';
+import { BoxArrowUpRightIn } from 'icons';
 import _ from 'lodash';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -34,13 +35,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import {
-  AddressInput,
-  BoxArrowUpRightIn,
-  DropZone,
-  FormRowWrapper,
-  NumberInput,
-} from 'ui';
+import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
 import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';

@@ -4,6 +4,7 @@ import { useHatForm, useTreeForm } from 'contexts';
 import { ImageFile } from 'hats-types';
 import { isMutable, isTopHat } from 'hats-utils';
 import { usePinImageIpfs } from 'hooks';
+import { HatIcon } from 'icons';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -14,7 +15,6 @@ import { GrEdit } from 'react-icons/gr';
 import {
   DropZone,
   FormRowWrapper,
-  HatIcon,
   Input,
   PlatformInput,
   RadioBox,

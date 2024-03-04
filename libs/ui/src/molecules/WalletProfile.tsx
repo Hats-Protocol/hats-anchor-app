@@ -13,6 +13,7 @@ import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
 import { useClipboard } from 'hooks';
+import { CopyHash, WearerIcon } from 'icons';
 import _ from 'lodash';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
@@ -21,7 +22,6 @@ import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
-import { CopyHash, WearerIcon } from '../icons';
 import TransactionHistory from './TransactionHistory';
 
 const OblongAvatar = ({
@@ -56,6 +56,7 @@ const WalletProfile = ({
 }) => {
   const chainId = useChainId();
   // TODO why was this pick type failing
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore-next-line
   const { transactions, setModals } = _.pick(localOverlay, [
     'transactions',

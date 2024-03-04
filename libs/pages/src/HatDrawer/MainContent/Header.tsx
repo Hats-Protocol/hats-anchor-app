@@ -21,7 +21,7 @@ import dynamic from 'next/dynamic';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
-const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
+const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 const Header = () => {
   const toast = useToast();

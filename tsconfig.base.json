@@ -22,6 +22,7 @@
       "hats-types": ["./libs/hats-types/src/index"],
       "hats-utils": ["./libs/hats-utils/src/index"],
       "hooks": ["./libs/hooks/src/index"],
+      "icons": ["./libs/icons/src/index"],
       "modules-ui": ["./libs/modules-ui/src/index"],
       "pages": ["./libs/pages/src/index"],
       "shared": ["./libs/shared/src/index"],

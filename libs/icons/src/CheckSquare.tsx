@@ -1,20 +1,18 @@
 import { createIcon } from '@chakra-ui/react';
 
-const HatIcon: any = createIcon({
+const CheckSquare: any = createIcon({
   displayName: 'CheckSquare',
-  viewBox: '0 0 24 24',
+  viewBox: '0 0 32 32',
   path: [
     <path
       d='M28 2C29.1046 2 30 2.89543 30 4V28C30 29.1046 29.1046 30 28 30H4C2.89543 30 2 29.1046 2 28V4C2 2.89543 2.89543 2 4 2H28ZM4 0C1.79086 0 0 1.79086 0 4V28C0 30.2091 1.79086 32 4 32H28C30.2091 32 32 30.2091 32 28V4C32 1.79086 30.2091 0 28 0H4Z'
-      fill='black'
-      fillOpacity='0.8'
+      fill='currentColor'
     />,
     <path
       d='M21.9393 9.93934C22.5251 9.35355 23.4749 9.35355 24.0606 9.93934C24.6392 10.5179 24.6463 11.4516 24.0819 12.0389L16.0975 22.0195C16.086 22.0339 16.0737 22.0476 16.0606 22.0607C15.4749 22.6464 14.5251 22.6464 13.9393 22.0607L8.64643 16.7678C8.06065 16.182 8.06065 15.2322 8.64643 14.6464C9.23222 14.0607 10.182 14.0607 10.7678 14.6464L14.9548 18.8335L21.8995 9.98421C21.9119 9.96847 21.9252 9.95349 21.9393 9.93934Z'
-      fill='black'
-      fillOpacity='0.8'
+      fill='currentColor'
     />,
   ],
 });
 
-export default HatIcon;
+export default CheckSquare;

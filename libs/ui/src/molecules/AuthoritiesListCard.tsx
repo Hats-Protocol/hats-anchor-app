@@ -20,13 +20,13 @@ import {
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Authority, AuthorityType } from 'hats-types';
 import { useMediaStyles } from 'hooks';
+import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ChakraNextLink, Markdown } from '../atoms';
-import { BoxArrowUpRightOut } from '../icons';
 import AuthorityHeader from './AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 

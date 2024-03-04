@@ -23,7 +23,7 @@ The build artifacts will be stored in the `dist/` directory, ready to be deploye
 #### Apps
 
 - [`frontend`](./apps/frontend/) - the Hat's ["Anchor" app](#)
-- [`election`](./apps/election/) - the Hat's ["Election" app](#)
+- [`claims`](./apps/claimbs/) - the Hat's ["Claims" app](#) for claiming all sorts of hats
 
 #### Libs
 

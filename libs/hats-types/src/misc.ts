@@ -1,3 +1,4 @@
+import { As } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 import { IconName } from 'react-cmdk';
 import { IconType } from 'react-icons';
@@ -16,7 +17,8 @@ export type ImageFile = {
 
 export type DocsLink = {
   url: string;
-  icon: string;
+  icon?: As;
+  image?: string;
   name: string;
   description: string;
 };

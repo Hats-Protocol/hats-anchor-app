@@ -27,21 +27,15 @@ import {
   useMediaStyles,
 } from 'hooks';
 import _ from 'lodash';
-// import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import {
   ChakraNextLink,
-  CheckSquare,
-  CodeIcon,
   DashboardHatCard,
   FeaturedTreeCard,
   ForkableTemplateCard,
-  // Suspender,
-  HatIcon,
   Layout,
   LearnMoreCard,
-  PeopleIcon,
 } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
@@ -220,21 +214,15 @@ const Home = () => {
                 }}
                 gap={6}
               >
-                {_.map(
-                  LEARN_MORE(HatIcon, CheckSquare, CodeIcon, PeopleIcon),
-                  (docsLink: DocsLink, i: number) => (
-                    <LearnMoreCard key={i} docsData={docsLink} />
-                  ),
-                )}
+                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                  <LearnMoreCard key={i} docsData={docsLink} />
+                ))}
               </Grid>
             ) : (
               <Stack spacing={6}>
-                {_.map(
-                  LEARN_MORE(HatIcon, CheckSquare, CodeIcon, PeopleIcon),
-                  (docsLink: DocsLink, i: number) => (
-                    <LearnMoreCard key={i} docsData={docsLink} />
-                  ),
-                )}
+                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                  <LearnMoreCard key={i} docsData={docsLink} />
+                ))}
               </Stack>
             )}
           </Card>

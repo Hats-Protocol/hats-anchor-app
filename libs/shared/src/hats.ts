@@ -39,12 +39,14 @@ export function createHierarchy(
     currentHat.parentId !== currentHat.id
       ? _.filter(
           data,
-          (hat) =>
+          (hat: any) =>
             hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
         )
       : [];
 
-  const sortedSiblings = _.sortBy(siblings, (sibling) => BigInt(sibling.id));
+  const sortedSiblings = _.sortBy(siblings, (sibling: any) =>
+    BigInt(sibling.id),
+  );
   const currentHatIndex = _.findIndex(sortedSiblings, { id: currentHat.id });
   const leftSiblings = _.slice(sortedSiblings, 0, currentHatIndex);
   const rightSiblings = _.slice(sortedSiblings, currentHatIndex + 1);
@@ -56,7 +58,7 @@ export function createHierarchy(
   const children = _.sortBy(
     _.filter(
       data,
-      (item) => item.parentId === currentHatId && item.id !== currentHatId,
+      (item: any) => item.parentId === currentHatId && item.id !== currentHatId,
     ),
     'id',
   );

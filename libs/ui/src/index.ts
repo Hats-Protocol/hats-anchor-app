@@ -8,6 +8,5 @@ export { Modal, Suspender };
 export * from './atoms';
 export * from './cards';
 export * from './forms';
-export * from './icons';
 export * from './molecules';
 export { default as theme } from './theme';

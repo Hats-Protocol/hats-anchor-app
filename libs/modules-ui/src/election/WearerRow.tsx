@@ -6,7 +6,7 @@ import { HatWearer } from 'hats-types';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
-import { HatIcon } from 'ui';
+import { HatIcon } from 'icons';
 import { formatAddress, isSameAddress } from 'utils';
 import { useAccount } from 'wagmi';
 

@@ -296,7 +296,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
 
-  // console.log(values, selectedModuleDetails, hatId, claimabilityType);
+  console.log(values, selectedModuleDetails, hatId, claimabilityType);
   const { immutableArgs, mutableArgs } = prepareArgs(
     values,
     selectedModuleDetails,
