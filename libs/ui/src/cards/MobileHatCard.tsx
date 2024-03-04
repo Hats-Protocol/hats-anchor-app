@@ -1,6 +1,7 @@
 import {
   Card,
   HStack,
+  Icon,
   Image as ChakraImage,
   Skeleton,
   Stack,
@@ -11,10 +12,12 @@ import { useHatDetailsField } from 'hats-hooks';
 import { HatWithDepth, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { BsPersonBadge } from 'react-icons/bs';
 
 import { ChakraNextLink } from '../atoms';
+import { HatIcon } from '../icons';
 
-const MobileHatCard = ({ hat, chainId }: HatCardProps) => {
+const MobileHatCard = ({ hat, chainId, isWearing, ensName }: HatCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const image = _.get(hat, 'imageUrl');
 
@@ -38,14 +41,15 @@ const MobileHatCard = ({ hat, chainId }: HatCardProps) => {
       w='full'
       pl={(hat?.depth || 0) * 2}
     >
-      <Card overflow='hidden' w='full'>
-        <HStack
-          pr={4}
-          border='1px solid'
-          borderColor='gray.600'
-          borderRadius={6}
-          align='start'
-        >
+      <Card
+        overflow='hidden'
+        w='full'
+        boxShadow='md'
+        border='1px solid'
+        borderColor='gray.600'
+        borderRadius={6}
+      >
+        <HStack align='start' position='relative'>
           <Skeleton boxSize='72px' minW='72px' isLoaded={imageLoaded}>
             <ChakraImage
               src={image || '/icon.jpeg'}
@@ -59,15 +63,38 @@ const MobileHatCard = ({ hat, chainId }: HatCardProps) => {
               onLoad={() => setImageLoaded(true)}
             />
           </Skeleton>
-          <Stack maxW='calc(100% - 72px - 16px)' gap={1} pt={1}>
+          <Stack maxW='calc(100% - 72px - 16px)' gap={1} pt={1} w='full'>
             <Text size='xs' noOfLines={1} fontWeight='medium'>
               {hatIdDecimalToIp(BigInt(hat.id))}
             </Text>
-            <Text size='md' variant='medium' noOfLines={2} lineHeight={4}>
+            <Text size='md' variant='medium' noOfLines={2} lineHeight={5}>
               {detailsName}
             </Text>
           </Stack>
+
+          {isWearing && (
+            <Icon
+              as={HatIcon}
+              alt='Hat'
+              boxSize={4}
+              color='green'
+              position='absolute'
+              top={2}
+              right={2}
+            />
+          )}
         </HStack>
+        {isWearing && (
+          <HStack
+            borderTop='1px solid'
+            borderColor='gray.600'
+            p={1}
+            bg='green.50'
+          >
+            <Icon as={BsPersonBadge} w={4} h={4} />
+            <Text>{ensName || 'You are wearing this hat'}</Text>
+          </HStack>
+        )}
       </Card>
     </ChakraNextLink>
   );
@@ -78,4 +105,6 @@ export default MobileHatCard;
 interface HatCardProps {
   hat: HatWithDepth;
   chainId?: SupportedChains;
+  isWearing?: boolean;
+  ensName?: string | null;
 }

@@ -168,8 +168,14 @@ export const fetchToken = async (count: number = 0) => {
   return token;
 };
 
-export const fetchIpfs = async (hash: string | undefined) => {
-  if (!hash) return null;
+export const fetchIpfs = async (value: string | undefined) => {
+  if (!value) return null;
+
+  let hash = value;
+  if (hash.startsWith('ipfs://')) {
+    hash = hash.slice(7);
+  }
+
   const url = ipfsUrl(hash);
   if (!url) return null;
 

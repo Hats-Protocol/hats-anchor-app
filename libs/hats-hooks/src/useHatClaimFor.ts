@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
-import { useToast } from 'hooks';
 import { AppHat, SupportedChains } from 'hats-types';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { idToIp } from 'shared';

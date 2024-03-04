@@ -5,7 +5,6 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
 import {
   AppHat,
   DeploymentType,
@@ -24,6 +23,7 @@ import {
   processModule,
   processValues,
 } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';

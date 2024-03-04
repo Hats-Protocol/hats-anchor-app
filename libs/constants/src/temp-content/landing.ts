@@ -1,33 +1,38 @@
 export const DOCS_URL = 'https://docs.hatsprotocol.xyz';
 export const CONTACT_URL = 'https://hatsprotocol.deform.cc/getintouch/';
 
-export const LEARN_MORE = [
+export const LEARN_MORE = (
+  HatIcon: any,
+  CheckSquare: any,
+  CodeIcon: any,
+  PeopleIcon: any,
+) => [
   {
     url: `${DOCS_URL}/using-hats/essentials-for-hat-wearers`,
     name: 'For Hat Wearers',
     description: 'So your organization gave you a hat. Now what?',
-    icon: 'hat',
+    icon: HatIcon,
   },
   {
     url: `${DOCS_URL}/getting-started-with-hats`,
     name: 'For Governors',
     description:
       'Everything you need to know to start structuring your organization with hats',
-    icon: 'check-square',
+    icon: CheckSquare,
   },
   {
     url: `${DOCS_URL}/for-developers/hats-protocol-overview`,
     name: 'For Developers',
     description:
       'Protocol and SDK docs for building on top of the open-source protocol',
-    icon: 'code',
+    icon: CodeIcon,
   },
   {
     url: CONTACT_URL,
     name: 'Get in touch!',
     description:
       'Stuck on tree design, deployment, or custom development? We can help.',
-    icon: 'people',
+    icon: PeopleIcon,
   },
 ];
 
