@@ -25,6 +25,7 @@ import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
+import { useQueryClient } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 
@@ -41,10 +42,16 @@ const Conditions = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const { moduleParameters, moduleDetails, controllerAddress, chainId } =
-    useEligibility();
+  const {
+    moduleParameters,
+    moduleDetails,
+    controllerAddress,
+    chainId,
+    selectedHat,
+  } = useEligibility();
   const allConditionsMet = isSigned;
   const { isMobile } = useMediaStyles();
+  const queryClient = useQueryClient();
 
   const { agreement, signAgreement, isSignAgreementLoading } =
     useAgreementEligibility({
@@ -54,6 +61,10 @@ const Conditions = ({
       chainId,
       onSuccessfulSign: () => {
         setIsSigned?.(true);
+        queryClient.invalidateQueries([
+          'hatDetails',
+          { chainId, id: selectedHat?.id },
+        ]);
       },
     });
 
