@@ -1,4 +1,4 @@
-import { Box, HStack } from '@chakra-ui/react';
+import { Box, HStack, Stack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useAgreementEligibility, useWearerEligibilityCheck } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
@@ -13,11 +13,12 @@ const ClaimHat = dynamic(() =>
 const AgreementContent = dynamic(() =>
   import('modules-ui').then((mod) => mod.AgreementContent),
 );
-const HatDetails = dynamic(() =>
-  import('modules-ui').then((mod) => mod.HatDetails),
-);
 const BottomMenu = dynamic(() =>
   import('modules-ui').then((mod) => mod.BottomMenu),
+);
+const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
+const Conditions = dynamic(() =>
+  import('modules-ui').then((mod) => mod.Conditions),
 );
 
 const Agreement = () => {
@@ -37,6 +38,12 @@ const Agreement = () => {
 
   return (
     <Layout title='Claims'>
+      {!isMobile && (
+        <Stack pt='80px' alignItems='center' mb={6}>
+          <Header />
+        </Stack>
+      )}
+
       <HStack
         spacing={{
           base: 12,
@@ -46,15 +53,18 @@ const Agreement = () => {
           base: 0,
           lg: 20,
         }}
-        pt={{
-          base: 0,
-          lg: 120,
-        }}
-        h='100%'
+        h={isMobile ? '100vh' : 'calc(100vh - 232px)'}
+        background={
+          isMobile
+            ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%) !important'
+            : 'none'
+        }
         direction={{
           base: 'column',
           lg: 'row',
         }}
+        position='relative'
+        alignItems='flex-start'
       >
         {!isMobile && (
           <Box
@@ -73,16 +83,25 @@ const Agreement = () => {
           </Box>
         )}
 
-        {isMobile && (
-          <HatDetails
+        {!isMobile && (
+          <ClaimHat
+            agreement={agreement}
             isSigned={isSigned || isEligible}
             setIsSigned={setIsSigned}
           />
         )}
 
-        {!isMobile && <ClaimHat agreement={agreement} />}
-
-        {isMobile && <BottomMenu isSigned={isSigned || isEligible} />}
+        {isMobile && (
+          <Stack spacing={4}>
+            <Header />
+            <Conditions
+              isSigned={isSigned || isEligible}
+              setIsSigned={setIsSigned}
+              agreementIsLink
+            />
+            <BottomMenu isSigned={isSigned || isEligible} />
+          </Stack>
+        )}
       </HStack>
     </Layout>
   );

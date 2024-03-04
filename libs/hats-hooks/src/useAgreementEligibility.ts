@@ -1,3 +1,4 @@
+import { CONFIG } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'hats-types';
@@ -6,6 +7,7 @@ import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 
 import useCallModuleFunction from './useCallModuleFunction';
+import useHatsModules from './useHatsModules';
 
 interface ContractInteractionProps {
   moduleParameters: ModuleParameter[] | undefined;
@@ -41,12 +43,17 @@ const useAgreementEligibility = ({
     (fn: any) => fn.functionName === 'signAgreement',
   );
 
+  const signAndClaim = _.find(
+    _.get(moduleDetails, 'writeFunctions'),
+    (fn: any) => fn.functionName === 'signAgreementAndClaimHat',
+  );
+
   const { mutate: callModuleFunction, isLoading: isSignAgreementLoading } =
     useCallModuleFunction({
       chainId,
     });
 
-  const handleFunctionCall = async () => {
+  const handleSign = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
       instance: controllerAddress as Hex,
@@ -56,11 +63,25 @@ const useAgreementEligibility = ({
     });
   };
 
+  const { modules } = useHatsModules({ chainId });
+  const mch = _.find(modules, { name: CONFIG.claimsHatterModuleName });
+
+  const handleSignAndClaim = async () => {
+    callModuleFunction({
+      moduleId: moduleDetails?.implementationAddress,
+      instance: controllerAddress as Hex,
+      func: signAndClaim,
+      args: [mch?.implementationAddress],
+      onSuccess: onSuccessfulSign,
+    });
+  };
+
   return {
     agreement,
     isLoading,
     error,
-    signAgreement: handleFunctionCall,
+    signAgreement: handleSign,
+    signAndClaim: handleSignAndClaim,
     isSignAgreementLoading,
   };
 };

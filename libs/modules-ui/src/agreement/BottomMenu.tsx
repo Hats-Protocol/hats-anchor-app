@@ -60,7 +60,6 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
     chainId,
   });
   const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
-  console.log('isWearing', isWearing);
 
   const handleClick = () => {
     claimHat?.();

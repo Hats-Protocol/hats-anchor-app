@@ -17,9 +17,15 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
-import { ChakraNextLink, CopyHash, Markdown } from 'ui';
+import dynamic from 'next/dynamic';
 import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
+
+const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
 
 const Header = () => {
   const toast = useToast();
@@ -44,6 +50,78 @@ const Header = () => {
     ? MUTABILITY.MUTABLE
     : MUTABILITY.IMMUTABLE;
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
+
+  if (isMobile)
+    return (
+      <Stack
+        background='linear-gradient(180deg, rgba(247, 250, 252, 0.00) 0%, #F7FAFC 34.5%)'
+        pb={2}
+      >
+        <Box width='100%'>
+          <Image
+            src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+            alt='Hat image'
+            background='white'
+            objectFit='cover'
+            width='100%'
+            height='auto'
+          />
+          <HStack mt={-2} pl={4}>
+            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+              }
+            >
+              {mutableStatus}
+            </Badge>
+            <Badge
+              colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+            >
+              {activeStatus}
+            </Badge>
+            <Badge>Level {levelAtLocalTree}</Badge>
+          </HStack>
+        </Box>
+        <Stack w='full' px={4}>
+          <HStack
+            justify='space-between'
+            gap={2}
+            w='full'
+            alignItems='baseline'
+          >
+            <Tooltip label={name || selectedHat?.details}>
+              <Heading noOfLines={{ base: 2, md: 1 }}>
+                {name || selectedHat?.details}
+              </Heading>
+            </Tooltip>
+
+            <HStack>
+              <Text color='blue.500' fontSize='xs'>
+                {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+              </Text>
+              <Icon
+                as={CopyHash}
+                color='blue.500'
+                cursor='pointer'
+                h='12px'
+                onClick={() => {
+                  onCopy();
+                  toast.info({
+                    title: 'Successfully copied hat ID to clipboard',
+                  });
+                }}
+              />
+            </HStack>
+          </HStack>
+          {description && (
+            <Markdown smallFont collapse maxHeight={70}>
+              {description}
+            </Markdown>
+          )}
+        </Stack>
+      </Stack>
+    );
 
   return (
     <HStack w={{ base: '100%', md: '2xl' }} h={{ md: '120px' }} gap={10}>
