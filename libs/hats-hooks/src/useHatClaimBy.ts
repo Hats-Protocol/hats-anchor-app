@@ -20,11 +20,13 @@ const useHatClaimBy = ({
   chainId,
   wearer,
   handlePendingTx,
+  onSuccess,
 }: {
   selectedHat?: AppHat | null;
   chainId: SupportedChains | undefined;
   wearer: Hex | undefined;
   handlePendingTx?: HandlePendingTx;
+  onSuccess?: () => void;
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
@@ -131,6 +133,7 @@ const useHatClaimBy = ({
           title: 'Hat claimed!',
           description: txDescription,
         },
+        onSuccess,
       });
 
       // TODO Handle clearing/updating hat/wearer data

@@ -3,7 +3,7 @@ import { useEligibility } from 'contexts';
 import { useAgreementEligibility, useWearerEligibilityCheck } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
@@ -34,13 +34,6 @@ const Agreement = () => {
     selectedHat,
     chainId,
   });
-
-  // imply signed if eligible
-  useEffect(() => {
-    if (isEligible) {
-      setIsSigned(true);
-    }
-  }, [isEligible]);
 
   return (
     <Layout title='Claims'>
@@ -81,12 +74,15 @@ const Agreement = () => {
         )}
 
         {isMobile && (
-          <HatDetails isSigned={isSigned} setIsSigned={setIsSigned} />
+          <HatDetails
+            isSigned={isSigned || isEligible}
+            setIsSigned={setIsSigned}
+          />
         )}
 
         {!isMobile && <ClaimHat agreement={agreement} />}
 
-        {isMobile && <BottomMenu isSigned={isSigned} />}
+        {isMobile && <BottomMenu isSigned={isSigned || isEligible} />}
       </HStack>
     </Layout>
   );
