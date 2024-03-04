@@ -61,15 +61,15 @@ const Conditions = ({
 
   return (
     <Box w='100%'>
-      <Heading size='sm'>Conditions to wear this Hat</Heading>
+      <Heading size='sm' my={1}>
+        Conditions to wear this Hat
+      </Heading>
 
-      {/* for some reason adding another empty accordion enables collapsing the second one 
-      removing it makes the second one not collapsible - something weird is going on with chakra's accordion */}
       <Accordion />
-      <Accordion defaultIndex={[0]} allowMultiple>
+      <Accordion allowMultiple>
         <AccordionItem borderWidth={0} borderColor='transparent'>
           <AccordionButton w='full' justifyContent='space-between' px={0}>
-            <Box>Comply with all Rules to claim this Hat</Box>
+            <Box fontSize='sm'>Comply with all Rules to claim this Hat</Box>
             <AccordionIcon />
             {isSignAgreementLoading ? (
               <Spinner size='sm' color='blue.500' />
@@ -80,11 +80,16 @@ const Conditions = ({
               />
             )}
           </AccordionButton>
-          <AccordionPanel pb={4} px={0}>
+          <AccordionPanel px={0}>
             <HStack w='full' justifyContent='space-between'>
-              <Box>
+              <Box fontSize='sm'>
                 Sign the{' '}
-                <Button onClick={onOpen} colorScheme='blue' variant='link'>
+                <Button
+                  onClick={onOpen}
+                  colorScheme='blue'
+                  variant='link'
+                  fontSize='sm'
+                >
                   Agreement
                 </Button>
               </Box>

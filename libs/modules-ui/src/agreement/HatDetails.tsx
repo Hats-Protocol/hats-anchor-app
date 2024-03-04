@@ -1,8 +1,6 @@
 import {
   Badge,
   Box,
-  Button,
-  Collapse,
   Heading,
   HStack,
   Icon,
@@ -19,7 +17,6 @@ import { useWearerDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import Conditions from './Conditions';
@@ -34,12 +31,10 @@ const HatDetails = ({
   isSigned: boolean;
   setIsSigned: (val: boolean) => void;
 }) => {
-  const [show, setShow] = useState(false);
   const toast = useToast();
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails } = useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id || '');
-  const handleToggle = () => setShow(!show);
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',
@@ -110,20 +105,11 @@ const HatDetails = ({
             />
           </HStack>
         </HStack>
-        <>
-          <Collapse startingHeight={70} in={show}>
-            {description && <Markdown>{description}</Markdown>}
-          </Collapse>
-          <Button
-            size='xs'
-            onClick={handleToggle}
-            variant='ghost'
-            fontWeight='medium'
-            color='gray.500'
-          >
-            {show ? 'Hide' : 'Show'} full description
-          </Button>
-        </>
+        {description && (
+          <Markdown smallFont collapse maxHeight={70}>
+            {description}
+          </Markdown>
+        )}
 
         <Conditions isSigned={isSigned} setIsSigned={setIsSigned} />
       </Stack>
