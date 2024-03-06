@@ -19,7 +19,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useHatClaimBy, useWearerDetails } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';

@@ -21,7 +21,7 @@ import {
   ModuleCreationArg,
   ModuleDetails,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
 import { ipToHatId } from 'shared';

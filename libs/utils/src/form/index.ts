@@ -15,7 +15,7 @@ import {
   HatsCalls,
   InputObject,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 import _ from 'lodash';
 import { createHierarchy, getDefaultAdminId, idToIp } from 'shared';
 import { Hex } from 'viem';

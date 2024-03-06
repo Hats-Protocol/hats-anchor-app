@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
-import { HatWithDepth, SupportedChains } from 'hats-types';
+import { HatWithDepth, SupportedChains } from 'types';
 import { HatIcon } from 'icons';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

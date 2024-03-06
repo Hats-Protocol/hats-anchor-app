@@ -5,6 +5,8 @@ import {
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
+import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
 import {
   AppHat,
   Controls,
@@ -13,9 +15,7 @@ import {
   HatExport,
   HatWearer,
   SupportedChains,
-} from 'hats-types';
-import _ from 'lodash';
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
+} from 'types';
 import { formatImageUrl, ipfsUrl, isImageUrl } from 'utils';
 import { Hex } from 'viem';
 

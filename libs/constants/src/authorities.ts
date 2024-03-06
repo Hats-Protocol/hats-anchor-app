@@ -1,4 +1,4 @@
-import { AuthorityType } from 'hats-types';
+import { AuthorityType } from 'types';
 
 export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   protocol: 'protocol',

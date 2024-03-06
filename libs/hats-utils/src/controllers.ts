@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { Module } from '@hatsprotocol/modules-sdk';
-import { ContractData, HatWearer, SupportedChains } from 'hats-types';
+import { ContractData, HatWearer, SupportedChains } from 'types';
 import _ from 'lodash';
 import { explorerUrl, formatAddress } from 'utils';
 

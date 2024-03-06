@@ -23,7 +23,7 @@ import {
   useWearerEligibilityCheck,
   useWearerIsInGoodStanding,
 } from 'hats-hooks';
-import { FormWearer, HatWearer } from 'hats-types';
+import { FormWearer, HatWearer } from 'types';
 import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
 import { useToast } from 'hooks';
 import { BoxArrowUpRightIn } from 'icons';

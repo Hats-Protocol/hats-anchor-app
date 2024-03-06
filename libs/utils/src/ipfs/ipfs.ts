@@ -8,7 +8,7 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import { Authority, FormDataDetails } from 'hats-types';
+import { Authority, FormDataDetails } from 'types';
 import _ from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';

@@ -1,5 +1,5 @@
 import { Heading, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
-import { DocsLink } from 'hats-types';
+import { DocsLink } from 'types';
 
 import { ChakraNextLink } from '../atoms';
 

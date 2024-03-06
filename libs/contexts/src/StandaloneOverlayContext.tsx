@@ -1,8 +1,4 @@
-import {
-  ClaimsModals,
-  HatRecord,
-  StandaloneOverlayContextProps,
-} from 'hats-types';
+import { ClaimsModals, HatRecord, StandaloneOverlayContextProps } from 'types';
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';

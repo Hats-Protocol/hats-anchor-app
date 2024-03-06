@@ -24,13 +24,13 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import { AppHat, SupportedChains } from 'hats-types';
 import { useImageURIs, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
+import { AppHat, SupportedChains } from 'types';
 import { Layout, MobileHatCard, WearerHatCard as CoreHat } from 'ui';
 import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';

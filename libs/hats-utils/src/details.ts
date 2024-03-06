@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import { HatDetails } from 'hats-types';
 import _ from 'lodash';
+import { HatDetails } from 'types';
 
 const includesKeys = (data: unknown, keys: string[]) =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -18,7 +18,7 @@ import {
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Authority, AuthorityType } from 'hats-types';
+import { Authority, AuthorityType } from 'types';
 import { useMediaStyles } from 'hooks';
 import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';

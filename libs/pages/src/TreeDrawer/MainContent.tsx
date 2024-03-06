@@ -14,7 +14,7 @@ import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
 import { useAdminOfHats } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import {
   getProposedChangesCount,
   handleExportBranch,

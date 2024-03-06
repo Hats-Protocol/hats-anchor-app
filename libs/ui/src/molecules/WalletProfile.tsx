@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import { useClipboard } from 'hooks';
 import { CopyHash, WearerIcon } from 'icons';
 import _ from 'lodash';

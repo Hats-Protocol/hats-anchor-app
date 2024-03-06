@@ -18,7 +18,6 @@ import {
   TemplateData,
 } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
-import { AppHat, DocsLink } from 'hats-types';
 import {
   useFeaturedTemplates,
   useFeaturedTrees,
@@ -29,6 +28,7 @@ import {
 import _ from 'lodash';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
+import { AppHat, DocsLink } from 'types';
 import {
   ChakraNextLink,
   DashboardHatCard,

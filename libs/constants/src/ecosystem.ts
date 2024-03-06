@@ -1,4 +1,4 @@
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 
 export const SAFE_URL = 'https://app.safe.global';
 export const DAOHAUS_URL = 'https://admin.daohaus.club';

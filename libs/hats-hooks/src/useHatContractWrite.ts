@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import { HandlePendingTx } from 'hats-types';
+import { HandlePendingTx } from 'types';
 import { useState } from 'react';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';

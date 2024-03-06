@@ -20,7 +20,7 @@ import {
   useWearerDetails,
   useWearerEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer } from 'hats-types';
+import { HatWearer } from 'types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';

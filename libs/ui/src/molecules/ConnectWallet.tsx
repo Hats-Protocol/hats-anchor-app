@@ -2,7 +2,7 @@ import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import blockies from 'blockies-ts';
 import { Modal } from 'contexts';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

@@ -1,7 +1,7 @@
 import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useTreeForm } from 'contexts';
-import { ImageFile } from 'hats-types';
+import { ImageFile } from 'types';
 import { isMutable, isTopHat } from 'hats-utils';
 import { usePinImageIpfs } from 'hooks';
 import { HatIcon } from 'icons';

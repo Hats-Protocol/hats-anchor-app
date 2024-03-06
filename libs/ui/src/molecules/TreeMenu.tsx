@@ -25,7 +25,7 @@ import {
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
-import { Controls } from 'hats-types';
+import { Controls } from 'types';
 import { useIsClient } from 'hooks';
 import { History } from 'icons';
 import _ from 'lodash';

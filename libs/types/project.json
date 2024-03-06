@@ -1,7 +1,7 @@
 {
-  "name": "hats-types",
+  "name": "types",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/hats-types/src",
+  "sourceRoot": "libs/types/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,18 +9,18 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/hats-types",
-        "main": "libs/hats-types/src/index.ts",
-        "packageJson": "libs/hats-types/package.json",
-        "tsConfig": "libs/hats-types/tsconfig.lib.json",
-        "assets": ["libs/hats-types/*.md"],
+        "outputPath": "dist/libs/types",
+        "main": "libs/types/src/index.ts",
+        "packageJson": "libs/types/package.json",
+        "tsConfig": "libs/types/tsconfig.lib.json",
+        "assets": ["libs/types/*.md"],
         "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs hats-types {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs types {args.ver} {args.tag}"
       },
       "dependsOn": [
         {
@@ -34,9 +34,9 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/hats-types"],
+      "outputs": ["{workspaceRoot}/coverage/libs/types"],
       "options": {
-        "jestConfig": "libs/hats-types/jest.config.ts",
+        "jestConfig": "libs/types/jest.config.ts",
         "passWithNoTests": true
       }
     }

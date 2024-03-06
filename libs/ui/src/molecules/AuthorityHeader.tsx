@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
-import { Authority, HatWearer } from 'hats-types';
+import { Authority, HatWearer } from 'types';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import { BoxArrowUpRightOut, HatIcon } from 'icons';
 import _ from 'lodash';

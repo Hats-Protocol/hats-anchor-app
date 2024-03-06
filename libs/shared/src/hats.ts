@@ -1,5 +1,5 @@
-import { Hierarchy, InputObject } from 'hats-types';
 import _ from 'lodash';
+import { Hierarchy, InputObject } from 'types';
 import { Hex } from 'viem';
 
 /**

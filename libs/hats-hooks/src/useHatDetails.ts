@@ -1,6 +1,6 @@
 import { ZERO_ID } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'types';
 import { fetchHatDetails } from 'utils';
 
 const useHatDetails = ({

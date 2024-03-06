@@ -25,7 +25,7 @@ import {
   useCallModuleFunction,
   useHsgSigner,
 } from 'hats-hooks';
-import { Authority, LinkObject } from 'hats-types';
+import { Authority, LinkObject } from 'types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';

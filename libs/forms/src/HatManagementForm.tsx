@@ -3,7 +3,7 @@ import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useContractData } from 'hooks';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
-import { DetailsItem } from 'hats-types';
+import { DetailsItem } from 'types';
 import { isMutable } from 'hats-utils';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';

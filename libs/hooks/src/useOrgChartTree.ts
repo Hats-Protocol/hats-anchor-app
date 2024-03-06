@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'types';
 import { DetailsData, toTreeStructure } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';

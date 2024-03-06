@@ -12,7 +12,7 @@ import {
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatContractWrite } from 'hats-hooks';
-import { AppHat, ImageFile } from 'hats-types';
+import { AppHat, ImageFile } from 'types';
 import { useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';

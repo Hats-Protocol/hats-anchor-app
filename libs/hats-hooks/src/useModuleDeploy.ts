@@ -12,7 +12,7 @@ import {
   HandlePendingTx,
   ModuleDetails,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 import {
   decimalId,
   deployClaimsHatter,

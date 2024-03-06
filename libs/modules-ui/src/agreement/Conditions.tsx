@@ -86,7 +86,6 @@ const Conditions = ({
         Conditions to wear this Hat
       </Heading>
 
-      <Accordion />
       <Accordion allowMultiple>
         <AccordionItem borderWidth={0} borderColor='transparent'>
           <AccordionButton

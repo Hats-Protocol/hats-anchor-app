@@ -12,16 +12,6 @@ import {
   useTreeDetails,
   useWearersControllersDetails,
 } from 'hats-hooks';
-import {
-  AppHat,
-  Authority,
-  FormData,
-  HatDetails,
-  HatWearer,
-  Hierarchy,
-  LinkRequest,
-  SupportedChains,
-} from 'hats-types';
 import { combineAuthorities, translateDrafts } from 'hats-utils';
 import {
   useGuilds,
@@ -44,6 +34,16 @@ import {
   useState,
 } from 'react';
 import { createHierarchy, ipToHatId, mapWithChainId } from 'shared';
+import {
+  AppHat,
+  Authority,
+  FormData,
+  HatDetails,
+  HatWearer,
+  Hierarchy,
+  LinkRequest,
+  SupportedChains,
+} from 'types';
 import {
   generateLocalStorageKey,
   ipfsUrl,
@@ -362,7 +362,8 @@ export const TreeFormContextProvider = ({
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
   const inactiveHats = useMemo(
-    () => _.map(_.filter(orgChartTree, ['status', false]), 'prettyId'),
+    () =>
+      _.compact(_.map(_.filter(orgChartTree, ['status', false]), 'prettyId')),
     [orgChartTree],
   );
 
