@@ -1,4 +1,4 @@
-const usePollSubgraph = ({
+const useWaitForSubgraph = ({
   label,
   fetchHelper,
   checkResult,
@@ -23,7 +23,6 @@ const usePollSubgraph = ({
             return Promise.resolve(result);
           }
           // eslint-disable-next-line no-console
-          console.log(label);
           return undefined;
         } catch (e) {
           // eslint-disable-next-line no-console
@@ -44,4 +43,4 @@ const usePollSubgraph = ({
   return waitForResult;
 };
 
-export default usePollSubgraph;
+export default useWaitForSubgraph;

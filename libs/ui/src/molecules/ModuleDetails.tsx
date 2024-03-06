@@ -86,17 +86,11 @@ const ModuleDetails = ({ type }: { type: string }) => {
     _.includes(fn.roles, 'public'),
   );
   const sortedModuleActions = _.sortBy(moduleActions, (a) => _.size(a.label));
-  console.log('sortedModuleActions', sortedModuleActions);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({
       chainId,
     });
-  console.log(
-    'moduleDetails.implementationAddress',
-    moduleDetails?.implementationAddress,
-  );
-  console.log('controllerAddress', controllerAddress);
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
@@ -166,7 +160,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const onSubmit = (values) => {
     if (!moduleDetails?.implementationAddress) return;
     // eslint-disable-next-line no-console
-    console.log(values);
     callModuleFunction({
       moduleId: moduleDetails.implementationAddress,
       instance: controllerAddress,

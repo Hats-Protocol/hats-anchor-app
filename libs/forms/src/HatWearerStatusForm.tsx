@@ -8,9 +8,9 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useDebounce } from 'hooks';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
+import { useDebounce } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';

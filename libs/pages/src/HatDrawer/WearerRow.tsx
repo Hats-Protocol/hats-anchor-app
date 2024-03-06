@@ -22,15 +22,15 @@ import {
 } from 'hats-hooks';
 import { HatWearer } from 'hats-types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
-import { useMediaStyles, useToast } from 'hooks';
+import { useMediaStyles, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { formatAddress, isSameAddress } from 'utils';
+import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useQueryClient } from 'wagmi';
 
 const TooltipWrapper = dynamic(() =>
   import('ui').then((mod) => mod.TooltipWrapper),
@@ -54,6 +54,7 @@ const WearerRow = ({
   const { chainId, selectedHat } = useTreeForm();
   const { isMobile } = useMediaStyles();
   const { onCopy } = useClipboard(wearer.id);
+  const queryClient = useQueryClient();
 
   const { data: wearerDetails } = useWearerDetails({
     wearerAddress: wearer.id,
@@ -108,10 +109,26 @@ const WearerRow = ({
     enabled: wearer.isContract,
   });
 
+  const waitForWearerRemoval = useWaitForSubgraph({
+    label: 'Checking if wearer is removed...',
+    fetchHelper: () => fetchHatDetails(hatId, chainId),
+    checkResult: (hatDetails) =>
+      _.isEmpty(
+        _.filter(
+          hatDetails?.wearers,
+          (w) => _.toLower(w.id) === _.toLower(address),
+        ),
+      ),
+  });
+
   const { writeAsync: renounceHat } = useHatBurn({
     selectedHat,
     chainId,
-    onSuccess: () => {},
+    handlePendingTx,
+    onSuccess: async () => {
+      await waitForWearerRemoval();
+      queryClient.invalidateQueries(['hatDetails', { id: hatId, chainId }]);
+    },
   });
 
   const handleRenounceHat = async () => {

@@ -23,7 +23,6 @@ const useHatBurn = ({
   const hatId = selectedHat?.id;
   const wearers = selectedHat?.wearers || [];
   const currentlyWearing = _.findKey(wearers, ['id', _.toLower(address)]);
-
   const txDescription = `Renounced hat ${idToIp(hatId)}`;
 
   const { writeAsync, isLoading } = useHatContractWrite({
