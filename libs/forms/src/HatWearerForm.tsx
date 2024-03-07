@@ -25,7 +25,7 @@ import {
 } from 'hats-hooks';
 import { FormWearer, HatWearer } from 'hats-types';
 import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -41,9 +41,14 @@ import {
   FormRowWrapper,
   NumberInput,
 } from 'ui';
-import { chainsMap, formatAddress, viemPublicClient } from 'utils';
+import {
+  chainsMap,
+  fetchHatDetails,
+  formatAddress,
+  viemPublicClient,
+} from 'utils';
 import { Hex, isAddress } from 'viem';
-import { useChainId, useEnsAddress } from 'wagmi';
+import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
@@ -58,6 +63,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     hatDisclosure,
     editMode,
   } = useTreeForm();
+  const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
   const toast = useToast();
   const form = localForm || hatForm;
@@ -150,6 +156,15 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     localWearers.length + (isAddress(currentResolvedAddress) ? 1 : 0)
   } wearers`;
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(hatId, chainId),
+    checkResult: (hatDetails) =>
+      _.some(
+        hatDetails?.wearers,
+        (w) => _.toLower(w.id) === _.toLower(userAddress),
+      ),
+  });
+
   const {
     writeAsync: writeAsyncBatchMintHats,
     isLoading: isLoadingBatchMintHats,
@@ -163,6 +178,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       description: txDescriptionBatch,
     },
     handlePendingTx,
+    waitForSubgraph,
     handleSuccess: () => {
       hatDisclosure?.onClose();
     },

@@ -8,9 +8,10 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { useDebounce } from 'hooks';
+import { useDebounce, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
@@ -18,6 +19,7 @@ import { idToIp, toTreeId } from 'shared';
 import { formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
+import { readContract } from 'wagmi/actions';
 
 const HatWearerStatusForm = ({
   wearer,
@@ -53,6 +55,18 @@ const HatWearerStatusForm = ({
 
   const txDescription = getSuccessToastDescription();
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () =>
+      readContract({
+        address: CONFIG.hatsAddress,
+        abi: CONFIG.hatsAbi,
+        functionName: 'isEligible',
+        args: [wearer, hatId],
+        chainId,
+      }),
+    checkResult: (isEligible) => !isEligible,
+  });
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'setHatWearerStatus',
     args: [
@@ -68,6 +82,7 @@ const HatWearerStatusForm = ({
     ],
     txDescription,
     handlePendingTx,
+    waitForSubgraph,
     onSuccessToastData: {
       title: 'Wearer Status Updated',
       description: txDescription,

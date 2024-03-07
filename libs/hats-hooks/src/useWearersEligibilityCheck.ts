@@ -1,5 +1,5 @@
-import { useQueries } from '@tanstack/react-query';
 import { CONFIG } from '@hatsprotocol/constants';
+import { useQueries } from '@tanstack/react-query';
 import { AppHat } from 'hats-types';
 import _ from 'lodash';
 import { Hex } from 'viem';

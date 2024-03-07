@@ -121,9 +121,6 @@ const ModuleAuthorityToolbar = ({
       chainId,
     });
 
-  console.log('authority', authority);
-  // "0x7DbB65CA505117258eaF1E085BDe4555746bB42F"
-
   const handleFunctionCall = (func) => {
     if (!authority) return;
     if (func.isCustom) {

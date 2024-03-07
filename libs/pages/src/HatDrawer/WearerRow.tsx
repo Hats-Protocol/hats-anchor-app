@@ -30,7 +30,7 @@ import { FaEllipsisH } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useQueryClient } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 const TooltipWrapper = dynamic(() =>
   import('ui').then((mod) => mod.TooltipWrapper),
@@ -54,7 +54,6 @@ const WearerRow = ({
   const { chainId, selectedHat } = useTreeForm();
   const { isMobile } = useMediaStyles();
   const { onCopy } = useClipboard(wearer.id);
-  const queryClient = useQueryClient();
 
   const { data: wearerDetails } = useWearerDetails({
     wearerAddress: wearer.id,
@@ -109,8 +108,7 @@ const WearerRow = ({
     enabled: wearer.isContract,
   });
 
-  const waitForWearerRemoval = useWaitForSubgraph({
-    label: 'Checking if wearer is removed...',
+  const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
     checkResult: (hatDetails) =>
       _.isEmpty(
@@ -125,10 +123,7 @@ const WearerRow = ({
     selectedHat,
     chainId,
     handlePendingTx,
-    onSuccess: async () => {
-      await waitForWearerRemoval();
-      queryClient.invalidateQueries(['hatDetails', { id: hatId, chainId }]);
-    },
+    waitForSubgraph,
   });
 
   const handleRenounceHat = async () => {

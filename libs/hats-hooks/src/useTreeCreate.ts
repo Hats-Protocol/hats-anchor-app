@@ -37,7 +37,6 @@ const useTreeCreate = ({
   });
 
   const waitForSubgraph = useWaitForSubgraph({
-    label: 'Waiting for tree creation in the subgraph',
     fetchHelper: treeId
       ? () => fetchTreeDetails(treeIdDecimalToHex(treeId), chainId)
       : () => Promise.resolve(null),

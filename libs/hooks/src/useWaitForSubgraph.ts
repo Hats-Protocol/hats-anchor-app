@@ -1,16 +1,17 @@
+import useToast from './useToast';
+
 const useWaitForSubgraph = ({
-  label,
   fetchHelper,
   checkResult,
   interval = 1000,
 }: {
-  label: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fetchHelper: () => Promise<any> | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   checkResult: (value: any) => boolean;
   interval?: number;
 }) => {
+  const toast = useToast();
   const waitForResult = async () =>
     new Promise((resolve) => {
       const checkResultHandler = async () => {
@@ -18,25 +19,34 @@ const useWaitForSubgraph = ({
           const result = await fetchHelper();
 
           if (result && checkResult(result)) {
-            // eslint-disable-next-line no-use-before-define
             clearInterval(intervalId);
+
+            toast.success({
+              title: 'Subgraph updated!',
+            });
             return Promise.resolve(result);
           }
-          // eslint-disable-next-line no-console
           return undefined;
         } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(e);
+          toast.error({
+            title: 'Error',
+            description: 'An error occurred while waiting for subgraph',
+          });
+
           return Promise.reject(e);
         }
       };
 
+      toast.info({
+        title: 'Waiting for subgraph...',
+      });
+
       const intervalId = setInterval(checkResultHandler, interval);
-      checkResultHandler(); // Check immediately
+      checkResultHandler();
 
       setTimeout(() => {
         clearInterval(intervalId);
-        resolve(null); // Resolve with null or handle the timeout case
+        resolve(null);
       }, 20000);
     });
 

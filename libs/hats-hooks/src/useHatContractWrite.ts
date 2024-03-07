@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
 import { HandlePendingTx } from 'hats-types';
+import { useToast } from 'hooks';
 import { useState } from 'react';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
@@ -19,6 +19,7 @@ interface ContractInteractionProps {
   enabled: boolean;
   handlePendingTx?: HandlePendingTx; // pass both handlePendingTx and handleSuccess to useHatContractWrite
   handleSuccess?: (data?: TransactionReceipt) => void; // passed with handlePendingTx
+  waitForSubgraph?: (data?: TransactionReceipt) => void; // passed with handleSuccess
 }
 
 const useHatContractWrite = ({
@@ -33,6 +34,7 @@ const useHatContractWrite = ({
   enabled,
   handlePendingTx,
   handleSuccess,
+  waitForSubgraph,
 }: ContractInteractionProps) => {
   const toast = useToast();
   const userChainId = useChainId();
@@ -66,8 +68,11 @@ const useHatContractWrite = ({
         txChainId: chainId,
         txDescription: txDescription || formatFunctionName(functionName),
         toastData: onSuccessToastData,
-        onSuccess: (d?: TransactionReceipt) => {
+        onSuccess: async (d?: TransactionReceipt) => {
           handleSuccess?.(d);
+          waitForSubgraph?.(d);
+
+          // when we add waitForSubgraph to all the places, we can remove the timeout
           setTimeout(() => {
             queryKeys.forEach((key) =>
               queryClient.invalidateQueries({
