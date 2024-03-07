@@ -62,6 +62,7 @@ export interface TreeFormContext {
   selectedHatDetails: HatDetails | undefined;
   isDraft: boolean;
   treeToDisplay: AppHat[] | undefined;
+  treeToDisplayWithInactiveHats: AppHat[] | undefined;
   onchainTree: AppHat[] | undefined;
   onchainHats: AppHat[] | undefined;
   selectedOnchainHat: AppHat | undefined;
@@ -114,6 +115,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   selectedHatDetails: undefined,
   isDraft: false,
   treeToDisplay: undefined,
+  treeToDisplayWithInactiveHats: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
   selectedOnchainHat: undefined,
@@ -359,50 +361,47 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
-  const inactiveHats = useMemo(() => {
-    return _.map(
-      _.filter(orgChartTree, ['status', false]),
-      (h: AppHat) => h.prettyId,
-    ) as Hex[];
-  }, [orgChartTree]);
+  const inactiveHats = useMemo(
+    () => _.map(_.filter(orgChartTree, ['status', false]), 'prettyId'),
+    [orgChartTree],
+  );
 
-  const filteredTree = useMemo(() => {
-    if (showInactiveHats) return orgChartTree;
+  const transformTree = useCallback(
+    (tree, includeInactive = false) => {
+      return _.chain(tree)
+        .filter(
+          (hat) =>
+            includeInactive ||
+            !_.includes(inactiveHats, _.get(hat, 'prettyId')),
+        )
+        .map((hat) => {
+          const matchingHat = _.find(storedData, { id: hat.id }) || {};
+          return {
+            ...hat,
+            displayName: matchingHat.name || hat.displayName,
+            imageUrl: matchingHat.imageUrl || hat.imageUrl,
+          };
+        })
+        .filter((hat) => !editMode || hat.id?.startsWith(treeData?.id || ''))
+        .value();
+    },
+    [storedData, inactiveHats, editMode, treeData],
+  );
 
-    const inactiveAncestors = _.map(
-      _.filter(orgChartTree, (hat: AppHat) =>
-        _.some(inactiveHats, (h: Hex) => h && hat.prettyId?.includes(h)),
-      ),
-      'prettyId',
-    );
+  const filteredTree = useMemo(
+    () => (showInactiveHats ? orgChartTree : transformTree(orgChartTree)),
+    [showInactiveHats, orgChartTree, transformTree],
+  );
 
-    return _.reject(orgChartTree, (h: AppHat) =>
-      _.includes(_.concat(inactiveHats, inactiveAncestors), h.prettyId),
-    );
-  }, [inactiveHats, orgChartTree, showInactiveHats]);
-  const overrideOrgChartData = useMemo(() => {
-    return _.map(filteredTree, (hat: AppHat) => {
-      const matchingHat = _.find(storedData, { id: hat.id });
-      const orgChartHat = _.find(filteredTree, { id: hat.id });
+  const treeToDisplay = useMemo(
+    () => (editMode ? transformTree(filteredTree, true) : filteredTree),
+    [editMode, filteredTree, transformTree],
+  );
 
-      if (!_.isEmpty(_.reject(_.keys(matchingHat), 'id'))) {
-        return {
-          ...hat,
-          // could translate more stored data
-          displayName: matchingHat?.name,
-          imageUrl: matchingHat?.imageUrl || orgChartHat?.imageUrl,
-        };
-      }
-      return hat;
-    });
-  }, [filteredTree, storedData]);
-  const treeToDisplay = useMemo(() => {
-    const noHatsOutsideTree = _.reject(
-      overrideOrgChartData,
-      (hat: { id: string }) => treeData?.id && !hat.id.startsWith(treeData?.id),
-    ) as AppHat[];
-    return editMode ? noHatsOutsideTree : filteredTree;
-  }, [editMode, overrideOrgChartData, treeData?.id, filteredTree]);
+  const treeToDisplayWithInactiveHats = useMemo(
+    () => transformTree(orgChartTree, true),
+    [transformTree, orgChartTree],
+  );
 
   // *********************
   // * TOP HAT
@@ -751,6 +750,7 @@ export const TreeFormContextProvider = ({
       selectedHatDetails,
       isDraft,
       treeToDisplay,
+      treeToDisplayWithInactiveHats,
       onchainTree,
       onchainHats,
       treeEvents,
@@ -802,6 +802,7 @@ export const TreeFormContextProvider = ({
       selectedHatDetails,
       isDraft,
       treeToDisplay,
+      treeToDisplayWithInactiveHats,
       onchainTree,
       onchainHats,
       treeEvents,

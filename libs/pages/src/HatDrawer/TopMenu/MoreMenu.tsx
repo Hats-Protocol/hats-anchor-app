@@ -53,7 +53,7 @@ const MoreMenu = () => {
   const {
     chainId,
     selectedHat,
-    treeToDisplay,
+    treeToDisplayWithInactiveHats,
     storedData,
     linkedHatIds,
     onchainHats,
@@ -121,7 +121,7 @@ const MoreMenu = () => {
   const handleExport = () =>
     handleExportBranch({
       targetHatId: selectedHat?.id,
-      treeToDisplay,
+      treeToDisplayWithInactiveHats,
       linkedHatIds,
       storedData,
       chainId,

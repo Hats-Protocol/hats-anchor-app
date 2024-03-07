@@ -316,87 +316,33 @@ const prepareExportTree = (data: any[]): HatExport[] => {
   });
 };
 
-const patchDataToEnsureConsecutiveIds = (tree: HatExport[]) => {
-  const dataWithPrettyIds = _.map(tree, (hat) => ({
-    ...hat,
-    id: idToPrettyId(hat.id),
-    adminId: idToPrettyId(hat.adminId),
-  }));
-
-  const maxDepth =
-    _.max(
-      _.map(dataWithPrettyIds, (item) => (item.id.match(/\./g) || []).length),
-    ) || 1;
-
-  _.forEach(_.range(1, maxDepth + 1), (depth) => {
-    let expectedNumber = 1;
-    let lastSegment = '';
-
-    _.forEach(dataWithPrettyIds, (item, index) => {
-      const idSegments = item.id.split('.');
-      if (idSegments.length - 1 < depth) return;
-
-      const currentSegment = idSegments[depth];
-      if (currentSegment !== lastSegment) {
-        lastSegment = currentSegment;
-        expectedNumber += 1;
-      }
-
-      const currentNumber = parseInt(currentSegment, 16);
-      if (currentNumber !== expectedNumber - 1) {
-        const newSegment = (expectedNumber - 1).toString(16).padStart(4, '0');
-        idSegments[depth] = newSegment;
-        dataWithPrettyIds[index].id = idSegments.join('.');
-
-        if (idSegments.length > 1) {
-          const parentSegments = _.slice(idSegments, 0, -1);
-          dataWithPrettyIds[index].adminId = parentSegments.join('.');
-        }
-
-        _.forEach(dataWithPrettyIds, (child) => {
-          if (child.adminId === item.id) {
-            // eslint-disable-next-line no-param-reassign
-            child.adminId = dataWithPrettyIds[index].id;
-          }
-        });
-      }
-    });
-  });
-
-  return _.map(dataWithPrettyIds, (hat) => ({
-    ...hat,
-    id: prettyIdToId(hat.id),
-    adminId: prettyIdToId(hat.adminId),
-  }));
-};
-
 export const handleExportBranch = ({
   targetHatId,
-  treeToDisplay,
+  treeToDisplayWithInactiveHats,
   linkedHatIds,
   storedData,
   chainId,
   toast,
-  shouldPatchIds = false,
-}: {
+}: // shouldPatchIds = false,
+{
   targetHatId?: Hex;
-  treeToDisplay?: AppHat[];
+  treeToDisplayWithInactiveHats?: AppHat[];
   linkedHatIds?: Hex[];
   storedData?: Partial<FormData>[];
   decimalTreeId?: number;
   chainId?: number;
   toast: any;
-  shouldPatchIds?: boolean;
+  // shouldPatchIds?: boolean;
 }) => {
   if (
     !targetHatId ||
-    !treeToDisplay ||
+    !treeToDisplayWithInactiveHats ||
     !linkedHatIds ||
     !storedData ||
     !chainId
   )
     return;
-  const branch = getBranch(targetHatId, treeToDisplay);
+  const branch = getBranch(targetHatId, treeToDisplayWithInactiveHats);
   const hatsWithoutLinkedHats = _.filter(
     branch,
     (hat) => hat.id && !linkedHatIds?.includes(hat.id),
@@ -412,15 +358,14 @@ export const handleExportBranch = ({
     targetHatInBranch.admin.id = targetHatId;
   }
   const hatId = hatIdDecimalToIp(BigInt(targetHatId));
-  const targetHat = _.find(treeToDisplay, { id: targetHatId });
+  const targetHat = _.find(treeToDisplayWithInactiveHats, { id: targetHatId });
   const type = isTopHat(targetHat) ? 'tree' : 'branch';
 
   const onchainHats = flattenHatData(hatsWithoutLinkedHats);
   const mergedHats = mergeHatsWithStoredData(onchainHats, storedData);
   const preparedTree = prepareExportTree(mergedHats);
-  const patchedData = patchDataToEnsureConsecutiveIds(preparedTree);
 
-  const fileData = JSON.stringify(shouldPatchIds ? patchedData : preparedTree);
+  const fileData = JSON.stringify(preparedTree);
   const blob = new Blob([fileData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

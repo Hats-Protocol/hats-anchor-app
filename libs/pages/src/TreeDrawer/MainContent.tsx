@@ -5,13 +5,8 @@ import {
   Flex,
   Heading,
   HStack,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Stack,
   Text,
-  Tooltip,
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -43,18 +38,16 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     topHat,
     onchainHats,
     treeToDisplay,
+    treeToDisplayWithInactiveHats,
     storedData,
     setSelectedHatId,
     treeDisclosure,
     hatDisclosure,
     treeEvents,
     topHatDetails,
-    treeId,
     chainId,
     linkedHatIds,
-    inactiveHats,
   } = useTreeForm();
-  const hasInactiveHats = inactiveHats.length > 0;
   const isClient = useIsClient();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
@@ -76,15 +69,14 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
-  const handleExport = (shouldPatchIds: boolean) =>
+  const handleExport = () =>
     handleExportBranch({
-      targetHatId: treeId,
-      treeToDisplay,
+      targetHatId: topHat?.id,
+      treeToDisplayWithInactiveHats,
       linkedHatIds,
       storedData,
       chainId,
       toast,
-      shouldPatchIds,
     });
 
   if (!onchainHats || !treeToDisplay) return null;
@@ -142,41 +134,15 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           >
             Import
           </Button>
-          {hasInactiveHats ? (
-            <Menu>
-              <MenuButton
-                as={Button}
-                leftIcon={<FiSave />}
-                colorScheme='twitter'
-                variant='solid'
-                isDisabled={treeToDisplay?.length === 1}
-              >
-                Export
-              </MenuButton>
-              <MenuList>
-                <MenuItem onClick={() => handleExport(false)}>
-                  <Tooltip label='This option should be used for applying changes to the same tree, to preserve its structure.'>
-                    Template for current tree
-                  </Tooltip>
-                </MenuItem>
-                <MenuItem onClick={() => handleExport(true)}>
-                  <Tooltip label='This option should be used when creating a new tree.'>
-                    Template for new tree
-                  </Tooltip>
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          ) : (
-            <Button
-              leftIcon={<FiSave />}
-              colorScheme='twitter'
-              variant='solid'
-              isDisabled={treeToDisplay?.length === 1}
-              onClick={() => handleExport(false)}
-            >
-              Export
-            </Button>
-          )}
+          <Button
+            leftIcon={<FiSave />}
+            colorScheme='twitter'
+            variant='solid'
+            isDisabled={treeToDisplay?.length === 1}
+            onClick={handleExport}
+          >
+            Export
+          </Button>
         </VStack>
       </HStack>
 
