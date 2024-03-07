@@ -375,12 +375,15 @@ export const TreeFormContextProvider = ({
             !_.includes(inactiveHats, _.get(hat, 'prettyId')),
         )
         .map((hat) => {
-          const matchingHat = _.find(storedData, { id: hat.id }) || {};
-          return {
-            ...hat,
-            displayName: matchingHat.name || hat.displayName,
-            imageUrl: matchingHat.imageUrl || hat.imageUrl,
-          };
+          if (editMode) {
+            const matchingHat = _.find(storedData, { id: hat.id }) || {};
+            return {
+              ...hat,
+              displayName: matchingHat.name || hat.displayName,
+              imageUrl: matchingHat.imageUrl || hat.imageUrl,
+            };
+          }
+          return hat;
         })
         .filter((hat) => !editMode || hat.id?.startsWith(treeData?.id || ''))
         .value();
