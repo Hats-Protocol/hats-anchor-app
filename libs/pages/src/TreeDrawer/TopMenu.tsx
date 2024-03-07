@@ -51,29 +51,6 @@ const TopMenu = () => {
   const { handlePendingTx } = useOverlay();
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 
-  const handleDeploy = async () => {
-    const result = await writeAsync?.();
-    if (result) {
-      setEditMode?.(false);
-      onCloseTreeDrawer?.();
-    }
-  };
-
-  const promptForReset = () => {
-    if (editHasUpdates(storedData)) {
-      onOpen();
-    } else {
-      setEditMode?.(!editMode);
-      onCloseTreeDrawer?.();
-      setSelectedOption?.('wearers');
-    }
-  };
-
-  const confirmReset = () => {
-    resetTree?.();
-    closeModal();
-  };
-
   const hatIds = _.filter(
     _.map(storedData, 'id'),
     (hatId: Hex) => hatId !== undefined,
@@ -101,6 +78,29 @@ const TopMenu = () => {
     handlePendingTx,
     patchTree,
   });
+
+  const handleDeploy = async () => {
+    const result = await writeAsync?.();
+    if (result) {
+      setEditMode?.(false);
+      onCloseTreeDrawer?.();
+    }
+  };
+
+  const promptForReset = () => {
+    if (editHasUpdates(storedData)) {
+      onOpen();
+    } else {
+      setEditMode?.(!editMode);
+      onCloseTreeDrawer?.();
+      setSelectedOption?.('wearers');
+    }
+  };
+
+  const confirmReset = () => {
+    resetTree?.();
+    closeModal();
+  };
 
   const getDeployTooltipLabel = useMemo(() => {
     if (!storedData?.length) {
