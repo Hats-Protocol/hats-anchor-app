@@ -219,6 +219,33 @@ const MoreMenu = () => {
               </Tooltip>
             </MenuItem>
           )}
+          {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
+            <MenuItem
+              gap={2}
+              onClick={() => toggleHat?.()}
+              isDisabled={
+                !isSameAddress(selectedHat?.toggle, address) ||
+                isLoadingToggleHat ||
+                !toggleHat
+              }
+            >
+              <Tooltip
+                label={
+                  !isSameAddress(selectedHat?.toggle, address)
+                    ? "Your address doesn't match the hat's toggle address"
+                    : ''
+                }
+                shouldWrapChildren
+              >
+                <HStack>
+                  <FaPowerOff />
+                  <Text>
+                    {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
+                  </Text>
+                </HStack>
+              </Tooltip>
+            </MenuItem>
+          )}
           {isAdminUser && (
             <MenuItem
               gap={2}
@@ -249,33 +276,6 @@ const MoreMenu = () => {
             <FaExclamationCircle />
             Report this hat
           </MenuItem>
-          {(isAdminUser || isSameAddress(selectedHat?.toggle, address)) && (
-            <MenuItem
-              gap={2}
-              onClick={() => toggleHat?.()}
-              isDisabled={
-                !isSameAddress(selectedHat?.toggle, address) ||
-                isLoadingToggleHat ||
-                !toggleHat
-              }
-            >
-              <Tooltip
-                label={
-                  !isSameAddress(selectedHat?.toggle, address)
-                    ? "Your address doesn't match the hat's toggle address"
-                    : ''
-                }
-                shouldWrapChildren
-              >
-                <HStack>
-                  <FaPowerOff />
-                  <Text>
-                    {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
-                  </Text>
-                </HStack>
-              </Tooltip>
-            </MenuItem>
-          )}
         </MenuList>
       </Menu>
 
