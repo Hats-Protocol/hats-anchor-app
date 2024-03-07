@@ -70,9 +70,9 @@ const useHatContractWrite = ({
         toastData: onSuccessToastData,
         onSuccess: async (d?: TransactionReceipt) => {
           handleSuccess?.(d);
-          waitForSubgraph?.(d);
+          await waitForSubgraph?.(d);
 
-          // when we add waitForSubgraph to all the places, we can remove the timeout
+          // we can remove the timeout after we add waitForSubgraph everywhere
           setTimeout(() => {
             queryKeys.forEach((key) =>
               queryClient.invalidateQueries({

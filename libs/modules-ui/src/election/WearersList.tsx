@@ -1,18 +1,23 @@
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { useEligibility } from 'contexts';
+import { useEligibility, useOverlay } from 'contexts';
 import { useHatClaimBy } from 'hats-hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const WearerCard = ({ account }: { account: Hex }) => {
   const { chainId, selectedHat } = useEligibility();
   const { address } = useAccount();
   const { data: name } = useEnsName({ address: account, chainId: 1 });
+  const { handlePendingTx } = useOverlay();
 
   const isWearing = useMemo(() => {
     return _.some(selectedHat?.wearers, { id: account });
@@ -23,6 +28,7 @@ const WearerCard = ({ account }: { account: Hex }) => {
     selectedHat: selectedHat || undefined,
     chainId,
     wearer: account,
+    handlePendingTx,
   });
 
   return (
