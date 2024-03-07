@@ -459,6 +459,11 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
       return;
     }
 
+    if (key === 'wearers') {
+      diffHat[key] = value;
+      return;
+    }
+
     if (
       _.includes(['maxSupply', 'currentSupply', 'timestamp', 'parentId'], key)
     ) {
@@ -478,16 +483,6 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
     }
 
     if (_.isArray(value)) {
-      if (_.isObject(_.first(value))) {
-        // handle wearers separately to merge the lists
-        if (key === 'wearers') {
-          const wearersDiff = _.differenceBy(value, hatB[key], 'address');
-          if (!_.isEmpty(wearersDiff)) {
-            diffHat[key] = value; // set to combined wearers lists
-          }
-          return;
-        }
-      }
       const diffArray = _.differenceWith(value, hatB[key], _.isEqual);
       if (!_.isEmpty(diffArray)) diffHat[key] = value;
       return;
