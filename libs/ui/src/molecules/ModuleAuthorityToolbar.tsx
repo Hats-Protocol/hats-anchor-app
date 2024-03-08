@@ -25,7 +25,6 @@ import {
   useCallModuleFunction,
   useHsgSigner,
 } from 'hats-hooks';
-import { Authority, LinkObject } from 'types';
 import { formHatUrl, safeUrl } from 'hats-utils';
 import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';
@@ -34,6 +33,7 @@ import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
+import { Authority, LinkObject } from 'types';
 import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -121,9 +121,6 @@ const ModuleAuthorityToolbar = ({
     useCallHsgFunction({
       chainId,
     });
-
-  console.log('authority', authority);
-  // "0x7DbB65CA505117258eaF1E085BDe4555746bB42F"
 
   const handleFunctionCall = (func) => {
     if (!authority) return;

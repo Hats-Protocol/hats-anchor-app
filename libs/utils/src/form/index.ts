@@ -4,6 +4,8 @@ import {
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
+import { createHierarchy, getDefaultAdminId, idToIp } from 'shared';
 import {
   AppHat,
   FieldItem,
@@ -16,8 +18,6 @@ import {
   InputObject,
   SupportedChains,
 } from 'types';
-import _ from 'lodash';
-import { createHierarchy, getDefaultAdminId, idToIp } from 'shared';
 import { Hex } from 'viem';
 
 import { calculateCid, ipfsUrl, urlToIpfsUri } from '../ipfs';

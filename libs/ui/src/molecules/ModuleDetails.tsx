@@ -24,13 +24,13 @@ import {
   useMultiClaimsHatterContractWrite,
   useWearerDetails,
 } from 'hats-hooks';
-import { LinkObject } from 'types';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { LinkObject } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -86,17 +86,11 @@ const ModuleDetails = ({ type }: { type: string }) => {
     _.includes(fn.roles, 'public'),
   );
   const sortedModuleActions = _.sortBy(moduleActions, (a) => _.size(a.label));
-  console.log('sortedModuleActions', sortedModuleActions);
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({
       chainId,
     });
-  console.log(
-    'moduleDetails.implementationAddress',
-    moduleDetails?.implementationAddress,
-  );
-  console.log('controllerAddress', controllerAddress);
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
