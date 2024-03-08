@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Hex } from 'viem';
 
 import { decimalId, getTreeId } from './hats';
+import App from 'next/app';
 
 const mapHat = (
   hat: AppHat | undefined,
@@ -146,6 +147,17 @@ const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
   return _.flatten(newArray);
 };
 
+const compareHatIds = (a: AppHat, b: AppHat): number => {
+  if (BigInt(decimalId(a.id)) < BigInt(decimalId(b.id))) {
+    return -1;
+  }
+  if (BigInt(decimalId(a.id)) > BigInt(decimalId(b.id))) {
+    return 1;
+  }
+
+  return 0;
+};
+
 export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
   // * tricky sort ahead, follow each branch to their conclusion
   // * before returning to next sibling at previous level
@@ -161,9 +173,11 @@ export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
   });
 
   // make sure we have a unique list and map to sorted array of IDs
-  const sortedTree = _.map(_.uniq(newIdList), (id: string) =>
-    _.find(tree, (h: AppHat) => h.id === id),
-  );
+  //const sortedTree = _.map(_.uniq(newIdList), (id: string) =>
+  //  _.find(tree, (h: AppHat) => h.id === id),
+  //);
+
+  const sortedTree = tree.sort(compareHatIds);
 
   const treeWithDepth = _.map(_.compact(sortedTree), (hat: AppHat) => ({
     ...hat,
