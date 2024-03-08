@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { useHatsModules } from 'hats-hooks';
-import { ModuleDetails } from 'hats-types';
+import { ModuleDetails } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';

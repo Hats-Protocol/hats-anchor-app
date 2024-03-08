@@ -1,12 +1,9 @@
+import { CheckSquare, CodeIcon, HatIcon, PeopleIcon } from 'icons';
+
 export const DOCS_URL = 'https://docs.hatsprotocol.xyz';
 export const CONTACT_URL = 'https://hatsprotocol.deform.cc/getintouch/';
 
-export const LEARN_MORE = (
-  HatIcon: any,
-  CheckSquare: any,
-  CodeIcon: any,
-  PeopleIcon: any,
-) => [
+export const LEARN_MORE = [
   {
     url: `${DOCS_URL}/using-hats/essentials-for-hat-wearers`,
     name: 'For Hat Wearers',

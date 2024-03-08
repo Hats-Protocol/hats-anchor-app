@@ -1,13 +1,13 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
-import { AppHat } from 'hats-types';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
+import { AppHat } from 'types';
 import { Layout, NetworkFilter, TreeListCard as TreeCard } from 'ui';
 
 const Trees = ({ chainId }: { chainId: number }) => {

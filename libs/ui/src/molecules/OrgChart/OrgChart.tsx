@@ -15,7 +15,7 @@ import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
-import { HatWearer } from 'hats-types';
+import { HatWearer } from 'types';
 import {
   calculateNextChildId,
   isTopHatOrMutable,

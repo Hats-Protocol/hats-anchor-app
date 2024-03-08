@@ -1,5 +1,5 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

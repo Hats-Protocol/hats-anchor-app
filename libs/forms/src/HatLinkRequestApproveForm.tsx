@@ -13,7 +13,7 @@ import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { ImageFile } from 'hats-types';
+import { ImageFile } from 'types';
 import { decimalId } from 'hats-utils';
 import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';

@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { useAttemptAutoConnect, useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';

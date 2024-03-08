@@ -1,4 +1,4 @@
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import {
   arbitrum,
   base,

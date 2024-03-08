@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useState } from 'react';

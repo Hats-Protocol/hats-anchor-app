@@ -1,5 +1,5 @@
 import { CONFIG } from '@hatsprotocol/constants';
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'types';
 import { useContractRead } from 'wagmi';
 
 const useHatStatus = ({

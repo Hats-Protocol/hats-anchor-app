@@ -7,7 +7,7 @@ import {
   useIsAdmin,
   useMultiClaimsHatterCheck,
 } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useRef } from 'react';

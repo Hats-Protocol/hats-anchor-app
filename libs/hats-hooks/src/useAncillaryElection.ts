@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { fetchElectionData } from 'utils';

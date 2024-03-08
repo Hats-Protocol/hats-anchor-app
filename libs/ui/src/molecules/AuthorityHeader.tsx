@@ -9,8 +9,9 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
-import { Authority, HatWearer } from 'hats-types';
+import { Authority, HatWearer } from 'types';
 import { useMediaStyles, useSafeDetails } from 'hooks';
+import { BoxArrowUpRightOut, HatIcon } from 'icons';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import {
@@ -22,7 +23,6 @@ import {
 import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../atoms';
-import { BoxArrowUpRightOut, HatIcon } from '../icons';
 
 const HOSTNAME_LABELS = {
   'charmverse.io': 'Charmverse',

@@ -1,6 +1,6 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'hats-types';
+import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'types';
 import _ from 'lodash';
 import { Hex } from 'viem';
 

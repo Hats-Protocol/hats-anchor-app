@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import _ from 'lodash';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';

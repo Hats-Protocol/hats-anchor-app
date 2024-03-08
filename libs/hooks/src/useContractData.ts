@@ -1,6 +1,6 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { ContractData, SupportedChains } from 'hats-types';
+import { ContractData, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 const fetchContractData = async (

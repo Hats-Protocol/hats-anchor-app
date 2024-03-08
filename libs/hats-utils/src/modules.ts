@@ -21,7 +21,7 @@ import {
   ModuleCreationArg,
   ModuleDetails,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
 import { ipToHatId } from 'shared';
@@ -296,7 +296,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
 
-  // console.log(values, selectedModuleDetails, hatId, claimabilityType);
+  console.log(values, selectedModuleDetails, hatId, claimabilityType);
   const { immutableArgs, mutableArgs } = prepareArgs(
     values,
     selectedModuleDetails,

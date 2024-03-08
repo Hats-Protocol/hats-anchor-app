@@ -194,7 +194,8 @@ export const transformInput = (
       if (_.isString(input) || _.isNumber(input)) {
         return convertToBigInt(input);
       }
-      break;
+      return BigInt(0);
+
     case 'string':
       return String(input);
     case 'boolean':

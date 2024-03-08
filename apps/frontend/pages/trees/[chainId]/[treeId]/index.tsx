@@ -3,13 +3,13 @@ import {
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
-import { SupportedChains } from 'hats-types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { TreePage, TreePageMobile } from 'pages';
 import { useEffect } from 'react';
+import { SupportedChains } from 'types';
 import { Hex, hexToNumber } from 'viem';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {

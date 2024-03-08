@@ -1,5 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared';
 import { fetchHatDetails } from 'utils';

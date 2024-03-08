@@ -1,4 +1,4 @@
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'types';
 import { mapWithChainId } from 'shared';
 
 import { createSubgraphClient } from '../web3';

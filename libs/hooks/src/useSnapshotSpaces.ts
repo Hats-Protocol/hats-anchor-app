@@ -6,7 +6,7 @@ import {
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
-import { SnapshotSpace, SnapshotStrategy, SupportedChains } from 'hats-types';
+import { SnapshotSpace, SnapshotStrategy, SupportedChains } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 

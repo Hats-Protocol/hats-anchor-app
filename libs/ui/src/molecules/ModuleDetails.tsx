@@ -24,7 +24,7 @@ import {
   useMultiClaimsHatterContractWrite,
   useWearerDetails,
 } from 'hats-hooks';
-import { LinkObject } from 'hats-types';
+import { LinkObject } from 'types';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';

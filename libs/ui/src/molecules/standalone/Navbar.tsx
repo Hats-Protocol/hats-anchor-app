@@ -2,7 +2,7 @@ import { Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useStandaloneOverlay, useTreeForm } from 'contexts';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { BsArrowLeft, BsDiagram3Fill } from 'react-icons/bs';

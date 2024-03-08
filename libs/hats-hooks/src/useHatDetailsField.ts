@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { HatDetails } from 'hats-types';
+import { HatDetails } from 'types';
 import { handleNestedDetails } from 'hats-utils';
 import { fetchDetailsIpfs } from 'utils';
 

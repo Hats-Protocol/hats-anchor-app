@@ -3,12 +3,12 @@ import {
   EligibilityContextProvider,
   useStandaloneOverlay as useOverlay,
 } from 'contexts';
-import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { Claims } from 'pages';
 import { useEffect } from 'react';
 import { ipToHatId } from 'shared';
+import { SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
@@ -48,7 +48,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     return { props: defaultProps };
   }
 
-  const extractIds = (inputString) => {
+  const extractIds = (inputString: string) => {
     const parts = inputString.split('.');
     return { treeId: parts[0], hatId: inputString };
   };

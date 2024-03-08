@@ -1,5 +1,5 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { toTreeId } from 'shared';

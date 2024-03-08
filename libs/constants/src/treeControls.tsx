@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { Icon } from '@chakra-ui/react';
-import { Controls } from 'hats-types';
+import { Controls } from 'types';
 import {
   BsFileFont,
   BsPersonBadge,

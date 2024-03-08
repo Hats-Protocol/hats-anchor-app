@@ -1,5 +1,5 @@
-import { HatWearer } from 'hats-types';
 import _ from 'lodash';
+import { HatWearer } from 'types';
 import { isSameAddress } from 'utils';
 import { Hex } from 'viem';
 

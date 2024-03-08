@@ -2,7 +2,7 @@ import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTACT_URL, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useHatsModules } from 'hats-hooks';
-import { ModuleDetails } from 'hats-types';
+import { ModuleDetails } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';

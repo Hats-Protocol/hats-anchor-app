@@ -25,8 +25,9 @@ import {
   useCallModuleFunction,
   useHsgSigner,
 } from 'hats-hooks';
-import { Authority, LinkObject } from 'hats-types';
+import { Authority, LinkObject } from 'types';
 import { formHatUrl, safeUrl } from 'hats-utils';
+import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -37,7 +38,7 @@ import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ModuleArgsForm } from '../forms';
-import { BoxArrowUpRightOut, ChakraNextLink, Modal } from '../index';
+import { ChakraNextLink, Modal } from '../index';
 
 const ModuleAuthorityToolbar = ({
   authority,

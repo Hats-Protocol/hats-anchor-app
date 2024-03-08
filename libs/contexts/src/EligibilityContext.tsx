@@ -7,7 +7,7 @@ import {
   useModuleDetails,
   useWearersControllersDetails,
 } from 'hats-hooks';
-import { AppHat, HatDetails, HatWearer, SupportedChains } from 'hats-types';
+import { AppHat, HatDetails, HatWearer, SupportedChains } from 'types';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { createContext, useContext, useMemo } from 'react';

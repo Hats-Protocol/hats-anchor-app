@@ -1,6 +1,6 @@
 import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import { DetailsItem } from 'hats-types';
+import { DetailsItem } from 'types';
 import _ from 'lodash';
 
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';

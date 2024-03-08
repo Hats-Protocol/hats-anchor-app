@@ -29,7 +29,7 @@ import { useQueryClient } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 
-const HatIcon = dynamic(() => import('ui').then((mod) => mod.HatIcon));
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const Conditions = ({
   isSigned,
@@ -86,7 +86,6 @@ const Conditions = ({
         Conditions to wear this Hat
       </Heading>
 
-      <Accordion />
       <Accordion allowMultiple>
         <AccordionItem borderWidth={0} borderColor='transparent'>
           <AccordionButton

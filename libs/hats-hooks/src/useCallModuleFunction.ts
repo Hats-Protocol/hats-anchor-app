@@ -1,6 +1,6 @@
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';

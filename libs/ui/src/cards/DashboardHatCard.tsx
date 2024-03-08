@@ -13,7 +13,7 @@ import {
 import { networkImages } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 

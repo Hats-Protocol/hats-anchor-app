@@ -6,7 +6,7 @@ import {
   ModuleDetails,
   // HatAuthorityResponse,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 import {
   populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,

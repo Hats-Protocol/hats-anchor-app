@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { useHatForm, useTreeForm } from 'contexts';
 import { id } from 'date-fns/locale';
-import { Authority } from 'hats-types';
+import { Authority } from 'types';
 import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
