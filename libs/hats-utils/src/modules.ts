@@ -12,6 +12,9 @@ import {
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import _ from 'lodash';
+import { FiCopy } from 'react-icons/fi';
+import { ipToHatId } from 'shared';
 import {
   AppHat,
   FormData,
@@ -22,9 +25,6 @@ import {
   ModuleDetails,
   SupportedChains,
 } from 'types';
-import _ from 'lodash';
-import { FiCopy } from 'react-icons/fi';
-import { ipToHatId } from 'shared';
 import {
   createHatsModulesClient,
   explorerUrl,
@@ -130,13 +130,29 @@ export const prepareArgs = (
   }
   const immutableArgs = _.map(
     selectedModuleDetails.creationArgs.immutable,
-    ({ name, type }: ModuleCreationArg) =>
-      transformInput(values[`${name}-parsed`] || values[name], type),
+    ({ name, type }: ModuleCreationArg) => {
+      const valueToTransform = values[`${name}-parsed`] || values[name];
+
+      const passedValue =
+        valueToTransform === 'custom'
+          ? values[`${name}_custom`]
+          : valueToTransform;
+
+      return transformInput(passedValue, type);
+    },
   );
   const mutableArgs = _.map(
     selectedModuleDetails.creationArgs.mutable,
-    ({ name, type }: ModuleCreationArg) =>
-      transformInput(values[`${name}-parsed`] || values[name], type),
+    ({ name, type }: ModuleCreationArg) => {
+      const valueToTransform = values[`${name}-parsed`] || values[name];
+
+      const passedValue =
+        valueToTransform === 'custom'
+          ? values[`${name}_custom`]
+          : valueToTransform;
+
+      return transformInput(passedValue, type);
+    },
   );
 
   return { immutableArgs, mutableArgs };
@@ -376,7 +392,7 @@ export const processValues = ({
 
     if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
       const value = newValues[`${arg.name}_custom`] as string;
-      newValues[arg.name] = decimalId(ipToHatId(value));
+      newValues[arg.name] = decimalId(ipToHatId(value.replace(/\.$/, '')));
       delete newValues[`${arg.name}_custom`];
     }
   });

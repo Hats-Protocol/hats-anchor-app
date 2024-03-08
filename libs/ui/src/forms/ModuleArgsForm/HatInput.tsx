@@ -1,12 +1,14 @@
 import { Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import { AppHat } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useState } from 'react';
 import { idToIp } from 'shared';
-import { Input, Select } from 'ui';
+import { AppHat } from 'types';
 import { transformAndVerify } from 'utils';
+
+import Input from '../Input';
+import Select from '../Select';
 
 const HatInput = ({ arg, localForm }) => {
   const { setValue } = localForm;
