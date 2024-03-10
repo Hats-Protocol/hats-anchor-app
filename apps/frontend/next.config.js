@@ -41,11 +41,6 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // {
-      //   source: '/trees/:chainId/:treeId/:hatId',
-      //   destination: '/trees/:chainId/:treeId?hatId=:hatId',
-      //   permanent: true,
-      // },
       {
         source: '/trees',
         destination: '/trees/1',

@@ -1,12 +1,21 @@
-import { useBreakpointValue } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 
-// hooks
 function useMediaStyles() {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
 
-  return {
-    isMobile,
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return { isMobile };
 }
 
 export default useMediaStyles;
