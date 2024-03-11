@@ -29,7 +29,6 @@ import {
   useWearerEligibilityCheck,
   useWearersEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer } from 'types';
 import {
   exportToCsv,
   filterWearers,
@@ -43,6 +42,7 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaFileCsv, FaPlus, FaSearch } from 'react-icons/fa';
+import { HatWearer } from 'types';
 import { commify, extendWearers, wearersPerPage } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -137,6 +137,7 @@ const WearersList = () => {
     wearerIds,
     selectedHat,
     chainId,
+    editMode,
   });
 
   const eligibleWearers = useMemo(
