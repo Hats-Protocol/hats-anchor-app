@@ -19,13 +19,13 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useHatClaimBy, useWearerDetails } from 'hats-hooks';
-import { AppHat } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
+import { AppHat } from 'types';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));

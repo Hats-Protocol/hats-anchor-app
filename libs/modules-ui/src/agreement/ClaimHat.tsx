@@ -13,6 +13,7 @@ import { useEligibility, useOverlay } from 'contexts';
 import {
   useAgreementEligibility,
   useHatClaimBy,
+  useMultiClaimsHatterCheck,
   useWearerDetails,
 } from 'hats-hooks';
 import _ from 'lodash';
@@ -78,11 +79,17 @@ const ClaimHat = ({
     };
   };
 
-  const { hatterIsAdmin, isClaimable } = useHatClaimBy({
+  const { hatterIsAdmin } = useHatClaimBy({
     selectedHat,
     chainId,
     wearer: address,
     handlePendingTx,
+  });
+
+  const { instanceAddress, currentHatIsClaimable } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats: selectedHat ? [selectedHat] : [],
   });
 
   const { signAndClaim } = useAgreementEligibility({
@@ -90,17 +97,14 @@ const ClaimHat = ({
     moduleDetails,
     chainId,
     controllerAddress,
+    mchAddress: instanceAddress,
     onSuccessfulSign: () => {
       setIsSigned?.(true);
+
+      queryClient.invalidateQueries(['wearerDetails']);
+      queryClient.invalidateQueries(['hatDetails']);
     },
   });
-
-  const handleClaim = async () => {
-    await signAndClaim?.();
-
-    queryClient.invalidateQueries(['wearerDetails']);
-    queryClient.invalidateQueries(['hatDetails']);
-  };
 
   return (
     <Stack w='40%' justifyContent='center' alignItems='left'>
@@ -108,11 +112,13 @@ const ClaimHat = ({
       <Stack w='full' justifyContent='center' gap={3}>
         <Tooltip
           label={
-            !address
+            !isSigned
+              ? 'You must sign the agreement to claim this hat'
+              : !address
               ? 'Connect your wallet to get started'
               : chainId !== currentNetworkId
               ? 'Switch to the correct network'
-              : !isClaimable
+              : !currentHatIsClaimable?.for
               ? 'You are not eligible to claim this hat'
               : !hatterIsAdmin
               ? 'You are not an admin'
@@ -124,14 +130,15 @@ const ClaimHat = ({
         >
           <Button
             isDisabled={
+              !isSigned ||
               !hatterIsAdmin ||
               chainId !== currentNetworkId ||
-              !isClaimable ||
+              !currentHatIsClaimable?.for ||
               isWearing
             }
             colorScheme='blue'
             leftIcon={<BsPen />}
-            onClick={handleClaim}
+            onClick={signAndClaim}
           >
             Claim with Signature
           </Button>

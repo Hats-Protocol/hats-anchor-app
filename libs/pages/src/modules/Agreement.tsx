@@ -1,10 +1,20 @@
-import { Box, HStack, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Stack,
+  VStack,
+} from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useAgreementEligibility, useWearerEligibilityCheck } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
+
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 const ClaimHat = dynamic(() =>
@@ -35,6 +45,14 @@ const Agreement = () => {
     selectedHat,
     chainId,
   });
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+  const handleScroll = (e) => {
+    const bottom =
+      Math.floor(e.target.scrollHeight - e.target.scrollTop) ===
+      e.target.clientHeight;
+    if (bottom) setIsButtonEnabled(true);
+  };
 
   return (
     <Layout title='Claims'>
@@ -67,26 +85,38 @@ const Agreement = () => {
         alignItems='flex-start'
       >
         {!isMobile && (
-          <Box
-            py={5}
-            px={10}
-            maxH='90%'
-            overflowY='auto'
-            w={{
-              base: '50%',
-              lg: '70%',
-            }}
-            backgroundColor='white'
-            border='1px solid #cbcbcb'
-          >
-            <AgreementContent agreement={agreement} />
-          </Box>
+          <VStack spacing={4} align='stretch' maxH='90%' w='70%'>
+            <Box
+              py={5}
+              px={10}
+              flex='1'
+              overflowY='auto'
+              backgroundColor='white'
+              border='1px solid #cbcbcb'
+              onScroll={handleScroll}
+            >
+              <AgreementContent agreement={agreement} />
+            </Box>
+            <Flex justifyContent='center'>
+              <Button
+                colorScheme='blue'
+                onClick={() => {
+                  setIsSigned(true);
+                }}
+                isDisabled={!isButtonEnabled}
+                leftIcon={<Icon as={HatIcon} color='white' />}
+                py={4}
+              >
+                Sign the Agreement
+              </Button>
+            </Flex>
+          </VStack>
         )}
 
         {!isMobile && (
           <ClaimHat
             agreement={agreement}
-            isSigned={isSigned || isEligible}
+            isSigned={isSigned}
             setIsSigned={setIsSigned}
           />
         )}

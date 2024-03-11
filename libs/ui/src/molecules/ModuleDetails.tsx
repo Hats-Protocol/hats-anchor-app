@@ -92,6 +92,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
       chainId,
     });
   const handleFunctionCall = (func) => {
+    console.log('func', func);
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ 'functionCall-module': true });
