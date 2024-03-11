@@ -14,6 +14,7 @@ interface ContractInteractionProps {
   controllerAddress?: string | undefined;
   onSuccessfulSign?: () => void;
   mchAddress?: Hex | undefined;
+  onDecline?: () => void;
 }
 
 const useAgreementEligibility = ({
@@ -23,6 +24,7 @@ const useAgreementEligibility = ({
   controllerAddress,
   onSuccessfulSign,
   mchAddress,
+  onDecline,
 }: ContractInteractionProps) => {
   const ipfsHash = _.find(moduleParameters, {
     label: 'Current Agreement',
@@ -38,11 +40,6 @@ const useAgreementEligibility = ({
     enabled: !!ipfsHash,
   });
 
-  const signFn = _.find(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: any) => fn.functionName === 'signAgreement',
-  );
-
   const signAndClaim = _.find(
     _.get(moduleDetails, 'writeFunctions'),
     (fn: any) => fn.functionName === 'signAgreementAndClaimHat',
@@ -53,16 +50,6 @@ const useAgreementEligibility = ({
       chainId,
     });
 
-  const handleSign = async () => {
-    callModuleFunction({
-      moduleId: moduleDetails?.implementationAddress,
-      instance: controllerAddress as Hex,
-      func: signFn,
-      args: [],
-      onSuccess: onSuccessfulSign,
-    });
-  };
-
   const handleSignAndClaim = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
@@ -72,6 +59,7 @@ const useAgreementEligibility = ({
         'Claims Hatter': mchAddress,
       },
       onSuccess: onSuccessfulSign,
+      onDecline,
     });
   };
 
@@ -79,7 +67,6 @@ const useAgreementEligibility = ({
     agreement,
     isLoading,
     error,
-    signAgreement: handleSign,
     signAndClaim: handleSignAndClaim,
     isSignAgreementLoading,
   };

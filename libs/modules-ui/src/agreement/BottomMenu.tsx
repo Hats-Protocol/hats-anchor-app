@@ -17,8 +17,14 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
-import { useHatClaimBy, useWearerDetails } from 'hats-hooks';
+import {
+  useAgreementEligibility,
+  useHatClaimBy,
+  useMultiClaimsHatterCheck,
+  useWearerDetails,
+} from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -35,25 +41,29 @@ const MobileHatCard = dynamic(() =>
 
 const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
   const currentNetworkId = useChainId();
-  const { selectedHat, chainId } = useEligibility();
+  const {
+    moduleParameters,
+    moduleDetails,
+    controllerAddress,
+    chainId,
+    selectedHat,
+  } = useEligibility();
+  const queryClient = useQueryClient();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { address } = useAccount();
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const { handlePendingTx } = useOverlay();
   const [isClaiming, setIsClaiming] = useState(false);
+  const [hasDeclined, setHasDeclined] = useState(false);
 
-  const { claimHat, hatterIsAdmin, isClaimable, isLoading, error } =
-    useHatClaimBy({
-      selectedHat,
-      chainId,
-      wearer: address,
-      handlePendingTx,
-      onSuccess: () => {
-        setIsClaiming(false);
-        setIsSuccess(true);
-      },
-    });
+  const { hatterIsAdmin } = useHatClaimBy({
+    selectedHat,
+    chainId,
+    wearer: address,
+    handlePendingTx,
+  });
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -61,27 +71,49 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
   });
   const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
 
-  const handleClick = () => {
-    claimHat?.();
-    setIsClaiming(true);
-    onOpen();
-  };
-
   const { data: ensName } = useEnsName({
     address,
     chainId: 1,
     enabled: !!address,
   });
 
+  const { instanceAddress, currentHatIsClaimable } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats: selectedHat ? [selectedHat] : [],
+  });
+
+  const { signAndClaim, isLoading } = useAgreementEligibility({
+    moduleParameters,
+    moduleDetails,
+    chainId,
+    controllerAddress,
+    mchAddress: instanceAddress,
+    onSuccessfulSign: () => {
+      setIsSuccess(true);
+      setHasDeclined(false);
+      setIsClaiming(false);
+
+      // should implement useWaitForSubgraph when merged
+      queryClient.invalidateQueries(['wearerDetails']);
+      queryClient.invalidateQueries(['hatDetails']);
+    },
+    onDecline: () => {
+      setIsClaiming(false);
+      setHasDeclined(true);
+    },
+  });
+
+  const handleClaim = () => {
+    signAndClaim?.();
+    setIsClaiming(true);
+    setHasDeclined(false);
+    onOpen();
+  };
+
   const hatUrl = `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(
     BigInt(selectedHat?.id as string),
   )}?hatId=${idToIp(selectedHat?.id)}`;
-
-  const errorMessage =
-    error?.name === 'TransactionExecutionError' &&
-    error.message.includes('User rejected the request')
-      ? 'User rejected the request'
-      : 'Error occurred while processing the transaction.';
 
   return (
     <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900'>
@@ -101,13 +133,13 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
           <Button
             colorScheme='blue'
             isDisabled={
-              !claimHat ||
+              !isSigned ||
               !hatterIsAdmin ||
               chainId !== currentNetworkId ||
-              !isClaimable ||
-              !isSigned
+              !currentHatIsClaimable?.for ||
+              isWearing
             }
-            onClick={handleClick}
+            onClick={handleClaim}
             leftIcon={<Icon as={HatIcon} color='white' />}
             isLoading={isLoading}
           >
@@ -147,9 +179,9 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
               {isSuccess && (
                 <Box>Congratulations! You are wearing this hat now!</Box>
               )}
-              {error && errorMessage && (
+              {hasDeclined && (
                 <Text color='red.500' fontSize='sm'>
-                  {errorMessage}
+                  You have declined to sign the agreement. Please try again.
                 </Text>
               )}
             </Stack>
@@ -178,7 +210,7 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
                 View your hat
               </Button>
             )}
-            {error && !isLoading && (
+            {hasDeclined && !isLoading && (
               <Button
                 variant='outlineMatch'
                 borderColor='red.500'
@@ -186,7 +218,7 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
                 leftIcon={<Icon as={HatIcon} color='white' />}
                 rightIcon={<Icon as={BsArrowRight} color='white' />}
                 w='full'
-                onClick={claimHat}
+                onClick={signAndClaim}
               >
                 Try again
               </Button>

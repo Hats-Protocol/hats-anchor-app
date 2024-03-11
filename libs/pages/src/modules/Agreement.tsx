@@ -8,10 +8,11 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility, useWearerEligibilityCheck } from 'hats-hooks';
+import { useAgreementEligibility } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
+import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
@@ -33,19 +34,17 @@ const Conditions = dynamic(() =>
 
 const Agreement = () => {
   const { isMobile } = useMediaStyles();
-  const { moduleParameters, chainId, selectedHat } = useEligibility();
+  const { moduleParameters, selectedHat } = useEligibility();
   const { agreement } = useAgreementEligibility({
     moduleParameters,
   });
-  const [isSigned, setIsSigned] = useState(false);
   const { address } = useAccount();
-
-  const { data: isEligible } = useWearerEligibilityCheck({
-    wearer: address,
-    selectedHat,
-    chainId,
-  });
+  const [isSigned, setIsSigned] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const isWearing = useMemo(
+    () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
+    [selectedHat, address],
+  );
 
   const handleScroll = (e) => {
     const bottom =
@@ -125,11 +124,11 @@ const Agreement = () => {
           <Stack spacing={4}>
             <Header />
             <Conditions
-              isSigned={isSigned || isEligible}
+              isSigned={isSigned || isWearing}
               setIsSigned={setIsSigned}
               agreementIsLink
             />
-            <BottomMenu isSigned={isSigned || isEligible} />
+            <BottomMenu isSigned={isSigned || isWearing} />
           </Stack>
         )}
       </HStack>

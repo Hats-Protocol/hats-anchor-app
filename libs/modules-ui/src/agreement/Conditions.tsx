@@ -53,20 +53,19 @@ const Conditions = ({
   const { isMobile } = useMediaStyles();
   const queryClient = useQueryClient();
 
-  const { agreement, signAgreement, isSignAgreementLoading } =
-    useAgreementEligibility({
-      moduleParameters,
-      moduleDetails,
-      controllerAddress,
-      chainId,
-      onSuccessfulSign: () => {
-        setIsSigned?.(true);
-        queryClient.invalidateQueries([
-          'hatDetails',
-          { chainId, id: selectedHat?.id },
-        ]);
-      },
-    });
+  const { agreement, isSignAgreementLoading } = useAgreementEligibility({
+    moduleParameters,
+    moduleDetails,
+    controllerAddress,
+    chainId,
+    onSuccessfulSign: () => {
+      setIsSigned?.(true);
+      queryClient.invalidateQueries([
+        'hatDetails',
+        { chainId, id: selectedHat?.id },
+      ]);
+    },
+  });
 
   const handleScroll = (e) => {
     const bottom =
@@ -151,14 +150,14 @@ const Conditions = ({
             <Button
               colorScheme='blue'
               onClick={() => {
-                signAgreement();
+                setIsSigned(true);
                 onClose();
               }}
               isDisabled={!isButtonEnabled}
               leftIcon={<Icon as={HatIcon} color='white' />}
               w='full'
             >
-              Sign and Claim this Hat
+              Sign the Agreement
             </Button>
           </ModalFooter>
         </ModalContent>

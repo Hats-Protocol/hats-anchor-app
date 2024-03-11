@@ -17,11 +17,11 @@ import {
 import { TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { Modal, useEligibility, useOverlay } from 'contexts';
 import { useCallModuleFunction, useModuleDetails } from 'hats-hooks';
-import { LinkObject } from 'types';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { LinkObject } from 'types';
 import { formatAddress } from 'utils';
 
 import { ChakraNextLink } from '../../atoms';

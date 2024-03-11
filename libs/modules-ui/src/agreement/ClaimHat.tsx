@@ -99,8 +99,6 @@ const ClaimHat = ({
     controllerAddress,
     mchAddress: instanceAddress,
     onSuccessfulSign: () => {
-      setIsSigned?.(true);
-
       queryClient.invalidateQueries(['wearerDetails']);
       queryClient.invalidateQueries(['hatDetails']);
     },
