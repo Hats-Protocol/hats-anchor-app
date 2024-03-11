@@ -15,7 +15,7 @@ import {
   useMultiClaimsHatterCheck,
   useMultiClaimsHatterContractWrite,
 } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { usePendHatterMint } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo } from 'react';

@@ -23,7 +23,7 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
-import { AppHat, Transaction } from 'hats-types';
+import { AppHat, Transaction } from 'types';
 import { useLocalStorage } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';

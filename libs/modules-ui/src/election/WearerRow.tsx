@@ -2,11 +2,11 @@ import { Flex, Icon, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
-import { HatWearer } from 'hats-types';
+import { HatWearer } from 'types';
 import _ from 'lodash';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
-import { HatIcon } from 'ui';
+import { HatIcon } from 'icons';
 import { formatAddress, isSameAddress } from 'utils';
 import { useAccount } from 'wagmi';
 

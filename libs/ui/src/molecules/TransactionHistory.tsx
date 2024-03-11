@@ -1,6 +1,6 @@
 import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { Transaction } from 'hats-types';
+import { Transaction } from 'types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';

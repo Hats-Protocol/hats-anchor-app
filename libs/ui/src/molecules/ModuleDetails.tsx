@@ -24,13 +24,13 @@ import {
   useMultiClaimsHatterContractWrite,
   useWearerDetails,
 } from 'hats-hooks';
-import { LinkObject } from 'hats-types';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { LinkObject } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -91,7 +91,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
     useCallModuleFunction({
       chainId,
     });
-
   const handleFunctionCall = (func) => {
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);

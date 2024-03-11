@@ -18,7 +18,7 @@ import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';
 
-const HatIcon = dynamic(() => import('ui').then((mod) => mod.HatIcon));
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const BottomMenu = ({ show }: { show: boolean }) => {
   const currentNetworkId = useChainId();

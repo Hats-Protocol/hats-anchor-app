@@ -6,7 +6,7 @@ import {
   useModuleDeploy,
   useMultiClaimsHatterCheck,
 } from 'hats-hooks';
-import { ModuleDetails } from 'hats-types';
+import { ModuleDetails } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';

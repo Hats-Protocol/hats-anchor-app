@@ -1,6 +1,5 @@
 import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { useImageURIs } from 'hooks';
 import {
   useAncillaryElection,
   useHatDetails,
@@ -8,7 +7,8 @@ import {
   useModuleDetails,
   useWearersControllersDetails,
 } from 'hats-hooks';
-import { AppHat, HatDetails, HatWearer, SupportedChains } from 'hats-types';
+import { AppHat, HatDetails, HatWearer, SupportedChains } from 'types';
+import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { createContext, useContext, useMemo } from 'react';
 import { Hex } from 'viem';

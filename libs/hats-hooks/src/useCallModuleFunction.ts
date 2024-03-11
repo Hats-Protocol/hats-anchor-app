@@ -1,9 +1,9 @@
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import { SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import { useCallback } from 'react';
+import { SupportedChains } from 'types';
 import { createHatsModulesClient, transformInput } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';

@@ -8,7 +8,7 @@ import {
   HatDetails,
   HatsCalls,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';

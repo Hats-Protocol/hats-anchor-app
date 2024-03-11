@@ -1,6 +1,6 @@
-import { KeyRestrictions } from 'hats-types';
 import _ from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { KeyRestrictions } from 'types';
 
 const date = new Date();
 

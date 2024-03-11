@@ -4,7 +4,7 @@ import {
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
-import { FieldItem, FormData, FormFieldKeys } from 'hats-types';
+import { FieldItem, FormData, FormFieldKeys } from 'types';
 import { useDebounce, useToast } from 'hooks';
 import _ from 'lodash';
 import {

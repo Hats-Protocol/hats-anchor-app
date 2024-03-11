@@ -4,7 +4,7 @@ import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
-import { Group, SearchResults } from 'hats-types';
+import { Group, SearchResults } from 'types';
 import { useSearchResults } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';

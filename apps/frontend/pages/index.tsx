@@ -18,7 +18,6 @@ import {
   TemplateData,
 } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
-import { AppHat, DocsLink } from 'hats-types';
 import {
   useFeaturedTemplates,
   useFeaturedTrees,
@@ -27,9 +26,9 @@ import {
   useMediaStyles,
 } from 'hooks';
 import _ from 'lodash';
-// import dynamic from 'next/dynamic';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
+import { AppHat, DocsLink } from 'types';
 import {
   ChakraNextLink,
   DashboardHatCard,
@@ -37,7 +36,6 @@ import {
   ForkableTemplateCard,
   Layout,
   LearnMoreCard,
-  // Suspender,
 } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';

@@ -1,6 +1,6 @@
 import type { EndpointsConfig } from '@hatsprotocol/sdk-v1-subgraph';
 import { DEFAULT_ENDPOINTS_CONFIG } from '@hatsprotocol/sdk-v1-subgraph';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import _ from 'lodash';
 
 const NETWORK_ENDPOINT = 'https://gateway-arbitrum.network.thegraph.com/api';

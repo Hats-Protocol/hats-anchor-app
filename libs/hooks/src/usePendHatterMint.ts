@@ -1,4 +1,4 @@
-import { AppHat, FormData } from 'hats-types';
+import { AppHat, FormData } from 'types';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { Hex } from 'viem';

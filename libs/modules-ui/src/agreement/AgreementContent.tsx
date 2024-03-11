@@ -3,6 +3,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 
 const AgreementContent = ({ agreement }: { agreement: string }) => {
+  if (!agreement) return null;
   const formattedAgreement = agreement
     .replace(/{\.underline}/g, '') // replace weird format provided in original agreement copy
     .replace(/\[\*\[|\[\[/g, '[') // replace escaped brackets

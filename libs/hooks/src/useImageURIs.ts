@@ -1,7 +1,7 @@
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';

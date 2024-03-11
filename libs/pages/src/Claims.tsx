@@ -19,7 +19,7 @@ const Claims = () => {
   const {
     chainId,
     selectedHat,
-    moduleDetails: m,
+    moduleDetails,
     isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
@@ -50,11 +50,11 @@ const Claims = () => {
 
   // handle specific modules found
   // TODO migrate to ID and CONSTs
-  if (m?.name === 'Hats Election Eligibility') return <Election />;
-  if (m?.name === 'Agreement Eligibility') return <Agreement />;
+  if (moduleDetails?.name === 'Hats Election Eligibility') return <Election />;
+  if (moduleDetails?.name === 'Agreement Eligibility') return <Agreement />;
 
   // fallback for other known modules
-  if (m) return <KnownModule />;
+  if (moduleDetails) return <KnownModule />;
 
   // fallback for unknown modules
   return (

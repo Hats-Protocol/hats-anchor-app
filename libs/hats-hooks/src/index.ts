@@ -1,4 +1,5 @@
 export { default as useAdminOfHats } from './useAdminOfHats';
+export { default as useAgreementEligibility } from './useAgreementEligibility';
 export { default as useAllWearers } from './useAllWearers';
 export { default as useAncillaryElection } from './useAncillaryElection';
 export { default as useAncillaryModules } from './useAncillaryModules';

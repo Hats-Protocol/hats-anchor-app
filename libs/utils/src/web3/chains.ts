@@ -1,5 +1,5 @@
 import { chainsList, orderedChains } from '@hatsprotocol/constants';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import _ from 'lodash';
 import { Chain, configureChains } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';

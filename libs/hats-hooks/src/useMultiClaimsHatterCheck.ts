@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, FormData, ModuleDetails, SupportedChains } from 'hats-types';
+import { AppHat, FormData, ModuleDetails, SupportedChains } from 'types';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { createSubgraphClient, fetchWearerDetails } from 'utils';

@@ -23,19 +23,19 @@ The build artifacts will be stored in the `dist/` directory, ready to be deploye
 #### Apps
 
 - [`frontend`](./apps/frontend/) - the Hat's ["Anchor" app](#)
-- [`election`](./apps/election/) - the Hat's ["Election" app](#)
+- [`claims`](./apps/claims/) - the Hat's ["Claims" app](#) for claiming all sorts of hats
 
 #### Libs
 
-- [`constants`](./libs/constants/) - holds shared constants for the app\*
-- [`forms`](./libs/forms/) - shared form components and utilities †
-
-
+- [`constants`](./libs/constants/) - holds shared constants for the apps\*
+- [`contexts`](./libs/contexts/) - shared context providers for the apps
+- [`forms`](./libs/forms/) - shared form components and utilities
 - [`hats-hooks`](./libs/hats-hooks/) - hooks for interacting with the Hats Protocol contracts & subgraph
-- [`hats-types`](./libs/hats-types/) - types extended beyond the subgraph and used in the app/libs
 - [`hats-utils`](./libs/hats-utils/) - utilities for interacting with the Hats Protocol contracts
-- [`hooks`](./libs/hooks/) - hooks pertinent to the UI state or UX of the app
+- [`hooks`](./libs/hooks/) - hooks pertinent to the UI state or UX of the apps
+- [`modules-ui`](./libs/modules-ui/) - shared UI components for modules
 - [`shared`](./libs/shared/) - shared app/hats utilities\*
+- [`types`](./libs/types/) - types extended beyond the subgraph and used in the apps/libs
 - [`ui`](./libs/ui/) - shared UI components and styles
 - [`utils`](./libs/utils/) - utilities for managing UI state and other app specific needs
 

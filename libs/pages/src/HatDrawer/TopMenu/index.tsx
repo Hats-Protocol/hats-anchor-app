@@ -3,7 +3,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';

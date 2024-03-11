@@ -8,7 +8,7 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import { Authority, FormDataDetails } from 'hats-types';
+import { Authority, FormDataDetails } from 'types';
 import _ from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
@@ -168,8 +168,14 @@ export const fetchToken = async (count: number = 0) => {
   return token;
 };
 
-export const fetchIpfs = async (hash: string | undefined) => {
-  if (!hash) return null;
+export const fetchIpfs = async (value: string | undefined) => {
+  if (!value) return null;
+
+  let hash = value;
+  if (hash.startsWith('ipfs://')) {
+    hash = hash.slice(7);
+  }
+
   const url = ipfsUrl(hash);
   if (!url) return null;
 

@@ -29,7 +29,7 @@ import {
   useWearerEligibilityCheck,
   useWearersEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer } from 'hats-types';
+import { HatWearer } from 'types';
 import {
   exportToCsv,
   filterWearers,

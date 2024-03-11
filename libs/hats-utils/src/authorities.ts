@@ -6,8 +6,8 @@ import {
   SAFE_URL,
 } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { Authority, AuthorityType, SupportedChains } from 'hats-types';
 import _ from 'lodash';
+import { Authority, AuthorityType, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 export const combineAuthorities = ({

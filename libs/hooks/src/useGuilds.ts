@@ -1,6 +1,6 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { Authority } from 'hats-types';
+import { Authority } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 

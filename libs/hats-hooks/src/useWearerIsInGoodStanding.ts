@@ -1,5 +1,5 @@
 import { CONFIG } from '@hatsprotocol/constants';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 

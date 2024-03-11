@@ -12,9 +12,9 @@ import {
   UnorderedList,
 } from '@chakra-ui/react';
 import { useHatsModules } from 'hats-hooks';
-import { ModuleDetails, SupportedChains } from 'hats-types';
 import _ from 'lodash';
 import React from 'react';
+import { ModuleDetails, SupportedChains } from 'types';
 import { Accordion, ChakraNextLink, StandaloneLayout } from 'ui';
 import { chainsMap, explorerUrl, formatAddress } from 'utils';
 import { useChainId } from 'wagmi';

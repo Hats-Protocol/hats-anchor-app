@@ -1,0 +1,44 @@
+{
+  "name": "icons",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/icons/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/icons",
+        "main": "libs/icons/src/index.ts",
+        "packageJson": "libs/icons/package.json",
+        "tsConfig": "libs/icons/tsconfig.lib.json",
+        "assets": ["libs/icons/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs icons {args.ver} {args.tag}"
+      },
+      "dependsOn": [
+        {
+          "target": "build"
+        }
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/icons"],
+      "options": {
+        "jestConfig": "libs/icons/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import { AppHat, HandlePendingTx } from 'hats-types';
+import { AppHat, HandlePendingTx } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

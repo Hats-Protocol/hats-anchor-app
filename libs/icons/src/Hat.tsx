@@ -1,7 +1,7 @@
 import { createIcon } from '@chakra-ui/react';
 
 const HatIcon: any = createIcon({
-  displayName: 'CopyHash',
+  displayName: 'HatIcon',
   viewBox: '0 0 24 24',
   path: [
     <path

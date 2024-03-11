@@ -15,13 +15,13 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { useTreeCreate } from 'hats-hooks';
-import { ImageFile } from 'hats-types';
 import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
+import { ImageFile } from 'types';
 import { DropZone, Input, Layout, Textarea } from 'ui';
 import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';

@@ -1,8 +1,8 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
-import { HandlePendingTx } from 'hats-types';
+import { HandlePendingTx } from 'types';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import router from 'next/router';
 import { fetchTreeDetails } from 'utils';

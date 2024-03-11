@@ -166,7 +166,6 @@ const convertToBigInt = (input: unknown) => {
 export const transformInput = (
   input: unknown,
   solidityType: string,
-  // displayType?: string,
 ): unknown => {
   if (input === undefined || input === null) {
     if (solidityType.includes('[]')) {
@@ -194,7 +193,8 @@ export const transformInput = (
       if (_.isString(input) || _.isNumber(input)) {
         return convertToBigInt(input);
       }
-      break;
+      return BigInt(0);
+
     case 'string':
       return String(input);
     case 'boolean':
@@ -220,7 +220,6 @@ export const transformInput = (
     default:
       throw new Error(`Invalid Solidity type: ${solidityType}`);
   }
-  return undefined;
 };
 
 export const parsedSeconds = (value: bigint | undefined) => {

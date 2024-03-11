@@ -1,12 +1,12 @@
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
-import { SupportedChains } from 'hats-types';
 import { useIsClient, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
+import { SupportedChains } from 'types';
 import { numberToHex } from 'viem';
 
 const checkParamForArray = (param: string | string[] | undefined) => {
@@ -56,8 +56,7 @@ const HatDetails = () => {
 
   if (!treeId || chainId === '0x' || !chainId) return null;
 
-  if (!isMobile) {
-    // TODO any better we can handle this redirect? is it looping? hard to tell but seems so
+  if (typeof isMobile !== 'undefined' && !isMobile) {
     router.push(
       `/trees/${chainId}/${treeIdHexToDecimal(treeId)}?hatId=${hatId}`,
     );

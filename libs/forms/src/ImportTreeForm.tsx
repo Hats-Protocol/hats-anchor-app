@@ -8,7 +8,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useOverlay, useTreeForm } from 'contexts';
-import { HatExport } from 'hats-types';
+import { HatExport } from 'types';
 import {
   checkMissingParents,
   checkMissingSiblings,

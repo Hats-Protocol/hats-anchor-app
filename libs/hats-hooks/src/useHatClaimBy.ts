@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
+import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
@@ -20,11 +20,13 @@ const useHatClaimBy = ({
   chainId,
   wearer,
   handlePendingTx,
+  onSuccess,
 }: {
-  selectedHat: AppHat | undefined;
+  selectedHat?: AppHat | null;
   chainId: SupportedChains | undefined;
   wearer: Hex | undefined;
   handlePendingTx?: HandlePendingTx;
+  onSuccess?: () => void;
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
@@ -131,6 +133,7 @@ const useHatClaimBy = ({
           title: 'Hat claimed!',
           description: txDescription,
         },
+        onSuccess,
       });
 
       // TODO Handle clearing/updating hat/wearer data

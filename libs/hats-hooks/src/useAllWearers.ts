@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, HatWearer, SupportedChains } from 'hats-types';
+import { AppHat, HatWearer, SupportedChains } from 'types';
 import _ from 'lodash';
 import { createSubgraphClient } from 'utils';
 import { Hex } from 'viem';
