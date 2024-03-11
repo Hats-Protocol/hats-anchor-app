@@ -2,6 +2,7 @@
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardBody,
   Divider,
@@ -31,7 +32,12 @@ import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { AppHat, SupportedChains } from 'types';
-import { Layout, MobileHatCard, WearerHatCard as CoreHat } from 'ui';
+import {
+  ChakraNextLink,
+  Layout,
+  MobileHatCard,
+  WearerHatCard as CoreHat,
+} from 'ui';
 import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
@@ -204,12 +210,26 @@ const WearerDetail = ({
             </Heading>
             <Divider borderColor='black' />
           </Stack>
-          {wearerLoading || imagesLoading ? (
+          {wearerLoading || (!_.isEmpty(currentHats) && imagesLoading) ? (
             <Flex w='100%' justify='center' pt='100px'>
               <Spinner />
             </Flex>
           ) : _.isEmpty(_.keys(localOrderedChains)) ? (
-            <Text>Not wearing any hats</Text>
+            <Flex w='100%' justify='center' pt='100px'>
+              <Stack align='center' gap={10}>
+                <Heading size='xl' variant='medium'>
+                  Not wearing any hats
+                </Heading>
+                <HStack>
+                  <ChakraNextLink href='/'>
+                    <Button variant='outline'>Home</Button>
+                  </ChakraNextLink>
+                  <ChakraNextLink href='/trees/new'>
+                    <Button variant='primary'>Create a new tree</Button>
+                  </ChakraNextLink>
+                </HStack>
+              </Stack>
+            </Flex>
           ) : (
             <Stack>
               {_.map(localOrderedChains, (chainId: SupportedChains) => (

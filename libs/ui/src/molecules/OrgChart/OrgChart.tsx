@@ -15,7 +15,6 @@ import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
-import { HatWearer } from 'types';
 import {
   calculateNextChildId,
   isTopHatOrMutable,
@@ -26,6 +25,7 @@ import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { ipToHatId } from 'shared';
+import { HatWearer } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -724,10 +724,11 @@ const OrgChartComponent: React.FC = () => {
       <Spinner />
     </Flex>
   ) : (
-    <Box position='relative' pt='150px'>
+    <Box position='relative' pt='145px' h='calc(100% + 5px)'>
       <div
         style={{
           overflow: 'hidden',
+          height: '100%',
         }}
         ref={d3Container}
         id='d3Container'
