@@ -35,12 +35,12 @@ const HATS_APP_LINK = `${CONFIG.url}/trees/10/1?hatId=${communityMemberHat}`;
 
 const ClaimHat = ({
   agreement,
-  isSigned,
-  setIsSigned,
+  isReviewed,
+  setIsReviewed,
 }: {
   agreement: string;
-  isSigned: boolean;
-  setIsSigned: (signed: boolean) => void;
+  isReviewed: boolean;
+  setIsReviewed: (signed: boolean) => void;
 }) => {
   // const hatId = hatIdDecimalToHex(hatIdIpToDecimal(communityMemberHat)); // TODO handle IP from URL params
   const { address } = useAccount();
@@ -106,11 +106,11 @@ const ClaimHat = ({
 
   return (
     <Stack w='40%' justifyContent='center' alignItems='left'>
-      <Conditions isSigned={isSigned} setIsSigned={setIsSigned} />
+      <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
       <Stack w='full' justifyContent='center' gap={3}>
         <Tooltip
           label={
-            !isSigned
+            !isReviewed
               ? 'You must sign the agreement to claim this hat'
               : !address
               ? 'Connect your wallet to get started'
@@ -128,7 +128,7 @@ const ClaimHat = ({
         >
           <Button
             isDisabled={
-              !isSigned ||
+              !isReviewed ||
               !hatterIsAdmin ||
               chainId !== currentNetworkId ||
               !currentHatIsClaimable?.for ||

@@ -39,7 +39,7 @@ const Agreement = () => {
     moduleParameters,
   });
   const { address } = useAccount();
-  const [isSigned, setIsSigned] = useState(false);
+  const [isReviewed, setIsReviewed] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const isWearing = useMemo(
     () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
@@ -100,13 +100,13 @@ const Agreement = () => {
               <Button
                 colorScheme='blue'
                 onClick={() => {
-                  setIsSigned(true);
+                  setIsReviewed(true);
                 }}
                 isDisabled={!isButtonEnabled}
                 leftIcon={<Icon as={HatIcon} color='white' />}
                 py={4}
               >
-                Sign the Agreement
+                Reviewed
               </Button>
             </Flex>
           </VStack>
@@ -115,8 +115,8 @@ const Agreement = () => {
         {!isMobile && (
           <ClaimHat
             agreement={agreement}
-            isSigned={isSigned}
-            setIsSigned={setIsSigned}
+            isReviewed={isReviewed}
+            setIsReviewed={setIsReviewed}
           />
         )}
 
@@ -124,11 +124,11 @@ const Agreement = () => {
           <Stack spacing={4}>
             <Header />
             <Conditions
-              isSigned={isSigned || isWearing}
-              setIsSigned={setIsSigned}
+              isReviewed={isReviewed || isWearing}
+              setIsReviewed={setIsReviewed}
               agreementIsLink
             />
-            <BottomMenu isSigned={isSigned || isWearing} />
+            <BottomMenu isReviewed={isReviewed || isWearing} />
           </Stack>
         )}
       </HStack>

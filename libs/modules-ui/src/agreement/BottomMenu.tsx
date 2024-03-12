@@ -39,7 +39,7 @@ const MobileHatCard = dynamic(() =>
   import('ui').then((mod) => mod.MobileHatCard),
 );
 
-const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
+const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
   const currentNetworkId = useChainId();
   const {
     moduleParameters,
@@ -133,7 +133,7 @@ const BottomMenu = ({ isSigned }: { isSigned: boolean }) => {
           <Button
             colorScheme='blue'
             isDisabled={
-              !isSigned ||
+              !isReviewed ||
               !hatterIsAdmin ||
               chainId !== currentNetworkId ||
               !currentHatIsClaimable?.for ||

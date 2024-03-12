@@ -32,12 +32,12 @@ import AgreementContent from './AgreementContent';
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const Conditions = ({
-  isSigned,
-  setIsSigned,
+  isReviewed,
+  setIsReviewed,
   agreementIsLink,
 }: {
-  isSigned: boolean;
-  setIsSigned: (val: boolean) => void;
+  isReviewed: boolean;
+  setIsReviewed: (val: boolean) => void;
   agreementIsLink?: boolean;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -49,7 +49,7 @@ const Conditions = ({
     chainId,
     selectedHat,
   } = useEligibility();
-  const allConditionsMet = isSigned;
+  const allConditionsMet = isReviewed;
   const { isMobile } = useMediaStyles();
   const queryClient = useQueryClient();
 
@@ -59,7 +59,7 @@ const Conditions = ({
     controllerAddress,
     chainId,
     onSuccessfulSign: () => {
-      setIsSigned?.(true);
+      setIsReviewed?.(true);
       queryClient.invalidateQueries([
         'hatDetails',
         { chainId, id: selectedHat?.id },
@@ -103,7 +103,7 @@ const Conditions = ({
               <Spinner size='sm' color='blue.500' />
             ) : (
               <Icon
-                as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
+                as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
                 color={allConditionsMet ? 'green.500' : 'red.500'}
               />
             )}
@@ -129,8 +129,8 @@ const Conditions = ({
                 <Spinner size='sm' color='blue.500' />
               ) : (
                 <Icon
-                  as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
-                  color={isSigned ? 'green.500' : 'red.500'}
+                  as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
+                  color={isReviewed ? 'green.500' : 'red.500'}
                 />
               )}
             </HStack>
@@ -150,14 +150,14 @@ const Conditions = ({
             <Button
               colorScheme='blue'
               onClick={() => {
-                setIsSigned(true);
+                setIsReviewed(true);
                 onClose();
               }}
               isDisabled={!isButtonEnabled}
               leftIcon={<Icon as={HatIcon} color='white' />}
               w='full'
             >
-              Sign the Agreement
+              Reviewed
             </Button>
           </ModalFooter>
         </ModalContent>
