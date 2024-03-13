@@ -1,6 +1,6 @@
 import { SAFE_ABI } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import { viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 

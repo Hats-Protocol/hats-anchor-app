@@ -1,6 +1,6 @@
 import { HsgMetadata } from '@hatsprotocol/hsg-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { SupportedChains } from 'hats-types';
+import { SupportedChains } from 'types';
 import { createHatsSignerGateClient } from 'utils';
 
 const useHatsSignerGatesMetadata = ({

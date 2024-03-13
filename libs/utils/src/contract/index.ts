@@ -1,4 +1,4 @@
-import { HatWearer, Transaction } from 'hats-types';
+import { HatWearer, Transaction } from 'types';
 import _ from 'lodash';
 import { Hex, zeroAddress } from 'viem';
 

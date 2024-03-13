@@ -12,7 +12,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { FormWearer } from 'hats-types';
+import { FormWearer } from 'types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';

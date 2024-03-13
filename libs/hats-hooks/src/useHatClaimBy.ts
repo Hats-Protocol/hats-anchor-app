@@ -1,10 +1,10 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
+import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { createHatsModulesClient, fetchHatDetails } from 'utils';
 import { Hex } from 'viem';
 import {

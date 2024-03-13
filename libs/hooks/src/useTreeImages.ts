@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
 

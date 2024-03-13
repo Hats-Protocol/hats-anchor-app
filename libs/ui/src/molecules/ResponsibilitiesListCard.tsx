@@ -12,7 +12,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { Authority } from 'hats-types';
+import { Authority } from 'types';
 import { useMediaStyles } from 'hooks';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
 import { getHostnameFromURL } from 'utils';

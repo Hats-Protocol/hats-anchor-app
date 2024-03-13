@@ -1,10 +1,10 @@
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
-import { SupportedChains } from 'hats-types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
+import { SupportedChains } from 'types';
 import { createHatsSignerGateClient, transformInput } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';

@@ -1,6 +1,6 @@
 import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import { Authority, AuthorityType } from 'hats-types';
+import { Authority, AuthorityType } from 'types';
 import _ from 'lodash';
 
 import AuthoritiesListCard from './AuthoritiesListCard';

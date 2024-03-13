@@ -1,9 +1,9 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, HandlePendingTx, SupportedChains } from 'hats-types';
 import { decimalId } from 'hats-utils';
 import { useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { toTreeId } from 'shared';
+import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { fetchHatDetails } from 'utils';
 import { useChainId } from 'wagmi';
 

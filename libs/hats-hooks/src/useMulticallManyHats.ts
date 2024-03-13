@@ -1,6 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToast, useWaitForSubgraph } from 'hooks';
+import _ from 'lodash';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import {
   AppHat,
   FormData,
@@ -8,10 +11,7 @@ import {
   HatDetails,
   HatsCalls,
   SupportedChains,
-} from 'hats-types';
-import { useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+} from 'types';
 import {
   fetchHatDetails,
   fetchToken,

@@ -1,7 +1,7 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { useMultiClaimsHatterCheck } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';

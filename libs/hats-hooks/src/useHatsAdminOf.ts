@@ -1,6 +1,6 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { chainsList, fetchTreesById } from 'utils';

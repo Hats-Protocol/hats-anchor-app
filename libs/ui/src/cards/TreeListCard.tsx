@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
-import { AppHat } from 'hats-types';
+import { AppHat } from 'types';
 import { decimalId } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';

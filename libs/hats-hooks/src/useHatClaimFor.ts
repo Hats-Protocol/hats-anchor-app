@@ -1,6 +1,6 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
-import { AppHat, SupportedChains } from 'hats-types';
+import { AppHat, SupportedChains } from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';

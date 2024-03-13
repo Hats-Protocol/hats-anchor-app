@@ -1,9 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 import { DEFAULT_HAT, MUTABILITY } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, FormData } from 'hats-types';
 import _ from 'lodash';
 import { ipToPrettyId, prettyIdToId } from 'shared';
+import { AppHat, FormData } from 'types';
 import { Hex } from 'viem';
 
 const calculateParentId = (hatId: Hex) => {

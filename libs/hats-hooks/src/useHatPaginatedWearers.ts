@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { HatWearer, SupportedChains } from 'hats-types';
+import { HatWearer, SupportedChains } from 'types';
 import { sortWearers } from 'hats-utils';
 import { useState } from 'react';
 import { fetchPaginatedWearersForHat } from 'utils';

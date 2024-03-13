@@ -20,7 +20,7 @@ import {
   useWearerDetails,
   useWearerEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer } from 'hats-types';
+import { HatWearer } from 'types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
@@ -35,11 +35,11 @@ import { useAccount, useChainId } from 'wagmi';
 const TooltipWrapper = dynamic(() =>
   import('ui').then((mod) => mod.TooltipWrapper),
 );
-const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
+const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
-const WearerIcon = dynamic(() => import('ui').then((mod) => mod.WearerIcon));
+const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
 
 const WearerRow = ({
   wearer,

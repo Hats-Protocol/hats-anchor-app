@@ -8,7 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'hats-types';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import _ from 'lodash';
 import { ReactNode } from 'react';
 

@@ -8,12 +8,12 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import { Authority, FormDataDetails } from 'hats-types';
 import _ from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
+import { Authority, FormDataDetails } from 'types';
 
 export const calculateCid = async (data: object): Promise<string> => {
   const bytes = json.encode(data);

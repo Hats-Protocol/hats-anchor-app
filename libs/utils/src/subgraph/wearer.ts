@@ -3,7 +3,7 @@ import {
   Wearer,
 } from '@hatsprotocol/sdk-v1-subgraph';
 import { gql, GraphQLClient } from 'graphql-request';
-import { AppHat, HatWearer } from 'hats-types';
+import { AppHat, HatWearer } from 'types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared';
 import { Hex } from 'viem';

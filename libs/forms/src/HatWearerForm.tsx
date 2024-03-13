@@ -23,9 +23,9 @@ import {
   useWearerEligibilityCheck,
   useWearerIsInGoodStanding,
 } from 'hats-hooks';
-import { FormWearer, HatWearer } from 'hats-types';
 import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
+import { BoxArrowUpRightIn } from 'icons';
 import _ from 'lodash';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -34,13 +34,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import {
-  AddressInput,
-  BoxArrowUpRightIn,
-  DropZone,
-  FormRowWrapper,
-  NumberInput,
-} from 'ui';
+import { FormWearer, HatWearer } from 'types';
+import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
 import {
   chainsMap,
   fetchHatDetails,

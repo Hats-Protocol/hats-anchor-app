@@ -1,4 +1,4 @@
-import { AppModals, OverlayContextProps, Transaction } from 'hats-types';
+import { AppModals, OverlayContextProps, Transaction } from 'types';
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';

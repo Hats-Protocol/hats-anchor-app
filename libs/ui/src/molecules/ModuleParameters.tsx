@@ -3,7 +3,7 @@ import { numberTypes, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
-import { TokenData } from 'hats-types';
+import { TokenData } from 'types';
 import _ from 'lodash';
 import { FiExternalLink } from 'react-icons/fi';
 import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'utils';

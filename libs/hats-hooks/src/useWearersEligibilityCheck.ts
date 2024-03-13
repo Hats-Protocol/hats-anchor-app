@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
-import { AppHat } from 'hats-types';
 import _ from 'lodash';
+import { AppHat } from 'types';
 import { Hex } from 'viem';
 import { readContract } from 'wagmi/actions';
 
@@ -9,6 +9,7 @@ const useWearersEligibilityCheck = ({
   wearerIds,
   selectedHat,
   chainId,
+  editMode,
 }: useWearersEligibilityCheckProps) => {
   const hatId = selectedHat?.id;
 
@@ -30,6 +31,7 @@ const useWearersEligibilityCheck = ({
         return null;
       },
       enabled: !!wearer && !!hatId && !!chainId,
+      staleTime: editMode ? Infinity : 15 * 60 * 1000,
     })),
   });
 
@@ -48,4 +50,5 @@ interface useWearersEligibilityCheckProps {
   wearerIds: Hex[];
   selectedHat: AppHat;
   chainId: number;
+  editMode: boolean;
 }

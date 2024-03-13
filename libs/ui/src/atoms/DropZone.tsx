@@ -8,7 +8,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { ImageFile } from 'hats-types';
+import { ImageFile } from 'types';
 import { useEffect, useMemo } from 'react';
 
 const baseStyle = {

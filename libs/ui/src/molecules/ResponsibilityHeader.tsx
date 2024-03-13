@@ -9,7 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { Authority } from 'hats-types';
+import { Authority } from 'types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { BsBoxArrowUpRight, BsCheck2Square } from 'react-icons/bs';

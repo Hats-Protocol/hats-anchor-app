@@ -5,7 +5,7 @@ import {
   HatAuthorityResponse,
   HatElectionResponse,
   SupportedChains,
-} from 'hats-types';
+} from 'types';
 
 const MODULES_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {

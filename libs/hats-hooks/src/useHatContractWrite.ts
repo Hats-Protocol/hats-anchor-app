@@ -1,8 +1,8 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { HandlePendingTx } from 'hats-types';
 import { useToast } from 'hooks';
 import { useState } from 'react';
+import { HandlePendingTx } from 'types';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';

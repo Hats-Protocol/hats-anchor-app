@@ -8,11 +8,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { TemplateData } from '@hatsprotocol/constants';
+import { HatIcon } from 'icons';
 import { useEffect, useState } from 'react';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import { ChakraNextLink } from '../atoms';
-import { HatIcon } from '../icons';
 
 const FeaturedTreeCard = ({
   treeData,

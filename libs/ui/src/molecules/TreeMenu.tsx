@@ -25,8 +25,9 @@ import {
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
-import { Controls } from 'hats-types';
+import { Controls } from 'types';
 import { useIsClient } from 'hooks';
+import { History } from 'icons';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
@@ -37,7 +38,6 @@ import { IoCloseCircleOutline } from 'react-icons/io5';
 import { chainsMap, explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
-import { History } from '../icons';
 import EventHistory from './EventHistory';
 
 const TreeMenu = ({

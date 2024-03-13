@@ -20,7 +20,7 @@ import {
   useWearerDetails,
   useWearerEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer, SupportedChains } from 'hats-types';
+import { HatWearer, SupportedChains } from 'types';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
 import { useContractData, usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';

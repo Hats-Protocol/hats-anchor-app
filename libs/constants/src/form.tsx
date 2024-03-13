@@ -1,4 +1,4 @@
-import { DeploymentType, FieldItem } from 'hats-types';
+import { DeploymentType, FieldItem } from 'types';
 import { Hex } from 'viem';
 
 import { FALLBACK_ADDRESS } from './misc';

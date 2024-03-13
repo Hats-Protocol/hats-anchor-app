@@ -25,7 +25,7 @@ const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
-const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
+const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 const Header = () => {
   const toast = useToast();

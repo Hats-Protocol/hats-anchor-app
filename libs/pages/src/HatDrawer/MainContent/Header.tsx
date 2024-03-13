@@ -21,7 +21,7 @@ import dynamic from 'next/dynamic';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
-const CopyHash = dynamic(() => import('ui').then((mod) => mod.CopyHash));
+const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 const Header = () => {
   const toast = useToast();
@@ -57,75 +57,75 @@ const Header = () => {
 
   return (
     <Stack spacing={4} px={{ base: 4, md: 10 }} pb={4} bg='white'>
-      <Flex align='start' justify='space-between'>
-        <Stack w='full' spacing={1}>
-          <HStack
-            spacing={4}
-            minH={{ base: '150px', md: 'auto' }}
-            pt={{ md: '50px' }}
-            align='end'
-          >
-            {isMobile && (
-              <Box
-                boxSize='120px'
-                borderRadius='md'
-                overflow='hidden'
-                objectFit='contain'
-                border='1px solid'
-                borderColor='blackAlpha.200'
-              >
-                <Image
-                  loading='lazy'
-                  src={
-                    (editMode && imageUrl) ||
-                    _.get(selectedHat, 'imageUrl') ||
-                    '/icon.jpeg'
-                  }
-                  alt='hat image'
-                  background='white'
-                  objectFit='cover'
-                  boxSize='122px'
-                />
-              </Box>
-            )}
-
-            <Flex
-              justify='space-between'
-              gap={2}
-              direction={{ base: 'column', md: 'row' }}
-              maxW='60%'
+      <Stack gap={1} w='100%'>
+        <HStack
+          spacing={4}
+          minH={{ base: '150px', md: 'auto' }}
+          pt={{ md: '50px' }}
+          align='end'
+          w='100%'
+        >
+          {isMobile && (
+            <Box
+              boxSize='120px'
+              borderRadius='md'
+              overflow='hidden'
+              objectFit='contain'
+              border='1px solid'
+              borderColor='blackAlpha.200'
             >
-              <Tooltip label={name || selectedHat?.details}>
-                <Heading noOfLines={{ base: 2, md: 1 }}>
-                  {name || selectedHat?.details}
-                </Heading>
-              </Tooltip>
-
-              <HStack>
-                <Text color='blue.500'>
-                  {hatIdDecimalToIp(BigInt(selectedHat.id))}
-                </Text>
-                <Icon
-                  as={CopyHash}
-                  color='blue.500'
-                  cursor='pointer'
-                  onClick={() => {
-                    onCopy();
-                    toast.info({
-                      title: 'Successfully copied hat ID to clipboard',
-                    });
-                  }}
-                />
-              </HStack>
-            </Flex>
-          </HStack>
-          {description && (
-            <Box opacity={0.6}>
-              <Markdown>{description}</Markdown>
+              <Image
+                loading='lazy'
+                src={
+                  (editMode && imageUrl) ||
+                  _.get(selectedHat, 'imageUrl') ||
+                  '/icon.jpeg'
+                }
+                alt='hat image'
+                background='white'
+                objectFit='cover'
+                boxSize='122px'
+              />
             </Box>
           )}
-        </Stack>
-      </Flex>
+
+          <Flex
+            justify='space-between'
+            gap={2}
+            direction={{ base: 'column', md: 'row' }}
+            maxW={{ base: '60%', md: '100%' }}
+          >
+            <Tooltip label={name || selectedHat?.details}>
+              <Heading noOfLines={{ base: 2, md: 1 }}>
+                {name || selectedHat?.details}
+              </Heading>
+            </Tooltip>
+
+            <HStack>
+              <Text color='blue.500'>
+                {hatIdDecimalToIp(BigInt(selectedHat.id))}
+              </Text>
+              <Icon
+                as={CopyHash}
+                color='blue.500'
+                cursor='pointer'
+                onClick={() => {
+                  onCopy();
+                  toast.info({
+                    title: 'Successfully copied hat ID to clipboard',
+                  });
+                }}
+              />
+            </HStack>
+          </Flex>
+        </HStack>
+        {description && (
+          <Box opacity={0.6}>
+            <Markdown>{description}</Markdown>
+          </Box>
+        )}
+      </Stack>
+
       <Flex justify={isMobile ? 'center' : 'start'}>
         <HStack>
           {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
