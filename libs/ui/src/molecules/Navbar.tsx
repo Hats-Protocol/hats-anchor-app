@@ -23,7 +23,6 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetailsField } from 'hats-hooks';
-import { AppHat, Transaction } from 'types';
 import { useLocalStorage } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -31,6 +30,7 @@ import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { AppHat, Transaction } from 'types';
 import { containsUpperCase, getOperatingSystem } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 

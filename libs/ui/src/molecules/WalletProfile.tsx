@@ -11,12 +11,12 @@ import {
 } from '@chakra-ui/react';
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import { useClipboard } from 'hooks';
 import { CopyHash, WearerIcon } from 'icons';
 import _ from 'lodash';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
+import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';

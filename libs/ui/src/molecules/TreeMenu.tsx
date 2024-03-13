@@ -25,7 +25,6 @@ import {
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
-import { Controls } from 'types';
 import { useIsClient } from 'hooks';
 import { History } from 'icons';
 import _ from 'lodash';
@@ -35,6 +34,7 @@ import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
+import { Controls } from 'types';
 import { chainsMap, explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';

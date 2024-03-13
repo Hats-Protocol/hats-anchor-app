@@ -1,9 +1,9 @@
 import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { Transaction } from 'types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
+import { Transaction } from 'types';
 import { explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';

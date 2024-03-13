@@ -2,12 +2,12 @@ import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTACT_URL, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useHatsModules } from 'hats-hooks';
-import { ModuleDetails } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
+import { ModuleDetails } from 'types';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
