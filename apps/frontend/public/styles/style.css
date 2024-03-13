@@ -11,6 +11,7 @@
   font-size: 12px;
 }
 
+/* Date picker styles */
 .chakra-datepicker .react-datepicker__input-container input {
   padding: 0.5rem;
   padding-left: 1rem;
@@ -23,4 +24,9 @@
     box-shadow: 0 0 0 1px #3182CE;
     border-color: #3182CE;
   }
+}
+
+/* ensure the chart consumes the full space available */
+.svg-chart-container {
+  height: 100%;
 }

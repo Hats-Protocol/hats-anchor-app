@@ -61,6 +61,7 @@ const MoreMenu = () => {
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();
+  const { handlePendingTx } = useOverlay();
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -80,6 +81,7 @@ const MoreMenu = () => {
     chainId,
     isAdminUser,
     mutable: selectedHat?.mutable,
+    handlePendingTx,
   });
 
   const txDescription = `${

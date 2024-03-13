@@ -8,7 +8,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import {
   useAgreementEligibility,
@@ -42,9 +41,7 @@ const ClaimHat = ({
   isReviewed: boolean;
   setIsReviewed: (signed: boolean) => void;
 }) => {
-  // const hatId = hatIdDecimalToHex(hatIdIpToDecimal(communityMemberHat)); // TODO handle IP from URL params
   const { address } = useAccount();
-  const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
 

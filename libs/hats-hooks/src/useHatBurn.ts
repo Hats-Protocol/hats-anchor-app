@@ -10,12 +10,12 @@ const useHatBurn = ({
   selectedHat,
   chainId,
   handlePendingTx,
-  onSuccess,
+  waitForSubgraph,
 }: {
   selectedHat: AppHat;
   chainId: SupportedChains;
   handlePendingTx?: HandlePendingTx;
-  onSuccess?: () => void | undefined;
+  waitForSubgraph?: () => void | undefined;
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
@@ -23,7 +23,6 @@ const useHatBurn = ({
   const hatId = selectedHat?.id;
   const wearers = selectedHat?.wearers || [];
   const currentlyWearing = _.findKey(wearers, ['id', _.toLower(address)]);
-
   const txDescription = `Renounced hat ${idToIp(hatId)}`;
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -36,9 +35,7 @@ const useHatBurn = ({
       description: txDescription,
     },
     handlePendingTx,
-    handleSuccess: () => {
-      onSuccess?.();
-    },
+    waitForSubgraph,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId || ''],
