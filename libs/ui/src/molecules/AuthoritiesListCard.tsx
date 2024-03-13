@@ -96,7 +96,7 @@ const AuthoritiesListCard = ({
       border='none'
       w={{ base: '100%', md: 'calc(100% + 32px)' }}
       ml={{ md: -4 }}
-      boxShadow={!isMobile && expanded ? 'md' : 'none'}
+      boxShadow={expanded ? 'md' : 'none'}
       borderRadius={{ md: 8 }}
     >
       {({ isExpanded }) => {
