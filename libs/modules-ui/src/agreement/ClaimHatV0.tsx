@@ -149,12 +149,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
           passHref
           target='_blank'
         >
-          <HatCreateCard
-            name='test'
-            supply={10}
-            nextChild='1.1'
-            image={{ path: '/icon.jpeg' }}
-          />
+          <HatCreateCard id={hatId} />
         </NextLink>
       </Flex>
 
