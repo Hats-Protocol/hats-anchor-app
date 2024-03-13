@@ -1,8 +1,10 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, SupportedChains } from 'types';
 import { decimalId } from 'hats-utils';
+import { useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { toTreeId } from 'shared';
+import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { fetchHatDetails } from 'utils';
 import { useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
@@ -13,13 +15,22 @@ const useHatMakeImmutable = ({
   chainId,
   isAdminUser,
   mutable,
+  handlePendingTx,
 }: UseHatMakeImmutableProps) => {
   const currentNetworkId = useChainId();
   const selectedHatId = selectedHat?.id || 'none';
+
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(selectedHat.id, chainId),
+    checkResult: (hatDetails) => !hatDetails?.mutable,
+  });
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',
     args: [decimalId(selectedHatId)],
     chainId: Number(chainId),
+    handlePendingTx,
+    waitForSubgraph,
     onSuccessToastData: {
       title: 'Hat Updated!',
       description:
@@ -54,4 +65,5 @@ interface UseHatMakeImmutableProps {
   chainId: SupportedChains | undefined;
   isAdminUser?: boolean;
   mutable?: boolean;
+  handlePendingTx?: HandlePendingTx | undefined;
 }

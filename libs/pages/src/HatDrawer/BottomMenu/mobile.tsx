@@ -10,7 +10,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useTreeForm } from 'contexts';
+import { useOverlay, useTreeForm } from 'contexts';
 import { useHatClaimBy, useWearerDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import _ from 'lodash';
@@ -21,6 +21,7 @@ import { useAccount, useChainId } from 'wagmi';
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const BottomMenu = ({ show }: { show: boolean }) => {
+  const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
   const { selectedHat, chainId } = useTreeForm();
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id);
@@ -32,7 +33,9 @@ const BottomMenu = ({ show }: { show: boolean }) => {
     selectedHat,
     chainId,
     wearer: address,
+    handlePendingTx,
   });
+
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
     chainId,

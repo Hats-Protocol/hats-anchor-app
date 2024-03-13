@@ -23,7 +23,7 @@ const MainAction = () => {
   const { address } = useAccount();
   const { chain } = useNetwork();
   const localOverlay = useOverlay();
-  const { setModals } = localOverlay;
+  const { setModals, handlePendingTx } = localOverlay;
   const { chainId, selectedHat, editMode } = useTreeForm();
   const isConnected = Boolean(address);
   const maxSupply = _.get(selectedHat, 'maxSupply', 0);
@@ -47,6 +47,7 @@ const MainAction = () => {
     selectedHat,
     chainId,
     wearer: address,
+    handlePendingTx,
   });
 
   const { data: currentUserIsEligible } = useWearerEligibilityCheck({

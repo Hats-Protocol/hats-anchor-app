@@ -8,7 +8,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import {
   useAgreementEligibility,
@@ -41,9 +40,7 @@ const ClaimHat = ({
   isSigned: boolean;
   setIsSigned: (signed: boolean) => void;
 }) => {
-  // const hatId = hatIdDecimalToHex(hatIdIpToDecimal(communityMemberHat)); // TODO handle IP from URL params
   const { address } = useAccount();
-  const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
 
@@ -95,13 +92,6 @@ const ClaimHat = ({
     },
   });
 
-  const handleClaim = async () => {
-    await signAndClaim?.();
-
-    queryClient.invalidateQueries(['wearerDetails']);
-    queryClient.invalidateQueries(['hatDetails']);
-  };
-
   return (
     <Stack w='40%' justifyContent='center' alignItems='left'>
       <Conditions isSigned={isSigned} setIsSigned={setIsSigned} />
@@ -131,7 +121,7 @@ const ClaimHat = ({
             }
             colorScheme='blue'
             leftIcon={<BsPen />}
-            onClick={handleClaim}
+            onClick={signAndClaim}
           >
             Claim with Signature
           </Button>

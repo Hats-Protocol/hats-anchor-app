@@ -1,11 +1,11 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { AppHat, HandlePendingTx, SupportedChains } from 'types';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { createHatsModulesClient } from 'utils';
+import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { createHatsModulesClient, fetchHatDetails } from 'utils';
 import { Hex } from 'viem';
 import {
   useAccount,
@@ -13,6 +13,7 @@ import {
   useContractReads,
   useContractWrite,
   usePrepareContractWrite,
+  useQueryClient,
 } from 'wagmi';
 
 const useHatClaimBy = ({
@@ -33,6 +34,16 @@ const useHatClaimBy = ({
   const userChain = useChainId();
   const toast = useToast();
   const isCurrentWearer = address === wearer;
+  const queryClient = useQueryClient();
+
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(selectedHat?.id, chainId),
+    checkResult: (hatDetails) =>
+      _.some(
+        hatDetails?.wearers,
+        (w: { id: any }) => _.toLower(w.id) === _.toLower(address),
+      ),
+  });
 
   const isWearing = useMemo(
     () => _.includes(_.map(selectedHat?.wearers, 'id'), wearer),
@@ -133,7 +144,17 @@ const useHatClaimBy = ({
           title: 'Hat claimed!',
           description: txDescription,
         },
-        onSuccess,
+        onSuccess: async () => {
+          onSuccess?.();
+          await waitForSubgraph();
+
+          queryClient.invalidateQueries({
+            queryKey: ['hatDetails', { id: selectedHat?.id, chainId }],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ['wearerDetails', { wearerAddress: address, chainId }],
+          });
+        },
       });
 
       // TODO Handle clearing/updating hat/wearer data

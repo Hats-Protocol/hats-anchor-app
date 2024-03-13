@@ -2,45 +2,15 @@ import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { HandlePendingTx } from 'types';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import router from 'next/router';
+import { useState } from 'react';
 import { fetchTreeDetails } from 'utils';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
-
-async function waitForTreeCreation(treeId: number, chainId: number) {
-  return new Promise((resolve) => {
-    const checkTree = async () => {
-      try {
-        const tree = await fetchTreeDetails(
-          treeIdDecimalToHex(treeId),
-          chainId,
-        );
-
-        if (tree) {
-          clearInterval(intervalId);
-          resolve(tree);
-        }
-        // eslint-disable-next-line no-console
-        console.log('waiting for tree creation');
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
-    };
-
-    const intervalId = setInterval(checkTree, 1000);
-    checkTree(); // Check immediately
-
-    setTimeout(() => {
-      clearInterval(intervalId);
-      resolve(null); // Resolve with null or handle the timeout case
-    }, 20000);
-  });
-}
 
 // hats-hooks
 const useTreeCreate = ({
@@ -56,6 +26,8 @@ const useTreeCreate = ({
   const queryClient = useQueryClient();
   const toast = useToast();
 
+  const [treeId, setTreeId] = useState<number | null>(null);
+
   const {
     data: newReceiverResolvedAddress,
     isLoading: isLoadingNewReceiverResolvedAddress,
@@ -64,23 +36,26 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: treeId
+      ? () => fetchTreeDetails(treeIdDecimalToHex(treeId), chainId)
+      : () => Promise.resolve(null),
+    checkResult: (tree) => !!tree,
+  });
+
   async function handleSuccess(transactionData?: TransactionReceipt) {
     if (!transactionData) return;
     const eventData = _.get(transactionData, 'logs[0].data');
-    const treeId = treeCreateEventIdToTreeId(eventData);
-    if (!treeId) return;
+    const newTreeId = treeCreateEventIdToTreeId(eventData);
+    if (!newTreeId) return;
+    setTreeId(newTreeId);
 
-    // wait for tree to be created and found in the subgraph
-    await waitForTreeCreation(treeId, chainId);
+    await waitForSubgraph();
 
     queryClient.invalidateQueries(['treeList', chainId]);
     queryClient.invalidateQueries(['wearerDetails']);
-
-    toast.info({
-      title: 'Redirecting you to your new tree',
-    });
-
-    router.push(`/trees/${chainId}/${treeId}`);
+    toast.info({ title: 'Redirecting you to your new tree' });
+    router.push(`/trees/${chainId}/${newTreeId}`);
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({
