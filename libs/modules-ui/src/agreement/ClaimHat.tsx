@@ -19,7 +19,7 @@ import _ from 'lodash';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useQueryClient } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 import Conditions from './Conditions';
@@ -42,6 +42,7 @@ const ClaimHat = ({
   setIsReviewed: (signed: boolean) => void;
 }) => {
   const { address } = useAccount();
+  const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
 
