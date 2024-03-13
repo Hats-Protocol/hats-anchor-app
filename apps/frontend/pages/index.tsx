@@ -67,20 +67,13 @@ const Home = () => {
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
 
-  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({
-      hats: activeHats
-        ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
-        : [],
-    });
+  const { data: currentHatsWithImagesData } = useImageURIs({
+    hats: activeHats
+      ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
+      : [],
+  });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
-  console.log(
-    !!wearerAddress,
-    !!currentHatsWithImagesData,
-    wearerDetailsLoading,
-    imagesLoading,
-  );
 
   return (
     <Layout hideBackLink>

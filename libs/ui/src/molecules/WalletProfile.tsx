@@ -122,7 +122,11 @@ const WalletProfile = ({
       {!_.isEmpty(transactions) && (
         <Stack>
           <Heading size='md'>Transaction History</Heading>
-          <TransactionHistory count={2} transactions={transactions} hideHash />
+          <TransactionHistory
+            count={2}
+            transactions={transactions || []}
+            hideHash
+          />
           {_.size(transactions) > 2 && (
             <Flex>
               <Button

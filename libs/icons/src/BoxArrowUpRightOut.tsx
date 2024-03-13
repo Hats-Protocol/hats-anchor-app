@@ -1,7 +1,7 @@
 import { createIcon } from '@chakra-ui/react';
 
 const BoxArrowUpRightOut: any = createIcon({
-  displayName: 'CopyHash',
+  displayName: 'BoxArrowUpRightOut',
   viewBox: '0 0 16 16',
   path: [
     <path
