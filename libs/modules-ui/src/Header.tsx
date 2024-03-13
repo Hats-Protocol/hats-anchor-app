@@ -6,6 +6,7 @@ import {
   HStack,
   Icon,
   Image,
+  Skeleton,
   Stack,
   Text,
   Tooltip,
@@ -155,34 +156,38 @@ const Header = () => {
             lineHeight={6}
             wrap={{ base: 'wrap', md: 'unset' }}
           >
-            <Tooltip label={name || selectedHat?.details}>
-              <Heading
-                size='2xl'
-                variant='medium'
-                noOfLines={{ base: 2, md: 1 }}
+            <Skeleton isLoaded={!!selectedHatDetails} maxW='350px'>
+              <Tooltip label={name || selectedHat?.details}>
+                <Heading
+                  size='2xl'
+                  variant='medium'
+                  noOfLines={{ base: 2, md: 1 }}
+                >
+                  {name || selectedHat?.details}
+                </Heading>
+              </Tooltip>
+            </Skeleton>
+
+            <HStack>
+              <Text whiteSpace='nowrap'>Hat ID:</Text>
+              <Skeleton
+                as={HStack}
+                isLoaded={!!selectedHat?.id}
+                cursor={selectedHat ? 'pointer' : 'default'}
+                onClick={() => {
+                  if (!selectedHat) return;
+                  onCopy();
+                  toast.info({
+                    title: 'Successfully copied hat ID to clipboard',
+                  });
+                }}
               >
-                {name || selectedHat?.details}
-              </Heading>
-            </Tooltip>
-            {selectedHat?.id && (
-              <HStack>
-                <Text whiteSpace='nowrap'>Hat ID:</Text>
                 <Text color='blue.500'>
-                  {hatIdDecimalToIp(BigInt(selectedHat.id))}
+                  {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
                 </Text>
-                <Icon
-                  as={CopyHash}
-                  color='blue.500'
-                  cursor='pointer'
-                  onClick={() => {
-                    onCopy();
-                    toast.info({
-                      title: 'Successfully copied hat ID to clipboard',
-                    });
-                  }}
-                />
-              </HStack>
-            )}
+                <Icon as={CopyHash} color='blue.500' />
+              </Skeleton>
+            </HStack>
           </HStack>
           {description && (
             <Box opacity={0.6}>
@@ -190,18 +195,24 @@ const Header = () => {
             </Box>
           )}
         </Stack>
-        <HStack>
-          {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-          <Badge
-            colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}
-          >
-            {mutableStatus}
-          </Badge>
-          <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
-            {activeStatus}
-          </Badge>
-          <Badge colorScheme='purple'>Level {levelAtLocalTree}</Badge>
-        </HStack>
+        <Skeleton isLoaded={!!selectedHat}>
+          <HStack>
+            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+              }
+            >
+              {mutableStatus}
+            </Badge>
+            <Badge
+              colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+            >
+              {activeStatus}
+            </Badge>
+            <Badge colorScheme='purple'>Level {levelAtLocalTree}</Badge>
+          </HStack>
+        </Skeleton>
       </Stack>
     </HStack>
   );

@@ -23,12 +23,14 @@ const useCallModuleFunction = ({
       func,
       args,
       onSuccess,
+      onDecline,
     }: {
       moduleId?: string;
       instance?: Hex;
       func?: WriteFunction;
       args: any;
       onSuccess?: () => void;
+      onDecline?: () => void;
     }) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
@@ -67,6 +69,8 @@ const useCallModuleFunction = ({
 
           onSuccess?.();
         }
+
+        if (!result) onDecline?.();
       } catch (error) {
         const err = error as Error;
         toast.error({

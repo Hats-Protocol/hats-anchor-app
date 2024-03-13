@@ -1,10 +1,10 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
-import { AppHat, SupportedChains } from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { idToIp } from 'shared';
+import { AppHat, SupportedChains } from 'types';
 import {
   createHatsClient,
   createHatsModulesClient,
@@ -18,8 +18,8 @@ const useHatClaimFor = ({
   chainId,
   wearer,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat?: AppHat | null;
+  chainId?: SupportedChains;
   wearer: Hex | undefined;
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
@@ -53,9 +53,10 @@ const useHatClaimFor = ({
       const hatsClient = createHatsClient(chainId);
       if (!hatsClient || !wearer || !isAddress(wearer)) return;
       const canClaimFor = await hatsClient.canClaimForAccount({
-        hatId: BigInt(selectedHat.id),
+        hatId: BigInt(selectedHat?.id || '0x'),
         account: wearer,
       });
+
       setCanClaimForAccount(canClaimFor);
     };
     getCanClaimForAccount();
@@ -70,7 +71,7 @@ const useHatClaimFor = ({
 
       const result = await hatsClient.claimHatFor({
         account: address,
-        hatId: BigInt(selectedHat.id),
+        hatId: BigInt(selectedHat?.id || '0x'),
         wearer: account,
       });
 
@@ -78,7 +79,7 @@ const useHatClaimFor = ({
         toast.success({
           title: 'Hat claimed',
           description: `Hat ${idToIp(
-            selectedHat.id,
+            selectedHat?.id,
           )} has been claimed for ${formatAddress(account)}`,
         });
       }

@@ -1,10 +1,21 @@
-import { Box, HStack, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Stack,
+  VStack,
+} from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility, useWearerEligibilityCheck } from 'hats-hooks';
+import { useAgreementEligibility } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
+import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAccount } from 'wagmi';
+
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 const ClaimHat = dynamic(() =>
@@ -23,18 +34,24 @@ const Conditions = dynamic(() =>
 
 const Agreement = () => {
   const { isMobile } = useMediaStyles();
-  const { moduleParameters, chainId, selectedHat } = useEligibility();
+  const { moduleParameters, selectedHat } = useEligibility();
   const { agreement } = useAgreementEligibility({
     moduleParameters,
   });
-  const [isSigned, setIsSigned] = useState(false);
   const { address } = useAccount();
+  const [isReviewed, setIsReviewed] = useState(false);
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const isWearing = useMemo(
+    () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
+    [selectedHat, address],
+  );
 
-  const { data: isEligible } = useWearerEligibilityCheck({
-    wearer: address,
-    selectedHat,
-    chainId,
-  });
+  const handleScroll = (e) => {
+    const bottom =
+      Math.floor(e.target.scrollHeight - e.target.scrollTop) ===
+      e.target.clientHeight;
+    if (bottom) setIsButtonEnabled(true);
+  };
 
   return (
     <Layout title='Claims'>
@@ -67,27 +84,39 @@ const Agreement = () => {
         alignItems='flex-start'
       >
         {!isMobile && (
-          <Box
-            py={5}
-            px={10}
-            maxH='90%'
-            overflowY='auto'
-            w={{
-              base: '50%',
-              lg: '70%',
-            }}
-            backgroundColor='white'
-            border='1px solid #cbcbcb'
-          >
-            <AgreementContent agreement={agreement} />
-          </Box>
+          <VStack spacing={4} align='stretch' maxH='90%' w='70%'>
+            <Box
+              py={5}
+              px={10}
+              flex='1'
+              overflowY='auto'
+              backgroundColor='white'
+              border='1px solid #cbcbcb'
+              onScroll={handleScroll}
+            >
+              <AgreementContent agreement={agreement} />
+            </Box>
+            <Flex justifyContent='center'>
+              <Button
+                colorScheme='blue'
+                onClick={() => {
+                  setIsReviewed(true);
+                }}
+                isDisabled={!isButtonEnabled}
+                leftIcon={<Icon as={HatIcon} color='white' />}
+                py={4}
+              >
+                Reviewed
+              </Button>
+            </Flex>
+          </VStack>
         )}
 
         {!isMobile && (
           <ClaimHat
             agreement={agreement}
-            isSigned={isSigned || isEligible}
-            setIsSigned={setIsSigned}
+            isReviewed={isReviewed}
+            setIsReviewed={setIsReviewed}
           />
         )}
 
@@ -95,11 +124,11 @@ const Agreement = () => {
           <Stack spacing={4}>
             <Header />
             <Conditions
-              isSigned={isSigned || isEligible}
-              setIsSigned={setIsSigned}
+              isReviewed={isReviewed || isWearing}
+              setIsReviewed={setIsReviewed}
               agreementIsLink
             />
-            <BottomMenu isSigned={isSigned || isEligible} />
+            <BottomMenu isReviewed={isReviewed || isWearing} />
           </Stack>
         )}
       </HStack>
