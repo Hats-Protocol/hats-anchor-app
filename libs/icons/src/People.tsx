@@ -1,7 +1,7 @@
 import { createIcon } from '@chakra-ui/react';
 
-const HatIcon: any = createIcon({
-  displayName: 'PeopleIcon',
+const People: any = createIcon({
+  displayName: 'People',
   viewBox: '0 0 32 32',
   path: [
     <path
@@ -23,4 +23,4 @@ const HatIcon: any = createIcon({
   ],
 });
 
-export default HatIcon;
+export default People;

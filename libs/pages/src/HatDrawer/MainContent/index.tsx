@@ -78,7 +78,8 @@ const MainContent = ({
       height={{ base: 'auto', md: 'calc(100% - 150px)' }}
       pb={{ base: 100, md: 400 }}
       color='blackAlpha.800'
-      bg='gray.50'
+      bg={{ base: 'gray.50', md: 'whiteAlpha.200' }}
+      backdropFilter={{ base: 'none', md: 'blur(2px)' }}
     >
       <Header />
       <AuthoritiesList />

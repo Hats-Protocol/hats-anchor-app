@@ -28,19 +28,19 @@ const FeaturedTreeCard = ({
   }, [image]);
 
   return (
-    <ChakraNextLink href={`/trees/${chainId}/${id}`} _hover={{}}>
+    <ChakraNextLink href={`/trees/${chainId}/${id}`} h='207px' _hover={{}}>
       <Stack
         bg='white'
         maxW='400px'
         borderRadius={6}
         border='1px'
         borderColor='gray.600'
-        h='full'
-        justifyItems='space-between'
+        h='207px'
+        justify='space-between'
         spacing={0}
       >
-        <Box bg='gray.100' borderTopRadius={6} flex='1'>
-          <Skeleton height='150px' borderTopRadius={6} isLoaded={imageLoaded}>
+        <Box bg='gray.100' borderTopRadius={6} flex='1' height='150px'>
+          <Skeleton height='100%' borderTopRadius={6} isLoaded={imageLoaded}>
             <ChakraImage
               loading='lazy'
               src={image}
@@ -61,30 +61,37 @@ const FeaturedTreeCard = ({
           boxShadow='0px -1px 4px rgba(0, 0, 0, 0.14)'
           w='full'
         >
-          <ChakraImage
-            loading='lazy'
-            src={avatar}
-            alt={`${name} featured avatar`}
-            w={14}
-            h={14}
-            display='inline-block'
-            mr={3}
-            mt={-8}
-            borderRadius={4}
-          />
+          <Skeleton height='100%' borderTopRadius={6} isLoaded={imageLoaded}>
+            <ChakraImage
+              loading='lazy'
+              src={avatar}
+              alt={`${name} featured avatar`}
+              boxSize={14}
+              display='inline-block'
+              mr={3}
+              mt={-8}
+              borderRadius={4}
+            />
+          </Skeleton>
           <HStack justifyContent='space-between' w='full' h='full' mb={1}>
-            <Text variant='medium' size='lg'>
-              {name}
-            </Text>
+            <Skeleton isLoaded={!!name}>
+              <Text variant='medium' size='lg'>
+                {name}
+              </Text>
+            </Skeleton>
 
             <Stack align='flex-end' spacing='0.2rem'>
               <HStack spacing='5px'>
                 <Icon as={HatIcon} boxSize={3} />
-                <Text size='xs'>{hatsAndWearers?.hats}</Text>
+                <Skeleton isLoaded={!!hatsAndWearers?.hats}>
+                  <Text size='xs'>{hatsAndWearers?.hats || '--'}</Text>
+                </Skeleton>
               </HStack>
               <HStack spacing='5px'>
                 <Icon as={BsPeopleFill} boxSize={3} />
-                <Text size='xs'>{hatsAndWearers?.wearers}</Text>
+                <Skeleton isLoaded={!!hatsAndWearers?.wearers}>
+                  <Text size='xs'>{hatsAndWearers?.wearers || '--'}</Text>
+                </Skeleton>
               </HStack>
             </Stack>
           </HStack>

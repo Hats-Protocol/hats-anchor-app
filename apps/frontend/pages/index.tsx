@@ -7,6 +7,7 @@ import {
   Heading,
   HStack,
   SimpleGrid,
+  Skeleton,
   Stack,
   Text,
   useMediaQuery,
@@ -45,17 +46,21 @@ const MOBILE_HATS_TO_SHOW = 4;
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
-  const { data: featuredTemplates } = useFeaturedTemplates();
-  const { data: featuredTrees } = useFeaturedTrees();
-  const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
+  const { data: featuredTemplates, isLoading: templatesLoading } =
+    useFeaturedTemplates();
+  const { data: featuredTrees, isLoading: featuredTreesLoading } =
+    useFeaturedTrees();
+  const { data: hatsAndWearers, isLoading: featuredTreesDataLoading } =
+    useFeaturedTreesData(featuredTrees);
 
   const { isMobile } = useMediaStyles();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
-  const { data: currentHats } = useWearerDetails({
-    wearerAddress,
-    chainId: 'all',
-  });
+  const { data: currentHats, isLoading: wearerDetailsLoading } =
+    useWearerDetails({
+      wearerAddress,
+      chainId: 'all',
+    });
 
   const sortedHats = _.sortBy(_.compact(currentHats), (hat: AppHat) => {
     return _.indexOf(orderedChains, hat?.chainId);
@@ -118,83 +123,105 @@ const Home = () => {
           </Stack>
         )}
 
-        {wearerAddress &&
-          currentHatsWithImagesData &&
-          (!_.isEmpty(sortedHats) ? (
-            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Flex justifyContent='space-between' alignItems='center'>
-                <Heading variant='medium'>Your hats</Heading>
-                {_.size(sortedHats) >
-                  (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
-                  <ChakraNextLink
-                    as={ChakraNextLink}
-                    href={`/wearers/${wearerAddress}`}
-                  >
-                    <HStack alignItems='center'>
-                      <Text>View {!isMobile ? 'all of ' : ''}your hats</Text>
-                      <FaArrowRight />
-                    </HStack>
-                  </ChakraNextLink>
-                )}
-              </Flex>
-              <SimpleGrid
-                columns={{
-                  base: 1,
-                  sm: 2,
-                  md: 3,
-                  lg: 4,
-                }}
-                spacing={6}
-              >
-                {_.map(currentHatsWithImagesData, (hat: AppHat, i: number) => (
-                  <DashboardHatCard hat={hat} key={i} />
-                ))}
-              </SimpleGrid>
-            </Card>
-          ) : (
-            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Flex minH={20} justify='center' align='center'>
-                <Stack align='center'>
-                  <Heading size='md'>Your hats will appear here</Heading>
-                  <Text>
-                    Create a tree or check out the starter templates below.
-                  </Text>
-                </Stack>
-              </Flex>
-            </Card>
-          ))}
-
-        <Flex
-          alignItems='start'
-          gap={10}
-          direction={upTo1700 ? 'column' : 'row'}
-        >
-          <Stack spacing={10} flex={1}>
-            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Heading variant='medium'>Explore featured trees</Heading>
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                {_.map(featuredTrees, (tree: TemplateData, i: number) => (
-                  <FeaturedTreeCard
-                    key={i}
-                    treeData={tree}
-                    hatsAndWearers={_.find(
-                      hatsAndWearers,
-                      (h: { treeId: string }) => Number(h.treeId) === tree.id,
+        {wearerAddress && (
+          <Skeleton
+            isLoaded={wearerAddress && !wearerDetailsLoading}
+            minH='300px'
+          >
+            {currentHatsWithImagesData &&
+              (!_.isEmpty(sortedHats) ? (
+                <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+                  <Flex justifyContent='space-between' alignItems='center'>
+                    <Heading variant='medium'>Your hats</Heading>
+                    {_.size(sortedHats) >
+                      (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
+                      <ChakraNextLink
+                        as={ChakraNextLink}
+                        href={`/wearers/${wearerAddress}`}
+                      >
+                        <HStack alignItems='center'>
+                          <Text>
+                            View {!isMobile ? 'all of ' : ''}your hats
+                          </Text>
+                          <FaArrowRight />
+                        </HStack>
+                      </ChakraNextLink>
                     )}
-                  />
-                ))}
-              </SimpleGrid>
-            </Card>
+                  </Flex>
+                  <SimpleGrid
+                    columns={{
+                      base: 1,
+                      sm: 2,
+                      md: 3,
+                      lg: 4,
+                    }}
+                    spacing={6}
+                  >
+                    {_.map(
+                      currentHatsWithImagesData,
+                      (hat: AppHat, i: number) => (
+                        <DashboardHatCard hat={hat} key={i} />
+                      ),
+                    )}
+                  </SimpleGrid>
+                </Card>
+              ) : (
+                <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+                  <Flex minH={20} justify='center' align='center'>
+                    <Stack align='center'>
+                      <Heading size='md'>Your hats will appear here</Heading>
+                      <Text>
+                        Create a tree or check out the starter templates below.
+                      </Text>
+                    </Stack>
+                  </Flex>
+                </Card>
+              ))}
+          </Skeleton>
+        )}
+
+        <Flex alignItems='start' gap={10} direction='column' w='100%'>
+          <Stack spacing={10} flex={1} w='100%'>
+            <Skeleton
+              isLoaded={!featuredTreesLoading && !featuredTreesDataLoading}
+            >
+              <Card py={8} px={9} background='whiteAlpha.600' gap={4} h='320px'>
+                <Heading variant='medium'>Explore featured trees</Heading>
+                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                  {_.map(featuredTrees, (tree: TemplateData, i: number) => (
+                    <FeaturedTreeCard
+                      key={i}
+                      treeData={tree}
+                      hatsAndWearers={_.find(
+                        hatsAndWearers,
+                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
+                      )}
+                    />
+                  ))}
+                </SimpleGrid>
+              </Card>
+            </Skeleton>
 
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Heading variant='medium'>
                 Jump right in with a forkable template
               </Heading>
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                {_.map(featuredTemplates, (tree: TemplateData, i: number) => (
-                  <ForkableTemplateCard key={i} treeData={tree} />
-                ))}
-              </SimpleGrid>
+              <Skeleton isLoaded={!templatesLoading} minH='170px' w='100%'>
+                {!_.isEmpty(featuredTemplates) ? (
+                  <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                    {_.map(
+                      featuredTemplates,
+                      (tree: TemplateData, i: number) => (
+                        <ForkableTemplateCard key={i} treeData={tree} />
+                      ),
+                    )}
+                  </SimpleGrid>
+                ) : (
+                  <Flex justify='center' align='center' w='full' h='full'>
+                    <Heading>No templates</Heading>
+                  </Flex>
+                )}
+              </Skeleton>
             </Card>
           </Stack>
 
@@ -203,7 +230,7 @@ const Home = () => {
             px={9}
             background='whiteAlpha.600'
             gap={4}
-            maxW={upTo1700 ? '100%' : '427px'}
+            maxW={{ base: '427px', md: '100%' }}
           >
             <Heading variant='medium'>Learn more about Hats</Heading>
             {upTo1700 ? (

@@ -1,8 +1,8 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import _ from 'lodash';
 import { ipToPrettyId, prettyIdToIp } from 'shared';
+import { AppHat } from 'types';
 import { fetchTreeDetails, fetchTreesById } from 'utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

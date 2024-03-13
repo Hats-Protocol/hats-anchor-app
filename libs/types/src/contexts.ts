@@ -47,4 +47,5 @@ export interface StandaloneOverlayContextProps {
   handlePendingTx?: HandlePendingTx;
   recentlyVisitedHats: HatRecord[] | undefined;
   updateRecentlyVisitedHats: (hat: HatRecord) => void;
+  transactions: Transaction[];
 }
