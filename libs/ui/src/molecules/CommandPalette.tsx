@@ -4,7 +4,6 @@ import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
-import { Group, SearchResults } from 'types';
 import { useSearchResults } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -14,6 +13,7 @@ import CmdkCommandPalette, {
   useHandleOpenCommandPalette,
 } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
+import { Group, SearchResults } from 'types';
 import { chainsMap } from 'utils';
 import { useAccount } from 'wagmi';
 

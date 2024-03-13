@@ -20,7 +20,6 @@ import {
   useWearerDetails,
   useWearerEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer } from 'types';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
@@ -28,6 +27,7 @@ import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
+import { HatWearer } from 'types';
 import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';

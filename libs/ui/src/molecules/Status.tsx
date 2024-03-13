@@ -20,7 +20,6 @@ import {
   useWearerDetails,
   useWearerEligibilityCheck,
 } from 'hats-hooks';
-import { HatWearer, SupportedChains } from 'types';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
 import { useContractData, usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';
@@ -29,6 +28,7 @@ import { BsPersonBadge } from 'react-icons/bs';
 import { FaBan, FaCheck, FaCode, FaQuestionCircle } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { TbCircleOff } from 'react-icons/tb';
+import { HatWearer, SupportedChains } from 'types';
 import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 

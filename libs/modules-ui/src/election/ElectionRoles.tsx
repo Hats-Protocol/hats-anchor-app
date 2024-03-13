@@ -3,8 +3,12 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { idToIp } from 'shared';
-import { ChakraNextLink } from 'ui';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const ElectionRoles = () => {
   const { electionsAuthority, selectedHat } = useEligibility();

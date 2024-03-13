@@ -13,11 +13,15 @@ import {
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
 import { explorerUrl } from 'utils';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 interface TimeUntilStart {
   days: number;

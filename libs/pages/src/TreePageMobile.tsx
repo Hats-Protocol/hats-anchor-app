@@ -12,12 +12,12 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { HatWithDepth } from 'types';
 import { isTopHat, prepareMobileTreeHats } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { BsArrowRight } from 'react-icons/bs';
+import { HatWithDepth } from 'types';
 import { chainsMap } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
