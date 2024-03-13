@@ -55,9 +55,6 @@ const WalletProfile = ({
   localOverlay: StandaloneOverlayContextProps | OverlayContextProps | undefined;
 }) => {
   const chainId = useChainId();
-  // TODO why was this pick type failing
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore-next-line
   const { transactions, setModals } = _.pick(localOverlay, [
     'transactions',
     'setModals',
@@ -122,20 +119,25 @@ const WalletProfile = ({
           </Button>
         </ChakraNextLink>
       </Flex>
-      <Stack>
-        <Heading size='md'>Transaction History</Heading>
-        <TransactionHistory count={2} transactions={transactions} hideHash />
-        <Flex>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={toggleTransactionHistoryModal}
-            rightIcon={<Icon as={FaCaretRight} />}
-          >
-            Show full history
-          </Button>
-        </Flex>
-      </Stack>
+      {!_.isEmpty(transactions) && (
+        <Stack>
+          <Heading size='md'>Transaction History</Heading>
+          <TransactionHistory count={2} transactions={transactions} hideHash />
+          {_.size(transactions) > 2 && (
+            <Flex>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={toggleTransactionHistoryModal}
+                rightIcon={<Icon as={FaCaretRight} />}
+              >
+                Show full history
+              </Button>
+            </Flex>
+          )}
+        </Stack>
+      )}
+
       <Flex>
         <Button
           variant='outlineMatch'

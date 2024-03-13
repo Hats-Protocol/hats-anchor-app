@@ -1,7 +1,7 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import _ from 'lodash';
+import { AppHat } from 'types';
 import { checkAddressIsContract } from 'utils';
 import { Hex, isAddress, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
@@ -70,6 +70,7 @@ const useWearersControllersDetails = ({
     ),
   );
 
+  // TODO separate queries by hat instead of by wearer
   const wearerAndControllerDetails = useQueries({
     queries: _.compact(
       _.map(wAndCs, (wearer: Hex) => ({

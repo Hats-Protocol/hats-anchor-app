@@ -56,7 +56,12 @@ const Header = () => {
   if (!selectedHat) return null;
 
   return (
-    <Stack spacing={4} px={{ base: 4, md: 10 }} pb={4} bg='white'>
+    <Stack
+      spacing={4}
+      px={{ base: 4, md: 10 }}
+      pb={4}
+      bg={{ base: 'white', md: 'transparent' }}
+    >
       <Stack gap={1} w='100%'>
         <HStack
           spacing={4}
