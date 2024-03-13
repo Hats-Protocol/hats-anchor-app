@@ -1,44 +1,55 @@
 import { Button, Flex, Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import { useHatClaimFor } from 'hats-hooks';
+import { useDebounce } from 'hooks';
 import { useForm } from 'react-hook-form';
-import { Input } from 'ui';
+import { AddressInput } from 'ui';
 import { Hex } from 'viem';
+import { useEnsAddress } from 'wagmi';
 
 const HatClaimForForm = () => {
   const localForm = useForm({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
       address: '',
     },
   });
   const { handleSubmit, watch } = localForm;
   const { chainId, selectedHat } = useTreeForm();
-
-  const address = watch('address', '');
-
-  const { claimHatFor, canClaimForAccount, isLoading } = useHatClaimFor({
-    selectedHat,
-    chainId,
-    wearer: address as Hex,
-  });
+  const address = useDebounce<string>(watch('address', null));
 
   const onSubmit = async () => {
     await claimHatFor(address as Hex);
   };
 
+  const { data: resolvedAddress, isLoading: isLoadingAddressResolvedAddress } =
+    useEnsAddress({
+      name: address,
+      chainId: 1,
+    });
+
+  const { claimHatFor, canClaimForAccount, isLoading } = useHatClaimFor({
+    selectedHat,
+    chainId,
+    wearer: resolvedAddress || (address as Hex),
+  });
+
+  const showResolvedAddress = resolvedAddress && address !== resolvedAddress;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <Input
+        <AddressInput
+          name='address'
           label='Hat Wearer Address'
           subLabel='Claim this hat for an eligible wearer'
           localForm={localForm}
-          name='address'
-          placeholder='vitalik.eth'
+          showResolvedAddress={showResolvedAddress}
+          resolvedAddress={resolvedAddress}
           options={{
             validate: () => {
-              if (!canClaimForAccount) return 'Account is not eligible';
+              if ((resolvedAddress || address) && !canClaimForAccount)
+                return 'Account is not eligible';
               return true;
             },
           }}
@@ -48,7 +59,7 @@ const HatClaimForForm = () => {
           <Button
             type='submit'
             isLoading={isLoading}
-            isDisabled={!canClaimForAccount}
+            isDisabled={!canClaimForAccount || isLoadingAddressResolvedAddress}
           >
             Claim
           </Button>

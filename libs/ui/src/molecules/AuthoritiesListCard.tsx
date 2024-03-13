@@ -91,8 +91,6 @@ const AuthoritiesListCard = ({
       </Flex>
     );
 
-  console.log('expanded', expanded);
-
   return (
     <AccordionItem
       border='none'
