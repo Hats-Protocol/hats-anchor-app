@@ -1,10 +1,10 @@
 import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
-import { useImageURIs } from 'hooks';
+import { useImageURIs, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
 import { AppHat } from 'types';
@@ -15,6 +15,7 @@ const Trees = ({ chainId }: { chainId: number }) => {
     usePaginatedTreeList({
       chainId,
     });
+  const analytics = useRudderStackAnalytics();
 
   const trees = _.flatten(_.get(data, 'pages'));
 
@@ -27,6 +28,12 @@ const Trees = ({ chainId }: { chainId: number }) => {
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
     useImageURIs({ hats: topHats });
+
+  useEffect(() => {
+    if (analytics && chainId) {
+      analytics.page('Auto Track', 'Trees Page', { chainId });
+    }
+  }, [analytics, chainId]);
 
   return (
     <Layout>

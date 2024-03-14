@@ -25,7 +25,12 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import { useImageURIs, useMediaStyles, useToast } from 'hooks';
+import {
+  useImageURIs,
+  useMediaStyles,
+  useRudderStackAnalytics,
+  useToast,
+} from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
@@ -66,6 +71,7 @@ const WearerDetail = ({
     chainId: 'all',
   });
   const { isMobile } = useMediaStyles();
+  const analytics = useRudderStackAnalytics();
   const toast = useToast();
   const { onCopy } = useClipboard(wearerAddress);
 
@@ -96,6 +102,12 @@ const WearerDetail = ({
       blockies.create({ seed: wearerAddress.toLowerCase() }).toDataURL(),
     );
   }, [ensName, wearerAddress]);
+
+  useEffect(() => {
+    if (analytics && wearerAddress) {
+      analytics.page('Auto Track', 'Wearer Page', { wearerAddress });
+    }
+  }, [analytics, wearerAddress]);
 
   const headlineStats = [
     {

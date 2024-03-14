@@ -25,8 +25,10 @@ import {
   useFeaturedTreesData,
   useImageURIs,
   useMediaStyles,
+  useRudderStackAnalytics,
 } from 'hooks';
 import _ from 'lodash';
+import { useEffect } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat, DocsLink } from 'types';
@@ -46,6 +48,7 @@ const MOBILE_HATS_TO_SHOW = 4;
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
+  const analytics = useRudderStackAnalytics();
   const { data: featuredTemplates, isLoading: templatesLoading } =
     useFeaturedTemplates();
   const { data: featuredTrees, isLoading: featuredTreesLoading } =
@@ -74,6 +77,14 @@ const Home = () => {
   });
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+
+  useEffect(() => {
+    if (analytics) {
+      analytics.page('Auto Track', 'Landing Page', {
+        isConnected: !!wearerAddress,
+      });
+    }
+  }, [analytics]);
 
   return (
     <Layout hideBackLink>
