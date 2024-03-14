@@ -57,6 +57,6 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   42220: extendIcon(celo),
 
   // TESTNETS
-  11155111: sepolia,
+  11155111: extendIcon(sepolia),
   // 84532: baseSepolia,
 };
