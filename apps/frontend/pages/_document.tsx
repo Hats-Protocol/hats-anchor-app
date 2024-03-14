@@ -37,8 +37,6 @@ export default function Document() {
                 };
               })(method);
             }
-            // Below line is only for demonstration purpose, SPA code is better place for auto page call
-            window.rudderanalytics.page('sample page call');
         `}
         </Script>
         <Script id='intercomMessenger' strategy='beforeInteractive'>

@@ -8,6 +8,7 @@ import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { numberToHex } from 'viem';
+import { useAccount } from 'wagmi';
 
 const checkParamForArray = (param: string | string[] | undefined) => {
   let result: string | undefined;
@@ -33,6 +34,7 @@ const HatDetails = () => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   const params = useParams();
   const router = useRouter();
+  const { address } = useAccount();
   const isClient = useIsClient();
   const analytics = useRudderStackAnalytics();
   const { isMobile } = useMediaStyles();
@@ -57,9 +59,15 @@ const HatDetails = () => {
 
   useEffect(() => {
     if (analytics && chainId && treeId && hatId) {
-      analytics.page('Auto Track', 'Hat Page', { chainId, treeId, hatId });
+      analytics.page('Auto Track', 'Hat Page', {
+        chainId,
+        treeId,
+        hatId,
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics, chainId, treeId, hatId]);
+  }, [analytics, chainId, treeId, hatId, address]);
 
   if (!treeId || chainId === '0x' || !chainId) return null;
 

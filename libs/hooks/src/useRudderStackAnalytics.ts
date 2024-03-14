@@ -13,7 +13,7 @@ const useRudderStackAnalytics = (): RudderAnalyticsType | undefined => {
         const { RudderAnalytics } = await import('@rudderstack/analytics-js');
         const analyticsInstance = new RudderAnalytics();
 
-        analyticsInstance.load(RUDDER_WRITE_KEY, DATA_PLANE_URL);
+        analyticsInstance.load(RUDDER_WRITE_KEY, DATA_PLANE_URL, {});
 
         analyticsInstance.ready(() => {
           // eslint-disable-next-line no-console

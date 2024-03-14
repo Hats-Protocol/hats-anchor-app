@@ -30,7 +30,7 @@ import { ImageFile } from 'types';
 import { DropZone, Input, Layout, Textarea } from 'ui';
 import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';
-import { useChainId } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 const NewTree = () => {
   const [image, setImage] = useState<ImageFile>();
@@ -54,6 +54,7 @@ const NewTree = () => {
 
   const chainId = useChainId();
   const analytics = useRudderStackAnalytics();
+  const { address } = useAccount();
   const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
@@ -113,9 +114,12 @@ const NewTree = () => {
 
   useEffect(() => {
     if (analytics) {
-      analytics.page('Auto Track', 'New Tree');
+      analytics.page('Auto Track', 'New Tree', {
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics]);
+  }, [analytics, address]);
 
   return (
     <Layout>

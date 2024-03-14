@@ -11,9 +11,11 @@ import { TreePage, TreePageMobile } from 'pages';
 import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { Hex, hexToNumber } from 'viem';
+import { useAccount } from 'wagmi';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   const { updateRecentlyVisitedTrees } = useOverlay();
+  const { address } = useAccount();
   const analytics = useRudderStackAnalytics();
   const { isMobile } = useMediaStyles();
   const router = useRouter();
@@ -41,9 +43,15 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
 
   useEffect(() => {
     if (analytics && treeId && chainId) {
-      analytics.page('Auto Track', 'Tree Page', { chainId, treeId, hatId });
+      analytics.page('Auto Track', 'Tree Page', {
+        chainId,
+        treeId,
+        hatId,
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics, treeId, hatId, chainId]);
+  }, [analytics, treeId, hatId, chainId, address]);
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>

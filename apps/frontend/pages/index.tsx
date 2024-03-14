@@ -82,6 +82,7 @@ const Home = () => {
     if (analytics) {
       analytics.page('Auto Track', 'Landing Page', {
         isConnected: !!wearerAddress,
+        anonymousId: wearerAddress || analytics.getAnonymousId(),
       });
     }
   }, [analytics, wearerAddress]);

@@ -9,12 +9,14 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
 import { AppHat } from 'types';
 import { Layout, NetworkFilter, TreeListCard as TreeCard } from 'ui';
+import { useAccount } from 'wagmi';
 
 const Trees = ({ chainId }: { chainId: number }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,
     });
+  const { address } = useAccount();
   const analytics = useRudderStackAnalytics();
 
   const trees = _.flatten(_.get(data, 'pages'));
@@ -31,9 +33,13 @@ const Trees = ({ chainId }: { chainId: number }) => {
 
   useEffect(() => {
     if (analytics && chainId) {
-      analytics.page('Auto Track', 'Trees Page', { chainId });
+      analytics.page('Auto Track', 'Trees Page', {
+        chainId,
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics, chainId]);
+  }, [analytics, chainId, address]);
 
   return (
     <Layout>
