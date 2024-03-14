@@ -84,7 +84,7 @@ const Home = () => {
         isConnected: !!wearerAddress,
       });
     }
-  }, [analytics]);
+  }, [analytics, wearerAddress]);
 
   return (
     <Layout hideBackLink>

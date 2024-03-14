@@ -26,7 +26,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <>
     <DefaultSeo {...SEO} />
