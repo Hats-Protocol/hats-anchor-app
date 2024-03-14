@@ -3,7 +3,7 @@ import {
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
-import { useMediaStyles } from 'hooks';
+import { useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -14,6 +14,7 @@ import { Hex, hexToNumber } from 'viem';
 
 const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   const { updateRecentlyVisitedTrees } = useOverlay();
+  const analytics = useRudderStackAnalytics();
   const { isMobile } = useMediaStyles();
   const router = useRouter();
   const { hatId: hatIdParam } = router.query;
@@ -37,6 +38,12 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treeId, chainId]);
+
+  useEffect(() => {
+    if (analytics && treeId && chainId) {
+      analytics.page('Auto Track', 'Tree Page', { chainId, treeId, hatId });
+    }
+  }, [analytics, treeId, hatId, chainId]);
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>

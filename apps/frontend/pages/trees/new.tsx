@@ -15,9 +15,14 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { useTreeCreate } from 'hats-hooks';
-import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
+import {
+  useCid,
+  useDebounce,
+  usePinImageIpfs,
+  useRudderStackAnalytics,
+} from 'hooks';
 import _ from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
@@ -48,6 +53,7 @@ const NewTree = () => {
   });
 
   const chainId = useChainId();
+  const analytics = useRudderStackAnalytics();
   const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
@@ -104,6 +110,12 @@ const NewTree = () => {
       );
     }
   };
+
+  useEffect(() => {
+    if (analytics) {
+      analytics.page('Auto Track', 'New Tree');
+    }
+  }, [analytics]);
 
   return (
     <Layout>

@@ -3,6 +3,7 @@ import {
   EligibilityContextProvider,
   useStandaloneOverlay as useOverlay,
 } from 'contexts';
+import { useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { Claims } from 'pages';
@@ -13,6 +14,7 @@ import { Hex } from 'viem';
 
 const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   const { updateRecentlyVisitedHats } = useOverlay();
+  const analytics = useRudderStackAnalytics();
 
   useEffect(() => {
     if (!hatId || !chainId) return;
@@ -23,6 +25,12 @@ const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treeId, chainId]);
+
+  useEffect(() => {
+    if (analytics && chainId && hatId) {
+      analytics.page('Auto Track', 'Hat Page', { chainId, treeId, hatId });
+    }
+  }, [analytics, chainId, treeId, hatId]);
 
   return (
     <EligibilityContextProvider treeId={treeId} hatId={hatId} chainId={chainId}>
