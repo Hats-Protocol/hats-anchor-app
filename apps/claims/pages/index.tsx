@@ -1,5 +1,6 @@
 import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { useIsClient } from 'hooks';
+import { useIsClient, useRudderStackAnalytics } from 'hooks';
+import { useEffect } from 'react';
 import { ChakraNextLink, StandaloneLayout as Layout } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
@@ -27,12 +28,22 @@ const LookingForHat = () => (
 
 const Home = () => {
   const isClient = useIsClient();
+  const analytics = useRudderStackAnalytics();
   const { address: wearerAddress } = useAccount();
   const { data: ensName } = useEnsName({
     address: wearerAddress,
     chainId: 1,
     enabled: !!wearerAddress && isClient,
   });
+
+  useEffect(() => {
+    if (analytics) {
+      analytics.page('Auto Track', 'Landing Page', {
+        isConnected: !!wearerAddress,
+        anonymousId: wearerAddress || analytics.getAnonymousId(),
+      });
+    }
+  }, [analytics, wearerAddress]);
 
   if (!isClient || !wearerAddress) {
     return (

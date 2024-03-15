@@ -14,11 +14,15 @@ import {
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { ChakraNextLink } from 'ui';
 import { explorerUrl } from 'utils';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, moduleDetails } = useEligibility();

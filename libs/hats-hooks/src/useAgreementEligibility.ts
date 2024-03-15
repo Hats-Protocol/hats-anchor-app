@@ -1,13 +1,11 @@
-import { CONFIG } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { SupportedChains } from 'types';
 import _ from 'lodash';
+import { SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 
 import useCallModuleFunction from './useCallModuleFunction';
-import useHatsModules from './useHatsModules';
 
 interface ContractInteractionProps {
   moduleParameters: ModuleParameter[] | undefined;
@@ -15,6 +13,8 @@ interface ContractInteractionProps {
   chainId?: SupportedChains | undefined;
   controllerAddress?: string | undefined;
   onSuccessfulSign?: () => void;
+  mchAddress?: Hex | undefined;
+  onDecline?: () => void;
 }
 
 const useAgreementEligibility = ({
@@ -23,6 +23,8 @@ const useAgreementEligibility = ({
   chainId,
   controllerAddress,
   onSuccessfulSign,
+  mchAddress,
+  onDecline,
 }: ContractInteractionProps) => {
   const ipfsHash = _.find(moduleParameters, {
     label: 'Current Agreement',
@@ -38,11 +40,6 @@ const useAgreementEligibility = ({
     enabled: !!ipfsHash,
   });
 
-  const signFn = _.find(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: any) => fn.functionName === 'signAgreement',
-  );
-
   const signAndClaim = _.find(
     _.get(moduleDetails, 'writeFunctions'),
     (fn: any) => fn.functionName === 'signAgreementAndClaimHat',
@@ -53,26 +50,16 @@ const useAgreementEligibility = ({
       chainId,
     });
 
-  const handleSign = async () => {
-    callModuleFunction({
-      moduleId: moduleDetails?.implementationAddress,
-      instance: controllerAddress as Hex,
-      func: signFn,
-      args: [],
-      onSuccess: onSuccessfulSign,
-    });
-  };
-
-  const { modules } = useHatsModules({ chainId });
-  const mch = _.find(modules, { name: CONFIG.claimsHatterModuleName });
-
   const handleSignAndClaim = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
       instance: controllerAddress as Hex,
       func: signAndClaim,
-      args: [mch?.implementationAddress],
+      args: {
+        'Claims Hatter': mchAddress,
+      },
       onSuccess: onSuccessfulSign,
+      onDecline,
     });
   };
 
@@ -80,7 +67,6 @@ const useAgreementEligibility = ({
     agreement,
     isLoading,
     error,
-    signAgreement: handleSign,
     signAndClaim: handleSignAndClaim,
     isSignAgreementLoading,
   };

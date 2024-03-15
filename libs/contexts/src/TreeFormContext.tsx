@@ -181,7 +181,6 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
-
   const queryClient = useQueryClient();
   const { hatId: initialHatIdParam } = router.query;
   let initialHatId: string | undefined;

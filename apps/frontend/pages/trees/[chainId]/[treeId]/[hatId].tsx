@@ -1,6 +1,6 @@
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
-import { useIsClient, useMediaStyles } from 'hooks';
+import { useIsClient, useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/router';
@@ -8,6 +8,7 @@ import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { numberToHex } from 'viem';
+import { useAccount } from 'wagmi';
 
 const checkParamForArray = (param: string | string[] | undefined) => {
   let result: string | undefined;
@@ -33,7 +34,9 @@ const HatDetails = () => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   const params = useParams();
   const router = useRouter();
+  const { address } = useAccount();
   const isClient = useIsClient();
+  const analytics = useRudderStackAnalytics();
   const { isMobile } = useMediaStyles();
   const {
     treeId: treeIdParam,
@@ -53,6 +56,18 @@ const HatDetails = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treeId, chainId]);
+
+  useEffect(() => {
+    if (analytics && chainId && treeId && hatId) {
+      analytics.page('Auto Track', 'Hat Page', {
+        chainId,
+        treeId,
+        hatId,
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
+    }
+  }, [analytics, chainId, treeId, hatId, address]);
 
   if (!treeId || chainId === '0x' || !chainId) return null;
 

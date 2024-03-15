@@ -32,12 +32,12 @@ import AgreementContent from './AgreementContent';
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const Conditions = ({
-  isSigned,
-  setIsSigned,
+  isReviewed,
+  setIsReviewed,
   agreementIsLink,
 }: {
-  isSigned: boolean;
-  setIsSigned: (val: boolean) => void;
+  isReviewed: boolean;
+  setIsReviewed: (val: boolean) => void;
   agreementIsLink?: boolean;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -49,24 +49,23 @@ const Conditions = ({
     chainId,
     selectedHat,
   } = useEligibility();
-  const allConditionsMet = isSigned;
+  const allConditionsMet = isReviewed;
   const { isMobile } = useMediaStyles();
   const queryClient = useQueryClient();
 
-  const { agreement, signAgreement, isSignAgreementLoading } =
-    useAgreementEligibility({
-      moduleParameters,
-      moduleDetails,
-      controllerAddress,
-      chainId,
-      onSuccessfulSign: () => {
-        setIsSigned?.(true);
-        queryClient.invalidateQueries([
-          'hatDetails',
-          { chainId, id: selectedHat?.id },
-        ]);
-      },
-    });
+  const { agreement, isSignAgreementLoading } = useAgreementEligibility({
+    moduleParameters,
+    moduleDetails,
+    controllerAddress,
+    chainId,
+    onSuccessfulSign: () => {
+      setIsReviewed?.(true);
+      queryClient.invalidateQueries([
+        'hatDetails',
+        { chainId, id: selectedHat?.id },
+      ]);
+    },
+  });
 
   const handleScroll = (e) => {
     const bottom =
@@ -86,7 +85,7 @@ const Conditions = ({
         Conditions to wear this Hat
       </Heading>
 
-      <Accordion allowMultiple>
+      <Accordion allowMultiple defaultIndex={[0]}>
         <AccordionItem borderWidth={0} borderColor='transparent'>
           <AccordionButton
             w='full'
@@ -104,7 +103,7 @@ const Conditions = ({
               <Spinner size='sm' color='blue.500' />
             ) : (
               <Icon
-                as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
+                as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
                 color={allConditionsMet ? 'green.500' : 'red.500'}
               />
             )}
@@ -130,8 +129,8 @@ const Conditions = ({
                 <Spinner size='sm' color='blue.500' />
               ) : (
                 <Icon
-                  as={isSigned ? BsCheckSquareFill : BsXOctagonFill}
-                  color={isSigned ? 'green.500' : 'red.500'}
+                  as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
+                  color={isReviewed ? 'green.500' : 'red.500'}
                 />
               )}
             </HStack>
@@ -151,14 +150,14 @@ const Conditions = ({
             <Button
               colorScheme='blue'
               onClick={() => {
-                signAgreement();
+                setIsReviewed(true);
                 onClose();
               }}
               isDisabled={!isButtonEnabled}
               leftIcon={<Icon as={HatIcon} color='white' />}
               w='full'
             >
-              Sign and Claim this Hat
+              Reviewed
             </Button>
           </ModalFooter>
         </ModalContent>

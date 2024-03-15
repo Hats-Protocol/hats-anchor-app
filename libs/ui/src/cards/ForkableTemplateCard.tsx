@@ -35,8 +35,7 @@ const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
             loading='lazy'
             src={image}
             alt={`${name} featured image`}
-            w='100%'
-            maxW={200}
+            w='175px'
             fit='cover'
             borderTopRadius={6}
           />

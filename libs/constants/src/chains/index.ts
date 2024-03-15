@@ -37,7 +37,7 @@ export const networkImages: { [key in SupportedChains]: string } = {
   42161: '/chains/arbitrum.svg',
   42220: '/chains/celo.svg',
   // 84532: '/chains/base-sepolia.svg',
-  11155111: '/chains/ethereum.svg',
+  11155111: '/chains/sepolia.png',
 };
 
 const extendIcon = (chain: Chain) => ({
@@ -57,6 +57,6 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   42220: extendIcon(celo),
 
   // TESTNETS
-  11155111: sepolia,
+  11155111: extendIcon(sepolia),
   // 84532: baseSepolia,
 };

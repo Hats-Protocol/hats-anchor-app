@@ -17,6 +17,13 @@ export { chains, chainsList, chainsMap, explorerUrl, publicClient };
 
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ethereum: any;
+  }
+}
+
 const { connectors } = getDefaultWallets({
   appName: 'Hats',
   chains,
@@ -54,8 +61,7 @@ export function createHatsClient(
 
   const localWalletClient = createWalletClient({
     chain,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum),
+    transport: custom(window.ethereum),
   });
 
   const hatsClient = new HatsClient({
@@ -83,8 +89,7 @@ export async function createHatsModulesClient(
 
   const localWalletClient = createWalletClient({
     chain,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum),
+    transport: custom(window.ethereum),
   });
 
   const localPublicClient = viemPublicClient(chainId);
@@ -107,8 +112,7 @@ export async function createHatsSignerGateClient(
 
   const localWalletClient = createWalletClient({
     chain,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum),
+    transport: custom(window.ethereum),
   });
 
   const localPublicClient = viemPublicClient(chainId);
@@ -129,8 +133,7 @@ export async function createHatsAccountClient(
 
   const localWalletClient = createWalletClient({
     chain,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    transport: custom((window as any).ethereum),
+    transport: custom(window.ethereum),
   });
 
   const localPublicClient = viemPublicClient(chainId);

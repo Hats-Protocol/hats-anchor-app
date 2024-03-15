@@ -92,6 +92,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
       chainId,
     });
   const handleFunctionCall = (func) => {
+    console.log('func', func);
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
       setModals?.({ 'functionCall-module': true });
@@ -160,7 +161,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const onSubmit = (values) => {
     if (!moduleDetails?.implementationAddress) return;
     // eslint-disable-next-line no-console
-    console.log(values);
     callModuleFunction({
       moduleId: moduleDetails.implementationAddress,
       instance: controllerAddress,

@@ -1,10 +1,9 @@
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
-import { useContractData } from 'hooks';
 import { useHatForm, useOverlay, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
-import { DetailsItem } from 'types';
 import { isMutable } from 'hats-utils';
+import { useContractData } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
@@ -17,6 +16,7 @@ import {
 } from 'react-icons/bs';
 import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
+import { DetailsItem } from 'types';
 import {
   AddressInput,
   ChakraNextLink,

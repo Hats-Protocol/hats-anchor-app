@@ -1,6 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToast, useWaitForSubgraph } from 'hooks';
+import _ from 'lodash';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import {
   AppHat,
   FormData,
@@ -9,10 +12,8 @@ import {
   HatsCalls,
   SupportedChains,
 } from 'types';
-import { useToast } from 'hooks';
-import _ from 'lodash';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
+  fetchHatDetails,
   fetchToken,
   handleDetailsPin,
   processHatForCalls,
@@ -50,12 +51,9 @@ const useMulticallManyHats = ({
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
-
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
-
   const { address } = useAccount();
   const currentChain = useChainId();
-
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -116,27 +114,42 @@ const useMulticallManyHats = ({
       isAdminOfAnyHatWithChanges,
   });
 
+  const firstProposedChangeKey = useMemo(
+    () =>
+      _.first(
+        _.filter(
+          _.keys(proposedChanges[0]),
+          (k: string) => k !== 'id' && k !== 'imageUrl',
+        ),
+      ),
+    [proposedChanges],
+  );
+
+  const checkResult = (hatDetails: any) => {
+    if (!hatDetails || !firstProposedChangeKey) return false;
+
+    const currentPropertyValue = hatDetails[firstProposedChangeKey];
+    const expectedPropertyValue =
+      proposedChanges[0][
+        firstProposedChangeKey as keyof (typeof proposedChanges)[0]
+      ];
+
+    return _.isEqual(currentPropertyValue, expectedPropertyValue);
+  };
+
+  const waitForSubgraphUpdate = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(storedData[0]?.id, chainId),
+    checkResult,
+  });
+
   const onSuccess = async (d: TransactionReceipt | undefined) => {
+    await waitForSubgraphUpdate();
+
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
-
-    setTimeout(() => {
-      queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-      queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
-      queryClient.invalidateQueries({
-        queryKey: ['hatDetailsField'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['hatDetails'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['imageURIs'],
-      });
-    }, 1000);
-
-    if (proposedChanges) {
-      patchTree?.(proposedChanges);
-    }
+    queryClient.invalidateQueries({ queryKey: ['hatDetailsField'] });
+    queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['imageURIs'] });
 
     const newStoredData = _.filter(
       storedData,

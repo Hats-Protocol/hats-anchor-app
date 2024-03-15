@@ -18,12 +18,13 @@ import {
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { Authority, AuthorityType } from 'types';
 import { useMediaStyles } from 'hooks';
 import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';
+import { useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { Authority, AuthorityType } from 'types';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ChakraNextLink, Markdown } from '../atoms';
@@ -46,6 +47,7 @@ const AuthoritiesListCard = ({
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
   const { isMobile } = useMediaStyles();
+  const [expanded, setExpanded] = useState(false);
 
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
@@ -94,111 +96,122 @@ const AuthoritiesListCard = ({
       border='none'
       w={{ base: '100%', md: 'calc(100% + 32px)' }}
       ml={{ md: -4 }}
+      boxShadow={expanded ? 'md' : 'none'}
+      borderRadius={{ md: 8 }}
     >
-      {({ isExpanded }) => (
-        <>
-          <AccordionButton
-            borderY='1px solid'
-            borderColor='transparent'
-            _hover={{
-              borderColor: 'blue.300',
-              borderTopColor: 'transparent',
-              bg: 'white',
-              borderRadius: !isMobile ? 8 : 0,
-            }}
-            _focus={{
-              borderBottomColor: 'transparent',
-            }}
-            _expanded={{
-              bg: 'white',
-              pb: 0,
-              borderTopColor: 'gray.200',
-              boxShadow:
-                '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
-              _hover: {
+      {({ isExpanded }) => {
+        setExpanded(isExpanded);
+
+        return (
+          <>
+            <AccordionButton
+              borderY='1px solid'
+              borderColor='transparent'
+              _hover={{
+                borderColor: 'blue.300',
+                borderTopColor: 'transparent',
+                bg: 'white',
+                borderRadius: !isMobile ? 8 : 0,
+              }}
+              _focus={{
+                borderBottomColor: 'transparent',
+              }}
+              _expanded={{
+                bg: 'white',
+                pb: 0,
+                borderTopColor: 'gray.200',
+                boxShadow:
+                  isMobile &&
+                  '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
                 borderColor: 'transparent',
                 borderRadius: 0,
                 borderTopRadius: !isMobile ? 8 : 0,
-              },
-            }}
-          >
-            <AuthorityHeader authority={authority} isExpanded={isExpanded} />
-            {isMobile && <AccordionIcon />}
-          </AccordionButton>
-          <AccordionPanel
-            px={4}
-            pb={2}
-            // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
-            bg={isExpanded ? 'white' : undefined}
-            borderBottomRadius={{ md: 8 }}
-            boxShadow={
-              isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'
-            }
-          >
-            <Tooltip
-              label={tooltipInfo}
-              placement='right'
-              hasArrow
-              shouldWrapChildren
+              }}
             >
-              <HStack pb={2}>
-                {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
-                <Image src={authorityEnforcement.icon} alt='Hat' boxSize={6} />
-                <Text size='sm'>{authorityEnforcement.label}</Text>
-                <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
-              </HStack>
-            </Tooltip>
+              <AuthorityHeader authority={authority} isExpanded={isExpanded} />
+              {isMobile && <AccordionIcon />}
+            </AccordionButton>
+            <AccordionPanel
+              px={4}
+              pb={2}
+              // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
+              bg={isExpanded ? 'white' : undefined}
+              borderBottomRadius={{ md: 8 }}
+              boxShadow={
+                isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'
+              }
+            >
+              <Tooltip
+                label={tooltipInfo}
+                placement='right'
+                hasArrow
+                shouldWrapChildren
+              >
+                <HStack pb={2}>
+                  {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
+                  <Image
+                    src={authorityEnforcement.icon}
+                    alt='Hat'
+                    boxSize={6}
+                  />
+                  <Text size='sm'>{authorityEnforcement.label}</Text>
+                  <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
+                </HStack>
+              </Tooltip>
 
-            {displayModulesToolbar ? (
-              <ModuleAuthorityToolbar authority={authority} index={index} />
-            ) : (
-              <HStack>
-                {link && validateURL(link) && (
-                  <ChakraNextLink isExternal href={link} display='block'>
-                    {linkName || linkHostName ? (
+              {displayModulesToolbar ? (
+                <ModuleAuthorityToolbar authority={authority} index={index} />
+              ) : (
+                <HStack>
+                  {link && validateURL(link) && (
+                    <ChakraNextLink isExternal href={link} display='block'>
+                      {linkName || linkHostName ? (
+                        <Button
+                          rightIcon={
+                            <Icon as={BoxArrowUpRightOut} boxSize={3} />
+                          }
+                          colorScheme='blue'
+                          size='sm'
+                          fontWeight='normal'
+                          variant='solid'
+                        >
+                          {linkName || linkHostName}
+                        </Button>
+                      ) : (
+                        <IconButton
+                          icon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
+                          colorScheme='blue'
+                          aria-label='Authority Link'
+                          size='sm'
+                          variant='solid'
+                        />
+                      )}
+                    </ChakraNextLink>
+                  )}
+                  {gate && validateURL(gate) && (
+                    <ChakraNextLink isExternal href={gate} display='block'>
                       <Button
-                        rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-                        colorScheme='blue'
+                        rightIcon={<Icon as={FaExternalLinkAlt} />}
+                        color='blue.500'
+                        borderColor='blue.500'
+                        variant='outlineMatch'
                         size='sm'
-                        fontWeight='normal'
-                        variant='solid'
                       >
-                        {linkName || linkHostName}
+                        {gateHostName}
                       </Button>
-                    ) : (
-                      <IconButton
-                        icon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-                        colorScheme='blue'
-                        aria-label='Authority Link'
-                        size='sm'
-                        variant='solid'
-                      />
-                    )}
-                  </ChakraNextLink>
-                )}
-                {gate && validateURL(gate) && (
-                  <ChakraNextLink isExternal href={gate} display='block'>
-                    <Button
-                      rightIcon={<Icon as={FaExternalLinkAlt} />}
-                      color='blue.500'
-                      borderColor='blue.500'
-                      variant='outlineMatch'
-                      size='sm'
-                    >
-                      {gateHostName}
-                    </Button>
-                  </ChakraNextLink>
-                )}
-              </HStack>
-            )}
-            {description && (
-              <Box pt={link || gate ? 2 : 0}>
-                <Markdown smallFont>{description}</Markdown>
-              </Box>
-            )}
-          </AccordionPanel>
-        </>
-      )}
+                    </ChakraNextLink>
+                  )}
+                </HStack>
+              )}
+              {description && (
+                <Box pt={link || gate ? 2 : 0}>
+                  <Markdown smallFont>{description}</Markdown>
+                </Box>
+              )}
+            </AccordionPanel>
+          </>
+        );
+      }}
     </AccordionItem>
   );
 };

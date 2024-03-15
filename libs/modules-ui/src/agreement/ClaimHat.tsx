@@ -8,18 +8,18 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import {
   useAgreementEligibility,
   useHatClaimBy,
+  useMultiClaimsHatterCheck,
   useWearerDetails,
 } from 'hats-hooks';
 import _ from 'lodash';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useQueryClient } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 import Conditions from './Conditions';
@@ -34,14 +34,13 @@ const HATS_APP_LINK = `${CONFIG.url}/trees/10/1?hatId=${communityMemberHat}`;
 
 const ClaimHat = ({
   agreement,
-  isSigned,
-  setIsSigned,
+  isReviewed,
+  setIsReviewed,
 }: {
   agreement: string;
-  isSigned: boolean;
-  setIsSigned: (signed: boolean) => void;
+  isReviewed: boolean;
+  setIsReviewed: (signed: boolean) => void;
 }) => {
-  // const hatId = hatIdDecimalToHex(hatIdIpToDecimal(communityMemberHat)); // TODO handle IP from URL params
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
@@ -78,11 +77,17 @@ const ClaimHat = ({
     };
   };
 
-  const { hatterIsAdmin, isClaimable } = useHatClaimBy({
+  const { hatterIsAdmin } = useHatClaimBy({
     selectedHat,
     chainId,
     wearer: address,
     handlePendingTx,
+  });
+
+  const { instanceAddress, currentHatIsClaimable } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats: selectedHat ? [selectedHat] : [],
   });
 
   const { signAndClaim } = useAgreementEligibility({
@@ -90,29 +95,26 @@ const ClaimHat = ({
     moduleDetails,
     chainId,
     controllerAddress,
+    mchAddress: instanceAddress,
     onSuccessfulSign: () => {
-      setIsSigned?.(true);
+      queryClient.invalidateQueries(['wearerDetails']);
+      queryClient.invalidateQueries(['hatDetails']);
     },
   });
 
-  const handleClaim = async () => {
-    await signAndClaim?.();
-
-    queryClient.invalidateQueries(['wearerDetails']);
-    queryClient.invalidateQueries(['hatDetails']);
-  };
-
   return (
     <Stack w='40%' justifyContent='center' alignItems='left'>
-      <Conditions isSigned={isSigned} setIsSigned={setIsSigned} />
+      <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
       <Stack w='full' justifyContent='center' gap={3}>
         <Tooltip
           label={
-            !address
+            !isReviewed
+              ? 'You must sign the agreement to claim this hat'
+              : !address
               ? 'Connect your wallet to get started'
               : chainId !== currentNetworkId
               ? 'Switch to the correct network'
-              : !isClaimable
+              : !currentHatIsClaimable?.for
               ? 'You are not eligible to claim this hat'
               : !hatterIsAdmin
               ? 'You are not an admin'
@@ -124,14 +126,15 @@ const ClaimHat = ({
         >
           <Button
             isDisabled={
+              !isReviewed ||
               !hatterIsAdmin ||
               chainId !== currentNetworkId ||
-              !isClaimable ||
+              !currentHatIsClaimable?.for ||
               isWearing
             }
             colorScheme='blue'
             leftIcon={<BsPen />}
-            onClick={handleClaim}
+            onClick={signAndClaim}
           >
             Claim with Signature
           </Button>

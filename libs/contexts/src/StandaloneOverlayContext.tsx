@@ -1,4 +1,3 @@
-import { ClaimsModals, HatRecord, StandaloneOverlayContextProps } from 'types';
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -10,6 +9,12 @@ import {
   useMemo,
   useState,
 } from 'react';
+import {
+  ClaimsModals,
+  HatRecord,
+  StandaloneOverlayContextProps,
+  Transaction,
+} from 'types';
 import { Hex, TransactionReceipt } from 'viem';
 import { waitForTransaction } from 'wagmi/actions';
 
@@ -38,6 +43,7 @@ export const StandaloneOverlayContext =
     setCommandPalette: () => {},
     recentlyVisitedHats: undefined,
     updateRecentlyVisitedHats: () => {},
+    transactions: [],
   });
 
 export const StandaloneOverlayContextProvider = ({
@@ -46,6 +52,7 @@ export const StandaloneOverlayContextProvider = ({
   children: ReactNode;
 }) => {
   const [modals, setModals] = useState<Partial<ClaimsModals>>(defaults);
+  const [transactions] = useState<Transaction[]>([]);
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
   const router = useRouter();
@@ -156,6 +163,7 @@ export const StandaloneOverlayContextProvider = ({
       recentlyVisitedHats,
       updateRecentlyVisitedHats,
       handlePendingTx,
+      transactions,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],

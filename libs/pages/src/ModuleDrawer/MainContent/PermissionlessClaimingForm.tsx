@@ -7,7 +7,6 @@ import {
   useIsAdmin,
   useMultiClaimsHatterCheck,
 } from 'hats-hooks';
-import { AppHat } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useRef } from 'react';
@@ -20,6 +19,7 @@ import {
   BsPuzzle,
 } from 'react-icons/bs';
 import { idToIp } from 'shared';
+import { AppHat } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 

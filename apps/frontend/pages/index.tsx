@@ -7,6 +7,7 @@ import {
   Heading,
   HStack,
   SimpleGrid,
+  Skeleton,
   Stack,
   Text,
   useMediaQuery,
@@ -24,8 +25,10 @@ import {
   useFeaturedTreesData,
   useImageURIs,
   useMediaStyles,
+  useRudderStackAnalytics,
 } from 'hooks';
 import _ from 'lodash';
+import { useEffect } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat, DocsLink } from 'types';
@@ -45,30 +48,50 @@ const MOBILE_HATS_TO_SHOW = 4;
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
-  const { data: featuredTemplates } = useFeaturedTemplates();
-  const { data: featuredTrees } = useFeaturedTrees();
-  const { data: hatsAndWearers } = useFeaturedTreesData(featuredTrees);
+  const analytics = useRudderStackAnalytics();
+  const { data: featuredTemplates, isLoading: templatesLoading } =
+    useFeaturedTemplates();
+  const { data: featuredTrees, isLoading: featuredTreesLoading } =
+    useFeaturedTrees();
+  const { data: hatsAndWearers, isLoading: featuredTreesDataLoading } =
+    useFeaturedTreesData(featuredTrees);
 
   const { isMobile } = useMediaStyles();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
-  const { data: currentHats } = useWearerDetails({
-    wearerAddress,
-    chainId: 'all',
-  });
+  const { data: currentHats, isLoading: wearerDetailsLoading } =
+    useWearerDetails({
+      wearerAddress,
+      chainId: 'all',
+    });
 
   const sortedHats = _.sortBy(_.compact(currentHats), (hat: AppHat) => {
     return _.indexOf(orderedChains, hat?.chainId);
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
 
-  const { data: currentHatsWithImagesData } = useImageURIs({
-    hats: activeHats
-      ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
-      : [],
-  });
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs({
+      hats: activeHats
+        ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
+        : [],
+    });
+  const overrideEmptyCurrentHats = _.isEmpty(currentHatsWithImagesData)
+    ? Array(8).fill({ id: '123' })
+    : currentHatsWithImagesData;
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
+
+  useEffect(() => {
+    if (analytics) {
+      analytics.page('Auto Track', 'Landing Page', {
+        isConnected: !!wearerAddress,
+        anonymousId: wearerAddress || analytics.getAnonymousId(),
+      });
+    }
+  }, [analytics, wearerAddress]);
+
+  console.log(currentHatsWithImagesData, overrideEmptyCurrentHats);
 
   return (
     <Layout hideBackLink>
@@ -119,8 +142,7 @@ const Home = () => {
         )}
 
         {wearerAddress &&
-          currentHatsWithImagesData &&
-          (!_.isEmpty(sortedHats) ? (
+          (!_.isEmpty(sortedHats) || imagesLoading || wearerDetailsLoading ? (
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Flex justifyContent='space-between' alignItems='center'>
                 <Heading variant='medium'>Your hats</Heading>
@@ -146,13 +168,27 @@ const Home = () => {
                 }}
                 spacing={6}
               >
-                {_.map(currentHatsWithImagesData, (hat: AppHat, i: number) => (
-                  <DashboardHatCard hat={hat} key={i} />
+                {_.map(overrideEmptyCurrentHats, (hat: AppHat, i: number) => (
+                  <Skeleton
+                    isLoaded={
+                      !!hat.id && !imagesLoading && !wearerDetailsLoading
+                    }
+                    borderRadius='md'
+                    key={i}
+                  >
+                    <DashboardHatCard hat={hat} />
+                  </Skeleton>
                 ))}
               </SimpleGrid>
             </Card>
           ) : (
-            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+            <Card
+              py={8}
+              px={9}
+              background='whiteAlpha.600'
+              gap={4}
+              minH='300px'
+            >
               <Flex minH={20} justify='center' align='center'>
                 <Stack align='center'>
                   <Heading size='md'>Your hats will appear here</Heading>
@@ -164,37 +200,48 @@ const Home = () => {
             </Card>
           ))}
 
-        <Flex
-          alignItems='start'
-          gap={10}
-          direction={upTo1700 ? 'column' : 'row'}
-        >
-          <Stack spacing={10} flex={1}>
-            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Heading variant='medium'>Explore featured trees</Heading>
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                {_.map(featuredTrees, (tree: TemplateData, i: number) => (
-                  <FeaturedTreeCard
-                    key={i}
-                    treeData={tree}
-                    hatsAndWearers={_.find(
-                      hatsAndWearers,
-                      (h: { treeId: string }) => Number(h.treeId) === tree.id,
-                    )}
-                  />
-                ))}
-              </SimpleGrid>
-            </Card>
+        <Flex alignItems='start' gap={10} direction='column' w='100%'>
+          <Stack spacing={10} flex={1} w='100%'>
+            <Skeleton
+              isLoaded={!featuredTreesLoading && !featuredTreesDataLoading}
+            >
+              <Card py={8} px={9} background='whiteAlpha.600' gap={4} h='320px'>
+                <Heading variant='medium'>Explore featured trees</Heading>
+                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                  {_.map(featuredTrees, (tree: TemplateData, i: number) => (
+                    <FeaturedTreeCard
+                      key={i}
+                      treeData={tree}
+                      hatsAndWearers={_.find(
+                        hatsAndWearers,
+                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
+                      )}
+                    />
+                  ))}
+                </SimpleGrid>
+              </Card>
+            </Skeleton>
 
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Heading variant='medium'>
                 Jump right in with a forkable template
               </Heading>
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                {_.map(featuredTemplates, (tree: TemplateData, i: number) => (
-                  <ForkableTemplateCard key={i} treeData={tree} />
-                ))}
-              </SimpleGrid>
+              <Skeleton isLoaded={!templatesLoading} minH='170px' w='100%'>
+                {!_.isEmpty(featuredTemplates) ? (
+                  <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                    {_.map(
+                      featuredTemplates,
+                      (tree: TemplateData, i: number) => (
+                        <ForkableTemplateCard key={i} treeData={tree} />
+                      ),
+                    )}
+                  </SimpleGrid>
+                ) : (
+                  <Flex justify='center' align='center' w='full' h='full'>
+                    <Heading>No templates</Heading>
+                  </Flex>
+                )}
+              </Skeleton>
             </Card>
           </Stack>
 
@@ -203,7 +250,7 @@ const Home = () => {
             px={9}
             background='whiteAlpha.600'
             gap={4}
-            maxW={upTo1700 ? '100%' : '427px'}
+            maxW={{ base: '427px', md: '100%' }}
           >
             <Heading variant='medium'>Learn more about Hats</Heading>
             {upTo1700 ? (

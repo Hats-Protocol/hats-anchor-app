@@ -767,23 +767,22 @@ const OrgChartComponent: React.FC = () => {
         >
           Flip Tree
         </Button>
-      </HStack>
-
-      <HStack position='absolute' bottom={4} right={4}>
-        <IconButton
-          icon={<Icon as={FaMinus} />}
-          variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
-          aria-label='zoom out'
-          onClick={() => chart?.zoomOut()}
-        />
-        <IconButton
-          icon={<Icon as={FaPlus} />}
-          variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
-          aria-label='zoom in'
-          onClick={() => chart?.zoomIn()}
-        />
+        <HStack>
+          <IconButton
+            icon={<Icon as={FaMinus} />}
+            variant='ghost'
+            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+            aria-label='zoom out'
+            onClick={() => chart?.zoomOut()}
+          />
+          <IconButton
+            icon={<Icon as={FaPlus} />}
+            variant='ghost'
+            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+            aria-label='zoom in'
+            onClick={() => chart?.zoomIn()}
+          />
+        </HStack>
       </HStack>
     </Box>
   );

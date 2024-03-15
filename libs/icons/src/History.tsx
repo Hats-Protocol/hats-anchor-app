@@ -1,7 +1,7 @@
 import { createIcon } from '@chakra-ui/react';
 
 const History: any = createIcon({
-  displayName: 'CopyHash',
+  displayName: 'History',
   viewBox: '0 0 14 14',
   path: [
     <path

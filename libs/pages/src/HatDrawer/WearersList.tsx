@@ -83,7 +83,7 @@ const WearersList = () => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
-  const { setModals, modals } = localOverlay;
+  const { setModals, modals, handlePendingTx } = localOverlay;
   const {
     chainId,
     selectedHat,
@@ -165,6 +165,7 @@ const WearersList = () => {
     selectedHat,
     chainId,
     wearer: address,
+    handlePendingTx,
   });
 
   const { currentHatIsClaimable } = useMultiClaimsHatterCheck({

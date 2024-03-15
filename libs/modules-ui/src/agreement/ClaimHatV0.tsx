@@ -16,15 +16,23 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import { useAgreementClaimsHatterContractWrite, useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
-import { ChakraNextLink, HatCreateCard } from 'ui';
 import { hatLink } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+
+const HatCreateCard = dynamic(() =>
+  import('ui').then((mod) => mod.HatCreateCard),
+);
 
 async function waitForClaim(address: Hex, chainId: number) {
   // return new Promise((resolve) => {
@@ -141,12 +149,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
           passHref
           target='_blank'
         >
-          <HatCreateCard
-            name='test'
-            supply={10}
-            nextChild='1.1'
-            image={{ path: '/icon.jpeg' }}
-          />
+          <HatCreateCard id={hatId} />
         </NextLink>
       </Flex>
 
