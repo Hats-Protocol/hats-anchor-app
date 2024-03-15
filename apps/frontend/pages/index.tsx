@@ -70,11 +70,15 @@ const Home = () => {
   });
   const activeHats = _.filter(sortedHats, ['status', true]);
 
-  const { data: currentHatsWithImagesData } = useImageURIs({
-    hats: activeHats
-      ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
-      : [],
-  });
+  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
+    useImageURIs({
+      hats: activeHats
+        ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
+        : [],
+    });
+  const overrideEmptyCurrentHats = _.isEmpty(currentHatsWithImagesData)
+    ? Array(8).fill({ id: '123' })
+    : currentHatsWithImagesData;
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
 
@@ -82,9 +86,10 @@ const Home = () => {
     if (analytics) {
       analytics.page('Auto Track', 'Landing Page', {
         isConnected: !!wearerAddress,
+        anonymousId: wearerAddress || analytics.getAnonymousId(),
       });
     }
-  }, [analytics]);
+  }, [analytics, wearerAddress]);
 
   return (
     <Layout hideBackLink>
@@ -134,62 +139,64 @@ const Home = () => {
           </Stack>
         )}
 
-        {wearerAddress && (
-          <Skeleton
-            isLoaded={wearerAddress && !wearerDetailsLoading}
-            minH='300px'
-          >
-            {currentHatsWithImagesData &&
-              (!_.isEmpty(sortedHats) ? (
-                <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-                  <Flex justifyContent='space-between' alignItems='center'>
-                    <Heading variant='medium'>Your hats</Heading>
-                    {_.size(sortedHats) >
-                      (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
-                      <ChakraNextLink
-                        as={ChakraNextLink}
-                        href={`/wearers/${wearerAddress}`}
-                      >
-                        <HStack alignItems='center'>
-                          <Text>
-                            View {!isMobile ? 'all of ' : ''}your hats
-                          </Text>
-                          <FaArrowRight />
-                        </HStack>
-                      </ChakraNextLink>
-                    )}
-                  </Flex>
-                  <SimpleGrid
-                    columns={{
-                      base: 1,
-                      sm: 2,
-                      md: 3,
-                      lg: 4,
-                    }}
-                    spacing={6}
+        {wearerAddress &&
+          (!_.isEmpty(sortedHats) || imagesLoading || wearerDetailsLoading ? (
+            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+              <Flex justifyContent='space-between' alignItems='center'>
+                <Heading variant='medium'>Your hats</Heading>
+                {_.size(sortedHats) >
+                  (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
+                  <ChakraNextLink
+                    as={ChakraNextLink}
+                    href={`/wearers/${wearerAddress}`}
                   >
-                    {_.map(
-                      currentHatsWithImagesData,
-                      (hat: AppHat, i: number) => (
-                        <DashboardHatCard hat={hat} key={i} />
-                      ),
-                    )}
-                  </SimpleGrid>
-                </Card>
-              ) : (
-                <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-                  <Flex minH={20} justify='center' align='center'>
-                    <Stack align='center'>
-                      <Heading size='md'>Your hats will appear here</Heading>
-                      <Text>
-                        Create a tree or check out the starter templates below.
-                      </Text>
-                    </Stack>
-                  </Flex>
-                </Card>
-              ))}
-          </Skeleton>
-        )}
+                    <HStack alignItems='center'>
+                      <Text>View {!isMobile ? 'all of ' : ''}your hats</Text>
+                      <FaArrowRight />
+                    </HStack>
+                  </ChakraNextLink>
+                )}
+              </Flex>
+              <SimpleGrid
+                columns={{
+                  base: 1,
+                  sm: 2,
+                  md: 3,
+                  lg: 4,
+                }}
+                spacing={6}
+              >
+                {_.map(overrideEmptyCurrentHats, (hat: AppHat, i: number) => (
+                  <Skeleton
+                    isLoaded={
+                      !!hat.id && !imagesLoading && !wearerDetailsLoading
+                    }
+                    borderRadius='md'
+                    key={i}
+                  >
+                    <DashboardHatCard hat={hat} />
+                  </Skeleton>
+                ))}
+              </SimpleGrid>
+            </Card>
+          ) : (
+            <Card
+              py={8}
+              px={9}
+              background='whiteAlpha.600'
+              gap={4}
+              minH='300px'
+            >
+              <Flex minH={20} justify='center' align='center'>
+                <Stack align='center'>
+                  <Heading size='md'>Your hats will appear here</Heading>
+                  <Text>
+                    Create a tree or check out the starter templates below.
+                  </Text>
+                </Stack>
+              </Flex>
+            </Card>
+          ))}
 
         <Flex alignItems='start' gap={10} direction='column' w='100%'>
           <Stack spacing={10} flex={1} w='100%'>

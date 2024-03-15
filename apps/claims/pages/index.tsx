@@ -38,9 +38,12 @@ const Home = () => {
 
   useEffect(() => {
     if (analytics) {
-      analytics.page('Auto Track', 'Landing Page');
+      analytics.page('Auto Track', 'Landing Page', {
+        isConnected: !!wearerAddress,
+        anonymousId: wearerAddress || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics]);
+  }, [analytics, wearerAddress]);
 
   if (!isClient || !wearerAddress) {
     return (

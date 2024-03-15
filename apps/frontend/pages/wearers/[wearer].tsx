@@ -45,7 +45,7 @@ import {
 } from 'ui';
 import { chainsMap, formatAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
-import { useEnsAvatar, useEnsName } from 'wagmi';
+import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 
 type HeadlineStat = {
   label: string;
@@ -66,6 +66,7 @@ const WearerDetail = ({
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const [name, setName] = useState<string | undefined>(initialEnsName);
+  const { address } = useAccount();
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
@@ -105,9 +106,13 @@ const WearerDetail = ({
 
   useEffect(() => {
     if (analytics && wearerAddress) {
-      analytics.page('Auto Track', 'Wearer Page', { wearerAddress });
+      analytics.page('Auto Track', 'Wearer Page', {
+        wearerAddress,
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics, wearerAddress]);
+  }, [analytics, wearerAddress, address]);
 
   const headlineStats = [
     {

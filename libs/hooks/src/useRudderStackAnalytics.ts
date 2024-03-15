@@ -1,5 +1,4 @@
 import type { RudderAnalytics as RudderAnalyticsType } from '@rudderstack/analytics-js';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
 import { useEffect, useState } from 'react';
 
 const RUDDER_WRITE_KEY = process.env.NEXT_PUBLIC_RUDDER_WRITE_KEY || '';
@@ -10,15 +9,22 @@ const useRudderStackAnalytics = (): RudderAnalyticsType | undefined => {
 
   useEffect(() => {
     if (!analytics) {
-      const analyticsInstance = new RudderAnalytics();
-      analyticsInstance.load(RUDDER_WRITE_KEY, DATA_PLANE_URL, {});
+      const initialize = async () => {
+        const { RudderAnalytics } = await import('@rudderstack/analytics-js');
+        const analyticsInstance = new RudderAnalytics();
 
-      analyticsInstance.ready(() => {
-        // eslint-disable-next-line no-console
-        console.log('We are all set!!!');
-      });
+        analyticsInstance.load(RUDDER_WRITE_KEY, DATA_PLANE_URL, {});
 
-      setAnalytics(analyticsInstance);
+        analyticsInstance.ready(() => {
+          // eslint-disable-next-line no-console
+          console.log('We are all set!!!');
+        });
+
+        setAnalytics(analyticsInstance);
+      };
+
+      // eslint-disable-next-line no-console
+      initialize().catch((e) => console.log(e));
     }
   }, [analytics]);
 

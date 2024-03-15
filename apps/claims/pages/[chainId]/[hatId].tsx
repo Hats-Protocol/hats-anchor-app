@@ -11,10 +11,12 @@ import { useEffect } from 'react';
 import { ipToHatId } from 'shared';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
   const { updateRecentlyVisitedHats } = useOverlay();
   const analytics = useRudderStackAnalytics();
+  const { address } = useAccount();
 
   useEffect(() => {
     if (!hatId || !chainId) return;
@@ -28,9 +30,15 @@ const TreeDetails = ({ treeId, hatId, chainId }: TreeDetailsProps) => {
 
   useEffect(() => {
     if (analytics && chainId && hatId) {
-      analytics.page('Auto Track', 'Hat Page', { chainId, treeId, hatId });
+      analytics.page('Auto Track', 'Hat Page', {
+        chainId,
+        treeId,
+        hatId,
+        isConnected: !!address,
+        anonymousId: address || analytics.getAnonymousId(),
+      });
     }
-  }, [analytics, chainId, treeId, hatId]);
+  }, [analytics, chainId, treeId, hatId, address]);
 
   return (
     <EligibilityContextProvider treeId={treeId} hatId={hatId} chainId={chainId}>

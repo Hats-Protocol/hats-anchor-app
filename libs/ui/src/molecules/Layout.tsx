@@ -1,9 +1,9 @@
 import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
-import { AppHat } from 'types';
 import { useAttemptAutoConnect, useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
+import { AppHat } from 'types';
 
 import CommandPalette from './CommandPalette';
 import { StandaloneNavbar } from './standalone';
@@ -11,10 +11,25 @@ import TransactionHistory from './TransactionHistory';
 
 const Navbar = dynamic(() => import('./Navbar'));
 
+const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+
+declare global {
+  interface Window {
+    Intercom: (action: string, options: object) => void;
+  }
+}
+
 const Layout = ({ editMode, hatData, hideBackLink, children }: LayoutProps) => {
   const localOverlay = useOverlay();
   const { transactions } = localOverlay;
   const { isMobile } = useMediaStyles();
+
+  if (typeof window !== 'undefined' && INTERCOM_APP_ID) {
+    window.Intercom('boot', {
+      app_id: INTERCOM_APP_ID,
+      // user_id: hatData?.user?.id,
+    });
+  }
 
   useAttemptAutoConnect();
 
