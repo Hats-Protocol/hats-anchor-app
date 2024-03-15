@@ -120,18 +120,20 @@ const Home = () => {
               )}
             </Stack>
 
-            <Box>
-              <ChakraNextLink href='/trees/new'>
-                <Button colorScheme='blue' py={6} px={8}>
-                  <HStack gap={3}>
-                    <BsDiagram3 />
-                    <Text size='lg' variant='medium' noOfLines={1}>
-                      Create a new {CONFIG.tree}
-                    </Text>
-                  </HStack>
-                </Button>
-              </ChakraNextLink>
-            </Box>
+            {!isMobile && (
+              <Box>
+                <ChakraNextLink href='/trees/new'>
+                  <Button colorScheme='blue' py={6} px={8}>
+                    <HStack gap={3}>
+                      <BsDiagram3 />
+                      <Text size='lg' variant='medium' noOfLines={1}>
+                        Create a new {CONFIG.tree}
+                      </Text>
+                    </HStack>
+                  </Button>
+                </ChakraNextLink>
+              </Box>
+            )}
           </Flex>
         ) : (
           <Stack>
@@ -201,23 +203,33 @@ const Home = () => {
 
         <Flex alignItems='start' gap={10} direction='column' w='100%'>
           <Stack spacing={10} flex={1} w='100%'>
-            <Skeleton
-              isLoaded={!featuredTreesLoading && !featuredTreesDataLoading}
-            >
-              <Card py={8} px={9} background='whiteAlpha.600' gap={4} h='320px'>
+            <Skeleton isLoaded={!featuredTreesLoading}>
+              <Card
+                py={8}
+                px={9}
+                background='whiteAlpha.600'
+                gap={4}
+                minH='320px'
+              >
                 <Heading variant='medium'>Explore featured trees</Heading>
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                <Flex gap={6} wrap='wrap' justify='space-between'>
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
-                    <FeaturedTreeCard
+                    <Skeleton
+                      isLoaded={!!tree && !featuredTreesDataLoading}
                       key={i}
-                      treeData={tree}
-                      hatsAndWearers={_.find(
-                        hatsAndWearers,
-                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
-                      )}
-                    />
+                      maxW={{ md: '30%' }}
+                    >
+                      <FeaturedTreeCard
+                        treeData={tree}
+                        hatsAndWearers={_.find(
+                          hatsAndWearers,
+                          (h: { treeId: string }) =>
+                            Number(h.treeId) === tree.id,
+                        )}
+                      />
+                    </Skeleton>
                   ))}
-                </SimpleGrid>
+                </Flex>
               </Card>
             </Skeleton>
 
@@ -249,7 +261,8 @@ const Home = () => {
             px={9}
             background='whiteAlpha.600'
             gap={4}
-            maxW={{ base: '427px', md: '100%' }}
+            maxW={{ base: '427px', md: 'auto' }}
+            w='100%'
           >
             <Heading variant='medium'>Learn more about Hats</Heading>
             {upTo1700 ? (

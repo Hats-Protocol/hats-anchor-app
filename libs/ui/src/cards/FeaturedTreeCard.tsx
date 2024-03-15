@@ -61,21 +61,32 @@ const FeaturedTreeCard = ({
           boxShadow='0px -1px 4px rgba(0, 0, 0, 0.14)'
           w='full'
         >
-          <Skeleton height='100%' borderTopRadius={6} isLoaded={imageLoaded}>
+          <Skeleton
+            display='inline-block'
+            boxSize={14}
+            borderTopRadius={6}
+            isLoaded={imageLoaded}
+            mt={-8}
+            position='absolute'
+          >
             <ChakraImage
               loading='lazy'
               src={avatar}
               alt={`${name} featured avatar`}
-              boxSize={14}
-              display='inline-block'
-              mr={3}
-              mt={-8}
+              boxSize='100%'
               borderRadius={4}
               border='1px'
               borderColor='gray.400'
+              background='white'
             />
           </Skeleton>
-          <HStack justifyContent='space-between' w='full' h='full' mb={1}>
+          <HStack
+            justifyContent='space-between'
+            w='full'
+            h='full'
+            mb={1}
+            ml={16}
+          >
             <Skeleton isLoaded={!!name}>
               <Text variant='medium' size='lg'>
                 {name}

@@ -48,6 +48,7 @@ export const fetchHatDetails = async (
       },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching hat details: ', error);
   }
 

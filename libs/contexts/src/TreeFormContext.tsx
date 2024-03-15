@@ -1,6 +1,6 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
-import { Hat, HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
+import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import {
   useManyHatsDetails,
   useManyHatsDetailsField,
@@ -37,6 +37,7 @@ import {
 } from 'types';
 import {
   generateLocalStorageKey,
+  getInactiveIds,
   ipfsUrl,
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
@@ -326,18 +327,7 @@ export const TreeFormContextProvider = ({
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
   const inactiveHats = useMemo(() => {
-    const localInactiveHats = _.filter(orgChartTree, ['status', false]);
-    const descendantsOfInactiveHats = _.filter(orgChartTree, (hat: Hat) =>
-      _.some(_.map(localInactiveHats, 'prettyId'), (inactiveHat: string) =>
-        // using prettyId should cover all descendants without needing recursive sort
-        _.startsWith(hat.prettyId, inactiveHat),
-      ),
-    );
-
-    const inactiveIds = _.uniq(
-      _.map(_.concat(localInactiveHats, descendantsOfInactiveHats), 'id'),
-    );
-    return inactiveIds;
+    return getInactiveIds(orgChartTree);
   }, [orgChartTree]);
 
   const transformTree = useCallback(
