@@ -24,16 +24,9 @@ const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
-  const {
-    chainId,
-    editMode,
-    onchainHats,
-
-    storedData,
-    treeToDisplay,
-    hatDisclosure,
-  } = useTreeForm();
-  const { selectedHat, setSelectedHatId } = useSelectedHat();
+  const { chainId, editMode, onchainHats, storedData, treeToDisplay } =
+    useTreeForm();
+  const { selectedHat, setSelectedHatId, hatDisclosure } = useSelectedHat();
 
   const {
     isLoading,

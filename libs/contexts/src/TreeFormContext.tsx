@@ -543,7 +543,11 @@ export const TreeFormContextProvider = ({
           ...imageUrl,
         };
       });
-      setStoredData?.(translateImageUrl);
+      // ignore wearers on import
+      const removeWearers = _.map(translateImageUrl, (hat) => {
+        return _.omit(hat, ['wearers']);
+      });
+      setStoredData?.(removeWearers);
       const localDraftHats = _.reject(
         translateImageUrl,
         (hat: AppHat) =>

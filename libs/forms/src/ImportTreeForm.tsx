@@ -8,7 +8,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useOverlay, useTreeForm } from 'contexts';
-import { HatExport } from 'types';
 import {
   checkMissingParents,
   checkMissingSiblings,
@@ -19,6 +18,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
 import { BsBoxArrowInUpRight } from 'react-icons/bs';
+import { HatExport } from 'types';
 import { DropZone } from 'ui';
 
 interface validateTreeImportProps {

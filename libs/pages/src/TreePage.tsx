@@ -46,7 +46,7 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   const [initialLoad, setInitialLoad] = useState(true);
   const router = useRouter();
   const localOverlay = useOverlay();
-  const { selectedHat, selectedHatDetails } = useSelectedHat();
+  const { selectedHat, selectedHatDetails, hatDisclosure } = useSelectedHat();
   const {
     chainId,
     treeId,
@@ -54,7 +54,6 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
     editMode,
     topHat,
     topHatDetails,
-    hatDisclosure,
     treeDisclosure,
   } = useTreeForm();
 

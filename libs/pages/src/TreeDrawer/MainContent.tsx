@@ -41,13 +41,12 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     treeToDisplayWithInactiveHats,
     storedData,
     treeDisclosure,
-    hatDisclosure,
     treeEvents,
     topHatDetails,
     chainId,
     linkedHatIds,
   } = useTreeForm();
-  const { setSelectedHatId } = useSelectedHat();
+  const { setSelectedHatId, hatDisclosure } = useSelectedHat();
 
   const isClient = useIsClient();
 

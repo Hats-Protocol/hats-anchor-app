@@ -49,9 +49,8 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
-  const { chainId, onchainHats, storedData, hatDisclosure, editMode } =
-    useTreeForm();
-  const { selectedHat, selectedOnchainHat } = useSelectedHat();
+  const { chainId, onchainHats, storedData, editMode } = useTreeForm();
+  const { selectedHat, selectedOnchainHat, hatDisclosure } = useSelectedHat();
 
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();

@@ -58,20 +58,15 @@ export const HatFormContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const {
-    chainId,
-    storedData,
-    setStoredData,
-    treeDisclosure,
-    hatDisclosure,
-    removeHat,
-  } = useTreeForm();
+  const { chainId, storedData, setStoredData, treeDisclosure, removeHat } =
+    useTreeForm();
 
   const {
     selectedHat,
     selectedOnchainHat,
     selectedOnchainHatDetails,
     isDraft,
+    hatDisclosure,
   } = useSelectedHat();
 
   const toast = useToast();
@@ -294,13 +289,14 @@ export const HatFormContextProvider = ({
       );
       const dirtyFormValues = _.pickBy(
         debouncedFormValues,
-        (__: any, key: FormFieldKeys) => _.includes(dirtyValues, key),
+        (__: unknown, key: FormFieldKeys) => _.includes(dirtyValues, key),
       );
 
       // remove storedData values when resetting to default values
       const resetValues = _.filter(
         _.keys(matchingHat),
-        (key: any) => !_.includes(dirtyValues, key) && !_.includes(['id'], key),
+        (key: string) =>
+          !_.includes(dirtyValues, key) && !_.includes(['id'], key),
       );
 
       const matchingHatWithValues = {
