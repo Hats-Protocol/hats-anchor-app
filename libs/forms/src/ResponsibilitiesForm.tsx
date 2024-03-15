@@ -16,9 +16,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useHatForm, useTreeForm } from 'contexts';
+import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { id } from 'date-fns/locale';
-import { Authority } from 'types';
 import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
@@ -26,6 +25,7 @@ import { useDropzone } from 'react-dropzone';
 import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
+import { Authority } from 'types';
 import { DropZone, Input, ResponsibilityHeader, Textarea } from 'ui';
 import { formatImageUrl } from 'utils';
 
@@ -46,7 +46,8 @@ const ResponsibilitiesForm = ({
   subtitle,
   label,
 }: ItemDetailsFormProps) => {
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const { localForm: hatForm } = useHatForm();
   const {
     setValue: hatSetValue,

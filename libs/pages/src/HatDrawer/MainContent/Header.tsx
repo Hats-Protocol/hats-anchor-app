@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
@@ -26,8 +26,9 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails, editMode, treeToDisplay } =
-    useTreeForm();
+  const { chainId, editMode, treeToDisplay } = useTreeForm();
+  const { selectedHat, selectedHatDetails } = useSelectedHat();
+
   const { onCopy } = useClipboard(selectedHat?.id || '');
   const { isMobile } = useMediaStyles();
 

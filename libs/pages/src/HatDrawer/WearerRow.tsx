@@ -12,7 +12,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatBurn,
   useHatContractWrite,
@@ -51,7 +51,8 @@ const WearerRow = ({
   const currentNetworkId = useChainId();
   const { setModals, handlePendingTx } = useOverlay();
   const { address } = useAccount();
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
   const { onCopy } = useClipboard(wearer.id);
 

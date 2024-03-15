@@ -1,7 +1,6 @@
 import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
-import { useHatForm, useTreeForm } from 'contexts';
-import { ImageFile } from 'types';
+import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable, isTopHat } from 'hats-utils';
 import { usePinImageIpfs } from 'hooks';
 import { HatIcon } from 'icons';
@@ -12,6 +11,7 @@ import { useFieldArray } from 'react-hook-form';
 import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
+import { ImageFile } from 'types';
 import {
   DropZone,
   FormRowWrapper,
@@ -31,7 +31,8 @@ const MUTABILITY_OPTIONS = [
 ];
 
 const HatBasicsForm = () => {
-  const { chainId, selectedHat, treeToDisplay } = useTreeForm();
+  const { chainId, treeToDisplay } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const { localForm, formValues, setFormLoading } = useHatForm();
   const [image, setImage] = useState<ImageFile>();
   const { control, setValue } = _.pick(localForm, ['control', 'setValue']);

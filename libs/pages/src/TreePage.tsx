@@ -10,7 +10,13 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { Modal, Suspender, useOverlay, useTreeForm } from 'contexts';
+import {
+  Modal,
+  Suspender,
+  useOverlay,
+  useSelectedHat,
+  useTreeForm,
+} from 'contexts';
 import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -40,11 +46,10 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   const [initialLoad, setInitialLoad] = useState(true);
   const router = useRouter();
   const localOverlay = useOverlay();
+  const { selectedHat, selectedHatDetails } = useSelectedHat();
   const {
     chainId,
     treeId,
-    selectedHat,
-    selectedHatDetails,
     treeToDisplay,
     editMode,
     topHat,

@@ -1,6 +1,6 @@
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
-import { useHatForm, useOverlay, useTreeForm } from 'contexts';
+import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import { isMutable } from 'hats-utils';
 import { useContractData } from 'hooks';
@@ -64,7 +64,8 @@ const HatManagementForm = ({
   onOpenModuleDrawer,
   setIsStandAloneHatterDeploy,
 }: HatManagementFormProps) => {
-  const { selectedHat, chainId, editMode } = useTreeForm();
+  const { chainId, editMode } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const { localForm, eligibilityResolvedAddress, toggleResolvedAddress } =
     useHatForm();
   const { watch, control, setValue, getValues } = _.pick(localForm, [

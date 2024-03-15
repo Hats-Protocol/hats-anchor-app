@@ -1,6 +1,6 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatDetails,
   useHatDetailsField,
@@ -39,14 +39,10 @@ const PermissionlessClaimingForm = ({
   localForm: UseFormReturn;
   parentHats?: AppHat[];
 }) => {
-  const {
-    onchainHats,
-    treeToDisplay,
-    selectedHat,
-    chainId,
-    storedData,
-    editMode,
-  } = useTreeForm();
+  const { onchainHats, treeToDisplay, chainId, storedData, editMode } =
+    useTreeForm();
+  const { selectedHat } = useSelectedHat();
+
   const adminHat = localForm.watch('adminHat');
   const isPermissionlesslyClaimable = localForm.watch(
     'isPermissionlesslyClaimable',

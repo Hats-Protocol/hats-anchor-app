@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { MODULE_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { WriteFunction } from '@hatsprotocol/hsg-sdk';
-import { Modal, useOverlay, useTreeForm } from 'contexts';
+import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useCallModuleFunction,
   useModuleDetails,
@@ -52,8 +52,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
   const { setModals, handlePendingTx } = localOverlay;
-  const { chainId, selectedHat, onchainHats, storedData, editMode } =
-    useTreeForm();
+  const { chainId, onchainHats, storedData, editMode } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const currentChainId = useChainId();
   const { address: currentUser } = useAccount();
   const { isMobile } = useMediaStyles();

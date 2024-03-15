@@ -1,5 +1,9 @@
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { TreeFormContextProvider, useOverlay } from 'contexts';
+import {
+  SelectedHatContextProvider,
+  TreeFormContextProvider,
+  useOverlay,
+} from 'contexts';
 import { useIsClient, useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { useParams } from 'next/navigation';
@@ -73,9 +77,14 @@ const HatDetails = () => {
     <TreeFormContextProvider
       treeId={treeId}
       chainId={chainId as SupportedChains}
-      hatId={hatId}
     >
-      {isClient && <HatDrawer />}
+      <SelectedHatContextProvider
+        treeId={treeId}
+        chainId={chainId as SupportedChains}
+        hatId={hatId}
+      >
+        {isClient && <HatDrawer />}
+      </SelectedHatContextProvider>
     </TreeFormContextProvider>
   );
 };

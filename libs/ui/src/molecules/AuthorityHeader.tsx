@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import { BoxArrowUpRightOut, HatIcon } from 'icons';
 import _ from 'lodash';
@@ -63,7 +63,8 @@ const AuthorityHeader = ({
     imageUrl: currentImageUrl,
     link: currentLink,
   } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
-  const { chainId, selectedHat, editMode } = useTreeForm();
+  const { chainId, editMode } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
 
   const localLink = editingItem ? currentLink : link;

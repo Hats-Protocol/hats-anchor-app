@@ -1,5 +1,5 @@
 import { Box, Image } from '@chakra-ui/react';
-import { HatFormContextProvider, useTreeForm } from 'contexts';
+import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -14,7 +14,8 @@ const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
-  const { selectedHat, topHat, editMode, treeToDisplay } = useTreeForm();
+  const { topHat, editMode, treeToDisplay } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
     _.find(treeToDisplay, { id: selectedHatId }),

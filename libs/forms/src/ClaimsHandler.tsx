@@ -10,17 +10,17 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useMultiClaimsHatterCheck,
   useMultiClaimsHatterContractWrite,
 } from 'hats-hooks';
-import { AppHat } from 'types';
 import { usePendHatterMint } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
+import { AppHat } from 'types';
 import { FormRowWrapper, Select } from 'ui';
 import { formatAddress } from 'utils';
 
@@ -48,13 +48,13 @@ const ClaimsHandler = ({
 }) => {
   const {
     treeToDisplay,
-    selectedHat,
     chainId,
     storedData,
     onchainHats,
     editMode,
     setStoredData,
   } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const {
     instanceAddress,
     hatterIsAdmin,
