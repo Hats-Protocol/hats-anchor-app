@@ -91,8 +91,6 @@ const Home = () => {
     }
   }, [analytics, wearerAddress]);
 
-  console.log(currentHatsWithImagesData, overrideEmptyCurrentHats);
-
   return (
     <Layout hideBackLink>
       <Box

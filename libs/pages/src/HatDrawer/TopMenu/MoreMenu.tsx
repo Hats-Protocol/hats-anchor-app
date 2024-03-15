@@ -296,7 +296,7 @@ const MoreMenu = () => {
           </ModalBody>
           <ModalFooter>
             <Button
-              colorScheme='blue'
+              colorScheme='red'
               mr={3}
               onClick={() => {
                 updateImmutability?.();

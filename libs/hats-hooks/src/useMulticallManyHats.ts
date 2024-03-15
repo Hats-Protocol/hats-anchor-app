@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
+import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
@@ -114,7 +115,7 @@ const useMulticallManyHats = ({
       isAdminOfAnyHatWithChanges,
   });
 
-  const firstProposedChangeKey = useMemo(
+  const firstProposedChangeKey: keyof Hat = useMemo(
     () =>
       _.first(
         _.filter(
@@ -125,20 +126,21 @@ const useMulticallManyHats = ({
     [proposedChanges],
   );
 
-  const checkResult = (hatDetails: any) => {
+  const checkResult = (hatDetails: Hat) => {
     if (!hatDetails || !firstProposedChangeKey) return false;
 
     const currentPropertyValue = hatDetails[firstProposedChangeKey];
     const expectedPropertyValue =
-      proposedChanges[0][
-        firstProposedChangeKey as keyof (typeof proposedChanges)[0]
+      _.first(proposedChanges)[
+        _.first(firstProposedChangeKey as keyof typeof proposedChanges)
       ];
 
     return _.isEqual(currentPropertyValue, expectedPropertyValue);
   };
 
   const waitForSubgraphUpdate = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(storedData[0]?.id, chainId),
+    fetchHelper: () =>
+      fetchHatDetails(_.get(_.first(storedData), 'id'), chainId),
     checkResult,
   });
 
