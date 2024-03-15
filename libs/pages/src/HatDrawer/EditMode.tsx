@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG, FORM_FIELDS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useHatForm, useOverlay, useTreeForm } from 'contexts';
+import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   AuthoritiesForm,
   HatBasicsForm,
@@ -35,7 +35,8 @@ const ChakraNextLink = dynamic(() =>
 
 const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();
-  const { selectedHat, isDraft, treeToDisplay } = useTreeForm();
+  const { treeToDisplay } = useTreeForm();
+  const { selectedHat, isDraft } = useSelectedHat();
   const { getDirtyFieldsForAccordion, localForm } = useHatForm();
   const toast = useToast();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =

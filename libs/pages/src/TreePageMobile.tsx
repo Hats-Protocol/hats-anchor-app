@@ -11,7 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { isTopHat, prepareMobileTreeHats } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -32,14 +32,8 @@ const VerticalDividers = dynamic(() =>
 );
 
 const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
-  const {
-    chainId,
-    treeId,
-    selectedHat,
-    selectedHatDetails,
-    treeToDisplay,
-    topHatDetails,
-  } = useTreeForm();
+  const { chainId, treeId, treeToDisplay, topHatDetails } = useTreeForm();
+  const { selectedHat, selectedHatDetails } = useSelectedHat();
 
   const sortedTree = prepareMobileTreeHats(treeToDisplay);
   if (!chainId) return null;

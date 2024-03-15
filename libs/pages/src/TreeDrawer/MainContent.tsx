@@ -10,11 +10,10 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
 import { useAdminOfHats } from 'hats-hooks';
-import { AppHat } from 'types';
 import {
   getProposedChangesCount,
   handleExportBranch,
@@ -25,6 +24,7 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
+import { AppHat } from 'types';
 import { Hex } from 'viem';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -40,7 +40,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     treeToDisplay,
     treeToDisplayWithInactiveHats,
     storedData,
-    setSelectedHatId,
     treeDisclosure,
     hatDisclosure,
     treeEvents,
@@ -48,6 +47,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     chainId,
     linkedHatIds,
   } = useTreeForm();
+  const { setSelectedHatId } = useSelectedHat();
+
   const isClient = useIsClient();
 
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);

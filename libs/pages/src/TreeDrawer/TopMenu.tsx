@@ -14,7 +14,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import _ from 'lodash';
@@ -41,13 +41,14 @@ const TopMenu = () => {
     storedData,
     treeDisclosure,
     resetTree,
-    setSelectedOption,
-    selectedHat,
     treeToDisplay,
     onchainHats,
     setStoredData,
     patchTree,
+    setSelectedOption,
   } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
+
   const { handlePendingTx } = useOverlay();
   const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
 

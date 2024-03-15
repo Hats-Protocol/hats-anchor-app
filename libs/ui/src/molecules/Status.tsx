@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatStatus,
   useModuleDetails,
@@ -48,7 +48,6 @@ const StatusCard = ({
   const { address } = useAccount();
   const {
     chainId,
-    selectedHat,
     wearersAndControllers,
     storedData,
     setStoredData,
@@ -56,6 +55,8 @@ const StatusCard = ({
     editMode,
     treeToDisplay,
   } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
+
   const { eligibility, toggle } = _.pick(selectedHat, [
     'eligibility',
     'toggle',

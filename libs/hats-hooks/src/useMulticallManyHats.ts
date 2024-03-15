@@ -115,25 +115,26 @@ const useMulticallManyHats = ({
       isAdminOfAnyHatWithChanges,
   });
 
-  const firstProposedChangeKey: keyof Hat = useMemo(
-    () =>
-      _.first(
-        _.filter(
-          _.keys(proposedChanges[0]),
-          (k: string) => k !== 'id' && k !== 'imageUrl',
-        ),
+  const firstProposedChangeKey = useMemo<keyof Hat | undefined>(() => {
+    if (proposedChanges.length === 0 || !proposedChanges[0]) {
+      return undefined;
+    }
+
+    return _.first(
+      _.filter(
+        _.keys(proposedChanges[0]),
+        (k: string) => k !== 'id' && k !== 'imageUrl',
       ),
-    [proposedChanges],
-  );
+    ) as keyof Hat | undefined;
+  }, [proposedChanges]);
 
   const checkResult = (hatDetails: Hat) => {
     if (!hatDetails || !firstProposedChangeKey) return false;
 
     const currentPropertyValue = hatDetails[firstProposedChangeKey];
-    const expectedPropertyValue =
-      _.first(proposedChanges)[
-        _.first(firstProposedChangeKey as keyof typeof proposedChanges)
-      ];
+    const expectedPropertyValue = proposedChanges[0]
+      ? proposedChanges[0][firstProposedChangeKey]
+      : undefined;
 
     return _.isEqual(currentPropertyValue, expectedPropertyValue);
   };

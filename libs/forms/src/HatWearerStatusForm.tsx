@@ -9,7 +9,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
@@ -33,7 +33,8 @@ const HatWearerStatusForm = ({
   const { setModals, handlePendingTx } = useOverlay();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
 
   const hatId = selectedHat?.id;
   const standing = useDebounce<string>(watch('standing', 'Good Standing'));

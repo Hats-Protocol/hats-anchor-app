@@ -19,7 +19,7 @@ import {
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useCallHsgFunction,
   useCallModuleFunction,
@@ -50,7 +50,8 @@ const ModuleAuthorityToolbar = ({
   const localOverlay = useOverlay();
   const { address } = useAccount();
   const { setModals } = localOverlay;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const [selectedFunction, setSelectedFunction] = useState();
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;

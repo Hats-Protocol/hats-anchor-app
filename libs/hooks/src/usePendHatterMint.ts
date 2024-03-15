@@ -1,6 +1,6 @@
-import { AppHat, FormData } from 'types';
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
+import { AppHat, FormData } from 'types';
 import { Hex } from 'viem';
 
 const usePendHatterMint = ({

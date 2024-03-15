@@ -13,7 +13,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   HatClaimForForm,
   HatTransferForm,
@@ -84,15 +84,10 @@ const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { setModals, modals, handlePendingTx } = localOverlay;
-  const {
-    chainId,
-    selectedHat,
-    selectedHatDetails,
-    editMode,
-    wearersAndControllers,
-    onchainHats,
-    storedData,
-  } = useTreeForm();
+  const { chainId, editMode, wearersAndControllers, onchainHats, storedData } =
+    useTreeForm();
+  const { selectedHat, selectedHatDetails } = useSelectedHat();
+
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
   >();

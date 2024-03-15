@@ -8,7 +8,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useIsClient } from 'hooks';
 import _ from 'lodash';
@@ -25,7 +25,8 @@ const EventHistory = ({
   type: 'tree' | 'hat';
   count?: number;
 }) => {
-  const { chainId, selectedHat, treeEvents } = useTreeForm();
+  const { chainId, treeEvents } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const isClient = useIsClient();
   const { isOpen, onToggle } = useDisclosure();
   let events = type === 'tree' ? treeEvents : selectedHat?.events;

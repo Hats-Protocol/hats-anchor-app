@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
@@ -54,8 +54,6 @@ const OrgChartComponent: React.FC = () => {
     treeToDisplay,
     showInactiveHats,
     selectedOption,
-    selectedHat,
-    handleSelectHat,
     handleFlipChart,
     handleSetCompact,
     isLoading,
@@ -65,6 +63,7 @@ const OrgChartComponent: React.FC = () => {
     addHat,
     wearersAndControllers,
   } = useTreeForm();
+  const { selectedHat, handleSelectHat } = useSelectedHat();
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());

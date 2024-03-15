@@ -21,7 +21,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
   useHatMakeImmutable,
@@ -52,12 +52,13 @@ const MoreMenu = () => {
 
   const {
     chainId,
-    selectedHat,
     treeToDisplayWithInactiveHats,
     storedData,
     linkedHatIds,
     onchainHats,
   } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
+
   const { address } = useAccount();
   const currentNetworkId = useChainId();
   const toast = useToast();

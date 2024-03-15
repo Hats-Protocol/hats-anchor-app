@@ -6,14 +6,6 @@ import {
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  AppHat,
-  DeploymentType,
-  FormData,
-  HandlePendingTx,
-  ModuleDetails,
-  SupportedChains,
-} from 'types';
-import {
   decimalId,
   deployClaimsHatter,
   deployModule,
@@ -27,6 +19,14 @@ import { useToast } from 'hooks';
 import _ from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import {
+  AppHat,
+  DeploymentType,
+  FormData,
+  HandlePendingTx,
+  ModuleDetails,
+  SupportedChains,
+} from 'types';
 import { Hex } from 'viem';
 import { useAccount, useToken } from 'wagmi';
 
