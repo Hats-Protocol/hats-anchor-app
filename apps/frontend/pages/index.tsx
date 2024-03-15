@@ -20,7 +20,7 @@ import {
 } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
 import {
-  useFeaturedTemplates,
+  // useFeaturedTemplates,
   useFeaturedTrees,
   useFeaturedTreesData,
   useImageURIs,
@@ -36,7 +36,7 @@ import {
   ChakraNextLink,
   DashboardHatCard,
   FeaturedTreeCard,
-  ForkableTemplateCard,
+  // ForkableTemplateCard,
   Layout,
   LearnMoreCard,
 } from 'ui';
@@ -49,12 +49,13 @@ const MOBILE_HATS_TO_SHOW = 4;
 const Home = () => {
   const { address: wearerAddress } = useAccount();
   const analytics = useRudderStackAnalytics();
-  const { data: featuredTemplates, isLoading: templatesLoading } =
-    useFeaturedTemplates();
+  // const { data: featuredTemplates, isLoading: templatesLoading } =
+  //   useFeaturedTemplates();
   const { data: featuredTrees, isLoading: featuredTreesLoading } =
     useFeaturedTrees();
   const { data: hatsAndWearers, isLoading: featuredTreesDataLoading } =
     useFeaturedTreesData(featuredTrees);
+  // console.log(featuredTrees, hatsAndWearers);
 
   const { isMobile } = useMediaStyles();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');
@@ -220,7 +221,7 @@ const Home = () => {
               </Card>
             </Skeleton>
 
-            <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+            {/* <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Heading variant='medium'>
                 Jump right in with a forkable template
               </Heading>
@@ -240,7 +241,7 @@ const Home = () => {
                   </Flex>
                 )}
               </Skeleton>
-            </Card>
+            </Card> */}
           </Stack>
 
           <Card

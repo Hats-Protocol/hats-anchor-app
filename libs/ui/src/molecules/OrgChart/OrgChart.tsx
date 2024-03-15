@@ -91,6 +91,7 @@ const OrgChartComponent: React.FC = () => {
 
     if (treeToDisplay && d3Container.current) {
       if (chart) {
+        // TODO check for missing parents to avoid crashing
         chart
           .container(d3Container.current)
           .data(treeToDisplay ?? [])

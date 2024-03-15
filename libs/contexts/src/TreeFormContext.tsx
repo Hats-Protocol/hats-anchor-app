@@ -1,6 +1,6 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
-import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
+import { Hat, HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import {
   useManyHatsDetails,
   useManyHatsDetailsField,
@@ -325,19 +325,27 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
-  const inactiveHats = useMemo(
-    () =>
-      _.compact(_.map(_.filter(orgChartTree, ['status', false]), 'prettyId')),
-    [orgChartTree],
-  );
+  const inactiveHats = useMemo(() => {
+    const localInactiveHats = _.filter(orgChartTree, ['status', false]);
+    const descendantsOfInactiveHats = _.filter(orgChartTree, (hat: Hat) =>
+      _.some(_.map(localInactiveHats, 'prettyId'), (inactiveHat: string) =>
+        // using prettyId should cover all descendants without needing recursive sort
+        _.startsWith(hat.prettyId, inactiveHat),
+      ),
+    );
+
+    const inactiveIds = _.uniq(
+      _.map(_.concat(localInactiveHats, descendantsOfInactiveHats), 'id'),
+    );
+    return inactiveIds;
+  }, [orgChartTree]);
 
   const transformTree = useCallback(
     (tree, includeInactive = false) => {
       return _.chain(tree)
         .filter(
           (hat) =>
-            includeInactive ||
-            !_.includes(inactiveHats, _.get(hat, 'prettyId')),
+            includeInactive || !_.includes(inactiveHats, _.get(hat, 'id')),
         )
         .map((hat) => {
           if (editMode) {
