@@ -83,7 +83,6 @@ export interface TreeFormContext {
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
   // disclosures
-  hatDisclosure: UseDisclosureReturn | undefined;
   treeDisclosure: UseDisclosureReturn | undefined;
   patchTree: ((proposedHats: AppHat[]) => void) | undefined;
   hierarchy: Hierarchy | undefined;
@@ -127,7 +126,6 @@ export const TreeFormContext = createContext<TreeFormContext>({
   resetTree: undefined,
   importHats: undefined,
   // disclosures
-  hatDisclosure: undefined,
   treeDisclosure: undefined,
   patchTree: undefined,
   hierarchy: undefined,
@@ -164,6 +162,7 @@ export const TreeFormContextProvider = ({
     selectedHat,
     setSelectedHatId,
     handleSelectHat,
+    hatDisclosure,
   } = useSelectedHat();
 
   const { hatId: initialHatIdParam } = router.query;
@@ -191,24 +190,10 @@ export const TreeFormContextProvider = ({
     {},
   );
 
-  const hatDisclosure = useDisclosure({
-    onClose: () => {
-      setSelectedHatId?.(undefined);
-      // remove query param for adding children
-      router.push(
-        { pathname: router.pathname, query: _.omit(router.query, 'hatId') },
-        undefined,
-        {
-          shallow: true,
-        },
-      );
-    },
-  });
   const treeDisclosure = useDisclosure();
-
-  const { onClose: onCloseHatDrawer } = hatDisclosure;
   const { onOpen: onOpenTreeDrawer, onClose: onCloseTreeDrawer } =
     treeDisclosure;
+  const onCloseHatDrawer = hatDisclosure?.onClose;
 
   // existing tree
   const { data: treeData } = useTreeDetails({
@@ -399,7 +384,7 @@ export const TreeFormContextProvider = ({
   );
 
   // *********************
-  // * HAT ACTIONS
+  // * CHART ACTIONS
   // *********************
 
   const handleFlipChart = useCallback(
@@ -539,7 +524,7 @@ export const TreeFormContextProvider = ({
         return result;
       });
       onOpenTreeDrawer();
-      onCloseHatDrawer();
+      onCloseHatDrawer?.();
     },
     [setStoredData, onCloseHatDrawer, onOpenTreeDrawer],
   );
@@ -673,7 +658,6 @@ export const TreeFormContextProvider = ({
       resetTree,
       importHats,
       // disclosures
-      hatDisclosure,
       treeDisclosure,
       patchTree,
       hierarchy,
@@ -727,7 +711,6 @@ export const TreeFormContextProvider = ({
       resetTree,
       importHats,
       // disclosures
-      hatDisclosure,
       treeDisclosure,
       patchTree,
       hierarchy,

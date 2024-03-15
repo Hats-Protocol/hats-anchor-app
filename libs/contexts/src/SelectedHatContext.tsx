@@ -1,4 +1,4 @@
-import { useDisclosure } from '@chakra-ui/react';
+import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 import {
   hatIdDecimalToIp,
   treeIdHexToDecimal,
@@ -39,6 +39,7 @@ export interface SelectedHatContext {
   selectedHat: AppHat | undefined;
   setSelectedHatId: ((id: Hex | undefined) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
+  hatDisclosure: UseDisclosureReturn | undefined;
 }
 
 export const SelectedHatContext = createContext<SelectedHatContext>({
@@ -52,6 +53,7 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   selectedHat: undefined,
   setSelectedHatId: undefined,
   handleSelectHat: undefined,
+  hatDisclosure: undefined,
 });
 
 export const SelectedHatContextProvider = ({
@@ -78,14 +80,19 @@ export const SelectedHatContextProvider = ({
   const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
     ipToHatId(hatId) || ipToHatId(initialHatId as string) || undefined,
   );
-  const { editMode, topHatDetails, onchainHats, onchainTree, orgChartTree } =
-    useTreeForm();
+  const {
+    editMode,
+    topHatDetails,
+    onchainHats,
+    onchainTree,
+    orgChartTree,
+    treeDisclosure,
+  } = useTreeForm();
   const { isMobile } = useMediaStyles();
 
   const hatDisclosure = useDisclosure({
     onClose: () => {
       setSelectedHatId(undefined);
-      // remove query param for adding children
       router.push(
         { pathname: router.pathname, query: _.omit(router.query, 'hatId') },
         undefined,
@@ -95,10 +102,8 @@ export const SelectedHatContextProvider = ({
       );
     },
   });
-  const treeDisclosure = useDisclosure();
-
   const { onOpen: onOpenHatDrawer } = hatDisclosure;
-  const { onClose: onCloseTreeDrawer } = treeDisclosure;
+  const onCloseTreeDrawer = treeDisclosure?.onClose;
 
   // *********************
   // * SELECTED HAT
@@ -174,7 +179,7 @@ export const SelectedHatContextProvider = ({
 
       router.push(updatedUrl, undefined, { shallow: true });
 
-      onCloseTreeDrawer();
+      onCloseTreeDrawer?.();
       onOpenHatDrawer();
     },
 
@@ -227,6 +232,7 @@ export const SelectedHatContextProvider = ({
       selectedHat,
       setSelectedHatId,
       handleSelectHat,
+      hatDisclosure,
     }),
     [
       selectedHatDetails,
@@ -239,6 +245,7 @@ export const SelectedHatContextProvider = ({
       selectedHat,
       setSelectedHatId,
       handleSelectHat,
+      hatDisclosure,
     ],
   );
 
