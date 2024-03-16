@@ -99,7 +99,9 @@ export const FEATURED_TREES = ({
     name: 'PublicHAUS',
     // description: '',
     image: `${ipfsUrl('QmPf5fefBSuJY8CwbvvnKPKcFx43rhsxA3r4ejheVdBFxa')}`,
-    avatar: `${ipfsUrl('QmYKhs4obEaYczPS9EJ4MkQocwPsqF4MH1yz9q5kBrKReE')}`,
+    avatar: `${ipfsUrl(
+      'bafkreihsni2egpyl4c7hxvzg32ciwvaevvtu3smx27jai76qq5ysuikbi4',
+    )}`,
   },
   {
     chainId: 42161,

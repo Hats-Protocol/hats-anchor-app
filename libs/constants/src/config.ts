@@ -59,6 +59,10 @@ const CONFIG: Config = {
     toggle: `${DOCS_URL}/using-hats/setting-accountabilities/toggle-activating-and-deactivating-hats`,
     forking: `${DOCS_URL}/using-hats/drafting-exporting-and-deploying-tree-changes#sharing`,
   },
+
+  // tech values
+  DEFAULT_PADDING: 2,
+  CHAKRA_SPACING: 4,
 };
 
 export default CONFIG;
@@ -118,4 +122,8 @@ type Config = {
     toggle: string;
     forking: string;
   };
+
+  // tech values
+  DEFAULT_PADDING: number;
+  CHAKRA_SPACING: number;
 };

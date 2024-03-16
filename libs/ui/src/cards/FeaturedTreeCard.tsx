@@ -6,6 +6,7 @@ import {
   Skeleton,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { TemplateData } from '@hatsprotocol/constants';
 import { HatIcon } from 'icons';
@@ -94,18 +95,33 @@ const FeaturedTreeCard = ({
             </Skeleton>
 
             <Stack align='flex-end' spacing='0.2rem'>
-              <HStack spacing='5px'>
-                <Icon as={HatIcon} boxSize={3} />
-                <Skeleton isLoaded={!!hatsAndWearers?.hats}>
-                  <Text size='xs'>{hatsAndWearers?.hats || '--'}</Text>
-                </Skeleton>
-              </HStack>
-              <HStack spacing='5px'>
-                <Icon as={BsPeopleFill} boxSize={3} />
-                <Skeleton isLoaded={!!hatsAndWearers?.wearers}>
-                  <Text size='xs'>{hatsAndWearers?.wearers || '--'}</Text>
-                </Skeleton>
-              </HStack>
+              <Tooltip
+                label={hatsAndWearers?.hats && `${hatsAndWearers?.hats} hats`}
+                placement='left'
+                hasArrow
+              >
+                <HStack spacing='5px'>
+                  <Icon as={HatIcon} boxSize={3} />
+                  <Skeleton isLoaded={!!hatsAndWearers?.hats}>
+                    <Text size='xs'>{hatsAndWearers?.hats || '--'}</Text>
+                  </Skeleton>
+                </HStack>
+              </Tooltip>
+              <Tooltip
+                label={
+                  hatsAndWearers?.wearers &&
+                  `${hatsAndWearers?.wearers} wearers`
+                }
+                placement='left'
+                hasArrow
+              >
+                <HStack spacing='5px'>
+                  <Icon as={BsPeopleFill} boxSize={3} />
+                  <Skeleton isLoaded={!!hatsAndWearers?.wearers}>
+                    <Text size='xs'>{hatsAndWearers?.wearers || '--'}</Text>
+                  </Skeleton>
+                </HStack>
+              </Tooltip>
             </Stack>
           </HStack>
         </HStack>

@@ -1,11 +1,10 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'types';
 import _ from 'lodash';
+import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 import { decimalId, getTreeId } from './hats';
-import App from 'next/app';
 
 const mapHat = (
   hat: AppHat | undefined,
@@ -171,11 +170,6 @@ export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
     const hats = checkChildrenForDescendants(hat, tree);
     newIdList = _.concat(newIdList, ...hats);
   });
-
-  // make sure we have a unique list and map to sorted array of IDs
-  //const sortedTree = _.map(_.uniq(newIdList), (id: string) =>
-  //  _.find(tree, (h: AppHat) => h.id === id),
-  //);
 
   const sortedTree = tree.sort(compareHatIds);
 

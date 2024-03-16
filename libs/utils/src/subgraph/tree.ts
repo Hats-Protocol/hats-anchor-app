@@ -89,11 +89,11 @@ export const fetchPaginatedTrees = async (
           details: true,
           imageUri: true,
           prettyId: true,
+          wearers: { props: {}, filters: { first: 500 } },
           admin: {
             prettyId: true,
           },
         },
-        filters: { first: 1 },
       },
     },
     page,

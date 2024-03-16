@@ -41,13 +41,14 @@ import {
   LearnMoreCard,
 } from 'ui';
 import { formatAddress } from 'utils';
-import { useAccount, useEnsName } from 'wagmi';
+import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HATS_TO_SHOW = 8;
 const MOBILE_HATS_TO_SHOW = 4;
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
+  const chainId = useChainId();
   const analytics = useRudderStackAnalytics();
   // const { data: featuredTemplates, isLoading: templatesLoading } =
   //   useFeaturedTemplates();
@@ -230,6 +231,21 @@ const Home = () => {
                     </Skeleton>
                   ))}
                 </Flex>
+
+                {isMobile && (
+                  <Flex justify='center' align='center' minH='125px'>
+                    <ChakraNextLink href={`/trees/${chainId || 10}`}>
+                      <Button colorScheme='blue.500' variant='outlineMatch'>
+                        <HStack gap={3}>
+                          <BsDiagram3 />
+                          <Text variant='medium' noOfLines={1}>
+                            View all trees
+                          </Text>
+                        </HStack>
+                      </Button>
+                    </ChakraNextLink>
+                  </Flex>
+                )}
               </Card>
             </Skeleton>
 
@@ -261,7 +277,8 @@ const Home = () => {
             px={9}
             background='whiteAlpha.600'
             gap={4}
-            maxW={{ base: '427px', md: 'auto' }}
+            mx='auto'
+            maxW={{ base: '427px', md: 'none' }}
             w='100%'
           >
             <Heading variant='medium'>Learn more about Hats</Heading>

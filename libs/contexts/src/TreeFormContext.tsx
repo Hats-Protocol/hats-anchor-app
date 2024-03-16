@@ -306,11 +306,12 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     editMode,
   });
+
   const { data: imagesData, isLoading: imagesLoading } = useTreeImages({
     hats: hatDetails,
     editMode,
   });
-  const { orgChartTree } = useOrgChartTree({
+  const { orgChartTree, isLoading: orgChartTreeLoading } = useOrgChartTree({
     treeData,
     chainId,
     hatsData: hatDetails,
@@ -625,7 +626,7 @@ export const TreeFormContextProvider = ({
       onchainTree,
       onchainHats,
       treeEvents,
-      isLoading: imagesLoading || detailsFieldsLoading,
+      isLoading: imagesLoading || detailsFieldsLoading || orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,

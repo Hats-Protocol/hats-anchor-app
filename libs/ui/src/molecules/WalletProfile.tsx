@@ -12,7 +12,7 @@ import {
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useClipboard } from 'hooks';
-import { CopyHash, WearerIcon } from 'icons';
+import { CopyAddress, WearerIcon } from 'icons';
 import _ from 'lodash';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
@@ -94,7 +94,7 @@ const WalletProfile = ({
             <Button
               size='xs'
               variant='ghost'
-              rightIcon={<Icon as={CopyHash} />}
+              rightIcon={<Icon as={CopyAddress} />}
               color='blue.500'
               onClick={handleCopy}
             >
