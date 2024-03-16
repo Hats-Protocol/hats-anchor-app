@@ -1,17 +1,17 @@
 import { Button, Flex, HStack, Icon, Tooltip } from '@chakra-ui/react';
 import { DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatDetails,
   useModuleDeploy,
   useMultiClaimsHatterCheck,
 } from 'hats-hooks';
-import { ModuleDetails } from 'types';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
+import { ModuleDetails } from 'types';
 import { useChainId } from 'wagmi';
 
 const NetworkSwitcher = dynamic(() =>
@@ -31,14 +31,10 @@ const TopMenu = ({
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const currentNetworkId = useChainId();
-  const {
-    chainId,
-    storedData,
-    onchainHats,
-    editMode,
-    selectedHat,
-    setStoredData,
-  } = useTreeForm();
+  const { chainId, storedData, onchainHats, editMode, setStoredData } =
+    useTreeForm();
+  const { selectedHat } = useSelectedHat();
+
   const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
     selectedHat,

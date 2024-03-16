@@ -17,7 +17,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
-import { useHatForm, useOverlay, useTreeForm } from 'contexts';
+import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
   useWearerEligibilityCheck,
@@ -49,15 +49,9 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
-  const {
-    chainId,
-    selectedHat,
-    onchainHats,
-    selectedOnchainHat,
-    storedData,
-    hatDisclosure,
-    editMode,
-  } = useTreeForm();
+  const { chainId, onchainHats, storedData, editMode } = useTreeForm();
+  const { selectedHat, selectedOnchainHat, hatDisclosure } = useSelectedHat();
+
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
   const toast = useToast();

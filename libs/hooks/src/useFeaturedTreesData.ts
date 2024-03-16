@@ -5,21 +5,28 @@ import { ipToPrettyId, prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
 import { fetchTreeDetails, fetchTreesById } from 'utils';
 
+// TODO doesn't account well for hats with many (100+) wearers
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useFeaturedTreesData = (featuredTrees: any) => {
   const fetchFeaturedTrees = async () => {
+    const chainIds = _.uniq(_.map(featuredTrees, 'chainId'));
     const ids = _.map(featuredTrees, (tree: Tree) =>
       ipToPrettyId(String(tree.id)),
     );
 
-    const [opTrees, gnoTrees] = await Promise.all([
-      fetchTreesById([ids[0], ids[2]], 10),
-      fetchTreeDetails(ids[1], 100),
-    ]);
+    const promises = _.map(chainIds, (chainId: number) => {
+      const trees = _.filter(featuredTrees, { chainId });
+      if (_.size(trees) > 1) {
+        return fetchTreesById(ids, chainId);
+      }
 
-    const trees = _.concat(opTrees, gnoTrees) as Tree[];
+      return fetchTreeDetails(_.first(trees).id, chainId);
+    });
 
-    const data = _.map(trees, (tree: Tree) => ({
+    const result = await Promise.all(_.flatten(promises));
+
+    const data = _.map(result, (tree: Tree) => ({
       treeId: prettyIdToIp(tree.id),
       hats: _.size(tree.hats),
       wearers: _.sum(_.map(tree.hats, (hat: AppHat) => _.size(hat.wearers))),

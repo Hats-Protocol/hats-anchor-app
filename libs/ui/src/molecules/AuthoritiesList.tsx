@@ -1,12 +1,12 @@
 import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat } from 'contexts';
 import _ from 'lodash';
 import { Authority, AuthorityType } from 'types';
 
 import AuthoritiesListCard from './AuthoritiesListCard';
 
 const AuthoritiesList = () => {
-  const { combinedAuthorities } = useTreeForm();
+  const { combinedAuthorities } = useSelectedHat();
 
   if (!combinedAuthorities) return null;
 

@@ -69,7 +69,7 @@ const TreeMenu = ({
   // );
 
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || !_.get(_.first(treeEvents), 'timestamp')) return;
     setLocalLastTimestamp(
       `${
         _.get(_.first(treeEvents), 'timestamp') &&
@@ -228,9 +228,11 @@ const TreeMenu = ({
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
                       <Text>Last event: </Text>
-                      <Text mr={2} variant='medium'>
-                        {localLastTimestamp}
-                      </Text>
+                      <Skeleton isLoaded={!!localLastTimestamp}>
+                        <Text mr={2} variant='medium'>
+                          {localLastTimestamp || '-'}
+                        </Text>
+                      </Skeleton>
                       <Icon as={History} boxSize={4} />
                     </Flex>
                   </PopoverTrigger>

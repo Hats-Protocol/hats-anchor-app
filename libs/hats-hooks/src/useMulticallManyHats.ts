@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
+import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
@@ -114,31 +115,33 @@ const useMulticallManyHats = ({
       isAdminOfAnyHatWithChanges,
   });
 
-  const firstProposedChangeKey = useMemo(
-    () =>
-      _.first(
-        _.filter(
-          _.keys(proposedChanges[0]),
-          (k: string) => k !== 'id' && k !== 'imageUrl',
-        ),
-      ),
-    [proposedChanges],
-  );
+  const firstProposedChangeKey = useMemo<keyof Hat | undefined>(() => {
+    if (proposedChanges.length === 0 || !proposedChanges[0]) {
+      return undefined;
+    }
 
-  const checkResult = (hatDetails: any) => {
+    return _.first(
+      _.filter(
+        _.keys(proposedChanges[0]),
+        (k: string) => k !== 'id' && k !== 'imageUrl',
+      ),
+    ) as keyof Hat | undefined;
+  }, [proposedChanges]);
+
+  const checkResult = (hatDetails: Hat) => {
     if (!hatDetails || !firstProposedChangeKey) return false;
 
     const currentPropertyValue = hatDetails[firstProposedChangeKey];
-    const expectedPropertyValue =
-      proposedChanges[0][
-        firstProposedChangeKey as keyof (typeof proposedChanges)[0]
-      ];
+    const expectedPropertyValue = proposedChanges[0]
+      ? proposedChanges[0][firstProposedChangeKey]
+      : undefined;
 
     return _.isEqual(currentPropertyValue, expectedPropertyValue);
   };
 
   const waitForSubgraphUpdate = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(storedData[0]?.id, chainId),
+    fetchHelper: () =>
+      fetchHatDetails(_.get(_.first(storedData), 'id'), chainId),
     checkResult,
   });
 

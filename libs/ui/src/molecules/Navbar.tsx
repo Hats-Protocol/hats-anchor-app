@@ -1,21 +1,21 @@
 import {
-  Box,
+  // Box,
   Button,
-  Divider,
+  // Divider,
   Flex,
-  Heading,
+  // Heading,
   HStack,
   Icon,
   IconButton,
   Image,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverTrigger,
-  Portal,
-  Spinner,
+  // Popover,
+  // PopoverArrow,
+  // PopoverBody,
+  // PopoverCloseButton,
+  // PopoverContent,
+  // PopoverTrigger,
+  // Portal,
+  // Spinner,
   Stack,
   Text,
   Tooltip,
@@ -28,15 +28,15 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
-import { FaBell } from 'react-icons/fa';
+// import { FaBell } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
-import { AppHat, Transaction } from 'types';
+import { AppHat } from 'types';
 import { containsUpperCase, getOperatingSystem } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 import ConnectWallet from './ConnectWallet';
-import TransactionHistory from './TransactionHistory';
+// import TransactionHistory from './TransactionHistory';
 
 const BANNER = {
   message: 'Goerli is deprecated and will shut down soon!',
@@ -48,9 +48,9 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const currentChainId = useChainId();
   const {
     setCommandPalette: setOpen,
-    setModals,
-    transactions,
-    clearAllTransactions,
+    // setModals,
+    // transactions,
+    // clearAllTransactions,
   } = useOverlay();
   const { editMode } = useTreeForm();
 
@@ -59,9 +59,9 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const { address } = useAccount();
   const localOverlay = useOverlay();
 
-  const hasPendingTransactions = transactions.some(
-    (tx: Transaction) => tx.status === 'pending',
-  );
+  // const hasPendingTransactions = transactions.some(
+  //   (tx: Transaction) => tx.status === 'pending',
+  // );
 
   const { data: hatDetails } = useHatDetailsField(hatData?.details, editMode);
   const tabName = hatDetails?.data?.name || hatData?.details;
@@ -187,7 +187,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
           />
         </Tooltip>
 
-        <Popover trigger='hover'>
+        {/* <Popover trigger='hover'>
           <PopoverTrigger>
             {hasPendingTransactions ? (
               <Spinner />
@@ -241,7 +241,7 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
               </PopoverBody>
             </PopoverContent>
           </Portal>
-        </Popover>
+        </Popover> */}
         <ConnectWallet overlay={localOverlay} />
       </HStack>
     </Flex>

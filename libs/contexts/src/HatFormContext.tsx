@@ -4,7 +4,6 @@ import {
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
-import { FieldItem, FormData, FormFieldKeys } from 'types';
 import { useDebounce, useToast } from 'hooks';
 import _ from 'lodash';
 import {
@@ -17,10 +16,12 @@ import {
   useState,
 } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import { FieldItem, FormData, FormFieldKeys } from 'types';
 import { fieldsAreDirty, getDirtyFields } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
+import { useSelectedHat } from './SelectedHatContext';
 import { useTreeForm } from './TreeFormContext';
 
 export interface IHatFormContext {
@@ -57,18 +58,17 @@ export const HatFormContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  const { chainId, storedData, setStoredData, treeDisclosure, removeHat } =
+    useTreeForm();
+
   const {
-    chainId,
-    storedData,
-    setStoredData,
     selectedHat,
     selectedOnchainHat,
     selectedOnchainHatDetails,
     isDraft,
-    treeDisclosure,
     hatDisclosure,
-    removeHat,
-  } = useTreeForm();
+  } = useSelectedHat();
+
   const toast = useToast();
 
   const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
@@ -289,13 +289,14 @@ export const HatFormContextProvider = ({
       );
       const dirtyFormValues = _.pickBy(
         debouncedFormValues,
-        (__: any, key: FormFieldKeys) => _.includes(dirtyValues, key),
+        (__: unknown, key: FormFieldKeys) => _.includes(dirtyValues, key),
       );
 
       // remove storedData values when resetting to default values
       const resetValues = _.filter(
         _.keys(matchingHat),
-        (key: any) => !_.includes(dirtyValues, key) && !_.includes(['id'], key),
+        (key: string) =>
+          !_.includes(dirtyValues, key) && !_.includes(['id'], key),
       );
 
       const matchingHatWithValues = {

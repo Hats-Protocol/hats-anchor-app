@@ -1,8 +1,8 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { Authority } from 'types';
 import { decimalId } from 'hats-utils';
 import _ from 'lodash';
+import { Authority } from 'types';
 
 const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];

@@ -1,13 +1,12 @@
 import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { useTreeForm } from 'contexts';
-import { DetailsItem } from 'types';
+import { useSelectedHat } from 'contexts';
 import _ from 'lodash';
+import { DetailsItem } from 'types';
 
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
 const ResponsibilitiesList = () => {
-  const { selectedHatDetails } = useTreeForm();
-
+  const { selectedHatDetails } = useSelectedHat();
   const responsibilities = _.get(selectedHatDetails, 'responsibilities');
 
   if (!responsibilities) return null;

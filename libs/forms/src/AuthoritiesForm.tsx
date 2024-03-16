@@ -17,7 +17,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
-import { useHatForm, useTreeForm } from 'contexts';
+import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -49,7 +49,10 @@ const AuthoritiesForm = ({
   subtitle,
   label,
 }: AuthoritiesFormProps) => {
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHatGuildRoles, selectedHatSpaces, selectedHat } =
+    useSelectedHat();
+
   const { localForm: hatForm } = useHatForm();
   const { isOpen, onOpen, onClose } = useDisclosure({
     onClose: () => {
@@ -80,7 +83,6 @@ const AuthoritiesForm = ({
   const item = watch();
   const { errors, isValid } = _.pick(formState, ['errors', 'isValid']);
 
-  const { selectedHatGuildRoles, selectedHatSpaces } = useTreeForm();
   const { fields, append, remove } = useFieldArray({
     control: hatControl,
     name: formName,

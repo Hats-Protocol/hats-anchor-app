@@ -1,15 +1,15 @@
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useHatForm, useOverlay, useTreeForm } from 'contexts';
+import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
-import { AppHat } from 'types';
 import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
+import { AppHat } from 'types';
 import { useAccount } from 'wagmi';
 
 import MainAction from '../MainAction';
@@ -24,16 +24,10 @@ const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
-  const {
-    chainId,
-    editMode,
-    onchainHats,
-    selectedHat,
-    storedData,
-    treeToDisplay,
-    hatDisclosure,
-    setSelectedHatId,
-  } = useTreeForm();
+  const { chainId, editMode, onchainHats, storedData, treeToDisplay } =
+    useTreeForm();
+  const { selectedHat, setSelectedHatId, hatDisclosure } = useSelectedHat();
+
   const {
     isLoading,
     handleRemoveHat,

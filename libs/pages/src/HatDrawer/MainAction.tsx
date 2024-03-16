@@ -1,5 +1,5 @@
 import { Button, Tooltip } from '@chakra-ui/react';
-import { useOverlay, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatClaimBy,
   useWearerDetails,
@@ -24,7 +24,8 @@ const MainAction = () => {
   const { chain } = useNetwork();
   const localOverlay = useOverlay();
   const { setModals, handlePendingTx } = localOverlay;
-  const { chainId, selectedHat, editMode } = useTreeForm();
+  const { chainId, editMode } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const isConnected = Boolean(address);
   const maxSupply = _.get(selectedHat, 'maxSupply', 0);
   const { data: wearer } = useWearerDetails({

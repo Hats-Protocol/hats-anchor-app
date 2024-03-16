@@ -71,6 +71,8 @@ const FeaturedTreeCard = ({
               mr={3}
               mt={-8}
               borderRadius={4}
+              border='1px'
+              borderColor='gray.400'
             />
           </Skeleton>
           <HStack justifyContent='space-between' w='full' h='full' mb={1}>

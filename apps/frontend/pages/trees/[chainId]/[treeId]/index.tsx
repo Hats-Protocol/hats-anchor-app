@@ -2,7 +2,11 @@ import {
   treeIdDecimalToHex,
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
-import { TreeFormContextProvider, useOverlay } from 'contexts';
+import {
+  SelectedHatContextProvider,
+  TreeFormContextProvider,
+  useOverlay,
+} from 'contexts';
 import { useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
@@ -55,11 +59,17 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
 
   return (
     <TreeFormContextProvider treeId={treeId} chainId={chainId}>
-      {isMobile ? (
-        <TreePageMobile exists={exists} />
-      ) : (
-        <TreePage exists={exists} />
-      )}
+      <SelectedHatContextProvider
+        treeId={treeId}
+        chainId={chainId as SupportedChains}
+        hatId={hatId}
+      >
+        {isMobile ? (
+          <TreePageMobile exists={exists} />
+        ) : (
+          <TreePage exists={exists} />
+        )}
+      </SelectedHatContextProvider>
     </TreeFormContextProvider>
   );
 };

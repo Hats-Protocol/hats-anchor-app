@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce } from 'hooks';
 import _ from 'lodash';
@@ -28,7 +28,8 @@ const HatTransferForm = ({
   const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
 
   const hatId = selectedHat?.id;
   const newWearer = useDebounce<string>(watch('newWearer', null));

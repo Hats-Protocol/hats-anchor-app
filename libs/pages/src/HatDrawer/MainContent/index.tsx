@@ -1,6 +1,6 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { MODULE_TYPES } from '@hatsprotocol/constants';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles, useScrollPosition } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -34,7 +34,9 @@ const MainContent = ({
   showBottomMenu?: boolean;
   setShowBottomMenu?: (b: boolean) => void;
 }) => {
-  const { chainId, selectedHat, selectedHatDetails } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat, selectedHatDetails } = useSelectedHat();
+
   const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
   const [isToggleAContract, setIsToggleAContract] = useState(false);
   const { isMobile } = useMediaStyles();

@@ -1,5 +1,5 @@
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
-import { Modal, useOverlay, useTreeForm } from 'contexts';
+import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestApproveForm } from 'forms';
 import { useState } from 'react';
 import { prettyIdToIp } from 'shared';
@@ -9,7 +9,8 @@ import { prettyIdToIp } from 'shared';
 const LinkRequests = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { selectedHat, linkRequestFromTree } = useTreeForm();
+  const { linkRequestFromTree } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
 
   const [linkFrom, setLinkFrom] = useState('');
   const [linkTo, setLinkTo] = useState('');

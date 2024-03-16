@@ -1,5 +1,5 @@
 import { Button, Flex, Stack } from '@chakra-ui/react';
-import { useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatClaimFor } from 'hats-hooks';
 import { useDebounce } from 'hooks';
 import { useForm } from 'react-hook-form';
@@ -15,7 +15,8 @@ const HatClaimForForm = () => {
     },
   });
   const { handleSubmit, watch } = localForm;
-  const { chainId, selectedHat } = useTreeForm();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const address = useDebounce<string>(watch('address', null));
 
   const onSubmit = async () => {
