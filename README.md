@@ -22,8 +22,8 @@ The build artifacts will be stored in the `dist/` directory, ready to be deploye
 
 #### Apps
 
-- [`frontend`](./apps/frontend/) - the Hat's ["Anchor" app](#)
-- [`claims`](./apps/claims/) - the Hat's ["Claims" app](#) for claiming all sorts of hats
+- [`frontend`](./apps/frontend/) - the Hat's ["Anchor" app](https://app.hatsprotocol.xyz) for managing your hats and trees
+- [`claims`](./apps/claims/) - the Hat's ["Claims" app](https://claim.hatsprotocol.xyz) for claiming all sorts of hats
 
 #### Libs
 
@@ -33,7 +33,9 @@ The build artifacts will be stored in the `dist/` directory, ready to be deploye
 - [`hats-hooks`](./libs/hats-hooks/) - hooks for interacting with the Hats Protocol contracts & subgraph
 - [`hats-utils`](./libs/hats-utils/) - utilities for interacting with the Hats Protocol contracts
 - [`hooks`](./libs/hooks/) - hooks pertinent to the UI state or UX of the apps
+- [`icons`](./libs/icons/) - shared SVG icons
 - [`modules-ui`](./libs/modules-ui/) - shared UI components for modules
+- [`pages`](./libs/pages/) - shared page components
 - [`shared`](./libs/shared/) - shared app/hats utilities\*
 - [`types`](./libs/types/) - types extended beyond the subgraph and used in the apps/libs
 - [`ui`](./libs/ui/) - shared UI components and styles

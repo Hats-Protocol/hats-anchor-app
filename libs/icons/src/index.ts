@@ -1,5 +1,6 @@
 export { default as BoxArrowUpRightIn } from './BoxArrowUpRightIn';
 export { default as BoxArrowUpRightOut } from './BoxArrowUpRightOut';
+export { default as CheckCircle } from './CheckCircle';
 export { default as CheckSquare } from './CheckSquare';
 export { default as CodeIcon } from './Code';
 export { default as CopyHash } from './CopyHash';
