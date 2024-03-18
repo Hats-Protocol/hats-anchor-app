@@ -23,7 +23,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
 import { BoxArrowUpRightOut, CheckCircle } from 'icons';
 import _ from 'lodash';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
@@ -50,6 +50,7 @@ const AuthoritiesListCard = ({
   const linkHostName = getHostnameFromURL(link);
   const { isMobile } = useMediaStyles();
   const [expanded, setExpanded] = useState(false);
+  const isMounted = useRef(false);
 
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
@@ -74,6 +75,7 @@ const AuthoritiesListCard = ({
     : AUTHORITY_ENFORCEMENT.manual;
 
   // set tooltip info
+  // TODO refactor to util/hook
   let tooltipInfo = authorityEnforcement.info;
   if (strategies) {
     tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
@@ -85,6 +87,14 @@ const AuthoritiesListCard = ({
       BigInt(hatId),
     )}`;
   }
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+      setExpanded(false);
+    };
+  }, []);
 
   if (!gate && !description)
     return (
@@ -100,10 +110,10 @@ const AuthoritiesListCard = ({
         w={{ base: '100%', md: 'calc(100% + 32px)' }}
         ml={{ md: -4 }}
         boxShadow={expanded ? 'md' : 'none'}
-        borderRadius={{ md: 8 }}
+        borderRadius={{ md: 'md' }}
       >
         {({ isExpanded }) => {
-          setExpanded(isExpanded);
+          if (isMounted) setExpanded(isExpanded);
 
           return (
             <>
@@ -111,10 +121,10 @@ const AuthoritiesListCard = ({
                 borderY='1px solid'
                 borderColor='transparent'
                 _hover={{
-                  borderColor: 'blue.300',
-                  borderTopColor: 'transparent',
+                  borderColor: !isExpanded && 'blue.300',
+                  borderTopColor: isExpanded ? 'gray.100' : 'transparent',
                   bg: 'white',
-                  borderRadius: !isMobile ? 8 : 0,
+                  borderRadius: !isMobile ? 'md' : 0,
                 }}
                 _focus={{
                   borderBottomColor: 'transparent',
@@ -122,13 +132,12 @@ const AuthoritiesListCard = ({
                 _expanded={{
                   bg: 'white',
                   pb: 0,
-                  borderTopColor: 'gray.200',
-                  boxShadow:
-                    isMobile &&
-                    '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
-                  borderColor: 'transparent',
+                  borderTopColor: 'gray.100',
+                  // boxShadow: isMobile
+                  //   ? '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)'
+                  //   : 'none',
                   borderRadius: 0,
-                  borderTopRadius: !isMobile ? 8 : 0,
+                  borderTopRadius: !isMobile ? 'md' : 0,
                 }}
               >
                 <AuthorityHeader
@@ -141,7 +150,7 @@ const AuthoritiesListCard = ({
                 p={0}
                 // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
                 bg={isExpanded ? 'white' : undefined}
-                borderBottomRadius={{ md: 8 }}
+                borderBottomRadius={{ md: 'md' }}
                 boxShadow={
                   isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'
                 }
@@ -156,7 +165,7 @@ const AuthoritiesListCard = ({
                     <HStack pb={2}>
                       {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
                       <Image
-                        src={authorityEnforcement.icon}
+                        src={authorityEnforcement.enforcementIcon}
                         alt='Hat'
                         boxSize={6}
                       />
@@ -221,9 +230,16 @@ const AuthoritiesListCard = ({
                   )}
                 </Stack>
                 {displayModulesToolbar && (
-                  <Flex w='100%' bg='green.50' color='green.600' px={4} py={1}>
+                  <Flex
+                    w='100%'
+                    bg='green.50'
+                    color='green.600'
+                    px={4}
+                    py={1}
+                    borderBottomRadius='md'
+                  >
                     <HStack>
-                      <Icon as={CheckCircle} />
+                      <Icon as={CheckCircle} boxSize={3} />
                       <Text size='xs' variant='medium'>
                         Verified Module
                       </Text>

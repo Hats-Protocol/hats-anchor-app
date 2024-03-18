@@ -103,7 +103,9 @@ const FeaturedTreeCard = ({
                 <HStack spacing='5px'>
                   <Icon as={HatIcon} boxSize={3} />
                   <Skeleton isLoaded={!!hatsAndWearers?.hats}>
-                    <Text size='xs'>{hatsAndWearers?.hats || '--'}</Text>
+                    <Text size='xs'>
+                      {treeData?.hats || hatsAndWearers?.hats || '--'}
+                    </Text>
                   </Skeleton>
                 </HStack>
               </Tooltip>
@@ -118,7 +120,9 @@ const FeaturedTreeCard = ({
                 <HStack spacing='5px'>
                   <Icon as={BsPeopleFill} boxSize={3} />
                   <Skeleton isLoaded={!!hatsAndWearers?.wearers}>
-                    <Text size='xs'>{hatsAndWearers?.wearers || '--'}</Text>
+                    <Text size='xs'>
+                      {treeData?.wearers || hatsAndWearers?.wearers || '--'}
+                    </Text>
                   </Skeleton>
                 </HStack>
               </Tooltip>

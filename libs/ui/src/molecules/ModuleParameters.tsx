@@ -173,6 +173,7 @@ const ModuleParameters = ({
 
   const { data: tokenData } = useToken({
     address: _.get(tokenParameter, 'value') as Hex,
+    chainId,
   });
 
   return (

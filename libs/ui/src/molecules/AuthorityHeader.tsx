@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Box,
   Flex,
@@ -10,7 +11,7 @@ import {
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles, useSafeDetails } from 'hooks';
-import { BoxArrowUpRightOut, HatIcon } from 'icons';
+import { BoxArrowUpRightOut, Key } from 'icons';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
@@ -96,9 +97,9 @@ const AuthorityHeader = ({
 
     return _.reject(
       safeOwners,
-      (owner: Hex) =>
-        // TODO temp type workaround
-        !_.includes(wearersLowercased, _.toLower(owner) as any),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // temp type fix. did we lose lodash typing in the libs?
+      (owner: Hex) => !_.includes(wearersLowercased, _.toLower(owner) as any),
     );
   }, [safeOwners, selectedHat?.wearers]);
 
@@ -116,23 +117,23 @@ const AuthorityHeader = ({
     return `${currentSigners}/${currentSigners}`;
   }, [hsgConfig, eligibleSigners, authority?.label]);
 
-  const typeIcon =
-    authority?.type && AUTHORITY_ENFORCEMENT[authority.type].icon;
+  const enforcementIcon =
+    authority?.type && AUTHORITY_ENFORCEMENT[authority.type].enforcementIcon;
 
-  // TODO was {Key} the right icon here?
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
       <HStack align='start'>
         <Flex boxSize={6} justify='center' align='center' position='relative'>
           {!isExpanded && (
             <Image
-              src={typeIcon}
+              src={enforcementIcon}
               alt='authority enforcement indicator'
               position='absolute'
               top={0}
               left={0}
             />
           )}
+
           {imageUrl || authorityEnforcement.imageUri ? (
             <Image
               src={
@@ -147,13 +148,15 @@ const AuthorityHeader = ({
               alt='authority image'
               zIndex={5}
             />
-          ) : (
+          ) : authorityEnforcement?.icon ? (
             <Icon
-              as={HatIcon}
+              as={authorityEnforcement?.icon}
               boxSize='14px'
-              color='blackAlpha.700'
+              color={isExpanded ? 'blackAlpha.900' : 'blackAlpha.700'}
               zIndex={5}
             />
+          ) : (
+            <Icon as={Key} boxSize='14px' color='blackAlpha.700' zIndex={5} />
           )}
         </Flex>
 
@@ -179,7 +182,7 @@ const AuthorityHeader = ({
       {!isMobile && localLink && validateURL(localLink) && (
         <ChakraNextLink isExternal href={localLink} display='block'>
           <Tooltip label={getHostnameFromURL(localLink)}>
-            <HStack spacing={1}>
+            <HStack spacing={1} color='blue.500'>
               <Text size='sm'>
                 {getHostnameLabel(getHostnameFromURL(localLink))}
               </Text>

@@ -212,7 +212,7 @@ export const authorityImageHandler = ({
       return checkIfIpfs(AUTHORITY_PLATFORMS[4].icon);
     }
   }
-  if (authority && authorityEnforcement.imageUri) {
+  if (authority && typeof authorityEnforcement.imageUri === 'string') {
     return checkIfIpfs(authorityEnforcement.imageUri);
   }
 
@@ -220,7 +220,7 @@ export const authorityImageHandler = ({
 };
 
 const checkIfIpfs = (url: string | undefined) => {
-  if (!url) return { isIpfs: false, imageUrl: '' };
+  if (!url || typeof url !== 'string') return { isIpfs: false, imageUrl: '' };
 
   return {
     isIpfs: url.startsWith('ipfs://'),

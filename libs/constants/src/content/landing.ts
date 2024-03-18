@@ -40,6 +40,9 @@ export type TemplateData = {
   description: string;
   image: string;
   avatar?: string;
+  // optional values will override fetched values for the tree
+  hats?: number;
+  wearers?: number;
 };
 
 // ! CURRENTLY UNUSED ON LANDING PAGE
@@ -132,7 +135,9 @@ export const FEATURED_TREES = ({
     id: 1,
     name: 'Hats protoDAO',
     // description: '',
-    image: `${ipfsUrl('Qmd4jeMmk36d1yPS412FFx6z9G3yZkDoRQwoNubcEzgxAL')}`,
+    image: `${ipfsUrl('QmdDnRisrvGtYSBfgeDaAocTsVb6fUickZsa7ebc8A25jq')}`,
     avatar: `${ipfsUrl('Qmagom5JCG4haXZsFQRMVt6ZBXzqjsdo7p8qtayfBwwtBe')}`,
+    hats: 11,
+    wearers: 309,
   },
 ];

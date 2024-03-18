@@ -9,6 +9,7 @@ export { default as HatIcon } from './Hat';
 export { default as History } from './History';
 export { default as Key } from './Key';
 export { default as PeopleIcon } from './People';
+export * from './services';
 export { default as TaskList } from './TaskList';
 export { default as WearerIcon } from './Wearer';
 

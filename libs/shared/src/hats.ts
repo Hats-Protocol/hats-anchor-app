@@ -13,6 +13,7 @@ export const mapWithChainId = (
   chainId: number,
 ): object[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
 
+// TODO need to handle inactive hats in hierarchy, e.g. don't link to them
 /**
  * Returns an object with the selected Hat's nearest siblings, parent and first child
  * @param data array of Partial<Hats> for determining ID relations
