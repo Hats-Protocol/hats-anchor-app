@@ -3,8 +3,9 @@ import { AppHat } from 'types';
 import { Hex, isAddress } from 'viem';
 import { useContractRead } from 'wagmi';
 
-// TODO migrate to `useWearersEligibilityCheck`
-
+/**
+ * *** DEPRECATED use `useWearersEligibilityCheck` ***
+ */
 const useWearerEligibilityCheck = ({
   wearer,
   selectedHat,

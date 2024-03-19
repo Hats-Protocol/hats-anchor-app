@@ -35,32 +35,46 @@ import { useQueryClient } from 'wagmi';
 import { useTreeForm } from './TreeFormContext';
 
 export interface SelectedHatContext {
+  // SELECTED HAT
+  selectedHat: AppHat | undefined;
   selectedHatDetails: HatDetails | undefined;
+  chainId: SupportedChains | undefined;
+  // ONCHAIN HAT
   isDraft: boolean;
   selectedOnchainHat: AppHat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
+  // AUTHORITIES
   selectedHatGuildRoles: Authority[] | undefined;
   selectedHatSpaces: Authority[] | undefined;
   combinedAuthorities: Authority[] | undefined;
-  selectedHat: AppHat | undefined;
+  // ACTIONS
   setSelectedHatId: ((id: Hex | undefined) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
+  // DISCLOSURE
   hatDisclosure: UseDisclosureReturn | undefined;
+  // RELATIONS
   hierarchy: Hierarchy | undefined;
 }
 
 export const SelectedHatContext = createContext<SelectedHatContext>({
+  // SELECTED HAT
+  selectedHat: undefined,
   selectedHatDetails: undefined,
+  chainId: undefined,
+  // ONCHAIN HAT
   isDraft: false,
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
+  // AUTHORITIES
   selectedHatGuildRoles: undefined,
   selectedHatSpaces: undefined,
   combinedAuthorities: undefined,
-  selectedHat: undefined,
+  // ACTIONS
   setSelectedHatId: undefined,
   handleSelectHat: undefined,
+  // DISCLOSURE
   hatDisclosure: undefined,
+  // RELATIONS
   hierarchy: undefined,
 });
 
@@ -238,31 +252,45 @@ export const SelectedHatContextProvider = ({
 
   const returnValue = useMemo(
     () => ({
+      // SELECTED HAT
+      selectedHat,
       selectedHatDetails,
+      chainId,
+      // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      // AUTHORITIES
       selectedHatGuildRoles,
       selectedHatSpaces,
       combinedAuthorities,
-      selectedHat,
+      // ACTIONS
       setSelectedHatId,
       handleSelectHat,
+      // DISCLOSURE
       hatDisclosure,
+      // RELATIONS
       hierarchy,
     }),
     [
+      // SELECTED HAT
+      selectedHat,
       selectedHatDetails,
+      chainId,
+      // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      // AUTHORITIES
       selectedHatGuildRoles,
       selectedHatSpaces,
       combinedAuthorities,
-      selectedHat,
+      // ACTIONS
       setSelectedHatId,
       handleSelectHat,
+      // DISCLOSURE
       hatDisclosure,
+      // RELATIONS
       hierarchy,
     ],
   );

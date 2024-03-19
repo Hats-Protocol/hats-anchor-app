@@ -3,6 +3,7 @@ import { HatWearer } from 'types';
 import { isSameAddress } from 'utils';
 import { Hex } from 'viem';
 
+// still used?
 export const getEligibleWearers = ({
   wearersEligibility,
   wearers,
@@ -19,6 +20,7 @@ export const getEligibleWearers = ({
   return eligibleWearers;
 };
 
+// still used?
 export const isWearerEligible = (
   wearerId: string,
   wearersEligibility: { address: string; isEligible: boolean }[] | undefined,

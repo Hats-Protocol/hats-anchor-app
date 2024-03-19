@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Flex,
   Icon,
@@ -18,7 +17,6 @@ import {
   useHatContractWrite,
   useModuleDetails,
   useWearerDetails,
-  useWearerEligibilityCheck,
 } from 'hats-hooks';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles, useToast, useWaitForSubgraph } from 'hooks';
@@ -47,7 +45,6 @@ const WearerRow = ({
   wearer,
   setChangeStatusWearer,
   setWearerToTransferFrom,
-  isEligible,
 }: WearerRowProps) => {
   const toast = useToast();
   const currentNetworkId = useChainId();
@@ -82,12 +79,7 @@ const WearerRow = ({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
-    enabled:
-      Boolean(hatId) &&
-      Boolean(wearer) &&
-      isEligible !== undefined &&
-      isEligible &&
-      chainId === currentNetworkId,
+    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
@@ -97,12 +89,6 @@ const WearerRow = ({
     onSuccessToastData: {
       title: txDescription,
     },
-  });
-
-  const { data: isEligibleRead } = useWearerEligibilityCheck({
-    wearer: wearer.id,
-    selectedHat,
-    chainId,
   });
 
   const { details: moduleDetails } = useModuleDetails({
@@ -181,15 +167,9 @@ const WearerRow = ({
         </Flex>
       </ChakraNextLink>
       <Flex alignItems='center' gap={2}>
-        {(!isEligible || !isEligibleRead) && (
-          <Badge colorScheme='gray' fontSize='xs' variant='outline'>
-            INELIGIBLE
-          </Badge>
-        )}
-
         {!isSameAddress(wearer.id, address) ? (
           <IconButton
-            icon={<Icon as={CopyAddress} boxSize={4} color='blackAlpha.500' />}
+            icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}
             p={0}
             size='xs'
             variant='ghost'
@@ -294,5 +274,4 @@ interface WearerRowProps {
   wearer: HatWearer;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
-  isEligible: boolean;
 }
