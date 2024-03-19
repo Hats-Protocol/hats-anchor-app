@@ -5,7 +5,7 @@ import {
   useManyHatsDetails,
   useManyHatsDetailsField,
   useTreeDetails,
-  useWearersControllersDetails,
+  useTreeWearers,
 } from 'hats-hooks';
 import { translateDrafts } from 'hats-utils';
 import {
@@ -58,7 +58,7 @@ export interface TreeFormContext {
   isLoading: boolean;
   linkRequestFromTree: LinkRequest[] | undefined;
   linkedHatIds?: Hex[];
-  wearersAndControllers: HatWearer[] | undefined;
+  orgChartWearers: HatWearer[] | undefined;
   inactiveHats: string[] | undefined;
   orgChartTree: AppHat[] | undefined;
   // local storage
@@ -100,7 +100,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   isLoading: true,
   linkRequestFromTree: undefined,
   linkedHatIds: undefined,
-  wearersAndControllers: undefined,
+  orgChartWearers: undefined,
   inactiveHats: undefined,
   // local storage
   storedConfig: {},
@@ -274,8 +274,9 @@ export const TreeFormContextProvider = ({
       onchainHats,
       editMode,
     });
-  const wearersAndControllers = useWearersControllersDetails({
+  const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
+    chainId,
     editMode,
   });
 
@@ -288,6 +289,7 @@ export const TreeFormContextProvider = ({
     chainId,
     hatsData: hatDetails,
     detailsData: detailsFields,
+    orgChartWearers,
     imagesData,
     draftHats,
     imagesLoaded: !imagesLoading,
@@ -588,7 +590,7 @@ export const TreeFormContextProvider = ({
       isLoading: imagesLoading || detailsFieldsLoading || orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
-      wearersAndControllers,
+      orgChartWearers,
       inactiveHats,
       orgChartTree,
       // LOCAL STORAGE
@@ -630,7 +632,7 @@ export const TreeFormContextProvider = ({
       orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
-      wearersAndControllers,
+      orgChartWearers,
       inactiveHats,
       orgChartTree,
       // LOCAL STORAGE

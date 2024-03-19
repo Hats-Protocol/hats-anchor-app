@@ -1,13 +1,89 @@
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
-import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'types';
+import {
+  AppHat,
+  HatDetails,
+  HatWearer,
+  HatWithDepth,
+  SupportedChains,
+} from 'types';
+import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import { decimalId, getTreeId } from './hats';
+import { maxSupplyText } from './wearers';
+
+const ORG_CHART_ICONS = {
+  contract: `<img src="/icons/contract.svg" alt="wearer" />`,
+  wearer: `<img src="/icons/wearer.svg" alt="wearer" />`,
+};
+
+const ORG_CHART_COLORS = {
+  contract: '#F0FFF4',
+  wearer: '#FFFAF0',
+  noWearers: '#FFFFFF',
+  group: '#F0F0FF',
+};
+
+const handleOrgChartWearers = (
+  hat: AppHat,
+  orgChartWearers: HatWearer[] | undefined,
+) => {
+  const { wearers, maxSupply, currentSupply } = _.pick(hat, [
+    'wearers',
+    'maxSupply',
+    'currentSupply',
+  ]);
+
+  // FALLBACK/INITIALIZE WITH NO WEARERS
+  let color = ORG_CHART_COLORS.noWearers;
+  const wearer = _.first(wearers);
+  let content = 'No Wearers';
+  let accent = `0 of ${maxSupplyText(maxSupply)}`;
+  let icon = ORG_CHART_ICONS.wearer;
+
+  // HANDLE GROUPS
+  if (_.toNumber(currentSupply) > 1) {
+    color = '#FFFFF0';
+    content = `${currentSupply} Wearers`;
+    accent = `out of ${maxSupplyText(maxSupply)}`;
+  }
+
+  // INDIVIDUAL WEARERS
+  if (_.size(wearers) === 1) {
+    const extendedWearer = _.find(orgChartWearers, {
+      id: wearer?.id,
+    });
+    content =
+      !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
+        ? extendedWearer?.ensName
+        : formatAddress(_.get(wearer, 'id'));
+    accent = `1 of ${maxSupplyText(maxSupply)}`;
+    if (wearer?.isContract) {
+      color = ORG_CHART_COLORS.contract;
+      icon = ORG_CHART_ICONS.contract;
+    } else {
+      color = ORG_CHART_COLORS.wearer;
+    }
+  }
+
+  // handle wearers overflow with max supply accent
+  let dims = { contentWidth: '135px', accentWidth: '35px' };
+  if (_.gt(_.toNumber(maxSupply), 999)) {
+    dims = { contentWidth: '115px', accentWidth: '62px' };
+  } else if (_.gt(_.toNumber(maxSupply), 99)) {
+    dims = { contentWidth: '115px', accentWidth: '55px' };
+  } else if (_.gt(_.toNumber(maxSupply), 9)) {
+    dims = { contentWidth: '130px', accentWidth: '38px' };
+  }
+
+  return { color, accent, icon, content, ...dims };
+};
 
 const mapHat = (
   hat: AppHat | undefined,
+  orgChartWearers: HatWearer[] | undefined,
   chainId: SupportedChains,
 ): AppHat | undefined => {
   if (!hat) return undefined;
@@ -20,6 +96,7 @@ const mapHat = (
     treeId: hat.tree?.id as Hex,
     isLinked: false,
     url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
+    orgChartWearers: handleOrgChartWearers(hat, orgChartWearers),
   };
 };
 
@@ -30,6 +107,7 @@ export async function toTreeStructure({
   detailsData,
   imagesData,
   draftHats,
+  orgChartWearers,
   chainId,
   initialHatIds,
 }: {
@@ -41,6 +119,7 @@ export async function toTreeStructure({
   }[];
   imagesData: AppHat[] | undefined;
   draftHats: AppHat[] | undefined;
+  orgChartWearers: HatWearer[] | undefined;
   chainId: SupportedChains;
   initialHatIds: Hex[];
 }): Promise<AppHat[] | undefined> {
@@ -66,7 +145,7 @@ export async function toTreeStructure({
   });
 
   const hats = _.map(initialHatIds, (hat: Hex) =>
-    mapHat(_.find(mergedHatsData, ['id', hat]), chainId),
+    mapHat(_.find(mergedHatsData, ['id', hat]), orgChartWearers, chainId),
   );
 
   const hatsList = _.orderBy(

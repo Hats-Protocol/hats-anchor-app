@@ -97,7 +97,7 @@ const WearerButtons = () => {
   );
 
   return (
-    <Flex justify='space-between' align='center'>
+    <Flex justify='space-between' align='center' px={10}>
       {_.gt(_.size(eligibleWearerIds), 6) && (
         <Text
           onClick={() => setModals?.({ hatWearers: true })}
@@ -106,6 +106,7 @@ const WearerButtons = () => {
             textDecor: 'underline',
           }}
           size={{ base: 'sm', md: 'md' }}
+          // TODO technically not taking into account eligibility here
         >
           Show all {_.get(selectedHat, 'currentSupply')} wearers
         </Text>

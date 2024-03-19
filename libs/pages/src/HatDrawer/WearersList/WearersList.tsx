@@ -31,6 +31,7 @@ import { HatWearer } from 'types';
 import { commify, extendWearers } from 'utils';
 import { Hex } from 'viem';
 
+import WearerButtons from './WearerButtons';
 import WearerRow from './WearerRow';
 import FullWearersListModal from './WearersModal';
 
@@ -39,7 +40,7 @@ const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
-  const { chainId, editMode, wearersAndControllers } = useTreeForm();
+  const { chainId, editMode } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 
   const [changeStatusWearer, setChangeStatusWearer] = useState<
@@ -52,10 +53,7 @@ const WearersList = () => {
   });
 
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
-  const extendedWearers = extendWearers(
-    _.get(selectedHat, 'wearers'),
-    wearersAndControllers,
-  );
+  const extendedWearers = extendWearers(_.get(selectedHat, 'wearers'), []);
 
   const { data: wearersEligibility } = useWearersEligibilityCheck({
     selectedHat,
@@ -65,11 +63,10 @@ const WearersList = () => {
 
   const {
     eligibleWearers: eligibleWearerIds,
-    ineligibleWearers: ineligibleWearerIds,
+    // ineligibleWearers: ineligibleWearerIds,
   } = useMemo(() => {
     return _.pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
   }, [wearersEligibility]);
-  console.log(eligibleWearerIds, ineligibleWearerIds);
 
   const filteredWearers = useMemo(() => {
     if (!eligibleWearerIds) return undefined;
@@ -123,9 +120,8 @@ const WearersList = () => {
         )}
         {/* Wearers list */}
         {_.map(filteredWearers, (w: HatWearer) => (
-          <Skeleton isLoaded={typeof w.id === 'string'}>
+          <Skeleton isLoaded={typeof w.id === 'string'} key={w.id}>
             <WearerRow
-              key={w.id}
               wearer={w}
               setChangeStatusWearer={setChangeStatusWearer}
               setWearerToTransferFrom={setWearerToTransferFrom}
@@ -141,6 +137,9 @@ const WearersList = () => {
           </Box>
         )}
       </Stack>
+
+      <WearerButtons />
+
       <FullWearersListModal
         setChangeStatusWearer={setChangeStatusWearer}
         setWearerToTransferFrom={setWearerToTransferFrom}

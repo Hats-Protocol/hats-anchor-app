@@ -57,6 +57,14 @@ export interface AppHat extends Hat {
   displayName?: string;
   extendedEligibility?: HatWearer;
   extendedToggle?: HatWearer;
+  orgChartWearers?: {
+    color: string;
+    accent: string;
+    icon: string;
+    content: string;
+    contentWidth: string;
+    accentWidth: string;
+  };
 }
 
 export interface HatWithDepth extends AppHat {

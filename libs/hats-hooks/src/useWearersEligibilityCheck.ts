@@ -3,31 +3,33 @@ import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
-import { readContract } from 'wagmi/actions';
+import { multicall } from 'wagmi/actions';
 
 const fetchWearersEligibility = async (
   wearerIds: Hex[],
   hatId: Hex,
   chainId: number,
 ) => {
-  const eligibilityQueries = _.map(wearerIds, (wearer: Hex) =>
-    readContract({
-      address: CONFIG.hatsAddress,
-      abi: CONFIG.hatsAbi,
-      functionName: 'isEligible',
-      args: [wearer, hatId],
-      chainId,
-    }),
-  );
-  const eligibilityData = await Promise.all(eligibilityQueries);
+  const eligibilityQueries = _.map(wearerIds, (wearer: Hex) => ({
+    address: CONFIG.hatsAddress,
+    abi: CONFIG.hatsAbi,
+    functionName: 'isEligible',
+    args: [wearer, hatId],
+    chainId,
+  }));
+
+  const eligibilityData = await multicall({
+    contracts: eligibilityQueries,
+    chainId,
+  });
 
   const eligibleWearers = _.filter(wearerIds, (__: unknown, index: number) => {
-    return eligibilityData[index];
+    return _.get(eligibilityData, `[${index}].result`);
   });
   const ineligibleWearers = _.filter(
     wearerIds,
     (__: unknown, index: number) => {
-      return !eligibilityData[index];
+      return !_.get(eligibilityData, `[${index}].result`);
     },
   );
 

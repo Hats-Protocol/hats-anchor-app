@@ -33,6 +33,7 @@ export { default as useMultiClaimsHatterContractWrite } from './useMultiClaimsHa
 export { default as usePaginatedTreeList } from './usePaginatedTreeList';
 export { default as useTreeCreate } from './useTreeCreate';
 export { default as useTreeDetails } from './useTreeDetails';
+export { default as useTreeWearers } from './useTreeWearers';
 export { default as useWearerDetails } from './useWearerDetails';
 export { default as useWearerEligibilityCheck } from './useWearerEligibilityCheck';
 export { default as useWearerIsInGoodStanding } from './useWearerIsInGoodStanding';

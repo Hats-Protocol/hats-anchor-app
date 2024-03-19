@@ -22,7 +22,6 @@ import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { BsFileCode } from 'react-icons/bs';
 import { FaEllipsisH } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { HatWearer } from 'types';
@@ -30,16 +29,17 @@ import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-const TooltipWrapper = dynamic(() =>
-  import('ui').then((mod) => mod.TooltipWrapper),
-);
+const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
 const CopyAddress = dynamic(() =>
   import('icons').then((mod) => mod.CopyAddress),
+);
+const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
+const TooltipWrapper = dynamic(() =>
+  import('ui').then((mod) => mod.TooltipWrapper),
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
-const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
 
 const WearerRow = ({
   wearer,
@@ -71,6 +71,7 @@ const WearerRow = ({
     !!isTopHat(selectedHat),
   );
 
+  // TODO should be able to say "Removed hat for wearer", add uses claim for
   const txDescription = `Checked status for ${formatAddress(
     wearer.id,
   )} on hat ${idToIp(hatId)}}`;
@@ -96,6 +97,7 @@ const WearerRow = ({
     chainId,
     enabled: wearer.isContract,
   });
+  console.log(wearer);
 
   const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
@@ -125,13 +127,14 @@ const WearerRow = ({
   const copyAddress = () => {
     onCopy();
     toast.info({
-      title: 'Successfully copied address to clipboard',
+      title: 'Copied address',
+      description: 'Successfully copied address to clipboard',
     });
   };
 
   let icon = WearerIcon;
   if (wearer.isContract) {
-    icon = BsFileCode;
+    icon = CodeIcon;
   }
 
   // could look up by Id to be more resilient?
