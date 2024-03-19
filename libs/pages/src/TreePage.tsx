@@ -9,20 +9,17 @@ import {
   Spinner,
   Stack,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import {
   Modal,
+  SelectedHatContextProvider,
   Suspender,
   useOverlay,
-  useSelectedHat,
   useTreeForm,
 } from 'contexts';
-import { isTopHat } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { useEffect, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { chainsMap } from 'utils';
 
@@ -43,42 +40,19 @@ const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
 const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
 const TreePage = ({ exists = true }: { exists: boolean }) => {
-  const [initialLoad, setInitialLoad] = useState(true);
-  const router = useRouter();
+  // const [initialLoad, setInitialLoad] = useState(true);
+  // const router = useRouter();
   const localOverlay = useOverlay();
-  const { selectedHat, selectedHatDetails, hatDisclosure } = useSelectedHat();
-  const {
-    chainId,
-    treeId,
-    treeToDisplay,
-    editMode,
-    topHat,
-    topHatDetails,
-    treeDisclosure,
-  } = useTreeForm();
+  const { isHatDrawerOpen, isTreeDrawerOpen, returnToTreeList } = localOverlay;
+  const { chainId, treeId, treeToDisplay, editMode, topHat } = useTreeForm();
 
-  const {
-    onOpen: onOpenHatDrawer,
-    onClose: onCloseHatDrawer,
-    isOpen: isOpenHatDrawer,
-  } = _.pick(hatDisclosure, ['onOpen', 'onClose', 'isOpen']);
-  const { onOpen: onOpenTreeDrawer, isOpen: isOpenTreeDrawer } = _.pick(
-    treeDisclosure,
-    ['onOpen', 'onClose', 'isOpen'],
-  );
-
-  const returnToList = () => {
-    onOpenTreeDrawer?.();
-    onCloseHatDrawer?.();
-  };
-
-  useEffect(() => {
-    const routerHatId = _.get(router, 'query.hatId');
-    if (initialLoad && !routerHatId && selectedHat && !editMode) {
-      onOpenHatDrawer?.();
-      setInitialLoad(false);
-    }
-  }, [selectedHat, router, onOpenHatDrawer, editMode, initialLoad]);
+  // useEffect(() => {
+  //   const routerHatId = _.get(router, 'query.hatId');
+  //   if (initialLoad && !routerHatId && selectedHat && !editMode) {
+  //     onOpenHatDrawer?.();
+  //     setInitialLoad(false);
+  //   }
+  // }, [selectedHat, router, onOpenHatDrawer, editMode, initialLoad]);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -89,32 +63,40 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   } else {
     title = 'Invalid Tree ID';
   }
-  if (!selectedHat && topHatDetails) {
-    title = `${topHatDetails.name} on ${chain.name}`;
-  } else if (selectedHat) {
-    if (selectedHatDetails) {
-      title = `${selectedHatDetails.name} on ${chain.name}`;
-    } else {
-      title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
-        BigInt(_.get(selectedHat, 'id')),
-      )} on ${chain.name}`;
-    }
-  }
+  // if (!selectedHat && topHatDetails) {
+  //   title = `${topHatDetails.name} on ${chain.name}`;
+  // } else if (selectedHat) {
+  //   console.log(selectedHat);
+  //   if (selectedHatDetails) {
+  //     title = `${selectedHatDetails.name} on ${chain.name}`;
+  //   } else {
+  //     title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
+  //       BigInt(_.get(selectedHat, 'id' || 0)),
+  //     )} on ${chain.name}`;
+  //   }
+  // }
 
   return (
     <>
       <NextSeo title={title} />
-      <Slide
-        direction='right'
-        in={!!treeToDisplay && !!isOpenHatDrawer}
-        style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}
-      >
-        <HatDrawer returnToList={returnToList} />
-      </Slide>
+      <SelectedHatContextProvider treeId={treeId} chainId={chainId}>
+        <Slide
+          direction='right'
+          in={!!treeToDisplay && !!isHatDrawerOpen}
+          style={{
+            zIndex: 1000,
+            maxWidth: '43%',
+            width: '650px',
+            display: isHatDrawerOpen ? 'block' : 'none',
+          }}
+        >
+          <HatDrawer returnToList={returnToTreeList} />
+        </Slide>
+      </SelectedHatContextProvider>
 
       <Slide
         direction='right'
-        in={!!isOpenTreeDrawer}
+        in={!!isTreeDrawerOpen}
         style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}
       >
         <TreeDrawer />
@@ -123,7 +105,7 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
       <Layout editMode={editMode} hatData={topHat}>
         {exists ? (
           <>
-            <TreeMenu treeDisclosure={treeDisclosure} />
+            <TreeMenu />
             {_.isEmpty(treeToDisplay) ? (
               <Flex justify='center' align='center' w='full' h='full'>
                 <Spinner />

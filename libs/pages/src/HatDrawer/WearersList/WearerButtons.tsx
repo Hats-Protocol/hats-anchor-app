@@ -105,12 +105,14 @@ const WearerButtons = () => {
           _hover={{
             textDecor: 'underline',
           }}
+          color='Functional-LinkSecondary'
           size={{ base: 'sm', md: 'md' }}
           // TODO technically not taking into account eligibility here
         >
           Show all {_.get(selectedHat, 'currentSupply')} wearers
         </Text>
       )}
+
       {!isMobile && (
         <>
           {currentHatIsClaimable?.for && address && (
@@ -144,6 +146,8 @@ const WearerButtons = () => {
           )}
           {(currentUserIsEligible as boolean) &&
             !!isClaimable &&
+            !currentHatIsClaimable?.for &&
+            !isAdminUser &&
             !currentUserIsWearing && (
               <Tooltip
                 label={claimTooltip({
@@ -171,7 +175,7 @@ const WearerButtons = () => {
                 </Button>
               </Tooltip>
             )}
-          {isAdminUser && (
+          {isAdminUser && !currentHatIsClaimable?.for && (
             <Tooltip
               label={addWearerTooltip(
                 chainId === currentNetworkId,

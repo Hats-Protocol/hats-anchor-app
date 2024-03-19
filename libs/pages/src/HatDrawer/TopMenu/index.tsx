@@ -24,9 +24,10 @@ const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
+  const { onCloseHatDrawer } = localOverlay;
   const { chainId, editMode, onchainHats, storedData, treeToDisplay } =
     useTreeForm();
-  const { selectedHat, setSelectedHatId, hatDisclosure } = useSelectedHat();
+  const { selectedHat } = useSelectedHat();
 
   const {
     isLoading,
@@ -37,7 +38,6 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   } = useHatForm();
   const { address } = useAccount();
   const { isMobile } = useMediaStyles();
-  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -100,7 +100,6 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
       ) : (
         <Button
           onClick={() => {
-            setSelectedHatId?.(undefined);
             onCloseHatDrawer?.();
           }}
           leftIcon={<BsXSquare />}

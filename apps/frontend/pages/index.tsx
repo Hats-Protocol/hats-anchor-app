@@ -218,7 +218,8 @@ const Home = () => {
                     <Skeleton
                       isLoaded={!!tree && !featuredTreesDataLoading}
                       key={i}
-                      maxW={{ md: '30%' }}
+                      maxW={{ base: '100%', md: '30%' }}
+                      borderRadius='md'
                     >
                       <FeaturedTreeCard
                         treeData={tree}

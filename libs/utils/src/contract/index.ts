@@ -1,5 +1,5 @@
-import { HatWearer, Transaction } from 'types';
 import _ from 'lodash';
+import { HatWearer, Transaction } from 'types';
 import { Hex, zeroAddress } from 'viem';
 
 import { viemPublicClient } from '../web3';

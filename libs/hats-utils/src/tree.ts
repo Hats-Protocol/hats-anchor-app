@@ -14,6 +14,7 @@ import { Hex } from 'viem';
 import { decimalId, getTreeId } from './hats';
 import { maxSupplyText } from './wearers';
 
+// TODO move these to org-chart
 const ORG_CHART_ICONS = {
   contract: `<img src="/icons/contract.svg" alt="wearer" />`,
   wearer: `<img src="/icons/wearer.svg" alt="wearer" />`,

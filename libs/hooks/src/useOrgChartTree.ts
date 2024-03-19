@@ -47,8 +47,14 @@ const useOrgChartTree = ({
   }, [hatsData]);
 
   const fetchTree = async () => {
-    if (!chainId || !hatsData || !detailsData || !imagesData) {
-      return undefined;
+    if (
+      !chainId ||
+      !hatsData ||
+      !detailsData ||
+      !imagesData ||
+      !orgChartWearers
+    ) {
+      return null;
     }
 
     const tree = await toTreeStructure({
@@ -84,6 +90,7 @@ const useOrgChartTree = ({
       !!hatsData &&
       !!detailsData &&
       !!imagesData &&
+      !!orgChartWearers &&
       imagesLoaded &&
       detailsLoaded,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

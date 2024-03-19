@@ -10,7 +10,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
 import { useAdminOfHats } from 'hats-hooks';
@@ -34,24 +34,22 @@ const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
 
 const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
+  const { onCloseTreeDrawer, onOpenHatDrawer } = useOverlay();
   const {
     topHat,
     onchainHats,
     treeToDisplay,
     treeToDisplayWithInactiveHats,
     storedData,
-    treeDisclosure,
     treeEvents,
     topHatDetails,
     chainId,
     linkedHatIds,
   } = useTreeForm();
-  const { setSelectedHatId, hatDisclosure } = useSelectedHat();
+  // const {   } = useSelectedHat();
 
   const isClient = useIsClient();
 
-  const { onClose: onCloseTreeDrawer } = _.pick(treeDisclosure, ['onClose']);
-  const { onOpen: onOpenHatDrawer } = _.pick(hatDisclosure, ['onOpen']);
   const toast = useToast();
   const localOverlay = useOverlay();
 
@@ -168,7 +166,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           const handleHatClick = () => {
             onCloseTreeDrawer?.();
             onOpenHatDrawer?.();
-            setSelectedHatId?.(hat.id);
           };
 
           const hatId = hatIdDecimalToIp(BigInt(hat.id));

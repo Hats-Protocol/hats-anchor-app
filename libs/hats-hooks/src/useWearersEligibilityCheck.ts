@@ -1,40 +1,8 @@
-import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
+import { fetchWearersEligibilities } from 'hats-utils';
 import _ from 'lodash';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
-import { multicall } from 'wagmi/actions';
-
-const fetchWearersEligibility = async (
-  wearerIds: Hex[],
-  hatId: Hex,
-  chainId: number,
-) => {
-  const eligibilityQueries = _.map(wearerIds, (wearer: Hex) => ({
-    address: CONFIG.hatsAddress,
-    abi: CONFIG.hatsAbi,
-    functionName: 'isEligible',
-    args: [wearer, hatId],
-    chainId,
-  }));
-
-  const eligibilityData = await multicall({
-    contracts: eligibilityQueries,
-    chainId,
-  });
-
-  const eligibleWearers = _.filter(wearerIds, (__: unknown, index: number) => {
-    return _.get(eligibilityData, `[${index}].result`);
-  });
-  const ineligibleWearers = _.filter(
-    wearerIds,
-    (__: unknown, index: number) => {
-      return !_.get(eligibilityData, `[${index}].result`);
-    },
-  );
-
-  return { eligibleWearers, ineligibleWearers };
-};
 
 /** `useWearersEligibilityCheck` is a hook that checks the eligibility of wearers for a given hat.
  * @param selectedHat - The selected hat
@@ -54,7 +22,7 @@ const useWearersEligibilityCheck = ({
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['wearerEligibility', localWearerIds, hatId, chainId],
-    queryFn: () => fetchWearersEligibility(localWearerIds, hatId, chainId),
+    queryFn: () => fetchWearersEligibilities(localWearerIds, hatId, chainId),
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
   });
 

@@ -1,4 +1,4 @@
-import { AppModals, OverlayContextProps, Transaction } from 'types';
+import { useDisclosure } from '@chakra-ui/react';
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -11,6 +11,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { AppModals, OverlayContextProps, Transaction } from 'types';
 import { checkTransactionStatus } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId } from 'wagmi';
@@ -37,12 +38,10 @@ const defaultDrawers: AppModals = {
 const MAX_TREES = 3;
 
 export const OverlayContext = createContext<OverlayContextProps>({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: undefined,
   closeModals: undefined,
   drawers: undefined,
   setDrawers: undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePendingTx: undefined,
   commandPalette: false,
   setCommandPalette: () => {},
@@ -50,6 +49,14 @@ export const OverlayContext = createContext<OverlayContextProps>({
   clearAllTransactions: () => {},
   recentlyVisitedTrees: undefined,
   updateRecentlyVisitedTrees: () => {},
+  // DRAWER DISCLOSURES
+  onOpenHatDrawer: undefined,
+  onCloseHatDrawer: undefined,
+  isHatDrawerOpen: false,
+  onOpenTreeDrawer: undefined,
+  onCloseTreeDrawer: undefined,
+  isTreeDrawerOpen: false,
+  returnToTreeList: undefined,
 });
 
 export const OverlayContextProvider = ({
@@ -57,13 +64,15 @@ export const OverlayContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
-  const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
-  const [commandPalette, setCommandPalette] = useState(false);
+  // HOOKS
   const toast = useToast();
   const router = useRouter();
   const chainId = useChainId();
 
+  // LOCAL STATE
+  const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
+  const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
+  const [commandPalette, setCommandPalette] = useState(false);
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
     [],
@@ -71,6 +80,25 @@ export const OverlayContextProvider = ({
   const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
     { treeId: number; chainId: number }[] | undefined
   >('recently-visited-trees', undefined);
+
+  // DRAWER DISCLOSURES
+  const hatDisclosure = useDisclosure();
+  const treeDisclosure = useDisclosure();
+  const {
+    onOpen: onOpenHatDrawer,
+    onClose: onCloseHatDrawer,
+    isOpen: isHatDrawerOpen,
+  } = _.pick(hatDisclosure, ['onOpen', 'onClose', 'isOpen']);
+  const {
+    onOpen: onOpenTreeDrawer,
+    onClose: onCloseTreeDrawer,
+    isOpen: isTreeDrawerOpen,
+  } = _.pick(treeDisclosure, ['onOpen', 'onClose', 'isOpen']);
+
+  const returnToTreeList = () => {
+    onOpenTreeDrawer?.();
+    onCloseHatDrawer?.();
+  };
 
   const updateRecentlyVisitedTrees = useCallback(
     ({ treeId, chainId: cId }: { treeId: number; chainId: number }) => {
@@ -243,6 +271,14 @@ export const OverlayContextProvider = ({
       clearAllTransactions,
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
+      // DRAWER DISCLOSURES
+      onOpenHatDrawer,
+      onCloseHatDrawer,
+      isHatDrawerOpen,
+      onOpenTreeDrawer,
+      onCloseTreeDrawer,
+      isTreeDrawerOpen,
+      returnToTreeList,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [modals, commandPalette, toast],

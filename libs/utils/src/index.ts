@@ -6,4 +6,6 @@ export * from './ipfs';
 export * from './mobile';
 export * from './platform';
 export * from './subgraph';
+export * from './trees';
+export * from './wearers';
 export * from './web3';

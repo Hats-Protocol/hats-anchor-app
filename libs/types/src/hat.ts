@@ -57,6 +57,7 @@ export interface AppHat extends Hat {
   displayName?: string;
   extendedEligibility?: HatWearer;
   extendedToggle?: HatWearer;
+  // object assembled to be used in the org chart wearers section
   orgChartWearers?: {
     color: string;
     accent: string;

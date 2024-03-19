@@ -149,7 +149,7 @@ const Input = ({
                 colorScheme='blue.500'
                 onClick={resetFallback}
               >
-                Reset
+                Null
               </Button>
               <Button
                 size='xs'

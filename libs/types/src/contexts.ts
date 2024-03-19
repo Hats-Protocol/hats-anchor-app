@@ -36,6 +36,13 @@ export interface OverlayContextProps {
   clearAllTransactions: () => void;
   recentlyVisitedTrees: TreeRecord[] | undefined;
   updateRecentlyVisitedTrees: (tree: TreeRecord) => void;
+  onOpenHatDrawer?: () => void;
+  onCloseHatDrawer?: () => void;
+  isHatDrawerOpen: boolean;
+  onOpenTreeDrawer?: () => void;
+  onCloseTreeDrawer?: () => void;
+  isTreeDrawerOpen: boolean;
+  returnToTreeList?: () => void;
 }
 
 export interface StandaloneOverlayContextProps {

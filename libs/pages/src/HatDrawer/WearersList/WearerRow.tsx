@@ -3,10 +3,7 @@ import {
   Flex,
   Icon,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
+  Image,
   Text,
   useClipboard,
 } from '@chakra-ui/react';
@@ -19,15 +16,14 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
-import { useMediaStyles, useToast, useWaitForSubgraph } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { FaEllipsisH } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { HatWearer } from 'types';
 import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
 
 const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
 const CopyAddress = dynamic(() =>
@@ -43,6 +39,7 @@ const ChakraNextLink = dynamic(() =>
 
 const WearerRow = ({
   wearer,
+  isIneligible,
   setChangeStatusWearer,
   setWearerToTransferFrom,
 }: WearerRowProps) => {
@@ -52,9 +49,14 @@ const WearerRow = ({
   const { address } = useAccount();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { isMobile } = useMediaStyles();
+  // const { isMobile } = useMediaStyles();
   const { onCopy } = useClipboard(wearer.id);
 
+  const { data: ensAvatar } = useEnsAvatar({
+    chainId: 1,
+    name: wearer?.ensName,
+    enabled: !!wearer?.ensName,
+  });
   const { data: wearerDetails } = useWearerDetails({
     wearerAddress: wearer.id,
     chainId,
@@ -72,9 +74,9 @@ const WearerRow = ({
   );
 
   // TODO should be able to say "Removed hat for wearer", add uses claim for
-  const txDescription = `Checked status for ${formatAddress(
+  const txDescription = `Revoked hat #${idToIp(hatId)} from ${formatAddress(
     wearer.id,
-  )} on hat ${idToIp(hatId)}}`;
+  )}`;
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
@@ -97,7 +99,7 @@ const WearerRow = ({
     chainId,
     enabled: wearer.isContract,
   });
-  console.log(wearer);
+  // console.log(wearer);
 
   const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
@@ -143,33 +145,95 @@ const WearerRow = ({
     moduleName = 'Autonomous Admin';
   }
 
+  let bgColor = 'transparent';
+  let color = 'Informative-Human';
+  if (isIneligible) {
+    color = 'gray.500';
+  } else if (isSameAddress(wearer.id, address)) {
+    bgColor = 'green.100';
+    color = 'green.800';
+  } else if (wearer.isContract) {
+    color = 'Informative-Code';
+  }
+
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
       <ChakraNextLink href={`/wearers/${wearer.id}`}>
-        <Flex
-          alignItems='center'
-          gap={2}
-          backgroundColor={
-            isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
-          }
-        >
-          <Icon
-            as={icon}
-            color={isSameAddress(wearer.id, address) ? 'green.700' : 'gray.500'}
-            boxSize={{ base: '14px', md: 4 }}
-          />
+        <Flex alignItems='center' gap={1} backgroundColor={bgColor} pr={1}>
+          {ensAvatar ? (
+            <Image
+              w={3}
+              h={4}
+              mx={1}
+              src={ensAvatar}
+              borderRadius='2px'
+              objectFit='cover'
+            />
+          ) : (
+            <Icon as={icon} color={color} boxSize={{ base: '14px', md: 4 }} />
+          )}
 
-          <Text
-            color={isSameAddress(wearer.id, address) ? 'green.700' : 'inherit'}
-            size={{ base: 'sm', md: 'md' }}
-          >
+          <Text color={color} size={{ base: 'sm', md: 'md' }}>
             {_.get(wearer, 'ensName') ||
               moduleName ||
               formatAddress(_.get(wearer, 'id'))}
           </Text>
         </Flex>
       </ChakraNextLink>
-      <Flex alignItems='center' gap={2}>
+      <Flex alignItems='center' gap={1}>
+        {!isIneligible &&
+          isAdminUser &&
+          (wearer.id !== _.toLower(address) || isTopHat(selectedHat)) && (
+            <TooltipWrapper
+              isSameChain={isSameChain}
+              label="You can't transfer a hat on a different chain"
+            >
+              <Button
+                variant='ghost'
+                size='xs'
+                color='Functional-LinkSecondary'
+                isDisabled={!isSameChain}
+                onClick={() => {
+                  setModals?.({ transferHat: true });
+                  setWearerToTransferFrom(wearer.id);
+                }}
+              >
+                Transfer
+              </Button>
+            </TooltipWrapper>
+          )}
+
+        {isIneligible && (
+          <Button
+            variant='ghost'
+            size='xs'
+            color='red.500'
+            fontWeight='medium'
+            isLoading={isLoading}
+            onClick={updateEligibility}
+          >
+            Revoke
+          </Button>
+        )}
+        {!isSameAddress(wearer.id, address) && isEligibility && (
+          <TooltipWrapper
+            isSameChain={isSameChain}
+            label="You can't revoke a hat on a different chain"
+          >
+            <Button
+              variant='ghost'
+              color='red.500'
+              size='xs'
+              isDisabled={!isSameChain}
+              onClick={() => {
+                setModals?.({ hatWearerStatus: true });
+                setChangeStatusWearer(wearer.id);
+              }}
+            >
+              Revoke
+            </Button>
+          </TooltipWrapper>
+        )}
         {!isSameAddress(wearer.id, address) ? (
           <IconButton
             icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}
@@ -180,91 +244,25 @@ const WearerRow = ({
             onClick={copyAddress}
           />
         ) : (
-          isMobile && (
-            <Button
-              variant='ghost'
-              size='xs'
-              fontWeight='normal'
-              bg='transparent'
-              isDisabled={!isSameChain}
-              onClick={handleRenounceHat}
-              color='blackAlpha.500'
+          !isTopHat(selectedHat) &&
+          !isIneligible && (
+            <TooltipWrapper
+              isSameChain={isSameChain}
+              label="You can't renounce a hat on a different chain"
             >
-              Renounce
-            </Button>
+              <Button
+                variant='ghost'
+                size='xs'
+                color='red.500'
+                fontWeight='medium'
+                bg='transparent'
+                isDisabled={!isSameChain}
+                onClick={handleRenounceHat}
+              >
+                Renounce
+              </Button>
+            </TooltipWrapper>
           )
-        )}
-
-        {!isMobile && (
-          <Menu isLazy>
-            <MenuButton
-              as={IconButton}
-              aria-label='Options'
-              icon={<FaEllipsisH />}
-              size='xs'
-              variant='outline'
-            />
-            <MenuList>
-              <MenuItem
-                isDisabled={!isSameChain || !isAdminUser}
-                onClick={() => {
-                  setModals?.({ transferHat: true });
-                  setWearerToTransferFrom(wearer.id);
-                }}
-              >
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't transfer a hat on a different chain"
-                >
-                  <Text>Transfer</Text>
-                </TooltipWrapper>
-              </MenuItem>
-
-              {isSameAddress(wearer.id, address) && !isTopHat(selectedHat) && (
-                <MenuItem isDisabled={!isSameChain} onClick={handleRenounceHat}>
-                  <TooltipWrapper
-                    isSameChain={isSameChain}
-                    label="You can't renounce a hat on a different chain"
-                  >
-                    <Text>Renounce</Text>
-                  </TooltipWrapper>
-                </MenuItem>
-              )}
-
-              {!isSameAddress(wearer.id, address) && isEligibility && (
-                <MenuItem
-                  isDisabled={!isSameChain}
-                  onClick={() => {
-                    setModals?.({ hatWearerStatus: true });
-                    setChangeStatusWearer(wearer.id);
-                  }}
-                >
-                  <TooltipWrapper
-                    isSameChain={isSameChain}
-                    label="You can't revoke a hat on a different chain"
-                  >
-                    <Text>Revoke Hat</Text>
-                  </TooltipWrapper>
-                </MenuItem>
-              )}
-
-              <MenuItem
-                isDisabled={!isSameChain || isLoading || !updateEligibility}
-                onClick={() => updateEligibility?.()}
-              >
-                <TooltipWrapper
-                  isSameChain={isSameChain}
-                  label="You can't update eligibility of a hat on a different chain"
-                >
-                  <Text>Update Eligibility</Text>
-                </TooltipWrapper>
-              </MenuItem>
-
-              <MenuItem onClick={copyAddress}>
-                <Text>Copy Address</Text>
-              </MenuItem>
-            </MenuList>
-          </Menu>
         )}
       </Flex>
     </Flex>
@@ -275,6 +273,7 @@ export default WearerRow;
 
 interface WearerRowProps {
   wearer: HatWearer;
+  isIneligible?: boolean;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
 }

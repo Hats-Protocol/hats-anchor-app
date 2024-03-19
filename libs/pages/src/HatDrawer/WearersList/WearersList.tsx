@@ -1,5 +1,7 @@
 import {
   Box,
+  Button,
+  Collapse,
   Divider,
   Flex,
   Heading,
@@ -11,16 +13,16 @@ import {
   Stack,
   Text,
   Tooltip,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat } from 'contexts';
 import {
   HatClaimForForm,
   HatTransferForm,
   HatWearerForm,
   HatWearerStatusForm,
 } from 'forms';
-import { useWearersEligibilityCheck } from 'hats-hooks';
-import { filterWearers, maxSupplyText } from 'hats-utils';
+import { filterWearers, maxSupplyText, sortWearers } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -30,6 +32,7 @@ import { FaSearch } from 'react-icons/fa';
 import { HatWearer } from 'types';
 import { commify, extendWearers } from 'utils';
 import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 import WearerButtons from './WearerButtons';
 import WearerRow from './WearerRow';
@@ -40,8 +43,13 @@ const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
-  const { chainId, editMode } = useTreeForm();
-  const { selectedHat } = useSelectedHat();
+  const { address } = useAccount();
+  const { selectedHat, eligibleWearers, ineligibleWearers, wearersLoading } =
+    useSelectedHat();
+  const {
+    isOpen: ineligibleWearersExpanded,
+    onToggle: onToggleIneligibleWearers,
+  } = useDisclosure();
 
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -55,90 +63,117 @@ const WearersList = () => {
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
   const extendedWearers = extendWearers(_.get(selectedHat, 'wearers'), []);
 
-  const { data: wearersEligibility } = useWearersEligibilityCheck({
-    selectedHat,
-    chainId,
-    editMode,
-  });
-
-  const {
-    eligibleWearers: eligibleWearerIds,
-    // ineligibleWearers: ineligibleWearerIds,
-  } = useMemo(() => {
-    return _.pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
-  }, [wearersEligibility]);
-
   const filteredWearers = useMemo(() => {
-    if (!eligibleWearerIds) return undefined;
-    const localEligibleWearers = _.filter(extendedWearers, (w: HatWearer) =>
-      _.includes(eligibleWearerIds, w.id),
+    if (!eligibleWearers) return undefined;
+    const localEligibleWearers = _.filter(eligibleWearers, (w: HatWearer) =>
+      _.includes(_.map(eligibleWearers, 'id'), w.id),
     );
+    const sortedWearers = sortWearers({
+      wearers: localEligibleWearers,
+      address,
+    });
     return _.slice(
-      filterWearers(searchTerm, localEligibleWearers),
+      filterWearers(searchTerm, sortedWearers),
       0,
       6,
     ) as HatWearer[];
-  }, [searchTerm, extendedWearers, eligibleWearerIds]);
+  }, [searchTerm, eligibleWearers, address]);
+  const loadingWearers = Array(4).fill({});
 
   return (
     <>
-      <Stack spacing={4} px={{ base: 4, md: 10 }}>
-        <Flex justify='space-between' alignItems='center'>
-          <HStack spacing={1}>
-            <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
-              {_.get(selectedHat, 'currentSupply')} Wearer
-              {(_.toNumber(_.get(selectedHat, 'currentSupply')) > 1 ||
-                _.toNumber(_.get(selectedHat, 'currentSupply')) === 0) &&
-                's'}{' '}
-              of this Hat
-            </Heading>
-            <Tooltip
-              label={maxSupply && commify(maxSupply)}
-              placement='left'
-              hasArrow
-            >
-              <Text size='sm' color='blackAlpha.500'>
-                of {maxSupplyText(maxSupply)} max
-              </Text>
-            </Tooltip>
-          </HStack>
-        </Flex>
+      <Stack>
+        <Stack spacing={4} px={{ base: 4, md: 10 }}>
+          <Flex justify='space-between' alignItems='center'>
+            <HStack spacing={1}>
+              <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+                {_.size(eligibleWearers)} Wearer
+                {(_.size(eligibleWearers) > 1 ||
+                  _.size(eligibleWearers) === 0) &&
+                  's'}{' '}
+                of this Hat
+              </Heading>
+              <Tooltip
+                label={maxSupply && commify(maxSupply)}
+                placement='left'
+                hasArrow
+              >
+                <Text size='sm' color='blackAlpha.500'>
+                  of {maxSupplyText(maxSupply)} max
+                </Text>
+              </Tooltip>
+            </HStack>
+          </Flex>
 
-        {_.gt(_.size(extendedWearers), 5) && (
-          <InputGroup>
-            <InputLeftElement pointerEvents='none'>
-              <FaSearch />
-            </InputLeftElement>
-            <Input
-              // add left icon inside of input field
-              placeholder='Find by address (0x) or ens (.eth)'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              size={{ base: 'sm', md: 'md' }}
-            />
-          </InputGroup>
+          {_.gt(_.size(extendedWearers), 5) && (
+            <InputGroup>
+              <InputLeftElement pointerEvents='none'>
+                <FaSearch />
+              </InputLeftElement>
+              <Input
+                // add left icon inside of input field
+                placeholder='Find by address (0x) or ens (.eth)'
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                size={{ base: 'sm', md: 'md' }}
+              />
+            </InputGroup>
+          )}
+          {/* Wearers list */}
+          {_.map(
+            !wearersLoading ? filteredWearers : loadingWearers,
+            (w: HatWearer, index) => (
+              <Skeleton isLoaded={typeof w.id === 'string'} key={index}>
+                <WearerRow
+                  wearer={w}
+                  setChangeStatusWearer={setChangeStatusWearer}
+                  setWearerToTransferFrom={setWearerToTransferFrom}
+                />
+              </Skeleton>
+            ),
+          )}
+          {!wearersLoading && _.isEmpty(filteredWearers) && (
+            <Box>
+              <Flex justify='center' h='70px' align='center'>
+                <Text>No wearers currently</Text>
+              </Flex>
+              <Divider />
+            </Box>
+          )}
+        </Stack>
+        {!_.isEmpty(ineligibleWearers) && (
+          <Collapse startingHeight={25} in={ineligibleWearersExpanded}>
+            <Stack px={10}>
+              <Flex justify='space-between'>
+                <Text color='Functional-LinkSecondary'>
+                  {_.size(ineligibleWearers)} recently removed wearers
+                </Text>
+                <Button
+                  size='xs'
+                  variant='ghost'
+                  fontWeight='medium'
+                  color='blue.500'
+                  onClick={onToggleIneligibleWearers}
+                >
+                  {ineligibleWearersExpanded ? 'Hide' : 'Review'}
+                </Button>
+              </Flex>
+              <Stack>
+                {_.map(ineligibleWearers, (w: HatWearer) => (
+                  <WearerRow
+                    wearer={w}
+                    isIneligible
+                    setChangeStatusWearer={setChangeStatusWearer}
+                    setWearerToTransferFrom={setWearerToTransferFrom}
+                  />
+                ))}
+              </Stack>
+            </Stack>
+          </Collapse>
         )}
-        {/* Wearers list */}
-        {_.map(filteredWearers, (w: HatWearer) => (
-          <Skeleton isLoaded={typeof w.id === 'string'} key={w.id}>
-            <WearerRow
-              wearer={w}
-              setChangeStatusWearer={setChangeStatusWearer}
-              setWearerToTransferFrom={setWearerToTransferFrom}
-            />
-          </Skeleton>
-        ))}
-        {_.isEmpty(filteredWearers) && (
-          <Box>
-            <Flex justify='center' h='70px' align='center'>
-              <Text>No wearers currently</Text>
-            </Flex>
-            <Divider />
-          </Box>
-        )}
+
+        <WearerButtons />
       </Stack>
-
-      <WearerButtons />
 
       <FullWearersListModal
         setChangeStatusWearer={setChangeStatusWearer}

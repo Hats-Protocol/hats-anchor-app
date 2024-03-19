@@ -1,33 +1,9 @@
+import { CONFIG } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { HatWearer } from 'types';
 import { isSameAddress } from 'utils';
 import { Hex } from 'viem';
-
-// still used?
-export const getEligibleWearers = ({
-  wearersEligibility,
-  wearers,
-}: {
-  wearersEligibility: { address: string; isEligible: boolean }[] | undefined;
-  wearers: HatWearer[];
-}): HatWearer[] => {
-  const eligibleWearers = wearersEligibility
-    ? wearers?.filter((w: { id: string }) =>
-        isWearerEligible(w.id, wearersEligibility),
-      )
-    : wearers;
-
-  return eligibleWearers;
-};
-
-// still used?
-export const isWearerEligible = (
-  wearerId: string,
-  wearersEligibility: { address: string; isEligible: boolean }[] | undefined,
-) => {
-  const eligibleEntry = _.find(wearersEligibility, { address: wearerId });
-  return !!eligibleEntry?.isEligible;
-};
+import { multicall } from 'wagmi/actions';
 
 export const filterWearers = (
   searchTerm: string,
@@ -42,6 +18,37 @@ export const filterWearers = (
 
     return idSearch || ensSearch;
   });
+};
+
+export const fetchWearersEligibilities = async (
+  wearerIds: Hex[],
+  hatId: Hex,
+  chainId: number,
+) => {
+  const eligibilityQueries = _.map(wearerIds, (wearer: Hex) => ({
+    address: CONFIG.hatsAddress,
+    abi: CONFIG.hatsAbi,
+    functionName: 'isEligible',
+    args: [wearer, hatId],
+    chainId,
+  }));
+
+  const eligibilityData = await multicall({
+    contracts: eligibilityQueries,
+    chainId,
+  });
+
+  const eligibleWearers = _.filter(wearerIds, (__: unknown, index: number) => {
+    return _.get(eligibilityData, `[${index}].result`);
+  });
+  const ineligibleWearers = _.filter(
+    wearerIds,
+    (__: unknown, index: number) => {
+      return !_.get(eligibilityData, `[${index}].result`);
+    },
+  );
+
+  return { eligibleWearers, ineligibleWearers };
 };
 
 export const sortWearers = ({
