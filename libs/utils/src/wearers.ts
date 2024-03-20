@@ -52,7 +52,7 @@ export const fetchHatWearerDetails = async (
     { id: hat.eligibility },
     { id: hat.toggle },
   ]);
-  const promises = _.map(wearersList, (wearer: HatWearer) =>
+  const promises = _.map(_.uniqBy(wearersList, 'id'), (wearer: HatWearer) =>
     extendWearerDetails(wearer.id, chainId),
   );
   return Promise.all(promises)

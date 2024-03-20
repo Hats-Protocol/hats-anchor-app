@@ -1,7 +1,7 @@
 import { createIcon } from '@chakra-ui/react';
 
-const HatIcon: any = createIcon({
-  displayName: 'HatIcon',
+const EmptyWearer: any = createIcon({
+  displayName: 'EmptyWearer',
   viewBox: '0 0 24 24',
   path: [
     <path
@@ -11,4 +11,4 @@ const HatIcon: any = createIcon({
   ],
 });
 
-export default HatIcon;
+export default EmptyWearer;

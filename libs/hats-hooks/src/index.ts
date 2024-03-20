@@ -6,6 +6,7 @@ export { default as useAncillaryModules } from './useAncillaryModules';
 export { default as useCallHsgFunction } from './useCallHsgFunction';
 export { default as useCallModuleFunction } from './useCallModuleFunction';
 export { default as useControllerList } from './useControllerList';
+export { default as useHatAdminWearers } from './useHatAdminWearers';
 export { default as useHatBurn } from './useHatBurn';
 export { default as useHatClaimBy } from './useHatClaimBy';
 export { default as useHatClaimFor } from './useHatClaimFor';

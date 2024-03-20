@@ -550,6 +550,7 @@ const OrgChartComponent: React.FC = () => {
                       </div>
                     </div>
                     ${
+                      // TODO need to re-check eligibility here
                       isInWearerHats
                         ? `<img src='/icons/hat.svg'
                             style="

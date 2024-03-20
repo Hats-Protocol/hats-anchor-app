@@ -63,6 +63,14 @@ const Text = {
     mono: {
       fontFamily: 'mono',
     },
+    cashtag: {
+      display: 'inline-block',
+      bg: 'blackAlpha.100',
+      color: 'blackAlpha.700',
+      fontWeight: 'medium',
+      textDecoration: 'underline',
+      px: 1,
+    },
   },
   defaultProps: {
     size: 'md',

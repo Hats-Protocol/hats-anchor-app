@@ -33,6 +33,7 @@ import {
   Hierarchy,
   SupportedChains,
 } from 'types';
+import { extendControllers, extendWearers } from 'utils';
 import { Hex } from 'viem';
 
 import { useOverlay } from './OverlayContext';
@@ -124,7 +125,7 @@ export const SelectedHatContextProvider = ({
   const selectedHat = useMemo(() => {
     return _.find(orgChartTree, { id: selectedHatId });
   }, [orgChartTree, selectedHatId]);
-  const { data: fullSelectedHat, isLoading: hatLoading } = useHatDetails({
+  const { data: localSelectedHat, isLoading: hatLoading } = useHatDetails({
     hatId: selectedHatId,
     chainId,
   });
@@ -287,6 +288,28 @@ export const SelectedHatContextProvider = ({
     spaces: selectedHatSpaces,
     modulesAuthorities,
   });
+
+  // *********************
+  // * COMBINE HAT
+  // *********************
+
+  const fullSelectedHat = useMemo(() => {
+    if (!selectedHat || !hatWearers) return undefined;
+    const extendedWearers = extendWearers(selectedHat.wearers, hatWearers);
+    const extendedEligibility = extendControllers(
+      selectedHat.eligibility,
+      hatWearers,
+    );
+    const extendedToggle = extendControllers(selectedHat.toggle, hatWearers);
+
+    return {
+      ...selectedHat,
+      ...localSelectedHat,
+      extendedWearers,
+      extendedEligibility,
+      extendedToggle,
+    };
+  }, [selectedHat, localSelectedHat, hatWearers]);
 
   const returnValue = useMemo(
     () => ({

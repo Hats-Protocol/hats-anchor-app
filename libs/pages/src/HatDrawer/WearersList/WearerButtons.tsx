@@ -96,6 +96,12 @@ const WearerButtons = () => {
     _.toNumber(selectedHat?.maxSupply),
   );
 
+  // order of button priority
+  // 0. show all wearers
+  // 1. claim hat for wearer
+  // 2. add wearer (for admins)
+  // 3. claim hat
+
   return (
     <Flex justify='space-between' align='center' px={10}>
       {_.gt(_.size(eligibleWearerIds), 6) && (

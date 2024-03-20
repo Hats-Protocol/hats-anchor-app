@@ -11,8 +11,8 @@ import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useIsClient } from 'hooks';
+import { Etherscan } from 'icons';
 import _ from 'lodash';
-import { FaExternalLinkAlt } from 'react-icons/fa';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { explorerUrl } from 'utils';
 
@@ -90,8 +90,8 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
       justify='space-between'
       py={2}
     >
-      <Text size={{ base: 'sm', md: 'md' }}>
-        {`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}
+      <Text size={{ base: 'sm', md: 'md' }} color='blackAlpha.800'>
+        {event.id?.split('-')[0]}
       </Text>
 
       <ChakraNextLink
@@ -99,13 +99,13 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
         href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`}
         display='block'
       >
-        <HStack spacing={3}>
-          <Text size={{ base: 'sm', md: 'md' }}>{event.id?.split('-')[0]}</Text>
-          <Icon
-            as={FaExternalLinkAlt}
-            boxSize={{ base: 3, md: '14px' }}
-            color='blue.500'
-          />
+        <HStack color='blue.500' justify='center'>
+          <Text size={{ base: 'sm', md: 'md' }}>
+            {`${formatDistanceToNow(
+              new Date(Number(event.timestamp) * 1000),
+            )} ago`}
+          </Text>
+          <Icon as={Etherscan} boxSize={{ base: 3, md: 4 }} />
         </HStack>
       </ChakraNextLink>
     </Flex>

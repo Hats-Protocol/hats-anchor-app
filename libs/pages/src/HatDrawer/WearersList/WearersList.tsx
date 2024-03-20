@@ -6,6 +6,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   Input,
   InputGroup,
   InputLeftElement,
@@ -39,6 +40,9 @@ import WearerRow from './WearerRow';
 import FullWearersListModal from './WearersModal';
 
 const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
+const RemovedWearer = dynamic(() =>
+  import('icons').then((i) => i.RemovedWearer),
+);
 
 const WearersList = () => {
   const localOverlay = useOverlay();
@@ -145,9 +149,12 @@ const WearersList = () => {
           <Collapse startingHeight={25} in={ineligibleWearersExpanded}>
             <Stack px={10}>
               <Flex justify='space-between'>
-                <Text color='Functional-LinkSecondary'>
-                  {_.size(ineligibleWearers)} recently removed wearers
-                </Text>
+                <HStack spacing={1} color='Functional-LinkSecondary'>
+                  <Icon as={RemovedWearer} />
+                  <Text>
+                    {_.size(ineligibleWearers)} recently removed wearers
+                  </Text>
+                </HStack>
                 <Button
                   size='xs'
                   variant='ghost'
