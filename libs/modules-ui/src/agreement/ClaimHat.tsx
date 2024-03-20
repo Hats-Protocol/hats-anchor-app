@@ -16,6 +16,7 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
@@ -23,6 +24,10 @@ import { useAccount, useChainId, useQueryClient } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 import Conditions from './Conditions';
+
+const NetworkSwitcher = dynamic(() =>
+  import('ui').then((mod) => mod.NetworkSwitcher),
+);
 
 // TODO get hatId from URL params
 const communityMemberHat = '1.2.1';
@@ -106,39 +111,43 @@ const ClaimHat = ({
     <Stack w='40%' justifyContent='center' alignItems='left'>
       <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
       <Stack w='full' justifyContent='center' gap={3}>
-        <Tooltip
-          label={
-            !isReviewed
-              ? 'You must sign the agreement to claim this hat'
-              : !address
-              ? 'Connect your wallet to get started'
-              : chainId !== currentNetworkId
-              ? 'Switch to the correct network'
-              : !currentHatIsClaimable?.for
-              ? 'You are not eligible to claim this hat'
-              : !hatterIsAdmin
-              ? 'You are not an admin'
-              : isWearing
-              ? 'You are already wearing this hat'
-              : ''
-          }
-          placement='top'
-        >
-          <Button
-            isDisabled={
-              !isReviewed ||
-              !hatterIsAdmin ||
-              chainId !== currentNetworkId ||
-              !currentHatIsClaimable?.for ||
-              isWearing
+        {chainId !== currentNetworkId ? (
+          <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
+        ) : (
+          <Tooltip
+            label={
+              !isReviewed
+                ? 'You must sign the agreement to claim this hat'
+                : !address
+                ? 'Connect your wallet to get started'
+                : chainId !== currentNetworkId
+                ? 'Switch to the correct network'
+                : !currentHatIsClaimable?.for
+                ? 'You are not eligible to claim this hat'
+                : !hatterIsAdmin
+                ? 'You are not an admin'
+                : isWearing
+                ? 'You are already wearing this hat'
+                : ''
             }
-            colorScheme='blue'
-            leftIcon={<BsPen />}
-            onClick={signAndClaim}
+            placement='top'
           >
-            Claim with Signature
-          </Button>
-        </Tooltip>
+            <Button
+              isDisabled={
+                !isReviewed ||
+                !hatterIsAdmin ||
+                chainId !== currentNetworkId ||
+                !currentHatIsClaimable?.for ||
+                isWearing
+              }
+              colorScheme='blue'
+              leftIcon={<BsPen />}
+              onClick={signAndClaim}
+            >
+              Claim with Signature
+            </Button>
+          </Tooltip>
+        )}
 
         {isWearing && (
           <Stack align='center'>

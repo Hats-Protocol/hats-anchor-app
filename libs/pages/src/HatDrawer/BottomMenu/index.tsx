@@ -1,6 +1,6 @@
 import { Box, Button, Flex, HStack } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useSelectedHat } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import {
   FaRegArrowAltCircleDown,
@@ -12,8 +12,7 @@ import {
 import MobileBottomMenu from './mobile';
 
 const BottomMenu = ({ show }: { show?: boolean }) => {
-  const { hierarchy } = useTreeForm();
-  const { setSelectedHatId } = useSelectedHat();
+  const { setSelectedHatId, hierarchy } = useSelectedHat();
   const { isMobile } = useMediaStyles();
 
   if (isMobile) {

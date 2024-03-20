@@ -41,13 +41,14 @@ import {
   LearnMoreCard,
 } from 'ui';
 import { formatAddress } from 'utils';
-import { useAccount, useEnsName } from 'wagmi';
+import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HATS_TO_SHOW = 8;
 const MOBILE_HATS_TO_SHOW = 4;
 
 const Home = () => {
   const { address: wearerAddress } = useAccount();
+  const chainId = useChainId();
   const analytics = useRudderStackAnalytics();
   // const { data: featuredTemplates, isLoading: templatesLoading } =
   //   useFeaturedTemplates();
@@ -120,18 +121,20 @@ const Home = () => {
               )}
             </Stack>
 
-            <Box>
-              <ChakraNextLink href='/trees/new'>
-                <Button colorScheme='blue' py={6} px={8}>
-                  <HStack gap={3}>
-                    <BsDiagram3 />
-                    <Text size='lg' variant='medium' noOfLines={1}>
-                      Create a new {CONFIG.tree}
-                    </Text>
-                  </HStack>
-                </Button>
-              </ChakraNextLink>
-            </Box>
+            {!isMobile && (
+              <Box>
+                <ChakraNextLink href='/trees/new'>
+                  <Button colorScheme='blue' py={6} px={8}>
+                    <HStack gap={3}>
+                      <BsDiagram3 />
+                      <Text size='lg' variant='medium' noOfLines={1}>
+                        Create a new {CONFIG.tree}
+                      </Text>
+                    </HStack>
+                  </Button>
+                </ChakraNextLink>
+              </Box>
+            )}
           </Flex>
         ) : (
           <Stack>
@@ -201,23 +204,48 @@ const Home = () => {
 
         <Flex alignItems='start' gap={10} direction='column' w='100%'>
           <Stack spacing={10} flex={1} w='100%'>
-            <Skeleton
-              isLoaded={!featuredTreesLoading && !featuredTreesDataLoading}
-            >
-              <Card py={8} px={9} background='whiteAlpha.600' gap={4} h='320px'>
+            <Skeleton isLoaded={!featuredTreesLoading}>
+              <Card
+                py={8}
+                px={9}
+                background='whiteAlpha.600'
+                gap={4}
+                minH='320px'
+              >
                 <Heading variant='medium'>Explore featured trees</Heading>
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                <Flex gap={6} wrap='wrap' justify='space-between'>
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
-                    <FeaturedTreeCard
+                    <Skeleton
+                      isLoaded={!!tree && !featuredTreesDataLoading}
                       key={i}
-                      treeData={tree}
-                      hatsAndWearers={_.find(
-                        hatsAndWearers,
-                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
-                      )}
-                    />
+                      maxW={{ md: '30%' }}
+                    >
+                      <FeaturedTreeCard
+                        treeData={tree}
+                        hatsAndWearers={_.find(
+                          hatsAndWearers,
+                          (h: { treeId: string }) =>
+                            Number(h.treeId) === tree.id,
+                        )}
+                      />
+                    </Skeleton>
                   ))}
-                </SimpleGrid>
+                </Flex>
+
+                {isMobile && (
+                  <Flex justify='center' align='center' minH='125px'>
+                    <ChakraNextLink href={`/trees/${chainId || 10}`}>
+                      <Button colorScheme='blue.500' variant='outlineMatch'>
+                        <HStack gap={3}>
+                          <BsDiagram3 />
+                          <Text variant='medium' noOfLines={1}>
+                            View all trees
+                          </Text>
+                        </HStack>
+                      </Button>
+                    </ChakraNextLink>
+                  </Flex>
+                )}
               </Card>
             </Skeleton>
 
@@ -249,7 +277,9 @@ const Home = () => {
             px={9}
             background='whiteAlpha.600'
             gap={4}
-            maxW={{ base: '427px', md: '100%' }}
+            mx='auto'
+            maxW={{ base: '427px', md: 'none' }}
+            w='100%'
           >
             <Heading variant='medium'>Learn more about Hats</Heading>
             {upTo1700 ? (

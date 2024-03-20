@@ -1,3 +1,4 @@
+import { HatIcon, Safe } from 'icons';
 import { AuthorityType } from 'types';
 
 export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
@@ -15,9 +16,12 @@ export type AuthorityInfo = {
   info: string;
   color: string;
   name?: string;
-  imageUri?: string;
-  icon: string;
+  icon?: string; // name of an icon to be used for fallback
+  imageUri?: string; // used for fallback if icon is not available
+  enforcementIcon: string; // actually an SVG imported currently, could migrate to Icon
 };
+
+// ! don't try to import `ipfsUrl` here as it will cause a circular dependency
 
 export const AUTHORITY_ENFORCEMENT: {
   [key in AuthorityType]: AuthorityInfo;
@@ -26,48 +30,52 @@ export const AUTHORITY_ENFORCEMENT: {
     label: 'Hats Protocol Authority',
     info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
-    imageUri: '/icon.jpeg',
-    icon: '/icons/onchain.svg',
+    icon: HatIcon,
+    enforcementIcon: '/icons/onchain.svg',
   },
   modules: {
     label: 'Onchain Authority',
     info: 'Connected onchain via an eligibility or toggle module',
     color: 'green.300',
     name: 'Module',
-    icon: '/icons/onchain.svg',
+    icon: HatIcon,
+    enforcementIcon: '/icons/onchain.svg',
   },
   wallet: {
     label: 'Hats Protocol Authority',
     info: '',
     color: 'green.300',
     name: 'HatsWallet',
-    icon: '/icons/onchain.svg',
+    icon: HatIcon,
+    enforcementIcon: '/icons/onchain.svg',
   },
   hsg: {
     label: 'Hats Protocol Authority',
     info: 'Connected onchain via HatsSignerGate',
     color: 'green.300',
     name: 'HSG',
-    imageUri: 'ipfs://QmTPSzPCmi8w7fM7WhkWePH4mBV1WNFyT3G3goBg45UnGB',
-    icon: '/icons/onchain.svg',
+    icon: Safe,
+    enforcementIcon: '/icons/onchain.svg',
   },
   onchain: {
     label: 'Onchain Authority',
     info: '',
     color: 'green.300',
-    icon: '/icons/onchain.svg',
+    icon: HatIcon,
+    enforcementIcon: '/icons/onchain.svg',
   },
   gate: {
     label: 'Token-gated Authority',
     info: 'Pulled directly from the gate API',
     color: 'green.300',
-    icon: '/icons/token-gated.svg',
+    enforcementIcon: '/icons/token-gated.svg',
   },
   manual: {
     label: 'Social Authority',
     info: 'Appended off-chain for clarity',
     color: 'purple.300',
-    icon: '/icons/off-chain.svg',
+    // imageUri: '',
+    enforcementIcon: '/icons/off-chain.svg',
   },
 };
 

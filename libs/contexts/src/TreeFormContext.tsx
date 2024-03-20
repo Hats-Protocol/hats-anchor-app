@@ -1,6 +1,6 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
-import { Hat, HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
+import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import {
   useManyHatsDetails,
   useManyHatsDetailsField,
@@ -25,25 +25,23 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { createHierarchy, ipToHatId, mapWithChainId } from 'shared';
+import { mapWithChainId } from 'shared';
 import {
   AppHat,
   FormData,
   HatDetails,
   HatWearer,
-  Hierarchy,
   LinkRequest,
   SupportedChains,
 } from 'types';
 import {
   generateLocalStorageKey,
+  getInactiveIds,
   ipfsUrl,
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
 } from 'utils';
 import { Hex } from 'viem';
-
-import { useSelectedHat } from './SelectedHatContext';
 
 export interface TreeFormContext {
   chainId: SupportedChains | undefined;
@@ -82,10 +80,9 @@ export interface TreeFormContext {
   removeHat: ((hatId: Hex) => void) | undefined;
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
+  patchTree: ((proposedHats: AppHat[]) => void) | undefined;
   // disclosures
   treeDisclosure: UseDisclosureReturn | undefined;
-  patchTree: ((proposedHats: AppHat[]) => void) | undefined;
-  hierarchy: Hierarchy | undefined;
 }
 
 export const TreeFormContext = createContext<TreeFormContext>({
@@ -125,10 +122,9 @@ export const TreeFormContext = createContext<TreeFormContext>({
   removeHat: undefined,
   resetTree: undefined,
   importHats: undefined,
+  patchTree: undefined,
   // disclosures
   treeDisclosure: undefined,
-  patchTree: undefined,
-  hierarchy: undefined,
 });
 
 // cascade of hats data to get the org chart type
@@ -151,28 +147,6 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
-  const {
-    selectedHatDetails,
-    isDraft,
-    selectedOnchainHat,
-    selectedOnchainHatDetails,
-    selectedHatGuildRoles,
-    selectedHatSpaces,
-    combinedAuthorities,
-    selectedHat,
-    setSelectedHatId,
-    handleSelectHat,
-    hatDisclosure,
-  } = useSelectedHat();
-
-  const { hatId: initialHatIdParam } = router.query;
-  let initialHatId: string | undefined;
-  if (_.isArray(initialHatIdParam)) {
-    initialHatId = _.first(initialHatId);
-  } else {
-    initialHatId = initialHatIdParam as string;
-  }
-
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -193,7 +167,6 @@ export const TreeFormContextProvider = ({
   const treeDisclosure = useDisclosure();
   const { onOpen: onOpenTreeDrawer, onClose: onCloseTreeDrawer } =
     treeDisclosure;
-  const onCloseHatDrawer = hatDisclosure?.onClose;
 
   // existing tree
   const { data: treeData } = useTreeDetails({
@@ -305,11 +278,12 @@ export const TreeFormContextProvider = ({
     hats: hatDetails,
     editMode,
   });
+
   const { data: imagesData, isLoading: imagesLoading } = useTreeImages({
     hats: hatDetails,
     editMode,
   });
-  const { orgChartTree } = useOrgChartTree({
+  const { orgChartTree, isLoading: orgChartTreeLoading } = useOrgChartTree({
     treeData,
     chainId,
     hatsData: hatDetails,
@@ -326,18 +300,7 @@ export const TreeFormContextProvider = ({
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
   const inactiveHats = useMemo(() => {
-    const localInactiveHats = _.filter(orgChartTree, ['status', false]);
-    const descendantsOfInactiveHats = _.filter(orgChartTree, (hat: Hat) =>
-      _.some(_.map(localInactiveHats, 'prettyId'), (inactiveHat: string) =>
-        // using prettyId should cover all descendants without needing recursive sort
-        _.startsWith(hat.prettyId, inactiveHat),
-      ),
-    );
-
-    const inactiveIds = _.uniq(
-      _.map(_.concat(localInactiveHats, descendantsOfInactiveHats), 'id'),
-    );
-    return inactiveIds;
+    return getInactiveIds(orgChartTree);
   }, [orgChartTree]);
 
   const transformTree = useCallback(
@@ -471,7 +434,8 @@ export const TreeFormContextProvider = ({
       setOrgChartHats(onchainHats);
     }
     setEditMode(!editMode);
-    setSelectedHatId?.(undefined);
+    // TODO need to reset selectedHatId? query update handles?
+    // setSelectedHatId?.(undefined);
     const updatedQuery = _.omit(router.query, 'hatId');
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
@@ -532,9 +496,10 @@ export const TreeFormContextProvider = ({
         return result;
       });
       onOpenTreeDrawer();
-      onCloseHatDrawer?.();
+      // TODO  trigger drawer close on remove hat? move this to selected hat context?
+      // onCloseHatDrawer?.();
     },
-    [setStoredData, onCloseHatDrawer, onOpenTreeDrawer],
+    [setStoredData, onOpenTreeDrawer],
   );
 
   // HatExport[] -> FormData[]
@@ -578,13 +543,14 @@ export const TreeFormContextProvider = ({
     setOrgChartHats(onchainHats);
     setStoredData([]);
     setEditMode(false);
-    setSelectedHatId?.(undefined);
+    // TODO reset selectedHatId? query update can handle this?
+    // setSelectedHatId?.(undefined);
     setSelectedOption?.('wearers');
     onCloseTreeDrawer();
   }, [
     onchainHats,
     setStoredData,
-    setSelectedHatId,
+    // setSelectedHatId,
     setSelectedOption,
     onCloseTreeDrawer,
   ]);
@@ -607,81 +573,53 @@ export const TreeFormContextProvider = ({
     });
   }, []);
 
-  const hierarchy = useMemo(() => {
-    const parentsAndIds = _.map(orgChartTree, (hat: AppHat) => ({
-      id: hat.id,
-      parentId: hat.admin?.id,
-    }));
-    return createHierarchy(parentsAndIds, selectedHat?.id);
-  }, [orgChartTree, selectedHat]);
-
-  useEffect(() => {
-    if (initialHatId && orgChartTree) {
-      handleSelectHat?.(ipToHatId(String(initialHatId)));
-    }
-  }, [initialHatId, orgChartTree, handleSelectHat]);
-
   const returnValue = useMemo(
     () => ({
       chainId,
       treeId,
       topHat,
-      // tree
+      // TREE
       topHatDetails,
-      selectedHatDetails,
-      isDraft,
       treeToDisplay,
       treeToDisplayWithInactiveHats,
       onchainTree,
       onchainHats,
       treeEvents,
-      isLoading: imagesLoading || detailsFieldsLoading,
+      isLoading: imagesLoading || detailsFieldsLoading || orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,
       inactiveHats,
       orgChartTree,
-      // local storage
+      // LOCAL STORAGE
       storedConfig,
       storedData,
       setStoredData,
-      // controls
+      // CONTROLS
       editMode,
       setEditMode,
       toggleEditMode,
-      selectedHat,
-      selectedOnchainHat,
-      selectedOnchainHatDetails,
-      selectedHatGuildRoles,
-      selectedHatSpaces,
-      combinedAuthorities,
-
-      setSelectedHatId,
       selectedOption,
       setSelectedOption,
       showInactiveHats,
       setShowInactiveHats,
-      // actions
-      handleSelectHat,
+      // ACTIONS
       handleFlipChart,
       handleSetCompact,
       addHat,
       removeHat,
       resetTree,
       importHats,
-      // disclosures
-      treeDisclosure,
       patchTree,
-      hierarchy,
+      // DISCLOSURE
+      treeDisclosure,
     }),
     [
       chainId,
       treeId,
       topHat,
-      // tree
+      // TREE
       topHatDetails,
-      selectedHatDetails,
-      isDraft,
       treeToDisplay,
       treeToDisplayWithInactiveHats,
       onchainTree,
@@ -689,43 +627,34 @@ export const TreeFormContextProvider = ({
       treeEvents,
       imagesLoading,
       detailsFieldsLoading,
+      orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       wearersAndControllers,
       inactiveHats,
       orgChartTree,
-      // local storage
+      // LOCAL STORAGE
       storedData,
       storedConfig,
       setStoredData,
-      // controls
+      // CONTROLS
       editMode,
       setEditMode,
       toggleEditMode,
-      selectedHat,
-      selectedOnchainHat,
-      selectedOnchainHatDetails,
-      selectedHatGuildRoles,
-      selectedHatSpaces,
-      combinedAuthorities,
-
-      setSelectedHatId,
       selectedOption,
       setSelectedOption,
       showInactiveHats,
       setShowInactiveHats,
-      // actions
-      handleSelectHat,
+      // ACTIONS
       handleFlipChart,
       handleSetCompact,
       addHat,
       removeHat,
       resetTree,
       importHats,
-      // disclosures
-      treeDisclosure,
       patchTree,
-      hierarchy,
+      // DISCLOSURE
+      treeDisclosure,
     ],
   );
 

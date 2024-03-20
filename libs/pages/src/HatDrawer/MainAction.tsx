@@ -65,7 +65,7 @@ const MainAction = () => {
     return <ConnectWallet overlay={localOverlay} />;
   }
 
-  if (chainId !== chain?.id) return <NetworkSwitcher />;
+  if (chainId !== chain?.id) return <NetworkSwitcher colorScheme='blue.500' />;
 
   if (
     (currentUserIsEligible as boolean) &&

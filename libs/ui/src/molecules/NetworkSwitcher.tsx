@@ -1,28 +1,31 @@
 import { Button } from '@chakra-ui/react';
-import { chainsList } from 'utils';
 import { useTreeForm } from 'contexts';
-import { SupportedChains } from 'types';
 import React from 'react';
+import { SupportedChains } from 'types';
+import { chainsList } from 'utils';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
 
-const NetworkSwitcher: React.FC = () => {
-  const { chainId } = useTreeForm();
+const NetworkSwitcher = ({ chainId, colorScheme }: NetworkSwitcherProps) => {
+  const { chainId: treeChain } = useTreeForm();
   const { chain } = useNetwork();
   const { isLoading, switchNetwork } = useSwitchNetwork();
 
+  const desiredChainId = chainId || treeChain;
   const desiredChainName =
-    chain?.id === chainId
+    chain?.id === desiredChainId
       ? chain?.name
-      : chainId && chainsList[chainId as SupportedChains]?.name;
+      : desiredChainId && chainsList[desiredChainId as SupportedChains]?.name;
 
-  if (!desiredChainName || !switchNetwork || chainId === chain?.id) return null;
+  if (!desiredChainName || !switchNetwork || desiredChainId === chain?.id)
+    return null;
 
   return (
     <Button
-      variant='outline'
-      isDisabled={!switchNetwork || chain?.id === chainId}
-      onClick={() => switchNetwork?.(chainId)}
-      isLoading={isLoading && chain?.id !== chainId}
+      variant='outlineMatch'
+      colorScheme={colorScheme}
+      isDisabled={!switchNetwork || chain?.id === desiredChainId}
+      onClick={() => switchNetwork?.(desiredChainId)}
+      isLoading={isLoading && chain?.id !== desiredChainId}
     >
       Switch to {desiredChainName}
     </Button>
@@ -30,3 +33,8 @@ const NetworkSwitcher: React.FC = () => {
 };
 
 export default NetworkSwitcher;
+
+interface NetworkSwitcherProps {
+  chainId?: SupportedChains;
+  colorScheme?: string;
+}

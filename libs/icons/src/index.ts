@@ -1,12 +1,15 @@
 export { default as BoxArrowUpRightIn } from './BoxArrowUpRightIn';
 export { default as BoxArrowUpRightOut } from './BoxArrowUpRightOut';
+export { default as CheckCircle } from './CheckCircle';
 export { default as CheckSquare } from './CheckSquare';
 export { default as CodeIcon } from './Code';
+export { default as CopyAddress } from './CopyAddress';
 export { default as CopyHash } from './CopyHash';
 export { default as HatIcon } from './Hat';
 export { default as History } from './History';
 export { default as Key } from './Key';
 export { default as PeopleIcon } from './People';
+export * from './services';
 export { default as TaskList } from './TaskList';
 export { default as WearerIcon } from './Wearer';
 

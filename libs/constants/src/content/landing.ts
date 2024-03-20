@@ -40,8 +40,12 @@ export type TemplateData = {
   description: string;
   image: string;
   avatar?: string;
+  // optional values will override fetched values for the tree
+  hats?: number;
+  wearers?: number;
 };
 
+// ! CURRENTLY UNUSED ON LANDING PAGE
 export const FEATURED_TEMPLATES = ({
   ipfsUrl,
 }: {
@@ -85,33 +89,55 @@ export const FEATURED_TREES = ({
   ipfsUrl: (hash: string | undefined) => string | null;
 }) => [
   {
-    chainId: 10,
-    id: 2,
-    name: 'Cabin DAO',
-    // description: 'A DAO for the Cabin community',
-    image: `${ipfsUrl('QmZMzmAKjeEWSbsQsRTKAUHD6u8BbMEdfLSXPviL6Br8na')}`,
-    avatar: `${ipfsUrl(
-      'bafybeibwy623bvifnke6zzisrdw4hpqjy2juhd7lgnrjk6liqpewls2x7q',
-    )}`,
-  },
-  {
-    chainId: 100,
-    id: 72,
-    name: 'The DIA',
-    // description: 'A DAO for decentralized curation of intel',
-    image: `${ipfsUrl(
-      'bafybeie7nv4u6pd3ryv7goritnmkhvzwdxj2a2en7qaf5bbsntzec5jnea',
-    )}`,
-    avatar: `${ipfsUrl(
-      'bafkreicy6iz67k4nutvxs7gtviuxt255k6w2ofxouxi54wrfm5thecg6x4',
-    )}`,
-  },
-  {
     chainId: 1,
     id: 22,
     name: 'RareDAO',
-    // description: 'An exquisite DAO for demo purposes',
-    image: `${ipfsUrl('QmYFj16AUCkoALtszj9ZfLKswke8UDuGgviz8n4yCsX6wf')}`,
+    // description: '',
+    image: `${ipfsUrl('QmT1t9TZBGjZKuoNwS1hfB8C7RsdJ9PtAGHDcbT7ynKDGW')}`,
     avatar: `${ipfsUrl('QmZDcD9Zt1CT9HUgWND39ksPtgkGiL8ZgMDgmHkSQJkEq8')}`,
+  },
+  {
+    chainId: 10,
+    id: 24,
+    name: 'PublicHAUS',
+    // description: '',
+    image: `${ipfsUrl('QmPf5fefBSuJY8CwbvvnKPKcFx43rhsxA3r4ejheVdBFxa')}`,
+    avatar: `${ipfsUrl(
+      'bafkreihsni2egpyl4c7hxvzg32ciwvaevvtu3smx27jai76qq5ysuikbi4',
+    )}`,
+  },
+  {
+    chainId: 42161,
+    id: 6,
+    name: 'TreasureDAO',
+    // description: '',
+    image: `${ipfsUrl('QmYjAkvXxigyr5bNdCmfFd2KprJccFUdwD9BD4R87t6Krm')}`,
+    avatar: `${ipfsUrl('QmZZ6TYAMSodS18mjy9TNixKPjYad4dwcfVwCv6T1dHn8L')}`,
+  },
+  {
+    chainId: 100,
+    id: 92,
+    name: 'RaidGuild',
+    // description: '',
+    image: `${ipfsUrl('QmdnMfEd6T16Q1PwabzB8xr3rfbtc2aGGQjMJUNi25NPVD')}`,
+    avatar: `${ipfsUrl('QmYxu6196HQsgTLoHmj2od6s2YQko6BSdQu2tYdvt1HiP4')}`,
+  },
+  {
+    chainId: 42161,
+    id: 8,
+    name: 'Premia',
+    // description: '',
+    image: `${ipfsUrl('QmYimWiE5zTH1JJfoAMZk2AAozeEFCnLNZ39WAqHHHYVPe')}`,
+    avatar: `${ipfsUrl('QmZ888k7Lr67cYxFaHMz9oQfVBkjGcovsfJAXu8PksttE2')}`,
+  },
+  {
+    chainId: 10,
+    id: 1,
+    name: 'Hats protoDAO',
+    // description: '',
+    image: `${ipfsUrl('QmdDnRisrvGtYSBfgeDaAocTsVb6fUickZsa7ebc8A25jq')}`,
+    avatar: `${ipfsUrl('Qmagom5JCG4haXZsFQRMVt6ZBXzqjsdo7p8qtayfBwwtBe')}`,
+    hats: 11,
+    wearers: 309,
   },
 ];

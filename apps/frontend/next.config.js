@@ -43,7 +43,7 @@ const nextConfig = {
     return [
       {
         source: '/trees',
-        destination: '/trees/1',
+        destination: '/trees/10', // send to optimism
         permanent: true,
       },
     ];

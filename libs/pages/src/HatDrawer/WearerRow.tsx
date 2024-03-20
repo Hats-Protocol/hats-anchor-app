@@ -35,7 +35,9 @@ import { useAccount, useChainId } from 'wagmi';
 const TooltipWrapper = dynamic(() =>
   import('ui').then((mod) => mod.TooltipWrapper),
 );
-const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
+const CopyAddress = dynamic(() =>
+  import('icons').then((mod) => mod.CopyAddress),
+);
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
@@ -187,7 +189,7 @@ const WearerRow = ({
 
         {!isSameAddress(wearer.id, address) ? (
           <IconButton
-            icon={<Icon as={CopyHash} boxSize={4} color='blackAlpha.500' />}
+            icon={<Icon as={CopyAddress} boxSize={4} color='blackAlpha.500' />}
             p={0}
             size='xs'
             variant='ghost'

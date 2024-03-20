@@ -21,8 +21,14 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { ipToHatId } from 'shared';
-import { AppHat, Authority, HatDetails, SupportedChains } from 'types';
+import { createHierarchy, ipToHatId } from 'shared';
+import {
+  AppHat,
+  Authority,
+  HatDetails,
+  Hierarchy,
+  SupportedChains,
+} from 'types';
 import { Hex } from 'viem';
 import { useQueryClient } from 'wagmi';
 
@@ -40,6 +46,7 @@ export interface SelectedHatContext {
   setSelectedHatId: ((id: Hex | undefined) => void) | undefined;
   handleSelectHat: ((id: Hex) => void) | undefined;
   hatDisclosure: UseDisclosureReturn | undefined;
+  hierarchy: Hierarchy | undefined;
 }
 
 export const SelectedHatContext = createContext<SelectedHatContext>({
@@ -54,6 +61,7 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   setSelectedHatId: undefined,
   handleSelectHat: undefined,
   hatDisclosure: undefined,
+  hierarchy: undefined,
 });
 
 export const SelectedHatContextProvider = ({
@@ -128,6 +136,14 @@ export const SelectedHatContextProvider = ({
     () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
     [onchainHats, selectedHat],
   );
+
+  const hierarchy = useMemo(() => {
+    const parentsAndIds = _.map(orgChartTree, (hat: AppHat) => ({
+      id: hat.id,
+      parentId: hat.admin?.id,
+    }));
+    return createHierarchy(parentsAndIds, selectedHat?.id);
+  }, [orgChartTree, selectedHat]);
 
   // *********************
   // * HAT ACTIONS
@@ -233,6 +249,7 @@ export const SelectedHatContextProvider = ({
       setSelectedHatId,
       handleSelectHat,
       hatDisclosure,
+      hierarchy,
     }),
     [
       selectedHatDetails,
@@ -246,6 +263,7 @@ export const SelectedHatContextProvider = ({
       setSelectedHatId,
       handleSelectHat,
       hatDisclosure,
+      hierarchy,
     ],
   );
 

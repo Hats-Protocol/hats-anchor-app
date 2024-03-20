@@ -14,10 +14,17 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
+import { paddingForMaxDepth } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 
-const MobileHatCard = ({ hat, chainId, isWearing, ensName }: HatCardProps) => {
+const MobileHatCard = ({
+  hat,
+  chainId,
+  isWearing,
+  ensName,
+  maxDepth,
+}: HatCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const image = _.get(hat, 'imageUrl');
 
@@ -29,21 +36,27 @@ const MobileHatCard = ({ hat, chainId, isWearing, ensName }: HatCardProps) => {
   }, [image]);
 
   const { data: hatDetails } = useHatDetailsField(
-    !hat.name ? hat.details : undefined, // don't attempt to lookup if name already found for hat
+    _.get(hat, 'name') ? undefined : _.get(hat, 'details'), // don't attempt to lookup if name already found for hat
   );
-  const detailsName = _.get(hatDetails, 'data.name', hat.name);
+  const detailsName = _.get(hatDetails, 'data.name', _.get(hat, 'name'));
+
+  // trying to match the right value in `VerticalDividers` (4), 3 seems to be best here
+  const padding = maxDepth
+    ? ((_.get(hat, 'depth') || 0) * paddingForMaxDepth(maxDepth) || 2) - 3
+    : undefined;
+  if (!_.get(hat, 'id')) return null;
 
   return (
     <ChakraNextLink
+      display='block'
       href={`/trees/${chainId || hat.chainId}/${hatIdToTreeId(
         BigInt(hat.id),
       )}/${hatIdDecimalToIp(BigInt(hat.id))}`}
-      w='full'
-      pl={(hat?.depth || 0) * 2}
+      // don't adjust top hat (or hat used throughout the app) width
+      w={!maxDepth || hat?.depth === 0 ? '100%' : `calc(100% - ${padding}px)`} // subtract left margin from card width
     >
       <Card
         overflow='hidden'
-        w='full'
         boxShadow='md'
         border='1px solid'
         borderColor='gray.600'
@@ -63,7 +76,8 @@ const MobileHatCard = ({ hat, chainId, isWearing, ensName }: HatCardProps) => {
               onLoad={() => setImageLoaded(true)}
             />
           </Skeleton>
-          <Stack maxW='calc(100% - 72px - 16px)' gap={1} pt={1} w='full'>
+
+          <Stack gap={1} pt={1} w='70%' overflow='hidden'>
             <Text size='xs' noOfLines={1} fontWeight='medium'>
               {hatIdDecimalToIp(BigInt(hat.id))}
             </Text>
@@ -107,4 +121,5 @@ interface HatCardProps {
   chainId?: SupportedChains;
   isWearing?: boolean;
   ensName?: string | null;
+  maxDepth?: number;
 }

@@ -29,7 +29,9 @@ import AgreementContent from './AgreementContent';
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
-
+const NetworkSwitcher = dynamic(() =>
+  import('ui').then((mod) => mod.NetworkSwitcher),
+);
 const HatCreateCard = dynamic(() =>
   import('ui').then((mod) => mod.HatCreateCard),
 );
@@ -190,29 +192,28 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
         </OrderedList>
       </Box>
       <Flex w='full' justifyContent='center'>
-        {!wearing && (
-          <Tooltip
-            label={
-              // eslint-disable-next-line no-nested-ternary
-              !address
-                ? 'Connect your wallet to get started'
-                : chainId !== 10
-                ? 'Please switch to Optimism'
-                : ''
-            }
-            placement='top'
-          >
-            <Button
-              isDisabled={!claimHat || !chainId || !!prepareError}
-              isLoading={isClaiming}
-              colorScheme='blue'
-              leftIcon={<BsPen />}
-              onClick={handleClaim}
+        {!wearing &&
+          (chainId === 10 ? (
+            <Tooltip
+              label={
+                // eslint-disable-next-line no-nested-ternary
+                !address ? 'Connect your wallet to get started' : ''
+              }
+              placement='top'
             >
-              Claim with Signature
-            </Button>
-          </Tooltip>
-        )}
+              <Button
+                isDisabled={!claimHat || !chainId || !!prepareError}
+                isLoading={isClaiming}
+                colorScheme='blue'
+                leftIcon={<BsPen />}
+                onClick={handleClaim}
+              >
+                Claim with Signature
+              </Button>
+            </Tooltip>
+          ) : (
+            <NetworkSwitcher chainId={10} colorScheme='blue.500' />
+          ))}
 
         {wearing && (
           <Stack align='center'>

@@ -88,7 +88,7 @@ const MainContent = ({
       <ResponsibilitiesList />
       <WearersList />
 
-      <Stack spacing={4} bg='gray.50'>
+      <Stack spacing={4} bg={{ base: 'gray.50', md: 'transparent' }}>
         {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
           <StatusCard
             status={MODULE_TYPES.eligibility}
