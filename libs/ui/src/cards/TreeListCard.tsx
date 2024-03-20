@@ -21,6 +21,28 @@ import { removeInactiveHatsAndDescendants } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 
+const TreeStats = ({ tree }: { tree: Tree }) => {
+  const activeHats = removeInactiveHatsAndDescendants(tree?.hats);
+  const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));
+
+  return (
+    <HStack>
+      <HStack spacing={1} color='blue.700'>
+        <Icon as={HatIcon} boxSize={3} />
+        <Text size='xs' fontWeight='medium'>
+          {_.size(activeHats)}
+        </Text>
+      </HStack>
+      <HStack spacing={1} color='blue.700'>
+        <Icon as={BsPeopleFill} boxSize={3} />
+        <Text size='xs' fontWeight='medium'>
+          {activeWearers}
+        </Text>
+      </HStack>
+    </HStack>
+  );
+};
+
 const TreeListCard = ({
   tree,
   topHat,
@@ -37,8 +59,6 @@ const TreeListCard = ({
     hatDetails?.type === '1.0'
       ? _.get(hatDetails, 'data.name')
       : _.get(topHat, 'details');
-  const activeHats = removeInactiveHatsAndDescendants(tree?.hats);
-  const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));
 
   return (
     <ChakraNextLink
@@ -60,12 +80,13 @@ const TreeListCard = ({
           <Flex justify='space-between' align='center' w='100%'>
             <HStack
               h={{ base: 85, sm: '100px' }}
-              w='90%'
+              w={{ base: '100%', md: '90%' }}
               justify='left'
               align={{
                 base: 'flex-start',
                 sm: 'center',
               }}
+              pr={2}
               spacing={{
                 base: 2,
                 sm: 4,
@@ -86,38 +107,41 @@ const TreeListCard = ({
                 border={isMobile ? '' : '1px solid #4A5568'}
                 borderRadius={5}
               />
-              {/* TOP HAT INFO */}
-              {isMobile ? (
-                <Stack spacing={1} w='60%' pt={2}>
-                  <Text>{decimalId(_.get(tree, 'id'))}</Text>
-                  <Heading size='md' noOfLines={2}>
-                    {hatName}
-                  </Heading>
-                </Stack>
-              ) : (
-                <Stack spacing={1} maxW='110px' pt={0}>
-                  <Heading size='md' noOfLines={2}>
-                    {hatName}
-                  </Heading>
-                  <Text>Tree ID: {decimalId(_.get(tree, 'id'))}</Text>
-                </Stack>
-              )}
+              <Flex
+                h='100%'
+                direction='column'
+                justify={{ base: 'start', md: 'space-around' }}
+                w={{ base: '80%', md: '50%' }}
+              >
+                {/* TOP HAT INFO */}
+                {isMobile ? (
+                  <Flex
+                    direction='column'
+                    justify='space-between'
+                    h='100%'
+                    w='100%'
+                    py={2}
+                  >
+                    <Heading size='md' noOfLines={2}>
+                      {hatName}
+                    </Heading>
+                    <Flex justify='space-between' w='100%'>
+                      <Text size='xs'>#{decimalId(_.get(tree, 'id'))}</Text>
+                      <TreeStats tree={tree} />
+                    </Flex>
+                  </Flex>
+                ) : (
+                  <Stack spacing={1} pt={0}>
+                    <Text size='xs'>#{decimalId(_.get(tree, 'id'))}</Text>
+                    <Heading size='sm' noOfLines={2}>
+                      {hatName}
+                    </Heading>
+                  </Stack>
+                )}
+                {/* TREE STATS */}
+                {!isMobile && <TreeStats tree={tree} />}
+              </Flex>
             </HStack>
-            {/* TREE STATS */}
-            <Stack w='12%' justify='center' align='end' h='100%' pr={4}>
-              <HStack spacing={1} color='blue.700'>
-                <Icon as={HatIcon} boxSize={3} />
-                <Text size='xs' fontWeight='medium'>
-                  {_.size(activeHats)}
-                </Text>
-              </HStack>
-              <HStack spacing={1} color='blue.700'>
-                <Icon as={BsPeopleFill} boxSize={3} />
-                <Text size='xs' fontWeight='medium'>
-                  {activeWearers}
-                </Text>
-              </HStack>
-            </Stack>
           </Flex>
         </CardBody>
       </Card>

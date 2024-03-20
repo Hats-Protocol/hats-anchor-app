@@ -22,7 +22,6 @@ const useHatAdminWearers = (
   treeToDisplay: AppHat[],
   chainId: number,
 ) => {
-  console.log(treeToDisplay, selectedHat);
   const adminHats = useMemo(() => {
     if (!selectedHat?.prettyId) return [];
 
@@ -41,7 +40,16 @@ const useHatAdminWearers = (
     enabled: !_.isEmpty(adminWearers),
   });
 
-  return { data, isLoading, error };
+  const adminCount = useMemo(() => {
+    if (!data) return { code: 0, human: 0 };
+
+    return {
+      code: _.size(_.filter(data, 'isContract')) || 0,
+      human: _.size(_.reject(data, 'isContract')) || 0,
+    };
+  }, [data]);
+
+  return { data, adminCount, isLoading, error };
 };
 
 export default useHatAdminWearers;

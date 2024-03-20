@@ -15,6 +15,11 @@ import { fetchBalance, fetchToken } from 'wagmi/actions';
 
 import ControllerWearer from './ControllerWearer';
 
+const ELIGIBILITY_STATUS = {
+  eligible: 'eligible',
+  ineligible: 'ineligible',
+};
+
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
@@ -64,12 +69,20 @@ const handleErc20Eligibility = async ({
     'displayType',
     'amountWithDecimals',
   ]);
+  const userBalanceDisplay = formatUnits(
+    userBalance?.value || BigInt(0),
+    tokenDetails?.decimals,
+  );
   // calculate eligibility
   if (userBalance.value >= amountParameter?.value) {
     return {
       rule: (
         <Text>
-          Retain at least {formatUnits(amountParameter?.value || 0, 18)}{' '}
+          Retain at least{' '}
+          {formatUnits(
+            amountParameter?.value || BigInt(0),
+            tokenDetails?.decimals,
+          )}{' '}
           <Tooltip label={tokenDetails?.name}>
             <Text as='span' variant='cashtag'>
               ${tokenDetails?.symbol}
@@ -77,8 +90,8 @@ const handleErc20Eligibility = async ({
           </Tooltip>
         </Text>
       ),
-      displayStatus: 'Eligible',
-      status: 'eligible',
+      displayStatus: userBalanceDisplay,
+      status: ELIGIBILITY_STATUS.eligible,
       icon: BsCheckSquareFill,
     };
   }
@@ -94,8 +107,8 @@ const handleErc20Eligibility = async ({
         </Tooltip>
       </Text>
     ),
-    displayStatus: 'Ineligible',
-    status: 'ineligible',
+    displayStatus: userBalanceDisplay,
+    status: ELIGIBILITY_STATUS.ineligible,
     icon: RemovedWearer,
   };
 };
@@ -179,8 +192,9 @@ const Eligibility = () => {
     });
 
   if (multipleModules) {
+    // * shouldn't be hitting this flow
     return (
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>Comply with 2 rules to keep this Hat</Text>
       </Flex>
     );
@@ -188,7 +202,7 @@ const Eligibility = () => {
 
   if (moduleDetails && eligibilityRuleDetails) {
     return (
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>{eligibilityRuleDetails?.rule}</Text>
 
         <HStack
@@ -207,8 +221,9 @@ const Eligibility = () => {
   }
 
   if (isHatsAccount) {
+    // * shouldn't be hitting this flow
     return (
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>Another Hat can remove wearers</Text>
         <HStack spacing={1}>
           <Text>Hat ID</Text>
@@ -220,7 +235,7 @@ const Eligibility = () => {
 
   return (
     <Skeleton isLoaded={!loadingEligibilityRules || !moduleDetails}>
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={2}>
         <Text>One address can remove Wearers</Text>
 
         <ControllerWearer address={eligibilityData.id} name={name} />

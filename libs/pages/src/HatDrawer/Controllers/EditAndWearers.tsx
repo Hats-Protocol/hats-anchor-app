@@ -13,18 +13,11 @@ const AdminWearers = () => {
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
-  const { data: adminWearers } = useHatAdminWearers(
+  const { adminCount } = useHatAdminWearers(
     selectedHat,
     treeToDisplay,
     chainId,
   );
-  console.log('adminWearers', adminWearers);
-  const adminCount = useMemo(() => {
-    return {
-      code: _.size(_.filter(adminWearers, 'isContract')) || 0,
-      human: _.size(_.reject(adminWearers, 'isContract')) || 0,
-    };
-  }, [adminWearers]);
 
   return (
     <HStack spacing={1}>
@@ -58,6 +51,7 @@ const EditAndWearers = () => {
   const { selectedHat } = useSelectedHat();
   console.log('selectedHat', selectedHat);
 
+  // TODO move to selected hat context
   const isClaimable = useMemo(
     () => ({
       by: !_.isEmpty(selectedHat?.claimableBy),
@@ -69,7 +63,7 @@ const EditAndWearers = () => {
   if (!selectedHat.mutable) {
     return (
       <Stack spacing={0}>
-        <Flex justify='space-between'>
+        <Flex justify='space-between' py={1}>
           <Text>This Hat cannot be edited</Text>
           <HStack>
             <Text display={{ base: 'none', md: 'block' }}>Immutable</Text>
@@ -77,32 +71,32 @@ const EditAndWearers = () => {
           </HStack>
         </Flex>
 
-        <Flex justify='space-between'>
+        <Flex justify='space-between' py={1}>
           <Text>Admins can add Wearers</Text>
           <AdminWearers />
         </Flex>
       </Stack>
     );
   }
-  console.log('isClaimable', isClaimable);
 
   return (
     <Stack spacing={0}>
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>
-          Admins can edit this Hat{!isClaimable ? ' and choose Wearers' : ''}
+          Admins can edit this Hat
+          {!isClaimable.for ? ' and choose Wearers' : ''}
         </Text>
         <AdminWearers />
       </Flex>
       {isClaimable &&
         (isClaimable.for ? (
-          <Flex justify='space-between'>
-            <Text>Eligible addresses can claim a Hat</Text>
+          <Flex justify='space-between' py={1}>
+            <Text>Anyone can add eligible addresses as Wearers</Text>
             <Claimable claimFor={isClaimable.for} />
           </Flex>
         ) : (
-          <Flex justify='space-between'>
-            <Text>Anyone can add eligible addresses as Wearers</Text>
+          <Flex justify='space-between' py={1}>
+            <Text>Eligible addresses can claim a Hat</Text>
             <Claimable claimFor={isClaimable.for} />
           </Flex>
         ))}

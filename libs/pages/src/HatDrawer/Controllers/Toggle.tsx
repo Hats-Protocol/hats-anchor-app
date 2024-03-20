@@ -55,7 +55,7 @@ const Toggle = () => {
 
   if (moduleDetails && toggleRuleDetails) {
     return (
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>{toggleRuleDetails?.rule}</Text>
 
         <HStack
@@ -75,7 +75,7 @@ const Toggle = () => {
 
   if (isHatsAccount) {
     return (
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>Another Hat can remove wearers</Text>
         <HStack spacing={1}>
           <Text as='span'>Hat ID</Text>
@@ -87,7 +87,7 @@ const Toggle = () => {
 
   return (
     <Skeleton isLoaded={!loadingToggleRules || !moduleDetails}>
-      <Flex justify='space-between'>
+      <Flex justify='space-between' py={1}>
         <Text>One address can deactivate this Hat</Text>
 
         <ControllerWearer address={toggleData.id} name={name} />
