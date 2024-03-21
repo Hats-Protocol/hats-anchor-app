@@ -19,7 +19,7 @@ const ORG_CHART_ICONS = {
   contract: `<img src="/icons/contract.svg" alt="wearer" />`,
   group: `<img src="/icons/group.svg" alt="group" />`,
   wearer: `<img src="/icons/wearer.svg" alt="wearer" />`,
-  noWearer: `<img src="/icons/no-wearers.svg" alt="no supply" style="height: 16px;" />`,
+  noWearer: `<img src="/icons/no-wearers.svg" alt="no supply" style="height: 16px; margin-left: -2px;" />`,
 };
 
 const ORG_CHART_COLORS = {

@@ -4,8 +4,14 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsCheckSquareFill } from 'react-icons/bs';
+import { ModuleDetailsHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
-import { fetchBalance, fetchToken } from 'wagmi/actions';
+import {
+  fetchBalance,
+  FetchBalanceResult,
+  fetchToken,
+  FetchTokenResult,
+} from 'wagmi/actions';
 
 import { ELIGIBILITY_STATUS } from '../general';
 
@@ -14,28 +20,34 @@ const RemovedWearer = dynamic(() =>
 );
 
 export const handleErc20Eligibility = async ({
-  tokenParam,
   moduleParameters,
   wearer,
   chainId,
-}: {
-  tokenParam: ModuleParameter;
-  moduleParameters: ModuleParameter[];
-  wearer: Hex | undefined;
-  chainId: number;
-}) => {
-  const tokenDetails = await fetchToken({
-    address: tokenParam.value as Hex,
-    chainId,
-  });
-  let userBalance;
-  if (wearer) {
-    userBalance = await fetchBalance({
-      address: wearer,
-      token: tokenParam.value as Hex,
+}: ModuleDetailsHandler) => {
+  const tokenParam = _.find(
+    moduleParameters,
+    (p: ModuleParameter) => p.displayType === 'erc20',
+  );
+  const promises: Promise<unknown>[] = [
+    fetchToken({
+      address: tokenParam?.value as Hex,
       chainId,
-    });
+    }),
+  ];
+  if (wearer) {
+    promises.push(
+      fetchBalance({
+        address: wearer,
+        token: tokenParam?.value as Hex,
+        chainId,
+      }),
+    );
   }
+  const result = await Promise.all(promises);
+  const [tokenDetails, userBalance] = result as [
+    FetchTokenResult,
+    FetchBalanceResult,
+  ];
 
   const amountParameter = _.find(moduleParameters, [
     'displayType',
@@ -52,7 +64,8 @@ export const handleErc20Eligibility = async ({
 
   // calculate eligibility
   if (userBalance.value >= (amountParameter?.value as bigint)) {
-    return {
+    // TODO handle is wearer vs not (hold/retain)
+    return Promise.resolve({
       rule: (
         <Text>
           Retain at least {amountValueDisplay}
@@ -66,11 +79,11 @@ export const handleErc20Eligibility = async ({
       displayStatus: userBalanceDisplay,
       status: ELIGIBILITY_STATUS.eligible,
       icon: BsCheckSquareFill,
-    };
+    });
   }
 
   // fallback to ineligible
-  return {
+  return Promise.resolve({
     rule: (
       <Text>
         Hold at least {amountValueDisplay}{' '}
@@ -84,5 +97,5 @@ export const handleErc20Eligibility = async ({
     displayStatus: userBalanceDisplay,
     status: ELIGIBILITY_STATUS.ineligible,
     icon: RemovedWearer,
-  };
+  });
 };

@@ -9,4 +9,5 @@ export * from './atoms';
 export * from './cards';
 export * from './forms';
 export * from './molecules';
+export * from './organisms';
 export { default as theme } from './theme';

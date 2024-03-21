@@ -8,7 +8,10 @@ import { extendWearerDetails } from 'utils';
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // TODO move to utils/wearers
-const fetchAdminWearers = async (wearers: HatWearer[], chainId: number) => {
+const fetchAdminWearers = async (
+  wearers: HatWearer[],
+  chainId: number | undefined,
+) => {
   const extendedWearers = _.map(wearers, (w: HatWearer) =>
     extendWearerDetails(w.id, chainId),
   );
@@ -36,12 +39,12 @@ const fetchAdminWearers = async (wearers: HatWearer[], chainId: number) => {
 };
 
 const useHatAdminWearers = (
-  selectedHat: AppHat,
-  treeToDisplay: AppHat[],
-  chainId: number,
+  selectedHat: AppHat | undefined,
+  treeToDisplay: AppHat[] | undefined,
+  chainId: number | undefined,
 ) => {
   const adminHats = useMemo(() => {
-    if (!selectedHat?.prettyId) return [];
+    if (!selectedHat?.id || !selectedHat?.prettyId) return [];
 
     const filteredList = _.filter(
       treeToDisplay,
@@ -49,7 +52,7 @@ const useHatAdminWearers = (
     );
     // exclude current hat
     return _.reject(filteredList, { id: selectedHat.id });
-  }, [treeToDisplay, selectedHat?.prettyId, selectedHat.id]);
+  }, [treeToDisplay, selectedHat?.prettyId, selectedHat?.id]);
   const adminWearers = useMemo(() => {
     return _.uniqBy(_.flatten(_.map(adminHats, 'wearers')), 'id');
   }, [adminHats]);
@@ -57,7 +60,7 @@ const useHatAdminWearers = (
   const { data, isLoading, error } = useQuery({
     queryKey: ['adminWearers', adminWearers, chainId],
     queryFn: () => fetchAdminWearers(adminWearers, chainId),
-    enabled: !_.isEmpty(adminWearers),
+    enabled: !_.isEmpty(adminWearers) && !!chainId,
   });
 
   const adminCount = useMemo(() => {

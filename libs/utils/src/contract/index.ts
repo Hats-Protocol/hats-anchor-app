@@ -102,8 +102,7 @@ export const fetchContractData = async (
     });
 
     const data = await result.json();
-    console.log(data);
-    return _.camelCase(data) as ContractData;
+    return data as ContractData;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);

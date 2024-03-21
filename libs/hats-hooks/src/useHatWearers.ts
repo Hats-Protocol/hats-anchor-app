@@ -12,7 +12,12 @@ const batchFetchContractData = async (
   const promises = addresses.map((address) =>
     fetchContractData(chainId, address),
   );
-  return Promise.all(promises);
+  const data = await Promise.all(promises);
+
+  return _.map(addresses, (address: Hex, index: number) => ({
+    id: address,
+    ...data[index],
+  }));
 };
 
 const useHatWearers = ({
@@ -53,8 +58,9 @@ const useHatWearers = ({
     if (!hatWearers || !contractWearers) return null;
     return _.map(hatWearers, (wearer: HatWearer) => {
       const contractWearer = _.find(contractWearers, { id: wearer.id });
+      if (_.get(contractWearer, 'error')) return wearer;
 
-      return { ...wearer, contractWearer };
+      return { ...wearer, ...contractWearer };
     });
   }, [hatWearers, contractWearers]);
 

@@ -20,12 +20,12 @@ import { useAccount, useChainId } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-const BottomMenu = ({ show }: { show: boolean }) => {
+const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
   const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { onCopy: copyHatId } = useClipboard(selectedHat?.id);
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '');
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
   const toast = useToast();
   const { address } = useAccount();

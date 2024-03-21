@@ -5,7 +5,6 @@ import { useScrollPosition } from 'hooks';
 // import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
-import Controllers from '../Controllers';
 import WearersList from '../WearersList';
 import HatHistory from './HatHistory';
 import Header from './Header';
@@ -14,6 +13,7 @@ import LinkRequests from './LinkRequests';
 const AuthoritiesList = dynamic(() =>
   import('ui').then((mod) => mod.AuthoritiesList),
 );
+const Controllers = dynamic(() => import('ui').then((mod) => mod.Controllers));
 const ResponsibilitiesList = dynamic(() =>
   import('ui').then((mod) => mod.ResponsibilitiesList),
 );

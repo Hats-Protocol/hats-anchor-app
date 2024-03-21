@@ -11,6 +11,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { ipToHatId } from 'shared';
 import { AppModals, OverlayContextProps, Transaction } from 'types';
 import { checkTransactionStatus } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
@@ -49,6 +50,8 @@ export const OverlayContext = createContext<OverlayContextProps>({
   clearAllTransactions: () => {},
   recentlyVisitedTrees: undefined,
   updateRecentlyVisitedTrees: () => {},
+  // SELECTED HAT PARAM
+  selectedHatId: undefined,
   // DRAWER DISCLOSURES
   onOpenHatDrawer: undefined,
   onCloseHatDrawer: undefined,
@@ -68,6 +71,16 @@ export const OverlayContextProvider = ({
   const toast = useToast();
   const router = useRouter();
   const chainId = useChainId();
+
+  // QUERY PARAMS
+  const { hatId: initialHatIdParam } = router.query;
+  let initialHatId: string | undefined;
+  if (_.isArray(initialHatIdParam)) {
+    initialHatId = _.first(initialHatId);
+  } else {
+    initialHatId = initialHatIdParam as string;
+  }
+  const selectedHatId = ipToHatId(initialHatId as string) || undefined;
 
   // LOCAL STATE
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
@@ -240,12 +253,13 @@ export const OverlayContextProvider = ({
   };
 
   useEffect(() => {
-    const hatId = router.query?.hatId as string;
-    if (hatId) {
+    if (selectedHatId) {
       onOpenHatDrawer();
+    } else if (isHatDrawerOpen) {
+      onCloseHatDrawer();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query?.hatId]);
+  }, [selectedHatId]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -283,6 +297,8 @@ export const OverlayContextProvider = ({
       clearAllTransactions,
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
+      // SELECTED HAT PARAMS
+      selectedHatId,
       // DRAWER DISCLOSURES
       onOpenHatDrawer,
       onCloseHatDrawer,

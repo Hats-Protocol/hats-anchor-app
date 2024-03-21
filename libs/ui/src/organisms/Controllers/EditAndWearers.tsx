@@ -8,11 +8,10 @@ import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { explorerUrl } from 'utils';
 import { Hex } from 'viem';
 
+import { ChakraNextLink } from '../../atoms';
+
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
 
 const AdminWearers = () => {
   const { treeToDisplay } = useTreeForm();
@@ -47,10 +46,12 @@ const Claimable = ({
   chainId,
   claimFor,
 }: {
-  address: Hex;
-  chainId: number;
+  address: Hex | undefined;
+  chainId: number | undefined;
   claimFor: boolean;
 }) => {
+  if (!address || !chainId) return null;
+
   return (
     <ChakraNextLink href={`${explorerUrl(chainId)}/address/${address}`}>
       <HStack color='blue.500' spacing={1}>
@@ -84,7 +85,7 @@ const EditAndWearers = () => {
     'id',
   ) as Hex | undefined;
 
-  if (!selectedHat.mutable) {
+  if (!selectedHat?.mutable) {
     return (
       <Stack spacing='2px'>
         <Flex justify='space-between' py={1}>
@@ -111,15 +112,15 @@ const EditAndWearers = () => {
         <Flex justify='space-between' py={1}>
           <Text>
             Admins can edit this Hat
-            {!isClaimable.for ? ' and choose Wearers' : ''}
+            {!isClaimable?.for ? ' and choose Wearers' : ''}
           </Text>
 
           <AdminWearers />
         </Flex>
       </Skeleton>
       <Skeleton isLoaded={!!isClaimable}>
-        {(isClaimable.for || isClaimable.by) &&
-          (isClaimable.for ? (
+        {(isClaimable?.for || isClaimable?.by) &&
+          (isClaimable?.for ? (
             <Flex justify='space-between' py={1}>
               <Text>Anyone can add eligible addresses as Wearers</Text>
 

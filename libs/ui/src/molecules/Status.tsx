@@ -21,7 +21,7 @@ import {
   useWearerEligibilityCheck,
 } from 'hats-hooks';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
-import { useContractData, usePendHatterMint, useToast } from 'hooks';
+import { usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -34,6 +34,9 @@ import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
+/** DEPRECATED IN V3
+ * prefer `Controllers` that handles both eligibility and toggle
+ * */
 const StatusCard = ({ status, label }: { status: string; label: string }) => {
   const { address } = useAccount();
   const {
@@ -93,11 +96,6 @@ const StatusCard = ({ status, label }: { status: string; label: string }) => {
   });
 
   const { data: isActive } = useHatStatus({ selectedHat, chainId });
-  const { data: contractData } = useContractData({
-    chainId,
-    address: extendedController?.id,
-    enabled: extendedController?.isContract,
-  });
 
   const { onCopy } = useClipboard(extendedController?.id || '');
   const toast = useToast();
@@ -125,12 +123,12 @@ const StatusCard = ({ status, label }: { status: string; label: string }) => {
     icon = BsPersonBadge;
   }
 
-  const { controllerName, controllerLink } = getControllerNameAndLink({
-    extendedController,
-    moduleDetails,
-    contractData,
-    chainId: chainId as SupportedChains,
-  });
+  const { name: controllerName, link: controllerLink } =
+    getControllerNameAndLink({
+      extendedController,
+      moduleDetails,
+      chainId: chainId as SupportedChains,
+    });
 
   return (
     <Stack px={{ base: 4, md: 10 }}>

@@ -20,7 +20,7 @@ import {
   useContext,
   useMemo,
 } from 'react';
-import { createHierarchy, ipToHatId } from 'shared';
+import { createHierarchy } from 'shared';
 import {
   AppHat,
   Authority,
@@ -96,21 +96,8 @@ export const SelectedHatContextProvider = ({
 }) => {
   const router = useRouter();
   // const queryClient = useQueryClient();
-  const {
-    onCloseTreeDrawer,
-    onOpenHatDrawer,
-    isHatDrawerOpen,
-    onCloseHatDrawer,
-  } = useOverlay();
-  const { hatId: initialHatIdParam } = router.query;
-  let initialHatId: string | undefined;
+  const { onCloseTreeDrawer, onOpenHatDrawer, selectedHatId } = useOverlay();
   const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
-  if (_.isArray(initialHatIdParam)) {
-    initialHatId = _.first(initialHatId);
-  } else {
-    initialHatId = initialHatIdParam as string;
-  }
-  const selectedHatId = ipToHatId(initialHatId as string) || undefined;
   const { editMode, topHatDetails, onchainHats, onchainTree, orgChartTree } =
     useTreeForm();
   const { isMobile } = useMediaStyles();
@@ -229,10 +216,6 @@ export const SelectedHatContextProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [orgChartTree, isMobile, flipped, compact, chainId],
   );
-
-  if (!selectedHat && isHatDrawerOpen) {
-    onCloseHatDrawer?.();
-  }
 
   // *********************
   // * Authorities

@@ -217,7 +217,10 @@ const TreeMenu = () => {
                   </ChakraNextLink>
                 </Flex>
               </Skeleton>
-              <Skeleton isLoaded={isClient && !!localLastTimestamp}>
+              <Skeleton
+                isLoaded={isClient && !!localLastTimestamp}
+                minW='235px'
+              >
                 <Popover trigger='hover'>
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>

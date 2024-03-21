@@ -36,6 +36,9 @@ export interface OverlayContextProps {
   clearAllTransactions: () => void;
   recentlyVisitedTrees: TreeRecord[] | undefined;
   updateRecentlyVisitedTrees: (tree: TreeRecord) => void;
+  // SELECTED HAT PARAMS
+  selectedHatId?: Hex;
+  // DISCLOSURES
   onOpenHatDrawer?: () => void;
   onCloseHatDrawer?: () => void;
   isHatDrawerOpen: boolean;

@@ -66,7 +66,6 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   // if (!selectedHat && topHatDetails) {
   //   title = `${topHatDetails.name} on ${chain.name}`;
   // } else if (selectedHat) {
-  //   console.log(selectedHat);
   //   if (selectedHatDetails) {
   //     title = `${selectedHatDetails.name} on ${chain.name}`;
   //   } else {

@@ -56,7 +56,6 @@ const Home = () => {
     useFeaturedTrees();
   const { data: hatsAndWearers, isLoading: featuredTreesDataLoading } =
     useFeaturedTreesData(featuredTrees);
-  // console.log(featuredTrees, hatsAndWearers);
 
   const { isMobile } = useMediaStyles();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');

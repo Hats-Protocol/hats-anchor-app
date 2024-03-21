@@ -6,6 +6,7 @@ export { default as CodeIcon } from './Code';
 export { default as CopyAddress } from './CopyAddress';
 export { default as CopyHash } from './CopyHash';
 export { default as EmptyWearer } from './EmptyWearer';
+export { default as Group } from './Group';
 export { default as HatIcon } from './Hat';
 export { default as History } from './History';
 export { default as Key } from './Key';

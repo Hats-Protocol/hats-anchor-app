@@ -5,17 +5,17 @@ import {
   IconButton,
   Image,
   Text,
+  Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite, useModuleDetails } from 'hats-hooks';
-import { decimalId, isTopHat } from 'hats-utils';
+import { decimalId, getControllerNameAndLink, isTopHat } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { idToIp, toTreeId } from 'shared';
-import { HatWearer } from 'types';
+import { ControllerData } from 'types';
 import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
@@ -63,12 +63,17 @@ const WearerRow = ({
   const txDescription = `Revoked hat #${idToIp(hatId)} from ${formatAddress(
     wearer.id,
   )}`;
+  const { extendedEligibility } = _.pick(selectedHat, ['extendedEligibility']);
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [decimalId(hatId), wearer.id],
     chainId,
-    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    enabled:
+      Boolean(hatId) &&
+      Boolean(wearer) &&
+      extendedEligibility?.isContract &&
+      chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
@@ -85,7 +90,6 @@ const WearerRow = ({
     chainId,
     enabled: wearer.isContract,
   });
-  // console.log(wearer);
 
   const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
@@ -125,11 +129,12 @@ const WearerRow = ({
     icon = CodeIcon;
   }
 
-  // could look up by Id to be more resilient?
-  let moduleName = _.get(moduleDetails, 'name');
-  if (moduleName === CONFIG.claimsHatterModuleName) {
-    moduleName = 'Autonomous Admin';
-  }
+  const { name: controllerName, icon: controllerIcon } =
+    getControllerNameAndLink({
+      extendedController: wearer,
+      moduleDetails,
+      chainId,
+    });
 
   let bgColor = 'transparent';
   let color = 'Informative-Human';
@@ -138,39 +143,50 @@ const WearerRow = ({
   } else if (isSameAddress(wearer.id, address)) {
     bgColor = 'green.100';
     color = 'green.800';
-  } else if (wearer.isContract) {
+  } else if (wearer.isContract && controllerName !== 'Safe Multisig') {
     color = 'Informative-Code';
   }
+
+  const displayName =
+    _.get(wearer, 'ensName') ||
+    controllerName ||
+    formatAddress(_.get(wearer, 'id'));
+  const wearerNameIsAddress = displayName === formatAddress(wearer.id);
 
   return (
     <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
       <ChakraNextLink href={`/wearers/${wearer.id}`}>
-        <Flex alignItems='center' gap={1} backgroundColor={bgColor} pr={1}>
-          {ensAvatar ? (
-            <Image
-              w={3}
-              h={4}
-              ml='2px'
-              mr={1} // sometimes only ml? oh when the current user isn't a wearer in the list?
-              src={ensAvatar}
-              borderRadius='2px'
-              objectFit='cover'
-            />
-          ) : (
-            <Icon as={icon} color={color} boxSize={{ base: '14px', md: 4 }} />
-          )}
+        <Tooltip label={!wearerNameIsAddress && wearer.id} minW='380px'>
+          <Flex alignItems='center' gap={1} backgroundColor={bgColor} pr={1}>
+            {ensAvatar ? (
+              <Image
+                w={3}
+                h={4}
+                ml='2px'
+                mr={1} // sometimes only ml? oh when the current user isn't a wearer in the list?
+                src={ensAvatar}
+                borderRadius='2px'
+                objectFit='cover'
+              />
+            ) : (
+              <Icon
+                as={controllerIcon || icon}
+                color={color}
+                boxSize={{ base: '14px', md: 4 }}
+              />
+            )}
 
-          <Text color={color} size={{ base: 'sm', md: 'md' }}>
-            {_.get(wearer, 'ensName') ||
-              moduleName ||
-              formatAddress(_.get(wearer, 'id'))}
-          </Text>
-        </Flex>
+            <Text color={color} size={{ base: 'sm', md: 'md' }}>
+              {displayName}
+            </Text>
+          </Flex>
+        </Tooltip>
       </ChakraNextLink>
+
       <Flex alignItems='center' gap={1}>
-        {!isIneligible &&
-          currentUserIsAdmin &&
-          (wearer.id !== _.toLower(address) || isTopHat(selectedHat)) && (
+        {!isIneligible && // don't transfer when you can revoke
+          currentUserIsAdmin && // admins can transfer
+          (wearer.id !== _.toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
             <TooltipWrapper
               isSameChain={isSameChain}
               label="You can't transfer a hat on a different chain"
@@ -190,7 +206,7 @@ const WearerRow = ({
             </TooltipWrapper>
           )}
 
-        {isIneligible && (
+        {isIneligible && ( // when ineligible, we use same rows
           <Button
             variant='ghost'
             size='xs'
@@ -202,26 +218,28 @@ const WearerRow = ({
             Revoke
           </Button>
         )}
-        {!isSameAddress(wearer.id, address) && currentUserIsEligibility && (
-          <TooltipWrapper
-            isSameChain={isSameChain}
-            label="You can't revoke a hat on a different chain"
-          >
-            <Button
-              variant='ghost'
-              color='red.500'
-              size='xs'
-              isDisabled={!isSameChain}
-              onClick={() => {
-                setModals?.({ hatWearerStatus: true });
-                setChangeStatusWearer(wearer.id);
-              }}
+
+        {!isSameAddress(wearer.id, address) &&
+          currentUserIsEligibility && ( // eligibility can revoke
+            <TooltipWrapper
+              isSameChain={isSameChain}
+              label="You can't revoke a hat on a different chain"
             >
-              Revoke
-            </Button>
-          </TooltipWrapper>
-        )}
-        {!isSameAddress(wearer.id, address) ? (
+              <Button
+                variant='ghost'
+                color='red.500'
+                size='xs'
+                isDisabled={!isSameChain}
+                onClick={() => {
+                  setModals?.({ hatWearerStatus: true });
+                  setChangeStatusWearer(wearer.id);
+                }}
+              >
+                Revoke
+              </Button>
+            </TooltipWrapper>
+          )}
+        {!isSameAddress(wearer.id, address) ? ( // if not current user, show copy button
           <IconButton
             icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}
             p={0}
@@ -231,8 +249,8 @@ const WearerRow = ({
             onClick={copyAddress}
           />
         ) : (
-          !isTopHat(selectedHat) &&
-          !isIneligible && (
+          !isTopHat(selectedHat) && // don't allow top hats to renounce
+          !isIneligible && ( // prefer revoke to renounce when ineligible
             <TooltipWrapper
               isSameChain={isSameChain}
               label="You can't renounce a hat on a different chain"
@@ -259,7 +277,7 @@ const WearerRow = ({
 export default WearerRow;
 
 interface WearerRowProps {
-  wearer: HatWearer;
+  wearer: ControllerData;
   isIneligible?: boolean;
   currentUserIsAdmin?: boolean;
   setChangeStatusWearer: (w: Hex) => void;

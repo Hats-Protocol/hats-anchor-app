@@ -142,6 +142,10 @@ const WearersList = () => {
               <Input
                 // add left icon inside of input field
                 placeholder='Find by address (0x) or ens (.eth)'
+                variant='filled'
+                _focus={{
+                  bg: 'white',
+                }}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 size={{ base: 'sm', md: 'md' }}

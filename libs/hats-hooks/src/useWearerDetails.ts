@@ -13,7 +13,7 @@ const useWearerDetails = ({
   initialData,
   editMode,
 }: UseWearerDetailsProps) => {
-  const { data, isLoading, error } = useQuery({
+  return useQuery({
     queryKey: ['wearerDetails', { wearerAddress, chainId }],
     queryFn: () =>
       chainId && chainId !== 'all'
@@ -23,8 +23,6 @@ const useWearerDetails = ({
     initialData,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
-
-  return { data, isLoading, error };
 };
 
 export default useWearerDetails;

@@ -14,10 +14,10 @@ import { AppHat } from 'types';
 import { getQueryRoute } from 'utils';
 import { useAccount } from 'wagmi';
 
-import MainAction from '../MainAction';
 import MoreMenu from './MoreMenu';
 
 const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
+const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
 
 // const HatLinkRequestCreateForm = dynamic(
 //   () => import('../../../forms'),

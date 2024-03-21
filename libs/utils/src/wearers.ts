@@ -60,8 +60,9 @@ export const fetchHatWearerDetails = async (
   const localList = _.uniqBy(wearersList, 'id');
   const promises = _.map(_.uniqBy(wearersList, 'id'), (wearer: HatWearer) =>
     extendWearerDetails(wearer.id, chainId),
-  );
-  const extendedWearersPromises = promises.map(
+  ) as unknown as Promise<unknown>[];
+  const extendedWearersPromises = _.map(
+    promises,
     async (promise: Promise<unknown>, index: number) => {
       const aggDelay = 500 + index * 500;
       return delay(aggDelay).then(() => promise);
@@ -72,8 +73,8 @@ export const fetchHatWearerDetails = async (
       _.flatten(
         _.map(results, (result: PromiseSettledResult<unknown>, i: number) =>
           result.status === 'fulfilled'
-            ? result.value
-            : { id: _.get(localList, `[${i}].id`) },
+            ? (result.value as HatWearer)
+            : ({ id: _.get(localList, `[${i}].id`, '0x') } as HatWearer),
         ),
       ),
     )

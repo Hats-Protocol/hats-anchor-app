@@ -1,9 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { AppHat } from 'types';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { idToIp } from 'shared';
+import { AppHat } from 'types';
 import { hexToNumber } from 'viem';
 
 import { chainsList, createSubgraphClient } from '../web3';

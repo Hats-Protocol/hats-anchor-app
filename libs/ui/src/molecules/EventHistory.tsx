@@ -14,7 +14,7 @@ import { useIsClient } from 'hooks';
 import { Etherscan } from 'icons';
 import _ from 'lodash';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { explorerUrl } from 'utils';
+import { explorerUrl, parseEventName } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 
@@ -83,6 +83,11 @@ const EventHistory = ({
 };
 
 const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
+  const eventName = _.first(_.get(event, 'id')?.split('-'));
+
+  if (!eventName) return null;
+  const eventDisplayName = parseEventName(eventName);
+
   return (
     <Flex
       key={`${event.transactionID}-${event.id}`}
@@ -91,7 +96,7 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
       py={2}
     >
       <Text size={{ base: 'sm', md: 'md' }} color='blackAlpha.800'>
-        {event.id?.split('-')[0]}
+        {eventDisplayName}
       </Text>
 
       <ChakraNextLink

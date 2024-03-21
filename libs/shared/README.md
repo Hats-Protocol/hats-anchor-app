@@ -4,3 +4,5 @@ Shared utilities is a Node library of utilities shared between `utils` and `hats
 
 - `mapHatWithChainId` - mapping a hat (or any) object with chainId included as a property
 - `createHierarchy` - determining the current hat's nearest siblings, parent and first child
+
+Keep to as minimal as possible to reduce inheritance confusion.

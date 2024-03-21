@@ -5,12 +5,12 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
-import BottomMenu from './BottomMenu';
 import EditMode from './EditMode';
-import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
+const BottomMenu = dynamic(() => import('ui').then((mod) => mod.BottomMenu));
 const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
+const MainContent = dynamic(() => import('./MainContent'));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);

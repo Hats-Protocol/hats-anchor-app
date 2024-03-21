@@ -1,6 +1,6 @@
 import { Hex } from 'viem';
 
-import { HatDetails } from './hat';
+import { HatDetails, HatWearer } from './hat';
 
 export type ContractDataKeys =
   | 'compilerVersion'
@@ -18,6 +18,8 @@ export type ContractDataKeys =
 export type ContractData = {
   [key in ContractDataKeys]: string;
 };
+
+export type ControllerData = HatWearer & Partial<ContractData>;
 
 export type HatsCalls = {
   hatId?: Hex;

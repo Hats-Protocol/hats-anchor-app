@@ -3,9 +3,9 @@ import {
   Wearer,
 } from '@hatsprotocol/sdk-v1-subgraph';
 import { gql, GraphQLClient } from 'graphql-request';
-import { AppHat, HatWearer } from 'types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared';
+import { AppHat, HatWearer } from 'types';
 import { Hex } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
 
@@ -48,9 +48,10 @@ export const fetchManyWearerDetails = async (
 
 export const fetchWearerDetails = async (
   address: Hex | string | undefined,
-  chainId: number,
+  chainId: number | undefined,
 ) => {
   const subgraphClient = createSubgraphClient();
+  if (!address || !chainId) return undefined;
 
   let res: Wearer | undefined;
   try {
