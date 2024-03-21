@@ -16,6 +16,14 @@ import { ErrorBoundary, theme } from 'ui';
 import { chains, wagmiConfig } from 'utils';
 import { WagmiConfig } from 'wagmi';
 
+const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+
+declare global {
+  interface Window {
+    Intercom: (action: string, options: object) => void;
+  }
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -26,26 +34,35 @@ const queryClient = new QueryClient({
   },
 });
 
-const MyApp = ({ Component, pageProps }: AppProps) => (
-  <>
-    <DefaultSeo {...SEO} />
+const MyApp = ({ Component, pageProps }: AppProps) => {
+  if (typeof window !== 'undefined' && INTERCOM_APP_ID) {
+    window.Intercom('boot', {
+      app_id: INTERCOM_APP_ID,
+      // user_id: hatData?.user?.id,
+    });
+  }
 
-    <ChakraBaseProvider theme={theme}>
-      <WagmiConfig config={wagmiConfig}>
-        <RainbowKitProvider chains={chains}>
-          <QueryClientProvider client={queryClient}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <Analytics />
-            <OverlayContextProvider>
-              <ErrorBoundary>
-                <Component {...pageProps} />
-              </ErrorBoundary>
-            </OverlayContextProvider>
-          </QueryClientProvider>
-        </RainbowKitProvider>
-      </WagmiConfig>
-    </ChakraBaseProvider>
-  </>
-);
+  return (
+    <>
+      <DefaultSeo {...SEO} />
+
+      <ChakraBaseProvider theme={theme}>
+        <WagmiConfig config={wagmiConfig}>
+          <RainbowKitProvider chains={chains}>
+            <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={false} />
+              <Analytics />
+              <OverlayContextProvider>
+                <ErrorBoundary>
+                  <Component {...pageProps} />
+                </ErrorBoundary>
+              </OverlayContextProvider>
+            </QueryClientProvider>
+          </RainbowKitProvider>
+        </WagmiConfig>
+      </ChakraBaseProvider>
+    </>
+  );
+};
 
 export default MyApp;
