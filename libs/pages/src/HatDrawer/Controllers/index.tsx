@@ -7,7 +7,9 @@ import Toggle from './Toggle';
 const Controllers = () => {
   return (
     <Flex direction='column' px={10}>
-      <Heading size='md'>Control over this Hat</Heading>
+      <Heading size='md' variant={{ base: 'medium', md: 'default' }} pb={2}>
+        Control over this Hat
+      </Heading>
       <EditAndWearers />
       <Eligibility />
       <Toggle />

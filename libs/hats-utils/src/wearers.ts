@@ -91,7 +91,7 @@ export const sortWearers = ({
   return [...currentUser, ...otherUsers];
 };
 
-export const maxSupplyText = (maxSupply: number) => {
+export const maxSupplyText = (maxSupply: number): string => {
   if (_.toNumber(maxSupply) > 999) {
     const rounds = [1_000_000_000, 1_000_000, 1_000];
     const formatString = [`e9`, `e6`, `k`];
@@ -102,5 +102,5 @@ export const maxSupplyText = (maxSupply: number) => {
 
     return `${supplyRounded[index]}${formatString[index]}`;
   }
-  return maxSupply;
+  return _.toString(maxSupply);
 };

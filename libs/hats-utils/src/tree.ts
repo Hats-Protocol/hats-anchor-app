@@ -36,32 +36,31 @@ const handleOrgChartWearers = (
     'maxSupply',
     'currentSupply',
   ]);
+  const localMaxSupplyText = maxSupplyText(_.toNumber(maxSupply) || 1);
 
   // FALLBACK/INITIALIZE WITH NO WEARERS
   let color = ORG_CHART_COLORS.noWearers;
   const wearer = _.first(wearers);
+  const extendedWearer = _.find(orgChartWearers, { id: wearer?.id });
   let content = 'No Wearers';
-  let accent = `0 of ${maxSupplyText(maxSupply)}`;
+  let accent = `0 of ${localMaxSupplyText}`;
   let icon = ORG_CHART_ICONS.wearer;
 
   // HANDLE GROUPS
   if (_.toNumber(currentSupply) > 1) {
     color = '#FFFFF0';
     content = `${currentSupply} Wearers`;
-    accent = `out of ${maxSupplyText(maxSupply)}`;
+    accent = `out of ${localMaxSupplyText}`;
   }
 
   // INDIVIDUAL WEARERS
   if (_.size(wearers) === 1) {
-    const extendedWearer = _.find(orgChartWearers, {
-      id: wearer?.id,
-    });
     content =
       !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
         ? extendedWearer?.ensName
         : formatAddress(_.get(wearer, 'id'));
-    accent = `1 of ${maxSupplyText(maxSupply)}`;
-    if (wearer?.isContract) {
+    accent = `1 of ${localMaxSupplyText}`;
+    if (extendedWearer?.isContract) {
       color = ORG_CHART_COLORS.contract;
       icon = ORG_CHART_ICONS.contract;
     } else {

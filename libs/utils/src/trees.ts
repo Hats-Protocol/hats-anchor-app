@@ -15,13 +15,14 @@ export const fetchTreeWearersDetails = async (
   const wearersList: HatWearer[] = [];
   // check if hat has multiple wearers (groups are not checked)
   _.forEach(hats, (hat: AppHat) => {
-    if (_.size(hat.wearers) === 1) {
-      wearersList.push(_.first(hat.wearers));
+    const firstWearer = _.first(hat.wearers);
+    if (_.size(hat.wearers) === 1 && firstWearer) {
+      wearersList.push(firstWearer);
     }
-    if (hat.eligibility && hat.eligibility !== FALLBACK_ADDRESS) {
+    if (!!hat.eligibility && hat.eligibility !== FALLBACK_ADDRESS) {
       wearersList.push({ id: hat.eligibility });
     }
-    if (hat.toggle && hat.toggle !== FALLBACK_ADDRESS) {
+    if (!!hat.toggle && hat.toggle !== FALLBACK_ADDRESS) {
       wearersList.push({ id: hat.toggle });
     }
   });

@@ -64,7 +64,7 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
 };
 
 export const extendWearers = (
-  wearers: HatWearer[],
+  wearers: HatWearer[] | undefined,
   wearersInfo: HatWearer[] | undefined,
 ): HatWearer[] =>
   _.compact(
@@ -75,7 +75,7 @@ export const extendWearers = (
   );
 
 export const extendControllers = (
-  controller: Hex,
+  controller: Hex | undefined,
   controllersInfo: HatWearer[] | undefined,
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: _.toLower(controller) });

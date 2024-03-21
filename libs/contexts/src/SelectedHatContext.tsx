@@ -1,8 +1,4 @@
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
-// import { useQueryClient } from '@tanstack/react-query';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import {
   useAncillaryModules,
   useHatDetails,
@@ -33,7 +29,7 @@ import {
   Hierarchy,
   SupportedChains,
 } from 'types';
-import { extendControllers, extendWearers } from 'utils';
+import { extendControllers, extendWearers, getQueryRoute } from 'utils';
 import { Hex } from 'viem';
 
 import { useOverlay } from './OverlayContext';
@@ -138,7 +134,7 @@ export const SelectedHatContextProvider = ({
   // * ONCHAIN HAT
   // *********************
   const selectedOnchainHat = useMemo(
-    () => _.find(onchainTree, ['id', selectedHatId]),
+    () => _.find(onchainTree, { id: selectedHatId }),
     [onchainTree, selectedHatId],
   );
   const selectedOnchainHatDetails = useMemo(
@@ -217,26 +213,12 @@ export const SelectedHatContextProvider = ({
         return;
       }
 
-      // setSelectedHatId(id);
-      let existingQuery = router.query;
-      if (compact === 'true') {
-        existingQuery = { ...existingQuery, compact: 'true' };
-      }
-      if (flipped === 'true') {
-        existingQuery = { ...existingQuery, flipped: 'true' };
-      }
-
-      const updatedQuery = {
-        ...existingQuery,
-        treeId: hat.treeId
-          ? treeIdHexToDecimal(hat.treeId)
-          : treeIdHexToDecimal(treeId),
-        hatId: hatIdDecimalToIp(BigInt(id)),
-      };
-      const updatedUrl = {
+      const updatedUrl = getQueryRoute({
+        query: router.query,
         pathname: router.pathname,
-        query: updatedQuery,
-      };
+        hat,
+        treeId,
+      });
 
       router.push(updatedUrl, undefined, { shallow: true });
 
@@ -247,12 +229,6 @@ export const SelectedHatContextProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [orgChartTree, isMobile, flipped, compact, chainId],
   );
-
-  // useEffect(() => {
-  //   if (initialHatId && orgChartTree) {
-  //     handleSelectHat(ipToHatId(String(initialHatId)));
-  //   }
-  // }, [initialHatId, orgChartTree, handleSelectHat]);
 
   if (!selectedHat && isHatDrawerOpen) {
     onCloseHatDrawer?.();

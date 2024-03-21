@@ -66,7 +66,8 @@ const ResponsibilityHeader = ({
         <Text
           size={{ base: 'sm', md: 'md' }}
           // TODO ideally this is a heading when expanded
-          fontWeight={isExpanded ? 'bold' : 'normal'}
+          // eslint-disable-next-line no-nested-ternary
+          fontWeight={isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'}
           noOfLines={2}
           textAlign='left'
         >

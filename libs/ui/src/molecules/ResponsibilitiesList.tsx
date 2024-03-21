@@ -19,7 +19,7 @@ const ResponsibilitiesList = () => {
           mx={{ base: 4, md: 0 }}
           variant='medium'
         >
-          No Responsibilities found for Wearers currently
+          No Responsibilities expected of Wearers
         </Heading>
       </Flex>
     );
@@ -31,7 +31,7 @@ const ResponsibilitiesList = () => {
         <Heading
           size={{ base: 'sm', md: 'md' }}
           mx={{ base: 4, md: 0 }}
-          variant='medium'
+          variant={{ base: 'medium', md: 'default' }}
         >
           {_.size(responsibilities)}{' '}
           {_.size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'}{' '}

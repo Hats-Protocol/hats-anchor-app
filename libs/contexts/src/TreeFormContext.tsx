@@ -225,11 +225,11 @@ export const TreeFormContextProvider = ({
       editMode,
       onchain: true,
     });
-  // const onchainWearersAndControllers = useWearersControllersDetails({
-  //   hats: onchainHatDetails,
-  //   editMode,
-  //   onchain: true,
-  // });
+  const { data: onchainWearers } = useTreeWearers({
+    hats: onchainHatDetails,
+    chainId,
+    editMode,
+  });
   const { data: onchainImagesData, isLoading: onchainImagesLoading } =
     useImageURIs({
       hats: onchainHatDetails,
@@ -244,6 +244,7 @@ export const TreeFormContextProvider = ({
     detailsData: onchainDetailsFields,
     imagesData: onchainImagesData,
     draftHats,
+    orgChartWearers: onchainWearers,
     imagesLoaded: !onchainImagesLoading,
     detailsLoaded: !onchainDetailsFieldsLoading,
     initialHatIds: _.map(onchainHats, 'id'),
@@ -327,8 +328,11 @@ export const TreeFormContextProvider = ({
     [showInactiveHats, orgChartTree, transformTree],
   );
 
-  const treeToDisplay = useMemo(
-    () => (editMode ? transformTree(filteredTree, true) : filteredTree),
+  const treeToDisplay: AppHat[] | undefined = useMemo(
+    () =>
+      (editMode ? transformTree(filteredTree, true) : filteredTree) as
+        | AppHat[]
+        | undefined,
     [editMode, filteredTree, transformTree],
   );
 

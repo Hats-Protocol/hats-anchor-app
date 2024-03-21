@@ -90,7 +90,10 @@ const WearersList = () => {
         <Stack spacing={4} px={{ base: 4, md: 10 }}>
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
-              <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+              <Heading
+                size={{ base: 'sm', md: 'md' }}
+                variant={{ base: 'medium', md: 'default' }}
+              >
                 {_.size(eligibleWearers)} Wearer
                 {(_.size(eligibleWearers) > 1 ||
                   _.size(eligibleWearers) === 0) &&
@@ -126,7 +129,7 @@ const WearersList = () => {
           {/* Wearers list */}
           {_.map(
             !wearersLoading ? filteredWearers : loadingWearers,
-            (w: HatWearer, index) => (
+            (w: HatWearer, index: number) => (
               <Skeleton isLoaded={typeof w.id === 'string'} key={index}>
                 <WearerRow
                   wearer={w}

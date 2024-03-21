@@ -82,7 +82,11 @@ export const OverlayContextProvider = ({
   >('recently-visited-trees', undefined);
 
   // DRAWER DISCLOSURES
-  const hatDisclosure = useDisclosure();
+  const hatDisclosure = useDisclosure({
+    onClose: () => {
+      // CAUSING A LOOP WHEN TRYING TO HANDLE UPDATING QUERY PARAM HERE
+    },
+  });
   const treeDisclosure = useDisclosure();
   const {
     onOpen: onOpenHatDrawer,
@@ -234,6 +238,14 @@ export const OverlayContextProvider = ({
 
     return Promise.resolve(data);
   };
+
+  useEffect(() => {
+    const hatId = router.query?.hatId as string;
+    if (hatId) {
+      onOpenHatDrawer();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query?.hatId]);
 
   useEffect(() => {
     const interval = setInterval(async () => {

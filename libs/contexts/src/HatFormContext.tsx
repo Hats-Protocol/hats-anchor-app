@@ -21,6 +21,7 @@ import { fieldsAreDirty, getDirtyFields } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
+import { useOverlay } from './OverlayContext';
 import { useSelectedHat } from './SelectedHatContext';
 import { useTreeForm } from './TreeFormContext';
 
@@ -58,22 +59,15 @@ export const HatFormContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const { chainId, storedData, setStoredData, treeDisclosure, removeHat } =
-    useTreeForm();
-
+  const { onOpenTreeDrawer, onCloseHatDrawer } = useOverlay();
+  const { chainId, storedData, setStoredData, removeHat } = useTreeForm();
   const {
     selectedHat,
     selectedOnchainHat,
     selectedOnchainHatDetails,
     isDraft,
-    hatDisclosure,
   } = useSelectedHat();
-
   const toast = useToast();
-
-  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
-  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
-
   const localForm = useForm({
     mode: 'onChange',
   });

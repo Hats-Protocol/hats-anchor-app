@@ -7,9 +7,11 @@ import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
+import { getQueryRoute } from 'utils';
 import { useAccount } from 'wagmi';
 
 import MainAction from '../MainAction';
@@ -28,7 +30,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   const { chainId, editMode, onchainHats, storedData, treeToDisplay } =
     useTreeForm();
   const { selectedHat } = useSelectedHat();
-
+  const router = useRouter();
   const {
     isLoading,
     handleRemoveHat,
@@ -52,6 +54,16 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     ),
     'id',
   );
+
+  const closeHatDrawer = () => {
+    onCloseHatDrawer?.();
+    const updatedUrl = getQueryRoute({
+      query: router.query,
+      pathname: router.pathname,
+      drop: { hat: true },
+    });
+    router.push(updatedUrl, undefined, { shallow: true });
+  };
 
   const handleReturnToList = () => {
     onSave(false);
@@ -99,9 +111,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
         </Tooltip>
       ) : (
         <Button
-          onClick={() => {
-            onCloseHatDrawer?.();
-          }}
+          onClick={closeHatDrawer}
           leftIcon={<BsXSquare />}
           variant='outline'
           aria-label='Close'

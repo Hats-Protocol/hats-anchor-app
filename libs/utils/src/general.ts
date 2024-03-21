@@ -11,6 +11,8 @@ import {
 } from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
 import _ from 'lodash';
+import { ParsedUrlQuery } from 'querystring';
+import { AppHat } from 'types';
 import { Hex, isAddress } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
@@ -299,3 +301,59 @@ const defaultValuesMapping = {
 
 export const getDefaultValue = (type: ArgumentTsType) =>
   defaultValuesMapping[type];
+
+export const getQueryRoute = ({
+  query,
+  pathname,
+  hat,
+  hatId,
+  treeId,
+  drop,
+}: {
+  query: ParsedUrlQuery;
+  pathname: string;
+  hat?: AppHat;
+  hatId?: Hex;
+  treeId?: Hex;
+  drop?: { tree?: boolean; hat?: boolean };
+}) => {
+  let updatedQuery = query;
+
+  // maintain flipped or compact if set by user
+  const { flipped, compact } = _.pick(query, ['flipped', 'compact']);
+  if (compact === 'true') {
+    updatedQuery = { ...updatedQuery, compact: 'true' };
+  }
+  if (flipped === 'true') {
+    updatedQuery = { ...updatedQuery, flipped: 'true' };
+  }
+
+  // handle tree Id
+  if (hat?.treeId) {
+    updatedQuery = {
+      ...updatedQuery,
+      treeId: _.toString(treeIdHexToDecimal(hat.treeId)),
+    };
+  } else if (treeId) {
+    updatedQuery = { ...updatedQuery, treeId };
+  } else if (hatId) {
+    updatedQuery = { ...updatedQuery, hatId };
+  }
+
+  // handle hat Id
+  if (hat?.id) {
+    updatedQuery = {
+      ...updatedQuery,
+      hatId: hatIdDecimalToIp(BigInt(hat.id)),
+    };
+  }
+  if (drop?.hat) {
+    updatedQuery = _.omit(updatedQuery, 'hatId');
+  }
+  if (drop?.tree) {
+    updatedQuery = _.omit(updatedQuery, 'treeId');
+  }
+  console.log(updatedQuery);
+
+  return { pathname, query: updatedQuery };
+};

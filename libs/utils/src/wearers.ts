@@ -48,16 +48,18 @@ export const fetchHatWearerDetails = async (
 ): Promise<HatWearer[]> => {
   if (!hat || !chainId) return [];
 
-  const wearersList = _.concat(hat.wearers, [
-    { id: hat.eligibility },
-    { id: hat.toggle },
-  ]);
+  const wearersList = _.compact(
+    _.concat(hat.wearers, [
+      hat.eligibility && { id: hat.eligibility },
+      hat.toggle && { id: hat.toggle },
+    ]),
+  );
   const promises = _.map(_.uniqBy(wearersList, 'id'), (wearer: HatWearer) =>
     extendWearerDetails(wearer.id, chainId),
   );
   return Promise.all(promises)
     .then((wearerData) => {
-      return wearerData as HatWearer[];
+      return wearerData as unknown as HatWearer[];
     })
     .catch((err) => {
       // eslint-disable-next-line no-console
