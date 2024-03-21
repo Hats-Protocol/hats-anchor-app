@@ -48,9 +48,9 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
-  const { handlePendingTx } = useOverlay();
+  const { handlePendingTx, onCloseHatDrawer } = useOverlay();
   const { chainId, onchainHats, storedData, editMode } = useTreeForm();
-  const { selectedHat, selectedOnchainHat, hatDisclosure } = useSelectedHat();
+  const { selectedHat, selectedOnchainHat } = useSelectedHat();
 
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
@@ -169,7 +169,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     handlePendingTx,
     waitForSubgraph,
     handleSuccess: () => {
-      hatDisclosure?.onClose();
+      onCloseHatDrawer?.();
     },
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
@@ -200,7 +200,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       },
       handlePendingTx,
       handleSuccess: () => {
-        hatDisclosure?.onClose();
+        onCloseHatDrawer?.();
       },
       queryKeys: [
         ['hatDetails', { id: hatId, chainId }],

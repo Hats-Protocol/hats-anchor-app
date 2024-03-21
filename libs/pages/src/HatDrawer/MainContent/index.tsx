@@ -1,31 +1,22 @@
-import { Heading, Stack } from '@chakra-ui/react';
-import { MODULE_TYPES } from '@hatsprotocol/constants';
-import { useSelectedHat, useTreeForm } from 'contexts';
-import { useMediaStyles, useScrollPosition } from 'hooks';
-import _ from 'lodash';
+import { Stack } from '@chakra-ui/react';
+// import { MODULE_TYPES } from '@hatsprotocol/constants';
+import { useSelectedHat } from 'contexts';
+import { useScrollPosition } from 'hooks';
+// import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
-import { checkAddressIsContract } from 'utils';
-import { Hex } from 'viem';
 
+import Controllers from '../Controllers';
 import WearersList from '../WearersList';
-import DetailList from './DetailList';
+import HatHistory from './HatHistory';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
 
-const EventHistory = dynamic(() =>
-  import('ui').then((mod) => mod.EventHistory),
-);
-const ModuleDetails = dynamic(() =>
-  import('ui').then((mod) => mod.ModuleDetails),
-);
 const AuthoritiesList = dynamic(() =>
   import('ui').then((mod) => mod.AuthoritiesList),
 );
 const ResponsibilitiesList = dynamic(() =>
   import('ui').then((mod) => mod.ResponsibilitiesList),
 );
-const StatusCard = dynamic(() => import('ui').then((mod) => mod.StatusCard));
 
 const MainContent = ({
   showBottomMenu,
@@ -34,17 +25,7 @@ const MainContent = ({
   showBottomMenu?: boolean;
   setShowBottomMenu?: (b: boolean) => void;
 }) => {
-  const { chainId } = useTreeForm();
-  const { selectedHat, selectedHatDetails } = useSelectedHat();
-
-  const [isEligibilityAContract, setIsEligibilityAContract] = useState(false);
-  const [isToggleAContract, setIsToggleAContract] = useState(false);
-  const { isMobile } = useMediaStyles();
-
-  const { toggle, eligibility } = _.pick(selectedHatDetails, [
-    'toggle',
-    'eligibility',
-  ]);
+  const { selectedHat } = useSelectedHat();
 
   useScrollPosition(
     ({ prevPos, currPos }) => {
@@ -55,19 +36,6 @@ const MainContent = ({
     },
     [showBottomMenu],
   );
-
-  useEffect(() => {
-    const check = async () => {
-      const checkPromises = [
-        await checkAddressIsContract(selectedHat?.eligibility as Hex, chainId),
-        await checkAddressIsContract(selectedHat?.toggle as Hex, chainId),
-      ];
-      const data: boolean[] = await Promise.all(checkPromises);
-      setIsEligibilityAContract(_.first(data) || false);
-      setIsToggleAContract(_.nth(data, 1) || false);
-    };
-    check();
-  }, [chainId, selectedHat]);
 
   if (!selectedHat) return null;
 
@@ -84,58 +52,18 @@ const MainContent = ({
       backdropFilter={{ base: 'none', md: 'blur(2px)' }}
     >
       <Header />
+
       <AuthoritiesList />
+
       <ResponsibilitiesList />
+
       <WearersList />
 
-      <Stack spacing={4} bg={{ base: 'gray.50', md: 'transparent' }}>
-        {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
-          <StatusCard
-            status={MODULE_TYPES.eligibility}
-            isAContract={isEligibilityAContract}
-            label={
-              isMobile
-                ? 'Can I wear this Hat?'
-                : 'Do I meet the requirements to wear this Hat?'
-            }
-          />
-        )}
-        <ModuleDetails type={MODULE_TYPES.eligibility} />
-        {!_.isEmpty(eligibility?.criteria) && (
-          <DetailList
-            title='Eligibility Criteria'
-            details={eligibility?.criteria}
-            inline
-          />
-        )}
-      </Stack>
-
-      <Stack spacing={4}>
-        {(selectedHat.isLinked || selectedHat.levelAtLocalTree !== 0) && (
-          <StatusCard
-            status={MODULE_TYPES.toggle}
-            isAContract={isToggleAContract}
-            label='Is this hat active?'
-          />
-        )}
-        <ModuleDetails type={MODULE_TYPES.toggle} />
-        {!_.isEmpty(toggle?.criteria) && (
-          <DetailList
-            title='Toggle Criteria'
-            details={toggle?.criteria}
-            inline
-          />
-        )}
-      </Stack>
+      <Controllers />
 
       <LinkRequests />
 
-      <Stack spacing={1} px={{ base: 4, md: 10 }}>
-        <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
-          Hat History
-        </Heading>
-        <EventHistory type='hat' />
-      </Stack>
+      <HatHistory />
     </Stack>
   );
 };

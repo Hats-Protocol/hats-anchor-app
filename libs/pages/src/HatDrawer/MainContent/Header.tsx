@@ -109,7 +109,7 @@ const Header = () => {
 
             <HStack>
               <Text color='blue.500'>
-                {hatIdDecimalToIp(BigInt(selectedHat.id))}
+                {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
               </Text>
               <Icon
                 as={CopyHash}

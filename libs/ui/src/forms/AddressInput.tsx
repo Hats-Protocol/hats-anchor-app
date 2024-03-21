@@ -21,7 +21,6 @@ type AddressInputProps = {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-// only being used in forms/HatManagementForm.tsx currently (not wearer form)
 const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,

@@ -11,7 +11,16 @@ import Text from './components/Text';
 import Textarea from './components/Textarea';
 
 const theme = extendTheme({
-  colors: {},
+  colors: {
+    // INFORMATIVE
+    'Informative-Human': '#B83280',
+    'Informative-Code': '#2C7A7B',
+    // FUNCTIONAL
+    'Functional-Success': '#25855A',
+    'Functional-Error': '#C53030',
+    'Functional-LinkPrimary': '#2B6CB0',
+    'Functional-LinkSecondary': '#718096',
+  },
   components: {
     Button,
     Card,

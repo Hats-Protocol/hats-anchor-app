@@ -20,7 +20,6 @@ import {
   Stack,
   Text,
   useDisclosure,
-  UseDisclosureReturn,
 } from '@chakra-ui/react';
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
@@ -40,12 +39,8 @@ import { chainsMap, explorerUrl } from 'utils';
 import { ChakraNextLink } from '../atoms';
 import EventHistory from './EventHistory';
 
-const TreeMenu = ({
-  treeDisclosure,
-}: {
-  treeDisclosure: UseDisclosureReturn | undefined;
-}) => {
-  const { setModals } = useOverlay();
+const TreeMenu = () => {
+  const { setModals, onOpenTreeDrawer } = useOverlay();
   const {
     chainId,
     treeToDisplay,
@@ -60,7 +55,6 @@ const TreeMenu = ({
     // setStoredData,
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
-  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
   const isClient = useIsClient();
 
@@ -175,7 +169,7 @@ const TreeMenu = ({
             bg='whiteAlpha.900'
             borderColor='gray.700'
             leftIcon={<Icon as={AiOutlineDoubleLeft} />}
-            onClick={onOpenTreeDrawer}
+            onClick={() => onOpenTreeDrawer?.()}
           >
             Draft Changes List
           </Button>

@@ -1,9 +1,10 @@
-import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
-import { useAncillaryModules } from 'hats-hooks';
+  useAncillaryModules,
+  useHatDetails,
+  useHatWearers,
+  useWearersEligibilityCheck,
+} from 'hats-hooks';
 import { combineAuthorities } from 'hats-utils';
 import {
   useGuilds,
@@ -17,50 +18,68 @@ import {
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
 } from 'react';
 import { createHierarchy, ipToHatId } from 'shared';
 import {
   AppHat,
   Authority,
   HatDetails,
+  HatWearer,
   Hierarchy,
   SupportedChains,
 } from 'types';
+import { extendControllers, extendWearers, getQueryRoute } from 'utils';
 import { Hex } from 'viem';
-import { useQueryClient } from 'wagmi';
 
+import { useOverlay } from './OverlayContext';
 import { useTreeForm } from './TreeFormContext';
 
 export interface SelectedHatContext {
+  // SELECTED HAT
+  selectedHat: AppHat | undefined;
   selectedHatDetails: HatDetails | undefined;
+  hatWearers: HatWearer[] | undefined;
+  eligibleWearers: HatWearer[] | undefined;
+  ineligibleWearers: HatWearer[] | undefined;
+  chainId: SupportedChains | undefined;
+  hatLoading: boolean;
+  wearersLoading: boolean;
+  // ONCHAIN HAT
   isDraft: boolean;
   selectedOnchainHat: AppHat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
+  // AUTHORITIES
   selectedHatGuildRoles: Authority[] | undefined;
   selectedHatSpaces: Authority[] | undefined;
   combinedAuthorities: Authority[] | undefined;
-  selectedHat: AppHat | undefined;
-  setSelectedHatId: ((id: Hex | undefined) => void) | undefined;
+  // ACTIONS
   handleSelectHat: ((id: Hex) => void) | undefined;
-  hatDisclosure: UseDisclosureReturn | undefined;
+  // RELATIONS
   hierarchy: Hierarchy | undefined;
 }
 
 export const SelectedHatContext = createContext<SelectedHatContext>({
+  // SELECTED HAT
+  selectedHat: undefined,
   selectedHatDetails: undefined,
+  hatWearers: undefined,
+  eligibleWearers: undefined,
+  ineligibleWearers: undefined,
+  chainId: undefined,
+  hatLoading: false,
+  wearersLoading: false,
+  // ONCHAIN HAT
   isDraft: false,
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
+  // AUTHORITIES
   selectedHatGuildRoles: undefined,
   selectedHatSpaces: undefined,
   combinedAuthorities: undefined,
-  selectedHat: undefined,
-  setSelectedHatId: undefined,
+  // ACTIONS
   handleSelectHat: undefined,
-  hatDisclosure: undefined,
+  // RELATIONS
   hierarchy: undefined,
 });
 
@@ -76,7 +95,13 @@ export const SelectedHatContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
+  const {
+    onCloseTreeDrawer,
+    onOpenHatDrawer,
+    isHatDrawerOpen,
+    onCloseHatDrawer,
+  } = useOverlay();
   const { hatId: initialHatIdParam } = router.query;
   let initialHatId: string | undefined;
   const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
@@ -85,47 +110,31 @@ export const SelectedHatContextProvider = ({
   } else {
     initialHatId = initialHatIdParam as string;
   }
-  const [selectedHatId, setSelectedHatId] = useState<Hex | undefined>(
-    ipToHatId(hatId) || ipToHatId(initialHatId as string) || undefined,
-  );
-  const {
-    editMode,
-    topHatDetails,
-    onchainHats,
-    onchainTree,
-    orgChartTree,
-    treeDisclosure,
-  } = useTreeForm();
+  const selectedHatId = ipToHatId(initialHatId as string) || undefined;
+  const { editMode, topHatDetails, onchainHats, onchainTree, orgChartTree } =
+    useTreeForm();
   const { isMobile } = useMediaStyles();
-
-  const hatDisclosure = useDisclosure({
-    onClose: () => {
-      setSelectedHatId(undefined);
-      router.push(
-        { pathname: router.pathname, query: _.omit(router.query, 'hatId') },
-        undefined,
-        {
-          shallow: true,
-        },
-      );
-    },
-  });
-  const { onOpen: onOpenHatDrawer } = hatDisclosure;
-  const onCloseTreeDrawer = treeDisclosure?.onClose;
 
   // *********************
   // * SELECTED HAT
   // *********************
   const selectedHat = useMemo(() => {
-    return _.find(orgChartTree, ['id', selectedHatId]);
+    return _.find(orgChartTree, { id: selectedHatId });
   }, [orgChartTree, selectedHatId]);
+  const { data: localSelectedHat, isLoading: hatLoading } = useHatDetails({
+    hatId: selectedHatId,
+    chainId,
+  });
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
   );
-  // selected onchain hat
+
+  // *********************
+  // * ONCHAIN HAT
+  // *********************
   const selectedOnchainHat = useMemo(
-    () => _.find(onchainTree, ['id', selectedHatId]),
+    () => _.find(onchainTree, { id: selectedHatId }),
     [onchainTree, selectedHatId],
   );
   const selectedOnchainHatDetails = useMemo(
@@ -136,6 +145,38 @@ export const SelectedHatContextProvider = ({
     () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
     [onchainHats, selectedHat],
   );
+
+  // *********************
+  // * WEARERS AND ELIGIBILITY
+  // *********************
+  // could consider only checking eligible wearers (move to after eligibility check)
+  const { data: hatWearers, isLoading: wearersLoading } = useHatWearers({
+    hat: selectedHat,
+    chainId,
+    editMode,
+  });
+  const { data: wearersEligibility, isLoading: wearerEligibilityLoading } =
+    useWearersEligibilityCheck({
+      selectedHat,
+      chainId,
+      editMode,
+    });
+  const { eligibleWearers, ineligibleWearers } = useMemo(() => {
+    const {
+      eligibleWearers: eligibleWearerIds,
+      ineligibleWearers: ineligibleWearerIds,
+    } = _.pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
+    const localEligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
+      _.includes(eligibleWearerIds, w.id),
+    );
+    const localIneligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
+      _.includes(ineligibleWearerIds, w.id),
+    );
+    return {
+      eligibleWearers: localEligibleWearers,
+      ineligibleWearers: localIneligibleWearers,
+    };
+  }, [wearersEligibility, hatWearers]);
 
   const hierarchy = useMemo(() => {
     const parentsAndIds = _.map(orgChartTree, (hat: AppHat) => ({
@@ -151,9 +192,9 @@ export const SelectedHatContextProvider = ({
   const handleSelectHat = useCallback(
     (id: Hex) => {
       if (isMobile) return;
-      queryClient.invalidateQueries(['hatDetails', { chainId, id }]);
-      queryClient.invalidateQueries(['wearersList', id]);
-      // queryClient.invalidateQueries(['allWearers', id]);
+      // queryClient.invalidateQueries(['hatDetails', { chainId, id }]);
+      // queryClient.invalidateQueries(['wearersList', id]);
+
       const allIds = _.map(orgChartTree, 'id');
       const hat = _.find(orgChartTree, ['id', id]);
       if (!_.includes(allIds, id) || !hat) return;
@@ -172,42 +213,30 @@ export const SelectedHatContextProvider = ({
         return;
       }
 
-      setSelectedHatId(id);
-      let existingQuery = router.query;
-      if (compact === 'true') {
-        existingQuery = { ...existingQuery, compact: 'true' };
-      }
-      if (flipped === 'true') {
-        existingQuery = { ...existingQuery, flipped: 'true' };
-      }
-
-      const updatedQuery = {
-        ...existingQuery,
-        treeId: hat.treeId
-          ? treeIdHexToDecimal(hat.treeId)
-          : treeIdHexToDecimal(treeId),
-        hatId: hatIdDecimalToIp(BigInt(id)),
-      };
-      const updatedUrl = {
+      const updatedUrl = getQueryRoute({
+        query: router.query,
         pathname: router.pathname,
-        query: updatedQuery,
-      };
+        hat,
+        treeId,
+      });
 
       router.push(updatedUrl, undefined, { shallow: true });
 
       onCloseTreeDrawer?.();
-      onOpenHatDrawer();
+      onOpenHatDrawer?.();
     },
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [orgChartTree, isMobile, flipped, compact, chainId],
   );
 
-  useEffect(() => {
-    if (initialHatId && orgChartTree) {
-      handleSelectHat(ipToHatId(String(initialHatId)));
-    }
-  }, [initialHatId, orgChartTree, handleSelectHat]);
+  if (!selectedHat && isHatDrawerOpen) {
+    onCloseHatDrawer?.();
+  }
+
+  // *********************
+  // * Authorities
+  // *********************
 
   const { selectedHatGuildRoles } = useGuilds({
     guilds: _.get(topHatDetails, 'guilds'),
@@ -236,33 +265,74 @@ export const SelectedHatContextProvider = ({
     modulesAuthorities,
   });
 
+  // *********************
+  // * COMBINE HAT
+  // *********************
+
+  const fullSelectedHat = useMemo(() => {
+    if (!selectedHat || !hatWearers) return undefined;
+    const extendedWearers = extendWearers(selectedHat.wearers, hatWearers);
+    const extendedEligibility = extendControllers(
+      selectedHat.eligibility,
+      hatWearers,
+    );
+    const extendedToggle = extendControllers(selectedHat.toggle, hatWearers);
+
+    return {
+      ...selectedHat,
+      ...localSelectedHat,
+      extendedWearers,
+      extendedEligibility,
+      extendedToggle,
+    };
+  }, [selectedHat, localSelectedHat, hatWearers]);
+
   const returnValue = useMemo(
     () => ({
+      // SELECTED HAT
+      selectedHat: fullSelectedHat || undefined,
       selectedHatDetails,
+      hatWearers,
+      eligibleWearers,
+      ineligibleWearers,
+      chainId,
+      hatLoading,
+      wearersLoading: wearersLoading || wearerEligibilityLoading,
+      // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      // AUTHORITIES
       selectedHatGuildRoles,
       selectedHatSpaces,
       combinedAuthorities,
-      selectedHat,
-      setSelectedHatId,
+      // ACTIONS
       handleSelectHat,
-      hatDisclosure,
+      // RELATIONS
       hierarchy,
     }),
     [
+      // SELECTED HAT
+      fullSelectedHat,
       selectedHatDetails,
+      hatWearers,
+      eligibleWearers,
+      ineligibleWearers,
+      chainId,
+      hatLoading,
+      wearersLoading,
+      wearerEligibilityLoading,
+      // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
+      // AUTHORITIES
       selectedHatGuildRoles,
       selectedHatSpaces,
       combinedAuthorities,
-      selectedHat,
-      setSelectedHatId,
+      // ACTIONS
       handleSelectHat,
-      hatDisclosure,
+      // RELATIONS
       hierarchy,
     ],
   );

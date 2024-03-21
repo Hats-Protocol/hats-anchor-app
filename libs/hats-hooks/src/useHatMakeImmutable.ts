@@ -18,7 +18,7 @@ const useHatMakeImmutable = ({
   handlePendingTx,
 }: UseHatMakeImmutableProps) => {
   const currentNetworkId = useChainId();
-  const selectedHatId = selectedHat?.id || 'none';
+  const selectedHatId = selectedHat?.id;
 
   const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(selectedHat.id, chainId),

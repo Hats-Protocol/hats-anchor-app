@@ -6,6 +6,8 @@ import { checkAddressIsContract } from 'utils';
 import { Hex, isAddress, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
 
+// !! LIKELY DEPRECATED
+
 const fetchWearerAndControllerDetails = async (
   wearer: Hex,
   chainId: number | undefined,

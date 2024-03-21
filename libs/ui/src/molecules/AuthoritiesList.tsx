@@ -14,7 +14,7 @@ const AuthoritiesList = () => {
     return (
       <Flex px={{ base: 4, md: 10 }}>
         <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
-          No Authorities found for Wearers currently
+          No Authorities granted to Wearers
         </Heading>
       </Flex>
     );
@@ -26,7 +26,7 @@ const AuthoritiesList = () => {
         <Heading
           size={{ base: 'sm', md: 'md' }}
           mx={{ base: 4, md: 0 }}
-          variant='medium'
+          variant={{ base: 'medium', md: 'default' }}
         >
           {_.size(combinedAuthorities)}{' '}
           {_.size(combinedAuthorities) > 1 ? 'Authorities' : 'Authority'}{' '}

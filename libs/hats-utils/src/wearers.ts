@@ -1,31 +1,9 @@
+import { CONFIG } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { HatWearer } from 'types';
 import { isSameAddress } from 'utils';
 import { Hex } from 'viem';
-
-export const getEligibleWearers = ({
-  wearersEligibility,
-  wearers,
-}: {
-  wearersEligibility: { address: string; isEligible: boolean }[] | undefined;
-  wearers: HatWearer[];
-}): HatWearer[] => {
-  const eligibleWearers = wearersEligibility
-    ? wearers?.filter((w: { id: string }) =>
-        isWearerEligible(w.id, wearersEligibility),
-      )
-    : wearers;
-
-  return eligibleWearers;
-};
-
-export const isWearerEligible = (
-  wearerId: string,
-  wearersEligibility: { address: string; isEligible: boolean }[] | undefined,
-) => {
-  const eligibleEntry = _.find(wearersEligibility, { address: wearerId });
-  return !!eligibleEntry?.isEligible;
-};
+import { multicall } from 'wagmi/actions';
 
 export const filterWearers = (
   searchTerm: string,
@@ -40,6 +18,37 @@ export const filterWearers = (
 
     return idSearch || ensSearch;
   });
+};
+
+export const fetchWearersEligibilities = async (
+  wearerIds: Hex[],
+  hatId: Hex,
+  chainId: number,
+) => {
+  const eligibilityQueries = _.map(wearerIds, (wearer: Hex) => ({
+    address: CONFIG.hatsAddress,
+    abi: CONFIG.hatsAbi,
+    functionName: 'isEligible',
+    args: [wearer, hatId],
+    chainId,
+  }));
+
+  const eligibilityData = await multicall({
+    contracts: eligibilityQueries,
+    chainId,
+  });
+
+  const eligibleWearers = _.filter(wearerIds, (__: unknown, index: number) => {
+    return _.get(eligibilityData, `[${index}].result`);
+  });
+  const ineligibleWearers = _.filter(
+    wearerIds,
+    (__: unknown, index: number) => {
+      return !_.get(eligibilityData, `[${index}].result`);
+    },
+  );
+
+  return { eligibleWearers, ineligibleWearers };
 };
 
 export const sortWearers = ({
@@ -82,7 +91,7 @@ export const sortWearers = ({
   return [...currentUser, ...otherUsers];
 };
 
-export const maxSupplyText = (maxSupply: number) => {
+export const maxSupplyText = (maxSupply: number): string => {
   if (_.toNumber(maxSupply) > 999) {
     const rounds = [1_000_000_000, 1_000_000, 1_000];
     const formatString = [`e9`, `e6`, `k`];
@@ -93,5 +102,5 @@ export const maxSupplyText = (maxSupply: number) => {
 
     return `${supplyRounded[index]}${formatString[index]}`;
   }
-  return maxSupply;
+  return _.toString(maxSupply);
 };

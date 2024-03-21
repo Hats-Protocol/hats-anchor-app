@@ -1,5 +1,5 @@
-import { HatWearer, Transaction } from 'types';
 import _ from 'lodash';
+import { HatWearer, Transaction } from 'types';
 import { Hex, zeroAddress } from 'viem';
 
 import { viemPublicClient } from '../web3';
@@ -64,7 +64,7 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
 };
 
 export const extendWearers = (
-  wearers: HatWearer[],
+  wearers: HatWearer[] | undefined,
   wearersInfo: HatWearer[] | undefined,
 ): HatWearer[] =>
   _.compact(
@@ -75,7 +75,7 @@ export const extendWearers = (
   );
 
 export const extendControllers = (
-  controller: Hex,
+  controller: Hex | undefined,
   controllersInfo: HatWearer[] | undefined,
 ) => {
   const controllerInfo = _.find(controllersInfo, { id: _.toLower(controller) });

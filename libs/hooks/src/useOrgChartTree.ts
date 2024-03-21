@@ -1,10 +1,10 @@
 /* eslint-disable import/extensions */
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, SupportedChains } from 'types';
 import { DetailsData, toTreeStructure } from 'hats-utils';
 import _ from 'lodash';
 import { useState } from 'react';
+import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 import useDeepCompareEffect from './useDeepCompareEffect';
@@ -19,6 +19,7 @@ const useOrgChartTree = ({
   detailsData,
   imagesData,
   draftHats,
+  orgChartWearers,
   imagesLoaded,
   detailsLoaded,
   initialHatIds,
@@ -46,8 +47,14 @@ const useOrgChartTree = ({
   }, [hatsData]);
 
   const fetchTree = async () => {
-    if (!chainId || !hatsData || !detailsData || !imagesData) {
-      return undefined;
+    if (
+      !chainId ||
+      !hatsData ||
+      !detailsData ||
+      !imagesData ||
+      !orgChartWearers
+    ) {
+      return null;
     }
 
     const tree = await toTreeStructure({
@@ -56,6 +63,7 @@ const useOrgChartTree = ({
       detailsData,
       imagesData,
       draftHats,
+      orgChartWearers,
       chainId,
       initialHatIds,
     });
@@ -82,6 +90,7 @@ const useOrgChartTree = ({
       !!hatsData &&
       !!detailsData &&
       !!imagesData &&
+      !!orgChartWearers &&
       imagesLoaded &&
       detailsLoaded,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
@@ -99,6 +108,7 @@ interface UseOrgChartTreeProps {
   detailsData: { id: string; detailsObject: DetailsData }[] | undefined;
   imagesData: AppHat[] | undefined;
   draftHats: AppHat[] | undefined;
+  orgChartWearers?: HatWearer[] | undefined;
   imagesLoaded: boolean;
   detailsLoaded: boolean;
   initialHatIds: Hex[];

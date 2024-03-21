@@ -34,40 +34,26 @@ import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
-// TODO rename component: ControllerDetails
-
-const StatusCard = ({
-  status,
-  isAContract,
-  label,
-}: {
-  status: string;
-  isAContract: boolean;
-  label: string;
-}) => {
+const StatusCard = ({ status, label }: { status: string; label: string }) => {
   const { address } = useAccount();
   const {
     chainId,
-    wearersAndControllers,
     storedData,
     setStoredData,
     onchainHats,
     editMode,
     treeToDisplay,
   } = useTreeForm();
-  const { selectedHat } = useSelectedHat();
+  const { selectedHat, hatWearers } = useSelectedHat();
 
   const { eligibility, toggle } = _.pick(selectedHat, [
     'eligibility',
     'toggle',
   ]);
   const controller = status === MODULE_TYPES.eligibility ? eligibility : toggle;
-  const extendedController: HatWearer | undefined = _.find(
-    wearersAndControllers,
-    {
-      id: controller,
-    },
-  );
+  const extendedController: HatWearer | undefined = _.find(hatWearers, {
+    id: controller,
+  });
 
   const moduleAddress = useMemo(
     () => _.get(selectedHat, _.toLower(status)),
@@ -120,7 +106,7 @@ const StatusCard = ({
   if (status === MODULE_TYPES.eligibility) {
     statusCheck = isEligible;
   } else if (status === MODULE_TYPES.toggle) {
-    if (isAContract) {
+    if (extendedController?.isContract) {
       statusCheck = isActive;
     } else {
       statusCheck = selectedHat?.status || false;
