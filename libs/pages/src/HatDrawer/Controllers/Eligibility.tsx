@@ -1,4 +1,5 @@
 import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
+import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
@@ -14,6 +15,7 @@ const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 const Eligibility = () => {
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
+  console.log(selectedHat);
 
   const { extendedEligibility: eligibilityData } = _.pick(selectedHat, [
     'extendedEligibility',
@@ -39,6 +41,7 @@ const Eligibility = () => {
       </Flex>
     );
   }
+  console.log(eligibilityData);
 
   if (moduleDetails && eligibilityRuleDetails) {
     return (
@@ -88,9 +91,18 @@ const Eligibility = () => {
   return (
     <Skeleton isLoaded={!loadingEligibilityRules || !moduleDetails}>
       <Flex justify='space-between' py={2}>
-        <Text>One address can remove Wearers</Text>
+        <Text>
+          {eligibilityData?.id === FALLBACK_ADDRESS
+            ? 'No addresses'
+            : 'One address'}{' '}
+          can remove Wearers
+        </Text>
 
-        <ControllerWearer address={eligibilityData.id} name={name} />
+        <ControllerWearer
+          address={eligibilityData?.id}
+          isContract={eligibilityData?.isContract}
+          name={name}
+        />
       </Flex>
     </Skeleton>
   );

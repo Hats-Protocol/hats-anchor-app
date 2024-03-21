@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { HatWearer, Transaction } from 'types';
+import { ContractData, HatWearer, SupportedChains, Transaction } from 'types';
 import { Hex, zeroAddress } from 'viem';
 
 import { viemPublicClient } from '../web3';
@@ -83,31 +83,30 @@ export const extendControllers = (
   return controllerInfo as HatWearer;
 };
 
-export const checkENSNames = async (wearers: HatWearer[]) => {
-  const publicClient = viemPublicClient(1);
-
-  const ensNamePromises = wearers?.map(async (wearer: HatWearer) => {
-    const ensName = await publicClient.getEnsName({
-      address: wearer.id,
+export const fetchContractData = async (
+  chainId: SupportedChains | undefined,
+  address: Hex | undefined,
+) => {
+  try {
+    const result = await fetch('/api/contract-name', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chainId,
+        address,
+      }),
     });
 
-    return { id: wearer.id, ensName };
-  });
-
-  if (ensNamePromises) return {};
-
-  const ensNamesList: { id: string; ensName: string }[] = await Promise.all(
-    ensNamePromises,
-  );
-
-  const newEnsNames = ensNamesList.reduce(
-    (acc: { [key: string]: string }, { id, ensName }) => {
-      if (ensName) {
-        acc[id] = ensName;
-      }
-      return acc;
-    },
-    {},
-  );
-  return newEnsNames;
+    const data = await result.json();
+    console.log(data);
+    return _.camelCase(data) as ContractData;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(err);
+    return undefined;
+  }
 };

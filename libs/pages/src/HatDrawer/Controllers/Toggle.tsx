@@ -90,7 +90,11 @@ const Toggle = () => {
       <Flex justify='space-between' py={1}>
         <Text>One address can deactivate this Hat</Text>
 
-        <ControllerWearer address={toggleData.id} name={name} />
+        <ControllerWearer
+          address={toggleData?.id}
+          isContract={toggleData?.isContract}
+          name={name}
+        />
       </Flex>
     </Skeleton>
   );

@@ -23,7 +23,14 @@ import {
   HatWearerForm,
   HatWearerStatusForm,
 } from 'forms';
-import { filterWearers, maxSupplyText, sortWearers } from 'hats-utils';
+import { useWearerDetails } from 'hats-hooks';
+import {
+  filterWearers,
+  isTopHat,
+  isWearingAdminHat,
+  maxSupplyText,
+  sortWearers,
+} from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -48,8 +55,13 @@ const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
-  const { selectedHat, eligibleWearers, ineligibleWearers, wearersLoading } =
-    useSelectedHat();
+  const {
+    selectedHat,
+    eligibleWearers,
+    ineligibleWearers,
+    wearersLoading,
+    chainId,
+  } = useSelectedHat();
   const {
     isOpen: ineligibleWearersExpanded,
     onToggle: onToggleIneligibleWearers,
@@ -83,6 +95,16 @@ const WearersList = () => {
     ) as HatWearer[];
   }, [searchTerm, eligibleWearers, address]);
   const loadingWearers = Array(4).fill({});
+
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const currentUserIsAdmin = isWearingAdminHat(
+    _.map(wearerDetails, 'id'),
+    selectedHat?.id,
+    !!isTopHat(selectedHat),
+  );
 
   return (
     <>
@@ -133,6 +155,7 @@ const WearersList = () => {
               <Skeleton isLoaded={typeof w.id === 'string'} key={index}>
                 <WearerRow
                   wearer={w}
+                  currentUserIsAdmin={currentUserIsAdmin}
                   setChangeStatusWearer={setChangeStatusWearer}
                   setWearerToTransferFrom={setWearerToTransferFrom}
                 />
@@ -174,6 +197,7 @@ const WearersList = () => {
                     wearer={w}
                     key={w.id}
                     isIneligible
+                    currentUserIsAdmin={currentUserIsAdmin}
                     setChangeStatusWearer={setChangeStatusWearer}
                     setWearerToTransferFrom={setWearerToTransferFrom}
                   />

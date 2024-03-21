@@ -1,5 +1,5 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
-import _, { delay } from 'lodash';
+import _ from 'lodash';
 import { AppHat, HatWearer } from 'types';
 import { Hex, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
@@ -42,6 +42,9 @@ export const extendWearerDetails = async (
     });
 };
 
+// eslint-disable-next-line no-promise-executor-return
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const fetchHatWearerDetails = async (
   hat: AppHat,
   chainId: number | undefined,
@@ -54,23 +57,23 @@ export const fetchHatWearerDetails = async (
       hat.toggle && { id: hat.toggle },
     ]),
   );
+  const localList = _.uniqBy(wearersList, 'id');
   const promises = _.map(_.uniqBy(wearersList, 'id'), (wearer: HatWearer) =>
     extendWearerDetails(wearer.id, chainId),
   );
   const extendedWearersPromises = promises.map(
     async (promise: Promise<unknown>, index: number) => {
-      if (index % 2 === 0 && index !== 0) {
-        await delay(1000); // Delay 1 second every 2 promises
-      }
-      return promise;
+      const aggDelay = 500 + index * 500;
+      return delay(aggDelay).then(() => promise);
     },
   );
-
   return Promise.allSettled(extendedWearersPromises)
     .then((results) =>
       _.flatten(
-        _.map(results, (result: PromiseSettledResult<unknown>) =>
-          result.status === 'fulfilled' ? result.value : null,
+        _.map(results, (result: PromiseSettledResult<unknown>, i: number) =>
+          result.status === 'fulfilled'
+            ? result.value
+            : { id: _.get(localList, `[${i}].id`) },
         ),
       ),
     )

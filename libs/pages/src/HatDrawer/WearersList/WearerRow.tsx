@@ -9,13 +9,8 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import {
-  useHatBurn,
-  useHatContractWrite,
-  useModuleDetails,
-  useWearerDetails,
-} from 'hats-hooks';
-import { decimalId, isTopHat, isWearingAdminHat } from 'hats-utils';
+import { useHatBurn, useHatContractWrite, useModuleDetails } from 'hats-hooks';
+import { decimalId, isTopHat } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -40,6 +35,7 @@ const ChakraNextLink = dynamic(() =>
 const WearerRow = ({
   wearer,
   isIneligible,
+  currentUserIsAdmin,
   setChangeStatusWearer,
   setWearerToTransferFrom,
 }: WearerRowProps) => {
@@ -57,22 +53,11 @@ const WearerRow = ({
     name: wearer?.ensName,
     enabled: !!wearer?.ensName,
   });
-  const { data: wearerDetails } = useWearerDetails({
-    wearerAddress: wearer.id,
-    chainId,
-  });
 
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
   const currentUserIsEligibility =
     selectedHat?.eligibility === _.toLower(address);
-
-  // include current wearer for Top Hat
-  const isAdminUser = isWearingAdminHat(
-    _.map(wearerDetails, 'id'),
-    selectedHat?.id,
-    !!isTopHat(selectedHat),
-  );
 
   // TODO should be able to say "Removed hat for wearer", add uses claim for
   const txDescription = `Revoked hat #${idToIp(hatId)} from ${formatAddress(
@@ -184,7 +169,7 @@ const WearerRow = ({
       </ChakraNextLink>
       <Flex alignItems='center' gap={1}>
         {!isIneligible &&
-          isAdminUser &&
+          currentUserIsAdmin &&
           (wearer.id !== _.toLower(address) || isTopHat(selectedHat)) && (
             <TooltipWrapper
               isSameChain={isSameChain}
@@ -276,6 +261,7 @@ export default WearerRow;
 interface WearerRowProps {
   wearer: HatWearer;
   isIneligible?: boolean;
+  currentUserIsAdmin?: boolean;
   setChangeStatusWearer: (w: Hex) => void;
   setWearerToTransferFrom: (w: string) => void;
 }
