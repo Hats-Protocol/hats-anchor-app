@@ -353,7 +353,6 @@ export const getQueryRoute = ({
   if (drop?.tree) {
     updatedQuery = _.omit(updatedQuery, 'treeId');
   }
-  console.log(updatedQuery);
 
   return { pathname, query: updatedQuery };
 };

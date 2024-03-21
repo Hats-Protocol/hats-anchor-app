@@ -167,10 +167,10 @@ export const SelectedHatContextProvider = ({
       ineligibleWearers: ineligibleWearerIds,
     } = _.pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
     const localEligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
-      _.includes(eligibleWearerIds, w.id),
+      _.includes(eligibleWearerIds, w?.id),
     );
     const localIneligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
-      _.includes(ineligibleWearerIds, w.id),
+      _.includes(ineligibleWearerIds, w?.id),
     );
     return {
       eligibleWearers: localEligibleWearers,

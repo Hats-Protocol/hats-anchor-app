@@ -1,9 +1,10 @@
-import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
+import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { formatAddress } from 'utils';
+import { useAccount } from 'wagmi';
 
 import ControllerWearer from './ControllerWearer';
 import useEligibilityRuleDetails from './utils/useEligibilityRuleDetails';
@@ -12,6 +13,7 @@ const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const Eligibility = () => {
   const { selectedHat, chainId } = useSelectedHat();
+  const { address } = useAccount();
 
   const { extendedEligibility: eligibilityData } = _.pick(selectedHat, [
     'extendedEligibility',
@@ -43,17 +45,28 @@ const Eligibility = () => {
       <Flex justify='space-between' py={1}>
         <Text>{eligibilityRuleDetails?.rule}</Text>
 
-        <HStack
-          spacing={1}
-          color={
-            eligibilityRuleDetails?.status === 'eligible'
-              ? 'green.600'
-              : 'gray.600'
-          }
-        >
-          <Text>{eligibilityRuleDetails?.displayStatus}</Text>
-          <Icon as={eligibilityRuleDetails?.icon} />
-        </HStack>
+        {address ? (
+          <HStack
+            spacing={1}
+            color={
+              eligibilityRuleDetails?.status === 'eligible'
+                ? 'green.600'
+                : 'gray.600'
+            }
+          >
+            <Text>{eligibilityRuleDetails?.displayStatus}</Text>
+            <Icon as={eligibilityRuleDetails?.icon} />
+          </HStack>
+        ) : (
+          <Button
+            size='xs'
+            fontWeight='medium'
+            color='blue.500'
+            variant='ghost'
+          >
+            Check Eligibility
+          </Button>
+        )}
       </Flex>
     );
   }

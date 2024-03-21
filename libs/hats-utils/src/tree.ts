@@ -17,7 +17,9 @@ import { maxSupplyText } from './wearers';
 // TODO move these to org-chart
 const ORG_CHART_ICONS = {
   contract: `<img src="/icons/contract.svg" alt="wearer" />`,
+  group: `<img src="/icons/group.svg" alt="group" />`,
   wearer: `<img src="/icons/wearer.svg" alt="wearer" />`,
+  noWearer: `<img src="/icons/no-wearers.svg" alt="no supply" style="height: 16px;" />`,
 };
 
 const ORG_CHART_COLORS = {
@@ -44,13 +46,14 @@ const handleOrgChartWearers = (
   const extendedWearer = _.find(orgChartWearers, { id: wearer?.id });
   let content = 'No Wearers';
   let accent = `0 of ${localMaxSupplyText}`;
-  let icon = ORG_CHART_ICONS.wearer;
+  let icon = ORG_CHART_ICONS.noWearer;
 
   // HANDLE GROUPS
   if (_.toNumber(currentSupply) > 1) {
     color = '#FFFFF0';
     content = `${currentSupply} Wearers`;
     accent = `out of ${localMaxSupplyText}`;
+    icon = ORG_CHART_ICONS.wearer; // ORG_CHART_ICONS.group;
   }
 
   // INDIVIDUAL WEARERS
@@ -60,6 +63,7 @@ const handleOrgChartWearers = (
         ? extendedWearer?.ensName
         : formatAddress(_.get(wearer, 'id'));
     accent = `1 of ${localMaxSupplyText}`;
+    icon = ORG_CHART_ICONS.wearer;
     if (extendedWearer?.isContract) {
       color = ORG_CHART_COLORS.contract;
       icon = ORG_CHART_ICONS.contract;

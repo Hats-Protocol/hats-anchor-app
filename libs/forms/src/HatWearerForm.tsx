@@ -353,7 +353,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
               options={{
-                min: Number(selectedHat.currentSupply),
+                min: 0, // _.toNumber(selectedHat.currentSupply),
                 validate: {
                   maxWearers: (v) =>
                     !_.gt(

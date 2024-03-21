@@ -118,7 +118,7 @@ const EditAndWearers = () => {
         </Flex>
       </Skeleton>
       <Skeleton isLoaded={!!isClaimable}>
-        {isClaimable &&
+        {(isClaimable.for || isClaimable.by) &&
           (isClaimable.for ? (
             <Flex justify='space-between' py={1}>
               <Text>Anyone can add eligible addresses as Wearers</Text>

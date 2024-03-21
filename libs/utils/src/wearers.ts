@@ -1,5 +1,5 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import _, { delay } from 'lodash';
 import { AppHat, HatWearer } from 'types';
 import { Hex, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
@@ -57,13 +57,26 @@ export const fetchHatWearerDetails = async (
   const promises = _.map(_.uniqBy(wearersList, 'id'), (wearer: HatWearer) =>
     extendWearerDetails(wearer.id, chainId),
   );
-  return Promise.all(promises)
-    .then((wearerData) => {
-      return wearerData as unknown as HatWearer[];
-    })
+  const extendedWearersPromises = promises.map(
+    async (promise: Promise<unknown>, index: number) => {
+      if (index % 2 === 0 && index !== 0) {
+        await delay(1000); // Delay 1 second every 2 promises
+      }
+      return promise;
+    },
+  );
+
+  return Promise.allSettled(extendedWearersPromises)
+    .then((results) =>
+      _.flatten(
+        _.map(results, (result: PromiseSettledResult<unknown>) =>
+          result.status === 'fulfilled' ? result.value : null,
+        ),
+      ),
+    )
     .catch((err) => {
       // eslint-disable-next-line no-console
-      console.log(err);
-      return Promise.resolve([]);
+      console.error(err);
+      return [];
     });
 };

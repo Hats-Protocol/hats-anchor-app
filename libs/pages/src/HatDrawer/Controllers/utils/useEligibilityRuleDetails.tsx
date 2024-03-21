@@ -29,7 +29,6 @@ const fetchEligibilityRuleDetails = async (
   const tokenParam = _.find(moduleParameters, (p: ModuleParameter) =>
     _.includes(tokenDisplayTypes, p.displayType),
   );
-  console.log(tokenParam);
   // fetch token details
   if (tokenParam) {
     // ERC20
@@ -47,7 +46,7 @@ const fetchEligibilityRuleDetails = async (
     if (
       moduleDetails.name.includes(_.toUpper(TOKEN_PARAM_DISPLAY_TYPES.erc721))
     ) {
-      handleErc721Eligibility({
+      return handleErc721Eligibility({
         tokenParam,
         moduleParameters,
         wearer,
@@ -58,7 +57,7 @@ const fetchEligibilityRuleDetails = async (
     if (
       moduleDetails.name.includes(_.toUpper(TOKEN_PARAM_DISPLAY_TYPES.erc1155))
     ) {
-      handleErc1155Eligibility({
+      return handleErc1155Eligibility({
         tokenParam,
         moduleParameters,
         wearer,
@@ -67,8 +66,8 @@ const fetchEligibilityRuleDetails = async (
     }
   }
   // HAT WEARING
-  if (moduleDetails.name.includes(_.toUpper('Hat Wearing'))) {
-    handleHatWearingEligibility({
+  if (moduleDetails.name.includes('Hat Wearing')) {
+    return handleHatWearingEligibility({
       moduleParameters,
       wearer,
       chainId,

@@ -21,18 +21,22 @@ export const handleErc20Eligibility = async ({
 }: {
   tokenParam: ModuleParameter;
   moduleParameters: ModuleParameter[];
-  wearer: Hex;
+  wearer: Hex | undefined;
   chainId: number;
 }) => {
   const tokenDetails = await fetchToken({
     address: tokenParam.value as Hex,
     chainId,
   });
-  const userBalance = await fetchBalance({
-    address: wearer,
-    token: tokenParam.value as Hex,
-    chainId,
-  });
+  let userBalance;
+  if (wearer) {
+    userBalance = await fetchBalance({
+      address: wearer,
+      token: tokenParam.value as Hex,
+      chainId,
+    });
+  }
+
   const amountParameter = _.find(moduleParameters, [
     'displayType',
     'amountWithDecimals',

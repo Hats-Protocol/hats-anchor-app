@@ -64,7 +64,8 @@ const WearerRow = ({
 
   const hatId = selectedHat?.id;
   const isSameChain = chainId === currentNetworkId;
-  const isEligibility = selectedHat?.eligibility === _.toLower(wearer.id);
+  const currentUserIsEligibility =
+    selectedHat?.eligibility === _.toLower(address);
 
   // include current wearer for Top Hat
   const isAdminUser = isWearingAdminHat(
@@ -164,7 +165,8 @@ const WearerRow = ({
             <Image
               w={3}
               h={4}
-              mx={1}
+              ml='2px'
+              mr={1} // sometimes only ml? oh when the current user isn't a wearer in the list?
               src={ensAvatar}
               borderRadius='2px'
               objectFit='cover'
@@ -215,7 +217,7 @@ const WearerRow = ({
             Revoke
           </Button>
         )}
-        {!isSameAddress(wearer.id, address) && isEligibility && (
+        {!isSameAddress(wearer.id, address) && currentUserIsEligibility && (
           <TooltipWrapper
             isSameChain={isSameChain}
             label="You can't revoke a hat on a different chain"

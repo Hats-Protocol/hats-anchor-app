@@ -172,6 +172,7 @@ const WearersList = () => {
                 {_.map(ineligibleWearers, (w: HatWearer) => (
                   <WearerRow
                     wearer={w}
+                    key={w.id}
                     isIneligible
                     setChangeStatusWearer={setChangeStatusWearer}
                     setWearerToTransferFrom={setWearerToTransferFrom}

@@ -1,6 +1,7 @@
 import { Text } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import { ComponentType } from 'react';
+import { ValueOf } from 'types';
 
 const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
@@ -20,7 +21,7 @@ export const TOKEN_PARAM_DISPLAY_TYPES = {
 export type EligibilityRuleDetails = {
   rule: JSX.Element;
   displayStatus: string;
-  status: string;
+  status: ValueOf<typeof ELIGIBILITY_STATUS>;
   icon: ComponentType<object>;
 };
 

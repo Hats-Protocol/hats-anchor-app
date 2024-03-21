@@ -4,6 +4,8 @@ import { IconName } from 'react-cmdk';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
 
+export type ValueOf<T> = T[keyof T];
+
 export type ImageFile = {
   path: string;
   preview?: string;
