@@ -100,7 +100,7 @@ const useHatClaimFor = ({
     const getHatter = async () => {
       const moduleClient = await createHatsModulesClient(chainId);
       if (!moduleClient) return;
-      const modules = moduleClient?.getAllModules();
+      const modules = moduleClient?.getModules();
       if (!modules) return;
       const moduleData = _.find(modules, {
         name: CONFIG.claimsHatterModuleName,
