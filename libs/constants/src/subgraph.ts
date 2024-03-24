@@ -17,15 +17,21 @@ const studioUrl = (name: string, version: string) => {
 
 const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   // network
-  1: graphNetworkUrl('AtrhAMCcVfPbmejxTez3G59Kdfu5tMFoiPsTUjdCzpKx'),
-  100: graphNetworkUrl('2VPQUuAeS9Xy8VtinpjHRJEMnZS1sqzFQyCHAys1wb5n'),
-  137: graphNetworkUrl('7MxsRb1p4UQNET8AgrWd93h3GUgeQ7NWrk5SHLEPCxBP'),
-  42161: graphNetworkUrl('4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk'),
-  10: graphNetworkUrl('9nmXXk3ysDVY4sFygWQNQknwiJLCPnrUNzDRw8bxw61q'),
-  42220: graphNetworkUrl('GpKseh3Z4nX2X8W5HjQPp5hpSSxPxsaQ3t1KpEjhvz7t'),
+  // 1: graphNetworkUrl('AtrhAMCcVfPbmejxTez3G59Kdfu5tMFoiPsTUjdCzpKx'),
+  // 100: graphNetworkUrl('2VPQUuAeS9Xy8VtinpjHRJEMnZS1sqzFQyCHAys1wb5n'),
+  // 137: graphNetworkUrl('7MxsRb1p4UQNET8AgrWd93h3GUgeQ7NWrk5SHLEPCxBP'),
+  // 42161: graphNetworkUrl('4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk'),
+  // 10: graphNetworkUrl('9nmXXk3ysDVY4sFygWQNQknwiJLCPnrUNzDRw8bxw61q'),
+  // 42220: graphNetworkUrl('GpKseh3Z4nX2X8W5HjQPp5hpSSxPxsaQ3t1KpEjhvz7t'),
+  1: studioUrl('hats-v1-ethereum', 'v1.1.0'),
+  100: studioUrl('hats-v1-gnosis-chain', 'v1.1.0'),
+  137: studioUrl('hats-v1-polygon', 'v1.1.0'),
+  42161: studioUrl('hats-v1-arbitrum', 'v1.1.0'),
+  10: studioUrl('hats-v1-optimism', 'v1.1.0'),
+  42220: studioUrl('hats-v1-celo', 'v1.1.0'),
   // studio
-  8453: studioUrl('hats-v1-base', 'v1.0.0'),
-  11155111: studioUrl('hats-v1-sepolia', 'v1.0.0'),
+  8453: studioUrl('hats-v1-base', 'v1.1.0'),
+  11155111: studioUrl('hats-v1-sepolia', 'v1.1.0'),
 };
 
 const NETWORK_ENDPOINTS: EndpointsConfig = {
@@ -38,12 +44,12 @@ export default NETWORK_ENDPOINTS;
 export const ANCILLARY_API_URL: {
   [key in SupportedChains]: string | undefined;
 } = {
-  1: studioUrl('hats-v1-ethereum-ancillary', 'v0.0.11'),
-  10: studioUrl('hats-v1-optimism-ancillary', 'v0.0.11'),
-  100: studioUrl('hats-v1-gnosis-chain-ancillary', 'v0.0.11'),
-  137: studioUrl('hats-v1-polygon-ancillary', 'v0.0.11'),
-  8453: studioUrl('hats-v1-base-ancillary', 'v0.0.11'),
-  42161: studioUrl('hats-v1-arbitrum-ancillary', 'v0.0.11'),
-  42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.11'),
-  11155111: studioUrl('hats-v1-sepolia-ancillary', 'v0.0.11'),
+  1: studioUrl('hats-v1-ethereum-ancillary', 'v0.0.12'),
+  10: studioUrl('hats-v1-optimism-ancillary', 'v0.0.12'),
+  100: studioUrl('hats-v1-gnosis-chain-ancillary', 'v0.0.12'),
+  137: studioUrl('hats-v1-polygon-ancillary', 'v0.0.12'),
+  8453: studioUrl('hats-v1-base-ancillary', 'v0.0.12'),
+  42161: studioUrl('hats-v1-arbitrum-ancillary', 'v0.0.12'),
+  42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.12'),
+  11155111: studioUrl('hats-v1-sepolia-ancillary', 'v0.0.12'),
 };
