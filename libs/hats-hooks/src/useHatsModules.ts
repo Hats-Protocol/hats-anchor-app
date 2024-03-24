@@ -17,7 +17,17 @@ const useHatsModules = ({
       throw new Error('Unable to initialize hatsClient');
     }
 
-    return hatsClient.getAllActiveModules();
+    const activeModulesFilter = (module: Module) => {
+      for (let tagIndex = 0; tagIndex < module.tags.length; tagIndex += 1) {
+        const tag = module.tags[tagIndex];
+        if (tag.value === 'deprecated') {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    return hatsClient.getModules(activeModulesFilter);
   };
 
   const { data, isLoading, isError, error } = useQuery({
