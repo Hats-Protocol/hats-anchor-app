@@ -79,6 +79,14 @@ const MODULES_QUERY = gql`
         id
         hatId
       }
+      agreementOwner {
+        id
+        hatId
+      }
+      agreementArbitrator {
+        id
+        hatId
+      }
     }
   }
 `;
