@@ -61,7 +61,7 @@ const nextConfig = {
       '@hatsprotocol/constants',
       'contexts',
       'forms',
-      'hats-hooks',
+      // 'hats-hooks',
       'hats-utils',
       'hooks',
       'pages',
