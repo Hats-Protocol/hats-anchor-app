@@ -39,7 +39,7 @@ export interface OverlayContextProps {
   // SELECTED HAT PARAMS
   selectedHatId?: Hex;
   // DISCLOSURES
-  onOpenHatDrawer?: () => void;
+  onOpenHatDrawer?: (hatId: Hex) => void;
   onCloseHatDrawer?: () => void;
   isHatDrawerOpen: boolean;
   onOpenTreeDrawer?: () => void;

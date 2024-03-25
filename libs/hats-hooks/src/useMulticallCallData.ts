@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, FormData, SupportedChains } from 'types';
 import _ from 'lodash';
+import { AppHat, FormData, SupportedChains } from 'types';
 import {
   createHatsClient,
   fetchToken,

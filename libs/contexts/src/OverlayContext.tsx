@@ -1,5 +1,5 @@
 import { useDisclosure } from '@chakra-ui/react';
-import { useLocalStorage, useToast } from 'hooks';
+import { useLocalStorage, useSelectedHatDisclosure, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -93,13 +93,10 @@ export const OverlayContextProvider = ({
   const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
     { treeId: number; chainId: number }[] | undefined
   >('recently-visited-trees', undefined);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   // DRAWER DISCLOSURES
-  const hatDisclosure = useDisclosure({
-    onClose: () => {
-      // CAUSING A LOOP WHEN TRYING TO HANDLE UPDATING QUERY PARAM HERE
-    },
-  });
+  const hatDisclosure = useSelectedHatDisclosure();
   const treeDisclosure = useDisclosure();
   const {
     onOpen: onOpenHatDrawer,
@@ -253,13 +250,12 @@ export const OverlayContextProvider = ({
   };
 
   useEffect(() => {
-    if (selectedHatId) {
-      onOpenHatDrawer();
-    } else if (isHatDrawerOpen) {
-      onCloseHatDrawer();
+    const routerHatId = _.get(router, 'query.hatId');
+    if (initialLoad && !routerHatId && selectedHatId) {
+      onOpenHatDrawer?.(selectedHatId);
+      setInitialLoad(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedHatId]);
+  }, [selectedHatId, router, onOpenHatDrawer, initialLoad]);
 
   useEffect(() => {
     const interval = setInterval(async () => {

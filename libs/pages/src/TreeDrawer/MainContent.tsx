@@ -165,7 +165,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
           const handleHatClick = () => {
             onCloseTreeDrawer?.();
-            onOpenHatDrawer?.();
+            onOpenHatDrawer?.(hat.id);
           };
 
           const hatId = hatIdDecimalToIp(BigInt(hat.id));

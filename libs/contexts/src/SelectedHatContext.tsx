@@ -29,7 +29,7 @@ import {
   Hierarchy,
   SupportedChains,
 } from 'types';
-import { extendControllers, extendWearers, getQueryRoute } from 'utils';
+import { extendControllers, extendWearers } from 'utils';
 import { Hex } from 'viem';
 
 import { useOverlay } from './OverlayContext';
@@ -95,7 +95,6 @@ export const SelectedHatContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
-  // const queryClient = useQueryClient();
   const { onCloseTreeDrawer, onOpenHatDrawer, selectedHatId } = useOverlay();
   const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
   const { editMode, topHatDetails, onchainHats, onchainTree, orgChartTree } =
@@ -179,8 +178,6 @@ export const SelectedHatContextProvider = ({
   const handleSelectHat = useCallback(
     (id: Hex) => {
       if (isMobile) return;
-      // queryClient.invalidateQueries(['hatDetails', { chainId, id }]);
-      // queryClient.invalidateQueries(['wearersList', id]);
 
       const allIds = _.map(orgChartTree, 'id');
       const hat = _.find(orgChartTree, ['id', id]);
@@ -200,17 +197,8 @@ export const SelectedHatContextProvider = ({
         return;
       }
 
-      const updatedUrl = getQueryRoute({
-        query: router.query,
-        pathname: router.pathname,
-        hat,
-        treeId,
-      });
-
-      router.push(updatedUrl, undefined, { shallow: true });
-
       onCloseTreeDrawer?.();
-      onOpenHatDrawer?.();
+      onOpenHatDrawer?.(id);
     },
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

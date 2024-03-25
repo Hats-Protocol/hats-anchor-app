@@ -160,10 +160,10 @@ const WearerRow = ({
           <Flex alignItems='center' gap={1} backgroundColor={bgColor} pr={1}>
             {ensAvatar ? (
               <Image
-                w={3}
-                h={4}
+                w={{ base: '11px', md: 3 }}
+                h={{ base: '14px', md: 4 }}
                 ml='2px'
-                mr={1} // sometimes only ml? oh when the current user isn't a wearer in the list?
+                mr={{ base: '1px', md: 1 }} // sometimes only ml? oh when the current user isn't a wearer in the list?
                 src={ensAvatar}
                 borderRadius='2px'
                 objectFit='cover'

@@ -22,6 +22,7 @@ export { default as useRudderStackAnalytics } from './useRudderStackAnalytics';
 export { default as useSafeDetails } from './useSafeDetails';
 export { default as useScrollPosition } from './useScrollPosition';
 export { default as useSearchResults } from './useSearchResults';
+export { default as useSelectedHatDisclosure } from './useSelectedHatDisclosure';
 export { default as useSnapshotSpaces } from './useSnapshotSpaces';
 export { default as useToast } from './useToast';
 export { default as useTreeImages } from './useTreeImages';

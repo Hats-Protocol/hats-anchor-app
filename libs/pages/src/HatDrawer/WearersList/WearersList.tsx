@@ -123,7 +123,11 @@ const WearersList = () => {
                 of this Hat
               </Heading>
               <Tooltip
-                label={maxSupply && commify(maxSupply)}
+                label={
+                  maxSupply &&
+                  maxSupplyText(maxSupply) !== _.toString(maxSupply) &&
+                  commify(maxSupply)
+                }
                 placement='left'
                 hasArrow
               >

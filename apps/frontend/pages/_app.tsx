@@ -11,10 +11,28 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
 import { OverlayContextProvider } from 'contexts';
 import type { AppProps } from 'next/app';
+import { useRouter } from 'next/router';
 import { DefaultSeo } from 'next-seo';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
+import { useEffect } from 'react';
 import { ErrorBoundary, theme } from 'ui';
 import { chains, wagmiConfig } from 'utils';
 import { WagmiConfig } from 'wagmi';
+
+const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+// Check that PostHog is client-side (used to handle Next.js SSR)
+if (typeof window !== 'undefined') {
+  posthog.init(POSTHOG_KEY, {
+    api_host: POSTHOG_HOST || 'https://app.posthog.com',
+    // Enable debug mode in development
+    loaded: (p: any) => {
+      if (process.env.NODE_ENV === 'development') p.debug();
+    },
+  });
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,26 +44,42 @@ const queryClient = new QueryClient({
   },
 });
 
-const MyApp = ({ Component, pageProps }: AppProps) => (
-  <>
-    <DefaultSeo {...SEO} />
+const MyApp = ({ Component, pageProps }: AppProps) => {
+  const router = useRouter();
 
-    <ChakraBaseProvider theme={theme}>
-      <WagmiConfig config={wagmiConfig}>
-        <RainbowKitProvider chains={chains}>
-          <QueryClientProvider client={queryClient}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <Analytics />
-            <OverlayContextProvider>
-              <ErrorBoundary>
-                <Component {...pageProps} />
-              </ErrorBoundary>
-            </OverlayContextProvider>
-          </QueryClientProvider>
-        </RainbowKitProvider>
-      </WagmiConfig>
-    </ChakraBaseProvider>
-  </>
-);
+  useEffect(() => {
+    // Track page views
+    const handleRouteChange = () => posthog?.capture('$pageview');
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, []);
+
+  return (
+    <>
+      <DefaultSeo {...SEO} />
+
+      <ChakraBaseProvider theme={theme}>
+        <WagmiConfig config={wagmiConfig}>
+          <RainbowKitProvider chains={chains}>
+            <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={false} />
+              <PostHogProvider client={posthog}>
+                <Analytics />
+                <OverlayContextProvider>
+                  <ErrorBoundary>
+                    <Component {...pageProps} />
+                  </ErrorBoundary>
+                </OverlayContextProvider>
+              </PostHogProvider>
+            </QueryClientProvider>
+          </RainbowKitProvider>
+        </WagmiConfig>
+      </ChakraBaseProvider>
+    </>
+  );
+};
 
 export default MyApp;

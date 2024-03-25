@@ -74,37 +74,43 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
           </Button>
         )}
 
-        <Menu>
-          <MenuButton as={Button} leftIcon={<FaEllipsisV />} variant='outline'>
-            More
-          </MenuButton>
-          <MenuList>
-            <MenuItem
-              gap={2}
-              onClick={() => {
-                copyHatId();
-                toast.info({
-                  title: 'Successfully copied hat ID to clipboard',
-                });
-              }}
+        <Flex pr={20}>
+          <Menu>
+            <MenuButton
+              as={Button}
+              leftIcon={<FaEllipsisV />}
+              variant='outline'
             >
-              <FaCopy />
-              Copy hat ID
-            </MenuItem>
-            <MenuItem
-              gap={2}
-              onClick={() => {
-                copyContractAddress();
-                toast.info({
-                  title: 'Successfully copied contract address to clipboard',
-                });
-              }}
-            >
-              <FaCopy />
-              Copy contract ID
-            </MenuItem>
-          </MenuList>
-        </Menu>
+              More
+            </MenuButton>
+            <MenuList>
+              <MenuItem
+                gap={2}
+                onClick={() => {
+                  copyHatId();
+                  toast.info({
+                    title: 'Successfully copied hat ID to clipboard',
+                  });
+                }}
+              >
+                <FaCopy />
+                Copy hat ID
+              </MenuItem>
+              <MenuItem
+                gap={2}
+                onClick={() => {
+                  copyContractAddress();
+                  toast.info({
+                    title: 'Successfully copied contract address to clipboard',
+                  });
+                }}
+              >
+                <FaCopy />
+                Copy contract ID
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
       </Flex>
     </Box>
   );

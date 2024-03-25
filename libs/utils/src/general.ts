@@ -13,16 +13,16 @@ import { format } from 'date-fns';
 import _ from 'lodash';
 import { ParsedUrlQuery } from 'querystring';
 import { AppHat } from 'types';
-import { Hex, isAddress } from 'viem';
+import { Hex, hexToString, isAddress } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : '';
 
-export const isSameAddress = (address1?: string, address2?: string) => {
-  if (!address1 || !address2) return false;
-  return address1.toLowerCase() === address2.toLowerCase();
+export const isSameAddress = (a?: string, b?: string) => {
+  if (!a || !b) return false;
+  return _.eq(_.toLower(a), _.toLower(b));
 };
 
 const dateFormatter = (date: Date | number) =>
@@ -314,7 +314,7 @@ export const getQueryRoute = ({
   pathname: string;
   hat?: AppHat;
   hatId?: Hex;
-  treeId?: Hex;
+  treeId?: Hex | number; // ? HEX? Should be a number?
   drop?: { tree?: boolean; hat?: boolean };
 }) => {
   let updatedQuery = query;
@@ -335,9 +335,11 @@ export const getQueryRoute = ({
       treeId: _.toString(treeIdHexToDecimal(hat.treeId)),
     };
   } else if (treeId) {
-    updatedQuery = { ...updatedQuery, treeId };
-  } else if (hatId) {
-    updatedQuery = { ...updatedQuery, hatId };
+    if (_.isNumber(treeId)) {
+      updatedQuery = { ...updatedQuery, treeId: _.toString(treeId) };
+    } else {
+      updatedQuery = { ...updatedQuery, treeId: hexToString(treeId as Hex) };
+    }
   }
 
   // handle hat Id
@@ -346,7 +348,11 @@ export const getQueryRoute = ({
       ...updatedQuery,
       hatId: hatIdDecimalToIp(BigInt(hat.id)),
     };
+  } else if (hatId && hatId !== '0x') {
+    updatedQuery = { ...updatedQuery, hatId: hatIdDecimalToIp(BigInt(hatId)) };
   }
+
+  // handle dropping values
   if (drop?.hat) {
     updatedQuery = _.omit(updatedQuery, 'hatId');
   }

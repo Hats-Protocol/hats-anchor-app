@@ -1,4 +1,4 @@
-import { Box, Image } from '@chakra-ui/react';
+import { Box, Image, Skeleton } from '@chakra-ui/react';
 import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
@@ -60,31 +60,33 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     >
       <Box w='100%' h='100%' position='relative' zIndex={14}>
         {/* Hat Image */}
-        <Box
-          position='absolute'
-          h='100px'
-          w='100px'
-          overflow='hidden'
-          border='3px solid'
-          borderColor='gray.700'
-          borderRadius='md'
-          top='110px'
-          left={-81}
-          zIndex={16}
-        >
-          <Image
-            loading='lazy'
-            src={
-              (editMode && imageUrl) ||
-              _.get(selectedHat, 'imageUrl') ||
-              '/icon.jpeg'
-            }
-            alt='hat image'
-            background='white'
-            objectFit='cover'
-            h='100%'
-          />
-        </Box>
+        <Skeleton isLoaded={!!selectedHat}>
+          <Box
+            position='absolute'
+            h='100px'
+            w='100px'
+            overflow='hidden'
+            border='3px solid'
+            borderColor='gray.700'
+            borderRadius='md'
+            top='110px'
+            left={-81}
+            zIndex={16}
+          >
+            <Image
+              loading='lazy'
+              src={
+                (editMode && imageUrl) ||
+                _.get(selectedHat, 'imageUrl') ||
+                '/icon.jpeg'
+              }
+              alt='hat image'
+              background='white'
+              objectFit='cover'
+              h='100%'
+            />
+          </Box>
+        </Skeleton>
 
         <HatFormContextProvider>
           <TopMenu returnToList={returnToList} />

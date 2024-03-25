@@ -25,8 +25,8 @@ import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useIsClient } from 'hooks';
-import { History } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import React, { useEffect } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
 import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
@@ -38,6 +38,8 @@ import { chainsMap, explorerUrl } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 import EventHistory from './EventHistory';
+
+const History = dynamic(() => import('icons').then((mod) => mod.History));
 
 const TreeMenu = () => {
   const { setModals, onOpenTreeDrawer } = useOverlay();
@@ -220,6 +222,8 @@ const TreeMenu = () => {
               <Skeleton
                 isLoaded={isClient && !!localLastTimestamp}
                 minW='235px'
+                display='flex'
+                justifyContent='flex-end'
               >
                 <Popover trigger='hover'>
                   <PopoverTrigger>

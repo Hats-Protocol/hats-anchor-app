@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Stack } from '@chakra-ui/react';
+import { Box, Flex, Stack } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -38,11 +38,12 @@ const AgreementV0 = () => {
           <Header />
         </Flex>
 
-        <HStack
-          spacing={{
+        <Flex
+          gap={{
             base: 12,
             lg: 20,
           }}
+          direction={{ base: 'column', md: 'row' }}
         >
           <Box
             py={5}
@@ -50,10 +51,7 @@ const AgreementV0 = () => {
             h='50%'
             maxH='600px'
             overflowY='scroll'
-            w={{
-              base: '50%',
-              lg: '70%',
-            }}
+            w={{ base: '100%', md: '70%' }}
             backgroundColor='white'
             border='1px solid #cbcbcb'
           >
@@ -61,7 +59,7 @@ const AgreementV0 = () => {
           </Box>
 
           <ClaimHat agreement={agreement} />
-        </HStack>
+        </Flex>
       </Stack>
     </Layout>
   );

@@ -129,7 +129,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
   return (
     <Stack
       w={{
-        base: '50%',
+        base: '90%',
         lg: '30%',
       }}
       justifyContent='center'
@@ -138,6 +138,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
         base: 0,
         xl: 10,
       }}
+      mx={{ base: 'auto', md: 0 }}
     >
       <Heading fontSize={24} fontWeight='medium' color='blackAlpha.800'>
         Join the Hats Community!{' '}

@@ -108,9 +108,13 @@ const useEligibilityRuleDetails = ({
     wearerAddress: address,
     chainId,
   });
-  const isWearer = useMemo(() => {
-    return !!_.find(wearerDetails.currentHats, { id: selectedHat?.id });
-  }, [wearerDetails?.currentHats, selectedHat?.id]);
+  const isWearer = useMemo(
+    () =>
+      !!_.find(_.get(wearerDetails, 'currentHats'), {
+        id: selectedHat?.id,
+      }),
+    [wearerDetails, selectedHat?.id],
+  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: [

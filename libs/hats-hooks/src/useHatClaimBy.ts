@@ -41,7 +41,7 @@ const useHatClaimBy = ({
     checkResult: (hatDetails) =>
       _.some(
         hatDetails?.wearers,
-        (w: { id: any }) => _.toLower(w.id) === _.toLower(address),
+        (w: { id: Hex }) => _.toLower(w.id) === _.toLower(address),
       ),
   });
 

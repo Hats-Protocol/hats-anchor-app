@@ -20,8 +20,11 @@ import {
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
+import { Suspense } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { chainsMap } from 'utils';
+
+import HatDrawer from './HatDrawer';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
@@ -29,30 +32,20 @@ const ChakraNextLink = dynamic(() =>
 const EventHistory = dynamic(() =>
   import('ui').then((mod) => mod.EventHistory),
 );
-const HatDrawer = dynamic(() => import('./HatDrawer'), {
-  loading: () => <Suspender />,
-});
 const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
-const OrgChart = dynamic(() => import('ui').then((mod) => mod.OrgChart));
+const OrgChart = dynamic(() => import('ui').then((mod) => mod.OrgChart), {
+  ssr: false,
+});
 const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
   loading: () => <Suspender />,
+  ssr: false,
 });
 const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
 const TreePage = ({ exists = true }: { exists: boolean }) => {
-  // const [initialLoad, setInitialLoad] = useState(true);
-  // const router = useRouter();
   const localOverlay = useOverlay();
   const { isHatDrawerOpen, isTreeDrawerOpen, returnToTreeList } = localOverlay;
   const { chainId, treeId, treeToDisplay, editMode, topHat } = useTreeForm();
-
-  // useEffect(() => {
-  //   const routerHatId = _.get(router, 'query.hatId');
-  //   if (initialLoad && !routerHatId && selectedHat && !editMode) {
-  //     onOpenHatDrawer?.();
-  //     setInitialLoad(false);
-  //   }
-  // }, [selectedHat, router, onOpenHatDrawer, editMode, initialLoad]);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -74,6 +67,7 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   //     )} on ${chain.name}`;
   //   }
   // }
+  console.log('isHatDrawerOpen', isHatDrawerOpen);
 
   return (
     <>
@@ -89,7 +83,9 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
             display: isHatDrawerOpen ? 'block' : 'none',
           }}
         >
-          <HatDrawer returnToList={returnToTreeList} />
+          <Suspense fallback='Loading'>
+            <HatDrawer returnToList={returnToTreeList} />
+          </Suspense>
         </Slide>
       </SelectedHatContextProvider>
 
