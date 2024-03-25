@@ -128,6 +128,8 @@ export interface HatAuthority {
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];
+  agreementOwner: { id: Hex; hatId: Hex }[];
+  agreementArbitrator: { id: Hex; hatId: Hex }[];
   hatsAccount1ofN: HatsAccount1ofN[];
 }
 
