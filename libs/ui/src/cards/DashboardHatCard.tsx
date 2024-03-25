@@ -13,6 +13,7 @@ import {
 import { networkImages } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { AppHat } from 'types';
@@ -23,6 +24,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
   const [imageLoaded, setImageLoaded] = useState(false);
   const image = _.get(hat, 'imageUrl');
+  const { isMobile } = useMediaStyles();
 
   useEffect(() => {
     const img = new Image();
@@ -35,13 +37,16 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
     _.get(hatDetails, 'type') === '1.0'
       ? _.get(hatDetails, 'data.name')
       : _.get(hat, 'details');
+  const hatLink = isMobile
+    ? `trees/${hat.chainId}/${Number(
+        hatIdToTreeId(BigInt(hat.id)),
+      )}/${hatIdDecimalToIp(BigInt(hat.id))}`
+    : `trees/${hat.chainId}/${Number(
+        hatIdToTreeId(BigInt(hat.id)),
+      )}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`;
 
   return (
-    <ChakraNextLink
-      href={`trees/${hat.chainId}/${Number(
-        hatIdToTreeId(BigInt(hat.id)),
-      )}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`}
-    >
+    <ChakraNextLink href={hatLink}>
       <Card h='100px' overflow='hidden'>
         <CardBody p={4}>
           <HStack spacing={4}>

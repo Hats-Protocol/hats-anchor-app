@@ -43,7 +43,7 @@ import {
   MobileHatCard,
   WearerHatCard as CoreHat,
 } from 'ui';
-import { chainsMap, formatAddress, viemPublicClient } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -293,17 +293,17 @@ export const getStaticProps = async (context: GetServerSidePropsContext) => {
   const wearerParam = _.get(context, 'params.wearer');
   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
-  const publicClient = viemPublicClient(1);
+  // const publicClient = viemPublicClient(1);
 
   try {
-    const initialEnsName = await publicClient.getEnsName({
-      address: wearer as Hex,
-    });
+    // const initialEnsName = await publicClient.getEnsName({
+    //   address: wearer as Hex,
+    // });
 
     return {
       props: {
         wearerAddress: wearer,
-        initialEnsName: initialEnsName || null,
+        initialEnsName: null,
         // initialData:  || undefined,
       },
       revalidate: 60,
