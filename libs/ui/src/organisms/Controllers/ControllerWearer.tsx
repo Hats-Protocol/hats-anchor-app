@@ -33,8 +33,8 @@ const ControllerWearer = ({
   if (address === FALLBACK_ADDRESS) {
     return (
       <HStack color='blackAlpha.600' spacing={1}>
-        <Text>Null</Text>
-        <Icon as={EmptyWearer} />
+        <Text fontSize={{ base: 'sm', md: 'md' }}>Null</Text>
+        <Icon as={EmptyWearer} boxSize={{ base: '14px', md: 4 }} />
       </HStack>
     );
   }
@@ -55,8 +55,11 @@ const ControllerWearer = ({
           }
           spacing={1}
         >
-          <Text>{name}</Text>
-          <Icon as={icon ?? (isContract ? CodeIcon : WearerIcon)} />
+          <Text fontSize={{ base: 'sm', md: 'md' }}>{name}</Text>
+          <Icon
+            as={icon ?? (isContract ? CodeIcon : WearerIcon)}
+            boxSize={{ base: '14px', md: 4 }}
+          />
         </HStack>
       </Tooltip>
     </ChakraNextLink>

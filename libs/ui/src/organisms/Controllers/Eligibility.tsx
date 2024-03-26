@@ -49,7 +49,9 @@ const Eligibility = () => {
     // * shouldn't be hitting this flow
     return (
       <Flex justify='space-between' py={1}>
-        <Text>Comply with 2 rules to keep this Hat</Text>
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
+          Comply with 2 rules to keep this Hat
+        </Text>
       </Flex>
     );
   }
@@ -70,8 +72,13 @@ const Eligibility = () => {
             )}?hatId=${hatIdDecimalToIp(moduleHat)}`}
           >
             <HStack spacing={1}>
-              <Text>{eligibilityRuleDetails.displayStatus}</Text>
-              <Icon as={eligibilityRuleDetails.icon} />
+              <Text fontSize={{ base: 'sm', md: 'md' }}>
+                {eligibilityRuleDetails.displayStatus}
+              </Text>
+              <Icon
+                as={eligibilityRuleDetails.icon}
+                boxSize={{ base: '14px', md: 4 }}
+              />
             </HStack>
           </ChakraNextLink>
         </Flex>
@@ -91,8 +98,13 @@ const Eligibility = () => {
                 : 'gray.600'
             }
           >
-            <Text>{eligibilityRuleDetails?.displayStatus}</Text>
-            <Icon as={eligibilityRuleDetails?.icon} />
+            <Text fontSize={{ base: 'sm', md: 'md' }}>
+              {eligibilityRuleDetails?.displayStatus}
+            </Text>
+            <Icon
+              as={eligibilityRuleDetails?.icon}
+              boxSize={{ base: '14px', md: 4 }}
+            />
           </HStack>
         ) : (
           <Button
@@ -112,11 +124,13 @@ const Eligibility = () => {
     // * shouldn't be hitting this flow
     return (
       <Flex justify='space-between' py={1}>
-        <Text>Another Hat can remove wearers</Text>
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
+          Another Hat can remove wearers
+        </Text>
 
         <HStack spacing={1}>
-          <Text>Hat ID</Text>
-          <Icon as={HatIcon} />
+          <Text fontSize={{ base: 'sm', md: 'md' }}>Hat ID</Text>
+          <Icon as={HatIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       </Flex>
     );
@@ -125,7 +139,7 @@ const Eligibility = () => {
   return (
     <Skeleton isLoaded={!loadingEligibilityRules || !moduleDetails}>
       <Flex justify='space-between' py={2}>
-        <Text>
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
           {_.includes(NULL_ADDRESSES, eligibilityData?.id)
             ? 'No addresses'
             : 'One address'}{' '}

@@ -56,8 +56,13 @@ const Toggle = () => {
             )}?hatId=${hatIdDecimalToIp(moduleHat)}`}
           >
             <HStack spacing={1}>
-              <Text>{toggleRuleDetails.displayStatus}</Text>
-              <Icon as={toggleRuleDetails.icon} />
+              <Text fontSize={{ base: 'sm', md: 'md' }}>
+                {toggleRuleDetails.displayStatus}
+              </Text>
+              <Icon
+                as={toggleRuleDetails.icon}
+                boxSize={{ base: '14px', md: 4 }}
+              />
             </HStack>
           </ChakraNextLink>
         </Flex>
@@ -76,8 +81,13 @@ const Toggle = () => {
               : 'gray.600'
           }
         >
-          <Text as='span'>{toggleRuleDetails?.displayStatus}</Text>
-          <Icon as={toggleRuleDetails?.icon} />
+          <Text fontSize={{ base: 'sm', md: 'md' }}>
+            {toggleRuleDetails?.displayStatus}
+          </Text>
+          <Icon
+            as={toggleRuleDetails?.icon}
+            boxSize={{ base: '14px', md: 4 }}
+          />
         </HStack>
       </Flex>
     );
@@ -87,10 +97,12 @@ const Toggle = () => {
     // * shouldn't be hitting this flow yet
     return (
       <Flex justify='space-between' py={1}>
-        <Text>Another Hat can remove wearers</Text>
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
+          Another Hat can remove wearers
+        </Text>
         <HStack spacing={1}>
-          <Text as='span'>Hat ID</Text>
-          <Icon as={HatIcon} />
+          <Text fontSize={{ base: 'sm', md: 'md' }}>Hat ID</Text>
+          <Icon as={HatIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       </Flex>
     );
@@ -99,7 +111,7 @@ const Toggle = () => {
   return (
     <Skeleton isLoaded={!loadingToggleRules || !moduleDetails}>
       <Flex justify='space-between' py={1}>
-        <Text>
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
           {_.includes(NULL_ADDRESSES, toggleData?.id)
             ? 'No addresses'
             : 'One address'}{' '}

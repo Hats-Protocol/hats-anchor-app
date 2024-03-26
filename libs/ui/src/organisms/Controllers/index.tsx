@@ -10,8 +10,12 @@ const Controllers = () => {
   if (selectedHat?.levelAtLocalTree === 0) return null;
 
   return (
-    <Flex direction='column' px={10}>
-      <Heading size='md' variant={{ base: 'medium', md: 'default' }} pb={2}>
+    <Flex direction='column' px={{ base: 4, md: 10 }}>
+      <Heading
+        size={{ base: 'sm', md: 'md' }}
+        variant={{ base: 'medium', md: 'default' }}
+        pb={2}
+      >
         Control over this Hat
       </Heading>
       <EditAndWearers />

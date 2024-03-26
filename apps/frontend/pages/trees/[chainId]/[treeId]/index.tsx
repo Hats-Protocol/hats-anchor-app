@@ -34,6 +34,7 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   useEffect(() => {
     if (!treeId || !chainId) return;
 
+    // attempt to redirect to mobile tree page
     if (hatId && isMobile) {
       router.push(`/trees/${chainId}/${hexToNumber(treeId)}/${hatId}`);
     }
@@ -43,7 +44,7 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
       chainId,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [treeId, chainId]);
+  }, [treeId, chainId, isMobile]);
 
   useEffect(() => {
     if (analytics && treeId && chainId) {

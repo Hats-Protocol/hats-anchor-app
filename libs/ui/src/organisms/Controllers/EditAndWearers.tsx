@@ -27,14 +27,14 @@ const AdminWearers = () => {
     <HStack spacing='2px'>
       {adminCount.code > 0 && (
         <HStack color='Informative-Code' spacing='1px'>
-          <Text>{adminCount.code}x</Text>
-          <Icon as={CodeIcon} />
+          <Text fontSize={{ base: 'sm', md: 'md' }}>{adminCount.code}x</Text>
+          <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}
       {adminCount.human > 0 && (
         <HStack color='Informative-Human' spacing='1px'>
-          <Text>{adminCount.human}x</Text>
-          <Icon as={WearerIcon} />
+          <Text fontSize={{ base: 'sm', md: 'md' }}>{adminCount.human}x</Text>
+          <Icon as={WearerIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}
     </HStack>
@@ -55,8 +55,10 @@ const Claimable = ({
   return (
     <ChakraNextLink href={`${explorerUrl(chainId)}/address/${address}`}>
       <HStack color='blue.500' spacing={1}>
-        <Text>{claimFor ? 'Free Claim' : 'Self Claim'}</Text>
-        <Icon as={CodeIcon} />
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
+          {claimFor ? 'Free Claim' : 'Self Claim'}
+        </Text>
+        <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
       </HStack>
     </ChakraNextLink>
   );
@@ -89,16 +91,25 @@ const EditAndWearers = () => {
     return (
       <Stack spacing='2px'>
         <Flex justify='space-between' py={1}>
-          <Text>This Hat cannot be edited</Text>
+          <Text fontSize={{ base: 'sm', md: 'md' }}>
+            This Hat cannot be edited
+          </Text>
 
           <HStack>
-            <Text display={{ base: 'none', md: 'block' }}>Immutable</Text>
+            <Text
+              display={{ base: 'none', md: 'block' }}
+              fontSize={{ base: 'sm', md: 'md' }}
+            >
+              Immutable
+            </Text>
             <Icon as={IoEllipsisVerticalSharp} />
           </HStack>
         </Flex>
 
         <Flex justify='space-between' py={1}>
-          <Text>Admins can add Wearers</Text>
+          <Text fontSize={{ base: 'sm', md: 'md' }}>
+            Admins can add Wearers
+          </Text>
 
           <AdminWearers />
         </Flex>
@@ -110,7 +121,7 @@ const EditAndWearers = () => {
     <Stack spacing='2px'>
       <Skeleton isLoaded={!!isClaimable}>
         <Flex justify='space-between' py={1}>
-          <Text>
+          <Text fontSize={{ base: 'sm', md: 'md' }}>
             Admins can edit this Hat
             {!isClaimable?.for ? ' and choose Wearers' : ''}
           </Text>
@@ -122,7 +133,9 @@ const EditAndWearers = () => {
         {(isClaimable?.for || isClaimable?.by) &&
           (isClaimable?.for ? (
             <Flex justify='space-between' py={1}>
-              <Text>Anyone can add eligible addresses as Wearers</Text>
+              <Text fontSize={{ base: 'sm', md: 'md' }}>
+                Anyone can add eligible addresses as Wearers
+              </Text>
 
               <Claimable
                 address={claimableForAddress}
@@ -132,7 +145,9 @@ const EditAndWearers = () => {
             </Flex>
           ) : (
             <Flex justify='space-between' py={1}>
-              <Text>Eligible addresses can claim a Hat</Text>
+              <Text fontSize={{ base: 'sm', md: 'md' }}>
+                Eligible addresses can claim a Hat
+              </Text>
 
               <Claimable
                 address={claimableAddress}

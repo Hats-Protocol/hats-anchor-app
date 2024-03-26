@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
@@ -21,9 +22,6 @@ const processForCommandPalette = (key: string, record: any) => {
   let treeId;
   let href;
   let label;
-  if (key === 'trees') {
-    treeId = hexToNumber(recordId, { size: 8 });
-  }
   const id = `${key}-${recordId}-${networkId}`;
   const hatIdIp = idToIp(recordId);
   const icon = keyIcons[key] as IconName;
@@ -31,10 +29,12 @@ const processForCommandPalette = (key: string, record: any) => {
   // eslint-disable-next-line default-case
   switch (key) {
     case 'trees':
+      treeId = hexToNumber(recordId, { size: 8 });
       href = `/trees/${networkId}/${treeId}`;
       label = `Tree #${treeId} on ${networkName}`;
       break;
     case 'hats':
+      treeId = hatIdToTreeId(record.id);
       href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
       label = `Hat #${hatIdIp} on ${networkName}`;
       break;
@@ -84,6 +84,7 @@ export const searchQueryResult = async (search: string | undefined) => {
     allNetworkResults.hats = _.concat(
       _.map(_.get(network, 'hats'), (hat: AppHat) => ({
         ...hat,
+        tree: _.get(hat, 'tree.id'),
         network: _.values(chainsList)[i],
       })),
       allNetworkResults?.hats || [],

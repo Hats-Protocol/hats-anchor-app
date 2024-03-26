@@ -29,7 +29,6 @@ const useHatWearers = ({
   chainId: SupportedChains;
   editMode?: boolean;
 }) => {
-  console.log('useHatWearers', hat, chainId);
   const {
     data: hatWearers,
     isLoading: hatWearersLoading,

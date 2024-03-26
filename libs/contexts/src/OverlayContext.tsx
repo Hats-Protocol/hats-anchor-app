@@ -71,6 +71,7 @@ export const OverlayContextProvider = ({
   const toast = useToast();
   const router = useRouter();
   const chainId = useChainId();
+  console.log('overlay context', router.query, router.pathname, chainId);
 
   // QUERY PARAMS
   const { hatId: initialHatIdParam } = router.query;
@@ -252,11 +253,11 @@ export const OverlayContextProvider = ({
   };
 
   useEffect(() => {
-    if (initialLoad && selectedHatId) {
+    if (initialLoad && selectedHatId && !isHatDrawerOpen) {
       onOpenHatDrawer?.(selectedHatId);
       setInitialLoad(false);
     }
-  }, [selectedHatId, onOpenHatDrawer, initialLoad]);
+  }, [selectedHatId, onOpenHatDrawer, isHatDrawerOpen, initialLoad]);
 
   useEffect(() => {
     const interval = setInterval(async () => {

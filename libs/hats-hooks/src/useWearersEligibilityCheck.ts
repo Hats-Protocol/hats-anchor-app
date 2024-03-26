@@ -19,6 +19,7 @@ const useWearersEligibilityCheck = ({
   const hatId = selectedHat?.id;
   const wearers = selectedHat?.wearers;
   const localWearerIds = wearerIds || _.map(wearers, 'id');
+  console.log(localWearerIds);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['wearerEligibility', localWearerIds, hatId, chainId],

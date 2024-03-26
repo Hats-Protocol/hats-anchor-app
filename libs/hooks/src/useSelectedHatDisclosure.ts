@@ -15,6 +15,7 @@ const useSelectedHatDisclosure = () => {
 
   const onOpen = useCallback(
     (hatId: Hex) => {
+      console.log('here');
       setIsOpen(true);
 
       const updatedUrl = getQueryRoute({
@@ -29,6 +30,7 @@ const useSelectedHatDisclosure = () => {
 
   const onClose = useCallback(() => {
     setIsOpen(false);
+    console.log('there');
     const updatedUrl = getQueryRoute({
       query: router.query,
       pathname: router.pathname,
