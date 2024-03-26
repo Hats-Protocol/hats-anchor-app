@@ -41,7 +41,7 @@ const useModulesDetails = ({
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['modulesDetails', moduleIds, chainId],
     queryFn: fetchModulesData,
-    enabled: !!chainId,
+    enabled: !!chainId && !!_.isEmpty(moduleIds),
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

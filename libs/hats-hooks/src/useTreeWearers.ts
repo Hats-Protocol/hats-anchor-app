@@ -16,6 +16,7 @@ const useTreeWearers = ({
     queryKey: ['treeWearers', _.map(hats, 'id'), chainId],
     queryFn: () => fetchTreeWearersDetails(hats, chainId),
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
+    enabled: !_.isEmpty(hats) && !!chainId,
   });
 
   return { data, isLoading, error };

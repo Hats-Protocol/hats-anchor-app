@@ -250,12 +250,11 @@ export const OverlayContextProvider = ({
   };
 
   useEffect(() => {
-    const routerHatId = _.get(router, 'query.hatId');
-    if (initialLoad && !routerHatId && selectedHatId) {
+    if (initialLoad && selectedHatId) {
       onOpenHatDrawer?.(selectedHatId);
       setInitialLoad(false);
     }
-  }, [selectedHatId, router, onOpenHatDrawer, initialLoad]);
+  }, [selectedHatId, onOpenHatDrawer, initialLoad]);
 
   useEffect(() => {
     const interval = setInterval(async () => {

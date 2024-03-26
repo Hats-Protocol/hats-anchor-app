@@ -176,7 +176,7 @@ const useSnapshotSpaces = ({
   const { data, error, isLoading } = useQuery({
     queryKey: ['spaces', spaces, chainId],
     queryFn: () => fetchSnapshotSpaces(chainId, spaces),
-    enabled: spaces && spaces.length > 0,
+    enabled: spaces && !_.isEmpty(spaces) && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

@@ -1,13 +1,6 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
 import {
-  AppHat,
-  HatAuthority,
-  ModuleDetails,
-  // HatAuthorityResponse,
-  SupportedChains,
-} from 'types';
-import {
   populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
@@ -15,6 +8,13 @@ import {
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import {
+  AppHat,
+  HatAuthority,
+  ModuleDetails,
+  // HatAuthorityResponse,
+  SupportedChains,
+} from 'types';
 import { fetchAncillaryModules } from 'utils';
 import { Hex } from 'viem';
 
@@ -54,7 +54,7 @@ const useAncillaryModules = ({
   } = useQuery({
     queryKey: ['ancillaryModules', id, chainId],
     queryFn: () => fetchAncillaryModules(id || 'none', chainId),
-    enabled: !!id && !!chainId,
+    enabled: !!id && id !== '0x' && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

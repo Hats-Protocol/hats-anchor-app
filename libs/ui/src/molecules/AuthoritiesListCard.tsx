@@ -21,8 +21,8 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
-import { BoxArrowUpRightOut, CheckCircle } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
@@ -32,6 +32,13 @@ import { getHostnameFromURL, validateURL } from 'utils';
 import { ChakraNextLink, Markdown } from '../atoms';
 import AuthorityHeader from './AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
+
+const BoxArrowUpRightOut = dynamic(() =>
+  import('icons').then((mod) => mod.BoxArrowUpRightOut),
+);
+const CheckCircle = dynamic(() =>
+  import('icons').then((mod) => mod.CheckCircle),
+);
 
 const AuthoritiesListCard = ({
   authority,
@@ -113,7 +120,7 @@ const AuthoritiesListCard = ({
         borderRadius={{ md: 'md' }}
       >
         {({ isExpanded }) => {
-          if (isMounted) setExpanded(isExpanded);
+          if (isMounted.current) setExpanded(isExpanded);
 
           return (
             <>

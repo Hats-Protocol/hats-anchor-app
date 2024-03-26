@@ -1,8 +1,10 @@
 import { useQueries } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import _ from 'lodash';
 import { mapWithChainId } from 'shared';
+import { AppHat } from 'types';
 import { fetchHatDetails } from 'utils';
+
+// TODO handle as a single cache
 
 const useManyHatsDetails = ({
   hats,
@@ -27,7 +29,7 @@ const useManyHatsDetails = ({
         return {
           queryKey: ['hatDetails', hatDetails],
           queryFn: () => fetchHatDetails(hat.id, hat.chainId || 5),
-          enabled: !!hat.id && !!hat.chainId,
+          enabled: !!hat.id && !!hat.chainId && hat?.id !== '0x',
           refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
         };
       },

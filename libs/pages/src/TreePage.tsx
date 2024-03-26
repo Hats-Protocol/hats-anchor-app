@@ -72,22 +72,22 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   return (
     <>
       <NextSeo title={title} />
-      <SelectedHatContextProvider treeId={treeId} chainId={chainId}>
-        <Slide
-          direction='right'
-          in={!!treeToDisplay && !!isHatDrawerOpen}
-          style={{
-            zIndex: 1000,
-            maxWidth: '43%',
-            width: '650px',
-            display: isHatDrawerOpen ? 'block' : 'none',
-          }}
-        >
-          <Suspense fallback='Loading'>
+      <Suspense>
+        <SelectedHatContextProvider treeId={treeId} chainId={chainId}>
+          <Slide
+            direction='right'
+            in={!!treeToDisplay && !!isHatDrawerOpen}
+            style={{
+              zIndex: 1000,
+              maxWidth: '43%',
+              width: '650px',
+              display: isHatDrawerOpen ? 'block' : 'none',
+            }}
+          >
             <HatDrawer returnToList={returnToTreeList} />
-          </Suspense>
-        </Slide>
-      </SelectedHatContextProvider>
+          </Slide>
+        </SelectedHatContextProvider>
+      </Suspense>
 
       <Slide
         direction='right'

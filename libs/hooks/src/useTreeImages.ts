@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
+import { AppHat } from 'types';
 
 const getAncestors = (hat: AppHat, hats: AppHat[]) => {
   const ancestors = [];
@@ -23,7 +23,7 @@ const treeImages = async (
   images: string[] | undefined,
   hats: AppHat[] | undefined,
 ) => {
-  if (!images || !hats) return [];
+  if (!images || _.isEmpty(images) || !hats) return [];
 
   const promises = _.map(images, (image: string) =>
     checkImageIsValid(image).catch((e) => {}),
@@ -61,9 +61,9 @@ const useTreeImages = ({
   ) as string[];
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['treeImages', actualImages, hats],
+    queryKey: ['treeImages', actualImages, _.map(hats, 'id')],
     queryFn: () => treeImages(actualImages, hats),
-    enabled: !!hats,
+    enabled: !_.isEmpty(hats),
     staleTime: editMode ? Infinity : 1000 * 60 * 60 * 24,
   });
 

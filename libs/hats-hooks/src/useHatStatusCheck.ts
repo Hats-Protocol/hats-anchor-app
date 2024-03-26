@@ -1,11 +1,11 @@
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
-import { AppHat, HandlePendingTx } from 'types';
 import { decimalId } from 'hats-utils';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { idToIp, toTreeId } from 'shared';
+import { AppHat, HandlePendingTx } from 'types';
 import { checkAddressIsContract } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';

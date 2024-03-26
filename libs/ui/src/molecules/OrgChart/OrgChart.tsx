@@ -228,6 +228,7 @@ const OrgChartComponent: React.FC = () => {
               detailsObject,
               isLinked,
               maxSupply,
+              currentSupply,
               orgChartWearers: hatChartWearers,
               eligibility,
               toggle,
@@ -310,7 +311,7 @@ const OrgChartComponent: React.FC = () => {
                         <div style="
                           display: -webkit-box;
                           font-size: 15px;
-                          font-weight: 550;
+                          font-weight: ${currentSupply > 0 ? 'bold' : 'medium'};
                           opacity: 0.8;
                           overflow: hidden;
                           width: ${hatChartWearers?.contentWidth};
@@ -492,7 +493,7 @@ const OrgChartComponent: React.FC = () => {
                     <img
                       loading="lazy"
                       src="${
-                        imageUrl !== '' && imageUrl !== null
+                        imageUrl && imageUrl !== '' && imageUrl !== null
                           ? imageUrl
                           : '/icon.jpeg'
                       }"

@@ -32,7 +32,7 @@ export const fetchTreeDetails = async (
           claimableForBy: { props: {} },
           currentSupply: true,
           tree: {},
-          wearers: { props: {}, filters: { first: 500 } },
+          wearers: { props: {}, filters: { first: 5 } },
           admin: {},
         },
       },
@@ -89,7 +89,7 @@ export const fetchPaginatedTrees = async (
           details: true,
           imageUri: true,
           prettyId: true,
-          wearers: { props: {}, filters: { first: 500 } },
+          wearers: { props: {}, filters: { first: 5 } },
           admin: {
             prettyId: true,
           },
@@ -119,7 +119,7 @@ export const fetchTreesById = async (treeIds: string[], chainId: number) => {
           admin: {
             prettyId: true,
           },
-          wearers: { props: {}, filters: { first: 500 } },
+          wearers: { props: {}, filters: { first: 5 } },
           status: true,
         },
       },

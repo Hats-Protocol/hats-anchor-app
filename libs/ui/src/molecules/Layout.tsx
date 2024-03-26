@@ -62,7 +62,7 @@ const Layout = ({ editMode, hatData, hideBackLink, children }: LayoutProps) => {
         size='xl'
         localOverlay={localOverlay}
       >
-        <TransactionHistory transactions={transactions} />
+        <TransactionHistory transactions={transactions} showClear />
       </Modal>
     </>
   );

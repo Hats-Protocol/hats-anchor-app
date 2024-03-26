@@ -24,6 +24,7 @@ const useWearersEligibilityCheck = ({
     queryKey: ['wearerEligibility', localWearerIds, hatId, chainId],
     queryFn: () => fetchWearersEligibilities(localWearerIds, hatId, chainId),
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
+    enabled: !!hatId && !!chainId,
   });
 
   return { data, isLoading, error };

@@ -46,22 +46,13 @@ const BANNER = {
 
 const Navbar = ({ hatData }: { hatData?: AppHat }) => {
   const currentChainId = useChainId();
-  const {
-    setCommandPalette: setOpen,
-    // setModals,
-    // transactions,
-    // clearAllTransactions,
-  } = useOverlay();
+  const { setCommandPalette: setOpen } = useOverlay();
   const { editMode } = useTreeForm();
 
   const router = useRouter();
   const path = router.asPath.split('/').slice(1);
   const { address } = useAccount();
   const localOverlay = useOverlay();
-
-  // const hasPendingTransactions = transactions.some(
-  //   (tx: Transaction) => tx.status === 'pending',
-  // );
 
   const { data: hatDetails } = useHatDetailsField(hatData?.details, editMode);
   const tabName = hatDetails?.data?.name || hatData?.details;
@@ -187,61 +178,6 @@ const Navbar = ({ hatData }: { hatData?: AppHat }) => {
           />
         </Tooltip>
 
-        {/* <Popover trigger='hover'>
-          <PopoverTrigger>
-            {hasPendingTransactions ? (
-              <Spinner />
-            ) : (
-              <IconButton
-                icon={<Icon as={FaBell} h='25px' w='25px' />}
-                aria-label='Notifications'
-                variant='ghost'
-              />
-            )}
-          </PopoverTrigger>
-          <Portal>
-            <PopoverContent width='auto' minW='300px'>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <PopoverBody>
-                <Box>
-                  <Flex w='full' justify='space-between' align='center'>
-                    <Heading
-                      size='sm'
-                      variant='medium'
-                      textTransform='uppercase'
-                    >
-                      History
-                    </Heading>
-                    <Button
-                      size='xs'
-                      variant='ghost'
-                      colorScheme='blue'
-                      onClick={clearAllTransactions}
-                      mr={6}
-                      isDisabled={_.isEmpty(transactions)}
-                    >
-                      Clear
-                    </Button>
-                  </Flex>
-                  <TransactionHistory count={5} transactions={transactions} />
-                  {_.gt(_.size(transactions), 5) && (
-                    <>
-                      <Divider my={2} />
-                      <Button
-                        onClick={() => setModals?.({ transactions: true })}
-                        variant='link'
-                        colorScheme='blue'
-                      >
-                        View Full History
-                      </Button>
-                    </>
-                  )}
-                </Box>
-              </PopoverBody>
-            </PopoverContent>
-          </Portal>
-        </Popover> */}
         <ConnectWallet overlay={localOverlay} />
       </HStack>
     </Flex>
