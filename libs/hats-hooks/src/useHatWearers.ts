@@ -29,9 +29,10 @@ const useHatWearers = ({
   chainId: SupportedChains;
   editMode?: boolean;
 }) => {
+  console.log('useHatWearers', hat, chainId);
   const {
     data: hatWearers,
-    isLoading,
+    isLoading: hatWearersLoading,
     error,
   } = useQuery({
     queryKey: ['hatWearers', _.omit(hat, ['events']), chainId],
@@ -53,7 +54,7 @@ const useHatWearers = ({
     queryKey: ['contractWearers', contractWearersList, chainId],
     queryFn: () => batchFetchContractData(contractWearersList, chainId),
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
-    enabled: !_.isEmpty(contractWearersList) && !!chainId,
+    enabled: !hatWearersLoading && !!chainId,
   });
 
   const combinedData = useMemo(() => {
@@ -68,7 +69,7 @@ const useHatWearers = ({
 
   return {
     data: combinedData,
-    isLoading: isLoading || contractWearersLoading,
+    isLoading: hatWearersLoading || contractWearersLoading,
     error,
     contractWearersError,
   };
