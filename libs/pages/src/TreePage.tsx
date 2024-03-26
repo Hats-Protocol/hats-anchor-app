@@ -9,7 +9,6 @@ import {
   Spinner,
   Stack,
 } from '@chakra-ui/react';
-import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import {
   Modal,
   SelectedHatContextProvider,
@@ -20,9 +19,9 @@ import {
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
-import { Suspense } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { chainsMap } from 'utils';
+import { hexToNumber } from 'viem';
 
 import HatDrawer from './HatDrawer';
 
@@ -45,19 +44,22 @@ const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 const TreePage = ({ exists = true }: { exists: boolean }) => {
   const localOverlay = useOverlay();
   const { isHatDrawerOpen, isTreeDrawerOpen, returnToTreeList } = localOverlay;
-  const { chainId, treeId, treeToDisplay, editMode, topHat } = useTreeForm();
+  const { chainId, treeId, treeToDisplay, topHatDetails, editMode, topHat } =
+    useTreeForm();
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
 
   let title = '';
   if (_.isFinite(_.toNumber(treeId))) {
-    title = `Tree #${hatIdToTreeId(BigInt(treeId))} on ${chain.name}`;
+    title = `Tree #${hexToNumber(treeId)} on ${chain.name}`;
   } else {
     title = 'Invalid Tree ID';
   }
-  // if (!selectedHat && topHatDetails) {
-  //   title = `${topHatDetails.name} on ${chain.name}`;
+  // TODO finish
+  if (topHatDetails) {
+    title = `${topHatDetails.name} on ${chain.name}`;
+  }
   // } else if (selectedHat) {
   //   if (selectedHatDetails) {
   //     title = `${selectedHatDetails.name} on ${chain.name}`;
@@ -67,27 +69,24 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   //     )} on ${chain.name}`;
   //   }
   // }
-  console.log('isHatDrawerOpen', isHatDrawerOpen);
 
   return (
     <>
       <NextSeo title={title} />
-      <Suspense>
-        <SelectedHatContextProvider treeId={treeId} chainId={chainId}>
-          <Slide
-            direction='right'
-            in={!!treeToDisplay && !!isHatDrawerOpen}
-            style={{
-              zIndex: 1000,
-              maxWidth: '43%',
-              width: '650px',
-              display: isHatDrawerOpen ? 'block' : 'none',
-            }}
-          >
-            <HatDrawer returnToList={returnToTreeList} />
-          </Slide>
-        </SelectedHatContextProvider>
-      </Suspense>
+      <SelectedHatContextProvider treeId={treeId} chainId={chainId}>
+        <Slide
+          direction='right'
+          in={!!treeToDisplay && !!isHatDrawerOpen}
+          style={{
+            zIndex: 1000,
+            maxWidth: '43%',
+            width: '650px',
+            display: isHatDrawerOpen ? 'block' : 'none',
+          }}
+        >
+          <HatDrawer returnToList={returnToTreeList} />
+        </Slide>
+      </SelectedHatContextProvider>
 
       <Slide
         direction='right'
