@@ -35,7 +35,7 @@ const FullWearersListModal = ({
   const { wearers: exportWearers } = useAllWearers({
     selectedHat,
     chainId,
-    enabled: _.get(modals, 'hatWearers'),
+    enabled: _.get(modals, 'hatWearers') || false,
   });
 
   return (

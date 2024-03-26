@@ -37,9 +37,7 @@ export const fetchHatDetails = async (
         tree: {},
         wearers: {
           props: {},
-          filters: {
-            first: 500,
-          },
+          filters: { first: 5 },
         },
         admin: {},
         events: {

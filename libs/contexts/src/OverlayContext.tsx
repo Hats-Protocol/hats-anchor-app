@@ -211,13 +211,15 @@ export const OverlayContextProvider = ({
     sendToast?: boolean;
     onSuccess?: (data?: TransactionReceipt) => void;
   }): Promise<TransactionReceipt | undefined> => {
-    addTransaction({
-      hash,
-      txChainId,
-      timestamp: Date.now(),
-      status: 'pending',
-      txDescription,
-    });
+    if (hash && hash !== '0x') {
+      addTransaction({
+        hash,
+        txChainId,
+        timestamp: Date.now(),
+        status: 'pending',
+        txDescription,
+      });
+    }
 
     const data = await waitForTransaction({ hash });
 

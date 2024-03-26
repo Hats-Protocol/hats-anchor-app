@@ -13,17 +13,19 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
 import { decimalId } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
-import { HatIcon } from 'icons';
 import _ from 'lodash';
-import { BsPeopleFill } from 'react-icons/bs';
+import dynamic from 'next/dynamic';
+// import { BsPeopleFill } from 'react-icons/bs';
 import { AppHat } from 'types';
 import { removeInactiveHatsAndDescendants } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
 
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
+
 const TreeStats = ({ tree }: { tree: Tree }) => {
   const activeHats = removeInactiveHatsAndDescendants(tree?.hats);
-  const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));
+  // const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));
 
   return (
     <HStack>
@@ -33,12 +35,12 @@ const TreeStats = ({ tree }: { tree: Tree }) => {
           {_.size(activeHats)}
         </Text>
       </HStack>
-      <HStack spacing={1} color='blue.700'>
+      {/* <HStack spacing={1} color='blue.700'>
         <Icon as={BsPeopleFill} boxSize={3} />
         <Text size='xs' fontWeight='medium'>
           {activeWearers}
         </Text>
-      </HStack>
+      </HStack> */}
     </HStack>
   );
 };
