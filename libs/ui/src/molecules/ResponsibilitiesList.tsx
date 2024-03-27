@@ -1,17 +1,21 @@
-import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Accordion, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 import _ from 'lodash';
 import { DetailsItem } from 'types';
 
 import ResponsibilitiesListCard from './ResponsibilitiesListCard';
 
+const LOADING_RESPONSIBILITIES: DetailsItem[] = Array(3).fill({
+  label: 'Loading...',
+  description: 'Loading...',
+});
+
 const ResponsibilitiesList = () => {
-  const { selectedHatDetails } = useSelectedHat();
+  const { selectedHatDetails, hatLoading } = useSelectedHat();
   const responsibilities = _.get(selectedHatDetails, 'responsibilities');
+  const localResponsibilities = responsibilities || LOADING_RESPONSIBILITIES;
 
-  if (!responsibilities) return null;
-
-  if (_.isEmpty(responsibilities)) {
+  if (!hatLoading && _.isEmpty(responsibilities)) {
     return (
       <Flex px={{ base: 0, md: 10 }} py={4}>
         <Heading
@@ -28,30 +32,28 @@ const ResponsibilitiesList = () => {
   return (
     <Accordion px={{ base: 0, md: 10 }} allowMultiple>
       <Stack>
-        <Heading
-          size={{ base: 'sm', md: 'md' }}
-          mx={{ base: 4, md: 0 }}
-          variant={{ base: 'medium', md: 'default' }}
-        >
-          {_.size(responsibilities)}{' '}
-          {_.size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'}{' '}
-          expected of Hat Wearers
-        </Heading>
+        <Skeleton isLoaded={!hatLoading && !!responsibilities}>
+          <Heading
+            size={{ base: 'sm', md: 'md' }}
+            mx={{ base: 4, md: 0 }}
+            variant={{ base: 'medium', md: 'default' }}
+          >
+            {_.size(responsibilities)}{' '}
+            {_.size(responsibilities) > 1
+              ? 'Responsibilities'
+              : 'Responsibility'}{' '}
+            expected of Hat Wearers
+          </Heading>
+        </Skeleton>
 
         <Stack spacing={1}>
-          {_.map(responsibilities, (responsibility: DetailsItem) => (
+          {_.map(localResponsibilities, (responsibility: DetailsItem) => (
             <ResponsibilitiesListCard
               key={responsibility.label}
               responsibility={responsibility}
             />
           ))}
         </Stack>
-
-        {!responsibilities.length && (
-          <Text variant='gray' size='sm'>
-            None
-          </Text>
-        )}
       </Stack>
     </Accordion>
   );

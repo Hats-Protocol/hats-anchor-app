@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { AppHat, HatWearer } from 'types';
 
@@ -19,10 +19,10 @@ export const fetchTreeWearersDetails = async (
     if (_.size(hat.wearers) === 1 && firstWearer) {
       wearersList.push(firstWearer);
     }
-    if (!!hat.eligibility && hat.eligibility !== FALLBACK_ADDRESS) {
+    if (!!hat.eligibility && !_.includes(NULL_ADDRESSES, hat.eligibility)) {
       wearersList.push({ id: hat.eligibility });
     }
-    if (!!hat.toggle && hat.toggle !== FALLBACK_ADDRESS) {
+    if (!!hat.toggle && !_.includes(NULL_ADDRESSES, hat.toggle)) {
       wearersList.push({ id: hat.toggle });
     }
   });

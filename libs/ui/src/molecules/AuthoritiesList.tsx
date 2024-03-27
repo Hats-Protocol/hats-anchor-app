@@ -1,4 +1,4 @@
-import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Accordion, Flex, Heading, Stack } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useAncillaryModules } from 'hats-hooks';
 import { combineAuthorities } from 'hats-utils';
@@ -39,7 +39,7 @@ const AuthoritiesList = () => {
 
   if (
     !hatLoading &&
-    ancillaryModulesLoading &&
+    !ancillaryModulesLoading &&
     _.isEmpty(combinedAuthorities)
   ) {
     return (
@@ -60,7 +60,7 @@ const AuthoritiesList = () => {
           variant={{ base: 'medium', md: 'default' }}
         >
           {_.size(combinedAuthorities)}{' '}
-          {_.size(combinedAuthorities) > 1 ? 'Authorities' : 'Authority'}{' '}
+          {_.size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'}{' '}
           granted by this Hat
         </Heading>
 
@@ -74,11 +74,6 @@ const AuthoritiesList = () => {
             />
           ))}
         </Stack>
-        {_.isEmpty(combinedAuthorities) && (
-          <Text variant='gray' size='sm'>
-            None
-          </Text>
-        )}
       </Stack>
     </Accordion>
   );

@@ -9,14 +9,16 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
-import { HatIcon } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
 import { paddingForMaxDepth } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
+
+const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const MobileHatCard = ({
   hat,
@@ -38,7 +40,11 @@ const MobileHatCard = ({
   const { data: hatDetails } = useHatDetailsField(
     _.get(hat, 'name') ? undefined : _.get(hat, 'details'), // don't attempt to lookup if name already found for hat
   );
-  const detailsName = _.get(hatDetails, 'data.name', _.get(hat, 'name'));
+  const detailsName = _.get(
+    hatDetails,
+    'data.name',
+    _.get(hat, 'name', _.get(hat, 'details')),
+  );
 
   // trying to match the right value in `VerticalDividers` (4), 3 seems to be best here
   const padding = maxDepth
@@ -89,7 +95,7 @@ const MobileHatCard = ({
           {isWearing && (
             <Icon
               as={HatIcon}
-              alt='Hat'
+              // alt='Hat'
               boxSize={4}
               color='green'
               position='absolute'

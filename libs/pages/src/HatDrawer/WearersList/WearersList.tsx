@@ -7,9 +7,9 @@ import {
   Heading,
   HStack,
   Icon,
-  Input,
-  InputGroup,
-  InputLeftElement,
+  // Input,
+  // InputGroup,
+  // InputLeftElement,
   Skeleton,
   Stack,
   Text,
@@ -40,9 +40,9 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaSearch } from 'react-icons/fa';
+// import { FaSearch } from 'react-icons/fa';
 import { HatWearer } from 'types';
-import { commify, extendWearers } from 'utils';
+import { commify } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -109,13 +109,16 @@ const WearersList = () => {
     Hex | undefined
   >();
   const [wearerToTransferFrom, setWearerToTransferFrom] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm] = useState('');
   const localForm = useForm({
     mode: 'onBlur',
   });
 
   const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
-  const extendedWearers = extendWearers(_.get(selectedHat, 'wearers'), []);
+  // const extendedWearers = extendWearers(
+  //   _.get(selectedHat, 'wearers'),
+  //   hatWearers,
+  // );
 
   const filteredWearers = useMemo(() => {
     const sortedWearers = sortWearers({
@@ -151,10 +154,10 @@ const WearersList = () => {
                   size={{ base: 'sm', md: 'md' }}
                   variant={{ base: 'medium', md: 'default' }}
                 >
-                  {_.size(eligibleWearers)} Wearer
-                  {(_.size(eligibleWearers) > 1 ||
-                    _.size(eligibleWearers) === 0) &&
-                    's'}{' '}
+                  {_.get(selectedHat, 'currentSupply')}{' '}
+                  {_.toNumber(_.get(selectedHat, 'currentSupply')) === 1
+                    ? 'Wearer'
+                    : 'Wearers'}{' '}
                   of this Hat
                 </Heading>
               </Skeleton>
@@ -174,7 +177,7 @@ const WearersList = () => {
             </HStack>
           </Flex>
 
-          {_.gt(_.size(extendedWearers), 4) && (
+          {/* {_.gt(_.size(extendedWearers), 4) && (
             <InputGroup>
               <InputLeftElement pointerEvents='none'>
                 <FaSearch />
@@ -191,7 +194,7 @@ const WearersList = () => {
                 size={{ base: 'sm', md: 'md' }}
               />
             </InputGroup>
-          )}
+          )} */}
           {/* Wearers list */}
           {_.map(
             !wearersLoading ? filteredWearers : loadingWearers,

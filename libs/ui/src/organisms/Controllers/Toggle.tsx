@@ -1,14 +1,11 @@
 import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
-import {
-  FALLBACK_ADDRESS,
-  hatIdDecimalToIp,
-  hatIdToTreeId,
-} from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat } from 'contexts';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { zeroAddress } from 'viem';
+import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../../atoms';
 import ControllerWearer from './ControllerWearer';
@@ -17,18 +14,17 @@ import useToggleRuleDetails from './utils/useToggleRuleDetails';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
-const NULL_ADDRESSES = [FALLBACK_ADDRESS, zeroAddress];
-
 const Toggle = () => {
+  const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
-  const { extendedToggle: toggleData } = _.pick(selectedHat, [
-    'extendedToggle',
-  ]);
+  const { toggle } = _.pick(selectedHat, ['toggle']);
+  const orgChartToggle = _.find(orgChartWearers, { id: toggle });
+  // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const { details: moduleDetails, parameters } = useModuleDetails({
-    address: toggleData?.id,
+    address: toggle,
     chainId,
-    enabled: toggleData?.isContract, // ? is this reliable enough?
+    enabled: orgChartToggle?.isContract, // ? is this reliable enough?
   });
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
@@ -40,8 +36,8 @@ const Toggle = () => {
       selectedHat,
     });
 
-  if (moduleDetails && toggleRuleDetails) {
-    if (toggleRuleDetails.status === TOGGLE_STATUS.hat) {
+  if (moduleDetails) {
+    if (toggleRuleDetails?.status === TOGGLE_STATUS.hat) {
       const moduleHat = _.get(
         _.find(parameters, { displayType: 'hat' }),
         'value',
@@ -70,26 +66,28 @@ const Toggle = () => {
     }
 
     return (
-      <Flex justify='space-between' py={1}>
-        {toggleRuleDetails?.rule}
+      <Skeleton isLoaded={!loadingToggleRules}>
+        <Flex justify='space-between' py={1}>
+          {toggleRuleDetails?.rule}
 
-        <HStack
-          spacing={1}
-          color={
-            toggleRuleDetails?.status === TOGGLE_STATUS.active
-              ? 'green.600'
-              : 'gray.600'
-          }
-        >
-          <Text fontSize={{ base: 'sm', md: 'md' }}>
-            {toggleRuleDetails?.displayStatus}
-          </Text>
-          <Icon
-            as={toggleRuleDetails?.icon}
-            boxSize={{ base: '14px', md: 4 }}
-          />
-        </HStack>
-      </Flex>
+          <HStack
+            spacing={1}
+            color={
+              toggleRuleDetails?.status === TOGGLE_STATUS.active
+                ? 'green.600'
+                : 'gray.600'
+            }
+          >
+            <Text fontSize={{ base: 'sm', md: 'md' }}>
+              {toggleRuleDetails?.displayStatus}
+            </Text>
+            <Icon
+              as={toggleRuleDetails?.icon}
+              boxSize={{ base: '14px', md: 4 }}
+            />
+          </HStack>
+        </Flex>
+      </Skeleton>
     );
   }
 
@@ -112,13 +110,13 @@ const Toggle = () => {
     <Skeleton isLoaded={!loadingToggleRules || !moduleDetails}>
       <Flex justify='space-between' py={1}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
-          {_.includes(NULL_ADDRESSES, toggleData?.id)
-            ? 'No addresses'
-            : 'One address'}{' '}
+          {_.includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}
           can deactivate this Hat
         </Text>
 
-        <ControllerWearer controllerData={toggleData} />
+        <ControllerWearer
+          controllerData={orgChartToggle || { id: toggle as Hex }}
+        />
       </Flex>
     </Skeleton>
   );

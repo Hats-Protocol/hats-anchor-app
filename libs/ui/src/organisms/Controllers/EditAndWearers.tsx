@@ -1,9 +1,8 @@
-import { Flex, HStack, Icon, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatAdminWearers } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { explorerUrl } from 'utils';
 import { Hex } from 'viem';
@@ -65,19 +64,8 @@ const Claimable = ({
 };
 
 const EditAndWearers = () => {
-  const { selectedHat, chainId } = useSelectedHat();
+  const { selectedHat, chainId, isClaimable } = useSelectedHat();
 
-  // TODO move to selected hat context
-  const isClaimable = useMemo(
-    () =>
-      selectedHat
-        ? {
-            by: !_.isEmpty(selectedHat?.claimableBy),
-            for: !_.isEmpty(selectedHat?.claimableForBy),
-          }
-        : undefined,
-    [selectedHat],
-  );
   const claimableAddress = _.get(
     _.first(_.get(selectedHat, 'claimableBy')),
     'id',
@@ -119,44 +107,40 @@ const EditAndWearers = () => {
 
   return (
     <Stack spacing='2px'>
-      <Skeleton isLoaded={!!isClaimable}>
-        <Flex justify='space-between' py={1}>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>
-            Admins can edit this Hat
-            {!isClaimable?.for ? ' and choose Wearers' : ''}
-          </Text>
+      <Flex justify='space-between' py={1}>
+        <Text fontSize={{ base: 'sm', md: 'md' }}>
+          Admins can edit this Hat
+          {!isClaimable?.for ? ' and choose Wearers' : ''}
+        </Text>
 
-          <AdminWearers />
-        </Flex>
-      </Skeleton>
-      <Skeleton isLoaded={!!isClaimable}>
-        {(isClaimable?.for || isClaimable?.by) &&
-          (isClaimable?.for ? (
-            <Flex justify='space-between' py={1}>
-              <Text fontSize={{ base: 'sm', md: 'md' }}>
-                Anyone can add eligible addresses as Wearers
-              </Text>
+        <AdminWearers />
+      </Flex>
+      {(isClaimable?.for || isClaimable?.by) &&
+        (isClaimable?.for ? (
+          <Flex justify='space-between' py={1}>
+            <Text fontSize={{ base: 'sm', md: 'md' }}>
+              Anyone can add eligible addresses as Wearers
+            </Text>
 
-              <Claimable
-                address={claimableForAddress}
-                chainId={chainId}
-                claimFor={isClaimable.for}
-              />
-            </Flex>
-          ) : (
-            <Flex justify='space-between' py={1}>
-              <Text fontSize={{ base: 'sm', md: 'md' }}>
-                Eligible addresses can claim a Hat
-              </Text>
+            <Claimable
+              address={claimableForAddress}
+              chainId={chainId}
+              claimFor={isClaimable.for}
+            />
+          </Flex>
+        ) : (
+          <Flex justify='space-between' py={1}>
+            <Text fontSize={{ base: 'sm', md: 'md' }}>
+              Eligible addresses can claim a Hat
+            </Text>
 
-              <Claimable
-                address={claimableAddress}
-                chainId={chainId}
-                claimFor={isClaimable.for}
-              />
-            </Flex>
-          ))}
-      </Skeleton>
+            <Claimable
+              address={claimableAddress}
+              chainId={chainId}
+              claimFor={isClaimable.for}
+            />
+          </Flex>
+        ))}
     </Stack>
   );
 };

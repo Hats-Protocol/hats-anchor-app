@@ -1,5 +1,5 @@
 import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
-import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';
 import { getControllerNameAndLink } from 'hats-utils';
 import _ from 'lodash';
@@ -30,7 +30,7 @@ const ControllerWearer = ({
     chainId,
   });
 
-  if (address === FALLBACK_ADDRESS) {
+  if (_.includes(NULL_ADDRESSES, address)) {
     return (
       <HStack color='blackAlpha.600' spacing={1}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>Null</Text>

@@ -54,6 +54,8 @@ const useAncillaryModules = ({
     data: ancillaryModules,
     error,
     isLoading: isHatAuthoritiesLoading,
+    // status,
+    // fetchStatus,
   } = useQuery({
     queryKey: ['ancillaryModules', id, chainId],
     queryFn: () => fetchAncillaryModules(id || 'none', chainId),

@@ -24,6 +24,7 @@ export interface SelectedHatContext {
   selectedHatDetails: HatDetails | undefined;
   chainId: SupportedChains | undefined;
   hatLoading: boolean;
+  isClaimable?: { by: boolean; for: boolean } | undefined;
   // ONCHAIN HAT
   isDraft: boolean;
   selectedOnchainHat: AppHat | undefined;
@@ -40,6 +41,7 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   selectedHatDetails: undefined,
   chainId: undefined,
   hatLoading: false,
+  isClaimable: undefined,
   // ONCHAIN HAT
   isDraft: false,
   selectedOnchainHat: undefined,
@@ -82,6 +84,10 @@ export const SelectedHatContextProvider = ({
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
   );
+  const isDraft = useMemo(
+    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
+    [onchainHats, selectedHat],
+  );
 
   // *********************
   // * ONCHAIN HAT
@@ -94,11 +100,17 @@ export const SelectedHatContextProvider = ({
     () => _.get(selectedOnchainHat, 'detailsObject.data'),
     [selectedOnchainHat],
   );
-  const isDraft = useMemo(
-    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
-    [onchainHats, selectedHat],
-  );
 
+  const isClaimable = useMemo(
+    () =>
+      selectedHat
+        ? {
+            by: !_.isEmpty(selectedHat?.claimableBy),
+            for: !_.isEmpty(selectedHat?.claimableForBy),
+          }
+        : undefined,
+    [selectedHat],
+  );
   const hierarchy = useMemo(() => {
     const parentsAndIds = _.map(orgChartTree, (hat: AppHat) => ({
       id: hat.id,
@@ -147,6 +159,7 @@ export const SelectedHatContextProvider = ({
       selectedHatDetails,
       chainId,
       hatLoading: !selectedHat || !selectedHatDetails,
+      isClaimable,
       // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
@@ -161,6 +174,7 @@ export const SelectedHatContextProvider = ({
       selectedHat,
       selectedHatDetails,
       chainId,
+      isClaimable,
       // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,

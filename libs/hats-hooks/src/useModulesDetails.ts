@@ -1,6 +1,7 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { useMemo } from 'react';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
@@ -38,16 +39,25 @@ const useModulesDetails = ({
     return _.compact(mappedModules) as unknown as ModuleDetails[];
   };
 
-  const { data, isLoading, isSuccess } = useQuery({
+  const {
+    data,
+    isLoading: modulesLoading,
+    fetchStatus,
+  } = useQuery({
     queryKey: ['modulesDetails', moduleIds, chainId],
     queryFn: fetchModulesData,
     enabled: !!chainId && !!_.isEmpty(moduleIds),
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
+  const isLoading = useMemo(
+    () => modulesLoading && fetchStatus !== 'idle',
+    [modulesLoading, fetchStatus],
+  );
+
   return {
-    modulesDetails: isSuccess ? data : [],
-    isLoading: isLoading && !isSuccess,
+    modulesDetails: !isLoading ? data : [],
+    isLoading,
   };
 };
 

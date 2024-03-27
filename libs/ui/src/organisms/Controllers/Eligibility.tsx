@@ -1,14 +1,11 @@
 import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
-import {
-  FALLBACK_ADDRESS,
-  hatIdDecimalToIp,
-  hatIdToTreeId,
-} from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat } from 'contexts';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { zeroAddress } from 'viem';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../../atoms';
@@ -18,19 +15,22 @@ import useEligibilityRuleDetails from './utils/useEligibilityRuleDetails';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
-const NULL_ADDRESSES = [FALLBACK_ADDRESS, zeroAddress];
-
 const Eligibility = () => {
+  const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
 
-  const { extendedEligibility: eligibilityData } = _.pick(selectedHat, [
-    'extendedEligibility',
-  ]);
-  const { details: moduleDetails, parameters } = useModuleDetails({
-    address: eligibilityData?.id,
+  const { eligibility } = _.pick(selectedHat, ['eligibility']);
+  const orgChartEligibility = _.find(orgChartWearers, { id: eligibility });
+  // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
+  const {
+    details: moduleDetails,
+    parameters,
+    isLoading,
+  } = useModuleDetails({
+    address: eligibility,
     chainId,
-    enabled: eligibilityData?.isContract, // ? is this reliable enough?
+    enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
   });
   const multipleModules = false; // TODO enable with multiple modules (~2.8)
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
@@ -43,7 +43,6 @@ const Eligibility = () => {
       parameters,
       chainId,
     });
-  // console.log(eligibilityRuleDetails);
 
   if (multipleModules) {
     // * shouldn't be hitting this flow
@@ -56,8 +55,8 @@ const Eligibility = () => {
     );
   }
 
-  if (moduleDetails && eligibilityRuleDetails) {
-    if (eligibilityRuleDetails.status === ELIGIBILITY_STATUS.hat) {
+  if (moduleDetails) {
+    if (eligibilityRuleDetails?.status === ELIGIBILITY_STATUS.hat) {
       const moduleHat = _.get(
         _.find(parameters, { displayType: 'hat' }),
         'value',
@@ -86,37 +85,39 @@ const Eligibility = () => {
     }
 
     return (
-      <Flex justify='space-between' py={1}>
-        {eligibilityRuleDetails?.rule}
+      <Skeleton isLoaded={!isLoading && !loadingEligibilityRules}>
+        <Flex justify='space-between' py={1}>
+          {eligibilityRuleDetails?.rule}
 
-        {address ? (
-          <HStack
-            spacing={1}
-            color={
-              eligibilityRuleDetails?.status === 'eligible'
-                ? 'green.600'
-                : 'gray.600'
-            }
-          >
-            <Text fontSize={{ base: 'sm', md: 'md' }}>
-              {eligibilityRuleDetails?.displayStatus}
-            </Text>
-            <Icon
-              as={eligibilityRuleDetails?.icon}
-              boxSize={{ base: '14px', md: 4 }}
-            />
-          </HStack>
-        ) : (
-          <Button
-            size='xs'
-            fontWeight='medium'
-            color='blue.500'
-            variant='ghost'
-          >
-            Check Eligibility
-          </Button>
-        )}
-      </Flex>
+          {address ? (
+            <HStack
+              spacing={1}
+              color={
+                eligibilityRuleDetails?.status === 'eligible'
+                  ? 'green.600'
+                  : 'gray.600'
+              }
+            >
+              <Text fontSize={{ base: 'sm', md: 'md' }}>
+                {eligibilityRuleDetails?.displayStatus}
+              </Text>
+              <Icon
+                as={eligibilityRuleDetails?.icon}
+                boxSize={{ base: '14px', md: 4 }}
+              />
+            </HStack>
+          ) : (
+            <Button
+              size='xs'
+              fontWeight='medium'
+              color='blue.500'
+              variant='ghost'
+            >
+              Check Eligibility
+            </Button>
+          )}
+        </Flex>
+      </Skeleton>
     );
   }
 
@@ -140,13 +141,15 @@ const Eligibility = () => {
     <Skeleton isLoaded={!loadingEligibilityRules || !moduleDetails}>
       <Flex justify='space-between' py={2}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
-          {_.includes(NULL_ADDRESSES, eligibilityData?.id)
+          {_.includes(NULL_ADDRESSES, eligibility)
             ? 'No addresses'
             : 'One address'}{' '}
           can remove Wearers
         </Text>
 
-        <ControllerWearer controllerData={eligibilityData} />
+        <ControllerWearer
+          controllerData={orgChartEligibility || { id: eligibility as Hex }}
+        />
       </Flex>
     </Skeleton>
   );
