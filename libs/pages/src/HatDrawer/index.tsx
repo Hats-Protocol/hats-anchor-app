@@ -16,6 +16,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const { topHat, editMode, treeToDisplay } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+  console.log('hat drawer', selectedHat);
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
     _.find(treeToDisplay, { id: selectedHatId }),

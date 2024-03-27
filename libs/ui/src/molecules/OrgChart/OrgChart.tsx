@@ -11,12 +11,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import { useToast } from 'hooks';
+import { useHatParams, useSelectedHatDisclosure, useToast } from 'hooks';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
@@ -58,7 +58,9 @@ const OrgChartComponent: React.FC = () => {
     addHat,
     orgChartWearers,
   } = useTreeForm();
-  const { selectedHat, handleSelectHat } = useSelectedHat();
+  // const { handleSelectHat } = useSelectedHat();
+  const { selectedHatId } = useHatParams();
+  const { onOpen } = useSelectedHatDisclosure(selectedHatId);
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -143,7 +145,8 @@ const OrgChartComponent: React.FC = () => {
                 // always node not found or parent node
               } else {
                 // don't center here
-                handleSelectHat?.(data.data?.id);
+                onOpen(data.data.id);
+                // handleSelectHat?.(data.data?.id);
               }
             });
           })
@@ -242,7 +245,7 @@ const OrgChartComponent: React.FC = () => {
             ])?.displayName;
             const detailsName =
               currentName || detailsObject?.data?.name || details;
-            const isSelected = selectedHat?.id === d.id;
+            const isSelected = selectedHatId === d.id;
             const extendedEligibility = _.find(orgChartWearers, {
               id: eligibility,
             });
@@ -637,9 +640,9 @@ const OrgChartComponent: React.FC = () => {
 
         if (!initialLoad || !treeToDisplay) return;
 
-        if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
-          handleSelectHat?.(selectedHat.id);
-          centerChart(chart, selectedHat.id);
+        if (selectedHatId && selectedHatId !== ZERO_ID) {
+          onOpen?.(selectedHatId);
+          centerChart(chart, selectedHatId);
         } else {
           chart.fit();
         }
@@ -649,8 +652,8 @@ const OrgChartComponent: React.FC = () => {
   }, [
     chart,
     chainId,
-    handleSelectHat,
-    selectedHat,
+    onOpen,
+    selectedHatId,
     storedData,
     wearerHats,
     showInactiveHats,

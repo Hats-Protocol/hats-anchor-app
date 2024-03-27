@@ -16,12 +16,13 @@ import {
   useOverlay,
   useTreeForm,
 } from 'contexts';
+import { useSelectedHatDisclosure } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { BsArrowRight } from 'react-icons/bs';
 import { chainsMap } from 'utils';
-import { hexToNumber } from 'viem';
+import { Hex, hexToNumber } from 'viem';
 
 import HatDrawer from './HatDrawer';
 
@@ -41,11 +42,24 @@ const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
 });
 const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
-const TreePage = ({ exists = true }: { exists: boolean }) => {
+const TreePage = ({
+  hatId,
+  exists = true,
+}: {
+  hatId?: Hex;
+  exists: boolean;
+}) => {
   const localOverlay = useOverlay();
-  const { isHatDrawerOpen, isTreeDrawerOpen, returnToTreeList } = localOverlay;
-  const { chainId, treeId, treeToDisplay, topHatDetails, editMode, topHat } =
-    useTreeForm();
+  const {
+    chainId,
+    treeId,
+    treeToDisplay,
+    topHatDetails,
+    editMode,
+    topHat,
+    isTreeDrawerOpen,
+  } = useTreeForm();
+  const { isOpen: isHatDrawerOpen } = useSelectedHatDisclosure(hatId);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -70,10 +84,19 @@ const TreePage = ({ exists = true }: { exists: boolean }) => {
   //   }
   // }
 
+  const returnToTreeList = () => {
+    // onOpenTreeDrawer?.();
+    // onClose?.();
+  };
+
   return (
     <>
       <NextSeo title={title} />
-      <SelectedHatContextProvider treeId={treeId} chainId={chainId}>
+      <SelectedHatContextProvider
+        treeId={treeId}
+        chainId={chainId}
+        hatId={hatId}
+      >
         <Slide
           direction='right'
           in={!!treeToDisplay && !!isHatDrawerOpen}

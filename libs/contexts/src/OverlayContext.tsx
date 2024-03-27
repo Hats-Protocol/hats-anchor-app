@@ -1,7 +1,6 @@
-import { useDisclosure } from '@chakra-ui/react';
-import { useLocalStorage, useSelectedHatDisclosure, useToast } from 'hooks';
+import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import router from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -11,11 +10,9 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { ipToHatId } from 'shared';
 import { AppModals, OverlayContextProps, Transaction } from 'types';
 import { checkTransactionStatus } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { useChainId } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
 
 const defaultModals: AppModals = {
@@ -50,16 +47,6 @@ export const OverlayContext = createContext<OverlayContextProps>({
   clearAllTransactions: () => {},
   recentlyVisitedTrees: undefined,
   updateRecentlyVisitedTrees: () => {},
-  // SELECTED HAT PARAM
-  selectedHatId: undefined,
-  // DRAWER DISCLOSURES
-  onOpenHatDrawer: undefined,
-  onCloseHatDrawer: undefined,
-  isHatDrawerOpen: false,
-  onOpenTreeDrawer: undefined,
-  onCloseTreeDrawer: undefined,
-  isTreeDrawerOpen: false,
-  returnToTreeList: undefined,
 });
 
 export const OverlayContextProvider = ({
@@ -69,19 +56,6 @@ export const OverlayContextProvider = ({
 }) => {
   // HOOKS
   const toast = useToast();
-  const router = useRouter();
-  const chainId = useChainId();
-  console.log('overlay context', router.query, router.pathname, chainId);
-
-  // QUERY PARAMS
-  const { hatId: initialHatIdParam } = router.query;
-  let initialHatId: string | undefined;
-  if (_.isArray(initialHatIdParam)) {
-    initialHatId = _.first(initialHatId);
-  } else {
-    initialHatId = initialHatIdParam as string;
-  }
-  const selectedHatId = ipToHatId(initialHatId as string) || undefined;
 
   // LOCAL STATE
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
@@ -94,32 +68,18 @@ export const OverlayContextProvider = ({
   const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
     { treeId: number; chainId: number }[] | undefined
   >('recently-visited-trees', undefined);
-  const [initialLoad, setInitialLoad] = useState(true);
-
-  // DRAWER DISCLOSURES
-  const hatDisclosure = useSelectedHatDisclosure();
-  const treeDisclosure = useDisclosure();
-  const {
-    onOpen: onOpenHatDrawer,
-    onClose: onCloseHatDrawer,
-    isOpen: isHatDrawerOpen,
-  } = _.pick(hatDisclosure, ['onOpen', 'onClose', 'isOpen']);
-  const {
-    onOpen: onOpenTreeDrawer,
-    onClose: onCloseTreeDrawer,
-    isOpen: isTreeDrawerOpen,
-  } = _.pick(treeDisclosure, ['onOpen', 'onClose', 'isOpen']);
-
-  const returnToTreeList = () => {
-    onOpenTreeDrawer?.();
-    onCloseHatDrawer?.();
-  };
 
   const updateRecentlyVisitedTrees = useCallback(
-    ({ treeId, chainId: cId }: { treeId: number; chainId: number }) => {
-      if (!treeId || !cId) return;
+    ({
+      treeId: localTreeId,
+      chainId: cId,
+    }: {
+      treeId: number;
+      chainId: number;
+    }) => {
+      if (!localTreeId || !cId) return;
       const localRecentTrees = _.compact(
-        _.concat([{ treeId, chainId: cId }], recentlyVisitedTrees),
+        _.concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees),
       );
 
       const uniqueTrees = _.uniqWith(
@@ -252,12 +212,13 @@ export const OverlayContextProvider = ({
     return Promise.resolve(data);
   };
 
-  useEffect(() => {
-    if (initialLoad && selectedHatId && !isHatDrawerOpen) {
-      onOpenHatDrawer?.(selectedHatId);
-      setInitialLoad(false);
-    }
-  }, [selectedHatId, onOpenHatDrawer, isHatDrawerOpen, initialLoad]);
+  // useEffect(() => {
+  //   if (initialLoad && hatId && !isHatDrawerOpen) {
+  //     onOpenHatDrawer?.(hatId);
+  //     console.log('drawer should open');
+  //     setInitialLoad(false);
+  //   }
+  // }, [hatId, onOpenHatDrawer, isHatDrawerOpen, initialLoad]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -278,8 +239,7 @@ export const OverlayContextProvider = ({
     }, 10000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, transactions, setTransactions]);
+  }, [transactions, setTransactions]);
 
   const returnValue = useMemo(
     () => ({
@@ -295,19 +255,22 @@ export const OverlayContextProvider = ({
       clearAllTransactions,
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
-      // SELECTED HAT PARAMS
-      selectedHatId,
-      // DRAWER DISCLOSURES
-      onOpenHatDrawer,
-      onCloseHatDrawer,
-      isHatDrawerOpen,
-      onOpenTreeDrawer,
-      onCloseTreeDrawer,
-      isTreeDrawerOpen,
-      returnToTreeList,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [modals, commandPalette, toast],
+    [
+      modals,
+      // showModal,
+      drawers,
+      setDrawers,
+      // closeModals,
+      commandPalette,
+      setCommandPalette,
+      // handlePendingTx,
+      transactions,
+      clearAllTransactions,
+      recentlyVisitedTrees,
+      updateRecentlyVisitedTrees,
+    ],
   );
 
   return (

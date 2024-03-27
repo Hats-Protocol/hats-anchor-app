@@ -1,3 +1,4 @@
+import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import {
@@ -42,8 +43,6 @@ import {
 } from 'utils';
 import { Hex } from 'viem';
 
-import { useOverlay } from './OverlayContext';
-
 export interface TreeFormContext {
   chainId: SupportedChains | undefined;
   treeId: Hex | undefined;
@@ -82,6 +81,10 @@ export interface TreeFormContext {
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
   patchTree: ((proposedHats: AppHat[]) => void) | undefined;
+  // tree list disclosure
+  isTreeDrawerOpen: boolean;
+  onOpenTreeDrawer: (() => void) | undefined;
+  onCloseTreeDrawer: (() => void) | undefined;
 }
 
 export const TreeFormContext = createContext<TreeFormContext>({
@@ -122,6 +125,10 @@ export const TreeFormContext = createContext<TreeFormContext>({
   resetTree: undefined,
   importHats: undefined,
   patchTree: undefined,
+  // tree list disclosure
+  isTreeDrawerOpen: false,
+  onOpenTreeDrawer: undefined,
+  onCloseTreeDrawer: undefined,
 });
 
 // cascade of hats data to get the org chart type
@@ -144,7 +151,6 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const router = useRouter();
-  const { onOpenTreeDrawer, onCloseTreeDrawer } = useOverlay();
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -161,6 +167,13 @@ export const TreeFormContextProvider = ({
     `${localStorageKey}-config`,
     {},
   );
+
+  const treeDisclosure = useDisclosure();
+  const {
+    isOpen: isTreeDrawerOpen,
+    onOpen: onOpenTreeDrawer,
+    onClose: onCloseTreeDrawer,
+  } = _.pick(treeDisclosure, ['isOpen', 'onOpen', 'onClose']);
 
   // existing tree
   const { data: treeData } = useTreeDetails({
@@ -610,6 +623,10 @@ export const TreeFormContextProvider = ({
       resetTree,
       importHats,
       patchTree,
+      // DISCLOSURE
+      isTreeDrawerOpen,
+      onOpenTreeDrawer,
+      onCloseTreeDrawer,
     }),
     [
       chainId,
@@ -650,6 +667,10 @@ export const TreeFormContextProvider = ({
       resetTree,
       importHats,
       patchTree,
+      // DISCLOSURE
+      isTreeDrawerOpen,
+      onOpenTreeDrawer,
+      onCloseTreeDrawer,
     ],
   );
 

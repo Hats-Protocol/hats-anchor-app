@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getQueryRoute } from 'utils';
 import { Hex } from 'viem';
 
@@ -9,21 +9,23 @@ import { Hex } from 'viem';
  * @returns onOpen - function to open the hat, passing the hatId
  * @returns onClose - function to close the hat
  */
-const useSelectedHatDisclosure = () => {
+const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const router = useRouter();
+  console.log('useSelectedHatDisclosure', hatId);
 
   const onOpen = useCallback(
-    (hatId: Hex) => {
+    (localHatId: Hex) => {
       console.log('here');
       setIsOpen(true);
 
       const updatedUrl = getQueryRoute({
         query: router.query,
         pathname: router.pathname,
-        hatId,
+        hatId: localHatId,
       });
-      router.push(updatedUrl, undefined, { shallow: true });
+      router.push(updatedUrl);
     },
     [router],
   );
@@ -36,8 +38,15 @@ const useSelectedHatDisclosure = () => {
       pathname: router.pathname,
       drop: { hat: true },
     });
-    router.push(updatedUrl, undefined, { shallow: true });
+    router.push(updatedUrl);
   }, [router]);
+
+  useEffect(() => {
+    if (initialLoad && hatId) {
+      onOpen(hatId);
+      setInitialLoad(false);
+    }
+  }, [hatId, initialLoad]);
 
   return { isOpen, onOpen, onClose };
 };

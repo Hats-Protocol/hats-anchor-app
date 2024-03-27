@@ -10,6 +10,7 @@ export { default as useFeaturedTemplates } from './useFeaturedTemplates';
 export { default as useFeaturedTrees } from './useFeaturedTrees';
 export { default as useFeaturedTreesData } from './useFeaturedTreesData';
 export { default as useGuilds } from './useGuilds';
+export { default as useHatParams } from './useHatParams';
 export { default as useImageURIs } from './useImageURIs';
 export { default as useIsClient } from './useIsClient';
 export { default as useLocalStorage } from './useLocalStorage';
