@@ -7,13 +7,12 @@ import {
   handleDetailsPin,
   processHatForCalls,
 } from 'utils';
-import { Hex } from 'viem';
 
 import { HatPinDetails } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {
   chainId: SupportedChains | undefined;
-  treeId: Hex;
+  treeId: number; // ! can be removed?
   storedData: Partial<FormData>[];
   onchainHats: AppHat[];
   treeToDisplay: AppHat[];

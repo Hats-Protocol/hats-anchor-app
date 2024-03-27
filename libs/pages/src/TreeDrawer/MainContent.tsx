@@ -34,7 +34,6 @@ const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
 
 const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
-  const { onCloseTreeDrawer, onOpenHatDrawer } = useOverlay();
   const {
     topHat,
     onchainHats,
@@ -45,8 +44,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     topHatDetails,
     chainId,
     linkedHatIds,
+    onCloseTreeDrawer,
+    onOpenHatDrawer,
   } = useTreeForm();
-  // const {   } = useSelectedHat();
 
   const isClient = useIsClient();
 

@@ -7,6 +7,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import {
   checkMissingParents,
@@ -23,7 +24,7 @@ import { DropZone } from 'ui';
 
 interface validateTreeImportProps {
   file: File;
-  treeId?: string;
+  treeId?: number;
   chainId?: number;
 }
 
@@ -33,7 +34,8 @@ const validateTreeImport = ({
   treeId,
   chainId,
 }: validateTreeImportProps): FileError | null => {
-  if (!treeId || !chainId) return null;
+  const localTreeId = treeIdDecimalToHex(treeId);
+  if (!localTreeId || !chainId) return null;
   const fileName = file.name;
   const splitFileName = _.split(fileName, '-');
   let fileTreeId = _.nth(splitFileName, 3);

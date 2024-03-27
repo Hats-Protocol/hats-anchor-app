@@ -1,4 +1,5 @@
-import { Hex } from 'viem';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { Chain, Hex } from 'viem';
 
 // sdk
 export type LinkRequest = {
@@ -16,4 +17,8 @@ export interface FeaturedTree {
   description: string;
   image: string;
   avatar: string;
+}
+
+export interface AppTree extends Tree {
+  network?: Chain;
 }

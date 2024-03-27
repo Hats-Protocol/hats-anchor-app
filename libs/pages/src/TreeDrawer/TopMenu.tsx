@@ -33,7 +33,7 @@ const NetworkSwitcher = dynamic(() =>
 const TopMenu = () => {
   const currentChain = useChainId();
   const { address } = useAccount();
-  const { onCloseTreeDrawer, handlePendingTx } = useOverlay();
+  const { handlePendingTx } = useOverlay();
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
     chainId,
@@ -46,6 +46,7 @@ const TopMenu = () => {
     setStoredData,
     patchTree,
     setSelectedOption,
+    onCloseTreeDrawer,
   } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 

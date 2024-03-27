@@ -55,17 +55,15 @@ const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
-  const {
-    selectedHat,
-    eligibleWearers,
-    ineligibleWearers,
-    wearersLoading,
-    chainId,
-  } = useSelectedHat();
+  const { selectedHat, chainId } = useSelectedHat();
   const {
     isOpen: ineligibleWearersExpanded,
     onToggle: onToggleIneligibleWearers,
   } = useDisclosure();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const eligibleWearers = [];
+  const ineligibleWearers = [];
+  const wearersLoading = false;
 
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined

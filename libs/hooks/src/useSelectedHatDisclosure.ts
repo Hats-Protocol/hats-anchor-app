@@ -13,11 +13,9 @@ const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const router = useRouter();
-  console.log('useSelectedHatDisclosure', hatId);
 
   const onOpen = useCallback(
     (localHatId: Hex) => {
-      console.log('here');
       setIsOpen(true);
 
       const updatedUrl = getQueryRoute({
@@ -32,7 +30,6 @@ const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
 
   const onClose = useCallback(() => {
     setIsOpen(false);
-    console.log('there');
     const updatedUrl = getQueryRoute({
       query: router.query,
       pathname: router.pathname,
@@ -42,10 +39,11 @@ const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   }, [router]);
 
   useEffect(() => {
-    if (initialLoad && hatId) {
+    if (initialLoad && hatId && hatId !== '0x') {
       onOpen(hatId);
       setInitialLoad(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hatId, initialLoad]);
 
   return { isOpen, onOpen, onClose };

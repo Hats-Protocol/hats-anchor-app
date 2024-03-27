@@ -3,6 +3,7 @@ import { useFeatureFlagEnabled } from 'posthog-js/react';
 
 const FlagTest = () => {
   const flagEnabled = useFeatureFlagEnabled('new_test_flag_1');
+  // eslint-disable-next-line no-console
   console.log(flagEnabled);
 
   return (

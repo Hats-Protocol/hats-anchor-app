@@ -1,10 +1,12 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdDecimalToHex,
+} from '@hatsprotocol/sdk-v1-core';
 import { useAncillaryModules } from 'hats-hooks';
 import { combineAuthorities } from 'hats-utils';
 import {
   useGuilds,
   useMediaStyles,
-  useSelectedHatDisclosure,
   useSnapshotSpaces as useSpaces,
 } from 'hooks';
 import _ from 'lodash';
@@ -46,11 +48,6 @@ export interface SelectedHatContext {
   handleSelectHat: ((id: Hex) => void) | undefined;
   // RELATIONS
   hierarchy: Hierarchy | undefined;
-  // DISCLOSURE
-  isOpen: boolean;
-  onOpen: ((hatId: Hex) => void) | undefined;
-  onClose: (() => void) | undefined;
-  returnToTreeList: (() => void) | undefined;
 }
 
 export const SelectedHatContext = createContext<SelectedHatContext>({
@@ -71,11 +68,6 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   handleSelectHat: undefined,
   // RELATIONS
   hierarchy: undefined,
-  // DISCLOSURE
-  isOpen: false,
-  onOpen: undefined,
-  onClose: undefined,
-  returnToTreeList: undefined,
 });
 
 export const SelectedHatContextProvider = ({
@@ -84,7 +76,7 @@ export const SelectedHatContextProvider = ({
   hatId,
   children,
 }: {
-  treeId: Hex;
+  treeId: number;
   chainId: SupportedChains;
   hatId?: Hex | undefined;
   children: ReactNode;
@@ -97,23 +89,10 @@ export const SelectedHatContextProvider = ({
     onchainHats,
     onchainTree,
     orgChartTree,
-    onOpenTreeDrawer,
     onCloseTreeDrawer,
+    onOpenHatDrawer,
   } = useTreeForm();
   const { isMobile } = useMediaStyles();
-
-  const hatDisclosure = useSelectedHatDisclosure(hatId);
-  const { isOpen, onOpen, onClose } = _.pick(hatDisclosure, [
-    'isOpen',
-    'onOpen',
-    'onClose',
-  ]);
-
-  const returnToTreeList = useCallback(() => {
-    onOpenTreeDrawer?.();
-    onClose?.();
-  }, []);
-  console.log('selected hat context', hatId);
 
   // *********************
   // * SELECTED HAT
@@ -125,7 +104,6 @@ export const SelectedHatContextProvider = ({
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
   );
-  console.log(selectedHat, selectedHatDetails);
 
   // *********************
   // * ONCHAIN HAT
@@ -163,7 +141,7 @@ export const SelectedHatContextProvider = ({
       if (!_.includes(allIds, id) || !hat) return;
 
       // if it's linked
-      if (hat.treeId && treeId && hat.treeId !== treeId) {
+      if (hat.treeId && treeId && hat.treeId !== treeIdDecimalToHex(treeId)) {
         const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
         const basePath = router.basePath ? `${router.basePath}` : '';
 
@@ -177,7 +155,7 @@ export const SelectedHatContextProvider = ({
       }
 
       onCloseTreeDrawer?.();
-      onOpen?.(id);
+      onOpenHatDrawer?.(id);
     },
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,11 +210,6 @@ export const SelectedHatContextProvider = ({
       handleSelectHat,
       // RELATIONS
       hierarchy,
-      // DISCLOSURE
-      isOpen,
-      onOpen,
-      onClose,
-      returnToTreeList,
     }),
     [
       // SELECTED HAT
@@ -255,11 +228,6 @@ export const SelectedHatContextProvider = ({
       handleSelectHat,
       // RELATIONS
       hierarchy,
-      // DISCLOSURE
-      isOpen,
-      onOpen,
-      onClose,
-      returnToTreeList,
     ],
   );
 

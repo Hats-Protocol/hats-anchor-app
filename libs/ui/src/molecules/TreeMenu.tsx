@@ -42,7 +42,7 @@ import EventHistory from './EventHistory';
 const History = dynamic(() => import('icons').then((mod) => mod.History));
 
 const TreeMenu = () => {
-  const { setModals, onOpenTreeDrawer } = useOverlay();
+  const { setModals } = useOverlay();
   const {
     chainId,
     treeToDisplay,
@@ -53,16 +53,11 @@ const TreeMenu = () => {
     showInactiveHats,
     setShowInactiveHats,
     toggleEditMode,
-    // storedData,
-    // setStoredData,
+    onOpenTreeDrawer,
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
   const isClient = useIsClient();
-
-  // const updatedHats = !_.isEmpty(
-  //   _.filter(storedData, (h) => !_.isEmpty(_.reject(_.keys(h), ['id']))),
-  // );
 
   useEffect(() => {
     if (!isClient || !_.get(_.first(treeEvents), 'timestamp')) return;

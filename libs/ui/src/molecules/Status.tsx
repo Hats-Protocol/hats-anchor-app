@@ -47,7 +47,8 @@ const StatusCard = ({ status, label }: { status: string; label: string }) => {
     editMode,
     treeToDisplay,
   } = useTreeForm();
-  const { selectedHat, hatWearers } = useSelectedHat();
+  const { selectedHat } = useSelectedHat();
+  const hatWearers: HatWearer[] = [];
 
   const { eligibility, toggle } = _.pick(selectedHat, [
     'eligibility',

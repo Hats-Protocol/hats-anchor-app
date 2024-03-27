@@ -4,7 +4,7 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { idToIp } from 'shared';
-import { AppHat } from 'types';
+import { AppHat, AppTree } from 'types';
 import { hexToNumber } from 'viem';
 
 import { chainsList, createSubgraphClient } from '../web3';
@@ -14,36 +14,40 @@ const keyIcons: { [key: string]: string } = {
   hats: 'UserPlusIcon',
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const processForCommandPalette = (key: string, record: any) => {
-  const { id: recordId, network } = record;
+const processForCommandPalette = (key: string, record: AppHat | AppTree) => {
+  const { id: recordId, network } = _.pick(record, ['id', 'network']);
   const { id: networkId, name: networkName } = network || {};
 
-  let treeId;
-  let href;
-  let label;
   const id = `${key}-${recordId}-${networkId}`;
   const hatIdIp = idToIp(recordId);
   const icon = keyIcons[key] as IconName;
+  let treeId;
+  const DEFAULT_RESULT = { id, children: '', icon, href: '#' };
 
-  // eslint-disable-next-line default-case
+  if (!network || !recordId) return DEFAULT_RESULT;
+
   switch (key) {
     case 'trees':
       treeId = hexToNumber(recordId, { size: 8 });
-      href = `/trees/${networkId}/${treeId}`;
-      label = `Tree #${treeId} on ${networkName}`;
-      break;
-    case 'hats':
-      treeId = hatIdToTreeId(record.id);
-      href = `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`;
-      label = `Hat #${hatIdIp} on ${networkName}`;
-      break;
-    default:
-      href = '#';
-      label = '';
-  }
+      return {
+        id,
+        children: `Tree #${treeId} on ${networkName}`,
+        icon,
+        href: `/trees/${networkId}/${treeId}`,
+      };
 
-  return { id, children: label, icon, href };
+    case 'hats':
+      treeId = hatIdToTreeId(BigInt(recordId));
+      return {
+        id,
+        children: `Hat #${hatIdIp} on ${networkName}`,
+        icon,
+        href: `/trees/${networkId}/${treeId}?hatId=${hatIdIp}`,
+      };
+
+    default:
+      return DEFAULT_RESULT;
+  }
 };
 
 export const searchQueryResult = async (search: string | undefined) => {
@@ -62,21 +66,22 @@ export const searchQueryResult = async (search: string | undefined) => {
         },
         wearerProps: {},
       })
+      // eslint-disable-next-line no-console
       .catch((e) => console.error(e)),
   );
 
   const result = await Promise.all(promises);
 
   // sort
-  const allNetworkResults: { trees: Tree[]; hats: AppHat[] } = {
+  const allNetworkResults: { trees: AppTree[]; hats: AppHat[] } = {
     trees: [],
     hats: [],
   };
-  _.forEach(result, (network: any, i: number) => {
+  _.forEach(result, (network: unknown, i: number) => {
+    const localNetwork = _.get(network, 'trees') as Tree[] | undefined;
     allNetworkResults.trees = _.concat(
-      _.map(_.get(network, 'trees'), (tree: Tree) => ({
+      _.map(localNetwork, (tree: Tree) => ({
         ...tree,
-        // id: hexToNumber(tree.id, { size: 8 }),
         network: _.values(chainsList)[i],
       })),
       allNetworkResults?.trees || [],
@@ -84,23 +89,17 @@ export const searchQueryResult = async (search: string | undefined) => {
     allNetworkResults.hats = _.concat(
       _.map(_.get(network, 'hats'), (hat: AppHat) => ({
         ...hat,
-        tree: _.get(hat, 'tree.id'),
+        treeId: _.get(hat, 'tree.id'),
         network: _.values(chainsList)[i],
       })),
       allNetworkResults?.hats || [],
     );
   });
   // TODO sort these results
-  console.log('allNetworkResults', allNetworkResults);
 
   return _.mapValues(
     allNetworkResults,
-    (
-      o: {
-        trees: Tree[];
-        hats: AppHat[];
-      },
-      k: any,
-    ) => _.map(o, (r: any) => processForCommandPalette(k, r)),
+    (o: { trees: AppTree[]; hats: AppHat[] }, k: string) =>
+      _.map(o, (r: AppHat | AppTree) => processForCommandPalette(k, r)),
   );
 };

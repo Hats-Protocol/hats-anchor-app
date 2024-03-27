@@ -640,7 +640,11 @@ const OrgChartComponent: React.FC = () => {
 
         if (!initialLoad || !treeToDisplay) return;
 
-        if (selectedHatId && selectedHatId !== ZERO_ID) {
+        if (
+          selectedHatId &&
+          selectedHatId !== ZERO_ID &&
+          selectedHatId !== '0x'
+        ) {
           onOpen?.(selectedHatId);
           centerChart(chart, selectedHatId);
         } else {

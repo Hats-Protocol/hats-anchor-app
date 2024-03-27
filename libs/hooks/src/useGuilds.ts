@@ -50,6 +50,8 @@ type Requirement = {
   };
 };
 
+// TODO pass guildData in from SelectedFormContext after calculating on TreePage
+
 const useHatGuilds = ({
   hatId,
   guilds,

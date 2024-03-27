@@ -1,9 +1,4 @@
-import {
-  hatIdDecimalToHex,
-  hatIdIpToDecimal,
-  treeIdDecimalToHex,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
@@ -12,7 +7,7 @@ import { useRouter } from 'next/router';
 import { TreePage, TreePageMobile } from 'pages';
 import { useEffect } from 'react';
 import { SupportedChains } from 'types';
-import { Hex, hexToNumber } from 'viem';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const TreeDetails = ({ treeId, chainId, hatId, exists }: TreeDetailsProps) => {
@@ -27,11 +22,11 @@ const TreeDetails = ({ treeId, chainId, hatId, exists }: TreeDetailsProps) => {
 
     // attempt to redirect to mobile tree page
     if (hatId && isMobile) {
-      router.push(`/trees/${chainId}/${hexToNumber(treeId)}/${hatId}`);
+      router.push(`/trees/${chainId}/${treeId}/${hatId}`);
     }
 
     updateRecentlyVisitedTrees({
-      treeId: treeIdHexToDecimal(treeId),
+      treeId,
       chainId,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,9 +69,7 @@ const getQueryParams = (context: GetServerSidePropsContext) => {
   const localTreeId = _.isArray(treeIdParam)
     ? _.first(treeIdParam)
     : treeIdParam;
-  const treeId = localTreeId
-    ? treeIdDecimalToHex(_.toNumber(localTreeId))
-    : null;
+  const treeId = localTreeId ? _.toNumber(localTreeId) : null;
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam) || null;
@@ -105,7 +98,7 @@ export const getServerSideProps = async (
 export default TreeDetails;
 
 interface TreeDetailsProps {
-  treeId: Hex;
+  treeId: number;
   chainId: SupportedChains;
   hatId: Hex;
   exists: boolean;

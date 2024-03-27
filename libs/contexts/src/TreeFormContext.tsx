@@ -12,6 +12,7 @@ import {
   useImageURIs,
   useLocalStorage,
   useOrgChartTree,
+  useSelectedHatDisclosure,
   useTreeImages,
 } from 'hooks';
 import _ from 'lodash';
@@ -45,7 +46,7 @@ import { Hex } from 'viem';
 
 export interface TreeFormContext {
   chainId: SupportedChains | undefined;
-  treeId: Hex | undefined;
+  treeId: number | undefined;
   topHat: AppHat | undefined;
   // tree
   topHatDetails: HatDetails | undefined;
@@ -85,6 +86,10 @@ export interface TreeFormContext {
   isTreeDrawerOpen: boolean;
   onOpenTreeDrawer: (() => void) | undefined;
   onCloseTreeDrawer: (() => void) | undefined;
+  returnToTreeList: (() => void) | undefined;
+  isHatDrawerOpen: boolean;
+  onOpenHatDrawer: ((hatId: Hex) => void) | undefined;
+  onCloseHatDrawer: (() => void) | undefined;
 }
 
 export const TreeFormContext = createContext<TreeFormContext>({
@@ -129,6 +134,11 @@ export const TreeFormContext = createContext<TreeFormContext>({
   isTreeDrawerOpen: false,
   onOpenTreeDrawer: undefined,
   onCloseTreeDrawer: undefined,
+  returnToTreeList: undefined,
+
+  isHatDrawerOpen: false,
+  onOpenHatDrawer: undefined,
+  onCloseHatDrawer: undefined,
 });
 
 // cascade of hats data to get the org chart type
@@ -142,11 +152,13 @@ export const TreeFormContext = createContext<TreeFormContext>({
 export const TreeFormContextProvider = ({
   treeId,
   chainId,
+  hatId,
   // linkedHatIds,
   children,
 }: {
-  treeId: Hex;
+  treeId: number;
   chainId: SupportedChains;
+  hatId?: Hex;
   // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
@@ -158,7 +170,7 @@ export const TreeFormContextProvider = ({
   );
   const [orgChartHats, setOrgChartHats] = useState<AppHat[] | undefined>();
 
-  const localStorageKey = generateLocalStorageKey(chainId, treeId);
+  const localStorageKey = generateLocalStorageKey(chainId, _.toString(treeId));
   const [storedData, setStoredData] = useLocalStorage<Partial<FormData>[]>(
     localStorageKey,
     [],
@@ -169,11 +181,17 @@ export const TreeFormContextProvider = ({
   );
 
   const treeDisclosure = useDisclosure();
+  const hatDisclosure = useSelectedHatDisclosure(hatId);
   const {
     isOpen: isTreeDrawerOpen,
     onOpen: onOpenTreeDrawer,
     onClose: onCloseTreeDrawer,
   } = _.pick(treeDisclosure, ['isOpen', 'onOpen', 'onClose']);
+  const {
+    isOpen: isHatDrawerOpen,
+    onOpen: onOpenHatDrawer,
+    onClose: onCloseHatDrawer,
+  } = _.pick(hatDisclosure, ['isOpen', 'onOpen', 'onClose']);
 
   // existing tree
   const { data: treeData } = useTreeDetails({
@@ -224,25 +242,30 @@ export const TreeFormContextProvider = ({
   // *********************
   // * ONCHAIN TREE (ONCHAIN HATS)
   // *********************
+
   const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({
     id,
   })) as unknown as object[];
+
   const { data: onchainHatDetails } = useManyHatsDetails({
     hats: mapWithChainId(onchainIds, chainId),
     initialHats: mapWithChainId(onchainIds, chainId),
     editMode,
   });
+
   const { data: onchainDetailsFields, isLoading: onchainDetailsFieldsLoading } =
     useManyHatsDetailsField({
       hats: onchainHatDetails,
       editMode,
       onchain: true,
     });
+
   const { data: onchainWearers } = useTreeWearers({
     hats: onchainHatDetails,
     chainId,
     editMode,
   });
+
   const { data: onchainImagesData, isLoading: onchainImagesLoading } =
     useImageURIs({
       hats: onchainHatDetails,
@@ -250,6 +273,7 @@ export const TreeFormContextProvider = ({
       editMode,
       onchain: true,
     });
+
   const { orgChartTree: onchainTree } = useOrgChartTree({
     treeData,
     chainId,
@@ -268,6 +292,7 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TO DISPLAY (ORG CHART HATS)
   // *********************
+
   const { data: hatDetails } = useManyHatsDetails({
     hats: mapWithChainId(
       _.compact(_.concat(orgChartHats, onchainLinkedHats)),
@@ -276,21 +301,25 @@ export const TreeFormContextProvider = ({
     initialHats: mapWithChainId(onchainIds, chainId),
     editMode,
   });
+
   const { data: detailsFields, isLoading: detailsFieldsLoading } =
     useManyHatsDetailsField({
       hats: hatDetails,
       onchainHats,
       editMode,
     });
+
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
     chainId,
     editMode,
   });
+
   const { data: imagesData, isLoading: imagesLoading } = useTreeImages({
     hats: hatDetails,
     editMode,
   });
+
   const { orgChartTree, isLoading: orgChartTreeLoading } = useOrgChartTree({
     treeData,
     chainId,
@@ -308,6 +337,7 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
   // *********************
+
   const inactiveHats = useMemo(() => {
     return getInactiveIds(orgChartTree || undefined);
   }, [orgChartTree]);
@@ -357,10 +387,12 @@ export const TreeFormContextProvider = ({
   // *********************
   // * TOP HAT
   // *********************
+
   const topHat: AppHat | undefined = useMemo(
     () => _.first(orgChartTree),
     [orgChartTree],
   );
+
   const topHatDetails = useMemo(
     () => _.get(topHat, 'detailsObject.data'),
     [topHat],
@@ -555,14 +587,13 @@ export const TreeFormContextProvider = ({
     setOrgChartHats(onchainHats);
     setStoredData([]);
     setEditMode(false);
-    // TODO reset selectedHatId? query update can handle this?
-    // setSelectedHatId?.(undefined);
+    onCloseHatDrawer?.();
     setSelectedOption?.('wearers');
     onCloseTreeDrawer?.();
   }, [
     onchainHats,
     setStoredData,
-    // setSelectedHatId,
+    onCloseHatDrawer,
     setSelectedOption,
     onCloseTreeDrawer,
   ]);
@@ -584,6 +615,11 @@ export const TreeFormContextProvider = ({
       });
     });
   }, []);
+
+  const returnToTreeList = useCallback(() => {
+    onOpenTreeDrawer?.();
+    onCloseHatDrawer?.();
+  }, [onOpenTreeDrawer, onCloseHatDrawer]);
 
   const returnValue = useMemo(
     () => ({
@@ -627,6 +663,10 @@ export const TreeFormContextProvider = ({
       isTreeDrawerOpen,
       onOpenTreeDrawer,
       onCloseTreeDrawer,
+      isHatDrawerOpen,
+      onOpenHatDrawer,
+      onCloseHatDrawer,
+      returnToTreeList,
     }),
     [
       chainId,
@@ -671,6 +711,10 @@ export const TreeFormContextProvider = ({
       isTreeDrawerOpen,
       onOpenTreeDrawer,
       onCloseTreeDrawer,
+      isHatDrawerOpen,
+      onOpenHatDrawer,
+      onCloseHatDrawer,
+      returnToTreeList,
     ],
   );
 

@@ -22,7 +22,7 @@ import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { BsArrowRight } from 'react-icons/bs';
 import { chainsMap } from 'utils';
-import { Hex, hexToNumber } from 'viem';
+import { Hex } from 'viem';
 
 import HatDrawer from './HatDrawer';
 
@@ -58,15 +58,16 @@ const TreePage = ({
     editMode,
     topHat,
     isTreeDrawerOpen,
+    returnToTreeList,
   } = useTreeForm();
-  const { isOpen: isHatDrawerOpen } = useSelectedHatDisclosure(hatId);
+  const { isOpen } = useSelectedHatDisclosure(hatId);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
 
   let title = '';
-  if (_.isFinite(_.toNumber(treeId))) {
-    title = `Tree #${hexToNumber(treeId)} on ${chain.name}`;
+  if (treeId) {
+    title = `Tree #${treeId} on ${chain.name}`;
   } else {
     title = 'Invalid Tree ID';
   }
@@ -84,11 +85,6 @@ const TreePage = ({
   //   }
   // }
 
-  const returnToTreeList = () => {
-    // onOpenTreeDrawer?.();
-    // onClose?.();
-  };
-
   return (
     <>
       <NextSeo title={title} />
@@ -99,12 +95,12 @@ const TreePage = ({
       >
         <Slide
           direction='right'
-          in={!!treeToDisplay && !!isHatDrawerOpen}
+          in={!!treeToDisplay && !!isOpen}
           style={{
             zIndex: 1000,
             maxWidth: '43%',
             width: '650px',
-            display: isHatDrawerOpen ? 'block' : 'none',
+            display: isOpen ? 'block' : 'none',
           }}
         >
           <HatDrawer returnToList={returnToTreeList} />

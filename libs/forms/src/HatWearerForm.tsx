@@ -48,8 +48,9 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
-  const { handlePendingTx, onCloseHatDrawer } = useOverlay();
-  const { chainId, onchainHats, storedData, editMode } = useTreeForm();
+  const { handlePendingTx } = useOverlay();
+  const { chainId, onchainHats, storedData, editMode, onCloseHatDrawer } =
+    useTreeForm();
   const { selectedHat, selectedOnchainHat } = useSelectedHat();
 
   const { address: userAddress } = useAccount();
