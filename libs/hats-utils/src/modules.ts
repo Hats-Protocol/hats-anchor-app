@@ -11,10 +11,13 @@ import {
   solidityToTypescriptType,
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdIpToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
-import { ipToHatId } from 'shared';
 import {
   AppHat,
   FormData,
@@ -35,7 +38,7 @@ import {
 import { Hex, parseUnits } from 'viem';
 
 import { safeUrl } from './authorities';
-import { decimalId, formHatUrl } from './hats';
+import { formHatUrl } from './hats';
 
 type FormValues = { [key: string]: unknown };
 
@@ -392,7 +395,7 @@ export const processValues = ({
 
     if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
       const value = newValues[`${arg.name}_custom`] as string;
-      newValues[arg.name] = decimalId(ipToHatId(value.replace(/\.$/, '')));
+      newValues[arg.name] = hatIdIpToDecimal(value.replace(/\.$/, ''));
       delete newValues[`${arg.name}_custom`];
     }
   });
@@ -535,10 +538,10 @@ export const populateHatsGatesAuthorities = ({
   details?: HatSignerGate[] | null;
   gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
   role: 'hsgOwner' | 'hsgSigner';
-  chainId: SupportedChains;
+  chainId: SupportedChains | undefined;
   hatId?: Hex;
 }) => {
-  if (!details || !gates) return [];
+  if (!details || !gates || !chainId) return [];
 
   return details.map((gate) =>
     createHSG({ gate, role, gates, chainId, hatId }),

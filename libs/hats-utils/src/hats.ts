@@ -41,16 +41,6 @@ export function treeCreateEventIdToTreeId(id: string) {
   return parseInt(hexString, 16);
 }
 
-export const decimalId = (hatId: string | undefined): string => {
-  if (!hatId) return '';
-
-  try {
-    return BigInt(hatId).toString();
-  } catch (err) {
-    return '0x';
-  }
-};
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const includesAny = (arr: any[], target: any[]) =>
   _.some(target, (v) => _.includes(arr, v));

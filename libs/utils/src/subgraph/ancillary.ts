@@ -130,9 +130,9 @@ const ancillarySubgraphClient = (chainId: SupportedChains) => {
 
 export const fetchAncillaryModules = async (
   id: string,
-  chainId: SupportedChains,
+  chainId: SupportedChains | undefined,
 ): Promise<HatAuthorityResponse | null> => {
-  if (!id) return null;
+  if (!id || !chainId) return null;
 
   try {
     const client = ancillarySubgraphClient(chainId);

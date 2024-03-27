@@ -39,13 +39,16 @@ const useAncillaryModules = ({
   editMode,
   tree,
 }: {
-  id?: string;
-  chainId: SupportedChains;
+  id?: Hex;
+  chainId: SupportedChains | undefined;
   editMode?: boolean;
   tree?: AppHat[] | undefined;
 }) => {
   const toast = useToast();
-  const { predictedAddress, createAccount } = useHatsAccounts({ id, chainId });
+  const { predictedAddress, createAccount } = useHatsAccounts({
+    hatId: id,
+    chainId,
+  });
 
   const {
     data: ancillaryModules,
@@ -119,7 +122,10 @@ const useAncillaryModules = ({
     modulesDetails: activeModules,
   });
 
-  const shouldIncludeHA = _.has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, chainId);
+  const shouldIncludeHA = _.has(
+    HATS_ACCOUNT_1OFN_IMPLEMENTATION,
+    _.toString(chainId),
+  );
 
   return {
     modulesAuthorities: [

@@ -16,14 +16,18 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useOverlay, useSelectedHat } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   HatClaimForForm,
   HatTransferForm,
   HatWearerForm,
   HatWearerStatusForm,
 } from 'forms';
-import { useWearerDetails } from 'hats-hooks';
+import {
+  useHatWearers,
+  useWearerDetails,
+  useWearersEligibilityCheck,
+} from 'hats-hooks';
 import {
   filterWearers,
   isTopHat,
@@ -51,19 +55,55 @@ const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
 );
 
+const DEFAULT_WEARERS = {
+  eligibleWearers: undefined,
+  ineligibleWearers: undefined,
+};
+
 const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
+  const { editMode } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const {
     isOpen: ineligibleWearersExpanded,
     onToggle: onToggleIneligibleWearers,
   } = useDisclosure();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const eligibleWearers = [];
-  const ineligibleWearers = [];
-  const wearersLoading = false;
+
+  const { data: hatWearers, isLoading: wearersLoading } = useHatWearers({
+    hat: selectedHat,
+    chainId,
+    editMode: false,
+  });
+  const { data: wearersEligibility, isLoading: wearerEligibilityLoading } =
+    useWearersEligibilityCheck({
+      selectedHat,
+      chainId,
+      editMode,
+    });
+  const { eligibleWearers, ineligibleWearers } = useMemo(() => {
+    if (wearerEligibilityLoading || wearersLoading) return DEFAULT_WEARERS;
+    const {
+      eligibleWearers: eligibleWearerIds,
+      ineligibleWearers: ineligibleWearerIds,
+    } = _.pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
+    const localEligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
+      _.includes(eligibleWearerIds, w?.id),
+    );
+    const localIneligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
+      _.includes(ineligibleWearerIds, w?.id),
+    );
+    return {
+      eligibleWearers: localEligibleWearers,
+      ineligibleWearers: localIneligibleWearers,
+    };
+  }, [
+    wearersEligibility,
+    wearerEligibilityLoading,
+    wearersLoading,
+    hatWearers,
+  ]);
 
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -78,18 +118,14 @@ const WearersList = () => {
   const extendedWearers = extendWearers(_.get(selectedHat, 'wearers'), []);
 
   const filteredWearers = useMemo(() => {
-    if (!eligibleWearers) return undefined;
-    const localEligibleWearers = _.filter(eligibleWearers, (w: HatWearer) =>
-      _.includes(_.map(eligibleWearers, 'id'), w.id),
-    );
     const sortedWearers = sortWearers({
-      wearers: localEligibleWearers,
+      wearers: eligibleWearers,
       address,
     });
     return _.slice(
       filterWearers(searchTerm, sortedWearers),
       0,
-      6,
+      4,
     ) as HatWearer[];
   }, [searchTerm, eligibleWearers, address]);
   const loadingWearers = Array(4).fill({});
@@ -110,16 +146,18 @@ const WearersList = () => {
         <Stack spacing={4} px={{ base: 4, md: 10 }}>
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
-              <Heading
-                size={{ base: 'sm', md: 'md' }}
-                variant={{ base: 'medium', md: 'default' }}
-              >
-                {_.size(eligibleWearers)} Wearer
-                {(_.size(eligibleWearers) > 1 ||
-                  _.size(eligibleWearers) === 0) &&
-                  's'}{' '}
-                of this Hat
-              </Heading>
+              <Skeleton isLoaded={!!eligibleWearers}>
+                <Heading
+                  size={{ base: 'sm', md: 'md' }}
+                  variant={{ base: 'medium', md: 'default' }}
+                >
+                  {_.size(eligibleWearers)} Wearer
+                  {(_.size(eligibleWearers) > 1 ||
+                    _.size(eligibleWearers) === 0) &&
+                    's'}{' '}
+                  of this Hat
+                </Heading>
+              </Skeleton>
               <Tooltip
                 label={
                   maxSupply &&
@@ -136,7 +174,7 @@ const WearersList = () => {
             </HStack>
           </Flex>
 
-          {_.gt(_.size(extendedWearers), 5) && (
+          {_.gt(_.size(extendedWearers), 4) && (
             <InputGroup>
               <InputLeftElement pointerEvents='none'>
                 <FaSearch />

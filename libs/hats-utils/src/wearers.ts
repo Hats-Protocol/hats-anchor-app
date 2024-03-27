@@ -9,7 +9,7 @@ export const filterWearers = (
   searchTerm: string,
   wearers: HatWearer[] | undefined,
 ) => {
-  if (!searchTerm || !wearers || _.isEmpty(wearers)) return [];
+  if (!searchTerm || !wearers || _.isEmpty(wearers)) return wearers || [];
 
   return _.filter(wearers, (wearer: HatWearer) => {
     const idSearch = _.toLower(wearer.id).includes(_.toLower(searchTerm));

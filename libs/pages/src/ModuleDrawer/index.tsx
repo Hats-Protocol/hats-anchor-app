@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
+import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatsModules } from 'hats-hooks';
-import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,7 +28,7 @@ const ModuleDrawer = ({
     defaultValues: {
       moduleType: '',
       isPermissionlesslyClaimable: 'No',
-      initialClaimableHats: decimalId(selectedHat?.id),
+      initialClaimableHats: hatIdHexToDecimal(selectedHat?.id),
       initialClaimabilityType: '1', // 1 for "claimable", 2 for "claimable for"
     },
   });

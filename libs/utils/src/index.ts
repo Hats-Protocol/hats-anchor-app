@@ -1,3 +1,4 @@
+export * from './authorities';
 export * from './contract';
 export * from './events';
 export * from './form';

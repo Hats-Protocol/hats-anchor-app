@@ -1,4 +1,7 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
 import {
@@ -11,7 +14,7 @@ import {
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import { decimalId, getTreeId } from './hats';
+import { getTreeId } from './hats';
 import { maxSupplyText } from './wearers';
 
 // TODO move these to org-chart
@@ -99,7 +102,9 @@ const mapHat = (
     parentId: hat.admin?.id === hat.id ? undefined : (hat.admin?.id as Hex),
     treeId: hat.tree?.id as Hex,
     isLinked: false,
-    url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
+    url: `/trees/${chainId}/${treeIdHexToDecimal(
+      hat.tree?.id || hat.treeId || '0x',
+    )}`,
     orgChartWearers: handleOrgChartWearers(hat, orgChartWearers),
   };
 };
@@ -230,19 +235,13 @@ const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
 };
 
 const compareHatIds = (a: AppHat, b: AppHat): number => {
-  if (BigInt(decimalId(a.id)) < BigInt(decimalId(b.id))) {
-    return -1;
-  }
-  if (BigInt(decimalId(a.id)) > BigInt(decimalId(b.id))) {
-    return 1;
-  }
+  if (BigInt(a.id) < BigInt(b.id)) return -1;
+  if (BigInt(a.id) > BigInt(b.id)) return 1;
 
   return 0;
 };
 
 export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
-  // * tricky sort ahead, follow each branch to their conclusion
-  // * before returning to next sibling at previous level
   let newIdList = tree
     ? // start with the top hat
       [_.get(_.first(tree), 'id')]

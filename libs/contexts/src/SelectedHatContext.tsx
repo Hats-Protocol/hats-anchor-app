@@ -2,13 +2,7 @@ import {
   hatIdDecimalToIp,
   treeIdDecimalToHex,
 } from '@hatsprotocol/sdk-v1-core';
-import { useAncillaryModules } from 'hats-hooks';
-import { combineAuthorities } from 'hats-utils';
-import {
-  useGuilds,
-  useMediaStyles,
-  useSnapshotSpaces as useSpaces,
-} from 'hooks';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
@@ -19,13 +13,7 @@ import {
   useMemo,
 } from 'react';
 import { createHierarchy } from 'shared';
-import {
-  AppHat,
-  Authority,
-  HatDetails,
-  Hierarchy,
-  SupportedChains,
-} from 'types';
+import { AppHat, HatDetails, Hierarchy, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 import { useTreeForm } from './TreeFormContext';
@@ -40,10 +28,6 @@ export interface SelectedHatContext {
   isDraft: boolean;
   selectedOnchainHat: AppHat | undefined;
   selectedOnchainHatDetails: HatDetails | undefined;
-  // AUTHORITIES
-  selectedHatGuildRoles: Authority[] | undefined;
-  selectedHatSpaces: Authority[] | undefined;
-  combinedAuthorities: Authority[] | undefined;
   // ACTIONS
   handleSelectHat: ((id: Hex) => void) | undefined;
   // RELATIONS
@@ -60,10 +44,6 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   isDraft: false,
   selectedOnchainHat: undefined,
   selectedOnchainHatDetails: undefined,
-  // AUTHORITIES
-  selectedHatGuildRoles: undefined,
-  selectedHatSpaces: undefined,
-  combinedAuthorities: undefined,
   // ACTIONS
   handleSelectHat: undefined,
   // RELATIONS
@@ -84,8 +64,6 @@ export const SelectedHatContextProvider = ({
   const router = useRouter();
   const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
   const {
-    editMode,
-    topHatDetails,
     onchainHats,
     onchainTree,
     orgChartTree,
@@ -162,50 +140,17 @@ export const SelectedHatContextProvider = ({
     [orgChartTree, isMobile, flipped, compact, chainId],
   );
 
-  // *********************
-  // * Authorities
-  // *********************
-  const { selectedHatGuildRoles } = useGuilds({
-    guilds: _.get(topHatDetails, 'guilds'),
-    hatId: selectedHat?.id,
-    editMode,
-  });
-  const { selectedHatSpaces } = useSpaces({
-    spaces: _.get(topHatDetails, 'spaces'),
-    hatId: selectedHat?.id,
-    chainId,
-    editMode,
-  });
-  const { modulesAuthorities } = useAncillaryModules({
-    id: hatId,
-    chainId,
-    editMode,
-    tree: orgChartTree,
-  });
-  const { data: combinedAuthorities } = combineAuthorities({
-    authorities: _.get(selectedHatDetails, 'authorities'),
-    guildRoles: selectedHatGuildRoles,
-    spaces: selectedHatSpaces,
-    modulesAuthorities,
-  });
-
   const returnValue = useMemo(
     () => ({
       // SELECTED HAT
       selectedHat,
       selectedHatDetails,
-      // eligibleWearers,
-      // ineligibleWearers,
       chainId,
       hatLoading: !selectedHat || !selectedHatDetails,
       // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
-      // AUTHORITIES
-      selectedHatGuildRoles,
-      selectedHatSpaces,
-      combinedAuthorities,
       // ACTIONS
       handleSelectHat,
       // RELATIONS
@@ -220,10 +165,6 @@ export const SelectedHatContextProvider = ({
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
-      // AUTHORITIES
-      selectedHatGuildRoles,
-      selectedHatSpaces,
-      combinedAuthorities,
       // ACTIONS
       handleSelectHat,
       // RELATIONS

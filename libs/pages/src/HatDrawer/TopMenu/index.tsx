@@ -4,7 +4,7 @@ import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
-import { useMediaStyles, useSelectedHatDisclosure } from 'hooks';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
@@ -24,10 +24,15 @@ const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
-  const { chainId, editMode, onchainHats, storedData, treeToDisplay } =
-    useTreeForm();
+  const {
+    chainId,
+    editMode,
+    onchainHats,
+    storedData,
+    treeToDisplay,
+    onCloseHatDrawer,
+  } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { onClose } = useSelectedHatDisclosure(selectedHat?.id);
   const {
     isLoading,
     handleRemoveHat,
@@ -53,7 +58,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   );
 
   const closeHatDrawer = () => {
-    onClose?.();
+    onCloseHatDrawer?.();
   };
 
   const handleReturnToList = () => {

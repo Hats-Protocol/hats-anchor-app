@@ -1,16 +1,47 @@
 import { Accordion, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { useSelectedHat } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
+import { useAncillaryModules } from 'hats-hooks';
+import { combineAuthorities } from 'hats-utils';
+import { useHatGuildRoles, useHatSnapshotRoles } from 'hooks';
 import _ from 'lodash';
 import { Authority, AuthorityType } from 'types';
 
 import AuthoritiesListCard from './AuthoritiesListCard';
 
 const AuthoritiesList = () => {
-  const { combinedAuthorities } = useSelectedHat();
+  const { orgChartTree, guildData, snapshotData } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, hatLoading } =
+    useSelectedHat();
 
-  if (!combinedAuthorities) return null;
+  const { modulesAuthorities, isLoading: ancillaryModulesLoading } =
+    useAncillaryModules({
+      id: selectedHat?.id,
+      chainId,
+      editMode: false,
+      tree: orgChartTree,
+    });
+  const { data: guildRoles } = useHatGuildRoles({
+    hatId: selectedHat?.id,
+    guildData,
+    chainId,
+  });
+  const { data: spaces } = useHatSnapshotRoles({
+    spaces: snapshotData,
+    hatId: selectedHat?.id,
+    chainId,
+  });
+  const { data: combinedAuthorities } = combineAuthorities({
+    authorities: _.get(selectedHatDetails, 'authorities'),
+    guildRoles,
+    spaces,
+    modulesAuthorities,
+  });
 
-  if (_.isEmpty(combinedAuthorities)) {
+  if (
+    !hatLoading &&
+    ancillaryModulesLoading &&
+    _.isEmpty(combinedAuthorities)
+  ) {
     return (
       <Flex px={{ base: 4, md: 10 }}>
         <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
@@ -43,7 +74,7 @@ const AuthoritiesList = () => {
             />
           ))}
         </Stack>
-        {!combinedAuthorities.length && (
+        {_.isEmpty(combinedAuthorities) && (
           <Text variant='gray' size='sm'>
             None
           </Text>

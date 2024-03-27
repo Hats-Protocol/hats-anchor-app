@@ -45,7 +45,7 @@ const TreeDetails = ({ treeId, chainId, hatId, exists }: TreeDetailsProps) => {
   }, [analytics, treeId, hatId, chainId, address]);
 
   return (
-    <TreeFormContextProvider treeId={treeId} chainId={chainId}>
+    <TreeFormContextProvider treeId={treeId} chainId={chainId} hatId={hatId}>
       {isMobile ? (
         <TreePageMobile exists={exists} />
       ) : (
@@ -60,12 +60,12 @@ const defaultProps = {
   chainId: null,
 };
 
-const getQueryParams = (context: GetServerSidePropsContext) => {
+const getQueryParams = (query: Pick<GetServerSidePropsContext, 'query'>) => {
   const {
     treeId: treeIdParam,
     chainId: chainIdParam,
     hatId: hatIdParam,
-  } = _.pick(_.get(context, 'query'), ['treeId', 'chainId', 'hatId']);
+  } = _.pick(query, ['treeId', 'chainId', 'hatId']);
   const localTreeId = _.isArray(treeIdParam)
     ? _.first(treeIdParam)
     : treeIdParam;
@@ -80,10 +80,13 @@ const getQueryParams = (context: GetServerSidePropsContext) => {
   return { treeId, chainId, hatId };
 };
 
+// REVERTED TO SERVER SIDE RENDERING HERE TO CATCH HAT ID PARAM
 export const getServerSideProps = async (
   context: GetServerSidePropsContext,
 ) => {
-  const { treeId, chainId, hatId } = getQueryParams(context);
+  const { treeId, chainId, hatId } = getQueryParams(
+    _.get(context, 'query', {}),
+  );
 
   return {
     props: {

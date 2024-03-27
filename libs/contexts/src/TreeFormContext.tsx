@@ -13,7 +13,9 @@ import {
   useLocalStorage,
   useOrgChartTree,
   useSelectedHatDisclosure,
+  useTreeGuilds,
   useTreeImages,
+  useTreeSnapshotSpaces,
 } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -33,11 +35,13 @@ import {
   HatDetails,
   HatWearer,
   LinkRequest,
+  SnapshotSpace,
   SupportedChains,
 } from 'types';
 import {
   generateLocalStorageKey,
   getInactiveIds,
+  Guild,
   ipfsUrl,
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
@@ -62,6 +66,8 @@ export interface TreeFormContext {
   orgChartWearers: HatWearer[] | undefined;
   inactiveHats: string[] | undefined;
   orgChartTree: AppHat[] | undefined;
+  guildData: Guild[] | undefined;
+  snapshotData: SnapshotSpace[] | undefined;
   // local storage
   storedConfig: { flipped?: boolean; compact?: boolean };
   storedData: Partial<FormData>[] | undefined;
@@ -114,6 +120,8 @@ export const TreeFormContext = createContext<TreeFormContext>({
   storedData: undefined,
   setStoredData: undefined,
   orgChartTree: undefined,
+  guildData: undefined,
+  snapshotData: undefined,
   // controls
   editMode: false,
   setEditMode: undefined,
@@ -399,6 +407,21 @@ export const TreeFormContextProvider = ({
   );
 
   // *********************
+  // * TREE-LEVEL AUTHORITY DATA
+  // *********************
+
+  const { data: guildData } = useTreeGuilds({
+    orgChartTree,
+    chainId,
+    editMode,
+  });
+  const { data: snapshotData } = useTreeSnapshotSpaces({
+    orgChartTree,
+    chainId,
+    editMode,
+  });
+
+  // *********************
   // * CHART ACTIONS
   // *********************
 
@@ -639,6 +662,8 @@ export const TreeFormContextProvider = ({
       orgChartWearers,
       inactiveHats,
       orgChartTree: orgChartTree || undefined,
+      guildData,
+      snapshotData,
       // LOCAL STORAGE
       storedConfig,
       storedData,
@@ -687,6 +712,8 @@ export const TreeFormContextProvider = ({
       orgChartWearers,
       inactiveHats,
       orgChartTree,
+      guildData,
+      snapshotData,
       // LOCAL STORAGE
       storedData,
       storedConfig,

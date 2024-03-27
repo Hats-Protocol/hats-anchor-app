@@ -11,7 +11,6 @@ import { Hex } from 'viem';
  */
 const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const router = useRouter();
 
   const onOpen = useCallback(
@@ -39,12 +38,13 @@ const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   }, [router]);
 
   useEffect(() => {
-    if (initialLoad && hatId && hatId !== '0x') {
+    if (hatId && hatId !== '0x') {
       onOpen(hatId);
-      setInitialLoad(false);
+    } else {
+      onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hatId, initialLoad]);
+  }, [hatId]);
 
   return { isOpen, onOpen, onClose };
 };

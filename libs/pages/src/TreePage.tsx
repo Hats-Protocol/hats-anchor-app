@@ -16,7 +16,6 @@ import {
   useOverlay,
   useTreeForm,
 } from 'contexts';
-import { useSelectedHatDisclosure } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
@@ -59,8 +58,8 @@ const TreePage = ({
     topHat,
     isTreeDrawerOpen,
     returnToTreeList,
+    isHatDrawerOpen,
   } = useTreeForm();
-  const { isOpen } = useSelectedHatDisclosure(hatId);
 
   if (!chainId) return null;
   const chain = chainsMap(chainId);
@@ -95,12 +94,12 @@ const TreePage = ({
       >
         <Slide
           direction='right'
-          in={!!treeToDisplay && !!isOpen}
+          in={!!treeToDisplay && !!isHatDrawerOpen}
           style={{
             zIndex: 1000,
             maxWidth: '43%',
             width: '650px',
-            display: isOpen ? 'block' : 'none',
+            display: isHatDrawerOpen ? 'block' : 'none',
           }}
         >
           <HatDrawer returnToList={returnToTreeList} />

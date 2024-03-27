@@ -6,7 +6,6 @@ import {
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  decimalId,
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
@@ -79,7 +78,7 @@ const useModuleDeploy = ({
   const queryClient = useQueryClient();
   const { modules } = useHatsModules({ chainId });
   const { address } = useAccount();
-  const hatId = BigInt(decimalId(selectedHat?.id));
+  const hatId = selectedHat ? BigInt(selectedHat?.id) : BigInt(0);
   const adminHat = values?.adminHat as Hex | undefined;
   const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
@@ -300,7 +299,8 @@ const useModuleDeploy = ({
 
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
-      const adminHatId = BigInt(decimalId(adminHat));
+      if (!adminHat) return null;
+      const adminHatId = BigInt(adminHat);
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
           if (

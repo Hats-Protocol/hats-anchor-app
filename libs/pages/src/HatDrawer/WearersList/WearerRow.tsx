@@ -8,9 +8,10 @@ import {
   Tooltip,
   useClipboard,
 } from '@chakra-ui/react';
+import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite, useModuleDetails } from 'hats-hooks';
-import { decimalId, getControllerNameAndLink, isTopHat } from 'hats-utils';
+import { getControllerNameAndLink, isTopHat } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -67,7 +68,7 @@ const WearerRow = ({
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
-    args: [decimalId(hatId), wearer.id],
+    args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
     enabled:
       Boolean(hatId) &&

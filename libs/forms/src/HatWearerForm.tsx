@@ -17,13 +17,14 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
+import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
   useWearerEligibilityCheck,
   useWearerIsInGoodStanding,
 } from 'hats-hooks';
-import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
+import { isMutable, maxSupplyText } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { BoxArrowUpRightIn } from 'icons';
 import _ from 'lodash';
@@ -134,11 +135,11 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
   const batchMintArgs = [
-    new Array(localWearers.length).fill(decimalId(hatId)),
+    new Array(localWearers.length).fill(hatIdHexToDecimal(hatId)),
     _.map(localWearers, 'address'),
   ];
   if (isAddress(currentResolvedAddress)) {
-    batchMintArgs[0].push(decimalId(hatId));
+    batchMintArgs[0].push(hatIdHexToDecimal(hatId));
     batchMintArgs[1].push(currentResolvedAddress);
   }
 
@@ -177,7 +178,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:
-      Boolean(decimalId(hatId)) &&
+      Boolean(hatIdHexToDecimal(hatId)) &&
       _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
       _.toNumber(selectedOnchainHat?.maxSupply) >
@@ -192,7 +193,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [decimalId(hatId), currentResolvedAddress],
+      args: [hatIdHexToDecimal(hatId), currentResolvedAddress],
       chainId,
       txDescription: txDescriptionSingle,
       onSuccessToastData: {
@@ -208,7 +209,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         ['treeDetails', toTreeId(hatId)],
       ],
       enabled:
-        Boolean(decimalId(hatId)) &&
+        Boolean(hatIdHexToDecimal(hatId)) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
         Boolean(currentResolvedAddress) &&
         _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&

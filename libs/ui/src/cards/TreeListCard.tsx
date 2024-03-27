@@ -9,9 +9,9 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useHatDetailsField } from 'hats-hooks';
-import { decimalId } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -64,7 +64,9 @@ const TreeListCard = ({
 
   return (
     <ChakraNextLink
-      href={`/trees/${_.get(tree, 'chainId')}/${decimalId(_.get(tree, 'id'))}`}
+      href={`/trees/${_.get(tree, 'chainId')}/${treeIdHexToDecimal(
+        _.get(tree, 'id'),
+      )}`}
       key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
@@ -128,13 +130,17 @@ const TreeListCard = ({
                       {hatName}
                     </Heading>
                     <Flex justify='space-between' w='100%'>
-                      <Text size='xs'>#{decimalId(_.get(tree, 'id'))}</Text>
+                      <Text size='xs'>
+                        #{treeIdHexToDecimal(_.get(tree, 'id'))}
+                      </Text>
                       <TreeStats tree={tree} />
                     </Flex>
                   </Flex>
                 ) : (
                   <Stack spacing={1} pt={0}>
-                    <Text size='xs'>#{decimalId(_.get(tree, 'id'))}</Text>
+                    <Text size='xs'>
+                      #{treeIdHexToDecimal(_.get(tree, 'id'))}
+                    </Text>
                     <Heading size='sm' noOfLines={2}>
                       {hatName}
                     </Heading>

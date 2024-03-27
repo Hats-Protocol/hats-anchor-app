@@ -1,53 +1,72 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
-import { SupportedChains } from 'types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { id } from 'date-fns/locale';
 import { useToast } from 'hooks';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { SupportedChains } from 'types';
 import { createHatsAccountClient } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useQueryClient } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 const SALT = BigInt(1);
 
-const useHatsAccounts = ({
-  id,
+const getPredictedAddress = async ({
+  hatId,
   chainId,
 }: {
-  id?: string;
-  chainId: SupportedChains;
+  hatId: Hex | undefined;
+  chainId: SupportedChains | undefined;
 }) => {
-  const [predictedAddress, setPredictedAddress] = useState<Hex | null>();
+  const isSupportedChain = _.has(
+    HATS_ACCOUNT_1OFN_IMPLEMENTATION,
+    _.toString(chainId),
+  );
+  if (!hatId || hatId === '0x' || !chainId || !isSupportedChain) return null;
+
+  const hatsAccountClient = await createHatsAccountClient(chainId);
+  if (!hatsAccountClient) return null;
+
+  try {
+    const predictedAccount = await hatsAccountClient.predictAccountAddress({
+      hatId: BigInt(hatId),
+      salt: SALT,
+    });
+    return predictedAccount;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error predicting Hats account address:', error);
+    return null;
+  }
+};
+
+const useHatsAccounts = ({
+  hatId,
+  chainId,
+}: {
+  hatId?: Hex;
+  chainId: SupportedChains | undefined;
+}) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const { address } = useAccount();
-  const isSupportedChain = _.has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, chainId);
 
-  useEffect(() => {
-    const predictAddress = async () => {
-      if (!id || id === '0x' || !chainId) return;
-      if (!isSupportedChain) return;
-
-      const hatsAccountClient = await createHatsAccountClient(chainId);
-      if (!hatsAccountClient) return;
-
-      try {
-        const predictedAccount = await hatsAccountClient.predictAccountAddress({
-          hatId: BigInt(id),
-          salt: SALT,
-        });
-        setPredictedAddress(predictedAccount);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error predicting Hats account address:', error);
-      }
-    };
-
-    predictAddress();
-  }, [id, chainId, isSupportedChain]);
+  const {
+    data: predictedAddress,
+    isLoading: addressIsLoading,
+    error: predictedAddressError,
+  } = useQuery({
+    queryKey: ['predictedAddress', hatId, chainId],
+    queryFn: () => getPredictedAddress({ hatId, chainId }),
+    enabled: !!hatId && !!chainId,
+    staleTime: Infinity,
+  });
 
   async function createAccount() {
-    if (!id || !address || !chainId) return undefined;
-    if (!isSupportedChain) return undefined;
+    const isSupportedChain = _.has(
+      HATS_ACCOUNT_1OFN_IMPLEMENTATION,
+      _.toString(chainId),
+    );
+    if (!hatId || !address || !chainId || !isSupportedChain) return undefined;
 
     const hatsAccountClient = await createHatsAccountClient(chainId);
     if (!hatsAccountClient) return undefined;
@@ -55,7 +74,7 @@ const useHatsAccounts = ({
     try {
       await hatsAccountClient.createAccount({
         account: address as Hex,
-        hatId: BigInt(id),
+        hatId: BigInt(hatId),
         salt: SALT,
       });
 
@@ -66,7 +85,9 @@ const useHatsAccounts = ({
 
       queryClient.invalidateQueries(['hatDetails', { id, chainId }]);
       return true;
-    } catch (error) {
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
       toast.error({
         title: 'Transaction failed',
         description: 'The hats wallet account deployment failed',
@@ -77,6 +98,8 @@ const useHatsAccounts = ({
 
   return {
     predictedAddress,
+    addressIsLoading,
+    predictedAddressError,
     createAccount,
   };
 };

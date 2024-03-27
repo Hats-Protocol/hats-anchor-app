@@ -104,7 +104,7 @@ const WearerButtons = () => {
 
   return (
     <Flex justify='space-between' align='center' px={10}>
-      {_.gt(_.size(eligibleWearerIds), 6) && (
+      {_.gt(_.size(eligibleWearerIds), 4) && (
         <Text
           onClick={() => setModals?.({ hatWearers: true })}
           cursor='pointer'
