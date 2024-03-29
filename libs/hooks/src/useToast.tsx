@@ -1,11 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import {
-  CreateToastFnReturn,
-  ToastId,
-  useToast as useChakraToast,
-} from '@chakra-ui/react';
+import { ToastId, useToast as useChakraToast } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRef } from 'react';
+import { ToastBaseProps, ToastProps, UseCustomToastReturn } from 'types';
 
 import Toast from './components/Toast';
 
@@ -45,7 +42,7 @@ const ToastBase = ({
 };
 
 // hooks
-const useCustomToast = () => {
+const useCustomToast = (): UseCustomToastReturn => {
   const toast = useChakraToast();
   const toastIdRef = useRef<ToastId | null>(null);
 
@@ -110,25 +107,3 @@ const useCustomToast = () => {
 };
 
 export default useCustomToast;
-
-interface ToastBaseProps {
-  toast: CreateToastFnReturn;
-  title: string;
-  description?: string;
-  iconName?: string;
-  status: 'success' | 'error' | 'warning' | 'loading' | 'info';
-  id?: string;
-  duration?: number;
-  closeToast: () => void;
-  isClosable?: boolean;
-}
-
-export interface ToastProps {
-  title: string;
-  description?: string;
-  // icon: React.ReactNode;
-  status?: 'success' | 'error' | 'warning' | 'loading' | 'info';
-  closeToast?: () => void;
-  duration?: number;
-  isClosable?: boolean;
-}

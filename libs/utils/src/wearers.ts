@@ -1,6 +1,6 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
-import { AppHat, HatWearer } from 'types';
+import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
 
@@ -46,8 +46,8 @@ export const extendWearerDetails = async (
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const fetchHatWearerDetails = async (
-  hat: AppHat,
-  chainId: number | undefined,
+  hat: AppHat | undefined,
+  chainId: SupportedChains | undefined,
 ): Promise<HatWearer[]> => {
   if (!hat || !chainId) return [];
 

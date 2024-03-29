@@ -52,7 +52,10 @@ const Claimable = ({
   if (!address || !chainId) return null;
 
   return (
-    <ChakraNextLink href={`${explorerUrl(chainId)}/address/${address}`}>
+    <ChakraNextLink
+      href={`${explorerUrl(chainId)}/address/${address}`}
+      isExternal
+    >
       <HStack color='blue.500' spacing={1}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           {claimFor ? 'Free Claim' : 'Self Claim'}

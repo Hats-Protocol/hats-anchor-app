@@ -45,8 +45,7 @@ export const fetchSnapshotSpaces = async (
   chainId: SupportedChains | undefined,
   spaces?: string[],
 ) => {
-  const localSpaces = _.compact(spaces);
-  if (_.isEmpty(localSpaces) || !chainId) {
+  if (_.isEmpty(spaces) || !chainId) {
     return [];
   }
   const client = await snapshotClient(chainId);

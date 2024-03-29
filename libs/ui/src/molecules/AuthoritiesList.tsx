@@ -1,4 +1,5 @@
-import { Accordion, Flex, Heading, Stack } from '@chakra-ui/react';
+import { Accordion, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useAncillaryModules } from 'hats-hooks';
 import { combineAuthorities } from 'hats-utils';
@@ -7,6 +8,13 @@ import _ from 'lodash';
 import { Authority, AuthorityType } from 'types';
 
 import AuthoritiesListCard from './AuthoritiesListCard';
+
+const LOADING_COUNT = 2;
+const LOADING_AUTHORITIES: Authority[] = Array(LOADING_COUNT).fill({
+  label: 'Loading...',
+  info: 'Loading...',
+  type: AUTHORITY_TYPES.manual,
+});
 
 const AuthoritiesList = () => {
   const { orgChartTree, guildData, snapshotData } = useTreeForm();
@@ -20,12 +28,12 @@ const AuthoritiesList = () => {
       editMode: false,
       tree: orgChartTree,
     });
-  const { data: guildRoles } = useHatGuildRoles({
+  const { data: guildRoles, isLoading: guildsLoading } = useHatGuildRoles({
     hatId: selectedHat?.id,
     guildData,
     chainId,
   });
-  const { data: spaces } = useHatSnapshotRoles({
+  const { data: spaces, isLoading: spacesLoading } = useHatSnapshotRoles({
     spaces: snapshotData,
     hatId: selectedHat?.id,
     chainId,
@@ -36,10 +44,16 @@ const AuthoritiesList = () => {
     spaces,
     modulesAuthorities,
   });
+  const localAuthorities =
+    !hatLoading && !ancillaryModulesLoading && !guildsLoading && !spacesLoading
+      ? combinedAuthorities
+      : LOADING_AUTHORITIES;
 
   if (
     !hatLoading &&
     !ancillaryModulesLoading &&
+    !guildsLoading &&
+    !spacesLoading &&
     _.isEmpty(combinedAuthorities)
   ) {
     return (
@@ -54,21 +68,30 @@ const AuthoritiesList = () => {
   return (
     <Accordion px={{ base: 0, md: 10 }} allowMultiple>
       <Stack>
-        <Heading
-          size={{ base: 'sm', md: 'md' }}
-          mx={{ base: 4, md: 0 }}
-          variant={{ base: 'medium', md: 'default' }}
+        <Skeleton
+          isLoaded={
+            !hatLoading &&
+            !ancillaryModulesLoading &&
+            !guildsLoading &&
+            !spacesLoading
+          }
         >
-          {_.size(combinedAuthorities)}{' '}
-          {_.size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'}{' '}
-          granted by this Hat
-        </Heading>
+          <Heading
+            size={{ base: 'sm', md: 'md' }}
+            mx={{ base: 4, md: 0 }}
+            variant={{ base: 'medium', md: 'default' }}
+          >
+            {_.size(combinedAuthorities)}{' '}
+            {_.size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'}{' '}
+            granted by this Hat
+          </Heading>
+        </Skeleton>
 
-        <Stack spacing={1}>
-          {_.map(combinedAuthorities, (authority: Authority, index: number) => (
+        <Stack spacing={!_.isEmpty(combinedAuthorities) ? 1 : 2}>
+          {_.map(localAuthorities, (authority: Authority, index: number) => (
             <AuthoritiesListCard
               index={index}
-              key={authority.label}
+              key={`${authority.label}-${index}`}
               authority={authority}
               type={authority.type as AuthorityType}
             />

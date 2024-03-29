@@ -14,14 +14,14 @@ const useHatSnapshotRoles = ({
   chainId?: SupportedChains;
   editMode?: boolean;
 }) => {
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading, fetchStatus } = useQuery({
     queryKey: ['hatSnapshotRoles', spaces, hatId, chainId],
     queryFn: () => processSnapshotSpacesForHat({ chainId, spaces, hatId }),
-    enabled: spaces && !_.isEmpty(spaces) && !!chainId,
+    enabled: !!spaces && !_.isEmpty(spaces) && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  return { data, error, isLoading };
+  return { data, error, isLoading: isLoading && fetchStatus !== 'idle' };
 };
 
 export default useHatSnapshotRoles;

@@ -16,7 +16,7 @@ import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import { useHatParams, useSelectedHatDisclosure, useToast } from 'hooks';
+import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
@@ -57,10 +57,10 @@ const OrgChartComponent: React.FC = () => {
     setStoredData,
     addHat,
     orgChartWearers,
+    onOpenHatDrawer,
+    onCloseTreeDrawer,
   } = useTreeForm();
-  // const { handleSelectHat } = useSelectedHat();
   const { selectedHatId } = useHatParams();
-  const { onOpen } = useSelectedHatDisclosure(selectedHatId);
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -145,8 +145,8 @@ const OrgChartComponent: React.FC = () => {
                 // always node not found or parent node
               } else {
                 // don't center here
-                onOpen(data.data.id);
-                // handleSelectHat?.(data.data?.id);
+                onOpenHatDrawer?.(data.data.id);
+                onCloseTreeDrawer?.();
               }
             });
           })
@@ -645,7 +645,7 @@ const OrgChartComponent: React.FC = () => {
           selectedHatId !== ZERO_ID &&
           selectedHatId !== '0x'
         ) {
-          onOpen?.(selectedHatId);
+          onOpenHatDrawer?.(selectedHatId);
           centerChart(chart, selectedHatId);
         } else {
           chart.fit();
@@ -656,7 +656,8 @@ const OrgChartComponent: React.FC = () => {
   }, [
     chart,
     chainId,
-    onOpen,
+    onOpenHatDrawer,
+    onCloseTreeDrawer,
     selectedHatId,
     storedData,
     wearerHats,

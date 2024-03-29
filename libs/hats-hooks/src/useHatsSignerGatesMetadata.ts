@@ -21,7 +21,7 @@ const useHatsSignerGatesMetadata = ({
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ['hatsSignerGates', chainId],
+    queryKey: ['hatsSignerGates', { chainId }],
     queryFn: fetchHsgData,
     enabled: !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

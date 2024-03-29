@@ -7,9 +7,9 @@ import { Hex } from 'viem';
 
 const batchFetchContractData = async (
   addresses: Hex[],
-  chainId: SupportedChains,
+  chainId: SupportedChains | undefined,
 ) => {
-  const promises = addresses.map((address) =>
+  const promises = _.map(addresses, (address: Hex) =>
     fetchContractData(chainId, address),
   );
   const data = await Promise.all(promises);
@@ -23,10 +23,10 @@ const batchFetchContractData = async (
 const useHatWearers = ({
   hat,
   chainId,
-  editMode,
+  editMode = false,
 }: {
-  hat: AppHat;
-  chainId: SupportedChains;
+  hat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   editMode?: boolean;
 }) => {
   const {

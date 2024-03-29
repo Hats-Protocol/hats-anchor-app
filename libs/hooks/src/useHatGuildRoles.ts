@@ -15,7 +15,7 @@ const useHatGuildRoles = ({
   chainId: SupportedChains | undefined;
   editMode?: boolean;
 }) => {
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading, fetchStatus } = useQuery({
     queryKey: ['hatGuildRoles', guildData, hatId],
     queryFn: () => processGuildRolesForHat({ guildData, hatId }),
     enabled: !_.isEmpty(guildData) && !!hatId,
@@ -25,7 +25,7 @@ const useHatGuildRoles = ({
   return {
     data,
     error,
-    isLoading,
+    isLoading: isLoading && fetchStatus !== 'idle',
   };
 };
 

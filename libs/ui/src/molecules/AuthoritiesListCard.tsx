@@ -11,6 +11,7 @@ import {
   Icon,
   IconButton,
   Image,
+  Skeleton,
   Stack,
   Text,
   Tooltip,
@@ -83,7 +84,7 @@ const AuthoritiesListCard = ({
 
   // set tooltip info
   // TODO refactor to util/hook
-  let tooltipInfo = authorityEnforcement.info;
+  let tooltipInfo = authorityEnforcement?.info;
   if (strategies) {
     tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
       strategies,
@@ -103,12 +104,18 @@ const AuthoritiesListCard = ({
     };
   }, []);
 
-  if (!gate && !description)
+  if (!gate && !description) {
     return (
-      <Flex py={2} px={{ base: 4, md: 0 }}>
-        <AuthorityHeader authority={authority} />
-      </Flex>
+      <Skeleton
+        isLoaded={authority?.label !== 'Loading...'}
+        h={authority?.label === 'Loading...' ? '25px' : 'auto'}
+      >
+        <Flex py={2} px={{ base: 4, md: 0 }}>
+          <AuthorityHeader authority={authority} />
+        </Flex>
+      </Skeleton>
     );
+  }
 
   return (
     <Accordion allowToggle>

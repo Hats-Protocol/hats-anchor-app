@@ -8,6 +8,7 @@ import {
   fetchDetailsIpfs,
   fetchHatDetails,
   fetchWearerDetails,
+  hatLink,
   ModuleDetailsHandler,
 } from 'utils';
 import { Hex } from 'viem';
@@ -55,7 +56,10 @@ export const handleHatWearingEligibility = async ({
       rule: (
         <Text>
           Wear the {hatName} Hat (
-          <ChakraNextLink href='/' decoration>
+          <ChakraNextLink
+            href={hatLink({ chainId, hatId: hatDetails.id })}
+            decoration
+          >
             ID: {hatIdDecimalToIp(BigInt(hatDetails.id))}
           </ChakraNextLink>
           )

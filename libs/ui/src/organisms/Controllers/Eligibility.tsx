@@ -2,7 +2,7 @@ import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useModuleDetails } from 'hats-hooks';
+import { useHatWearers, useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { Hex } from 'viem';
@@ -20,13 +20,21 @@ const Eligibility = () => {
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
 
+  const { data: hatWearers, isLoading: hatWearersLoading } = useHatWearers({
+    hat: selectedHat,
+    chainId,
+  });
+
   const { eligibility } = _.pick(selectedHat, ['eligibility']);
   const orgChartEligibility = _.find(orgChartWearers, { id: eligibility });
+  const hatWearerEligibility = _.find(hatWearers, { id: eligibility });
+  const eligibilityData = hatWearerEligibility ||
+    orgChartEligibility || { id: eligibility as Hex };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const {
     details: moduleDetails,
     parameters,
-    isLoading,
+    isLoading: loadingModuleDetails,
   } = useModuleDetails({
     address: eligibility,
     chainId,
@@ -85,7 +93,7 @@ const Eligibility = () => {
     }
 
     return (
-      <Skeleton isLoaded={!isLoading && !loadingEligibilityRules}>
+      <Skeleton isLoaded={!loadingModuleDetails && !loadingEligibilityRules}>
         <Flex justify='space-between' py={1}>
           {eligibilityRuleDetails?.rule}
 
@@ -138,7 +146,13 @@ const Eligibility = () => {
   }
 
   return (
-    <Skeleton isLoaded={!loadingEligibilityRules || !moduleDetails}>
+    <Skeleton
+      isLoaded={
+        !hatWearersLoading &&
+        (!loadingEligibilityRules || !moduleDetails) &&
+        (!loadingModuleDetails || orgChartEligibility?.isContract)
+      }
+    >
       <Flex justify='space-between' py={2}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           {_.includes(NULL_ADDRESSES, eligibility)
@@ -147,9 +161,7 @@ const Eligibility = () => {
           can remove Wearers
         </Text>
 
-        <ControllerWearer
-          controllerData={orgChartEligibility || { id: eligibility as Hex }}
-        />
+        <ControllerWearer controllerData={eligibilityData} />
       </Flex>
     </Skeleton>
   );

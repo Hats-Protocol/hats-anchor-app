@@ -1,7 +1,8 @@
 import { useClipboard as useChakraClipboard } from '@chakra-ui/react';
 import _ from 'lodash';
+import { ToastProps } from 'types';
 
-import useToast, { ToastProps } from './useToast';
+import useToast from './useToast';
 
 interface UseClipboardOptions {
   toastData?: ToastProps;

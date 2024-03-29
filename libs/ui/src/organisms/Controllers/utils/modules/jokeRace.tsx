@@ -49,6 +49,7 @@ export const handleJokeRaceEligibility = async ({
         Finish top {topK} in the{' '}
         <ChakraNextLink
           href={jokeRaceUrl({ chainId, address: contestAddress })}
+          decoration
         >
           JokeRace
         </ChakraNextLink>

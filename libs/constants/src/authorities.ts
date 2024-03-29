@@ -45,7 +45,7 @@ export const AUTHORITY_ENFORCEMENT: {
     label: 'Hats Protocol Authority',
     info: '',
     color: 'green.300',
-    name: 'HatsWallet',
+    name: 'Hats Account',
     icon: HatIcon,
     enforcementIcon: '/icons/onchain.svg',
   },
