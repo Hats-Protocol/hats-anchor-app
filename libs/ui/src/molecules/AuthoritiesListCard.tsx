@@ -194,7 +194,7 @@ const AuthoritiesListCard = ({
                       index={index}
                     />
                   ) : (
-                    <HStack>
+                    <HStack mb={!description ? 4 : 0}>
                       {link && validateURL(link) && (
                         <ChakraNextLink isExternal href={link} display='block'>
                           {linkName || linkHostName ? (

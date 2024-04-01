@@ -5,7 +5,6 @@ import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 
-// modules-hooks
 const useModuleDetails = ({
   address,
   chainId,

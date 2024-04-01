@@ -501,7 +501,7 @@ const processMutabilityChangeCallForHat = ({
   const { calls, hatChanges } = returnData;
   const { mutable, id: hatId } = hat;
 
-  if (!hatId || (!!mutable && mutable) || mutable === undefined)
+  if (!hatId || (!!mutable && mutable === '') || mutable === undefined)
     return returnData;
 
   const makeHatImmutableData = hatsClient.makeHatImmutableCallData({

@@ -274,6 +274,8 @@ const useModuleDeploy = ({
         }
 
         default:
+          // eslint-disable-next-line no-console
+          console.error('Invalid deployment type');
           break;
       }
       queryClient.invalidateQueries(['claimsHatter']);
@@ -299,8 +301,6 @@ const useModuleDeploy = ({
 
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
-      if (!adminHat) return null;
-      const adminHatId = BigInt(adminHat);
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
           if (
@@ -322,6 +322,8 @@ const useModuleDeploy = ({
         }
 
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
+          if (!adminHat) return null;
+
           return deployModuleWithClaimsHatter({
             selectedModuleDetails,
             claimsHatterId: claimsHatterModule?.id,
@@ -330,17 +332,19 @@ const useModuleDeploy = ({
             values,
             chainId,
             hatId,
-            adminHatId,
+            adminHatId: BigInt(adminHat),
           });
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER:
+          if (!adminHat) return null;
+
           return deployClaimsHatter({
             claimsHatterModule,
             selectedHat,
             address,
             values,
             chainId,
-            adminHatId,
+            adminHatId: BigInt(adminHat),
           });
 
         default:
