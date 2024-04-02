@@ -21,6 +21,13 @@ import { chains, wagmiConfig } from 'utils';
 import { WagmiConfig } from 'wagmi';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+
+declare global {
+  interface Window {
+    Intercom: (action: string, options: object) => void;
+  }
+}
 
 // Check that PostHog is client-side (used to handle Next.js SSR)
 if (typeof window !== 'undefined') {
@@ -57,6 +64,13 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (typeof window !== 'undefined' && INTERCOM_APP_ID) {
+    window.Intercom('boot', {
+      app_id: INTERCOM_APP_ID,
+      // user_id: hatData?.user?.id,
+    });
+  }
 
   return (
     <>
