@@ -30,7 +30,7 @@ const PUBLIC_HOST = HOST_URL || VERCEL_URL || 'http://localhost:4200';
 // Check that PostHog is client-side (used to handle Next.js SSR)
 if (typeof window !== 'undefined') {
   posthog.init(POSTHOG_KEY, {
-    api_host: `${PUBLIC_HOST}/ingest` || 'https://app.posthog.com',
+    api_host: `${HOST_URL}/ingest` || 'https://app.posthog.com',
     // Enable debug mode in development
     loaded: (p: { debug: () => void }) => {
       if (process.env.NODE_ENV === 'development') p.debug();
