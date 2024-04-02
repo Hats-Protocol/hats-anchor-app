@@ -21,11 +21,11 @@ import { chains, wagmiConfig } from 'utils';
 import { WagmiConfig } from 'wagmi';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL;
 const VERCEL_URL = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
   : undefined;
-const PUBLIC_HOST =
-  process.env.NEXT_PUBLIC_HOST_URL || VERCEL_URL || 'http://localhost:4200';
+const PUBLIC_HOST = HOST_URL || VERCEL_URL || 'http://localhost:4200';
 
 // Check that PostHog is client-side (used to handle Next.js SSR)
 if (typeof window !== 'undefined') {
