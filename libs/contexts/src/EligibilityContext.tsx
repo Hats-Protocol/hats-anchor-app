@@ -94,7 +94,7 @@ export const EligibilityContextProvider = ({
   const value = useMemo(
     () => ({
       chainId,
-      selectedHat: selectedHatWithImageUrl?.[0] || selectedHat,
+      selectedHat: _.first(selectedHatWithImageUrl) || selectedHat,
       selectedHatDetails: hatDetails?.data,
       wearersAndControllers,
       treeId,

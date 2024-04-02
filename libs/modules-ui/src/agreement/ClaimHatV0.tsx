@@ -14,14 +14,17 @@ import { CONFIG, TOASTS } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
-import { useAgreementClaimsHatterContractWrite, useMediaStyles } from 'hooks';
+import {
+  useAgreementClaimsHatterContractWrite,
+  useMediaStyles,
+  useWaitForSubgraph,
+} from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
-import { hatLink } from 'utils';
-import { Hex } from 'viem';
+import { fetchWearerDetails, hatLink } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
@@ -35,35 +38,6 @@ const NetworkSwitcher = dynamic(() =>
 const HatCreateCard = dynamic(() =>
   import('ui').then((mod) => mod.HatCreateCard),
 );
-
-async function waitForClaim(address: Hex, chainId: number) {
-  // return new Promise((resolve) => {
-  //   const checkWearer = async () => {
-  //     try {
-  //       const wearer = await fetchWearerDetails(address, chainId);
-  //       const hasClaimed = _.includes(
-  //         _.map(_.get(wearer, 'currentHats'), 'id'),
-  //         CONFIG.communityMemberHat,
-  //       );
-  //       if (hasClaimed) {
-  //         clearInterval(intervalId);
-  //         resolve(wearer);
-  //       }
-  //       // eslint-disable-next-line no-console
-  //       console.log('waiting for claim');
-  //     } catch (e) {
-  //       // eslint-disable-next-line no-console
-  //       console.log(e);
-  //     }
-  //   };
-  //   const intervalId = setInterval(checkWearer, 1000);
-  //   checkWearer(); // Check immediately
-  //   setTimeout(() => {
-  //     clearInterval(intervalId);
-  //     resolve(null); // Resolve with null or handle the timeout case
-  //   }, 20000);
-  // });
-}
 
 const ClaimHat = ({ agreement }: { agreement: string }) => {
   const hatId = hatIdDecimalToHex(
@@ -79,6 +53,17 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     chainId,
   });
   const wearing = !!_.find(wearerDetails, ['id', hatId]);
+
+  const waitForClaim = useWaitForSubgraph({
+    fetchHelper: () => fetchWearerDetails(address, chainId),
+    checkResult: (result) => {
+      const hasClaimed = _.includes(
+        _.map(_.get(result, 'currentHats'), 'id'),
+        hatId,
+      );
+      return hasClaimed;
+    },
+  });
 
   const printDocumentAsPDF = () => {
     const newWindow = window.open('', '_blank');
@@ -120,7 +105,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
       return;
     }
     // trigger refetch if hasClaimed
-    await waitForClaim(address, chainId);
+    await waitForClaim();
 
     queryClient.invalidateQueries(['wearerDetails']);
     queryClient.invalidateQueries(['hatDetails']);

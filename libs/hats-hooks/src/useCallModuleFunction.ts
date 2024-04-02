@@ -3,10 +3,12 @@ import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
-import { SupportedChains } from 'types';
+import { SupportedChains, UseCustomToastReturn } from 'types';
 import { createHatsModulesClient, transformInput } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
+
+// TODO update to use `usePollSubgraph`
 
 const useCallModuleFunction = ({
   chainId,
@@ -14,7 +16,7 @@ const useCallModuleFunction = ({
   chainId: SupportedChains | undefined;
 }) => {
   const { address } = useAccount();
-  const toast = useToast();
+  const toast: UseCustomToastReturn = useToast();
 
   const callFunction = useCallback(
     async ({

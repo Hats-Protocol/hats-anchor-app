@@ -79,7 +79,6 @@ const TopMenu = () => {
   });
 
   const handleDeploy = async () => {
-    console.log(writeAsync);
     const result = await writeAsync?.();
     if (result) {
       setEditMode?.(false);
