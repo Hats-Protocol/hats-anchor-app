@@ -151,14 +151,16 @@ const Input = ({
               >
                 Null
               </Button>
-              <Button
-                size='xs'
-                variant='outline'
-                colorScheme='blue.500'
-                onClick={resetMe}
-              >
-                Me
-              </Button>
+              {address && (
+                <Button
+                  size='xs'
+                  variant='outline'
+                  colorScheme='blue.500'
+                  onClick={resetMe}
+                >
+                  Me
+                </Button>
+              )}
             </HStack>
           </Flex>
         )}

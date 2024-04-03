@@ -1,14 +1,30 @@
-import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Skeleton,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatWearers, useModuleDetails } from 'hats-hooks';
+import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import {
+  useHatWearers,
+  useModuleDetails,
+  useWearerEligibilityCheck,
+} from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { ReactNode, useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { formatAddress } from 'utils';
+import { Hex, isAddress } from 'viem';
+import { useAccount, useEnsAddress } from 'wagmi';
 
 import { ChakraNextLink } from '../../atoms';
+import { AddressInput } from '../../forms';
 import ControllerWearer from './ControllerWearer';
 import { ELIGIBILITY_STATUS } from './utils/general';
 import useEligibilityRuleDetails from './utils/useEligibilityRuleDetails';
@@ -19,12 +35,17 @@ const Eligibility = () => {
   const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
+  const localOverlay = useOverlay();
+  const localForm = useForm();
+  const [wearerDisplay, setWearerDisplay] = useState<ReactNode | undefined>();
 
   const { data: hatWearers, isLoading: hatWearersLoading } = useHatWearers({
     hat: selectedHat,
     chainId,
   });
 
+  const { setModals } = localOverlay;
+  const { handleSubmit, watch, setValue } = localForm;
   const { eligibility } = _.pick(selectedHat, ['eligibility']);
   const orgChartEligibility = _.find(orgChartWearers, { id: eligibility });
   const hatWearerEligibility = _.find(hatWearers, { id: eligibility });
@@ -42,7 +63,13 @@ const Eligibility = () => {
   });
   const multipleModules = false; // TODO enable with multiple modules (~2.8)
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
-  // console.log('eligibilityData', eligibilityData, moduleDetails, parameters);
+  const localWearer = watch('wearer');
+  const localWearerIsAddress = isAddress(localWearer);
+
+  const { data: resolvedAddress } = useEnsAddress({
+    name: watch('wearer'),
+    enabled: _.includes(localWearer, '.eth'),
+  });
 
   const { data: eligibilityRuleDetails, isLoading: loadingEligibilityRules } =
     useEligibilityRuleDetails({
@@ -51,6 +78,38 @@ const Eligibility = () => {
       parameters,
       chainId,
     });
+
+  const { data: wearerEligible } = useWearerEligibilityCheck({
+    wearer: resolvedAddress || localWearer,
+    selectedHat,
+    chainId,
+  });
+
+  const checkWearerEligibility = useCallback(
+    async (data: object) => {
+      const w = _.get(data, 'wearer');
+      let eligibleStatus = (
+        <Text color='red.500'>
+          {w || formatAddress(resolvedAddress)} is not eligible
+        </Text>
+      );
+      if (wearerEligible) {
+        eligibleStatus = (
+          <Text color='green.500'>
+            {w || formatAddress(resolvedAddress)} is eligible
+          </Text>
+        );
+      }
+      setWearerDisplay(eligibleStatus);
+    },
+    [resolvedAddress, wearerEligible],
+  );
+
+  const closeModal = () => {
+    setModals?.({});
+    setValue('wearer', '', { shouldDirty: false });
+    setWearerDisplay(undefined);
+  };
 
   if (multipleModules) {
     // * shouldn't be hitting this flow
@@ -94,6 +153,48 @@ const Eligibility = () => {
 
     return (
       <Skeleton isLoaded={!loadingModuleDetails && !loadingEligibilityRules}>
+        <Modal
+          name='checkEligibility'
+          title='Check Wearer Eligibility'
+          localOverlay={localOverlay}
+          onClose={closeModal}
+        >
+          <Stack spacing={4}>
+            <Text fontSize='sm'>
+              Check the eligibility of a wearer for this hat based on the
+              eligibility rule(s).
+            </Text>
+
+            <Stack
+              as='form'
+              onSubmit={handleSubmit(checkWearerEligibility)}
+              spacing={6}
+            >
+              <AddressInput
+                name='wearer'
+                label='Wearer'
+                localForm={localForm}
+                resolvedAddress={resolvedAddress || undefined}
+                showResolvedAddress
+                hideAddressButtons
+              />
+
+              <Flex justify='end'>
+                <HStack spacing={4}>
+                  {wearerDisplay && wearerDisplay}
+
+                  <Button
+                    type='submit'
+                    colorScheme='blue'
+                    isDisabled={!resolvedAddress && !localWearerIsAddress}
+                  >
+                    Check Eligibility
+                  </Button>
+                </HStack>
+              </Flex>
+            </Stack>
+          </Stack>
+        </Modal>
         <Flex justify='space-between' py={1}>
           {eligibilityRuleDetails?.rule}
 
@@ -120,6 +221,7 @@ const Eligibility = () => {
               fontWeight='medium'
               color='blue.500'
               variant='ghost'
+              onClick={() => setModals?.({ checkEligibility: true })}
             >
               Check Eligibility
             </Button>
