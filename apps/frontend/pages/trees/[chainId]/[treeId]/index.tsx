@@ -1,49 +1,36 @@
-import {
-  treeIdDecimalToHex,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
-import {
-  SelectedHatContextProvider,
-  TreeFormContextProvider,
-  useOverlay,
-} from 'contexts';
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
-import { GetStaticPropsContext } from 'next';
+import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { TreePage, TreePageMobile } from 'pages';
 import { useEffect } from 'react';
 import { SupportedChains } from 'types';
-import { Hex, hexToNumber } from 'viem';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
+const TreeDetails = ({ treeId, chainId, hatId, exists }: TreeDetailsProps) => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   const { address } = useAccount();
   const analytics = useRudderStackAnalytics();
   const { isMobile } = useMediaStyles();
   const router = useRouter();
-  const { hatId: hatIdParam } = router.query;
-  let hatId: string | undefined;
-  if (_.isArray(hatIdParam)) {
-    hatId = _.first(hatIdParam);
-  } else {
-    hatId = hatIdParam as string;
-  }
 
   useEffect(() => {
     if (!treeId || !chainId) return;
 
+    // attempt to redirect to mobile tree page
     if (hatId && isMobile) {
-      router.push(`/trees/${chainId}/${hexToNumber(treeId)}/${hatId}`);
+      router.push(`/trees/${chainId}/${treeId}/${hatId}`);
     }
 
     updateRecentlyVisitedTrees({
-      treeId: treeIdHexToDecimal(treeId),
+      treeId,
       chainId,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [treeId, chainId]);
+  }, [treeId, chainId, isMobile]);
 
   useEffect(() => {
     if (analytics && treeId && chainId) {
@@ -58,18 +45,12 @@ const TreeDetails = ({ treeId, chainId, exists }: TreeDetailsProps) => {
   }, [analytics, treeId, hatId, chainId, address]);
 
   return (
-    <TreeFormContextProvider treeId={treeId} chainId={chainId}>
-      <SelectedHatContextProvider
-        treeId={treeId}
-        chainId={chainId as SupportedChains}
-        hatId={hatId}
-      >
-        {isMobile ? (
-          <TreePageMobile exists={exists} />
-        ) : (
-          <TreePage exists={exists} />
-        )}
-      </SelectedHatContextProvider>
+    <TreeFormContextProvider treeId={treeId} chainId={chainId} hatId={hatId}>
+      {isMobile ? (
+        <TreePageMobile exists={exists} />
+      ) : (
+        <TreePage exists={exists} hatId={hatId} />
+      )}
     </TreeFormContextProvider>
   );
 };
@@ -79,41 +60,49 @@ const defaultProps = {
   chainId: null,
 };
 
-export const getStaticProps = async (context: GetStaticPropsContext) => {
-  const treeIdParam = _.get(context, 'params.treeId');
-  const chainIdParam = _.get(context, 'params.chainId');
-  const treeId = _.isArray(treeIdParam) ? _.first(treeIdParam) : treeIdParam;
+const getQueryParams = (query: Pick<GetServerSidePropsContext, 'query'>) => {
+  const {
+    treeId: treeIdParam,
+    chainId: chainIdParam,
+    hatId: hatIdParam,
+  } = _.pick(query, ['treeId', 'chainId', 'hatId']);
+  const localTreeId = _.isArray(treeIdParam)
+    ? _.first(treeIdParam)
+    : treeIdParam;
+  const treeId = localTreeId ? _.toNumber(localTreeId) : null;
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
-    : _.toNumber(chainIdParam);
+    : _.toNumber(chainIdParam) || null;
+  const hatId = hatIdParam
+    ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdParam))
+    : null;
 
-  if (!treeId || treeId === 'undefined' || !chainId) {
-    return { props: defaultProps };
-  }
-  const treeHex = treeIdDecimalToHex(_.toNumber(treeId));
+  return { treeId, chainId, hatId };
+};
+
+// REVERTED TO SERVER SIDE RENDERING HERE TO CATCH HAT ID PARAM
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  const { treeId, chainId, hatId } = getQueryParams(
+    _.get(context, 'query', {}),
+  );
 
   return {
     props: {
       ...defaultProps,
-      treeId: treeHex,
-      chainId: _.toNumber(chainId),
+      treeId,
+      hatId,
+      chainId,
     },
-    revalidate: 5,
-  };
-};
-
-export const getStaticPaths = async () => {
-  // lookup trees for chain
-  return {
-    paths: [],
-    fallback: 'blocking',
   };
 };
 
 export default TreeDetails;
 
 interface TreeDetailsProps {
-  treeId: Hex;
+  treeId: number;
   chainId: SupportedChains;
+  hatId: Hex;
   exists: boolean;
 }

@@ -9,10 +9,10 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { Authority } from 'types';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { BsBoxArrowUpRight, BsCheck2Square } from 'react-icons/bs';
+import { Authority } from 'types';
 import { getHostnameFromURL, ipfsUrl } from 'utils';
 
 const ResponsibilityHeader = ({
@@ -64,9 +64,10 @@ const ResponsibilityHeader = ({
       )}
       <Box flex={1} minW={0} w='full'>
         <Text
-          size='sm'
+          size={{ base: 'sm', md: 'md' }}
           // TODO ideally this is a heading when expanded
-          fontWeight={isExpanded ? 'bold' : 'normal'}
+          // eslint-disable-next-line no-nested-ternary
+          fontWeight={isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'}
           noOfLines={2}
           textAlign='left'
         >

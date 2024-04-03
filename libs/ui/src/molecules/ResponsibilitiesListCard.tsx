@@ -13,9 +13,10 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
+import _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
-import { Authority } from 'types';
+import { DetailsItem } from 'types';
 import { getHostnameFromURL } from 'utils';
 
 import { Markdown } from '../atoms';
@@ -24,9 +25,14 @@ import ResponsibilityHeader from './ResponsibilityHeader';
 const ResponsibilitiesListCard = ({
   responsibility,
 }: {
-  responsibility?: Authority;
+  responsibility?: DetailsItem;
 }) => {
-  const { label, description, link, imageUrl } = responsibility || {};
+  const { label, description, link, imageUri } = _.pick(responsibility, [
+    'label',
+    'description',
+    'link',
+    'imageUri',
+  ]);
   const { isMobile } = useMediaStyles();
   const hostname = getHostnameFromURL(link);
   const [expanded, setExpanded] = useState(false);
@@ -42,7 +48,7 @@ const ResponsibilitiesListCard = ({
   if (!link && !description)
     return (
       <Flex py={2} px={{ base: 4, md: 0 }}>
-        <ResponsibilityHeader label={label} link={link} imageUrl={imageUrl} />
+        <ResponsibilityHeader label={label} link={link} imageUrl={imageUri} />
       </Flex>
     );
 
@@ -88,7 +94,7 @@ const ResponsibilitiesListCard = ({
               <Box flex='1' textAlign='left'>
                 <ResponsibilityHeader
                   label={label}
-                  imageUrl={imageUrl}
+                  imageUrl={imageUri}
                   link={link}
                   isExpanded={isExpanded}
                 />

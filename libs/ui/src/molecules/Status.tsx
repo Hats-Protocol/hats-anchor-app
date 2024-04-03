@@ -21,7 +21,7 @@ import {
   useWearerEligibilityCheck,
 } from 'hats-hooks';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
-import { useContractData, usePendHatterMint, useToast } from 'hooks';
+import { usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -34,21 +34,13 @@ import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
-// TODO rename component: ControllerDetails
-
-const StatusCard = ({
-  status,
-  isAContract,
-  label,
-}: {
-  status: string;
-  isAContract: boolean;
-  label: string;
-}) => {
+/** DEPRECATED IN V3
+ * prefer `Controllers` that handles both eligibility and toggle
+ * */
+const StatusCard = ({ status, label }: { status: string; label: string }) => {
   const { address } = useAccount();
   const {
     chainId,
-    wearersAndControllers,
     storedData,
     setStoredData,
     onchainHats,
@@ -56,18 +48,16 @@ const StatusCard = ({
     treeToDisplay,
   } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+  const hatWearers: HatWearer[] = [];
 
   const { eligibility, toggle } = _.pick(selectedHat, [
     'eligibility',
     'toggle',
   ]);
   const controller = status === MODULE_TYPES.eligibility ? eligibility : toggle;
-  const extendedController: HatWearer | undefined = _.find(
-    wearersAndControllers,
-    {
-      id: controller,
-    },
-  );
+  const extendedController: HatWearer | undefined = _.find(hatWearers, {
+    id: controller,
+  });
 
   const moduleAddress = useMemo(
     () => _.get(selectedHat, _.toLower(status)),
@@ -107,11 +97,6 @@ const StatusCard = ({
   });
 
   const { data: isActive } = useHatStatus({ selectedHat, chainId });
-  const { data: contractData } = useContractData({
-    chainId,
-    address: extendedController?.id,
-    enabled: extendedController?.isContract,
-  });
 
   const { onCopy } = useClipboard(extendedController?.id || '');
   const toast = useToast();
@@ -120,7 +105,7 @@ const StatusCard = ({
   if (status === MODULE_TYPES.eligibility) {
     statusCheck = isEligible;
   } else if (status === MODULE_TYPES.toggle) {
-    if (isAContract) {
+    if (extendedController?.isContract) {
       statusCheck = isActive;
     } else {
       statusCheck = selectedHat?.status || false;
@@ -139,12 +124,12 @@ const StatusCard = ({
     icon = BsPersonBadge;
   }
 
-  const { controllerName, controllerLink } = getControllerNameAndLink({
-    extendedController,
-    moduleDetails,
-    contractData,
-    chainId: chainId as SupportedChains,
-  });
+  const { name: controllerName, link: controllerLink } =
+    getControllerNameAndLink({
+      extendedController,
+      moduleDetails,
+      chainId: chainId as SupportedChains,
+    });
 
   return (
     <Stack px={{ base: 4, md: 10 }}>

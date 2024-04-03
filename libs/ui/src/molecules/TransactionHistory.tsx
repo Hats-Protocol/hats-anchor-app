@@ -1,4 +1,14 @@
-import { Box, Flex, HStack, Icon, Spinner, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Spinner,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
@@ -70,11 +80,14 @@ const TransactionHistory = ({
   count,
   transactions,
   hideHash = false,
+  showClear = false,
 }: {
   count?: number;
   transactions: Transaction[];
   hideHash?: boolean;
+  showClear?: boolean;
 }) => {
+  const { clearAllTransactions } = useOverlay();
   let events = transactions;
 
   if (count) {
@@ -98,26 +111,42 @@ const TransactionHistory = ({
 
   return (
     <Box>
-      {_.map(
-        events,
-        ({
-          hash,
-          txChainId,
-          status,
-          timestamp,
-          txDescription,
-        }: Transaction) => (
-          <TransactionHistoryRow
-            hash={hash}
-            hideHash={hideHash}
-            txChainId={txChainId}
-            status={status}
-            timestamp={timestamp}
-            txDescription={txDescription}
-            key={hash}
-          />
-        ),
-      )}
+      <Stack spacing={1}>
+        {showClear && (
+          <Flex justify='flex-end'>
+            <Button
+              size='xs'
+              variant='outlineMatch'
+              colorScheme='blue.500'
+              onClick={clearAllTransactions}
+              isDisabled={_.isEmpty(transactions)}
+            >
+              Clear
+            </Button>
+          </Flex>
+        )}
+
+        {_.map(
+          events,
+          ({
+            hash,
+            txChainId,
+            status,
+            timestamp,
+            txDescription,
+          }: Transaction) => (
+            <TransactionHistoryRow
+              hash={hash}
+              hideHash={hideHash}
+              txChainId={txChainId}
+              status={status}
+              timestamp={timestamp}
+              txDescription={txDescription}
+              key={hash}
+            />
+          ),
+        )}
+      </Stack>
     </Box>
   );
 };

@@ -1,34 +1,8 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { ContractData, SupportedChains } from 'types';
+import { SupportedChains } from 'types';
+import { fetchContractData } from 'utils';
 import { Hex } from 'viem';
-
-const fetchContractData = async (
-  chainId: SupportedChains | undefined,
-  address: Hex | undefined,
-) => {
-  try {
-    const result = await fetch('/api/contract-name', {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, *cors, same-origin
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chainId,
-        address,
-      }),
-    });
-
-    const data = await result.json();
-    return data as ContractData;
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
-    return undefined;
-  }
-};
 
 const useContractData = ({
   chainId,

@@ -20,14 +20,13 @@ import {
   Stack,
   Text,
   useDisclosure,
-  UseDisclosureReturn,
 } from '@chakra-ui/react';
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useIsClient } from 'hooks';
-import { History } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import React, { useEffect } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
 import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
@@ -40,11 +39,9 @@ import { chainsMap, explorerUrl } from 'utils';
 import { ChakraNextLink } from '../atoms';
 import EventHistory from './EventHistory';
 
-const TreeMenu = ({
-  treeDisclosure,
-}: {
-  treeDisclosure: UseDisclosureReturn | undefined;
-}) => {
+const History = dynamic(() => import('icons').then((mod) => mod.History));
+
+const TreeMenu = () => {
   const { setModals } = useOverlay();
   const {
     chainId,
@@ -56,17 +53,11 @@ const TreeMenu = ({
     showInactiveHats,
     setShowInactiveHats,
     toggleEditMode,
-    // storedData,
-    // setStoredData,
+    onOpenTreeDrawer,
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
-  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
   const isClient = useIsClient();
-
-  // const updatedHats = !_.isEmpty(
-  //   _.filter(storedData, (h) => !_.isEmpty(_.reject(_.keys(h), ['id']))),
-  // );
 
   useEffect(() => {
     if (!isClient || !_.get(_.first(treeEvents), 'timestamp')) return;
@@ -175,7 +166,7 @@ const TreeMenu = ({
             bg='whiteAlpha.900'
             borderColor='gray.700'
             leftIcon={<Icon as={AiOutlineDoubleLeft} />}
-            onClick={onOpenTreeDrawer}
+            onClick={() => onOpenTreeDrawer?.()}
           >
             Draft Changes List
           </Button>
@@ -223,7 +214,12 @@ const TreeMenu = ({
                   </ChakraNextLink>
                 </Flex>
               </Skeleton>
-              <Skeleton isLoaded={isClient && !!localLastTimestamp}>
+              <Skeleton
+                isLoaded={isClient && !!localLastTimestamp}
+                minW='235px'
+                display='flex'
+                justifyContent='flex-end'
+              >
                 <Popover trigger='hover'>
                   <PopoverTrigger>
                     <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>

@@ -1,5 +1,7 @@
 import { createIcon } from '@chakra-ui/react';
 
+// is this old?
+
 const People: any = createIcon({
   displayName: 'People',
   viewBox: '0 0 32 32',

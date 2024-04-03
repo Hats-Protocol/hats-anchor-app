@@ -10,10 +10,9 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { decimalId } from 'hats-utils';
 import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
@@ -46,7 +45,7 @@ const HatLinkRequestApproveForm = ({
       name: '',
       details: '',
       topHatDomain,
-      newAdmin: decimalId(newAdmin),
+      newAdmin: hatIdHexToDecimal(newAdmin),
       eligibility: zeroAddress as Hex,
       toggle: zeroAddress as Hex,
       description: '',
@@ -126,7 +125,7 @@ const HatLinkRequestApproveForm = ({
     functionName: 'approveLinkTopHatToTree',
     args: [
       topHatDomain,
-      decimalId(newAdmin),
+      hatIdHexToDecimal(newAdmin),
       eligibilityAddress,
       toggleAddress,
       newDetails && customDetails ? detailsCID : details,

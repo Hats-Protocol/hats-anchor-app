@@ -141,6 +141,7 @@ const CommandPalette = () => {
     searchKey || '',
   );
 
+  // TODO should be filterable also
   const recentlyVisitedTreesItems = useMemo(
     () =>
       _.map(

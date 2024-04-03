@@ -1,6 +1,5 @@
 import { Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { ChangeEvent, useState } from 'react';
 import { idToIp } from 'shared';
@@ -57,7 +56,7 @@ const HatInput = ({ arg, localForm }) => {
           const detailsName = currentName || detailsObject?.data?.name;
 
           return (
-            <option value={decimalId(id)} key={id}>
+            <option value={id} key={id}>
               {`${detailsName ? `${detailsName} - ` : ''}${idToIp(id)}`}
             </option>
           );

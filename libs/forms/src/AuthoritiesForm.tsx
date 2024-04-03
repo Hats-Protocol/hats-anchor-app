@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
-import { usePinImageIpfs } from 'hooks';
+import { useHatGuildRoles, useHatSnapshotRoles, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -49,9 +49,19 @@ const AuthoritiesForm = ({
   subtitle,
   label,
 }: AuthoritiesFormProps) => {
-  const { chainId } = useTreeForm();
-  const { selectedHatGuildRoles, selectedHatSpaces, selectedHat } =
-    useSelectedHat();
+  const { chainId, guildData, snapshotData } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
+
+  const { data: guildRoles } = useHatGuildRoles({
+    hatId: selectedHat?.id,
+    guildData,
+    chainId,
+  });
+  const { data: snapshotRoles } = useHatSnapshotRoles({
+    spaces: snapshotData,
+    hatId: selectedHat?.id,
+    chainId,
+  });
 
   const { localForm: hatForm } = useHatForm();
   const { isOpen, onOpen, onClose } = useDisclosure({
@@ -118,17 +128,17 @@ const AuthoritiesForm = ({
       'link' in field ? field.link : '',
     );
     const newRoles = _.filter(
-      selectedHatGuildRoles,
+      guildRoles,
       (role: Authority) => !_.includes(existingLinks, role.link),
     );
     const newSpaces = _.filter(
-      selectedHatSpaces,
+      snapshotRoles,
       (space: Authority) => !_.includes(existingLinks, space.link),
     );
     if (_.isEmpty(newRoles) && _.isEmpty(newSpaces)) return;
 
     append(_.concat(newRoles, newSpaces));
-  }, [selectedHatGuildRoles, selectedHatSpaces, append, fields]);
+  }, [guildRoles, snapshotRoles, append, fields]);
 
   const {
     acceptedFiles,

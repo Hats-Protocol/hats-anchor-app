@@ -1,6 +1,8 @@
-import { Hex } from 'viem';
+import { Hex, zeroAddress } from 'viem';
 
 export const ZERO_ID: Hex =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 export const FALLBACK_ADDRESS: Hex =
   '0x0000000000000000000000000000000000004a75';
+
+export const NULL_ADDRESSES = [FALLBACK_ADDRESS, zeroAddress];

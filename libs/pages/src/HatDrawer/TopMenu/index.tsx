@@ -12,10 +12,10 @@ import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
 import { useAccount } from 'wagmi';
 
-import MainAction from '../MainAction';
 import MoreMenu from './MoreMenu';
 
 const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
+const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
 
 // const HatLinkRequestCreateForm = dynamic(
 //   () => import('../../../forms'),
@@ -24,10 +24,15 @@ const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
   const localOverlay = useOverlay();
-  const { chainId, editMode, onchainHats, storedData, treeToDisplay } =
-    useTreeForm();
-  const { selectedHat, setSelectedHatId, hatDisclosure } = useSelectedHat();
-
+  const {
+    chainId,
+    editMode,
+    onchainHats,
+    storedData,
+    treeToDisplay,
+    onCloseHatDrawer,
+  } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const {
     isLoading,
     handleRemoveHat,
@@ -37,7 +42,6 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   } = useHatForm();
   const { address } = useAccount();
   const { isMobile } = useMediaStyles();
-  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address,
@@ -52,6 +56,10 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     ),
     'id',
   );
+
+  const closeHatDrawer = () => {
+    onCloseHatDrawer?.();
+  };
 
   const handleReturnToList = () => {
     onSave(false);
@@ -99,10 +107,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
         </Tooltip>
       ) : (
         <Button
-          onClick={() => {
-            setSelectedHatId?.(undefined);
-            onCloseHatDrawer?.();
-          }}
+          onClick={closeHatDrawer}
           leftIcon={<BsXSquare />}
           variant='outline'
           aria-label='Close'

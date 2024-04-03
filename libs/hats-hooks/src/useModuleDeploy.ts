@@ -6,7 +6,6 @@ import {
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  decimalId,
   deployClaimsHatter,
   deployModule,
   deployModuleWithClaimsHatter,
@@ -79,7 +78,7 @@ const useModuleDeploy = ({
   const queryClient = useQueryClient();
   const { modules } = useHatsModules({ chainId });
   const { address } = useAccount();
-  const hatId = BigInt(decimalId(selectedHat?.id));
+  const hatId = selectedHat ? BigInt(selectedHat?.id) : BigInt(0);
   const adminHat = values?.adminHat as Hex | undefined;
   const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
@@ -275,6 +274,8 @@ const useModuleDeploy = ({
         }
 
         default:
+          // eslint-disable-next-line no-console
+          console.error('Invalid deployment type');
           break;
       }
       queryClient.invalidateQueries(['claimsHatter']);
@@ -300,7 +301,6 @@ const useModuleDeploy = ({
 
   const { isLoading, mutateAsync } = useMutation({
     mutationFn: async () => {
-      const adminHatId = BigInt(decimalId(adminHat));
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
           if (
@@ -322,6 +322,8 @@ const useModuleDeploy = ({
         }
 
         case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER:
+          if (!adminHat) return null;
+
           return deployModuleWithClaimsHatter({
             selectedModuleDetails,
             claimsHatterId: claimsHatterModule?.id,
@@ -330,17 +332,19 @@ const useModuleDeploy = ({
             values,
             chainId,
             hatId,
-            adminHatId,
+            adminHatId: BigInt(adminHat),
           });
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER:
+          if (!adminHat) return null;
+
           return deployClaimsHatter({
             claimsHatterModule,
             selectedHat,
             address,
             values,
             chainId,
-            adminHatId,
+            adminHatId: BigInt(adminHat),
           });
 
         default:

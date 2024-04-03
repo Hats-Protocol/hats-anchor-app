@@ -1,8 +1,10 @@
-import { As } from '@chakra-ui/react';
+import { As, CreateToastFnReturn } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 import { IconName } from 'react-cmdk';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
+
+export type ValueOf<T> = T[keyof T];
 
 export type ImageFile = {
   path: string;
@@ -73,4 +75,34 @@ export interface Group {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   }>;
+}
+
+export interface ToastBaseProps {
+  toast: CreateToastFnReturn;
+  title: string;
+  description?: string;
+  iconName?: string;
+  status: 'success' | 'error' | 'warning' | 'loading' | 'info';
+  id?: string;
+  duration?: number;
+  closeToast: () => void;
+  isClosable?: boolean;
+}
+
+export interface ToastProps {
+  title: string;
+  description?: string;
+  // icon: React.ReactNode;
+  status?: 'success' | 'error' | 'warning' | 'loading' | 'info';
+  closeToast?: () => void;
+  duration?: number;
+  isClosable?: boolean;
+}
+
+export interface UseCustomToastReturn {
+  success: (props: ToastProps) => void;
+  error: (props: ToastProps) => void;
+  warning: (props: ToastProps) => void;
+  loading: (props: ToastProps) => void;
+  info: (props: ToastProps) => void;
 }

@@ -1,10 +1,10 @@
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { AppHat } from 'types';
 import { viemPublicClient } from 'utils';
 import { Abi, Hex, Narrow } from 'viem';
 
@@ -40,7 +40,6 @@ const useImageURIs = ({
       imageUrl: '/icon.jpeg',
     }));
   }, [hats]);
-  // console.log(hats, onchainHats);
 
   const onlyOnchainHats = useMemo(() => {
     if (onchainHats) {

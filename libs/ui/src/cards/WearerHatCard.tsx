@@ -65,7 +65,9 @@ const WearerHatCard = ({
           bg='white'
         >
           <Flex justify='space-between' gap={2}>
-            <Heading size='xs'>{topHatName}</Heading>
+            <Heading size='xs' noOfLines={1}>
+              {topHatName}
+            </Heading>
             <Text size='xs' variant='gray'>
               {hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}
             </Text>

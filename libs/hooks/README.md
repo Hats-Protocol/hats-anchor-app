@@ -14,3 +14,8 @@ App Hooks is a set of React hooks for managing specific interactions and UX in t
 - `useSearchResults` - processes a search query and prepares the results for displaying in the [Command Palette](../../apps/frontend/components/CommandPalette.tsx)
 - `useSnapshotSpaces` - fetch [Snapshot](https://snapshot.org) spaces for a tree
 - `useToast` - wrapper around Chakra's default `useToast` hook. Leverages the custom [Toast](./src/components/Toast.tsx) component also.
+
+## Special extras
+
+- [`Toast`](./src/components/Toast.tsx) - a custom toast component that can be used with the `useToast` hook
+- `sha256.js` - a utility function to hash a string with SHA-256 (for cache keys of object data)

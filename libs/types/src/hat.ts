@@ -1,5 +1,5 @@
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
-import { Hex } from 'viem';
+import { Chain, Hex } from 'viem';
 
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
@@ -57,6 +57,16 @@ export interface AppHat extends Hat {
   displayName?: string;
   extendedEligibility?: HatWearer;
   extendedToggle?: HatWearer;
+  // object assembled to be used in the org chart wearers section
+  orgChartWearers?: {
+    color: string;
+    accent: string;
+    icon: string;
+    content: string;
+    contentWidth: string;
+    accentWidth: string;
+  };
+  network?: Chain;
 }
 
 export interface HatWithDepth extends AppHat {
@@ -119,6 +129,8 @@ export interface HatAuthority {
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];
+  agreementOwner: { id: Hex; hatId: Hex }[];
+  agreementArbitrator: { id: Hex; hatId: Hex }[];
   hatsAccount1ofN: HatsAccount1ofN[];
 }
 

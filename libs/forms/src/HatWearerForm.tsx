@@ -17,13 +17,14 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
+import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
   useWearerEligibilityCheck,
   useWearerIsInGoodStanding,
 } from 'hats-hooks';
-import { decimalId, isMutable, maxSupplyText } from 'hats-utils';
+import { isMutable, maxSupplyText } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { BoxArrowUpRightIn } from 'icons';
 import _ from 'lodash';
@@ -49,8 +50,9 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
-  const { chainId, onchainHats, storedData, editMode } = useTreeForm();
-  const { selectedHat, selectedOnchainHat, hatDisclosure } = useSelectedHat();
+  const { chainId, onchainHats, storedData, editMode, onCloseHatDrawer } =
+    useTreeForm();
+  const { selectedHat, selectedOnchainHat } = useSelectedHat();
 
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
@@ -133,11 +135,11 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
   const batchMintArgs = [
-    new Array(localWearers.length).fill(decimalId(hatId)),
+    new Array(localWearers.length).fill(hatIdHexToDecimal(hatId)),
     _.map(localWearers, 'address'),
   ];
   if (isAddress(currentResolvedAddress)) {
-    batchMintArgs[0].push(decimalId(hatId));
+    batchMintArgs[0].push(hatIdHexToDecimal(hatId));
     batchMintArgs[1].push(currentResolvedAddress);
   }
 
@@ -169,14 +171,14 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     handlePendingTx,
     waitForSubgraph,
     handleSuccess: () => {
-      hatDisclosure?.onClose();
+      onCloseHatDrawer?.();
     },
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:
-      Boolean(decimalId(hatId)) &&
+      Boolean(hatIdHexToDecimal(hatId)) &&
       _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
       _.toNumber(selectedOnchainHat?.maxSupply) >
@@ -191,7 +193,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [decimalId(hatId), currentResolvedAddress],
+      args: [hatIdHexToDecimal(hatId), currentResolvedAddress],
       chainId,
       txDescription: txDescriptionSingle,
       onSuccessToastData: {
@@ -200,14 +202,14 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       },
       handlePendingTx,
       handleSuccess: () => {
-        hatDisclosure?.onClose();
+        onCloseHatDrawer?.();
       },
       queryKeys: [
         ['hatDetails', { id: hatId, chainId }],
         ['treeDetails', toTreeId(hatId)],
       ],
       enabled:
-        Boolean(decimalId(hatId)) &&
+        Boolean(hatIdHexToDecimal(hatId)) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
         Boolean(currentResolvedAddress) &&
         _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
@@ -353,7 +355,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
               options={{
-                min: Number(selectedHat.currentSupply),
+                min: 0, // _.toNumber(selectedHat.currentSupply),
                 validate: {
                   maxWearers: (v) =>
                     !_.gt(

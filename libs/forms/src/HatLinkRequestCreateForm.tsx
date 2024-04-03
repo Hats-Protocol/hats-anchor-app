@@ -1,9 +1,8 @@
 import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useDebounce } from 'hooks';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { decimalId } from 'hats-utils';
+import { useDebounce } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Select } from 'ui';
@@ -22,19 +21,18 @@ const HatLinkRequestCreateForm = ({
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
-      newAdmin: decimalId(newAdmin),
+      newAdmin: hatIdHexToDecimal(newAdmin),
       topHatDomain: _.first(wearerTopHats),
     },
   });
   const { handleSubmit, watch } = localForm;
 
-  const topHatDomain = useDebounce<Hex | undefined>(
-    watch('topHatDomain', _.first(wearerTopHats)),
-  );
+  // _.first(wearerTopHats) is the default value for topHatDomain
+  const topHatDomain = useDebounce<Hex | undefined>(watch('topHatDomain'));
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'requestLinkTopHatToTree',
-    args: [topHatDomain, decimalId(newAdmin)],
+    args: [topHatDomain, hatIdHexToDecimal(newAdmin)],
     chainId,
     onSuccessToastData: {
       title: 'Successfully Requested to Link!',

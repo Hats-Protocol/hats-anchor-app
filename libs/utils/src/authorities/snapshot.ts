@@ -3,14 +3,21 @@ import {
   AUTHORITY_TYPES,
   SNAPSHOT_API_URLS,
 } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useQuery } from '@tanstack/react-query';
+import {
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+  hatIdToTreeId,
+} from '@hatsprotocol/sdk-v1-core';
 import { gql, GraphQLClient } from 'graphql-request';
-import { decimalId } from 'hats-utils';
 import _ from 'lodash';
-import { SnapshotSpace, SnapshotStrategy, SupportedChains } from 'types';
+import {
+  Authority,
+  SnapshotSpace,
+  SnapshotStrategy,
+  SupportedChains,
+} from 'types';
 
-const SNAPSHOT_QUERY = gql`
+export const SNAPSHOT_QUERY = gql`
   query GetSpaces($ids: [String!]!) {
     spaces(where: { id_in: $ids }) {
       id
@@ -28,17 +35,17 @@ const SNAPSHOT_QUERY = gql`
   }
 `;
 
-const snapshotClient = async (chainId: SupportedChains | undefined) => {
+export const snapshotClient = async (chainId: SupportedChains | undefined) => {
   if (!chainId) return undefined;
   const client = new GraphQLClient(SNAPSHOT_API_URLS[chainId]);
   return client;
 };
 
-const fetchSnapshotSpaces = async (
+export const fetchSnapshotSpaces = async (
   chainId: SupportedChains | undefined,
   spaces?: string[],
 ) => {
-  if (!spaces || spaces.length === 0 || !chainId) {
+  if (_.isEmpty(spaces) || !chainId) {
     return [];
   }
   const client = await snapshotClient(chainId);
@@ -65,14 +72,14 @@ const processStrategy = ({
   if (type === 'array') {
     if (_.toNumber(_.get(strategy, 'network')) !== chainId) return false;
     if (_.includes(paramValue, hatId)) return true;
-    if (_.includes(paramValue, decimalId(hatId))) return true;
+    if (_.includes(paramValue, hatIdHexToDecimal(hatId))) return true;
     if (_.includes(paramValue, hatIdDecimalToIp(BigInt(hatId)))) return true;
     return false;
   }
 
   if (_.toNumber(_.get(strategy, 'network')) !== chainId) return false;
   if (_.eq(paramValue, hatId)) return true;
-  if (_.eq(paramValue, decimalId(hatId))) return true;
+  if (_.eq(paramValue, hatIdHexToDecimal(hatId))) return true;
   if (_.eq(paramValue, hatIdDecimalToIp(BigInt(hatId)))) return true;
   return false;
 };
@@ -97,7 +104,7 @@ const processStrategyForTree = ({
   return false;
 };
 
-const filterStrategies = (
+export const filterStrategies = (
   strategies: SnapshotStrategy[],
   hatId: string | undefined,
   chainId: number | undefined,
@@ -162,50 +169,35 @@ const filterStrategies = (
   );
 };
 
-const useSnapshotSpaces = ({
+export const processSnapshotSpacesForHat = ({
   spaces,
   hatId,
   chainId,
-  editMode = false,
 }: {
-  spaces?: string[];
-  hatId?: string;
-  chainId?: SupportedChains;
-  editMode?: boolean;
-}) => {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['spaces', spaces, chainId],
-    queryFn: () => fetchSnapshotSpaces(chainId, spaces),
-    enabled: spaces && spaces.length > 0,
-    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
-  });
+  spaces: SnapshotSpace[] | undefined;
+  hatId: string | undefined;
+  chainId: SupportedChains | undefined;
+}): Authority[] | undefined => {
+  if (!spaces || !hatId || !chainId) return [];
 
-  const selectedHatSpaces = data
-    ? _.compact(
-        _.map(data, (space: SnapshotSpace) => {
-          const filteredStrategies = filterStrategies(
-            space.strategies,
-            hatId,
-            chainId,
-          );
+  return _.flatMap(spaces, (space: SnapshotSpace) => {
+    const filteredStrategies = _.filter(
+      space.strategies,
+      (strategy: SnapshotStrategy) => {
+        return strategy.params?.id === hatId;
+      },
+    );
 
-          return !_.isEmpty(filteredStrategies)
-            ? {
-                label: space.name,
-                link: `https://snapshot.org/#/${space.id}`,
-                gate: `https://snapshot.org`,
-                description: space.about,
-                imageUrl: AUTHORITY_PLATFORMS.snapshot.icon,
-                type: AUTHORITY_TYPES.gate,
-                id: 'snapshot',
-                strategies: filteredStrategies,
-              }
-            : null;
-        }),
-      )
-    : [];
-
-  return { selectedHatSpaces, error, loading: isLoading };
+    if (!_.isEmpty(filteredStrategies)) return null;
+    return {
+      label: space.name,
+      link: `https://snapshot.org/#/${space.id}`,
+      gate: `https://snapshot.org`,
+      description: space.about,
+      imageUrl: AUTHORITY_PLATFORMS.snapshot.icon,
+      type: AUTHORITY_TYPES.gate,
+      id: 'snapshot', // TODO is this ID being used? for key? should be unique
+      strategies: filteredStrategies,
+    } as Authority;
+  }) as Authority[];
 };
-
-export default useSnapshotSpaces;

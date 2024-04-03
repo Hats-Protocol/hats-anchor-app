@@ -148,12 +148,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
 
   const isClaimable = useMemo(
     () => ({
-      by:
-        !_.isEmpty(selectedHat?.claimableBy) &&
-        _.isEmpty(selectedHat?.claimableForBy),
-      for:
-        _.isEmpty(selectedHat?.claimableBy) &&
-        !_.isEmpty(selectedHat?.claimableForBy),
+      by: !_.isEmpty(selectedHat?.claimableBy),
+      for: !_.isEmpty(selectedHat?.claimableForBy),
     }),
     [selectedHat],
   );

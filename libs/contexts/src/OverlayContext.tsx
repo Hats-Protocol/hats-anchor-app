@@ -1,7 +1,6 @@
-import { AppModals, OverlayContextProps, Transaction } from 'types';
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import router from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -11,9 +10,9 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { AppModals, OverlayContextProps, Transaction } from 'types';
 import { checkTransactionStatus } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { useChainId } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
 
 const defaultModals: AppModals = {
@@ -37,12 +36,10 @@ const defaultDrawers: AppModals = {
 const MAX_TREES = 3;
 
 export const OverlayContext = createContext<OverlayContextProps>({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setModals: undefined,
   closeModals: undefined,
   drawers: undefined,
   setDrawers: undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handlePendingTx: undefined,
   commandPalette: false,
   setCommandPalette: () => {},
@@ -57,13 +54,13 @@ export const OverlayContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  // HOOKS
+  const toast = useToast();
+
+  // LOCAL STATE
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
   const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
-  const toast = useToast();
-  const router = useRouter();
-  const chainId = useChainId();
-
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
     [],
@@ -73,10 +70,16 @@ export const OverlayContextProvider = ({
   >('recently-visited-trees', undefined);
 
   const updateRecentlyVisitedTrees = useCallback(
-    ({ treeId, chainId: cId }: { treeId: number; chainId: number }) => {
-      if (!treeId || !cId) return;
+    ({
+      treeId: localTreeId,
+      chainId: cId,
+    }: {
+      treeId: number;
+      chainId: number;
+    }) => {
+      if (!localTreeId || !cId) return;
       const localRecentTrees = _.compact(
-        _.concat([{ treeId, chainId: cId }], recentlyVisitedTrees),
+        _.concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees),
       );
 
       const uniqueTrees = _.uniqWith(
@@ -169,13 +172,15 @@ export const OverlayContextProvider = ({
     sendToast?: boolean;
     onSuccess?: (data?: TransactionReceipt) => void;
   }): Promise<TransactionReceipt | undefined> => {
-    addTransaction({
-      hash,
-      txChainId,
-      timestamp: Date.now(),
-      status: 'pending',
-      txDescription,
-    });
+    if (hash && hash !== '0x') {
+      addTransaction({
+        hash,
+        txChainId,
+        timestamp: Date.now(),
+        status: 'pending',
+        txDescription,
+      });
+    }
 
     const data = await waitForTransaction({ hash });
 
@@ -207,6 +212,14 @@ export const OverlayContextProvider = ({
     return Promise.resolve(data);
   };
 
+  // useEffect(() => {
+  //   if (initialLoad && hatId && !isHatDrawerOpen) {
+  //     onOpenHatDrawer?.(hatId);
+  //     console.log('drawer should open');
+  //     setInitialLoad(false);
+  //   }
+  // }, [hatId, onOpenHatDrawer, isHatDrawerOpen, initialLoad]);
+
   useEffect(() => {
     const interval = setInterval(async () => {
       if (transactions.length === 0) {
@@ -226,8 +239,7 @@ export const OverlayContextProvider = ({
     }, 10000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, transactions, setTransactions]);
+  }, [transactions, setTransactions]);
 
   const returnValue = useMemo(
     () => ({
@@ -245,7 +257,20 @@ export const OverlayContextProvider = ({
       updateRecentlyVisitedTrees,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [modals, commandPalette, toast],
+    [
+      modals,
+      // showModal,
+      drawers,
+      setDrawers,
+      // closeModals,
+      commandPalette,
+      setCommandPalette,
+      // handlePendingTx,
+      transactions,
+      clearAllTransactions,
+      recentlyVisitedTrees,
+      updateRecentlyVisitedTrees,
+    ],
   );
 
   return (

@@ -58,22 +58,21 @@ export const HatFormContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const { chainId, storedData, setStoredData, treeDisclosure, removeHat } =
-    useTreeForm();
-
+  const {
+    chainId,
+    storedData,
+    setStoredData,
+    removeHat,
+    onOpenTreeDrawer,
+    onCloseHatDrawer,
+  } = useTreeForm();
   const {
     selectedHat,
     selectedOnchainHat,
     selectedOnchainHatDetails,
     isDraft,
-    hatDisclosure,
   } = useSelectedHat();
-
   const toast = useToast();
-
-  const { onOpen: onOpenTreeDrawer } = _.pick(treeDisclosure, ['onOpen']);
-  const { onClose: onCloseHatDrawer } = _.pick(hatDisclosure, ['onClose']);
-
   const localForm = useForm({
     mode: 'onChange',
   });

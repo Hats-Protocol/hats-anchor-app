@@ -1,23 +1,39 @@
 import { Box, Button, Flex, HStack } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
 import {
   FaRegArrowAltCircleDown,
   FaRegArrowAltCircleLeft,
   FaRegArrowAltCircleRight,
   FaRegArrowAltCircleUp,
 } from 'react-icons/fa';
+import { getQueryRoute } from 'utils';
 
 import MobileBottomMenu from './mobile';
 
 const BottomMenu = ({ show }: { show?: boolean }) => {
-  const { setSelectedHatId, hierarchy } = useSelectedHat();
+  const { treeId } = useTreeForm();
+  const { hierarchy } = useSelectedHat();
   const { isMobile } = useMediaStyles();
+  const router = useRouter();
 
   if (isMobile) {
     return <MobileBottomMenu show={show} />;
   }
+
+  const selectHat = (name: string) => {
+    const newHatId = _.get(hierarchy, name);
+    const updatedUrl = getQueryRoute({
+      query: router.query,
+      pathname: router.pathname,
+      hat: newHatId,
+      treeId,
+    });
+    router.push(updatedUrl, undefined, { shallow: true });
+  };
 
   return (
     <Box
@@ -36,7 +52,7 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
         {hierarchy?.leftSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId?.(hierarchy?.leftSibling)}
+            onClick={() => selectHat('leftSibling')}
             gap={1}
           >
             <FaRegArrowAltCircleLeft />
@@ -50,7 +66,7 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
           {hierarchy?.parentId ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId?.(hierarchy?.parentId)}
+              onClick={() => selectHat('parentId')}
               gap={1}
             >
               <FaRegArrowAltCircleUp />
@@ -63,7 +79,7 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
           {hierarchy?.firstChild ? (
             <Button
               variant='outline'
-              onClick={() => setSelectedHatId?.(hierarchy?.firstChild)}
+              onClick={() => selectHat('firstChild')}
               gap={1}
             >
               {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
@@ -77,7 +93,7 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
         {hierarchy?.rightSibling ? (
           <Button
             variant='outline'
-            onClick={() => setSelectedHatId?.(hierarchy?.rightSibling)}
+            onClick={() => selectHat('rightSibling')}
             gap={1}
           >
             {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}

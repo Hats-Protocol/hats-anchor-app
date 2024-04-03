@@ -3,12 +3,14 @@ import useToast from './useToast';
 const useWaitForSubgraph = ({
   fetchHelper,
   checkResult,
+  sendToast = false,
   interval = 1000,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fetchHelper: () => Promise<any> | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   checkResult: (value: any) => boolean;
+  sendToast?: boolean;
   interval?: number;
 }) => {
   const toast = useToast();
@@ -36,9 +38,11 @@ const useWaitForSubgraph = ({
         }
       };
 
-      toast.info({
-        title: 'Waiting for subgraph...',
-      });
+      if (sendToast) {
+        toast.info({
+          title: 'Waiting for subgraph...',
+        });
+      }
 
       const intervalId = setInterval(checkResultHandler, interval);
       checkResultHandler();

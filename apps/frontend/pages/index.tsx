@@ -56,7 +56,6 @@ const Home = () => {
     useFeaturedTrees();
   const { data: hatsAndWearers, isLoading: featuredTreesDataLoading } =
     useFeaturedTreesData(featuredTrees);
-  // console.log(featuredTrees, hatsAndWearers);
 
   const { isMobile } = useMediaStyles();
   const [upTo1700] = useMediaQuery('(max-width: 1700px)');
@@ -218,7 +217,8 @@ const Home = () => {
                     <Skeleton
                       isLoaded={!!tree && !featuredTreesDataLoading}
                       key={i}
-                      maxW={{ md: '30%' }}
+                      maxW={{ base: '100%', md: '30%' }}
+                      borderRadius='md'
                     >
                       <FeaturedTreeCard
                         treeData={tree}

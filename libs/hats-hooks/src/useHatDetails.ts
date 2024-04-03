@@ -17,8 +17,12 @@ const useHatDetails = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', { id: hatId, chainId }],
     queryFn: () => fetchHatDetails(hatId, chainId),
-    // ? why is hatId getting set to undefined string?
-    enabled: !!hatId && hatId !== ZERO_ID && hatId !== 'undefined' && !!chainId,
+    enabled:
+      !!hatId &&
+      hatId !== ZERO_ID &&
+      hatId !== 'undefined' && // ? why is hatId getting set to undefined string?
+      hatId !== '0x' &&
+      !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     initialData,
   });

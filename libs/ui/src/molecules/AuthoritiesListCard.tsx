@@ -11,6 +11,7 @@ import {
   Icon,
   IconButton,
   Image,
+  Skeleton,
   Stack,
   Text,
   Tooltip,
@@ -21,8 +22,8 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
-import { BoxArrowUpRightOut, CheckCircle } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
@@ -32,6 +33,13 @@ import { getHostnameFromURL, validateURL } from 'utils';
 import { ChakraNextLink, Markdown } from '../atoms';
 import AuthorityHeader from './AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
+
+const BoxArrowUpRightOut = dynamic(() =>
+  import('icons').then((mod) => mod.BoxArrowUpRightOut),
+);
+const CheckCircle = dynamic(() =>
+  import('icons').then((mod) => mod.CheckCircle),
+);
 
 const AuthoritiesListCard = ({
   authority,
@@ -76,7 +84,7 @@ const AuthoritiesListCard = ({
 
   // set tooltip info
   // TODO refactor to util/hook
-  let tooltipInfo = authorityEnforcement.info;
+  let tooltipInfo = authorityEnforcement?.info;
   if (strategies) {
     tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
       strategies,
@@ -96,12 +104,18 @@ const AuthoritiesListCard = ({
     };
   }, []);
 
-  if (!gate && !description)
+  if (!gate && !description) {
     return (
-      <Flex py={2} px={{ base: 4, md: 0 }}>
-        <AuthorityHeader authority={authority} />
-      </Flex>
+      <Skeleton
+        isLoaded={authority?.label !== 'Loading...'}
+        h={authority?.label === 'Loading...' ? '25px' : 'auto'}
+      >
+        <Flex py={2} px={{ base: 4, md: 0 }}>
+          <AuthorityHeader authority={authority} />
+        </Flex>
+      </Skeleton>
     );
+  }
 
   return (
     <Accordion allowToggle>
@@ -113,7 +127,7 @@ const AuthoritiesListCard = ({
         borderRadius={{ md: 'md' }}
       >
         {({ isExpanded }) => {
-          if (isMounted) setExpanded(isExpanded);
+          if (isMounted.current) setExpanded(isExpanded);
 
           return (
             <>
@@ -180,7 +194,7 @@ const AuthoritiesListCard = ({
                       index={index}
                     />
                   ) : (
-                    <HStack>
+                    <HStack mb={!description ? 4 : 0}>
                       {link && validateURL(link) && (
                         <ChakraNextLink isExternal href={link} display='block'>
                           {linkName || linkHostName ? (

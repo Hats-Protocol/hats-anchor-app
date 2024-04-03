@@ -7,10 +7,11 @@ export const jokeRaceUrl = ({
   chainId,
   address,
 }: {
-  chainId: number;
+  chainId: number | undefined;
   address: string;
 }) => {
+  if (!chainId || !address) return '';
   const chain = chainsMap(chainId);
-  if (!chain || !address) return '';
+  if (!chain) return '';
   return `https://jokerace.xyz/contest/${_.toLower(chain.name)}/${address}`;
 };

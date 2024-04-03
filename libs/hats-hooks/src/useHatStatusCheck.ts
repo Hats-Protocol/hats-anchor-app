@@ -1,11 +1,11 @@
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
+import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import { AppHat, HandlePendingTx } from 'types';
-import { decimalId } from 'hats-utils';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { idToIp, toTreeId } from 'shared';
+import { AppHat, HandlePendingTx } from 'types';
 import { checkAddressIsContract } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
@@ -25,6 +25,8 @@ const useHatStatusCheck = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [toggleIsContract, setToggleIsContract] = useState(false);
   const [testingToggle, setTestingToggle] = useState(false);
+  const hatDecimalId =
+    _.get(hatData, 'id') && hatIdHexToDecimal(_.get(hatData, 'id') as string);
 
   useEffect(() => {
     const testToggle = async () => {
@@ -44,11 +46,9 @@ const useHatStatusCheck = ({
     chainId,
     abi: CONFIG.hatsAbi,
     functionName: 'checkHatStatus',
-    args: [decimalId(_.get(hatData, 'id'))],
+    args: [hatDecimalId],
     enabled:
-      Boolean(decimalId(_.get(hatData, 'id'))) &&
-      toggleIsContract &&
-      currentNetworkId === chainId,
+      Boolean(hatDecimalId) && toggleIsContract && currentNetworkId === chainId,
   });
 
   const {

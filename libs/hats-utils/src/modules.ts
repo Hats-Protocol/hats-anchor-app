@@ -11,10 +11,13 @@ import {
   solidityToTypescriptType,
   WriteFunction,
 } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdIpToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
-import { ipToHatId } from 'shared';
 import {
   AppHat,
   FormData,
@@ -24,6 +27,7 @@ import {
   ModuleCreationArg,
   ModuleDetails,
   SupportedChains,
+  UseCustomToastReturn,
 } from 'types';
 import {
   createHatsModulesClient,
@@ -35,7 +39,7 @@ import {
 import { Hex, parseUnits } from 'viem';
 
 import { safeUrl } from './authorities';
-import { decimalId, formHatUrl } from './hats';
+import { formHatUrl } from './hats';
 
 type FormValues = { [key: string]: unknown };
 
@@ -312,21 +316,14 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
 
-  console.log(values, selectedModuleDetails, hatId, claimabilityType);
   const { immutableArgs, mutableArgs } = prepareArgs(
     values,
     selectedModuleDetails,
   );
-  // console.log(immutableArgs, mutableArgs);
 
   const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
   const allArgsFilled =
     areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
-  // console.log(
-  //   areArgsFilled(immutableArgs),
-  //   areArgsFilled(mutableArgs),
-  //   allArgsFilled,
-  // );
 
   if (selectedModuleDetails && isLocalFormValid && allArgsFilled) {
     const result = checkAndEncodeArgs({
@@ -392,7 +389,7 @@ export const processValues = ({
 
     if (arg.displayType === 'hat' && newValues[`${arg.name}_custom`]) {
       const value = newValues[`${arg.name}_custom`] as string;
-      newValues[arg.name] = decimalId(ipToHatId(value.replace(/\.$/, '')));
+      newValues[arg.name] = hatIdIpToDecimal(value.replace(/\.$/, ''));
       delete newValues[`${arg.name}_custom`];
     }
   });
@@ -464,7 +461,7 @@ export const populateHatsAccountsAuthorities = ({
   hatId: Hex;
   predictedAddress?: Hex | null;
   deployFn: () => void;
-  toast: any; // ToastProps; // TODO is circular?
+  toast: UseCustomToastReturn;
 }) => {
   const undeployedWalletAuth = {
     label: `Control 1/N HatsAccount (${formatAddress(predictedAddress)})`,
@@ -481,7 +478,7 @@ export const populateHatsAccountsAuthorities = ({
       {
         isCustom: true,
         label: 'Deploy',
-        description: 'Deploy the HatsWallet authority',
+        description: 'Deploy the HatsAccount authority',
         onClick: deployFn,
         primary: true,
       },
@@ -497,18 +494,18 @@ export const populateHatsAccountsAuthorities = ({
   return details.map((wallet) => ({
     label: `Control over 1/N HatsAccount (${formatAddress(wallet.id)})`,
     link: wallet.accountOfHat?.id,
-    description: `Wearers of this hat are able to take actions via the shared HatsWallet account at ${formatAddress(
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount account at ${formatAddress(
       wallet.id,
     )}. 
     Any of the wearers of this hat can take full control of the assets associated with the shared account.  
-    For more information about HatsWallet, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
+    For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
     id: wallet.id,
     // functions: wallet.operations,
     functions: [
       {
         label: 'Copy Address',
-        description: 'Copy the address of the HatsWallet',
+        description: 'Copy the address of the HatsAccount',
         isCustom: true,
         onClick: () => {
           navigator.clipboard.writeText(wallet.id);
@@ -535,10 +532,10 @@ export const populateHatsGatesAuthorities = ({
   details?: HatSignerGate[] | null;
   gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
   role: 'hsgOwner' | 'hsgSigner';
-  chainId: SupportedChains;
+  chainId: SupportedChains | undefined;
   hatId?: Hex;
 }) => {
-  if (!details || !gates) return [];
+  if (!details || !gates || !chainId) return [];
 
   return details.map((gate) =>
     createHSG({ gate, role, gates, chainId, hatId }),

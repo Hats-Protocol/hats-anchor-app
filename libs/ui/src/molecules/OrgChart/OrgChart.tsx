@@ -11,21 +11,16 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
-import {
-  calculateNextChildId,
-  isTopHatOrMutable,
-  maxSupplyText,
-} from 'hats-utils';
-import { useToast } from 'hooks';
+import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
+import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { ipToHatId } from 'shared';
-import { HatWearer } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -61,9 +56,11 @@ const OrgChartComponent: React.FC = () => {
     storedData,
     setStoredData,
     addHat,
-    wearersAndControllers,
+    orgChartWearers,
+    onOpenHatDrawer,
+    onCloseTreeDrawer,
   } = useTreeForm();
-  const { selectedHat, handleSelectHat } = useSelectedHat();
+  const { selectedHatId } = useHatParams();
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -148,7 +145,8 @@ const OrgChartComponent: React.FC = () => {
                 // always node not found or parent node
               } else {
                 // don't center here
-                handleSelectHat?.(data.data?.id);
+                onOpenHatDrawer?.(data.data.id);
+                onCloseTreeDrawer?.();
               }
             });
           })
@@ -232,9 +230,9 @@ const OrgChartComponent: React.FC = () => {
               details,
               detailsObject,
               isLinked,
-              wearers,
               maxSupply,
               currentSupply,
+              orgChartWearers: hatChartWearers,
               eligibility,
               toggle,
               levelAtLocalTree,
@@ -247,56 +245,13 @@ const OrgChartComponent: React.FC = () => {
             ])?.displayName;
             const detailsName =
               currentName || detailsObject?.data?.name || details;
-            const isSelected = selectedHat?.id === d.id;
-            const extendedEligibility = _.find(wearersAndControllers, {
+            const isSelected = selectedHatId === d.id;
+            const extendedEligibility = _.find(orgChartWearers, {
               id: eligibility,
             });
-            const extendedToggle = _.find(wearersAndControllers, {
+            const extendedToggle = _.find(orgChartWearers, {
               id: toggle,
             });
-
-            // setup wearers section
-            let wearersColor = '#FFFFFF';
-            const wearer: HatWearer | undefined = _.first(wearers);
-            let wearerContent = 'No Wearers';
-            let wearerAccent: string = `0 of ${maxSupplyText(maxSupply)}`;
-            let wearerIcon: string = `<img src="/icons/wearer.svg" alt="wearer" />`;
-
-            if (_.toNumber(currentSupply) > 1) {
-              wearersColor = '#FFFFF0';
-              wearerContent = `${currentSupply} Wallets`;
-              wearerAccent = `out of ${maxSupplyText(maxSupply)}`;
-            }
-            if (_.size(wearers) === 1) {
-              const extendedWearer = _.find(wearersAndControllers, {
-                id: wearer?.id,
-              });
-              wearerContent =
-                !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
-                  ? extendedWearer?.ensName
-                  : formatAddress(_.get(wearer, 'id'));
-              wearerAccent = `1 of ${maxSupplyText(maxSupply)}`;
-              if (wearer?.isContract) {
-                wearersColor = '#F0FFF4';
-                wearerIcon = `<img src="/icons/contract.svg" alt="wearer contract">`;
-              } else {
-                wearersColor = '#FFFAF0';
-              }
-            }
-
-            // handle wearers overflow with max supply accent
-            let wearerContentWidth = '135px';
-            let wearerAccentWidth = '35px';
-            if (_.gt(_.toNumber(maxSupply), 999)) {
-              wearerContentWidth = '115px';
-              wearerAccentWidth = '62px';
-            } else if (_.gt(_.toNumber(maxSupply), 99)) {
-              wearerContentWidth = '115px';
-              wearerAccentWidth = '55px';
-            } else if (_.gt(_.toNumber(maxSupply), 9)) {
-              wearerContentWidth = '130px';
-              wearerAccentWidth = '38px';
-            }
 
             const selectedOptionContent = () => {
               switch (selectedOption) {
@@ -342,7 +297,7 @@ const OrgChartComponent: React.FC = () => {
                       height: 40px;
                       border-top: 1px solid #4A5568;
                       padding: 10px;
-                      background: ${wearersColor};
+                      background: ${hatChartWearers?.color};
                       display: flex;
                       flex-direction: row;
                       align-items: center;
@@ -354,31 +309,31 @@ const OrgChartComponent: React.FC = () => {
                         gap: 2px;
                       ">
                         <div style="min-width: 16px;">
-                          ${wearerIcon || ''}
+                          ${hatChartWearers?.icon || ''}
                         </div>
                         <div style="
                           display: -webkit-box;
                           font-size: 15px;
-                          font-weight: 550;
+                          font-weight: ${currentSupply > 0 ? 'bold' : 'medium'};
                           opacity: 0.8;
                           overflow: hidden;
-                          width: ${wearerContentWidth};
+                          width: ${hatChartWearers?.contentWidth};
                           -webkit-line-clamp: 1;
                           -webkit-box-orient: vertical;
                         ">
-                          ${wearerContent}
+                          ${hatChartWearers?.content}
                         </div>
                       </div>
                       ${
-                        wearerAccent
+                        hatChartWearers?.accent
                           ? `<div style="
                               display: inline-block;
                               fit-content: contain;
                               text-align: right;
-                              min-width: ${wearerAccentWidth};
+                              min-width: ${hatChartWearers?.accentWidth};
                               opacity: 0.6;
                             ">
-                              ${wearerAccent}
+                              ${hatChartWearers?.accent}
                             </div>`
                           : ''
                       }
@@ -541,7 +496,7 @@ const OrgChartComponent: React.FC = () => {
                     <img
                       loading="lazy"
                       src="${
-                        imageUrl !== '' && imageUrl !== null
+                        imageUrl && imageUrl !== '' && imageUrl !== null
                           ? imageUrl
                           : '/icon.jpeg'
                       }"
@@ -599,6 +554,7 @@ const OrgChartComponent: React.FC = () => {
                       </div>
                     </div>
                     ${
+                      // TODO need to re-check eligibility here
                       isInWearerHats
                         ? `<img src='/icons/hat.svg'
                             style="
@@ -684,9 +640,13 @@ const OrgChartComponent: React.FC = () => {
 
         if (!initialLoad || !treeToDisplay) return;
 
-        if (selectedHat?.id && selectedHat?.id !== ZERO_ID) {
-          handleSelectHat?.(selectedHat.id);
-          centerChart(chart, selectedHat.id);
+        if (
+          selectedHatId &&
+          selectedHatId !== ZERO_ID &&
+          selectedHatId !== '0x'
+        ) {
+          onOpenHatDrawer?.(selectedHatId);
+          centerChart(chart, selectedHatId);
         } else {
           chart.fit();
         }
@@ -696,8 +656,9 @@ const OrgChartComponent: React.FC = () => {
   }, [
     chart,
     chainId,
-    handleSelectHat,
-    selectedHat,
+    onOpenHatDrawer,
+    onCloseTreeDrawer,
+    selectedHatId,
     storedData,
     wearerHats,
     showInactiveHats,
@@ -711,7 +672,7 @@ const OrgChartComponent: React.FC = () => {
     treeToDisplay,
     compact,
     flipped,
-    wearersAndControllers,
+    orgChartWearers,
   ]);
 
   return isLoading ? (

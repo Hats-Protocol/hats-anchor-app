@@ -1,13 +1,96 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
-import { AppHat, HatDetails, HatWithDepth, SupportedChains } from 'types';
+import {
+  AppHat,
+  HatDetails,
+  HatWearer,
+  HatWithDepth,
+  SupportedChains,
+} from 'types';
+import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import { decimalId, getTreeId } from './hats';
+import { getTreeId } from './hats';
+import { maxSupplyText } from './wearers';
+
+// TODO move these to org-chart
+const ORG_CHART_ICONS = {
+  contract: `<img src="/icons/contract.svg" alt="wearer" />`,
+  group: `<img src="/icons/group.svg" alt="group" />`,
+  wearer: `<img src="/icons/wearer.svg" alt="wearer" />`,
+  noWearer: `<img src="/icons/no-wearers.svg" alt="no supply" style="height: 16px; margin-left: -2px;" />`,
+};
+
+const ORG_CHART_COLORS = {
+  contract: '#F0FFF4',
+  wearer: '#FFFAF0',
+  noWearers: '#FFFFFF',
+  group: '#F0F0FF',
+};
+
+const handleOrgChartWearers = (
+  hat: AppHat,
+  orgChartWearers: HatWearer[] | undefined,
+) => {
+  const { wearers, maxSupply, currentSupply } = _.pick(hat, [
+    'wearers',
+    'maxSupply',
+    'currentSupply',
+  ]);
+  const localMaxSupplyText = maxSupplyText(_.toNumber(maxSupply) || 1);
+
+  // FALLBACK/INITIALIZE WITH NO WEARERS
+  let color = ORG_CHART_COLORS.noWearers;
+  const wearer = _.first(wearers);
+  const extendedWearer = _.find(orgChartWearers, { id: wearer?.id });
+  let content = 'No Wearers';
+  let accent = `0 of ${localMaxSupplyText}`;
+  let icon = ORG_CHART_ICONS.noWearer;
+
+  // HANDLE GROUPS
+  if (_.toNumber(currentSupply) > 1) {
+    color = '#FFFFF0';
+    content = `${currentSupply} Wearers`;
+    accent = `out of ${localMaxSupplyText}`;
+    icon = ORG_CHART_ICONS.wearer; // ORG_CHART_ICONS.group;
+  }
+
+  // INDIVIDUAL WEARERS
+  if (_.size(wearers) === 1) {
+    content =
+      !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
+        ? extendedWearer?.ensName
+        : formatAddress(_.get(wearer, 'id'));
+    accent = `1 of ${localMaxSupplyText}`;
+    icon = ORG_CHART_ICONS.wearer;
+    if (extendedWearer?.isContract) {
+      color = ORG_CHART_COLORS.contract;
+      icon = ORG_CHART_ICONS.contract;
+    } else {
+      color = ORG_CHART_COLORS.wearer;
+    }
+  }
+
+  // handle wearers overflow with max supply accent
+  let dims = { contentWidth: '135px', accentWidth: '35px' };
+  if (_.gt(_.toNumber(maxSupply), 999)) {
+    dims = { contentWidth: '115px', accentWidth: '62px' };
+  } else if (_.gt(_.toNumber(maxSupply), 99)) {
+    dims = { contentWidth: '115px', accentWidth: '55px' };
+  } else if (_.gt(_.toNumber(maxSupply), 9)) {
+    dims = { contentWidth: '130px', accentWidth: '38px' };
+  }
+
+  return { color, accent, icon, content, ...dims };
+};
 
 const mapHat = (
   hat: AppHat | undefined,
+  orgChartWearers: HatWearer[] | undefined,
   chainId: SupportedChains,
 ): AppHat | undefined => {
   if (!hat) return undefined;
@@ -19,7 +102,10 @@ const mapHat = (
     parentId: hat.admin?.id === hat.id ? undefined : (hat.admin?.id as Hex),
     treeId: hat.tree?.id as Hex,
     isLinked: false,
-    url: `/trees/${chainId}/${decimalId(hat.tree?.id)}`,
+    url: `/trees/${chainId}/${treeIdHexToDecimal(
+      hat.tree?.id || hat.treeId || '0x',
+    )}`,
+    orgChartWearers: handleOrgChartWearers(hat, orgChartWearers),
   };
 };
 
@@ -30,6 +116,7 @@ export async function toTreeStructure({
   detailsData,
   imagesData,
   draftHats,
+  orgChartWearers,
   chainId,
   initialHatIds,
 }: {
@@ -41,6 +128,7 @@ export async function toTreeStructure({
   }[];
   imagesData: AppHat[] | undefined;
   draftHats: AppHat[] | undefined;
+  orgChartWearers: HatWearer[] | undefined;
   chainId: SupportedChains;
   initialHatIds: Hex[];
 }): Promise<AppHat[] | undefined> {
@@ -66,7 +154,7 @@ export async function toTreeStructure({
   });
 
   const hats = _.map(initialHatIds, (hat: Hex) =>
-    mapHat(_.find(mergedHatsData, ['id', hat]), chainId),
+    mapHat(_.find(mergedHatsData, ['id', hat]), orgChartWearers, chainId),
   );
 
   const hatsList = _.orderBy(
@@ -147,19 +235,13 @@ const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
 };
 
 const compareHatIds = (a: AppHat, b: AppHat): number => {
-  if (BigInt(decimalId(a.id)) < BigInt(decimalId(b.id))) {
-    return -1;
-  }
-  if (BigInt(decimalId(a.id)) > BigInt(decimalId(b.id))) {
-    return 1;
-  }
+  if (BigInt(a.id) < BigInt(b.id)) return -1;
+  if (BigInt(a.id) > BigInt(b.id)) return 1;
 
   return 0;
 };
 
 export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
-  // * tricky sort ahead, follow each branch to their conclusion
-  // * before returning to next sibling at previous level
   let newIdList = tree
     ? // start with the top hat
       [_.get(_.first(tree), 'id')]

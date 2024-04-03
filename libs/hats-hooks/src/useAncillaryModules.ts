@@ -1,13 +1,6 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
 import {
-  AppHat,
-  HatAuthority,
-  ModuleDetails,
-  // HatAuthorityResponse,
-  SupportedChains,
-} from 'types';
-import {
   populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
@@ -15,6 +8,13 @@ import {
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import {
+  AppHat,
+  HatAuthority,
+  ModuleDetails,
+  // HatAuthorityResponse,
+  SupportedChains,
+} from 'types';
 import { fetchAncillaryModules } from 'utils';
 import { Hex } from 'viem';
 
@@ -39,22 +39,27 @@ const useAncillaryModules = ({
   editMode,
   tree,
 }: {
-  id?: string;
-  chainId: SupportedChains;
+  id?: Hex;
+  chainId: SupportedChains | undefined;
   editMode?: boolean;
   tree?: AppHat[] | undefined;
 }) => {
   const toast = useToast();
-  const { predictedAddress, createAccount } = useHatsAccounts({ id, chainId });
+  const { predictedAddress, createAccount } = useHatsAccounts({
+    hatId: id,
+    chainId,
+  });
 
   const {
     data: ancillaryModules,
     error,
     isLoading: isHatAuthoritiesLoading,
+    // status,
+    // fetchStatus,
   } = useQuery({
     queryKey: ['ancillaryModules', id, chainId],
     queryFn: () => fetchAncillaryModules(id || 'none', chainId),
-    enabled: !!id && !!chainId,
+    enabled: !!id && id !== '0x' && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
@@ -119,7 +124,10 @@ const useAncillaryModules = ({
     modulesDetails: activeModules,
   });
 
-  const shouldIncludeHA = _.has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, chainId);
+  const shouldIncludeHA = _.has(
+    HATS_ACCOUNT_1OFN_IMPLEMENTATION,
+    _.toString(chainId),
+  );
 
   return {
     modulesAuthorities: [

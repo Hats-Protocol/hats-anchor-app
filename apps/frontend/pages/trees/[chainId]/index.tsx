@@ -1,14 +1,30 @@
-import { Box, Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  SimpleGrid,
+  Spinner,
+  Text,
+} from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
 import { useImageURIs, useRudderStackAnalytics } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
 import { useEffect, useMemo } from 'react';
+import { BsDiagram3 } from 'react-icons/bs';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
 import { AppHat } from 'types';
-import { Layout, NetworkFilter, TreeListCard as TreeCard } from 'ui';
+import {
+  ChakraNextLink,
+  Layout,
+  NetworkFilter,
+  TreeListCard as TreeCard,
+} from 'ui';
 import { useAccount } from 'wagmi';
 
 const Trees = ({ chainId }: { chainId: number }) => {
@@ -56,7 +72,23 @@ const Trees = ({ chainId }: { chainId: number }) => {
         }}
       >
         <Flex justifyContent='flex-end' mb={3} alignItems='center' gap={2}>
-          <NetworkFilter selectedNetwork={chainId} />
+          <HStack>
+            <ChakraNextLink href='/trees/new'>
+              <Button
+                colorScheme='blue.500'
+                bg='gray.50'
+                variant='outlineMatch'
+              >
+                <HStack>
+                  <BsDiagram3 />
+                  <Text variant='medium' noOfLines={1}>
+                    Create a new {CONFIG.tree}
+                  </Text>
+                </HStack>
+              </Button>
+            </ChakraNextLink>
+            <NetworkFilter selectedNetwork={chainId} />
+          </HStack>
         </Flex>
         {!isLoading && !_.isEmpty(trees) && (
           <InfiniteScroll

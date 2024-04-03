@@ -30,6 +30,7 @@ const CONFIG: Config = {
 
   // urls
   APP_URL,
+  CLAIMS_URL: 'https://claim.hatsprotocol.xyz',
   CONTACT_URL,
   DOCS_URL,
 
@@ -111,6 +112,7 @@ type Config = {
 
   // urls
   APP_URL: string;
+  CLAIMS_URL: string;
   CONTACT_URL: string;
   DOCS_URL: string;
 

@@ -11,8 +11,8 @@ import {
 import { AUTHORITY_ENFORCEMENT } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles, useSafeDetails } from 'hooks';
-import { BoxArrowUpRightOut, Key } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
 import {
@@ -24,6 +24,11 @@ import {
 import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../atoms';
+
+const BoxArrowUpRightOut = dynamic(() =>
+  import('icons').then((i) => i.BoxArrowUpRightOut),
+);
+const Key = dynamic(() => import('icons').then((i) => i.Key));
 
 const HOSTNAME_LABELS = {
   'charmverse.io': 'Charmverse',
@@ -165,7 +170,9 @@ const AuthorityHeader = ({
             <Text
               size={{ base: 'sm', md: 'md' }}
               // TODO should be a Heading component when expanded
-              fontWeight={isExpanded ? 'bold' : 'normal'}
+              fontWeight={
+                isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'
+              }
               noOfLines={2}
             >
               {currentLabel || label || 'New Authority'}

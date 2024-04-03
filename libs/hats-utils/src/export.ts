@@ -1,6 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 import { DEFAULT_HAT, MUTABILITY } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  treeIdDecimalToHex,
+} from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { ipToPrettyId, prettyIdToId } from 'shared';
 import { AppHat, FormData } from 'types';
@@ -25,7 +28,7 @@ export const translateDrafts = ({
   drafts,
 }: {
   chainId: number;
-  treeId: Hex;
+  treeId: number;
   drafts: Partial<FormData>[];
 }): AppHat[] => {
   const extendDrafts = _.map(drafts, (hat) => {
@@ -51,7 +54,7 @@ export const translateDrafts = ({
         2, // top hat = 0, so subtract 2 to get level
       ),
       tree: {
-        id: treeId,
+        id: treeIdDecimalToHex(treeId),
       },
     };
   });

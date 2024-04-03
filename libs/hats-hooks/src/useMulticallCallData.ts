@@ -1,19 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppHat, FormData, SupportedChains } from 'types';
 import _ from 'lodash';
+import { AppHat, FormData, SupportedChains } from 'types';
 import {
   createHatsClient,
   fetchToken,
   handleDetailsPin,
   processHatForCalls,
 } from 'utils';
-import { Hex } from 'viem';
 
 import { HatPinDetails } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {
   chainId: SupportedChains | undefined;
-  treeId: Hex;
+  treeId: number; // ! can be removed?
   storedData: Partial<FormData>[];
   onchainHats: AppHat[];
   treeToDisplay: AppHat[];

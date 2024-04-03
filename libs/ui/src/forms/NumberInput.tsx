@@ -109,7 +109,7 @@ const NumberInput = ({
                 w='full'
                 variant={variant}
                 step={step}
-                min={numOptions?.min !== undefined ? numOptions.min : 1}
+                min={numOptions?.min !== undefined ? numOptions.min : 0}
                 max={numOptions?.max}
                 borderColor={
                   isError ? 'red.500' : isDirty ? 'cyan.500' : undefined

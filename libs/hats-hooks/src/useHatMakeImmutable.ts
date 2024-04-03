@@ -1,5 +1,4 @@
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { decimalId } from 'hats-utils';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { toTreeId } from 'shared';
@@ -18,7 +17,7 @@ const useHatMakeImmutable = ({
   handlePendingTx,
 }: UseHatMakeImmutableProps) => {
   const currentNetworkId = useChainId();
-  const selectedHatId = selectedHat?.id || 'none';
+  const selectedHatId = selectedHat?.id;
 
   const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(selectedHat.id, chainId),
@@ -27,7 +26,7 @@ const useHatMakeImmutable = ({
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',
-    args: [decimalId(selectedHatId)],
+    args: [hatIdHexToDecimal(selectedHatId)],
     chainId: Number(chainId),
     handlePendingTx,
     waitForSubgraph,
@@ -46,7 +45,7 @@ const useHatMakeImmutable = ({
     enabled:
       !!selectedHatId &&
       !!selectedHat?.mutable &&
-      Boolean(decimalId(selectedHatId)) &&
+      Boolean(hatIdHexToDecimal(selectedHatId)) &&
       !!mutable &&
       _.gt(selectedHat?.levelAtLocalTree, 0) &&
       _.includes(_.map(onchainHats, 'id'), selectedHatId) &&

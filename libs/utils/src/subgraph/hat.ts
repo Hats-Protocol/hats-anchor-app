@@ -7,7 +7,7 @@ export const fetchHatDetails = async (
   hatId: string | undefined,
   chainId?: number,
 ): Promise<AppHat | null> => {
-  if (!hatId || !chainId) return null;
+  if (!hatId || hatId === '0x' || !chainId) return null;
 
   const subgraphClient = createSubgraphClient();
 
@@ -37,6 +37,7 @@ export const fetchHatDetails = async (
         tree: {},
         wearers: {
           props: {},
+          filters: { first: 5 },
         },
         admin: {},
         events: {
@@ -50,6 +51,7 @@ export const fetchHatDetails = async (
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching hat details: ', error);
+    return null;
   }
 
   return {

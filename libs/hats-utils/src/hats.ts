@@ -4,9 +4,15 @@ import {
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdToTreeId,
+  treeIdToTopHatId,
+} from '@hatsprotocol/sdk-v1-core';
+import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
-import { idToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
+import { idToPrettyId, prettyIdToIp } from 'shared';
 import {
   AppHat,
   Controls,
@@ -34,16 +40,6 @@ export function treeCreateEventIdToTreeId(id: string) {
   const hexString = id.slice(0, 10);
   return parseInt(hexString, 16);
 }
-
-export const decimalId = (hatId: string | undefined): string => {
-  if (!hatId) return '';
-
-  try {
-    return BigInt(hatId).toString();
-  } catch (err) {
-    return '0x';
-  }
-};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const includesAny = (arr: any[], target: any[]) =>
@@ -444,9 +440,11 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
 export const prepareDraftHats = (
   importedTree: HatExport[],
   onchainTree: FormData[],
-  treeId?: Hex,
+  treeId?: number,
 ): Partial<FormData>[] => {
-  const hatsWithPatchedIds = patchHatIds(importedTree, prettyIdToId(treeId));
+  if (!treeId) return [];
+  const topHatId = hatIdDecimalToHex(treeIdToTopHatId(treeId));
+  const hatsWithPatchedIds = patchHatIds(importedTree, topHatId);
   const hatsDifferences = _.map(hatsWithPatchedIds, (hat) => {
     const matchingHat = _.find(onchainTree, { id: hat.id });
     if (!matchingHat) return hat;
@@ -458,7 +456,7 @@ export const prepareDraftHats = (
   );
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
-    (hat: FormData) => hat.id !== prettyIdToId(treeId),
+    (hat: FormData) => hat.id !== topHatId,
   );
   return hatsExcludingTop;
 };
@@ -538,21 +536,21 @@ export const flattenHatData = (data: any[]): FormData[] =>
       } as FormData),
   );
 
-const extractWearers = (wearers: any[]): FormWearer[] => {
+const extractWearers = (wearers: unknown[]): FormWearer[] => {
   if (
     _.isArray(wearers) &&
     !_.isEmpty(wearers) &&
     _.isString(_.first(wearers))
   ) {
-    return _.map(wearers, (wearer) => ({
+    return _.map(wearers, (wearer: unknown) => ({
       address: wearer as Hex,
       ens: '',
     }));
   }
-  return _.map(wearers, (wearer) => ({
+  return _.map(wearers, (wearer: Wearer) => ({
     address: wearer.id,
     ens: '',
-  }));
+  })) as unknown as FormWearer[];
 };
 
 export const checkMissingParents = (
