@@ -17,17 +17,18 @@ const useHatsModules = ({
       throw new Error('Unable to initialize hatsClient');
     }
 
-    const activeModulesFilter = (module: Module) => {
+    // filter out inactive and meta modules
+    const modulesFilter = (module: Module) => {
       for (let tagIndex = 0; tagIndex < module.tags.length; tagIndex += 1) {
         const tag = module.tags[tagIndex];
-        if (tag.value === 'deprecated') {
+        if (tag.value === 'deprecated' || tag.value === 'meta') {
           return false;
         }
       }
       return true;
     };
 
-    return hatsClient.getModules(activeModulesFilter);
+    return hatsClient.getModules(modulesFilter);
   };
 
   const { data, isLoading, isError, error } = useQuery({
