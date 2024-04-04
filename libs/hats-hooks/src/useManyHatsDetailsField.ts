@@ -1,7 +1,7 @@
 import { useQueries } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import { handleNestedDetails } from 'hats-utils';
 import _ from 'lodash';
+import { AppHat } from 'types';
 import { fetchDetailsIpfs } from 'utils';
 
 // * should keep fetching strategy inline with `useHatDetailsField.ts`
@@ -56,7 +56,7 @@ const useManyHatsDetailsField = ({
         if (!detailsObject) return undefined;
 
         return {
-          id: hat?.details,
+          id: hat?.details || '0x',
           detailsObject,
         };
       }),

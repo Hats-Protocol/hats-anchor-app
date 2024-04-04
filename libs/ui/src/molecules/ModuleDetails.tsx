@@ -32,6 +32,7 @@ import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
 import { LinkObject } from 'types';
 import { formatAddress } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
@@ -91,7 +92,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     useCallModuleFunction({
       chainId,
     });
-  const handleFunctionCall = (func) => {
+  const handleFunctionCall = (func: any) => {
     console.log('func', func);
     if (func.args && func.args.length > 0) {
       setSelectedFunction(func);
@@ -154,7 +155,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     [selectedHat],
   );
 
-  const onSubmit = (values) => {
+  const onSubmit = (values: any) => {
     if (!moduleDetails?.implementationAddress) return;
     // eslint-disable-next-line no-console
     callModuleFunction({
@@ -186,7 +187,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 {_.get(selectedFunction, 'args') && (
                   <ModuleArgsForm
                     selectedModuleArgs={_.get(selectedFunction, 'args', [])}
-                    tokenAddress={tokenAddress}
+                    tokenAddress={tokenAddress as Hex}
                     localForm={formMethods}
                     hideIcon
                     noMargin

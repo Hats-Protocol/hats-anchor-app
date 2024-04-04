@@ -35,7 +35,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
 import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { FormWearer, HatWearer } from 'types';
+import { AppHat, FormWearer, HatWearer } from 'types';
 import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
 import {
   chainsMap,
@@ -72,6 +72,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   const localWearers: FormWearer[] = watch?.('wearers', []);
   const hatId = _.get(selectedHat, 'id');
+  const hatIdDecimal = hatId && hatIdHexToDecimal(hatId);
   const detailsObject = _.get(selectedHat, 'detailsObject');
   const currentSupply = _.get(selectedHat, 'currentSupply');
   // TODO handle more than 100 wearers
@@ -135,24 +136,26 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
 
   const batchMintArgs = [
-    new Array(localWearers.length).fill(hatIdHexToDecimal(hatId)),
+    new Array(localWearers.length).fill(hatIdDecimal),
     _.map(localWearers, 'address'),
   ];
-  if (isAddress(currentResolvedAddress)) {
-    batchMintArgs[0].push(hatIdHexToDecimal(hatId));
+  if (currentResolvedAddress && hatId && isAddress(currentResolvedAddress)) {
+    batchMintArgs[0].push(hatIdDecimal);
     batchMintArgs[1].push(currentResolvedAddress);
   }
 
-  const txDescriptionBatch = `Minted hat ${idToIp(selectedHat.id)} to ${
-    localWearers.length + (isAddress(currentResolvedAddress) ? 1 : 0)
-  } wearers`;
+  const txDescriptionBatch =
+    currentResolvedAddress &&
+    `Minted hat ${idToIp(selectedHat?.id)} to ${
+      _.size(localWearers) + (isAddress(currentResolvedAddress) ? 1 : 0)
+    } wearers`;
 
   const waitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
-    checkResult: (hatDetails) =>
+    checkResult: (hatDetails: AppHat) =>
       _.some(
         hatDetails?.wearers,
-        (w) => _.toLower(w.id) === _.toLower(userAddress),
+        (w: HatWearer) => _.toLower(w.id) === _.toLower(userAddress),
       ),
   });
 
@@ -178,7 +181,9 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       ['treeDetails', toTreeId(hatId)],
     ],
     enabled:
-      Boolean(hatIdHexToDecimal(hatId)) &&
+      !!hatId &&
+      !!currentResolvedAddress &&
+      Boolean(hatIdDecimal) &&
       _.includes(_.map(onchainHats, 'id'), hatId) &&
       !_.isEmpty(localWearers) &&
       _.toNumber(selectedOnchainHat?.maxSupply) >
@@ -186,14 +191,14 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       chainId === currentNetworkId,
   });
 
-  const txDescriptionSingle = `Minted hat ${idToIp(selectedHat.id)} to ${
+  const txDescriptionSingle = `Minted hat ${idToIp(selectedHat?.id)} to ${
     isEnsAddress ? currentInput : formatAddress(currentResolvedAddress)
   }`;
 
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [hatIdHexToDecimal(hatId), currentResolvedAddress],
+      args: [hatIdDecimal, currentResolvedAddress],
       chainId,
       txDescription: txDescriptionSingle,
       onSuccessToastData: {
@@ -209,7 +214,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         ['treeDetails', toTreeId(hatId)],
       ],
       enabled:
-        Boolean(hatIdHexToDecimal(hatId)) &&
+        Boolean(hatIdDecimal) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
         Boolean(currentResolvedAddress) &&
         _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
@@ -217,7 +222,11 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     });
 
   const onSubmit = async () => {
-    if (isAddress(currentResolvedAddress) && _.size(localWearers) === 0) {
+    if (
+      currentResolvedAddress &&
+      isAddress(currentResolvedAddress) &&
+      _.size(localWearers) === 0
+    ) {
       await writeAsyncMintHat?.();
     } else {
       await writeAsyncBatchMintHats?.();
@@ -322,7 +331,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
         const file = droppedFiles[0];
         if (!file) return;
         Papa.parse(file, {
-          complete: (data) => handleWearerImport(data),
+          complete: (data: { data: unknown[] }) => handleWearerImport(data),
           error: (error: Error) => {
             // eslint-disable-next-line no-console
             console.error('Error parsing CSV file: ', error);

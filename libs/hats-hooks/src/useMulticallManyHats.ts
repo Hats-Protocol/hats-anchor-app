@@ -30,7 +30,9 @@ import {
 
 import useAdminOfHats from './useAdminOfHats';
 
-const useMulticallManyHats = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useMulticallManyHats: any = ({
   isAdminOfAnyHatWithChanges,
   storedData,
   setStoredData,
@@ -57,7 +59,6 @@ const useMulticallManyHats = ({
   const currentChain = useChainId();
   const queryClient = useQueryClient();
   const toast = useToast();
-  console.log(proposedChanges);
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),

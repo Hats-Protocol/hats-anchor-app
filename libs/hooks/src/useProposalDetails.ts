@@ -2,7 +2,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { gql, request } from 'graphql-request';
 
-const fetchProposalDetails = async (proposalId: string) => {
+const fetchProposalDetails = async (proposalId: string | undefined) => {
+  if (!proposalId) return null;
   const query = gql`
     query {
       proposal(id: "${proposalId}") {
@@ -40,7 +41,7 @@ const fetchProposalDetails = async (proposalId: string) => {
   return data.proposal;
 };
 
-const useProposalDetails = (proposalId: string) => {
+const useProposalDetails = (proposalId: string | undefined) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['proposalDetails', proposalId],
     queryFn: () => fetchProposalDetails(proposalId),

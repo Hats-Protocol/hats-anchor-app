@@ -127,7 +127,8 @@ const Eligibility = () => {
       const moduleHat = _.get(
         _.find(parameters, { displayType: 'hat' }),
         'value',
-      );
+      ) as bigint | undefined;
+      if (!moduleHat) return null; // TODO something better here? unlikely occurrence
       return (
         <Flex justify='space-between' py={1}>
           {eligibilityRuleDetails.rule}

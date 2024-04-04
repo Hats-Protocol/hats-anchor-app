@@ -47,7 +47,7 @@ const HatDetails = () => {
     }
   }, [analytics, chainId, treeId, hatId, address]);
 
-  if (!treeId || chainId === '0x' || !chainId) return null;
+  if (!treeId || !chainId) return null; // chainId === '0x' hopefully this issue is resolved
 
   if (typeof isMobile !== 'undefined' && !isMobile) {
     router.push(`/trees/${chainId}/${treeId}?hatId=${hatId}`);

@@ -1,10 +1,10 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
-import { HandlePendingTx, SupportedChains } from 'types';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
+import { HandlePendingTx, SupportedChains } from 'types';
 import { Hex } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { waitForTransaction } from 'wagmi/actions';
@@ -21,7 +21,9 @@ interface ContractInteractionProps {
   hatId?: Hex;
 }
 
-const useMultiClaimsHatterContractWrite = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useMultiClaimsHatterContractWrite: any = ({
   functionName,
   chainId,
   enabled,

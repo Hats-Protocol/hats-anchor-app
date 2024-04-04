@@ -17,7 +17,7 @@ const HatClaimForForm = () => {
   const { handleSubmit, watch } = localForm;
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const address = useDebounce<string>(watch('address', null));
+  const address = useDebounce<string>(watch('address'));
 
   const onSubmit = async () => {
     await claimHatFor(address as Hex);
@@ -45,8 +45,8 @@ const HatClaimForForm = () => {
           label='Hat Wearer Address'
           subLabel='Claim this hat for an eligible wearer'
           localForm={localForm}
-          showResolvedAddress={showResolvedAddress}
-          resolvedAddress={resolvedAddress}
+          showResolvedAddress={showResolvedAddress as boolean}
+          resolvedAddress={resolvedAddress as Hex}
           options={{
             validate: () => {
               if ((resolvedAddress || address) && !canClaimForAccount)

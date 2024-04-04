@@ -1,7 +1,7 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
-import { AppHat } from 'types';
+import { AppHat, HatWearer } from 'types';
 import { checkAddressIsContract } from 'utils';
 import { Hex, isAddress, zeroAddress } from 'viem';
 import { fetchEnsName } from 'wagmi/actions';
@@ -91,7 +91,7 @@ const useWearersControllersDetails = ({
   if (!isLoaded || !_.eq(_.size(wearerAndControllerDetails), _.size(wAndCs)))
     return undefined;
 
-  return _.compact(_.map(wearerAndControllerDetails, 'data'));
+  return _.compact(_.map(wearerAndControllerDetails, 'data')) as HatWearer[];
 };
 
 export default useWearersControllersDetails;

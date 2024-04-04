@@ -60,7 +60,7 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
         borderTop='1px solid'
         borderColor='gray.200'
       >
-        {isClaimable && !isWearing && hatterIsAdmin && (
+        {!!isClaimable && !isWearing && !!hatterIsAdmin && (
           <Button
             variant='outlineMatch'
             colorScheme='blue.500'

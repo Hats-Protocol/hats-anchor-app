@@ -189,15 +189,15 @@ const Home = () => {
               background='whiteAlpha.600'
               gap={4}
               minH='300px'
+              justify='center'
+              align='center'
             >
-              <Flex minH={20} justify='center' align='center'>
-                <Stack align='center'>
-                  <Heading size='md'>Your hats will appear here</Heading>
-                  <Text>
-                    Create a tree or check out the starter templates below.
-                  </Text>
-                </Stack>
-              </Flex>
+              <Stack align='center'>
+                <Heading size='lg'>Your hats will appear here!</Heading>
+                <Text>
+                  Create a tree or check out one of the featured trees.
+                </Text>
+              </Stack>
             </Card>
           ))}
 

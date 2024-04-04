@@ -69,7 +69,7 @@ const Input = ({
 
   const isDirty = _.get(dirtyFields, name);
 
-  const handlePaste = async (event) => {
+  const handlePaste = async (event: any) => {
     event.preventDefault();
     const pastedValue = event.clipboardData.getData('text');
     setValue(name, pastedValue, { shouldDirty: true });

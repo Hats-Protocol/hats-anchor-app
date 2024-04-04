@@ -21,8 +21,9 @@ interface ContractInteractionProps {
   handleSuccess?: (data?: TransactionReceipt) => void; // passed with handlePendingTx
   waitForSubgraph?: (data?: TransactionReceipt) => void; // passed with handleSuccess
 }
-
-const useHatContractWrite = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useHatContractWrite: any = ({
   functionName,
   args,
   chainId,

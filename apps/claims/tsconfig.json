@@ -14,6 +14,20 @@
     "lib": ["ES2021"],
     "incremental": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "*.d.ts"],
+  "references": [
+    { "path": "../../libs/constants/tsconfig.lib.json" },
+    { "path": "../../libs/contexts/tsconfig.lib.json" },
+    { "path": "../../libs/hats-hooks/tsconfig.lib.json" },
+    { "path": "../../libs/hats-utils/tsconfig.lib.json" },
+    { "path": "../../libs/hooks/tsconfig.lib.json" },
+    { "path": "../../libs/icons/tsconfig.lib.json" },
+    { "path": "../../libs/modules-ui/tsconfig.lib.json" },
+    { "path": "../../libs/pages/tsconfig.lib.json" },
+    { "path": "../../libs/shared/tsconfig.lib.json" },
+    { "path": "../../libs/types/tsconfig.lib.json" },
+    { "path": "../../libs/ui/tsconfig.lib.json" },
+    { "path": "../../libs/utils/tsconfig.lib.json" }
+  ],
+  "include": ["**/*.ts", "**/*.tsx", "../../libs/types/src/*.d.ts"],
   "exclude": ["jest.config.ts", ".next"]
 }

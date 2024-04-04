@@ -1,4 +1,15 @@
-const HabLabsProposals = {
+// import { SupportedChains } from 'types';
+
+type HatProposals = {
+  [hatId: string]: {
+    [proposalId: number]: {
+      elect: string;
+      execute?: string;
+    };
+  };
+};
+
+const SepoliaProposals: HatProposals = {
   '39.1': {
     107187481: {
       elect:
@@ -15,7 +26,7 @@ const HabLabsProposals = {
   },
 };
 
-const SuperRareProposals = {
+const MainnetProposals: HatProposals = {
   '22.1.2': {
     107187481: {
       elect:
@@ -24,12 +35,12 @@ const SuperRareProposals = {
   },
 };
 
-const PROPOSALS = {
+const PROPOSALS: { [chainId: number]: HatProposals } = {
   1: {
-    ...SuperRareProposals,
+    ...MainnetProposals,
   },
   11155111: {
-    ...HabLabsProposals,
+    ...SepoliaProposals,
   },
 };
 

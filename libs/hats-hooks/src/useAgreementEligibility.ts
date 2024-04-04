@@ -1,7 +1,7 @@
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { SupportedChains } from 'types';
+import { AppWriteFunction, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 
@@ -42,7 +42,7 @@ const useAgreementEligibility = ({
 
   const signAndClaim = _.find(
     _.get(moduleDetails, 'writeFunctions'),
-    (fn: any) => fn.functionName === 'signAgreementAndClaimHat',
+    (fn: AppWriteFunction) => fn.functionName === 'signAgreementAndClaimHat',
   );
 
   const { mutate: callModuleFunction, isLoading: isSignAgreementLoading } =
@@ -54,7 +54,7 @@ const useAgreementEligibility = ({
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
       instance: controllerAddress as Hex,
-      func: signAndClaim,
+      func: signAndClaim as AppWriteFunction,
       args: {
         'Claims Hatter': mchAddress,
       },

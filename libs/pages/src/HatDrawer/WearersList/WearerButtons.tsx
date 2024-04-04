@@ -126,7 +126,7 @@ const WearerButtons = () => {
               label={claimTooltip({
                 claimFor: true,
                 sameChain: chainId === currentNetworkId,
-                hatterIsAdmin,
+                hatterIsAdmin: hatterIsAdmin as boolean,
               })}
               fontSize='md'
               shouldWrapChildren
@@ -159,7 +159,7 @@ const WearerButtons = () => {
                 label={claimTooltip({
                   claimFor: false,
                   sameChain: chainId === currentNetworkId,
-                  hatterIsAdmin,
+                  hatterIsAdmin: hatterIsAdmin as boolean,
                 })}
                 fontSize='md'
                 shouldWrapChildren

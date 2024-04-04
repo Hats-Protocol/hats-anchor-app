@@ -1,13 +1,10 @@
-import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { Hat, Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { Chain, Hex } from 'viem';
 
 // sdk
 export type LinkRequest = {
   id: Hex;
-  requestedLinkToHat: {
-    id: Hex;
-    prettyId: Hex;
-  };
+  requestedLinkToHat: Partial<Hat>;
 };
 
 export interface FeaturedTree {

@@ -16,7 +16,8 @@ const useWearerIsInGoodStanding = ({
     chainId,
     functionName: 'isInGoodStanding',
     args: [wearer, hatId],
-    enabled: !!wearer && isAddress(wearer) && Boolean(hatId),
+    enabled:
+      !!wearer && isAddress(wearer) && !!chainId && Boolean(selectedHat?.id),
   });
 
   return { data, isLoading };
@@ -26,6 +27,6 @@ export default useWearerIsInGoodStanding;
 
 interface UseWearerIsInGoodStanding {
   wearer: Hex | undefined;
-  selectedHat: AppHat;
-  chainId: number;
+  selectedHat: AppHat | undefined;
+  chainId: number | undefined;
 }

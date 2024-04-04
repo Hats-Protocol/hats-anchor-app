@@ -130,12 +130,12 @@ const useAncillaryModules = ({
   );
 
   return {
-    modulesAuthorities: [
+    modulesAuthorities: _.compact([
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
       ...(shouldIncludeHA && predictedAddress ? hatsAccounts1ofN : []),
-    ],
+    ]),
     error,
     isLoading: false,
   };

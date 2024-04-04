@@ -12,8 +12,9 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 
-// hats-hooks
-const useTreeCreate = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useTreeCreate: any = ({
   chainId,
   details,
   receiver,

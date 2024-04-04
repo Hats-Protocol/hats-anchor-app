@@ -152,7 +152,7 @@ const useImageURIs = ({
 
   return {
     data: mergedWithHats || undefined,
-    isLoading: !isLoaded || imagesLoading || !mergedWithHats,
+    isLoading: enabled && (!isLoaded || imagesLoading || !mergedWithHats),
   };
 };
 

@@ -60,7 +60,15 @@ const defaultProps = {
   chainId: null,
 };
 
-const getQueryParams = (query: Pick<GetServerSidePropsContext, 'query'>) => {
+type QueryParam = string | string[] | undefined;
+
+type HatQueryParams = {
+  treeId: QueryParam;
+  chainId: QueryParam;
+  hatId: QueryParam;
+};
+
+const getQueryParams = (query: HatQueryParams) => {
   const {
     treeId: treeIdParam,
     chainId: chainIdParam,
@@ -73,8 +81,9 @@ const getQueryParams = (query: Pick<GetServerSidePropsContext, 'query'>) => {
   const chainId = _.isArray(chainIdParam)
     ? _.toNumber(_.first(chainIdParam))
     : _.toNumber(chainIdParam) || null;
-  const hatId = hatIdParam
-    ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdParam))
+  const localHatId = _.isArray(hatIdParam) ? _.first(hatIdParam) : hatIdParam;
+  const hatId = localHatId
+    ? hatIdDecimalToHex(hatIdIpToDecimal(localHatId))
     : null;
 
   return { treeId, chainId, hatId };
@@ -85,7 +94,7 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext,
 ) => {
   const { treeId, chainId, hatId } = getQueryParams(
-    _.get(context, 'query', {}),
+    _.get(context, 'query', {}) as HatQueryParams,
   );
 
   return {

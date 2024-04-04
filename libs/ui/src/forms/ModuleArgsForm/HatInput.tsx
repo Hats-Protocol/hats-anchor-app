@@ -2,6 +2,7 @@ import { Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import { ChangeEvent, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { transformAndVerify } from 'utils';
@@ -9,17 +10,25 @@ import { transformAndVerify } from 'utils';
 import Input from '../Input';
 import Select from '../Select';
 
-const HatInput = ({ arg, localForm }) => {
+const HatInput = ({
+  arg,
+  localForm,
+}: {
+  arg: any;
+  localForm: UseFormReturn;
+}) => {
   const { setValue } = localForm;
   const { treeToDisplay } = useTreeForm();
-  const [customHatSelections, setCustomHatSelections] = useState({});
+  const [customHatSelections, setCustomHatSelections] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const handleChangeHat = (
     e: ChangeEvent<HTMLSelectElement>,
     argName: string,
   ) => {
     setCustomHatSelections((prevState) => {
-      const newState = { ...prevState };
+      const newState = { ...prevState } as { [key: string]: boolean };
 
       if (e.target.value === 'custom') {
         newState[argName] = true;

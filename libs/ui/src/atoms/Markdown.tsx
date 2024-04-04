@@ -17,12 +17,12 @@ interface MarkdownProps {
   collapse?: boolean;
 }
 
-const customComponents = (smallFont) => ({
+const customComponents = (smallFont: any) => ({
   a: ({ href, children }: CustomLinkProps) => {
     if (!href) return null;
     return <ChakraNextLink href={href}>{children}</ChakraNextLink>;
   },
-  p: ({ node, ...props }) => (
+  p: ({ node, ...props }: any) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <Text mb={2} fontSize={smallFont ? 'sm' : 'md'} {...props} />
   ),
