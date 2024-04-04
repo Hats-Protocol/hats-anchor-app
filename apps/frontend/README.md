@@ -1,6 +1,6 @@
 # Hats Anchor App
 
-The Anchor app is a Next.js app relying on the Core & Subgraph SDK as well as the other libraries contained here.
+The Anchor App is a Next.js app relying on the Core & Subgraph SDK as well as the other libraries contained here.
 
 ## Start the app
 
