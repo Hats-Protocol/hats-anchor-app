@@ -65,9 +65,13 @@ const useAncillaryModules = ({
 
   const { gates } = useHatsSignerGatesMetadata({ chainId, editMode });
 
-  const moduleIds = ancillaryModules?.hatAuthority
-    ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
-    : null;
+  const moduleIds = useMemo(
+    () =>
+      ancillaryModules?.hatAuthority
+        ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
+        : null,
+    [ancillaryModules?.hatAuthority],
+  );
 
   const { modulesDetails, isLoading: isModulesDetailsLoading } =
     useModulesDetails({
@@ -114,6 +118,7 @@ const useAncillaryModules = ({
   const hatsAccounts1ofN = populateHatsAccountsAuthorities({
     details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
     hatId: id as Hex,
+    chainId,
     predictedAddress,
     toast,
     deployFn: createAccount,

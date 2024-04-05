@@ -6,6 +6,36 @@ import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 
+const fetchModulesData = async ({
+  chainId,
+  moduleIds,
+}: {
+  chainId: number | undefined;
+  moduleIds: Hex[] | null;
+}) => {
+  if (!chainId || !moduleIds) {
+    return [];
+  }
+  const moduleClient = await createHatsModulesClient(chainId);
+  if (!moduleClient) return [];
+
+  const result = await moduleClient.getModulesByInstances(moduleIds);
+
+  // map with moduleIds
+  const mappedModules = _.map(result, (moduleInfo: Module, index: number) => {
+    if (!moduleInfo) return undefined;
+
+    const fullDetails = {
+      ...moduleInfo,
+      id: moduleIds[index],
+    } as ModuleDetails;
+    return fullDetails;
+  });
+
+  // thinks it's a true[]
+  return _.compact(mappedModules) as unknown as ModuleDetails[];
+};
+
 const useModulesDetails = ({
   moduleIds,
   chainId,
@@ -15,38 +45,14 @@ const useModulesDetails = ({
   chainId: SupportedChains | undefined;
   editMode?: boolean;
 }) => {
-  const fetchModulesData = async () => {
-    if (!chainId || !moduleIds) {
-      return [];
-    }
-    const moduleClient = await createHatsModulesClient(chainId);
-    if (!moduleClient) return [];
-
-    const result = await moduleClient.getModulesByInstances(moduleIds);
-
-    // map with moduleIds
-    const mappedModules = _.map(result, (moduleInfo: Module, index: number) => {
-      if (!moduleInfo) return undefined;
-
-      const fullDetails = {
-        ...moduleInfo,
-        id: moduleIds[index],
-      } as ModuleDetails;
-      return fullDetails;
-    });
-
-    // thinks it's a true[]
-    return _.compact(mappedModules) as unknown as ModuleDetails[];
-  };
-
   const {
     data,
     isLoading: modulesLoading,
     fetchStatus,
   } = useQuery({
     queryKey: ['modulesDetails', moduleIds, chainId],
-    queryFn: fetchModulesData,
-    enabled: !!chainId && !!_.isEmpty(moduleIds),
+    queryFn: () => fetchModulesData({ chainId, moduleIds }),
+    enabled: !!chainId && !_.isEmpty(moduleIds),
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

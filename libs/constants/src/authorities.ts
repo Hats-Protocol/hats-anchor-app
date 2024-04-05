@@ -38,7 +38,7 @@ export const AUTHORITY_ENFORCEMENT: {
   [key in AuthorityType]: AuthorityInfo;
 } = {
   protocol: {
-    label: 'Hats Protocol Authority',
+    label: 'Onchain Authority',
     info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
     icon: HatIcon,
@@ -53,15 +53,15 @@ export const AUTHORITY_ENFORCEMENT: {
     enforcementIcon: '/icons/onchain.svg',
   },
   wallet: {
-    label: 'Hats Protocol Authority',
-    info: '',
+    label: 'Onchain Authority',
+    info: 'Connected onchain via HatsAccount',
     color: 'green.300',
     name: 'Hats Account',
     icon: HatIcon,
     enforcementIcon: '/icons/onchain.svg',
   },
   hsg: {
-    label: 'Hats Protocol Authority',
+    label: 'Onchain Authority',
     info: 'Connected onchain via HatsSignerGate',
     color: 'green.300',
     name: 'HSG',
@@ -82,7 +82,7 @@ export const AUTHORITY_ENFORCEMENT: {
     enforcementIcon: '/icons/token-gated.svg',
   },
   manual: {
-    label: 'Social Authority',
+    label: 'Off-chain Authority',
     info: 'Appended off-chain for clarity',
     color: 'purple.300',
     // imageUri: '',

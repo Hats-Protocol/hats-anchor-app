@@ -20,7 +20,11 @@ interface MarkdownProps {
 const customComponents = (smallFont: any) => ({
   a: ({ href, children }: CustomLinkProps) => {
     if (!href) return null;
-    return <ChakraNextLink href={href}>{children}</ChakraNextLink>;
+    return (
+      <ChakraNextLink href={href} decoration>
+        {children}
+      </ChakraNextLink>
+    );
   },
   p: ({ node, ...props }: any) => (
     // eslint-disable-next-line react/jsx-props-no-spreading

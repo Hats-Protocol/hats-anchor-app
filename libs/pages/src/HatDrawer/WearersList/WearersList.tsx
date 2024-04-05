@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Collapse,
-  Divider,
   Flex,
   Heading,
   HStack,
@@ -176,7 +175,7 @@ const WearersList = () => {
               </Tooltip>
             </HStack>
           </Flex>
-
+          {/* TEMP HIDDEN SINCE FETCHING INCOMPLETE LIST OF WEARERS */}
           {/* {_.gt(_.size(extendedWearers), 4) && (
             <InputGroup>
               <InputLeftElement pointerEvents='none'>
@@ -211,10 +210,10 @@ const WearersList = () => {
           )}
           {!wearersLoading && _.isEmpty(filteredWearers) && (
             <Box>
-              <Flex justify='center' h='70px' align='center'>
+              <Flex h='70px' align='center'>
                 <Text>No wearers currently</Text>
               </Flex>
-              <Divider />
+              {/* <Divider /> */}
             </Box>
           )}
         </Stack>

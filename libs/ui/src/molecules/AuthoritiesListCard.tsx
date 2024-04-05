@@ -15,6 +15,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import {
   AUTHORITY_ENFORCEMENT,
@@ -40,6 +41,7 @@ const BoxArrowUpRightOut = dynamic(() =>
 const CheckCircle = dynamic(() =>
   import('icons').then((mod) => mod.CheckCircle),
 );
+const Collapse = dynamic(() => import('icons').then((mod) => mod.Collapse));
 
 const AuthoritiesListCard = ({
   authority,
@@ -59,6 +61,7 @@ const AuthoritiesListCard = ({
   const { isMobile } = useMediaStyles();
   const [expanded, setExpanded] = useState(false);
   const isMounted = useRef(false);
+  const smallFont = useBreakpointValue({ base: true, md: false });
 
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
@@ -153,12 +156,24 @@ const AuthoritiesListCard = ({
                   borderRadius: 0,
                   borderTopRadius: !isMobile ? 'md' : 0,
                 }}
+                position='relative'
               >
                 <AuthorityHeader
                   authority={authority}
                   isExpanded={isExpanded}
                 />
                 {isMobile && <AccordionIcon />}
+                {isExpanded && (
+                  <Icon
+                    as={Collapse}
+                    w='14px'
+                    position='absolute'
+                    color='Functional-LinkSecondary'
+                    zIndex={10}
+                    bottom={-2}
+                    right={4}
+                  />
+                )}
               </AccordionButton>
               <AccordionPanel
                 p={0}
@@ -170,23 +185,31 @@ const AuthoritiesListCard = ({
                 }
               >
                 <Stack px={4}>
-                  <Tooltip
-                    label={tooltipInfo}
-                    placement='right'
-                    hasArrow
-                    shouldWrapChildren
-                  >
-                    <HStack pb={2}>
-                      {/* <Circle size='10px' bg={authorityEnforcement.color} /> */}
-                      <Image
-                        src={authorityEnforcement.enforcementIcon}
-                        alt='Hat'
-                        boxSize={6}
-                      />
-                      <Text size='sm'>{authorityEnforcement.label}</Text>
-                      <Icon as={BsInfoCircle} boxSize='12px' cursor='pointer' />
-                    </HStack>
-                  </Tooltip>
+                  <Box>
+                    <Tooltip
+                      label={tooltipInfo}
+                      shouldWrapChildren
+                      placement='top'
+                    >
+                      <HStack mb={2}>
+                        <Image
+                          src={authorityEnforcement.enforcementIcon}
+                          alt='Hat'
+                          boxSize={6}
+                        />
+                        <HStack spacing={1}>
+                          <Text size={{ base: 'sm', md: 'md' }}>
+                            {authorityEnforcement.label}
+                          </Text>
+                          <Icon
+                            as={BsInfoCircle}
+                            boxSize={{ base: 3, md: '14px' }}
+                            cursor='pointer'
+                          />
+                        </HStack>
+                      </HStack>
+                    </Tooltip>
+                  </Box>
 
                   {displayModulesToolbar ? (
                     <ModuleAuthorityToolbar
@@ -238,8 +261,8 @@ const AuthoritiesListCard = ({
                     </HStack>
                   )}
                   {description && (
-                    <Box pt={link || gate ? 2 : 0}>
-                      <Markdown smallFont>{description}</Markdown>
+                    <Box pt={link || gate ? 2 : 0} pb={3}>
+                      <Markdown smallFont={smallFont}>{description}</Markdown>
                     </Box>
                   )}
                 </Stack>
@@ -253,8 +276,8 @@ const AuthoritiesListCard = ({
                     borderBottomRadius='md'
                   >
                     <HStack>
-                      <Icon as={CheckCircle} boxSize={3} />
-                      <Text size='xs' variant='medium'>
+                      <Icon as={CheckCircle} boxSize='14px' />
+                      <Text size='sm' variant='medium'>
                         Verified Module
                       </Text>
                     </HStack>

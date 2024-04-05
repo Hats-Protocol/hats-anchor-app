@@ -26,13 +26,13 @@ const AdminWearers = () => {
     <HStack spacing='2px'>
       {adminCount.code > 0 && (
         <HStack color='Informative-Code' spacing='1px'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{adminCount.code}x</Text>
+          <Text fontSize={{ base: 'sm', md: 'md' }}>{adminCount.code}×</Text>
           <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}
       {adminCount.human > 0 && (
         <HStack color='Informative-Human' spacing='1px'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{adminCount.human}x</Text>
+          <Text fontSize={{ base: 'sm', md: 'md' }}>{adminCount.human}×</Text>
           <Icon as={WearerIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}

@@ -453,12 +453,14 @@ export function populateModulesAuthorities({
 export const populateHatsAccountsAuthorities = ({
   details,
   hatId,
+  chainId,
   predictedAddress,
   deployFn,
   toast,
 }: {
   details?: HatsAccount1ofN[];
   hatId: Hex;
+  chainId: SupportedChains | undefined;
   predictedAddress?: Hex | null;
   deployFn: () => void;
   toast: UseCustomToastReturn;
@@ -466,9 +468,11 @@ export const populateHatsAccountsAuthorities = ({
   const undeployedWalletAuth = {
     label: `Control 1/N HatsAccount (${formatAddress(predictedAddress)})`,
     link: predictedAddress as string,
-    description: `Wearers of this hat are able to take actions via the shared HatsAccount at ${formatAddress(
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount at [${formatAddress(
       predictedAddress,
-    )}. This account has not yet been deployed and can be deployed permissionlessly.  
+    )}](${explorerUrl(
+      chainId,
+    )}/address/${predictedAddress}). This account has not yet been deployed and can be deployed permissionlessly.  
       Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
       For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
@@ -482,6 +486,20 @@ export const populateHatsAccountsAuthorities = ({
         onClick: deployFn,
         primary: true,
       },
+      {
+        // TODO why is the "not a wearer" tooltip showing up here but not on the deployed version
+        label: 'Copy Address',
+        description: 'Copy the address of the HatsAccount',
+        isCustom: true,
+        onClick: () => {
+          if (!predictedAddress) return;
+          navigator.clipboard.writeText(predictedAddress); // ? HOOK WORKAROUND HERE
+          toast.info({
+            title: 'Successfully copied wearer address to clipboard',
+          });
+        },
+        icon: FiCopy,
+      },
     ] as unknown as AppWriteFunction[],
     hatId,
     isDeployed: false,
@@ -494,9 +512,9 @@ export const populateHatsAccountsAuthorities = ({
   return details.map((wallet) => ({
     label: `Control over 1/N HatsAccount (${formatAddress(wallet.id)})`,
     link: wallet.accountOfHat?.id as string,
-    description: `Wearers of this hat are able to take actions via the shared HatsAccount account at ${formatAddress(
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount account at [${formatAddress(
       wallet.id,
-    )}. 
+    )}](${explorerUrl(chainId)}/address/${wallet.id}). 
     Any of the wearers of this hat can take full control of the assets associated with the shared account.  
     For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,

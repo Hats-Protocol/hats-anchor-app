@@ -239,7 +239,7 @@ const ModuleAuthorityToolbar = ({
   if (!authority) return null;
 
   return (
-    <HStack my={2} wrap='wrap'>
+    <HStack wrap='wrap'>
       {primaryFunction && (
         <Tooltip label={primaryDisabledReason}>
           <Button

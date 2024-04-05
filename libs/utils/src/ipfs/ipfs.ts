@@ -193,7 +193,12 @@ export const authorityImageHandler = ({
   currentImageUrl,
 }: AuthorityImageHandlerProps) => {
   const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
-
+  // console.log(
+  //   'authority',
+  //   authority,
+  //   id,
+  //   GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS],
+  // );
   if (!authority) return checkIfIpfs('');
 
   if (editingItem) return checkIfIpfs(currentImageUrl);

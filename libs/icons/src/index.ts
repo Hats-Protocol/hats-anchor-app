@@ -3,6 +3,7 @@ export { default as BoxArrowUpRightOut } from './BoxArrowUpRightOut';
 export { default as CheckCircle } from './CheckCircle';
 export { default as CheckSquare } from './CheckSquare';
 export { default as CodeIcon } from './Code';
+export { default as Collapse } from './Collapse';
 export { default as CopyAddress } from './CopyAddress';
 export { default as CopyHash } from './CopyHash';
 export { default as EmptyWearer } from './EmptyWearer';
