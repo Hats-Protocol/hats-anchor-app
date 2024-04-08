@@ -14,7 +14,6 @@ import {
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
-//import type { OrgChart as OrgChartType } from 'd3-org-chart';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
@@ -80,7 +79,9 @@ const OrgChartComponent: React.FC = () => {
     queryParams.get('flipped') === 'true' || storedConfig?.flipped;
   const collpsedNodes = queryParams
     .getAll('collapsed')
-    .map((ipId) => ipToHatId(ipId));
+    .map((ipId) => ipToHatId(ipId))
+    .sort()
+    .reverse();
   //console.log('collapsed nodes', collpsedNodes);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
@@ -835,7 +836,6 @@ const setNodesExpandedState = (
     });
 
     if (nodeToCollapse !== undefined) {
-      //console.log('collapsing node', nodeToCollapse.data.id as string);
       collpaseNode(chart, nodeToCollapse);
     }
   });
