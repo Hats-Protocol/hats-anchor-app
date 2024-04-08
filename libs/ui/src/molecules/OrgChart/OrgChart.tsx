@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
 import {
@@ -13,6 +14,7 @@ import {
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
+//import type { OrgChart as OrgChartType } from 'd3-org-chart';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
@@ -20,7 +22,7 @@ import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
-import { ipToHatId } from 'shared';
+import { idToIp, ipToHatId } from 'shared';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -51,6 +53,7 @@ const OrgChartComponent: React.FC = () => {
     selectedOption,
     handleFlipChart,
     handleSetCompact,
+    handleNodeCollapsedOrExpanded,
     isLoading,
     storedConfig,
     storedData,
@@ -75,6 +78,10 @@ const OrgChartComponent: React.FC = () => {
     queryParams.get('compact') === 'true' || storedConfig?.compact;
   const initialFlipped =
     queryParams.get('flipped') === 'true' || storedConfig?.flipped;
+  const collpsedNodes = queryParams
+    .getAll('collapsed')
+    .map((ipId) => ipToHatId(ipId));
+  //console.log('collapsed nodes', collpsedNodes);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
@@ -87,6 +94,7 @@ const OrgChartComponent: React.FC = () => {
     if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
+      //console.log('treeToDisplay', treeToDisplay);
       if (chart) {
         // TODO check for missing parents to avoid crashing
         chart
@@ -634,11 +642,22 @@ const OrgChartComponent: React.FC = () => {
             </div>`;
           })
           .compact(compact)
-          .render()
           .layout(flipped ? 'bottom' : 'top')
-          .expandAll();
+          .onExpandOrCollapse((d: any) => {
+            if (handleNodeCollapsedOrExpanded !== undefined) {
+              handleNodeCollapsedOrExpanded(
+                idToIp(d.data.id),
+                d.children !== null,
+              );
+            }
+            console.log(d);
+          })
+          .render();
 
         if (!initialLoad || !treeToDisplay) return;
+
+        setNodesExpandedState(chart, collpsedNodes);
+        chart.render();
 
         if (
           selectedHatId &&
@@ -673,6 +692,8 @@ const OrgChartComponent: React.FC = () => {
     compact,
     flipped,
     orgChartWearers,
+    collpsedNodes,
+    handleNodeCollapsedOrExpanded,
   ]);
 
   return isLoading ? (
@@ -787,6 +808,48 @@ const centerChart = (chart: any, nodeId: string) => {
   };
 
   chart?.zoomTreeBounds(zoomTreeBounds);
+};
+
+const setNodesExpandedState = (
+  chart: OrgChart<unknown>,
+  collpasedNodes: string[],
+) => {
+  const { allNodes } = chart.getChartState();
+  console.log('allNodes', allNodes);
+
+  if (allNodes === undefined) {
+    return;
+  }
+
+  // init all nodes as expanded
+  for (let i = 0; i < allNodes.length; i += 1) {
+    (allNodes[i].data as any)._expanded = true;
+  }
+
+  collpasedNodes.forEach((collapsedNode) => {
+    const nodeToCollapse = allNodes.find((node: any) => {
+      if (node.data.id === collapsedNode) {
+        return true;
+      }
+      return false;
+    });
+
+    if (nodeToCollapse !== undefined) {
+      //console.log('collapsing node', nodeToCollapse.data.id as string);
+      collpaseNode(chart, nodeToCollapse);
+    }
+  });
+};
+
+const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
+  // If childrens are expanded
+  if (node.children) {
+    node._children = node.children;
+    node.children = null;
+
+    // Set descendants expanded property to false
+    chart.setExpansionFlagToChildren(node, false);
+  }
 };
 
 export default OrgChartComponent;

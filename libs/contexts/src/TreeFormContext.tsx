@@ -84,6 +84,9 @@ export interface TreeFormContext {
   addHat: ((hat: AppHat, parentId: Hex) => void) | undefined;
   handleFlipChart: ((isFlipped: boolean) => void) | undefined;
   handleSetCompact: ((isCompact: boolean) => void) | undefined;
+  handleNodeCollapsedOrExpanded:
+    | ((nodeIdIp: string, expanded: boolean) => void)
+    | undefined;
   removeHat: ((hatId: Hex) => void) | undefined;
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
@@ -133,6 +136,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   // actions
   handleFlipChart: undefined,
   handleSetCompact: undefined,
+  handleNodeCollapsedOrExpanded: undefined,
   addHat: undefined,
   removeHat: undefined,
   resetTree: undefined,
@@ -452,6 +456,57 @@ export const TreeFormContextProvider = ({
     [router, setStoredConfig, storedConfig],
   );
 
+  const handleNodeCollapsedOrExpanded = useCallback(
+    (nodeIdIp: string, expanded: boolean) => {
+      let updatedQuery = {
+        ...router.query,
+      };
+
+      console.log('expanded', expanded);
+      console.log('updatedQuery begin', updatedQuery);
+
+      const { collapsed } = updatedQuery;
+
+      if (Array.isArray(collapsed)) {
+        if (!expanded) {
+          collapsed.push(nodeIdIp);
+        } else {
+          const index = collapsed.indexOf(nodeIdIp);
+          if (index > -1) {
+            collapsed.splice(index, 1);
+          }
+        }
+        updatedQuery = {
+          ...updatedQuery,
+          collapsed,
+        };
+      } else if (typeof collapsed === 'string') {
+        if (!expanded) {
+          updatedQuery = {
+            ...updatedQuery,
+            collapsed: [collapsed, nodeIdIp],
+          };
+        } else {
+          delete updatedQuery.collapsed;
+        }
+      } else {
+        updatedQuery = {
+          ...updatedQuery,
+          collapsed: nodeIdIp,
+        };
+      }
+
+      const updatedUrl = {
+        pathname: router.pathname,
+        query: updatedQuery,
+      };
+
+      router.push(updatedUrl, undefined, { shallow: true });
+      console.log('updatedQuery end', updatedQuery);
+    },
+    [router],
+  );
+
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
       let updatedQuery = {
@@ -679,6 +734,7 @@ export const TreeFormContextProvider = ({
       // ACTIONS
       handleFlipChart,
       handleSetCompact,
+      handleNodeCollapsedOrExpanded,
       addHat,
       removeHat,
       resetTree,
@@ -729,6 +785,7 @@ export const TreeFormContextProvider = ({
       // ACTIONS
       handleFlipChart,
       handleSetCompact,
+      handleNodeCollapsedOrExpanded,
       addHat,
       removeHat,
       resetTree,
