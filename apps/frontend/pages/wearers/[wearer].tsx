@@ -24,12 +24,7 @@ import {
   useHatsAdminOf,
   useWearerDetails,
 } from 'hats-hooks';
-import {
-  useClipboard,
-  useImageURIs,
-  useMediaStyles,
-  useRudderStackAnalytics,
-} from 'hooks';
+import { useClipboard, useImageURIs, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
@@ -44,7 +39,7 @@ import {
 } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
+import { useEnsAvatar, useEnsName } from 'wagmi';
 
 type HeadlineStat = {
   label: string;
@@ -65,13 +60,11 @@ const WearerDetail = ({
 }) => {
   const [blockie, setBlockie] = useState<string | undefined>();
   const [name, setName] = useState<string | undefined>(initialEnsName);
-  const { address } = useAccount();
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
   });
   const { isMobile } = useMediaStyles();
-  const analytics = useRudderStackAnalytics();
   const { onCopy } = useClipboard(wearerAddress, {
     toastData: {
       title: 'Successfully copied wearer address to clipboard',
@@ -105,16 +98,6 @@ const WearerDetail = ({
       blockies.create({ seed: wearerAddress.toLowerCase() }).toDataURL(),
     );
   }, [ensName, wearerAddress]);
-
-  useEffect(() => {
-    if (analytics && wearerAddress) {
-      analytics.page('Auto Track', 'Wearer Page', {
-        wearerAddress,
-        isConnected: !!address,
-        anonymousId: address || analytics.getAnonymousId(),
-      });
-    }
-  }, [analytics, wearerAddress, address]);
 
   const headlineStats = [
     {

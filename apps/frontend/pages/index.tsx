@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import {
   CONFIG,
+  INTEGRATION_CARDS,
   LEARN_MORE,
   orderedChains,
   TemplateData,
@@ -25,10 +26,8 @@ import {
   useFeaturedTreesData,
   useImageURIs,
   useMediaStyles,
-  useRudderStackAnalytics,
 } from 'hooks';
 import _ from 'lodash';
-import { useEffect } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat, DocsLink } from 'types';
@@ -36,6 +35,7 @@ import {
   ChakraNextLink,
   DashboardHatCard,
   FeaturedTreeCard,
+  IntegrationCard,
   // ForkableTemplateCard,
   Layout,
   LearnMoreCard,
@@ -49,7 +49,6 @@ const MOBILE_HATS_TO_SHOW = 4;
 const Home = () => {
   const { address: wearerAddress } = useAccount();
   const chainId = useChainId();
-  const analytics = useRudderStackAnalytics();
   // const { data: featuredTemplates, isLoading: templatesLoading } =
   //   useFeaturedTemplates();
   const { data: featuredTrees, isLoading: featuredTreesLoading } =
@@ -78,19 +77,10 @@ const Home = () => {
         : [],
     });
   const overrideEmptyCurrentHats = _.isEmpty(currentHatsWithImagesData)
-    ? Array(8).fill({ id: '123' })
+    ? Array(isMobile ? 4 : 8).fill({ id: '123' })
     : currentHatsWithImagesData;
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
-
-  useEffect(() => {
-    if (analytics) {
-      analytics.page('Auto Track', 'Landing Page', {
-        isConnected: !!wearerAddress,
-        anonymousId: wearerAddress || analytics.getAnonymousId(),
-      });
-    }
-  }, [analytics, wearerAddress]);
 
   return (
     <Layout hideBackLink>
@@ -146,7 +136,7 @@ const Home = () => {
           (!_.isEmpty(sortedHats) || imagesLoading || wearerDetailsLoading ? (
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Flex justifyContent='space-between' alignItems='center'>
-                <Heading variant='medium'>Your hats</Heading>
+                <Heading>Your hats</Heading>
                 {_.size(sortedHats) >
                   (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
                   <ChakraNextLink
@@ -211,7 +201,7 @@ const Home = () => {
                 gap={4}
                 minH='320px'
               >
-                <Heading variant='medium'>Explore featured trees</Heading>
+                <Heading>Explore featured trees</Heading>
                 <Flex gap={6} wrap='wrap' justify='space-between'>
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                     <Skeleton
@@ -249,8 +239,22 @@ const Home = () => {
               </Card>
             </Skeleton>
 
+            <Card py={8} px={9} background='whiteAlpha.600'>
+              <Stack gap={4}>
+                <Heading>New Integrations</Heading>
+                <Flex gap={6} direction={{ base: 'column', md: 'row' }}>
+                  {_.map(INTEGRATION_CARDS, (integration) => (
+                    <IntegrationCard
+                      integration={integration}
+                      key={_.get(integration, 'label')}
+                    />
+                  ))}
+                </Flex>
+              </Stack>
+            </Card>
+
             {/* <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Heading variant='medium'>
+              <Heading>
                 Jump right in with a forkable template
               </Heading>
               <Skeleton isLoaded={!templatesLoading} minH='170px' w='100%'>
@@ -281,7 +285,7 @@ const Home = () => {
             maxW={{ base: '427px', md: 'none' }}
             w='100%'
           >
-            <Heading variant='medium'>Learn more about Hats</Heading>
+            <Heading>Learn more about Hats</Heading>
             {upTo1700 ? (
               <Grid
                 templateColumns={{

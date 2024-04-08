@@ -15,14 +15,9 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { useTreeCreate } from 'hats-hooks';
-import {
-  useCid,
-  useDebounce,
-  usePinImageIpfs,
-  useRudderStackAnalytics,
-} from 'hooks';
+import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
@@ -30,7 +25,7 @@ import { ImageFile } from 'types';
 import { DropZone, Input, Layout, Textarea } from 'ui';
 import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useChainId } from 'wagmi';
 
 const NewTree = () => {
   const [image, setImage] = useState<ImageFile>();
@@ -53,8 +48,6 @@ const NewTree = () => {
   });
 
   const chainId = useChainId();
-  const analytics = useRudderStackAnalytics();
-  const { address } = useAccount();
   const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
@@ -111,15 +104,6 @@ const NewTree = () => {
       );
     }
   };
-
-  useEffect(() => {
-    if (analytics) {
-      analytics.page('Auto Track', 'New Tree', {
-        isConnected: !!address,
-        anonymousId: address || analytics.getAnonymousId(),
-      });
-    }
-  }, [analytics, address]);
 
   return (
     <Layout>

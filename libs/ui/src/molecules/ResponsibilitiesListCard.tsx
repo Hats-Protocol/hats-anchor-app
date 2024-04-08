@@ -85,9 +85,6 @@ const ResponsibilitiesListCard = ({
                 borderTopColor: 'gray.100',
                 pb: 0,
                 borderTopRadius: !isMobile ? 'md' : 0,
-                boxShadow:
-                  isMobile &&
-                  '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
                 _hover: {
                   borderRadius: 0,
                   borderTopRadius: !isMobile ? 'md' : 0,
