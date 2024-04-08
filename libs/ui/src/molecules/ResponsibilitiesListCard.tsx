@@ -104,7 +104,7 @@ const ResponsibilitiesListCard = ({
                 />
               </Box>
               {isMobile && <AccordionIcon ml={2} />}
-              {isExpanded && (
+              {isExpanded && !isMobile && (
                 <Icon
                   as={Collapse}
                   w='14px'

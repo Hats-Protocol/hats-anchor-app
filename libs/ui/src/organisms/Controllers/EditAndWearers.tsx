@@ -1,4 +1,11 @@
-import { Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import {
+  Flex,
+  HStack,
+  Icon,
+  Stack,
+  Text,
+  useBreakpointValue,
+} from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatAdminWearers } from 'hats-hooks';
 import _ from 'lodash';
@@ -78,6 +85,11 @@ const EditAndWearers = () => {
     'id',
   ) as Hex | undefined;
 
+  const canAddWearers = useBreakpointValue({
+    base: 'Anyone can add eligible Wearers',
+    md: 'Anyone can add eligible addresses as Wearers',
+  });
+
   if (!selectedHat?.mutable) {
     return (
       <Stack spacing='2px'>
@@ -121,9 +133,7 @@ const EditAndWearers = () => {
       {(isClaimable?.for || isClaimable?.by) &&
         (isClaimable?.for ? (
           <Flex justify='space-between' py={1}>
-            <Text fontSize={{ base: 'sm', md: 'md' }}>
-              Anyone can add eligible addresses as Wearers
-            </Text>
+            <Text fontSize={{ base: 'sm', md: 'md' }}>{canAddWearers}</Text>
 
             <Claimable
               address={claimableForAddress}

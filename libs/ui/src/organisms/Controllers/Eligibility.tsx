@@ -89,13 +89,13 @@ const Eligibility = () => {
     async (data: object) => {
       const w = _.get(data, 'wearer');
       let eligibleStatus = (
-        <Text color='red.500'>
+        <Text color='red.500' size={{ base: 'sm', md: 'md' }}>
           {w || formatAddress(resolvedAddress)} is not eligible
         </Text>
       );
       if (wearerEligible) {
         eligibleStatus = (
-          <Text color='green.500'>
+          <Text color='green.500' size={{ base: 'sm', md: 'md' }}>
             {w || formatAddress(resolvedAddress)} is eligible
           </Text>
         );

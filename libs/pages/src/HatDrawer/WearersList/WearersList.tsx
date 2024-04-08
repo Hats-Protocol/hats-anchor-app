@@ -211,7 +211,9 @@ const WearersList = () => {
           {!wearersLoading && _.isEmpty(filteredWearers) && (
             <Box>
               <Flex h='70px' align='center'>
-                <Text>No wearers currently</Text>
+                <Text size={{ base: 'sm', md: 'md' }}>
+                  No wearers currently
+                </Text>
               </Flex>
               {/* <Divider /> */}
             </Box>

@@ -163,7 +163,7 @@ const AuthoritiesListCard = ({
                   isExpanded={isExpanded}
                 />
                 {isMobile && <AccordionIcon />}
-                {isExpanded && (
+                {isExpanded && !isMobile && (
                   <Icon
                     as={Collapse}
                     w='14px'

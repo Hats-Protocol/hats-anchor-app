@@ -67,7 +67,7 @@ export const handleErc20Eligibility = async ({
     // TODO handle is wearer vs not (hold/retain)
     return Promise.resolve({
       rule: (
-        <Text>
+        <Text size={{ base: 'sm', md: 'md' }}>
           Retain at least {amountValueDisplay}
           <Tooltip label={tokenDetails?.name}>
             <Text as='span' variant='cashtag'>
@@ -85,7 +85,7 @@ export const handleErc20Eligibility = async ({
   // fallback to ineligible
   return Promise.resolve({
     rule: (
-      <Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
         Hold at least {amountValueDisplay}{' '}
         <Tooltip label={tokenDetails?.name}>
           <Text as='span' variant='cashtag'>

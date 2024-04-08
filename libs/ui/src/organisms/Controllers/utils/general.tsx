@@ -41,14 +41,22 @@ export type ToggleRuleDetails = {
 
 // should we be using better defaults than these?
 export const DEFAULT_ELIGIBILITY_DETAILS: EligibilityRuleDetails = {
-  rule: <Text>Comply with 1 rule to keep this Hat</Text>,
+  rule: (
+    <Text size={{ base: 'sm', md: 'md' }}>
+      Comply with 1 rule to keep this Hat
+    </Text>
+  ),
   status: ELIGIBILITY_STATUS.ineligible,
   displayStatus: 'Ineligible',
   icon: RemovedWearer,
 };
 
 export const DEFAULT_TOGGLE_RULE_DETAILS: ToggleRuleDetails = {
-  rule: <Text>One address can deactivate this Hat</Text>,
+  rule: (
+    <Text size={{ base: 'sm', md: 'md' }}>
+      One address can deactivate this Hat
+    </Text>
+  ),
   status: TOGGLE_STATUS.inactive,
   displayStatus: 'Inactive',
   icon: RemovedWearer,

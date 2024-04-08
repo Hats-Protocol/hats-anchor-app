@@ -39,6 +39,8 @@ interface ItemDetailsFormProps {
   label: string;
 }
 
+const RESPONSIBILITY_NAME_LENGTH = 40;
+
 const ResponsibilitiesForm = ({
   formName,
   title,
@@ -201,13 +203,19 @@ const ResponsibilitiesForm = ({
                 name='label'
                 placeholder='Name'
                 localForm={localForm}
-                options={{ required: 'Responsibility name is required' }}
+                options={{
+                  required: 'Responsibility name is required',
+                  maxLength: {
+                    value: RESPONSIBILITY_NAME_LENGTH,
+                    message: 'Responsibility name is too long',
+                  },
+                }}
               />
 
               <Textarea
                 label='Description'
                 name='description'
-                placeholder='Enter a description here (supports markdown)'
+                placeholder='Enter a description here (supports Markdown)'
                 localForm={localForm}
               />
 

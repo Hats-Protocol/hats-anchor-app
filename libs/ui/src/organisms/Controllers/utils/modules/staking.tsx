@@ -70,7 +70,7 @@ export const handleStakingEligibility = async ({
 
   return Promise.resolve({
     rule: (
-      <Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
         Stake {amountParamDisplay} ${tokenDetails?.symbol}
       </Text>
     ),
