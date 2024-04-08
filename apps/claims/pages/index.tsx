@@ -1,5 +1,5 @@
 import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import { useIsClient, useRudderStackAnalytics } from 'hooks';
+import { useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import { useEffect } from 'react';
 import { ChakraNextLink, StandaloneLayout as Layout } from 'ui';
 import { formatAddress } from 'utils';
@@ -27,7 +27,7 @@ const LookingForHat = () => (
 );
 
 const Home = () => {
-  const isClient = useIsClient();
+  const { isClient } = useMediaStyles();
   const analytics = useRudderStackAnalytics();
   const { address: wearerAddress } = useAccount();
   const { data: ensName } = useEnsName({

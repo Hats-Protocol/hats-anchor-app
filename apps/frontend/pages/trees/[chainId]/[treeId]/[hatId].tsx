@@ -3,12 +3,7 @@ import {
   TreeFormContextProvider,
   useOverlay,
 } from 'contexts';
-import {
-  useHatParams,
-  useIsClient,
-  useMediaStyles,
-  useRudderStackAnalytics,
-} from 'hooks';
+import { useHatParams, useMediaStyles, useRudderStackAnalytics } from 'hooks';
 import { useRouter } from 'next/router';
 import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
@@ -19,9 +14,8 @@ const HatDetails = () => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   const router = useRouter();
   const { address } = useAccount();
-  const isClient = useIsClient();
   const analytics = useRudderStackAnalytics();
-  const { isMobile } = useMediaStyles();
+  const { isClient, isMobile } = useMediaStyles();
 
   const { selectedHatId: hatId, chainId, treeId } = useHatParams();
 

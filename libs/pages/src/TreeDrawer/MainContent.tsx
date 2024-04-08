@@ -19,7 +19,7 @@ import {
   handleExportBranch,
   isTopHatOrMutable,
 } from 'hats-utils';
-import { useIsClient, useToast } from 'hooks';
+import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsChevronRight } from 'react-icons/bs';
@@ -47,9 +47,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     onCloseTreeDrawer,
     onOpenHatDrawer,
   } = useTreeForm();
-
-  const isClient = useIsClient();
-
+  const { isClient } = useMediaStyles();
   const toast = useToast();
   const localOverlay = useOverlay();
 

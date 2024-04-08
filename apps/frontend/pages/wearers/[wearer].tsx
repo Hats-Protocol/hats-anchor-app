@@ -15,7 +15,6 @@ import {
   Spinner,
   Stack,
   Text,
-  useClipboard,
 } from '@chakra-ui/react';
 import { orderedChains } from '@hatsprotocol/constants';
 import blockies from 'blockies-ts';
@@ -26,10 +25,10 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import {
+  useClipboard,
   useImageURIs,
   useMediaStyles,
   useRudderStackAnalytics,
-  useToast,
 } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
@@ -73,8 +72,11 @@ const WearerDetail = ({
   });
   const { isMobile } = useMediaStyles();
   const analytics = useRudderStackAnalytics();
-  const toast = useToast();
-  const { onCopy } = useClipboard(wearerAddress);
+  const { onCopy } = useClipboard(wearerAddress, {
+    toastData: {
+      title: 'Successfully copied wearer address to clipboard',
+    },
+  });
 
   const firstCreated = _.minBy(currentHats, 'createdAt');
 
@@ -178,12 +180,7 @@ const WearerDetail = ({
                   variant='ghost'
                   icon={<FiCopy />}
                   size='sm'
-                  onClick={() => {
-                    onCopy();
-                    toast.info({
-                      title: 'Successfully copied wearer address to clipboard',
-                    });
-                  }}
+                  onClick={onCopy}
                   aria-label='Copy Address'
                   color='gray.500'
                 />

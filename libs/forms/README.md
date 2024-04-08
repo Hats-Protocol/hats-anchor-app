@@ -1,7 +1,22 @@
-# forms
+# Hat Forms
 
-This library was generated with [Nx](https://nx.dev).
+Hat Forms is a component library for all the forms in the Hats Apps. Leveraging the `form` atoms in the `ui` library and `react-hook-form`, this library provides a set of forms for creating, editing, and viewing hats.
 
-## Running unit tests
+### Forms
 
-Run `nx test ui` to execute the unit tests via [Jest](https://jestjs.io).
+- `AuthoritiesForm` - Form for editing authorities on a hat
+  - `AuthoritiesFormItem` - Form Item for editing a single authority on a hat
+- `ClaimsHandler` - Form for handling claimability of a hat
+- `HatBasicsForm` - Form for editing the basic information of a hat (name, description, mutability, etc.)
+- `HatClaimForForm` - Form for claiming a hat (on behalf of another user)
+- `HatLinkRequestApproveForm` - Form for approving a hat link request
+- `HatLinkRequestCreateForm` - Form for creating a hat link request
+- `HatControllersForm` - Form for managing the controllers of a Hat (eligibility, toggle) [prev. `HatManagementForm`]
+- `HatRelinkForm` - Form for relinking a hat to a new parent
+- `HatTransferForm` - Form for transferring a hat to a new owner
+- `HatUnlinkForm` - Form for unlinking a hat from a parent
+- `HatWearerForm` - Form for managing the wearers of a hat
+- `HatWearerStatusForm` - Form for managing the status of a wearer on a hat
+- `ImportTreeForm` - Form for importing a tree with edits and potentially draft hats
+- `ResponsibilitiesForm` - Form for editing responsibilities on a hat
+  - `ResponsibilitiesFormItem` - Form Item for editing a single responsibility on a hat

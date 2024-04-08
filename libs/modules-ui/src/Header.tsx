@@ -10,13 +10,12 @@ import {
   Stack,
   Text,
   Tooltip,
-  useClipboard,
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useMediaStyles, useToast } from 'hooks';
+import { useClipboard, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { hatLink } from 'utils';

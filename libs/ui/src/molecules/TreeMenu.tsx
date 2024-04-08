@@ -24,7 +24,7 @@ import {
 import { CONFIG, initialControls } from '@hatsprotocol/constants';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
-import { useIsClient } from 'hooks';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import React, { useEffect } from 'react';
@@ -57,7 +57,7 @@ const TreeMenu = () => {
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
-  const isClient = useIsClient();
+  const { isClient } = useMediaStyles();
 
   useEffect(() => {
     if (!isClient || !_.get(_.first(treeEvents), 'timestamp')) return;
