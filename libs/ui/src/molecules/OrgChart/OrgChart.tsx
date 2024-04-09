@@ -19,7 +19,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
 import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import { formatAddress } from 'utils';
@@ -82,7 +82,7 @@ const OrgChartComponent: React.FC = () => {
     .map((ipId) => ipToHatId(ipId))
     .sort()
     .reverse();
-  //console.log('collapsed nodes', collpsedNodes);
+  console.log('collapsed nodes', collpsedNodes);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
@@ -91,7 +91,7 @@ const OrgChartComponent: React.FC = () => {
     defaultIsOpen: initialFlipped,
   });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
@@ -650,12 +650,26 @@ const OrgChartComponent: React.FC = () => {
                 idToIp(d.data.id),
                 d.children !== null,
               );
+
+              if (d.children !== null) {
+                d.data._collapsed = false;
+                handleExpand(chart, d, true);
+              } else {
+                d.data._collapsed = true;
+              }
             }
             console.log(d);
           })
           .render();
 
-        if (!initialLoad || !treeToDisplay) return;
+        //const { data } = chart.getChartState();
+        //data.forEach((d) => (d._expanded = true));
+
+        if (!initialLoad || !treeToDisplay) {
+          const { allNodes: allNodesAfterInit } = chart.getChartState();
+          console.log('allNodes after render, post init', allNodesAfterInit);
+          return;
+        }
 
         setNodesExpandedState(chart, collpsedNodes);
         chart.render();
@@ -670,6 +684,9 @@ const OrgChartComponent: React.FC = () => {
         } else {
           chart.fit();
         }
+
+        const { allNodes: allNodesInit } = chart.getChartState();
+        console.log('allNodes after render, init', allNodesInit);
         setInitialLoad(false);
       }
     }
@@ -815,8 +832,9 @@ const setNodesExpandedState = (
   chart: OrgChart<unknown>,
   collpasedNodes: string[],
 ) => {
+  //console.log('enter setNodesExpandedState');
   const { allNodes } = chart.getChartState();
-  console.log('allNodes', allNodes);
+  //console.log('all nodes begin of set', allNodes);
 
   if (allNodes === undefined) {
     return;
@@ -839,9 +857,11 @@ const setNodesExpandedState = (
       collpaseNode(chart, nodeToCollapse);
     }
   });
+  //console.log('all nodes end of set', allNodes);
 };
 
 const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
+  //console.log('collapsing node', node.data.id);
   // If childrens are expanded
   if (node.children) {
     node._children = node.children;
@@ -849,6 +869,30 @@ const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
 
     // Set descendants expanded property to false
     chart.setExpansionFlagToChildren(node, false);
+  }
+};
+
+const handleExpand = (
+  chart: any,
+  { data, children, _children },
+  flag: boolean,
+) => {
+  if (data._collapsed) return;
+  // Set flag to the current property
+  data._expanded = flag;
+
+  // Loop over and recursively update expanded children's descendants
+  if (children) {
+    children.forEach((d) => {
+      chart.setExpansionFlagToChildren(d, flag);
+    });
+  }
+
+  // Loop over and recursively update collapsed children's descendants
+  if (_children) {
+    _children.forEach((d) => {
+      chart.setExpansionFlagToChildren(d, flag);
+    });
   }
 };
 
