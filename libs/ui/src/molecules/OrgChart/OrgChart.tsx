@@ -22,6 +22,7 @@ import _ from 'lodash';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
+import { AppHat } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -77,12 +78,12 @@ const OrgChartComponent: React.FC = () => {
     queryParams.get('compact') === 'true' || storedConfig?.compact;
   const initialFlipped =
     queryParams.get('flipped') === 'true' || storedConfig?.flipped;
-  const collpsedNodes = queryParams
+  const collapsedNodes = queryParams
     .getAll('collapsed')
     .map((ipId) => ipToHatId(ipId))
     .sort()
     .reverse();
-  console.log('collapsed nodes', collpsedNodes);
+  console.log('collapsed nodes', collapsedNodes);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
@@ -95,6 +96,17 @@ const OrgChartComponent: React.FC = () => {
     if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
+      // encode collapsed nodes in tree to display
+      collapsedNodes.forEach((node) => {
+        const hatToUpdate = treeToDisplay.find((hat) => {
+          if (hat.id === node) {
+            return true;
+          }
+          return false;
+        });
+        (hatToUpdate as any)._collapsed = true;
+      });
+
       //console.log('treeToDisplay', treeToDisplay);
       if (chart) {
         // TODO check for missing parents to avoid crashing
@@ -671,7 +683,7 @@ const OrgChartComponent: React.FC = () => {
           return;
         }
 
-        setNodesExpandedState(chart, collpsedNodes);
+        setNodesExpandedState(chart, collapsedNodes);
         chart.render();
 
         if (
@@ -710,7 +722,7 @@ const OrgChartComponent: React.FC = () => {
     compact,
     flipped,
     orgChartWearers,
-    collpsedNodes,
+    collapsedNodes,
     handleNodeCollapsedOrExpanded,
   ]);
 
