@@ -93,7 +93,7 @@ const NewTree = () => {
   });
 
   const onSubmit = async () => {
-    writeAsync?.();
+    await writeAsync?.();
     if (detailsCID) {
       // TODO migrate to `handleDetailsPin`
       const token = await fetchToken();

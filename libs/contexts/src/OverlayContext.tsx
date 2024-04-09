@@ -192,6 +192,7 @@ export const OverlayContextProvider = ({
       toast.success({
         title: _.get(toastData, 'title', 'Transaction successful'),
         description: _.get(toastData, 'description'),
+        duration: _.get(toastData, 'duration', 3000),
       });
     }
 
@@ -239,6 +240,7 @@ export const OverlayContextProvider = ({
     }, 10000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, setTransactions]);
 
   const returnValue = useMemo(

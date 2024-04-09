@@ -202,7 +202,11 @@ const Home = () => {
                 minH='320px'
               >
                 <Heading>Explore featured trees</Heading>
-                <Flex gap={6} wrap='wrap' justify='space-between'>
+                <Flex
+                  gap={{ md: 6, '2xl': 20 }}
+                  wrap='wrap'
+                  justify='space-around'
+                >
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                     <Skeleton
                       isLoaded={!!tree && !featuredTreesDataLoading}
@@ -242,7 +246,11 @@ const Home = () => {
             <Card py={8} px={9} background='whiteAlpha.600'>
               <Stack gap={4}>
                 <Heading>New Integrations</Heading>
-                <Flex gap={6} direction={{ base: 'column', md: 'row' }}>
+                <Flex
+                  gap={6}
+                  direction={{ base: 'column', md: 'row' }}
+                  justify={{ md: 'space-between', lg: 'space-around' }}
+                >
                   {_.map(INTEGRATION_CARDS, (integration) => (
                     <IntegrationCard
                       integration={integration}
@@ -286,25 +294,18 @@ const Home = () => {
             w='100%'
           >
             <Heading>Learn more about Hats</Heading>
-            {upTo1700 ? (
-              <Grid
-                templateColumns={{
-                  base: 'repeat(1, 1fr)',
-                  md: 'repeat(2, 1fr)',
-                }}
-                gap={6}
-              >
-                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
-                  <LearnMoreCard key={i} docsData={docsLink} />
-                ))}
-              </Grid>
-            ) : (
-              <Stack spacing={6}>
-                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
-                  <LearnMoreCard key={i} docsData={docsLink} />
-                ))}
-              </Stack>
-            )}
+
+            <Grid
+              templateColumns={{
+                base: 'repeat(1, 1fr)',
+                md: 'repeat(2, 1fr)',
+              }}
+              gap={6}
+            >
+              {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                <LearnMoreCard key={i} docsData={docsLink} />
+              ))}
+            </Grid>
           </Card>
         </Flex>
       </Stack>

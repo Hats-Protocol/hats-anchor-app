@@ -62,6 +62,7 @@ const useHatContractWrite: any = ({
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
+        duration: 5000,
       });
 
       await handlePendingTx?.({
