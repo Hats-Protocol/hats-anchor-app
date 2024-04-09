@@ -1,3 +1,7 @@
+export { default as BoxArrowDown } from './BoxArrowDown';
+export { default as BoxArrowLeft } from './BoxArrowLeft';
+export { default as BoxArrowRight } from './BoxArrowRight';
+export { default as BoxArrowUp } from './BoxArrowUp';
 export { default as BoxArrowUpRightIn } from './BoxArrowUpRightIn';
 export { default as BoxArrowUpRightOut } from './BoxArrowUpRightOut';
 export { default as CheckCircle } from './CheckCircle';

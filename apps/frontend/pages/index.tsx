@@ -10,7 +10,6 @@ import {
   Skeleton,
   Stack,
   Text,
-  useMediaQuery,
 } from '@chakra-ui/react';
 import {
   CONFIG,
@@ -57,7 +56,6 @@ const Home = () => {
     useFeaturedTreesData(featuredTrees);
 
   const { isMobile } = useMediaStyles();
-  const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
   const { data: currentHats, isLoading: wearerDetailsLoading } =
     useWearerDetails({

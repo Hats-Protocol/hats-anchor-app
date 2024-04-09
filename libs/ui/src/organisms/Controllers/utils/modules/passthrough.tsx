@@ -26,7 +26,9 @@ const handlePassthroughEligibility = async ({
 
   return Promise.resolve({
     rule: (
-      <Text size={{ base: 'sm', md: 'md' }}>One Hat can remove wearers</Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
+        One Hat can choose eligible wearers
+      </Text>
     ),
     status: ELIGIBILITY_STATUS.hat,
     displayStatus: passthroughHatDisplay,

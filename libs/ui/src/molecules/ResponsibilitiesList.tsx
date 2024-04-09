@@ -33,7 +33,7 @@ const ResponsibilitiesList = () => {
   }
 
   return (
-    <Accordion px={{ base: 0, md: 10 }} allowMultiple>
+    <Accordion px={{ base: 0, md: 16 }} allowMultiple>
       <Stack>
         <Skeleton isLoaded={!hatLoading && !!responsibilities}>
           <Heading

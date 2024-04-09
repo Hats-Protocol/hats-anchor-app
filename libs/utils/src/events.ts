@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 
 export const parseEventName = (eventName: string) => {
+  if (eventName === 'HatImageURIChanged') return 'Hat Image Changed';
   const capitalLetters = eventName.match(/[A-Z]/g);
   if (!capitalLetters) return eventName;
   const indexes = capitalLetters.map((letter) => eventName.indexOf(letter));

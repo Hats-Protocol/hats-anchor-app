@@ -694,7 +694,7 @@ const OrgChartComponent: React.FC = () => {
         ref={d3Container}
         id='d3Container'
       />
-      <HStack position='absolute' bottom={4} left={4}>
+      <HStack position='absolute' bottom={4} left={85}>
         <Button
           variant='outline'
           bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}

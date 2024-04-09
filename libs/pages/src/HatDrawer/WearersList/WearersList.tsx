@@ -145,7 +145,7 @@ const WearersList = () => {
   return (
     <>
       <Stack>
-        <Stack spacing={4} px={{ base: 4, md: 10 }}>
+        <Stack spacing={4} px={{ base: 4, md: 16 }}>
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
               <Skeleton isLoaded={!!eligibleWearers}>

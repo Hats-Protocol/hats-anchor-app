@@ -14,7 +14,7 @@ import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useClipboard, useMediaStyles, useToast } from 'hooks';
+import { useClipboard, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useAccount } from 'wagmi';
@@ -23,12 +23,15 @@ const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 const Header = () => {
-  const toast = useToast();
   const { address } = useAccount();
   const { chainId, editMode, treeToDisplay } = useTreeForm();
   const { selectedHat, selectedHatDetails } = useSelectedHat();
 
-  const { onCopy } = useClipboard(selectedHat?.id || '');
+  const { onCopy } = useClipboard(selectedHat?.id, {
+    toastData: {
+      title: 'Successfully copied hat ID to clipboard',
+    },
+  });
   const { isMobile } = useMediaStyles();
 
   const { name, description } = _.pick(selectedHatDetails, [
@@ -58,7 +61,7 @@ const Header = () => {
   return (
     <Stack
       spacing={4}
-      px={{ base: 4, md: 10 }}
+      px={{ base: 4, md: 16 }}
       pb={4}
       bg={{ base: 'white', md: 'transparent' }}
     >
@@ -98,6 +101,7 @@ const Header = () => {
             justify='space-between'
             gap={2}
             direction={{ base: 'column', md: 'row' }}
+            w='100%'
             maxW={{ base: '60%', md: '100%' }}
           >
             <Tooltip label={name || selectedHat?.details}>
@@ -114,12 +118,7 @@ const Header = () => {
                 as={CopyHash}
                 color='blue.500'
                 cursor='pointer'
-                onClick={() => {
-                  onCopy();
-                  toast.info({
-                    title: 'Successfully copied hat ID to clipboard',
-                  });
-                }}
+                onClick={onCopy}
               />
             </HStack>
           </Flex>

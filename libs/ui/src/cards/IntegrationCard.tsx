@@ -28,7 +28,7 @@ const IntegrationCard = ({
           bgRepeat='repeat'
           bgClip='border-box'
         />
-        <HStack spacing={8}>
+        <HStack spacing={{ sm: 4, '2xl': 8 }}>
           {_.map(icons, (icon: As, i: number) => (
             <Icon
               as={icon}

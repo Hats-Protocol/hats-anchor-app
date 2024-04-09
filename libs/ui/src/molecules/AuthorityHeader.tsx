@@ -88,7 +88,7 @@ const IconHandler = ({
             ? ipfsUrl(imageUrl?.slice(7)) || ''
             : imageUrl || authorityEnforcement.imageUri
         }
-        boxSize={5}
+        boxSize='18px'
         border='1px solid'
         borderColor='blackAlpha.300'
         borderRadius='full'
@@ -184,7 +184,7 @@ const AuthorityHeader = ({
               src={enforcementIcon}
               alt='authority enforcement indicator'
               position='absolute'
-              top={0}
+              top='1px' // slightly offset to align with icon/image
               left={0}
             />
           )}
@@ -219,7 +219,7 @@ const AuthorityHeader = ({
           </HStack>
         </Box>
       </HStack>
-      {!isMobile && localLink && validateURL(localLink) && (
+      {!isExpanded && !isMobile && localLink && validateURL(localLink) && (
         <ChakraNextLink isExternal href={localLink} display='block'>
           <Tooltip label={getHostnameFromURL(localLink)}>
             <HStack spacing={1} color='blue.500'>

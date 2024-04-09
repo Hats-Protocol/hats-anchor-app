@@ -53,7 +53,7 @@ export const processGuildRolesForHat = ({
             id: platform?.platformId,
             description: role.description,
             gate: `https://guild.xyz/${guild.urlName}`,
-            imageUrl: guild.imageUrl,
+            // imageUrl: guild.imageUrl, // IMAGE BEING RETURNED FOR GUILD
             type: AUTHORITY_TYPES.gate,
           } as Authority;
         });
