@@ -462,9 +462,6 @@ export const TreeFormContextProvider = ({
         ...router.query,
       };
 
-      console.log('expanded', expanded);
-      console.log('updatedQuery begin', updatedQuery);
-
       const { collapsed } = updatedQuery;
 
       if (Array.isArray(collapsed)) {
@@ -502,7 +499,6 @@ export const TreeFormContextProvider = ({
       };
 
       router.push(updatedUrl, undefined, { shallow: true });
-      console.log('updatedQuery end', updatedQuery);
     },
     [router],
   );

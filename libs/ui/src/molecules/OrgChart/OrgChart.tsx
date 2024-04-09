@@ -19,10 +19,9 @@ import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
 import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
-import { AppHat } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -78,12 +77,12 @@ const OrgChartComponent: React.FC = () => {
     queryParams.get('compact') === 'true' || storedConfig?.compact;
   const initialFlipped =
     queryParams.get('flipped') === 'true' || storedConfig?.flipped;
+  // sorting so that the order of processing will be identical to the order of the node collapses by the user
   const collapsedNodes = queryParams
     .getAll('collapsed')
     .map((ipId) => ipToHatId(ipId))
     .sort()
     .reverse();
-  console.log('collapsed nodes', collapsedNodes);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
@@ -96,7 +95,7 @@ const OrgChartComponent: React.FC = () => {
     if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
-      // encode collapsed nodes in tree to display
+      // encode the collapsed nodes in the tree to display, used for custom manipulation of expanded/collapsed nodes
       collapsedNodes.forEach((node) => {
         const hatToUpdate = treeToDisplay.find((hat) => {
           if (hat.id === node) {
@@ -107,7 +106,6 @@ const OrgChartComponent: React.FC = () => {
         (hatToUpdate as any)._collapsed = true;
       });
 
-      //console.log('treeToDisplay', treeToDisplay);
       if (chart) {
         // TODO check for missing parents to avoid crashing
         chart
@@ -658,32 +656,22 @@ const OrgChartComponent: React.FC = () => {
           .layout(flipped ? 'bottom' : 'top')
           .onExpandOrCollapse((d: any) => {
             if (handleNodeCollapsedOrExpanded !== undefined) {
-              handleNodeCollapsedOrExpanded(
-                idToIp(d.data.id),
-                d.children !== null,
-              );
+              const isExpanded = d.children !== null;
+              handleNodeCollapsedOrExpanded(idToIp(d.data.id), isExpanded);
 
-              if (d.children !== null) {
+              if (isExpanded) {
                 d.data._collapsed = false;
-                handleExpand(chart, d, true);
+                adjustAfterNodeExpanded(d);
               } else {
                 d.data._collapsed = true;
               }
             }
-            console.log(d);
           })
           .render();
 
-        //const { data } = chart.getChartState();
-        //data.forEach((d) => (d._expanded = true));
+        if (!initialLoad || !treeToDisplay) return;
 
-        if (!initialLoad || !treeToDisplay) {
-          const { allNodes: allNodesAfterInit } = chart.getChartState();
-          console.log('allNodes after render, post init', allNodesAfterInit);
-          return;
-        }
-
-        setNodesExpandedState(chart, collapsedNodes);
+        recreateNodesCollapse(chart, collapsedNodes);
         chart.render();
 
         if (
@@ -697,8 +685,6 @@ const OrgChartComponent: React.FC = () => {
           chart.fit();
         }
 
-        const { allNodes: allNodesInit } = chart.getChartState();
-        console.log('allNodes after render, init', allNodesInit);
         setInitialLoad(false);
       }
     }
@@ -840,23 +826,22 @@ const centerChart = (chart: any, nodeId: string) => {
   chart?.zoomTreeBounds(zoomTreeBounds);
 };
 
-const setNodesExpandedState = (
+const recreateNodesCollapse = (
   chart: OrgChart<unknown>,
   collpasedNodes: string[],
 ) => {
-  //console.log('enter setNodesExpandedState');
   const { allNodes } = chart.getChartState();
-  //console.log('all nodes begin of set', allNodes);
 
   if (allNodes === undefined) {
     return;
   }
 
-  // init all nodes as expanded
+  // first init all nodes as expanded
   for (let i = 0; i < allNodes.length; i += 1) {
     (allNodes[i].data as any)._expanded = true;
   }
 
+  // collapse initially collapsed nodes
   collpasedNodes.forEach((collapsedNode) => {
     const nodeToCollapse = allNodes.find((node: any) => {
       if (node.data.id === collapsedNode) {
@@ -869,12 +854,9 @@ const setNodesExpandedState = (
       collpaseNode(chart, nodeToCollapse);
     }
   });
-
-  //console.log('all nodes end of set', allNodes);
 };
 
 const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
-  //console.log('collapsing node', node.data.id);
   // If childrens are expanded
   if (node.children) {
     node._children = node.children;
@@ -886,26 +868,23 @@ const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
   }
 };
 
-const handleExpand = (
-  chart: any,
-  { data, children, _children },
-  flag: boolean,
-) => {
+const adjustAfterNodeExpanded = ({ data, children, _children }) => {
+  // if node is collapsed by the user, don't expand it and its descendants
   if (data._collapsed) return;
-  // Set flag to the current property
-  data._expanded = flag;
+
+  data._expanded = true;
 
   // Loop over and recursively update expanded children's descendants
   if (children) {
     children.forEach((d) => {
-      handleExpand(chart, d, flag);
+      adjustAfterNodeExpanded(d);
     });
   }
 
   // Loop over and recursively update collapsed children's descendants
   if (_children) {
     _children.forEach((d) => {
-      handleExpand(chart, d, flag);
+      adjustAfterNodeExpanded(d);
     });
   }
 };
