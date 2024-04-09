@@ -19,7 +19,7 @@
     "@emotion/styled": "^11.11.0",
     "@hatsprotocol/hats-account-sdk": "^0.0.5",
     "@hatsprotocol/hsg-sdk": "^0.0.9",
-    "@hatsprotocol/modules-sdk": "^0.15.2",
+    "@hatsprotocol/modules-sdk": "^1.0.0",
     "@hatsprotocol/sdk-v1-core": "^0.8.1",
     "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
     "@nx/next": "18.0.5",
