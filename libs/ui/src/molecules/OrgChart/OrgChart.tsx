@@ -857,6 +857,7 @@ const setNodesExpandedState = (
       collpaseNode(chart, nodeToCollapse);
     }
   });
+
   //console.log('all nodes end of set', allNodes);
 };
 
@@ -869,6 +870,7 @@ const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
 
     // Set descendants expanded property to false
     chart.setExpansionFlagToChildren(node, false);
+    chart.update(node);
   }
 };
 
@@ -884,14 +886,14 @@ const handleExpand = (
   // Loop over and recursively update expanded children's descendants
   if (children) {
     children.forEach((d) => {
-      chart.setExpansionFlagToChildren(d, flag);
+      handleExpand(chart, d, flag);
     });
   }
 
   // Loop over and recursively update collapsed children's descendants
   if (_children) {
     _children.forEach((d) => {
-      chart.setExpansionFlagToChildren(d, flag);
+      handleExpand(chart, d, flag);
     });
   }
 };
