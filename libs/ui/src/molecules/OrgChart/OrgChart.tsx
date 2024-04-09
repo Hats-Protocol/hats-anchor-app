@@ -655,7 +655,7 @@ const OrgChartComponent: React.FC = () => {
           .compact(compact)
           .layout(flipped ? 'bottom' : 'top')
           .onExpandOrCollapse((d: any) => {
-            if (handleNodeCollapsedOrExpanded !== undefined) {
+            if (handleNodeCollapsedOrExpanded !== undefined && !editMode) {
               const isExpanded = d.children !== null;
               handleNodeCollapsedOrExpanded(idToIp(d.data.id), isExpanded);
 
@@ -669,10 +669,16 @@ const OrgChartComponent: React.FC = () => {
           })
           .render();
 
+        if (editMode) {
+          chart.expandAll();
+        }
+
         if (!initialLoad || !treeToDisplay) return;
 
-        recreateNodesCollapse(chart, collapsedNodes);
-        chart.render();
+        if (!editMode) {
+          recreateNodesCollapse(chart, collapsedNodes);
+          chart.render();
+        }
 
         if (
           selectedHatId &&
@@ -688,6 +694,7 @@ const OrgChartComponent: React.FC = () => {
         setInitialLoad(false);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     chart,
     chainId,
@@ -708,7 +715,6 @@ const OrgChartComponent: React.FC = () => {
     compact,
     flipped,
     orgChartWearers,
-    collapsedNodes,
     handleNodeCollapsedOrExpanded,
   ]);
 
