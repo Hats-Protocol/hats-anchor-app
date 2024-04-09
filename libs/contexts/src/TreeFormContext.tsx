@@ -466,6 +466,9 @@ export const TreeFormContextProvider = ({
 
       if (Array.isArray(collapsed)) {
         if (!expanded) {
+          if (collapsed.includes(nodeIdIp)) {
+            return;
+          }
           collapsed.push(nodeIdIp);
         } else {
           const index = collapsed.indexOf(nodeIdIp);
@@ -479,6 +482,9 @@ export const TreeFormContextProvider = ({
         };
       } else if (typeof collapsed === 'string') {
         if (!expanded) {
+          if (collapsed === nodeIdIp) {
+            return;
+          }
           updatedQuery = {
             ...updatedQuery,
             collapsed: [collapsed, nodeIdIp],
