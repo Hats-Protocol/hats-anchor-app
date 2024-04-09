@@ -19,7 +19,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
 import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import { formatAddress } from 'utils';
@@ -91,7 +91,7 @@ const OrgChartComponent: React.FC = () => {
     defaultIsOpen: initialFlipped,
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
