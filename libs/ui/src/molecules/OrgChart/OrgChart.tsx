@@ -92,6 +92,7 @@ const OrgChartComponent: React.FC = () => {
   });
 
   useLayoutEffect(() => {
+    console.log('collapsedNodes', collapsedNodes);
     if (_.isEmpty(treeToDisplay)) return;
 
     if (treeToDisplay && d3Container.current) {
@@ -694,7 +695,6 @@ const OrgChartComponent: React.FC = () => {
         setInitialLoad(false);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     chart,
     chainId,
@@ -715,6 +715,7 @@ const OrgChartComponent: React.FC = () => {
     compact,
     flipped,
     orgChartWearers,
+    collapsedNodes,
     handleNodeCollapsedOrExpanded,
   ]);
 
