@@ -67,7 +67,7 @@ const IconHandler = ({
 }) => {
   if (icon) {
     return (
-      <Icon as={icon as As} boxSize='14px' color='blackAlpha.700' zIndex={5} />
+      <Icon as={icon as As} boxSize='14px' color='blackAlpha.800' zIndex={5} />
     );
   }
 
@@ -76,7 +76,7 @@ const IconHandler = ({
       <Icon
         as={authorityEnforcement?.icon as As}
         boxSize='14px'
-        color={isExpanded ? 'blackAlpha.900' : 'blackAlpha.700'}
+        color={isExpanded ? 'blackAlpha.900' : 'blackAlpha.800'}
         zIndex={5}
       />
     );
@@ -202,17 +202,23 @@ const AuthorityHeader = ({
 
         <Box textAlign='left'>
           <HStack>
-            <Text
-              size={{ base: 'sm', md: 'md' }}
-              // TODO should be a Heading component when expanded
-              fontWeight={
-                isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'
-              }
-              noOfLines={2}
-            >
-              {currentLabel || label || 'New Authority'}
-              {currentThresholdConfig && ` (${currentThresholdConfig} signers)`}
-            </Text>
+            {typeof label !== 'string' ? (
+              label
+            ) : (
+              <Text
+                size={{ base: 'sm', md: 'md' }}
+                // TODO should be a Heading component when expanded
+                fontWeight={
+                  isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'
+                }
+                noOfLines={2}
+              >
+                {currentLabel || label || 'New Authority'}
+                {currentThresholdConfig &&
+                  ` (${currentThresholdConfig} signers)`}
+              </Text>
+            )}
+
             {subLabel && (
               <Text size='xs' fontFamily='monospace' color='gray.700'>
                 {subLabel}

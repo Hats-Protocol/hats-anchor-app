@@ -1,22 +1,14 @@
-import {
-  Card,
-  HStack,
-  Icon,
-  Image as ChakraImage,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Card, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
 import { paddingForMaxDepth } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
+import LazyImage from '../atoms/LazyImage';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
@@ -27,16 +19,6 @@ const MobileHatCard = ({
   ensName,
   maxDepth,
 }: HatCardProps) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const image = _.get(hat, 'imageUrl');
-
-  useEffect(() => {
-    const img = new Image();
-    if (!image) return;
-    img.src = image;
-    img.onload = () => setImageLoaded(true);
-  }, [image]);
-
   const { data: hatDetails } = useHatDetailsField(
     _.get(hat, 'name') ? undefined : _.get(hat, 'details'), // don't attempt to lookup if name already found for hat
   );
@@ -69,19 +51,16 @@ const MobileHatCard = ({
         borderRadius={6}
       >
         <HStack align='start' position='relative'>
-          <Skeleton boxSize='72px' minW='72px' isLoaded={imageLoaded}>
-            <ChakraImage
-              src={image || '/icon.jpeg'}
-              objectFit='cover'
-              bgPosition='center'
-              boxSize='72px'
-              borderRight='1px solid'
-              borderColor='gray.600'
-              borderLeftRadius={5}
-              alt={`${detailsName} image`}
-              onLoad={() => setImageLoaded(true)}
-            />
-          </Skeleton>
+          <LazyImage
+            src={_.get(hat, 'imageUrl')}
+            alt={`${detailsName} image`}
+            objectFit='cover'
+            bgPosition='center'
+            boxSize='72px'
+            borderRight='1px solid'
+            borderColor='gray.600'
+            borderLeftRadius={5}
+          />
 
           <Stack gap={1} pt={1} w='70%' overflow='hidden'>
             <Text size='xs' noOfLines={1} fontWeight='medium'>

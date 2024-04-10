@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Flex,
   Heading,
@@ -25,30 +24,11 @@ import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
-import { ChakraNextLink } from '../atoms';
+import { ChakraNextLink, OblongAvatar } from '../atoms';
 import TransactionHistory from './TransactionHistory';
 
 const CopyAddress = dynamic(() => import('icons').then((i) => i.CopyAddress));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
-
-const OblongAvatar = ({
-  image,
-  height = 96,
-}: {
-  image: string;
-  height?: number;
-}) => {
-  return (
-    <Box
-      backgroundImage={image}
-      backgroundSize='cover'
-      backgroundPosition='center'
-      h={`${height}px`}
-      w={`${height * 0.75}px`}
-      borderRadius='md'
-    />
-  );
-};
 
 const WalletProfile = ({
   address,
@@ -91,7 +71,7 @@ const WalletProfile = ({
   return (
     <Stack>
       <HStack spacing={6}>
-        {avatar && <OblongAvatar image={avatar} />}
+        {avatar && <OblongAvatar src={avatar} />}
         <Stack>
           <Heading size='xl'>{name}</Heading>
           <HStack gap={4}>
@@ -120,7 +100,11 @@ const WalletProfile = ({
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>
-        <ChakraNextLink href={`/wearers/${address}`} w='full'>
+        <ChakraNextLink
+          href={`/wearers/${address}`}
+          onClick={() => setModals?.({})}
+          w='full'
+        >
           <Button w='100%' variant='outline'>
             <HStack>
               <Icon as={WearerIcon} color='blackAlpha.700' />

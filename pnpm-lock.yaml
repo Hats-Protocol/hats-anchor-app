@@ -95,6 +95,9 @@ importers:
       next-seo:
         specifier: ^5.15.0
         version: 5.15.0(next@14.0.4)(react-dom@18.2.0)(react@18.2.0)
+      opepen-standard:
+        specifier: ^1.0.1
+        version: 1.0.1
       papaparse:
         specifier: ^5.4.1
         version: 5.4.1
@@ -12951,6 +12954,10 @@ packages:
   /opener@1.5.2:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
     hasBin: true
+
+  /opepen-standard@1.0.1:
+    resolution: {integrity: sha512-LwOjM1ziCVnLwz4U819RTmDSh+GGqnXScJJFX39u3ws9M6G1U2Vf3Is72luZmlQnSZlx82LqPhypRpMQnons+A==}
+    dev: false
 
   /optionator@0.9.3:
     resolution: {integrity: sha512-JjCoypp+jKn1ttEFExxhetCKeJt9zhAgAve5FXHixTvFDW/5aEktX9bufBKLRRMdU7bNtpLfcGu94B3cdEJgjg==}

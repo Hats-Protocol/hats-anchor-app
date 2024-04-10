@@ -400,9 +400,11 @@ export const processValues = ({
 export function populateModulesAuthorities({
   hatAuthorities,
   modulesDetails,
+  hatDetails,
 }: {
   hatAuthorities?: HatAuthority;
   modulesDetails: ModuleDetails[];
+  hatDetails?: AppHat[];
 }) {
   const filteredAuthorities = _.omit(hatAuthorities, [
     'hsgOwner',
@@ -431,9 +433,12 @@ export function populateModulesAuthorities({
         } else if (typeof moduleInfo?.details === 'string') {
           description = moduleInfo.details as string;
         }
+        const hat = _.find(hatDetails, { id: hatId });
 
         return {
-          label: `${matchingRole?.name} (${formatAddress(id)})`,
+          label: `${matchingRole?.name} for ${
+            hat?.detailsObject?.data.name || hat?.details
+          } (#${hatIdDecimalToIp(BigInt(hatId))})`,
           link: matchingRole?.id,
           description,
           type: AUTHORITY_TYPES.modules,

@@ -17,7 +17,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { orderedChains } from '@hatsprotocol/constants';
-import blockies from 'blockies-ts';
 import { format } from 'date-fns';
 import {
   useControllerList,
@@ -28,13 +27,15 @@ import { useClipboard, useImageURIs, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { GetServerSidePropsContext } from 'next';
 import { NextSeo } from 'next-seo';
-import { useEffect, useState } from 'react';
+import { createIcon } from 'opepen-standard';
+import { useMemo } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { AppHat, SupportedChains } from 'types';
 import {
   ChakraNextLink,
   Layout,
   MobileHatCard,
+  // OblongAvatar,
   WearerHatCard as CoreHat,
 } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
@@ -48,6 +49,7 @@ type HeadlineStat = {
 };
 
 // TODO use new tree list cards on mobile
+// TODO switch back to `OblongAvatar`, something about undefined component/default export mixup
 // could also consider using tabs for the networks on mobile to reduce the scroll end-to-end
 
 const WearerDetail = ({
@@ -58,13 +60,11 @@ const WearerDetail = ({
   initialEnsName?: string;
   // initialData: Hat[] | undefined;
 }) => {
-  const [blockie, setBlockie] = useState<string | undefined>();
-  const [name, setName] = useState<string | undefined>(initialEnsName);
   const { data: currentHats, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress,
     chainId: 'all',
   });
-  const { isMobile } = useMediaStyles();
+  const { isMobile, isClient } = useMediaStyles();
   const { onCopy } = useClipboard(wearerAddress, {
     toastData: {
       title: 'Successfully copied wearer address to clipboard',
@@ -92,12 +92,18 @@ const WearerDetail = ({
     hats: currentHats,
   });
 
-  useEffect(() => {
-    setName(ensName || formatAddress(wearerAddress));
-    setBlockie(
-      blockies.create({ seed: wearerAddress.toLowerCase() }).toDataURL(),
-    );
-  }, [ensName, wearerAddress]);
+  const name = useMemo(() => {
+    return ensName || initialEnsName || formatAddress(wearerAddress);
+  }, [ensName, initialEnsName, wearerAddress]);
+
+  const avatar = useMemo(() => {
+    if (!wearerAddress || typeof window === 'undefined') return undefined;
+    if (ensAvatar) return ensAvatar;
+    return createIcon({
+      seed: _.toLower(wearerAddress),
+      size: 64,
+    }).toDataURL();
+  }, [wearerAddress, ensAvatar]);
 
   const headlineStats = [
     {
@@ -152,13 +158,28 @@ const WearerDetail = ({
           justify='space-between'
           gap={10}
         >
-          <HStack spacing={6}>
-            <Avatar src={ensAvatar || blockie} h='100px' w='100px' />
+          <HStack spacing={6} pl={6}>
+            {isClient && (
+              <Skeleton isLoaded={!!avatar} h='100px' minW='75px'>
+                {avatar && (
+                  <Avatar
+                    src={avatar}
+                    height='100px'
+                    w='75px'
+                    borderRadius='md'
+                  />
+                )}
+              </Skeleton>
+            )}
+
             <Stack>
               <HStack>
-                <Heading size='lg' variant='medium'>
-                  {name}
-                </Heading>
+                {isClient && (
+                  <Heading size='lg' variant='medium'>
+                    {name}
+                  </Heading>
+                )}
+
                 <IconButton
                   variant='ghost'
                   icon={<FiCopy />}

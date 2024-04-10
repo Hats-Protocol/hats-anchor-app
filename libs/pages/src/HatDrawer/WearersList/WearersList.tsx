@@ -40,7 +40,7 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 // import { FaSearch } from 'react-icons/fa';
-import { HatWearer } from 'types';
+import { ControllerData, HatWearer } from 'types';
 import { commify } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -63,7 +63,7 @@ const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
-  const { editMode } = useTreeForm();
+  const { editMode, orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const {
     isOpen: ineligibleWearersExpanded,
@@ -141,6 +141,13 @@ const WearersList = () => {
     selectedHat?.id,
     !!isTopHat(selectedHat),
   );
+  const currentUserIsWearing = _.includes(
+    _.map(wearerDetails, 'id'),
+    selectedHat?.id,
+  );
+  const currentWearerDetails = _.find(orgChartWearers, {
+    id: _.toLower(address),
+  }) as ControllerData;
 
   return (
     <>
@@ -195,6 +202,15 @@ const WearersList = () => {
             </InputGroup>
           )} */}
           {/* Wearers list */}
+
+          {currentUserIsWearing &&
+            !_.includes(_.map(filteredWearers, 'id'), _.toLower(address)) && (
+              <WearerRow
+                wearer={currentWearerDetails || { id: address }}
+                setChangeStatusWearer={setChangeStatusWearer}
+                setWearerToTransferFrom={setWearerToTransferFrom}
+              />
+            )}
           {_.map(
             !wearersLoading ? filteredWearers : loadingWearers,
             (w: HatWearer, index: number) => (
