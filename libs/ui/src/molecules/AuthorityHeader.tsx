@@ -66,7 +66,9 @@ const IconHandler = ({
   isExpanded: boolean;
 }) => {
   if (icon) {
-    <Icon as={icon as As} boxSize='14px' color='blackAlpha.700' zIndex={5} />;
+    return (
+      <Icon as={icon as As} boxSize='14px' color='blackAlpha.700' zIndex={5} />
+    );
   }
 
   if (authorityEnforcement?.icon) {

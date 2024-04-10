@@ -1,6 +1,5 @@
 import { Button } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import React from 'react';
 import { SupportedChains } from 'types';
 import { chainsList } from 'utils';
 import { useNetwork, useSwitchNetwork } from 'wagmi';
