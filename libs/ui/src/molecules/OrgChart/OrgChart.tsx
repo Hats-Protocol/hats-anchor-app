@@ -93,11 +93,11 @@ const OrgChartComponent: React.FC = () => {
     defaultIsOpen: initialFlipped,
   });
 
+  // update chartNodes each time treeToDisplay is changed, but keep the internal org chart state variables (properties that start with "_")
   useEffect(() => {
     if (chartNodes === undefined && treeToDisplay !== undefined) {
       setChartNodes(treeToDisplay);
     } else if (chartNodes !== undefined && treeToDisplay !== undefined) {
-      // console.log('treeToDisplay changed, updating chart nodes');
       const newChartNodes = treeToDisplay;
       chartNodes.forEach((node) => {
         const newNode = newChartNodes.find((elem) => elem.id === node.id);
@@ -117,7 +117,6 @@ const OrgChartComponent: React.FC = () => {
   }, [treeToDisplay]);
 
   useEffect(() => {
-    // console.log('chartNodes', chartNodes);
     if (_.isEmpty(chartNodes)) return;
 
     if (chartNodes && d3Container.current) {
@@ -684,13 +683,10 @@ const OrgChartComponent: React.FC = () => {
           });
 
         if (editMode) {
-          chart.expandAll();
+          chart.expandAll(); // keep nodes expanded on edit mode. Note that expandAll performs a render so no need to call render again
         } else {
           chart.render();
         }
-
-        // const { allNodes } = chart.getChartState();
-        // console.log('allNodes', allNodes);
 
         if (!initialLoad) return;
 
@@ -707,7 +703,6 @@ const OrgChartComponent: React.FC = () => {
 
         if (!editMode) {
           recreateNodesCollapse(chart, collapsedNodes);
-          // chart.render();
         }
 
         if (
@@ -872,9 +867,6 @@ const recreateNodesCollapse = (
     return;
   }
 
-  // console.log('recreating collapsed nodes');
-  // console.log('collapsed:', collpasedNodes);
-  // console.log('all nodes at begin:', allNodes);
   // first init all nodes as expanded
   for (let i = 0; i < allNodes.length; i += 1) {
     (allNodes[i].data as any)._expanded = true;
@@ -893,11 +885,10 @@ const recreateNodesCollapse = (
       collpaseNode(chart, nodeToCollapse);
     }
   });
-  // console.log('all nodes at end:', allNodes);
 };
 
 const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
-  // If childrens are expanded
+  // If children are expanded
   if (node.children) {
     node._children = node.children;
     node.children = null;
