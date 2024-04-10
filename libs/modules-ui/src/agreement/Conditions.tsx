@@ -67,7 +67,7 @@ const Conditions = ({
     },
   });
 
-  const handleScroll = (e) => {
+  const handleScroll = (e: any) => {
     const bottom =
       e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
     if (bottom) setIsButtonEnabled(true);

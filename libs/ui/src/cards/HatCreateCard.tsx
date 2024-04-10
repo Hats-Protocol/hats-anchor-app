@@ -9,11 +9,12 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-// import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
-import { WearerIcon } from 'icons';
+import dynamic from 'next/dynamic';
 import { ipfsUrl } from 'utils';
 import { Hex } from 'viem';
+
+const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const HatCreateCard = ({ id }: { id: Hex }) => {
   const { data } = useHatDetails({

@@ -38,7 +38,7 @@ const Select = ({
   if (!localForm) return null;
   const { register, setValue } = localForm;
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     if (onChange) {
       onChange(e);
     }

@@ -45,7 +45,7 @@ const AmountWithDecimals = ({
   const tokenDecimals = tokenDetails?.decimals;
 
   // might wanna implement something similar in the NumberInput component
-  const handleAmountWithDecimalsChange = (e, argName) => {
+  const handleAmountWithDecimalsChange = (e: any, argName: any) => {
     let { value } = e.target;
 
     if (value.startsWith('-')) {

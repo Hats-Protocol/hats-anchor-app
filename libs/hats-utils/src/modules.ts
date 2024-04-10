@@ -9,7 +9,6 @@ import { HsgMetadata, HsgType, Role } from '@hatsprotocol/hsg-sdk';
 import {
   checkAndEncodeArgs,
   solidityToTypescriptType,
-  WriteFunction,
 } from '@hatsprotocol/modules-sdk';
 import {
   hatIdDecimalToHex,
@@ -20,6 +19,7 @@ import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
 import {
   AppHat,
+  AppWriteFunction,
   FormData,
   HatAuthority,
   HatsAccount1ofN,
@@ -422,7 +422,7 @@ export function populateModulesAuthorities({
         );
         const matchingFunctions = _.filter(
           moduleInfo?.writeFunctions,
-          (func: WriteFunction) => _.includes(func.roles, matchingRole?.id),
+          (func: AppWriteFunction) => _.includes(func.roles, matchingRole?.id),
         );
 
         let description: string = '';
@@ -438,7 +438,7 @@ export function populateModulesAuthorities({
           description,
           type: AUTHORITY_TYPES.modules,
           id: matchingRole?.id,
-          functions: matchingFunctions,
+          functions: matchingFunctions as AppWriteFunction[],
           instanceAddress: id,
           moduleAddress: moduleInfo?.implementationAddress as Hex,
           moduleLabel: `${moduleInfo?.name} (${formatAddress(id as Hex)})`,
@@ -453,27 +453,31 @@ export function populateModulesAuthorities({
 export const populateHatsAccountsAuthorities = ({
   details,
   hatId,
+  chainId,
   predictedAddress,
   deployFn,
   toast,
 }: {
   details?: HatsAccount1ofN[];
   hatId: Hex;
+  chainId: SupportedChains | undefined;
   predictedAddress?: Hex | null;
   deployFn: () => void;
   toast: UseCustomToastReturn;
 }) => {
   const undeployedWalletAuth = {
     label: `Control 1/N HatsAccount (${formatAddress(predictedAddress)})`,
-    link: predictedAddress,
-    description: `Wearers of this hat are able to take actions via the shared HatsAccount at ${formatAddress(
+    link: predictedAddress as string,
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount at [${formatAddress(
       predictedAddress,
-    )}. This account has not yet been deployed and can be deployed permissionlessly.  
+    )}](${explorerUrl(
+      chainId,
+    )}/address/${predictedAddress}). This account has not yet been deployed and can be deployed permissionlessly.  
       Once deployed, any of the wearers of this hat can take full control of the assets associated with the shared account.  
       For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
-    id: predictedAddress,
-    instanceAddress: predictedAddress,
+    id: predictedAddress as string,
+    instanceAddress: predictedAddress as Hex,
     functions: [
       {
         isCustom: true,
@@ -482,7 +486,21 @@ export const populateHatsAccountsAuthorities = ({
         onClick: deployFn,
         primary: true,
       },
-    ],
+      {
+        // TODO why is the "not a wearer" tooltip showing up here but not on the deployed version
+        label: 'Copy Address',
+        description: 'Copy the address of the HatsAccount',
+        isCustom: true,
+        onClick: () => {
+          if (!predictedAddress) return;
+          navigator.clipboard.writeText(predictedAddress); // ? HOOK WORKAROUND HERE
+          toast.info({
+            title: 'Successfully copied wearer address to clipboard',
+          });
+        },
+        icon: FiCopy,
+      },
+    ] as unknown as AppWriteFunction[],
     hatId,
     isDeployed: false,
   };
@@ -493,14 +511,14 @@ export const populateHatsAccountsAuthorities = ({
 
   return details.map((wallet) => ({
     label: `Control over 1/N HatsAccount (${formatAddress(wallet.id)})`,
-    link: wallet.accountOfHat?.id,
-    description: `Wearers of this hat are able to take actions via the shared HatsAccount account at ${formatAddress(
+    link: wallet.accountOfHat?.id as string,
+    description: `Wearers of this hat are able to take actions via the shared HatsAccount account at [${formatAddress(
       wallet.id,
-    )}. 
+    )}](${explorerUrl(chainId)}/address/${wallet.id}). 
     Any of the wearers of this hat can take full control of the assets associated with the shared account.  
     For more information about HatsAccount, see the Hats [documentation](https://github.com/Hats-Protocol/hats-account).`,
     type: AUTHORITY_TYPES.wallet,
-    id: wallet.id,
+    id: wallet.id as string,
     // functions: wallet.operations,
     functions: [
       {
@@ -515,8 +533,8 @@ export const populateHatsAccountsAuthorities = ({
         },
         icon: FiCopy,
       },
-    ],
-    instanceAddress: wallet.id,
+    ] as unknown as AppWriteFunction[],
+    instanceAddress: wallet.id as Hex,
     hatId,
     isDeployed: true,
   }));
@@ -593,13 +611,13 @@ const createHSG = ({
   };
 };
 
-const getOwnerFunctions = (functions: WriteFunction[]) => {
-  return _.map(functions, (func: WriteFunction) => {
+const getOwnerFunctions = (functions: AppWriteFunction[]) => {
+  return _.map(functions, (func: AppWriteFunction) => {
     if (func.functionName === 'setMinThreshold') {
       return { ...func, primary: true };
     }
     return func;
-  }).filter((func: WriteFunction) =>
+  }).filter((func: AppWriteFunction) =>
     [
       'setOwnerHat',
       'removeSigner',
@@ -609,13 +627,13 @@ const getOwnerFunctions = (functions: WriteFunction[]) => {
   );
 };
 
-const getSignerFunctions = (functions: WriteFunction[]) => {
-  return _.map(functions, (func: WriteFunction) => {
+const getSignerFunctions = (functions: AppWriteFunction[]) => {
+  return _.map(functions, (func: AppWriteFunction) => {
     if (func.functionName === 'claimSigner') {
       return { ...func, primary: true };
     }
     return func;
-  }).filter((func: WriteFunction) =>
+  }).filter((func: AppWriteFunction) =>
     ['claimSigner', 'removeSigner'].includes(func.functionName),
   );
 };

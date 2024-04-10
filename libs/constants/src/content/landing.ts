@@ -1,4 +1,20 @@
-import { CheckSquare, CodeIcon, HatIcon, PeopleIcon } from 'icons';
+import {
+  Allo,
+  Aragon,
+  CheckSquare,
+  CodeIcon,
+  Daohaus,
+  Discord,
+  Farcaster,
+  GitGrants,
+  HatIcon,
+  PeopleIcon,
+  Safe,
+  Snapshot,
+  Splits,
+  Superfluid,
+  Telegram,
+} from 'icons';
 
 export const DOCS_URL = 'https://docs.hatsprotocol.xyz';
 export const CONTACT_URL = 'https://hatsprotocol.deform.cc/getintouch/';
@@ -139,5 +155,29 @@ export const FEATURED_TREES = ({
     avatar: `${ipfsUrl('Qmagom5JCG4haXZsFQRMVt6ZBXzqjsdo7p8qtayfBwwtBe')}`,
     hats: 11,
     wearers: 309,
+  },
+];
+
+export type IntegrationCard = {
+  label: string;
+  icons: string[];
+};
+
+export const INTEGRATION_CARDS: IntegrationCard[] = [
+  {
+    label: 'Award Hats via DAO vote or onchain elections',
+    icons: [Daohaus, Aragon, Snapshot],
+  },
+  {
+    label: 'Automatically pay active contributors onchain',
+    icons: [GitGrants, Superfluid, Splits],
+  },
+  {
+    label: 'Control onchain assets and signer rights',
+    icons: [Safe, HatIcon, Allo],
+  },
+  {
+    label: 'Token-gate access and roles in your community',
+    icons: [Telegram, Farcaster, Discord],
   },
 ];

@@ -5,12 +5,14 @@ import {
   AccordionPanel,
   Box,
   Button,
+  Collapse,
   Flex,
   Icon,
   Link,
   Stack,
   Text,
   Tooltip,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
@@ -37,6 +39,7 @@ const ResponsibilitiesListCard = ({
   const hostname = getHostnameFromURL(link);
   const [expanded, setExpanded] = useState(false);
   const isMounted = useRef(false);
+  const smallFont = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
     isMounted.current = true;
@@ -82,14 +85,12 @@ const ResponsibilitiesListCard = ({
                 borderTopColor: 'gray.100',
                 pb: 0,
                 borderTopRadius: !isMobile ? 'md' : 0,
-                boxShadow:
-                  isMobile &&
-                  '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)',
                 _hover: {
                   borderRadius: 0,
                   borderTopRadius: !isMobile ? 'md' : 0,
                 },
               }}
+              position='relative'
             >
               <Box flex='1' textAlign='left'>
                 <ResponsibilityHeader
@@ -100,6 +101,17 @@ const ResponsibilitiesListCard = ({
                 />
               </Box>
               {isMobile && <AccordionIcon ml={2} />}
+              {isExpanded && !isMobile && (
+                <Icon
+                  as={Collapse}
+                  w='14px'
+                  position='absolute'
+                  color='Functional-LinkSecondary'
+                  zIndex={10}
+                  bottom={-2}
+                  right={4}
+                />
+              )}
             </AccordionButton>
             <AccordionPanel
               px={4}
@@ -132,7 +144,11 @@ const ResponsibilitiesListCard = ({
                 )}
 
                 <Flex>
-                  {description && <Markdown smallFont>{description}</Markdown>}
+                  {description && (
+                    <Box pb={3}>
+                      <Markdown smallFont={smallFont}>{description}</Markdown>
+                    </Box>
+                  )}
                 </Flex>
               </Stack>
             </AccordionPanel>

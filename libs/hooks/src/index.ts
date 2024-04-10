@@ -1,6 +1,5 @@
 export { default as useAgreementClaimsHatterContractWrite } from './useAgreementClaimsHatterContractWrite';
 export { default as useAttemptAutoConnect } from './useAttemptAutoConnect';
-export { default as useBetterMediaQuery } from './useBetterMediaQuery';
 export { default as useCid } from './useCid';
 export { default as useClipboard } from './useClipboard';
 export { default as useContractData } from './useContractData';
@@ -13,7 +12,6 @@ export { default as useHatGuildRoles } from './useHatGuildRoles';
 export { default as useHatParams } from './useHatParams';
 export { default as useHatSnapshotRoles } from './useHatSnapshotRoles';
 export { default as useImageURIs } from './useImageURIs';
-export { default as useIsClient } from './useIsClient';
 export { default as useLocalStorage } from './useLocalStorage';
 export { default as useMediaStyles } from './useMediaStyles';
 export { default as useOrgChartTree } from './useOrgChartTree';

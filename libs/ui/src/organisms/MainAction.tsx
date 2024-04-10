@@ -7,16 +7,10 @@ import {
 } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { useAccount, useChainId, useNetwork } from 'wagmi';
 
-const ConnectWallet = dynamic(() =>
-  import('ui').then((mod) => mod.ConnectWallet),
-);
-const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
-);
+import { ConnectWallet, NetworkSwitcher } from '../molecules';
 
 const MainAction = () => {
   const currentNetworkId = useChainId();
@@ -65,7 +59,7 @@ const MainAction = () => {
     return <ConnectWallet overlay={localOverlay} />;
   }
 
-  if (chainId !== chain?.id) return <NetworkSwitcher colorScheme='blue.500' />;
+  if (chainId !== chain?.id) return <NetworkSwitcher />;
 
   if (
     (currentUserIsEligible as boolean) &&

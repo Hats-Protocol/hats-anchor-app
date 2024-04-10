@@ -33,7 +33,7 @@ export const handleAgreementEligibility = async ({
 
   return Promise.resolve({
     rule: (
-      <Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
         Sign the{' '}
         <ChakraNextLink
           href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(

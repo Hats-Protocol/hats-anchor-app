@@ -291,7 +291,7 @@ const AuthoritiesForm = ({
                 <Textarea
                   label='Description'
                   name='description'
-                  placeholder='Enter a description here (supports markdown)'
+                  placeholder='Enter a description here (supports Markdown)'
                   localForm={localForm}
                 />
 

@@ -12,12 +12,12 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { FormWearer } from 'types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaRegTrashAlt } from 'react-icons/fa';
+import { FormWearer } from 'types';
 import { Hex, isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
@@ -101,7 +101,7 @@ const MultiAddressInput = ({
     setValue(`${name}-currentAddress`, '');
   };
 
-  const handleRemoveWearer = (index) => {
+  const handleRemoveWearer = (index: number) => {
     const updatedWearers = localWearers.filter((__, i) => i !== index);
     setValue(`${name}-wearers`, updatedWearers);
 

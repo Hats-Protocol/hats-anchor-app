@@ -1,19 +1,24 @@
 {
   "compilerOptions": {
-    "types": ["node", "jest"],
-    "rootDir": ".",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "target": "es2016",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "isolatedModules": true,
+    "lib": ["ES2018", "dom"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "rootDir": ".",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2018",
+    "types": ["node", "jest"],
     "paths": {
       "@hatsprotocol/constants": ["./libs/constants/src/index"],
       "contexts": ["./libs/contexts/src/index"],
@@ -30,6 +35,6 @@
       "utils": ["./libs/utils/src/index"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "*.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "tmp", "dist", ".nx"]
 }

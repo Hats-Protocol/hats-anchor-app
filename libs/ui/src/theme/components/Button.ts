@@ -13,7 +13,7 @@ const Button = {
       background: props.background || props.bg || 'white',
       color: props.color || 'gray.700',
       border: props.border || '1px solid',
-      borderColor: 'blackAlpha.300',
+      borderColor: 'gray.300',
     }),
     primary: (props: StyleFunctionProps) => ({
       background: props.background || props.bg || 'blue.500',
@@ -24,7 +24,7 @@ const Button = {
     }),
     outline: (props: StyleFunctionProps) => ({
       color: props.color || 'gray.700',
-      borderColor: props.borderColor || props.colorScheme || 'blackAlpha.500',
+      borderColor: props.borderColor || 'gray.300',
     }),
     outlineMatch: (props: StyleFunctionProps) => ({
       color: props.color || props.colorScheme || 'gray.700',

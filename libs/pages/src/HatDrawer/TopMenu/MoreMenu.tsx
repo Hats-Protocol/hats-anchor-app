@@ -57,7 +57,7 @@ const MoreMenu = () => {
     linkedHatIds,
     onchainHats,
   } = useTreeForm();
-  const { selectedHat } = useSelectedHat();
+  const { selectedHat, isClaimable } = useSelectedHat();
 
   const { address } = useAccount();
   const currentNetworkId = useChainId();
@@ -143,6 +143,7 @@ const MoreMenu = () => {
           </HStack>
         </MenuButton>
         <MenuList gap={5}>
+          {/* OFF-CHAIN ACTIONS */}
           <MenuItem onClick={handleExport}>
             <HStack>
               <TbChartDots3 />
@@ -174,6 +175,15 @@ const MoreMenu = () => {
             Copy contract ID
           </MenuItem>
           <Divider />
+          {/* ONCHAIN ACTIONS */}
+          {address && isClaimable?.by && !isClaimable?.for && (
+            <MenuItem onClick={() => setModals?.({ checkEligibility: true })}>
+              <HStack>
+                <Icon as={FaExclamationCircle} />
+                <Text>Check Eligibility</Text>
+              </HStack>
+            </MenuItem>
+          )}
           <Tooltip
             label={!toggleIsContract ? 'The toggle is "humanistic"' : ''}
             shouldWrapChildren
@@ -274,7 +284,9 @@ const MoreMenu = () => {
               </Tooltip>
             </MenuItem>
           )}
+
           <Divider />
+          {/* REPORT */}
           <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
             <FaExclamationCircle />
             Report this hat

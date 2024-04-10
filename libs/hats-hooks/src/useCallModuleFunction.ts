@@ -1,9 +1,8 @@
-import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
-import { SupportedChains, UseCustomToastReturn } from 'types';
+import { AppWriteFunction, SupportedChains, UseCustomToastReturn } from 'types';
 import { createHatsModulesClient, transformInput } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -29,7 +28,7 @@ const useCallModuleFunction = ({
     }: {
       moduleId?: string;
       instance?: Hex;
-      func?: WriteFunction;
+      func?: AppWriteFunction;
       args: any;
       onSuccess?: () => void;
       onDecline?: () => void;

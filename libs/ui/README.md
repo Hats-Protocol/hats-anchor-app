@@ -1,7 +1,12 @@
-# ui
+# Hats UI components
 
-This library was generated with [Nx](https://nx.dev).
+This initial component library is built with Chakra.
 
-## Running unit tests
+## Component Groups
 
-Run `nx test ui` to execute the unit tests via [Jest](https://jestjs.io).
+- `atoms` - basic building blocks
+- `cards` - card components
+- `forms` - form input components
+- `molecules` - combinations of atoms
+- `organisms` - combinations of molecules
+- `themes` - theme components and styles

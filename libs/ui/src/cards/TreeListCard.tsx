@@ -126,7 +126,11 @@ const TreeListCard = ({
                     w='100%'
                     py={2}
                   >
-                    <Heading size='md' noOfLines={2}>
+                    <Heading
+                      size='md'
+                      noOfLines={2}
+                      maxW={{ base: '270px', md: 'auto' }}
+                    >
                       {hatName}
                     </Heading>
                     <Flex justify='space-between' w='100%'>

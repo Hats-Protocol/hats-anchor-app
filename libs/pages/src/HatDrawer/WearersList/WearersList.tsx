@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Collapse,
-  Divider,
   Flex,
   Heading,
   HStack,
@@ -146,7 +145,7 @@ const WearersList = () => {
   return (
     <>
       <Stack>
-        <Stack spacing={4} px={{ base: 4, md: 10 }}>
+        <Stack spacing={4} px={{ base: 4, md: 16 }}>
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
               <Skeleton isLoaded={!!eligibleWearers}>
@@ -176,7 +175,7 @@ const WearersList = () => {
               </Tooltip>
             </HStack>
           </Flex>
-
+          {/* TEMP HIDDEN SINCE FETCHING INCOMPLETE LIST OF WEARERS */}
           {/* {_.gt(_.size(extendedWearers), 4) && (
             <InputGroup>
               <InputLeftElement pointerEvents='none'>
@@ -211,10 +210,12 @@ const WearersList = () => {
           )}
           {!wearersLoading && _.isEmpty(filteredWearers) && (
             <Box>
-              <Flex justify='center' h='70px' align='center'>
-                <Text>No wearers currently</Text>
+              <Flex h='70px' align='center'>
+                <Text size={{ base: 'sm', md: 'md' }}>
+                  No wearers currently
+                </Text>
               </Flex>
-              <Divider />
+              {/* <Divider /> */}
             </Box>
           )}
         </Stack>

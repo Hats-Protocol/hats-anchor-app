@@ -55,7 +55,7 @@ export const handleErc20Eligibility = async ({
   ]);
   const amountValueDisplay = formatUnits(
     (amountParameter?.value as bigint) || BigInt(0),
-    tokenDetails?.decimals,
+    tokenDetails?.decimals || 0,
   );
   const userBalanceDisplay = formatUnits(
     userBalance?.value || BigInt(0),
@@ -63,11 +63,11 @@ export const handleErc20Eligibility = async ({
   );
 
   // calculate eligibility
-  if (userBalance.value >= (amountParameter?.value as bigint)) {
+  if (userBalance?.value >= (amountParameter?.value as bigint)) {
     // TODO handle is wearer vs not (hold/retain)
     return Promise.resolve({
       rule: (
-        <Text>
+        <Text size={{ base: 'sm', md: 'md' }}>
           Retain at least {amountValueDisplay}
           <Tooltip label={tokenDetails?.name}>
             <Text as='span' variant='cashtag'>
@@ -85,7 +85,7 @@ export const handleErc20Eligibility = async ({
   // fallback to ineligible
   return Promise.resolve({
     rule: (
-      <Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
         Hold at least {amountValueDisplay}{' '}
         <Tooltip label={tokenDetails?.name}>
           <Text as='span' variant='cashtag'>

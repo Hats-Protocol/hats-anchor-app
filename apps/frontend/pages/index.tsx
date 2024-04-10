@@ -10,10 +10,10 @@ import {
   Skeleton,
   Stack,
   Text,
-  useMediaQuery,
 } from '@chakra-ui/react';
 import {
   CONFIG,
+  INTEGRATION_CARDS,
   LEARN_MORE,
   orderedChains,
   TemplateData,
@@ -25,10 +25,8 @@ import {
   useFeaturedTreesData,
   useImageURIs,
   useMediaStyles,
-  useRudderStackAnalytics,
 } from 'hooks';
 import _ from 'lodash';
-import { useEffect } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat, DocsLink } from 'types';
@@ -36,6 +34,7 @@ import {
   ChakraNextLink,
   DashboardHatCard,
   FeaturedTreeCard,
+  IntegrationCard,
   // ForkableTemplateCard,
   Layout,
   LearnMoreCard,
@@ -49,7 +48,6 @@ const MOBILE_HATS_TO_SHOW = 4;
 const Home = () => {
   const { address: wearerAddress } = useAccount();
   const chainId = useChainId();
-  const analytics = useRudderStackAnalytics();
   // const { data: featuredTemplates, isLoading: templatesLoading } =
   //   useFeaturedTemplates();
   const { data: featuredTrees, isLoading: featuredTreesLoading } =
@@ -58,7 +56,6 @@ const Home = () => {
     useFeaturedTreesData(featuredTrees);
 
   const { isMobile } = useMediaStyles();
-  const [upTo1700] = useMediaQuery('(max-width: 1700px)');
 
   const { data: currentHats, isLoading: wearerDetailsLoading } =
     useWearerDetails({
@@ -78,19 +75,10 @@ const Home = () => {
         : [],
     });
   const overrideEmptyCurrentHats = _.isEmpty(currentHatsWithImagesData)
-    ? Array(8).fill({ id: '123' })
+    ? Array(isMobile ? 4 : 8).fill({ id: '123' })
     : currentHatsWithImagesData;
 
   const { data: ensName } = useEnsName({ address: wearerAddress, chainId: 1 });
-
-  useEffect(() => {
-    if (analytics) {
-      analytics.page('Auto Track', 'Landing Page', {
-        isConnected: !!wearerAddress,
-        anonymousId: wearerAddress || analytics.getAnonymousId(),
-      });
-    }
-  }, [analytics, wearerAddress]);
 
   return (
     <Layout hideBackLink>
@@ -146,7 +134,7 @@ const Home = () => {
           (!_.isEmpty(sortedHats) || imagesLoading || wearerDetailsLoading ? (
             <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
               <Flex justifyContent='space-between' alignItems='center'>
-                <Heading variant='medium'>Your hats</Heading>
+                <Heading>Your hats</Heading>
                 {_.size(sortedHats) >
                   (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
                   <ChakraNextLink
@@ -189,15 +177,15 @@ const Home = () => {
               background='whiteAlpha.600'
               gap={4}
               minH='300px'
+              justify='center'
+              align='center'
             >
-              <Flex minH={20} justify='center' align='center'>
-                <Stack align='center'>
-                  <Heading size='md'>Your hats will appear here</Heading>
-                  <Text>
-                    Create a tree or check out the starter templates below.
-                  </Text>
-                </Stack>
-              </Flex>
+              <Stack align='center'>
+                <Heading size='lg'>Your hats will appear here!</Heading>
+                <Text>
+                  Create a tree or check out one of the featured trees.
+                </Text>
+              </Stack>
             </Card>
           ))}
 
@@ -211,8 +199,12 @@ const Home = () => {
                 gap={4}
                 minH='320px'
               >
-                <Heading variant='medium'>Explore featured trees</Heading>
-                <Flex gap={6} wrap='wrap' justify='space-between'>
+                <Heading>Explore featured trees</Heading>
+                <Flex
+                  gap={{ md: 6, '2xl': 20 }}
+                  wrap='wrap'
+                  justify='space-around'
+                >
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                     <Skeleton
                       isLoaded={!!tree && !featuredTreesDataLoading}
@@ -249,8 +241,26 @@ const Home = () => {
               </Card>
             </Skeleton>
 
+            <Card py={8} px={9} background='whiteAlpha.600'>
+              <Stack gap={4}>
+                <Heading>New Integrations</Heading>
+                <Flex
+                  gap={6}
+                  direction={{ base: 'column', md: 'row' }}
+                  justify={{ md: 'space-between', lg: 'space-around' }}
+                >
+                  {_.map(INTEGRATION_CARDS, (integration) => (
+                    <IntegrationCard
+                      integration={integration}
+                      key={_.get(integration, 'label')}
+                    />
+                  ))}
+                </Flex>
+              </Stack>
+            </Card>
+
             {/* <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-              <Heading variant='medium'>
+              <Heading>
                 Jump right in with a forkable template
               </Heading>
               <Skeleton isLoaded={!templatesLoading} minH='170px' w='100%'>
@@ -281,26 +291,19 @@ const Home = () => {
             maxW={{ base: '427px', md: 'none' }}
             w='100%'
           >
-            <Heading variant='medium'>Learn more about Hats</Heading>
-            {upTo1700 ? (
-              <Grid
-                templateColumns={{
-                  base: 'repeat(1, 1fr)',
-                  md: 'repeat(2, 1fr)',
-                }}
-                gap={6}
-              >
-                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
-                  <LearnMoreCard key={i} docsData={docsLink} />
-                ))}
-              </Grid>
-            ) : (
-              <Stack spacing={6}>
-                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
-                  <LearnMoreCard key={i} docsData={docsLink} />
-                ))}
-              </Stack>
-            )}
+            <Heading>Learn more about Hats</Heading>
+
+            <Grid
+              templateColumns={{
+                base: 'repeat(1, 1fr)',
+                md: 'repeat(2, 1fr)',
+              }}
+              gap={6}
+            >
+              {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                <LearnMoreCard key={i} docsData={docsLink} />
+              ))}
+            </Grid>
           </Card>
         </Flex>
       </Stack>

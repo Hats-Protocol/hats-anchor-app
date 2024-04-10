@@ -10,13 +10,15 @@ import {
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
-import { useIsClient } from 'hooks';
-import { Etherscan } from 'icons';
+import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { explorerUrl, parseEventName } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
+
+const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
 
 const EventHistory = ({
   type,
@@ -27,7 +29,7 @@ const EventHistory = ({
 }) => {
   const { chainId, treeEvents } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const isClient = useIsClient();
+  const { isClient } = useMediaStyles();
   const { isOpen, onToggle } = useDisclosure();
   let events = type === 'tree' ? treeEvents : selectedHat?.events;
   if (count) {

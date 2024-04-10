@@ -67,7 +67,7 @@ export const handleErc1155Eligibility = async ({
     return Promise.resolve({
       rule: (
         <HStack spacing={1}>
-          <Text>
+          <Text size={{ base: 'sm', md: 'md' }}>
             Hold at least {amountValueDisplay}{' '}
             <ChakraNextLink
               href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}
@@ -94,7 +94,7 @@ export const handleErc1155Eligibility = async ({
   return Promise.resolve({
     rule: (
       <HStack spacing={1}>
-        <Text>
+        <Text size={{ base: 'sm', md: 'md' }}>
           Hold at least {amountValueDisplay}{' '}
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}

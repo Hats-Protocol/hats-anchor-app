@@ -16,13 +16,17 @@ import {
 } from 'contexts';
 import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ModuleArgsForm } from 'ui';
 import { formatAddress, parsedSeconds } from 'utils';
 import { useChainId } from 'wagmi';
 
 import DateInfo from './DateInfo';
+
+const ModuleArgsForm = dynamic(() =>
+  import('ui').then((mod) => mod.ModuleArgsForm),
+);
 
 const UpcomingSeason = () => {
   const {
@@ -113,7 +117,7 @@ const UpcomingSeason = () => {
     }
   };
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values: any) => {
     if (!selectedFunction) return;
     await callModuleFunction({
       moduleId: moduleDetails.implementationAddress,

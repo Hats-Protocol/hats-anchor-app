@@ -233,7 +233,10 @@ export const TreeFormContextProvider = ({
   const onchainHats = useMemo(() => {
     return _.compact(_.concat(_.get(treeData, 'hats'), onchainLinkedHats));
   }, [treeData, onchainLinkedHats]);
-  const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree');
+  const linkRequestFromTree = _.get(
+    treeData,
+    'linkRequestFromTree',
+  ) as unknown as LinkRequest[]; // TODO check this type, SDK type says it should be a Tree[]
 
   // get difference between onchain hats and org chart hats
   const draftHats = useMemo(
@@ -351,13 +354,13 @@ export const TreeFormContextProvider = ({
   }, [orgChartTree]);
 
   const transformTree = useCallback(
-    (tree, includeInactive = false) => {
+    (tree: any, includeInactive = false) => {
       return _.chain(tree)
         .filter(
-          (hat) =>
+          (hat: any) =>
             includeInactive || !_.includes(inactiveHats, _.get(hat, 'id')),
         )
-        .map((hat) => {
+        .map((hat: any) => {
           if (editMode) {
             const matchingHat = _.find(storedData, { id: hat.id }) || {};
             return {
@@ -368,7 +371,9 @@ export const TreeFormContextProvider = ({
           }
           return hat;
         })
-        .filter((hat) => !editMode || hat.id?.startsWith(treeData?.id || ''))
+        .filter(
+          (hat: any) => !editMode || hat.id?.startsWith(treeData?.id || ''),
+        )
         .value();
     },
     [storedData, inactiveHats, editMode, treeData],
@@ -573,7 +578,7 @@ export const TreeFormContextProvider = ({
   const importHats = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (hats: any[]) => {
-      const translateImageUrl = _.map(hats, (hat) => {
+      const translateImageUrl = _.map(hats, (hat: any) => {
         // don't try to compute image url if imageUri is empty
         const imageUrl = hat.imageUri
           ? { imageUrl: ipfsUrl(hat.imageUri?.slice(7)) }
@@ -584,7 +589,7 @@ export const TreeFormContextProvider = ({
         };
       });
       // ignore wearers on import
-      const removeWearers = _.map(translateImageUrl, (hat) => {
+      const removeWearers = _.map(translateImageUrl, (hat: any) => {
         return _.omit(hat, ['wearers']);
       });
       setStoredData?.(removeWearers);

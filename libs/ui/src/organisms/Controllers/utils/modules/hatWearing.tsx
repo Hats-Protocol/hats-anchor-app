@@ -54,7 +54,7 @@ export const handleHatWearingEligibility = async ({
   if (isWearing) {
     return {
       rule: (
-        <Text>
+        <Text size={{ base: 'sm', md: 'md' }}>
           Wear the {hatName} Hat (
           <ChakraNextLink
             href={hatLink({ chainId, hatId: hatDetails.id })}
@@ -73,7 +73,7 @@ export const handleHatWearingEligibility = async ({
 
   return {
     rule: (
-      <Text noOfLines={1}>
+      <Text noOfLines={1} size={{ base: 'sm', md: 'md' }}>
         Wear the {hatName} Hat (
         <ChakraNextLink href='/' decoration>
           ID: {hatIdDecimalToIp(BigInt(hatDetails.id))}

@@ -6,7 +6,9 @@ import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 
-const useHatBurn = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useHatBurn: any = ({
   selectedHat,
   chainId,
   handlePendingTx,

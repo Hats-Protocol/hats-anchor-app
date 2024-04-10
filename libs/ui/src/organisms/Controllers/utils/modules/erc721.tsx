@@ -60,7 +60,7 @@ export const handleErc721Eligibility = async ({
 
   return Promise.resolve({
     rule: (
-      <Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
         Hold at least {amountParameterDisplay}{' '}
         <ChakraNextLink
           href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}

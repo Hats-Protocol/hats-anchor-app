@@ -12,8 +12,9 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 
-// hats-hooks
-const useTreeCreate = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useTreeCreate: any = ({
   chainId,
   details,
   receiver,
@@ -27,6 +28,7 @@ const useTreeCreate = ({
   const toast = useToast();
 
   const [treeId, setTreeId] = useState<number | null>(null);
+  const [stillLoading, setStillLoading] = useState(false);
 
   const {
     data: newReceiverResolvedAddress,
@@ -44,6 +46,7 @@ const useTreeCreate = ({
   });
 
   async function handleSuccess(transactionData?: TransactionReceipt) {
+    setStillLoading(true);
     if (!transactionData) return;
     const eventData = _.get(transactionData, 'logs[0].data');
     const newTreeId = treeCreateEventIdToTreeId(eventData);
@@ -54,6 +57,7 @@ const useTreeCreate = ({
 
     queryClient.invalidateQueries(['treeList', chainId]);
     queryClient.invalidateQueries(['wearerDetails']);
+    setStillLoading(false);
     toast.info({ title: 'Redirecting you to your new tree' });
     router.push(`/trees/${chainId}/${newTreeId}`);
   }
@@ -69,6 +73,7 @@ const useTreeCreate = ({
     onSuccessToastData: {
       title: 'Tree created!',
       description: 'Waiting on the subgraph to index your tree...', // 'Successfully created tree',
+      duration: 6000,
     },
     queryKeys: [['treeList', chainId]],
     enabled:
@@ -83,7 +88,7 @@ const useTreeCreate = ({
 
   return {
     writeAsync,
-    isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
+    isLoading: isLoading || isLoadingNewReceiverResolvedAddress || stillLoading,
   };
 };
 

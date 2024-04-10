@@ -69,7 +69,7 @@ const Input = ({
 
   const isDirty = _.get(dirtyFields, name);
 
-  const handlePaste = async (event) => {
+  const handlePaste = async (event: any) => {
     event.preventDefault();
     const pastedValue = event.clipboardData.getData('text');
     setValue(name, pastedValue, { shouldDirty: true });
@@ -151,14 +151,16 @@ const Input = ({
               >
                 Null
               </Button>
-              <Button
-                size='xs'
-                variant='outline'
-                colorScheme='blue.500'
-                onClick={resetMe}
-              >
-                Me
-              </Button>
+              {address && (
+                <Button
+                  size='xs'
+                  variant='outline'
+                  colorScheme='blue.500'
+                  onClick={resetMe}
+                >
+                  Me
+                </Button>
+              )}
             </HStack>
           </Flex>
         )}

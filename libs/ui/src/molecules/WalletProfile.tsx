@@ -12,17 +12,24 @@ import {
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useClipboard } from 'hooks';
-import { CopyAddress, WearerIcon } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
+import {
+  OverlayContextProps,
+  StandaloneOverlayContextProps,
+  SupportedChains,
+} from 'types';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 import TransactionHistory from './TransactionHistory';
+
+const CopyAddress = dynamic(() => import('icons').then((i) => i.CopyAddress));
+const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const OblongAvatar = ({
   image,
@@ -106,7 +113,10 @@ const WalletProfile = ({
       <Flex justify='space-between' gap={2} mb={2}>
         <Button w='full' variant='outline' onClick={toggleNetworkModal}>
           <HStack>
-            <Image src={networkImages[chainId]} boxSize={5} />
+            <Image
+              src={networkImages[chainId as SupportedChains]}
+              boxSize={5}
+            />
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>

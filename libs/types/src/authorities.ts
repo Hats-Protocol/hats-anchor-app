@@ -1,5 +1,7 @@
-import { HsgType, WriteFunction } from '@hatsprotocol/hsg-sdk';
+import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { Hex } from 'viem';
+
+import { AppWriteFunction } from './hat';
 
 export type AuthorityType =
   | 'protocol'
@@ -22,7 +24,7 @@ export type Authority = {
   id?: string | number;
   hatId?: Hex;
   strategies?: SnapshotStrategy[];
-  functions?: (WriteFunction & { isCustom?: boolean })[];
+  functions?: AppWriteFunction[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
   moduleLabel?: string;
@@ -34,8 +36,9 @@ export type Authority = {
   }[];
   safe?: Hex;
   hsgConfig?: {
-    minThreshold: number;
-    maxThreshold: number;
+    minThreshold: string;
+    targetThreshold: string;
+    maxSigners: string;
   };
 };
 

@@ -39,6 +39,13 @@ if (typeof window !== 'undefined') {
     },
     ui_host: 'https://app.posthog.com',
   });
+
+  if (INTERCOM_APP_ID) {
+    window.Intercom('boot', {
+      app_id: INTERCOM_APP_ID,
+      // user_id: hatData?.user?.id,
+    });
+  }
 }
 
 const queryClient = new QueryClient({
@@ -64,13 +71,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  if (typeof window !== 'undefined' && INTERCOM_APP_ID) {
-    window.Intercom('boot', {
-      app_id: INTERCOM_APP_ID,
-      // user_id: hatData?.user?.id,
-    });
-  }
 
   return (
     <>

@@ -2,7 +2,7 @@ import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
-import { useIsClient } from 'hooks';
+import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { chainsMap } from 'utils';
 
@@ -15,7 +15,7 @@ const ChakraNextLink = dynamic(() =>
 const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
 
 const Claims = () => {
-  const isClient = useIsClient();
+  const { isClient } = useMediaStyles();
   const {
     chainId,
     selectedHat,
