@@ -41,8 +41,9 @@ const MultiAddressInput = ({
   const currentInput = watch(`${name}-currentAddress`) as Hex | string;
   const addresses = watch(name, []);
   const localWearers: FormWearer[] = watch(`${name}-wearers`, []);
-  const currentWearerList = _.map(localWearers, ({ address }) =>
-    _.toLower(address),
+  const currentWearerList = _.map(
+    localWearers,
+    ({ address }: { address: Hex }) => _.toLower(address),
   ) as Hex[];
 
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<Hex>();

@@ -168,21 +168,24 @@ const CommandPalette = () => {
       <CmdkCommandPalette.Page id='root'>
         {!_.isEmpty(recentlyVisitedTrees) && (
           <CmdkCommandPalette.List heading='Recently Visited Trees'>
-            {_.map(recentlyVisitedTreesItems, ({ id, ...rest }, index) => (
-              <CmdkCommandPalette.ListItem
-                key={id}
-                index={index}
-                renderLink={({ href, children }) => (
-                  <CommandPaletteInternalLink
-                    href={href ?? ''}
-                    handleClose={handleClose}
-                  >
-                    {children}
-                  </CommandPaletteInternalLink>
-                )}
-                {...rest}
-              />
-            ))}
+            {_.map(
+              recentlyVisitedTreesItems,
+              ({ id, ...rest }: any, index: number) => (
+                <CmdkCommandPalette.ListItem
+                  key={id}
+                  index={index}
+                  renderLink={({ href, children }) => (
+                    <CommandPaletteInternalLink
+                      href={href ?? ''}
+                      handleClose={handleClose}
+                    >
+                      {children}
+                    </CommandPaletteInternalLink>
+                  )}
+                  {...rest}
+                />
+              ),
+            )}
           </CmdkCommandPalette.List>
         )}
         {filteredItems.length ? (

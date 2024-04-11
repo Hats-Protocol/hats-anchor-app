@@ -682,7 +682,7 @@ export const generateGateDescription = (
     if (_.gt(_.size(gate.signerHats), 1)) {
       description += `The signers of the HSG Safe include Hats ${_.map(
         gate.signerHats,
-        (h, i) =>
+        (h: any, i: number) =>
           // [#123.1](link), [#123.2](link), and [#123.3](link).
           `${
             i === _.size(gate.signerHats) - 1 ? 'and ' : ''

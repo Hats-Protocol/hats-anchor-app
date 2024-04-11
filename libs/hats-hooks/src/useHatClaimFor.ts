@@ -93,15 +93,7 @@ const useHatClaimFor = ({
       .then((result) => {
         return result;
       })
-      .catch((error) => {
-        const err = error as Error;
-        toast.error({
-          title: 'Transaction failed',
-          description: err.message,
-        });
-        // eslint-disable-next-line no-console
-        console.error(error);
-      });
+      .catch((error) => error);
   };
 
   const { mutateAsync, isLoading } = useMutation({
@@ -116,6 +108,15 @@ const useHatClaimFor = ({
           )} has been claimed for ${formatAddress(wearer)}`,
         });
       }
+    },
+    onError: (error) => {
+      const err = error as Error;
+      toast.error({
+        title: 'Transaction failed',
+        description: err.message,
+      });
+      // eslint-disable-next-line no-console
+      console.log('Error claiming hat:', err);
     },
   });
 

@@ -4,9 +4,11 @@ import { ToastProps } from 'types';
 
 import useToast from './useToast';
 
+type ToastType = 'success' | 'error' | 'warning' | 'info';
+
 interface UseClipboardOptions {
   toastData?: ToastProps;
-  toastType?: 'success' | 'error' | 'warning' | 'info'; // success is default so is optional
+  toastType?: ToastType; // success is default so is optional
 }
 
 const useClipboard = (value: string, options?: UseClipboardOptions) => {
@@ -18,7 +20,7 @@ const useClipboard = (value: string, options?: UseClipboardOptions) => {
 
   const handleCopy = () => {
     onCopy();
-    toast[toastType || 'success'](
+    toast[(toastType as ToastType) || 'success'](
       toastData || { title: 'Copied to clipboard' },
     );
   };

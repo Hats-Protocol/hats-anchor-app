@@ -19,6 +19,7 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
+import { Authority } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
 import { useAccount, useChainId, useQueryClient } from 'wagmi';
 
@@ -54,7 +55,8 @@ const ClaimHat = ({
 
   const telegramAuthority = _.find(
     _.get(selectedHatDetails, 'authorities'),
-    (a) => _.includes(a.link, 'telegram') || _.includes(a.link, 't.me'),
+    (a: Authority) =>
+      _.includes(a.link, 'telegram') || _.includes(a.link, 't.me'),
   );
 
   const { data: wearer } = useWearerDetails({

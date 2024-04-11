@@ -84,7 +84,7 @@ export const OverlayContextProvider = ({
 
       const uniqueTrees = _.uniqWith(
         localRecentTrees,
-        (treeA, treeB) =>
+        (treeA: any, treeB: any) =>
           treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
       );
 

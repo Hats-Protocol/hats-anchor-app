@@ -45,7 +45,7 @@ const BooleanInput = ({
         onChange={(value) => setValue(arg.name, value)}
       >
         <HStack spacing={4}>
-          {_.map(booleanOptions, (option) => (
+          {_.map(booleanOptions, (option: any) => (
             <Radio value={option} key={option}>
               {option}
             </Radio>
