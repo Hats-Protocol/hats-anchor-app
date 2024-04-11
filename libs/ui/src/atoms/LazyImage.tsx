@@ -24,7 +24,7 @@ const LazyImage = ({ alt, src, boxSize, ...props }: LazyImageProps) => {
     <Skeleton boxSize={boxSize} minW='72px' isLoaded={imageLoaded}>
       <ChakraImage
         src={src || '/icon.jpeg'}
-        boxSize={boxSize || '72px'}
+        boxSize={boxSize}
         alt={alt}
         onLoad={() => setImageLoaded(true)}
         {...props}

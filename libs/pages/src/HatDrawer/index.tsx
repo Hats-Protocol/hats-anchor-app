@@ -82,8 +82,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
             }
             alt='hat image'
             background='white'
-            objectFit='cover'
-            h='100%'
+            boxSize='101%'
           />
         </Box>
 

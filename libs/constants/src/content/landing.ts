@@ -3,16 +3,16 @@ import {
   Aragon,
   CheckSquare,
   CodeIcon,
-  Daohaus,
   Discord,
   Farcaster,
-  GitGrants,
   HatIcon,
   PeopleIcon,
+  Sablier,
   Safe,
   Snapshot,
   Splits,
   Superfluid,
+  Tally,
   Telegram,
 } from 'icons';
 
@@ -166,11 +166,11 @@ export type IntegrationCard = {
 export const INTEGRATION_CARDS: IntegrationCard[] = [
   {
     label: 'Award Hats via DAO vote or onchain elections',
-    icons: [Daohaus, Aragon, Snapshot],
+    icons: [Snapshot, Aragon, Tally], // TODO replace Aragon with JokeRace
   },
   {
     label: 'Automatically pay active contributors onchain',
-    icons: [GitGrants, Superfluid, Splits],
+    icons: [Splits, Superfluid, Sablier],
   },
   {
     label: 'Control onchain assets and signer rights',

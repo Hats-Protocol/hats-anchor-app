@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
-  HatClaimForForm,
+  HatClaimForm,
   HatTransferForm,
   HatWearerForm,
   HatWearerStatusForm,
@@ -287,7 +287,7 @@ const WearersList = () => {
             size='2xl'
             localOverlay={localOverlay}
           >
-            <HatClaimForForm />
+            <HatClaimForm />
           </Modal>
 
           <Modal

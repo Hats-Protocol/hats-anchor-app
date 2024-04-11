@@ -49,7 +49,7 @@ type HeadlineStat = {
 };
 
 // TODO use new tree list cards on mobile
-// TODO switch back to `OblongAvatar`, something about undefined component/default export mixup
+// TODO switch Avatar back to `OblongAvatar`, something about undefined component/default export mixup
 // could also consider using tabs for the networks on mobile to reduce the scroll end-to-end
 
 const WearerDetail = ({
