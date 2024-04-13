@@ -29,9 +29,9 @@ import { Hex } from 'viem';
 export const calculateNextChildId = (id: string, hatsData: AppHat[]) => {
   const children = _.filter(
     hatsData,
-    (h) => h.admin?.id === id || h.parentId === id,
+    (h: any) => h.admin?.id === id || h.parentId === id,
   );
-  const lessTop = _.filter(children, (child) => child.id !== id);
+  const lessTop = _.filter(children, (child: any) => child.id !== id);
   return `${hatIdDecimalToIp(BigInt(id))}.${_.size(lessTop) + 1}`;
 };
 
@@ -43,7 +43,7 @@ export function treeCreateEventIdToTreeId(id: string) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const includesAny = (arr: any[], target: any[]) =>
-  _.some(target, (v) => _.includes(arr, v));
+  _.some(target, (v: any) => _.includes(arr, v));
 
 /**
  * Traverses all ancestry of hat to check for wearers
@@ -66,14 +66,14 @@ export const isWearingAdminHat = (
 
   // map all parent hatIds for the lineage
   let hatIds = _.uniq(
-    _.map(hats, (__, i) => {
+    _.map(hats, (__: unknown, i: number) => {
       const joinedParentHats = hats.slice(0, i).join('');
       return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
     }),
   );
 
   if (!includeCurrent) {
-    hatIds = _.reject(hatIds, (id) => id === hatId);
+    hatIds = _.reject(hatIds, (id: Hex) => id === hatId);
   }
   // TODO [md] handle linked trees
 
@@ -142,7 +142,7 @@ const unchangedKeys = ['id', 'parentId'];
 
 export const editHasUpdates = (storedData: Partial<FormData>[] | undefined) =>
   !_.isEmpty(
-    _.reject(storedData, (data) =>
+    _.reject(storedData, (data: any) =>
       _.isEmpty(_.keys(_.omit(data, unchangedKeys))),
     ),
   );
@@ -176,11 +176,11 @@ export const getAllParents = (hatId?: Hex, tree?: AppHat[]): AppHat[] => {
 };
 
 export const getAllDescendants = (hatId: Hex, tree: AppHat[]): AppHat[] => {
-  const children = _.filter(tree, (hat) => hat.parentId === hatId);
+  const children = _.filter(tree, (hat: any) => hat.parentId === hatId);
 
   const descendants = _.reduce(
     children,
-    (acc, child) => {
+    (acc: any, child: any) => {
       return _.concat(acc, child, getAllDescendants(child.id, tree));
     },
     [] as AppHat[],
@@ -251,7 +251,7 @@ const mergeHatsWithStoredData = (
   hats: any[],
   storedData: Partial<FormData>[] | undefined,
 ) => {
-  return _.map(hats, (hat) => {
+  return _.map(hats, (hat: any) => {
     const storedHat = _.find(storedData, { id: hat.id });
     const mergedHat = _.merge({}, hat, storedHat);
     const imageUri = storedHat?.imageUrl ?? (hat?.imageUri || '');
@@ -267,7 +267,7 @@ const mergeHatsWithStoredData = (
 };
 
 const prepareExportTree = (data: any[]): HatExport[] => {
-  return _.map(data, (hat) => {
+  return _.map(data, (hat: any) => {
     let imageUrl = hat.imageUri;
     // ! don't want to export image URL with our gateway and token string on it
     if (imageUrl.startsWith('https://')) {
@@ -341,7 +341,7 @@ export const handleExportBranch = ({
   const branch = getBranch(targetHatId, treeToDisplayWithInactiveHats);
   const hatsWithoutLinkedHats = _.filter(
     branch,
-    (hat) => hat.id && !linkedHatIds?.includes(hat.id),
+    (hat: AppHat) => hat.id && !linkedHatIds?.includes(hat.id),
   );
   const targetHatInBranch = _.find(hatsWithoutLinkedHats, {
     id: targetHatId,
@@ -383,7 +383,7 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
     id: hatA.id,
   };
 
-  _.forEach(hatA, (value, key) => {
+  _.forEach(hatA, (value: any, key: string) => {
     // skip keys that we're handling separately
     if (_.includes(['createdAt', 'currentSupply', 'imageUri'], key)) {
       return;
@@ -445,14 +445,15 @@ export const prepareDraftHats = (
   if (!treeId) return [];
   const topHatId = hatIdDecimalToHex(treeIdToTopHatId(treeId));
   const hatsWithPatchedIds = patchHatIds(importedTree, topHatId);
-  const hatsDifferences = _.map(hatsWithPatchedIds, (hat) => {
+  const hatsDifferences = _.map(hatsWithPatchedIds, (hat: any) => {
     const matchingHat = _.find(onchainTree, { id: hat.id });
     if (!matchingHat) return hat;
     return compareHatObjects(hat, matchingHat);
   });
   const hatsWithUpdates = _.filter(
     hatsDifferences,
-    (hat) => _.size(hat) > 1 && _.some(hat, (value) => value !== undefined),
+    (hat: any) =>
+      _.size(hat) > 1 && _.some(hat, (value: any) => value !== undefined),
   );
   const hatsExcludingTop = _.filter(
     hatsWithUpdates,
@@ -465,7 +466,7 @@ function patchHatIds(hats: HatExport[], newMainID?: Hex) {
   if (!newMainID) return hats;
   const mainPortion = _.slice(newMainID, 0, 10).join('');
 
-  return _.map(hats, (hat) => {
+  return _.map(hats, (hat: any) => {
     const specificPortionOfId = _.slice(hat?.id, 10).join('');
     const specificPortionOfAdminId = _.slice(hat?.adminId, 10).join('');
 
@@ -491,7 +492,7 @@ function patchHatIds(hats: HatExport[], newMainID?: Hex) {
 export const flattenHatData = (data: any[]): FormData[] =>
   _.map(
     data || [],
-    (hat) =>
+    (hat: any) =>
       ({
         id: hat.id,
         status: hat.status,
@@ -562,7 +563,7 @@ export const checkMissingParents = (
   const draftIds = _.map(hats, 'id');
   const idList = _.uniq(_.concat(onchainIds, draftIds));
 
-  const missingParent = _.filter(hats, (hat) => {
+  const missingParent = _.filter(hats, (hat: any) => {
     const localHat = _.find(onchainHats, { id: hat.id });
     if (!hat.adminId && !localHat?.admin?.id) return true;
     return !_.includes(idList, hat.adminId || localHat?.admin?.id);
@@ -578,18 +579,18 @@ export const checkMissingSiblings = (
   if (!onchainHats || !hats || hats.length === 0)
     return { hasMissing: false, missingSiblings: [] };
 
-  const onchainPrettyIds = _.map(_.filter(onchainHats, 'id'), (hat) =>
+  const onchainPrettyIds = _.map(_.filter(onchainHats, 'id'), (hat: any) =>
     idToPrettyId(hat.id),
   );
   const hatsWithId = _.filter(hats, 'id');
   const allIdsSet = new Set([
     ...onchainPrettyIds,
-    ..._.map(hatsWithId, (hat) => idToPrettyId(hat.id)),
+    ..._.map(hatsWithId, (hat: any) => idToPrettyId(hat.id)),
   ]);
 
   const missingSiblings: string[] = [];
 
-  _.forEach(hatsWithId, (hat) => {
+  _.forEach(hatsWithId, (hat: any) => {
     const prettyId = idToPrettyId(hat.id);
     const idSegments = prettyId.split('.');
 

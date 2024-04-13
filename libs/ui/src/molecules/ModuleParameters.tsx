@@ -1,6 +1,6 @@
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { numberTypes, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter as SdkModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
@@ -57,7 +57,7 @@ const ModuleParameter = ({
   chainId,
   tokenData,
 }: {
-  param: ModuleParameter;
+  param: SdkModuleParameter;
   chainId: number;
   tokenData: TokenData | undefined;
 }) => {
@@ -164,10 +164,10 @@ const ModuleParameters = ({
   parameters,
   chainId,
 }: {
-  parameters: ModuleParameter[] | undefined;
+  parameters: SdkModuleParameter[] | undefined;
   chainId: number;
 }) => {
-  const tokenParameter = _.find(parameters, (a: ModuleParameter) =>
+  const tokenParameter = _.find(parameters, (a: SdkModuleParameter) =>
     _.includes(TOKEN_ARG_TYPES, a.displayType),
   );
 
@@ -178,7 +178,7 @@ const ModuleParameters = ({
 
   return (
     <Stack>
-      {_.map(parameters, (param: ModuleParameter) => (
+      {_.map(parameters, (param: SdkModuleParameter) => (
         <ModuleParameter
           param={param}
           chainId={chainId}

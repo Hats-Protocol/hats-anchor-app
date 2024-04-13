@@ -1,22 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  Button,
+  // Button,
   Flex,
   Heading,
-  HStack,
-  Icon,
+  // HStack,
+  // Icon,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { useParams } from 'next/navigation';
-import { FaArrowRight } from 'react-icons/fa';
+// import _ from 'lodash';
+// import { useParams } from 'next/navigation';
+// import { FaArrowRight } from 'react-icons/fa';
 
-import ChakraNextLink from './ChakraNextLink';
+// import ChakraNextLink from './ChakraNextLink';
 
 const ErrorPage = () => {
-  const { chainId, treeId, hatId } = useParams();
+  // const params = useParams();
+  // const { chainId, treeId } = _.pick(params, ['chainId', 'treeId', 'hatId']);
 
-  const link = `/trees/${chainId}/${treeId}`;
+  // const link = `/trees/${chainId}/${treeId}`;
   // if (hatId) {
   //   link = `${link}?hatId=${hatId}`;
   // }

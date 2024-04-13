@@ -193,19 +193,23 @@ export const authorityImageHandler = ({
   currentImageUrl,
 }: AuthorityImageHandlerProps) => {
   const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
-  // console.log(
-  //   'authority',
-  //   authority,
-  //   id,
-  //   GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS],
-  // );
+
   if (!authority) return checkIfIpfs('');
 
   if (editingItem) return checkIfIpfs(currentImageUrl);
 
   if (type === AUTHORITY_TYPES.gate) {
+    // HANDLE GUILD PLATFORM MATCH
     const platformById = GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS];
     const platformInfo = AUTHORITY_PLATFORMS[platformById];
+    if (platformInfo)
+      return {
+        icon: platformInfo.icon as ReactNode,
+        isIpfs: false,
+        imageUrl: '',
+      };
+
+    // HANDLE GENERIC PLATFORM MATCH
     const matchingPlatform = _.find(
       _.keys(AUTHORITY_PLATFORMS),
       (k: string) =>
@@ -215,12 +219,6 @@ export const authorityImageHandler = ({
     );
     const matchingPlatformInfo =
       AUTHORITY_PLATFORMS[matchingPlatform as string];
-    if (platformInfo)
-      return {
-        icon: platformInfo.icon as ReactNode,
-        isIpfs: false,
-        imageUrl: '',
-      };
     if (matchingPlatformInfo)
       return {
         icon: matchingPlatformInfo.icon as ReactNode,

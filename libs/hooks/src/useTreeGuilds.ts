@@ -4,7 +4,7 @@ import { AppHat, SupportedChains } from 'types';
 import { fetchGuildsData } from 'utils';
 
 const getGuilds = (orgChartTree: AppHat[] | null | undefined) => {
-  return _.compact(_.map(orgChartTree, 'guild'));
+  return _.compact(_.flatten(_.map(orgChartTree, 'detailsObject.data.guilds')));
 };
 
 const useTreeGuilds = ({

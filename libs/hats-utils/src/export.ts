@@ -31,7 +31,7 @@ export const translateDrafts = ({
   treeId: number;
   drafts: Partial<FormData>[];
 }): AppHat[] => {
-  const extendDrafts = _.map(drafts, (hat) => {
+  const extendDrafts = _.map(drafts, (hat: any) => {
     if (!hat.id) return undefined;
     return {
       ..._.omit(hat, ['imageUrl']),
@@ -61,5 +61,5 @@ export const translateDrafts = ({
 
   const defined = _.reject(extendDrafts, _.isUndefined) as AppHat[];
 
-  return _.sortBy(defined, (hat) => BigInt(hat.id));
+  return _.sortBy(defined, (hat: any) => BigInt(hat.id));
 };

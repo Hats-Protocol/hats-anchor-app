@@ -72,7 +72,7 @@ export const StandaloneOverlayContextProvider = ({
 
       const uniqueHats = _.uniqWith(
         localRecentHats,
-        (treeA, treeB) =>
+        (treeA: any, treeB: any) =>
           treeA.hatId === treeB.hatId && treeA.chainId === treeB.chainId,
       );
 

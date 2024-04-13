@@ -88,7 +88,7 @@ const ModuleAuthorityToolbar = ({
       });
 
       if (authority.signerHats) {
-        _.forEach(authority.signerHats, (h) => {
+        _.forEach(authority.signerHats, (h: any) => {
           links.push({
             link: formHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,

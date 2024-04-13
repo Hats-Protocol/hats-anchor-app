@@ -30,7 +30,7 @@ import _ from 'lodash';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
-import { LinkObject } from 'types';
+import { AppWriteFunction, LinkObject } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -77,16 +77,19 @@ const ModuleDetails = ({ type }: { type: string }) => {
   const { formState, handleSubmit } = formMethods;
 
   const tokenAddress = _.get(
-    _.find(parameters, (param) =>
+    _.find(parameters, (param: any) =>
       _.includes(TOKEN_ARG_TYPES, param.displayType),
     ),
     'value',
   );
 
-  const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn) =>
-    _.includes(fn.roles, 'public'),
+  const moduleActions = _.filter(
+    _.get(moduleDetails, 'writeFunctions'),
+    (fn: AppWriteFunction) => _.includes(fn.roles, 'public'),
   );
-  const sortedModuleActions = _.sortBy(moduleActions, (a) => _.size(a.label));
+  const sortedModuleActions = _.sortBy(moduleActions, (a: any) =>
+    _.size(a.label),
+  );
 
   const { mutate: callModuleFunction, isLoading: isModuleLoading } =
     useCallModuleFunction({

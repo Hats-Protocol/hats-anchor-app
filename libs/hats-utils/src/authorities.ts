@@ -63,8 +63,8 @@ export const combineAuthorities = ({
 
   // combine authorities
   const combined = _.concat(
-    mergedAuthorities,
     modulesAuthorities,
+    mergedAuthorities,
     ecosystemAuthorities,
     filteredAuthorities,
   );

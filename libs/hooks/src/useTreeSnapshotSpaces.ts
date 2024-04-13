@@ -4,7 +4,7 @@ import { AppHat, SupportedChains } from 'types';
 import { fetchSnapshotSpaces } from 'utils';
 
 const getSpaces = (orgChartTree: AppHat[] | null | undefined) => {
-  return _.compact(_.map(orgChartTree, 'snapshot'));
+  return _.compact(_.flatten(_.map(orgChartTree, 'detailsObject.data.spaces')));
 };
 
 const useTreeSnapshotSpaces = ({

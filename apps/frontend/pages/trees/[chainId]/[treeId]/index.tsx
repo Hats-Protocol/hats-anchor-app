@@ -1,4 +1,8 @@
-import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdIpToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
@@ -19,7 +23,9 @@ const TreeDetails = ({ treeId, chainId, hatId, exists }: TreeDetailsProps) => {
 
     // attempt to redirect to mobile tree page
     if (hatId && isMobile) {
-      router.push(`/trees/${chainId}/${treeId}/${hatId}`);
+      router.push(
+        `/trees/${chainId}/${treeId}/${hatIdDecimalToIp(BigInt(hatId))}`,
+      );
     }
 
     updateRecentlyVisitedTrees({

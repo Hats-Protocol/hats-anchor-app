@@ -1,10 +1,10 @@
 import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
-import blockies from 'blockies-ts';
 import { Modal } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { createIcon } from 'opepen-standard';
+import { useMemo } from 'react';
 import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
@@ -12,7 +12,6 @@ import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 import WalletProfile from './WalletProfile';
 
 const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
-  const [blockie, setBlockie] = useState<string | undefined>();
   const { address } = useAccount();
   const { setModals } = _.pick(overlay, ['setModals']);
   const { isMobile } = useMediaStyles();
@@ -23,10 +22,12 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
     cacheTime: 60,
   });
 
-  useEffect(() => {
-    if (address) {
-      setBlockie(blockies.create({ seed: _.toLower(address) }).toDataURL());
-    }
+  const fallbackAvatar = useMemo(() => {
+    if (!address) return undefined;
+    return createIcon({
+      seed: _.toLower(address),
+      size: 64,
+    }).toDataURL();
   }, [address]);
 
   const openAccountModal = () => {
@@ -106,12 +107,12 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
                     px={{ base: 2, md: 4 }}
                   >
                     <HStack spacing={2} align='center'>
-                      {ensAvatar || blockie ? (
+                      {ensAvatar || fallbackAvatar ? (
                         <Box
                           height='26px'
                           width='16px'
                           overflow='hidden'
-                          backgroundImage={ensAvatar || blockie}
+                          backgroundImage={ensAvatar || fallbackAvatar}
                           backgroundSize='cover'
                           backgroundClip='content-box'
                           backgroundPosition='center'
@@ -149,7 +150,7 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
           <WalletProfile
             address={address}
             name={ensName || formatAddress(address)}
-            avatar={ensAvatar || blockie}
+            avatar={ensAvatar || fallbackAvatar}
             localOverlay={overlay}
           />
         )}
