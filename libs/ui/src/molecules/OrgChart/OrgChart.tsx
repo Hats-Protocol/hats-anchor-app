@@ -141,7 +141,6 @@ const OrgChartComponent: React.FC = () => {
     if (!editMode) {
       initialAfterEditMode.current = true;
     }
-    console.log('initialAfterEditMode', initialAfterEditMode.current);
   }, [editMode]);
 
   useEffect(() => {
@@ -696,19 +695,11 @@ const OrgChartComponent: React.FC = () => {
             handleNodeCollapsedOrExpanded(idToIp(d.data.id), isExpanded);
 
             if (isExpanded) {
-              // d.data._collapsed = false;
               adjustAfterNodeExpanded(d);
-            } else {
-              // d.data._collapsed = true;
             }
           }
         });
 
-      // if (initialAfterEditMode.current) {
-      //   console.log('rendering initialAfterEditMode');
-      //   chart.expandAll();
-      //   initialAfterEditMode.current = false;
-      // }
       if (editMode) {
         chart.expandAll(); // keep nodes expanded on edit mode. Note that expandAll performs a render so no need to call render again
       } else if (initialLoad.current || initialAfterEditMode.current) {
@@ -719,28 +710,7 @@ const OrgChartComponent: React.FC = () => {
         chart.render();
       }
 
-      const { allNodes } = chart.getChartState();
-      console.log('allNodes', allNodes);
       if (!initialLoad.current) return;
-
-      // encode the collapsed nodes in the tree to display, used for custom manipulation of expanded/collapsed nodes
-      // collapsedNodes.forEach((node) => {
-      //   const hatToUpdate = chartNodes.find((hat) => {
-      //     if (hat.id === node) {
-      //       return true;
-      //     }
-      //     return false;
-      //   });
-      //   if (hatToUpdate !== undefined) {
-      //     (hatToUpdate as any)._collapsed = true;
-      //   }
-      // });
-
-      // if (!editMode) {
-      //   recreateNodesCollapse(chart, collapsedNodes);
-      //   const { allNodes: allNodesAfterCollapse } = chart.getChartState();
-      //   console.log('allNodesAfterCollapse', allNodesAfterCollapse);
-      // }
 
       if (
         selectedHatId &&
@@ -753,8 +723,6 @@ const OrgChartComponent: React.FC = () => {
         chart.fit();
       }
 
-      const { allNodes: allNodesAfter } = chart.getChartState();
-      console.log('allNodes initial', allNodesAfter);
       initialLoad.current = false;
     }
   }, [
