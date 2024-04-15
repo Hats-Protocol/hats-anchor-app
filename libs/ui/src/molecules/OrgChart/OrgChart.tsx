@@ -700,6 +700,8 @@ const OrgChartComponent: React.FC = () => {
 
       if (editMode) {
         chart.expandAll(); // keep nodes expanded on edit mode. Note that expandAll performs a render so no need to call render again
+      } else if (collapsedNodes.length === 0) {
+        chart.expandAll();
       } else if (initialLoad.current) {
         // initial rendering with collapsed nodes
         if (chartNodes !== undefined) {
@@ -717,8 +719,6 @@ const OrgChartComponent: React.FC = () => {
         }
         chart.render();
         recreateNodesCollapse(chart, collapsedNodes);
-      } else if (collapsedNodes.length === 0) {
-        chart.expandAll();
       } else {
         chart.render();
       }
