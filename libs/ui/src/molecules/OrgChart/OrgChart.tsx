@@ -68,7 +68,6 @@ const OrgChartComponent: React.FC = () => {
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
   const initialLoad = useRef<boolean>(true);
-  const initialAfterEditMode = useRef<boolean>(false);
   const [chartNodes, setChartNodes] = useState<AppHat[] | undefined>(undefined);
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
@@ -99,8 +98,6 @@ const OrgChartComponent: React.FC = () => {
 
   // update chartNodes each time treeToDisplay is changed, but keep the internal org chart state variables (properties that start with "_")
   useEffect(() => {
-    console.log('updating chartNodes');
-    console.log('chartNodes before', chartNodes);
     if (chartNodes === undefined && treeToDisplay !== undefined) {
       setChartNodes(treeToDisplay);
     } else if (chartNodes !== undefined && treeToDisplay !== undefined) {
@@ -119,7 +116,6 @@ const OrgChartComponent: React.FC = () => {
 
       setChartNodes(newChartNodes);
     }
-    console.log('chartNodes after', chartNodes);
   }, [chartNodes, treeToDisplay]);
 
   useEffect(() => {
@@ -128,7 +124,6 @@ const OrgChartComponent: React.FC = () => {
       for (let i = 0; i < chartNodes.length; i += 1) {
         (chartNodes[i] as any)._collapsed = false;
       }
-      console.log('updating collapsed', collapsedNodes);
       collapsedNodes.forEach((node) => {
         const hatToUpdate = chartNodes.find((hat) => {
           if (hat.id === node) {
@@ -142,12 +137,6 @@ const OrgChartComponent: React.FC = () => {
       });
     }
   }, [chartNodes, collapsedNodes]);
-
-  useEffect(() => {
-    if (!editMode && !initialLoad.current) {
-      initialAfterEditMode.current = true;
-    }
-  }, [editMode]);
 
   useEffect(() => {
     if (_.isEmpty(chartNodes)) return;
@@ -709,13 +698,10 @@ const OrgChartComponent: React.FC = () => {
           }
         });
 
-      const { allNodes: allNodesBeforeRender } = chart.getChartState();
-      console.log('allNodesBeforeRender', allNodesBeforeRender);
-      console.log('initialAfterEditMode.current', initialAfterEditMode.current);
       if (editMode) {
         chart.expandAll(); // keep nodes expanded on edit mode. Note that expandAll performs a render so no need to call render again
       } else if (initialLoad.current) {
-        console.log('initial load');
+        // initial rendering with collapsed nodes
         if (chartNodes !== undefined) {
           collapsedNodes.forEach((node) => {
             const hatToUpdate = chartNodes.find((hat) => {
@@ -736,17 +722,6 @@ const OrgChartComponent: React.FC = () => {
       } else {
         chart.render();
       }
-
-      // chart.expandAll();
-      // initialAfterEditMode.current = false;
-      // const { allNodes } = chart.getChartState();
-      // // first init all nodes as expanded
-      // for (let i = 0; i < allNodes.length; i += 1) {
-      //   (allNodes[i].data as any)._collapsed = false;
-      // }
-
-      const { allNodes: allNodesAfterRender } = chart.getChartState();
-      console.log('allNodesAfterRender', allNodesAfterRender);
 
       if (!initialLoad.current) return;
 
