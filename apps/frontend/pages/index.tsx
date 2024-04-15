@@ -201,7 +201,7 @@ const Home = () => {
               >
                 <Heading>Explore featured trees</Heading>
                 <Flex
-                  gap={{ md: 6, '2xl': 20 }}
+                  gap={{ base: 4, md: 6, '2xl': 20 }}
                   wrap='wrap'
                   justify='space-around'
                 >
