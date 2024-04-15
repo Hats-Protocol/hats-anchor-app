@@ -21,9 +21,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
   createContext,
-  Dispatch,
   ReactNode,
-  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -72,15 +70,6 @@ export interface TreeFormContext {
   snapshotData: SnapshotSpace[] | undefined;
   // local storage
   storedConfig: { flipped?: boolean; compact?: boolean; collapsed?: string[] };
-  setStoredConfig:
-    | Dispatch<
-        SetStateAction<{
-          flipped?: boolean | undefined;
-          compact?: boolean | undefined;
-          collapsed?: string[] | undefined;
-        }>
-      >
-    | undefined;
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
   // controls
@@ -132,7 +121,6 @@ export const TreeFormContext = createContext<TreeFormContext>({
   inactiveHats: undefined,
   // local storage
   storedConfig: {},
-  setStoredConfig: undefined,
   storedData: undefined,
   setStoredData: undefined,
   orgChartTree: undefined,
@@ -797,7 +785,6 @@ export const TreeFormContextProvider = ({
       snapshotData,
       // LOCAL STORAGE
       storedConfig,
-      setStoredConfig,
       storedData,
       setStoredData,
       // CONTROLS
@@ -851,7 +838,6 @@ export const TreeFormContextProvider = ({
       // LOCAL STORAGE
       storedData,
       storedConfig,
-      setStoredConfig,
       setStoredData,
       // CONTROLS
       editMode,
