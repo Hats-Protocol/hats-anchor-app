@@ -670,14 +670,6 @@ export const TreeFormContextProvider = ({
       };
       const removeCurrentId = _.reject(storedData, ['id', newHat.id]);
       setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys as FormData));
-      // const updatedQuery = {
-      //   ...router.query,
-      //   hatId: hatIdDecimalToIp(BigInt(hat.id)),
-      // };
-      // const updatedUrl = {
-      //   pathname: router.pathname,
-      //   query: updatedQuery,
-      // };
 
       // any way to get this to stick? always reverts to parent
       // router.push(updatedUrl, undefined, { shallow: true });

@@ -58,7 +58,6 @@ const OrgChartComponent: React.FC = () => {
     isLoading,
     storedConfig,
     storedData,
-    setStoredData,
     addHat,
     orgChartWearers,
     onOpenHatDrawer,
@@ -100,6 +99,8 @@ const OrgChartComponent: React.FC = () => {
 
   // update chartNodes each time treeToDisplay is changed, but keep the internal org chart state variables (properties that start with "_")
   useEffect(() => {
+    console.log('updating chartNodes');
+    console.log('chartNodes before', chartNodes);
     if (chartNodes === undefined && treeToDisplay !== undefined) {
       setChartNodes(treeToDisplay);
     } else if (chartNodes !== undefined && treeToDisplay !== undefined) {
@@ -118,11 +119,16 @@ const OrgChartComponent: React.FC = () => {
 
       setChartNodes(newChartNodes);
     }
+    console.log('chartNodes after', chartNodes);
   }, [chartNodes, treeToDisplay]);
 
   useEffect(() => {
     // encode the collapsed nodes in the tree to display, used for custom manipulation of expanded/collapsed nodes
     if (chartNodes !== undefined) {
+      for (let i = 0; i < chartNodes.length; i += 1) {
+        (chartNodes[i] as any)._collapsed = false;
+      }
+      console.log('updating collapsed', collapsedNodes);
       collapsedNodes.forEach((node) => {
         const hatToUpdate = chartNodes.find((hat) => {
           if (hat.id === node) {
@@ -138,7 +144,7 @@ const OrgChartComponent: React.FC = () => {
   }, [chartNodes, collapsedNodes]);
 
   useEffect(() => {
-    if (!editMode) {
+    if (!editMode && !initialLoad.current) {
       initialAfterEditMode.current = true;
     }
   }, [editMode]);
@@ -695,20 +701,52 @@ const OrgChartComponent: React.FC = () => {
             handleNodeCollapsedOrExpanded(idToIp(d.data.id), isExpanded);
 
             if (isExpanded) {
+              d.data._collapsed = false;
               adjustAfterNodeExpanded(d);
+            } else {
+              d.data._collapsed = true;
             }
           }
         });
 
+      const { allNodes: allNodesBeforeRender } = chart.getChartState();
+      console.log('allNodesBeforeRender', allNodesBeforeRender);
+      console.log('initialAfterEditMode.current', initialAfterEditMode.current);
       if (editMode) {
         chart.expandAll(); // keep nodes expanded on edit mode. Note that expandAll performs a render so no need to call render again
-      } else if (initialLoad.current || initialAfterEditMode.current) {
+      } else if (initialLoad.current) {
+        console.log('initial load');
+        if (chartNodes !== undefined) {
+          collapsedNodes.forEach((node) => {
+            const hatToUpdate = chartNodes.find((hat) => {
+              if (hat.id === node) {
+                return true;
+              }
+              return false;
+            });
+            if (hatToUpdate !== undefined) {
+              (hatToUpdate as any)._collapsed = true;
+            }
+          });
+        }
         chart.render();
         recreateNodesCollapse(chart, collapsedNodes);
-        chart.render();
+      } else if (collapsedNodes.length === 0) {
+        chart.expandAll();
       } else {
         chart.render();
       }
+
+      // chart.expandAll();
+      // initialAfterEditMode.current = false;
+      // const { allNodes } = chart.getChartState();
+      // // first init all nodes as expanded
+      // for (let i = 0; i < allNodes.length; i += 1) {
+      //   (allNodes[i].data as any)._collapsed = false;
+      // }
+
+      const { allNodes: allNodesAfterRender } = chart.getChartState();
+      console.log('allNodesAfterRender', allNodesAfterRender);
 
       if (!initialLoad.current) return;
 
@@ -738,7 +776,6 @@ const OrgChartComponent: React.FC = () => {
     editMode,
     toast,
     addHat,
-    setStoredData,
     userChain,
     chartNodes,
     compact,
@@ -872,10 +909,6 @@ const recreateNodesCollapse = (
 ) => {
   const { allNodes } = chart.getChartState();
 
-  if (allNodes === undefined) {
-    return;
-  }
-
   // first init all nodes as expanded
   for (let i = 0; i < allNodes.length; i += 1) {
     (allNodes[i].data as any)._expanded = true;
@@ -904,11 +937,11 @@ const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
 
     // Set descendants expanded property to false
     chart.setExpansionFlagToChildren(node, false);
-    // chart.update(node);
+    chart.update(node);
   } else {
     // Set descendants expanded property to false
     chart.setExpansionFlagToChildren(node, false);
-    // chart.update(node);
+    chart.update(node);
   }
 };
 
