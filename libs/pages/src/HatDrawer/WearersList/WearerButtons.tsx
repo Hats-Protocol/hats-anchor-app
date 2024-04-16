@@ -103,7 +103,7 @@ const WearerButtons = () => {
   // 3. claim hat
 
   return (
-    <Flex justify='space-between' align='center' px={10}>
+    <Flex justify='space-between' align='center' px={{ base: 4, md: 16 }}>
       {_.gt(_.size(eligibleWearerIds), 4) && (
         <Text
           onClick={() => setModals?.({ hatWearers: true })}
@@ -126,7 +126,7 @@ const WearerButtons = () => {
               label={claimTooltip({
                 claimFor: true,
                 sameChain: chainId === currentNetworkId,
-                hatterIsAdmin,
+                hatterIsAdmin: hatterIsAdmin as boolean,
               })}
               fontSize='md'
               shouldWrapChildren
@@ -159,7 +159,7 @@ const WearerButtons = () => {
                 label={claimTooltip({
                   claimFor: false,
                   sameChain: chainId === currentNetworkId,
-                  hatterIsAdmin,
+                  hatterIsAdmin: hatterIsAdmin as boolean,
                 })}
                 fontSize='md'
                 shouldWrapChildren

@@ -11,10 +11,10 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
-import { useImageURIs, useRudderStackAnalytics } from 'hooks';
+import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { GetStaticPropsContext } from 'next';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
@@ -25,15 +25,12 @@ import {
   NetworkFilter,
   TreeListCard as TreeCard,
 } from 'ui';
-import { useAccount } from 'wagmi';
 
 const Trees = ({ chainId }: { chainId: number }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     usePaginatedTreeList({
       chainId,
     });
-  const { address } = useAccount();
-  const analytics = useRudderStackAnalytics();
 
   const trees = _.flatten(_.get(data, 'pages'));
 
@@ -46,16 +43,6 @@ const Trees = ({ chainId }: { chainId: number }) => {
 
   const { data: topHatsWithImagesData, isLoading: imagesLoading } =
     useImageURIs({ hats: topHats });
-
-  useEffect(() => {
-    if (analytics && chainId) {
-      analytics.page('Auto Track', 'Trees Page', {
-        chainId,
-        isConnected: !!address,
-        anonymousId: address || analytics.getAnonymousId(),
-      });
-    }
-  }, [analytics, chainId, address]);
 
   return (
     <Layout>

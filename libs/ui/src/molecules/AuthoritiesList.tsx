@@ -1,4 +1,4 @@
-import { Accordion, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react';
+import { Accordion, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useAncillaryModules } from 'hats-hooks';
@@ -15,6 +15,8 @@ const LOADING_AUTHORITIES: Authority[] = Array(LOADING_COUNT).fill({
   info: 'Loading...',
   type: AUTHORITY_TYPES.manual,
 });
+
+// TODO need to handle case for automated integrations when using plaintext details
 
 const AuthoritiesList = () => {
   const { orgChartTree, guildData, snapshotData } = useTreeForm();
@@ -50,23 +52,25 @@ const AuthoritiesList = () => {
       : LOADING_AUTHORITIES;
 
   if (
-    !hatLoading &&
-    !ancillaryModulesLoading &&
-    !guildsLoading &&
-    !spacesLoading &&
-    _.isEmpty(combinedAuthorities)
+    (!hatLoading &&
+      !ancillaryModulesLoading &&
+      !guildsLoading &&
+      !spacesLoading &&
+      _.isEmpty(combinedAuthorities)) ||
+    !selectedHatDetails
   ) {
-    return (
-      <Flex px={{ base: 4, md: 10 }}>
-        <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
-          No Authorities granted to Wearers
-        </Heading>
-      </Flex>
-    );
+    return null;
+    // return (
+    //   <Flex px={{ base: 4, md: 10 }}>
+    //     <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+    //       No Authorities granted to Wearers
+    //     </Heading>
+    //   </Flex>
+    // );
   }
 
   return (
-    <Accordion px={{ base: 0, md: 10 }} allowMultiple>
+    <Accordion px={{ base: 0, md: 16 }} allowMultiple>
       <Stack>
         <Skeleton
           isLoaded={

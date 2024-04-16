@@ -2,6 +2,8 @@
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
 
+// ! move to hat-utils?
+
 export const getInactiveIds = (tree: Hat[] | undefined) => {
   const localInactiveHats = _.filter(tree, { status: false });
   const descendantsOfInactiveHats = _.filter(tree, (hat: Hat) =>

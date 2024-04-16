@@ -2,9 +2,9 @@ import {
   AUTHORITY_PLATFORMS,
   AUTHORITY_TYPES,
   AuthorityInfo,
-  AuthorityPlatform,
   GATEWAY_TOKEN,
   GATEWAY_URL,
+  GUILD_PLATFORMS,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
@@ -13,6 +13,7 @@ import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
+import { ReactNode } from 'react';
 import { Authority, FormDataDetails } from 'types';
 
 export const calculateCid = async (data: object): Promise<string> => {
@@ -198,19 +199,39 @@ export const authorityImageHandler = ({
   if (editingItem) return checkIfIpfs(currentImageUrl);
 
   if (type === AUTHORITY_TYPES.gate) {
-    const platformById =
-      AUTHORITY_PLATFORMS[id as keyof typeof AUTHORITY_PLATFORMS];
+    // HANDLE GUILD PLATFORM MATCH
+    const platformById = GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS];
+    const platformInfo = AUTHORITY_PLATFORMS[platformById];
+    if (platformInfo)
+      return {
+        icon: platformInfo.icon as ReactNode,
+        isIpfs: false,
+        imageUrl: '',
+      };
+
+    // HANDLE GENERIC PLATFORM MATCH
     const matchingPlatform = _.find(
-      _.values(AUTHORITY_PLATFORMS),
-      (v: AuthorityPlatform) =>
-        authority.gate?.includes(_.toLower(v.label)) ||
-        authority.link?.includes(_.toLower(v.label)) ||
-        _.toLower(authority.label)?.includes(_.toLower(v.label)),
+      _.keys(AUTHORITY_PLATFORMS),
+      (k: string) =>
+        authority.gate?.includes(_.toLower(k)) ||
+        authority.link?.includes(_.toLower(k)) ||
+        _.toLower(authority.label)?.includes(_.toLower(k)),
     );
-    if (platformById) return checkIfIpfs(platformById.icon);
-    if (matchingPlatform) return checkIfIpfs(matchingPlatform.icon);
+    const matchingPlatformInfo =
+      AUTHORITY_PLATFORMS[matchingPlatform as string];
+    if (matchingPlatformInfo)
+      return {
+        icon: matchingPlatformInfo.icon as ReactNode,
+        isIpfs: false,
+        imageUrl: '',
+      };
     if (authority.link?.includes('docs.google')) {
-      return checkIfIpfs(AUTHORITY_PLATFORMS[4].icon);
+      return {
+        // doesn't recognize nested fetch
+        icon: _.get(AUTHORITY_PLATFORMS, 'docs.icon') as unknown as ReactNode,
+        isIpfs: false,
+        imageUrl: '',
+      };
     }
   }
   if (authority && typeof authorityEnforcement.imageUri === 'string') {
@@ -221,11 +242,13 @@ export const authorityImageHandler = ({
 };
 
 const checkIfIpfs = (url: string | undefined) => {
-  if (!url || typeof url !== 'string') return { isIpfs: false, imageUrl: '' };
+  if (!url || typeof url !== 'string')
+    return { isIpfs: false, imageUrl: '', icon: undefined };
 
   return {
     isIpfs: url.startsWith('ipfs://'),
     imageUrl: url,
+    icon: undefined,
   };
 };
 

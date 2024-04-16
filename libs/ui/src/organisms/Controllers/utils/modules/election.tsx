@@ -36,6 +36,7 @@ export const handleElectionEligibility = async ({
           BigInt(hatId),
         )}`}
         decoration
+        fontSize={{ base: 'sm', md: 'md' }}
       >
         Be elected by voters
       </ChakraNextLink>

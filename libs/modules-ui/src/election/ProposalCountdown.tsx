@@ -93,7 +93,7 @@ const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
       </Flex>
       <Grid templateColumns='repeat(3, 1fr)' gap={4}>
         {timeUntilStart &&
-          _.map(timeUntilStart, (value, unit) => (
+          _.map(timeUntilStart, (value: any, unit: number) => (
             <VStack key={unit} gap={1}>
               <Box
                 border='1px solid'

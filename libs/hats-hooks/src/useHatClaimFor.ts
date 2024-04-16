@@ -1,38 +1,59 @@
-import { CONFIG } from '@hatsprotocol/constants';
-import { Module } from '@hatsprotocol/modules-sdk';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { idToIp } from 'shared';
 import { AppHat, SupportedChains } from 'types';
-import {
-  createHatsClient,
-  createHatsModulesClient,
-  formatAddress,
-} from 'utils';
+import { createHatsClient, formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useContractRead } from 'wagmi';
+
+import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
+
+const checkCanClaimForWearer = async ({
+  chainId,
+  hatId,
+  wearer,
+}: {
+  chainId: number | undefined;
+  hatId: Hex | undefined;
+  wearer: Hex | undefined;
+}) => {
+  const hatsClient = createHatsClient(chainId);
+  if (!hatsClient || !wearer || !hatId || !isAddress(wearer)) return false;
+
+  const canClaimFor = await hatsClient.canClaimForAccount({
+    hatId: BigInt(hatId),
+    account: wearer,
+  });
+
+  return canClaimFor;
+};
 
 const useHatClaimFor = ({
   selectedHat,
   chainId,
   wearer,
+  onchainHats,
 }: {
   selectedHat?: AppHat | null;
   chainId?: SupportedChains;
   wearer: Hex | undefined;
+  onchainHats?: AppHat[] | undefined; // passed to useMultiClaimsHatterCheck
 }) => {
-  const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
   const toast = useToast();
-
-  const [canClaimForAccount, setCanClaimForAccount] = useState<boolean>();
 
   const claimableForAddress: Hex | undefined = useMemo(
     () => _.get(_.first(_.get(selectedHat, 'claimableForBy')), 'id') as Hex,
     [selectedHat],
   );
+
+  const { multiClaimsHatter: claimsHatter } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats,
+  });
 
   const { data: isClaimableFor, isLoading: isLoadingClaimableFor } =
     useContractRead({
@@ -48,74 +69,63 @@ const useHatClaimFor = ({
         (!!address || !!wearer),
     });
 
-  useEffect(() => {
-    const getCanClaimForAccount = async () => {
-      const hatsClient = createHatsClient(chainId);
-      if (!hatsClient || !wearer || !isAddress(wearer)) return;
-      const canClaimFor = await hatsClient.canClaimForAccount({
-        hatId: BigInt(selectedHat?.id || '0x'),
-        account: wearer,
-      });
-
-      setCanClaimForAccount(canClaimFor);
-    };
-    getCanClaimForAccount();
-  }, [chainId, selectedHat, wearer]);
+  const {
+    data: canClaimForAccount,
+    isLoading: canClaimForAccountLoading,
+    error: canClaimForAccountError,
+  } = useQuery({
+    queryKey: ['claimFor', selectedHat?.id, chainId, wearer],
+    queryFn: () =>
+      checkCanClaimForWearer({ chainId, hatId: selectedHat?.id, wearer }),
+    enabled: !!selectedHat?.id && !!wearer,
+  });
 
   const claimHatFor = async (account: Hex) => {
     const hatsClient = createHatsClient(chainId);
-    if (!hatsClient || !address) return;
+    if (!hatsClient || !address) return undefined;
 
-    try {
-      setIsLoading(true);
-
-      const result = await hatsClient.claimHatFor({
+    return hatsClient
+      .claimHatFor({
         account: address,
         hatId: BigInt(selectedHat?.id || '0x'),
         wearer: account,
-      });
+      })
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => error);
+  };
 
+  const { mutateAsync, isLoading } = useMutation({
+    mutationKey: ['claimHatFor', selectedHat?.id],
+    mutationFn: claimHatFor,
+    onSuccess: (result) => {
       if (result?.status === 'success') {
         toast.success({
           title: 'Hat claimed',
           description: `Hat ${idToIp(
             selectedHat?.id,
-          )} has been claimed for ${formatAddress(account)}`,
+          )} has been claimed for ${formatAddress(wearer)}`,
         });
       }
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
+    },
+    onError: (error) => {
       const err = error as Error;
       toast.error({
         title: 'Transaction failed',
         description: err.message,
       });
       // eslint-disable-next-line no-console
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    const getHatter = async () => {
-      const moduleClient = await createHatsModulesClient(chainId);
-      if (!moduleClient) return;
-      const modules = moduleClient?.getModules();
-      if (!modules) return;
-      const moduleData = _.find(modules, {
-        name: CONFIG.claimsHatterModuleName,
-      });
-      if (!moduleData) return;
-      setClaimsHatter(moduleData);
-    };
-    getHatter();
-  }, [chainId]);
+      console.log('Error claiming hat:', err);
+    },
+  });
 
   return {
-    claimHatFor,
+    claimHatFor: mutateAsync,
     isClaimableFor,
     canClaimForAccount,
-    isLoading: isLoading || isLoadingClaimableFor,
+    canClaimForAccountError,
+    isLoading: isLoading || canClaimForAccountLoading || isLoadingClaimableFor,
   };
 };
 

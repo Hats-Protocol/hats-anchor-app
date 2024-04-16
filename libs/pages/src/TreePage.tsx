@@ -97,8 +97,8 @@ const TreePage = ({
           in={!!treeToDisplay && !!isHatDrawerOpen}
           style={{
             zIndex: 1000,
-            maxWidth: '43%',
-            width: '650px',
+            maxWidth: '55%',
+            width: '864px',
             display: isHatDrawerOpen ? 'block' : 'none',
           }}
         >

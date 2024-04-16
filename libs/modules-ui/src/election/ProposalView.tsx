@@ -2,18 +2,28 @@ import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { PROPOSALS } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { useProposalDetails } from 'hooks';
+import _ from 'lodash';
 import { idToIp } from 'shared';
 
 import ProposalCountdown from './ProposalCountdown';
 import ProposalDetails from './ProposalDetails';
 
+// TODO fix hardcoded proposal id here
+
 const ProposalView = () => {
   const { selectedHat, chainId } = useEligibility();
 
   // Assuming the structure of PROPOSALS is corrected as needed
-  const { execute, elect } =
-    // eslint-disable-next-line no-unsafe-optional-chaining
-    chainId && PROPOSALS?.[chainId]?.[idToIp(selectedHat?.id)]?.[107187481];
+  const { execute, elect } = _.pick(
+    _.get(
+      _.get(
+        _.get(PROPOSALS, chainId as number), // chain first
+        idToIp(selectedHat?.id), // then hat id
+      ),
+      107187481, // followed by proposal id
+    ),
+    ['execute', 'elect'],
+  );
 
   const proposalId = chainId && (execute || elect);
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);

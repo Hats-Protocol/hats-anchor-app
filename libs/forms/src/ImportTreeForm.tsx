@@ -34,7 +34,7 @@ const validateTreeImport = ({
   treeId,
   chainId,
 }: validateTreeImportProps): FileError | null => {
-  const localTreeId = treeIdDecimalToHex(treeId);
+  const localTreeId = treeId && treeIdDecimalToHex(treeId);
   if (!localTreeId || !chainId) return null;
   const fileName = file.name;
   const splitFileName = _.split(fileName, '-');

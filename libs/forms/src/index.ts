@@ -2,7 +2,7 @@ export { default as AuthoritiesForm } from './AuthoritiesForm';
 export { default as AuthoritiesFormItem } from './AuthoritiesFormItem';
 export { default as ClaimsHandler } from './ClaimsHandler';
 export { default as HatBasicsForm } from './HatBasicsForm';
-export { default as HatClaimForForm } from './HatClaimForForm';
+export { default as HatClaimForm } from './HatClaimForm';
 export { default as HatLinkRequestApproveForm } from './HatLinkRequestApproveForm';
 export { default as HatLinkRequestCreateForm } from './HatLinkRequestCreateForm';
 export { default as HatManagementForm } from './HatManagementForm';

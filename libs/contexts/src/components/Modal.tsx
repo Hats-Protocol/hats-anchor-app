@@ -8,9 +8,16 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import _ from 'lodash';
 import { ReactNode } from 'react';
+import {
+  // AppModals,
+  // ClaimsModals,
+  OverlayContextProps,
+  StandaloneOverlayContextProps,
+} from 'types';
+
+// type ModalName = keyof Partial<ClaimsModals> | keyof Partial<AppModals>;
 
 /**
  * Modal component, wraps Chakra's default Modal
@@ -51,7 +58,7 @@ const Modal = ({
 
   return (
     <ChakraModal
-      isOpen={isOpen || modals?.[name] || false}
+      isOpen={isOpen || _.get(modals, name) || false}
       onClose={handleClose}
       size={size}
     >

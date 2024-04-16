@@ -3,15 +3,21 @@
     "jsx": "react-jsx",
     "allowJs": false,
     "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "strict": true,
-    "noImplicitAny": false
+    "declarationMap": true,
+    "strict": true
   },
   "references": [
-    // {
-    //   "path": "./tsconfig.lib.json"
-    // }
+    { "path": "../constants/tsconfig.lib.json" },
+    { "path": "../contexts/tsconfig.lib.json" },
+    { "path": "../hats-hooks/tsconfig.lib.json" },
+    { "path": "../hats-utils/tsconfig.lib.json" },
+    { "path": "../hooks/tsconfig.lib.json" },
+    { "path": "../icons/tsconfig.lib.json" },
+    { "path": "../shared/tsconfig.lib.json" },
+    { "path": "../types/tsconfig.lib.json" },
+    { "path": "../utils/tsconfig.lib.json" }
   ],
+  "include": ["**/*.ts", "**/*.tsx", "../types/src/*.d.ts", "./**/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

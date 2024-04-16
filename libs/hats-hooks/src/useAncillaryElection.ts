@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { SupportedChains } from 'types';
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { SupportedChains } from 'types';
 import { fetchElectionData } from 'utils';
 import { useAccount } from 'wagmi';
 

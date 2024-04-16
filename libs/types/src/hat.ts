@@ -1,4 +1,6 @@
+import { WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
+import { ReactNode } from 'react';
 import { Chain, Hex } from 'viem';
 
 import { Authority } from './authorities';
@@ -159,3 +161,9 @@ type HatsAccount1ofNOperation = {
   callData: Uint8Array;
   operationType: string;
 };
+
+export interface AppWriteFunction extends WriteFunction {
+  isCustom?: boolean;
+  onClick?: () => void;
+  icon?: ReactNode;
+}

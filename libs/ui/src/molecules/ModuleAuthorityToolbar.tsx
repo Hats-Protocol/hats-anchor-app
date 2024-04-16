@@ -26,8 +26,8 @@ import {
   useHsgSigner,
 } from 'hats-hooks';
 import { formHatUrl, safeUrl } from 'hats-utils';
-import { BoxArrowUpRightOut } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
@@ -39,6 +39,10 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { ModuleArgsForm } from '../forms';
 import { ChakraNextLink, Modal } from '../index';
+
+const BoxArrowUpRightOut = dynamic(() =>
+  import('icons').then((i) => i.BoxArrowUpRightOut),
+);
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -84,7 +88,7 @@ const ModuleAuthorityToolbar = ({
       });
 
       if (authority.signerHats) {
-        _.forEach(authority.signerHats, (h) => {
+        _.forEach(authority.signerHats, (h: any) => {
           links.push({
             link: formHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
@@ -123,7 +127,7 @@ const ModuleAuthorityToolbar = ({
       chainId,
     });
 
-  const handleFunctionCall = (func) => {
+  const handleFunctionCall = (func: any) => {
     if (!authority) return;
     if (func.isCustom) {
       func.onClick();
@@ -235,7 +239,7 @@ const ModuleAuthorityToolbar = ({
   if (!authority) return null;
 
   return (
-    <HStack my={2} wrap='wrap'>
+    <HStack wrap='wrap'>
       {primaryFunction && (
         <Tooltip label={primaryDisabledReason}>
           <Button
@@ -264,7 +268,12 @@ const ModuleAuthorityToolbar = ({
               variant='outline'
               color='blue.500'
             >
-              Go to {AUTHORITY_ENFORCEMENT[authority.type].name}
+              Go to{' '}
+              {
+                AUTHORITY_ENFORCEMENT[
+                  authority.type as keyof typeof AUTHORITY_ENFORCEMENT
+                ]?.name
+              }
             </Button>
           </ChakraNextLink>
         )}
@@ -282,7 +291,12 @@ const ModuleAuthorityToolbar = ({
               variant='outline'
               color='blue.500'
             >
-              Go to {AUTHORITY_ENFORCEMENT[authority.type].name}
+              Go to{' '}
+              {
+                AUTHORITY_ENFORCEMENT[
+                  authority.type as keyof typeof AUTHORITY_ENFORCEMENT
+                ].name
+              }
             </Button>
           </ChakraNextLink>
         )}

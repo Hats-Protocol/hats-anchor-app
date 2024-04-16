@@ -9,11 +9,13 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { TemplateData } from '@hatsprotocol/constants';
-import { HatIcon } from 'icons';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import { ChakraNextLink } from '../atoms';
+
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const FeaturedTreeCard = ({
   treeData,
@@ -140,7 +142,7 @@ interface FeatureTreeCardProps {
   treeData: TemplateData;
   hatsAndWearers?: {
     treeId?: string;
-    hats: number;
+    hats?: number;
     wearers?: number;
   };
 }

@@ -5,6 +5,8 @@ import { AppHat, HatWearer } from 'types';
 
 import { extendWearerDetails } from './wearers';
 
+// ! move to hat-utils?
+
 export const fetchTreeWearersDetails = async (
   hats: AppHat[] | undefined,
   chainId: number | undefined,

@@ -31,7 +31,7 @@ const LinkRequests = () => {
     return null;
 
   return (
-    <Stack wrap='wrap' px={10}>
+    <Stack wrap='wrap' px={16}>
       <Heading size='md' variant={{ base: 'medium', md: 'default' }}>
         Link Requests
       </Heading>

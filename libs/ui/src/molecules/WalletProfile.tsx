@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Flex,
   Heading,
@@ -12,36 +11,24 @@ import {
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useClipboard } from 'hooks';
-import { CopyAddress, WearerIcon } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
+import {
+  OverlayContextProps,
+  StandaloneOverlayContextProps,
+  SupportedChains,
+} from 'types';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
-import { ChakraNextLink } from '../atoms';
+import { ChakraNextLink, OblongAvatar } from '../atoms';
 import TransactionHistory from './TransactionHistory';
 
-const OblongAvatar = ({
-  image,
-  height = 96,
-}: {
-  image: string;
-  height?: number;
-}) => {
-  return (
-    <Box
-      backgroundImage={image}
-      backgroundSize='cover'
-      backgroundPosition='center'
-      h={`${height}px`}
-      w={`${height * 0.75}px`}
-      borderRadius='md'
-    />
-  );
-};
+const CopyAddress = dynamic(() => import('icons').then((i) => i.CopyAddress));
+const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const WalletProfile = ({
   address,
@@ -84,7 +71,7 @@ const WalletProfile = ({
   return (
     <Stack>
       <HStack spacing={6}>
-        {avatar && <OblongAvatar image={avatar} />}
+        {avatar && <OblongAvatar src={avatar} />}
         <Stack>
           <Heading size='xl'>{name}</Heading>
           <HStack gap={4}>
@@ -106,11 +93,18 @@ const WalletProfile = ({
       <Flex justify='space-between' gap={2} mb={2}>
         <Button w='full' variant='outline' onClick={toggleNetworkModal}>
           <HStack>
-            <Image src={networkImages[chainId]} boxSize={5} />
+            <Image
+              src={networkImages[chainId as SupportedChains]}
+              boxSize={5}
+            />
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>
-        <ChakraNextLink href={`/wearers/${address}`} w='full'>
+        <ChakraNextLink
+          href={`/wearers/${address}`}
+          onClick={() => setModals?.({})}
+          w='full'
+        >
           <Button w='100%' variant='outline'>
             <HStack>
               <Icon as={WearerIcon} color='blackAlpha.700' />

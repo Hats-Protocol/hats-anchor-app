@@ -12,12 +12,12 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { FormWearer } from 'types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaRegTrashAlt } from 'react-icons/fa';
+import { FormWearer } from 'types';
 import { Hex, isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
@@ -41,8 +41,9 @@ const MultiAddressInput = ({
   const currentInput = watch(`${name}-currentAddress`) as Hex | string;
   const addresses = watch(name, []);
   const localWearers: FormWearer[] = watch(`${name}-wearers`, []);
-  const currentWearerList = _.map(localWearers, ({ address }) =>
-    _.toLower(address),
+  const currentWearerList = _.map(
+    localWearers,
+    ({ address }: { address: Hex }) => _.toLower(address),
   ) as Hex[];
 
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<Hex>();
@@ -101,7 +102,7 @@ const MultiAddressInput = ({
     setValue(`${name}-currentAddress`, '');
   };
 
-  const handleRemoveWearer = (index) => {
+  const handleRemoveWearer = (index: number) => {
     const updatedWearers = localWearers.filter((__, i) => i !== index);
     setValue(`${name}-wearers`, updatedWearers);
 

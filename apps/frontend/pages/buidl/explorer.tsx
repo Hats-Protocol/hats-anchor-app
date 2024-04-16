@@ -71,7 +71,10 @@ const ModuleExplorer = () => {
                         <Text variant='medium'>Implementation Address:</Text>
                         <ChakraNextLink
                           href={`${explorerUrl(
-                            _.get(m, 'deployments[0].chainId'),
+                            _.get(
+                              m,
+                              'deployments[0].chainId',
+                            ) as unknown as number,
                           )}/address/${m.implementationAddress}`}
                         >
                           <Text>{formatAddress(m.implementationAddress)}</Text>
@@ -94,9 +97,9 @@ const ModuleExplorer = () => {
                       {_.map(m.deployments, (d) => (
                         <ListItem key={d.chainId}>
                           <ChakraNextLink
-                            href={`${explorerUrl(d.chainId)}/address/${
-                              m.implementationAddress
-                            }`}
+                            href={`${explorerUrl(
+                              d.chainId as unknown as number,
+                            )}/address/${m.implementationAddress}`}
                           >
                             <Text>
                               {chainsMap(_.toNumber(d.chainId))?.name} - (

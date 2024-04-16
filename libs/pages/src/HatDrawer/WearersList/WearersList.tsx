@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Collapse,
-  Divider,
   Flex,
   Heading,
   HStack,
@@ -18,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
-  HatClaimForForm,
+  HatClaimForm,
   HatTransferForm,
   HatWearerForm,
   HatWearerStatusForm,
@@ -41,7 +40,7 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 // import { FaSearch } from 'react-icons/fa';
-import { HatWearer } from 'types';
+import { ControllerData, HatWearer } from 'types';
 import { commify } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -64,7 +63,7 @@ const WearersList = () => {
   const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
-  const { editMode } = useTreeForm();
+  const { editMode, orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const {
     isOpen: ineligibleWearersExpanded,
@@ -142,11 +141,18 @@ const WearersList = () => {
     selectedHat?.id,
     !!isTopHat(selectedHat),
   );
+  const currentUserIsWearing = _.includes(
+    _.map(wearerDetails, 'id'),
+    selectedHat?.id,
+  );
+  const currentWearerDetails = _.find(orgChartWearers, {
+    id: _.toLower(address),
+  }) as ControllerData;
 
   return (
     <>
       <Stack>
-        <Stack spacing={4} px={{ base: 4, md: 10 }}>
+        <Stack spacing={4} px={{ base: 4, md: 16 }}>
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
               <Skeleton isLoaded={!!eligibleWearers}>
@@ -176,7 +182,7 @@ const WearersList = () => {
               </Tooltip>
             </HStack>
           </Flex>
-
+          {/* TEMP HIDDEN SINCE FETCHING INCOMPLETE LIST OF WEARERS */}
           {/* {_.gt(_.size(extendedWearers), 4) && (
             <InputGroup>
               <InputLeftElement pointerEvents='none'>
@@ -196,6 +202,15 @@ const WearersList = () => {
             </InputGroup>
           )} */}
           {/* Wearers list */}
+
+          {currentUserIsWearing &&
+            !_.includes(_.map(filteredWearers, 'id'), _.toLower(address)) && (
+              <WearerRow
+                wearer={currentWearerDetails || { id: address }}
+                setChangeStatusWearer={setChangeStatusWearer}
+                setWearerToTransferFrom={setWearerToTransferFrom}
+              />
+            )}
           {_.map(
             !wearersLoading ? filteredWearers : loadingWearers,
             (w: HatWearer, index: number) => (
@@ -211,10 +226,12 @@ const WearersList = () => {
           )}
           {!wearersLoading && _.isEmpty(filteredWearers) && (
             <Box>
-              <Flex justify='center' h='70px' align='center'>
-                <Text>No wearers currently</Text>
+              <Flex h='70px' align='center'>
+                <Text size={{ base: 'sm', md: 'md' }}>
+                  No wearers currently
+                </Text>
               </Flex>
-              <Divider />
+              {/* <Divider /> */}
             </Box>
           )}
         </Stack>
@@ -270,7 +287,7 @@ const WearersList = () => {
             size='2xl'
             localOverlay={localOverlay}
           >
-            <HatClaimForForm />
+            <HatClaimForm />
           </Modal>
 
           <Modal

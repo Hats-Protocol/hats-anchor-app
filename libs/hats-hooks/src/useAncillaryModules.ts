@@ -1,11 +1,11 @@
-import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
+// import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
 import {
-  populateHatsAccountsAuthorities,
+  // populateHatsAccountsAuthorities,
   populateHatsGatesAuthorities,
   populateModulesAuthorities,
 } from 'hats-utils';
-import { useToast } from 'hooks';
+// import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import {
@@ -18,7 +18,7 @@ import {
 import { fetchAncillaryModules } from 'utils';
 import { Hex } from 'viem';
 
-import useHatsAccounts from './useHatsAccounts';
+// import useHatsAccounts from './useHatsAccounts';
 import useHatsSignerGatesMetadata from './useHatsSignerGatesMetadata';
 import useModulesDetails from './useModulesDetails';
 
@@ -44,11 +44,11 @@ const useAncillaryModules = ({
   editMode?: boolean;
   tree?: AppHat[] | undefined;
 }) => {
-  const toast = useToast();
-  const { predictedAddress, createAccount } = useHatsAccounts({
-    hatId: id,
-    chainId,
-  });
+  // const toast = useToast();
+  // const { predictedAddress, createAccount } = useHatsAccounts({
+  //   hatId: id,
+  //   chainId,
+  // });
 
   const {
     data: ancillaryModules,
@@ -65,9 +65,13 @@ const useAncillaryModules = ({
 
   const { gates } = useHatsSignerGatesMetadata({ chainId, editMode });
 
-  const moduleIds = ancillaryModules?.hatAuthority
-    ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
-    : null;
+  const moduleIds = useMemo(
+    () =>
+      ancillaryModules?.hatAuthority
+        ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority))
+        : null,
+    [ancillaryModules?.hatAuthority],
+  );
 
   const { modulesDetails, isLoading: isModulesDetailsLoading } =
     useModulesDetails({
@@ -111,31 +115,33 @@ const useAncillaryModules = ({
     hatId: id as Hex,
   });
 
-  const hatsAccounts1ofN = populateHatsAccountsAuthorities({
-    details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
-    hatId: id as Hex,
-    predictedAddress,
-    toast,
-    deployFn: createAccount,
-  });
+  // const hatsAccounts1ofN = populateHatsAccountsAuthorities({
+  //   details: ancillaryModules?.hatAuthority.hatsAccount1ofN,
+  //   hatId: id as Hex,
+  //   chainId,
+  //   predictedAddress,
+  //   toast,
+  //   deployFn: createAccount,
+  // });
 
   const modulesAuthorities = populateModulesAuthorities({
     hatAuthorities: ancillaryModules?.hatAuthority,
     modulesDetails: activeModules,
+    hatDetails: tree,
   });
 
-  const shouldIncludeHA = _.has(
-    HATS_ACCOUNT_1OFN_IMPLEMENTATION,
-    _.toString(chainId),
-  );
+  // const shouldIncludeHA = _.has(
+  //   HATS_ACCOUNT_1OFN_IMPLEMENTATION,
+  //   _.toString(chainId),
+  // );
 
   return {
-    modulesAuthorities: [
+    modulesAuthorities: _.compact([
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,
-      ...(shouldIncludeHA && predictedAddress ? hatsAccounts1ofN : []),
-    ],
+      // ...(shouldIncludeHA && predictedAddress ? hatsAccounts1ofN : []),
+    ]),
     error,
     isLoading: false,
   };

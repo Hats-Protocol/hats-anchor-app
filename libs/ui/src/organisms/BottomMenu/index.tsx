@@ -1,18 +1,26 @@
-import { Box, Button, Flex, HStack } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import {
-  FaRegArrowAltCircleDown,
-  FaRegArrowAltCircleLeft,
-  FaRegArrowAltCircleRight,
-  FaRegArrowAltCircleUp,
-} from 'react-icons/fa';
 import { getQueryRoute } from 'utils';
 
 import MobileBottomMenu from './mobile';
+
+const BoxArrowDown = dynamic(() =>
+  import('react-icons/pi').then((i) => i.PiArrowSquareRight),
+);
+const BoxArrowLeft = dynamic(() =>
+  import('react-icons/pi').then((i) => i.PiArrowSquareLeft),
+);
+const BoxArrowRight = dynamic(() =>
+  import('react-icons/pi').then((i) => i.PiArrowSquareRight),
+);
+const BoxArrowUp = dynamic(() =>
+  import('react-icons/pi').then((i) => i.PiArrowSquareUp),
+);
 
 const BottomMenu = ({ show }: { show?: boolean }) => {
   const { treeId } = useTreeForm();
@@ -53,10 +61,11 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
           <Button
             variant='outline'
             onClick={() => selectHat('leftSibling')}
-            gap={1}
+            leftIcon={<Icon as={BoxArrowLeft} boxSize={5} />}
           >
-            <FaRegArrowAltCircleLeft />
-            {hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}
+            <Text variant='medium'>
+              {hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}
+            </Text>
           </Button>
         ) : (
           <Box w={16} />
@@ -67,10 +76,11 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
             <Button
               variant='outline'
               onClick={() => selectHat('parentId')}
-              gap={1}
+              leftIcon={<Icon as={BoxArrowUp} boxSize={5} />}
             >
-              <FaRegArrowAltCircleUp />
-              {hatIdDecimalToIp(BigInt(hierarchy?.parentId))}
+              <Text variant='medium'>
+                {hatIdDecimalToIp(BigInt(hierarchy?.parentId))}
+              </Text>
             </Button>
           ) : (
             <Box w={16} />
@@ -80,10 +90,11 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
             <Button
               variant='outline'
               onClick={() => selectHat('firstChild')}
-              gap={1}
+              rightIcon={<Icon as={BoxArrowDown} boxSize={5} />}
             >
-              {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
-              <FaRegArrowAltCircleDown />
+              <Text variant='medium'>
+                {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
+              </Text>
             </Button>
           ) : (
             <Box w={16} />
@@ -94,10 +105,11 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
           <Button
             variant='outline'
             onClick={() => selectHat('rightSibling')}
-            gap={1}
+            rightIcon={<Icon as={BoxArrowRight} boxSize={5} />}
           >
-            {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}
-            <FaRegArrowAltCircleRight />
+            <Text variant='medium'>
+              {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}
+            </Text>
           </Button>
         ) : (
           <Box w={16} />

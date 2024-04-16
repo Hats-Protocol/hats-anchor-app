@@ -1,4 +1,15 @@
-import { HatIcon, Safe } from 'icons';
+import {
+  Charmverse,
+  Discord,
+  Etherscan,
+  Github,
+  Guild,
+  HatIcon,
+  Safe,
+  Snapshot,
+  Telegram,
+} from 'icons';
+import { ReactNode } from 'react';
 import { AuthorityType } from 'types';
 
 export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
@@ -16,7 +27,7 @@ export type AuthorityInfo = {
   info: string;
   color: string;
   name?: string;
-  icon?: string; // name of an icon to be used for fallback
+  icon?: ReactNode; // name of an icon to be used for fallback
   imageUri?: string; // used for fallback if icon is not available
   enforcementIcon: string; // actually an SVG imported currently, could migrate to Icon
 };
@@ -27,7 +38,7 @@ export const AUTHORITY_ENFORCEMENT: {
   [key in AuthorityType]: AuthorityInfo;
 } = {
   protocol: {
-    label: 'Hats Protocol Authority',
+    label: 'Onchain Authority',
     info: 'Connected onchain via Hats Protocol',
     color: 'green.300',
     icon: HatIcon,
@@ -42,15 +53,15 @@ export const AUTHORITY_ENFORCEMENT: {
     enforcementIcon: '/icons/onchain.svg',
   },
   wallet: {
-    label: 'Hats Protocol Authority',
-    info: '',
+    label: 'Onchain Authority',
+    info: 'Connected onchain via HatsAccount',
     color: 'green.300',
     name: 'Hats Account',
     icon: HatIcon,
     enforcementIcon: '/icons/onchain.svg',
   },
   hsg: {
-    label: 'Hats Protocol Authority',
+    label: 'Onchain Authority',
     info: 'Connected onchain via HatsSignerGate',
     color: 'green.300',
     name: 'HSG',
@@ -71,7 +82,7 @@ export const AUTHORITY_ENFORCEMENT: {
     enforcementIcon: '/icons/token-gated.svg',
   },
   manual: {
-    label: 'Social Authority',
+    label: 'Off-chain Authority',
     info: 'Appended off-chain for clarity',
     color: 'purple.300',
     // imageUri: '',
@@ -81,30 +92,30 @@ export const AUTHORITY_ENFORCEMENT: {
 
 export type AuthorityPlatform = {
   label: string;
-  icon: string;
+  icon?: ReactNode;
+};
+
+// map guild's platforms to AUTHORITY_PLATFORMS
+export const GUILD_PLATFORMS: {
+  [key: number]: string;
+} = {
+  1: 'discord',
+  2: 'telegram',
+  3: 'github',
+  4: 'docs',
 };
 
 export const AUTHORITY_PLATFORMS: {
-  [key: number | string]: AuthorityPlatform;
+  [key: string]: AuthorityPlatform;
 } = {
-  1: {
-    label: 'Discord',
-    icon: 'ipfs://QmPqL5WeuKZod1EnS2jeNhocVe5a9sXLTzbvpo47ZRydLd',
-  },
-  2: {
-    label: 'Telegram',
-    icon: 'ipfs://QmX4qMuCnkJguSnf4L5wdi3dcfrqdNPctSQH6BtJZFT1yr',
-  },
-  3: {
-    label: 'GitHub',
-    icon: 'ipfs://QmYLQiMBfDm6Mtbz97JnNDAZVLietA8z9m5ThRULxNLxgq',
-  },
-  4: {
-    label: 'Google Docs',
-    icon: 'ipfs://QmXgcdaCnfkfTj2cJHn7Sr9Xxa4eb1grjADMjb8FzAqqSt',
-  },
-  snapshot: {
-    label: 'Snapshot',
-    icon: 'ipfs://QmQwKSu2StPNqSFZC5u17jYtxwfP9fmdrVJVxLxi7mTS9S',
-  },
+  charmverse: { label: 'Charmverse', icon: Charmverse },
+  discord: { label: 'Discord', icon: Discord },
+  docs: { label: 'Google Docs', icon: Guild },
+  etherscan: { label: 'Etherscan', icon: Etherscan },
+  github: { label: 'GitHub', icon: Github },
+  guild: { label: 'Guild', icon: Guild },
+  safe: { label: 'Safe', icon: Safe },
+  snapshot: { label: 'Snapshot', icon: Snapshot },
+  telegram: { label: 'Telegram', icon: Telegram },
+  twitter: { label: 'Twitter', icon: Telegram },
 };

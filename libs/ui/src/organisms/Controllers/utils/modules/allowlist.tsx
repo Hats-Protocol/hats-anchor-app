@@ -29,7 +29,7 @@ export const handleAllowlistEligibility = async ({
 
   if (isEligible) {
     return Promise.resolve({
-      rule: <Text>Be on the Allowlist</Text>,
+      rule: <Text size={{ base: 'sm', md: 'md' }}>Be on the Allowlist</Text>,
       status: ELIGIBILITY_STATUS.eligible,
       displayStatus: 'Allowed',
       icon: BsCheckSquareFill,
@@ -37,7 +37,7 @@ export const handleAllowlistEligibility = async ({
   }
 
   return Promise.resolve({
-    rule: <Text>Be on the Allowlist</Text>,
+    rule: <Text size={{ base: 'sm', md: 'md' }}>Be on the Allowlist</Text>,
     status: ELIGIBILITY_STATUS.ineligible,
     displayStatus: 'Not allowed',
     icon: EmptyWearer,

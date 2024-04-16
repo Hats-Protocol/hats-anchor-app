@@ -45,7 +45,7 @@ export const handleJokeRaceEligibility = async ({
 
   return Promise.resolve({
     rule: (
-      <Text>
+      <Text size={{ base: 'sm', md: 'md' }}>
         Finish top {topK} in the{' '}
         <ChakraNextLink
           href={jokeRaceUrl({ chainId, address: contestAddress })}

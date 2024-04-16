@@ -16,8 +16,9 @@ const BooleanInput = ({
   localForm: UseFormReturn;
 }) => {
   const booleanOptions =
-    MODULE_ARG_BOOLEAN_OPTION_SETS[_.toLower(arg.name)] ||
-    FALLBACK_ARG_EXAMPLES.booleanOption;
+    MODULE_ARG_BOOLEAN_OPTION_SETS[
+      _.toLower(arg.name) as keyof typeof MODULE_ARG_BOOLEAN_OPTION_SETS
+    ] || FALLBACK_ARG_EXAMPLES.booleanOption;
 
   useEffect(() => {
     // set default value(s)
@@ -44,7 +45,7 @@ const BooleanInput = ({
         onChange={(value) => setValue(arg.name, value)}
       >
         <HStack spacing={4}>
-          {_.map(booleanOptions, (option) => (
+          {_.map(booleanOptions, (option: any) => (
             <Radio value={option} key={option}>
               {option}
             </Radio>

@@ -25,7 +25,11 @@ const handlePassthroughEligibility = async ({
   );
 
   return Promise.resolve({
-    rule: <Text>One Hat can remove wearers</Text>,
+    rule: (
+      <Text size={{ base: 'sm', md: 'md' }}>
+        One Hat can choose eligible wearers
+      </Text>
+    ),
     status: ELIGIBILITY_STATUS.hat,
     displayStatus: passthroughHatDisplay,
     icon: HatIcon,
@@ -41,7 +45,11 @@ const handlePassthroughToggle = async ({
   );
 
   return Promise.resolve({
-    rule: <Text>One Hat can deactivate this Hat</Text>,
+    rule: (
+      <Text size={{ base: 'sm', md: 'md' }}>
+        One Hat can deactivate this Hat
+      </Text>
+    ),
     status: TOGGLE_STATUS.hat,
     displayStatus: passthroughHatDisplay,
     icon: HatIcon,

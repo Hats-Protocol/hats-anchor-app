@@ -5,13 +5,14 @@
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "strict": true,
-    "noImplicitAny": false
+    "declarationMap": true,
+    "strict": true
   },
   "references": [
-    // {
-    //   "path": "./tsconfig.lib.json"
-    // }
+    { "path": "../shared/tsconfig.lib.json" },
+    { "path": "../types/tsconfig.lib.json" },
+    { "path": "../utils/tsconfig.lib.json" }
   ],
+  "include": ["./**/*.ts", "./**/*.tsx", "../types/src/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

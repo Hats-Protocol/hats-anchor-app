@@ -42,7 +42,7 @@ const MainContent = ({
   return (
     <Stack
       // apply x padding on components for section background handling
-      spacing={10}
+      spacing={8}
       w='100%'
       overflowY={{ base: 'auto', md: 'scroll' }}
       height={{ base: 'auto', md: 'calc(100% - 150px)' }}

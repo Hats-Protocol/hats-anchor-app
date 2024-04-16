@@ -41,7 +41,8 @@ const Toggle = () => {
       const moduleHat = _.get(
         _.find(parameters, { displayType: 'hat' }),
         'value',
-      );
+      ) as bigint | undefined;
+      if (!moduleHat) return null; // ? should never happen
       return (
         <Flex justify='space-between' py={1}>
           {toggleRuleDetails.rule}
