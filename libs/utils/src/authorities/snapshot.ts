@@ -181,14 +181,14 @@ export const processSnapshotSpacesForHat = ({
   if (!spaces || !hatId || !chainId) return [];
 
   return _.flatMap(spaces, (space: SnapshotSpace) => {
-    const filteredStrategies = _.filter(
+    const filteredStrategies = filterStrategies(
       space.strategies,
-      (strategy: SnapshotStrategy) => {
-        return strategy.params?.id === hatId;
-      },
+      hatId,
+      chainId,
     );
 
-    if (!_.isEmpty(filteredStrategies)) return null;
+    if (_.isEmpty(filteredStrategies)) return null;
+
     return {
       label: space.name,
       link: `https://snapshot.org/#/${space.id}`,

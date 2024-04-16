@@ -28,6 +28,7 @@ export const processGuildRolesForHat = ({
   hatId: Hex | undefined;
 }): Authority[] | undefined => {
   if (!guildData || !hatId) return [];
+  console.log('processGuildRolesForHat', guildData, hatId);
 
   return _.flatMap(guildData, (guild: Guild) => {
     return _.flatMap(
@@ -35,7 +36,7 @@ export const processGuildRolesForHat = ({
         _.some(
           role.requirements,
           (req: Requirement) =>
-            req.data?.id === hatIdHexToDecimal(hatId)?.toString(),
+            req.data?.id === _.toString(hatIdHexToDecimal(hatId)), // TODO might need to handle alternate ID matching
         ),
       ),
       (role: Role) => {

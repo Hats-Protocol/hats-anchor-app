@@ -36,7 +36,7 @@ const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, isDraft } = useSelectedHat();
-  const { getDirtyFieldsForAccordion, localForm } = useHatForm();
+  const { getDirtyFieldsForAccordion } = useHatForm();
   const toast = useToast();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
@@ -53,7 +53,7 @@ const EditMode = () => {
     'displayName',
   );
 
-  if (!selectedHat || !localForm) return null;
+  if (!selectedHat) return null;
 
   return (
     <>

@@ -25,7 +25,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
@@ -130,7 +130,7 @@ const AuthoritiesListCard = ({
         borderRadius={{ md: 'md' }}
       >
         {({ isExpanded }) => {
-          if (isMounted.current) setExpanded(isExpanded);
+          if (isMounted.current) startTransition(() => setExpanded(isExpanded));
 
           return (
             <>

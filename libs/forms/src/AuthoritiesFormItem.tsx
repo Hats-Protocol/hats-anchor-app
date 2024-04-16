@@ -23,7 +23,7 @@ const AuthoritiesFormItem = ({
 }: AuthoritiesFormItemProps) => {
   const { localForm } = useHatForm();
   const { getValues } = _.pick(localForm, ['getValues']);
-  const { gate, type, label } = getValues?.(`${formName}.${index}`) ?? {};
+  const { gate, type, label, link } = getValues?.(`${formName}.${index}`) ?? {};
   const isGate = type === AUTHORITY_TYPES.gate || type === 'token'; // originally set as 'token'/ gate is more general
   const hostname = getHostnameFromURL(gate);
 
@@ -36,8 +36,14 @@ const AuthoritiesFormItem = ({
           <Text size='sm' variant='lightMedium'>
             {label || 'New Authority'}
           </Text>
-          {isGate && (
-            <Link href={gate} isExternal fontSize='xs' color='blue.500'>
+          {isGate && ( // TODO handle when combined with social overrides
+            <Link
+              // TODO this override is only necessary because snapshot gate should be equal to the link, probably?
+              href={hostname === 'snapshot.org' ? link : gate}
+              isExternal
+              fontSize='xs'
+              color='blue.500'
+            >
               {hostname}
             </Link>
           )}

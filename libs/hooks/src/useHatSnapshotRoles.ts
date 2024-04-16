@@ -15,9 +15,9 @@ const useHatSnapshotRoles = ({
   editMode?: boolean;
 }) => {
   const { data, error, isLoading, fetchStatus } = useQuery({
-    queryKey: ['hatSnapshotRoles', spaces, hatId, chainId],
+    queryKey: ['hatSnapshotRoles', _.map(spaces, 'id'), hatId, chainId],
     queryFn: () => processSnapshotSpacesForHat({ chainId, spaces, hatId }),
-    enabled: !!spaces && !_.isEmpty(spaces) && !!chainId,
+    enabled: !!spaces && !_.isEmpty(spaces) && !!hatId && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
