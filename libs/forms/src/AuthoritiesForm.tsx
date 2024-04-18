@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
-import { useHatGuildRoles, useHatSnapshotRoles, usePinImageIpfs } from 'hooks';
+import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -52,8 +52,10 @@ interface AuthoritiesFormProps {
   formName: string;
   isOpen: boolean;
   onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   index: number | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hatForm: UseFormReturn<any>;
   chainId: number | undefined;
   hatId: Hex | undefined;
@@ -118,7 +120,12 @@ const AuthoritiesForm = ({
   }, [imagePinData]);
 
   const saveEditedItem = (values: FieldValues) => {
-    hatSetValue?.(`${formName}.${index}`, values);
+    const combinedValues = {
+      ...values,
+      type,
+      imageUrl,
+    };
+    hatSetValue?.(`${formName}.${index}`, combinedValues);
     onClose();
 
     reset();
@@ -246,25 +253,11 @@ const AuthoritiesFormList = ({
   label,
 }: AuthoritiesFormListProps) => {
   // CONTEXTS
-  const { chainId, guildData, snapshotData } = useTreeForm();
-  const { selectedHat, selectedHatDetails } = useSelectedHat();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const { localForm: hatForm } = useHatForm();
   // LOCAL STATE
   const [editingIndex, setEditingIndex] = useState<number>();
-  console.log(selectedHatDetails);
-
-  // HOOKS
-  const { data: guildRoles } = useHatGuildRoles({
-    hatId: selectedHat?.id,
-    guildData,
-    chainId,
-  });
-  const { data: snapshotRoles } = useHatSnapshotRoles({
-    spaces: snapshotData,
-    hatId: selectedHat?.id,
-    chainId,
-  });
-  console.log('existing roles', guildRoles, snapshotRoles);
 
   // MODAL DISCLOSURE
   const { isOpen, onOpen, onClose } = useDisclosure({
@@ -289,7 +282,6 @@ const AuthoritiesFormList = ({
   ]);
   const items = hatWatch?.(formName);
   const item = watch();
-  console.log('items', items);
 
   const { fields, append, remove } = useFieldArray({
     control: hatControl,
@@ -313,35 +305,7 @@ const AuthoritiesFormList = ({
     onOpen();
   };
 
-  // EFFECTS
-  useEffect(() => {
-    // append fetched guild roles to form, if they aren't already there
-    const existingLinks = _.uniq(
-      _.compact(
-        _.map(fields, (field: any) =>
-          _.has(field, 'link') ? field.link : undefined,
-        ),
-      ),
-    );
-    console.log(existingLinks, guildRoles, snapshotRoles);
-    const newRoles = _.filter(
-      guildRoles,
-      (role: Authority) => !_.includes(existingLinks, _.get(role, 'link')),
-    );
-    const newSpaces = _.filter(
-      snapshotRoles,
-      (space: Authority) => !_.includes(existingLinks, _.get(space, 'link')),
-    );
-    if (_.isEmpty(newRoles) && _.isEmpty(newSpaces)) return;
-    console.log('test, here', _.concat(newRoles, newSpaces));
-
-    append(_.concat(newRoles, newSpaces));
-    // intentionally exclude `append`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guildRoles, snapshotRoles, fields]);
-
   if (!localForm || !hatForm) return null;
-  console.log('fields', fields);
 
   return (
     <>

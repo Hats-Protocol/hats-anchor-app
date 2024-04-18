@@ -37,15 +37,17 @@ const AuthoritiesFormItem = ({
             {label || 'New Authority'}
           </Text>
           {isGate && ( // TODO handle when combined with social overrides
-            <Link
-              // TODO this override is only necessary because snapshot gate should be equal to the link, probably?
-              href={hostname === 'snapshot.org' ? link : gate}
-              isExternal
-              fontSize='xs'
-              color='blue.500'
-            >
-              {hostname}
-            </Link>
+            <Box>
+              <Link
+                // TODO this override is only necessary because snapshot gate should be equal to the link, probably?
+                href={hostname === 'snapshot.org' ? link : gate}
+                isExternal
+                fontSize='xs'
+                color='blue.500'
+              >
+                {hostname}
+              </Link>
+            </Box>
           )}
         </Stack>
         <IconButton

@@ -338,6 +338,7 @@ const processDetailsChangeCallForHat = async ({
     (acc: any, existingValue: any, key: string) => {
       const localKey = key as HatDetailsKeys;
       const newValue = newDetails[localKey];
+      console.log(newValue, existingValue);
 
       if (
         _.isArray(newValue) &&
@@ -683,13 +684,13 @@ export const removeAndHandleSiblingsOrgChart = (hats: AppHat[], hatId: Hex) => {
   return _.concat(filterSiblings, _.compact(updateSiblings));
 };
 
+const excludeKeys = ['id', 'parentId', 'adminId', 'imageUri'];
+
 // get dirty fields
 export const getDirtyFields = (
   formValues: Partial<FormData>,
   defaultFormValues: Partial<FormData>,
 ): string[] => {
-  const excludeKeys = ['id', 'parentId', 'adminId', 'imageUri'];
-
   return _.filter(_.keys(formValues), (key: FormFieldKeys) => {
     if (_.includes(excludeKeys, key)) return false;
     if (key === 'imageUrl') {
@@ -698,11 +699,9 @@ export const getDirtyFields = (
         formValues.imageUrl !== undefined
       );
     }
-    // if (value === _.get(defaultHat, key)) return false;
 
     return (
       JSON.stringify(defaultFormValues[key]) !== JSON.stringify(formValues[key])
-      // || formValues[key] === 'New Hat'
     );
   }) as string[];
 };

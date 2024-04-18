@@ -71,7 +71,9 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   };
 
   const onchainHat = _.find(onchainHats, { id: selectedHat?.id });
-  const hatHasChanges = _.find(storedData, { id: selectedHat?.id });
+  const hatHasChanges = !_.isEmpty(
+    _.keys(_.omit(_.find(storedData, { id: selectedHat?.id }), 'id')),
+  );
 
   const draftWithChildren =
     !onchainHat &&

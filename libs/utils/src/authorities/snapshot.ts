@@ -191,10 +191,10 @@ export const processSnapshotSpacesForHat = ({
 
     return {
       label: space.name,
-      link: `https://snapshot.org/#/${space.id}`,
-      gate: `https://snapshot.org`,
+      link: `https://snapshot.org/#/${space.id}`, // ideally could link to active/recent proposal for vote "action"
+      gate: `https://snapshot.org/#/${space.id}`,
       description: space.about,
-      imageUrl: AUTHORITY_PLATFORMS.snapshot.icon,
+      icon: AUTHORITY_PLATFORMS.snapshot.icon,
       type: AUTHORITY_TYPES.gate,
       id: 'snapshot', // TODO is this ID being used? for key? should be unique
       strategies: filteredStrategies,

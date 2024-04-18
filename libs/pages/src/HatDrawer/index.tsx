@@ -83,14 +83,10 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           />
         </Box>
 
-        <TopMenu returnToList={returnToList} />
-        {!editMode ? (
-          <MainContent />
-        ) : (
-          <HatFormContextProvider>
-            <EditMode />
-          </HatFormContextProvider>
-        )}
+        <HatFormContextProvider>
+          <TopMenu returnToList={returnToList} />
+          {!editMode ? <MainContent /> : <EditMode />}
+        </HatFormContextProvider>
         <BottomMenu />
       </Box>
     </Box>
