@@ -16,6 +16,8 @@ import {
   useQueryClient,
 } from 'wagmi';
 
+import useWearerDetails from './useWearerDetails';
+
 const useHatClaimBy = ({
   selectedHat,
   chainId,
@@ -45,9 +47,14 @@ const useHatClaimBy = ({
       ),
   });
 
+  const { data: wearerData } = useWearerDetails({
+    wearerAddress: wearer,
+    chainId,
+  });
+
   const isWearing = useMemo(
-    () => _.includes(_.map(selectedHat?.wearers, 'id'), wearer),
-    [selectedHat, wearer],
+    () => _.includes(_.map(wearerData, 'id'), selectedHat?.id),
+    [selectedHat, wearerData],
   );
 
   const claimsHatterAddress: Hex | undefined = useMemo(

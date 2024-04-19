@@ -59,6 +59,7 @@ const useMulticallManyHats: any = ({
   const currentChain = useChainId();
   const queryClient = useQueryClient();
   const toast = useToast();
+  console.log(detailsToPin);
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
@@ -145,6 +146,7 @@ const useMulticallManyHats: any = ({
     fetchHelper: () =>
       fetchHatDetails(_.get(_.first(storedData), 'id'), chainId),
     checkResult,
+    sendToast: true,
   });
 
   const onSuccess = async (d: TransactionReceipt | undefined) => {
@@ -185,6 +187,7 @@ const useMulticallManyHats: any = ({
         toastData: {
           title: 'Transaction successful',
           description: txDescription,
+          duration: 7000,
         },
         onSuccess,
       });

@@ -629,7 +629,7 @@ export const TreeFormContextProvider = ({
         });
         setOrgChartHats(_.concat(onchainHats, drafts));
       }
-      onOpenTreeDrawer?.();
+      if (!hatId) onOpenTreeDrawer?.();
     } else {
       onCloseTreeDrawer?.();
       setOrgChartHats(onchainHats);

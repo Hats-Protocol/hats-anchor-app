@@ -196,7 +196,7 @@ export const authorityImageHandler = ({
 
   if (!authority) return checkIfIpfs('');
 
-  if (editingItem) return checkIfIpfs(currentImageUrl);
+  if (editingItem?.imageUrl) return checkIfIpfs(currentImageUrl);
 
   if (type === AUTHORITY_TYPES.gate) {
     // HANDLE GUILD PLATFORM MATCH

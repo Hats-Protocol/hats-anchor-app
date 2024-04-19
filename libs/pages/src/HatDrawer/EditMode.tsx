@@ -1,5 +1,6 @@
 import {
   Flex,
+  HStack,
   Icon,
   IconButton,
   Slide,
@@ -21,6 +22,7 @@ import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import { useClipboard, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
@@ -36,7 +38,7 @@ const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, isDraft } = useSelectedHat();
-  const { getDirtyFieldsForAccordion, localForm } = useHatForm();
+  const { getDirtyFieldsForAccordion } = useHatForm();
   const toast = useToast();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
@@ -53,7 +55,7 @@ const EditMode = () => {
     'displayName',
   );
 
-  if (!selectedHat || !localForm) return null;
+  if (!selectedHat) return null;
 
   return (
     <>
@@ -294,6 +296,35 @@ const EditMode = () => {
               />
             </Stack>
           </Accordion>
+        )}
+
+        {posthog?.isFeatureEnabled('dev') && (
+          <Stack>
+            <HStack>
+              <Text variant='medium'>Image URI:</Text>
+              <ChakraNextLink
+                href={`https://ipfs.io/ipfs/${selectedHat?.imageUri?.slice(7)}`}
+                isExternal
+              >
+                <Text maxW='350px' isTruncated>
+                  {selectedHat?.imageUri !== ''
+                    ? selectedHat?.imageUri
+                    : 'Empty'}
+                </Text>
+              </ChakraNextLink>
+            </HStack>
+            <HStack>
+              <Text variant='medium'>Details URI:</Text>
+              <ChakraNextLink
+                href={`https://ipfs.io/ipfs/${selectedHat?.details?.slice(7)}`}
+                isExternal
+              >
+                <Text maxW='350px' isTruncated>
+                  {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
+                </Text>
+              </ChakraNextLink>
+            </HStack>
+          </Stack>
         )}
       </Stack>
 

@@ -1,9 +1,6 @@
 import { Hex, TransactionReceipt } from 'viem';
 
-interface ToastData {
-  title: string;
-  description?: string;
-}
+import { ToastProps } from './misc';
 
 export type HandlePendingTx = ({
   hash,
@@ -15,6 +12,6 @@ export type HandlePendingTx = ({
   hash: Hex;
   txChainId: number | undefined;
   txDescription: string;
-  toastData: ToastData | undefined;
+  toastData: ToastProps | undefined;
   onSuccess?: (d?: TransactionReceipt) => void;
 }) => Promise<TransactionReceipt | undefined>;

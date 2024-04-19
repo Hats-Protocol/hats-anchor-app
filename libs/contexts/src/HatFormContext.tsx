@@ -4,7 +4,13 @@ import {
   MUTABILITY,
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
-import { useDebounce, useToast } from 'hooks';
+import { combineAuthorities } from 'hats-utils';
+import {
+  useDebounce,
+  useHatGuildRoles,
+  useHatSnapshotRoles,
+  useToast,
+} from 'hooks';
 import _ from 'lodash';
 import {
   createContext,
@@ -65,6 +71,8 @@ export const HatFormContextProvider = ({
     removeHat,
     onOpenTreeDrawer,
     onCloseHatDrawer,
+    guildData,
+    snapshotData,
   } = useTreeForm();
   const {
     selectedHat,
@@ -77,6 +85,17 @@ export const HatFormContextProvider = ({
     mode: 'onChange',
   });
   const { watch, reset } = localForm;
+
+  const { data: guildRoles } = useHatGuildRoles({
+    hatId: selectedHat?.id,
+    guildData,
+    chainId,
+  });
+  const { data: snapshotRoles } = useHatSnapshotRoles({
+    hatId: selectedHat?.id,
+    spaces: snapshotData,
+    chainId,
+  });
 
   const [formLoading, setFormLoading] = useState(false);
   const formName = useDebounce<string>(watch?.('name', ''));
@@ -172,6 +191,14 @@ export const HatFormContextProvider = ({
       return EMPTY_FORM_VALUES;
     }
 
+    // mesh authorities from details with automatic authorities
+    const { data: authorities } = combineAuthorities({
+      authorities: initialAuthorities,
+      guildRoles,
+      spaces: snapshotRoles,
+      modulesAuthorities: undefined,
+    });
+
     return {
       id: selectedHat?.id || '0x',
       maxSupply,
@@ -191,7 +218,7 @@ export const HatFormContextProvider = ({
       deactivationsCriteria: initialToggle?.criteria ?? [],
       name: initialName && initialName !== '' ? initialName : details || '',
       description: initialDescription || '',
-      authorities: initialAuthorities ?? [],
+      authorities: authorities ?? [],
       responsibilities: initialResponsibilities ?? [],
       guilds: initialGuilds ?? [],
       spaces: initialSpaces ?? [],
@@ -216,6 +243,8 @@ export const HatFormContextProvider = ({
     initialGuilds,
     initialSpaces,
     isDraft,
+    guildRoles,
+    snapshotRoles,
   ]);
 
   // set initial form values
@@ -290,6 +319,7 @@ export const HatFormContextProvider = ({
         debouncedFormValues,
         (__: unknown, key: FormFieldKeys) => _.includes(dirtyValues, key),
       );
+      console.log('dirtyFormValues', dirtyValues, dirtyFormValues);
 
       // remove storedData values when resetting to default values
       const resetValues = _.filter(

@@ -27,21 +27,18 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   if (!selectedHat) return null;
 
   if (isMobile) {
+    // TODO are we hitting this case?
     return (
       <Layout hatData={topHat}>
         <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
-          <HatFormContextProvider>
-            <TopMenu returnToList={returnToList} />
-            {!editMode ? (
-              <MainContent
-                showBottomMenu={showBottomMenu}
-                setShowBottomMenu={setShowBottomMenu}
-              />
-            ) : (
-              <EditMode />
-            )}
-            <BottomMenu show={showBottomMenu} />
-          </HatFormContextProvider>
+          <TopMenu returnToList={returnToList} />
+
+          <MainContent
+            showBottomMenu={showBottomMenu}
+            setShowBottomMenu={setShowBottomMenu}
+          />
+
+          <BottomMenu show={showBottomMenu} />
         </Box>
       </Layout>
     );
@@ -89,8 +86,8 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         <HatFormContextProvider>
           <TopMenu returnToList={returnToList} />
           {!editMode ? <MainContent /> : <EditMode />}
-          <BottomMenu />
         </HatFormContextProvider>
+        <BottomMenu />
       </Box>
     </Box>
   );
