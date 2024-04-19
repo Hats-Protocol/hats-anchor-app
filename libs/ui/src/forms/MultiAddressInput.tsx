@@ -23,19 +23,24 @@ import { useEnsAddress } from 'wagmi';
 
 import AddressInput from './AddressInput';
 
+// TODO add upload input/dropzone here
+
+interface MultiAddressInputProps {
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
+  label?: string;
+  subLabel?: string;
+  placeholder?: string;
+}
+
 const MultiAddressInput = ({
   name,
   localForm,
   label,
   subLabel,
   placeholder,
-}: {
-  name: string;
-  localForm: UseFormReturn<any>;
-  label?: string;
-  subLabel?: string;
-  placeholder?: string;
-}) => {
+}: MultiAddressInputProps) => {
   const { setValue, watch } = localForm;
   const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const currentInput = watch(`${name}-currentAddress`) as Hex | string;

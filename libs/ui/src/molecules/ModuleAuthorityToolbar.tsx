@@ -114,7 +114,6 @@ const ModuleAuthorityToolbar = ({
         label: `Go to Hat #${hatId}`,
       });
     }
-    console.log('in effect', authority.label, links);
     return links;
   }, [authority, chainId]);
 
@@ -238,7 +237,6 @@ const ModuleAuthorityToolbar = ({
   );
 
   if (!authority) return null;
-  console.log(authority?.label, otherFunctions);
 
   return (
     <HStack wrap='wrap'>

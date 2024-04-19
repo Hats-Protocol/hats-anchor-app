@@ -21,7 +21,6 @@ import {
   AUTHORITY_ENFORCEMENT,
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -94,9 +93,7 @@ const AuthoritiesListCard = ({
     )} ${_.size(strategies) === 1 ? 'strategy.' : 'strategies.'}`;
   }
   if (type === AUTHORITY_TYPES.modules && hatId) {
-    tooltipInfo = `Connected onchain via the ${label} module for Hat #${hatIdDecimalToIp(
-      BigInt(hatId),
-    )}`;
+    tooltipInfo = `Connected onchain via the ${label}`; //  module for Hat #${hatIdDecimalToIp(BigInt(hatId))}
   }
 
   useEffect(() => {
@@ -186,29 +183,29 @@ const AuthoritiesListCard = ({
               >
                 <Stack px={4}>
                   <Box>
-                    <Tooltip
-                      label={tooltipInfo}
-                      shouldWrapChildren
-                      placement='top'
-                    >
-                      <HStack mb={2}>
-                        <Image
-                          src={authorityEnforcement.enforcementIcon}
-                          alt='Hat'
-                          boxSize={6}
-                        />
-                        <HStack spacing={1}>
-                          <Text size={{ base: 'sm', md: 'md' }}>
-                            {authorityEnforcement.label}
-                          </Text>
+                    <HStack mb={2}>
+                      <Image
+                        src={authorityEnforcement.enforcementIcon}
+                        alt='Hat'
+                        boxSize={6}
+                      />
+                      <HStack spacing={1}>
+                        <Text size={{ base: 'sm', md: 'md' }}>
+                          {authorityEnforcement.label}
+                        </Text>
+                        <Tooltip
+                          label={tooltipInfo}
+                          shouldWrapChildren
+                          placement='top'
+                        >
                           <Icon
                             as={BsInfoCircle}
                             boxSize={{ base: 3, md: '14px' }}
                             cursor='pointer'
                           />
-                        </HStack>
+                        </Tooltip>
                       </HStack>
-                    </Tooltip>
+                    </HStack>
                   </Box>
 
                   {displayModulesToolbar ? (
