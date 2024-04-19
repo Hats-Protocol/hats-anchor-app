@@ -27,7 +27,8 @@ export const processGuildRolesForHat = ({
   guildData: Guild[] | undefined;
   hatId: Hex | undefined;
 }): Authority[] | undefined => {
-  if (!guildData || !hatId) return [];
+  if (!guildData || _.isEmpty(guildData) || !hatId) return [];
+  console.log('processGuildRolesForHat', guildData, hatId);
 
   return _.flatMap(guildData, (guild: Guild) => {
     return _.flatMap(
@@ -35,28 +36,30 @@ export const processGuildRolesForHat = ({
         _.some(
           role.requirements,
           (req: Requirement) =>
-            req.data?.id === hatIdHexToDecimal(hatId)?.toString(),
+            req.data?.id === _.toString(hatIdHexToDecimal(hatId)), // TODO might need to handle alternate ID matching
         ),
       ),
       (role: Role) => {
-        return role.rolePlatforms.map((rolePlatform: RolePlatform) => {
-          const platform = _.find(guild.guildPlatforms, {
-            id: rolePlatform.guildPlatformId,
-          });
-          // we index manual details against link/`invite`, so don't return if that is missing
-          // an invite might be invalid if the platform connection has expired but not been removed
-          if (!platform?.invite) return null;
+        return _.compact(
+          _.map(role.rolePlatforms, (rolePlatform: RolePlatform) => {
+            const platform = _.find(guild.guildPlatforms, {
+              id: rolePlatform.guildPlatformId,
+            });
+            // we index manual details against link/`invite`, so don't return if that is missing
+            // an invite might be invalid if the platform connection has expired but not been removed
+            if (!platform?.invite) return null;
 
-          return {
-            label: platform ? platform.platformGuildName : guild.name,
-            link: platform ? platform.invite : 'No invite available',
-            id: platform?.platformId,
-            description: role.description,
-            gate: `https://guild.xyz/${guild.urlName}`,
-            // imageUrl: guild.imageUrl, // IMAGE BEING RETURNED FOR GUILD
-            type: AUTHORITY_TYPES.gate,
-          } as Authority;
-        });
+            return {
+              label: platform ? platform.platformGuildName : guild.name,
+              link: platform ? platform.invite : 'No invite available',
+              id: platform?.platformId,
+              description: role.description,
+              gate: `https://guild.xyz/${guild.urlName}`,
+              // imageUrl: guild.imageUrl, // IMAGE BEING RETURNED FOR GUILD
+              type: AUTHORITY_TYPES.gate,
+            } as Authority;
+          }),
+        );
       },
     );
   }) as Authority[];

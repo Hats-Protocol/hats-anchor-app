@@ -10,7 +10,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { AppModals, OverlayContextProps, Transaction } from 'types';
+import { AppModals, OverlayContextProps, ToastProps, Transaction } from 'types';
 import { checkTransactionStatus } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { waitForTransaction } from 'wagmi/actions';
@@ -166,7 +166,7 @@ export const OverlayContextProvider = ({
     hash: Hex;
     txChainId?: number | undefined;
     txDescription: string;
-    toastData: object | undefined;
+    toastData: ToastProps | undefined;
     redirect?: string | null;
     clearModals?: boolean;
     sendToast?: boolean;

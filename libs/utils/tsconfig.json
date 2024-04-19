@@ -8,11 +8,7 @@
     "declarationMap": true,
     "strict": true
   },
-  "references": [
-    // {
-    //   "path": "./tsconfig.lib.json"
-    // }
-  ],
+  "references": [],
   "include": ["./**/*.ts", "./**/*.tsx", "../types/src/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

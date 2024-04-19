@@ -4,6 +4,7 @@ import {
   useOverlay,
 } from 'contexts';
 import { useHatParams, useMediaStyles } from 'hooks';
+import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { HatDrawer } from 'pages';
 import { useEffect } from 'react';
@@ -28,7 +29,7 @@ const HatDetails = () => {
 
   if (!treeId || !chainId) return null; // chainId === '0x' hopefully this issue is resolved
 
-  if (typeof isMobile !== 'undefined' && !isMobile) {
+  if (_.isBoolean(isMobile) && !isMobile) {
     router.push(`/trees/${chainId}/${treeId}?hatId=${hatId}`);
   }
 
