@@ -5,10 +5,13 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   HStack,
   Icon,
   IconButton,
+  Image,
   Spinner,
+  Stack,
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
@@ -20,11 +23,14 @@ import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
 import { useHatParams, useToast } from 'hooks';
 import _ from 'lodash';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { BsArrowRight } from 'react-icons/bs';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import type { AppHat } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
+
+import { ChakraNextLink } from '../../atoms';
 
 function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
@@ -62,6 +68,7 @@ const OrgChartComponent: React.FC = () => {
     orgChartWearers,
     onOpenHatDrawer,
     onCloseTreeDrawer,
+    treeError,
   } = useTreeForm();
   const { selectedHatId } = useHatParams();
 
@@ -101,7 +108,7 @@ const OrgChartComponent: React.FC = () => {
     if (chartNodes === undefined && treeToDisplay !== undefined) {
       setChartNodes(treeToDisplay);
     } else if (chartNodes !== undefined && treeToDisplay !== undefined) {
-      const newChartNodes = treeToDisplay;
+      const newChartNodes = treeToDisplay as any[]; // TODO org chart app hat with _ properties
       chartNodes.forEach((node) => {
         const newNode = newChartNodes.find((elem) => elem.id === node.id);
         if (newNode !== undefined) {
@@ -761,16 +768,46 @@ const OrgChartComponent: React.FC = () => {
     handleExpandAll,
   ]);
 
-  return isLoading ? (
-    <Flex
-      h='calc(100% - 200px)'
-      w='100%'
-      alignItems='center'
-      justifyContent='center'
-    >
-      <Spinner />
-    </Flex>
-  ) : (
+  if (treeError) {
+    // TODO check more specific error message
+    return (
+      <Flex justify='center' align='center' w='full' h='full' pt={20}>
+        <Stack spacing={8} align='center'>
+          <Box position='relative'>
+            <Heading size='xl' position='absolute' top='30%' left='40%'>
+              Tree not found!
+            </Heading>
+            <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
+          </Box>
+          <Flex>
+            <ChakraNextLink href='/'>
+              <Button
+                variant='outline'
+                bg='white'
+                rightIcon={<Icon as={BsArrowRight} />}
+              >
+                🧢 Head home
+              </Button>
+            </ChakraNextLink>
+          </Flex>
+        </Stack>
+      </Flex>
+    );
+  }
+
+  if (isLoading)
+    return (
+      <Flex
+        h='calc(100% - 200px)'
+        w='100%'
+        alignItems='center'
+        justifyContent='center'
+      >
+        <Spinner />
+      </Flex>
+    );
+
+  return (
     <Box position='relative' pt='145px' h='calc(100% + 5px)'>
       <div
         style={{
@@ -880,7 +917,7 @@ const centerChart = (chart: any, nodeId: string) => {
 
 const recreateNodesCollapse = (
   chart: OrgChart<unknown>,
-  collpasedNodes: string[],
+  collapsedNodes: string[],
 ) => {
   const { allNodes } = chart.getChartState();
 
@@ -890,7 +927,7 @@ const recreateNodesCollapse = (
   }
 
   // collapse initially collapsed nodes
-  collpasedNodes.forEach((collapsedNode) => {
+  collapsedNodes.forEach((collapsedNode) => {
     const nodeToCollapse = allNodes.find((node: any) => {
       if (node.data.id === collapsedNode) {
         return true;
@@ -899,12 +936,12 @@ const recreateNodesCollapse = (
     });
 
     if (nodeToCollapse !== undefined) {
-      collpaseNode(chart, nodeToCollapse);
+      collapseNode(chart, nodeToCollapse);
     }
   });
 };
 
-const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
+const collapseNode = (chart: OrgChart<unknown>, node: any) => {
   // If children are expanded
   if (node.children) {
     node._children = node.children;
@@ -920,7 +957,7 @@ const collpaseNode = (chart: OrgChart<unknown>, node: any) => {
   }
 };
 
-const adjustAfterNodeExpanded = ({ data, children, _children }) => {
+const adjustAfterNodeExpanded = ({ data, children, _children }: any) => {
   // if node is collapsed by the user, don't expand it and its descendants
   if (data._collapsed) return;
 
@@ -928,14 +965,14 @@ const adjustAfterNodeExpanded = ({ data, children, _children }) => {
 
   // Loop over and recursively update expanded children's descendants
   if (children) {
-    children.forEach((d) => {
+    children.forEach((d: any) => {
       adjustAfterNodeExpanded(d);
     });
   }
 
   // Loop over and recursively update collapsed children's descendants
   if (_children) {
-    _children.forEach((d) => {
+    _children.forEach((d: any) => {
       adjustAfterNodeExpanded(d);
     });
   }

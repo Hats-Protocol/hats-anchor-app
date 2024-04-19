@@ -12,66 +12,70 @@ export const fetchTreeDetails = async (
   }
   const subgraphClient = createSubgraphClient();
 
-  const res = (await subgraphClient.getTree({
-    chainId,
-    treeId: +treeId,
-    props: {
-      hats: {
-        props: {
+  return subgraphClient
+    .getTree({
+      chainId,
+      treeId: +treeId,
+      props: {
+        hats: {
+          props: {
+            prettyId: true,
+            status: true,
+            createdAt: true,
+            details: true,
+            maxSupply: true,
+            eligibility: true,
+            toggle: true,
+            mutable: true,
+            imageUri: true,
+            levelAtLocalTree: true,
+            claimableBy: { props: {} },
+            claimableForBy: { props: {} },
+            currentSupply: true,
+            tree: {},
+            wearers: { props: {}, filters: { first: 5 } },
+            admin: {},
+          },
+        },
+        events: {
+          props: {
+            timestamp: true,
+            transactionID: true,
+            hat: {
+              prettyId: true,
+            },
+          },
+          filters: { first: 100 },
+        },
+        linkRequestFromTree: {
+          props: {
+            requestedLinkToHat: {
+              prettyId: true,
+            },
+          },
+        },
+        childOfTree: {},
+        parentOfTrees: {
+          props: {
+            linkedToHat: {
+              prettyId: true,
+            },
+            hats: {
+              props: { prettyId: true },
+            },
+          },
+        },
+        linkedToHat: {
           prettyId: true,
-          status: true,
-          createdAt: true,
-          details: true,
-          maxSupply: true,
-          eligibility: true,
-          toggle: true,
-          mutable: true,
-          imageUri: true,
-          levelAtLocalTree: true,
-          claimableBy: { props: {} },
-          claimableForBy: { props: {} },
-          currentSupply: true,
           tree: {},
-          wearers: { props: {}, filters: { first: 5 } },
-          admin: {},
         },
       },
-      events: {
-        props: {
-          timestamp: true,
-          transactionID: true,
-          hat: {
-            prettyId: true,
-          },
-        },
-        filters: { first: 100 },
-      },
-      linkRequestFromTree: {
-        props: {
-          requestedLinkToHat: {
-            prettyId: true,
-          },
-        },
-      },
-      childOfTree: {},
-      parentOfTrees: {
-        props: {
-          linkedToHat: {
-            prettyId: true,
-          },
-          hats: {
-            props: { prettyId: true },
-          },
-        },
-      },
-      linkedToHat: {
-        prettyId: true,
-        tree: {},
-      },
-    },
-  })) as unknown as Tree;
-
-  return res;
+    })
+    .then((res) => Promise.resolve(res))
+    .catch((e) => {
+      console.error(e);
+      return Promise.reject(e);
+    });
 };
 
 export const fetchPaginatedTrees = async (

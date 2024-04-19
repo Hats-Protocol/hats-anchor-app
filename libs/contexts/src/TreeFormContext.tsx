@@ -68,6 +68,7 @@ export interface TreeFormContext {
   orgChartTree: AppHat[] | undefined;
   guildData: Guild[] | undefined;
   snapshotData: SnapshotSpace[] | undefined;
+  treeError: Error | undefined;
   // local storage
   storedConfig: { flipped?: boolean; compact?: boolean; collapsed?: string[] };
   storedData: Partial<FormData>[] | undefined;
@@ -112,7 +113,6 @@ export const TreeFormContext = createContext<TreeFormContext>({
   treeToDisplayWithInactiveHats: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
-
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -126,6 +126,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   orgChartTree: undefined,
   guildData: undefined,
   snapshotData: undefined,
+  treeError: undefined,
   // controls
   editMode: false,
   setEditMode: undefined,
@@ -209,7 +210,11 @@ export const TreeFormContextProvider = ({
   } = _.pick(hatDisclosure, ['isOpen', 'onOpen', 'onClose']);
 
   // existing tree
-  const { data: treeData } = useTreeDetails({
+  const {
+    data: treeData,
+    isLoading: treeLoading,
+    error: treeError,
+  } = useTreeDetails({
     treeId,
     chainId,
     editMode,
@@ -780,7 +785,11 @@ export const TreeFormContextProvider = ({
       onchainTree: onchainTree || undefined,
       onchainHats,
       treeEvents,
-      isLoading: imagesLoading || detailsFieldsLoading || orgChartTreeLoading,
+      isLoading:
+        treeLoading ||
+        imagesLoading ||
+        detailsFieldsLoading ||
+        orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       orgChartWearers,
@@ -788,6 +797,7 @@ export const TreeFormContextProvider = ({
       orgChartTree: orgChartTree || undefined,
       guildData,
       snapshotData,
+      treeError,
       // LOCAL STORAGE
       storedConfig,
       storedData,
@@ -830,6 +840,7 @@ export const TreeFormContextProvider = ({
       onchainTree,
       onchainHats,
       treeEvents,
+      treeLoading,
       imagesLoading,
       detailsFieldsLoading,
       orgChartTreeLoading,
@@ -840,6 +851,7 @@ export const TreeFormContextProvider = ({
       orgChartTree,
       guildData,
       snapshotData,
+      treeError,
       // LOCAL STORAGE
       storedData,
       storedConfig,
