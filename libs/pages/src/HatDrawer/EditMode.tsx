@@ -307,7 +307,9 @@ const EditMode = () => {
                 isExternal
               >
                 <Text maxW='350px' isTruncated>
-                  {selectedHat?.imageUri}
+                  {selectedHat?.imageUri !== ''
+                    ? selectedHat?.imageUri
+                    : 'Empty'}
                 </Text>
               </ChakraNextLink>
             </HStack>
@@ -318,7 +320,7 @@ const EditMode = () => {
                 isExternal
               >
                 <Text maxW='350px' isTruncated>
-                  {selectedHat?.details}
+                  {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
                 </Text>
               </ChakraNextLink>
             </HStack>

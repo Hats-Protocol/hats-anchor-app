@@ -326,6 +326,7 @@ const processDetailsChangeCallForHat = async ({
 
   const existingDetails: HatDetails | undefined =
     _.get(onchainHat, 'detailsObject.data') || undefined;
+  // extend existing details with the automated data for comparison of original objects
   const newDetails: HatDetails = createDetailsData({
     hat,
     originalHat: onchainHat,
@@ -336,21 +337,26 @@ const processDetailsChangeCallForHat = async ({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: any, existingValue: any, key: string) => {
+      // TODO REVISIT THIS REDUCE, NEED TO ISOLATE FLOWS
       const localKey = key as HatDetailsKeys;
       const newValue = newDetails[localKey];
-      console.log(newValue, existingValue);
-
-      if (
+      if (localKey === 'authorities') {
+        const newAuthorities = _.map(newValue, (val: any) =>
+          _.pick(val, ['description', 'link', 'label', 'gate']),
+        );
+        acc.authorities = newAuthorities;
+      } else if (
         _.isArray(newValue) &&
         _.isEmpty(newValue) &&
-        hat[key as keyof FormData] !== undefined
+        hat[localKey as keyof FormData] !== undefined
       ) {
+        // skip update for empty arrays when values are arrays
         acc[localKey] = newValue;
       } else if (
         (_.isArray(existingValue) && _.isArray(newValue)) ||
         (_.isObject(existingValue) && _.isObject(newValue))
       ) {
-        if (!_.includes(_.keys(hat), key)) {
+        if (!_.includes(_.keys(hat), localKey)) {
           // skip update for non-"dirty" fields when values are arrays
           acc[localKey] = existingValue;
         } else {
@@ -358,12 +364,14 @@ const processDetailsChangeCallForHat = async ({
           acc[localKey] = newValue;
         }
       } else {
-        acc[key] = newValue || existingValue;
+        console.log('are we getting here');
+        acc[localKey] = newValue || existingValue;
       }
       return acc;
     },
     _.merge({}, existingDetails, newDetails),
   );
+  console.log('combinedDetails', combinedDetails);
 
   const newCid = await calculateCid({ type: '1.0', data: combinedDetails });
 
