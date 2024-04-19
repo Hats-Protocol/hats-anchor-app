@@ -33,7 +33,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
-import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
+import { FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { AppHat, FormWearer, HatWearer } from 'types';
 import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
@@ -47,7 +47,11 @@ import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
+type HatWearerFormProps = {
+  localForm?: UseFormReturn<any>;
+};
+
+const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const { chainId, onchainHats, storedData, editMode, onCloseHatDrawer } =
@@ -64,7 +68,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     'watch',
   ]);
 
-  const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
   const currentInput = watch?.('currentAddress');
   const [currentResolvedAddress, setCurrentResolvedAddress] = useState<
     Hex | undefined
@@ -81,6 +84,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   if (detailsObject?.data) {
     hatName = detailsObject.data.name;
   }
+  console.log(localWearers, currentInput, currentResolvedAddress);
 
   const currentMaxSupply = watch?.('maxSupply');
   const maxSupply = useMemo(() => {
@@ -127,13 +131,35 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   useEffect(() => {
     const localIsAddress = isAddress(currentInput);
-    setIsCurrentInputAddress(localIsAddress);
-    if (localIsAddress) {
-      setCurrentResolvedAddress(currentInput);
-    } else {
-      setCurrentResolvedAddress(ensResolvedAddress || undefined);
+    if (!currentInput || !ensResolvedAddress) {
+      setCurrentResolvedAddress(undefined);
+      return;
     }
-  }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
+    if (localIsAddress) {
+      if (localForm) {
+        setCurrentResolvedAddress(currentInput);
+        return;
+      }
+    }
+    setCurrentResolvedAddress(ensResolvedAddress);
+
+    // * intentionally leaving off `localForm`, `localWearers` and `setValue` from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentInput, ensResolvedAddress]);
+
+  useEffect(() => {
+    if (localForm) return;
+
+    setValue?.(
+      'wearers',
+      _.concat(localWearers, {
+        address: currentInput,
+        ens: '',
+      }),
+    );
+    setValue('currentAddress', '');
+    setCurrentResolvedAddress(undefined);
+  }, [currentResolvedAddress]);
 
   const batchMintArgs = [
     new Array(localWearers.length).fill(hatIdDecimal),
@@ -233,13 +259,15 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     }
   };
 
-  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
+  const isNewWearerAddress = isAddress(currentInput)
+    ? currentInput
+    : ensResolvedAddress;
   const wouldExceedMaxSupply =
     _.size(currentWearerList) + _.size(localWearers) >= _.toNumber(maxSupply);
   const disableAddWearer = isAddressAlreadyAdded || wouldExceedMaxSupply;
 
   const handleAddWearer = () => {
-    const address = isCurrentInputAddress
+    const address = isAddress(currentInput)
       ? (currentInput as Hex)
       : (ensResolvedAddress as Hex);
     if (
@@ -258,6 +286,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       address,
       ens: isEnsAddress ? currentInput : '',
     });
+    // move this set value to in resolving a valid address
     setValue?.('wearers', newLocalWearers);
     setCurrentResolvedAddress(undefined);
     setValue?.('currentAddress', '');
@@ -323,7 +352,14 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chainId, localWearers, currentWearerList, maxSupply, selectedHat?.id],
   );
+  console.log(
+    currentInput,
+    currentResolvedAddress,
+    isEligible,
+    isInGoodStanding,
+  );
 
+  // todo handle csv upload component
   const { getRootProps, getInputProps, isDragAccept, isDragReject } =
     useDropzone({
       accept: { 'text/csv': ['.csv'] },
@@ -434,19 +470,38 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
             <AddressInput
               name='currentAddress'
               localForm={form}
+              options={{
+                validate: {
+                  isAddressOrEns: (v) =>
+                    isAddress(v) ||
+                    _.endsWith(v, '.eth') ||
+                    'Please input a valid address',
+                  isEligible: (v) =>
+                    isEligible ||
+                    'This address is not eligible to wear this hat',
+                  isInGoodStanding: (v) =>
+                    !!isInGoodStanding || 'This address is in bad standing',
+                  isNotAlreadyAdded: (v) =>
+                    !isAddressAlreadyAdded || 'Address already added',
+                  wouldExceedMaxSupply: (v) =>
+                    !wouldExceedMaxSupply || 'Max supply reached',
+                },
+              }}
               showResolvedAddress={Boolean(currentResolvedAddress)}
               isDisabled={wouldExceedMaxSupply}
               resolvedAddress={String(currentResolvedAddress)}
             />
 
-            {currentResolvedAddress && !isInGoodStanding && (
-              <HStack align='center' spacing={1}>
-                <Icon as={FaInfoCircle} color='red.500' />
-                <Text size='sm' color='red.500'>
-                  This address was set as in bad standing
-                </Text>
-              </HStack>
-            )}
+            {/* {currentResolvedAddress &&
+              _.isBoolean(isInGoodStanding) &&
+              !isInGoodStanding && (
+                <HStack align='center' spacing={1}>
+                  <Icon as={FaInfoCircle} color='red.500' />
+                  <Text size='sm' color='red.500'>
+                    This address was set as in bad standing
+                  </Text>
+                </HStack>
+              )}
 
             {isAddressAlreadyAdded && (
               <HStack align='center' spacing={1}>
@@ -455,10 +510,10 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                   This address is already (pending) wearing this hat
                 </Text>
               </HStack>
-            )}
+            )} */}
           </Flex>
 
-          {typeof isEligible === 'boolean' && !isEligible && (
+          {/* {_.isBoolean(isEligible) && !isEligible && (
             <HStack spacing={1}>
               <Icon as={FaInfoCircle} color='red.500' />
               <Text size='sm' color='red.500'>
@@ -471,7 +526,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
             <Text size='sm' color='yellow.500'>
               Max supply reached
             </Text>
-          )}
+          )} */}
 
           <HStack>
             <Tooltip label={toolTip} shouldWrapChildren>
@@ -554,10 +609,11 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
                 isLoadingMintHat ||
                 isLoadingBatchMintHats
               }
+              leftIcon={
+                <Icon as={BoxArrowUpRightIn} boxSize={4} alt='Mint' mr={2} />
+              }
             >
-              <Icon as={BoxArrowUpRightIn} boxSize={4} alt='Mint' mr={2} /> Mint
-              Hat
-              {localWearers.length > 0 && 's'}
+              Mint Hat{localWearers.length > 0 && 's'}
             </Button>
           </Flex>
         )}

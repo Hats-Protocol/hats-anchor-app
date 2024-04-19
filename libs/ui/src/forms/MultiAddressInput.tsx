@@ -23,6 +23,8 @@ import { useEnsAddress } from 'wagmi';
 
 import AddressInput from './AddressInput';
 
+// TODO add upload input/dropzone here
+
 const MultiAddressInput = ({
   name,
   localForm,
