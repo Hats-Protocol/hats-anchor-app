@@ -1,5 +1,6 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgMetadata, HsgType, Role } from '@hatsprotocol/hsg-sdk';
+import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { FiCopy } from 'react-icons/fi';
@@ -19,7 +20,6 @@ import { Hex } from 'viem';
 
 import { safeUrl } from '../authorities';
 import { formHatUrl } from '../hats';
-import { WriteFunction } from '@hatsprotocol/modules-sdk';
 
 /**
  * Transforms a role and hat into a string representing the role for the hat's eligibility or toggle module

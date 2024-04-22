@@ -8,7 +8,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useClipboard,
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -21,7 +20,7 @@ import {
   useWearerEligibilityCheck,
 } from 'hats-hooks';
 import { getControllerNameAndLink, isWearingAdminHat } from 'hats-utils';
-import { usePendHatterMint, useToast } from 'hooks';
+import { useClipboard, usePendHatterMint, useToast } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsPersonBadge } from 'react-icons/bs';
