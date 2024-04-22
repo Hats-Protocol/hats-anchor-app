@@ -7,6 +7,8 @@ import { AddressInput } from 'ui';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
+// TODO not handling hat at max supply (don't show button?)
+
 const HatClaimForForm = () => {
   const localForm = useForm({
     mode: 'onBlur',

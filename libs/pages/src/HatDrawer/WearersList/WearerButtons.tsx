@@ -121,7 +121,7 @@ const WearerButtons = () => {
 
       {!isMobile && (
         <>
-          {currentHatIsClaimable?.for && address && (
+          {!isAdminUser && currentHatIsClaimable?.for && address && (
             <Tooltip
               label={claimTooltip({
                 claimFor: true,
@@ -181,7 +181,7 @@ const WearerButtons = () => {
                 </Button>
               </Tooltip>
             )}
-          {isAdminUser && !currentHatIsClaimable?.for && (
+          {isAdminUser && (
             <Tooltip
               label={addWearerTooltip(
                 chainId === currentNetworkId,
