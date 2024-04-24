@@ -44,11 +44,12 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
   const form = localForm || hatForm;
-  const {
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = _.pick(form, ['handleSubmit', 'watch', 'formState']);
+  const { handleSubmit, watch, formState } = _.pick(form, [
+    'handleSubmit',
+    'watch',
+    'formState',
+  ]);
+  const { errors } = _.pick(formState, ['errors']);
 
   const hatId = _.get(selectedHat, 'id');
   const hatIdDecimal = hatId && hatIdHexToDecimal(hatId);

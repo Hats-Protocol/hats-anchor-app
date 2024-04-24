@@ -64,7 +64,7 @@ const MultiAddressInput = ({
   ]);
   const { errors } = _.pick(formState, ['errors']);
   const currentInput = watch?.(`${name}-currentAddress`) as Hex | string;
-  const currentResolvedAddress = watch(`${name}-currentAddress-resolved`);
+  const currentResolvedAddress = watch?.(`${name}-currentAddress-resolved`);
 
   const { selectedHat, chainId } = useSelectedHat();
   const { isOpen: collapseIsOpen, onToggle: toggleCollapse } = useDisclosure();
@@ -83,13 +83,16 @@ const MultiAddressInput = ({
     [selectedHat],
   );
   const currentWearerIds = useMemo(
-    () => _.map(_.get(selectedHat, 'wearers'), (h: AppHat) => _.toLower(h.id)),
+    () =>
+      _.map(_.get(selectedHat, 'wearers'), (h: AppHat) =>
+        _.toLower(h.id),
+      ) as unknown as Hex[],
     [selectedHat],
   ); // TODO handle more than 100 wearers
 
   const currentWearerList = _.map(fields, ({ address }: { address: Hex }) =>
     _.toLower(address),
-  );
+  ) as unknown as Hex[];
   const wouldExceedMaxSupply =
     _.size(currentWearerList) + 1 + currentSupply > maxSupply;
 
@@ -109,7 +112,7 @@ const MultiAddressInput = ({
       // check additional eligibility criteria, skip if not hat provided (module form)
       if (_.includes(currentWearerList, localAddress)) {
         // TODO message and type not getting attached when currentInput is an address
-        setError(`${name}-currentAddress`, {
+        setError?.(`${name}-currentAddress`, {
           type: 'custom',
           message: 'Address already added',
         });
@@ -121,7 +124,7 @@ const MultiAddressInput = ({
         _.toLower(localAddress),
       );
       if (isInWearerList) {
-        setError(`${name}-currentAddress`, {
+        setError?.(`${name}-currentAddress`, {
           type: 'custom',
           message: 'Address already wearing this hat',
         });
@@ -151,7 +154,7 @@ const MultiAddressInput = ({
         const [isInGoodStanding, isEligible] = result;
 
         if (_.isBoolean(isInGoodStanding) && !isInGoodStanding) {
-          setError(`${name}-currentAddress`, {
+          setError?.(`${name}-currentAddress`, {
             type: 'custom',
             message: 'Wearer is not in good standing',
           });
@@ -159,7 +162,7 @@ const MultiAddressInput = ({
         }
 
         if (_.isBoolean(isEligible) && !isEligible) {
-          setError(`${name}-currentAddress`, {
+          setError?.(`${name}-currentAddress`, {
             type: 'custom',
             message: 'Wearer is not eligible',
           });
@@ -169,20 +172,20 @@ const MultiAddressInput = ({
 
       if (holdOnAdd) {
         // don't add to list if used in standalone form(s)
-        setValue(`${name}-currentAddress-resolved`, localAddress);
+        setValue?.(`${name}-currentAddress-resolved`, localAddress);
         return;
       }
 
       if (isAddress(currentInput)) {
         append({ address: currentInput, ens: '' });
-        setValue(`${name}-currentAddress`, undefined);
-        setError(`${name}-currentAddress`, undefined);
+        setValue?.(`${name}-currentAddress`, undefined);
+        setError?.(`${name}-currentAddress`, {});
         return;
       }
 
       append({ address: ensAddress, ens: currentInput });
-      setValue(`${name}-currentAddress`, undefined);
-      setError(`${name}-currentAddress`, undefined);
+      setValue?.(`${name}-currentAddress`, undefined);
+      setError?.(`${name}-currentAddress`, {});
     };
 
     // TODO can we set an error after input, if invalid? but not mess with the validation errors
@@ -205,10 +208,10 @@ const MultiAddressInput = ({
   useEffect(() => {
     // clear error after input change
     if (errors?.[`${name}-currentAddress`]) {
-      setError(`${name}-currentAddress`, undefined);
+      setError?.(`${name}-currentAddress`, {});
     }
     if (currentResolvedAddress) {
-      setValue(`${name}-currentAddress-resolved`, undefined);
+      setValue?.(`${name}-currentAddress-resolved`, undefined);
     }
     // intentionally omitting 'errors' and 'setError' from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -221,14 +224,14 @@ const MultiAddressInput = ({
     } else {
       append({ address: currentResolvedAddress, ens: currentInput });
     }
-    setValue(`${name}-currentAddress`, undefined);
-    setValue(`${name}-currentAddress-resolved`, undefined);
+    setValue?.(`${name}-currentAddress`, undefined);
+    setValue?.(`${name}-currentAddress-resolved`, undefined);
   };
 
   const handleRemoveWearer = (index: number) => {
     remove(index);
-    setValue(`${name}-currentAddress`, undefined);
-    setValue(`${name}-currentAddress-resolved`, undefined);
+    setValue?.(`${name}-currentAddress`, undefined);
+    setValue?.(`${name}-currentAddress-resolved`, undefined);
   };
 
   const handleWearerImport = useCallback(

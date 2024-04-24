@@ -339,7 +339,7 @@ const processDetailsChangeCallForHat = async ({
     (acc: any, existingValue: any, key: string) => {
       // TODO REVISIT THIS REDUCE, NEED TO ISOLATE FLOWS
       const localKey = key as HatDetailsKeys;
-      const newValue = newDetails[localKey];
+      const newValue: any = newDetails[localKey];
       if (localKey === 'authorities') {
         const newAuthorities = _.map(newValue, (val: any) =>
           _.pick(val, ['description', 'link', 'label', 'gate']),
