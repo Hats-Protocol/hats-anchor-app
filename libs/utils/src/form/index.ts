@@ -667,9 +667,10 @@ export const removeAndHandleSiblings = (
   const filterSiblings = _.reject(storedData, (child: Partial<FormData>) =>
     _.includes(_.map(newSiblings, 'id'), child.id),
   );
+  const filterCurrentHat = _.reject(filterSiblings, { id: hatId });
 
   return _.concat(
-    filterSiblings,
+    filterCurrentHat,
     _.compact(updateSiblings) as unknown as Partial<FormData>[],
   );
 };
