@@ -42,8 +42,8 @@ export const ANCILLARY_API_URL: {
   10: studioUrl('hats-v1-optimism-ancillary', 'v0.0.13'),
   100: studioUrl('hats-v1-gnosis-chain-ancillary', 'v0.0.13'),
   137: studioUrl('hats-v1-polygon-ancillary', 'v0.0.13'),
-  8453: studioUrl('hats-v1-base-ancillary', 'v0.0.13'),
+  8453: studioUrl('hats-v1-base-ancillary', 'v0.0.14'),
   42161: studioUrl('hats-v1-arbitrum-ancillary', 'v0.0.13'),
-  42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.13'),
+  42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.14'),
   11155111: studioUrl('hats-v1-sepolia-ancillary', 'v0.0.13'),
 };
