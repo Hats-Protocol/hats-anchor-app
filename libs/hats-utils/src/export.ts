@@ -34,6 +34,7 @@ export const translateDrafts = ({
   const extendDrafts = _.map(drafts, (hat: any) => {
     if (!hat.id) return undefined;
     return {
+      id: hat.id,
       ..._.omit(hat, ['imageUrl']),
       ...DEFAULT_HAT,
       chainId,

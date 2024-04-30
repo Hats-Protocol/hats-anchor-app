@@ -339,7 +339,7 @@ const processDetailsChangeCallForHat = async ({
     (acc: any, existingValue: any, key: string) => {
       // TODO REVISIT THIS REDUCE, NEED TO ISOLATE FLOWS
       const localKey = key as HatDetailsKeys;
-      const newValue = newDetails[localKey];
+      const newValue: any = newDetails[localKey];
       if (localKey === 'authorities') {
         const newAuthorities = _.map(newValue, (val: any) =>
           _.pick(val, ['description', 'link', 'label', 'gate']),
@@ -667,9 +667,10 @@ export const removeAndHandleSiblings = (
   const filterSiblings = _.reject(storedData, (child: Partial<FormData>) =>
     _.includes(_.map(newSiblings, 'id'), child.id),
   );
+  const filterCurrentHat = _.reject(filterSiblings, { id: hatId });
 
   return _.concat(
-    filterSiblings,
+    filterCurrentHat,
     _.compact(updateSiblings) as unknown as Partial<FormData>[],
   );
 };

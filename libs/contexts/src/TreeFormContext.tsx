@@ -568,8 +568,6 @@ export const TreeFormContextProvider = ({
         return result;
       });
       onOpenTreeDrawer?.();
-      // TODO  trigger drawer close on remove hat? move this to selected hat context?
-      // onCloseHatDrawer?.();
     },
     [setStoredData, onOpenTreeDrawer],
   );

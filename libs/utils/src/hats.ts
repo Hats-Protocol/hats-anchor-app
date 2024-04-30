@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
 

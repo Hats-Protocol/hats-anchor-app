@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,8 +39,8 @@ const useMulticallManyHats: any = ({
   onchainHats,
   chainId,
   handlePendingTx,
-  patchTree,
-}: {
+}: // patchTree,
+{
   isAdminOfAnyHatWithChanges: boolean;
   storedData: Partial<FormData>[];
   setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
@@ -49,7 +48,7 @@ const useMulticallManyHats: any = ({
   onchainHats: AppHat[];
   chainId: SupportedChains;
   handlePendingTx?: HandlePendingTx;
-  patchTree: (p: AppHat[]) => void;
+  // patchTree: (p: AppHat[]) => void;
 }) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
@@ -59,7 +58,7 @@ const useMulticallManyHats: any = ({
   const currentChain = useChainId();
   const queryClient = useQueryClient();
   const toast = useToast();
-  console.log(detailsToPin);
+  // console.log(detailsToPin);
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
@@ -212,7 +211,7 @@ const useMulticallManyHats: any = ({
 
   const handleWrite = async () => {
     if (!_.isEmpty(detailsToPin)) {
-      // ? check to see if any objects are already pinned
+      // TODO check to see if any objects are already pinned
 
       const token = await fetchToken(_.size(detailsToPin));
       // TODO [low] handle no token/empty string

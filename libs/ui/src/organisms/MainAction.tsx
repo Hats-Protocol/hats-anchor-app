@@ -61,34 +61,7 @@ const MainAction = () => {
 
   if (chainId !== chain?.id) return <NetworkSwitcher />;
 
-  if (
-    (currentUserIsEligible as boolean) &&
-    isClaimable &&
-    !currentUserIsWearing
-  )
-    return (
-      <Tooltip
-        label={
-          !hatterIsAdmin
-            ? 'Hatter must be wearing an admin hat to claim this hat.'
-            : undefined
-        }
-        fontSize='md'
-        shouldWrapChildren
-      >
-        <Button
-          variant='outlineMatch'
-          colorScheme='blue.500'
-          isDisabled={
-            !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
-          }
-          onClick={claimHat}
-        >
-          Claim Hat
-        </Button>
-      </Tooltip>
-    );
-
+  // PRIORITIZE ADMIN ACTIONS (INCLUDES BULK OPTIONS)
   if (isAdminUser) {
     let adminTooltip = '';
     if (maxWearersReached) {
@@ -117,6 +90,34 @@ const MainAction = () => {
       </Tooltip>
     );
   }
+
+  if (
+    (currentUserIsEligible as boolean) &&
+    isClaimable &&
+    !currentUserIsWearing
+  )
+    return (
+      <Tooltip
+        label={
+          !hatterIsAdmin
+            ? 'Hatter must be wearing an admin hat to claim this hat.'
+            : undefined
+        }
+        fontSize='md'
+        shouldWrapChildren
+      >
+        <Button
+          variant='outlineMatch'
+          colorScheme='blue.500'
+          isDisabled={
+            !claimHat || !hatterIsAdmin || chainId !== currentNetworkId
+          }
+          onClick={claimHat}
+        >
+          Claim Hat
+        </Button>
+      </Tooltip>
+    );
 
   return null;
 };

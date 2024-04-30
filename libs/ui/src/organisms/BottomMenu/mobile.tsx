@@ -7,12 +7,11 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatClaimBy, useWearerDetails } from 'hats-hooks';
-import { useToast } from 'hooks';
+import { useToast, useClipboard } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
@@ -74,7 +73,7 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
           </Button>
         )}
 
-        <Flex pr={20}>
+        <Flex>
           <Menu>
             <MenuButton
               as={Button}

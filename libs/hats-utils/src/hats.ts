@@ -70,7 +70,7 @@ export const isWearingAdminHat = (
       const joinedParentHats = hats.slice(0, i).join('');
       return `${treeId}${i > 0 ? `${joinedParentHats}` : ''}`.padEnd(66, '0');
     }),
-  );
+  ) as Hex[];
 
   if (!includeCurrent) {
     hatIds = _.reject(hatIds, (id: Hex) => id === hatId);
