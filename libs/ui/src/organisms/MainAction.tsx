@@ -33,11 +33,7 @@ const MainAction = () => {
   );
 
   const currentWearerHats = _.map(wearer, 'id');
-  const isAdminUser = isWearingAdminHat(
-    currentWearerHats,
-    selectedHat?.id,
-    true,
-  );
+  const isAdminUser = isWearingAdminHat(currentWearerHats, selectedHat?.id);
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,

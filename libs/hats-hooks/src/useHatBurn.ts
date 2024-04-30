@@ -5,6 +5,7 @@ import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
+import useWearerDetails from './useWearerDetails';
 
 // workaround for https://github.com/microsoft/TypeScript/issues/48212
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,8 +24,14 @@ const useHatBurn: any = ({
   const { address } = useAccount();
 
   const hatId = selectedHat?.id;
-  const wearers = selectedHat?.wearers || [];
-  const currentlyWearing = _.findKey(wearers, ['id', _.toLower(address)]);
+
+  const { data: wearer } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+  const currentlyWearing = _.find(wearer, {
+    id: selectedHat?.id,
+  });
   const txDescription = `Renounced hat ${idToIp(hatId)}`;
 
   const { writeAsync, isLoading } = useHatContractWrite({
