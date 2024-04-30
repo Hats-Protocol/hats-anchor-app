@@ -13,10 +13,20 @@ import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
 
-const TreeDetails = ({ treeId, chainId, hatId, exists }: TreeDetailsProps) => {
+const TreeDetails = () => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   const { isMobile } = useMediaStyles();
   const router = useRouter();
+  const {
+    treeId: treeIdQueryParam,
+    chainId: chainIdQueryParam,
+    hatId: hatIdQueryParam,
+  } = getQueryParams(_.get(router, 'query', {}) as HatQueryParams);
+
+  const treeId = treeIdQueryParam ?? null;
+  const chainId = (chainIdQueryParam as SupportedChains) ?? null;
+  const hatId = hatIdQueryParam;
+  const exists = true;
 
   useEffect(() => {
     if (!treeId || !chainId) return;
@@ -81,22 +91,22 @@ const getQueryParams = (query: HatQueryParams) => {
 };
 
 // REVERTED TO SERVER SIDE RENDERING HERE TO CATCH HAT ID PARAM
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
-) => {
-  const { treeId, chainId, hatId } = getQueryParams(
-    _.get(context, 'query', {}) as HatQueryParams,
-  );
-
-  return {
-    props: {
-      ...defaultProps,
-      treeId,
-      hatId,
-      chainId,
-    },
-  };
-};
+// export const getServerSideProps = async (
+//   context: GetServerSidePropsContext,
+// ) => {
+//   const { treeId, chainId, hatId } = getQueryParams(
+//     _.get(context, 'query', {}) as HatQueryParams,
+//   );
+//
+//   return {
+//     props: {
+//       ...defaultProps,
+//       treeId,
+//       hatId,
+//       chainId,
+//     },
+//   };
+// };
 
 export default TreeDetails;
 
