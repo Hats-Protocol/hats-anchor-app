@@ -17,15 +17,13 @@ const TreeDetails = () => {
   const { updateRecentlyVisitedTrees } = useOverlay();
   const { isMobile } = useMediaStyles();
   const router = useRouter();
-  const {
-    treeId: treeIdQueryParam,
-    chainId: chainIdQueryParam,
-    hatId: hatIdQueryParam,
-  } = getQueryParams(_.get(router, 'query', {}) as HatQueryParams);
 
-  const treeId = treeIdQueryParam ?? null;
-  const chainId = (chainIdQueryParam as SupportedChains) ?? null;
-  const hatId = hatIdQueryParam;
+  const treeId = Number(router.query.treeId as string);
+  const chainId = Number(router.query.chainId as string) as SupportedChains;
+  const hatId = router.query.hatId
+    ? hatIdDecimalToHex(hatIdIpToDecimal(router.query.hatId as string))
+    : null;
+
   const exists = true;
 
   useEffect(() => {
