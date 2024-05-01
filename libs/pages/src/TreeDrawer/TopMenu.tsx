@@ -44,7 +44,6 @@ const TopMenu = () => {
     treeToDisplay,
     onchainHats,
     setStoredData,
-    patchTree,
     setSelectedOption,
     onCloseTreeDrawer,
   } = useTreeForm();
@@ -75,7 +74,6 @@ const TopMenu = () => {
     onchainHats,
     chainId,
     handlePendingTx,
-    patchTree,
   });
 
   const handleDeploy = async () => {
