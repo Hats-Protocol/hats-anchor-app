@@ -33,6 +33,10 @@
   font-size: 1.5rem;
 }
 
+.markdown-content h3 {
+  font-size: 1.25rem;
+}
+
 .markdown-content p {
   margin: 0.7rem 0;
 }
