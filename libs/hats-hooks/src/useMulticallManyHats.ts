@@ -29,9 +29,7 @@ import {
 
 import useAdminOfHats from './useAdminOfHats';
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useMulticallManyHats: any = ({
+const useMulticallManyHats = ({
   isAdminOfAnyHatWithChanges,
   storedData,
   setStoredData,
@@ -39,17 +37,7 @@ const useMulticallManyHats: any = ({
   onchainHats,
   chainId,
   handlePendingTx,
-}: // patchTree,
-{
-  isAdminOfAnyHatWithChanges: boolean;
-  storedData: Partial<FormData>[];
-  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
-  treeToDisplay: AppHat[];
-  onchainHats: AppHat[];
-  chainId: SupportedChains;
-  handlePendingTx?: HandlePendingTx;
-  // patchTree: (p: AppHat[]) => void;
-}) => {
+}: UseMulticallManyHatsProps) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
@@ -58,7 +46,6 @@ const useMulticallManyHats: any = ({
   const currentChain = useChainId();
   const queryClient = useQueryClient();
   const toast = useToast();
-  // console.log(detailsToPin);
 
   const hatIds = _.filter(
     _.map(storedData, 'id'),
@@ -239,6 +226,16 @@ const useMulticallManyHats: any = ({
     proposedChanges,
   };
 };
+
+interface UseMulticallManyHatsProps {
+  isAdminOfAnyHatWithChanges: boolean;
+  storedData: Partial<FormData>[];
+  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
+  treeToDisplay: AppHat[];
+  onchainHats: AppHat[];
+  chainId: SupportedChains;
+  handlePendingTx?: HandlePendingTx;
+}
 
 export interface HatPinDetails {
   chainId: number;

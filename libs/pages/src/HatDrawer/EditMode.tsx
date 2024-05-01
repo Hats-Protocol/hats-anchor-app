@@ -26,6 +26,7 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
+import { ipfsUrl } from 'utils';
 
 import ModuleDrawer from '../ModuleDrawer';
 
@@ -302,10 +303,7 @@ const EditMode = () => {
           <Stack>
             <HStack>
               <Text variant='medium'>Image URI:</Text>
-              <ChakraNextLink
-                href={`https://ipfs.io/ipfs/${selectedHat?.imageUri?.slice(7)}`}
-                isExternal
-              >
+              <ChakraNextLink href={ipfsUrl(selectedHat?.imageUri)} isExternal>
                 <Text maxW='350px' isTruncated>
                   {selectedHat?.imageUri !== ''
                     ? selectedHat?.imageUri
@@ -315,10 +313,7 @@ const EditMode = () => {
             </HStack>
             <HStack>
               <Text variant='medium'>Details URI:</Text>
-              <ChakraNextLink
-                href={`https://ipfs.io/ipfs/${selectedHat?.details?.slice(7)}`}
-                isExternal
-              >
+              <ChakraNextLink href={ipfsUrl(selectedHat?.details)} isExternal>
                 <Text maxW='350px' isTruncated>
                   {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
                 </Text>
