@@ -4,6 +4,7 @@ import {
   Heading,
   HStack,
   Stack,
+  Text,
   Tooltip,
 } from '@chakra-ui/react';
 import { useEligibility, useOverlay } from 'contexts';
@@ -29,15 +30,20 @@ import Conditions from './Conditions';
 const NetworkSwitcher = dynamic(() =>
   import('ui').then((mod) => mod.NetworkSwitcher),
 );
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 const ClaimHat = ({
   agreement,
   isReviewed,
   setIsReviewed,
+  hasSupply,
 }: {
   agreement: string;
   isReviewed: boolean;
   setIsReviewed: (signed: boolean) => void;
+  hasSupply: boolean;
 }) => {
   const { address } = useAccount();
   const queryClient = useQueryClient();
@@ -127,7 +133,26 @@ const ClaimHat = ({
   if (!isReviewed)
     claimTooltipText = 'You must sign the agreement to claim this hat';
 
-  // TODO hat cannot be claimed if max supply is reached
+  if (!hasSupply) {
+    // TODO text is assuming > 1 wearers is max supply. handle 0 or 1 wearers
+    return (
+      <Stack w='40%' alignItems='center' gap={12}>
+        <Heading size='md'>No remaining supply!</Heading>
+        <Text maxW='80%' textAlign='center'>
+          {selectedHatDetails?.name} already has {selectedHat?.maxSupply}{' '}
+          wearers.
+        </Text>
+        <ChakraNextLink
+          href={hatLink({ chainId, hatId: selectedHat?.id })}
+          isExternal
+        >
+          <Button variant='outlineMatch' colorScheme='blue.500'>
+            View Hat
+          </Button>
+        </ChakraNextLink>
+      </Stack>
+    );
+  }
 
   if (isWearing) {
     return (

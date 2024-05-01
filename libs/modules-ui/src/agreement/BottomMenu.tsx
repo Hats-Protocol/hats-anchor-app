@@ -1,8 +1,14 @@
+/* eslint-disable no-nested-ternary */
 import {
   Box,
   Button,
   Flex,
   Icon,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -29,14 +35,21 @@ import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { BsArrowRight } from 'react-icons/bs';
+import { BsArrowRight, BsThreeDotsVertical } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { hatLink } from 'utils';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const MobileHatCard = dynamic(() =>
   import('ui').then((mod) => mod.MobileHatCard),
+);
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+const NetworkSwitcher = dynamic(() =>
+  import('ui').then((mod) => mod.NetworkSwitcher),
 );
 
 const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
@@ -117,7 +130,12 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
 
   return (
     <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900'>
-      <Flex p={2} borderTop='1px solid' borderColor='gray.200'>
+      <Flex
+        p={2}
+        borderTop='1px solid'
+        borderColor='gray.200'
+        justify='space-between'
+      >
         {isWearing ? (
           <Button
             colorScheme='green'
@@ -129,6 +147,8 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
           >
             View your hat
           </Button>
+        ) : currentNetworkId !== chainId ? (
+          <NetworkSwitcher chainId={chainId} />
         ) : (
           <Button
             colorScheme='blue'
@@ -145,6 +165,24 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
           >
             Claim this Hat
           </Button>
+        )}
+        {!isWearing && (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              icon={<Icon as={BsThreeDotsVertical} />}
+              aria-label='Menu'
+              variant='outline'
+            />
+            <MenuList>
+              <ChakraNextLink
+                href={hatLink({ hatId: selectedHat?.id, chainId })}
+                isExternal
+              >
+                <MenuItem>View Hat</MenuItem>
+              </ChakraNextLink>
+            </MenuList>
+          </Menu>
         )}
       </Flex>
 

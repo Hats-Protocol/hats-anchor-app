@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react';
-import React from 'react';
 import ReactMarkdown from 'react-markdown';
+
+// TODO can we use `Markdown` from 'ui/atoms' here?
 
 const AgreementContent = ({ agreement }: { agreement: string }) => {
   if (!agreement) return null;

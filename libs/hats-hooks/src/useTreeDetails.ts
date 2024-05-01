@@ -3,14 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetails } from 'utils';
 import { numberToHex } from 'viem';
 
-// hats-hooks
 const useTreeDetails = ({
   treeId,
   chainId,
   initialData,
   editMode,
 }: UseTreeDetailsProps) => {
-  const localTreeId = numberToHex(treeId, { size: 8 });
+  const localTreeId = treeId ? numberToHex(treeId, { size: 8 }) : undefined;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeDetails', localTreeId, chainId],

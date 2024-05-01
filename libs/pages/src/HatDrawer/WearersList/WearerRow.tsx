@@ -262,7 +262,7 @@ const WearerRow = ({
                 color='red.500'
                 fontWeight='medium'
                 bg='transparent'
-                isDisabled={!isSameChain}
+                isDisabled={!isSameChain || !renounceHat}
                 onClick={handleRenounceHat}
               >
                 Renounce
