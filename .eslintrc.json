@@ -10,6 +10,12 @@
     "@tanstack/query",
     "@nx"
   ],
+  "extends": [
+    "airbnb",
+    "plugin:@tanstack/eslint-plugin-query/recommended",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "parserOptions": {
     "ecmaVersion": 2023
   },
@@ -33,12 +39,6 @@
         "@typescript-eslint/no-explicit-any": "warn"
       }
     }
-  ],
-  "extends": [
-    "airbnb",
-    "plugin:@tanstack/eslint-plugin-query/recommended",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended"
   ],
   "ignorePatterns": ["node_modules/*", ".nx/*", "dist/*", "tmp/*"],
   "rules": {

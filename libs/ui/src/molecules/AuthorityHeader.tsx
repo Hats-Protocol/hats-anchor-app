@@ -164,12 +164,16 @@ const AuthorityHeader = ({
     const maxThreshold = _.toNumber(hsgConfig?.targetThreshold);
     const currentSigners = _.size(eligibleSigners);
     if (currentSigners < minThreshold) {
-      return `${currentSigners}/${minThreshold}`;
+      return `needs ${minThreshold} signer${minThreshold > 1 ? 's' : ''}`;
     }
     if (currentSigners > maxThreshold) {
-      return `${maxThreshold}/${currentSigners}`;
+      return `${maxThreshold}/${currentSigners} signer${
+        currentSigners > 1 ? 's' : ''
+      }`;
     }
-    return `${currentSigners}/${currentSigners}`;
+    return `${currentSigners}/${currentSigners} signer${
+      currentSigners > 1 ? 's' : ''
+    }`;
   }, [hsgConfig, eligibleSigners, authority?.label]);
 
   const enforcementIcon =
@@ -214,8 +218,7 @@ const AuthorityHeader = ({
                 noOfLines={2}
               >
                 {currentLabel || label || 'New Authority'}
-                {currentThresholdConfig &&
-                  ` (${currentThresholdConfig} signers)`}
+                {currentThresholdConfig && ` (${currentThresholdConfig})`}
               </Text>
             )}
 

@@ -114,7 +114,7 @@ const AuthoritiesForm = ({
     const hatImageURI =
       imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
 
-    if (hatImageURI !== '') setValue('imageUrl', hatImageURI);
+    if (hatImageURI && hatImageURI !== '') setValue('imageUrl', hatImageURI);
     // intentionally exclude `setValue`
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagePinData]);
@@ -123,7 +123,7 @@ const AuthoritiesForm = ({
     const combinedValues = {
       ...values,
       type,
-      imageUrl,
+      imageUrl: item.imageUrl || imageUrl,
     };
     hatSetValue?.(`${formName}.${index}`, combinedValues);
     onClose();
@@ -216,8 +216,12 @@ const AuthoritiesForm = ({
                 isDragAccept={isDragAccept}
                 isDragReject={isDragReject}
                 isFullWidth
-                image={imageUrl}
-                imageUrl={formatImageUrl(imageUrl)}
+                image={item?.imageUrl || imageUrl}
+                imageUrl={
+                  item?.imageUrl
+                    ? formatImageUrl(item.imageUrl)
+                    : formatImageUrl(imageUrl)
+                }
               />
 
               <Flex mt={4} justify='flex-end'>

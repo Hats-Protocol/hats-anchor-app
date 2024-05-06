@@ -9,7 +9,7 @@ const useTreeDetails = ({
   initialData,
   editMode,
 }: UseTreeDetailsProps) => {
-  const localTreeId = numberToHex(treeId, { size: 8 });
+  const localTreeId = treeId ? numberToHex(treeId, { size: 8 }) : undefined;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeDetails', localTreeId, chainId],

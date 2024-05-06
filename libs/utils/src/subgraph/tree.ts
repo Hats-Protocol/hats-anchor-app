@@ -4,10 +4,10 @@ import { mapWithChainId } from 'shared';
 import { createSubgraphClient } from '../web3';
 
 export const fetchTreeDetails = async (
-  treeId: string | null,
+  treeId: string | null | undefined,
   chainId: number,
 ): Promise<Tree | null> => {
-  if (treeId === null) {
+  if (!treeId) {
     return null;
   }
   const subgraphClient = createSubgraphClient();

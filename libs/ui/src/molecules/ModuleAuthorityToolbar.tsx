@@ -130,18 +130,40 @@ const ModuleAuthorityToolbar = ({
   const handleFunctionCall = (func: any) => {
     if (!authority) return;
     if (func.isCustom) {
+      // prioritize custom functions
       func.onClick();
-    } else if (func.args && func.args.length > 0) {
+      return;
+    }
+    if (func.args && func.args.length > 0) {
+      // handle special case for claimSigner on MHSG, might be a better way to handle this to match modules
+      if (
+        _.size(func.args) === 1 &&
+        _.get(func, 'args[0].name') === 'Signer Hat' // TODO can we make this assumption in other cases?
+      ) {
+        const args = { 'Signer Hat': selectedHat?.id };
+        callHsgFunction({
+          instance: authority.instanceAddress,
+          func,
+          args,
+          type: 'MHSG', // hardcoded because we're only using this flow for MHSG which has an argument requirement
+        });
+        return;
+      }
+
       setSelectedFunction(func);
       setModals?.({ [`functionCall-${authority.label}-${index}`]: true });
-    } else if (authority.type === AUTHORITY_TYPES.modules) {
+      return;
+    }
+    if (authority.type === AUTHORITY_TYPES.modules) {
       callModuleFunction({
         moduleId: authority.moduleAddress,
         instance: authority.instanceAddress,
         func,
         args: [],
       });
-    } else {
+      return;
+    }
+    if (authority.type === AUTHORITY_TYPES.hsg) {
       callHsgFunction({
         func,
         args: [],
@@ -364,6 +386,7 @@ const ModuleAuthorityToolbar = ({
           </Menu>
         )}
       </HStack>
+
       <Modal
         name={`functionCall-${authority?.label}-${index}`}
         title={`${_.capitalize(

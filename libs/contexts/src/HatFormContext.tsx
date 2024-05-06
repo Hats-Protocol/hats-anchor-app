@@ -319,7 +319,6 @@ export const HatFormContextProvider = ({
         debouncedFormValues,
         (__: unknown, key: FormFieldKeys) => _.includes(dirtyValues, key),
       );
-      console.log('dirtyFormValues', dirtyValues, dirtyFormValues);
 
       // remove storedData values when resetting to default values
       const resetValues = _.filter(

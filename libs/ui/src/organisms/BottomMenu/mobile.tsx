@@ -73,7 +73,7 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
           </Button>
         )}
 
-        <Flex pr={20}>
+        <Flex>
           <Menu>
             <MenuButton
               as={Button}

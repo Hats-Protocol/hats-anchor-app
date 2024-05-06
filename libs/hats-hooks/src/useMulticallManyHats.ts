@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 import { CONFIG } from '@hatsprotocol/constants';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,9 +29,7 @@ import {
 
 import useAdminOfHats from './useAdminOfHats';
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useMulticallManyHats: any = ({
+const useMulticallManyHats = ({
   isAdminOfAnyHatWithChanges,
   storedData,
   setStoredData,
@@ -40,17 +37,7 @@ const useMulticallManyHats: any = ({
   onchainHats,
   chainId,
   handlePendingTx,
-  patchTree,
-}: {
-  isAdminOfAnyHatWithChanges: boolean;
-  storedData: Partial<FormData>[];
-  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
-  treeToDisplay: AppHat[];
-  onchainHats: AppHat[];
-  chainId: SupportedChains;
-  handlePendingTx?: HandlePendingTx;
-  patchTree: (p: AppHat[]) => void;
-}) => {
+}: UseMulticallManyHatsProps) => {
   const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
@@ -211,7 +198,7 @@ const useMulticallManyHats: any = ({
 
   const handleWrite = async () => {
     if (!_.isEmpty(detailsToPin)) {
-      // ? check to see if any objects are already pinned
+      // TODO check to see if any objects are already pinned
 
       const token = await fetchToken(_.size(detailsToPin));
       // TODO [low] handle no token/empty string
@@ -239,6 +226,16 @@ const useMulticallManyHats: any = ({
     proposedChanges,
   };
 };
+
+interface UseMulticallManyHatsProps {
+  isAdminOfAnyHatWithChanges: boolean;
+  storedData: Partial<FormData>[];
+  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
+  treeToDisplay: AppHat[];
+  onchainHats: AppHat[];
+  chainId: SupportedChains;
+  handlePendingTx?: HandlePendingTx;
+}
 
 export interface HatPinDetails {
   chainId: number;

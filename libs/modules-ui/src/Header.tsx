@@ -30,7 +30,8 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails } = useEligibility();
+  const { chainId, selectedHat, selectedHatDetails, isHatDetailsLoading } =
+    useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string);
   const { isMobile } = useMediaStyles();
 
@@ -51,37 +52,43 @@ const Header = () => {
     : MUTABILITY.IMMUTABLE;
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
-  if (isMobile)
-    return (
+  return (
+    <>
+      {/* MOBILE */}
       <Stack
+        display={{ base: 'flex', md: 'none' }}
         background='linear-gradient(180deg, rgba(247, 250, 252, 0.00) 0%, #F7FAFC 34.5%)'
         pb={2}
       >
         <Box width='100%'>
-          <Image
-            src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
-            alt='Hat image'
-            background='white'
-            objectFit='cover'
-            width='100%'
-            height='auto'
-          />
-          <HStack mt={-2} pl={4}>
-            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-            <Badge
-              colorScheme={
-                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
-              }
-            >
-              {mutableStatus}
-            </Badge>
-            <Badge
-              colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
-            >
-              {activeStatus}
-            </Badge>
-            <Badge>Level {levelAtLocalTree}</Badge>
-          </HStack>
+          <Skeleton minH='450px' isLoaded={!isHatDetailsLoading}>
+            <Image
+              src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+              alt='Hat image'
+              background='white'
+              objectFit='cover'
+              width='100%'
+              height='auto'
+            />
+          </Skeleton>
+          <Skeleton isLoaded={!isHatDetailsLoading}>
+            <HStack mt={-2} pl={4}>
+              {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+              <Badge
+                colorScheme={
+                  mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+                }
+              >
+                {mutableStatus}
+              </Badge>
+              <Badge
+                colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+              >
+                {activeStatus}
+              </Badge>
+              <Badge>Level {levelAtLocalTree}</Badge>
+            </HStack>
+          </Skeleton>
         </Box>
         <Stack w='full' px={4}>
           <HStack
@@ -121,99 +128,104 @@ const Header = () => {
           )}
         </Stack>
       </Stack>
-    );
 
-  return (
-    <HStack w={{ base: '100%', md: '2xl' }} h={{ md: '120px' }} gap={10}>
-      <AspectRatio
-        ratio={1}
-        boxSize='120px'
-        display={{ base: 'none', md: 'block' }}
+      {/* DESKTOP */}
+      <HStack
+        display={{ base: 'none', md: 'flex' }}
+        w={{ base: '100%', md: '2xl' }}
+        h={{ md: '120px' }}
+        gap={10}
       >
-        <ChakraNextLink
-          href={hatLink({ chainId, hatId: selectedHat?.id, isMobile })}
-          isExternal
+        <AspectRatio
+          ratio={1}
+          boxSize='120px'
+          display={{ base: 'none', md: 'block' }}
         >
-          <Image
-            src={selectedHat?.imageUrl || '/icon.jpeg'}
-            alt='hat image'
-            loading='lazy'
-            objectFit='cover'
-            width='100%'
-            border='1px solid'
-            borderColor='gray.700'
-            borderRadius='md'
-            bg='white'
-          />
-        </ChakraNextLink>
-      </AspectRatio>
-
-      <Stack spacing={1} w={{ base: '100%', md: '80%' }}>
-        <Stack w='full' gap={1}>
-          <HStack
-            justifyContent='space-between'
-            lineHeight={6}
-            wrap={{ base: 'wrap', md: 'unset' }}
+          <ChakraNextLink
+            href={hatLink({ chainId, hatId: selectedHat?.id, isMobile })}
+            isExternal
           >
-            <Skeleton isLoaded={!!selectedHatDetails} maxW='350px'>
-              <Tooltip label={name || selectedHat?.details}>
-                <Heading
-                  size='2xl'
-                  variant='medium'
-                  noOfLines={{ base: 2, md: 1 }}
-                >
-                  {name || selectedHat?.details}
-                </Heading>
-              </Tooltip>
-            </Skeleton>
+            <Image
+              src={selectedHat?.imageUrl || '/icon.jpeg'}
+              alt='hat image'
+              loading='lazy'
+              objectFit='cover'
+              width='100%'
+              border='1px solid'
+              borderColor='gray.700'
+              borderRadius='md'
+              bg='white'
+            />
+          </ChakraNextLink>
+        </AspectRatio>
 
-            <HStack>
-              <Text whiteSpace='nowrap'>Hat ID:</Text>
-              <Skeleton
-                as={HStack}
-                isLoaded={!!selectedHat?.id}
-                cursor={selectedHat ? 'pointer' : 'default'}
-                onClick={() => {
-                  if (!selectedHat) return;
-                  onCopy();
-                  toast.info({
-                    title: 'Successfully copied hat ID to clipboard',
-                  });
-                }}
-              >
-                <Text color='blue.500'>
-                  {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
-                </Text>
-                <Icon as={CopyHash} color='blue.500' />
+        <Stack spacing={1} w={{ base: '100%', md: '80%' }}>
+          <Stack w='full' gap={1}>
+            <HStack
+              justifyContent='space-between'
+              lineHeight={6}
+              wrap={{ base: 'wrap', md: 'unset' }}
+            >
+              <Skeleton isLoaded={!!selectedHatDetails} maxW='350px'>
+                <Tooltip label={name || selectedHat?.details}>
+                  <Heading
+                    size='2xl'
+                    variant='medium'
+                    noOfLines={{ base: 2, md: 1 }}
+                  >
+                    {name || selectedHat?.details}
+                  </Heading>
+                </Tooltip>
               </Skeleton>
+
+              <HStack>
+                <Text whiteSpace='nowrap'>Hat ID:</Text>
+                <Skeleton
+                  as={HStack}
+                  isLoaded={!!selectedHat?.id}
+                  cursor={selectedHat ? 'pointer' : 'default'}
+                  onClick={() => {
+                    if (!selectedHat) return;
+                    onCopy();
+                    toast.info({
+                      title: 'Successfully copied hat ID to clipboard',
+                    });
+                  }}
+                >
+                  <Text color='blue.500'>
+                    {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+                  </Text>
+                  <Icon as={CopyHash} color='blue.500' />
+                </Skeleton>
+              </HStack>
             </HStack>
-          </HStack>
-          {description && (
-            <Box opacity={0.6}>
-              <Markdown>{description}</Markdown>
-            </Box>
-          )}
+            {description && (
+              <Box opacity={0.6}>
+                <Markdown>{description}</Markdown>
+              </Box>
+            )}
+          </Stack>
+          <Skeleton isLoaded={!!selectedHat}>
+            <HStack>
+              {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+              <Badge
+                colorScheme={
+                  mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+                }
+              >
+                {mutableStatus}
+              </Badge>
+              <Badge
+                colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+              >
+                {activeStatus}
+              </Badge>
+              <Badge colorScheme='purple'>Level {levelAtLocalTree}</Badge>
+            </HStack>
+          </Skeleton>
         </Stack>
-        <Skeleton isLoaded={!!selectedHat}>
-          <HStack>
-            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-            <Badge
-              colorScheme={
-                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
-              }
-            >
-              {mutableStatus}
-            </Badge>
-            <Badge
-              colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
-            >
-              {activeStatus}
-            </Badge>
-            <Badge colorScheme='purple'>Level {levelAtLocalTree}</Badge>
-          </HStack>
-        </Skeleton>
-      </Stack>
-    </HStack>
+      </HStack>
+    </>
   );
 };
 

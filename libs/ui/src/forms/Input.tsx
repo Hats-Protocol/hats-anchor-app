@@ -53,6 +53,7 @@ const Input = ({
   resetValue,
   addressButtons,
   onChange,
+  isInvalid,
   ...props
 }: InputProps) => {
   const { address } = useAccount();
@@ -69,6 +70,7 @@ const Input = ({
 
   const isDirty = _.get(dirtyFields, name);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlePaste = async (event: any) => {
     event.preventDefault();
     const pastedValue = event.clipboardData.getData('text');
@@ -115,7 +117,11 @@ const Input = ({
   if (maxLength > 0) rightElementWidth += 30;
 
   return (
-    <FormControl isDisabled={isDisabled} {...props}>
+    <FormControl
+      isDisabled={isDisabled}
+      isInvalid={!!isError || isInvalid}
+      {...props}
+    >
       <Stack spacing={1} w='full'>
         {label && (
           // disabled input lessens opacity of FormLabel

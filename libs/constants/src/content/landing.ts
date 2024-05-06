@@ -140,11 +140,11 @@ export const FEATURED_TREES = ({
   },
   {
     chainId: 42161,
-    id: 8,
-    name: 'Premia',
+    id: 15,
+    name: 'QuestBook',
     // description: '',
-    image: `${ipfsUrl('QmYimWiE5zTH1JJfoAMZk2AAozeEFCnLNZ39WAqHHHYVPe')}`,
-    avatar: `${ipfsUrl('QmZ888k7Lr67cYxFaHMz9oQfVBkjGcovsfJAXu8PksttE2')}`,
+    image: `${ipfsUrl('QmZJemXqmivFRmCDchHC7z4SWmMjPGf6ARUUZffojpmXhz')}`,
+    avatar: `${ipfsUrl('QmbNoW3BrUbvb3iMZbTf1usyVDeD9Fa4SJKYujzS6UWrTo')}`,
   },
   {
     chainId: 10,
@@ -156,6 +156,14 @@ export const FEATURED_TREES = ({
     hats: 11,
     wearers: 309,
   },
+  // {
+  //   chainId: 42161,
+  //   id: 8,
+  //   name: 'Premia',
+  //   // description: '',
+  //   image: `${ipfsUrl('QmYimWiE5zTH1JJfoAMZk2AAozeEFCnLNZ39WAqHHHYVPe')}`,
+  //   avatar: `${ipfsUrl('QmZ888k7Lr67cYxFaHMz9oQfVBkjGcovsfJAXu8PksttE2')}`,
+  // },
 ];
 
 export type IntegrationCard = {

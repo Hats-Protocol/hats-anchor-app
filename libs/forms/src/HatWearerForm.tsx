@@ -1,53 +1,40 @@
 import {
-  Box,
   Button,
-  Collapse,
   Flex,
-  FormControl,
   HStack,
   Icon,
-  IconButton,
-  Input as ChakraInput,
-  InputGroup,
-  InputLeftElement,
   Stack,
   Text,
-  Tooltip,
-  useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import {
-  useHatContractWrite,
-  useWearerEligibilityCheck,
-  useWearerIsInGoodStanding,
-} from 'hats-hooks';
+import { useHatContractWrite } from 'hats-hooks';
 import { isMutable, maxSupplyText } from 'hats-utils';
-import { useToast, useWaitForSubgraph } from 'hooks';
+import { useWaitForSubgraph } from 'hooks';
 import { BoxArrowUpRightIn } from 'icons';
 import _ from 'lodash';
-import Papa from 'papaparse';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { BsBarChart, BsPersonBadge } from 'react-icons/bs';
-import { FaInfoCircle, FaRegTrashAlt, FaUpload } from 'react-icons/fa';
+import { BsBarChart } from 'react-icons/bs';
 import { idToIp, toTreeId } from 'shared';
-import { AppHat, FormWearer, HatWearer } from 'types';
-import { AddressInput, DropZone, FormRowWrapper, NumberInput } from 'ui';
-import {
-  chainsMap,
-  fetchHatDetails,
-  formatAddress,
-  viemPublicClient,
-} from 'utils';
-import { Hex, isAddress } from 'viem';
-import { useAccount, useChainId, useEnsAddress } from 'wagmi';
+import { AppHat, HatWearer } from 'types';
+import { FormRowWrapper, MultiAddressInput, NumberInput } from 'ui';
+import { chainsMap, fetchHatDetails, formatAddress } from 'utils';
+import { isAddress } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
+type HatWearerFormProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm?: UseFormReturn<any>;
+};
+
+// !currently experiencing an issue where the prepare hook is running when enabled is false
+// TODO after migrating to wagmi v2 look into `enabled` not working on `batchMintHats`
+// TODO edge case when user added to list but only wanted to single mint
+// TODO reset form state on unmount?
+
+const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const { chainId, onchainHats, storedData, editMode, onCloseHatDrawer } =
@@ -56,21 +43,14 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
 
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
-  const toast = useToast();
   const form = localForm || hatForm;
-  const { handleSubmit, setValue, watch } = _.pick(form, [
+  const { handleSubmit, watch, formState } = _.pick(form, [
     'handleSubmit',
-    'setValue',
     'watch',
+    'formState',
   ]);
+  const { errors } = _.pick(formState, ['errors']);
 
-  const [isCurrentInputAddress, setIsCurrentInputAddress] = useState(false);
-  const currentInput = watch?.('currentAddress');
-  const [currentResolvedAddress, setCurrentResolvedAddress] = useState<
-    Hex | undefined
-  >();
-
-  const localWearers: FormWearer[] = watch?.('wearers', []);
   const hatId = _.get(selectedHat, 'id');
   const hatIdDecimal = hatId && hatIdHexToDecimal(hatId);
   const detailsObject = _.get(selectedHat, 'detailsObject');
@@ -95,47 +75,12 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   }, [selectedHat, storedData, currentMaxSupply, hatId]);
 
   const currentWearerList = _.map(currentWearers, 'id');
+  const localWearers = watch?.('wearers', []);
+  const currentInput = watch?.('wearers-currentAddress');
+  const currentResolvedAddress = watch?.('wearers-currentAddress-resolved');
 
-  const { data: isEligible, isLoading: isLoadingIsEligible } =
-    useWearerEligibilityCheck({
-      wearer: currentResolvedAddress,
-      selectedHat,
-      chainId,
-    });
-
-  const isAddressAlreadyAdded =
-    localWearers?.some(
-      (wearer: FormWearer) =>
-        wearer.address === currentInput ||
-        (wearer.ens === currentInput && currentInput !== ''),
-    ) ||
-    // TODO dynamic check for current wearers in case of > 100 wearers
-    _.includes(_.map(currentWearers, 'id'), _.toLower(currentResolvedAddress));
-
-  const { data: ensResolvedAddress, isSuccess: isEnsAddress } = useEnsAddress({
-    name: currentInput,
-    chainId: 1,
-    enabled:
-      !!currentInput && currentInput !== '' && currentInput.includes('.eth'),
-  });
-
-  const { data: isInGoodStanding } = useWearerIsInGoodStanding({
-    wearer: currentResolvedAddress,
-    selectedHat,
-    chainId,
-  });
-
-  useEffect(() => {
-    const localIsAddress = isAddress(currentInput);
-    setIsCurrentInputAddress(localIsAddress);
-    if (localIsAddress) {
-      setCurrentResolvedAddress(currentInput);
-    } else {
-      setCurrentResolvedAddress(ensResolvedAddress || undefined);
-    }
-  }, [currentInput, isCurrentInputAddress, ensResolvedAddress]);
-
-  const batchMintArgs = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const batchMintArgs: any[] = [
     new Array(localWearers.length).fill(hatIdDecimal),
     _.map(localWearers, 'address'),
   ];
@@ -192,13 +137,15 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
   });
 
   const txDescriptionSingle = `Minted hat ${idToIp(selectedHat?.id)} to ${
-    isEnsAddress ? currentInput : formatAddress(currentResolvedAddress)
+    !isAddress(currentInput)
+      ? currentInput
+      : formatAddress(currentResolvedAddress)
   }`;
 
   const { writeAsync: writeAsyncMintHat, isLoading: isLoadingMintHat } =
     useHatContractWrite({
       functionName: 'mintHat',
-      args: [hatIdDecimal, currentResolvedAddress],
+      args: [hatIdDecimal, currentResolvedAddress || currentInput],
       chainId,
       txDescription: txDescriptionSingle,
       onSuccessToastData: {
@@ -216,7 +163,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
       enabled:
         Boolean(hatIdDecimal) &&
         _.includes(_.map(onchainHats, 'id'), hatId) &&
-        Boolean(currentResolvedAddress) &&
+        (Boolean(currentResolvedAddress) || isAddress(currentInput)) &&
         _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
         chainId === currentNetworkId,
     });
@@ -233,123 +180,6 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
     }
   };
 
-  const isNewWearerAddress = isCurrentInputAddress || ensResolvedAddress;
-  const wouldExceedMaxSupply =
-    _.size(currentWearerList) + _.size(localWearers) >= _.toNumber(maxSupply);
-  const disableAddWearer = isAddressAlreadyAdded || wouldExceedMaxSupply;
-
-  const handleAddWearer = () => {
-    const address = isCurrentInputAddress
-      ? (currentInput as Hex)
-      : (ensResolvedAddress as Hex);
-    if (
-      !address ||
-      _.includes(currentWearerList, _.toLower(currentResolvedAddress)) ||
-      _.includes(
-        _.map(localWearers, 'address'),
-        _.toLower(currentResolvedAddress),
-      ) ||
-      disableAddWearer ||
-      !isEligible
-    )
-      return;
-    const newLocalWearers = localWearers;
-    newLocalWearers.push({
-      address,
-      ens: isEnsAddress ? currentInput : '',
-    });
-    setValue?.('wearers', newLocalWearers);
-    setCurrentResolvedAddress(undefined);
-    setValue?.('currentAddress', '');
-  };
-
-  const handleRemoveWearer = (index: number) => {
-    const updateWearers = _.filter(
-      localWearers,
-      (__: unknown, i: string) => _.toNumber(i) !== index,
-    );
-    setValue?.('wearers', updateWearers);
-  };
-  const { isOpen, onToggle } = useDisclosure();
-
-  const handleWearerImport = useCallback(
-    async (results: { data: unknown[] }) => {
-      const csvAddresses = _.take(
-        _.differenceWith(
-          _.filter(_.flatten(results.data), isAddress),
-          localWearers,
-          (csvAddress: unknown, wearer: unknown) =>
-            csvAddress === _.get(wearer as HatWearer, 'address'),
-        ),
-        _.toNumber(maxSupply) -
-          _.size(currentWearerList) -
-          _.size(localWearers),
-      );
-      const publicClient = viemPublicClient(chainId);
-      const promises = _.map(csvAddresses, (a: Hex) =>
-        publicClient.readContract({
-          abi: HATS_ABI,
-          address: CONFIG.hatsAddress,
-          functionName: 'isEligible',
-          args: [a, selectedHat?.id],
-        }),
-      );
-      const eligibilityOfAddresses = await Promise.all(promises);
-      const eligibleAddresses = _.filter(
-        csvAddresses,
-        (v: Hex, i: number) => eligibilityOfAddresses[i],
-      );
-      const ineligibleWearersCount = _.size(
-        _.filter(eligibilityOfAddresses, (v: boolean) => !v),
-      );
-      const newWearers = _.map(eligibleAddresses, (address: unknown) => ({
-        address,
-        ens: '',
-      }));
-      if (ineligibleWearersCount > 0) {
-        toast.info({
-          title: `${ineligibleWearersCount} wearer${
-            ineligibleWearersCount > 1 ? 's' : ''
-          } ${
-            ineligibleWearersCount > 1 ? 'were' : 'was'
-          } not eligible to be added`,
-          description:
-            'Check the eligibility module to determine eligible wearers',
-        });
-      }
-
-      setValue?.('wearers', [...localWearers, ...newWearers]);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [chainId, localWearers, currentWearerList, maxSupply, selectedHat?.id],
-  );
-
-  const { getRootProps, getInputProps, isDragAccept, isDragReject } =
-    useDropzone({
-      accept: { 'text/csv': ['.csv'] },
-      onDrop: (droppedFiles) => {
-        const file = droppedFiles[0];
-        if (!file) return;
-        Papa.parse(file, {
-          complete: (data: { data: unknown[] }) => handleWearerImport(data),
-          error: (error: Error) => {
-            // eslint-disable-next-line no-console
-            console.error('Error parsing CSV file: ', error);
-          },
-        });
-      },
-    });
-
-  let toolTip = '';
-
-  if (wouldExceedMaxSupply) {
-    toolTip = 'Would exceed max supply';
-  } else if (isAddressAlreadyAdded) {
-    toolTip = 'Address already added';
-  } else if (!isNewWearerAddress) {
-    toolTip = 'Please input a valid address';
-  }
-
   if (!form) return null;
 
   return (
@@ -364,7 +194,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
               options={{
-                min: 0, // _.toNumber(selectedHat.currentSupply),
+                min: _.toNumber(selectedHat?.currentSupply),
                 validate: {
                   maxWearers: (v) =>
                     !_.gt(
@@ -379,7 +209,7 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           </FormRowWrapper>
         )}
         <Flex justify='space-between' align='flex-end'>
-          <Stack gap={0} maxW='60%'>
+          <Stack gap={0}>
             <HStack>
               <Text size='sm' textTransform='uppercase'>
                 New Wearer Addresses
@@ -398,145 +228,11 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
           )}
         </Flex>
         <VStack borderRadius={8} alignItems='start' spacing={3}>
-          {/* could be replaced with MultiAddressInput, but needs adjustments & additions */}
-          {localWearers.map(({ address, ens }, index) => (
-            <Stack key={address} w='full' spacing={1}>
-              <Flex align='center' w='full' justifyContent='space-between'>
-                <InputGroup flexGrow={1}>
-                  <InputLeftElement>
-                    <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
-                  </InputLeftElement>
-                  <ChakraInput
-                    value={ens !== '' ? ens : address}
-                    readOnly
-                    w='calc(100% - 2rem)'
-                  />
-                </InputGroup>
-                <IconButton
-                  type='button'
-                  onClick={() => handleRemoveWearer(index)}
-                  icon={<FaRegTrashAlt />}
-                  aria-label='Remove'
-                  bg='transparent'
-                  border='1px solid #d6d6d6'
-                  w={10}
-                />
-              </Flex>
-
-              {ens && (
-                <Text size='sm' variant='gray'>
-                  {address}
-                </Text>
-              )}
-            </Stack>
-          ))}
-          <Flex w='full' direction='column' gap={1}>
-            <AddressInput
-              name='currentAddress'
-              localForm={form}
-              showResolvedAddress={Boolean(currentResolvedAddress)}
-              isDisabled={wouldExceedMaxSupply}
-              resolvedAddress={String(currentResolvedAddress)}
-            />
-
-            {currentResolvedAddress && !isInGoodStanding && (
-              <HStack align='center' spacing={1}>
-                <Icon as={FaInfoCircle} color='red.500' />
-                <Text size='sm' color='red.500'>
-                  This address was set as in bad standing
-                </Text>
-              </HStack>
-            )}
-
-            {isAddressAlreadyAdded && (
-              <HStack align='center' spacing={1}>
-                <Icon as={FaInfoCircle} color='red.500' />
-                <Text size='sm' color='red.500'>
-                  This address is already (pending) wearing this hat
-                </Text>
-              </HStack>
-            )}
-          </Flex>
-
-          {typeof isEligible === 'boolean' && !isEligible && (
-            <HStack spacing={1}>
-              <Icon as={FaInfoCircle} color='red.500' />
-              <Text size='sm' color='red.500'>
-                This address is not eligible to wear this hat
-              </Text>
-            </HStack>
-          )}
-
-          {wouldExceedMaxSupply && (
-            <Text size='sm' color='yellow.500'>
-              Max supply reached
-            </Text>
-          )}
-
-          <HStack>
-            <Tooltip label={toolTip} shouldWrapChildren>
-              <Button
-                isDisabled={
-                  disableAddWearer ||
-                  !isEligible ||
-                  isLoadingIsEligible ||
-                  isLoadingMintHat ||
-                  isLoadingBatchMintHats ||
-                  !isInGoodStanding ||
-                  _.includes(
-                    currentWearerList,
-                    _.toLower(currentResolvedAddress),
-                  )
-                }
-                onClick={handleAddWearer}
-                aria-label='Add Another Wallet'
-                variant='outlineMatch'
-                colorScheme='gray.500'
-              >
-                <HStack>
-                  <Icon as={BsPersonBadge} w={4} h={4} />
-                  <Text>Add Another Wallet</Text>
-                </HStack>
-              </Button>
-            </Tooltip>
-            <Box>
-              <Button
-                aria-label='Toggle CSV Input'
-                onClick={onToggle}
-                variant='outlineMatch'
-                colorScheme='blue.500'
-              >
-                <HStack>
-                  <Icon as={FaUpload} w={3} h={3} />
-                  <Text>Upload CSV</Text>
-                </HStack>
-              </Button>
-            </Box>
-          </HStack>
-          <Collapse in={isOpen}>
-            <FormControl id='csvFile'>
-              <Text
-                size='sm'
-                textTransform='uppercase'
-                fontWeight='medium'
-                mt={6}
-              >
-                Upload CSV
-              </Text>
-              <Text size='md' mt={1} variant='light' mb={4}>
-                The CSV file must only contain Ethereum addresses, one per line.
-                ENS is currently not supported. Any additional data will be
-                ignored.
-              </Text>
-              <DropZone
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                isFullWidth
-              />
-            </FormControl>
-          </Collapse>
+          <MultiAddressInput
+            name='wearers'
+            localForm={form}
+            holdOnAdd={!editMode}
+          />
         </VStack>
 
         {!editMode && (
@@ -547,17 +243,15 @@ const HatWearerForm = ({ localForm }: { localForm?: UseFormReturn<any> }) => {
               colorScheme='blue'
               isDisabled={
                 (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
-                (currentResolvedAddress &&
-                  isAddress(currentResolvedAddress) &&
-                  !isInGoodStanding) ||
-                isLoadingIsEligible ||
                 isLoadingMintHat ||
-                isLoadingBatchMintHats
+                isLoadingBatchMintHats ||
+                !!errors?.[`wearers-currentAddress`]
+              }
+              leftIcon={
+                <Icon as={BoxArrowUpRightIn} boxSize={4} alt='Mint' mr={2} />
               }
             >
-              <Icon as={BoxArrowUpRightIn} boxSize={4} alt='Mint' mr={2} /> Mint
-              Hat
-              {localWearers.length > 0 && 's'}
+              Mint Hat{_.size(localWearers) > 0 && 's'}
             </Button>
           </Flex>
         )}

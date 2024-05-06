@@ -1,10 +1,22 @@
-import { Box, FormControl, Icon, Text } from '@chakra-ui/react';
+import { Icon, Stack, Text } from '@chakra-ui/react';
+// import _ from 'lodash';
 import React, { ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaCheck } from 'react-icons/fa';
 
+// import { isAddress } from 'viem';
 import Input from './Input';
+
+// const defaultOptions = {
+//   validate: {
+//     isAddress: (value: string) => {
+//       if (!isAddress(value) && _.endsWith(value, '.eth'))
+//         return 'Invalid address';
+//       return true;
+//     },
+//   },
+// };
 
 type AddressInputProps = {
   name: string;
@@ -34,11 +46,11 @@ const AddressInput: React.FC<AddressInputProps> = ({
   isDisabled,
   resolvedAddress,
   placeholder = 'Enter Wallet Address (0x…) or ENS (.eth)',
-  options = {},
+  options = {}, // { ...defaultOptions },
   onChange,
-}) => (
-  <FormControl>
-    <Box>
+}) => {
+  return (
+    <Stack spacing='2px' w='100%'>
       <Input
         name={name}
         label={label}
@@ -59,8 +71,8 @@ const AddressInput: React.FC<AddressInputProps> = ({
           Resolved address: {resolvedAddress}
         </Text>
       )}
-    </Box>
-  </FormControl>
-);
+    </Stack>
+  );
+};
 
 export default AddressInput;
