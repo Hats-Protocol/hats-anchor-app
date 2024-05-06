@@ -155,10 +155,9 @@ export const processModule = ({
     ...(type === MODULE_TYPES.toggle && toggleValues),
   };
   // remove current hat from stared data
-  const updateStoredData = storedData?.splice(
-    _.findIndex(storedData, { id: _.get(selectedHat, 'id') }),
-    1,
-  );
+  const updateStoredData = _.reject(storedData, {
+    id: _.get(selectedHat, 'id'),
+  });
 
   // return stored data with updated hat
   return _.flatten(_.concat(updateStoredData, [updatedHat]));

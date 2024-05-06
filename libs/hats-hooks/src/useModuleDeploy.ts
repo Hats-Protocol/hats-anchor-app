@@ -94,7 +94,7 @@ const useModuleDeploy = ({
       selectedHat?.detailsObject?.data?.name
     })`;
 
-  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck({
+  const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
     selectedHat,
     onchainHats,
@@ -159,20 +159,8 @@ const useModuleDeploy = ({
             'newInstance',
             _.get(localData, 'newInstances[0]'),
           );
+
           if (moduleAddress && selectedModuleDetails) {
-            let hatterHats: Partial<FormData>[] = [];
-            if (
-              instanceAddress &&
-              isPermissionlesslyClaimable === 'Yes' &&
-              !hatterIsAdmin
-            ) {
-              hatterHats = processClaimsHatter({
-                claimsHatterAddress: instanceAddress,
-                storedData,
-                adminHat: adminHatData,
-                incrementWearers,
-              });
-            }
             let type = MODULE_TYPES.eligibility;
             if (selectedModuleDetails.type.toggle) {
               type = MODULE_TYPES.toggle;
@@ -183,17 +171,11 @@ const useModuleDeploy = ({
               selectedHat,
               type,
             });
-            const hatIds = _.uniq(
-              _.map(_.concat(moduleHats, hatterHats), 'id'),
-            );
+            const hatIds = _.uniq(_.map(moduleHats, 'id'));
             const updatedHats: any[] = _.map(
               hatIds,
               (id: Hex) =>
-                _.merge(
-                  {},
-                  _.find(hatterHats, { id }),
-                  _.find(moduleHats, { id }),
-                ) as Partial<FormData>,
+                _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
             );
             setStoredData?.(updatedHats);
             toast.success({
@@ -294,8 +276,6 @@ const useModuleDeploy = ({
       instanceAddress,
       hatTitle,
       queryClient,
-      hatterIsAdmin,
-      isPermissionlesslyClaimable,
     ],
   );
 
