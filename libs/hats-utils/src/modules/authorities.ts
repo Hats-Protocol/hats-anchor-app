@@ -82,10 +82,11 @@ const mapModuleAuthority = ({
     moduleInfo?.customRoles,
     (role: Role) => role.id === authorityKey,
   );
+  if (!matchingRole) return [];
   const matchingFunctions = _.filter(
     moduleInfo?.writeFunctions,
     (func: AppWriteFunction) => _.includes(func.roles, matchingRole?.id),
-  );
+  ) as AppWriteFunction[];
 
   let description: string = '';
   if (_.isArray(moduleInfo?.details)) {
@@ -109,7 +110,7 @@ const mapModuleAuthority = ({
           ...func,
           primary: true,
         }),
-      );
+      ) as unknown as AppWriteFunction[];
       authorities.push(
         populateModuleAuthority({
           role: matchingRole,
@@ -180,7 +181,7 @@ const mapModuleAuthorities = ({
       if (!moduleInfo || !hatInfo) return null; // TODO handle hats outside the current tree!
       return mapModuleAuthority({ authorityKey, moduleInfo, hatInfo });
     }),
-  );
+  ) as Authority[];
 
 export function populateModulesAuthorities({
   hatAuthorities,
