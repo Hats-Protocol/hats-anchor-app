@@ -22,7 +22,7 @@ import { useSelectedHat } from 'contexts';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -36,6 +36,12 @@ import { DropZone } from '../atoms';
 import AddressInput from './AddressInput';
 
 // TODO add upload input/dropzone here
+
+const defaultFieldOptions = {
+  shouldDirty: false,
+  shouldValidate: false,
+  shouldTouch: false,
+};
 
 interface MultiAddressInputProps {
   name: string;
@@ -55,17 +61,16 @@ const MultiAddressInput = ({
   placeholder,
   holdOnAdd,
 }: MultiAddressInputProps) => {
-  const { setValue, watch, control, setError, formState } = _.pick(localForm, [
-    'setValue',
-    'watch',
-    'control',
-    'setError',
-    'formState',
-  ]);
+  const { setValue, watch, control, setError, formState, clearErrors } = _.pick(
+    localForm,
+    ['setValue', 'watch', 'control', 'setError', 'formState', 'clearErrors'],
+  );
+  const currentWearerList = useRef([] as Hex[]);
   const { errors } = _.pick(formState, ['errors']);
   const currentInput = watch?.(`${name}-currentAddress`) as Hex | string;
   const currentResolvedAddress = watch?.(`${name}-currentAddress-resolved`);
-
+  const currentMaxSupply = watch?.('maxSupply');
+  const isCancelled = useRef(false);
   const { selectedHat, chainId } = useSelectedHat();
   const { isOpen: collapseIsOpen, onToggle: toggleCollapse } = useDisclosure();
   const { fields, append, remove } = useFieldArray({
@@ -79,8 +84,10 @@ const MultiAddressInput = ({
     [selectedHat],
   );
   const maxSupply = useMemo(
-    () => _.toNumber(_.get(selectedHat, 'maxSupply')),
-    [selectedHat],
+    () =>
+      _.toNumber(currentMaxSupply) ||
+      _.toNumber(_.get(selectedHat, 'maxSupply')),
+    [selectedHat, currentMaxSupply],
   );
   const currentWearerIds = useMemo(
     () =>
@@ -90,11 +97,27 @@ const MultiAddressInput = ({
     [selectedHat],
   ); // TODO handle more than 100 wearers
 
-  const currentWearerList = _.map(fields, ({ address }: { address: Hex }) =>
+  currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) =>
     _.toLower(address),
   ) as unknown as Hex[];
   const wouldExceedMaxSupply =
     _.size(currentWearerList) + 1 + currentSupply > maxSupply;
+
+  // use callback to ensure `append` function is only called once
+  const updateWearerList = useCallback(
+    ({ address, ens }: { address: Hex; ens?: string }) => {
+      if (isCancelled.current) return;
+      if (ens) {
+        append({ address, ens: ens || '' });
+      } else {
+        append({ address: currentInput, ens: '' });
+      }
+      setValue?.(`${name}-currentAddress`, undefined, defaultFieldOptions);
+      clearErrors?.(`${name}-currentAddress`);
+      isCancelled.current = true;
+    },
+    [append, clearErrors, currentInput, name, setValue],
+  );
 
   useEffect(() => {
     const checkAddressEligibility = async () => {
@@ -107,10 +130,11 @@ const MultiAddressInput = ({
       }
 
       if (!isAddress(currentInput) && !ensAddress) return;
-      const localAddress = _.toLower(ensAddress) || _.toLower(currentInput);
+      const localAddress = (_.toLower(ensAddress) ||
+        _.toLower(currentInput)) as Hex;
 
-      // check additional eligibility criteria, skip if not hat provided (module form)
-      if (_.includes(currentWearerList, localAddress)) {
+      // check if address is already in current wearer list
+      if (_.includes(currentWearerList.current, localAddress)) {
         // TODO message and type not getting attached when currentInput is an address
         setError?.(`${name}-currentAddress`, {
           type: 'custom',
@@ -119,6 +143,7 @@ const MultiAddressInput = ({
         return;
       }
 
+      // check if address is already in the local wearer list
       const isInWearerList = _.includes(
         currentWearerIds,
         _.toLower(localAddress),
@@ -132,6 +157,7 @@ const MultiAddressInput = ({
       }
 
       if (chainId && selectedHat) {
+        // check eligibility and standing of potential wearer
         const viemClient = viemPublicClient(chainId);
 
         const promises = [
@@ -153,6 +179,7 @@ const MultiAddressInput = ({
         const result = await Promise.all(promises);
         const [isInGoodStanding, isEligible] = result;
 
+        // set error if not in good standing
         if (_.isBoolean(isInGoodStanding) && !isInGoodStanding) {
           setError?.(`${name}-currentAddress`, {
             type: 'custom',
@@ -161,6 +188,7 @@ const MultiAddressInput = ({
           return;
         }
 
+        // set error if ineligible
         if (_.isBoolean(isEligible) && !isEligible) {
           setError?.(`${name}-currentAddress`, {
             type: 'custom',
@@ -176,28 +204,41 @@ const MultiAddressInput = ({
         return;
       }
 
-      if (isAddress(currentInput)) {
-        append({ address: currentInput, ens: '' });
-        setValue?.(`${name}-currentAddress`, undefined);
-        setError?.(`${name}-currentAddress`, {});
+      if (_.endsWith(currentInput, '.eth')) {
+        // add to list if ENS resolved
+        updateWearerList({ address: localAddress, ens: currentInput });
         return;
       }
 
-      append({ address: ensAddress, ens: currentInput });
-      setValue?.(`${name}-currentAddress`, undefined);
-      setError?.(`${name}-currentAddress`, {});
+      // fallback to address only
+      updateWearerList({ address: localAddress });
     };
 
-    // TODO can we set an error after input, if invalid? but not mess with the validation errors
-    if (!isAddress(currentInput) && !_.endsWith(currentInput, '.eth')) return;
-    if (errors?.[`${name}-currentAddress`] || currentResolvedAddress) return;
+    if (
+      (!isAddress(currentInput) && !_.endsWith(currentInput, '.eth')) ||
+      errors?.[`${name}-currentAddress`] ||
+      currentResolvedAddress ||
+      !currentWearerList ||
+      !currentWearerIds ||
+      _.isNaN(currentSupply) ||
+      _.isNaN(maxSupply)
+    ) {
+      isCancelled.current = false;
+
+      return undefined;
+    }
+
     checkAddressEligibility();
+
+    return () => {
+      isCancelled.current = true;
+    };
 
     // intentionally omitting 'append' and 'setValue' from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentInput,
-    currentWearerList,
+    currentWearerList.current,
     currentSupply,
     currentWearerIds,
     maxSupply,
@@ -208,10 +249,12 @@ const MultiAddressInput = ({
   useEffect(() => {
     // clear error after input change
     if (errors?.[`${name}-currentAddress`]) {
-      setError?.(`${name}-currentAddress`, {});
+      clearErrors?.(`${name}-currentAddress`);
+      isCancelled.current = false;
     }
     if (currentResolvedAddress) {
       setValue?.(`${name}-currentAddress-resolved`, undefined);
+      isCancelled.current = false;
     }
     // intentionally omitting 'errors' and 'setError' from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,10 +324,10 @@ const MultiAddressInput = ({
         });
       }
 
-      setValue?.('wearers', [...currentWearerList, ...newWearers]);
+      setValue?.('wearers', [...currentWearerList.current, ...newWearers]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [chainId, currentWearerList, selectedHat],
+    [chainId, currentWearerList.current, selectedHat],
   );
 
   // TODO handle csv upload component
@@ -371,7 +414,7 @@ const MultiAddressInput = ({
                     !!errors?.[`${name}-currentAddress`] ||
                     !currentResolvedAddress ||
                     _.includes(
-                      currentWearerList,
+                      currentWearerList.current,
                       _.toLower(currentResolvedAddress),
                     )
                   }
