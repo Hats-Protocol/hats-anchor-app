@@ -24,8 +24,8 @@ importers:
         specifier: ^0.0.5
         version: 0.0.5(viem@1.21.4)
       '@hatsprotocol/hsg-sdk':
-        specifier: ^0.0.12
-        version: 0.0.12(viem@1.21.4)
+        specifier: ^0.0.13
+        version: 0.0.13(viem@1.21.4)
       '@hatsprotocol/modules-sdk':
         specifier: ^0.15.2
         version: 0.15.2(viem@1.21.4)
@@ -2835,8 +2835,8 @@ packages:
       viem: 1.21.4(typescript@5.4.5)
     dev: false
 
-  /@hatsprotocol/hsg-sdk@0.0.12(viem@1.21.4):
-    resolution: {integrity: sha512-noRGvqkNOy7NjxYwQpC/+42qoZBFyB+iPt60b6kB6ILq1qG2R/2wXjr88srEQDx+tenYMf5oKc/HIIlF71G3cQ==}
+  /@hatsprotocol/hsg-sdk@0.0.13(viem@1.21.4):
+    resolution: {integrity: sha512-BZcx5Sx7tJcJb3rKQNryweMmQNvQe7sanAxfJhEB1eiGWnKsfHe1ZyEvxHXVRE2u5glVsQnvgbK+7c1c8gFw2Q==}
     peerDependencies:
       viem: ^2.0.0 || ^1.11.0
     dependencies:
