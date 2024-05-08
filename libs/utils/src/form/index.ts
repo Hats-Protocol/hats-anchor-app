@@ -695,7 +695,14 @@ export const removeAndHandleSiblingsOrgChart = (hats: AppHat[], hatId: Hex) => {
   return _.concat(filterSiblings, _.compact(updateSiblings));
 };
 
-const excludeKeys = ['id', 'parentId', 'adminId', 'imageUri'];
+const excludeKeys = [
+  'id',
+  'parentId',
+  'adminId',
+  'imageUri',
+  'eligibilityInput',
+  'toggleInput',
+];
 
 // get dirty fields
 export const getDirtyFields = (
