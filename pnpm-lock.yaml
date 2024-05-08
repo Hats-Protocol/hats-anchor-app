@@ -24,8 +24,8 @@ importers:
         specifier: ^0.0.5
         version: 0.0.5(viem@1.21.4)
       '@hatsprotocol/hsg-sdk':
-        specifier: ^0.0.11
-        version: 0.0.11(viem@1.21.4)
+        specifier: ^0.0.12
+        version: 0.0.12(viem@1.21.4)
       '@hatsprotocol/modules-sdk':
         specifier: ^0.15.2
         version: 0.15.2(viem@1.21.4)
@@ -2835,13 +2835,13 @@ packages:
       viem: 1.21.4(typescript@5.4.5)
     dev: false
 
-  /@hatsprotocol/hsg-sdk@0.0.11(viem@1.21.4):
-    resolution: {integrity: sha512-voUbMDTjsDdbZsnmaHyu6YMr4rweVdqR6ciqckncDP6gEHarT4xcNtotApjLPpRw3kjUCZCxXU0o/hKzNZNWoA==}
+  /@hatsprotocol/hsg-sdk@0.0.12(viem@1.21.4):
+    resolution: {integrity: sha512-noRGvqkNOy7NjxYwQpC/+42qoZBFyB+iPt60b6kB6ILq1qG2R/2wXjr88srEQDx+tenYMf5oKc/HIIlF71G3cQ==}
     peerDependencies:
-      viem: ^2.0.0
+      viem: ^2.0.0 || ^1.11.0
     dependencies:
       viem: 1.21.4(typescript@5.4.5)
-      zod: 3.23.4
+      zod: 3.23.7
     dev: false
 
   /@hatsprotocol/modules-sdk@0.15.2(viem@1.21.4):
@@ -2874,7 +2874,7 @@ packages:
     dependencies:
       graphql: 16.8.1
       graphql-request: 6.1.0(graphql@16.8.1)
-      zod: 3.23.4
+      zod: 3.23.7
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -17080,6 +17080,10 @@ packages:
 
   /zod@3.23.4:
     resolution: {integrity: sha512-/AtWOKbBgjzEYYQRNfoGKHObgfAZag6qUJX1VbHo2PRBgS+wfWagEY2mizjfyAPcGesrJOcx/wcl0L9WnVrHFw==}
+    dev: false
+
+  /zod@3.23.7:
+    resolution: {integrity: sha512-NBeIoqbtOiUMomACV/y+V3Qfs9+Okr18vR5c/5pHClPpufWOrsx8TENboDPe265lFdfewX2yBtNTLPvnmCxwog==}
     dev: false
 
   /zustand@4.5.2(@types/react@18.2.33)(react@18.2.0):
