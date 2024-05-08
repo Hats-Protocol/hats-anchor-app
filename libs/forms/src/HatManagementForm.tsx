@@ -82,7 +82,7 @@ const HatManagementForm = ({
 
   const items = watch?.(formName);
   const isActionManual = watch?.(radioBoxConfig.name);
-  const moduleAddress = getValues?.(_.toLower(title));
+  const controllerInput = getValues?.(`${_.toLower(title)}Input`);
 
   const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
     'extendedEligibility',
@@ -99,7 +99,7 @@ const HatManagementForm = ({
     actionResolvedAddress && actionResolvedAddress !== extendedController?.id;
 
   const { details: moduleDetails } = useModuleDetails({
-    address: moduleAddress,
+    address: controllerInput,
     chainId,
   });
   const { data: contractData } = useContractData({
@@ -172,7 +172,7 @@ const HatManagementForm = ({
           <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <Stack>
             <AddressInput
-              name={_.toLower(title)}
+              name={`${_.toLower(title)}Input`}
               label={`${inputConfig.label} ${
                 isActionManual === TRIGGER_OPTIONS.MANUALLY
                   ? 'ADDRESS'
