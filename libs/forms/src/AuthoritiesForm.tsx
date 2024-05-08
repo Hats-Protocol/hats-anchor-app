@@ -37,7 +37,7 @@ import { Hex } from 'viem';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
 
-const AUTHORITY_NAME_LENGTH = 40;
+const AUTHORITY_NAME_LENGTH = 60;
 
 interface AuthoritiesFormListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -6,7 +6,6 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
-    // TODO - Set strict to true
     "strict": false
   },
   "references": [
@@ -21,6 +20,5 @@
     { "path": "../ui/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["./**/*.ts", "./**/*.tsx", "../types/src/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

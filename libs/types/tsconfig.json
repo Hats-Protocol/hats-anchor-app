@@ -7,7 +7,6 @@
     "declarationMap": true,
     "strict": true
   },
-  "references": [],
-  "include": ["./**/*.ts", "../types/src/*.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

@@ -23,6 +23,7 @@ import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
+import { catchEnterKey } from 'utils';
 import { useAccount } from 'wagmi';
 
 // TODO errors aren't being bubbled up to formState for some reason
@@ -178,6 +179,7 @@ const Input = ({
             {...register(name, options)}
             onChange={handleChange}
             onPaste={handlePaste}
+            onKeyDown={catchEnterKey} // prevent form submission on enter
             {...props}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
