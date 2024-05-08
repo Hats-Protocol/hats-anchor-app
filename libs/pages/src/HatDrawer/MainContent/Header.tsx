@@ -1,13 +1,13 @@
 import {
   Badge,
   Box,
+  Button,
   Flex,
   Heading,
   HStack,
   Icon,
   Image,
   Stack,
-  Text,
   Tooltip,
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
@@ -30,6 +30,7 @@ const Header = () => {
   const { onCopy } = useClipboard(selectedHat?.id, {
     toastData: {
       title: 'Successfully copied hat ID to clipboard',
+      status: 'info',
     },
   });
   const { isMobile } = useMediaStyles();
@@ -110,17 +111,17 @@ const Header = () => {
               </Heading>
             </Tooltip>
 
-            <HStack>
-              <Text color='blue.500'>
-                {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
-              </Text>
-              <Icon
-                as={CopyHash}
-                color='blue.500'
-                cursor='pointer'
-                onClick={onCopy}
-              />
-            </HStack>
+            <Button
+              size='xs'
+              variant='ghost'
+              colorScheme='blue'
+              onClick={onCopy}
+              rightIcon={
+                <Icon as={CopyHash} color='blue.500' cursor='pointer' />
+              }
+            >
+              #{hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+            </Button>
           </Flex>
         </HStack>
         {description && (

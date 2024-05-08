@@ -4,11 +4,8 @@ import { ToastProps } from 'types';
 
 import useToast from './useToast';
 
-type ToastType = 'success' | 'error' | 'warning' | 'info';
-
 interface UseClipboardOptions {
   toastData?: ToastProps;
-  toastType?: ToastType; // success is default so is optional
 }
 
 const useClipboard = (value: string, options?: UseClipboardOptions) => {
@@ -16,18 +13,18 @@ const useClipboard = (value: string, options?: UseClipboardOptions) => {
   const toast = useToast();
 
   const { onCopy } = _.pick(fullReturn, ['onCopy']);
-  const { toastData, toastType } = _.pick(options, ['toastData', 'toastType']);
+  const { toastData } = _.pick(options, ['toastData']);
+  const { status } = _.pick(toastData, ['status']);
 
   const handleCopy = () => {
     onCopy();
-    toast[(toastType as ToastType) || 'success'](
-      toastData || { title: 'Copied to clipboard' },
-    );
+    toast[status || 'success'](toastData || { title: 'Copied to clipboard' });
   };
 
   return {
     ...fullReturn,
-    handleCopy,
+    chakraOnCopy: onCopy,
+    onCopy: handleCopy,
   };
 };
 
