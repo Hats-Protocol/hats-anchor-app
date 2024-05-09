@@ -95,7 +95,7 @@ const MultiAddressInput = ({
         _.toLower(h.id),
       ) as unknown as Hex[],
     [selectedHat],
-  ); // TODO handle more than 100 wearers
+  ); // TODO handle more than N wearers
 
   currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) =>
     _.toLower(address),

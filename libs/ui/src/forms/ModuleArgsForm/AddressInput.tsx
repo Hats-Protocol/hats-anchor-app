@@ -2,19 +2,15 @@ import { Stack, Text } from '@chakra-ui/react';
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { useTreeForm } from 'contexts';
-import { useDebounce } from 'hooks';
 import _ from 'lodash';
-import { ChangeEvent, ReactNode, useEffect } from 'react';
+import { ChangeEvent, ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { explorerUrl } from 'utils';
 import { Hex, isAddress } from 'viem';
-import { useEnsAddress, useToken } from 'wagmi';
+import { useToken } from 'wagmi';
 
 import { ChakraNextLink } from '../../atoms';
 import { AddressInput, Input } from '..';
-
-const isEns = (value: string) =>
-  value ? _.toString(value).endsWith('.eth') : false;
 
 const TOKEN_TYPES = ['erc20', 'token'];
 
@@ -30,8 +26,6 @@ const ModuleAddressInput = ({
   const { setValue, watch } = localForm;
   const { chainId } = useTreeForm();
 
-  const newWearer = useDebounce<string>(watch(arg.name, null));
-
   const handleChangeAddress = (
     e: ChangeEvent<HTMLInputElement>,
     name: string,
@@ -39,21 +33,6 @@ const ModuleAddressInput = ({
     const trimmedValue = e.target.value.trim();
     setValue(name, trimmedValue, { shouldDirty: true });
   };
-
-  const { data: newWearerResolvedAddress } = useEnsAddress({
-    name: newWearer,
-    chainId: 1,
-    enabled: !!newWearer && isEns(newWearer),
-  });
-
-  const showNewResolvedAddress = newWearerResolvedAddress
-    ? newWearer !== newWearerResolvedAddress
-    : undefined;
-
-  useEffect(() => {
-    setValue(`${arg.name}-resolved`, newWearerResolvedAddress);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newWearerResolvedAddress, arg.name]);
 
   let tokenArgName = '';
   if (_.includes(TOKEN_TYPES, arg.displayType)) {
@@ -129,8 +108,6 @@ const ModuleAddressInput = ({
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
         subLabel={arg.description}
-        showResolvedAddress={showNewResolvedAddress}
-        resolvedAddress={String(newWearerResolvedAddress)}
         placeholder={
           Array.isArray(arg.example)
             ? (arg.example as string[]).join(', ')

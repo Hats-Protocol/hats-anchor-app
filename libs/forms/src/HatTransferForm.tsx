@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
 import { AddressInput } from 'ui';
 import { formatAddress } from 'utils';
-import { Hex, isAddress } from 'viem';
+import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 const HatTransferForm = ({
@@ -80,9 +80,6 @@ const HatTransferForm = ({
   const isDisabled =
     !writeAsync || isLoading || isLoadingNewWearerResolvedAddress;
 
-  const showNewResolvedAddress =
-    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
@@ -103,8 +100,6 @@ const HatTransferForm = ({
           label='New Wearer Address'
           name='newWearer'
           localForm={localForm}
-          showResolvedAddress={showNewResolvedAddress as boolean}
-          resolvedAddress={newWearerResolvedAddress as Hex}
         />
         <Flex justify='flex-end'>
           <Tooltip label={prepareErrorMessage} isDisabled={!isDisabled}>
